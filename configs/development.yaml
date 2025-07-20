@@ -1,0 +1,29 @@
+# configs/development.yaml - Local development settings
+environment: development
+device: cuda  # Will fallback to cpu automatically if CUDA unavailable
+
+data:
+  cache_dir: "./data/cache"
+  batch_size: 16  # Smaller batches for local development
+  num_workers: 4
+
+models:
+  emotion_detection:
+    model_name: "microsoft/DialoGPT-medium"  # Lighter model for local testing
+    max_length: 512
+    learning_rate: 2e-5
+    
+  summarization:
+    model_name: "facebook/bart-base"  # Base model for local development
+    max_length: 512
+    min_length: 50
+    
+training:
+  mixed_precision: true  # Faster training with fp16
+  gradient_accumulation_steps: 4
+  max_epochs: 3  # Quick iterations locally
+  checkpoint_every: 500
+  
+logging:
+  level: DEBUG
+  wandb_project: "samo-dl-dev"
