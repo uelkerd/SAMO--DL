@@ -1,0 +1,19 @@
+{
+  "name": "samo-dl",
+  "version": "0.1.0",
+  "description": "SAMO Deep Learning Track Project",
+  "main": "index.js",
+  "scripts": {
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "db:setup": "bash scripts/database/init_db.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.9.1"
+  },
+  "devDependencies": {
+    "prisma": "^5.9.1"
+  }
+} 
