@@ -23,13 +23,13 @@ class TestAPIModels:
             "confidence": 0.85,
             "probability": 0.92
         }
-        
+
         # This test will need actual model import to work
         # result = EmotionResult(**valid_data)
         # assert result.emotion == "joy"
         # assert result.confidence == 0.85
         # assert result.probability == 0.92
-        
+
         # For now, just validate the test structure
         assert valid_data["emotion"] == "joy"
         assert 0.0 <= valid_data["confidence"] <= 1.0
@@ -42,7 +42,7 @@ class TestAPIModels:
             "confidence": 1.5,  # Invalid: > 1.0
             "probability": 0.92
         }
-        
+
         # Test validation logic
         assert invalid_data["confidence"] > 1.0  # This should be caught by validation
 
@@ -55,7 +55,7 @@ class TestAPIModels:
             "original_length": 150,
             "compression_ratio": 0.08
         }
-        
+
         assert len(valid_data["summary"]) > 0
         assert isinstance(valid_data["key_themes"], list)
         assert valid_data["word_count"] > 0
@@ -79,7 +79,7 @@ class TestAPIModels:
             "processing_time": 1.23,
             "timestamp": datetime.now().isoformat()
         }
-        
+
         assert len(valid_data["text"]) > 0
         assert len(valid_data["emotions"]) > 0
         assert valid_data["processing_time"] > 0
@@ -90,11 +90,11 @@ class TestAPIModels:
         # Test minimum length
         short_text = "Hi"
         assert len(short_text) >= 2  # Minimum viable input
-        
+
         # Test maximum length (e.g., 10,000 characters)
         long_text = "x" * 10001
         assert len(long_text) > 10000  # Should be rejected
-        
+
         # Test reasonable length
         normal_text = "This is a normal journal entry with reasonable length."
         assert 10 <= len(normal_text) <= 10000
@@ -102,12 +102,12 @@ class TestAPIModels:
     def test_audio_file_validation(self):
         """Test audio file validation for voice endpoints."""
         valid_extensions = ['.mp3', '.wav', '.m4a', '.flac', '.ogg']
-        
+
         # Test valid extensions
         for ext in valid_extensions:
             filename = f"audio{ext}"
             assert any(filename.endswith(e) for e in valid_extensions)
-        
+
         # Test invalid extension
         invalid_filename = "audio.txt"
         assert not any(invalid_filename.endswith(e) for e in valid_extensions)
@@ -115,10 +115,10 @@ class TestAPIModels:
     def test_confidence_threshold_validation(self):
         """Test confidence threshold validation."""
         valid_thresholds = [0.1, 0.5, 0.7, 0.9]
-        
+
         for threshold in valid_thresholds:
             assert 0.0 <= threshold <= 1.0
-        
+
         # Test invalid thresholds
         invalid_thresholds = [-0.1, 1.5, 2.0]
         for threshold in invalid_thresholds:
@@ -127,12 +127,12 @@ class TestAPIModels:
     def test_language_code_validation(self):
         """Test language code validation for voice processing."""
         valid_languages = ['en', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh']
-        
+
         # Test valid language codes
         for lang in valid_languages:
             assert len(lang) == 2
             assert lang.islower()
-        
+
         # Test invalid language codes
         invalid_languages = ['ENG', 'english', '123', 'x']
         for lang in invalid_languages:
@@ -143,17 +143,17 @@ class TestAPIModels:
         """Test API response format consistency."""
         # All successful responses should have these fields
         required_fields = ['status', 'data', 'processing_time', 'timestamp']
-        
+
         mock_response = {
             'status': 'success',
             'data': {},
             'processing_time': 1.23,
             'timestamp': datetime.now().isoformat()
         }
-        
+
         for field in required_fields:
             assert field in mock_response
-        
+
         assert mock_response['status'] in ['success', 'error']
         assert isinstance(mock_response['processing_time'], (int, float))
         assert mock_response['processing_time'] >= 0
@@ -169,8 +169,8 @@ class TestAPIModels:
             },
             'timestamp': datetime.now().isoformat()
         }
-        
+
         assert error_response['status'] == 'error'
         assert 'error' in error_response
         assert 'code' in error_response['error']
-        assert 'message' in error_response['error'] 
+        assert 'message' in error_response['error']

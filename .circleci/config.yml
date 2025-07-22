@@ -2,7 +2,7 @@ version: 2.1
 
 # ============================================================================
 # SAMO Deep Learning - CircleCI Pipeline Configuration
-# 
+#
 # 3-Stage Pipeline Design (following user's CI guidelines):
 # Stage 1 (<5min):  Fast feedback - linting, formatting, unit tests
 # Stage 2 (<15min): Integration tests, security scans, model validation
@@ -150,7 +150,7 @@ jobs:
   unit-tests:
     executor: python-ml
     steps:
-      - restore_dependencies  
+      - restore_dependencies
       - setup_python_env
       - cache_dependencies
       - run_unit_tests
@@ -262,14 +262,14 @@ jobs:
             import time
             from src.unified_ai_api import app
             from fastapi.testclient import TestClient
-            
+
             client = TestClient(app)
-            
+
             # Test emotion detection speed
             start = time.time()
             response = client.post('/analyze/journal', data={'text': 'I feel happy and excited today!'})
             duration = time.time() - start
-            
+
             assert response.status_code == 200
             assert duration < 2.0, f'API response too slow: {duration:.2f}s'
             print(f'✅ Emotion detection: {duration:.2f}s (<500ms target in production)')
@@ -296,14 +296,14 @@ jobs:
             python -c "
             import torch
             from src.models.emotion_detection.bert_classifier import BertEmotionClassifier
-            
+
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
             model = BertEmotionClassifier(num_emotions=28).to(device)
-            
+
             # Test forward pass
             dummy_input = torch.randn(2, 512, device=device).long()
             output = model(dummy_input)
-            
+
             print(f'✅ GPU forward pass successful on {device}')
             print(f'Output shape: {output.shape}')
             "
@@ -343,7 +343,7 @@ jobs:
 # ============================================================================
 workflows:
   version: 2
-  
+
   # Main CI/CD Pipeline
   samo-ci-cd:
     jobs:
@@ -351,40 +351,40 @@ workflows:
       - lint-and-format:
           filters:
             branches:
-              ignore: 
+              ignore:
                 - gh-pages
-      
+
       - unit-tests:
           filters:
             branches:
-              ignore: 
+              ignore:
                 - gh-pages
-      
-      # STAGE 2: Integration & Security (<15 minutes) 
+
+      # STAGE 2: Integration & Security (<15 minutes)
       - security-scan:
           requires:
             - lint-and-format
           filters:
             branches:
-              ignore: 
+              ignore:
                 - gh-pages
-      
+
       - integration-tests:
           requires:
             - unit-tests
           filters:
             branches:
-              ignore: 
+              ignore:
                 - gh-pages
-      
+
       - model-validation:
           requires:
             - unit-tests
           filters:
             branches:
-              ignore: 
+              ignore:
                 - gh-pages
-      
+
       # STAGE 3: Comprehensive Testing (<30 minutes)
       - e2e-tests:
           requires:
@@ -392,17 +392,17 @@ workflows:
             - model-validation
           filters:
             branches:
-              ignore: 
+              ignore:
                 - gh-pages
-      
+
       - performance-benchmarks:
           requires:
             - model-validation
           filters:
             branches:
-              ignore: 
+              ignore:
                 - gh-pages
-      
+
       # GPU tests (optional, only on GPU-enabled plans)
       - gpu-compatibility:
           requires:
@@ -413,7 +413,7 @@ workflows:
                 - main
                 - develop
                 - /^feature\/gpu-.*/
-      
+
       # Deployment (only on main branch)
       - build-and-deploy:
           requires:
@@ -422,7 +422,7 @@ workflows:
             - security-scan
           filters:
             branches:
-              only: 
+              only:
                 - main
 
   # Nightly Performance Testing
@@ -439,11 +439,11 @@ workflows:
 
 # ============================================================================
 # QUALITY GATES SUMMARY
-# 
+#
 # ✅ Code Quality: Ruff linting must pass
-# ✅ Security: Bandit scan must complete (warnings allowed) 
+# ✅ Security: Bandit scan must complete (warnings allowed)
 # ✅ Test Coverage: Minimum 70% coverage required
 # ✅ Performance: API responses <2s in CI, <500ms target for production
 # ✅ Model Validation: All AI models must load and perform inference
 # ✅ Integration: All API endpoints must respond correctly
-# ============================================================================ 
+# ============================================================================
