@@ -119,8 +119,11 @@ class EmotionDetectionTrainer:
 
         logger.info("Initialized EmotionDetectionTrainer")
 
-    def prepare_data(self) -> dict[str, any]:
+    def prepare_data(self, dev_mode: bool = True) -> dict[str, any]:
         """Prepare GoEmotions dataset for training.
+
+        Args:
+            dev_mode: If True, use smaller dataset for faster development
 
         Returns:
             Dictionary with prepared datasets and metadata
@@ -145,6 +148,29 @@ class EmotionDetectionTrainer:
         val_labels = datasets["validation"]["labels"]
         test_texts = datasets["test"]["text"]
         test_labels = datasets["test"]["labels"]
+
+        # DEVELOPMENT MODE: Use smaller dataset for faster iteration
+        if dev_mode:
+            logger.info("🔧 DEVELOPMENT MODE: Using 10% of dataset for faster training")
+            
+            # Sample 10% of training data
+            train_size = len(train_texts)
+            dev_size = int(train_size * 0.1)
+            indices = torch.randperm(train_size)[:dev_size]
+            train_texts = [train_texts[i] for i in indices]
+            train_labels = [train_labels[i] for i in indices]
+            
+            # Sample 20% of validation data
+            val_size = len(val_texts)
+            dev_val_size = int(val_size * 0.2)
+            val_indices = torch.randperm(val_size)[:dev_val_size]
+            val_texts = [val_texts[i] for i in val_indices]
+            val_labels = [val_labels[i] for i in val_indices]
+            
+            # Increase batch size for development
+            original_batch_size = self.batch_size
+            self.batch_size = min(64, self.batch_size * 4)
+            logger.info(f"🔧 DEVELOPMENT MODE: Using {len(train_texts)} training examples, batch_size={self.batch_size} (was {original_batch_size})")
 
         self.train_dataset = EmotionDataset(
             train_texts, train_labels, self.tokenizer, self.max_length
@@ -242,6 +268,10 @@ class EmotionDetectionTrainer:
                 "Epoch {epoch}: Applied progressive unfreezing", extra={"format_args": True}
             )
 
+        # Calculate validation frequency (every 500 batches or 20% of epoch)
+        val_frequency = max(500, num_batches // 5)
+        logger.info(f"🔧 Validation frequency: every {val_frequency} batches")
+
         for batch_idx, batch in enumerate(self.train_dataloader):
             # Move batch to device
             input_ids = batch["input_ids"].to(self.device)
@@ -277,6 +307,22 @@ class EmotionDetectionTrainer:
                     f"Epoch {epoch}, Batch {batch_idx + 1}/{num_batches}, "
                     f"Loss: {avg_loss:.4f}, LR: {self.scheduler.get_last_lr()[0]:.2e}"
                 )
+            
+            # Validate during training for early stopping
+            if (batch_idx + 1) % val_frequency == 0:
+                logger.info(f"🔍 Validating at batch {batch_idx + 1}...")
+                val_metrics = self.validate(epoch)
+                
+                # Check for early stopping
+                if self.should_stop_early():
+                    logger.info(f"🛑 Early stopping triggered at batch {batch_idx + 1}")
+                    return {
+                        "epoch": epoch,
+                        "train_loss": total_loss / (batch_idx + 1),
+                        "epoch_time": time.time() - start_time,
+                        "learning_rate": self.scheduler.get_last_lr()[0],
+                        "early_stopped": True
+                    }
 
         # Calculate epoch metrics
         epoch_time = time.time() - start_time
@@ -458,6 +504,7 @@ def train_emotion_detection_model(
     learning_rate: float = 2e-5,
     num_epochs: int = 3,
     device: str | None = None,
+    dev_mode: bool = True,  # Enable development mode by default
 ) -> dict[str, any]:
     """Convenient function to train emotion detection model with default settings.
 
@@ -473,6 +520,13 @@ def train_emotion_detection_model(
     Returns:
         Training results dictionary
     """
+    # Log development mode status
+    if dev_mode:
+        logger.info("🚀 DEVELOPMENT MODE ENABLED: Fast training with reduced dataset")
+        logger.info("🚀 Expected training time: 30-60 minutes instead of 9 hours")
+    else:
+        logger.info("🏭 PRODUCTION MODE: Full dataset training")
+    
     trainer = EmotionDetectionTrainer(
         model_name=model_name,
         cache_dir=cache_dir,
@@ -483,6 +537,9 @@ def train_emotion_detection_model(
         device=device,
         unfreeze_schedule=[2, 4],  # Progressive unfreezing at epochs 2 and 4
     )
+    
+    # Prepare data with development mode
+    trainer.prepare_data(dev_mode=dev_mode)
 
     return trainer.train()
 
