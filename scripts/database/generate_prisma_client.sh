@@ -18,4 +18,4 @@ fi
 # Generate Prisma client
 npx prisma generate
 
-echo "Prisma client generated successfully!" 
+echo "Prisma client generated successfully!"

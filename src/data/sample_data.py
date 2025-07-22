@@ -1,24 +1,47 @@
 import json
 import os
 import random
-import uuid
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-import numpy as np
 import pandas as pd
+
 
 # Sample topics to generate journal entries about
 TOPICS = [
-    "work", "family", "health", "exercise", "food", "travel",
-    "learning", "hobbies", "goals", "emotions", "relationships",
-    "finance", "home", "pets", "nature", "dreams", "reflection"
+    "work",
+    "family",
+    "health",
+    "exercise",
+    "food",
+    "travel",
+    "learning",
+    "hobbies",
+    "goals",
+    "emotions",
+    "relationships",
+    "finance",
+    "home",
+    "pets",
+    "nature",
+    "dreams",
+    "reflection",
 ]
 
 # Emotion categories for entries
 EMOTIONS = [
-    "happy", "sad", "anxious", "excited", "calm", "frustrated",
-    "hopeful", "tired", "grateful", "overwhelmed", "proud", "content"
+    "happy",
+    "sad",
+    "anxious",
+    "excited",
+    "calm",
+    "frustrated",
+    "hopeful",
+    "tired",
+    "grateful",
+    "overwhelmed",
+    "proud",
+    "content",
 ]
 
 # Templates for journal entry content
@@ -32,7 +55,7 @@ ENTRY_TEMPLATES = [
     "I'm {emotion} about my {topic} situation. {additional_sentence}",
     "When it comes to {topic}, I'm feeling {emotion}. {additional_sentence}",
     "My thoughts on {topic} today: {additional_sentence} I feel {emotion}.",
-    "Today's {topic} activities made me feel {emotion}. {additional_sentence}"
+    "Today's {topic} activities made me feel {emotion}. {additional_sentence}",
 ]
 
 # Additional sentences to add variety
@@ -56,7 +79,7 @@ ADDITIONAL_SENTENCES = [
     "I need to find more balance here.",
     "I'm proud of what I've accomplished so far.",
     "There's still much to learn and discover.",
-    "I'm being patient with the process."
+    "I'm being patient with the process.",
 ]
 
 # Title templates
@@ -75,24 +98,27 @@ TITLE_TEMPLATES = [
     "{emotion} about {topic}",
     "{topic} progress",
     "{topic} challenges and wins",
-    "My relationship with {topic}"
+    "My relationship with {topic}",
 ]
+
 
 def generate_title(topic: str, emotion: str) -> str:
     """Generate a journal entry title."""
     template = random.choice(TITLE_TEMPLATES)
     return template.format(topic=topic, emotion=emotion)
 
+
 def generate_content(topic: str, emotion: str) -> str:
     """Generate journal entry content."""
     template = random.choice(ENTRY_TEMPLATES)
     additional_sentence = random.choice(ADDITIONAL_SENTENCES)
-    return template.format(topic=topic, emotion=emotion, additional_sentence=additional_sentence)
+    return template.format(
+        topic=topic, emotion=emotion, additional_sentence=additional_sentence
+    )
+
 
 def generate_entry(
-    user_id: int,
-    created_at: datetime,
-    id_start: int = 1
+    user_id: int, created_at: datetime, id_start: int = 1
 ) -> dict[str, Any]:
     """Generate a single journal entry."""
     topic = random.choice(TOPICS)
@@ -107,14 +133,15 @@ def generate_entry(
         "updated_at": created_at,
         "is_private": random.choice([True, False]),
         "topic": topic,  # Additional metadata for testing
-        "emotion": emotion  # Additional metadata for testing
+        "emotion": emotion,  # Additional metadata for testing
     }
+
 
 def generate_journal_entries(
     num_entries: int = 100,
     num_users: int = 5,
     start_date: datetime | None = None,
-    end_date: datetime | None = None
+    end_date: datetime | None = None,
 ) -> list[dict[str, Any]]:
     """Generate a list of synthetic journal entries.
 
@@ -126,6 +153,7 @@ def generate_journal_entries(
 
     Returns:
         List of dictionaries containing journal entries
+
     """
     if start_date is None:
         start_date = datetime.now() - timedelta(days=60)
@@ -147,14 +175,15 @@ def generate_journal_entries(
         entry_date = entry_date.replace(
             hour=random.randint(7, 23),
             minute=random.randint(0, 59),
-            second=random.randint(0, 59)
+            second=random.randint(0, 59),
         )
 
         # Create the entry
-        entry = generate_entry(user_id, entry_date, id_start=i+1)
+        entry = generate_entry(user_id, entry_date, id_start=i + 1)
         entries.append(entry)
 
     return entries
+
 
 def save_entries_to_json(entries: list[dict[str, Any]], output_path: str) -> None:
     """Save generated entries to a JSON file.
@@ -162,6 +191,7 @@ def save_entries_to_json(entries: list[dict[str, Any]], output_path: str) -> Non
     Args:
         entries: List of entry dictionaries
         output_path: Path to save the JSON file
+
     """
     # Ensure output directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -177,7 +207,7 @@ def save_entries_to_json(entries: list[dict[str, Any]], output_path: str) -> Non
     with open(output_path, "w") as f:
         json.dump(serializable_entries, f, indent=2)
 
-    print(f"Saved {len(entries)} entries to {output_path}")
+
 
 def load_sample_entries(json_path: str) -> pd.DataFrame:
     """Load sample entries from JSON file.
@@ -187,6 +217,7 @@ def load_sample_entries(json_path: str) -> pd.DataFrame:
 
     Returns:
         DataFrame containing the entries
+
     """
     with open(json_path) as f:
         entries = json.load(f)
@@ -199,14 +230,16 @@ def load_sample_entries(json_path: str) -> pd.DataFrame:
 
     return df
 
+
 if __name__ == "__main__":
     # Generate 100 entries from 5 users over the past 60 days
     entries = generate_journal_entries(num_entries=100, num_users=5)
 
     # Save to data/raw directory
-    output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "raw")
+    output_dir = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "raw"
+    )
     os.makedirs(output_dir, exist_ok=True)
     output_path = os.path.join(output_dir, "sample_journal_entries.json")
 
     save_entries_to_json(entries, output_path)
-    print(f"Sample data generated at {output_path}")

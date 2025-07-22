@@ -18,7 +18,7 @@ if psql -d postgres -lqt | cut -d \| -f 1 | grep -qw "${DB_NAME}"; then
 else
     # Create database and user
     echo "Creating database ${DB_NAME} and user ${DB_USER}..."
-    
+
     # Create user if not exists
     psql -d postgres -c "DO \$\$
     BEGIN
@@ -27,10 +27,10 @@ else
         END IF;
     END
     \$\$;" || echo "User already exists or error creating user"
-    
+
     # Create database
     psql -d postgres -c "CREATE DATABASE ${DB_NAME} OWNER ${DB_USER};" || echo "Database already exists or error creating database"
-    
+
     echo "Database and user created."
 fi
 
@@ -42,4 +42,4 @@ psql -d ${DB_NAME} -c "CREATE EXTENSION IF NOT EXISTS vector;" || echo "Failed t
 echo "Applying database schema..."
 psql -d ${DB_NAME} -f "$(dirname "$0")/schema.sql"
 
-echo "Database setup complete!" 
+echo "Database setup complete!"

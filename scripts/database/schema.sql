@@ -101,4 +101,4 @@ EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER update_journal_entries_updated_at
 BEFORE UPDATE ON journal_entries
 FOR EACH ROW
-EXECUTE FUNCTION update_updated_at(); 
+EXECUTE FUNCTION update_updated_at();
