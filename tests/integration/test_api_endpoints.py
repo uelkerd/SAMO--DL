@@ -132,8 +132,7 @@ class TestAPIEndpoints:
 
         # Test malformed request
         response = api_client.post("/analyze/journal",
-                                 data={"invalid": "data"},
-                                 headers={"Content-Type": "application/json"})
+                                 data={"invalid": "data"})
         assert response.status_code == 422
 
     def test_concurrent_requests(self, api_client):
