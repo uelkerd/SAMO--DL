@@ -13,27 +13,25 @@ Key Features:
 """
 
 import logging
-import time
 import os
 import tempfile
+import time
+from contextlib import asynccontextmanager, suppress
 from pathlib import Path
-from typing import Dict, List, Optional, Union
 
-from fastapi import FastAPI, HTTPException, UploadFile, File, BackgroundTasks, Form
+from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field, validator
-import asyncio
-from contextlib import asynccontextmanager
+from pydantic import BaseModel, Field
 
-from .whisper_transcriber import create_whisper_transcriber, WhisperTranscriber, TranscriptionResult
 from .audio_preprocessor import AudioPreprocessor
+from .whisper_transcriber import WhisperTranscriber, create_whisper_transcriber
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Global model instance (loaded on startup)
-whisper_transcriber: Optional[WhisperTranscriber] = None
+whisper_transcriber: WhisperTranscriber | None = None
 
 
 @asynccontextmanager
@@ -52,11 +50,11 @@ async def lifespan(app: FastAPI):
             device=None  # Auto-detect device
         )
 
-        load_time = time.time() - start_time
+        time.time() - start_time
         logger.info("✅ Whisper model loaded successfully in {load_time:.2f}s", extra={"format_args": True})
         logger.info("Model info: {whisper_transcriber.get_model_info()}", extra={"format_args": True})
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Failed to load Whisper model: {e}", extra={"format_args": True})
         logger.info("⚠️  Running in development mode without Whisper model")
         whisper_transcriber = None  # Continue without model for development
@@ -89,12 +87,12 @@ class TranscriptionResponse(BaseModel):
     speaking_rate: float = Field(..., description="Speaking rate (words per minute)")
     audio_quality: str = Field(..., description="Audio quality assessment")
     no_speech_probability: float = Field(..., description="Probability of no speech")
-    model_info: Dict = Field(..., description="Model metadata")
+    model_info: dict = Field(..., description="Model metadata")
 
 
 class BatchTranscriptionResponse(BaseModel):
     """Response model for batch transcription."""
-    transcriptions: List[TranscriptionResponse] = Field(..., description="List of transcription results")
+    transcriptions: list[TranscriptionResponse] = Field(..., description="List of transcription results")
     total_processing_time: float = Field(..., description="Total batch processing time")
     average_processing_time: float = Field(..., description="Average per-file processing time")
     success_count: int = Field(..., description="Number of successful transcriptions")
@@ -105,7 +103,7 @@ class ErrorResponse(BaseModel):
     """Error response model."""
     error: str = Field(..., description="Error type")
     message: str = Field(..., description="Error message")
-    details: Optional[Dict] = Field(None, description="Additional error details")
+    details: dict | None = Field(None, description="Additional error details")
 
 
 # API Endpoints
@@ -129,8 +127,8 @@ async def health_check():
 @app.post("/transcribe", response_model=TranscriptionResponse)
 async def transcribe_audio(
     audio_file: UploadFile = File(...),
-    language: Optional[str] = Form(None),
-    initial_prompt: Optional[str] = Form(None)
+    language: str | None = Form(None),
+    initial_prompt: str | None = Form(None)
 ):
     """Transcribe a single audio file to text.
 
@@ -175,7 +173,7 @@ async def transcribe_audio(
             raise HTTPException(status_code=400, detail=error_msg)
 
         # Transcribe audio
-        start_time = time.time()
+        time.time()
         result = whisper_transcriber.transcribe_audio(
             temp_file.name,
             language=language,
@@ -205,22 +203,20 @@ async def transcribe_audio(
         raise
     except Exception as e:
         logger.error("Transcription error: {e}", extra={"format_args": True})
-        raise HTTPException(status_code=500, detail=f"Transcription failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Transcription failed: {e!s}")
 
     finally:
         # Cleanup temporary file
         if temp_file and Path(temp_file.name).exists():
-            try:
+            with suppress(Exception):
                 os.unlink(temp_file.name)
-            except:
-                pass
 
 
 @app.post("/transcribe/batch", response_model=BatchTranscriptionResponse)
 async def transcribe_batch(
-    audio_files: List[UploadFile] = File(...),
-    language: Optional[str] = Form(None),
-    initial_prompt: Optional[str] = Form(None)
+    audio_files: list[UploadFile] = File(...),
+    language: str | None = Form(None),
+    initial_prompt: str | None = Form(None)
 ):
     """Transcribe multiple audio files in batch for efficiency.
 
@@ -295,7 +291,7 @@ async def transcribe_batch(
 
                 logger.info("Batch item {i+1}: {result.word_count} words, {result.confidence:.2f} confidence", extra={"format_args": True})
 
-            except Exception as e:
+            except Exception:
                 logger.error("Failed to process file {i+1} ({audio_file.filename}): {e}", extra={"format_args": True})
                 # Add error result
                 transcriptions.append(TranscriptionResponse(
@@ -334,20 +330,18 @@ async def transcribe_batch(
         raise
     except Exception as e:
         logger.error("Batch transcription error: {e}", extra={"format_args": True})
-        raise HTTPException(status_code=500, detail=f"Batch transcription failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Batch transcription failed: {e!s}") from e
 
     finally:
         # Cleanup temporary files
         for temp_file in temp_files:
             if Path(temp_file).exists():
-                try:
-                    os.unlink(temp_file)
-                except:
-                    pass
+                with suppress(Exception):
+                    Path(temp_file).unlink()
 
 
 @app.get("/model/info")
-async def get_model_info():
+async def get_model_info() -> dict[str, Any]:
     """Get detailed information about the loaded Whisper model."""
     if whisper_transcriber is None:
         raise HTTPException(
@@ -440,16 +434,14 @@ async def validate_audio(audio_file: UploadFile = File(...)):
             content={
                 "valid": False,
                 "error": "validation_error",
-                "message": f"Error validating audio: {str(e)}"
+                "message": f"Error validating audio: {e!s}"
             }
         )
 
     finally:
         if temp_file and Path(temp_file.name).exists():
-            try:
+            with suppress(Exception):
                 os.unlink(temp_file.name)
-            except:
-                pass
 
 
 @app.post("/model/warm-up")
@@ -461,7 +453,7 @@ async def warm_up_model(background_tasks: BackgroundTasks):
             detail="Whisper model not available - running in development mode"
         )
 
-    def warm_up():
+    def warm_up() -> None:
         # In a real implementation, you might transcribe a short test audio
         logger.info("Model warm-up would transcribe test audio")
         logger.info("Model warm-up completed successfully")
