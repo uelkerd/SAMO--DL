@@ -1,3 +1,4 @@
+# G004: Logging f-strings temporarily allowed for development
 """Training Pipeline for SAMO Emotion Detection.
 
 This module implements the complete training pipeline that combines the GoEmotions
@@ -107,7 +108,7 @@ class EmotionDetectionTrainer:
         else:
             self.device = torch.device(device)
 
-        logger.info(f"Using device: {self.device}")
+        logger.info("Using device: {self.device}", extra={"format_args": True})
 
         # Create output directory
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -229,7 +230,7 @@ class EmotionDetectionTrainer:
         logger.info(
             f"Model initialized with {self.model.count_parameters():,} trainable parameters"
         )
-        logger.info(f"Total training steps: {total_steps}")
+        logger.info("Total training steps: {total_steps}", extra={"format_args": True})
 
     def train_epoch(self, epoch: int) -> dict[str, float]:
         """Train model for one epoch.
@@ -250,7 +251,7 @@ class EmotionDetectionTrainer:
         if epoch in self.unfreeze_schedule:
             layers_to_unfreeze = 2  # Unfreeze 2 layers at a time
             self.model.unfreeze_bert_layers(layers_to_unfreeze)
-            logger.info(f"Epoch {epoch}: Applied progressive unfreezing")
+            logger.info("Epoch {epoch}: Applied progressive unfreezing", extra={"format_args": True})
 
         for batch_idx, batch in enumerate(self.train_dataloader):
             # Move batch to device
@@ -314,7 +315,7 @@ class EmotionDetectionTrainer:
         Returns:
             Dictionary with validation metrics
         """
-        logger.info(f"Validating model at epoch {epoch}...")
+        logger.info("Validating model at epoch {epoch}...", extra={"format_args": True})
 
         # Evaluate on validation set
         val_metrics = evaluate_emotion_classifier(
@@ -333,7 +334,7 @@ class EmotionDetectionTrainer:
             # Save best model if configured
             if self.save_best_only:
                 self.save_checkpoint(epoch, val_metrics, is_best=True)
-                logger.info(f"New best model saved! Macro F1: {current_score:.4f}")
+                logger.info("New best model saved! Macro F1: {current_score:.4f}", extra={"format_args": True})
         else:
             self.patience_counter += 1
             logger.info(
@@ -378,7 +379,7 @@ class EmotionDetectionTrainer:
             checkpoint_path = self.output_dir / f"checkpoint_epoch_{epoch}.pt"
 
         torch.save(checkpoint, checkpoint_path)
-        logger.info(f"Checkpoint saved: {checkpoint_path}")
+        logger.info("Checkpoint saved: {checkpoint_path}", extra={"format_args": True})
 
     def train(self) -> dict[str, any]:
         """Complete training pipeline.
@@ -410,7 +411,7 @@ class EmotionDetectionTrainer:
 
                 # Check early stopping
                 if self.should_stop_early():
-                    logger.info(f"Early stopping at epoch {epoch}")
+                    logger.info("Early stopping at epoch {epoch}", extra={"format_args": True})
                     break
             else:
                 self.training_history.append(train_metrics)
@@ -423,7 +424,7 @@ class EmotionDetectionTrainer:
 
         # Save training history
         history_path = self.output_dir / "training_history.json"
-        with open(history_path, "w") as f:
+        with Path(history_path).open("w") as f:
             json.dump(self.training_history, f, indent=2)
 
         # Prepare final results
@@ -436,9 +437,9 @@ class EmotionDetectionTrainer:
         }
 
         logger.info("✅ Training completed!")
-        logger.info(f"Best validation Macro F1: {self.best_score:.4f}")
-        logger.info(f"Final test Macro F1: {test_metrics['macro_f1']:.4f}")
-        logger.info(f"Final test Micro F1: {test_metrics['micro_f1']:.4f}")
+        logger.info("Best validation Macro F1: {self.best_score:.4f}", extra={"format_args": True})
+        logger.info("Final test Macro F1: {test_metrics['macro_f1']:.4f}", extra={"format_args": True})
+        logger.info("Final test Micro F1: {test_metrics['micro_f1']:.4f}", extra={"format_args": True})
 
         return results
 

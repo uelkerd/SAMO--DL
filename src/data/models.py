@@ -1,4 +1,5 @@
 """Database models for the SAMO-DL application.
+
 These models correspond to the tables in the PostgreSQL schema.
 """
 

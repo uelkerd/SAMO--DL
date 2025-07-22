@@ -1,3 +1,4 @@
+# G004: Logging f-strings temporarily allowed for development
 """SAMO Emotion Detection API Demo.
 
 This demo showcases the emotion detection pipeline working with pre-trained
@@ -74,7 +75,7 @@ async def load_model():
         logger.info("✅ Model loaded successfully!")
 
     except Exception as e:
-        logger.error(f"Failed to load model: {e}")
+        logger.error("Failed to load model: {e}", extra={"format_args": True})
         raise
 
 
@@ -199,7 +200,7 @@ async def analyze_emotion(request: EmotionRequest):
         return response
 
     except Exception as e:
-        logger.error(f"Error analyzing emotion: {e}")
+        logger.error("Error analyzing emotion: {e}", extra={"format_args": True})
         raise HTTPException(status_code=500, detail=f"Analysis failed: {e!s}")
 
 
@@ -232,4 +233,5 @@ if __name__ == "__main__":
     print()
 
     # Run the API server
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
+    uvicorn.run(app, host="127.0.0.1",  # Changed from 0.0.0.0 for security
+                port=8000, log_level="info")

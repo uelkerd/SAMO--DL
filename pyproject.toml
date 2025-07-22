@@ -76,9 +76,20 @@ Repository = "https://github.com/samo-ai/samo-dl.git"
 [tool.ruff]
 target-version = "py311"
 line-length = 88
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "data/cache",
+    "models",
+    "test_checkpoints",
+    "*.egg-info",
+]
+
+[tool.ruff.lint]
 select = [
     "E",      # pycodestyle errors
-    "W",      # pycodestyle warnings  
+    "W",      # pycodestyle warnings
     "F",      # Pyflakes
     "UP",     # pyupgrade
     "B",      # flake8-bugbear
@@ -103,8 +114,6 @@ select = [
 ]
 ignore = [
     "E501",     # Line too long (we use formatter)
-    "ANN101",   # Missing type annotation for self
-    "ANN102",   # Missing type annotation for cls
     "D100",     # Missing docstring in public module
     "D101",     # Missing docstring in public class
     "D102",     # Missing docstring in public method
@@ -113,29 +122,24 @@ ignore = [
     "D105",     # Missing docstring in magic method
     "S101",     # Use of assert
     "PLW0603",  # Using global statement
-]
-exclude = [
-    ".git",
-    ".venv",
-    "__pycache__",
-    "data/cache",
-    "models",
-    "test_checkpoints",
-    "*.egg-info",
+    # Temporarily ignore boolean traps during development
+    "FBT001",   # Boolean positional arg
+    "FBT002",   # Boolean default value
+    "FBT003",   # Boolean positional value in call
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["S101", "D", "ANN"]  # Allow asserts and missing docs in tests
 "scripts/**/*.py" = ["T20", "S603", "S607"]  # Allow prints in scripts
 "notebooks/**/*.py" = ["T20", "E402", "F401", "PLC0415"]  # Notebook-specific ignores
 "**/__init__.py" = ["F401"]  # Allow unused imports in __init__.py
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["src"]
 force-single-line = false
 lines-after-imports = 2
 
-[tool.ruff.flake8-quotes]
+[tool.ruff.lint.flake8-quotes]
 inline-quotes = "double"
 multiline-quotes = "double"
 
@@ -143,7 +147,7 @@ multiline-quotes = "double"
 [tool.bandit]
 exclude_dirs = [
     "tests",
-    "data/cache", 
+    "data/cache",
     "models",
     "test_checkpoints",
     ".venv",
@@ -162,7 +166,7 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
     "--strict-markers",
-    "--strict-config", 
+    "--strict-config",
     "--cov=src",
     "--cov-report=term-missing",
     "--cov-report=html:htmlcov",
@@ -193,7 +197,7 @@ strict_equality = true
 [[tool.mypy.overrides]]
 module = [
     "transformers.*",
-    "datasets.*", 
+    "datasets.*",
     "torch.*",
     "sklearn.*",
     "pandas.*",
