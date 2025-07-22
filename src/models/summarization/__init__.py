@@ -5,7 +5,7 @@ from journal conversations and providing intelligent summaries for users.
 
 Key Components:
 - T5SummarizationModel: Core T5/BART implementation
-- SummarizationDataset: Dataset processing for journal entries  
+- SummarizationDataset: Dataset processing for journal entries
 - SummarizationTrainer: End-to-end training pipeline
 - SummarizationAPI: FastAPI endpoints for Web Dev integration
 

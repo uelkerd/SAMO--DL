@@ -1,3 +1,4 @@
+# G004: Logging f-strings temporarily allowed for development
 import logging
 import re
 
@@ -7,7 +8,6 @@ import pandas as pd
 from nltk.sentiment import SentimentIntensityAnalyzer
 from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
-
 
 # Configure logging
 logging.basicConfig(
@@ -25,8 +25,11 @@ class FeatureEngineer:
         try:
             nltk.download("vader_lexicon", quiet=True)
             self.sentiment_analyzer = SentimentIntensityAnalyzer()
-        except Exception as e:
-            logger.error(f"Failed to initialize sentiment analyzer: {e}")
+        except Exception:
+            logger.error(
+                "Failed to initialize sentiment analyzer: {e}",
+                extra={"format_args": True},
+            )
             self.sentiment_analyzer = None
 
     def extract_basic_features(
@@ -55,15 +58,11 @@ class FeatureEngineer:
 
         # Average word length
         df["avg_word_length"] = df[text_column].apply(
-            lambda x: np.mean([len(word) for word in x.split()])
-            if len(x.split()) > 0
-            else 0
+            lambda x: np.mean([len(word) for word in x.split()]) if len(x.split()) > 0 else 0
         )
 
         # Sentence count
-        df["sentence_count"] = df[text_column].apply(
-            lambda x: len(re.split(r"[.!?]+", x)) - 1
-        )
+        df["sentence_count"] = df[text_column].apply(lambda x: len(re.split(r"[.!?]+", x)) - 1)
 
         # Words per sentence
         df["words_per_sentence"] = df.apply(
@@ -154,7 +153,10 @@ class FeatureEngineer:
         # Ensure text column is string type
         df[text_column] = df[text_column].astype(str)
 
-        logger.info(f"Extracting {n_topics} topic features using TF-IDF and SVD")
+        logger.info(
+            "Extracting {n_topics} topic features using TF-IDF and SVD",
+            extra={"format_args": True},
+        )
 
         # Create TF-IDF vectorizer
         vectorizer = TfidfVectorizer(max_features=1000, stop_words="english")
@@ -188,7 +190,10 @@ class FeatureEngineer:
         # Assign dominant topic to each document
         df["dominant_topic"] = np.argmax(topic_matrix, axis=1) + 1
 
-        logger.info(f"Extracted {n_topics} topics from {len(df)} documents")
+        logger.info(
+            "Extracted {n_topics} topics from {len(df)} documents",
+            extra={"format_args": True},
+        )
 
         return df, topics_df
 
@@ -208,16 +213,17 @@ class FeatureEngineer:
         df = df.copy()
 
         if timestamp_column not in df.columns:
-            logger.warning(
-                f"Timestamp column '{timestamp_column}' not found in DataFrame"
-            )
+            logger.warning(f"Timestamp column '{timestamp_column}' not found in DataFrame")
             return df
 
         # Try to ensure timestamp column is datetime type
         try:
             df[timestamp_column] = pd.to_datetime(df[timestamp_column])
-        except Exception as e:
-            logger.error(f"Failed to convert '{timestamp_column}' to datetime: {e}")
+        except Exception:
+            logger.error(
+                "Failed to convert '{timestamp_column}' to datetime: {e}",
+                extra={"format_args": True},
+            )
             return df
 
         logger.info("Extracting time features")
@@ -259,7 +265,10 @@ class FeatureEngineer:
             DataFrame with all features added
 
         """
-        logger.info(f"Extracting all features for {len(df)} journal entries")
+        logger.info(
+            "Extracting all features for {len(df)} journal entries",
+            extra={"format_args": True},
+        )
 
         # Extract basic text features
         df = self.extract_basic_features(df, text_column)

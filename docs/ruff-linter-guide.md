@@ -1,17 +1,21 @@
 # SAMO Deep Learning - Ruff Linter Guide
 
 ## Overview
+
 Ruff is configured as the primary linting and code quality tool for the SAMO Deep Learning project. It provides fast, comprehensive analysis optimized for ML/Data Science workflows with automatic fixing capabilities.
 
 ## Quick Start
 
 ### Installation
+
 Ruff is included in your conda environment:
+
 ```bash
 conda activate samo-dl  # Already installed
 ```
 
 ### Basic Usage
+
 ```bash
 # Run comprehensive check (recommended)
 ./scripts/lint.sh
@@ -32,6 +36,7 @@ conda activate samo-dl  # Already installed
 ## What Ruff Checks
 
 ### Core Quality Rules (Always Enforced)
+
 - **Syntax Errors**: Python syntax issues
 - **Import Organization**: Proper import sorting and structure
 - **Code Style**: PEP 8 compliance with 88-character line length
@@ -40,6 +45,7 @@ conda activate samo-dl  # Already installed
 - **Performance**: Inefficient code patterns
 
 ### ML/Data Science Specific Rules
+
 - **Pandas Best Practices**: Efficient DataFrame operations
 - **NumPy Conventions**: Proper array handling
 - **Scientific Libraries**: Correct usage of sklearn, torch, transformers
@@ -47,6 +53,7 @@ conda activate samo-dl  # Already installed
 - **Memory Management**: Resource cleanup and optimization
 
 ### Development Quality
+
 - **Documentation**: Google-style docstrings
 - **Testing**: Pytest best practices
 - **Error Handling**: Proper exception management
@@ -55,6 +62,7 @@ conda activate samo-dl  # Already installed
 ## Configuration Highlights
 
 ### Project Structure Awareness
+
 ```toml
 # Different rules for different directories
 "tests/**/*.py" = [
@@ -77,6 +85,7 @@ conda activate samo-dl  # Already installed
 ```
 
 ### ML-Friendly Settings
+
 - **Higher complexity thresholds** for ML algorithms
 - **Flexible documentation** for research code
 - **Security exceptions** for ML-specific patterns
@@ -85,7 +94,9 @@ conda activate samo-dl  # Already installed
 ## Integration with Development Workflow
 
 ### Pre-commit Hook (Recommended)
+
 Add to `.git/hooks/pre-commit`:
+
 ```bash
 #!/bin/bash
 conda activate samo-dl
@@ -95,8 +106,10 @@ conda activate samo-dl
 ### Editor Integration
 
 #### VS Code
+
 1. Install the **Ruff extension**
 2. Add to `settings.json`:
+
 ```json
 {
     "[python]": {
@@ -110,6 +123,7 @@ conda activate samo-dl
 ```
 
 #### PyCharm
+
 1. Go to **Settings → Tools → External Tools**
 2. Add new tool:
    - Name: `Ruff Check`
@@ -118,7 +132,9 @@ conda activate samo-dl
    - Working directory: `$ProjectFileDir$`
 
 ### CI/CD Integration
+
 Add to your CI pipeline:
+
 ```yaml
 - name: Lint with Ruff
   run: |
@@ -129,7 +145,9 @@ Add to your CI pipeline:
 ## Common Issues and Solutions
 
 ### 1. Line Length (E501)
+
 **Problem**: Lines exceed 88 characters
+
 ```python
 # Bad
 model = transformers.AutoModelForSequenceClassification.from_pretrained("bert-base-uncased", num_labels=27)
@@ -141,7 +159,9 @@ model = transformers.AutoModelForSequenceClassification.from_pretrained(
 ```
 
 ### 2. Import Organization (I001)
+
 **Problem**: Imports not properly sorted
+
 ```python
 # Bad
 import torch
@@ -159,7 +179,9 @@ from transformers import AutoTokenizer
 ```
 
 ### 3. Unused Imports (F401)
+
 **Problem**: Imported modules not used
+
 ```python
 # Bad
 import numpy as np  # F401: not used
@@ -174,7 +196,9 @@ df = pd.DataFrame()
 ```
 
 ### 4. Documentation Style (D415)
+
 **Problem**: Docstring doesn't end with punctuation
+
 ```python
 # Bad
 def preprocess_text(text: str) -> str:
@@ -186,7 +210,9 @@ def preprocess_text(text: str) -> str:
 ```
 
 ### 5. Security Issues (S101)
+
 **Problem**: Using assert in production code
+
 ```python
 # Bad (in production code)
 assert len(input_ids) > 0
@@ -197,7 +223,9 @@ if len(input_ids) == 0:
 ```
 
 ### 6. Type Annotations (UP035)
+
 **Problem**: Using deprecated typing imports
+
 ```python
 # Bad
 from typing import List, Dict
@@ -210,7 +238,9 @@ def process_embeddings(embeddings: list[float]) -> dict[str, float]:
 ## Customizing Rules
 
 ### Temporary Rule Disabling
+
 For specific lines:
+
 ```python
 # ruff: noqa: E501
 very_long_line_that_is_needed_for_some_specific_reason_and_cannot_be_shortened = True
@@ -220,12 +250,15 @@ import rarely_used_module  # Imported for side effects
 ```
 
 For entire files, add to the top:
+
 ```python
 # ruff: noqa
 ```
 
 ### Project-Level Rule Changes
+
 Edit `pyproject.toml`:
+
 ```toml
 [tool.ruff.lint]
 ignore = [
@@ -237,12 +270,14 @@ ignore = [
 ## Performance and Statistics
 
 ### Current Project Stats
+
 - **Python files**: 17 analyzed
 - **Configuration**: `pyproject.toml`
 - **Line length**: 88 characters
 - **Target Python**: 3.10
 
 ### Speed Benefits
+
 - **10-100x faster** than traditional linters
 - **Built in Rust** for maximum performance
 - **Parallel processing** for large codebases
@@ -251,6 +286,7 @@ ignore = [
 ## ML-Specific Best Practices
 
 ### 1. Model Training Code
+
 ```python
 # Good: Clear parameter separation
 def train_emotion_classifier(
@@ -264,6 +300,7 @@ def train_emotion_classifier(
 ```
 
 ### 2. Data Processing
+
 ```python
 # Good: Explicit error handling
 def load_goemotions_dataset(data_path: str) -> pd.DataFrame:
@@ -279,6 +316,7 @@ def load_goemotions_dataset(data_path: str) -> pd.DataFrame:
 ```
 
 ### 3. Notebook Development
+
 - Ruff ignores exploration-specific issues in notebooks
 - Focus on production code quality in `src/`
 - Use `./scripts/lint.sh` regularly during development
@@ -286,12 +324,14 @@ def load_goemotions_dataset(data_path: str) -> pd.DataFrame:
 ## Integration with Black Formatter
 
 Ruff is configured to work harmoniously with Black:
+
 - **Same line length** (88 characters)
 - **Compatible quote styles**
 - **Consistent import formatting**
 - **No formatting conflicts**
 
 Run both tools:
+
 ```bash
 # Format with Black first
 conda activate samo-dl
@@ -304,7 +344,9 @@ black .
 ## Troubleshooting
 
 ### Configuration Issues
+
 If you see TOML parsing errors:
+
 ```bash
 # Test configuration
 conda activate samo-dl
@@ -312,6 +354,7 @@ ruff check --config pyproject.toml src/
 ```
 
 ### Environment Issues
+
 ```bash
 # Verify installation
 conda activate samo-dl
@@ -322,6 +365,7 @@ conda install -y ruff
 ```
 
 ### Performance Issues
+
 ```bash
 # Use cache for faster subsequent runs
 export RUFF_CACHE_DIR=.ruff_cache
@@ -340,14 +384,15 @@ git diff --name-only | grep '\.py$' | xargs ruff check
 
 ## Resources
 
-- **Ruff Documentation**: https://docs.astral.sh/ruff/
-- **Rule Reference**: https://docs.astral.sh/ruff/rules/
-- **Configuration Guide**: https://docs.astral.sh/ruff/configuration/
-- **Editor Integration**: https://docs.astral.sh/ruff/editors/
+- **Ruff Documentation**: <https://docs.astral.sh/ruff/>
+- **Rule Reference**: <https://docs.astral.sh/ruff/rules/>
+- **Configuration Guide**: <https://docs.astral.sh/ruff/configuration/>
+- **Editor Integration**: <https://docs.astral.sh/ruff/editors/>
 
 ---
 
 **Next Actions for SAMO-DL Team:**
+
 1. Run `./scripts/lint.sh fix` to clean up existing codebase
 2. Set up editor integration for real-time feedback
 3. Add to CI/CD pipeline for quality gates
