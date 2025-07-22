@@ -10,6 +10,15 @@ from unittest.mock import patch
 
 import pytest
 
+# Test constants
+HTTP_OK = 200
+HTTP_UNPROCESSABLE_ENTITY = 422
+MAX_WORKFLOW_TIME = 3.0
+MAX_PROCESSING_TIME = 2.0
+MAX_RESPONSE_TIME = 3.0
+MAX_AVERAGE_TIME = 2.0
+MAX_TIMESTAMP_DIFF = 60
+
 
 @pytest.mark.e2e
 class TestCompleteWorkflows:
@@ -33,7 +42,7 @@ class TestCompleteWorkflows:
         workflow_time = end_time - start_time
 
         # Verify successful response
-        assert response.status_code == 200
+        assert response.status_code == HTTP_OK
         data = response.json()
 
         # Step 2: Validate complete analysis structure
@@ -62,8 +71,8 @@ class TestCompleteWorkflows:
             assert isinstance(summary["key_themes"], list)
 
         # Step 5: Verify performance requirements
-        assert workflow_time < 3.0  # Complete workflow under 3 seconds
-        assert data["processing_time"] < 2.0  # Processing time under 2 seconds
+        assert workflow_time < MAX_WORKFLOW_TIME  # Complete workflow under 3 seconds
+        assert data["processing_time"] < MAX_PROCESSING_TIME  # Processing time under 2 seconds
 
     @pytest.mark.slow
     def test_voice_journal_complete_workflow(self, api_client, sample_audio_data):
@@ -92,7 +101,7 @@ class TestCompleteWorkflows:
                     response = api_client.post("/analyze/voice-journal", files=files, data=data)
 
             # Step 2: Verify successful transcription and analysis
-            assert response.status_code == 200
+            assert response.status_code == HTTP_OK
             result = response.json()
 
             # Step 3: Validate complete voice analysis structure
@@ -194,15 +203,14 @@ class TestCompleteWorkflows:
         assert "timestamp" in data
         # Timestamp should be recent (within last minute)
         import datetime
-        from datetime import timezone
 
         # Use more robust timestamp parsing
         timestamp_str = data["timestamp"]
         if timestamp_str.endswith("Z"):
             timestamp_str = timestamp_str[:-1] + "+00:00"
-        
+
         timestamp = datetime.datetime.fromisoformat(timestamp_str)
-        now = datetime.datetime.now(timezone.utc)
+        now = datetime.datetime.now(datetime.UTC)
         time_diff = (now - timestamp).total_seconds()
         assert time_diff < 60  # Within last minute
 
