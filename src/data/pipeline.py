@@ -58,9 +58,7 @@ class DataPipeline:
         elif embedding_method == "fasttext":
             embedder = FastTextEmbedder(vector_size=100)
         else:
-            logger.warning(
-                f"Unknown embedding method '{embedding_method}'. Defaulting to TF-IDF."
-            )
+            logger.warning(f"Unknown embedding method '{embedding_method}'. Defaulting to TF-IDF.")
             embedder = TfidfEmbedder(max_features=1000)
 
         self.embedding_pipeline = EmbeddingPipeline(embedder)
@@ -104,9 +102,7 @@ class DataPipeline:
         )
 
         # Step 2: Validate raw data
-        validation_passed, validated_df = self.validator.validate_journal_entries(
-            raw_df
-        )
+        validation_passed, validated_df = self.validator.validate_journal_entries(raw_df)
 
         if not validation_passed:
             logger.warning(
@@ -134,9 +130,7 @@ class DataPipeline:
         embeddings_df = self.embedding_pipeline.generate_embeddings(
             featured_df, text_column="processed_text", id_column="id"
         )
-        logger.info(
-            f"Generated {len(embeddings_df)} embeddings using {self.embedding_method}"
-        )
+        logger.info(f"Generated {len(embeddings_df)} embeddings using {self.embedding_method}")
 
         # Save results if output directory is provided
         if output_dir:
@@ -205,14 +199,10 @@ class DataPipeline:
             return load_entries_from_json(data_source)
 
         if source_type == "csv" and isinstance(data_source, str):
-            logger.info(
-                "Loading data from CSV file: {data_source}", extra={"format_args": True}
-            )
+            logger.info("Loading data from CSV file: {data_source}", extra={"format_args": True})
             return load_entries_from_csv(data_source)
 
-        logger.error(
-            "Invalid data source type: {source_type}", extra={"format_args": True}
-        )
+        logger.error("Invalid data source type: {source_type}", extra={"format_args": True})
         return pd.DataFrame()
 
     def _save_results(
@@ -248,14 +238,10 @@ class DataPipeline:
             Path(output_dir, f"journal_features_{timestamp}.csv").as_posix(),
             index=False,
         )
-        logger.info(
-            f"Saved featured data to {output_dir}/journal_features_{timestamp}.csv"
-        )
+        logger.info(f"Saved featured data to {output_dir}/journal_features_{timestamp}.csv")
 
         # Save embeddings
-        embeddings_path = Path(
-            output_dir, f"journal_embeddings_{timestamp}.csv"
-        ).as_posix()
+        embeddings_path = Path(output_dir, f"journal_embeddings_{timestamp}.csv").as_posix()
         self.embedding_pipeline.save_embeddings_to_csv(embeddings_df, embeddings_path)
 
         # Save topics if available
@@ -264,15 +250,11 @@ class DataPipeline:
                 Path(output_dir, f"journal_topics_{timestamp}.csv").as_posix(),
                 index=False,
             )
-            logger.info(
-                f"Saved topic data to {output_dir}/journal_topics_{timestamp}.csv"
-            )
+            logger.info(f"Saved topic data to {output_dir}/journal_topics_{timestamp}.csv")
 
         # Save intermediate data if requested
         if save_intermediates:
-            raw_df.to_csv(
-                Path(output_dir, f"journal_raw_{timestamp}.csv").as_posix(), index=False
-            )
+            raw_df.to_csv(Path(output_dir, f"journal_raw_{timestamp}.csv").as_posix(), index=False)
             logger.info(
                 "Saved raw data to {output_dir}/journal_raw_{timestamp}.csv",
                 extra={"format_args": True},
@@ -282,6 +264,4 @@ class DataPipeline:
                 Path(output_dir, f"journal_processed_{timestamp}.csv").as_posix(),
                 index=False,
             )
-            logger.info(
-                f"Saved processed data to {output_dir}/journal_processed_{timestamp}.csv"
-            )
+            logger.info(f"Saved processed data to {output_dir}/journal_processed_{timestamp}.csv")
