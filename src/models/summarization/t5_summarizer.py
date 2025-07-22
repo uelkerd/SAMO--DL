@@ -16,12 +16,10 @@ Key Features:
 import logging
 import warnings
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple, Union
 
-import numpy as np
 import torch
 from torch import nn
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import Dataset
 from transformers import (
     AutoModelForSeq2SeqLM,
     AutoTokenizer,
@@ -65,7 +63,7 @@ class SummarizationDataset(Dataset):
         tokenizer,
         max_source_length: int = 512,
         max_target_length: int = 128
-    ):
+    ) -> None:
         """Initialize summarization dataset.
 
         Args:
@@ -128,7 +126,7 @@ class T5SummarizationModel(nn.Module):
         self,
         config: SummarizationConfig = None,
         model_name: str | None = None
-    ):
+    ) -> None:
         """Initialize T5/BART summarization model.
 
         Args:
@@ -371,7 +369,7 @@ def create_t5_summarizer(
     return model
 
 
-def test_summarization_model():
+def test_summarization_model() -> None:
     """Test the summarization model with sample journal entries."""
     logger.info("Testing T5 summarization model...")
 
@@ -390,8 +388,8 @@ def test_summarization_model():
     logger.info("Generating summaries for {len(test_texts)} journal entries...", extra={"format_args": True})
 
     # Generate summaries
-    for i, text in enumerate(test_texts, 1):
-        summary = model.generate_summary(text)
+    for _i, text in enumerate(test_texts, 1):
+        model.generate_summary(text)
 
         logger.info("\n--- Journal Entry {i} ---", extra={"format_args": True})
         logger.info("Original ({len(text)} chars): {text[:100]}...", extra={"format_args": True})
@@ -401,11 +399,11 @@ def test_summarization_model():
     logger.info("\nTesting batch summarization...")
     batch_summaries = model.generate_batch_summaries(test_texts, batch_size=2)
 
-    for i, summary in enumerate(batch_summaries, 1):
+    for _i, _summary in enumerate(batch_summaries, 1):
         logger.info("Batch Summary {i}: {summary}", extra={"format_args": True})
 
     # Model info
-    info = model.get_model_info()
+    model.get_model_info()
     logger.info("\nModel Info: {info}", extra={"format_args": True})
 
     logger.info("✅ T5 summarization model test complete!")

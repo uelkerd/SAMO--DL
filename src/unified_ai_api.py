@@ -25,7 +25,6 @@ from pathlib import Path
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 
-
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -38,7 +37,7 @@ voice_transcriber = None
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Manage all AI models lifecycle - load on startup, cleanup on shutdown."""
     global emotion_detector, text_summarizer, voice_transcriber
 
@@ -170,7 +169,7 @@ class CompleteJournalAnalysis(BaseModel):
 
 # Unified API Endpoints
 @app.get("/health")
-async def health_check():
+async def health_check() -> dict[str, Any]:
     """Comprehensive health check for all AI components."""
     status = {
         "status": "healthy",
@@ -320,7 +319,7 @@ async def analyze_journal_entry(
 
     except Exception as e:
         logger.error("Journal analysis failed: {e}", extra={"format_args": True})
-        raise HTTPException(status_code=500, detail=f"Analysis failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {e!s}") from e
 
 
 @app.post("/analyze/voice-journal", response_model=CompleteJournalAnalysis)
@@ -329,7 +328,7 @@ async def analyze_voice_journal(
     language: str | None = Form(None),
     generate_summary: bool = Form(True),
     emotion_threshold: float = Form(0.1),
-):
+) -> CompleteJournalAnalysis:
     """Complete voice journal analysis pipeline.
 
     This endpoint processes voice journal entries through the complete pipeline:
@@ -385,7 +384,7 @@ async def analyze_voice_journal(
                 insights["transcription_quality"] = result.audio_quality
 
                 # Cleanup
-                os.unlink(temp_file.name)
+                Path(temp_file.name).unlink()
 
             except Exception:
                 logger.error(
@@ -471,11 +470,11 @@ async def analyze_voice_journal(
 
     except Exception as e:
         logger.error("Voice journal analysis failed: {e}", extra={"format_args": True})
-        raise HTTPException(status_code=500, detail=f"Voice analysis failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Voice analysis failed: {e!s}") from e
 
 
 @app.get("/models/status")
-async def get_models_status():
+async def get_models_status() -> dict[str, Any]:
     """Get detailed status of all AI models in the pipeline."""
     return {
         "emotion_detection": {
@@ -515,7 +514,7 @@ async def get_models_status():
 
 
 @app.get("/")
-async def root():
+async def root() -> dict[str, Any]:
     """API root with welcome message."""
     return {
         "message": "Welcome to SAMO Unified AI API",

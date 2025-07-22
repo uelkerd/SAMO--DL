@@ -7,7 +7,6 @@ from typing import Any
 
 import pandas as pd
 
-
 # Sample topics to generate journal entries about
 TOPICS = [
     "work",

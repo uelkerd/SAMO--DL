@@ -12,11 +12,9 @@ Key Features:
 - Performance monitoring
 """
 
-import asyncio
 import logging
 import time
 from contextlib import asynccontextmanager
-from typing import Dict, List, Optional
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from pydantic import BaseModel, Field, validator
@@ -47,7 +45,7 @@ async def lifespan(app: FastAPI):
             max_target_length=128
         )
 
-        load_time = time.time() - start_time
+        time.time() - start_time
         logger.info("✅ Model loaded successfully in {load_time:.2f}s", extra={"format_args": True})
         logger.info("Model info: {summarization_model.get_model_info()}", extra={"format_args": True})
 
@@ -282,14 +280,14 @@ async def warm_up_model(background_tasks: BackgroundTasks):
     if summarization_model is None:
         raise HTTPException(status_code=503, detail="Model not loaded")
 
-    def warm_up():
+    def warm_up() -> None:
         sample_text = """Today was a great day filled with positive emotions and meaningful conversations.
         I felt grateful for the opportunities and connections in my life."""
 
         try:
             summarization_model.generate_summary(sample_text)
             logger.info("Model warm-up completed successfully")
-        except Exception as e:
+        except Exception:
             logger.error("Model warm-up failed: {e}", extra={"format_args": True})
 
     background_tasks.add_task(warm_up)

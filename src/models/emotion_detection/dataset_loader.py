@@ -12,16 +12,11 @@ Key Features:
 """
 
 import logging
-import os
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
-import pandas as pd
 import torch
 from datasets import Dataset, load_dataset
 from sklearn.model_selection import train_test_split
-from sklearn.utils.class_weight import compute_class_weight
 from transformers import AutoTokenizer
 
 # Configure logging
@@ -61,14 +56,14 @@ GOEMOTIONS_EMOTIONS = [
 ]
 
 # Emotion mappings for readability
-EMOTION_ID_TO_LABEL = {i: emotion for i, emotion in enumerate(GOEMOTIONS_EMOTIONS)}
+EMOTION_ID_TO_LABEL = dict(enumerate(GOEMOTIONS_EMOTIONS))
 EMOTION_LABEL_TO_ID = {emotion: i for i, emotion in enumerate(GOEMOTIONS_EMOTIONS)}
 
 
 class GoEmotionsPreprocessor:
     """Preprocessing pipeline for GoEmotions dataset following SAMO requirements."""
 
-    def __init__(self, model_name: str = "bert-base-uncased", max_length: int = 512):
+    def __init__(self, model_name: str = "bert-base-uncased", max_length: int = 512) -> None:
         """Initialize preprocessor with BERT tokenizer.
 
         Args:
@@ -156,7 +151,7 @@ class GoEmotionsDataLoader:
         test_size: float = 0.2,
         val_size: float = 0.1,
         random_state: int = 42,
-    ):
+    ) -> None:
         """Initialize GoEmotions data loader.
 
         Args:
@@ -222,7 +217,7 @@ class GoEmotionsDataLoader:
 
             return self.raw_dataset
 
-        except Exception as e:
+        except Exception:
             logger.error("Failed to download GoEmotions dataset: {e}", extra={"format_args": True})
             raise
 
@@ -440,15 +435,7 @@ def create_goemotions_loader(
 
 if __name__ == "__main__":
     # Test the data loader
-    print("Testing GoEmotions Dataset Loader...")
 
     loader = create_goemotions_loader()
     datasets = loader.prepare_datasets()
 
-    print("\nDataset preparation complete!")
-    print(f"Train examples: {len(datasets['train'])}")
-    print(f"Validation examples: {len(datasets['validation'])}")
-    print(f"Test examples: {len(datasets['test'])}")
-    print(
-        f"Multi-label percentage: {datasets['statistics']['multi_label_percentage']:.1f}%"
-    )

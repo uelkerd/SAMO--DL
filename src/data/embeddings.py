@@ -7,7 +7,6 @@ from gensim.models import FastText, Word2Vec
 from gensim.utils import simple_preprocess
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-
 # Configure logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -229,10 +228,7 @@ class Word2VecEmbedder(BaseEmbedder):
             ]
 
             # Average vectors or use zero vector if no tokens found
-            if vectors:
-                embedding = np.mean(vectors, axis=0)
-            else:
-                embedding = np.zeros(self.vector_size)
+            embedding = np.mean(vectors, axis=0) if vectors else np.zeros(self.vector_size)
 
             embeddings.append(embedding)
 
