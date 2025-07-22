@@ -149,12 +149,8 @@ class EmotionDetectionTrainer:
         self.train_dataset = EmotionDataset(
             train_texts, train_labels, self.tokenizer, self.max_length
         )
-        self.val_dataset = EmotionDataset(
-            val_texts, val_labels, self.tokenizer, self.max_length
-        )
-        self.test_dataset = EmotionDataset(
-            test_texts, test_labels, self.tokenizer, self.max_length
-        )
+        self.val_dataset = EmotionDataset(val_texts, val_labels, self.tokenizer, self.max_length)
+        self.test_dataset = EmotionDataset(test_texts, test_labels, self.tokenizer, self.max_length)
 
         # Create data loaders
         self.train_dataloader = DataLoader(
@@ -242,7 +238,9 @@ class EmotionDetectionTrainer:
         if epoch in self.unfreeze_schedule:
             layers_to_unfreeze = 2  # Unfreeze 2 layers at a time
             self.model.unfreeze_bert_layers(layers_to_unfreeze)
-            logger.info("Epoch {epoch}: Applied progressive unfreezing", extra={"format_args": True})
+            logger.info(
+                "Epoch {epoch}: Applied progressive unfreezing", extra={"format_args": True}
+            )
 
         for batch_idx, batch in enumerate(self.train_dataloader):
             # Move batch to device
@@ -291,9 +289,7 @@ class EmotionDetectionTrainer:
             "learning_rate": self.scheduler.get_last_lr()[0],
         }
 
-        logger.info(
-            f"Epoch {epoch} completed - Loss: {avg_loss:.4f}, Time: {epoch_time:.1f}s"
-        )
+        logger.info(f"Epoch {epoch} completed - Loss: {avg_loss:.4f}, Time: {epoch_time:.1f}s")
 
         return metrics
 
@@ -309,9 +305,7 @@ class EmotionDetectionTrainer:
         logger.info("Validating model at epoch {epoch}...", extra={"format_args": True})
 
         # Evaluate on validation set
-        val_metrics = evaluate_emotion_classifier(
-            self.model, self.val_dataloader, self.device
-        )
+        val_metrics = evaluate_emotion_classifier(self.model, self.val_dataloader, self.device)
 
         # Add epoch information
         val_metrics["epoch"] = epoch
@@ -325,7 +319,10 @@ class EmotionDetectionTrainer:
             # Save best model if configured
             if self.save_best_only:
                 self.save_checkpoint(epoch, val_metrics, is_best=True)
-                logger.info("New best model saved! Macro F1: {current_score:.4f}", extra={"format_args": True})
+                logger.info(
+                    "New best model saved! Macro F1: {current_score:.4f}",
+                    extra={"format_args": True},
+                )
         else:
             self.patience_counter += 1
             logger.info(
@@ -338,9 +335,7 @@ class EmotionDetectionTrainer:
         """Check if training should stop early."""
         return self.patience_counter >= self.early_stopping_patience
 
-    def save_checkpoint(
-        self, epoch: int, metrics: dict[str, float], is_best: bool = False
-    ) -> None:
+    def save_checkpoint(self, epoch: int, metrics: dict[str, float], is_best: bool = False) -> None:
         """Save model checkpoint.
 
         Args:
@@ -409,9 +404,7 @@ class EmotionDetectionTrainer:
 
         # Final evaluation on test set
         logger.info("Running final evaluation on test set...")
-        test_metrics = evaluate_emotion_classifier(
-            self.model, self.test_dataloader, self.device
-        )
+        test_metrics = evaluate_emotion_classifier(self.model, self.test_dataloader, self.device)
 
         # Save training history
         history_path = self.output_dir / "training_history.json"
@@ -429,8 +422,12 @@ class EmotionDetectionTrainer:
 
         logger.info("✅ Training completed!")
         logger.info("Best validation Macro F1: {self.best_score:.4f}", extra={"format_args": True})
-        logger.info("Final test Macro F1: {test_metrics['macro_f1']:.4f}", extra={"format_args": True})
-        logger.info("Final test Micro F1: {test_metrics['micro_f1']:.4f}", extra={"format_args": True})
+        logger.info(
+            "Final test Macro F1: {test_metrics['macro_f1']:.4f}", extra={"format_args": True}
+        )
+        logger.info(
+            "Final test Micro F1: {test_metrics['micro_f1']:.4f}", extra={"format_args": True}
+        )
 
         return results
 
@@ -479,5 +476,3 @@ if __name__ == "__main__":
     results = train_emotion_detection_model(
         batch_size=8, num_epochs=1, output_dir="./test_checkpoints"
     )
-
-

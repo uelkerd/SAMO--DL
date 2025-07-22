@@ -58,15 +58,11 @@ class FeatureEngineer:
 
         # Average word length
         df["avg_word_length"] = df[text_column].apply(
-            lambda x: np.mean([len(word) for word in x.split()])
-            if len(x.split()) > 0
-            else 0
+            lambda x: np.mean([len(word) for word in x.split()]) if len(x.split()) > 0 else 0
         )
 
         # Sentence count
-        df["sentence_count"] = df[text_column].apply(
-            lambda x: len(re.split(r"[.!?]+", x)) - 1
-        )
+        df["sentence_count"] = df[text_column].apply(lambda x: len(re.split(r"[.!?]+", x)) - 1)
 
         # Words per sentence
         df["words_per_sentence"] = df.apply(
@@ -217,9 +213,7 @@ class FeatureEngineer:
         df = df.copy()
 
         if timestamp_column not in df.columns:
-            logger.warning(
-                f"Timestamp column '{timestamp_column}' not found in DataFrame"
-            )
+            logger.warning(f"Timestamp column '{timestamp_column}' not found in DataFrame")
             return df
 
         # Try to ensure timestamp column is datetime type
