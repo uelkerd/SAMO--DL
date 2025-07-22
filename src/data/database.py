@@ -6,7 +6,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-
 # Get database connection details from environment variables
 DB_USER = os.environ.get("DB_USER", "samouser")
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "samopassword")

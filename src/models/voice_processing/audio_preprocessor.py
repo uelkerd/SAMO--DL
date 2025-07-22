@@ -13,10 +13,8 @@ Key Features:
 """
 
 import logging
-import os
 import tempfile
 from pathlib import Path
-from typing import Dict, Tuple, Union
 
 from pydub import AudioSegment
 
@@ -32,7 +30,7 @@ class AudioPreprocessor:
     MAX_DURATION = 300  # 5 minutes maximum
 
     @staticmethod
-    def validate_audio_file(audio_path: Union[str, Path]) -> Tuple[bool, str]:
+    def validate_audio_file(audio_path: str | Path) -> tuple[bool, str]:
         """Validate audio file format and properties.
 
         Args:
@@ -66,13 +64,13 @@ class AudioPreprocessor:
             return True, "Valid audio file"
 
         except Exception as e:
-            return False, f"Error loading audio: {str(e)}"
+            return False, f"Error loading audio: {e!s}"
 
     @staticmethod
     def preprocess_audio(
-        audio_path: Union[str, Path],
-        output_path: Union[str, Path] = None
-    ) -> Tuple[str, Dict]:
+        audio_path: str | Path,
+        output_path: str | Path | None = None
+    ) -> tuple[str, dict]:
         """Preprocess audio for optimal Whisper performance.
 
         Args:
@@ -139,6 +137,6 @@ class AudioPreprocessor:
         return str(output_path), processed_metadata
 
 
-def preprocess_audio(audio_path: Union[str, Path], output_path: Union[str, Path] = None) -> Tuple[str, Dict]:
+def preprocess_audio(audio_path: str | Path, output_path: str | Path | None = None) -> tuple[str, dict]:
     """Convenience function for audio preprocessing."""
     return AudioPreprocessor.preprocess_audio(audio_path, output_path)

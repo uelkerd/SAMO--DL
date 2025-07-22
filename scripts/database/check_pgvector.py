@@ -8,7 +8,6 @@ from urllib.parse import urlparse
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-
 # Load environment variables from .env file
 try:
     from dotenv import load_dotenv

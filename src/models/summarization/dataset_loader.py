@@ -7,7 +7,6 @@ Placeholder implementation - will be expanded once we have real data.
 """
 
 import logging
-from typing import Dict, List, Tuple
 
 from torch.utils.data import Dataset
 
@@ -17,11 +16,11 @@ logger = logging.getLogger(__name__)
 class SummarizationDataset(Dataset):
     """Placeholder dataset class for summarization."""
 
-    def __init__(self, texts: list[str], summaries: list[str]):
+    def __init__(self, texts: list[str], summaries: list[str]) -> None:
         self.texts = texts
         self.summaries = summaries
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.texts)
 
     def __getitem__(self, idx):
@@ -31,6 +30,6 @@ class SummarizationDataset(Dataset):
         }
 
 
-def create_summarization_loader():
+def create_summarization_loader() -> None:
     """Placeholder function for creating summarization data loader."""
     logger.info("Placeholder summarization loader - to be implemented")

@@ -20,7 +20,6 @@ from .loaders import (
 from .preprocessing import JournalEntryPreprocessor
 from .validation import DataValidator
 
-
 # Configure logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
