@@ -113,9 +113,9 @@ class BatchSummarizationRequest(BaseModel):
     def validate_text_lengths(cls, texts):
         for i, text in enumerate(texts):
             if len(text) < 50:
-                raise ValueError(f"Text {i+1} too short (minimum 50 characters)")
+                raise ValueError(f"Text {i + 1} too short (minimum 50 characters)")
             if len(text) > 2000:
-                raise ValueError(f"Text {i+1} too long (maximum 2000 characters)")
+                raise ValueError(f"Text {i + 1} too long (maximum 2000 characters)")
         return texts
 
 

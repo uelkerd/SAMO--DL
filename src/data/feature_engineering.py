@@ -173,7 +173,7 @@ class FeatureEngineer:
 
         # Add topic scores as features
         for i in range(n_topics):
-            df[f"topic_{i+1}_score"] = topic_matrix[:, i]
+            df[f"topic_{i + 1}_score"] = topic_matrix[:, i]
 
         # Get top words for each topic
         topic_words = {}
@@ -182,7 +182,7 @@ class FeatureEngineer:
             top_word_indices = comp.argsort()[: -n_top_words - 1 : -1]
             # Get the actual words
             top_words = [feature_names[idx] for idx in top_word_indices]
-            topic_words[f"topic_{i+1}"] = top_words
+            topic_words[f"topic_{i + 1}"] = top_words
 
         # Convert topics to DataFrame for easier inspection
         topics_df = pd.DataFrame(topic_words)
