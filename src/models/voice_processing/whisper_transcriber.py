@@ -40,6 +40,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 @dataclass
 class TranscriptionConfig:
     """Configuration for Whisper transcription."""
+
     model_size: str = "base"  # tiny, base, small, medium, large
     language: str | None = None  # Auto-detect if None
     task: str = "transcribe"  # transcribe or translate
@@ -61,6 +62,7 @@ class TranscriptionConfig:
 @dataclass
 class TranscriptionResult:
     """Result of audio transcription."""
+
     text: str
     language: str
     confidence: float
@@ -76,7 +78,7 @@ class TranscriptionResult:
 class AudioPreprocessor:
     """Audio preprocessing for optimal Whisper performance."""
 
-    SUPPORTED_FORMATS = {'.mp3', '.wav', '.m4a', '.aac', '.ogg', '.flac'}
+    SUPPORTED_FORMATS = {".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac"}
     TARGET_SAMPLE_RATE = 16000  # Whisper expects 16kHz
     MAX_DURATION = 300  # 5 minutes maximum
 
@@ -119,8 +121,7 @@ class AudioPreprocessor:
 
     @staticmethod
     def preprocess_audio(
-        audio_path: str | Path,
-        output_path: str | Path | None = None
+        audio_path: str | Path, output_path: str | Path | None = None
     ) -> tuple[str, dict]:
         """Preprocess audio for optimal Whisper performance.
 
@@ -145,11 +146,11 @@ class AudioPreprocessor:
 
         # Get original metadata
         original_metadata = {
-            'duration': len(audio) / 1000.0,
-            'sample_rate': audio.frame_rate,
-            'channels': audio.channels,
-            'format': audio_path.suffix.lower(),
-            'file_size': audio_path.stat().st_size
+            "duration": len(audio) / 1000.0,
+            "sample_rate": audio.frame_rate,
+            "channels": audio.channels,
+            "format": audio_path.suffix.lower(),
+            "file_size": audio_path.stat().st_size,
         }
 
         # Convert to mono if stereo
@@ -160,28 +161,30 @@ class AudioPreprocessor:
         # Normalize sample rate to 16kHz (Whisper's expected rate)
         if audio.frame_rate != AudioPreprocessor.TARGET_SAMPLE_RATE:
             audio = audio.set_frame_rate(AudioPreprocessor.TARGET_SAMPLE_RATE)
-            logger.info("Resampled to {AudioPreprocessor.TARGET_SAMPLE_RATE}Hz", extra={"format_args": True})
+            logger.info(
+                "Resampled to {AudioPreprocessor.TARGET_SAMPLE_RATE}Hz", extra={"format_args": True}
+            )
 
         # Apply light noise reduction (normalize volume)
         audio = audio.normalize()
 
         # Generate output path if not provided
         if output_path is None:
-            temp_file = tempfile.NamedTemporaryFile(suffix='.wav', delete=False)
+            temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
             output_path = temp_file.name
             temp_file.close()
 
         # Export processed audio as WAV
-        audio.export(str(output_path), format='wav')
+        audio.export(str(output_path), format="wav")
 
         # Updated metadata
         processed_metadata = {
             **original_metadata,
-            'processed_duration': len(audio) / 1000.0,
-            'processed_sample_rate': AudioPreprocessor.TARGET_SAMPLE_RATE,
-            'processed_channels': 1,
-            'processed_format': '.wav',
-            'processed_file_size': Path(output_path).stat().st_size
+            "processed_duration": len(audio) / 1000.0,
+            "processed_sample_rate": AudioPreprocessor.TARGET_SAMPLE_RATE,
+            "processed_channels": 1,
+            "processed_format": ".wav",
+            "processed_file_size": Path(output_path).stat().st_size,
         }
 
         logger.info("Audio preprocessed: {output_path}", extra={"format_args": True})
@@ -191,11 +194,7 @@ class AudioPreprocessor:
 class WhisperTranscriber:
     """OpenAI Whisper transcriber for journal voice processing."""
 
-    def __init__(
-        self,
-        config: TranscriptionConfig = None,
-        model_size: str | None = None
-    ) -> None:
+    def __init__(self, config: TranscriptionConfig = None, model_size: str | None = None) -> None:
         """Initialize Whisper transcriber.
 
         Args:
@@ -212,16 +211,18 @@ class WhisperTranscriber:
         else:
             self.device = torch.device(self.config.device)
 
-        logger.info("Initializing Whisper {self.config.model_size} model...", extra={"format_args": True})
+        logger.info(
+            "Initializing Whisper {self.config.model_size} model...", extra={"format_args": True}
+        )
         logger.info("Device: {self.device}", extra={"format_args": True})
 
         # Load Whisper model
         try:
-            self.model = whisper.load_model(
-                self.config.model_size,
-                device=self.device
+            self.model = whisper.load_model(self.config.model_size, device=self.device)
+            logger.info(
+                "✅ Whisper {self.config.model_size} model loaded successfully",
+                extra={"format_args": True},
             )
-            logger.info("✅ Whisper {self.config.model_size} model loaded successfully", extra={"format_args": True})
 
         except Exception as e:
             logger.error("❌ Failed to load Whisper model: {e}", extra={"format_args": True})
@@ -231,10 +232,7 @@ class WhisperTranscriber:
         self.preprocessor = AudioPreprocessor()
 
     def transcribe_audio(
-        self,
-        audio_path: str | Path,
-        language: str | None = None,
-        initial_prompt: str | None = None
+        self, audio_path: str | Path, language: str | None = None, initial_prompt: str | None = None
     ) -> TranscriptionResult:
         """Transcribe audio file to text.
 
@@ -256,20 +254,20 @@ class WhisperTranscriber:
         try:
             # Transcription options
             transcribe_options = {
-                'language': language or self.config.language,
-                'task': self.config.task,
-                'temperature': self.config.temperature,
-                'best_of': self.config.best_of,
-                'beam_size': self.config.beam_size,
-                'patience': self.config.patience,
-                'length_penalty': self.config.length_penalty,
-                'suppress_tokens': self.config.suppress_tokens,
-                'initial_prompt': initial_prompt or self.config.initial_prompt,
-                'condition_on_previous_text': self.config.condition_on_previous_text,
-                'fp16': self.config.fp16,
-                'compression_ratio_threshold': self.config.compression_ratio_threshold,
-                'logprob_threshold': self.config.logprob_threshold,
-                'no_speech_threshold': self.config.no_speech_threshold
+                "language": language or self.config.language,
+                "task": self.config.task,
+                "temperature": self.config.temperature,
+                "best_of": self.config.best_of,
+                "beam_size": self.config.beam_size,
+                "patience": self.config.patience,
+                "length_penalty": self.config.length_penalty,
+                "suppress_tokens": self.config.suppress_tokens,
+                "initial_prompt": initial_prompt or self.config.initial_prompt,
+                "condition_on_previous_text": self.config.condition_on_previous_text,
+                "fp16": self.config.fp16,
+                "compression_ratio_threshold": self.config.compression_ratio_threshold,
+                "logprob_threshold": self.config.logprob_threshold,
+                "no_speech_threshold": self.config.no_speech_threshold,
             }
 
             # Remove None values
@@ -280,30 +278,40 @@ class WhisperTranscriber:
 
             # Calculate metrics
             processing_time = time.time() - start_time
-            word_count = len(result['text'].split())
-            speaking_rate = (word_count / audio_metadata['duration']) * 60 if audio_metadata['duration'] > 0 else 0
+            word_count = len(result["text"].split())
+            speaking_rate = (
+                (word_count / audio_metadata["duration"]) * 60
+                if audio_metadata["duration"] > 0
+                else 0
+            )
 
             # Assess audio quality
             audio_quality = self._assess_audio_quality(result, audio_metadata)
 
             # Calculate confidence from segments
-            confidence = self._calculate_confidence(result.get('segments', []))
+            confidence = self._calculate_confidence(result.get("segments", []))
 
             transcription_result = TranscriptionResult(
-                text=result['text'].strip(),
-                language=result['language'],
+                text=result["text"].strip(),
+                language=result["language"],
                 confidence=confidence,
-                duration=audio_metadata['duration'],
+                duration=audio_metadata["duration"],
                 processing_time=processing_time,
-                segments=result.get('segments', []),
+                segments=result.get("segments", []),
                 audio_quality=audio_quality,
                 word_count=word_count,
                 speaking_rate=speaking_rate,
-                no_speech_probability=result.get('no_speech_prob', 0.0)
+                no_speech_probability=result.get("no_speech_prob", 0.0),
             )
 
-            logger.info("✅ Transcription complete: {word_count} words, {confidence:.2f} confidence", extra={"format_args": True})
-            logger.info("Processing time: {processing_time:.2f}s, Quality: {audio_quality}", extra={"format_args": True})
+            logger.info(
+                "✅ Transcription complete: {word_count} words, {confidence:.2f} confidence",
+                extra={"format_args": True},
+            )
+            logger.info(
+                "Processing time: {processing_time:.2f}s, Quality: {audio_quality}",
+                extra={"format_args": True},
+            )
 
             return transcription_result
 
@@ -317,7 +325,7 @@ class WhisperTranscriber:
         self,
         audio_paths: list[str | Path],
         language: str | None = None,
-        initial_prompt: str | None = None
+        initial_prompt: str | None = None,
     ) -> list[TranscriptionResult]:
         """Transcribe multiple audio files.
 
@@ -329,41 +337,52 @@ class WhisperTranscriber:
         Returns:
             List of TranscriptionResult objects
         """
-        logger.info("Starting batch transcription of {len(audio_paths)} files...", extra={"format_args": True})
+        logger.info(
+            "Starting batch transcription of {len(audio_paths)} files...",
+            extra={"format_args": True},
+        )
 
         results = []
         for _i, audio_path in enumerate(audio_paths, 1):
-            logger.info("Processing file {i}/{len(audio_paths)}: {Path(audio_path).name}", extra={"format_args": True})
+            logger.info(
+                "Processing file {i}/{len(audio_paths)}: {Path(audio_path).name}",
+                extra={"format_args": True},
+            )
 
             try:
                 result = self.transcribe_audio(
-                    audio_path,
-                    language=language,
-                    initial_prompt=initial_prompt
+                    audio_path, language=language, initial_prompt=initial_prompt
                 )
                 results.append(result)
 
             except Exception:
                 logger.error("Failed to transcribe {audio_path}: {e}", extra={"format_args": True})
                 # Add error result
-                results.append(TranscriptionResult(
-                    text="",
-                    language="unknown",
-                    confidence=0.0,
-                    duration=0.0,
-                    processing_time=0.0,
-                    segments=[],
-                    audio_quality="error",
-                    word_count=0,
-                    speaking_rate=0.0,
-                    no_speech_probability=1.0
-                ))
+                results.append(
+                    TranscriptionResult(
+                        text="",
+                        language="unknown",
+                        confidence=0.0,
+                        duration=0.0,
+                        processing_time=0.0,
+                        segments=[],
+                        audio_quality="error",
+                        word_count=0,
+                        speaking_rate=0.0,
+                        no_speech_probability=1.0,
+                    )
+                )
 
         sum(r.duration for r in results)
         sum(r.processing_time for r in results)
 
-        logger.info("✅ Batch transcription complete: {len(results)} files", extra={"format_args": True})
-        logger.info("Total audio: {total_duration:.1f}s, Processing: {total_processing_time:.1f}s", extra={"format_args": True})
+        logger.info(
+            "✅ Batch transcription complete: {len(results)} files", extra={"format_args": True}
+        )
+        logger.info(
+            "Total audio: {total_duration:.1f}s, Processing: {total_processing_time:.1f}s",
+            extra={"format_args": True},
+        )
 
         return results
 
@@ -384,8 +403,8 @@ class WhisperTranscriber:
         confidences = []
         for segment in segments:
             # Convert average log probability to confidence estimate
-            avg_logprob = segment.get('avg_logprob', -1.0)
-            no_speech_prob = segment.get('no_speech_prob', 0.5)
+            avg_logprob = segment.get("avg_logprob", -1.0)
+            no_speech_prob = segment.get("no_speech_prob", 0.5)
 
             # Simple heuristic: higher logprob and lower no_speech_prob = higher confidence
             segment_confidence = min(1.0, max(0.0, np.exp(avg_logprob) * (1 - no_speech_prob)))
@@ -404,9 +423,9 @@ class WhisperTranscriber:
             Quality assessment: excellent, good, fair, poor
         """
         # Factors for quality assessment
-        compression_ratio = result.get('compression_ratio', 2.0)
-        avg_logprob = result.get('avg_logprob', -0.5)
-        no_speech_prob = result.get('no_speech_prob', 0.3)
+        compression_ratio = result.get("compression_ratio", 2.0)
+        avg_logprob = result.get("avg_logprob", -0.5)
+        no_speech_prob = result.get("no_speech_prob", 0.3)
 
         # Quality scoring
         quality_score = 0
@@ -442,20 +461,18 @@ class WhisperTranscriber:
     def get_model_info(self) -> dict[str, any]:
         """Get model information."""
         return {
-            'model_size': self.config.model_size,
-            'device': str(self.device),
-            'language': self.config.language or "auto-detect",
-            'task': self.config.task,
-            'supported_formats': list(AudioPreprocessor.SUPPORTED_FORMATS),
-            'max_duration': AudioPreprocessor.MAX_DURATION,
-            'target_sample_rate': AudioPreprocessor.TARGET_SAMPLE_RATE
+            "model_size": self.config.model_size,
+            "device": str(self.device),
+            "language": self.config.language or "auto-detect",
+            "task": self.config.task,
+            "supported_formats": list(AudioPreprocessor.SUPPORTED_FORMATS),
+            "max_duration": AudioPreprocessor.MAX_DURATION,
+            "target_sample_rate": AudioPreprocessor.TARGET_SAMPLE_RATE,
         }
 
 
 def create_whisper_transcriber(
-    model_size: str = "base",
-    language: str | None = None,
-    device: str | None = None
+    model_size: str = "base", language: str | None = None, device: str | None = None
 ) -> WhisperTranscriber:
     """Create Whisper transcriber with specified configuration.
 
@@ -467,11 +484,7 @@ def create_whisper_transcriber(
     Returns:
         Configured WhisperTranscriber instance
     """
-    config = TranscriptionConfig(
-        model_size=model_size,
-        language=language,
-        device=device
-    )
+    config = TranscriptionConfig(model_size=model_size, language=language, device=device)
 
     transcriber = WhisperTranscriber(config)
     logger.info("Created Whisper transcriber: {model_size}", extra={"format_args": True})

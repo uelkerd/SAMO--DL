@@ -37,9 +37,7 @@ class DataValidator:
 
         for column in df.columns:
             missing_count = df[column].isna().sum()
-            missing_percent = (
-                (missing_count / total_rows) * 100 if total_rows > 0 else 0
-            )
+            missing_percent = (missing_count / total_rows) * 100 if total_rows > 0 else 0
             missing_stats[column] = missing_percent
 
             if column in required_columns and missing_count > 0:
@@ -77,10 +75,9 @@ class DataValidator:
             actual_type = df[column].dtype
 
             # Check if types match (with some flexibility for numeric types)
-            if (
-                expected_type in (int, float)
-                and pd.api.types.is_numeric_dtype(actual_type)
-            ) or (expected_type is str and pd.api.types.is_string_dtype(actual_type)):
+            if (expected_type in (int, float) and pd.api.types.is_numeric_dtype(actual_type)) or (
+                expected_type is str and pd.api.types.is_string_dtype(actual_type)
+            ):
                 type_check_results[column] = True
             else:
                 is_match = actual_type == expected_type
@@ -92,9 +89,7 @@ class DataValidator:
 
         return type_check_results
 
-    def check_text_quality(
-        self, df: pd.DataFrame, text_column: str = "content"
-    ) -> pd.DataFrame:
+    def check_text_quality(self, df: pd.DataFrame, text_column: str = "content") -> pd.DataFrame:
         """Check text quality metrics.
 
         Args:
@@ -119,9 +114,7 @@ class DataValidator:
         result_df["text_length"] = result_df[text_column].astype(str).apply(len)
 
         # Word count
-        result_df["word_count"] = (
-            result_df[text_column].astype(str).apply(lambda x: len(x.split()))
-        )
+        result_df["word_count"] = result_df[text_column].astype(str).apply(lambda x: len(x.split()))
 
         # Identify potentially problematic entries
         result_df["is_empty"] = (
@@ -134,9 +127,7 @@ class DataValidator:
         very_short_count = result_df["is_very_short"].sum()
 
         if empty_count > 0:
-            logger.warning(
-                f"Found {empty_count} empty entries in '{text_column}' column"
-            )
+            logger.warning(f"Found {empty_count} empty entries in '{text_column}' column")
 
         if very_short_count > 0:
             logger.warning(
@@ -186,9 +177,7 @@ class DataValidator:
 
         # Check for missing values
         missing_stats = self.check_missing_values(df, required_columns)
-        has_missing_required = any(
-            missing_stats.get(col, 0) > 0 for col in required_columns
-        )
+        has_missing_required = any(missing_stats.get(col, 0) > 0 for col in required_columns)
 
         # Check data types
         type_check_results = self.check_data_types(df, expected_types)
