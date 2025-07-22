@@ -305,7 +305,9 @@ class EmotionDetectionTrainer:
         logger.info("Validating model at epoch {epoch}...", extra={"format_args": True})
 
         # Evaluate on validation set with lower threshold
-        val_metrics = evaluate_emotion_classifier(self.model, self.val_dataloader, self.device, threshold=0.2)
+        val_metrics = evaluate_emotion_classifier(
+            self.model, self.val_dataloader, self.device, threshold=0.2
+        )
 
         # Add epoch information
         val_metrics["epoch"] = epoch
@@ -402,14 +404,30 @@ class EmotionDetectionTrainer:
             else:
                 self.training_history.append(train_metrics)
 
-        # Final evaluation on test set
+        # Final evaluation on test set with lower threshold
         logger.info("Running final evaluation on test set...")
-        test_metrics = evaluate_emotion_classifier(self.model, self.test_dataloader, self.device)
+        test_metrics = evaluate_emotion_classifier(self.model, self.test_dataloader, self.device, threshold=0.2)
 
-        # Save training history
+        # Save training history with JSON serializable data
         history_path = self.output_dir / "training_history.json"
+        
+        # Convert numpy types to native Python types for JSON serialization
+        def convert_numpy_types(obj):
+            if isinstance(obj, dict):
+                return {k: convert_numpy_types(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [convert_numpy_types(item) for item in obj]
+            elif hasattr(obj, 'item') and obj.size == 1:  # numpy scalars
+                return obj.item()
+            elif hasattr(obj, 'tolist'):  # numpy arrays
+                return obj.tolist()
+            else:
+                return obj
+        
+        serializable_history = convert_numpy_types(self.training_history)
+        
         with Path(history_path).open("w") as f:
-            json.dump(self.training_history, f, indent=2)
+            json.dump(serializable_history, f, indent=2)
 
         # Prepare final results
         results = {
