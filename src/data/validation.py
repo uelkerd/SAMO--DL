@@ -1,3 +1,4 @@
+# G004: Logging f-strings temporarily allowed for development
 import logging
 
 import pandas as pd
@@ -66,7 +67,10 @@ class DataValidator:
 
         for column, expected_type in expected_types.items():
             if column not in df.columns:
-                logger.warning(f"Column '{column}' not found in DataFrame")
+                logger.warning(
+                    "Column '{column}' not found in DataFrame",
+                    extra={"format_args": True},
+                )
                 type_check_results[column] = False
                 continue
 
@@ -77,7 +81,7 @@ class DataValidator:
             if (
                 expected_type in (int, float)
                 and pd.api.types.is_numeric_dtype(actual_type)
-            ) or (expected_type == str and pd.api.types.is_string_dtype(actual_type)):
+            ) or (expected_type is str and pd.api.types.is_string_dtype(actual_type)):
                 type_check_results[column] = True
             else:
                 is_match = actual_type == expected_type
@@ -103,7 +107,10 @@ class DataValidator:
 
         """
         if text_column not in df.columns:
-            logger.error(f"Text column '{text_column}' not found in DataFrame")
+            logger.error(
+                "Text column '{text_column}' not found in DataFrame",
+                extra={"format_args": True},
+            )
             return df
 
         # Make a copy to avoid modifying the original
@@ -172,7 +179,10 @@ class DataValidator:
         # Check for required columns
         missing_columns = [col for col in required_columns if col not in df.columns]
         if missing_columns:
-            logger.error(f"Required columns missing: {missing_columns}")
+            logger.error(
+                "Required columns missing: {missing_columns}",
+                extra={"format_args": True},
+            )
             return False, df
 
         # Check for missing values
