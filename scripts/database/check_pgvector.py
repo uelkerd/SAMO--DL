@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Script to check if pgvector extension is installed in PostgreSQL.
-"""
+"""Script to check if pgvector extension is installed in PostgreSQL."""
 
 import os
 import sys
@@ -9,9 +8,11 @@ from urllib.parse import urlparse
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
+
 # Load environment variables from .env file
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     # dotenv not installed, skip loading
@@ -25,7 +26,7 @@ if DATABASE_URL:
     DB_PASSWORD = parsed.password
     DB_HOST = parsed.hostname
     DB_PORT = parsed.port or 5432
-    DB_NAME = parsed.path.lstrip('/')
+    DB_NAME = parsed.path.lstrip("/")
 else:
     # Fall back to individual environment variables
     DB_USER = os.environ.get("DB_USER", "samouser")
@@ -33,6 +34,7 @@ else:
     DB_HOST = os.environ.get("DB_HOST", "localhost")
     DB_PORT = os.environ.get("DB_PORT", "5432")
     DB_NAME = os.environ.get("DB_NAME", "samodb")
+
 
 def check_pgvector():
     """Check if pgvector extension is installed and available."""
@@ -43,7 +45,7 @@ def check_pgvector():
             user=DB_USER,
             password=DB_PASSWORD,
             host=DB_HOST,
-            port=DB_PORT
+            port=DB_PORT,
         )
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 
@@ -77,6 +79,7 @@ def check_pgvector():
     except psycopg2.Error as e:
         print(f"Error connecting to PostgreSQL: {e}")
         return False
+
 
 if __name__ == "__main__":
     is_installed = check_pgvector()

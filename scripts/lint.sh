@@ -32,7 +32,7 @@ check_ruff() {
 run_check() {
     echo -e "${BLUE}📋 Running Ruff linter check...${NC}"
     check_ruff
-    
+
     if ruff check .; then
         echo -e "${GREEN}✅ All linting checks passed!${NC}"
         return 0
@@ -46,7 +46,7 @@ run_check() {
 run_format_check() {
     echo -e "${BLUE}🎨 Checking code formatting...${NC}"
     check_ruff
-    
+
     if ruff format --check .; then
         echo -e "${GREEN}✅ Code formatting is correct!${NC}"
         return 0
@@ -60,34 +60,34 @@ run_format_check() {
 run_fix() {
     echo -e "${BLUE}🔧 Auto-fixing linting issues...${NC}"
     check_ruff
-    
+
     echo -e "${YELLOW}Fixing auto-fixable issues...${NC}"
     ruff check --fix .
-    
+
     echo -e "${YELLOW}Formatting code...${NC}"
     ruff format .
-    
+
     echo -e "${GREEN}✅ Auto-fix complete! Please review changes.${NC}"
 }
 
 # Function to run full quality check
 run_full_check() {
     echo -e "${BLUE}🚀 Running comprehensive code quality check...${NC}"
-    
+
     local all_passed=true
-    
+
     # Linting check
     if ! run_check; then
         all_passed=false
     fi
-    
+
     echo ""
-    
+
     # Format check
     if ! run_format_check; then
         all_passed=false
     fi
-    
+
     echo ""
     echo -e "${BLUE}📊 Summary:${NC}"
     if $all_passed; then
@@ -103,15 +103,15 @@ run_full_check() {
 show_stats() {
     echo -e "${BLUE}📈 Code quality statistics:${NC}"
     check_ruff
-    
+
     echo -e "${YELLOW}File coverage:${NC}"
     find . -name "*.py" -not -path "./.venv/*" -not -path "./node_modules/*" | wc -l | xargs echo "Python files:"
-    
+
     echo -e "${YELLOW}Ruff configuration:${NC}"
     echo "Configuration file: pyproject.toml"
     echo "Target Python version: 3.10"
     echo "Line length: 88"
-    
+
     echo -e "${YELLOW}Running quick analysis...${NC}"
     ruff check --statistics . || true
 }
@@ -120,7 +120,7 @@ show_stats() {
 show_help() {
     echo -e "${BLUE}Available commands:${NC}"
     echo -e "${GREEN}  check${NC}       - Run linting checks only"
-    echo -e "${GREEN}  format-check${NC} - Check code formatting only"  
+    echo -e "${GREEN}  format-check${NC} - Check code formatting only"
     echo -e "${GREEN}  fix${NC}         - Auto-fix issues and format code"
     echo -e "${GREEN}  full${NC}        - Run complete quality check (default)"
     echo -e "${GREEN}  stats${NC}       - Show code quality statistics"
@@ -163,4 +163,4 @@ case "${1:-full}" in
         show_help
         exit 1
         ;;
-esac 
+esac

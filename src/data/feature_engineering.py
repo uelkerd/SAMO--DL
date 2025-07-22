@@ -1,23 +1,25 @@
 import logging
 import re
-from collections import Counter
-from typing import Dict, List, Optional, Union
 
 import nltk
 import numpy as np
 import pandas as pd
 from nltk.sentiment import SentimentIntensityAnalyzer
-from sklearn.decomposition import PCA, TruncatedSVD
+from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+
 # Configure logging
-logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
 logger = logging.getLogger(__name__)
+
 
 class FeatureEngineer:
     """Feature engineering for journal entries."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize feature engineer."""
         # Ensure NLTK resources are downloaded
         try:
@@ -27,9 +29,9 @@ class FeatureEngineer:
             logger.error(f"Failed to initialize sentiment analyzer: {e}")
             self.sentiment_analyzer = None
 
-    def extract_basic_features(self,
-                              df: pd.DataFrame,
-                              text_column: str = "content") -> pd.DataFrame:
+    def extract_basic_features(
+        self, df: pd.DataFrame, text_column: str = "content"
+    ) -> pd.DataFrame:
         """Extract basic statistical features from text.
 
         Args:
@@ -38,6 +40,7 @@ class FeatureEngineer:
 
         Returns:
             DataFrame with basic features added
+
         """
         df = df.copy()
 
@@ -52,16 +55,22 @@ class FeatureEngineer:
 
         # Average word length
         df["avg_word_length"] = df[text_column].apply(
-            lambda x: np.mean([len(word) for word in x.split()]) if len(x.split()) > 0 else 0
+            lambda x: np.mean([len(word) for word in x.split()])
+            if len(x.split()) > 0
+            else 0
         )
 
         # Sentence count
-        df["sentence_count"] = df[text_column].apply(lambda x: len(re.split(r"[.!?]+", x)) - 1)
+        df["sentence_count"] = df[text_column].apply(
+            lambda x: len(re.split(r"[.!?]+", x)) - 1
+        )
 
         # Words per sentence
         df["words_per_sentence"] = df.apply(
-            lambda row: row["word_count"] / row["sentence_count"] if row["sentence_count"] > 0 else 0,
-            axis=1
+            lambda row: row["word_count"] / row["sentence_count"]
+            if row["sentence_count"] > 0
+            else 0,
+            axis=1,
         )
 
         # Unique word count
@@ -69,15 +78,17 @@ class FeatureEngineer:
 
         # Lexical diversity (unique words / total words)
         df["lexical_diversity"] = df.apply(
-            lambda row: row["unique_word_count"] / row["word_count"] if row["word_count"] > 0 else 0,
-            axis=1
+            lambda row: row["unique_word_count"] / row["word_count"]
+            if row["word_count"] > 0
+            else 0,
+            axis=1,
         )
 
         return df
 
-    def extract_sentiment_features(self,
-                                  df: pd.DataFrame,
-                                  text_column: str = "content") -> pd.DataFrame:
+    def extract_sentiment_features(
+        self, df: pd.DataFrame, text_column: str = "content"
+    ) -> pd.DataFrame:
         """Extract sentiment features from text using NLTK's VADER.
 
         Args:
@@ -86,9 +97,12 @@ class FeatureEngineer:
 
         Returns:
             DataFrame with sentiment features added
+
         """
         if self.sentiment_analyzer is None:
-            logger.warning("Sentiment analyzer not available. Skipping sentiment feature extraction.")
+            logger.warning(
+                "Sentiment analyzer not available. Skipping sentiment feature extraction."
+            )
             return df
 
         df = df.copy()
@@ -109,16 +123,20 @@ class FeatureEngineer:
 
         # Create sentiment category based on compound score
         df["sentiment_category"] = df["sentiment_compound"].apply(
-            lambda score: "positive" if score > 0.05 else ("negative" if score < -0.05 else "neutral")
+            lambda score: "positive"
+            if score > 0.05
+            else ("negative" if score < -0.05 else "neutral")
         )
 
         return df
 
-    def extract_topic_features(self,
-                              df: pd.DataFrame,
-                              text_column: str = "content",
-                              n_topics: int = 10,
-                              n_top_words: int = 5) -> pd.DataFrame:
+    def extract_topic_features(
+        self,
+        df: pd.DataFrame,
+        text_column: str = "content",
+        n_topics: int = 10,
+        n_top_words: int = 5,
+    ) -> pd.DataFrame:
         """Extract topic-related features using TF-IDF and SVD.
 
         Args:
@@ -129,6 +147,7 @@ class FeatureEngineer:
 
         Returns:
             DataFrame with topic features added
+
         """
         df = df.copy()
 
@@ -158,7 +177,7 @@ class FeatureEngineer:
         topic_words = {}
         for i, comp in enumerate(svd.components_):
             # Get top word indices for this topic
-            top_word_indices = comp.argsort()[:-n_top_words-1:-1]
+            top_word_indices = comp.argsort()[: -n_top_words - 1 : -1]
             # Get the actual words
             top_words = [feature_names[idx] for idx in top_word_indices]
             topic_words[f"topic_{i+1}"] = top_words
@@ -173,9 +192,9 @@ class FeatureEngineer:
 
         return df, topics_df
 
-    def extract_time_features(self,
-                             df: pd.DataFrame,
-                             timestamp_column: str = "created_at") -> pd.DataFrame:
+    def extract_time_features(
+        self, df: pd.DataFrame, timestamp_column: str = "created_at"
+    ) -> pd.DataFrame:
         """Extract time-related features from timestamp.
 
         Args:
@@ -184,11 +203,14 @@ class FeatureEngineer:
 
         Returns:
             DataFrame with time features added
+
         """
         df = df.copy()
 
         if timestamp_column not in df.columns:
-            logger.warning(f"Timestamp column '{timestamp_column}' not found in DataFrame")
+            logger.warning(
+                f"Timestamp column '{timestamp_column}' not found in DataFrame"
+            )
             return df
 
         # Try to ensure timestamp column is datetime type
@@ -213,16 +235,18 @@ class FeatureEngineer:
             df["hour"],
             bins=[0, 6, 12, 18, 24],
             labels=["night", "morning", "afternoon", "evening"],
-            right=False
+            right=False,
         )
 
         return df
 
-    def extract_all_features(self,
-                            df: pd.DataFrame,
-                            text_column: str = "content",
-                            timestamp_column: str = "created_at",
-                            extract_topics: bool = True) -> pd.DataFrame:
+    def extract_all_features(
+        self,
+        df: pd.DataFrame,
+        text_column: str = "content",
+        timestamp_column: str = "created_at",
+        extract_topics: bool = True,
+    ) -> pd.DataFrame:
         """Extract all features from journal entries.
 
         Args:
@@ -233,6 +257,7 @@ class FeatureEngineer:
 
         Returns:
             DataFrame with all features added
+
         """
         logger.info(f"Extracting all features for {len(df)} journal entries")
 

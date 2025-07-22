@@ -4,7 +4,7 @@
 
 ### What Was Done:
 1. **Changed leaked password** for `samouser` account
-2. **Created new secure user**: `samo_secure_1753200376` 
+2. **Created new secure user**: `samo_secure_1753200376`
 3. **Verified PostgreSQL connection** using correct superuser (`minervae`)
 
 ### ⚠️ Important Security Notes:
@@ -18,7 +18,7 @@ The original credentials were **publicly exposed** in git history:
 
 ### PostgreSQL Connection Info:
 - **Host**: `localhost:5432`
-- **Database**: `samodb` 
+- **Database**: `samodb`
 - **Secure User**: `samo_secure_1753200376` (with random password)
 - **Admin User**: `minervae` (your macOS username)
 
@@ -82,7 +82,7 @@ LOG_LEVEL=info
 # List all users
 psql -U minervae -d postgres -c "\du"
 
-# List all databases  
+# List all databases
 psql -U minervae -d postgres -c "\l"
 
 # Create new user (if needed)
@@ -95,4 +95,4 @@ psql -U minervae -d postgres -c "ALTER USER username WITH PASSWORD 'newpassword'
 psql -U minervae -d postgres -c "DROP USER username;"
 ```
 
-Remember: Always use environment variables for sensitive configuration! 
+Remember: Always use environment variables for sensitive configuration!
