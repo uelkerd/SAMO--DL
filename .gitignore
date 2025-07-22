@@ -1,0 +1,457 @@
+# SAMO Deep Learning Project .gitignore
+
+# ============================================================================
+# ENVIRONMENT & SECRETS
+# ============================================================================
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.*.local
+*.env
+secrets/
+config/secrets/
+
+# ============================================================================
+# PYTHON
+# ============================================================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Virtual environments
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+conda-env/
+.conda/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# ============================================================================
+# NODE.JS
+# ============================================================================
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage
+.grunt
+
+# Bower dependency directory
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons
+build/Release
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# ============================================================================
+# MACHINE LEARNING & DATA
+# ============================================================================
+# Model files
+*.pkl
+*.pickle
+*.joblib
+*.h5
+*.hdf5
+*.ckpt
+*.pth
+*.pt
+*.safetensors
+*.bin
+models/checkpoints/
+models/saved_models/
+models/*/checkpoints/
+models/*/saved_models/
+*.onnx
+
+# Data files
+data/raw/*
+!data/raw/.gitkeep
+!data/raw/sample_*
+data/processed/*
+!data/processed/.gitkeep
+data/external/*
+!data/external/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+
+# Large dataset files
+*.csv
+*.tsv
+*.json
+*.jsonl
+*.parquet
+*.feather
+*.arrow
+*.hdf
+*.h5
+
+# Allow small sample files
+!**/sample_*.csv
+!**/sample_*.json
+!**/sample_*.tsv
+!**/*_sample.*
+!**/test_*.csv
+!**/test_*.json
+
+# Embeddings and vectors
+*.vec
+*.txt.gz
+embeddings/
+vectors/
+
+# Training outputs
+runs/
+logs/
+outputs/
+results/
+experiments/
+wandb/
+tensorboard/
+mlruns/
+
+# ============================================================================
+# DATABASE
+# ============================================================================
+# PostgreSQL
+*.sql.backup
+*.dump
+*.dmp
+pg_data/
+postgres_data/
+pgdata/
+
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# Database logs
+*.log
+
+# Prisma
+.prisma/
+prisma/migrations/*/migration.sql
+
+# ============================================================================
+# DOCKER
+# ============================================================================
+# Docker
+.dockerignore
+Dockerfile.local
+docker-compose.override.yml
+docker-compose.local.yml
+.docker/
+
+# ============================================================================
+# LOGS & MONITORING
+# ============================================================================
+# Log files
+*.log
+logs/
+.logs/
+log/
+*.log.*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# ============================================================================
+# OS & SYSTEM FILES
+# ============================================================================
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ============================================================================
+# IDE & EDITORS
+# ============================================================================
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+*.swp
+*.swo
+*~
+.vimrc.local
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ============================================================================
+# DEVELOPMENT & TESTING
+# ============================================================================
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+test_output/
+test_results/
+
+# Linting
+.flake8
+.pylintrc.local
+
+# Configuration overrides
+config/local.*
+config/development.*
+config/test.*
+
+# Backup files
+*.backup
+*.bak
+*.tmp
+*.temp
+
+# ============================================================================
+# PROJECT SPECIFIC
+# ============================================================================
+# Audio files (for voice processing)
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.aac
+*.ogg
+!**/sample_*.wav
+!**/sample_*.mp3
+!**/test_*.wav
+
+# Temporary model outputs
+temp_models/
+temp_outputs/
+temp_data/
+
+# API keys and credentials
+credentials/
+keys/
+certificates/
+
+# Performance profiling
+*.prof
+*.profile
+
+# Cached embeddings
+.embeddings_cache/
+.model_cache/
+
+# Experiment tracking
+experiments/
+tracking/
+.mlflow/
+
+# Generated documentation
+docs/_build/
+docs/build/
+site/ 
