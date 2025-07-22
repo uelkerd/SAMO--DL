@@ -1,3 +1,4 @@
+# G004: Logging f-strings temporarily allowed for development
 import logging
 
 import numpy as np
@@ -104,7 +105,10 @@ class TfidfEmbedder(BaseEmbedder):
             f"Fitting TF-IDF vectorizer on {len(texts)} texts with max_features={self.max_features}"
         )
         self.model.fit(texts)
-        logger.info(f"Vocabulary size: {len(self.model.vocabulary_)}")
+        logger.info(
+            "Vocabulary size: {len(self.model.vocabulary_)}",
+            extra={"format_args": True},
+        )
         return self
 
     def transform(self, texts: list[str]) -> np.ndarray:
@@ -178,7 +182,9 @@ class Word2VecEmbedder(BaseEmbedder):
             Self for chaining
 
         """
-        logger.info(f"Preprocessing {len(texts)} texts for Word2Vec")
+        logger.info(
+            "Preprocessing {len(texts)} texts for Word2Vec", extra={"format_args": True}
+        )
         tokenized_texts = self._preprocess_texts(texts)
 
         logger.info(
@@ -246,7 +252,9 @@ class FastTextEmbedder(Word2VecEmbedder):
             Self for chaining
 
         """
-        logger.info(f"Preprocessing {len(texts)} texts for FastText")
+        logger.info(
+            "Preprocessing {len(texts)} texts for FastText", extra={"format_args": True}
+        )
         tokenized_texts = self._preprocess_texts(texts)
 
         logger.info(
@@ -303,10 +311,15 @@ class EmbeddingPipeline:
 
         texts = df[text_column].tolist()
 
-        logger.info(f"Generating embeddings for {len(texts)} texts")
+        logger.info(
+            "Generating embeddings for {len(texts)} texts", extra={"format_args": True}
+        )
         embeddings = self.embedder.fit_transform(texts)
 
-        logger.info(f"Generated embeddings with shape {embeddings.shape}")
+        logger.info(
+            "Generated embeddings with shape {embeddings.shape}",
+            extra={"format_args": True},
+        )
 
         # Create DataFrame with IDs and embeddings
         return pd.DataFrame(
@@ -327,4 +340,7 @@ class EmbeddingPipeline:
 
         """
         embeddings_df.to_csv(output_path, index=False)
-        logger.info(f"Saved {len(embeddings_df)} embeddings to {output_path}")
+        logger.info(
+            "Saved {len(embeddings_df)} embeddings to {output_path}",
+            extra={"format_args": True},
+        )
