@@ -17,7 +17,6 @@ from pathlib import Path
 import torch
 from transformers import AutoTokenizer
 
-
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -88,9 +87,7 @@ def create_journal_test_samples() -> list[dict[str, any]]:
     with open(output_path, "w") as f:
         json.dump(journal_samples, f, indent=2)
 
-    logger.info(
-        f"✅ Created {len(journal_samples)} journal test samples: {output_path}"
-    )
+    logger.info(f"✅ Created {len(journal_samples)} journal test samples: {output_path}")
     return journal_samples
 
 
@@ -184,9 +181,7 @@ def predict_emotions(
                 emotion_scores[emotion] = float(prob)
 
                 if prob > threshold:
-                    predicted_emotions.append(
-                        {"emotion": emotion, "confidence": float(prob)}
-                    )
+                    predicted_emotions.append({"emotion": emotion, "confidence": float(prob)})
 
             # Sort by confidence
             predicted_emotions.sort(key=lambda x: x["confidence"], reverse=True)
@@ -265,23 +260,17 @@ def analyze_domain_adaptation(
         analysis["recommendations"].append(
             "❌ Strong domain shift detected - consider domain adaptation"
         )
-        analysis["recommendations"].append(
-            "• Collect journal entry dataset with emotion labels"
-        )
+        analysis["recommendations"].append("• Collect journal entry dataset with emotion labels")
         analysis["recommendations"].append("• Fine-tune model on journal entries")
         analysis["recommendations"].append("• Use data augmentation techniques")
     elif exact_accuracy < 0.6:
         analysis["recommendations"].append("⚠️  Moderate domain adaptation needed")
-        analysis["recommendations"].append(
-            "• Consider few-shot learning with journal examples"
-        )
+        analysis["recommendations"].append("• Consider few-shot learning with journal examples")
         analysis["recommendations"].append("• Implement confidence thresholding")
         analysis["recommendations"].append("• Monitor performance on real user data")
     else:
         analysis["recommendations"].append("✅ Good cross-domain performance")
-        analysis["recommendations"].append(
-            "• Current model should work well for journal entries"
-        )
+        analysis["recommendations"].append("• Current model should work well for journal entries")
         analysis["recommendations"].append("• Monitor performance and collect feedback")
 
     return analysis
@@ -289,20 +278,14 @@ def analyze_domain_adaptation(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="SAMO Domain Adaptation Testing")
-    parser.add_argument(
-        "--model-path", type=str, default="./test_checkpoints/best_model.pt"
-    )
+    parser.add_argument("--model-path", type=str, default="./test_checkpoints/best_model.pt")
     parser.add_argument(
         "--create-journal-samples",
         action="store_true",
         help="Create journal test samples",
     )
-    parser.add_argument(
-        "--test-adaptation", action="store_true", help="Test domain adaptation"
-    )
-    parser.add_argument(
-        "--threshold", type=float, default=0.3, help="Emotion prediction threshold"
-    )
+    parser.add_argument("--test-adaptation", action="store_true", help="Test domain adaptation")
+    parser.add_argument("--threshold", type=float, default=0.3, help="Emotion prediction threshold")
 
     args = parser.parse_args()
 
@@ -325,9 +308,7 @@ def main() -> None:
         print(f"\nExact Accuracy: {metrics['exact_accuracy']:.2%}")
         print(f"Partial Accuracy: {metrics['partial_accuracy']:.2%}")
         print(f"Exact Matches: {metrics['exact_matches']}/{analysis['total_samples']}")
-        print(
-            f"Partial Matches: {metrics['partial_matches']}/{analysis['total_samples']}"
-        )
+        print(f"Partial Matches: {metrics['partial_matches']}/{analysis['total_samples']}")
         print(f"No Matches: {metrics['no_matches']}/{analysis['total_samples']}")
 
         print("\n💡 Recommendations:")

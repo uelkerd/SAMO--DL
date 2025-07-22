@@ -6,7 +6,7 @@ a simple maintenance script that follows code quality standards.
 """
 
 import subprocess
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 
@@ -27,7 +27,7 @@ def run_ruff_check() -> dict[str, int]:
 
 def generate_report() -> str:
     """Generate code quality report."""
-    timestamp = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    timestamp = datetime.now(tz=UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
     stats = run_ruff_check()
 
     report = f"""
