@@ -124,9 +124,7 @@ class EmotionAnalysis(BaseModel):
     emotions: dict[str, float] = Field(..., description="Emotion probabilities")
     primary_emotion: str = Field(..., description="Most confident emotion")
     confidence: float = Field(..., description="Primary emotion confidence")
-    emotional_intensity: str = Field(
-        ..., description="Intensity level: low, medium, high"
-    )
+    emotional_intensity: str = Field(..., description="Intensity level: low, medium, high")
 
 
 class TextSummary(BaseModel):
@@ -156,14 +154,10 @@ class CompleteJournalAnalysis(BaseModel):
     transcription: VoiceTranscription | None = Field(
         None, description="Voice transcription results"
     )
-    emotion_analysis: EmotionAnalysis = Field(
-        ..., description="Emotion detection results"
-    )
+    emotion_analysis: EmotionAnalysis = Field(..., description="Emotion detection results")
     summary: TextSummary = Field(..., description="Text summarization results")
     processing_time_ms: float = Field(..., description="Total processing time")
-    pipeline_status: dict[str, bool] = Field(
-        ..., description="Status of each AI component"
-    )
+    pipeline_status: dict[str, bool] = Field(..., description="Status of each AI component")
     insights: dict = Field(..., description="Cross-model insights and patterns")
 
 
@@ -221,13 +215,9 @@ async def analyze_journal_entry(
                     confidence=0.75,
                     emotional_intensity="high",
                 )
-                insights["emotional_profile"] = (
-                    "Predominantly positive with high confidence"
-                )
+                insights["emotional_profile"] = "Predominantly positive with high confidence"
             except Exception:
-                logger.error(
-                    "Emotion detection failed: {e}", extra={"format_args": True}
-                )
+                logger.error("Emotion detection failed: {e}", extra={"format_args": True})
                 pipeline_status["emotion_detection"] = False
                 # Fallback emotion analysis
                 emotion_analysis = EmotionAnalysis(
@@ -267,14 +257,10 @@ async def analyze_journal_entry(
                     emotional_tone=emotion_analysis.primary_emotion,
                 )
 
-                insights["summary_quality"] = (
-                    "Generated with emotional context preservation"
-                )
+                insights["summary_quality"] = "Generated with emotional context preservation"
 
             except Exception:
-                logger.error(
-                    "Text summarization failed: {e}", extra={"format_args": True}
-                )
+                logger.error("Text summarization failed: {e}", extra={"format_args": True})
                 pipeline_status["text_summarization"] = False
                 # Fallback summary
                 text_summary = TextSummary(
@@ -299,12 +285,8 @@ async def analyze_journal_entry(
             {
                 "text_length": len(text),
                 "word_count": len(text.split()),
-                "emotional_coherence": "High"
-                if emotion_analysis.confidence > 0.7
-                else "Medium",
-                "processing_efficiency": "Optimal"
-                if processing_time < 1000
-                else "Good",
+                "emotional_coherence": "High" if emotion_analysis.confidence > 0.7 else "Medium",
+                "processing_efficiency": "Optimal" if processing_time < 1000 else "Good",
             }
         )
 
@@ -353,7 +335,6 @@ async def analyze_voice_journal(
         if voice_transcriber:
             try:
                 # Save uploaded file temporarily and transcribe
-                import os
                 import tempfile
 
                 temp_file = tempfile.NamedTemporaryFile(
@@ -365,9 +346,7 @@ async def analyze_voice_journal(
                 temp_file.close()
 
                 # Transcribe with Whisper
-                result = voice_transcriber.transcribe_audio(
-                    temp_file.name, language=language
-                )
+                result = voice_transcriber.transcribe_audio(temp_file.name, language=language)
 
                 transcription = VoiceTranscription(
                     text=result.text,
@@ -387,9 +366,7 @@ async def analyze_voice_journal(
                 Path(temp_file.name).unlink()
 
             except Exception:
-                logger.error(
-                    "Voice transcription failed: {e}", extra={"format_args": True}
-                )
+                logger.error("Voice transcription failed: {e}", extra={"format_args": True})
                 pipeline_status["voice_processing"] = False
                 transcription = VoiceTranscription(
                     text="Transcription not available",
@@ -435,9 +412,7 @@ async def analyze_voice_journal(
             # Enhanced insights for voice processing
             text_analysis.insights.update(insights)
             text_analysis.insights["input_modality"] = "voice"
-            text_analysis.insights["full_pipeline"] = (
-                "voice → text → emotions → summary"
-            )
+            text_analysis.insights["full_pipeline"] = "voice → text → emotions → summary"
 
             return text_analysis
 

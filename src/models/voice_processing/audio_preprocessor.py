@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 class AudioPreprocessor:
     """Audio preprocessing for optimal Whisper performance."""
 
-    SUPPORTED_FORMATS = {'.mp3', '.wav', '.m4a', '.aac', '.ogg', '.flac'}
+    SUPPORTED_FORMATS = {".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac"}
     TARGET_SAMPLE_RATE = 16000  # Whisper expects 16kHz
     MAX_DURATION = 300  # 5 minutes maximum
 
@@ -68,8 +68,7 @@ class AudioPreprocessor:
 
     @staticmethod
     def preprocess_audio(
-        audio_path: str | Path,
-        output_path: str | Path | None = None
+        audio_path: str | Path, output_path: str | Path | None = None
     ) -> tuple[str, dict]:
         """Preprocess audio for optimal Whisper performance.
 
@@ -94,11 +93,11 @@ class AudioPreprocessor:
 
         # Get original metadata
         original_metadata = {
-            'duration': len(audio) / 1000.0,
-            'sample_rate': audio.frame_rate,
-            'channels': audio.channels,
-            'format': audio_path.suffix.lower(),
-            'file_size': audio_path.stat().st_size
+            "duration": len(audio) / 1000.0,
+            "sample_rate": audio.frame_rate,
+            "channels": audio.channels,
+            "format": audio_path.suffix.lower(),
+            "file_size": audio_path.stat().st_size,
         }
 
         # Convert to mono if stereo
@@ -109,34 +108,38 @@ class AudioPreprocessor:
         # Normalize sample rate to 16kHz (Whisper's expected rate)
         if audio.frame_rate != AudioPreprocessor.TARGET_SAMPLE_RATE:
             audio = audio.set_frame_rate(AudioPreprocessor.TARGET_SAMPLE_RATE)
-            logger.info("Resampled to {AudioPreprocessor.TARGET_SAMPLE_RATE}Hz", extra={"format_args": True})
+            logger.info(
+                "Resampled to {AudioPreprocessor.TARGET_SAMPLE_RATE}Hz", extra={"format_args": True}
+            )
 
         # Apply light noise reduction (normalize volume)
         audio = audio.normalize()
 
         # Generate output path if not provided
         if output_path is None:
-            temp_file = tempfile.NamedTemporaryFile(suffix='.wav', delete=False)
+            temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
             output_path = temp_file.name
             temp_file.close()
 
         # Export processed audio as WAV
-        audio.export(str(output_path), format='wav')
+        audio.export(str(output_path), format="wav")
 
         # Updated metadata
         processed_metadata = {
             **original_metadata,
-            'processed_duration': len(audio) / 1000.0,
-            'processed_sample_rate': AudioPreprocessor.TARGET_SAMPLE_RATE,
-            'processed_channels': 1,
-            'processed_format': '.wav',
-            'processed_file_size': Path(output_path).stat().st_size
+            "processed_duration": len(audio) / 1000.0,
+            "processed_sample_rate": AudioPreprocessor.TARGET_SAMPLE_RATE,
+            "processed_channels": 1,
+            "processed_format": ".wav",
+            "processed_file_size": Path(output_path).stat().st_size,
         }
 
         logger.info("Audio preprocessed: {output_path}", extra={"format_args": True})
         return str(output_path), processed_metadata
 
 
-def preprocess_audio(audio_path: str | Path, output_path: str | Path | None = None) -> tuple[str, dict]:
+def preprocess_audio(
+    audio_path: str | Path, output_path: str | Path | None = None
+) -> tuple[str, dict]:
     """Convenience function for audio preprocessing."""
     return AudioPreprocessor.preprocess_audio(audio_path, output_path)

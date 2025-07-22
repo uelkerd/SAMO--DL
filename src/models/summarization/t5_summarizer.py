@@ -34,22 +34,25 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Suppress tokenizer warnings
-warnings.filterwarnings("ignore", category=UserWarning, module="transformers.tokenization_utils_base")
+warnings.filterwarnings(
+    "ignore", category=UserWarning, module="transformers.tokenization_utils_base"
+)
 
 
 @dataclass
 class SummarizationConfig:
     """Configuration for T5/BART summarization model."""
+
     model_name: str = "t5-small"  # Start with small model for development
     max_source_length: int = 512  # Input text length
     max_target_length: int = 128  # Summary length
-    min_target_length: int = 30   # Minimum summary length
-    num_beams: int = 4           # Beam search for quality
-    length_penalty: float = 0.8   # Encourage shorter summaries
-    early_stopping: bool = True   # Stop when all beams finished
-    no_repeat_ngram_size: int = 2 # Avoid repetition
-    temperature: float = 1.0      # Sampling temperature
-    top_p: float = 0.9           # Nucleus sampling
+    min_target_length: int = 30  # Minimum summary length
+    num_beams: int = 4  # Beam search for quality
+    length_penalty: float = 0.8  # Encourage shorter summaries
+    early_stopping: bool = True  # Stop when all beams finished
+    no_repeat_ngram_size: int = 2  # Avoid repetition
+    temperature: float = 1.0  # Sampling temperature
+    top_p: float = 0.9  # Nucleus sampling
     device: str | None = None  # Auto-detect if None
 
 
@@ -62,7 +65,7 @@ class SummarizationDataset(Dataset):
         summaries: list[str],
         tokenizer,
         max_source_length: int = 512,
-        max_target_length: int = 128
+        max_target_length: int = 128,
     ) -> None:
         """Initialize summarization dataset.
 
@@ -80,7 +83,10 @@ class SummarizationDataset(Dataset):
         self.max_target_length = max_target_length
 
         assert len(texts) == len(summaries), "Texts and summaries must have same length"
-        logger.info("Initialized SummarizationDataset with {len(texts)} examples", extra={"format_args": True})
+        logger.info(
+            "Initialized SummarizationDataset with {len(texts)} examples",
+            extra={"format_args": True},
+        )
 
     def __len__(self) -> int:
         return len(self.texts)
@@ -100,7 +106,7 @@ class SummarizationDataset(Dataset):
             max_length=self.max_source_length,
             padding="max_length",
             truncation=True,
-            return_tensors="pt"
+            return_tensors="pt",
         )
 
         # Tokenize target
@@ -109,24 +115,20 @@ class SummarizationDataset(Dataset):
             max_length=self.max_target_length,
             padding="max_length",
             truncation=True,
-            return_tensors="pt"
+            return_tensors="pt",
         )
 
         return {
             "input_ids": source_encoding["input_ids"].squeeze(),
             "attention_mask": source_encoding["attention_mask"].squeeze(),
-            "labels": target_encoding["input_ids"].squeeze()
+            "labels": target_encoding["input_ids"].squeeze(),
         }
 
 
 class T5SummarizationModel(nn.Module):
     """T5/BART Summarization Model for emotional journal analysis."""
 
-    def __init__(
-        self,
-        config: SummarizationConfig = None,
-        model_name: str | None = None
-    ) -> None:
+    def __init__(self, config: SummarizationConfig = None, model_name: str | None = None) -> None:
         """Initialize T5/BART summarization model.
 
         Args:
@@ -147,7 +149,9 @@ class T5SummarizationModel(nn.Module):
         else:
             self.device = torch.device(self.config.device)
 
-        logger.info("Initializing {self.model_name} summarization model...", extra={"format_args": True})
+        logger.info(
+            "Initializing {self.model_name} summarization model...", extra={"format_args": True}
+        )
 
         # Initialize tokenizer
         if "bart" in self.model_name.lower():
@@ -166,26 +170,27 @@ class T5SummarizationModel(nn.Module):
 
         # Model info
         self.num_parameters = self.model.num_parameters()
-        logger.info("Loaded {self.model_name} with {self.num_parameters:,} parameters", extra={"format_args": True})
+        logger.info(
+            "Loaded {self.model_name} with {self.num_parameters:,} parameters",
+            extra={"format_args": True},
+        )
         logger.info("Model device: {self.device}", extra={"format_args": True})
 
     def forward(
         self,
         input_ids: torch.Tensor,
         attention_mask: torch.Tensor,
-        labels: torch.Tensor | None = None
+        labels: torch.Tensor | None = None,
     ) -> dict[str, torch.Tensor]:
         """Forward pass for training."""
-        outputs = self.model(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            labels=labels
-        )
+        outputs = self.model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
 
         return {
             "loss": outputs.loss if labels is not None else None,
             "logits": outputs.logits,
-            "hidden_states": outputs.decoder_hidden_states if hasattr(outputs, "decoder_hidden_states") else None
+            "hidden_states": outputs.decoder_hidden_states
+            if hasattr(outputs, "decoder_hidden_states")
+            else None,
         }
 
     def generate_summary(
@@ -196,7 +201,7 @@ class T5SummarizationModel(nn.Module):
         num_beams: int | None = None,
         length_penalty: float | None = None,
         early_stopping: bool | None = None,
-        no_repeat_ngram_size: int | None = None
+        no_repeat_ngram_size: int | None = None,
     ) -> str:
         """Generate summary for a single text.
 
@@ -217,7 +222,9 @@ class T5SummarizationModel(nn.Module):
         min_length = min_length or self.config.min_target_length
         num_beams = num_beams or self.config.num_beams
         length_penalty = length_penalty or self.config.length_penalty
-        early_stopping = early_stopping if early_stopping is not None else self.config.early_stopping
+        early_stopping = (
+            early_stopping if early_stopping is not None else self.config.early_stopping
+        )
         no_repeat_ngram_size = no_repeat_ngram_size or self.config.no_repeat_ngram_size
 
         # Add task prefix for T5
@@ -230,7 +237,7 @@ class T5SummarizationModel(nn.Module):
             max_length=self.config.max_source_length,
             padding="max_length",
             truncation=True,
-            return_tensors="pt"
+            return_tensors="pt",
         ).to(self.device)
 
         # Generate summary
@@ -247,23 +254,18 @@ class T5SummarizationModel(nn.Module):
                 no_repeat_ngram_size=no_repeat_ngram_size,
                 temperature=self.config.temperature,
                 top_p=self.config.top_p,
-                do_sample=False  # Use beam search, not sampling
+                do_sample=False,  # Use beam search, not sampling
             )
 
         # Decode summary
         summary = self.tokenizer.decode(
-            summary_ids[0],
-            skip_special_tokens=True,
-            clean_up_tokenization_spaces=True
+            summary_ids[0], skip_special_tokens=True, clean_up_tokenization_spaces=True
         )
 
         return summary.strip()
 
     def generate_batch_summaries(
-        self,
-        texts: list[str],
-        batch_size: int = 4,
-        **generation_kwargs
+        self, texts: list[str], batch_size: int = 4, **generation_kwargs
     ) -> list[str]:
         """Generate summaries for a batch of texts.
 
@@ -278,7 +280,7 @@ class T5SummarizationModel(nn.Module):
         summaries = []
 
         for i in range(0, len(texts), batch_size):
-            batch_texts = texts[i:i + batch_size]
+            batch_texts = texts[i : i + batch_size]
 
             # Add task prefix for T5 if needed
             if "t5" in self.model_name.lower():
@@ -290,7 +292,7 @@ class T5SummarizationModel(nn.Module):
                 max_length=self.config.max_source_length,
                 padding=True,
                 truncation=True,
-                return_tensors="pt"
+                return_tensors="pt",
             ).to(self.device)
 
             # Generate summaries
@@ -302,17 +304,21 @@ class T5SummarizationModel(nn.Module):
                     max_length=generation_kwargs.get("max_length", self.config.max_target_length),
                     min_length=generation_kwargs.get("min_length", self.config.min_target_length),
                     num_beams=generation_kwargs.get("num_beams", self.config.num_beams),
-                    length_penalty=generation_kwargs.get("length_penalty", self.config.length_penalty),
-                    early_stopping=generation_kwargs.get("early_stopping", self.config.early_stopping),
-                    no_repeat_ngram_size=generation_kwargs.get("no_repeat_ngram_size", self.config.no_repeat_ngram_size),
-                    do_sample=False
+                    length_penalty=generation_kwargs.get(
+                        "length_penalty", self.config.length_penalty
+                    ),
+                    early_stopping=generation_kwargs.get(
+                        "early_stopping", self.config.early_stopping
+                    ),
+                    no_repeat_ngram_size=generation_kwargs.get(
+                        "no_repeat_ngram_size", self.config.no_repeat_ngram_size
+                    ),
+                    do_sample=False,
                 )
 
             # Decode batch summaries
             batch_summaries = self.tokenizer.batch_decode(
-                summary_ids,
-                skip_special_tokens=True,
-                clean_up_tokenization_spaces=True
+                summary_ids, skip_special_tokens=True, clean_up_tokenization_spaces=True
             )
 
             summaries.extend([s.strip() for s in batch_summaries])
@@ -332,7 +338,7 @@ class T5SummarizationModel(nn.Module):
             "device": str(self.device),
             "max_source_length": self.config.max_source_length,
             "max_target_length": self.config.max_target_length,
-            "min_target_length": self.config.min_target_length
+            "min_target_length": self.config.min_target_length,
         }
 
 
@@ -341,7 +347,7 @@ def create_t5_summarizer(
     max_source_length: int = 512,
     max_target_length: int = 128,
     min_target_length: int = 30,
-    device: str | None = None
+    device: str | None = None,
 ) -> T5SummarizationModel:
     """Create T5/BART summarization model with specified configuration.
 
@@ -360,7 +366,7 @@ def create_t5_summarizer(
         max_source_length=max_source_length,
         max_target_length=max_target_length,
         min_target_length=min_target_length,
-        device=device
+        device=device,
     )
 
     model = T5SummarizationModel(config)
@@ -379,13 +385,13 @@ def test_summarization_model() -> None:
     # Sample journal entries
     test_texts = [
         """Today was such a rollercoaster of emotions. I started the morning feeling anxious about my job interview, but I tried to stay positive. The interview actually went really well - I felt confident and articulate. The interviewer seemed impressed with my experience. After that, I met up with Sarah for coffee and we talked about everything that's been going on in our lives. She's been struggling with her relationship, and I tried to be supportive. By evening, I was exhausted but also proud of myself for handling a stressful day so well. I'm learning to trust myself more and not overthink everything.""",
-
         """Had a difficult conversation with mom today about dad's health. The doctors want to run more tests, and we're all worried. I hate feeling so helpless when someone I love is suffering. But I'm grateful that our family is pulling together during this time. My sister and I are planning to visit next weekend to help out. Sometimes I wonder if I'm strong enough to handle these kinds of challenges, but I know I have to be there for the people who matter most. Love really is everything.""",
-
-        """Work has been incredibly stressful lately. My boss keeps piling on more projects, and I'm starting to feel overwhelmed. I've been staying late almost every night this week. On the positive side, I finally finished that big presentation I've been working on for months. It felt amazing to see it come together. I think I need to have a conversation with my manager about workload balance. I love my job, but I also need to take care of my mental health. Maybe it's time to set some boundaries."""
+        """Work has been incredibly stressful lately. My boss keeps piling on more projects, and I'm starting to feel overwhelmed. I've been staying late almost every night this week. On the positive side, I finally finished that big presentation I've been working on for months. It felt amazing to see it come together. I think I need to have a conversation with my manager about workload balance. I love my job, but I also need to take care of my mental health. Maybe it's time to set some boundaries.""",
     ]
 
-    logger.info("Generating summaries for {len(test_texts)} journal entries...", extra={"format_args": True})
+    logger.info(
+        "Generating summaries for {len(test_texts)} journal entries...", extra={"format_args": True}
+    )
 
     # Generate summaries
     for _i, text in enumerate(test_texts, 1):

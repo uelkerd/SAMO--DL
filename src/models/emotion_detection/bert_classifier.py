@@ -128,7 +128,9 @@ class BERTEmotionClassifier(nn.Module):
             for param in self.bert.encoder.layer[i].parameters():
                 param.requires_grad = False
 
-        logger.info("Frozen {num_layers} BERT layers for progressive training", extra={"format_args": True})
+        logger.info(
+            "Frozen {num_layers} BERT layers for progressive training", extra={"format_args": True}
+        )
 
     def unfreeze_bert_layers(self, num_layers: int) -> None:
         """Unfreeze BERT layers for progressive unfreezing strategy.
@@ -144,9 +146,7 @@ class BERTEmotionClassifier(nn.Module):
         # Calculate which layers to unfreeze
         total_layers = len(self.bert.encoder.layer)
         currently_frozen = sum(
-            1
-            for layer in self.bert.encoder.layer
-            if not next(layer.parameters()).requires_grad
+            1 for layer in self.bert.encoder.layer if not next(layer.parameters()).requires_grad
         )
 
         layers_to_unfreeze = min(num_layers, currently_frozen)
@@ -157,7 +157,9 @@ class BERTEmotionClassifier(nn.Module):
             for param in self.bert.encoder.layer[i].parameters():
                 param.requires_grad = True
 
-        logger.info("Unfroze {layers_to_unfreeze} additional BERT layers", extra={"format_args": True})
+        logger.info(
+            "Unfroze {layers_to_unfreeze} additional BERT layers", extra={"format_args": True}
+        )
 
     def forward(
         self,
@@ -259,9 +261,7 @@ class BERTEmotionClassifier(nn.Module):
             "primary_emotion": primary_emotion,
             "primary_confidence": float(primary_confidence),
             "all_probabilities": probabilities.tolist(),
-            "emotion_mapping": dict(
-                zip(GOEMOTIONS_EMOTIONS, probabilities.tolist(), strict=False)
-            ),
+            "emotion_mapping": dict(zip(GOEMOTIONS_EMOTIONS, probabilities.tolist(), strict=False)),
         }
 
     def count_parameters(self) -> int:
@@ -279,9 +279,7 @@ class WeightedBCELoss(nn.Module):
     Implements class weighting to handle emotion frequency imbalance in GoEmotions.
     """
 
-    def __init__(
-        self, class_weights: torch.Tensor | None = None, reduction: str = "mean"
-    ) -> None:
+    def __init__(self, class_weights: torch.Tensor | None = None, reduction: str = "mean") -> None:
         """Initialize weighted BCE loss.
 
         Args:
@@ -308,9 +306,7 @@ class WeightedBCELoss(nn.Module):
             Computed loss tensor
         """
         # Compute binary cross entropy
-        bce_loss = F.binary_cross_entropy_with_logits(
-            logits, targets.float(), reduction="none"
-        )
+        bce_loss = F.binary_cross_entropy_with_logits(logits, targets.float(), reduction="none")
 
         # Apply class weights if provided
         if self.class_weights is not None:
@@ -399,9 +395,7 @@ def create_bert_emotion_classifier(
         Tuple of (model, loss_function)
     """
     # Create model
-    model = BERTEmotionClassifier(
-        model_name=model_name, freeze_bert_layers=freeze_bert_layers
-    )
+    model = BERTEmotionClassifier(model_name=model_name, freeze_bert_layers=freeze_bert_layers)
 
     # Create loss function with class weights
     loss_weights = None
@@ -493,7 +487,10 @@ def evaluate_emotion_classifier(
     logger.info(
         f"Evaluation complete - Micro F1: {metrics['micro_f1']:.3f}, Macro F1: {metrics['macro_f1']:.3f}"
     )
-    logger.info("Average inference time: {metrics['avg_inference_time_ms']:.1f}ms", extra={"format_args": True})
+    logger.info(
+        "Average inference time: {metrics['avg_inference_time_ms']:.1f}ms",
+        extra={"format_args": True},
+    )
 
     return metrics
 
@@ -517,5 +514,3 @@ if __name__ == "__main__":
     with torch.no_grad():
         outputs = model(**inputs)
         predictions = model.predict_emotions(**inputs)
-
-

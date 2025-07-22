@@ -24,10 +24,7 @@ class SummarizationDataset(Dataset):
         return len(self.texts)
 
     def __getitem__(self, idx):
-        return {
-            "text": self.texts[idx],
-            "summary": self.summaries[idx]
-        }
+        return {"text": self.texts[idx], "summary": self.summaries[idx]}
 
 
 def create_summarization_loader() -> None:
