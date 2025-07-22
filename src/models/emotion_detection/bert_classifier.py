@@ -435,7 +435,7 @@ def evaluate_emotion_classifier(
     total_time = 0
 
     with torch.no_grad():
-        for batch in dataloader:
+        for batch_idx, batch in enumerate(dataloader):
             start_time = time.time()
 
             # Move batch to device
@@ -443,9 +443,14 @@ def evaluate_emotion_classifier(
             attention_mask = batch["attention_mask"].to(device)
             targets = batch["labels"].to(device)
 
-            # Forward pass
+                        # Forward pass
             outputs = model(input_ids, attention_mask)
             probabilities = outputs["probabilities"]
+
+            # Debug: Log probability statistics
+            if batch_idx == 0:  # Only log first batch to avoid spam
+                logger.info(f"DEBUG: Probability stats - min: {probabilities.min():.4f}, max: {probabilities.max():.4f}, mean: {probabilities.mean():.4f}")
+                logger.info(f"DEBUG: Probability distribution - 0.1: {(probabilities >= 0.1).sum()}, 0.2: {(probabilities >= 0.2).sum()}, 0.5: {(probabilities >= 0.5).sum()}")
 
             # Convert to predictions with lower threshold for better recall
             predictions = (probabilities >= threshold).float()
@@ -453,11 +458,12 @@ def evaluate_emotion_classifier(
             # Alternative: Use top-k prediction for each sample
             # This ensures we always have some predictions even with low probabilities
             if predictions.sum(dim=1).max() == 0:
-                # If no predictions above threshold, use top-1 prediction
-                top_k = 1
+                # If no predictions above threshold, use top-3 prediction
+                top_k = 3
                 top_indices = torch.topk(probabilities, k=top_k, dim=1)[1]
                 predictions = torch.zeros_like(probabilities)
                 predictions.scatter_(1, top_indices, 1.0)
+                logger.info(f"DEBUG: Using top-{top_k} fallback for batch {batch_idx}")
 
             # Collect results
             all_predictions.append(predictions.cpu().numpy())
@@ -470,7 +476,7 @@ def evaluate_emotion_classifier(
     # Combine all predictions and targets
     all_predictions = np.vstack(all_predictions)
     all_targets = np.vstack(all_targets)
-    
+
     # Debug information
     logger.info(f"Evaluation debug - Predictions shape: {all_predictions.shape}")
     logger.info(f"Evaluation debug - Targets shape: {all_targets.shape}")
