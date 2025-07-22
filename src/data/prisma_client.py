@@ -7,7 +7,7 @@ It's a simple wrapper that allows Python code to execute Prisma commands.
 import json
 import os
 import subprocess
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class PrismaClient:
@@ -28,6 +28,7 @@ class PrismaClient:
 
         Raises:
             Exception: If the script execution fails
+
         """
         # Create a temporary JS file
         with open("temp_prisma_script.js", "w") as f:
@@ -55,10 +56,12 @@ main();
 
         try:
             # Execute the script
-            result = subprocess.run(["node", "temp_prisma_script.js"],
-                                   capture_output=True,
-                                   text=True,
-                                   check=True)
+            result = subprocess.run(
+                ["node", "temp_prisma_script.js"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
 
             # Parse the output
             return json.loads(result.stdout)
@@ -70,7 +73,9 @@ main();
             if os.path.exists("temp_prisma_script.js"):
                 os.remove("temp_prisma_script.js")
 
-    def create_user(self, email: str, password_hash: str, consent_version: str | None = None) -> dict[str, Any]:
+    def create_user(
+        self, email: str, password_hash: str, consent_version: str | None = None
+    ) -> dict[str, Any]:
         """Create a new user.
 
         Args:
@@ -80,6 +85,7 @@ main();
 
         Returns:
             Dict[str, Any]: Created user data
+
         """
         script = f"""
         return prisma.user.create({{
@@ -94,7 +100,9 @@ main();
 
         return self.execute_prisma_command(script)
 
-    def create_journal_entry(self, user_id: str, title: str, content: str, is_private: bool = True) -> dict[str, Any]:
+    def create_journal_entry(
+        self, user_id: str, title: str, content: str, is_private: bool = True
+    ) -> dict[str, Any]:
         """Create a new journal entry.
 
         Args:
@@ -105,6 +113,7 @@ main();
 
         Returns:
             Dict[str, Any]: Created journal entry data
+
         """
         script = f"""
         return prisma.journalEntry.create({{
@@ -132,6 +141,7 @@ main();
 
         Returns:
             Optional[Dict[str, Any]]: User data or None if not found
+
         """
         script = f"""
         return prisma.user.findUnique({{
@@ -142,7 +152,9 @@ main();
         result = self.execute_prisma_command(script)
         return result if result else None
 
-    def get_journal_entries_by_user(self, user_id: str, limit: int = 10) -> list[dict[str, Any]]:
+    def get_journal_entries_by_user(
+        self, user_id: str, limit: int = 10
+    ) -> list[dict[str, Any]]:
         """Get journal entries for a specific user.
 
         Args:
@@ -151,6 +163,7 @@ main();
 
         Returns:
             List[Dict[str, Any]]: List of journal entries
+
         """
         script = f"""
         return prisma.journalEntry.findMany({{

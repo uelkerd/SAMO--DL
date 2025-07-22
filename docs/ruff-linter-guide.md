@@ -179,7 +179,7 @@ df = pd.DataFrame()
 # Bad
 def preprocess_text(text: str) -> str:
     """Clean and normalize input text"""
-    
+
 # Good
 def preprocess_text(text: str) -> str:
     """Clean and normalize input text."""
@@ -349,6 +349,6 @@ git diff --name-only | grep '\.py$' | xargs ruff check
 
 **Next Actions for SAMO-DL Team:**
 1. Run `./scripts/lint.sh fix` to clean up existing codebase
-2. Set up editor integration for real-time feedback  
+2. Set up editor integration for real-time feedback
 3. Add to CI/CD pipeline for quality gates
-4. Focus on ML model development with clean, maintainable code! 🚀 
+4. Focus on ML model development with clean, maintainable code! 🚀
