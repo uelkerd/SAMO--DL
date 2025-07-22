@@ -36,9 +36,9 @@ def generate_report() -> str:
 Generated: {timestamp}
 
 ## Ruff Analysis
-- Errors Found: {stats['errors']}
-- Warnings: {stats['warnings']}
-- Auto-fixed: {stats['fixed']}
+- Errors Found: {stats["errors"]}
+- Warnings: {stats["warnings"]}
+- Auto-fixed: {stats["fixed"]}
 
 ## Pre-commit Status
 ✅ Ruff linting and formatting enabled
