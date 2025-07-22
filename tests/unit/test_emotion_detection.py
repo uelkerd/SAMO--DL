@@ -3,10 +3,10 @@ Unit tests for BERT emotion detection model.
 Tests model initialization, forward pass, and emotion classification logic.
 """
 
+from unittest.mock import Mock, patch
+
 import pytest
 import torch
-import numpy as np
-from unittest.mock import Mock, patch
 
 from src.models.emotion_detection.bert_classifier import BertEmotionClassifier
 
@@ -20,9 +20,9 @@ class TestBertEmotionClassifier:
         model = BertEmotionClassifier(num_emotions=num_emotions)
 
         assert model.num_emotions == num_emotions
-        assert hasattr(model, 'bert')
-        assert hasattr(model, 'classifier')
-        assert hasattr(model, 'dropout')
+        assert hasattr(model, "bert")
+        assert hasattr(model, "classifier")
+        assert hasattr(model, "dropout")
 
     def test_model_parameter_count(self):
         """Test model has expected number of parameters."""
@@ -33,7 +33,7 @@ class TestBertEmotionClassifier:
         assert total_params > 100_000_000
         assert total_params < 200_000_000
 
-    @patch('src.models.emotion_detection.bert_classifier.BertModel')
+    @patch("src.models.emotion_detection.bert_classifier.BertModel")
     def test_forward_pass(self, mock_bert):
         """Test model forward pass with mock BERT."""
         # Setup mock
@@ -58,14 +58,14 @@ class TestBertEmotionClassifier:
     def test_predict_emotions(self):
         """Test emotion prediction with threshold."""
         # Mock model output
-        with patch.object(BertEmotionClassifier, 'forward') as mock_forward:
+        with patch.object(BertEmotionClassifier, "forward") as mock_forward:
             mock_forward.return_value = torch.tensor([[0.1, 0.8, 0.2, 0.9]])
 
             model = BertEmotionClassifier(num_emotions=4)
             model.eval()
 
             # Mock tokenizer
-            with patch('src.models.emotion_detection.bert_classifier.BertTokenizer'):
+            with patch("src.models.emotion_detection.bert_classifier.BertTokenizer"):
                 predicted = model.predict_emotions("test text", threshold=0.5)
 
                 # Should predict indices 1 and 3 (values 0.8 and 0.9)
@@ -122,12 +122,34 @@ class TestBertEmotionClassifier:
         model = BertEmotionClassifier(num_emotions=28)
 
         expected_emotions = [
-            'admiration', 'amusement', 'anger', 'annoyance', 'approval',
-            'caring', 'confusion', 'curiosity', 'desire', 'disappointment',
-            'disapproval', 'disgust', 'embarrassment', 'excitement', 'fear',
-            'gratitude', 'grief', 'joy', 'love', 'nervousness',
-            'optimism', 'pride', 'realization', 'relief', 'remorse',
-            'sadness', 'surprise', 'neutral'
+            "admiration",
+            "amusement",
+            "anger",
+            "annoyance",
+            "approval",
+            "caring",
+            "confusion",
+            "curiosity",
+            "desire",
+            "disappointment",
+            "disapproval",
+            "disgust",
+            "embarrassment",
+            "excitement",
+            "fear",
+            "gratitude",
+            "grief",
+            "joy",
+            "love",
+            "nervousness",
+            "optimism",
+            "pride",
+            "realization",
+            "relief",
+            "remorse",
+            "sadness",
+            "surprise",
+            "neutral",
         ]
 
         # Test that we expect 28 emotions (27 + neutral)
