@@ -6,8 +6,6 @@ Tests Pydantic models, request/response validation, and data transformations.
 from datetime import datetime
 
 
-
-
 class TestAPIModels:
     """Test suite for API data models."""
 

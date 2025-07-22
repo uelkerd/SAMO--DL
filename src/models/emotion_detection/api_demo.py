@@ -6,7 +6,6 @@ models and provides a preview of the API interface for Web Dev integration.
 """
 
 import logging
-from typing import Dict, List, Optional
 
 import torch
 import uvicorn
@@ -14,7 +13,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from transformers import AutoTokenizer
 
-from .bert_classifier import BERTEmotionClassifier, create_bert_emotion_classifier
+from .bert_classifier import create_bert_emotion_classifier
 from .dataset_loader import GOEMOTIONS_EMOTIONS
 
 # Configure logging
@@ -54,7 +53,7 @@ class EmotionResponse(BaseModel):
 
 
 @app.on_event("startup")
-async def load_model():
+async def load_model() -> None:
     """Load emotion detection model on startup."""
     global model, tokenizer
 
@@ -74,7 +73,7 @@ async def load_model():
 
         logger.info("✅ Model loaded successfully!")
 
-    except Exception as e:
+    except Exception:
         logger.error("Failed to load model: {e}", extra={"format_args": True})
         raise
 
@@ -225,12 +224,6 @@ async def analyze_emotions_batch(texts: list[str], threshold: float = 0.5):
 
 
 if __name__ == "__main__":
-    print("🚀 Starting SAMO Emotion Detection API Demo...")
-    print("📝 Example requests:")
-    print("  POST /analyze with: {'text': 'I am so excited about this project!'}")
-    print("  POST /analyze with: {'text': 'I feel overwhelmed and anxious today.'}")
-    print("  GET /emotions to see all supported emotions")
-    print()
 
     # Run the API server
     uvicorn.run(app, host="127.0.0.1",  # Changed from 0.0.0.0 for security

@@ -14,7 +14,7 @@ This directory contains the Prisma ORM configuration for the SAMO-DL project.
 
    ```
    # PostgreSQL database connection
-   DATABASE_URL="postgresql://samouser:samopassword@localhost:5432/samodb?schema=public"
+   DATABASE_URL="postgresql://samo_secure_1753200376:SECURE_PASSWORD_HERE@localhost:5432/samodb?schema=public"
 
    # Application environment
    NODE_ENV="development"

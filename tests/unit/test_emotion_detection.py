@@ -11,7 +11,9 @@ import torch
 try:
     from src.models.emotion_detection.bert_classifier import BertEmotionClassifier
 except ImportError as e:
-    raise RuntimeError("Failed to import BertEmotionClassifier. Ensure all model dependencies are installed.") from e
+    raise RuntimeError(
+        "Failed to import BertEmotionClassifier. Ensure all model dependencies are installed."
+    ) from e
 
 
 class TestBertEmotionClassifier:
