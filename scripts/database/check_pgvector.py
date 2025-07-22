@@ -1,19 +1,38 @@
 #!/usr/bin/env python3
-"""
-Script to check if pgvector extension is installed in PostgreSQL.
+"""Script to check if pgvector extension is installed in PostgreSQL.
 """
 
 import os
 import sys
+from urllib.parse import urlparse
+
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-# Get database connection details from environment variables
-DB_USER = os.environ.get('DB_USER', 'samouser')
-DB_PASSWORD = os.environ.get('DB_PASSWORD', 'samopassword')
-DB_HOST = os.environ.get('DB_HOST', 'localhost')
-DB_PORT = os.environ.get('DB_PORT', '5432')
-DB_NAME = os.environ.get('DB_NAME', 'samodb')
+# Load environment variables from .env file
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # dotenv not installed, skip loading
+    pass
+
+# Parse DATABASE_URL or fall back to individual env vars
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if DATABASE_URL:
+    parsed = urlparse(DATABASE_URL)
+    DB_USER = parsed.username
+    DB_PASSWORD = parsed.password
+    DB_HOST = parsed.hostname
+    DB_PORT = parsed.port or 5432
+    DB_NAME = parsed.path.lstrip('/')
+else:
+    # Fall back to individual environment variables
+    DB_USER = os.environ.get("DB_USER", "samouser")
+    DB_PASSWORD = os.environ.get("DB_PASSWORD", "samopassword")
+    DB_HOST = os.environ.get("DB_HOST", "localhost")
+    DB_PORT = os.environ.get("DB_PORT", "5432")
+    DB_NAME = os.environ.get("DB_NAME", "samodb")
 
 def check_pgvector():
     """Check if pgvector extension is installed and available."""
@@ -27,14 +46,14 @@ def check_pgvector():
             port=DB_PORT
         )
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-        
+
         # Create a cursor
         cur = conn.cursor()
-        
+
         # Check if vector extension is available
         cur.execute("SELECT extname FROM pg_extension WHERE extname = 'vector';")
         is_installed = cur.fetchone() is not None
-        
+
         if is_installed:
             print("✅ pgvector extension is installed and available.")
         else:
@@ -48,17 +67,17 @@ def check_pgvector():
             print("   - psql -U postgres")
             print(f"   - \\c {DB_NAME}")
             print("   - CREATE EXTENSION vector;")
-        
+
         # Close cursor and connection
         cur.close()
         conn.close()
-        
+
         return is_installed
-    
+
     except psycopg2.Error as e:
         print(f"Error connecting to PostgreSQL: {e}")
         return False
 
 if __name__ == "__main__":
     is_installed = check_pgvector()
-    sys.exit(0 if is_installed else 1) 
+    sys.exit(0 if is_installed else 1)
