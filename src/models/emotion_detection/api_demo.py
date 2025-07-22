@@ -224,7 +224,10 @@ async def analyze_emotions_batch(texts: list[str], threshold: float = 0.5):
 
 
 if __name__ == "__main__":
-
     # Run the API server
-    uvicorn.run(app, host="127.0.0.1",  # Changed from 0.0.0.0 for security
-                port=8000, log_level="info")
+    uvicorn.run(
+        app,
+        host="127.0.0.1",  # Changed from 0.0.0.0 for security
+        port=8000,
+        log_level="info",
+    )

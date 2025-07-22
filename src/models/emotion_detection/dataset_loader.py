@@ -72,9 +72,7 @@ class GoEmotionsPreprocessor:
         """
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.max_length = max_length
-        logger.info(
-            f"Initialized preprocessor with {model_name}, max_length={max_length}"
-        )
+        logger.info(f"Initialized preprocessor with {model_name}, max_length={max_length}")
 
     def clean_text(self, text: str) -> str:
         """Clean and normalize text while preserving emotional signals.
@@ -273,8 +271,13 @@ class GoEmotionsDataLoader:
         logger.info(
             f"Multi-label examples: {multi_label_count} ({stats['multi_label_percentage']:.1f}%)"
         )
-        logger.info("Most frequent emotions: {stats['most_frequent_emotions']}", extra={"format_args": True})
-        logger.info("Least frequent emotions: {stats['least_frequent_emotions']}", extra={"format_args": True})
+        logger.info(
+            "Most frequent emotions: {stats['most_frequent_emotions']}", extra={"format_args": True}
+        )
+        logger.info(
+            "Least frequent emotions: {stats['least_frequent_emotions']}",
+            extra={"format_args": True},
+        )
 
         return stats
 
@@ -354,9 +357,7 @@ class GoEmotionsDataLoader:
         # Second split: separate validation from training
         train_stratify = []
         for labels in train_val_df["labels"]:
-            train_stratify.append(
-                labels[0] if len(labels) > 0 else len(GOEMOTIONS_EMOTIONS) - 1
-            )
+            train_stratify.append(labels[0] if len(labels) > 0 else len(GOEMOTIONS_EMOTIONS) - 1)
 
         train_df, val_df = train_test_split(
             train_val_df,
@@ -438,4 +439,3 @@ if __name__ == "__main__":
 
     loader = create_goemotions_loader()
     datasets = loader.prepare_datasets()
-

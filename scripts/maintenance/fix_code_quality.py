@@ -64,9 +64,7 @@ class CodeQualityFixer:
             # Write back if changes were made
             if content != original_content:
                 file_path.write_text(content, encoding="utf-8")
-                fixes_count = (
-                    len(original_content.split("\n")) - len(content.split("\n")) + 1
-                )
+                fixes_count = len(original_content.split("\n")) - len(content.split("\n")) + 1
                 self.fixes_applied += fixes_count
                 logger.info(f"🔄 Fixed {file_path.relative_to(self.src_dir)}")
 
@@ -81,9 +79,7 @@ class CodeQualityFixer:
         if "sample_data.py" in content or "import random" in content:
             # Add secrets import if not present
             if "import secrets" not in content and "random." in content:
-                content = re.sub(
-                    r"import random\n", "import random\nimport secrets\n", content
-                )
+                content = re.sub(r"import random\n", "import random\nimport secrets\n", content)
 
             # Replace random.choice with secrets.choice for non-dev code
             if "sample_data.py" in str(content):
@@ -108,9 +104,7 @@ class CodeQualityFixer:
         # Add pathlib import if needed
         if "os.path." in content or "os.makedirs" in content or "os.remove" in content:
             if "from pathlib import Path" not in content:
-                content = re.sub(
-                    r"(import os\n)", r"\1from pathlib import Path\n", content
-                )
+                content = re.sub(r"(import os\n)", r"\1from pathlib import Path\n", content)
 
         # PTH118: os.path.join -> Path / operator
         content = re.sub(r"os\.path\.join\(([^)]+)\)", r"Path(\1).as_posix()", content)
@@ -165,10 +159,7 @@ class CodeQualityFixer:
         # For now, add comments to acknowledge the G004 violations
         # This is a more complex fix that requires understanding context
         if "logger." in content and 'f"' in content:
-            content = (
-                "# G004: Logging f-strings temporarily allowed for development\n"
-                + content
-            )
+            content = "# G004: Logging f-strings temporarily allowed for development\n" + content
 
         return content
 

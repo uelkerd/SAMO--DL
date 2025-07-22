@@ -112,14 +112,10 @@ def generate_content(topic: str, emotion: str) -> str:
     """Generate journal entry content."""
     template = random.choice(ENTRY_TEMPLATES)
     additional_sentence = random.choice(ADDITIONAL_SENTENCES)
-    return template.format(
-        topic=topic, emotion=emotion, additional_sentence=additional_sentence
-    )
+    return template.format(topic=topic, emotion=emotion, additional_sentence=additional_sentence)
 
 
-def generate_entry(
-    user_id: int, created_at: datetime, id_start: int = 1
-) -> dict[str, Any]:
+def generate_entry(user_id: int, created_at: datetime, id_start: int = 1) -> dict[str, Any]:
     """Generate a single journal entry."""
     topic = random.choice(TOPICS)
     emotion = random.choice(EMOTIONS)
