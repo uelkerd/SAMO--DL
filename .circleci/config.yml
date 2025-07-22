@@ -1,0 +1,431 @@
+version: 2.1
+
+# ============================================================================
+# SAMO Deep Learning - CircleCI Pipeline Configuration
+#
+# 3-Stage Pipeline Design (following user's CI guidelines):
+# Stage 1 (<5min):  Fast feedback - linting, formatting, unit tests
+# Stage 2 (<15min): Integration tests, security scans, model validation
+# Stage 3 (<30min): E2E tests, performance benchmarks, deployment
+# ============================================================================
+
+orbs:
+  python: circleci/python@2.1.1
+  docker: circleci/docker@2.5.0
+  slack: circleci/slack@4.12.1
+
+# ============================================================================
+# EXECUTORS - Define runtime environments
+# ============================================================================
+executors:
+  python-ml:
+    docker:
+      - image: cimg/python:3.12
+    resource_class: large
+    working_directory: ~/samo-dl
+    environment:
+      PYTHONPATH: /home/circleci/samo-dl/src
+      TOKENIZERS_PARALLELISM: "false"  # Avoid HuggingFace tokenizer warnings
+
+  python-gpu:
+    machine:
+      image: ubuntu-2004:2023.07.1
+      docker_layer_caching: true
+    resource_class: gpu.nvidia.medium
+    working_directory: ~/samo-dl
+    environment:
+      PYTHONPATH: /home/circleci/samo-dl/src
+
+# ============================================================================
+# COMMANDS - Reusable command definitions
+# ============================================================================
+commands:
+  setup_python_env:
+    description: "Set up Python environment with dependencies"
+    steps:
+      - checkout
+      - python/install-packages:
+          pkg-manager: pip
+          pip-dependency-file: pyproject.toml
+          args: "-e ."
+      - run:
+          name: Install additional ML dependencies
+          command: |
+            python -m pip install --upgrade pip
+            # All dependencies are managed in pyproject.toml
+            echo "✅ All dependencies installed via pyproject.toml"
+
+  cache_dependencies:
+    description: "Cache Python dependencies and model files"
+    steps:
+      - save_cache:
+          key: deps-v1-{{ checksum "pyproject.toml" }}-{{ checksum "environment.yml" }}
+          paths:
+            - ~/.cache/pip
+            - ~/.cache/huggingface
+            - data/cache
+
+  restore_dependencies:
+    description: "Restore cached dependencies"
+    steps:
+      - restore_cache:
+          keys:
+            - deps-v1-{{ checksum "pyproject.toml" }}-{{ checksum "environment.yml" }}
+            - deps-v1-
+
+  run_quality_checks:
+    description: "Run comprehensive code quality checks"
+    steps:
+      - run:
+          name: Ruff Linting
+          command: |
+            echo "🔍 Running Ruff linter..."
+            ruff check src/ tests/ scripts/ --output-format=github
+      - run:
+          name: Ruff Formatting Check
+          command: |
+            echo "🎨 Checking code formatting..."
+            ruff format --check src/ tests/ scripts/
+      - run:
+          name: Type Checking (MyPy)
+          command: |
+            echo "📝 Running type checking..."
+            python -m mypy src/ --ignore-missing-imports
+
+  run_security_scan:
+    description: "Run security vulnerability scanning"
+    steps:
+      - run:
+          name: Bandit Security Scan
+          command: |
+            echo "🔒 Running Bandit security scan..."
+            bandit -r src/ -f json -o bandit-report.json
+      - run:
+          name: Safety Check (Dependencies)
+          command: |
+            echo "🛡️ Checking dependency vulnerabilities..."
+            safety check --json --output safety-report.json
+
+  run_unit_tests:
+    description: "Run unit tests with coverage"
+    steps:
+      - run:
+          name: Unit Tests
+          command: |
+            echo "🧪 Running unit tests..."
+            python -m pytest tests/unit/ \
+              --cov=src \
+              --cov-report=xml \
+              --cov-report=html \
+              --cov-fail-under=70 \
+              --junit-xml=test-results/unit/results.xml \
+              -v
+          environment:
+            PYTEST_ADDOPTS: "--tb=short"
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: htmlcov
+          destination: coverage-report
+
+# ============================================================================
+# JOBS - Individual job definitions
+# ============================================================================
+jobs:
+  # STAGE 1: Fast Feedback (<5 minutes)
+  # --------------------------------------------------------------------------
+  lint-and-format:
+    executor: python-ml
+    steps:
+      - restore_dependencies
+      - setup_python_env
+      - cache_dependencies
+      - run_quality_checks
+      - store_artifacts:
+          path: .ruff_cache
+          destination: ruff-cache
+
+  unit-tests:
+    executor: python-ml
+    steps:
+      - restore_dependencies
+      - setup_python_env
+      - cache_dependencies
+      - run_unit_tests
+
+  # STAGE 2: Integration & Security (<15 minutes)
+  # --------------------------------------------------------------------------
+  security-scan:
+    executor: python-ml
+    steps:
+      - restore_dependencies
+      - setup_python_env
+      - run_security_scan
+      - store_artifacts:
+          path: bandit-report.json
+          destination: security-reports/bandit
+      - store_artifacts:
+          path: safety-report.json
+          destination: security-reports/safety
+
+  integration-tests:
+    executor: python-ml
+    steps:
+      - restore_dependencies
+      - setup_python_env
+      - cache_dependencies
+      - run:
+          name: Integration Tests
+          command: |
+            echo "🔗 Running integration tests..."
+            python -m pytest tests/integration/ \
+              --junit-xml=test-results/integration/results.xml \
+              -v --tb=short
+      - store_test_results:
+          path: test-results
+
+  model-validation:
+    executor: python-ml
+    steps:
+      - restore_dependencies
+      - setup_python_env
+      - cache_dependencies
+      - run:
+          name: BERT Model Loading Test
+          command: |
+            echo "🤖 Testing BERT emotion detection model loading..."
+            python scripts/ci/bert_model_test.py
+      - run:
+          name: T5 Summarization Test
+          command: |
+            echo "📝 Testing T5 summarization model..."
+            python scripts/ci/t5_summarization_test.py
+      - run:
+          name: API Health Check
+          command: |
+            echo "🌐 Testing unified AI API endpoints..."
+            python scripts/ci/api_health_check.py
+
+  # STAGE 3: Comprehensive Testing & Performance (<30 minutes)
+  # --------------------------------------------------------------------------
+  e2e-tests:
+    executor: python-ml
+    steps:
+      - restore_dependencies
+      - setup_python_env
+      - cache_dependencies
+      - run:
+          name: End-to-End Tests
+          command: |
+            echo "🎯 Running end-to-end tests..."
+            python -m pytest tests/e2e/ \
+              --junit-xml=test-results/e2e/results.xml \
+              -v --tb=short \
+              --timeout=300
+      - store_test_results:
+          path: test-results
+
+  performance-benchmarks:
+    executor: python-ml
+    steps:
+      - restore_dependencies
+      - setup_python_env
+      - cache_dependencies
+      - run:
+          name: Model Performance Benchmarks
+          command: |
+            echo "⚡ Running performance benchmarks..."
+            python scripts/optimize_performance.py --benchmark-only
+      - run:
+          name: API Response Time Tests
+          command: |
+            echo "🚀 Testing API response times..."
+            python -c "
+            import time
+            from src.unified_ai_api import app
+            from fastapi.testclient import TestClient
+
+            client = TestClient(app)
+
+            # Test emotion detection speed
+            start = time.time()
+            response = client.post('/analyze/journal', data={'text': 'I feel happy and excited today!'})
+            duration = time.time() - start
+
+            assert response.status_code == 200
+            assert duration < 2.0, f'API response too slow: {duration:.2f}s'
+            print(f'✅ Emotion detection: {duration:.2f}s (<500ms target in production)')
+            "
+      - store_artifacts:
+          path: performance-results.json
+          destination: performance-reports
+
+  gpu-compatibility:
+    executor: python-gpu
+    steps:
+      - restore_dependencies
+      - setup_python_env
+      - run:
+          name: GPU Environment Setup
+          command: |
+            echo "🖥️ Setting up GPU environment..."
+            nvidia-smi
+            python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
+      - run:
+          name: GPU Training Test
+          command: |
+            echo "🚀 Testing GPU model training..."
+            python -c "
+            import torch
+            from src.models.emotion_detection.bert_classifier import BertEmotionClassifier
+
+            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            model = BertEmotionClassifier(num_emotions=28).to(device)
+
+            # Test forward pass
+            dummy_input = torch.randn(2, 512, device=device).long()
+            output = model(dummy_input)
+
+            print(f'✅ GPU forward pass successful on {device}')
+            print(f'Output shape: {output.shape}')
+            "
+
+  # DEPLOYMENT JOB
+  # --------------------------------------------------------------------------
+  build-and-deploy:
+    executor: python-ml
+    steps:
+      - restore_dependencies
+      - setup_python_env
+      - run:
+          name: Build Docker Image
+          command: |
+            echo "🐳 Building production Docker image..."
+            docker build -t samo-dl:${CIRCLE_SHA1} -f docker/Dockerfile.prod .
+      - run:
+          name: Test Docker Image
+          command: |
+            echo "🧪 Testing Docker image..."
+            docker run --rm samo-dl:${CIRCLE_SHA1} python -c "
+            from src.unified_ai_api import app
+            print('✅ Docker image working correctly')
+            "
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Deploy to Staging
+                command: |
+                  echo "🚀 Deploying to staging environment..."
+                  # Add deployment logic here
+
+# ============================================================================
+# WORKFLOWS - Define job execution order and conditions
+# ============================================================================
+workflows:
+  version: 2
+
+  # Main CI/CD Pipeline
+  samo-ci-cd:
+    jobs:
+      # STAGE 1: Fast Feedback (<5 minutes)
+      - lint-and-format:
+          filters:
+            branches:
+              ignore:
+                - gh-pages
+
+      - unit-tests:
+          filters:
+            branches:
+              ignore:
+                - gh-pages
+
+      # STAGE 2: Integration & Security (<15 minutes)
+      - security-scan:
+          requires:
+            - lint-and-format
+          filters:
+            branches:
+              ignore:
+                - gh-pages
+
+      - integration-tests:
+          requires:
+            - unit-tests
+          filters:
+            branches:
+              ignore:
+                - gh-pages
+
+      - model-validation:
+          requires:
+            - unit-tests
+          filters:
+            branches:
+              ignore:
+                - gh-pages
+
+      # STAGE 3: Comprehensive Testing (<30 minutes)
+      - e2e-tests:
+          requires:
+            - integration-tests
+            - model-validation
+          filters:
+            branches:
+              ignore:
+                - gh-pages
+
+      - performance-benchmarks:
+          requires:
+            - model-validation
+          filters:
+            branches:
+              ignore:
+                - gh-pages
+
+      # GPU tests (optional, only on GPU-enabled plans)
+      - gpu-compatibility:
+          requires:
+            - model-validation
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+                - /^feature\/gpu-.*/
+
+      # Deployment (only on main branch)
+      - build-and-deploy:
+          requires:
+            - e2e-tests
+            - performance-benchmarks
+            - security-scan
+          filters:
+            branches:
+              only:
+                - main
+
+  # Nightly Performance Testing
+  nightly-benchmarks:
+    triggers:
+      - schedule:
+          cron: "0 2 * * *"  # 2 AM UTC daily
+          filters:
+            branches:
+              only: main
+    jobs:
+      - performance-benchmarks
+      - gpu-compatibility
+
+# ============================================================================
+# QUALITY GATES SUMMARY
+#
+# ✅ Code Quality: Ruff linting must pass
+# ✅ Security: Bandit scan must complete (warnings allowed)
+# ✅ Test Coverage: Minimum 70% coverage required
+# ✅ Performance: API responses <2s in CI, <500ms target for production
+# ✅ Model Validation: All AI models must load and perform inference
+# ✅ Integration: All API endpoints must respond correctly
+# ============================================================================

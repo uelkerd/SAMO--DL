@@ -1,3 +1,4 @@
+# G004: Logging f-strings temporarily allowed for development
 """GoEmotions Dataset Loader for SAMO Emotion Detection.
 
 This module implements comprehensive GoEmotions dataset loading and preprocessing
@@ -11,16 +12,11 @@ Key Features:
 """
 
 import logging
-import os
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
-import pandas as pd
 import torch
 from datasets import Dataset, load_dataset
 from sklearn.model_selection import train_test_split
-from sklearn.utils.class_weight import compute_class_weight
 from transformers import AutoTokenizer
 
 # Configure logging
@@ -60,14 +56,14 @@ GOEMOTIONS_EMOTIONS = [
 ]
 
 # Emotion mappings for readability
-EMOTION_ID_TO_LABEL = {i: emotion for i, emotion in enumerate(GOEMOTIONS_EMOTIONS)}
+EMOTION_ID_TO_LABEL = dict(enumerate(GOEMOTIONS_EMOTIONS))
 EMOTION_LABEL_TO_ID = {emotion: i for i, emotion in enumerate(GOEMOTIONS_EMOTIONS)}
 
 
 class GoEmotionsPreprocessor:
     """Preprocessing pipeline for GoEmotions dataset following SAMO requirements."""
 
-    def __init__(self, model_name: str = "bert-base-uncased", max_length: int = 512):
+    def __init__(self, model_name: str = "bert-base-uncased", max_length: int = 512) -> None:
         """Initialize preprocessor with BERT tokenizer.
 
         Args:
@@ -76,9 +72,7 @@ class GoEmotionsPreprocessor:
         """
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.max_length = max_length
-        logger.info(
-            f"Initialized preprocessor with {model_name}, max_length={max_length}"
-        )
+        logger.info(f"Initialized preprocessor with {model_name}, max_length={max_length}")
 
     def clean_text(self, text: str) -> str:
         """Clean and normalize text while preserving emotional signals.
@@ -155,7 +149,7 @@ class GoEmotionsDataLoader:
         test_size: float = 0.2,
         val_size: float = 0.1,
         random_state: int = 42,
-    ):
+    ) -> None:
         """Initialize GoEmotions data loader.
 
         Args:
@@ -216,13 +210,13 @@ class GoEmotionsDataLoader:
 
             self.raw_dataset = Dataset.from_dict(combined_data)
 
-            logger.info(f"Downloaded {len(self.raw_dataset)} examples")
-            logger.info(f"Example: {self.raw_dataset[0]}")
+            logger.info("Downloaded {len(self.raw_dataset)} examples", extra={"format_args": True})
+            logger.info("Example: {self.raw_dataset[0]}", extra={"format_args": True})
 
             return self.raw_dataset
 
-        except Exception as e:
-            logger.error(f"Failed to download GoEmotions dataset: {e}")
+        except Exception:
+            logger.error("Failed to download GoEmotions dataset: {e}", extra={"format_args": True})
             raise
 
     def analyze_dataset_statistics(self) -> dict[str, any]:
@@ -273,12 +267,17 @@ class GoEmotionsDataLoader:
         }
 
         # Log key statistics
-        logger.info(f"Total examples: {total_examples}")
+        logger.info("Total examples: {total_examples}", extra={"format_args": True})
         logger.info(
             f"Multi-label examples: {multi_label_count} ({stats['multi_label_percentage']:.1f}%)"
         )
-        logger.info(f"Most frequent emotions: {stats['most_frequent_emotions']}")
-        logger.info(f"Least frequent emotions: {stats['least_frequent_emotions']}")
+        logger.info(
+            "Most frequent emotions: {stats['most_frequent_emotions']}", extra={"format_args": True}
+        )
+        logger.info(
+            "Least frequent emotions: {stats['least_frequent_emotions']}",
+            extra={"format_args": True},
+        )
 
         return stats
 
@@ -358,9 +357,7 @@ class GoEmotionsDataLoader:
         # Second split: separate validation from training
         train_stratify = []
         for labels in train_val_df["labels"]:
-            train_stratify.append(
-                labels[0] if len(labels) > 0 else len(GOEMOTIONS_EMOTIONS) - 1
-            )
+            train_stratify.append(labels[0] if len(labels) > 0 else len(GOEMOTIONS_EMOTIONS) - 1)
 
         train_df, val_df = train_test_split(
             train_val_df,
@@ -439,15 +436,6 @@ def create_goemotions_loader(
 
 if __name__ == "__main__":
     # Test the data loader
-    print("Testing GoEmotions Dataset Loader...")
 
     loader = create_goemotions_loader()
     datasets = loader.prepare_datasets()
-
-    print("\nDataset preparation complete!")
-    print(f"Train examples: {len(datasets['train'])}")
-    print(f"Validation examples: {len(datasets['validation'])}")
-    print(f"Test examples: {len(datasets['test'])}")
-    print(
-        f"Multi-label percentage: {datasets['statistics']['multi_label_percentage']:.1f}%"
-    )

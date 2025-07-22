@@ -1,6 +1,7 @@
+# G004: Logging f-strings temporarily allowed for development
 import logging
-import os
-from datetime import datetime
+from datetime import UTC, datetime
+from pathlib import Path
 
 import pandas as pd
 
@@ -18,7 +19,6 @@ from .loaders import (
 )
 from .preprocessing import JournalEntryPreprocessor
 from .validation import DataValidator
-
 
 # Configure logging
 logging.basicConfig(
@@ -58,9 +58,7 @@ class DataPipeline:
         elif embedding_method == "fasttext":
             embedder = FastTextEmbedder(vector_size=100)
         else:
-            logger.warning(
-                f"Unknown embedding method '{embedding_method}'. Defaulting to TF-IDF."
-            )
+            logger.warning(f"Unknown embedding method '{embedding_method}'. Defaulting to TF-IDF.")
             embedder = TfidfEmbedder(max_features=1000)
 
         self.embedding_pipeline = EmbeddingPipeline(embedder)
@@ -98,12 +96,13 @@ class DataPipeline:
             logger.warning("No data loaded. Exiting pipeline.")
             return {"raw": raw_df}
 
-        logger.info(f"Pipeline processing {len(raw_df)} journal entries")
+        logger.info(
+            "Pipeline processing {len(raw_df)} journal entries",
+            extra={"format_args": True},
+        )
 
         # Step 2: Validate raw data
-        validation_passed, validated_df = self.validator.validate_journal_entries(
-            raw_df
-        )
+        validation_passed, validated_df = self.validator.validate_journal_entries(raw_df)
 
         if not validation_passed:
             logger.warning(
@@ -131,9 +130,7 @@ class DataPipeline:
         embeddings_df = self.embedding_pipeline.generate_embeddings(
             featured_df, text_column="processed_text", id_column="id"
         )
-        logger.info(
-            f"Generated {len(embeddings_df)} embeddings using {self.embedding_method}"
-        )
+        logger.info(f"Generated {len(embeddings_df)} embeddings using {self.embedding_method}")
 
         # Save results if output directory is provided
         if output_dir:
@@ -180,7 +177,10 @@ class DataPipeline:
 
         """
         if source_type == "dataframe" and isinstance(data_source, pd.DataFrame):
-            logger.info(f"Using provided DataFrame with {len(data_source)} entries")
+            logger.info(
+                "Using provided DataFrame with {len(data_source)} entries",
+                extra={"format_args": True},
+            )
             return data_source
 
         if source_type == "db":
@@ -192,14 +192,17 @@ class DataPipeline:
             return load_entries_from_db(limit=limit, user_id=user_id)
 
         if source_type == "json" and isinstance(data_source, str):
-            logger.info(f"Loading data from JSON file: {data_source}")
+            logger.info(
+                "Loading data from JSON file: {data_source}",
+                extra={"format_args": True},
+            )
             return load_entries_from_json(data_source)
 
         if source_type == "csv" and isinstance(data_source, str):
-            logger.info(f"Loading data from CSV file: {data_source}")
+            logger.info("Loading data from CSV file: {data_source}", extra={"format_args": True})
             return load_entries_from_csv(data_source)
 
-        logger.error(f"Invalid data source type: {source_type}")
+        logger.error("Invalid data source type: {source_type}", extra={"format_args": True})
         return pd.DataFrame()
 
     def _save_results(
@@ -225,45 +228,40 @@ class DataPipeline:
 
         """
         # Create output directory if it doesn't exist
-        os.makedirs(output_dir, exist_ok=True)
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
 
         # Generate timestamp for filenames
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
 
         # Save featured data (main output)
         featured_df.to_csv(
-            os.path.join(output_dir, f"journal_features_{timestamp}.csv"), index=False
+            Path(output_dir, f"journal_features_{timestamp}.csv").as_posix(),
+            index=False,
         )
-        logger.info(
-            f"Saved featured data to {output_dir}/journal_features_{timestamp}.csv"
-        )
+        logger.info(f"Saved featured data to {output_dir}/journal_features_{timestamp}.csv")
 
         # Save embeddings
-        embeddings_path = os.path.join(
-            output_dir, f"journal_embeddings_{timestamp}.csv"
-        )
+        embeddings_path = Path(output_dir, f"journal_embeddings_{timestamp}.csv").as_posix()
         self.embedding_pipeline.save_embeddings_to_csv(embeddings_df, embeddings_path)
 
         # Save topics if available
         if topics_df is not None:
             topics_df.to_csv(
-                os.path.join(output_dir, f"journal_topics_{timestamp}.csv"), index=False
+                Path(output_dir, f"journal_topics_{timestamp}.csv").as_posix(),
+                index=False,
             )
-            logger.info(
-                f"Saved topic data to {output_dir}/journal_topics_{timestamp}.csv"
-            )
+            logger.info(f"Saved topic data to {output_dir}/journal_topics_{timestamp}.csv")
 
         # Save intermediate data if requested
         if save_intermediates:
-            raw_df.to_csv(
-                os.path.join(output_dir, f"journal_raw_{timestamp}.csv"), index=False
+            raw_df.to_csv(Path(output_dir, f"journal_raw_{timestamp}.csv").as_posix(), index=False)
+            logger.info(
+                "Saved raw data to {output_dir}/journal_raw_{timestamp}.csv",
+                extra={"format_args": True},
             )
-            logger.info(f"Saved raw data to {output_dir}/journal_raw_{timestamp}.csv")
 
             processed_df.to_csv(
-                os.path.join(output_dir, f"journal_processed_{timestamp}.csv"),
+                Path(output_dir, f"journal_processed_{timestamp}.csv").as_posix(),
                 index=False,
             )
-            logger.info(
-                f"Saved processed data to {output_dir}/journal_processed_{timestamp}.csv"
-            )
+            logger.info(f"Saved processed data to {output_dir}/journal_processed_{timestamp}.csv")

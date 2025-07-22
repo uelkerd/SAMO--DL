@@ -22,11 +22,8 @@ import onnxruntime as ort
 import torch
 from transformers import AutoTokenizer
 
-
 # Set up logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -43,9 +40,7 @@ def check_gpu_setup() -> dict[str, any]:
         "cuda_available": torch.cuda.is_available(),
         "cuda_version": torch.version.cuda if torch.cuda.is_available() else None,
         "device_count": torch.cuda.device_count() if torch.cuda.is_available() else 0,
-        "current_device": torch.cuda.current_device()
-        if torch.cuda.is_available()
-        else None,
+        "current_device": torch.cuda.current_device() if torch.cuda.is_available() else None,
         "device_name": None,
         "memory_total": None,
         "memory_free": None,
@@ -74,9 +69,7 @@ def check_gpu_setup() -> dict[str, any]:
             gpu_info["recommendations"].append(
                 "Consider using mixed precision training (fp16) to save memory"
             )
-            gpu_info["recommendations"].append(
-                "Reduce batch size if encountering OOM errors"
-            )
+            gpu_info["recommendations"].append("Reduce batch size if encountering OOM errors")
 
         if "T4" in device_name or "V100" in device_name:
             gpu_info["recommendations"].append(
@@ -212,9 +205,7 @@ def benchmark_model_performance(
     # Benchmark PyTorch model
     if Path(model_path).exists():
         logger.info("Testing PyTorch model performance...")
-        pytorch_latencies = benchmark_pytorch_model(
-            model_path, sample_texts, tokenizer, device
-        )
+        pytorch_latencies = benchmark_pytorch_model(model_path, sample_texts, tokenizer, device)
         results["pytorch"] = analyze_latencies(pytorch_latencies, "PyTorch")
 
     # Benchmark ONNX model
@@ -225,9 +216,7 @@ def benchmark_model_performance(
 
         # Calculate speedup
         if "pytorch" in results:
-            speedup = (
-                results["pytorch"]["mean_latency"] / results["onnx"]["mean_latency"]
-            )
+            speedup = results["pytorch"]["mean_latency"] / results["onnx"]["mean_latency"]
             results["onnx_speedup"] = f"{speedup:.2f}x"
             logger.info(f"🚀 ONNX Speedup: {speedup:.2f}x")
 
@@ -336,9 +325,7 @@ def analyze_latencies(latencies: list[float], model_type: str) -> dict[str, floa
     return stats
 
 
-def assess_performance(
-    results: dict[str, any], target_latency: float
-) -> dict[str, str]:
+def assess_performance(results: dict[str, any], target_latency: float) -> dict[str, str]:
     """Assess whether performance meets targets."""
     assessment = {}
 
@@ -363,26 +350,16 @@ def assess_performance(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="SAMO Deep Learning Performance Optimization"
-    )
+    parser = argparse.ArgumentParser(description="SAMO Deep Learning Performance Optimization")
     parser.add_argument("--check-gpu", action="store_true", help="Check GPU setup")
-    parser.add_argument(
-        "--convert-onnx", action="store_true", help="Convert model to ONNX"
-    )
-    parser.add_argument(
-        "--benchmark", action="store_true", help="Benchmark model performance"
-    )
-    parser.add_argument(
-        "--model-path", type=str, default="./models/checkpoints/best_model.pt"
-    )
+    parser.add_argument("--convert-onnx", action="store_true", help="Convert model to ONNX")
+    parser.add_argument("--benchmark", action="store_true", help="Benchmark model performance")
+    parser.add_argument("--model-path", type=str, default="./models/checkpoints/best_model.pt")
     parser.add_argument("--onnx-path", type=str, default=None)
     parser.add_argument(
         "--target-latency", type=float, default=500.0, help="Target P95 latency (ms)"
     )
-    parser.add_argument(
-        "--num-samples", type=int, default=100, help="Number of benchmark samples"
-    )
+    parser.add_argument("--num-samples", type=int, default=100, help="Number of benchmark samples")
 
     args = parser.parse_args()
 

@@ -1,6 +1,6 @@
 """SAMO Deep Learning - Voice Processing Module.
 
-This module implements OpenAI Whisper-based voice-to-text processing for 
+This module implements OpenAI Whisper-based voice-to-text processing for
 SAMO's voice-first journaling experience with high accuracy transcription.
 
 Key Components:
