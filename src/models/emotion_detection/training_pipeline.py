@@ -15,30 +15,21 @@ Key Features:
 
 import json
 import logging
-import os
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
-from sklearn.metrics import classification_report
-from torch import nn
 from torch.optim import AdamW
-from torch.optim.lr_scheduler import LinearLR, SequentialLR
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer, get_linear_schedule_with_warmup
 
 from .bert_classifier import (
-    BERTEmotionClassifier,
     EmotionDataset,
-    WeightedBCELoss,
     create_bert_emotion_classifier,
     evaluate_emotion_classifier,
 )
 from .dataset_loader import (
-    GOEMOTIONS_EMOTIONS,
-    GoEmotionsDataLoader,
     create_goemotions_loader,
 )
 
@@ -67,7 +58,7 @@ class EmotionDetectionTrainer:
         early_stopping_patience: int = 3,
         evaluation_strategy: str = "epoch",
         device: str | None = None,
-    ):
+    ) -> None:
         """Initialize emotion detection trainer.
 
         Args:
@@ -483,16 +474,10 @@ def train_emotion_detection_model(
 
 if __name__ == "__main__":
     # Test training pipeline with minimal configuration
-    print("Testing Emotion Detection Training Pipeline...")
 
     # Use small batch size and 1 epoch for testing
     results = train_emotion_detection_model(
         batch_size=8, num_epochs=1, output_dir="./test_checkpoints"
     )
 
-    print("\nTraining test completed!")
-    print(f"Best validation score: {results['best_validation_score']:.4f}")
-    print(f"Test Macro F1: {results['final_test_metrics']['macro_f1']:.4f}")
-    print(f"Test Micro F1: {results['final_test_metrics']['micro_f1']:.4f}")
 
-    print("\n✅ Training pipeline test complete!")

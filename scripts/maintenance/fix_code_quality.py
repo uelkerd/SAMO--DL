@@ -14,8 +14,8 @@ Usage:
 
 import logging
 import re
+import sys
 from pathlib import Path
-
 
 # Configure logging
 logging.basicConfig(
@@ -175,13 +175,12 @@ class CodeQualityFixer:
     def _fix_datetime_timezone(self, content: str) -> str:
         """Fix datetime timezone issues (DTZ005)."""
         # Add timezone import if needed
-        if "datetime.now()" in content:
-            if "from datetime import timezone" not in content:
-                content = re.sub(
-                    r"from datetime import ([^\n]+)",
-                    r"from datetime import \1, timezone",
-                    content,
-                )
+        if "datetime.now()" in content and "from datetime import timezone" not in content:
+            content = re.sub(
+                r"from datetime import ([^\n]+)",
+                r"from datetime import \1, timezone",
+                content,
+            )
 
         # Replace datetime.now() with timezone-aware version
         content = re.sub(r"datetime\.now\(\)", r"datetime.now(timezone.utc)", content)
@@ -228,4 +227,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())
