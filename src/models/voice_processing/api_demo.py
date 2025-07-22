@@ -18,6 +18,7 @@ import tempfile
 import time
 from contextlib import asynccontextmanager, suppress
 from pathlib import Path
+from typing import Any
 
 from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
@@ -249,11 +250,11 @@ async def transcribe_batch(
             try:
                 # Validate file
                 if not audio_file.filename:
-                    raise ValueError(f"File {i+1}: No filename provided")
+                    raise ValueError(f"File {i + 1}: No filename provided")
 
                 file_extension = Path(audio_file.filename).suffix.lower()
                 if file_extension not in AudioPreprocessor.SUPPORTED_FORMATS:
-                    raise ValueError(f"File {i+1}: Unsupported format {file_extension}")
+                    raise ValueError(f"File {i + 1}: Unsupported format {file_extension}")
 
                 # Save to temporary file
                 temp_file = tempfile.NamedTemporaryFile(suffix=file_extension, delete=False)
@@ -266,7 +267,7 @@ async def transcribe_batch(
                 # Validate audio
                 is_valid, error_msg = AudioPreprocessor.validate_audio_file(temp_file.name)
                 if not is_valid:
-                    raise ValueError(f"File {i+1}: {error_msg}")
+                    raise ValueError(f"File {i + 1}: {error_msg}")
 
                 # Transcribe
                 result = whisper_transcriber.transcribe_audio(

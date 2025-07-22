@@ -495,7 +495,7 @@ class EmotionDetectionTrainer:
                             simplified_entry[k] = v
                         else:
                             simplified_entry[k] = str(v)
-                    except:
+                    except Exception:
                         simplified_entry[k] = str(v)
                 simplified_history.append(simplified_entry)
 
@@ -544,6 +544,7 @@ def train_emotion_detection_model(
         learning_rate: Learning rate
         num_epochs: Number of epochs
         device: Device for training
+        dev_mode: Enable development mode for faster training with reduced dataset
 
     Returns:
         Training results dictionary
