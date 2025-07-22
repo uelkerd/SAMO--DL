@@ -23,7 +23,10 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
+import torch
 from models.emotion_detection.training_pipeline import train_emotion_detection_model
+from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 # Configure logging
 logging.basicConfig(
@@ -98,10 +101,6 @@ def test_threshold_tuning():
     """Test different evaluation thresholds to find optimal F1 scores."""
     logger.info("🎯 Testing Evaluation Threshold Tuning")
 
-    # Import evaluation function
-    from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
-    from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
     try:
         # Create trainer and load small dataset
         trainer = EmotionDetectionTrainer(
@@ -123,7 +122,6 @@ def test_threshold_tuning():
             return True
 
         # Load model
-        import torch
 
         checkpoint = torch.load(model_path, map_location="cpu")
         trainer.model.load_state_dict(checkpoint["model_state_dict"])
