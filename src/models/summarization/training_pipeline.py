@@ -13,10 +13,10 @@ logger = logging.getLogger(__name__)
 class SummarizationTrainer:
     """Placeholder trainer class for summarization."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         logger.info("Placeholder summarization trainer - to be implemented")
 
 
-def train_summarization_model():
+def train_summarization_model() -> None:
     """Placeholder function for training summarization model."""
     logger.info("Placeholder training function - to be implemented")

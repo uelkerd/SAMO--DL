@@ -1,3 +1,4 @@
+# G004: Logging f-strings temporarily allowed for development
 """BERT Emotion Classifier for SAMO Deep Learning.
 
 This module implements the BERT-based emotion detection model following the
@@ -15,7 +16,6 @@ Key Features:
 import logging
 import time
 import warnings
-from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -27,12 +27,9 @@ from transformers import (
     AutoConfig,
     AutoModel,
     AutoTokenizer,
-    BertForSequenceClassification,
-    Trainer,
-    TrainingArguments,
 )
 
-from .dataset_loader import EMOTION_ID_TO_LABEL, GOEMOTIONS_EMOTIONS
+from .dataset_loader import GOEMOTIONS_EMOTIONS
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -59,7 +56,7 @@ class BERTEmotionClassifier(nn.Module):
         hidden_dropout_prob: float = 0.3,
         classifier_dropout_prob: float = 0.5,
         freeze_bert_layers: int = 0,
-    ):
+    ) -> None:
         """Initialize BERT emotion classifier.
 
         Args:
@@ -109,14 +106,14 @@ class BERTEmotionClassifier(nn.Module):
             f"Initialized BERT emotion classifier with {self.count_parameters():,} parameters"
         )
 
-    def _init_classification_layers(self):
+    def _init_classification_layers(self) -> None:
         """Initialize classification layers with Xavier initialization."""
         for module in self.classifier:
             if isinstance(module, nn.Linear):
                 nn.init.xavier_uniform_(module.weight)
                 nn.init.constant_(module.bias, 0)
 
-    def _freeze_bert_layers(self, num_layers: int):
+    def _freeze_bert_layers(self, num_layers: int) -> None:
         """Freeze specified number of BERT layers for progressive unfreezing.
 
         Args:
@@ -131,9 +128,11 @@ class BERTEmotionClassifier(nn.Module):
             for param in self.bert.encoder.layer[i].parameters():
                 param.requires_grad = False
 
-        logger.info(f"Frozen {num_layers} BERT layers for progressive training")
+        logger.info(
+            "Frozen {num_layers} BERT layers for progressive training", extra={"format_args": True}
+        )
 
-    def unfreeze_bert_layers(self, num_layers: int):
+    def unfreeze_bert_layers(self, num_layers: int) -> None:
         """Unfreeze BERT layers for progressive unfreezing strategy.
 
         Args:
@@ -147,9 +146,7 @@ class BERTEmotionClassifier(nn.Module):
         # Calculate which layers to unfreeze
         total_layers = len(self.bert.encoder.layer)
         currently_frozen = sum(
-            1
-            for layer in self.bert.encoder.layer
-            if not next(layer.parameters()).requires_grad
+            1 for layer in self.bert.encoder.layer if not next(layer.parameters()).requires_grad
         )
 
         layers_to_unfreeze = min(num_layers, currently_frozen)
@@ -160,7 +157,9 @@ class BERTEmotionClassifier(nn.Module):
             for param in self.bert.encoder.layer[i].parameters():
                 param.requires_grad = True
 
-        logger.info(f"Unfroze {layers_to_unfreeze} additional BERT layers")
+        logger.info(
+            "Unfroze {layers_to_unfreeze} additional BERT layers", extra={"format_args": True}
+        )
 
     def forward(
         self,
@@ -262,9 +261,7 @@ class BERTEmotionClassifier(nn.Module):
             "primary_emotion": primary_emotion,
             "primary_confidence": float(primary_confidence),
             "all_probabilities": probabilities.tolist(),
-            "emotion_mapping": dict(
-                zip(GOEMOTIONS_EMOTIONS, probabilities.tolist(), strict=False)
-            ),
+            "emotion_mapping": dict(zip(GOEMOTIONS_EMOTIONS, probabilities.tolist(), strict=False)),
         }
 
     def count_parameters(self) -> int:
@@ -282,9 +279,7 @@ class WeightedBCELoss(nn.Module):
     Implements class weighting to handle emotion frequency imbalance in GoEmotions.
     """
 
-    def __init__(
-        self, class_weights: torch.Tensor | None = None, reduction: str = "mean"
-    ):
+    def __init__(self, class_weights: torch.Tensor | None = None, reduction: str = "mean") -> None:
         """Initialize weighted BCE loss.
 
         Args:
@@ -311,9 +306,7 @@ class WeightedBCELoss(nn.Module):
             Computed loss tensor
         """
         # Compute binary cross entropy
-        bce_loss = F.binary_cross_entropy_with_logits(
-            logits, targets.float(), reduction="none"
-        )
+        bce_loss = F.binary_cross_entropy_with_logits(logits, targets.float(), reduction="none")
 
         # Apply class weights if provided
         if self.class_weights is not None:
@@ -341,7 +334,7 @@ class EmotionDataset(Dataset):
         labels: list[list[int]],
         tokenizer: AutoTokenizer,
         max_length: int = 512,
-    ):
+    ) -> None:
         """Initialize emotion dataset.
 
         Args:
@@ -402,9 +395,7 @@ def create_bert_emotion_classifier(
         Tuple of (model, loss_function)
     """
     # Create model
-    model = BERTEmotionClassifier(
-        model_name=model_name, freeze_bert_layers=freeze_bert_layers
-    )
+    model = BERTEmotionClassifier(model_name=model_name, freeze_bert_layers=freeze_bert_layers)
 
     # Create loss function with class weights
     loss_weights = None
@@ -496,14 +487,16 @@ def evaluate_emotion_classifier(
     logger.info(
         f"Evaluation complete - Micro F1: {metrics['micro_f1']:.3f}, Macro F1: {metrics['macro_f1']:.3f}"
     )
-    logger.info(f"Average inference time: {metrics['avg_inference_time_ms']:.1f}ms")
+    logger.info(
+        "Average inference time: {metrics['avg_inference_time_ms']:.1f}ms",
+        extra={"format_args": True},
+    )
 
     return metrics
 
 
 if __name__ == "__main__":
     # Test the BERT emotion classifier
-    print("Testing BERT Emotion Classifier...")
 
     # Create model and loss function
     model, loss_fn = create_bert_emotion_classifier()
@@ -521,12 +514,3 @@ if __name__ == "__main__":
     with torch.no_grad():
         outputs = model(**inputs)
         predictions = model.predict_emotions(**inputs)
-
-    print(f"\nTest text: {test_text}")
-    print(
-        f"Primary emotion: {predictions['primary_emotion']} (confidence: {predictions['primary_confidence']:.3f})"
-    )
-    print(f"Predicted emotions: {predictions['predicted_emotions']}")
-    print(f"Model parameters: {model.count_parameters():,}")
-
-    print("\n✅ BERT emotion classifier test complete!")

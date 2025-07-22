@@ -5,20 +5,23 @@ This directory contains the Prisma ORM configuration for the SAMO-DL project.
 ## Setup Instructions
 
 1. Install dependencies:
+
    ```bash
    npm install
    ```
 
 2. Create a `.env` file in the project root with the following content:
+
    ```
    # PostgreSQL database connection
-   DATABASE_URL="postgresql://samouser:samopassword@localhost:5432/samodb?schema=public"
+   DATABASE_URL="postgresql://samo_secure_1753200376:SECURE_PASSWORD_HERE@localhost:5432/samodb?schema=public"
 
    # Application environment
    NODE_ENV="development"
    ```
 
 3. Initialize the database:
+
    ```bash
    # Run the PostgreSQL setup script
    npm run db:setup
@@ -28,6 +31,7 @@ This directory contains the Prisma ORM configuration for the SAMO-DL project.
    ```
 
 4. (Optional) Explore the database with Prisma Studio:
+
    ```bash
    npm run prisma:studio
    ```
