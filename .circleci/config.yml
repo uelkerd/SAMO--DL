@@ -52,8 +52,8 @@ commands:
           name: Install additional ML dependencies
           command: |
             python -m pip install --upgrade pip
-            pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-            pip install transformers datasets accelerate
+            # All dependencies are managed in pyproject.toml
+            echo "✅ All dependencies installed via pyproject.toml"
 
   cache_dependencies:
     description: "Cache Python dependencies and model files"
@@ -90,7 +90,7 @@ commands:
           name: Type Checking (MyPy)
           command: |
             echo "📝 Running type checking..."
-            python -m mypy src/ --ignore-missing-imports || echo "Type checking completed with warnings"
+            python -m mypy src/ --ignore-missing-imports
 
   run_security_scan:
     description: "Run security vulnerability scanning"
@@ -99,14 +99,12 @@ commands:
           name: Bandit Security Scan
           command: |
             echo "🔒 Running Bandit security scan..."
-            bandit -r src/ -f json -o bandit-report.json || true
-            bandit -r src/ || echo "Security scan completed with warnings"
+            bandit -r src/ -f json -o bandit-report.json
       - run:
           name: Safety Check (Dependencies)
           command: |
             echo "🛡️ Checking dependency vulnerabilities..."
-            safety check --json --output safety-report.json || true
-            safety check || echo "Dependency check completed with warnings"
+            safety check --json --output safety-report.json
 
   run_unit_tests:
     description: "Run unit tests with coverage"

@@ -194,9 +194,15 @@ class TestCompleteWorkflows:
         assert "timestamp" in data
         # Timestamp should be recent (within last minute)
         import datetime
+        from datetime import timezone
 
-        timestamp = datetime.datetime.fromisoformat(data["timestamp"].replace("Z", "+00:00"))
-        now = datetime.datetime.now(datetime.UTC)
+        # Use more robust timestamp parsing
+        timestamp_str = data["timestamp"]
+        if timestamp_str.endswith("Z"):
+            timestamp_str = timestamp_str[:-1] + "+00:00"
+        
+        timestamp = datetime.datetime.fromisoformat(timestamp_str)
+        now = datetime.datetime.now(timezone.utc)
         time_diff = (now - timestamp).total_seconds()
         assert time_diff < 60  # Within last minute
 

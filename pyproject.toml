@@ -64,8 +64,7 @@ dependencies = [
     "rich>=13.0.0",
     "loguru>=0.7.0",
 
-    # Development Tools
-    "pre-commit>=3.3.0",
+    # Development Tools - moved to optional dependencies
 ]
 
 [project.optional-dependencies]
@@ -191,11 +190,8 @@ select = [
 # Disable specific rules that conflict or are too strict
 ignore = [
     "E501",   # Line too long (handled by formatter)
-    "D100",   # Missing docstring in public module
-    "D101",   # Missing docstring in public class (too strict for all classes)
-    "D102",   # Missing docstring in public method (too strict for all methods) 
+    "D102",   # Missing docstring in public method (too strict for all methods)
     "D103",   # Missing docstring in public function (too strict for all functions)
-    "D104",   # Missing docstring in public package
     "D105",   # Missing docstring in magic method
     "D106",   # Missing docstring in public nested class
     "D203",   # One blank line before class (conflicts with D211)
