@@ -1,7 +1,8 @@
 import json
 import os
 import random
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
@@ -156,9 +157,9 @@ def generate_journal_entries(
 
     """
     if start_date is None:
-        start_date = datetime.now() - timedelta(days=60)
+        start_date = datetime.now(UTC) - timedelta(days=60)
     if end_date is None:
-        end_date = datetime.now()
+        end_date = datetime.now(UTC)
 
     date_range = (end_date - start_date).days
     entries = []
@@ -194,7 +195,7 @@ def save_entries_to_json(entries: list[dict[str, Any]], output_path: str) -> Non
 
     """
     # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    Path(Path(output_path).parent).mkdir(parents=True, exist_ok=True)
 
     # Convert datetime objects to strings for JSON serialization
     serializable_entries = []
@@ -204,9 +205,8 @@ def save_entries_to_json(entries: list[dict[str, Any]], output_path: str) -> Non
         serializable_entry["updated_at"] = entry["updated_at"].isoformat()
         serializable_entries.append(serializable_entry)
 
-    with open(output_path, "w") as f:
+    with Path(output_path).open("w") as f:
         json.dump(serializable_entries, f, indent=2)
-
 
 
 def load_sample_entries(json_path: str) -> pd.DataFrame:
@@ -236,10 +236,12 @@ if __name__ == "__main__":
     entries = generate_journal_entries(num_entries=100, num_users=5)
 
     # Save to data/raw directory
-    output_dir = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "raw"
+    output_dir = Path(
+        Path(os.path.dirname(os.path.dirname(__file__).parent.as_posix())),
+        "data",
+        "raw",
     )
-    os.makedirs(output_dir, exist_ok=True)
-    output_path = os.path.join(output_dir, "sample_journal_entries.json")
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    output_path = Path(output_dir, "sample_journal_entries.json").as_posix()
 
     save_entries_to_json(entries, output_path)

@@ -11,6 +11,6 @@ logger = logging.getLogger(__name__)
 
 class TranscriptionAPI:
     """Placeholder class for transcription API."""
-    
+
     def __init__(self):
-        logger.info("Placeholder transcription API - to be implemented") 
+        logger.info("Placeholder transcription API - to be implemented")
