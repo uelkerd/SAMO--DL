@@ -3,11 +3,13 @@ End-to-end tests for complete user workflows.
 Tests full system integration, data flow, and user scenarios.
 """
 
-import pytest
-import time
 import tempfile
+import time
 from pathlib import Path
 from unittest.mock import patch
+
+import pytest
+
 
 @pytest.mark.e2e
 class TestCompleteWorkflows:
@@ -18,11 +20,14 @@ class TestCompleteWorkflows:
         # Step 1: Submit journal entry for analysis
         start_time = time.time()
 
-        response = api_client.post("/analyze/journal", data={
-            "text": sample_journal_entry["text"],
-            "generate_summary": True,
-            "confidence_threshold": 0.5
-        })
+        response = api_client.post(
+            "/analyze/journal",
+            data={
+                "text": sample_journal_entry["text"],
+                "generate_summary": True,
+                "confidence_threshold": 0.5,
+            },
+        )
 
         end_time = time.time()
         workflow_time = end_time - start_time
@@ -49,7 +54,7 @@ class TestCompleteWorkflows:
             assert 0.0 <= emotion["confidence"] <= 1.0
 
         # Step 4: Verify summarization results
-        if "summary" in data and data["summary"]:
+        if data.get("summary"):
             summary = data["summary"]
             assert "summary" in summary
             assert "key_themes" in summary
@@ -64,30 +69,27 @@ class TestCompleteWorkflows:
     def test_voice_journal_complete_workflow(self, api_client, sample_audio_data):
         """Test complete voice journal analysis workflow."""
         # Create temporary audio file
-        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_audio:
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_audio:
             # Note: In real implementation, we'd write actual audio data
             temp_audio.write(b"fake audio data for testing")
             temp_audio_path = temp_audio.name
 
         try:
             # Step 1: Submit audio file for analysis
-            with open(temp_audio_path, 'rb') as audio_file:
+            with Path(temp_audio_path).open("rb") as audio_file:
                 files = {"audio_file": ("test_audio.wav", audio_file, "audio/wav")}
-                data = {
-                    "language": "en",
-                    "generate_summary": True,
-                    "confidence_threshold": 0.5
-                }
+                data = {"language": "en", "generate_summary": True, "confidence_threshold": 0.5}
 
                 # Mock the transcription for testing
-                with patch('src.models.voice_processing.whisper_transcriber.whisper') as mock_whisper:
+                with patch(
+                    "src.models.voice_processing.whisper_transcriber.whisper"
+                ) as mock_whisper:
                     mock_model = mock_whisper.load_model.return_value
                     mock_model.transcribe.return_value = {
                         "text": sample_audio_data["expected_text"]
                     }
 
-                    response = api_client.post("/analyze/voice-journal",
-                                             files=files, data=data)
+                    response = api_client.post("/analyze/voice-journal", files=files, data=data)
 
             # Step 2: Verify successful transcription and analysis
             assert response.status_code == 200
@@ -120,9 +122,10 @@ class TestCompleteWorkflows:
         assert "detail" in error_data
 
         # Step 2: Test with valid input after error
-        response = api_client.post("/analyze/journal", data={
-            "text": "This is a valid journal entry for testing error recovery."
-        })
+        response = api_client.post(
+            "/analyze/journal",
+            data={"text": "This is a valid journal entry for testing error recovery."},
+        )
         assert response.status_code == 200
 
         # Step 3: Verify system continues working normally
@@ -137,7 +140,7 @@ class TestCompleteWorkflows:
             "Work was stressful and overwhelming.",
             "Had a peaceful walk in the park.",
             "Excited about my upcoming vacation.",
-            "Feeling anxious about the presentation tomorrow."
+            "Feeling anxious about the presentation tomorrow.",
         ]
 
         results = []
@@ -152,10 +155,7 @@ class TestCompleteWorkflows:
             assert response.status_code == 200
             data = response.json()
 
-            results.append({
-                "response": data,
-                "response_time": end_time - start_time
-            })
+            results.append({"response": data, "response_time": end_time - start_time})
 
         total_time = time.time() - total_start_time
 
@@ -176,10 +176,9 @@ class TestCompleteWorkflows:
         original_text = "I had an amazing day today! I completed my project and felt incredibly proud of my accomplishment."
 
         # Step 1: Submit for analysis
-        response = api_client.post("/analyze/journal", data={
-            "text": original_text,
-            "generate_summary": True
-        })
+        response = api_client.post(
+            "/analyze/journal", data={"text": original_text, "generate_summary": True}
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -195,8 +194,9 @@ class TestCompleteWorkflows:
         assert "timestamp" in data
         # Timestamp should be recent (within last minute)
         import datetime
+
         timestamp = datetime.datetime.fromisoformat(data["timestamp"].replace("Z", "+00:00"))
-        now = datetime.datetime.now(datetime.timezone.utc)
+        now = datetime.datetime.now(datetime.UTC)
         time_diff = (now - timestamp).total_seconds()
         assert time_diff < 60  # Within last minute
 
@@ -208,10 +208,9 @@ class TestCompleteWorkflows:
         thresholds = [0.1, 0.5, 0.8]
 
         for threshold in thresholds:
-            response = api_client.post("/analyze/journal", data={
-                "text": test_text,
-                "confidence_threshold": threshold
-            })
+            response = api_client.post(
+                "/analyze/journal", data={"text": test_text, "confidence_threshold": threshold}
+            )
 
             assert response.status_code == 200
             data = response.json()
@@ -227,13 +226,14 @@ class TestCompleteWorkflows:
     @pytest.mark.model
     def test_model_integration_workflow(self, api_client):
         """Test integration between different AI models."""
-        test_text = "Today was fantastic! I achieved my goals and felt genuinely happy and grateful."
+        test_text = (
+            "Today was fantastic! I achieved my goals and felt genuinely happy and grateful."
+        )
 
         # Step 1: Request full analysis
-        response = api_client.post("/analyze/journal", data={
-            "text": test_text,
-            "generate_summary": True
-        })
+        response = api_client.post(
+            "/analyze/journal", data={"text": test_text, "generate_summary": True}
+        )
 
         assert response.status_code == 200
         data = response.json()
