@@ -10,4 +10,4 @@ Core Components:
 - evaluation_metrics: Emotion-specific evaluation metrics
 """
 
-__version__ = "0.1.0" 
+__version__ = "0.1.0"

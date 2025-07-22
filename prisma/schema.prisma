@@ -91,4 +91,4 @@ model Tag {
   entries   JournalEntry[] @relation("JournalEntryToTag")
 
   @@map("tags")
-} 
+}

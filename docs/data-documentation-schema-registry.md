@@ -94,7 +94,7 @@ Our production data schemas define the exact structure of information flowing th
 {
   "user_id": "string (required, UUID format)",
   "text_content": "string (required, 1-5000 characters)",
-  "timestamp": "string (required, ISO 8601 format)", 
+  "timestamp": "string (required, ISO 8601 format)",
   "entry_type": "enum ['journal', 'voice_transcript', 'quick_note']",
   "session_id": "string (optional, for conversation context)",
   "language": "string (optional, defaults to 'en')",
@@ -159,14 +159,14 @@ Training data schemas ensure consistent format and quality for model development
   },
   "training_config": {
     "batch_size": "integer",
-    "num_epochs": "integer", 
+    "num_epochs": "integer",
     "gradient_accumulation_steps": "integer",
     "max_sequence_length": "integer",
     "class_weights": "object (emotion -> weight mapping)"
   },
   "data_config": {
     "train_split": "float (0.0-1.0)",
-    "validation_split": "float (0.0-1.0)", 
+    "validation_split": "float (0.0-1.0)",
     "test_split": "float (0.0-1.0)",
     "preprocessing_version": "string",
     "augmentation_enabled": "boolean"
