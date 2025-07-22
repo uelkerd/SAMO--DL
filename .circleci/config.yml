@@ -196,33 +196,17 @@ jobs:
           name: BERT Model Loading Test
           command: |
             echo "🤖 Testing BERT emotion detection model loading..."
-            python -c "
-            from src.models.emotion_detection.bert_classifier import BertEmotionClassifier
-            model = BertEmotionClassifier(num_emotions=28)
-            print(f'✅ BERT model initialized with {sum(p.numel() for p in model.parameters())} parameters')
-            "
+            python scripts/ci/bert_model_test.py
       - run:
           name: T5 Summarization Test
           command: |
             echo "📝 Testing T5 summarization model..."
-            python -c "
-            from src.models.summarization.t5_summarizer import T5Summarizer
-            summarizer = T5Summarizer()
-            result = summarizer.summarize('This is a test journal entry about my day.', max_length=50)
-            print(f'✅ T5 summarization working: {result[:50]}...')
-            "
+            python scripts/ci/t5_summarization_test.py
       - run:
           name: API Health Check
           command: |
             echo "🌐 Testing unified AI API endpoints..."
-            python -c "
-            from src.unified_ai_api import app
-            from fastapi.testclient import TestClient
-            client = TestClient(app)
-            response = client.get('/health')
-            assert response.status_code == 200
-            print('✅ API health check passed')
-            "
+            python scripts/ci/api_health_check.py
 
   # STAGE 3: Comprehensive Testing & Performance (<30 minutes)
   # --------------------------------------------------------------------------
