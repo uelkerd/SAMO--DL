@@ -1,32 +1,43 @@
-"""
-Database models for the SAMO-DL application.
+"""Database models for the SAMO-DL application.
 These models correspond to the tables in the PostgreSQL schema.
 """
 
-from datetime import datetime
 import uuid
+from datetime import datetime
 from typing import List, Optional
 
-from sqlalchemy import Column, String, Float, Boolean, Integer, ForeignKey, DateTime, LargeBinary, JSON, Table, Text
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.dialects.postgresql import UUID, JSONB
-from sqlalchemy.orm import relationship
 from pgvector.sqlalchemy import Vector
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    LargeBinary,
+    String,
+    Table,
+    Text,
+)
+from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
 # Junction table for many-to-many relationship between journal entries and tags
 journal_entry_tags = Table(
-    'journal_entry_tags',
+    "journal_entry_tags",
     Base.metadata,
-    Column('entry_id', UUID(as_uuid=True), ForeignKey('journal_entries.id', ondelete='CASCADE'), primary_key=True),
-    Column('tag_id', UUID(as_uuid=True), ForeignKey('tags.id', ondelete='CASCADE'), primary_key=True)
+    Column("entry_id", UUID(as_uuid=True), ForeignKey("journal_entries.id", ondelete="CASCADE"), primary_key=True),
+    Column("tag_id", UUID(as_uuid=True), ForeignKey("tags.id", ondelete="CASCADE"), primary_key=True)
 )
 
 
 class User(Base):
     """User model representing a system user."""
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = Column(String(255), unique=True, nullable=False)
@@ -35,7 +46,7 @@ class User(Base):
     updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
     consent_version = Column(String(50))
     consent_given_at = Column(DateTime(timezone=True))
-    data_retention_policy = Column(String(50), default='standard')
+    data_retention_policy = Column(String(50), default="standard")
 
     # Relationships
     journal_entries = relationship("JournalEntry", back_populates="user", cascade="all, delete-orphan")
@@ -48,10 +59,10 @@ class User(Base):
 
 class JournalEntry(Base):
     """Journal entry model representing user's journal entries."""
-    __tablename__ = 'journal_entries'
+    __tablename__ = "journal_entries"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     title = Column(String(255))
     content = Column(Text, nullable=False)
     encrypted_content = Column(LargeBinary)
@@ -72,10 +83,10 @@ class JournalEntry(Base):
 
 class Embedding(Base):
     """Embedding model storing vector embeddings for journal entries."""
-    __tablename__ = 'embeddings'
+    __tablename__ = "embeddings"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    entry_id = Column(UUID(as_uuid=True), ForeignKey('journal_entries.id', ondelete='CASCADE'), nullable=False)
+    entry_id = Column(UUID(as_uuid=True), ForeignKey("journal_entries.id", ondelete="CASCADE"), nullable=False)
     model_version = Column(String(100), nullable=False)
     embedding = Column(Vector(768))  # 768 dimensions for BERT-base
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
@@ -89,10 +100,10 @@ class Embedding(Base):
 
 class Prediction(Base):
     """Prediction model storing AI-generated predictions about user mood, topics, etc."""
-    __tablename__ = 'predictions'
+    __tablename__ = "predictions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     prediction_type = Column(String(100), nullable=False)
     prediction_content = Column(JSONB, nullable=False)
     confidence_score = Column(Float)
@@ -109,10 +120,10 @@ class Prediction(Base):
 
 class VoiceTranscription(Base):
     """Voice transcription model storing transcribed audio from users."""
-    __tablename__ = 'voice_transcriptions'
+    __tablename__ = "voice_transcriptions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     audio_file_path = Column(String(255))
     transcript_text = Column(Text, nullable=False)
     duration_seconds = Column(Integer)
@@ -129,7 +140,7 @@ class VoiceTranscription(Base):
 
 class Tag(Base):
     """Tag model for categorizing journal entries."""
-    __tablename__ = 'tags'
+    __tablename__ = "tags"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(100), unique=True, nullable=False)
@@ -139,4 +150,4 @@ class Tag(Base):
     entries = relationship("JournalEntry", secondary=journal_entry_tags, back_populates="tags")
 
     def __repr__(self):
-        return f"<Tag(id='{self.id}', name='{self.name}')>" 
+        return f"<Tag(id='{self.id}', name='{self.name}')>"
