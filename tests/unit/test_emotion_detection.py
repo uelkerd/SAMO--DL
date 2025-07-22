@@ -18,7 +18,7 @@ class TestBertEmotionClassifier:
         """Test model initializes with correct parameters."""
         num_emotions = 28
         model = BertEmotionClassifier(num_emotions=num_emotions)
-        
+
         assert model.num_emotions == num_emotions
         assert hasattr(model, 'bert')
         assert hasattr(model, 'classifier')
@@ -28,7 +28,7 @@ class TestBertEmotionClassifier:
         """Test model has expected number of parameters."""
         model = BertEmotionClassifier(num_emotions=28)
         total_params = sum(p.numel() for p in model.parameters())
-        
+
         # BERT-base has ~110M parameters, with classifier should be ~110M+
         assert total_params > 100_000_000
         assert total_params < 200_000_000
@@ -45,13 +45,13 @@ class TestBertEmotionClassifier:
         mock_bert.from_pretrained.return_value = mock_bert_instance
 
         model = BertEmotionClassifier(num_emotions=28)
-        
+
         # Test input
         input_ids = torch.randint(0, 1000, (2, 10))
         attention_mask = torch.ones(2, 10)
-        
+
         output = model(input_ids, attention_mask)
-        
+
         assert output.shape == (2, 28)
         assert torch.all(torch.isfinite(output))
 
@@ -60,14 +60,14 @@ class TestBertEmotionClassifier:
         # Mock model output
         with patch.object(BertEmotionClassifier, 'forward') as mock_forward:
             mock_forward.return_value = torch.tensor([[0.1, 0.8, 0.2, 0.9]])
-            
+
             model = BertEmotionClassifier(num_emotions=4)
             model.eval()
-            
+
             # Mock tokenizer
             with patch('src.models.emotion_detection.bert_classifier.BertTokenizer'):
                 predicted = model.predict_emotions("test text", threshold=0.5)
-                
+
                 # Should predict indices 1 and 3 (values 0.8 and 0.9)
                 assert len(predicted) == 2
                 assert 1 in predicted
@@ -76,12 +76,12 @@ class TestBertEmotionClassifier:
     def test_device_compatibility(self):
         """Test model works on both CPU and GPU (if available)."""
         model = BertEmotionClassifier(num_emotions=28)
-        
+
         # Test CPU
         device = torch.device("cpu")
         model = model.to(device)
         assert next(model.parameters()).device == device
-        
+
         # Test GPU if available
         if torch.cuda.is_available():
             device = torch.device("cuda")
@@ -91,11 +91,11 @@ class TestBertEmotionClassifier:
     def test_training_mode(self):
         """Test model switches between training and evaluation modes."""
         model = BertEmotionClassifier(num_emotions=28)
-        
+
         # Test training mode
         model.train()
         assert model.training
-        
+
         # Test evaluation mode
         model.eval()
         assert not model.training
@@ -103,15 +103,15 @@ class TestBertEmotionClassifier:
     def test_class_weights_handling(self):
         """Test model handles class weights for imbalanced dataset."""
         from src.models.emotion_detection.bert_classifier import WeightedBCELoss
-        
+
         # Test with sample class weights
         class_weights = torch.tensor([0.1, 0.5, 1.0, 2.0, 5.0])
         criterion = WeightedBCELoss(class_weights)
-        
+
         # Test loss computation
         predictions = torch.sigmoid(torch.randn(2, 5))
         targets = torch.randint(0, 2, (2, 5)).float()
-        
+
         loss = criterion(predictions, targets)
         assert torch.isfinite(loss)
         assert loss.requires_grad
@@ -120,7 +120,7 @@ class TestBertEmotionClassifier:
     def test_emotion_label_mapping(self):
         """Test emotion label mapping matches GoEmotions dataset."""
         model = BertEmotionClassifier(num_emotions=28)
-        
+
         expected_emotions = [
             'admiration', 'amusement', 'anger', 'annoyance', 'approval',
             'caring', 'confusion', 'curiosity', 'desire', 'disappointment',
@@ -129,7 +129,7 @@ class TestBertEmotionClassifier:
             'optimism', 'pride', 'realization', 'relief', 'remorse',
             'sadness', 'surprise', 'neutral'
         ]
-        
+
         # Test that we expect 28 emotions (27 + neutral)
         assert model.num_emotions == len(expected_emotions)
-        # Note: Actual label mapping would be tested in integration tests 
+        # Note: Actual label mapping would be tested in integration tests
