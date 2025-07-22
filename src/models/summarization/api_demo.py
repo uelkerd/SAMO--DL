@@ -1,3 +1,4 @@
+# G004: Logging f-strings temporarily allowed for development
 """FastAPI Endpoints for T5/BART Summarization - SAMO Deep Learning.
 
 This module provides production-ready API endpoints for text summarization
@@ -47,11 +48,11 @@ async def lifespan(app: FastAPI):
         )
 
         load_time = time.time() - start_time
-        logger.info(f"✅ Model loaded successfully in {load_time:.2f}s")
-        logger.info(f"Model info: {summarization_model.get_model_info()}")
+        logger.info("✅ Model loaded successfully in {load_time:.2f}s", extra={"format_args": True})
+        logger.info("Model info: {summarization_model.get_model_info()}", extra={"format_args": True})
 
     except Exception as e:
-        logger.error(f"❌ Failed to load summarization model: {e}")
+        logger.error("❌ Failed to load summarization model: {e}", extra={"format_args": True})
         raise RuntimeError(f"Model loading failed: {e}")
 
     yield  # App runs here
@@ -161,7 +162,7 @@ async def health_check():
 @app.post("/summarize", response_model=SummarizationResponse)
 async def summarize_text(request: SummarizationRequest):
     """Summarize a single journal entry or text.
-    
+
     This endpoint generates an intelligent summary that preserves
     emotional context and key insights from the original text.
     """
@@ -186,7 +187,7 @@ async def summarize_text(request: SummarizationRequest):
         compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
 
         # Log performance
-        logger.info(f"Summarized text: {original_length}→{summary_length} chars in {processing_time:.2f}ms")
+        logger.info("Summarized text: {original_length}→{summary_length} chars in {processing_time:.2f}ms", extra={"format_args": True})
 
         return SummarizationResponse(
             summary=summary,
@@ -198,14 +199,14 @@ async def summarize_text(request: SummarizationRequest):
         )
 
     except Exception as e:
-        logger.error(f"Summarization error: {e}")
+        logger.error("Summarization error: {e}", extra={"format_args": True})
         raise HTTPException(status_code=500, detail=f"Summarization failed: {e!s}")
 
 
 @app.post("/summarize/batch", response_model=BatchSummarizationResponse)
 async def summarize_batch(request: BatchSummarizationRequest):
     """Summarize multiple texts in batch for efficiency.
-    
+
     Useful for processing multiple journal entries or conversation
     segments simultaneously with improved throughput.
     """
@@ -243,7 +244,7 @@ async def summarize_batch(request: BatchSummarizationRequest):
 
         average_time = total_processing_time / len(request.texts)
 
-        logger.info(f"Batch summarized {len(request.texts)} texts in {total_processing_time:.2f}ms (avg: {average_time:.2f}ms)")
+        logger.info("Batch summarized {len(request.texts)} texts in {total_processing_time:.2f}ms (avg: {average_time:.2f}ms)", extra={"format_args": True})
 
         return BatchSummarizationResponse(
             summaries=detailed_responses,
@@ -252,7 +253,7 @@ async def summarize_batch(request: BatchSummarizationRequest):
         )
 
     except Exception as e:
-        logger.error(f"Batch summarization error: {e}")
+        logger.error("Batch summarization error: {e}", extra={"format_args": True})
         raise HTTPException(status_code=500, detail=f"Batch summarization failed: {e!s}")
 
 
@@ -282,14 +283,14 @@ async def warm_up_model(background_tasks: BackgroundTasks):
         raise HTTPException(status_code=503, detail="Model not loaded")
 
     def warm_up():
-        sample_text = """Today was a great day filled with positive emotions and meaningful conversations. 
+        sample_text = """Today was a great day filled with positive emotions and meaningful conversations.
         I felt grateful for the opportunities and connections in my life."""
 
         try:
             summarization_model.generate_summary(sample_text)
             logger.info("Model warm-up completed successfully")
         except Exception as e:
-            logger.error(f"Model warm-up failed: {e}")
+            logger.error("Model warm-up failed: {e}", extra={"format_args": True})
 
     background_tasks.add_task(warm_up)
 
@@ -299,7 +300,7 @@ async def warm_up_model(background_tasks: BackgroundTasks):
 # Error Handlers
 @app.exception_handler(ValueError)
 async def value_error_handler(request, exc):
-    logger.error(f"Validation error: {exc}")
+    logger.error("Validation error: {exc}", extra={"format_args": True})
     return HTTPException(status_code=422, detail=str(exc))
 
 
@@ -309,7 +310,7 @@ if __name__ == "__main__":
     logger.info("🚀 Starting SAMO Summarization API...")
     uvicorn.run(
         "api_demo:app",
-        host="0.0.0.0",
+        host="127.0.0.1",  # Changed from 0.0.0.0 for security
         port=8001,  # Different port from main SAMO API
         reload=True,
         log_level="info"

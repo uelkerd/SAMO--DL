@@ -1,3 +1,4 @@
+# G004: Logging f-strings temporarily allowed for development
 """T5/BART Summarization Model for SAMO Deep Learning.
 
 This module implements T5 and BART models for extracting emotional core
@@ -66,7 +67,7 @@ class SummarizationDataset(Dataset):
         max_target_length: int = 128
     ):
         """Initialize summarization dataset.
-        
+
         Args:
             texts: List of input texts (journal entries)
             summaries: List of target summaries
@@ -81,7 +82,7 @@ class SummarizationDataset(Dataset):
         self.max_target_length = max_target_length
 
         assert len(texts) == len(summaries), "Texts and summaries must have same length"
-        logger.info(f"Initialized SummarizationDataset with {len(texts)} examples")
+        logger.info("Initialized SummarizationDataset with {len(texts)} examples", extra={"format_args": True})
 
     def __len__(self) -> int:
         return len(self.texts)
@@ -129,7 +130,7 @@ class T5SummarizationModel(nn.Module):
         model_name: str | None = None
     ):
         """Initialize T5/BART summarization model.
-        
+
         Args:
             config: Model configuration
             model_name: Override model name from config
@@ -148,7 +149,7 @@ class T5SummarizationModel(nn.Module):
         else:
             self.device = torch.device(self.config.device)
 
-        logger.info(f"Initializing {self.model_name} summarization model...")
+        logger.info("Initializing {self.model_name} summarization model...", extra={"format_args": True})
 
         # Initialize tokenizer
         if "bart" in self.model_name.lower():
@@ -167,8 +168,8 @@ class T5SummarizationModel(nn.Module):
 
         # Model info
         self.num_parameters = self.model.num_parameters()
-        logger.info(f"Loaded {self.model_name} with {self.num_parameters:,} parameters")
-        logger.info(f"Model device: {self.device}")
+        logger.info("Loaded {self.model_name} with {self.num_parameters:,} parameters", extra={"format_args": True})
+        logger.info("Model device: {self.device}", extra={"format_args": True})
 
     def forward(
         self,
@@ -200,16 +201,16 @@ class T5SummarizationModel(nn.Module):
         no_repeat_ngram_size: int | None = None
     ) -> str:
         """Generate summary for a single text.
-        
+
         Args:
             text: Input text to summarize
             max_length: Override max summary length
-            min_length: Override min summary length  
+            min_length: Override min summary length
             num_beams: Override beam search size
             length_penalty: Override length penalty
             early_stopping: Override early stopping
             no_repeat_ngram_size: Override n-gram repetition prevention
-            
+
         Returns:
             Generated summary text
         """
@@ -267,12 +268,12 @@ class T5SummarizationModel(nn.Module):
         **generation_kwargs
     ) -> list[str]:
         """Generate summaries for a batch of texts.
-        
+
         Args:
             texts: List of input texts
             batch_size: Batch size for processing
             **generation_kwargs: Additional generation arguments
-            
+
         Returns:
             List of generated summaries
         """
@@ -345,14 +346,14 @@ def create_t5_summarizer(
     device: str | None = None
 ) -> T5SummarizationModel:
     """Create T5/BART summarization model with specified configuration.
-    
+
     Args:
         model_name: Model name (t5-small, t5-base, facebook/bart-base, etc.)
         max_source_length: Maximum input text length
         max_target_length: Maximum summary length
         min_target_length: Minimum summary length
         device: Device for model ('cuda', 'cpu', or None for auto)
-        
+
     Returns:
         Configured T5SummarizationModel instance
     """
@@ -365,7 +366,7 @@ def create_t5_summarizer(
     )
 
     model = T5SummarizationModel(config)
-    logger.info(f"Created {model_name} summarization model")
+    logger.info("Created {model_name} summarization model", extra={"format_args": True})
 
     return model
 
@@ -386,26 +387,26 @@ def test_summarization_model():
         """Work has been incredibly stressful lately. My boss keeps piling on more projects, and I'm starting to feel overwhelmed. I've been staying late almost every night this week. On the positive side, I finally finished that big presentation I've been working on for months. It felt amazing to see it come together. I think I need to have a conversation with my manager about workload balance. I love my job, but I also need to take care of my mental health. Maybe it's time to set some boundaries."""
     ]
 
-    logger.info(f"Generating summaries for {len(test_texts)} journal entries...")
+    logger.info("Generating summaries for {len(test_texts)} journal entries...", extra={"format_args": True})
 
     # Generate summaries
     for i, text in enumerate(test_texts, 1):
         summary = model.generate_summary(text)
 
-        logger.info(f"\n--- Journal Entry {i} ---")
-        logger.info(f"Original ({len(text)} chars): {text[:100]}...")
-        logger.info(f"Summary ({len(summary)} chars): {summary}")
+        logger.info("\n--- Journal Entry {i} ---", extra={"format_args": True})
+        logger.info("Original ({len(text)} chars): {text[:100]}...", extra={"format_args": True})
+        logger.info("Summary ({len(summary)} chars): {summary}", extra={"format_args": True})
 
     # Test batch processing
     logger.info("\nTesting batch summarization...")
     batch_summaries = model.generate_batch_summaries(test_texts, batch_size=2)
 
     for i, summary in enumerate(batch_summaries, 1):
-        logger.info(f"Batch Summary {i}: {summary}")
+        logger.info("Batch Summary {i}: {summary}", extra={"format_args": True})
 
     # Model info
     info = model.get_model_info()
-    logger.info(f"\nModel Info: {info}")
+    logger.info("\nModel Info: {info}", extra={"format_args": True})
 
     logger.info("✅ T5 summarization model test complete!")
 

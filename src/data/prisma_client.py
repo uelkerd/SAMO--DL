@@ -1,12 +1,13 @@
 """Prisma client utility for the SAMO-DL application.
 
 This module provides functions to interact with the Prisma client via subprocess calls.
+
 It's a simple wrapper that allows Python code to execute Prisma commands.
 """
 
 import json
-import os
 import subprocess
+from pathlib import Path
 from typing import Any
 
 
@@ -31,7 +32,7 @@ class PrismaClient:
 
         """
         # Create a temporary JS file
-        with open("temp_prisma_script.js", "w") as f:
+        with Path("temp_prisma_script.js").open("w") as f:
             f.write(f"""
 const {{ PrismaClient }} = require('@prisma/client');
 const prisma = new PrismaClient();
@@ -67,11 +68,11 @@ main();
             return json.loads(result.stdout)
         except subprocess.CalledProcessError as e:
             msg = f"Prisma command failed: {e.stderr}"
-            raise Exception(msg)
+            raise Exception(msg) from e
         finally:
             # Clean up the temporary file
-            if os.path.exists("temp_prisma_script.js"):
-                os.remove("temp_prisma_script.js")
+            if Path("temp_prisma_script.js").exists():
+                Path("temp_prisma_script.js").unlink()
 
     def create_user(
         self, email: str, password_hash: str, consent_version: str | None = None
