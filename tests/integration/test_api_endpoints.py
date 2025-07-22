@@ -3,11 +3,11 @@ Integration tests for API endpoints.
 Tests actual API behavior, endpoint integration, and response consistency.
 """
 
-import pytest
-import json
 import time
-from fastapi.testclient import TestClient
 from unittest.mock import patch
+
+import pytest
+
 
 @pytest.mark.integration
 class TestAPIEndpoints:
@@ -27,7 +27,7 @@ class TestAPIEndpoints:
 
         # Check model status structure
         assert isinstance(data["models"], dict)
-        for model_name, model_status in data["models"].items():
+        for _model_name, model_status in data["models"].items():
             assert "loaded" in model_status
             assert "status" in model_status
 
@@ -42,7 +42,7 @@ class TestAPIEndpoints:
         assert "SAMO" in data["message"]
         assert "version" in data
 
-    @patch('src.models.emotion_detection.bert_classifier.BertEmotionClassifier')
+    @patch("src.models.emotion_detection.bert_classifier.BertEmotionClassifier")
     def test_journal_analysis_endpoint(self, mock_bert, api_client):
         """Test /analyze/journal endpoint with text input."""
         # Mock the emotion detection
@@ -52,7 +52,7 @@ class TestAPIEndpoints:
         test_data = {
             "text": "I had an amazing day today! I completed my project and felt so proud.",
             "generate_summary": True,
-            "confidence_threshold": 0.5
+            "confidence_threshold": 0.5,
         }
 
         response = api_client.post("/analyze/journal", data=test_data)
@@ -131,15 +131,17 @@ class TestAPIEndpoints:
         assert response.status_code == 404
 
         # Test malformed request
-        response = api_client.post("/analyze/journal",
-                                 data={"invalid": "data"},
-                                 headers={"Content-Type": "application/json"})
+        response = api_client.post(
+            "/analyze/journal",
+            data={"invalid": "data"},
+            headers={"Content-Type": "application/json"},
+        )
         assert response.status_code == 422
 
     def test_concurrent_requests(self, api_client):
         """Test API handles concurrent requests."""
-        import threading
         import queue
+        import threading
 
         results = queue.Queue()
         test_data = {"text": "Testing concurrent request handling."}
@@ -176,8 +178,7 @@ class TestAPIEndpoints:
         assert response.status_code == 200
 
         # Test JSON content type (should also work)
-        response = api_client.post("/analyze/journal",
-                                 json=test_data)
+        response = api_client.post("/analyze/journal", json=test_data)
         # Note: Depending on FastAPI configuration, this might need adjustment
         # For form-based endpoints, JSON might not be accepted
 
@@ -200,5 +201,5 @@ class TestAPIEndpoints:
 
             # Check field types are consistent
             assert isinstance(response_data["emotions"], list)
-            assert isinstance(response_data["processing_time"], (int, float))
+            assert isinstance(response_data["processing_time"], int | float)
             assert isinstance(response_data["timestamp"], str)
