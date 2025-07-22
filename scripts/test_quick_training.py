@@ -99,9 +99,8 @@ def test_threshold_tuning():
     logger.info("🎯 Testing Evaluation Threshold Tuning")
 
     # Import evaluation function
-
-    from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
-    from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+    from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+    from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
     try:
         # Create trainer and load small dataset
@@ -124,6 +123,8 @@ def test_threshold_tuning():
             return True
 
         # Load model
+        import torch
+
         checkpoint = torch.load(model_path, map_location="cpu")
         trainer.model.load_state_dict(checkpoint["model_state_dict"])
 

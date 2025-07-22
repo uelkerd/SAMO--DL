@@ -28,5 +28,5 @@ __all__ = [
     "TranscriptionAPI",
     "WhisperTranscriber",
     "create_whisper_transcriber",
-    "preprocess_audio"
+    "preprocess_audio",
 ]

@@ -93,8 +93,8 @@ main();
             data: {{
                 email: '{email}',
                 passwordHash: '{password_hash}',
-                consentVersion: {f"'{consent_version}'" if consent_version else 'null'},
-                consentGivenAt: {"new Date()" if consent_version else 'null'}
+                consentVersion: {f"'{consent_version}'" if consent_version else "null"},
+                consentGivenAt: {"new Date()" if consent_version else "null"}
             }}
         }});
         """
@@ -153,9 +153,7 @@ main();
         result = self.execute_prisma_command(script)
         return result if result else None
 
-    def get_journal_entries_by_user(
-        self, user_id: str, limit: int = 10
-    ) -> list[dict[str, Any]]:
+    def get_journal_entries_by_user(self, user_id: str, limit: int = 10) -> list[dict[str, Any]]:
         """Get journal entries for a specific user.
 
         Args:
