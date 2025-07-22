@@ -40,14 +40,14 @@ def sample_audio_data():
     """Provide sample audio data for voice processing tests."""
     # Create a simple sine wave for testing
     import numpy as np
-    
+
     sample_rate = 16000
     duration = 2.0  # seconds
     frequency = 440  # Hz
-    
+
     t = np.linspace(0, duration, int(sample_rate * duration), False)
     audio_data = np.sin(frequency * 2 * np.pi * t)
-    
+
     return {
         "audio_data": audio_data,
         "sample_rate": sample_rate,
@@ -90,7 +90,7 @@ def api_client():
     """Provide FastAPI test client."""
     from fastapi.testclient import TestClient
     from src.unified_ai_api import app
-    
+
     return TestClient(app)
 
 # Custom markers for test categorization
@@ -106,7 +106,7 @@ def pytest_configure(config):
 def pytest_collection_modifyitems(config, items):
     """Modify test collection based on available hardware."""
     skip_gpu = pytest.mark.skip(reason="CUDA not available")
-    
+
     for item in items:
         if "gpu" in item.keywords and not torch.cuda.is_available():
-            item.add_marker(skip_gpu) 
+            item.add_marker(skip_gpu)
