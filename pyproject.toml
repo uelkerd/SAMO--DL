@@ -1,188 +1,241 @@
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "samo-dl"
 version = "0.1.0"
-description = "SAMO Deep Learning - AI Models for Voice-First Emotional Journaling"
-readme = "README.md"
-requires-python = ">=3.11"
+description = "SAMO Deep Learning - AI-powered voice-first journaling companion"
 authors = [
-    {name = "SAMO Deep Learning Team", email = "ai@samo-app.com"},
+    {name = "SAMO DL Team", email = "dev@samo.ai"}
 ]
+readme = "README.md"
+requires-python = ">=3.12"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
-    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-keywords = ["ai", "machine-learning", "nlp", "emotion-detection", "voice-processing"]
+
 dependencies = [
+    # Core ML/AI Dependencies
     "torch>=2.0.0",
-    "transformers>=4.35.0",
+    "transformers>=4.30.0",
     "datasets>=2.14.0",
+    "accelerate>=0.20.0",
+    "onnxruntime>=1.15.0",
+
+    # Deep Learning Frameworks
     "scikit-learn>=1.3.0",
-    "numpy>=1.24.0",
     "pandas>=2.0.0",
-    "fastapi>=0.104.0",
-    "uvicorn>=0.24.0",
-    "pydantic>=2.4.0",
+    "numpy>=1.24.0",
+    "scipy>=1.11.0",
+
+    # Text Processing
+    "nltk>=3.8",
+    "spacy>=3.6.0",
+    "gensim>=4.3.0",
+    "textblob>=0.17.0",
+
+    # Audio Processing
+    "librosa>=0.10.0",
+    "soundfile>=0.12.0",
+    "pyaudio>=0.2.11",
+
+    # API Framework
+    "fastapi>=0.100.0",
+    "uvicorn[standard]>=0.23.0",
     "python-multipart>=0.0.6",
+    "pydantic>=2.0.0",
+
+    # Database & Storage
     "sqlalchemy>=2.0.0",
-    "asyncpg>=0.29.0",
+    "psycopg2-binary>=2.9.0",
+    "redis>=4.6.0",
+
+    # Utilities
     "python-dotenv>=1.0.0",
-    "prisma>=0.11.0",
-    "openai-whisper>=20231117",
-    "pydub>=0.25.1",
+    "pyyaml>=6.0",
+    "requests>=2.31.0",
+    "click>=8.1.0",
+    "rich>=13.0.0",
+    "loguru>=0.7.0",
+
+    # Development Tools - moved to optional dependencies
 ]
 
 [project.optional-dependencies]
-dev = [
+# Test Dependencies
+test = [
     "pytest>=7.4.0",
-    "pytest-asyncio>=0.21.0",
     "pytest-cov>=4.1.0",
-    "black>=23.9.0",
-    "ruff>=0.1.0",
-    "mypy>=1.6.0",
-    "pre-commit>=3.5.0",
-    "jupyter>=1.0.0",
+    "pytest-xdist>=3.3.0",
+    "pytest-mock>=3.11.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-timeout>=2.1.0",
+    "pytest-benchmark>=4.0.0",
+    "httpx>=0.24.0",  # For FastAPI testing
+    "coverage[toml]>=7.2.0",
+    "factory-boy>=3.3.0",  # For test data generation
+]
+
+# Development Dependencies
+dev = [
+    "ruff>=0.0.280",
+    "black>=23.7.0",
+    "mypy>=1.5.0",
+    "bandit[toml]>=1.7.5",
+    "safety>=2.3.0",
+    "pre-commit>=3.3.0",
+    "jupyterlab>=4.0.0",
     "ipykernel>=6.25.0",
 ]
-gpu = [
-    "torch[cuda]>=2.0.0",
+
+# Production Dependencies
+prod = [
+    "gunicorn>=21.2.0",
+    "prometheus-client>=0.17.0",
+    "sentry-sdk[fastapi]>=1.29.0",
 ]
-optimization = [
-    "onnx>=1.15.0",
-    "onnxruntime>=1.16.0",
-    "onnxruntime-gpu>=1.16.0",
+
+# All dependencies for development
+all = [
+    "samo-dl[test,dev,prod]"
 ]
+
+[project.urls]
+"Homepage" = "https://github.com/samo-ai/samo-dl"
+"Bug Reports" = "https://github.com/samo-ai/samo-dl/issues"
+"Source" = "https://github.com/samo-ai/samo-dl"
 
 [project.scripts]
 samo-train = "src.training.cli:main"
-samo-inference = "src.inference.cli:main"
+samo-api = "src.unified_ai_api:main"
 
-[project.urls]
-Homepage = "https://github.com/samo-ai/samo-dl"
-Documentation = "https://samo-dl.readthedocs.io"
-Repository = "https://github.com/samo-ai/samo-dl.git"
-"Bug Tracker" = "https://github.com/samo-ai/samo-dl/issues"
+# ============================================================================
+# TOOL CONFIGURATIONS
+# ============================================================================
 
-# Ruff configuration
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# Ruff Configuration (Linting & Formatting)
 [tool.ruff]
-target-version = "py311"
-line-length = 88
-select = [
-    "E",      # pycodestyle errors
-    "W",      # pycodestyle warnings  
-    "F",      # Pyflakes
-    "UP",     # pyupgrade
-    "B",      # flake8-bugbear
-    "SIM",    # flake8-simplify
-    "I",      # isort
-    "N",      # pep8-naming
-    "C",      # flake8-comprehensions
-    "PTH",    # flake8-use-pathlib
-    "RUF",    # Ruff-specific rules
-    "Q",      # flake8-quotes
-    "T20",    # flake8-print
-    "PD",     # pandas-vet
-    "G",      # flake8-logging-format
-    "FBT",    # flake8-boolean-trap
-    "ANN",    # flake8-annotations
-    "S",      # flake8-bandit
-    "DTZ",    # flake8-datetimez
-    "EM",     # flake8-errmsg
-    "D",      # pydocstyle
-    "PIE",    # flake8-pie
-    "PLW",    # pylint warnings
-]
-ignore = [
-    "E501",     # Line too long (we use formatter)
-    "ANN101",   # Missing type annotation for self
-    "ANN102",   # Missing type annotation for cls
-    "D100",     # Missing docstring in public module
-    "D101",     # Missing docstring in public class
-    "D102",     # Missing docstring in public method
-    "D103",     # Missing docstring in public function
-    "D104",     # Missing docstring in public package
-    "D105",     # Missing docstring in magic method
-    "S101",     # Use of assert
-    "PLW0603",  # Using global statement
-]
+target-version = "py312"
+line-length = 100
+indent-width = 4
+
+# Include/exclude patterns
+include = ["*.py", "*.pyi"]
 exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
     ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
     ".venv",
-    "__pycache__",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
     "data/cache",
-    "models",
+    "models/*/cache",
     "test_checkpoints",
-    "*.egg-info",
 ]
 
-[tool.ruff.per-file-ignores]
-"tests/**/*.py" = ["S101", "D", "ANN"]  # Allow asserts and missing docs in tests
-"scripts/**/*.py" = ["T20", "S603", "S607"]  # Allow prints in scripts
-"notebooks/**/*.py" = ["T20", "E402", "F401", "PLC0415"]  # Notebook-specific ignores
-"**/__init__.py" = ["F401"]  # Allow unused imports in __init__.py
-
-[tool.ruff.isort]
-known-first-party = ["src"]
-force-single-line = false
-lines-after-imports = 2
-
-[tool.ruff.flake8-quotes]
-inline-quotes = "double"
-multiline-quotes = "double"
-
-# Bandit security configuration
-[tool.bandit]
-exclude_dirs = [
-    "tests",
-    "data/cache", 
-    "models",
-    "test_checkpoints",
-    ".venv",
-]
-skips = [
-    "B101",  # assert_used - we use asserts appropriately
-    "B603",  # subprocess_without_shell_equals_true - needed for scripts
-    "B607",  # start_process_with_partial_path - needed for scripts
+[tool.ruff.lint]
+# Enable rule categories
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
+    "PTH", # flake8-use-pathlib
+    "ERA", # eradicate
+    "PD",  # pandas-vet
+    "PL",  # pylint
+    "NPY", # NumPy-specific rules
+    "RUF", # Ruff-specific rules
+    "S",   # flake8-bandit (security)
+    "G",   # flake8-logging-format
+    "T20", # flake8-print
+    "ANN", # flake8-annotations
+    "ARG", # flake8-unused-arguments
+    "D",   # pydocstyle
+    "DTZ", # flake8-datetimez
 ]
 
-# Test configuration
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py", "*_test.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = [
-    "--strict-markers",
-    "--strict-config", 
-    "--cov=src",
-    "--cov-report=term-missing",
-    "--cov-report=html:htmlcov",
-    "--cov-report=xml:coverage.xml",
-]
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests",
-    "gpu: marks tests that require GPU",
+# Disable specific rules that conflict or are too strict
+ignore = [
+    "E501",   # Line too long (handled by formatter)
+    "D102",   # Missing docstring in public method (too strict for all methods)
+    "D103",   # Missing docstring in public function (too strict for all functions)
+    "D105",   # Missing docstring in magic method
+    "D106",   # Missing docstring in public nested class
+    "D203",   # One blank line before class (conflicts with D211)
+    "D213",   # Multi-line summary second line (conflicts with D212)
+    "ANN101", # Missing type annotation for self
+    "ANN102", # Missing type annotation for cls
+    "S101",   # Use of assert (common in tests)
+    "G004",   # Logging f-string (acceptable for performance)
+    "S311",   # Random for non-cryptographic use (sample data generation is fine)
 ]
 
-# Type checking configuration
+# Per-file ignores
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "S101",   # Allow assert in tests
+    "ANN",    # Don't require type annotations in tests
+    "D",      # Don't require docstrings in tests
+]
+"scripts/**" = [
+    "T20",    # Allow print statements in scripts
+    "ANN",    # Don't require type annotations in scripts
+]
+"src/data/sample_data.py" = [
+    "S311",   # Allow random for sample data generation
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"  # Use Google docstring style
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+# MyPy Configuration (Type Checking)
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
-disallow_untyped_defs = false  # Gradual typing
+disallow_untyped_defs = false
 disallow_incomplete_defs = false
-check_untyped_defs = true
-disallow_untyped_decorators = false
+check_untyped_defs = false
+disallow_untyped_decorators = true
 no_implicit_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = true
@@ -190,15 +243,118 @@ warn_no_return = true
 warn_unreachable = true
 strict_equality = true
 
+# Ignore missing imports for third-party packages
 [[tool.mypy.overrides]]
 module = [
     "transformers.*",
-    "datasets.*", 
+    "datasets.*",
     "torch.*",
-    "sklearn.*",
-    "pandas.*",
     "numpy.*",
+    "pandas.*",
+    "sklearn.*",
+    "librosa.*",
+    "soundfile.*",
     "whisper.*",
-    "pydub.*",
+    "gensim.*",
+    "nltk.*",
+    "spacy.*",
+    "textblob.*",
 ]
 ignore_missing_imports = true
+
+# Pytest Configuration
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "-ra",
+    "-q",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--cov-fail-under=70",
+    "--tb=short",
+]
+
+testpaths = ["tests"]
+
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+# Test markers
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "gpu: marks tests that require GPU",
+    "integration: marks integration tests",
+    "e2e: marks end-to-end tests",
+    "model: marks tests that load ML models",
+    "network: marks tests that require network access",
+]
+
+# Filter warnings
+filterwarnings = [
+    "error",
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+    "ignore::FutureWarning",
+]
+
+# Coverage Configuration
+[tool.coverage.run]
+source = ["src"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+    "setup.py",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+# Bandit Configuration (Security)
+[tool.bandit]
+exclude_dirs = ["tests", "test_*", "*_test.py"]
+skips = [
+    "B101",  # assert_used - acceptable in tests
+    "B603",  # subprocess_without_shell_equals_true - acceptable for trusted input
+    "B607",  # start_process_with_partial_path - acceptable in controlled environments
+]
+
+# Safety Configuration (Dependency Vulnerability Scanning)
+[tool.safety]
+# Ignore specific vulnerabilities if needed
+# ignore = ["12345"]
+
+# Black Configuration (Code Formatting) - Fallback if Ruff format not used
+[tool.black]
+target-version = ['py312']
+line-length = 100
+skip-string-normalization = false
+skip-magic-trailing-comma = false

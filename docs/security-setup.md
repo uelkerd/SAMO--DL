@@ -2,27 +2,31 @@
 
 ## ✅ Database Credentials Security Remediation (COMPLETED)
 
-### What Was Done:
+### What Was Done
+
 1. **Changed leaked password** for `samouser` account
 2. **Created new secure user**: `samo_secure_1753200376`
 3. **Verified PostgreSQL connection** using correct superuser (`minervae`)
 
-### ⚠️ Important Security Notes:
+### ⚠️ Important Security Notes
 
 The original credentials were **publicly exposed** in git history:
+
 - ❌ Username: `samouser`
 - ❌ Password: `samopassword` (now changed)
 - ❌ Database: `samodb`
 
 ## 🔐 Current Secure Database Configuration
 
-### PostgreSQL Connection Info:
+### PostgreSQL Connection Info
+
 - **Host**: `localhost:5432`
 - **Database**: `samodb`
 - **Secure User**: `samo_secure_1753200376` (with random password)
 - **Admin User**: `minervae` (your macOS username)
 
-### How to Connect:
+### How to Connect
+
 ```bash
 # As admin (for maintenance):
 psql -U minervae -d postgres
@@ -49,25 +53,29 @@ JWT_SECRET=your_jwt_secret_here
 LOG_LEVEL=info
 ```
 
-## 🚨 Next Steps Required:
+## 🚨 Next Steps Required
 
 ### 1. Update Your Application Configuration
+
 - [ ] Update your Prisma database connection
 - [ ] Test database connectivity with new credentials
 - [ ] Update any deployment configurations
 
 ### 2. Rotate Any Other Potentially Exposed Secrets
+
 - [ ] Generate new JWT secrets
 - [ ] Rotate any API keys that were in the leaked .env
 - [ ] Update production database credentials if applicable
 
 ### 3. Git History Considerations
+
 ⚠️ **The leaked credentials still exist in git history!**
+
 - Consider using `git filter-branch` or BFG Repo-Cleaner if this is critical
 - Monitor for unauthorized access using the old credentials
 - Consider this when deploying to production
 
-## 📋 Security Checklist Going Forward:
+## 📋 Security Checklist Going Forward
 
 - [x] `.gitignore` configured to ignore `.env` files
 - [x] Git LFS configured for large files
@@ -76,7 +84,7 @@ LOG_LEVEL=info
 - [ ] Regular security audits scheduled
 - [ ] Monitoring setup for unusual database access
 
-## 🔍 PostgreSQL Management Commands:
+## 🔍 PostgreSQL Management Commands
 
 ```bash
 # List all users

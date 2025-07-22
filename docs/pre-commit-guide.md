@@ -42,6 +42,7 @@ pre-commit run ruff --all-files
 ## What Happens When You Commit
 
 ### ✅ **Perfect Code** - Commit Accepted
+
 ```bash
 git commit -m "Add new feature"
 
@@ -82,44 +83,53 @@ git add . && git commit -m "Add buggy code (fixed)"
 ## Pre-commit Hook Details
 
 ### 🔍 **Ruff Linter**
+
 - **What**: Fast Python linter (replaces flake8, pylint)
 - **Fixes**: Import sorting, unused variables, style violations
 - **Action**: Auto-fixes simple issues, reports complex ones
 
 ### 🎨 **Ruff Formatter**
+
 - **What**: Code formatting (replaces black)
 - **Fixes**: Line length, quotes, spacing, indentation
 - **Action**: Automatically reformats your code
 
 ### 🧹 **File Quality Checks**
+
 - **Trailing whitespace**: Removes spaces at end of lines
 - **End of file**: Ensures files end with newline
 - **Large files**: Prevents commits of files >10MB
 - **YAML/JSON/TOML**: Validates syntax
 
 ### 🔒 **Security Scanning**
+
 - **Bandit**: Scans for common security issues
 - **Secret detection**: Prevents API keys, passwords in commits
 - **Private key detection**: Blocks SSH keys, certificates
 
 ### 📓 **Notebook Support**
+
 - **Ruff for notebooks**: Lints Jupyter notebook code cells
 - **Format notebooks**: Consistent formatting in notebooks
 
 ## Configuration Files
 
 ### `.pre-commit-config.yaml`
+
 Main configuration defining all hooks and their settings.
 
 ### `pyproject.toml`
+
 Contains Ruff configuration, Bandit settings, and other tool configs.
 
 ### `.secrets.baseline`
+
 Baseline file for secret detection - tracks known false positives.
 
 ## Common Issues & Solutions
 
 ### Issue: "Hook failed to install"
+
 ```bash
 # Solution: Update pre-commit
 pip install --upgrade pre-commit
@@ -127,6 +137,7 @@ pre-commit install --overwrite
 ```
 
 ### Issue: "Too many Ruff violations"
+
 ```bash
 # Run auto-fixes first
 source .venv/bin/activate
@@ -137,12 +148,14 @@ git add . && git commit -m "Apply Ruff auto-fixes"
 ```
 
 ### Issue: "Notebook formatting issues"
+
 ```bash
 # Format notebooks manually
 python -m ruff format notebooks/
 ```
 
 ### Issue: "Secret detected false positive"
+
 ```bash
 # Update baseline (only if you're sure it's not a real secret!)
 pre-commit run detect-secrets --all-files
@@ -151,6 +164,7 @@ pre-commit run detect-secrets --all-files
 ## Development Workflow
 
 ### 1. **Regular Development**
+
 ```bash
 # Work normally - hooks run automatically
 git add new_feature.py
@@ -159,6 +173,7 @@ git commit -m "Add new feature"
 ```
 
 ### 2. **Large Refactoring**
+
 ```bash
 # Apply fixes in bulk first
 python -m ruff check --fix src/
@@ -170,6 +185,7 @@ git commit -m "Refactor user authentication"
 ```
 
 ### 3. **Emergency Bypass** (Use Sparingly!)
+
 ```bash
 # Skip hooks for emergency commits only
 git commit --no-verify -m "EMERGENCY: Fix critical bug"
@@ -186,18 +202,21 @@ git commit --no-verify -m "EMERGENCY: Fix critical bug"
 ## Team Benefits
 
 ### For Developers
+
 - 🚀 **Consistent code style** - No more style debates
 - 🐛 **Catch bugs early** - Before they reach main branch
 - 📚 **Learning tool** - See best practices automatically
 - ⚡ **Auto-formatting** - Never worry about spacing again
 
 ### For Code Reviews
+
 - 🎯 **Focus on logic** - Not style nitpicks
 - 📉 **Fewer iterations** - Clean code from start
 - 🔍 **Security focus** - Hooks catch security issues
 - ✅ **Consistent quality** - Every commit meets standards
 
 ### For Project Health
+
 - 📊 **Technical debt prevention** - Issues caught immediately
 - 🛡️ **Security baseline** - Automated security scanning
 - 📈 **Code quality metrics** - Consistent improvement
@@ -206,7 +225,9 @@ git commit --no-verify -m "EMERGENCY: Fix critical bug"
 ## Customization
 
 ### Adding New Rules
+
 Edit `pyproject.toml`:
+
 ```toml
 [tool.ruff]
 select = [
@@ -217,6 +238,7 @@ select = [
 ```
 
 ### Ignoring Specific Issues
+
 ```toml
 [tool.ruff.per-file-ignores]
 "scripts/**/*.py" = ["T20"]  # Allow print statements in scripts
@@ -224,6 +246,7 @@ select = [
 ```
 
 ### Project-Specific Rules
+
 ```toml
 [tool.ruff]
 ignore = [
@@ -235,6 +258,7 @@ ignore = [
 ## Troubleshooting
 
 ### Pre-commit Not Running
+
 ```bash
 # Check if installed
 pre-commit --version
@@ -245,6 +269,7 @@ pre-commit install
 ```
 
 ### Hook Failures
+
 ```bash
 # See detailed error output
 pre-commit run --verbose
@@ -254,6 +279,7 @@ pre-commit run ruff --verbose --all-files
 ```
 
 ### Performance Issues
+
 ```bash
 # Skip slow hooks temporarily
 SKIP=bandit git commit -m "Quick fix"
@@ -265,12 +291,14 @@ git commit --no-verify -m "Skip hooks once"
 ## Best Practices
 
 ### ✅ **Do:**
+
 - Let hooks auto-fix issues when possible
 - Review what hooks changed before pushing
 - Update hook configurations as project evolves
 - Use hooks as learning tools for code quality
 
 ### ❌ **Don't:**
+
 - Bypass hooks regularly with `--no-verify`
 - Ignore hook failures without understanding them
 - Commit secrets or sensitive data
