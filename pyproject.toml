@@ -190,13 +190,6 @@ select = [
 # Disable specific rules that conflict or are too strict
 ignore = [
     "E501",   # Line too long (handled by formatter)
-    "D100",   # Missing docstring in public module (too strict for all modules)
-    "D102",   # Missing docstring in public method (too strict for all methods)
-    "D103",   # Missing docstring in public function (too strict for all functions)
-    "D104",   # Missing docstring in public package (too strict for all packages)
-    "D105",   # Missing docstring in magic method
-    "D106",   # Missing docstring in public nested class
-    "D107",   # Missing docstring in __init__ (too strict for all constructors)
     "D203",   # One blank line before class (conflicts with D211)
     "D213",   # Multi-line summary second line (conflicts with D212)
     "S101",   # Use of assert (common in tests)
@@ -221,11 +214,6 @@ ignore = [
     "W293",    # Blank line whitespace (acceptable)
     "SIM102",  # Nested if statements (acceptable for complex logic)
     "B904",    # Exception chaining (acceptable for development)
-    "ANN201",  # Missing return type annotations (too strict for all functions)
-    "ANN001",  # Missing type annotations (too strict for all arguments)
-    "ANN003",  # Missing type annotations (too strict for kwargs)
-    "ANN202",  # Missing return type annotations (too strict for private functions)
-    "ANN204",  # Missing return type annotations (too strict for special methods)
     "I001",    # Import sorting (acceptable)
     "UP035",   # Import from collections.abc (acceptable)
     "PLW0603", # Global statement (acceptable for model caching)
@@ -241,9 +229,24 @@ ignore = [
 "scripts/**" = [
     "T20",    # Allow print statements in scripts
     "ANN",    # Don't require type annotations in scripts
+    "D",      # Don't require docstrings in scripts
 ]
 "src/data/sample_data.py" = [
     "S311",   # Allow random for sample data generation
+]
+"src/**" = [
+    "D100",   # Missing docstring in public module (too strict for ML modules)
+    "D102",   # Missing docstring in public method (too strict for ML methods)
+    "D103",   # Missing docstring in public function (too strict for ML functions)
+    "D104",   # Missing docstring in public package (too strict for ML packages)
+    "D105",   # Missing docstring in magic method (too strict for ML classes)
+    "D106",   # Missing docstring in public nested class (too strict for ML classes)
+    "D107",   # Missing docstring in __init__ (too strict for ML constructors)
+    "ANN201", # Missing return type annotations (too strict for ML functions)
+    "ANN001", # Missing type annotations (too strict for ML arguments)
+    "ANN003", # Missing type annotations (too strict for ML kwargs)
+    "ANN202", # Missing return type annotations (too strict for ML private functions)
+    "ANN204", # Missing return type annotations (too strict for ML special methods)
 ]
 
 [tool.ruff.lint.pydocstyle]
