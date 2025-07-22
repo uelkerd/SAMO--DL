@@ -151,26 +151,28 @@ class EmotionDetectionTrainer:
 
         # DEVELOPMENT MODE: Use smaller dataset for faster iteration
         if dev_mode:
-            logger.info("🔧 DEVELOPMENT MODE: Using 10% of dataset for faster training")
-            
-            # Sample 10% of training data
+            logger.info("🔧 DEVELOPMENT MODE: Using 5% of dataset for faster training")
+
+            # Sample 5% of training data (much smaller for quick iteration)
             train_size = len(train_texts)
-            dev_size = int(train_size * 0.1)
+            dev_size = int(train_size * 0.05)  # Reduced from 10% to 5%
             indices = torch.randperm(train_size)[:dev_size].tolist()
             train_texts = [train_texts[i] for i in indices]
             train_labels = [train_labels[i] for i in indices]
-            
-            # Sample 20% of validation data
+
+            # Sample 10% of validation data
             val_size = len(val_texts)
-            dev_val_size = int(val_size * 0.2)
+            dev_val_size = int(val_size * 0.1)  # Reduced from 20% to 10%
             val_indices = torch.randperm(val_size)[:dev_val_size].tolist()
             val_texts = [val_texts[i] for i in val_indices]
             val_labels = [val_labels[i] for i in val_indices]
-            
-            # Increase batch size for development
+
+            # Increase batch size significantly for development
             original_batch_size = self.batch_size
-            self.batch_size = min(64, self.batch_size * 4)
-            logger.info(f"🔧 DEVELOPMENT MODE: Using {len(train_texts)} training examples, batch_size={self.batch_size} (was {original_batch_size})")
+            self.batch_size = min(128, self.batch_size * 8)  # Much larger batch size
+            logger.info(
+                f"🔧 DEVELOPMENT MODE: Using {len(train_texts)} training examples, batch_size={self.batch_size} (was {original_batch_size})"
+            )
 
         self.train_dataset = EmotionDataset(
             train_texts, train_labels, self.tokenizer, self.max_length
@@ -307,12 +309,12 @@ class EmotionDetectionTrainer:
                     f"Epoch {epoch}, Batch {batch_idx + 1}/{num_batches}, "
                     f"Loss: {avg_loss:.4f}, LR: {self.scheduler.get_last_lr()[0]:.2e}"
                 )
-            
+
             # Validate during training for early stopping
             if (batch_idx + 1) % val_frequency == 0:
                 logger.info(f"🔍 Validating at batch {batch_idx + 1}...")
-                val_metrics = self.validate(epoch)
-                
+                self.validate(epoch)
+
                 # Check for early stopping
                 if self.should_stop_early():
                     logger.info(f"🛑 Early stopping triggered at batch {batch_idx + 1}")
@@ -321,7 +323,7 @@ class EmotionDetectionTrainer:
                         "train_loss": total_loss / (batch_idx + 1),
                         "epoch_time": time.time() - start_time,
                         "learning_rate": self.scheduler.get_last_lr()[0],
-                        "early_stopped": True
+                        "early_stopped": True,
                     }
 
         # Calculate epoch metrics
@@ -452,28 +454,54 @@ class EmotionDetectionTrainer:
 
         # Final evaluation on test set with lower threshold
         logger.info("Running final evaluation on test set...")
-        test_metrics = evaluate_emotion_classifier(self.model, self.test_dataloader, self.device, threshold=0.2)
+        test_metrics = evaluate_emotion_classifier(
+            self.model, self.test_dataloader, self.device, threshold=0.2
+        )
 
         # Save training history with JSON serializable data
         history_path = self.output_dir / "training_history.json"
-        
+
         # Convert numpy types to native Python types for JSON serialization
         def convert_numpy_types(obj):
             if isinstance(obj, dict):
                 return {k: convert_numpy_types(v) for k, v in obj.items()}
             elif isinstance(obj, list):
                 return [convert_numpy_types(item) for item in obj]
-            elif hasattr(obj, 'item') and obj.size == 1:  # numpy scalars
+            elif hasattr(obj, "item") and hasattr(obj, "size") and obj.size == 1:  # numpy scalars
                 return obj.item()
-            elif hasattr(obj, 'tolist'):  # numpy arrays
+            elif hasattr(obj, "tolist"):  # numpy arrays
                 return obj.tolist()
+            elif isinstance(obj, np.integer | np.floating):
+                return obj.item()
             else:
                 return obj
-        
-        serializable_history = convert_numpy_types(self.training_history)
-        
-        with Path(history_path).open("w") as f:
-            json.dump(serializable_history, f, indent=2)
+
+        try:
+            serializable_history = convert_numpy_types(self.training_history)
+            with Path(history_path).open("w") as f:
+                json.dump(serializable_history, f, indent=2)
+            logger.info(f"Training history saved to {history_path}")
+        except Exception as e:
+            logger.error(f"Failed to save training history: {e}")
+            # Save a simplified version without problematic data
+            simplified_history = []
+            for entry in self.training_history:
+                simplified_entry = {}
+                for k, v in entry.items():
+                    try:
+                        if isinstance(v, np.integer | np.floating):
+                            simplified_entry[k] = float(v.item())
+                        elif isinstance(v, int | float | str | bool):
+                            simplified_entry[k] = v
+                        else:
+                            simplified_entry[k] = str(v)
+                    except:
+                        simplified_entry[k] = str(v)
+                simplified_history.append(simplified_entry)
+
+            with Path(history_path).open("w") as f:
+                json.dump(simplified_history, f, indent=2)
+            logger.info(f"Simplified training history saved to {history_path}")
 
         # Prepare final results
         results = {
@@ -526,7 +554,7 @@ def train_emotion_detection_model(
         logger.info("🚀 Expected training time: 30-60 minutes instead of 9 hours")
     else:
         logger.info("🏭 PRODUCTION MODE: Full dataset training")
-    
+
     trainer = EmotionDetectionTrainer(
         model_name=model_name,
         cache_dir=cache_dir,
@@ -537,7 +565,7 @@ def train_emotion_detection_model(
         device=device,
         unfreeze_schedule=[2, 4],  # Progressive unfreezing at epochs 2 and 4
     )
-    
+
     # Prepare data with development mode
     trainer.prepare_data(dev_mode=dev_mode)
 
