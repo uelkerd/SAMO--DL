@@ -1,68 +1,67 @@
+import logging
+from typing import Any, Dict, List, Optional, Union
+
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Union, Any
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
-from gensim.models import Word2Vec, FastText
+from gensim.models import FastText, Word2Vec
 from gensim.utils import simple_preprocess
-import logging
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
 # Configure logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class BaseEmbedder:
-    """Base class for text embedding models"""
-    
+    """Base class for text embedding models."""
+
     def __init__(self):
         self.model = None
-    
-    def fit(self, texts: List[str]) -> 'BaseEmbedder':
-        """
-        Fit the embedding model on a list of texts
-        
+
+    def fit(self, texts: list[str]) -> "BaseEmbedder":
+        """Fit the embedding model on a list of texts.
+
         Args:
             texts: List of texts to fit the model on
-            
+
         Returns:
             Self for chaining
         """
-        raise NotImplementedError("Subclasses must implement fit()")
-    
-    def transform(self, texts: List[str]) -> np.ndarray:
-        """
-        Transform texts into embeddings
-        
+        msg = "Subclasses must implement fit()"
+        raise NotImplementedError(msg)
+
+    def transform(self, texts: list[str]) -> np.ndarray:
+        """Transform texts into embeddings.
+
         Args:
             texts: List of texts to transform
-            
+
         Returns:
             Array of embeddings
         """
-        raise NotImplementedError("Subclasses must implement transform()")
-    
-    def fit_transform(self, texts: List[str]) -> np.ndarray:
-        """
-        Fit the model and transform texts into embeddings
-        
+        msg = "Subclasses must implement transform()"
+        raise NotImplementedError(msg)
+
+    def fit_transform(self, texts: list[str]) -> np.ndarray:
+        """Fit the model and transform texts into embeddings.
+
         Args:
             texts: List of texts to fit and transform
-            
+
         Returns:
             Array of embeddings
         """
         return self.fit(texts).transform(texts)
 
 class TfidfEmbedder(BaseEmbedder):
-    """TF-IDF based text embedder"""
-    
-    def __init__(self, 
-                 max_features: Optional[int] = 1000,
+    """TF-IDF based text embedder."""
+
+    def __init__(self,
+                 max_features: int | None = 1000,
                  min_df: int = 5,
                  max_df: float = 0.8,
                  ngram_range: tuple = (1, 2)):
-        """
-        Initialize TF-IDF embedder
-        
+        """Initialize TF-IDF embedder.
+
         Args:
             max_features: Maximum number of features (vocabulary size)
             min_df: Minimum document frequency for terms
@@ -80,14 +79,13 @@ class TfidfEmbedder(BaseEmbedder):
             max_df=max_df,
             ngram_range=ngram_range
         )
-    
-    def fit(self, texts: List[str]) -> 'TfidfEmbedder':
-        """
-        Fit the TF-IDF vectorizer on a list of texts
-        
+
+    def fit(self, texts: list[str]) -> "TfidfEmbedder":
+        """Fit the TF-IDF vectorizer on a list of texts.
+
         Args:
             texts: List of texts to fit the vectorizer on
-            
+
         Returns:
             Self for chaining
         """
@@ -95,25 +93,25 @@ class TfidfEmbedder(BaseEmbedder):
         self.model.fit(texts)
         logger.info(f"Vocabulary size: {len(self.model.vocabulary_)}")
         return self
-    
-    def transform(self, texts: List[str]) -> np.ndarray:
-        """
-        Transform texts into TF-IDF embeddings
-        
+
+    def transform(self, texts: list[str]) -> np.ndarray:
+        """Transform texts into TF-IDF embeddings.
+
         Args:
             texts: List of texts to transform
-            
+
         Returns:
             Array of TF-IDF embeddings
         """
         if self.model is None:
-            raise ValueError("Model has not been fit yet")
-        
+            msg = "Model has not been fit yet"
+            raise ValueError(msg)
+
         return self.model.transform(texts).toarray()
 
 class Word2VecEmbedder(BaseEmbedder):
-    """Word2Vec based text embedder"""
-    
+    """Word2Vec based text embedder."""
+
     def __init__(self,
                  vector_size: int = 100,
                  window: int = 5,
@@ -121,9 +119,8 @@ class Word2VecEmbedder(BaseEmbedder):
                  workers: int = 4,
                  sg: int = 1,  # Skip-gram (1) or CBOW (0)
                  epochs: int = 10):
-        """
-        Initialize Word2Vec embedder
-        
+        """Initialize Word2Vec embedder.
+
         Args:
             vector_size: Dimensionality of word vectors
             window: Maximum distance between current and predicted word
@@ -140,32 +137,30 @@ class Word2VecEmbedder(BaseEmbedder):
         self.sg = sg
         self.epochs = epochs
         self.model = None
-    
-    def _preprocess_texts(self, texts: List[str]) -> List[List[str]]:
-        """
-        Preprocess texts for Word2Vec training
-        
+
+    def _preprocess_texts(self, texts: list[str]) -> list[list[str]]:
+        """Preprocess texts for Word2Vec training.
+
         Args:
             texts: List of texts to preprocess
-            
+
         Returns:
             List of tokenized texts
         """
         return [simple_preprocess(text) for text in texts]
-    
-    def fit(self, texts: List[str]) -> 'Word2VecEmbedder':
-        """
-        Fit Word2Vec model on a list of texts
-        
+
+    def fit(self, texts: list[str]) -> "Word2VecEmbedder":
+        """Fit Word2Vec model on a list of texts.
+
         Args:
             texts: List of texts to fit the model on
-            
+
         Returns:
             Self for chaining
         """
         logger.info(f"Preprocessing {len(texts)} texts for Word2Vec")
         tokenized_texts = self._preprocess_texts(texts)
-        
+
         logger.info(f"Training Word2Vec model with vector_size={self.vector_size}, window={self.window}")
         self.model = Word2Vec(
             sentences=tokenized_texts,
@@ -176,56 +171,55 @@ class Word2VecEmbedder(BaseEmbedder):
             sg=self.sg,
             epochs=self.epochs
         )
-        
+
         logger.info(f"Word2Vec model trained with {len(self.model.wv.index_to_key)} words in vocabulary")
         return self
-    
-    def transform(self, texts: List[str]) -> np.ndarray:
-        """
-        Transform texts into Word2Vec embeddings by averaging word vectors
-        
+
+    def transform(self, texts: list[str]) -> np.ndarray:
+        """Transform texts into Word2Vec embeddings by averaging word vectors.
+
         Args:
             texts: List of texts to transform
-            
+
         Returns:
             Array of averaged Word2Vec embeddings
         """
         if self.model is None:
-            raise ValueError("Model has not been fit yet")
-        
+            msg = "Model has not been fit yet"
+            raise ValueError(msg)
+
         tokenized_texts = self._preprocess_texts(texts)
         embeddings = []
-        
+
         for tokens in tokenized_texts:
             # Get vectors for tokens that are in vocabulary
             vectors = [self.model.wv[token] for token in tokens if token in self.model.wv]
-            
+
             # Average vectors or use zero vector if no tokens found
             if vectors:
                 embedding = np.mean(vectors, axis=0)
             else:
                 embedding = np.zeros(self.vector_size)
-                
+
             embeddings.append(embedding)
-        
+
         return np.array(embeddings)
 
 class FastTextEmbedder(Word2VecEmbedder):
-    """FastText based text embedder"""
-    
-    def fit(self, texts: List[str]) -> 'FastTextEmbedder':
-        """
-        Fit FastText model on a list of texts
-        
+    """FastText based text embedder."""
+
+    def fit(self, texts: list[str]) -> "FastTextEmbedder":
+        """Fit FastText model on a list of texts.
+
         Args:
             texts: List of texts to fit the model on
-            
+
         Returns:
             Self for chaining
         """
         logger.info(f"Preprocessing {len(texts)} texts for FastText")
         tokenized_texts = self._preprocess_texts(texts)
-        
+
         logger.info(f"Training FastText model with vector_size={self.vector_size}, window={self.window}")
         self.model = FastText(
             sentences=tokenized_texts,
@@ -236,62 +230,59 @@ class FastTextEmbedder(Word2VecEmbedder):
             sg=self.sg,
             epochs=self.epochs
         )
-        
+
         logger.info(f"FastText model trained with {len(self.model.wv.index_to_key)} words in vocabulary")
         return self
 
 class EmbeddingPipeline:
-    """Pipeline for generating and storing text embeddings"""
-    
+    """Pipeline for generating and storing text embeddings."""
+
     def __init__(self, embedder: BaseEmbedder):
-        """
-        Initialize embedding pipeline
-        
+        """Initialize embedding pipeline.
+
         Args:
             embedder: Text embedder to use
         """
         self.embedder = embedder
-    
+
     def generate_embeddings(self,
                            df: pd.DataFrame,
-                           text_column: str = 'processed_text',
-                           id_column: str = 'id') -> pd.DataFrame:
-        """
-        Generate embeddings for texts in a DataFrame
-        
+                           text_column: str = "processed_text",
+                           id_column: str = "id") -> pd.DataFrame:
+        """Generate embeddings for texts in a DataFrame.
+
         Args:
             df: DataFrame containing texts
             text_column: Name of column containing processed texts
             id_column: Name of column containing unique identifiers
-            
+
         Returns:
             DataFrame with text IDs and embeddings
         """
         if text_column not in df.columns:
-            raise ValueError(f"Text column '{text_column}' not found in DataFrame")
-        
+            msg = f"Text column '{text_column}' not found in DataFrame"
+            raise ValueError(msg)
+
         texts = df[text_column].tolist()
-        
+
         logger.info(f"Generating embeddings for {len(texts)} texts")
         embeddings = self.embedder.fit_transform(texts)
-        
+
         logger.info(f"Generated embeddings with shape {embeddings.shape}")
-        
+
         # Create DataFrame with IDs and embeddings
-        embeddings_df = pd.DataFrame({
-            'entry_id': df[id_column],
-            'embedding': [embedding.tolist() for embedding in embeddings]
+        return pd.DataFrame({
+            "entry_id": df[id_column],
+            "embedding": [embedding.tolist() for embedding in embeddings]
         })
-        
-        return embeddings_df
-    
+
+
     def save_embeddings_to_csv(self, embeddings_df: pd.DataFrame, output_path: str) -> None:
-        """
-        Save embeddings DataFrame to CSV
-        
+        """Save embeddings DataFrame to CSV.
+
         Args:
             embeddings_df: DataFrame containing entry IDs and embeddings
             output_path: Path to save the CSV file
         """
         embeddings_df.to_csv(output_path, index=False)
-        logger.info(f"Saved {len(embeddings_df)} embeddings to {output_path}") 
+        logger.info(f"Saved {len(embeddings_df)} embeddings to {output_path}")

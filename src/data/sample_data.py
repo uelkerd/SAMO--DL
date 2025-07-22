@@ -1,22 +1,23 @@
-import pandas as pd
-import numpy as np
-from datetime import datetime, timedelta
-import random
 import json
 import os
+import random
 import uuid
-from typing import List, Dict, Any, Optional
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+
+import numpy as np
+import pandas as pd
 
 # Sample topics to generate journal entries about
 TOPICS = [
-    "work", "family", "health", "exercise", "food", "travel", 
+    "work", "family", "health", "exercise", "food", "travel",
     "learning", "hobbies", "goals", "emotions", "relationships",
     "finance", "home", "pets", "nature", "dreams", "reflection"
 ]
 
 # Emotion categories for entries
 EMOTIONS = [
-    "happy", "sad", "anxious", "excited", "calm", "frustrated", 
+    "happy", "sad", "anxious", "excited", "calm", "frustrated",
     "hopeful", "tired", "grateful", "overwhelmed", "proud", "content"
 ]
 
@@ -78,52 +79,51 @@ TITLE_TEMPLATES = [
 ]
 
 def generate_title(topic: str, emotion: str) -> str:
-    """Generate a journal entry title"""
+    """Generate a journal entry title."""
     template = random.choice(TITLE_TEMPLATES)
     return template.format(topic=topic, emotion=emotion)
 
 def generate_content(topic: str, emotion: str) -> str:
-    """Generate journal entry content"""
+    """Generate journal entry content."""
     template = random.choice(ENTRY_TEMPLATES)
     additional_sentence = random.choice(ADDITIONAL_SENTENCES)
     return template.format(topic=topic, emotion=emotion, additional_sentence=additional_sentence)
 
 def generate_entry(
-    user_id: int, 
+    user_id: int,
     created_at: datetime,
     id_start: int = 1
-) -> Dict[str, Any]:
-    """Generate a single journal entry"""
+) -> dict[str, Any]:
+    """Generate a single journal entry."""
     topic = random.choice(TOPICS)
     emotion = random.choice(EMOTIONS)
-    
+
     return {
-        'id': id_start,
-        'user_id': user_id,
-        'title': generate_title(topic, emotion),
-        'content': generate_content(topic, emotion),
-        'created_at': created_at,
-        'updated_at': created_at,
-        'is_private': random.choice([True, False]),
-        'topic': topic,  # Additional metadata for testing
-        'emotion': emotion  # Additional metadata for testing
+        "id": id_start,
+        "user_id": user_id,
+        "title": generate_title(topic, emotion),
+        "content": generate_content(topic, emotion),
+        "created_at": created_at,
+        "updated_at": created_at,
+        "is_private": random.choice([True, False]),
+        "topic": topic,  # Additional metadata for testing
+        "emotion": emotion  # Additional metadata for testing
     }
 
 def generate_journal_entries(
     num_entries: int = 100,
     num_users: int = 5,
-    start_date: Optional[datetime] = None,
-    end_date: Optional[datetime] = None
-) -> List[Dict[str, Any]]:
-    """
-    Generate a list of synthetic journal entries
-    
+    start_date: datetime | None = None,
+    end_date: datetime | None = None
+) -> list[dict[str, Any]]:
+    """Generate a list of synthetic journal entries.
+
     Args:
         num_entries: Number of entries to generate
         num_users: Number of unique users to create entries for
         start_date: Start date for entries (defaults to 60 days ago)
         end_date: End date for entries (defaults to today)
-        
+
     Returns:
         List of dictionaries containing journal entries
     """
@@ -131,84 +131,82 @@ def generate_journal_entries(
         start_date = datetime.now() - timedelta(days=60)
     if end_date is None:
         end_date = datetime.now()
-    
+
     date_range = (end_date - start_date).days
     entries = []
-    
+
     for i in range(num_entries):
         # Randomly select user_id
         user_id = random.randint(1, num_users)
-        
+
         # Generate a random date within the range
         days_offset = random.randint(0, date_range)
         entry_date = start_date + timedelta(days=days_offset)
-        
+
         # Add hour/minute/second for more realistic timestamps
         entry_date = entry_date.replace(
             hour=random.randint(7, 23),
             minute=random.randint(0, 59),
             second=random.randint(0, 59)
         )
-        
+
         # Create the entry
         entry = generate_entry(user_id, entry_date, id_start=i+1)
         entries.append(entry)
-    
+
     return entries
 
-def save_entries_to_json(entries: List[Dict[str, Any]], output_path: str) -> None:
-    """
-    Save generated entries to a JSON file
-    
+def save_entries_to_json(entries: list[dict[str, Any]], output_path: str) -> None:
+    """Save generated entries to a JSON file.
+
     Args:
         entries: List of entry dictionaries
         output_path: Path to save the JSON file
     """
     # Ensure output directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
+
     # Convert datetime objects to strings for JSON serialization
     serializable_entries = []
     for entry in entries:
         serializable_entry = entry.copy()
-        serializable_entry['created_at'] = entry['created_at'].isoformat()
-        serializable_entry['updated_at'] = entry['updated_at'].isoformat()
+        serializable_entry["created_at"] = entry["created_at"].isoformat()
+        serializable_entry["updated_at"] = entry["updated_at"].isoformat()
         serializable_entries.append(serializable_entry)
-    
-    with open(output_path, 'w') as f:
+
+    with open(output_path, "w") as f:
         json.dump(serializable_entries, f, indent=2)
-    
+
     print(f"Saved {len(entries)} entries to {output_path}")
 
 def load_sample_entries(json_path: str) -> pd.DataFrame:
-    """
-    Load sample entries from JSON file
-    
+    """Load sample entries from JSON file.
+
     Args:
         json_path: Path to the JSON file
-        
+
     Returns:
         DataFrame containing the entries
     """
-    with open(json_path, 'r') as f:
+    with open(json_path) as f:
         entries = json.load(f)
-    
+
     df = pd.DataFrame(entries)
-    
+
     # Convert string dates back to datetime
-    df['created_at'] = pd.to_datetime(df['created_at'])
-    df['updated_at'] = pd.to_datetime(df['updated_at'])
-    
+    df["created_at"] = pd.to_datetime(df["created_at"])
+    df["updated_at"] = pd.to_datetime(df["updated_at"])
+
     return df
 
 if __name__ == "__main__":
     # Generate 100 entries from 5 users over the past 60 days
     entries = generate_journal_entries(num_entries=100, num_users=5)
-    
+
     # Save to data/raw directory
-    output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'raw')
+    output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "raw")
     os.makedirs(output_dir, exist_ok=True)
-    output_path = os.path.join(output_dir, 'sample_journal_entries.json')
-    
+    output_path = os.path.join(output_dir, "sample_journal_entries.json")
+
     save_entries_to_json(entries, output_path)
-    print(f"Sample data generated at {output_path}") 
+    print(f"Sample data generated at {output_path}")
