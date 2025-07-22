@@ -12,7 +12,7 @@ The SAMO Deep Learning project uses a comprehensive 3-stage CircleCI pipeline de
 - **Unit Tests**: Core functionality testing with mocking
 - **Parallel Execution**: Both jobs run simultaneously for quick feedback
 
-### 🔍 Stage 2: Integration & Security (<15 minutes)  
+### 🔍 Stage 2: Integration & Security (<15 minutes)
 
 - **Security Scanning**: Bandit + Safety vulnerability detection
 - **Integration Tests**: API endpoint and service integration testing
@@ -110,7 +110,7 @@ pre-commit install
 # Unit tests only
 pytest tests/unit/ -v
 
-# Integration tests  
+# Integration tests
 pytest tests/integration/ -v
 
 # End-to-end tests (slower)
@@ -300,7 +300,7 @@ def load_model(model_name: str):
 class ModelManager:
     def __init__(self):
         self._models = {}
-    
+
     def get_model(self, name):
         if name not in self._models:
             self._models[name] = load_model(name)
