@@ -156,14 +156,14 @@ class EmotionDetectionTrainer:
             # Sample 10% of training data
             train_size = len(train_texts)
             dev_size = int(train_size * 0.1)
-            indices = torch.randperm(train_size)[:dev_size]
+            indices = torch.randperm(train_size)[:dev_size].tolist()
             train_texts = [train_texts[i] for i in indices]
             train_labels = [train_labels[i] for i in indices]
             
             # Sample 20% of validation data
             val_size = len(val_texts)
             dev_val_size = int(val_size * 0.2)
-            val_indices = torch.randperm(val_size)[:dev_val_size]
+            val_indices = torch.randperm(val_size)[:dev_val_size].tolist()
             val_texts = [val_texts[i] for i in val_indices]
             val_labels = [val_labels[i] for i in val_indices]
             
