@@ -304,8 +304,8 @@ class EmotionDetectionTrainer:
         """
         logger.info("Validating model at epoch {epoch}...", extra={"format_args": True})
 
-        # Evaluate on validation set
-        val_metrics = evaluate_emotion_classifier(self.model, self.val_dataloader, self.device)
+        # Evaluate on validation set with lower threshold
+        val_metrics = evaluate_emotion_classifier(self.model, self.val_dataloader, self.device, threshold=0.2)
 
         # Add epoch information
         val_metrics["epoch"] = epoch
