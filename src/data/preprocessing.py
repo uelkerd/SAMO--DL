@@ -1,6 +1,4 @@
-import re
 import string
-from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -12,12 +10,14 @@ from nltk.tokenize import word_tokenize
 class TextPreprocessor:
     """Text preprocessing pipeline for journal entries."""
 
-    def __init__(self,
-                 remove_stopwords: bool = True,
-                 remove_punctuation: bool = True,
-                 lowercase: bool = True,
-                 stemming: bool = False,
-                 lemmatization: bool = True):
+    def __init__(
+        self,
+        remove_stopwords: bool = True,
+        remove_punctuation: bool = True,
+        lowercase: bool = True,
+        stemming: bool = False,
+        lemmatization: bool = True,
+    ) -> None:
         """Initialize text preprocessor.
 
         Args:
@@ -26,6 +26,7 @@ class TextPreprocessor:
             lowercase: Whether to convert text to lowercase
             stemming: Whether to apply stemming
             lemmatization: Whether to apply lemmatization
+
         """
         self.remove_stopwords = remove_stopwords
         self.remove_punctuation = remove_punctuation
@@ -36,6 +37,7 @@ class TextPreprocessor:
         # Initialize NLP components
         try:
             import nltk
+
             nltk.download("punkt", quiet=True)
             nltk.download("stopwords", quiet=True)
             nltk.download("wordnet", quiet=True)
@@ -43,7 +45,6 @@ class TextPreprocessor:
             self.stemmer = PorterStemmer()
             self.lemmatizer = WordNetLemmatizer()
         except ImportError:
-            print("NLTK not installed. Run 'pip install nltk'")
             self.stop_words = set()
             self.stemmer = None
             self.lemmatizer = None
@@ -56,6 +57,7 @@ class TextPreprocessor:
 
         Returns:
             Preprocessed text
+
         """
         if not text or not isinstance(text, str):
             return ""
@@ -86,10 +88,12 @@ class TextPreprocessor:
         # Join tokens back into text
         return " ".join(tokens)
 
-    def preprocess_df(self,
-                     df: pd.DataFrame,
-                     text_column: str = "content",
-                     output_column: str = "processed_text") -> pd.DataFrame:
+    def preprocess_df(
+        self,
+        df: pd.DataFrame,
+        text_column: str = "content",
+        output_column: str = "processed_text",
+    ) -> pd.DataFrame:
         """Preprocess text in a DataFrame column.
 
         Args:
@@ -99,14 +103,15 @@ class TextPreprocessor:
 
         Returns:
             DataFrame with processed text column added
+
         """
         df = df.copy()
         df[output_column] = df[text_column].astype(str).apply(self.preprocess_text)
         return df
 
-    def extract_features(self,
-                         df: pd.DataFrame,
-                         text_column: str = "processed_text") -> pd.DataFrame:
+    def extract_features(
+        self, df: pd.DataFrame, text_column: str = "processed_text"
+    ) -> pd.DataFrame:
         """Extract basic text features from preprocessed text.
 
         Args:
@@ -115,6 +120,7 @@ class TextPreprocessor:
 
         Returns:
             DataFrame with text features added
+
         """
         df = df.copy()
 
@@ -125,30 +131,38 @@ class TextPreprocessor:
         df["word_count"] = df[text_column].apply(lambda x: len(x.split()))
 
         # Sentence count (approximation)
-        df["sentence_count"] = df[text_column].apply(lambda x: x.count(".") + x.count("!") + x.count("?") + 1)
+        df["sentence_count"] = df[text_column].apply(
+            lambda x: x.count(".") + x.count("!") + x.count("?") + 1
+        )
 
         # Average word length
         df["avg_word_length"] = df[text_column].apply(
-            lambda x: np.mean([len(word) for word in x.split()]) if len(x.split()) > 0 else 0
+            lambda x: np.mean([len(word) for word in x.split()])
+            if len(x.split()) > 0
+            else 0
         )
 
         return df
 
+
 class JournalEntryPreprocessor:
     """Preprocessing pipeline for journal entries."""
 
-    def __init__(self, text_preprocessor: TextPreprocessor | None = None):
+    def __init__(self, text_preprocessor: TextPreprocessor | None = None) -> None:
         """Initialize journal entry preprocessor.
 
         Args:
             text_preprocessor: Text preprocessor to use
+
         """
         self.text_preprocessor = text_preprocessor or TextPreprocessor()
 
-    def preprocess(self,
-                  df: pd.DataFrame,
-                  text_column: str = "content",
-                  title_column: str = "title") -> pd.DataFrame:
+    def preprocess(
+        self,
+        df: pd.DataFrame,
+        text_column: str = "content",
+        title_column: str = "title",
+    ) -> pd.DataFrame:
         """Preprocess journal entries DataFrame.
 
         Args:
@@ -158,6 +172,7 @@ class JournalEntryPreprocessor:
 
         Returns:
             DataFrame with processed entries
+
         """
         # Make a copy to avoid modifying the original
         df = df.copy()
@@ -174,4 +189,3 @@ class JournalEntryPreprocessor:
 
         # Extract text features
         return self.text_preprocessor.extract_features(df, text_column="processed_text")
-

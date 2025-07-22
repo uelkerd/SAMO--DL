@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 
+
 # Get database connection details from environment variables
 DB_USER = os.environ.get("DB_USER", "samouser")
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "samopassword")
@@ -20,9 +21,9 @@ DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NA
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,  # Check connection before using
-    pool_size=5,         # Default pool size
-    max_overflow=10,     # Allow up to 10 additional connections
-    pool_recycle=3600,   # Recycle connections after 1 hour
+    pool_size=5,  # Default pool size
+    max_overflow=10,  # Allow up to 10 additional connections
+    pool_recycle=3600,  # Recycle connections after 1 hour
 )
 
 # Create sessionmaker
@@ -42,6 +43,7 @@ def get_db():
 
     Yields:
         Session: SQLAlchemy database session
+
     """
     db = SessionLocal()
     try:
@@ -50,20 +52,12 @@ def get_db():
         db.close()
 
 
-def init_db():
+def init_db() -> None:
     """Initialize the database - create tables if they don't exist.
 
     This function should be called when the application starts.
     """
     # Import all models here to ensure they're registered with Base.metadata
-    from src.data.models import (
-        Embedding,
-        JournalEntry,
-        Prediction,
-        Tag,
-        User,
-        VoiceTranscription,
-    )
 
     # Create tables
     Base.metadata.create_all(bind=engine)

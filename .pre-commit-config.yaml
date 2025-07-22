@@ -1,0 +1,117 @@
+# SAMO Deep Learning - Pre-commit Configuration
+# Automated code quality enforcement with Ruff and security checks
+# This ensures consistent code quality across all commits
+
+repos:
+  # Ruff - Fast Python linter and formatter (replaces flake8, black, isort, etc.)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.0
+    hooks:
+      # Ruff linter - fast Python linting
+      - id: ruff
+        name: 🔍 Ruff Linter
+        args: [--fix, --unsafe-fixes]  # Automatically fix issues where possible
+        types_or: [python, pyi, jupyter]
+        
+      # Ruff formatter - fast Python formatting (replaces black)  
+      - id: ruff-format
+        name: 🎨 Ruff Formatter
+        types_or: [python, pyi, jupyter]
+
+  # Built-in pre-commit hooks for basic file quality
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      # File quality checks
+      - id: trailing-whitespace
+        name: 🧹 Remove trailing whitespace
+      - id: end-of-file-fixer
+        name: 📝 Fix end of files
+      - id: check-yaml
+        name: ✅ Check YAML syntax
+      - id: check-toml
+        name: ✅ Check TOML syntax
+      - id: check-json
+        name: ✅ Check JSON syntax
+      - id: check-added-large-files
+        name: 📏 Check for large files
+        args: ['--maxkb=10000']  # 10MB limit
+      
+      # Python-specific checks
+      - id: check-ast
+        name: 🐍 Check Python AST
+      - id: check-builtin-literals
+        name: 🏗️  Check builtin literals
+      - id: check-docstring-first
+        name: 📚 Check docstring first
+      - id: debug-statements
+        name: 🐛 Check for debug statements
+      - id: check-merge-conflict
+        name: 🔀 Check for merge conflicts
+      - id: check-case-conflict
+        name: 📁 Check case conflicts
+      
+      # Security checks
+      - id: detect-private-key
+        name: 🔐 Detect private keys
+
+  # Bandit - Security linter for Python (fixed configuration)
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.0
+    hooks:
+      - id: bandit
+        name: 🔒 Bandit Security Scan
+        args: ["-c", "pyproject.toml"]  # Use pyproject.toml config
+        files: "^src/"  # Only scan src directory
+        types: [python]
+
+  # Check for secrets in files
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        name: 🕵️ Detect Secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: |
+          (?x)^(
+            .*\.lock$|
+            .*\.log$|
+            .*\.pkl$|
+            .*\.pt$|
+            .*\.pth$|
+            .*\.bin$|
+            data/.*|
+            models/.*\.bin$|
+            \.git/.*
+          )$
+
+  # Jupyter notebook hooks
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.9.1
+    hooks:
+      - id: nbqa-ruff
+        name: 📓 Notebook Ruff Check
+        args: [--fix, --ignore=INP001,E402,F821,PLC0415]  # Ignore notebook-specific issues
+      - id: nbqa-ruff-format
+        name: 📓 Notebook Ruff Format
+
+# Configuration
+default_language_version:
+  python: python3.12
+
+# Skip hooks for certain files
+exclude: |
+  (?x)^(
+    .*\.lock$|
+    .*\.log$|
+    data/cache/.*|
+    models/.*\.bin$|
+    \.git/.*|
+    test_checkpoints/.*
+  )$
+
+# Fail fast - stop on first failure
+fail_fast: false
+
+# Minimum pre-commit version
+minimum_pre_commit_version: "3.0.0" 

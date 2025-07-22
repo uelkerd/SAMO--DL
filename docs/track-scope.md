@@ -45,7 +45,7 @@
 
 ## Success Metrics
 - **Emotion Detection**: >80% F1 score across 27 emotion categories
-- **Summarization Quality**: >4.0/5.0 human evaluation score  
+- **Summarization Quality**: >4.0/5.0 human evaluation score
 - **Voice Transcription**: <10% Word Error Rate
 - **Response Latency**: <500ms for 95th percentile requests
 - **Model Uptime**: >99.5% availability
@@ -65,7 +65,7 @@
 
 **OUT OF SCOPE (Other Tracks):**
 - Frontend UI/UX design and implementation
-- Backend data storage and user management  
+- Backend data storage and user management
 - Web development and API routing
 - Data analysis and visualization dashboards
 - User research and design validation
@@ -77,7 +77,7 @@
 
 ## Integration Points with Other Tracks
 - **Web Dev**: API specifications for model endpoints, response formats
-- **Data Science**: Labeled datasets, analytical framework alignment  
+- **Data Science**: Labeled datasets, analytical framework alignment
 - **UX**: Model response time requirements, user experience constraints
 
 This focused scope ensures you deliver production-ready AI capabilities while avoiding dilution across multiple track responsibilities.

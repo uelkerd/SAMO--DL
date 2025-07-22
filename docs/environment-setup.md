@@ -17,14 +17,14 @@ Create a `.env` file in your project root with these secure credentials:
 # SAMO Deep Learning - Secure Environment Configuration
 # COPY THIS TEMPLATE TO .env AND UPDATE THE VALUES!
 
-# ============================================================================ 
+# ============================================================================
 # DATABASE CONFIGURATION (SECURE - POST SECURITY INCIDENT)
 # ============================================================================
 DATABASE_URL="postgresql://samo_secure_1753200376:GET_PASSWORD_FROM_TERMINAL@localhost:5432/samodb?schema=public"
 
 # ============================================================================
 # AI/ML CONFIGURATION
-# ============================================================================ 
+# ============================================================================
 # OpenAI API (for Whisper and other models)
 OPENAI_API_KEY=your_openai_api_key_here
 
@@ -116,7 +116,7 @@ npx prisma migrate deploy
 ## ✅ Security Checklist
 
 - [x] Prisma schema uses environment variables
-- [x] `.env` files ignored by git  
+- [x] `.env` files ignored by git
 - [x] Secure database user created
 - [x] Database connection tested and working
 - [ ] `.env` file created with secure credentials
@@ -131,4 +131,4 @@ npx prisma migrate deploy
 4. **Test the connection** with your SAMO app
 5. **Generate Prisma client** with `npx prisma generate`
 
-Your setup is **secure and production-ready**! 🚀 
+Your setup is **secure and production-ready**! 🚀

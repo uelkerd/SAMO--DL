@@ -13,7 +13,7 @@ This directory contains the Prisma ORM configuration for the SAMO-DL project.
    ```
    # PostgreSQL database connection
    DATABASE_URL="postgresql://samouser:samopassword@localhost:5432/samodb?schema=public"
-   
+
    # Application environment
    NODE_ENV="development"
    ```
@@ -22,7 +22,7 @@ This directory contains the Prisma ORM configuration for the SAMO-DL project.
    ```bash
    # Run the PostgreSQL setup script
    npm run db:setup
-   
+
    # Generate the Prisma client
    npm run prisma:generate
    ```
@@ -46,4 +46,4 @@ The Prisma schema (`schema.prisma`) defines the following models:
 ## pgvector Extension
 
 This project uses the pgvector extension for PostgreSQL to store and query vector embeddings.
-Make sure the extension is installed on your PostgreSQL server before running migrations. 
+Make sure the extension is installed on your PostgreSQL server before running migrations.

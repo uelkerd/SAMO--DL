@@ -1,9 +1,7 @@
 import logging
 import os
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Union
 
-import numpy as np
 import pandas as pd
 
 from .embeddings import (
@@ -17,24 +15,28 @@ from .loaders import (
     load_entries_from_csv,
     load_entries_from_db,
     load_entries_from_json,
-    save_entries_to_csv,
-    save_entries_to_json,
 )
-from .preprocessing import JournalEntryPreprocessor, TextPreprocessor
+from .preprocessing import JournalEntryPreprocessor
 from .validation import DataValidator
 
+
 # Configure logging
-logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
 logger = logging.getLogger(__name__)
+
 
 class DataPipeline:
     """Orchestrator for the journal entry data processing pipeline."""
 
-    def __init__(self,
-                preprocessor: JournalEntryPreprocessor | None = None,
-                validator: DataValidator | None = None,
-                feature_engineer: FeatureEngineer | None = None,
-                embedding_method: str = "tfidf"):
+    def __init__(
+        self,
+        preprocessor: JournalEntryPreprocessor | None = None,
+        validator: DataValidator | None = None,
+        feature_engineer: FeatureEngineer | None = None,
+        embedding_method: str = "tfidf",
+    ) -> None:
         """Initialize data pipeline.
 
         Args:
@@ -42,6 +44,7 @@ class DataPipeline:
             validator: Data validator
             feature_engineer: Feature engineer
             embedding_method: Method for generating embeddings ('tfidf', 'word2vec', or 'fasttext')
+
         """
         self.preprocessor = preprocessor or JournalEntryPreprocessor()
         self.validator = validator or DataValidator()
@@ -55,20 +58,24 @@ class DataPipeline:
         elif embedding_method == "fasttext":
             embedder = FastTextEmbedder(vector_size=100)
         else:
-            logger.warning(f"Unknown embedding method '{embedding_method}'. Defaulting to TF-IDF.")
+            logger.warning(
+                f"Unknown embedding method '{embedding_method}'. Defaulting to TF-IDF."
+            )
             embedder = TfidfEmbedder(max_features=1000)
 
         self.embedding_pipeline = EmbeddingPipeline(embedder)
         self.embedding_method = embedding_method
 
-    def run(self,
-           data_source: str | pd.DataFrame,
-           source_type: str = "db",
-           output_dir: str | None = None,
-           user_id: int | None = None,
-           limit: int | None = None,
-           extract_topics: bool = True,
-           save_intermediates: bool = False) -> dict[str, pd.DataFrame]:
+    def run(
+        self,
+        data_source: str | pd.DataFrame,
+        source_type: str = "db",
+        output_dir: str | None = None,
+        user_id: int | None = None,
+        limit: int | None = None,
+        extract_topics: bool = True,
+        save_intermediates: bool = False,
+    ) -> dict[str, pd.DataFrame]:
         """Run the complete data processing pipeline.
 
         Args:
@@ -82,6 +89,7 @@ class DataPipeline:
 
         Returns:
             Dictionary of DataFrames with raw, processed, featured and embeddings data
+
         """
         # Step 1: Load the data
         raw_df = self._load_data(data_source, source_type, user_id, limit)
@@ -93,10 +101,14 @@ class DataPipeline:
         logger.info(f"Pipeline processing {len(raw_df)} journal entries")
 
         # Step 2: Validate raw data
-        validation_passed, validated_df = self.validator.validate_journal_entries(raw_df)
+        validation_passed, validated_df = self.validator.validate_journal_entries(
+            raw_df
+        )
 
         if not validation_passed:
-            logger.warning("Data validation failed. Continuing with validated data, but results may be unreliable.")
+            logger.warning(
+                "Data validation failed. Continuing with validated data, but results may be unreliable."
+            )
 
         # Step 3: Preprocess data
         processed_df = self.preprocessor.preprocess(validated_df)
@@ -119,13 +131,20 @@ class DataPipeline:
         embeddings_df = self.embedding_pipeline.generate_embeddings(
             featured_df, text_column="processed_text", id_column="id"
         )
-        logger.info(f"Generated {len(embeddings_df)} embeddings using {self.embedding_method}")
+        logger.info(
+            f"Generated {len(embeddings_df)} embeddings using {self.embedding_method}"
+        )
 
         # Save results if output directory is provided
         if output_dir:
             self._save_results(
-                output_dir, raw_df, processed_df, featured_df,
-                embeddings_df, topics_df, save_intermediates
+                output_dir,
+                raw_df,
+                processed_df,
+                featured_df,
+                embeddings_df,
+                topics_df,
+                save_intermediates,
             )
 
         # Return results
@@ -133,7 +152,7 @@ class DataPipeline:
             "raw": raw_df,
             "processed": processed_df,
             "featured": featured_df,
-            "embeddings": embeddings_df
+            "embeddings": embeddings_df,
         }
 
         if topics_df is not None:
@@ -141,11 +160,13 @@ class DataPipeline:
 
         return results
 
-    def _load_data(self,
-                  data_source: str | pd.DataFrame,
-                  source_type: str,
-                  user_id: int | None,
-                  limit: int | None) -> pd.DataFrame:
+    def _load_data(
+        self,
+        data_source: str | pd.DataFrame,
+        source_type: str,
+        user_id: int | None,
+        limit: int | None,
+    ) -> pd.DataFrame:
         """Load data from specified source.
 
         Args:
@@ -156,15 +177,18 @@ class DataPipeline:
 
         Returns:
             DataFrame containing raw journal entries
+
         """
         if source_type == "dataframe" and isinstance(data_source, pd.DataFrame):
             logger.info(f"Using provided DataFrame with {len(data_source)} entries")
             return data_source
 
         if source_type == "db":
-            logger.info("Loading data from database" +
-                       (f" for user {user_id}" if user_id else "") +
-                       (f" (limit: {limit})" if limit else ""))
+            logger.info(
+                "Loading data from database"
+                + (f" for user {user_id}" if user_id else "")
+                + (f" (limit: {limit})" if limit else "")
+            )
             return load_entries_from_db(limit=limit, user_id=user_id)
 
         if source_type == "json" and isinstance(data_source, str):
@@ -178,14 +202,16 @@ class DataPipeline:
         logger.error(f"Invalid data source type: {source_type}")
         return pd.DataFrame()
 
-    def _save_results(self,
-                     output_dir: str,
-                     raw_df: pd.DataFrame,
-                     processed_df: pd.DataFrame,
-                     featured_df: pd.DataFrame,
-                     embeddings_df: pd.DataFrame,
-                     topics_df: pd.DataFrame | None = None,
-                     save_intermediates: bool = False) -> None:
+    def _save_results(
+        self,
+        output_dir: str,
+        raw_df: pd.DataFrame,
+        processed_df: pd.DataFrame,
+        featured_df: pd.DataFrame,
+        embeddings_df: pd.DataFrame,
+        topics_df: pd.DataFrame | None = None,
+        save_intermediates: bool = False,
+    ) -> None:
         """Save pipeline results to output directory.
 
         Args:
@@ -196,6 +222,7 @@ class DataPipeline:
             embeddings_df: DataFrame with embeddings
             topics_df: DataFrame with topic information
             save_intermediates: Whether to save intermediate DataFrames
+
         """
         # Create output directory if it doesn't exist
         os.makedirs(output_dir, exist_ok=True)
@@ -204,22 +231,39 @@ class DataPipeline:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
         # Save featured data (main output)
-        featured_df.to_csv(os.path.join(output_dir, f"journal_features_{timestamp}.csv"), index=False)
-        logger.info(f"Saved featured data to {output_dir}/journal_features_{timestamp}.csv")
+        featured_df.to_csv(
+            os.path.join(output_dir, f"journal_features_{timestamp}.csv"), index=False
+        )
+        logger.info(
+            f"Saved featured data to {output_dir}/journal_features_{timestamp}.csv"
+        )
 
         # Save embeddings
-        embeddings_path = os.path.join(output_dir, f"journal_embeddings_{timestamp}.csv")
+        embeddings_path = os.path.join(
+            output_dir, f"journal_embeddings_{timestamp}.csv"
+        )
         self.embedding_pipeline.save_embeddings_to_csv(embeddings_df, embeddings_path)
 
         # Save topics if available
         if topics_df is not None:
-            topics_df.to_csv(os.path.join(output_dir, f"journal_topics_{timestamp}.csv"), index=False)
-            logger.info(f"Saved topic data to {output_dir}/journal_topics_{timestamp}.csv")
+            topics_df.to_csv(
+                os.path.join(output_dir, f"journal_topics_{timestamp}.csv"), index=False
+            )
+            logger.info(
+                f"Saved topic data to {output_dir}/journal_topics_{timestamp}.csv"
+            )
 
         # Save intermediate data if requested
         if save_intermediates:
-            raw_df.to_csv(os.path.join(output_dir, f"journal_raw_{timestamp}.csv"), index=False)
+            raw_df.to_csv(
+                os.path.join(output_dir, f"journal_raw_{timestamp}.csv"), index=False
+            )
             logger.info(f"Saved raw data to {output_dir}/journal_raw_{timestamp}.csv")
 
-            processed_df.to_csv(os.path.join(output_dir, f"journal_processed_{timestamp}.csv"), index=False)
-            logger.info(f"Saved processed data to {output_dir}/journal_processed_{timestamp}.csv")
+            processed_df.to_csv(
+                os.path.join(output_dir, f"journal_processed_{timestamp}.csv"),
+                index=False,
+            )
+            logger.info(
+                f"Saved processed data to {output_dir}/journal_processed_{timestamp}.csv"
+            )
