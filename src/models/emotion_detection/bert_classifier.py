@@ -415,7 +415,7 @@ def evaluate_emotion_classifier(
     model: BERTEmotionClassifier,
     dataloader: DataLoader,
     device: torch.device,
-    threshold: float = 0.5,
+    threshold: float = 0.2,  # Lowered from 0.5 to capture more predictions
 ) -> dict[str, float]:
     """Evaluate emotion classifier performance with emotion-specific metrics.
 
@@ -447,8 +447,17 @@ def evaluate_emotion_classifier(
             outputs = model(input_ids, attention_mask)
             probabilities = outputs["probabilities"]
 
-            # Convert to predictions
+            # Convert to predictions with lower threshold for better recall
             predictions = (probabilities >= threshold).float()
+            
+            # Alternative: Use top-k prediction for each sample
+            # This ensures we always have some predictions even with low probabilities
+            if predictions.sum(dim=1).max() == 0:
+                # If no predictions above threshold, use top-1 prediction
+                top_k = 1
+                top_indices = torch.topk(probabilities, k=top_k, dim=1)[1]
+                predictions = torch.zeros_like(probabilities)
+                predictions.scatter_(1, top_indices, 1.0)
 
             # Collect results
             all_predictions.append(predictions.cpu().numpy())
@@ -461,6 +470,14 @@ def evaluate_emotion_classifier(
     # Combine all predictions and targets
     all_predictions = np.vstack(all_predictions)
     all_targets = np.vstack(all_targets)
+    
+    # Debug information
+    logger.info(f"Evaluation debug - Predictions shape: {all_predictions.shape}")
+    logger.info(f"Evaluation debug - Targets shape: {all_targets.shape}")
+    logger.info(f"Evaluation debug - Predictions sum: {all_predictions.sum()}")
+    logger.info(f"Evaluation debug - Targets sum: {all_targets.sum()}")
+    logger.info(f"Evaluation debug - Predictions mean: {all_predictions.mean():.4f}")
+    logger.info(f"Evaluation debug - Targets mean: {all_targets.mean():.4f}")
 
     # Compute metrics
     metrics = {}
