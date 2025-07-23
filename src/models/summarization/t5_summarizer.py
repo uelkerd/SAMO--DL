@@ -16,6 +16,7 @@ Key Features:
 import logging
 import warnings
 from dataclasses import dataclass
+from typing import Optional, Any
 
 import torch
 from torch import nn
@@ -53,7 +54,7 @@ class SummarizationConfig:
     no_repeat_ngram_size: int = 2  # Avoid repetition
     temperature: float = 1.0  # Sampling temperature
     top_p: float = 0.9  # Nucleus sampling
-    device: str | None = None  # Auto-detect if None
+    device: Optional[str] = None  # Auto-detect if None
 
 
 class SummarizationDataset(Dataset):
@@ -128,7 +129,9 @@ class SummarizationDataset(Dataset):
 class T5SummarizationModel(nn.Module):
     """T5/BART Summarization Model for emotional journal analysis."""
 
-    def __init__(self, config: SummarizationConfig = None, model_name: str | None = None) -> None:
+    def __init__(
+        self, config: SummarizationConfig = None, model_name: Optional[str] = None
+    ) -> None:
         """Initialize T5/BART summarization model.
 
         Args:
@@ -180,7 +183,7 @@ class T5SummarizationModel(nn.Module):
         self,
         input_ids: torch.Tensor,
         attention_mask: torch.Tensor,
-        labels: torch.Tensor | None = None,
+        labels: Optional[torch.Tensor] = None,
     ) -> dict[str, torch.Tensor]:
         """Forward pass for training."""
         outputs = self.model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
@@ -196,12 +199,12 @@ class T5SummarizationModel(nn.Module):
     def generate_summary(
         self,
         text: str,
-        max_length: int | None = None,
-        min_length: int | None = None,
-        num_beams: int | None = None,
-        length_penalty: float | None = None,
-        early_stopping: bool | None = None,
-        no_repeat_ngram_size: int | None = None,
+        max_length: Optional[int] = None,
+        min_length: Optional[int] = None,
+        num_beams: Optional[int] = None,
+        length_penalty: Optional[float] = None,
+        early_stopping: Optional[bool] = None,
+        no_repeat_ngram_size: Optional[int] = None,
     ) -> str:
         """Generate summary for a single text.
 
@@ -329,7 +332,7 @@ class T5SummarizationModel(nn.Module):
         """Count trainable parameters."""
         return sum(p.numel() for p in self.model.parameters() if p.requires_grad)
 
-    def get_model_info(self) -> dict[str, any]:
+    def get_model_info(self) -> dict[str, Any]:
         """Get model information."""
         return {
             "model_name": self.model_name,
@@ -347,7 +350,7 @@ def create_t5_summarizer(
     max_source_length: int = 512,
     max_target_length: int = 128,
     min_target_length: int = 30,
-    device: str | None = None,
+    device: Optional[str] = None,
 ) -> T5SummarizationModel:
     """Create T5/BART summarization model with specified configuration.
 
