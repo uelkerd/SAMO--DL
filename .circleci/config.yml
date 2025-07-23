@@ -52,14 +52,15 @@ commands:
           name: Install additional ML dependencies
           command: |
             python -m pip install --upgrade pip
-            # All dependencies are managed in pyproject.toml
+            # Install project in editable mode
+            pip install -e .
             echo "✅ All dependencies installed via pyproject.toml"
 
   cache_dependencies:
     description: "Cache Python dependencies and model files"
     steps:
       - save_cache:
-          key: deps-v1-{{ checksum "pyproject.toml" }}-{{ checksum "environment.yml" }}
+          key: deps-v1-{{ .Branch }}-{{ checksum "pyproject.toml" }}-{{ checksum "environment.yml" }}
           paths:
             - ~/.cache/pip
             - ~/.cache/huggingface
@@ -70,7 +71,8 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - deps-v1-{{ checksum "pyproject.toml" }}-{{ checksum "environment.yml" }}
+            - deps-v1-{{ .Branch }}-{{ checksum "pyproject.toml" }}-{{ checksum "environment.yml" }}
+            - deps-v1-{{ .Branch }}-
             - deps-v1-
 
   run_quality_checks:
