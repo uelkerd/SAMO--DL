@@ -179,17 +179,16 @@ class BERTEmotionClassifier(nn.Module):
             input_ids: Token IDs from BERT tokenizer
             attention_mask: Attention mask for padding tokens
             token_type_ids: Token type IDs (optional)
-            return_attention_weights: Whether to return attention weights
 
         Returns:
-            Dictionary with logits, probabilities, and optional attention weights
+            Logits tensor for emotion predictions
         """
         # BERT forward pass
         bert_outputs = self.bert(
             input_ids=input_ids,
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
-            output_attentions=False,  # Changed from return_attention_weights to False
+            output_attentions=False,
         )
 
         # Use [CLS] token representation for classification
@@ -198,19 +197,12 @@ class BERTEmotionClassifier(nn.Module):
         # Classification head
         logits = self.classifier(pooled_output)
 
-        # Apply temperature scaling for calibrated probabilities
-        calibrated_logits = logits / self.temperature
-        probabilities = torch.sigmoid(calibrated_logits)
+        # For internal use, we'll store these as attributes
+        self._calibrated_logits = logits / self.temperature
+        self._probabilities = torch.sigmoid(self._calibrated_logits)
 
-        outputs = {
-            "logits": logits,
-            "probabilities": probabilities,
-            "calibrated_logits": calibrated_logits,
-        }
-
-        # Removed: if return_attention_weights: outputs["attention_weights"] = bert_outputs.attentions
-
-        return outputs
+        # Return logits directly for compatibility with tests
+        return logits
 
     def predict_emotions(
         self,
@@ -244,8 +236,10 @@ class BERTEmotionClassifier(nn.Module):
         attention_mask = encoded["attention_mask"].to(self.device)
 
         with torch.no_grad():
-            outputs = self.forward(input_ids, attention_mask)
-            probabilities = outputs["probabilities"].cpu().numpy()
+            # Forward pass returns logits directly now
+            _ = self.forward(input_ids, attention_mask)
+            # Use the stored probabilities attribute
+            probabilities = self._probabilities.cpu().numpy()
 
         # Handle batch dimension
         if probabilities.ndim == 2:
