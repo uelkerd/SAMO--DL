@@ -8,7 +8,7 @@ It's a simple wrapper that allows Python code to execute Prisma commands.
 import json
 import subprocess
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, List, Optional
 
 
 class PrismaClient:
@@ -75,7 +75,7 @@ main();
                 Path("temp_prisma_script.js").unlink()
 
     def create_user(
-        self, email: str, password_hash: str, consent_version: str | None = None
+        self, email: str, password_hash: str, consent_version: Optional[str] = None
     ) -> dict[str, Any]:
         """Create a new user.
 
@@ -93,8 +93,8 @@ main();
             data: {{
                 email: '{email}',
                 passwordHash: '{password_hash}',
-                consentVersion: {f"'{consent_version}'" if consent_version else 'null'},
-                consentGivenAt: {"new Date()" if consent_version else 'null'}
+                consentVersion: {f"'{consent_version}'" if consent_version else "null"},
+                consentGivenAt: {"new Date()" if consent_version else "null"}
             }}
         }});
         """
@@ -134,7 +134,7 @@ main();
 
         return self.execute_prisma_command(script)
 
-    def get_user_by_email(self, email: str) -> dict[str, Any] | None:
+    def get_user_by_email(self, email: str) -> Optional[dict[str, Any]]:
         """Get a user by email.
 
         Args:
@@ -153,9 +153,7 @@ main();
         result = self.execute_prisma_command(script)
         return result if result else None
 
-    def get_journal_entries_by_user(
-        self, user_id: str, limit: int = 10
-    ) -> list[dict[str, Any]]:
+    def get_journal_entries_by_user(self, user_id: str, limit: int = 10) -> List[Dict[str, Any]]:
         """Get journal entries for a specific user.
 
         Args:
@@ -174,4 +172,11 @@ main();
         }});
         """
 
-        return self.execute_prisma_command(script)
+        result = self.execute_prisma_command(script)
+        # Ensure we return a list, even if the result is a single dict
+        if isinstance(result, list):
+            return result
+        elif isinstance(result, dict):
+            return [result]
+        else:
+            return []

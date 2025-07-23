@@ -184,11 +184,9 @@ class DataPipeline:
             return data_source
 
         if source_type == "db":
-            logger.info(
-                "Loading data from database"
-                + (f" for user {user_id}" if user_id else "")
-                + (f" (limit: {limit})" if limit else "")
-            )
+            user_info = f" for user {user_id}" if user_id else ""
+            limit_info = f" (limit: {limit})" if limit else ""
+            logger.info(f"Loading data from database{user_info}{limit_info}")
             return load_entries_from_db(limit=limit, user_id=user_id)
 
         if source_type == "json" and isinstance(data_source, str):

@@ -20,10 +20,12 @@ from sqlalchemy import (
     Text,
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import DeclarativeBase, relationship
+from typing import TYPE_CHECKING
 
-Base = declarative_base()
+# Modern SQLAlchemy 2.0+ approach
+class Base(DeclarativeBase):
+    pass
 
 # Junction table for many-to-many relationship between journal entries and tags
 journal_entry_tags = Table(
