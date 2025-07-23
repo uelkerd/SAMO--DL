@@ -3,7 +3,7 @@ Unit tests for API data models and validation.
 Tests Pydantic models, request/response validation, and data transformations.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class TestAPIModels:
@@ -64,7 +64,7 @@ class TestAPIModels:
                 "compression_ratio": 0.12,
             },
             "processing_time": 1.23,
-            "timestamp": datetime.now(datetime.timezone.utc).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         assert len(valid_data["text"]) > 0
@@ -135,7 +135,7 @@ class TestAPIModels:
             "status": "success",
             "data": {},
             "processing_time": 1.23,
-            "timestamp": datetime.now(datetime.timezone.utc).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         for field in required_fields:
@@ -154,7 +154,7 @@ class TestAPIModels:
                 "message": "Text too short for analysis",
                 "details": {},
             },
-            "timestamp": datetime.now(datetime.timezone.utc).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         assert error_response["status"] == "error"
