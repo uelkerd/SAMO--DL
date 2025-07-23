@@ -517,10 +517,10 @@ def evaluate_emotion_classifier(
     metrics["avg_inference_time_ms"] = (total_time / len(dataloader)) * 1000
     metrics["examples_per_second"] = len(all_predictions) / total_time
 
-            logger.info(
-            f"Evaluation complete - Micro F1: {metrics['micro_f1']:.3f}, Macro F1: {metrics['macro_f1']:.3f}"
-        )
-        logger.info(f"Average inference time: {metrics['avg_inference_time_ms']:.1f}ms")
+    logger.info(
+        f"Evaluation complete - Micro F1: {metrics['micro_f1']:.3f}, Macro F1: {metrics['macro_f1']:.3f}"
+    )
+    logger.info(f"Average inference time: {metrics['avg_inference_time_ms']:.1f}ms")
 
     return metrics
 
