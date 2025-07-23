@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+"""
+Direct test of evaluation logic to find and fix the bug.
+"""
+
+import sys
+from pathlib import Path
+import torch
+import numpy as np
+import logging
+
+# Add src to path
+sys.path.append(str(Path(__file__).parent.parent / "src"))
+
+from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
+logger = logging.getLogger(__name__)
+
+
+def test_direct_evaluation():
+    """Test evaluation by directly calling model and applying threshold logic."""
+
+    logger.info("🔍 Direct evaluation test")
+
+    # Initialize trainer
+    trainer = EmotionDetectionTrainer(dev_mode=True, batch_size=32, num_epochs=1)
+
+    # Load model
+    model_path = Path("models/checkpoints/bert_emotion_classifier.pth")
+    if not model_path.exists():
+        logger.error(f"❌ Model not found at {model_path}")
+        return
+
+    trainer.load_model(str(model_path))
+    logger.info("✅ Model loaded")
+
+    # Get one batch from validation data
+    val_loader = trainer.val_loader
+    batch = next(iter(val_loader))
+
+    # Unpack batch data
+    if isinstance(batch, dict):
+        input_ids = batch["input_ids"]
+        attention_mask = batch["attention_mask"]
+        targets = batch["labels"]
+    else:
+        input_ids, attention_mask, targets = batch
+
+    logger.info("📊 Batch info:")
+    logger.info(f"  - Input shape: {input_ids.shape}")
+    logger.info(f"  - Targets shape: {targets.shape}")
+    logger.info(f"  - Targets sum: {targets.sum().item()}")
+
+    # Move to device
+    device = trainer.device
+    input_ids = input_ids.to(device)
+    attention_mask = attention_mask.to(device)
+    targets = targets.to(device)
+
+    # Run model inference
+    trainer.model.eval()
+    with torch.no_grad():
+        # Get model output
+        model_output = trainer.model(input_ids, attention_mask)
+
+        # Check what type of output we get
+        logger.info(f"📊 Model output type: {type(model_output)}")
+
+        logits = model_output["logits"] if isinstance(model_output, dict) else model_output
+
+        logger.info(f"📊 Logits shape: {logits.shape}")
+        logger.info(f"📊 Logits min/max: {logits.min().item():.4f}/{logits.max().item():.4f}")
+
+        # Apply sigmoid to get probabilities
+        probabilities = torch.sigmoid(logits)
+        logger.info(f"📊 Probabilities shape: {probabilities.shape}")
+        logger.info(
+            f"📊 Probabilities min/max/mean: {probabilities.min().item():.4f}/{probabilities.max().item():.4f}/{probabilities.mean().item():.4f}"
+        )
+
+        # Test threshold application
+        threshold = 0.2
+        logger.info(f"\n🎯 Testing threshold: {threshold}")
+
+        # Count expected predictions
+        expected_predictions = (probabilities >= threshold).sum().item()
+        total_positions = probabilities.numel()
+
+        logger.info(
+            f"📊 Expected predictions: {expected_predictions}/{total_positions} ({100*expected_predictions/total_positions:.1f}%)"
+        )
+
+        # Apply threshold
+        predictions = (probabilities >= threshold).float()
+
+        logger.info("📊 Actual predictions:")
+        logger.info(f"  - Sum: {predictions.sum().item()}")
+        logger.info(f"  - Mean: {predictions.mean().item():.4f}")
+        logger.info(
+            f"  - Match expected: {'✅' if predictions.sum().item() == expected_predictions else '❌'}"
+        )
+
+        # Check if any samples have zero predictions
+        samples_per_batch = predictions.shape[0]
+        samples_with_zero = (predictions.sum(dim=1) == 0).sum().item()
+
+        logger.info("📊 Fallback analysis:")
+        logger.info(f"  - Total samples: {samples_per_batch}")
+        logger.info(f"  - Samples with zero predictions: {samples_with_zero}")
+        logger.info(
+            f"  - Percentage needing fallback: {100*samples_with_zero/samples_per_batch:.1f}%"
+        )
+
+        if samples_with_zero > 0:
+            logger.info(f"🔧 Applying fallback to {samples_with_zero} samples...")
+
+            predictions_with_fallback = predictions.clone()
+            fallback_count = 0
+
+            for sample_idx in range(predictions.shape[0]):
+                if predictions[sample_idx].sum() == 0:
+                    top_idx = torch.topk(probabilities[sample_idx], k=1, dim=0)[1]
+                    predictions_with_fallback[sample_idx, top_idx] = 1.0
+                    fallback_count += 1
+
+            logger.info("📊 After fallback:")
+            logger.info(f"  - Applied to {fallback_count} samples")
+            logger.info(f"  - Final sum: {predictions_with_fallback.sum().item()}")
+            logger.info(f"  - Final mean: {predictions_with_fallback.mean().item():.4f}")
+            logger.info(
+                f"  - Samples with zero: {(predictions_with_fallback.sum(dim=1) == 0).sum().item()}"
+            )
+
+            predictions = predictions_with_fallback
+
+        # Convert to numpy for metrics calculation
+        predictions_np = predictions.cpu().numpy()
+        targets_np = targets.cpu().numpy()
+
+        # Calculate F1 manually
+        tp = np.sum(predictions_np * targets_np)
+        fp = np.sum(predictions_np * (1 - targets_np))
+        fn = np.sum((1 - predictions_np) * targets_np)
+
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+        f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
+
+        logger.info("📈 Manual F1 calculation:")
+        logger.info(f"  - TP: {tp}, FP: {fp}, FN: {fn}")
+        logger.info(f"  - Precision: {precision:.4f}")
+        logger.info(f"  - Recall: {recall:.4f}")
+        logger.info(f"  - F1: {f1:.4f}")
+
+
+if __name__ == "__main__":
+    test_direct_evaluation()

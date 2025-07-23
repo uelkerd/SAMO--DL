@@ -443,18 +443,28 @@ def evaluate_emotion_classifier(
         for batch_idx, batch in enumerate(dataloader):
             start_time = time.time()
 
-            # Move batch to device
-            input_ids = batch["input_ids"].to(device)
-            attention_mask = batch["attention_mask"].to(device)
-            targets = batch["labels"].to(device)
+            # Handle both dict and tuple batch formats
+            if isinstance(batch, dict):
+                input_ids = batch["input_ids"].to(device)
+                attention_mask = batch["attention_mask"].to(device)
+                targets = batch["labels"].to(device)
+            else:
+                input_ids, attention_mask, targets = batch
+                input_ids = input_ids.to(device)
+                attention_mask = attention_mask.to(device)
+                targets = targets.to(device)
 
             # Forward pass
-            logits = model(input_ids, attention_mask)
+            model_output = model(input_ids, attention_mask)
+
+            # Handle both dict and tensor model outputs
+            logits = model_output["logits"] if isinstance(model_output, dict) else model_output
+
             # Apply sigmoid to get probabilities
             probabilities = torch.sigmoid(logits)
 
-            # Debug: Log probability statistics
-            if batch_idx == 0:  # Only log first batch to avoid spam
+            # Debug: Log probability statistics (only first batch)
+            if batch_idx == 0:
                 logger.info(
                     f"DEBUG: Probability stats - min: {probabilities.min():.4f}, max: {probabilities.max():.4f}, mean: {probabilities.mean():.4f}"
                 )
@@ -462,18 +472,44 @@ def evaluate_emotion_classifier(
                     f"DEBUG: Probability distribution - 0.1: {(probabilities >= 0.1).sum()}, 0.2: {(probabilities >= 0.2).sum()}, 0.5: {(probabilities >= 0.5).sum()}"
                 )
 
-            # Convert to predictions with lower threshold for better recall
+            # Apply threshold to get binary predictions
             predictions = (probabilities >= threshold).float()
 
-            # Alternative: Use top-k prediction for each sample
-            # This ensures we always have some predictions even with low probabilities
-            if predictions.sum(dim=1).max() == 0:
-                # If no predictions above threshold, use top-3 prediction
-                top_k = 3
-                top_indices = torch.topk(probabilities, k=top_k, dim=1)[1]
-                predictions = torch.zeros_like(probabilities)
-                predictions.scatter_(1, top_indices, 1.0)
-                logger.info(f"DEBUG: Using top-{top_k} fallback for batch {batch_idx}")
+            # Debug: Check predictions immediately after threshold application
+            if batch_idx == 0:
+                expected_sum = (probabilities >= threshold).sum().item()
+                actual_sum = predictions.sum().item()
+                logger.info(f"DEBUG: Threshold {threshold} application:")
+                logger.info(f"  - Expected predictions: {expected_sum}")
+                logger.info(f"  - Actual predictions: {actual_sum}")
+                logger.info(f"  - Match: {'✅' if expected_sum == actual_sum else '❌'}")
+
+            # Apply fallback for samples with no predictions above threshold
+            samples_needing_fallback = predictions.sum(dim=1) == 0
+            num_samples_needing_fallback = samples_needing_fallback.sum().item()
+
+            if num_samples_needing_fallback > 0:
+                # Apply top-1 fallback only to samples with zero predictions
+                for sample_idx in range(predictions.shape[0]):
+                    if samples_needing_fallback[sample_idx]:
+                        # Find the highest probability emotion for this sample
+                        top_emotion_idx = torch.argmax(probabilities[sample_idx])
+                        predictions[sample_idx, top_emotion_idx] = 1.0
+
+                if batch_idx == 0:
+                    logger.info(
+                        f"DEBUG: Applied top-1 fallback to {num_samples_needing_fallback} samples"
+                    )
+
+            # Final debug check for first batch
+            if batch_idx == 0:
+                final_sum = predictions.sum().item()
+                final_mean = predictions.mean().item()
+                samples_with_zero_after = (predictions.sum(dim=1) == 0).sum().item()
+                logger.info("DEBUG: Final predictions for batch 0:")
+                logger.info(f"  - Sum: {final_sum}")
+                logger.info(f"  - Mean: {final_mean:.4f}")
+                logger.info(f"  - Samples with zero predictions: {samples_with_zero_after}")
 
             # Collect results
             all_predictions.append(predictions.cpu().numpy())
