@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+"""Test Fixed Evaluation Function.
+
+This script tests the fixed evaluation function to see if we get
+realistic F1 scores now that the fallback bug is fixed.
+"""
+
+import sys
+import logging
+from pathlib import Path
+
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+import torch
+from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+def main():
+    """Test the fixed evaluation function."""
+    logger.info("🧪 Testing Fixed Evaluation Function")
+
+    try:
+        # Create trainer
+        trainer = EmotionDetectionTrainer(
+            model_name="bert-base-uncased",
+            cache_dir="./data/cache",
+            output_dir="./test_checkpoints_dev",
+            batch_size=32,
+            device="cpu",
+        )
+
+        # Prepare data and model
+        trainer.prepare_data(dev_mode=True)
+        trainer.initialize_model(class_weights=trainer.data_loader.class_weights)
+
+        # Load trained model
+        model_path = Path("./test_checkpoints_dev/best_model.pt")
+        if not model_path.exists():
+            logger.error("❌ No trained model found. Run training first.")
+            return 1
+
+        checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
+        trainer.model.load_state_dict(checkpoint["model_state_dict"])
+
+        logger.info("✅ Model loaded successfully")
+
+        # Test different thresholds with fixed evaluation
+        thresholds = [0.1, 0.15, 0.2, 0.25, 0.3]
+
+        logger.info("🎯 Testing thresholds with FIXED evaluation function:")
+        logger.info("=" * 60)
+
+        best_f1 = 0.0
+        best_threshold = 0.2
+
+        for threshold in thresholds:
+            logger.info(f"🔍 Threshold: {threshold}")
+
+            metrics = evaluate_emotion_classifier(
+                trainer.model, trainer.val_dataloader, trainer.device, threshold=threshold
+            )
+
+            macro_f1 = metrics["macro_f1"]
+            micro_f1 = metrics["micro_f1"]
+
+            logger.info(f"  📊 Macro F1: {macro_f1:.4f} | Micro F1: {micro_f1:.4f}")
+
+            if macro_f1 > best_f1:
+                best_f1 = macro_f1
+                best_threshold = threshold
+
+        logger.info("=" * 60)
+        logger.info("🏆 BEST RESULTS:")
+        logger.info(f"  🎯 Best Threshold: {best_threshold}")
+        logger.info(f"  📈 Best Macro F1: {best_f1:.4f}")
+
+        # Success criteria
+        if best_f1 > 0.15:  # 15% is reasonable for emotion detection
+            logger.info("🎉 SUCCESS: Model is working well with fixed evaluation!")
+            logger.info("🚀 Ready to proceed with full training or deployment!")
+            return 0
+        elif best_f1 > 0.10:  # 10% is acceptable for initial training
+            logger.info("✅ GOOD: Model shows promise, could benefit from more training")
+            return 0
+        else:
+            logger.warning(
+                "⚠️  Model still needs improvement, but evaluation is now working correctly"
+            )
+            return 1
+
+    except Exception as e:
+        logger.error(f"❌ Test failed: {e}")
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
