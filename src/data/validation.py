@@ -2,6 +2,7 @@
 import logging
 
 import pandas as pd
+from typing import Optional
 
 # Configure logging
 logging.basicConfig(
@@ -17,7 +18,7 @@ class DataValidator:
         """Initialize data validator."""
 
     def check_missing_values(
-        self, df: pd.DataFrame, required_columns: list[str] | None = None
+        self, df: pd.DataFrame, required_columns: Optional[list[str]] = None
     ) -> dict[str, float]:
         """Check for missing values in DataFrame.
 
@@ -139,8 +140,8 @@ class DataValidator:
     def validate_journal_entries(
         self,
         df: pd.DataFrame,
-        required_columns: list[str] | None = None,
-        expected_types: dict[str, type] | None = None,
+        required_columns: Optional[list[str]] = None,
+        expected_types: Optional[dict[str, type]] = None,
     ) -> tuple[bool, pd.DataFrame]:
         """Perform comprehensive validation on journal entries DataFrame.
 
@@ -162,7 +163,7 @@ class DataValidator:
                 "user_id": int,
                 "title": str,
                 "content": str,
-                "created_at": "datetime64[ns]",
+                "created_at": pd.Timestamp,
                 "is_private": bool,
             }
 

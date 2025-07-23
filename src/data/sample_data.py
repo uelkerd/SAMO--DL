@@ -1,9 +1,8 @@
 import json
-import os
 import random
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 import pandas as pd
 
@@ -133,11 +132,11 @@ def generate_entry(user_id: int, created_at: datetime, id_start: int = 1) -> dic
     }
 
 
-def generate_journal_entries(
+def generate_entries(
     num_entries: int = 100,
     num_users: int = 5,
-    start_date: datetime | None = None,
-    end_date: datetime | None = None,
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None,
 ) -> list[dict[str, Any]]:
     """Generate a list of synthetic journal entries.
 
@@ -152,9 +151,9 @@ def generate_journal_entries(
 
     """
     if start_date is None:
-        start_date = datetime.now(UTC) - timedelta(days=60)
+        start_date = datetime.now(timezone.utc) - timedelta(days=60)
     if end_date is None:
-        end_date = datetime.now(UTC)
+        end_date = datetime.now(timezone.utc)
 
     date_range = (end_date - start_date).days
     entries = []
@@ -228,11 +227,11 @@ def load_sample_entries(json_path: str) -> pd.DataFrame:
 
 if __name__ == "__main__":
     # Generate 100 entries from 5 users over the past 60 days
-    entries = generate_journal_entries(num_entries=100, num_users=5)
+    entries = generate_entries(num_entries=100, num_users=5)
 
     # Save to data/raw directory
     output_dir = Path(
-        Path(os.path.dirname(os.path.dirname(__file__).parent.as_posix())),
+        Path(__file__).parent.parent.parent,
         "data",
         "raw",
     )
