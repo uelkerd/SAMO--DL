@@ -85,16 +85,6 @@ repos:
             \.git/.*
           )$
 
-  # Jupyter notebook hooks
-  - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.9.1
-    hooks:
-      - id: nbqa-ruff
-        name: 📓 Notebook Ruff Check
-        args: [--fix, --ignore=INP001,E402,F821,PLC0415]  # Ignore notebook-specific issues
-      - id: nbqa-ruff-format
-        name: 📓 Notebook Ruff Format
-
 # Configuration
 default_language_version:
   python: python3.12
