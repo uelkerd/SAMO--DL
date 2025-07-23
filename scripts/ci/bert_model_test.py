@@ -26,12 +26,17 @@ def test_bert_model_loading():
     try:
         logger.info("🤖 Testing BERT emotion detection model loading...")
 
-        # Initialize model
+        # Set device
+        device = torch.device("cpu")  # Use CPU for CI
+
+        # Initialize model - removed 'device' parameter as it's not in the constructor
         model = BERTEmotionClassifier(
             model_name="bert-base-uncased",
             num_emotions=28,
-            device="cpu",  # Use CPU for CI
         )
+
+        # Move model to device after initialization
+        model.to(device)
 
         logger.info(f"✅ Model initialized with {model.count_parameters():,} parameters")
 
@@ -39,9 +44,9 @@ def test_bert_model_loading():
         batch_size = 2
         seq_length = 32
 
-        # Create dummy input tensors
-        input_ids = torch.randint(0, 1000, (batch_size, seq_length))
-        attention_mask = torch.ones(batch_size, seq_length)
+        # Create dummy input tensors and move to device
+        input_ids = torch.randint(0, 1000, (batch_size, seq_length)).to(device)
+        attention_mask = torch.ones(batch_size, seq_length).to(device)
 
         # Forward pass
         model.eval()
