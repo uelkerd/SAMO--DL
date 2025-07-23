@@ -142,7 +142,7 @@ def predict_emotions(
     # Import and initialize model
     from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 
-    model = BERTEmotionClassifier(model_name=model_name, num_labels=28)
+    model = BERTEmotionClassifier(model_name=model_name, num_emotions=28)
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
     model.to(device)

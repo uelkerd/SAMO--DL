@@ -9,10 +9,10 @@ import pytest
 import torch
 
 try:
-    from src.models.emotion_detection.bert_classifier import BertEmotionClassifier
+    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 except ImportError as e:
     raise RuntimeError(
-        "Failed to import BertEmotionClassifier. Ensure all model dependencies are installed."
+        "Failed to import BERTEmotionClassifier. Ensure all model dependencies are installed."
     ) from e
 
 
@@ -22,7 +22,7 @@ class TestBertEmotionClassifier:
     def test_model_initialization(self):
         """Test model initializes with correct parameters."""
         num_emotions = 28
-        model = BertEmotionClassifier(num_emotions=num_emotions)
+        model = BERTEmotionClassifier(num_emotions=num_emotions)
 
         assert model.num_emotions == num_emotions
         assert hasattr(model, "bert")
@@ -31,7 +31,7 @@ class TestBertEmotionClassifier:
 
     def test_model_parameter_count(self):
         """Test model has expected number of parameters."""
-        model = BertEmotionClassifier(num_emotions=28)
+        model = BERTEmotionClassifier(num_emotions=28)
         total_params = sum(p.numel() for p in model.parameters())
 
         # BERT-base has ~110M parameters, with classifier should be ~110M+
@@ -49,7 +49,7 @@ class TestBertEmotionClassifier:
         mock_bert_instance.return_value = mock_bert_output
         mock_bert.from_pretrained.return_value = mock_bert_instance
 
-        model = BertEmotionClassifier(num_emotions=28)
+        model = BERTEmotionClassifier(num_emotions=28)
 
         # Test input
         input_ids = torch.randint(0, 1000, (2, 10))
@@ -63,10 +63,10 @@ class TestBertEmotionClassifier:
     def test_predict_emotions(self):
         """Test emotion prediction with threshold."""
         # Mock model output
-        with patch.object(BertEmotionClassifier, "forward") as mock_forward:
+        with patch.object(BERTEmotionClassifier, "forward") as mock_forward:
             mock_forward.return_value = torch.tensor([[0.1, 0.8, 0.2, 0.9]])
 
-            model = BertEmotionClassifier(num_emotions=4)
+            model = BERTEmotionClassifier(num_emotions=4)
             model.eval()
 
             # Mock tokenizer
@@ -80,7 +80,7 @@ class TestBertEmotionClassifier:
 
     def test_device_compatibility(self):
         """Test model works on both CPU and GPU (if available)."""
-        model = BertEmotionClassifier(num_emotions=28)
+        model = BERTEmotionClassifier(num_emotions=28)
 
         # Test CPU
         device = torch.device("cpu")
@@ -95,7 +95,7 @@ class TestBertEmotionClassifier:
 
     def test_training_mode(self):
         """Test model switches between training and evaluation modes."""
-        model = BertEmotionClassifier(num_emotions=28)
+        model = BERTEmotionClassifier(num_emotions=28)
 
         # Test training mode
         model.train()
@@ -124,7 +124,7 @@ class TestBertEmotionClassifier:
     @pytest.mark.slow
     def test_emotion_label_mapping(self):
         """Test emotion label mapping matches GoEmotions dataset."""
-        model = BertEmotionClassifier(num_emotions=28)
+        model = BERTEmotionClassifier(num_emotions=28)
 
         expected_emotions = [
             "admiration",
