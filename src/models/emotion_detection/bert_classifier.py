@@ -134,9 +134,7 @@ class BERTEmotionClassifier(nn.Module):
             for param in self.bert.encoder.layer[i].parameters():
                 param.requires_grad = False
 
-        logger.info(
-            "Frozen {num_layers} BERT layers for progressive training", extra={"format_args": True}
-        )
+        logger.info(f"Frozen {num_layers} BERT layers for progressive training")
 
     def unfreeze_bert_layers(self, num_layers: int) -> None:
         """Unfreeze BERT layers for progressive unfreezing strategy.
@@ -163,9 +161,7 @@ class BERTEmotionClassifier(nn.Module):
             for param in self.bert.encoder.layer[i].parameters():
                 param.requires_grad = True
 
-        logger.info(
-            "Unfroze {layers_to_unfreeze} additional BERT layers", extra={"format_args": True}
-        )
+        logger.info(f"Unfroze {layers_to_unfreeze} additional BERT layers")
 
     def forward(
         self,
@@ -521,13 +517,10 @@ def evaluate_emotion_classifier(
     metrics["avg_inference_time_ms"] = (total_time / len(dataloader)) * 1000
     metrics["examples_per_second"] = len(all_predictions) / total_time
 
-    logger.info(
-        f"Evaluation complete - Micro F1: {metrics['micro_f1']:.3f}, Macro F1: {metrics['macro_f1']:.3f}"
-    )
-    logger.info(
-        "Average inference time: {metrics['avg_inference_time_ms']:.1f}ms",
-        extra={"format_args": True},
-    )
+            logger.info(
+            f"Evaluation complete - Micro F1: {metrics['micro_f1']:.3f}, Macro F1: {metrics['macro_f1']:.3f}"
+        )
+        logger.info(f"Average inference time: {metrics['avg_inference_time_ms']:.1f}ms")
 
     return metrics
 
