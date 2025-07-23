@@ -8,7 +8,7 @@ It's a simple wrapper that allows Python code to execute Prisma commands.
 import json
 import subprocess
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 
 class PrismaClient:
@@ -75,7 +75,7 @@ main();
                 Path("temp_prisma_script.js").unlink()
 
     def create_user(
-        self, email: str, password_hash: str, consent_version: str | None = None
+        self, email: str, password_hash: str, consent_version: Optional[str] = None
     ) -> dict[str, Any]:
         """Create a new user.
 
@@ -134,7 +134,7 @@ main();
 
         return self.execute_prisma_command(script)
 
-    def get_user_by_email(self, email: str) -> dict[str, Any] | None:
+    def get_user_by_email(self, email: str) -> Optional[dict[str, Any]]:
         """Get a user by email.
 
         Args:
