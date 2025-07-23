@@ -223,6 +223,21 @@ jobs:
             echo "🤖 Testing BERT emotion detection model loading..."
             python scripts/ci/bert_model_test.py
       - run:
+          name: Model Calibration Test
+          command: |
+            echo "🌡️ Testing model calibration with optimal temperature and threshold..."
+            python scripts/test_calibration.py
+      - run:
+          name: Model Compression Test
+          command: |
+            echo "📦 Testing model compression..."
+            python scripts/compress_model.py --input_model test_checkpoints/best_model.pt --output_model /tmp/compressed_model.pt
+      - run:
+          name: ONNX Conversion Test
+          command: |
+            echo "🔄 Testing ONNX conversion..."
+            python scripts/convert_to_onnx.py --input_model /tmp/compressed_model.pt --output_model /tmp/bert_emotion_classifier.onnx
+      - run:
           name: T5 Summarization Test
           command: |
             echo "📝 Testing T5 summarization model..."
