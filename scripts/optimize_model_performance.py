@@ -279,8 +279,8 @@ class ModelOptimizer:
             # Measure inference time
             start_time = time.time()
             with torch.no_grad():
-                outputs = self.model(**encoded)
-                probabilities = outputs["probabilities"]
+                logits = self.model(**encoded)
+                probabilities = torch.sigmoid(logits)
             end_time = time.time()
 
             latency = (end_time - start_time) * 1000  # Convert to ms
