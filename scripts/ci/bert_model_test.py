@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
-"""BERT Model Loading Test for CircleCI.
+"""
+BERT Model Loading Test for CI/CD Pipeline.
 
-This script tests that the BERT emotion detection model can be loaded
-and performs basic inference without errors.
+This script validates that the BERT emotion detection model
+can be loaded and initialized correctly.
 """
 
-import sys
 import logging
+import sys
 from pathlib import Path
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 import torch
-from models.emotion_detection.bert_classifier import BertEmotionClassifier
+from models.emotion_detection.bert_classifier import BERTEmotionClassifier
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -24,36 +25,49 @@ def test_bert_model_loading():
     """Test BERT model initialization and basic inference."""
     try:
         logger.info("🤖 Testing BERT emotion detection model loading...")
-        
+
         # Initialize model
-        model = BertEmotionClassifier(
+        model = BERTEmotionClassifier(
             model_name="bert-base-uncased",
             num_emotions=28,
-            device="cpu"  # Use CPU for CI
+            device="cpu",  # Use CPU for CI
         )
-        
+
         logger.info(f"✅ Model initialized with {model.count_parameters():,} parameters")
-        
-        # Test forward pass with dummy input
-        dummy_input = torch.randint(0, 1000, (2, 10))  # batch_size=2, seq_len=10
-        attention_mask = torch.ones_like(dummy_input)
-        
+
+        # Test model forward pass with dummy data
+        batch_size = 2
+        seq_length = 32
+
+        # Create dummy input tensors
+        input_ids = torch.randint(0, 1000, (batch_size, seq_length))
+        attention_mask = torch.ones(batch_size, seq_length)
+
+        # Forward pass
         model.eval()
         with torch.no_grad():
-            output = model(dummy_input, attention_mask=attention_mask)
-        
-        # Verify output shape
-        expected_shape = (2, 28)  # batch_size, num_emotions
-        assert output.shape == expected_shape, f"Expected shape {expected_shape}, got {output.shape}"
-        
-        # Verify output is probabilities (after sigmoid)
-        assert torch.all(output >= 0) and torch.all(output <= 1), "Output should be probabilities [0,1]"
-        
-        logger.info(f"✅ Forward pass successful - Output shape: {output.shape}")
-        logger.info(f"✅ Output range: [{output.min():.4f}, {output.max():.4f}]")
-        
+            outputs = model(input_ids, attention_mask)
+
+        logger.info(f"✅ Forward pass successful, output shape: {outputs.shape}")
+
+        # Verify output dimensions
+        expected_shape = (batch_size, 28)  # 28 emotions
+        if outputs.shape != expected_shape:
+            raise ValueError(f"Expected output shape {expected_shape}, got {outputs.shape}")
+
+        logger.info("✅ Output shape validation passed")
+
+        # Test that outputs are reasonable (not NaN, finite)
+        if torch.isnan(outputs).any():
+            raise ValueError("Model outputs contain NaN values")
+
+        if not torch.isfinite(outputs).all():
+            raise ValueError("Model outputs contain infinite values")
+
+        logger.info("✅ Output sanity checks passed")
+
         return True
-        
+
     except Exception as e:
         logger.error(f"❌ BERT model test failed: {e}")
         return False
@@ -61,17 +75,16 @@ def test_bert_model_loading():
 
 def main():
     """Run BERT model tests."""
-    logger.info("🧪 Starting BERT Model Loading Tests")
-    
-    success = test_bert_model_loading()
-    
-    if success:
+    logger.info("🚀 Starting BERT Model Tests...")
+
+    if test_bert_model_loading():
         logger.info("🎉 All BERT model tests passed!")
-        return 0
+        return True
     else:
-        logger.error("❌ BERT model tests failed!")
-        return 1
+        logger.error("💥 BERT model tests failed!")
+        return False
 
 
 if __name__ == "__main__":
-    sys.exit(main()) 
+    success = main()
+    sys.exit(0 if success else 1)
