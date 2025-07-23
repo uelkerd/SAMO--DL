@@ -15,6 +15,7 @@ Key Features:
 import logging
 import time
 from contextlib import asynccontextmanager
+from typing import Optional
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from pydantic import BaseModel, Field, validator
@@ -25,8 +26,8 @@ from .t5_summarizer import T5SummarizationModel, create_t5_summarizer
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Global model instance (loaded on startup)
-summarization_model: T5SummarizationModel | None = None
+# Global model instance
+summarization_model: Optional[T5SummarizationModel] = None
 
 
 @asynccontextmanager
@@ -72,20 +73,14 @@ app = FastAPI(
 
 
 # Request/Response Models
-class SummarizationRequest(BaseModel):
+class SummarizeRequest(BaseModel):
     """Request model for single text summarization."""
 
-    text: str = Field(
-        ...,
-        description="Text to summarize (journal entry or conversation)",
-        min_length=50,
-        max_length=2000,
-        example="Today was such a rollercoaster of emotions. I started feeling anxious about my job interview...",
-    )
-    max_length: int | None = Field(128, description="Maximum summary length", ge=30, le=256)
-    min_length: int | None = Field(30, description="Minimum summary length", ge=10, le=100)
-    focus_emotional: bool | None = Field(
-        True, description="Whether to focus on emotional content in summary"
+    text: str = Field(..., description="Text to summarize", min_length=10, max_length=2000)
+    max_length: Optional[int] = Field(128, description="Maximum summary length", ge=30, le=256)
+    min_length: Optional[int] = Field(30, description="Minimum summary length", ge=10, le=100)
+    focus_emotional: Optional[bool] = Field(
+        False, description="Focus on emotional content in summary"
     )
 
     @validator("min_length")
@@ -99,15 +94,10 @@ class SummarizationRequest(BaseModel):
 class BatchSummarizationRequest(BaseModel):
     """Request model for batch summarization."""
 
-    texts: list[str] = Field(
-        ...,
-        description="List of texts to summarize",
-        min_items=1,
-        max_items=10,  # Limit batch size
-    )
-    max_length: int | None = Field(128, ge=30, le=256)
-    min_length: int | None = Field(30, ge=10, le=100)
-    focus_emotional: bool | None = Field(True)
+    texts: list[str] = Field(..., description="List of texts to summarize")
+    max_length: Optional[int] = Field(128, ge=30, le=256)
+    min_length: Optional[int] = Field(30, ge=10, le=100)
+    focus_emotional: Optional[bool] = Field(True)
 
     @validator("texts")
     def validate_text_lengths(cls, texts):
@@ -153,7 +143,7 @@ async def health_check():
 
 
 @app.post("/summarize", response_model=SummarizationResponse)
-async def summarize_text(request: SummarizationRequest):
+async def summarize_text(request: SummarizeRequest):
     """Summarize a single journal entry or text.
 
     This endpoint generates an intelligent summary that preserves
@@ -211,18 +201,13 @@ async def summarize_batch(request: BatchSummarizationRequest):
         start_time = time.time()
 
         # Generate batch summaries
-        summaries = summarization_model.generate_batch_summaries(
-            texts=request.texts,
-            batch_size=4,  # Process in smaller batches for memory efficiency
-            max_length=request.max_length,
-            min_length=request.min_length,
-        )
+        summaries = [summarization_model.generate_summary(text) for text in request.texts]
 
         total_processing_time = (time.time() - start_time) * 1000
 
         # Create detailed responses
         detailed_responses = []
-        for text, summary in zip(request.texts, summaries, strict=False):
+        for text, summary in zip(request.texts, summaries):
             original_length = len(text)
             summary_length = len(summary)
             compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
