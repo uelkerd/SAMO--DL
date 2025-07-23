@@ -443,18 +443,22 @@ def evaluate_emotion_classifier(
             attention_mask = batch["attention_mask"].to(device)
             targets = batch["labels"].to(device)
 
-                        # Forward pass
+            # Forward pass
             outputs = model(input_ids, attention_mask)
             probabilities = outputs["probabilities"]
 
             # Debug: Log probability statistics
             if batch_idx == 0:  # Only log first batch to avoid spam
-                logger.info(f"DEBUG: Probability stats - min: {probabilities.min():.4f}, max: {probabilities.max():.4f}, mean: {probabilities.mean():.4f}")
-                logger.info(f"DEBUG: Probability distribution - 0.1: {(probabilities >= 0.1).sum()}, 0.2: {(probabilities >= 0.2).sum()}, 0.5: {(probabilities >= 0.5).sum()}")
+                logger.info(
+                    f"DEBUG: Probability stats - min: {probabilities.min():.4f}, max: {probabilities.max():.4f}, mean: {probabilities.mean():.4f}"
+                )
+                logger.info(
+                    f"DEBUG: Probability distribution - 0.1: {(probabilities >= 0.1).sum()}, 0.2: {(probabilities >= 0.2).sum()}, 0.5: {(probabilities >= 0.5).sum()}"
+                )
 
             # Convert to predictions with lower threshold for better recall
             predictions = (probabilities >= threshold).float()
-            
+
             # Alternative: Use top-k prediction for each sample
             # This ensures we always have some predictions even with low probabilities
             if predictions.sum(dim=1).max() == 0:

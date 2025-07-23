@@ -28,5 +28,5 @@ __all__ = [
     "T5SummarizationModel",
     "create_summarization_loader",
     "create_t5_summarizer",
-    "train_summarization_model"
+    "train_summarization_model",
 ]

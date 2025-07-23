@@ -235,7 +235,7 @@ def analyze_domain_adaptation(
         elif expected.intersection(predicted):
             partial_matches += 1
 
-        logger.info(f"\nSample {i+1}:")
+        logger.info(f"\nSample {i + 1}:")
         logger.info(f"Text: {sample['text'][:100]}...")
         logger.info(f"Expected: {expected}")
         logger.info(f"Predicted: {predicted}")

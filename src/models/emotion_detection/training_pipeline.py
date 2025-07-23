@@ -17,6 +17,7 @@ import json
 import logging
 import time
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import torch
@@ -53,11 +54,11 @@ class EmotionDetectionTrainer:
         warmup_steps: int = 500,
         weight_decay: float = 0.01,
         freeze_initial_layers: int = 6,
-        unfreeze_schedule: list[int] | None = None,
+        unfreeze_schedule: Optional[List[int]] = None,
         save_best_only: bool = True,
         early_stopping_patience: int = 3,
         evaluation_strategy: str = "epoch",
-        device: str | None = None,
+        device: Optional[str] = None,
     ) -> None:
         """Initialize emotion detection trainer.
 
@@ -119,7 +120,7 @@ class EmotionDetectionTrainer:
 
         logger.info("Initialized EmotionDetectionTrainer")
 
-    def prepare_data(self, dev_mode: bool = True) -> dict[str, any]:
+    def prepare_data(self, dev_mode: bool = True) -> Dict[str, Any]:
         """Prepare GoEmotions dataset for training.
 
         Args:
@@ -207,7 +208,7 @@ class EmotionDetectionTrainer:
 
         return datasets
 
-    def initialize_model(self, class_weights: np.ndarray | None = None) -> None:
+    def initialize_model(self, class_weights: Optional[np.ndarray] = None) -> None:
         """Initialize BERT emotion detection model and training components.
 
         Args:
@@ -247,7 +248,7 @@ class EmotionDetectionTrainer:
         )
         logger.info("Total training steps: {total_steps}", extra={"format_args": True})
 
-    def train_epoch(self, epoch: int) -> dict[str, float]:
+    def train_epoch(self, epoch: int) -> Dict[str, float]:
         """Train model for one epoch.
 
         Args:
@@ -341,7 +342,7 @@ class EmotionDetectionTrainer:
 
         return metrics
 
-    def validate(self, epoch: int) -> dict[str, float]:
+    def validate(self, epoch: int) -> Dict[str, float]:
         """Validate model performance.
 
         Args:
@@ -385,7 +386,7 @@ class EmotionDetectionTrainer:
         """Check if training should stop early."""
         return self.patience_counter >= self.early_stopping_patience
 
-    def save_checkpoint(self, epoch: int, metrics: dict[str, float], is_best: bool = False) -> None:
+    def save_checkpoint(self, epoch: int, metrics: Dict[str, float], is_best: bool = False) -> None:
         """Save model checkpoint.
 
         Args:
@@ -417,7 +418,7 @@ class EmotionDetectionTrainer:
         torch.save(checkpoint, checkpoint_path)
         logger.info("Checkpoint saved: {checkpoint_path}", extra={"format_args": True})
 
-    def train(self) -> dict[str, any]:
+    def train(self) -> Dict[str, Any]:
         """Complete training pipeline.
 
         Returns:
@@ -495,7 +496,7 @@ class EmotionDetectionTrainer:
                             simplified_entry[k] = v
                         else:
                             simplified_entry[k] = str(v)
-                    except:
+                    except Exception:
                         simplified_entry[k] = str(v)
                 simplified_history.append(simplified_entry)
 
@@ -544,6 +545,7 @@ def train_emotion_detection_model(
         learning_rate: Learning rate
         num_epochs: Number of epochs
         device: Device for training
+        dev_mode: Enable development mode for faster training with reduced dataset
 
     Returns:
         Training results dictionary
