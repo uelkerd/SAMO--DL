@@ -42,7 +42,7 @@ class TestAPIEndpoints:
         assert "SAMO" in data["message"]
         assert "version" in data
 
-    @patch("src.models.emotion_detection.bert_classifier.BertEmotionClassifier")
+    @patch("src.models.emotion_detection.bert_classifier.BERTEmotionClassifier")
     def test_journal_analysis_endpoint(self, mock_bert, api_client):
         """Test /analyze/journal endpoint with text input."""
         # Mock the emotion detection

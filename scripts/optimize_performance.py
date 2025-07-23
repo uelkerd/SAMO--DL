@@ -117,7 +117,7 @@ def convert_to_onnx(
     from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 
     # Initialize model
-    model = BERTEmotionClassifier(model_name=model_name, num_labels=28)
+    model = BERTEmotionClassifier(model_name=model_name, num_emotions=28)
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
     model.to(device)
@@ -236,7 +236,7 @@ def benchmark_pytorch_model(
 
     from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 
-    model = BERTEmotionClassifier(model_name="bert-base-uncased", num_labels=28)
+    model = BERTEmotionClassifier(model_name="bert-base-uncased", num_emotions=28)
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
     model.to(device)
