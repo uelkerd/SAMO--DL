@@ -74,18 +74,17 @@ class TestBertEmotionClassifier:
 
     def test_predict_emotions(self):
         """Test emotion prediction with threshold."""
-        # Mock model output
+        # Mock model output - now returns logits directly
         with patch.object(BERTEmotionClassifier, "forward") as mock_forward:
-            # Mock the forward method to return a proper output structure
-            mock_output = {
-                "logits": torch.tensor([[0.1, 0.8, 0.2, 0.9]]),
-                "probabilities": torch.tensor([[0.1, 0.8, 0.2, 0.9]]),
-                "calibrated_logits": torch.tensor([[0.1, 0.8, 0.2, 0.9]]),
-            }
-            mock_forward.return_value = mock_output
+            # Mock forward to return logits tensor
+            mock_logits = torch.tensor([[0.1, 0.8, 0.2, 0.9]])
+            mock_forward.return_value = mock_logits
 
+            # Also set the internal attributes that will be used
             model = BERTEmotionClassifier(num_emotions=4)
             model.eval()
+            model._probabilities = torch.tensor([[0.1, 0.8, 0.2, 0.9]])
+            model._calibrated_logits = torch.tensor([[0.1, 0.8, 0.2, 0.9]])
 
             # Mock tokenizer
             with patch("transformers.AutoTokenizer.from_pretrained") as mock_tokenizer:
@@ -97,14 +96,19 @@ class TestBertEmotionClassifier:
                 }
                 mock_tokenizer.return_value = mock_tokenizer_instance
 
-                predicted = model.predict_emotions("test text", threshold=0.5)
+                # Mock the GOEMOTIONS_EMOTIONS list for testing
+                with patch(
+                    "src.models.emotion_detection.bert_classifier.GOEMOTIONS_EMOTIONS",
+                    ["admiration", "joy", "anger", "gratitude"],
+                ):
+                    predicted = model.predict_emotions("test text", threshold=0.5)
 
-                # Should predict indices 1 and 3 (values 0.8 and 0.9)
-                assert len(predicted["predicted_emotions"]) == 2
-                assert "joy" in predicted["predicted_emotions"]  # Assuming index 1 maps to joy
-                assert (
-                    "gratitude" in predicted["predicted_emotions"]
-                )  # Assuming index 3 maps to gratitude
+                    # Should predict indices 1 and 3 (values 0.8 and 0.9)
+                    assert len(predicted["predicted_emotions"]) == 2
+                    assert "joy" in predicted["predicted_emotions"]  # Index 1 maps to joy
+                    assert (
+                        "gratitude" in predicted["predicted_emotions"]
+                    )  # Index 3 maps to gratitude
 
     def test_device_compatibility(self):
         """Test model works on both CPU and GPU (if available)."""
