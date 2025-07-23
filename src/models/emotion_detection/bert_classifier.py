@@ -16,12 +16,13 @@ Key Features:
 import logging
 import time
 import warnings
+from typing import Optional, Union
 
 import numpy as np
 import torch
+from torch import nn
 import torch.nn.functional as F
 from sklearn.metrics import f1_score, precision_recall_fscore_support
-from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from transformers import (
     AutoConfig,
@@ -165,9 +166,8 @@ class BERTEmotionClassifier(nn.Module):
         self,
         input_ids: torch.Tensor,
         attention_mask: torch.Tensor,
-        token_type_ids: torch.Tensor | None = None,
-        return_attention_weights: bool = False,
-    ) -> dict[str, torch.Tensor]:
+        token_type_ids: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
         """Forward pass through BERT emotion classifier.
 
         Args:
@@ -184,7 +184,7 @@ class BERTEmotionClassifier(nn.Module):
             input_ids=input_ids,
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
-            output_attentions=return_attention_weights,
+            output_attentions=False,  # Changed from return_attention_weights to False
         )
 
         # Use [CLS] token representation for classification
@@ -203,25 +203,20 @@ class BERTEmotionClassifier(nn.Module):
             "calibrated_logits": calibrated_logits,
         }
 
-        if return_attention_weights:
-            outputs["attention_weights"] = bert_outputs.attentions
+        # Removed: if return_attention_weights: outputs["attention_weights"] = bert_outputs.attentions
 
         return outputs
 
     def predict_emotions(
         self,
-        input_ids: torch.Tensor,
-        attention_mask: torch.Tensor,
-        token_type_ids: torch.Tensor | None = None,
+        texts: Union[str, list[str]],
         threshold: float = 0.5,
-        top_k: int | None = None,
-    ) -> dict[str, list[str] | torch.Tensor | list[float]]:
+        top_k: Optional[int] = None,
+    ) -> dict[str, Union[list[str], torch.Tensor, list[float]]]:
         """Predict emotions for input text with confidence scores.
 
         Args:
-            input_ids: Token IDs from BERT tokenizer
-            attention_mask: Attention mask for padding tokens
-            token_type_ids: Token type IDs (optional)
+            texts: Input text(s) to analyze
             threshold: Probability threshold for emotion prediction
             top_k: Return top K emotions regardless of threshold
 
@@ -230,9 +225,22 @@ class BERTEmotionClassifier(nn.Module):
         """
         self.eval()
 
+        # Handle single text vs list of texts
+        if isinstance(texts, str):
+            texts = [texts]
+
+        # Tokenize input texts
+        tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        encoded = tokenizer(
+            texts, padding=True, truncation=True, max_length=512, return_tensors="pt"
+        )
+
+        input_ids = encoded["input_ids"].to(self.device)
+        attention_mask = encoded["attention_mask"].to(self.device)
+
         with torch.no_grad():
-            outputs = self.forward(input_ids, attention_mask, token_type_ids)
-            probabilities = outputs["probabilities"].cpu().numpy()
+            outputs = self.forward(input_ids, attention_mask)
+            probabilities = torch.sigmoid(outputs).cpu().numpy()
 
         # Handle batch dimension
         if probabilities.ndim == 2:
@@ -261,7 +269,7 @@ class BERTEmotionClassifier(nn.Module):
             "primary_emotion": primary_emotion,
             "primary_confidence": float(primary_confidence),
             "all_probabilities": probabilities.tolist(),
-            "emotion_mapping": dict(zip(GOEMOTIONS_EMOTIONS, probabilities.tolist(), strict=False)),
+            "emotion_mapping": dict(zip(GOEMOTIONS_EMOTIONS, probabilities.tolist())),
         }
 
     def count_parameters(self) -> int:
@@ -279,7 +287,9 @@ class WeightedBCELoss(nn.Module):
     Implements class weighting to handle emotion frequency imbalance in GoEmotions.
     """
 
-    def __init__(self, class_weights: torch.Tensor | None = None, reduction: str = "mean") -> None:
+    def __init__(
+        self, class_weights: Optional[torch.Tensor] = None, reduction: str = "mean"
+    ) -> None:
         """Initialize weighted BCE loss.
 
         Args:
@@ -381,7 +391,7 @@ class EmotionDataset(Dataset):
 
 def create_bert_emotion_classifier(
     model_name: str = "bert-base-uncased",
-    class_weights: np.ndarray | None = None,
+    class_weights: Optional[np.ndarray] = None,
     freeze_bert_layers: int = 6,
 ) -> tuple[BERTEmotionClassifier, WeightedBCELoss]:
     """Factory function to create BERT emotion classifier with loss function.
