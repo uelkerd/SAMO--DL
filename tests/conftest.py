@@ -118,7 +118,7 @@ def pytest_configure(config):
 
 
 # Skip GPU tests if CUDA not available
-def pytest_collection_modifyitems(_config, items):
+def pytest_collection_modifyitems(config, items):
     """Modify test collection based on available hardware."""
     skip_gpu = pytest.mark.skip(reason="CUDA not available")
 
