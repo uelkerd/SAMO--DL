@@ -17,7 +17,7 @@ import json
 import logging
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import numpy as np
 import torch
@@ -54,7 +54,7 @@ class EmotionDetectionTrainer:
         warmup_steps: int = 500,
         weight_decay: float = 0.01,
         freeze_initial_layers: int = 6,
-        unfreeze_schedule: Optional[List[int]] = None,
+        unfreeze_schedule: Optional[list[int]] = None,
         save_best_only: bool = True,
         early_stopping_patience: int = 3,
         evaluation_strategy: str = "epoch",
@@ -120,7 +120,7 @@ class EmotionDetectionTrainer:
 
         logger.info("Initialized EmotionDetectionTrainer")
 
-    def prepare_data(self, dev_mode: bool = True) -> Dict[str, Any]:
+    def prepare_data(self, dev_mode: bool = True) -> dict[str, Any]:
         """Prepare GoEmotions dataset for training.
 
         Args:
@@ -248,7 +248,7 @@ class EmotionDetectionTrainer:
         )
         logger.info("Total training steps: {total_steps}", extra={"format_args": True})
 
-    def train_epoch(self, epoch: int) -> Dict[str, float]:
+    def train_epoch(self, epoch: int) -> dict[str, float]:
         """Train model for one epoch.
 
         Args:
@@ -342,7 +342,7 @@ class EmotionDetectionTrainer:
 
         return metrics
 
-    def validate(self, epoch: int) -> Dict[str, float]:
+    def validate(self, epoch: int) -> dict[str, float]:
         """Validate model performance.
 
         Args:
@@ -386,7 +386,7 @@ class EmotionDetectionTrainer:
         """Check if training should stop early."""
         return self.patience_counter >= self.early_stopping_patience
 
-    def save_checkpoint(self, epoch: int, metrics: Dict[str, float], is_best: bool = False) -> None:
+    def save_checkpoint(self, epoch: int, metrics: dict[str, float], is_best: bool = False) -> None:
         """Save model checkpoint.
 
         Args:
@@ -418,7 +418,7 @@ class EmotionDetectionTrainer:
         torch.save(checkpoint, checkpoint_path)
         logger.info("Checkpoint saved: {checkpoint_path}", extra={"format_args": True})
 
-    def train(self) -> Dict[str, Any]:
+    def train(self) -> dict[str, Any]:
         """Complete training pipeline.
 
         Returns:
@@ -468,12 +468,12 @@ class EmotionDetectionTrainer:
                 return {k: convert_numpy_types(v) for k, v in obj.items()}
             elif isinstance(obj, list):
                 return [convert_numpy_types(item) for item in obj]
-            elif hasattr(obj, "item") and hasattr(obj, "size") and obj.size == 1:  # numpy scalars
+            elif isinstance(obj, (np.integer, np.floating)):
                 return obj.item()
             elif hasattr(obj, "tolist"):  # numpy arrays
                 return obj.tolist()
-            elif isinstance(obj, np.integer | np.floating):
-                return obj.item()
+            elif isinstance(obj, (int, float, str, bool)):
+                return obj
             else:
                 return obj
 
@@ -490,9 +490,9 @@ class EmotionDetectionTrainer:
                 simplified_entry = {}
                 for k, v in entry.items():
                     try:
-                        if isinstance(v, np.integer | np.floating):
+                        if isinstance(v, (np.integer, np.floating)):
                             simplified_entry[k] = float(v.item())
-                        elif isinstance(v, int | float | str | bool):
+                        elif isinstance(v, (int, float, str, bool)):
                             simplified_entry[k] = v
                         else:
                             simplified_entry[k] = str(v)
@@ -532,9 +532,9 @@ def train_emotion_detection_model(
     batch_size: int = 16,
     learning_rate: float = 2e-5,
     num_epochs: int = 3,
-    device: str | None = None,
+    device: Optional[str] = None,
     dev_mode: bool = True,  # Enable development mode by default
-) -> dict[str, any]:
+) -> dict[str, Any]:
     """Convenient function to train emotion detection model with default settings.
 
     Args:

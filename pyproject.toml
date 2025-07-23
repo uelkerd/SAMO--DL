@@ -379,7 +379,6 @@ skips = [
     "B603",  # subprocess_without_shell_equals_true - acceptable for trusted input
     "B607",  # start_process_with_partial_path - acceptable in controlled environments
     "B614",  # pytorch_load_save - acceptable for ML model persistence
-    "B615",  # huggingface_unsafe_download - acceptable for development
 ]
 
 # Safety Configuration (Dependency Vulnerability Scanning)
