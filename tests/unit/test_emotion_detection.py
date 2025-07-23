@@ -3,7 +3,7 @@ Unit tests for BERT emotion detection model.
 Tests model initialization, forward pass, and emotion classification logic.
 """
 
-from unittest.mock import Mock, patch
+from unittest.mock import patch, MagicMock
 
 import pytest
 import torch
@@ -42,21 +42,31 @@ class TestBertEmotionClassifier:
 
     @patch("transformers.AutoModel.from_pretrained")
     def test_forward_pass(self, mock_bert):
-        """Test model forward pass with mock BERT."""
-        # Setup mock
-        mock_bert_instance = Mock()
-        mock_bert_instance.config.hidden_size = 768
-        mock_bert_output = Mock()
-        mock_bert_output.last_hidden_state = torch.randn(2, 10, 768)
+        """Test forward pass through the model."""
+        # Create a proper mock for BERT output
+        from transformers.modeling_outputs import BaseModelOutputWithPooling
+
+        # Mock BERT output with proper structure
+        mock_bert_output = BaseModelOutputWithPooling(
+            last_hidden_state=torch.randn(2, 10, 768),
+            pooler_output=torch.randn(2, 768),  # This is what we actually use
+            hidden_states=None,
+            attentions=None,
+        )
+
+        # Create a mock BERT instance that returns the output when called
+        mock_bert_instance = MagicMock()
         mock_bert_instance.return_value = mock_bert_output
         mock_bert.return_value = mock_bert_instance
 
         model = BERTEmotionClassifier(num_emotions=28)
+        model.eval()  # Set to evaluation mode to disable dropout
 
         # Test input
         input_ids = torch.randint(0, 1000, (2, 10))
         attention_mask = torch.ones(2, 10)
 
+        # Call the model - this should work now since we properly mocked the BERT instance
         output = model(input_ids, attention_mask)
 
         assert output.shape == (2, 28)
@@ -66,19 +76,35 @@ class TestBertEmotionClassifier:
         """Test emotion prediction with threshold."""
         # Mock model output
         with patch.object(BERTEmotionClassifier, "forward") as mock_forward:
-            mock_forward.return_value = torch.tensor([[0.1, 0.8, 0.2, 0.9]])
+            # Mock the forward method to return a proper output structure
+            mock_output = {
+                "logits": torch.tensor([[0.1, 0.8, 0.2, 0.9]]),
+                "probabilities": torch.tensor([[0.1, 0.8, 0.2, 0.9]]),
+                "calibrated_logits": torch.tensor([[0.1, 0.8, 0.2, 0.9]]),
+            }
+            mock_forward.return_value = mock_output
 
             model = BERTEmotionClassifier(num_emotions=4)
             model.eval()
 
             # Mock tokenizer
-            with patch("transformers.AutoTokenizer.from_pretrained"):
+            with patch("transformers.AutoTokenizer.from_pretrained") as mock_tokenizer:
+                # Mock the tokenizer to return proper tensors
+                mock_tokenizer_instance = MagicMock()
+                mock_tokenizer_instance.return_value = {
+                    "input_ids": torch.tensor([[101, 102, 103, 102]]),
+                    "attention_mask": torch.tensor([[1, 1, 1, 1]]),
+                }
+                mock_tokenizer.return_value = mock_tokenizer_instance
+
                 predicted = model.predict_emotions("test text", threshold=0.5)
 
                 # Should predict indices 1 and 3 (values 0.8 and 0.9)
-                assert len(predicted) == 2
-                assert 1 in predicted
-                assert 3 in predicted
+                assert len(predicted["predicted_emotions"]) == 2
+                assert "joy" in predicted["predicted_emotions"]  # Assuming index 1 maps to joy
+                assert (
+                    "gratitude" in predicted["predicted_emotions"]
+                )  # Assuming index 3 maps to gratitude
 
     def test_device_compatibility(self):
         """Test model works on both CPU and GPU (if available)."""
