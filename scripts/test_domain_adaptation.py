@@ -168,8 +168,7 @@ def predict_emotions(
             ).to(device)
 
             # Predict
-            outputs = model(encoding["input_ids"], encoding["attention_mask"])
-            logits = outputs["logits"]
+            logits = model(encoding["input_ids"], encoding["attention_mask"])
             probabilities = torch.sigmoid(logits).cpu().numpy()[0]
 
             # Apply threshold and get predicted emotions
