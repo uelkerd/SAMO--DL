@@ -71,7 +71,12 @@ class BERTEmotionClassifier(nn.Module):
 
         self.model_name = model_name
         self.num_emotions = num_emotions
+        self.hidden_dropout_prob = hidden_dropout_prob
+        self.classifier_dropout_prob = classifier_dropout_prob
         self.freeze_bert_layers = freeze_bert_layers
+
+        # Initialize device attribute
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # Load BERT configuration and modify for our task
         config = AutoConfig.from_pretrained(model_name)
@@ -240,7 +245,7 @@ class BERTEmotionClassifier(nn.Module):
 
         with torch.no_grad():
             outputs = self.forward(input_ids, attention_mask)
-            probabilities = torch.sigmoid(outputs).cpu().numpy()
+            probabilities = outputs["probabilities"].cpu().numpy()
 
         # Handle batch dimension
         if probabilities.ndim == 2:

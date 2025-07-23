@@ -8,7 +8,9 @@ from .models import JournalEntry
 from .prisma_client import PrismaClient
 
 
-def load_entries_from_db(limit: Optional[int] = None, user_id: Optional[int] = None) -> pd.DataFrame:
+def load_entries_from_db(
+    limit: Optional[int] = None, user_id: Optional[int] = None
+) -> pd.DataFrame:
     """Load journal entries from database.
 
     Args:
@@ -45,7 +47,9 @@ def load_entries_from_db(limit: Optional[int] = None, user_id: Optional[int] = N
     return pd.DataFrame(data)
 
 
-def load_entries_from_prisma(limit: Optional[int] = None, user_id: Optional[str] = None) -> pd.DataFrame:
+def load_entries_from_prisma(
+    limit: Optional[int] = None, user_id: Optional[str] = None
+) -> pd.DataFrame:
     """Load journal entries using Prisma client.
 
     Args:
@@ -62,7 +66,9 @@ def load_entries_from_prisma(limit: Optional[int] = None, user_id: Optional[str]
     if user_id is not None:
         filters["user_id"] = user_id
 
-    entries = prisma.get_journal_entries_by_user(user_id=user_id, limit=limit or 10) if user_id else []
+    entries = (
+        prisma.get_journal_entries_by_user(user_id=user_id, limit=limit or 10) if user_id else []
+    )
 
     return pd.DataFrame(entries)
 
