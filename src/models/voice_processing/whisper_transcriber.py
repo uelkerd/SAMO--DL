@@ -22,6 +22,7 @@ import time
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, Optional, Union
 
 import numpy as np
 import torch
@@ -42,21 +43,21 @@ class TranscriptionConfig:
     """Configuration for Whisper transcription."""
 
     model_size: str = "base"  # tiny, base, small, medium, large
-    language: str | None = None  # Auto-detect if None
+    language: Optional[str] = None  # Auto-detect if None
     task: str = "transcribe"  # transcribe or translate
-    temperature: float = 0.0  # Deterministic output
-    beam_size: int | None = None  # Beam search size
-    best_of: int | None = None  # Number of candidates
-    patience: float | None = None  # Patience for beam search
-    length_penalty: float | None = None  # Length penalty
+    temperature: float = 0.0  # Sampling temperature
+    beam_size: Optional[int] = None  # Beam search size
+    best_of: Optional[int] = None  # Number of candidates
+    patience: Optional[float] = None  # Patience for beam search
+    length_penalty: Optional[float] = None  # Length penalty
     suppress_tokens: str = "-1"  # Tokens to suppress
-    initial_prompt: str | None = None  # Context prompt
-    condition_on_previous_text: bool = True  # Use previous context
-    fp16: bool = True  # Use half precision
-    compression_ratio_threshold: float = 2.4  # Quality threshold
-    logprob_threshold: float = -1.0  # Confidence threshold
-    no_speech_threshold: float = 0.6  # No speech detection
-    device: str | None = None  # Auto-detect if None
+    initial_prompt: Optional[str] = None  # Context prompt
+    condition_on_previous_text: bool = True
+    fp16: bool = True
+    compression_ratio_threshold: float = 2.4
+    logprob_threshold: float = -1.0
+    no_speech_threshold: float = 0.6
+    device: Optional[str] = None  # Auto-detect if None
 
 
 @dataclass
@@ -121,8 +122,8 @@ class AudioPreprocessor:
 
     @staticmethod
     def preprocess_audio(
-        audio_path: str | Path, output_path: str | Path | None = None
-    ) -> tuple[str, dict]:
+        audio_path: Union[str, Path], output_path: Optional[Union[str, Path]] = None
+    ) -> dict[str, Any]:
         """Preprocess audio for optimal Whisper performance.
 
         Args:
@@ -194,7 +195,9 @@ class AudioPreprocessor:
 class WhisperTranscriber:
     """OpenAI Whisper transcriber for journal voice processing."""
 
-    def __init__(self, config: TranscriptionConfig = None, model_size: str | None = None) -> None:
+    def __init__(
+        self, config: Optional[TranscriptionConfig] = None, model_size: Optional[str] = None
+    ) -> None:
         """Initialize Whisper transcriber.
 
         Args:
@@ -231,8 +234,11 @@ class WhisperTranscriber:
         # Initialize preprocessor
         self.preprocessor = AudioPreprocessor()
 
-    def transcribe_audio(
-        self, audio_path: str | Path, language: str | None = None, initial_prompt: str | None = None
+    def transcribe(
+        self,
+        audio_path: Union[str, Path],
+        language: Optional[str] = None,
+        initial_prompt: Optional[str] = None,
     ) -> TranscriptionResult:
         """Transcribe audio file to text.
 
@@ -323,9 +329,9 @@ class WhisperTranscriber:
 
     def transcribe_batch(
         self,
-        audio_paths: list[str | Path],
-        language: str | None = None,
-        initial_prompt: str | None = None,
+        audio_paths: list[Union[str, Path]],
+        language: Optional[str] = None,
+        initial_prompt: Optional[str] = None,
     ) -> list[TranscriptionResult]:
         """Transcribe multiple audio files.
 
@@ -350,7 +356,7 @@ class WhisperTranscriber:
             )
 
             try:
-                result = self.transcribe_audio(
+                result = self.transcribe(
                     audio_path, language=language, initial_prompt=initial_prompt
                 )
                 results.append(result)
@@ -472,7 +478,7 @@ class WhisperTranscriber:
 
 
 def create_whisper_transcriber(
-    model_size: str = "base", language: str | None = None, device: str | None = None
+    model_size: str = "base", language: Optional[str] = None, device: Optional[str] = None
 ) -> WhisperTranscriber:
     """Create Whisper transcriber with specified configuration.
 
