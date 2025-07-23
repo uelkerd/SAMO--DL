@@ -210,8 +210,8 @@ class GoEmotionsDataLoader:
 
             self.raw_dataset = Dataset.from_dict(combined_data)
 
-                    logger.info(f"Downloaded {len(self.raw_dataset)} examples")
-        logger.info(f"Example: {self.raw_dataset[0]}")
+            logger.info(f"Downloaded {len(self.raw_dataset)} examples")
+            logger.info(f"Example: {self.raw_dataset[0]}")
 
             return self.raw_dataset
 
@@ -267,12 +267,12 @@ class GoEmotionsDataLoader:
         }
 
         # Log key statistics
-                    logger.info(f"Total examples: {total_examples}")
+        logger.info(f"Total examples: {total_examples}")
         logger.info(
             f"Multi-label examples: {multi_label_count} ({stats['multi_label_percentage']:.1f}%)"
         )
-                    logger.info(f"Most frequent emotions: {stats['most_frequent_emotions']}")
-            logger.info(f"Least frequent emotions: {stats['least_frequent_emotions']}")
+        logger.info(f"Most frequent emotions: {stats['most_frequent_emotions']}")
+        logger.info(f"Least frequent emotions: {stats['least_frequent_emotions']}")
 
         return stats
 
