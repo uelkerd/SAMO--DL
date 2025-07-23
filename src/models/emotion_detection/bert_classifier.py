@@ -453,8 +453,9 @@ def evaluate_emotion_classifier(
             targets = batch["labels"].to(device)
 
             # Forward pass
-            outputs = model(input_ids, attention_mask)
-            probabilities = outputs["probabilities"]
+            logits = model(input_ids, attention_mask)
+            # Apply sigmoid to get probabilities
+            probabilities = torch.sigmoid(logits)
 
             # Debug: Log probability statistics
             if batch_idx == 0:  # Only log first batch to avoid spam
