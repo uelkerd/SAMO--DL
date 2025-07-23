@@ -143,8 +143,8 @@ jobs:
   lint-and-format:
     executor: python-ml
     steps:
-      - restore_dependencies
       - setup_python_env
+      - restore_dependencies
       - cache_dependencies
       - run_quality_checks
       - store_artifacts:
@@ -154,8 +154,8 @@ jobs:
   unit-tests:
     executor: python-ml
     steps:
-      - restore_dependencies
       - setup_python_env
+      - restore_dependencies
       - cache_dependencies
       - run_unit_tests
 
@@ -164,8 +164,8 @@ jobs:
   security-scan:
     executor: python-ml
     steps:
-      - restore_dependencies
       - setup_python_env
+      - restore_dependencies
       - run_security_scan
       - store_artifacts:
           path: bandit-report.json
@@ -177,8 +177,8 @@ jobs:
   integration-tests:
     executor: python-ml
     steps:
-      - restore_dependencies
       - setup_python_env
+      - restore_dependencies
       - cache_dependencies
       - run:
           name: Integration Tests
@@ -193,8 +193,8 @@ jobs:
   model-validation:
     executor: python-ml
     steps:
-      - restore_dependencies
       - setup_python_env
+      - restore_dependencies
       - cache_dependencies
       - run:
           name: BERT Model Loading Test
@@ -217,8 +217,8 @@ jobs:
   e2e-tests:
     executor: python-ml
     steps:
-      - restore_dependencies
       - setup_python_env
+      - restore_dependencies
       - cache_dependencies
       - run:
           name: End-to-End Tests
@@ -234,8 +234,8 @@ jobs:
   performance-benchmarks:
     executor: python-ml
     steps:
-      - restore_dependencies
       - setup_python_env
+      - restore_dependencies
       - cache_dependencies
       - run:
           name: Model Performance Benchmarks
@@ -269,8 +269,8 @@ jobs:
   gpu-compatibility:
     executor: python-gpu
     steps:
-      - restore_dependencies
       - setup_python_env
+      - restore_dependencies
       - run:
           name: GPU Environment Setup
           command: |
@@ -301,8 +301,8 @@ jobs:
   build-and-deploy:
     executor: python-ml
     steps:
-      - restore_dependencies
       - setup_python_env
+      - restore_dependencies
       - run:
           name: Build Docker Image
           command: |
