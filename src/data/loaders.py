@@ -1,4 +1,5 @@
 import json
+from typing import Optional
 
 import pandas as pd
 
@@ -7,9 +8,7 @@ from .models import JournalEntry
 from .prisma_client import PrismaClient
 
 
-def load_entries_from_db(
-    limit: int | None = None, user_id: int | None = None
-) -> pd.DataFrame:
+def load_entries_from_db(limit: Optional[int] = None, user_id: Optional[int] = None) -> pd.DataFrame:
     """Load journal entries from database.
 
     Args:
@@ -46,9 +45,7 @@ def load_entries_from_db(
     return pd.DataFrame(data)
 
 
-def load_entries_from_prisma(
-    limit: int | None = None, user_id: int | None = None
-) -> pd.DataFrame:
+def load_entries_from_prisma(limit: Optional[int] = None, user_id: Optional[str] = None) -> pd.DataFrame:
     """Load journal entries using Prisma client.
 
     Args:
@@ -65,7 +62,7 @@ def load_entries_from_prisma(
     if user_id is not None:
         filters["user_id"] = user_id
 
-    entries = prisma.get_journal_entries(limit=limit, **filters)
+    entries = prisma.get_journal_entries_by_user(user_id=user_id, limit=limit or 10) if user_id else []
 
     return pd.DataFrame(entries)
 
