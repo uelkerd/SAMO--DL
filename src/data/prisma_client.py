@@ -8,7 +8,7 @@ It's a simple wrapper that allows Python code to execute Prisma commands.
 import json
 import subprocess
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional
 
 
 class PrismaClient:
@@ -153,7 +153,7 @@ main();
         result = self.execute_prisma_command(script)
         return result if result else None
 
-    def get_journal_entries_by_user(self, user_id: str, limit: int = 10) -> list[dict[str, Any]]:
+    def get_journal_entries_by_user(self, user_id: str, limit: int = 10) -> List[Dict[str, Any]]:
         """Get journal entries for a specific user.
 
         Args:
@@ -172,4 +172,11 @@ main();
         }});
         """
 
-        return self.execute_prisma_command(script)
+        result = self.execute_prisma_command(script)
+        # Ensure we return a list, even if the result is a single dict
+        if isinstance(result, list):
+            return result
+        elif isinstance(result, dict):
+            return [result]
+        else:
+            return []
