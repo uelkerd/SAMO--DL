@@ -44,23 +44,19 @@ commands:
     description: "Set up Python environment with dependencies"
     steps:
       - checkout
-      - python/install-packages:
-          pkg-manager: pip
-          pip-dependency-file: pyproject.toml
-          args: "-e ."
       - run:
-          name: Install additional ML dependencies
+          name: Install Python dependencies
           command: |
             python -m pip install --upgrade pip
-            # Install project in editable mode
-            pip install -e .
+            # Install project in editable mode with all dependencies
+            pip install -e ".[test,dev,prod]"
             echo "✅ All dependencies installed via pyproject.toml"
 
   cache_dependencies:
     description: "Cache Python dependencies and model files"
     steps:
       - save_cache:
-          key: deps-v1-{{ .Branch }}-{{ checksum "pyproject.toml" }}-{{ checksum "environment.yml" }}
+          key: deps-v1-{{ .Branch }}-{{ checksum "pyproject.toml" }}
           paths:
             - ~/.cache/pip
             - ~/.cache/huggingface
@@ -71,7 +67,7 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - deps-v1-{{ .Branch }}-{{ checksum "pyproject.toml" }}-{{ checksum "environment.yml" }}
+            - deps-v1-{{ .Branch }}-{{ checksum "pyproject.toml" }}
             - deps-v1-{{ .Branch }}-
             - deps-v1-
 
