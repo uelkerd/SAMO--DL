@@ -27,7 +27,9 @@ class TestBertEmotionClassifier:
         assert model.num_emotions == num_emotions
         assert hasattr(model, "bert")
         assert hasattr(model, "classifier")
-        assert hasattr(model, "dropout")
+        # The model has dropout within the classifier, not as a direct attribute
+        assert hasattr(model.classifier, "0")  # First dropout layer
+        assert hasattr(model.classifier, "3")  # Second dropout layer
 
     def test_model_parameter_count(self):
         """Test model has expected number of parameters."""
@@ -38,7 +40,7 @@ class TestBertEmotionClassifier:
         assert total_params > 100_000_000
         assert total_params < 200_000_000
 
-    @patch("src.models.emotion_detection.bert_classifier.BertModel")
+    @patch("transformers.AutoModel.from_pretrained")
     def test_forward_pass(self, mock_bert):
         """Test model forward pass with mock BERT."""
         # Setup mock
@@ -47,7 +49,7 @@ class TestBertEmotionClassifier:
         mock_bert_output = Mock()
         mock_bert_output.last_hidden_state = torch.randn(2, 10, 768)
         mock_bert_instance.return_value = mock_bert_output
-        mock_bert.from_pretrained.return_value = mock_bert_instance
+        mock_bert.return_value = mock_bert_instance
 
         model = BERTEmotionClassifier(num_emotions=28)
 
@@ -70,7 +72,7 @@ class TestBertEmotionClassifier:
             model.eval()
 
             # Mock tokenizer
-            with patch("src.models.emotion_detection.bert_classifier.BertTokenizer"):
+            with patch("transformers.AutoTokenizer.from_pretrained"):
                 predicted = model.predict_emotions("test text", threshold=0.5)
 
                 # Should predict indices 1 and 3 (values 0.8 and 0.9)
@@ -110,11 +112,11 @@ class TestBertEmotionClassifier:
         from src.models.emotion_detection.bert_classifier import WeightedBCELoss
 
         # Test with sample class weights
-        class_weights = torch.tensor([0.1, 0.5, 1.0, 2.0, 5.0])
+        class_weights = torch.tensor([0.1, 0.5, 1.0, 2.0, 5.0], requires_grad=True)
         criterion = WeightedBCELoss(class_weights)
 
         # Test loss computation
-        predictions = torch.sigmoid(torch.randn(2, 5))
+        predictions = torch.sigmoid(torch.randn(2, 5, requires_grad=True))
         targets = torch.randint(0, 2, (2, 5)).float()
 
         loss = criterion(predictions, targets)
