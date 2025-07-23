@@ -285,8 +285,7 @@ class EmotionDetectionTrainer:
             self.optimizer.zero_grad()
 
             # Forward pass
-            outputs = self.model(input_ids, attention_mask)
-            logits = outputs["logits"]
+            logits = self.model(input_ids, attention_mask)
 
             # Compute loss
             loss = self.loss_fn(logits, labels)
