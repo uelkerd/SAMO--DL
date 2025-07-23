@@ -100,7 +100,7 @@ class EmotionDetectionTrainer:
         else:
             self.device = torch.device(device)
 
-        logger.info("Using device: {self.device}", extra={"format_args": True})
+        logger.info(f"Using device: {self.device}")
 
         # Create output directory
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -246,7 +246,7 @@ class EmotionDetectionTrainer:
         logger.info(
             f"Model initialized with {self.model.count_parameters():,} trainable parameters"
         )
-        logger.info("Total training steps: {total_steps}", extra={"format_args": True})
+        logger.info(f"Total training steps: {total_steps}")
 
     def train_epoch(self, epoch: int) -> dict[str, float]:
         """Train model for one epoch.
@@ -350,7 +350,7 @@ class EmotionDetectionTrainer:
         Returns:
             Dictionary with validation metrics
         """
-        logger.info("Validating model at epoch {epoch}...", extra={"format_args": True})
+        logger.info(f"Validating model at epoch {epoch}...")
 
         # Evaluate on validation set with lower threshold
         val_metrics = evaluate_emotion_classifier(
@@ -369,10 +369,7 @@ class EmotionDetectionTrainer:
             # Save best model if configured
             if self.save_best_only:
                 self.save_checkpoint(epoch, val_metrics, is_best=True)
-                logger.info(
-                    "New best model saved! Macro F1: {current_score:.4f}",
-                    extra={"format_args": True},
-                )
+                logger.info(f"New best model saved! Macro F1: {current_score:.4f}")
         else:
             self.patience_counter += 1
             logger.info(
@@ -415,7 +412,7 @@ class EmotionDetectionTrainer:
             checkpoint_path = self.output_dir / f"checkpoint_epoch_{epoch}.pt"
 
         torch.save(checkpoint, checkpoint_path)
-        logger.info("Checkpoint saved: {checkpoint_path}", extra={"format_args": True})
+        logger.info(f"Checkpoint saved: {checkpoint_path}")
 
     def train(self) -> dict[str, Any]:
         """Complete training pipeline.
