@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from typing import Callable, Optional
 
 from fastapi import FastAPI, Request, Response
-from fastapi.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
 # Default rate limit constants
