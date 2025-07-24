@@ -13,16 +13,16 @@ Arguments:
     --output_model: Path to save ONNX model (default: models/checkpoints/bert_emotion_classifier.onnx)
 """
 
-import os
 import sys
 import argparse
 import logging
 import time
+import importlib.util
 import torch
 from pathlib import Path
 
 # Add src to path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.append(str(Path(__file__).parent.parent.resolve()))
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
 # Configure logging
@@ -129,7 +129,7 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
         logger.info(f"✅ Model converted to ONNX format: {output_path}")
 
         # Check if onnxruntime is available
-        try:
+        if importlib.util.find_spec("onnxruntime") is not None:
             import onnxruntime as ort
 
             # Benchmark ONNX model
@@ -156,7 +156,7 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
             for key, value in metrics.items():
                 logger.info(f"  {key}: {value:.2f}")
 
-        except ImportError:
+        else:
             logger.warning("onnxruntime not found. Skipping ONNX benchmarking.")
             logger.info("To install: pip install onnxruntime")
 

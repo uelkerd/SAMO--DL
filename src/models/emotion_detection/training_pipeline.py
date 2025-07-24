@@ -248,6 +248,30 @@ class EmotionDetectionTrainer:
         )
         logger.info(f"Total training steps: {total_steps}")
 
+    def load_model(self, checkpoint_path: str) -> None:
+        """Load a trained model from checkpoint.
+
+        Args:
+            checkpoint_path: Path to the model checkpoint file
+        """
+        logger.info(f"Loading model from checkpoint: {checkpoint_path}")
+
+        # Load checkpoint
+        checkpoint = torch.load(checkpoint_path, map_location=self.device)
+
+        # Initialize model first if not already done
+        if not hasattr(self, "model"):
+            # We need to prepare data to get class weights
+            datasets = self.prepare_data()
+            class_weights = datasets.get("class_weights")
+            self.initialize_model(class_weights)
+
+        # Load model state
+        self.model.load_state_dict(checkpoint["model_state_dict"])
+        self.model.eval()
+
+        logger.info("✅ Model loaded successfully")
+
     def train_epoch(self, epoch: int) -> dict[str, float]:
         """Train model for one epoch.
 
