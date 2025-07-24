@@ -1,4 +1,3 @@
-# G004: Logging f-strings temporarily allowed for development
 """SAMO Emotion Detection API Demo.
 
 This demo showcases the emotion detection pipeline working with pre-trained
@@ -6,13 +5,19 @@ models and provides a preview of the API interface for Web Dev integration.
 """
 
 import logging
+import time
+import traceback
+from typing import Optional
 
 import torch
 import uvicorn
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI, Header, HTTPException, Request, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field, validator
 from transformers import AutoTokenizer
 
+from ..api_rate_limiter import add_rate_limiting
 from .bert_classifier import create_bert_emotion_classifier
 from .dataset_loader import GOEMOTIONS_EMOTIONS
 
@@ -23,8 +28,32 @@ logger = logging.getLogger(__name__)
 # Create FastAPI app
 app = FastAPI(
     title="SAMO Emotion Detection API",
-    description="AI-powered emotion detection for journal entries",
+    description="""
+    AI-powered emotion detection for journal entries.
+
+    This API uses a BERT-based model fine-tuned on the GoEmotions dataset
+    to detect emotions in text with high accuracy.
+
+    Rate limiting: 100 requests per minute per user.
+    """,
     version="0.1.0",
+)
+
+# Add rate limiting middleware (100 requests/minute per user)
+add_rate_limiting(
+    app,
+    rate_limit=100,
+    window_size=60,
+    excluded_paths=["/health", "/docs", "/redoc", "/openapi.json"],
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, limit to specific origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Global model storage
@@ -35,21 +64,83 @@ tokenizer = None
 class EmotionRequest(BaseModel):
     """Request model for emotion analysis."""
 
-    text: str
-    user_id: str | None = None
-    threshold: float = 0.5
-    top_k: int | None = 5
+    text: str = Field(..., description="Text to analyze", min_length=1, max_length=2000)
+    user_id: Optional[str] = Field(None, description="User ID for tracking")
+    threshold: float = Field(0.5, description="Confidence threshold", ge=0.0, le=1.0)
+    top_k: Optional[int] = Field(5, description="Number of top emotions to return", ge=1, le=28)
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "text": "I'm feeling really excited about my new job and grateful for the opportunity.",
+                "user_id": "user123",
+                "threshold": 0.5,
+                "top_k": 5,
+            }
+        }
+
+    @validator("text")
+    def validate_text(cls, text):
+        """Validate that text is not empty."""
+        if not text or not text.strip():
+            raise ValueError("Text cannot be empty")
+        return text
 
 
 class EmotionResponse(BaseModel):
     """Response model for emotion analysis."""
 
-    primary_emotion: str
-    confidence: float
-    predicted_emotions: list[str]
-    emotion_scores: list[float]
-    all_probabilities: list[float]
-    processing_time_ms: float
+    primary_emotion: str = Field(..., description="Emotion with highest confidence", example="joy")
+    confidence: float = Field(
+        ..., description="Confidence score for primary emotion", ge=0.0, le=1.0, example=0.85
+    )
+    predicted_emotions: list[str] = Field(
+        ..., description="Emotions above threshold", example=["joy", "gratitude", "optimism"]
+    )
+    emotion_scores: list[float] = Field(
+        ..., description="Scores for predicted emotions", example=[0.85, 0.72, 0.64]
+    )
+    all_probabilities: list[float] = Field(
+        ..., description="Probabilities for all emotions", example=[0.85, 0.72, 0.64, 0.0, 0.0]
+    )
+    processing_time_ms: float = Field(
+        ..., description="Processing time in milliseconds", example=42.5
+    )
+
+
+# Custom exception handler
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    """Handle all exceptions with structured response."""
+    logger.error(f"Unhandled exception: {exc}")
+    logger.error(traceback.format_exc())
+
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "error": "internal_server_error",
+            "message": "An unexpected error occurred",
+            "details": str(exc),
+            "path": request.url.path,
+        },
+    )
+
+
+# HTTP exception handler
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """Handle HTTP exceptions with structured response."""
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "error": exc.detail.lower().replace(" ", "_")
+            if isinstance(exc.detail, str)
+            else "http_error",
+            "message": exc.detail,
+            "path": request.url.path,
+        },
+        headers=exc.headers,
+    )
 
 
 @app.on_event("startup")
@@ -73,12 +164,13 @@ async def load_model() -> None:
 
         logger.info("✅ Model loaded successfully!")
 
-    except Exception:
-        logger.error("Failed to load model: {e}", extra={"format_args": True})
+    except Exception as e:
+        logger.error(f"Failed to load model: {e}")
+        logger.error(traceback.format_exc())
         raise
 
 
-@app.get("/")
+@app.get("/", tags=["System"])
 async def root():
     """Root endpoint with API information."""
     return {
@@ -90,144 +182,235 @@ async def root():
             "health": "/health - GET - Health check",
             "emotions": "/emotions - GET - List all supported emotions",
         },
+        "rate_limit": "100 requests per minute per user",
     }
 
 
-@app.get("/health")
+@app.get("/health", tags=["System"])
 async def health_check():
     """Health check endpoint."""
     return {
-        "status": "healthy",
+        "status": "healthy" if model is not None else "degraded",
         "model_loaded": model is not None,
         "tokenizer_loaded": tokenizer is not None,
+        "supported_emotions": len(GOEMOTIONS_EMOTIONS),
     }
 
 
-@app.get("/emotions")
+@app.get("/emotions", tags=["Reference"])
 async def list_emotions():
-    """List all supported emotion categories."""
+    """List all supported emotions."""
     return {
         "emotions": GOEMOTIONS_EMOTIONS,
-        "total_count": len(GOEMOTIONS_EMOTIONS),
+        "count": len(GOEMOTIONS_EMOTIONS),
         "categories": {
             "positive": [
+                "admiration",
+                "amusement",
+                "approval",
+                "caring",
+                "desire",
+                "excitement",
+                "gratitude",
                 "joy",
                 "love",
-                "gratitude",
                 "optimism",
                 "pride",
-                "excitement",
-                "amusement",
-                "admiration",
+                "relief",
             ],
             "negative": [
-                "sadness",
                 "anger",
-                "fear",
-                "disgust",
-                "grief",
-                "disappointment",
                 "annoyance",
-            ],
-            "complex": [
-                "confusion",
-                "curiosity",
-                "embarrassment",
-                "nervousness",
-                "realization",
-                "surprise",
-            ],
-            "social": [
-                "caring",
-                "approval",
+                "disappointment",
                 "disapproval",
-                "desire",
-                "relief",
+                "disgust",
+                "embarrassment",
+                "fear",
+                "grief",
+                "nervousness",
                 "remorse",
+                "sadness",
             ],
+            "ambiguous": ["confusion", "curiosity", "realization", "surprise"],
             "neutral": ["neutral"],
         },
     }
 
 
-@app.post("/analyze", response_model=EmotionResponse)
-async def analyze_emotion(request: EmotionRequest):
-    """Analyze emotion in text using BERT model."""
-    if model is None or tokenizer is None:
-        raise HTTPException(status_code=503, detail="Model not loaded")
+@app.post(
+    "/analyze",
+    response_model=EmotionResponse,
+    tags=["Analysis"],
+    summary="Analyze emotions in text",
+    description="Analyze the emotional content of text using BERT + GoEmotions",
+)
+async def analyze_emotion(
+    request: EmotionRequest,
+    x_api_key: Optional[str] = Header(None, description="API key for authentication"),
+):
+    """Analyze emotions in text.
 
-    if not request.text or len(request.text.strip()) == 0:
-        raise HTTPException(status_code=400, detail="Text cannot be empty")
+    This endpoint detects emotions in the provided text using a BERT model
+    fine-tuned on the GoEmotions dataset.
+
+    Args:
+        request: Emotion analysis request
+        x_api_key: Optional API key for authentication
+
+    Returns:
+        Emotion analysis results with confidence scores
+
+    Raises:
+        HTTPException: If the model is not loaded or if processing fails
+    """
+    if model is None or tokenizer is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Emotion detection model not available",
+        )
+
+    start_time = time.time()
 
     try:
-        import time
-
-        start_time = time.time()
-
-        # Tokenize input text
+        # Prepare input
         inputs = tokenizer(
             request.text,
             return_tensors="pt",
-            padding=True,
             truncation=True,
-            max_length=512,
+            padding=True,
+            max_length=128,
         )
 
-        # Get emotion predictions
+        # Move to same device as model
+        device = next(model.parameters()).device
+        inputs = {k: v.to(device) for k, v in inputs.items()}
+
+        # Run inference
         with torch.no_grad():
-            predictions = model.predict_emotions(
-                **inputs, threshold=request.threshold, top_k=request.top_k
-            )
+            outputs = model(**inputs)
 
-        processing_time = (time.time() - start_time) * 1000
+        # Get probabilities
+        probs = torch.sigmoid(outputs.logits)[0].tolist()
 
-        # Format response
-        response = EmotionResponse(
-            primary_emotion=predictions["primary_emotion"],
-            confidence=predictions["primary_confidence"],
-            predicted_emotions=predictions["predicted_emotions"],
-            emotion_scores=predictions["emotion_scores"],
-            all_probabilities=predictions["all_probabilities"],
-            processing_time_ms=processing_time,
+        # Get top emotions
+        sorted_indices = sorted(range(len(probs)), key=lambda i: probs[i], reverse=True)
+        top_indices = sorted_indices[: request.top_k]
+
+        # Filter by threshold
+        filtered_indices = [i for i in top_indices if probs[i] >= request.threshold]
+
+        # Create response
+        primary_idx = sorted_indices[0]
+        primary_emotion = GOEMOTIONS_EMOTIONS[primary_idx]
+        primary_confidence = probs[primary_idx]
+
+        predicted_emotions = [GOEMOTIONS_EMOTIONS[i] for i in filtered_indices]
+        emotion_scores = [probs[i] for i in filtered_indices]
+
+        processing_time = time.time() - start_time
+
+        return EmotionResponse(
+            primary_emotion=primary_emotion,
+            confidence=primary_confidence,
+            predicted_emotions=predicted_emotions,
+            emotion_scores=emotion_scores,
+            all_probabilities=probs,
+            processing_time_ms=processing_time * 1000,
         )
-
-        logger.info(
-            f"Analyzed text: '{request.text[:50]}...' -> {predictions['primary_emotion']} "
-            f"({predictions['primary_confidence']:.3f}) in {processing_time:.1f}ms"
-        )
-
-        return response
 
     except Exception as e:
-        logger.error("Error analyzing emotion: {e}", extra={"format_args": True})
-        raise HTTPException(status_code=500, detail=f"Analysis failed: {e!s}")
+        logger.error(f"Emotion analysis failed: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Emotion analysis failed: {e}",
+        )
 
 
-@app.post("/analyze/batch")
-async def analyze_emotions_batch(texts: list[str], threshold: float = 0.5):
-    """Analyze emotions for multiple texts."""
+@app.post(
+    "/analyze/batch",
+    tags=["Analysis"],
+    summary="Batch analyze emotions in multiple texts",
+    description="Analyze emotions in multiple texts in a single request",
+)
+async def analyze_emotions_batch(
+    texts: list[str],
+    threshold: float = 0.5,
+    x_api_key: Optional[str] = Header(None, description="API key for authentication"),
+):
+    """Analyze emotions in multiple texts.
+
+    This endpoint efficiently processes multiple texts in a single request.
+
+    Args:
+        texts: List of texts to analyze
+        threshold: Confidence threshold (0.0-1.0)
+        x_api_key: Optional API key for authentication
+
+    Returns:
+        List of emotion analysis results
+
+    Raises:
+        HTTPException: If the model is not loaded or processing fails
+    """
     if model is None or tokenizer is None:
-        raise HTTPException(status_code=503, detail="Model not loaded")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Emotion detection model not available",
+        )
 
-    if not texts or len(texts) == 0:
-        raise HTTPException(status_code=400, detail="Text list cannot be empty")
+    if not texts:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No texts provided for analysis",
+        )
 
+    if len(texts) > 50:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Maximum batch size is 50 texts",
+        )
+
+    start_time = time.time()
     results = []
 
-    for text in texts:
-        if text and len(text.strip()) > 0:
+    try:
+        # Process each text individually
+        # In a production system, we would batch these for efficiency
+        for text in texts:
             request = EmotionRequest(text=text, threshold=threshold)
-            result = await analyze_emotion(request)
-            results.append({"text": text, "analysis": result})
+            result = await analyze_emotion(request, x_api_key=x_api_key)
+            results.append(result)
 
-    return {"results": results, "total_analyzed": len(results)}
+        processing_time = time.time() - start_time
+
+        return {
+            "results": results,
+            "count": len(results),
+            "batch_processing_time_ms": processing_time * 1000,
+            "average_processing_time_ms": (processing_time * 1000) / len(texts) if texts else 0,
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.error(f"Batch emotion analysis failed: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Batch analysis failed: {e}",
+        )
 
 
 if __name__ == "__main__":
-    # Run the API server
+    import uvicorn
+
+    logger.info("🚀 Starting SAMO Emotion Detection API...")
     uvicorn.run(
-        app,
+        "api_demo:app",
         host="127.0.0.1",  # Changed from 0.0.0.0 for security
-        port=8000,
+        port=8001,
+        reload=True,
         log_level="info",
     )
