@@ -136,6 +136,11 @@ commands:
     description: "Run unit tests with coverage"
     steps:
       - run:
+          name: API Rate Limiter Tests
+          command: |
+            echo "🧪 Running API Rate Limiter Tests..."
+            python scripts/run_api_rate_limiter_tests.py
+      - run:
           name: Unit Tests
           command: |
             echo "🧪 Running unit tests..."

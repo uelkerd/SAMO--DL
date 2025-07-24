@@ -16,7 +16,6 @@ Arguments:
     --output_model: Path to save improved model (default: models/checkpoints/bert_emotion_classifier_improved.pt)
 """
 
-import os
 import sys
 import argparse
 import logging
@@ -28,7 +27,7 @@ from typing import Optional
 from sklearn.metrics import f1_score
 
 # Add src to path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.append(str(Path(__file__).parent.parent.resolve()))
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
@@ -270,8 +269,8 @@ def improve_with_data_augmentation() -> bool:
                     # Create one-hot encoded labels
                     num_labels = 28  # GoEmotions has 28 emotions
                     one_hot_labels = torch.zeros(num_labels)
-                    for l in label:
-                        one_hot_labels[l] = 1.0
+                    for label_idx in label:
+                        one_hot_labels[label_idx] = 1.0
 
                     return {
                         "input_ids": encoding["input_ids"].squeeze(),
@@ -492,8 +491,8 @@ def improve_with_ensemble() -> bool:
                 # Create one-hot encoded labels
                 num_labels = 28  # GoEmotions has 28 emotions
                 one_hot_labels = torch.zeros(num_labels)
-                for l in label:
-                    one_hot_labels[l] = 1.0
+                for label_idx in label:
+                    one_hot_labels[label_idx] = 1.0
 
                 return {
                     "input_ids": encoding["input_ids"].squeeze(),
