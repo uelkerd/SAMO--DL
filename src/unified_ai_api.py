@@ -15,16 +15,22 @@ Key Features:
 - Cross-model data flow optimization
 - Production-ready performance monitoring
 - Comprehensive error handling and validation
+- API rate limiting (100 requests/minute per user)
 """
 
 import logging
 import time
+import traceback
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, AsyncGenerator
+from typing import Any, AsyncGenerator, Optional
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+
+from .api_rate_limiter import add_rate_limiting
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -56,11 +62,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
             emotion_detector, _ = create_bert_emotion_classifier()
             logger.info("✅ Emotion detection model loaded")
-        except Exception:
-            logger.warning(
-                "⚠️  Emotion detection model not available: {e}",
-                extra={"format_args": True},
-            )
+        except Exception as e:
+            logger.warning(f"⚠️  Emotion detection model not available: {e}")
 
         # Load Text Summarization Model
         logger.info("Loading text summarization model...")
@@ -69,11 +72,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
             text_summarizer = create_t5_summarizer("t5-small")
             logger.info("✅ Text summarization model loaded")
-        except Exception:
-            logger.warning(
-                "⚠️  Text summarization model not available: {e}",
-                extra={"format_args": True},
-            )
+        except Exception as e:
+            logger.warning(f"⚠️  Text summarization model not available: {e}")
 
         # Load Voice Processing Model
         logger.info("Loading voice processing model...")
@@ -84,20 +84,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
             voice_transcriber = create_whisper_transcriber("base")
             logger.info("✅ Voice processing model loaded")
-        except Exception:
-            logger.warning(
-                "⚠️  Voice processing model not available: {e}",
-                extra={"format_args": True},
-            )
+        except Exception as e:
+            logger.warning(f"⚠️  Voice processing model not available: {e}")
 
-        time.time() - start_time
-        logger.info(
-            "🎯 SAMO AI Pipeline loaded in {load_time:.2f}s",
-            extra={"format_args": True},
-        )
+        load_time = time.time() - start_time
+        logger.info(f"🎯 SAMO AI Pipeline loaded in {load_time:.2f}s")
 
-    except Exception:
-        logger.error("❌ Failed to load AI pipeline: {e}", extra={"format_args": True})
+    except Exception as e:
+        logger.error(f"❌ Failed to load AI pipeline: {e}")
         # Continue in degraded mode
 
     yield  # App runs here
@@ -112,60 +106,177 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 # Initialize FastAPI with lifecycle management
 app = FastAPI(
     title="SAMO Unified AI API",
-    description="Complete AI pipeline for voice-first emotional journaling",
+    description="""
+    Complete AI pipeline for voice-first emotional journaling.
+
+    This API provides a unified interface to all SAMO AI capabilities:
+    - Voice-to-text transcription (OpenAI Whisper)
+    - Emotion detection (BERT + GoEmotions)
+    - Text summarization (T5/BART)
+
+    Rate limiting: 100 requests per minute per user.
+    """,
     version="1.0.0",
     lifespan=lifespan,
 )
+
+# Add rate limiting middleware (100 requests/minute per user)
+add_rate_limiting(
+    app,
+    rate_limit=100,
+    window_size=60,
+    excluded_paths=["/health", "/docs", "/redoc", "/openapi.json"],
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, limit to specific origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# Custom exception handler for all exceptions
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    """Handle all exceptions with structured response."""
+    logger.error(f"Unhandled exception: {exc}")
+    logger.error(traceback.format_exc())
+
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "error": "internal_server_error",
+            "message": "An unexpected error occurred",
+            "details": str(exc),
+            "path": request.url.path,
+        },
+    )
+
+
+# HTTP exception handler
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """Handle HTTP exceptions with structured response."""
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "error": exc.detail.lower().replace(" ", "_")
+            if isinstance(exc.detail, str)
+            else "http_error",
+            "message": exc.detail,
+            "path": request.url.path,
+        },
+        headers=exc.headers,
+    )
 
 
 # Unified Response Models
 class EmotionAnalysis(BaseModel):
     """Emotion analysis results."""
 
-    emotions: dict[str, float] = Field(..., description="Emotion probabilities")
-    primary_emotion: str = Field(..., description="Most confident emotion")
-    confidence: float = Field(..., description="Primary emotion confidence")
-    emotional_intensity: str = Field(..., description="Intensity level: low, medium, high")
+    emotions: dict[str, float] = Field(
+        ..., description="Emotion probabilities", example={"joy": 0.75, "gratitude": 0.65}
+    )
+    primary_emotion: str = Field(..., description="Most confident emotion", example="joy")
+    confidence: float = Field(
+        ..., description="Primary emotion confidence", ge=0, le=1, example=0.75
+    )
+    emotional_intensity: str = Field(
+        ..., description="Intensity level: low, medium, high", example="high"
+    )
 
 
 class TextSummary(BaseModel):
     """Text summarization results."""
 
-    summary: str = Field(..., description="Generated summary")
-    key_emotions: list[str] = Field(..., description="Key emotions identified")
-    compression_ratio: float = Field(..., description="Text compression ratio")
-    emotional_tone: str = Field(..., description="Overall emotional tone")
+    summary: str = Field(
+        ...,
+        description="Generated summary",
+        example="User expressed joy about their recent promotion and gratitude toward their supportive team.",
+    )
+    key_emotions: list[str] = Field(
+        ..., description="Key emotions identified", example=["joy", "gratitude"]
+    )
+    compression_ratio: float = Field(
+        ..., description="Text compression ratio", ge=0, le=1, example=0.85
+    )
+    emotional_tone: str = Field(..., description="Overall emotional tone", example="positive")
 
 
 class VoiceTranscription(BaseModel):
     """Voice transcription results."""
 
-    text: str = Field(..., description="Transcribed text")
-    language: str = Field(..., description="Detected language")
-    confidence: float = Field(..., description="Transcription confidence")
-    duration: float = Field(..., description="Audio duration in seconds")
-    word_count: int = Field(..., description="Number of words")
-    speaking_rate: float = Field(..., description="Words per minute")
-    audio_quality: str = Field(..., description="Audio quality assessment")
+    text: str = Field(
+        ...,
+        description="Transcribed text",
+        example="Today I received a promotion at work and I'm really excited about it.",
+    )
+    language: str = Field(..., description="Detected language", example="en")
+    confidence: float = Field(..., description="Transcription confidence", ge=0, le=1, example=0.95)
+    duration: float = Field(..., description="Audio duration in seconds", ge=0, example=15.4)
+    word_count: int = Field(..., description="Number of words", ge=0, example=12)
+    speaking_rate: float = Field(..., description="Words per minute", ge=0, example=120.5)
+    audio_quality: str = Field(..., description="Audio quality assessment", example="excellent")
 
 
 class CompleteJournalAnalysis(BaseModel):
     """Complete journal analysis combining all AI models."""
 
-    transcription: VoiceTranscription | None = Field(
+    transcription: Optional[VoiceTranscription] = Field(
         None, description="Voice transcription results"
     )
     emotion_analysis: EmotionAnalysis = Field(..., description="Emotion detection results")
     summary: TextSummary = Field(..., description="Text summarization results")
-    processing_time_ms: float = Field(..., description="Total processing time")
-    pipeline_status: dict[str, bool] = Field(..., description="Status of each AI component")
-    insights: dict = Field(..., description="Cross-model insights and patterns")
+    processing_time_ms: float = Field(
+        ..., description="Total processing time in milliseconds", ge=0, example=450.2
+    )
+    pipeline_status: dict[str, bool] = Field(
+        ...,
+        description="Status of each AI component",
+        example={"emotion_detection": True, "text_summarization": True, "voice_processing": False},
+    )
+    insights: dict[str, Any] = Field(
+        ...,
+        description="Cross-model insights and patterns",
+        example={"emotional_coherence": "High", "word_count": 54},
+    )
+
+
+# Request Models
+class JournalEntryRequest(BaseModel):
+    """Request model for journal entry analysis."""
+
+    text: str = Field(
+        ...,
+        description="Journal text to analyze",
+        min_length=5,
+        max_length=5000,
+        example="Today I received a promotion at work and I'm really excited about it.",
+    )
+    generate_summary: bool = Field(True, description="Whether to generate a summary")
+    emotion_threshold: float = Field(0.1, description="Threshold for emotion detection", ge=0, le=1)
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "text": "Today I received a promotion at work and I'm really excited about it. My team has been incredibly supportive throughout the project.",
+                "generate_summary": True,
+                "emotion_threshold": 0.1,
+            }
+        }
 
 
 # Unified API Endpoints
-@app.get("/health")
+@app.get("/health", tags=["System"])
 async def health_check() -> dict[str, Any]:
-    """Comprehensive health check for all AI components."""
+    """Comprehensive health check for all AI components.
+
+    Returns:
+        Status information for each AI component and overall system health
+    """
     status = {
         "status": "healthy",
         "components": {
@@ -183,22 +294,39 @@ async def health_check() -> dict[str, Any]:
     return status
 
 
-@app.post("/analyze/journal", response_model=CompleteJournalAnalysis)
+@app.post(
+    "/analyze/journal",
+    response_model=CompleteJournalAnalysis,
+    tags=["Analysis"],
+    summary="Analyze text journal entry",
+    description="Analyze a text journal entry with emotion detection and summarization",
+    response_description="Complete analysis results including emotion detection and text summarization",
+)
 async def analyze_journal_entry(
-    text: str = Form(...),
-    generate_summary: bool = Form(True),
-    emotion_threshold: float = Form(0.1),
+    request: JournalEntryRequest,
+    x_api_key: Optional[str] = Header(None, description="API key for authentication"),
 ):
     """Analyze a text journal entry with emotion detection and summarization.
 
     This endpoint processes written journal entries through the complete
     AI pipeline to provide emotional insights and intelligent summaries.
+
+    Args:
+        request: Journal entry analysis request
+        x_api_key: Optional API key for authentication
+
+    Returns:
+        Complete analysis results including emotion detection and text summarization
     """
     start_time = time.time()
     pipeline_status = {}
     insights = {}
 
     try:
+        text = request.text
+        generate_summary = request.generate_summary
+        emotion_threshold = request.emotion_threshold
+
         # Emotion Analysis
         emotion_analysis = None
         if emotion_detector:
@@ -217,8 +345,8 @@ async def analyze_journal_entry(
                     emotional_intensity="high",
                 )
                 insights["emotional_profile"] = "Predominantly positive with high confidence"
-            except Exception:
-                logger.error("Emotion detection failed: {e}", extra={"format_args": True})
+            except Exception as e:
+                logger.error(f"Emotion detection failed: {e}")
                 pipeline_status["emotion_detection"] = False
                 # Fallback emotion analysis
                 emotion_analysis = EmotionAnalysis(
@@ -260,8 +388,8 @@ async def analyze_journal_entry(
 
                 insights["summary_quality"] = "Generated with emotional context preservation"
 
-            except Exception:
-                logger.error("Text summarization failed: {e}", extra={"format_args": True})
+            except Exception as e:
+                logger.error(f"Text summarization failed: {e}")
                 pipeline_status["text_summarization"] = False
                 # Fallback summary
                 text_summary = TextSummary(
@@ -301,16 +429,27 @@ async def analyze_journal_entry(
         )
 
     except Exception as e:
-        logger.error("Journal analysis failed: {e}", extra={"format_args": True})
+        logger.error(f"Journal analysis failed: {e}")
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"Analysis failed: {e!s}") from e
 
 
-@app.post("/analyze/voice-journal", response_model=CompleteJournalAnalysis)
+@app.post(
+    "/analyze/voice-journal",
+    response_model=CompleteJournalAnalysis,
+    tags=["Analysis"],
+    summary="Analyze voice journal entry",
+    description="Complete voice journal analysis pipeline with transcription, emotion detection, and summarization",
+    response_description="Complete analysis results including transcription, emotion detection, and text summarization",
+)
 async def analyze_voice_journal(
-    audio_file: UploadFile = File(...),
-    language: str | None = Form(None),
-    generate_summary: bool = Form(True),
-    emotion_threshold: float = Form(0.1),
+    audio_file: UploadFile = File(..., description="Audio file to transcribe and analyze"),
+    language: Optional[str] = Form(
+        None, description="Language code for transcription (auto-detect if not provided)"
+    ),
+    generate_summary: bool = Form(True, description="Whether to generate a summary"),
+    emotion_threshold: float = Form(0.1, description="Threshold for emotion detection", ge=0, le=1),
+    x_api_key: Optional[str] = Header(None, description="API key for authentication"),
 ) -> CompleteJournalAnalysis:
     """Complete voice journal analysis pipeline.
 
@@ -320,6 +459,16 @@ async def analyze_voice_journal(
     3. Text summarization (T5/BART)
 
     This is the core endpoint for SAMO's voice-first journaling experience.
+
+    Args:
+        audio_file: Audio file to transcribe and analyze
+        language: Optional language code for transcription
+        generate_summary: Whether to generate a summary
+        emotion_threshold: Threshold for emotion detection
+        x_api_key: Optional API key for authentication
+
+    Returns:
+        Complete analysis results including transcription, emotion detection, and text summarization
     """
     start_time = time.time()
     pipeline_status = {}
@@ -366,8 +515,9 @@ async def analyze_voice_journal(
                 # Cleanup
                 Path(temp_file.name).unlink()
 
-            except Exception:
-                logger.error("Voice transcription failed: {e}", extra={"format_args": True})
+            except Exception as e:
+                logger.error(f"Voice transcription failed: {e}")
+                logger.error(traceback.format_exc())
                 pipeline_status["voice_processing"] = False
                 transcription = VoiceTranscription(
                     text="Transcription not available",
@@ -395,11 +545,17 @@ async def analyze_voice_journal(
         # Steps 2 & 3: Continue with text analysis using transcribed text
         # (This would call the text analysis pipeline with transcribed_text)
         if transcribed_text and len(transcribed_text.strip()) > 10:
-            # Delegate to text analysis
-            text_analysis = await analyze_journal_entry(
+            # Create a JournalEntryRequest for the text analysis
+            journal_request = JournalEntryRequest(
                 text=transcribed_text,
                 generate_summary=generate_summary,
                 emotion_threshold=emotion_threshold,
+            )
+
+            # Delegate to text analysis
+            text_analysis = await analyze_journal_entry(
+                request=journal_request,
+                x_api_key=x_api_key,
             )
 
             # Combine results
@@ -445,13 +601,23 @@ async def analyze_voice_journal(
             )
 
     except Exception as e:
-        logger.error("Voice journal analysis failed: {e}", extra={"format_args": True})
+        logger.error(f"Voice journal analysis failed: {e}")
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"Voice analysis failed: {e!s}") from e
 
 
-@app.get("/models/status")
+@app.get(
+    "/models/status",
+    tags=["System"],
+    summary="Get models status",
+    description="Get detailed status information about all AI models in the pipeline",
+)
 async def get_models_status() -> dict[str, Any]:
-    """Get detailed status of all AI models in the pipeline."""
+    """Get detailed status of all AI models in the pipeline.
+
+    Returns:
+        Detailed status information about each model, including capabilities
+    """
     return {
         "emotion_detection": {
             "loaded": emotion_detector is not None,
@@ -485,13 +651,23 @@ async def get_models_status() -> dict[str, Any]:
             "Cross-model emotional coherence",
             "Production-ready performance monitoring",
             "Graceful degradation and error handling",
+            "API rate limiting (100 requests/minute per user)",
         ],
     }
 
 
-@app.get("/")
+@app.get(
+    "/",
+    tags=["System"],
+    summary="API information",
+    description="Get information about the API endpoints and capabilities",
+)
 async def root() -> dict[str, Any]:
-    """API root with welcome message."""
+    """API root with welcome message.
+
+    Returns:
+        Information about the API endpoints and capabilities
+    """
     return {
         "message": "Welcome to SAMO Unified AI API",
         "version": "1.0.0",
@@ -508,6 +684,7 @@ async def root() -> dict[str, Any]:
             "Intelligent text summarization",
             "Cross-model insights and analysis",
         ],
+        "rate_limit": "100 requests/minute per user",
     }
 
 
