@@ -57,6 +57,7 @@ class BERTEmotionClassifier(nn.Module):
         hidden_dropout_prob: float = 0.3,
         classifier_dropout_prob: float = 0.5,
         freeze_bert_layers: int = 0,
+        temperature: float = 1.0,  # Temperature scaling for calibration
     ) -> None:
         """Initialize BERT emotion classifier.
 
@@ -66,6 +67,7 @@ class BERTEmotionClassifier(nn.Module):
             hidden_dropout_prob: Dropout rate for BERT hidden layers
             classifier_dropout_prob: Dropout rate for classification head
             freeze_bert_layers: Number of BERT layers to freeze initially
+            temperature: Temperature scaling parameter for probability calibration
         """
         super().__init__()
 
@@ -74,6 +76,8 @@ class BERTEmotionClassifier(nn.Module):
         self.hidden_dropout_prob = hidden_dropout_prob
         self.classifier_dropout_prob = classifier_dropout_prob
         self.freeze_bert_layers = freeze_bert_layers
+        self.temperature = temperature
+        self.prediction_threshold = 0.6  # Updated from 0.5 to 0.6 based on calibration
 
         # Initialize device attribute
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -193,12 +197,30 @@ class BERTEmotionClassifier(nn.Module):
         # Classification head
         logits = self.classifier(pooled_output)
 
-        # For internal use, we'll store these as attributes
-        self._calibrated_logits = logits / self.temperature
-        self._probabilities = torch.sigmoid(self._calibrated_logits)
+        # Apply temperature scaling for calibration
+        calibrated_logits = logits / self.temperature
 
-        # Return logits directly for compatibility with tests
-        return logits
+        # For internal use, we'll store these as attributes
+        self._calibrated_logits = calibrated_logits
+        self._probabilities = torch.sigmoid(calibrated_logits)
+
+        # Return calibrated logits for evaluation
+        return calibrated_logits
+
+    def set_temperature(self, temperature: float) -> None:
+        """Update temperature parameter for calibration.
+
+        Args:
+            temperature: New temperature value (>0). Higher values = lower confidence.
+        """
+        if temperature <= 0:
+            raise ValueError("Temperature must be positive")
+
+        # Correctly update the parameter's value in-place
+        with torch.no_grad():
+            self.temperature.fill_(temperature)
+
+        logger.info(f"Updated temperature to {temperature}")
 
     def predict_emotions(
         self,
