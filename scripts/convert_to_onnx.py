@@ -130,8 +130,6 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
 
         # Check if onnxruntime is available
         if importlib.util.find_spec("onnxruntime") is not None:
-            import onnxruntime as ort
-
             # Benchmark ONNX model
             logger.info("Benchmarking ONNX model...")
             onnx_inference_time = benchmark_onnx_inference(
