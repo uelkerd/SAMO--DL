@@ -518,7 +518,7 @@ The unified pipeline successfully integrated all three models with reasonable pe
 
 **Hypothesis**: RoBERTa's improved pre-training would provide better emotion detection.
 
-**Results**: 
+**Results**:
 - Micro F1: 0.71 (vs. 0.72 for BERT)
 - Training Time: 1.4x longer than BERT
 - Model Size: 1.2x larger than BERT
@@ -651,4 +651,4 @@ This research log is a living document that should be updated as new experiments
 4. Extract key insights and lessons learned
 5. Update recommendations as appropriate
 
-Last updated: July 25, 2025 
+Last updated: July 25, 2025

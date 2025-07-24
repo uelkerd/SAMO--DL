@@ -8,6 +8,7 @@ model by evaluating its performance on the validation set across a range of valu
 
 import sys
 from pathlib import Path
+
 sys.path.append(str(Path.cwd() / "src"))
 
 import torch
@@ -17,11 +18,9 @@ from transformers import AutoTokenizer
 from torch.utils.data import DataLoader
 from sklearn.metrics import f1_score
 
-from models.emotion_detection.bert_classifier import (
-    create_bert_emotion_classifier,
-    EmotionDataset
-)
+from models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
 from models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+
 
 def calibrate_model():
     """Find the best temperature and threshold for the model."""
@@ -36,9 +35,11 @@ def calibrate_model():
         print("❌ Model checkpoint not found!")
         return
 
-    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False) # Set to False
+    checkpoint = torch.load(
+        checkpoint_path, map_location=device, weights_only=False
+    )  # Set to False
     model, _ = create_bert_emotion_classifier()
-    model.load_state_dict(checkpoint['model_state_dict'])
+    model.load_state_dict(checkpoint["model_state_dict"])
     model.to(device)
     model.eval()
     print("✅ Model loaded successfully.")
@@ -48,12 +49,12 @@ def calibrate_model():
     data_loader = GoEmotionsDataLoader()
     datasets = data_loader.prepare_datasets()
     tokenizer = AutoTokenizer.from_pretrained(model.model_name)
-    
+
     val_dataset = EmotionDataset(
         texts=datasets["validation"]["text"],
         labels=datasets["validation"]["labels"],
         tokenizer=tokenizer,
-        max_length=128 # Use a reasonable max length
+        max_length=128,  # Use a reasonable max length
     )
     val_dataloader = DataLoader(val_dataset, batch_size=64)
     print(f"✅ Loaded {len(val_dataset)} validation samples.")
@@ -70,19 +71,19 @@ def calibrate_model():
     print("\n🌡️ Starting calibration search...")
     for temp in temperatures:
         model.set_temperature(temp)
-        
+
         all_probs = []
         all_labels = []
-        
+
         with torch.no_grad():
             for batch in tqdm(val_dataloader, desc=f"Temp: {temp:.1f}", leave=False):
-                input_ids = batch['input_ids'].to(device)
-                attention_mask = batch['attention_mask'].to(device)
-                labels = batch['labels'].to(device)
-                
+                input_ids = batch["input_ids"].to(device)
+                attention_mask = batch["attention_mask"].to(device)
+                labels = batch["labels"].to(device)
+
                 logits = model(input_ids, attention_mask)
                 probabilities = torch.sigmoid(logits)
-                
+
                 all_probs.append(probabilities.cpu())
                 all_labels.append(labels.cpu())
 
@@ -92,9 +93,9 @@ def calibrate_model():
         for thresh in thresholds:
             predictions = (all_probs > thresh).astype(int)
             micro_f1 = f1_score(all_labels, predictions, average="micro", zero_division=0)
-            
+
             results.append((temp, thresh, micro_f1))
-            
+
             if micro_f1 > best_f1:
                 best_f1 = micro_f1
                 best_temp = temp
@@ -102,16 +103,17 @@ def calibrate_model():
 
     # --- Report Results ---
     print("\n🎉 Calibration Complete!")
-    print("="*50)
+    print("=" * 50)
     print(f"🏆 Best Micro F1 Score: {best_f1:.4f}")
     print(f"🔥 Best Temperature:     {best_temp:.2f}")
     print(f"🎯 Best Threshold:       {best_thresh:.2f}")
-    print("="*50)
-    
+    print("=" * 50)
+
     print("\nTop 5 Results:")
     sorted_results = sorted(results, key=lambda x: x[2], reverse=True)
     for i, (temp, thresh, f1) in enumerate(sorted_results[:5]):
         print(f" {i+1}. Temp: {temp:.2f}, Thresh: {thresh:.2f}, F1: {f1:.4f}")
 
+
 if __name__ == "__main__":
-    calibrate_model() 
+    calibrate_model()
