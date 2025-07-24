@@ -73,4 +73,4 @@ git push
 - New commit should appear in git log
 - `git push` should show "Counting objects..." not "Everything up-to-date"
 - CircleCI should trigger a new pipeline run
-- Unit tests should pass 
+- Unit tests should pass

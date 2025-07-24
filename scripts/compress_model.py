@@ -13,7 +13,6 @@ Arguments:
     --output_model: Path to save compressed model (default: models/checkpoints/bert_emotion_classifier_quantized.pt)
 """
 
-import os
 import sys
 import argparse
 import logging
@@ -23,7 +22,7 @@ import torch.quantization
 from pathlib import Path
 
 # Add src to path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.append(str(Path(__file__).parent.parent.resolve()))
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
 # Configure logging
@@ -161,9 +160,10 @@ def get_model_size(model: torch.nn.Module) -> float:
     Returns:
         float: Model size in MB
     """
-    torch.save(model.state_dict(), "temp_model.pt")
-    size_bytes = os.path.getsize("temp_model.pt")
-    os.remove("temp_model.pt")
+    temp_file = Path("temp_model.pt")
+    torch.save(model.state_dict(), temp_file)
+    size_bytes = temp_file.stat().st_size
+    temp_file.unlink()
     return size_bytes / (1024 * 1024)  # Convert to MB
 
 

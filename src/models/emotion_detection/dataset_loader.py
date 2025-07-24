@@ -15,9 +15,10 @@ import logging
 
 import numpy as np
 import torch
-from datasets import Dataset, load_dataset
-from sklearn.model_selection import train_test_split
+from datasets import load_dataset
 from transformers import AutoTokenizer
+from collections import Counter
+from typing import Any
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -179,97 +180,63 @@ class GoEmotionsDataLoader:
 
         logger.info("Initialized GoEmotions data loader")
 
-    def download_dataset(self) -> Dataset:
-        """Download GoEmotions dataset from Hugging Face.
-
-        Returns:
-            Raw GoEmotions dataset
-        """
-        logger.info("Downloading GoEmotions dataset...")
-
+    def download_dataset(self) -> None:
+        """Download GoEmotions dataset from Hugging Face Hub."""
         try:
-            # Load from Hugging Face datasets
-            dataset = load_dataset("go_emotions", cache_dir=self.cache_dir)
-
-            # Combine train/validation/test splits for our own splitting
-            # GoEmotions comes pre-split, but we want our own validation strategy
-            train_data = dataset["train"]
-            val_data = dataset["validation"]
-            test_data = dataset["test"]
-
-            # Combine all data for custom splitting
-            all_texts = []
-            all_labels = []
-
-            for split_data in [train_data, val_data, test_data]:
-                all_texts.extend(split_data["text"])
-                all_labels.extend(split_data["labels"])
-
-            # Create combined dataset
-            combined_data = {"text": all_texts, "labels": all_labels}
-
-            self.raw_dataset = Dataset.from_dict(combined_data)
-
-            logger.info(f"Downloaded {len(self.raw_dataset)} examples")
-            logger.info(f"Example: {self.raw_dataset[0]}")
-
-            return self.raw_dataset
-
-        except Exception:
-            logger.error("Failed to download GoEmotions dataset: {e}", extra={"format_args": True})
+            logger.info("Downloading GoEmotions dataset...")
+            # Explicitly disable token usage for public dataset
+            dataset = load_dataset("go_emotions", cache_dir=self.cache_dir, token=False)
+            self.dataset = dataset
+            logger.info("✅ GoEmotions dataset downloaded successfully.")
+        except Exception as e:
+            logger.error(f"Failed to download GoEmotions dataset: {e}")
             raise
 
-    def analyze_dataset_statistics(self) -> dict[str, any]:
-        """Analyze dataset statistics for class imbalance and multi-label patterns.
-
-        Returns:
-            Dictionary with dataset statistics
-        """
-        if self.raw_dataset is None:
+    def analyze_dataset_statistics(self) -> dict[str, Any]:
+        """Analyze and log statistics about the dataset."""
+        if self.dataset is None:
             raise ValueError("Dataset not loaded. Call download_dataset() first.")
 
-        logger.info("Analyzing dataset statistics...")
+        # Combine labels from all splits to get overall statistics
+        all_labels = []
+        for split in self.dataset:
+            all_labels.extend(
+                [label for labels in self.dataset[split]["labels"] for label in labels]
+            )
 
-        # Count emotion frequencies
-        emotion_counts = np.zeros(len(GOEMOTIONS_EMOTIONS))
-        multi_label_count = 0
-        total_examples = len(self.raw_dataset)
-
-        for example in self.raw_dataset:
-            labels = example["labels"]
-            if len(labels) > 1:
-                multi_label_count += 1
-
-            for label_id in labels:
-                emotion_counts[label_id] += 1
+        # Calculate label frequencies
+        label_counts = Counter(all_labels)
+        total_labels = len(all_labels)
 
         # Calculate statistics
-        emotion_frequencies = emotion_counts / total_examples
+        emotion_frequencies = {
+            emotion: count / total_labels for emotion, count in label_counts.items()
+        }
 
         stats = {
-            "total_examples": total_examples,
-            "multi_label_percentage": (multi_label_count / total_examples) * 100,
-            "emotion_frequencies": dict(
-                zip(GOEMOTIONS_EMOTIONS, emotion_frequencies, strict=False)
-            ),
-            "emotion_counts": dict(
-                zip(GOEMOTIONS_EMOTIONS, emotion_counts.astype(int), strict=False)
-            ),
+            "total_examples": total_labels,
+            "multi_label_percentage": (
+                total_labels - sum(1 for count in label_counts.values() if count == 1)
+            )
+            / total_labels
+            * 100,
+            "emotion_frequencies": emotion_frequencies,
+            "emotion_counts": label_counts,
             "most_frequent_emotions": sorted(
-                zip(GOEMOTIONS_EMOTIONS, emotion_frequencies, strict=False),
+                emotion_frequencies.items(),
                 key=lambda x: x[1],
                 reverse=True,
             )[:5],
             "least_frequent_emotions": sorted(
-                zip(GOEMOTIONS_EMOTIONS, emotion_frequencies, strict=False),
+                emotion_frequencies.items(),
                 key=lambda x: x[1],
             )[:5],
         }
 
         # Log key statistics
-        logger.info(f"Total examples: {total_examples}")
+        logger.info(f"Total examples: {total_labels}")
         logger.info(
-            f"Multi-label examples: {multi_label_count} ({stats['multi_label_percentage']:.1f}%)"
+            f"Multi-label examples: {total_labels - sum(1 for count in label_counts.values() if count == 1)} ({stats['multi_label_percentage']:.1f}%)"
         )
         logger.info(f"Most frequent emotions: {stats['most_frequent_emotions']}")
         logger.info(f"Least frequent emotions: {stats['least_frequent_emotions']}")
@@ -277,103 +244,60 @@ class GoEmotionsDataLoader:
         return stats
 
     def compute_class_weights(self) -> np.ndarray:
-        """Compute class weights for handling imbalanced dataset.
-
-        Returns:
-            Array of class weights for each emotion category
-        """
-        if self.raw_dataset is None:
+        """Compute class weights for handling data imbalance."""
+        if self.dataset is None:
             raise ValueError("Dataset not loaded. Call download_dataset() first.")
 
-        logger.info("Computing class weights for imbalanced dataset...")
+        # Use the same logic as analyze_dataset_statistics
+        all_labels = []
+        for split in self.dataset:
+            all_labels.extend(
+                [label for labels in self.dataset[split]["labels"] for label in labels]
+            )
 
-        # Count positive examples for each emotion
-        emotion_counts = np.zeros(len(GOEMOTIONS_EMOTIONS))
-        total_examples = len(self.raw_dataset)
+        label_counts = Counter(all_labels)
+        total_samples = sum(label_counts.values())
 
-        for example in self.raw_dataset:
-            for label_id in example["labels"]:
-                emotion_counts[label_id] += 1
-
-        # Compute inverse frequency weights with smoothing
-        # Add small constant to prevent division by zero
-        epsilon = 1e-7
-        emotion_frequencies = emotion_counts / total_examples
-        class_weights = 1.0 / (emotion_frequencies + epsilon)
-
-        # Normalize weights to prevent extremely large values
-        class_weights = class_weights / np.mean(class_weights)
-
-        # Cap maximum weight to prevent over-emphasis on very rare emotions
-        max_weight = 10.0
-        class_weights = np.clip(class_weights, 0.1, max_weight)
-
-        self.class_weights = class_weights
-
-        logger.info(
-            f"Computed class weights - min: {class_weights.min():.2f}, max: {class_weights.max():.2f}"
+        # Calculate weights: inverse frequency
+        class_weights = np.array(
+            [
+                total_samples / label_counts.get(i, 1)  # Use .get for safety
+                for i in range(len(GOEMOTIONS_EMOTIONS))
+            ]
         )
 
+        # Normalize weights
+        class_weights = class_weights / np.sum(class_weights)
+
+        logger.info(
+            f"Computed class weights. Min: {class_weights.min():.4f}, Max: {class_weights.max():.4f}"
+        )
         return class_weights
 
-    def create_train_val_test_splits(self) -> tuple[Dataset, Dataset, Dataset]:
-        """Create stratified train/validation/test splits.
+    def create_train_val_test_splits(self) -> tuple:
+        """Create train/val/test splits from the dataset.
 
         Returns:
             Tuple of (train_dataset, val_dataset, test_dataset)
         """
-        if self.raw_dataset is None:
+        if self.dataset is None:
             raise ValueError("Dataset not loaded. Call download_dataset() first.")
 
-        logger.info("Creating train/validation/test splits...")
+        logger.info("Creating train/val/test splits...")
 
-        # Convert to pandas for easier manipulation
-        df = self.raw_dataset.to_pandas()
+        # The dataset is already split by HuggingFace
+        train_ds = self.dataset["train"]
+        val_ds = self.dataset["validation"]
+        test_ds = self.dataset["test"]
 
-        # For stratification with multi-label data, use the most frequent emotion
-        # as the stratification key
-        stratify_labels = []
-        for labels in df["labels"]:
-            if len(labels) > 0:
-                # Use first label as stratification key
-                stratify_labels.append(labels[0])
-            else:
-                # Handle edge case of no labels (shouldn't happen in GoEmotions)
-                stratify_labels.append(len(GOEMOTIONS_EMOTIONS) - 1)  # neutral
+        # Log split sizes
+        logger.info(f"Train set: {len(train_ds)} examples")
+        logger.info(f"Validation set: {len(val_ds)} examples")
+        logger.info(f"Test set: {len(test_ds)} examples")
 
-        # First split: separate test set
-        train_val_df, test_df = train_test_split(
-            df,
-            test_size=self.test_size,
-            random_state=self.random_state,
-            stratify=stratify_labels,
-        )
+        return train_ds, val_ds, test_ds
 
-        # Second split: separate validation from training
-        train_stratify = []
-        for labels in train_val_df["labels"]:
-            train_stratify.append(labels[0] if len(labels) > 0 else len(GOEMOTIONS_EMOTIONS) - 1)
-
-        train_df, val_df = train_test_split(
-            train_val_df,
-            test_size=self.val_size,
-            random_state=self.random_state,
-            stratify=train_stratify,
-        )
-
-        # Convert back to datasets
-        self.train_dataset = Dataset.from_pandas(train_df)
-        self.val_dataset = Dataset.from_pandas(val_df)
-        self.test_dataset = Dataset.from_pandas(test_df)
-
-        logger.info(
-            f"Created splits - Train: {len(self.train_dataset)}, "
-            f"Val: {len(self.val_dataset)}, Test: {len(self.test_dataset)}"
-        )
-
-        return self.train_dataset, self.val_dataset, self.test_dataset
-
-    def prepare_datasets(self, force_download: bool = False) -> dict[str, Dataset]:
+    def prepare_datasets(self) -> dict:
         """Complete pipeline to prepare GoEmotions datasets.
 
         Args:
