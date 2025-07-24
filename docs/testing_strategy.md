@@ -52,41 +52,41 @@ class TestBERTEmotionClassifier:
     def model(self):
         model, _ = BERTEmotionClassifier.create_bert_emotion_classifier()
         return model
-    
+
     def test_model_initialization(self, model):
         """Test that model initializes with correct parameters."""
         assert model.num_labels == 28
         assert model.model_name == "bert-base-uncased"
         assert isinstance(model.temperature, torch.nn.Parameter)
-        
+
     def test_forward_pass(self, model):
         """Test model forward pass with dummy inputs."""
         batch_size = 2
         seq_length = 128
-        
+
         input_ids = torch.randint(0, 30522, (batch_size, seq_length))
         attention_mask = torch.ones(batch_size, seq_length)
-        
+
         outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-        
+
         # Check output shape (batch_size, num_labels)
         assert outputs.shape == (batch_size, 28)
-        
+
     def test_temperature_scaling(self, model):
         """Test temperature scaling affects outputs correctly."""
         input_ids = torch.randint(0, 30522, (1, 128))
         attention_mask = torch.ones(1, 128)
-        
+
         # Get outputs with default temperature
         outputs_default = model(input_ids=input_ids, attention_mask=attention_mask)
-        
+
         # Set new temperature
         model.set_temperature(2.0)
         assert model.temperature.item() == 2.0
-        
+
         # Get outputs with new temperature
         outputs_scaled = model(input_ids=input_ids, attention_mask=attention_mask)
-        
+
         # Scaled outputs should be "softer" (closer to 0.5) than default
         assert torch.mean(torch.abs(outputs_scaled - 0.5)) < torch.mean(torch.abs(outputs_default - 0.5))
 ```
@@ -104,16 +104,16 @@ def mock_db_connection(monkeypatch):
             if "SELECT" in query:
                 return [{"id": 1, "text": "Sample text", "label": "joy"}]
             return {"affected_rows": 1}
-    
+
     monkeypatch.setattr("src.data.database.get_connection", lambda: MockConnection())
     return MockConnection()
 
 def test_data_retrieval(mock_db_connection):
     from src.data.loaders import DataLoader
-    
+
     loader = DataLoader()
     data = loader.load_from_database("emotions")
-    
+
     assert len(data) == 1
     assert data[0]["label"] == "joy"
 ```
@@ -144,7 +144,7 @@ def test_training_pipeline_integration():
     """Test the full training pipeline with a small dataset."""
     # Use a small subset of data for quick testing
     os.environ["SAMO_ENV"] = "testing"
-    
+
     # Initialize components
     data_loader = GoEmotionsDataLoader(dev_mode=True)
     trainer = EmotionDetectionTrainer(
@@ -153,17 +153,17 @@ def test_training_pipeline_integration():
         num_epochs=1,
         dev_mode=True
     )
-    
+
     # Run the pipeline
     train_dataset, val_dataset, _ = data_loader.prepare_datasets()
     model, optimizer = trainer.initialize_model_and_optimizer()
-    
+
     # Train for 1 epoch
     train_loss = trainer.train_epoch(model, optimizer, train_dataset)
-    
+
     # Evaluate
     val_metrics = trainer.evaluate(model, val_dataset)
-    
+
     # Assertions
     assert train_loss > 0  # Training occurred
     assert "f1_score" in val_metrics
@@ -193,13 +193,13 @@ def test_emotion_detection_endpoint(client):
         data=json.dumps({'text': 'I feel so happy today!'}),
         content_type='application/json'
     )
-    
+
     assert response.status_code == 200
     data = json.loads(response.data)
     assert 'emotions' in data
     assert isinstance(data['emotions'], list)
     assert len(data['emotions']) > 0
-    
+
     # Check format of each emotion
     for emotion in data['emotions']:
         assert 'label' in emotion
@@ -236,44 +236,44 @@ class TestEmotionAnalysisWorkflow:
         driver.implicitly_wait(10)
         yield driver
         driver.quit()
-    
+
     def test_text_emotion_analysis(self, browser):
         """Test the complete text emotion analysis workflow."""
         # Navigate to application
         browser.get("https://app.samo.ai")
-        
+
         # Log in
         browser.find_element(By.ID, "email").send_keys("test@example.com")
         browser.find_element(By.ID, "password").send_keys("password123")
         browser.find_element(By.ID, "login-button").click()
-        
+
         # Navigate to emotion analysis
         browser.find_element(By.ID, "emotion-analysis-link").click()
-        
+
         # Enter text
         text_area = browser.find_element(By.ID, "text-input")
         text_area.clear()
         text_area.send_keys("I'm feeling really excited about this project!")
-        
+
         # Submit for analysis
         browser.find_element(By.ID, "analyze-button").click()
-        
+
         # Wait for results
         WebDriverWait(browser, 30).until(
             EC.presence_of_element_located((By.ID, "results-container"))
         )
-        
+
         # Verify results
         results = browser.find_element(By.ID, "results-container")
         emotion_items = results.find_elements(By.CLASS_NAME, "emotion-item")
-        
+
         # There should be at least one emotion detected
         assert len(emotion_items) > 0
-        
+
         # "Excitement" should be among the top emotions
         emotion_texts = [item.text.lower() for item in emotion_items]
         assert any("excite" in text for text in emotion_texts)
-        
+
         # Check confidence scores are displayed
         confidence_elements = results.find_elements(By.CLASS_NAME, "confidence-score")
         assert len(confidence_elements) > 0
@@ -310,33 +310,33 @@ def test_api_response_time():
     base_url = "https://api.samo.ai/v1/emotions/analyze"
     headers = {"Authorization": "Bearer test_token"}
     payload = {"text": "I'm feeling really happy about this achievement!"}
-    
+
     # Number of concurrent requests
     num_requests = 100
     response_times = []
-    
+
     def make_request():
         start_time = time.time()
         response = requests.post(base_url, json=payload, headers=headers)
         end_time = time.time()
-        
+
         assert response.status_code == 200
         return end_time - start_time
-    
+
     # Execute concurrent requests
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         future_to_request = {executor.submit(make_request): i for i in range(num_requests)}
         for future in concurrent.futures.as_completed(future_to_request):
             response_time = future.result()
             response_times.append(response_time)
-    
+
     # Calculate statistics
     avg_response_time = statistics.mean(response_times)
     p95_response_time = statistics.quantiles(response_times, n=20)[18]  # 95th percentile
-    
+
     print(f"Average response time: {avg_response_time:.3f}s")
     print(f"95th percentile response time: {p95_response_time:.3f}s")
-    
+
     # Assertions
     assert avg_response_time < 0.2  # Average < 200ms
     assert p95_response_time < 0.3  # 95th percentile < 300ms
@@ -367,10 +367,10 @@ def test_dataset_validation():
     # Load dataset
     loader = GoEmotionsDataLoader()
     dataset = loader.download_dataset()
-    
+
     # Create validator
     validator = DataValidator()
-    
+
     # Define validation rules
     rules = {
         "text": {
@@ -383,10 +383,10 @@ def test_dataset_validation():
             "required": True
         }
     }
-    
+
     # Validate dataset
     validation_results = validator.validate_dataset(dataset["train"], rules)
-    
+
     # Check results
     assert validation_results["valid_percentage"] > 99
     assert validation_results["missing_fields_percentage"] < 1
@@ -644,4 +644,4 @@ Verify that the emotion detection model correctly identifies multiple emotions i
 2. **Property-based Testing**: Add hypothesis for edge case discovery
 3. **Chaos Testing**: Test system resilience under failure conditions
 4. **Continuous Benchmarking**: Track performance metrics over time
-5. **Test Data Management**: Improve test data generation and management 
+5. **Test Data Management**: Improve test data generation and management

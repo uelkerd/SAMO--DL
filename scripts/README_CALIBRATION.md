@@ -74,7 +74,7 @@ class BERTEmotionClassifier(nn.Module):
         """Update temperature parameter for calibration."""
         if temperature <= 0:
             raise ValueError("Temperature must be positive")
-        
+
         # Correctly update the parameter's value in-place
         with torch.no_grad():
             self.temperature.fill_(temperature)
@@ -112,4 +112,4 @@ model-validation:
 2. **Performance optimization**:
    - Model compression (quantization)
    - ONNX conversion for faster inference
-   - Batch processing optimization 
+   - Batch processing optimization

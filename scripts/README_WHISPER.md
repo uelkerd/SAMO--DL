@@ -98,4 +98,4 @@ The voice processing module supports:
   - base: ~74M parameters
   - small: ~244M parameters
   - medium: ~769M parameters
-  - large: ~1550M parameters 
+  - large: ~1550M parameters
