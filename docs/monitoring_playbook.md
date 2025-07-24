@@ -250,18 +250,18 @@ tracer = trace.get_tracer(__name__)
 def analyze_emotions():
     with tracer.start_as_current_span("analyze_emotions") as span:
         span.set_attribute("user.id", request.headers.get("X-User-ID"))
-        
+
         # Process text
         with tracer.start_as_current_span("preprocess_text") as preprocess_span:
             text = request.json.get("text")
             preprocess_span.set_attribute("text.length", len(text))
             processed_text = preprocess_text(text)
-        
+
         # Run model inference
         with tracer.start_as_current_span("model_inference") as inference_span:
             emotions = model.predict(processed_text)
             inference_span.set_attribute("emotions.count", len(emotions))
-        
+
         return jsonify({"emotions": emotions})
 ```
 
@@ -357,15 +357,15 @@ from locust import HttpUser, task, between
 
 class APIUser(HttpUser):
     wait_time = between(1, 5)
-    
+
     @task(3)
     def analyze_emotions(self):
-        self.client.post("/emotions/analyze", 
+        self.client.post("/emotions/analyze",
                          json={"text": "I feel so happy about this achievement!"})
-    
+
     @task(1)
     def summarize_text(self):
-        self.client.post("/summarize", 
+        self.client.post("/summarize",
                          json={"text": "Long text to summarize...", "max_length": 100})
 ```
 
@@ -460,7 +460,7 @@ grafana-cli dashboard import monitoring/dashboards/system.json
    # scripts/analyze_model_performance.py
    from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
-   
+
    # Load recent data and evaluate
    loader = GoEmotionsDataLoader()
    recent_data = loader.load_recent_data()
@@ -515,4 +515,4 @@ groups:
       summary: "Anomalous API usage detected"
       description: "High rate of rate-limited requests for 5 minutes."
       runbook_url: "https://wiki.samo.ai/runbooks/anomalous-usage"
-``` 
+```

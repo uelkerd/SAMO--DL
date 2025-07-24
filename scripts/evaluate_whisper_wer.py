@@ -13,11 +13,10 @@ import sys
 import tempfile
 import time
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Optional
 
 import jiwer
 import pandas as pd
-import requests
 import torch
 import tqdm
 from datasets import load_dataset
@@ -36,92 +35,93 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def download_librispeech_sample(output_dir: str = None, max_samples: int = 50) -> List[Dict]:
+def download_librispeech_sample(
+    output_dir: Optional[str] = None, max_samples: int = 50
+) -> list[dict]:
     """Download LibriSpeech test-clean sample for evaluation.
-    
+
     Args:
         output_dir: Directory to save audio files (uses temp dir if None)
         max_samples: Maximum number of samples to download
-        
+
     Returns:
         List of dicts with audio path and reference text
     """
     logger.info(f"Loading LibriSpeech test-clean (max_samples={max_samples})...")
-    
+
     # Create output directory if needed
     if output_dir is None:
         output_dir = tempfile.mkdtemp(prefix="librispeech_")
     else:
         output_dir = Path(output_dir)
         output_dir.mkdir(exist_ok=True, parents=True)
-    
+
     # Load dataset
     try:
         dataset = load_dataset("librispeech_asr", "clean", split="test", streaming=True)
-        
+
         # Prepare samples
         samples = []
         for i, sample in enumerate(dataset):
             if i >= max_samples:
                 break
-                
+
             # Extract sample info
             audio = sample["audio"]
             text = sample["text"]
             file_id = f"{sample['chapter_id']}_{sample['id']}"
-            
+
             # Save audio to file
             audio_path = Path(output_dir) / f"{file_id}.wav"
-            
+
             # Skip if already exists
             if audio_path.exists():
                 samples.append({"path": str(audio_path), "reference": text})
                 continue
-                
+
             # Save audio data
             import soundfile as sf
+
             sf.write(
                 str(audio_path),
                 audio["array"],
                 audio["sampling_rate"],
             )
-            
+
             # Add to samples list
             samples.append({"path": str(audio_path), "reference": text})
-            
+
             if i % 10 == 0:
                 logger.info(f"Downloaded {i+1}/{max_samples} samples...")
-        
+
         logger.info(f"✅ Downloaded {len(samples)} LibriSpeech samples to {output_dir}")
         return samples
-        
+
     except Exception as e:
         logger.error(f"❌ Failed to download LibriSpeech: {e}")
         return []
 
 
-def evaluate_wer(
-    api: TranscriptionAPI, samples: List[Dict], model_size: str
-) -> Dict:
+def evaluate_wer(api: TranscriptionAPI, samples: list[dict], model_size: str) -> dict:
     """Evaluate Word Error Rate on LibriSpeech samples.
-    
+
     Args:
         api: TranscriptionAPI instance
         samples: List of dicts with audio path and reference
         model_size: Whisper model size for reporting
-        
+
     Returns:
         Evaluation metrics dict
     """
     logger.info(f"Evaluating WER on {len(samples)} samples...")
-    
+
     results = []
     references = []
     transcriptions = []
     wers = []
     processing_times = []
     audio_durations = []
-    
+
     # Process each sample
     for i, sample in enumerate(tqdm.tqdm(samples, desc="Evaluating")):
         try:
@@ -129,48 +129,52 @@ def evaluate_wer(
             audio_path = sample["path"]
             reference = sample["reference"].lower().strip()
             references.append(reference)
-            
+
             # Transcribe
             start_time = time.time()
             result = api.transcribe(audio_path)
             processing_time = time.time() - start_time
-            
+
             # Get text and metrics
             transcription = result["text"].lower().strip()
             transcriptions.append(transcription)
-            
+
             # Calculate WER
             wer = jiwer.wer(reference, transcription)
             wers.append(wer)
-            
+
             # Collect timing info
             processing_times.append(processing_time)
             audio_durations.append(result["duration"])
-            
+
             # Store result
-            results.append({
-                "id": i,
-                "reference": reference,
-                "transcription": transcription,
-                "wer": wer,
-                "processing_time": processing_time,
-                "audio_duration": result["duration"],
-                "real_time_factor": processing_time / result["duration"] if result["duration"] > 0 else 0,
-            })
-            
+            results.append(
+                {
+                    "id": i,
+                    "reference": reference,
+                    "transcription": transcription,
+                    "wer": wer,
+                    "processing_time": processing_time,
+                    "audio_duration": result["duration"],
+                    "real_time_factor": processing_time / result["duration"]
+                    if result["duration"] > 0
+                    else 0,
+                }
+            )
+
         except Exception as e:
             logger.error(f"Failed on sample {i}: {e}")
-    
+
     # Calculate global WER
     global_wer = jiwer.wer(references, transcriptions)
-    
+
     # Calculate metrics
     avg_wer = sum(wers) / len(wers) if wers else 0
     median_wer = sorted(wers)[len(wers) // 2] if wers else 0
-    
+
     # Average timing
     avg_rtf = sum(processing_times) / sum(audio_durations) if audio_durations else 0
-    
+
     # Create summary
     evaluation_summary = {
         "model_size": model_size,
@@ -184,10 +188,10 @@ def evaluate_wer(
         "total_processing_time": sum(processing_times),
         "device": "cuda" if torch.cuda.is_available() else "cpu",
     }
-    
+
     # Store detailed results
     results_df = pd.DataFrame(results)
-    
+
     return {
         "summary": evaluation_summary,
         "details": results,
@@ -223,41 +227,41 @@ def main():
         default=None,
         help="Directory for LibriSpeech samples (will download if not provided)",
     )
-    
+
     args = parser.parse_args()
-    
+
     logger.info(f"🚀 Starting Whisper WER evaluation with {args.model_size} model")
     start_time = time.time()
-    
+
     # Create output directory
     if args.output_dir:
         os.makedirs(args.output_dir, exist_ok=True)
-    
+
     # Download or load LibriSpeech samples
     samples = download_librispeech_sample(
-        output_dir=args.librispeech_dir, 
+        output_dir=args.librispeech_dir,
         max_samples=args.samples,
     )
-    
+
     if not samples:
         logger.error("No LibriSpeech samples available. Exiting.")
         return 1
-        
+
     # Create TranscriptionAPI
     api = create_transcription_api(model_size=args.model_size)
-    
+
     # Run evaluation
     evaluation_results = evaluate_wer(
         api=api,
         samples=samples,
         model_size=args.model_size,
     )
-    
+
     # Print summary
-    logger.info("\n" + "="*50)
+    logger.info("\n" + "=" * 50)
     logger.info("Whisper WER Evaluation Results:")
-    logger.info("="*50)
-    
+    logger.info("=" * 50)
+
     summary = evaluation_results["summary"]
     logger.info(f"Model: {summary['model_size']}")
     logger.info(f"Device: {summary['device']}")
@@ -269,24 +273,25 @@ def main():
     logger.info(f"Real-time factor: {summary['avg_real_time_factor']:.2f}x")
     logger.info(f"Total audio: {summary['total_audio_duration']:.1f}s")
     logger.info(f"Total processing: {summary['total_processing_time']:.1f}s")
-    
+
     # Save results if output directory provided
     if args.output_dir:
         # Save summary
         summary_path = Path(args.output_dir) / f"whisper_{args.model_size}_wer_summary.json"
         import json
+
         with open(summary_path, "w") as f:
             json.dump(summary, f, indent=2)
-            
+
         # Save detailed results
         details_path = Path(args.output_dir) / f"whisper_{args.model_size}_wer_details.csv"
         evaluation_results["dataframe"].to_csv(details_path, index=False)
-        
+
         logger.info(f"✅ Results saved to {args.output_dir}")
-    
+
     total_time = time.time() - start_time
     logger.info(f"✅ Evaluation completed in {total_time:.1f}s")
-    
+
     # Determine if we meet the target WER
     target_wer = 0.15  # 15% target WER
     if summary["global_wer"] <= target_wer:
@@ -295,7 +300,7 @@ def main():
     else:
         logger.warning(f"⚠️ WER {summary['global_wer']:.4f} exceeds target of {target_wer:.4f}")
         return 0  # Still return success
-    
+
 
 if __name__ == "__main__":
-    sys.exit(main()) 
+    sys.exit(main())

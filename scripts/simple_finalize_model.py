@@ -10,7 +10,6 @@ Usage:
 """
 
 import sys
-import os
 import logging
 import json
 from pathlib import Path
@@ -32,30 +31,31 @@ TARGET_F1_SCORE = 0.75  # Target F1 score (>75%)
 
 def create_final_model(output_model: str = DEFAULT_OUTPUT_MODEL) -> dict:
     """Create final emotion detection model from existing checkpoint.
-    
+
     Args:
         output_model: Path to save final model
-        
+
     Returns:
         Dictionary with model info
     """
     logger.info("Creating final emotion detection model...")
-    
+
     # Check if checkpoint exists
     checkpoint_path = Path(CHECKPOINT_PATH)
     if not checkpoint_path.exists():
         logger.error(f"Checkpoint not found at {checkpoint_path}")
         logger.info("Please run training first to create a checkpoint")
         return {"error": "Checkpoint not found"}
-    
+
     # Create output directory
     output_path = Path(output_model)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     # Copy checkpoint to final location
     import shutil
+
     shutil.copy2(checkpoint_path, output_path)
-    
+
     # Create model metadata
     model_info = {
         "model_path": str(output_path),
@@ -70,36 +70,31 @@ def create_final_model(output_model: str = DEFAULT_OUTPUT_MODEL) -> dict:
             "Focal Loss for class imbalance",
             "Data augmentation",
             "Temperature scaling",
-            "Threshold calibration"
-        ]
+            "Threshold calibration",
+        ],
     }
-    
+
     # Save metadata
     metadata_path = output_path.with_suffix(".metadata.json")
     with open(metadata_path, "w") as f:
         json.dump(model_info, f, indent=2)
-    
+
     logger.info(f"✅ Final model created at: {output_path}")
     logger.info(f"✅ Model metadata saved at: {metadata_path}")
-    
+
     return model_info
 
 
 def verify_model_requirements() -> bool:
     """Verify that all required dependencies are available.
-    
+
     Returns:
         True if all requirements are met
     """
     logger.info("Verifying model requirements...")
-    
-    required_modules = [
-        "torch",
-        "transformers", 
-        "datasets",
-        "sklearn"
-    ]
-    
+
+    required_modules = ["torch", "transformers", "datasets", "sklearn"]
+
     missing_modules = []
     for module in required_modules:
         try:
@@ -108,41 +103,41 @@ def verify_model_requirements() -> bool:
         except ImportError:
             missing_modules.append(module)
             logger.warning(f"❌ {module} not available")
-    
+
     if missing_modules:
         logger.error(f"Missing required modules: {missing_modules}")
         logger.info("Please install missing dependencies:")
         logger.info("pip install torch transformers datasets scikit-learn")
         return False
-    
+
     return True
 
 
 def main():
     """Main function."""
     logger.info("🚀 Starting Simple Model Finalization...")
-    
+
     # Verify requirements
     if not verify_model_requirements():
         logger.error("❌ Requirements not met. Exiting.")
         sys.exit(1)
-    
+
     # Create final model
     try:
         model_info = create_final_model()
-        
+
         if "error" in model_info:
             logger.error(f"❌ Failed to create model: {model_info['error']}")
             sys.exit(1)
-        
+
         logger.info("✅ Model finalization completed successfully!")
         logger.info(f"📁 Model saved to: {model_info['model_path']}")
         logger.info(f"📊 Target F1 Score: {TARGET_F1_SCORE}")
-        
+
     except Exception as e:
         logger.error(f"❌ Error during model finalization: {e}")
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    main() 
+    main()
