@@ -176,15 +176,15 @@ We follow Google-style docstrings:
 ```python
 def calculate_f1_score(y_true, y_pred, threshold=0.5):
     """Calculate F1 score for multi-label classification.
-    
+
     Args:
         y_true: Array-like of shape (n_samples, n_labels) with ground truth labels.
         y_pred: Array-like of shape (n_samples, n_labels) with predicted probabilities.
         threshold: Float between 0 and 1, threshold for converting probabilities to binary.
-            
+
     Returns:
         tuple: (micro_f1, macro_f1) scores.
-        
+
     Example:
         >>> y_true = [[1, 0, 1], [0, 1, 0]]
         >>> y_pred = [[0.9, 0.2, 0.8], [0.1, 0.9, 0.3]]
@@ -198,10 +198,10 @@ def calculate_f1_score(y_true, y_pred, threshold=0.5):
 ```python
 class BERTEmotionClassifier(nn.Module):
     """BERT-based classifier for emotion detection.
-    
+
     This model fine-tunes a pre-trained BERT model for multi-label
     emotion classification using the GoEmotions taxonomy (28 emotions).
-    
+
     Attributes:
         bert: Pre-trained BERT model.
         dropout: Dropout layer for regularization.
@@ -226,7 +226,7 @@ architecture, training pipeline, and inference utilities.
 Classes:
     BERTEmotionClassifier: BERT-based classifier for emotion detection.
     EmotionDataset: PyTorch dataset for emotion classification data.
-    
+
 Functions:
     create_bert_emotion_classifier: Factory function to create a classifier.
     evaluate_emotion_classifier: Evaluate model performance.
@@ -263,7 +263,7 @@ from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 
 class TestBertEmotionClassifier:
     """Test suite for BERTEmotionClassifier."""
-    
+
     @pytest.fixture
     def model(self):
         """Create a test model instance."""
@@ -271,11 +271,11 @@ class TestBertEmotionClassifier:
             model_name="bert-base-uncased",
             num_emotions=28
         )
-    
+
     def test_forward_pass(self, model):
         """Test forward pass through the model."""
         # Test implementation
-        
+
     def test_predict_emotions(self, model):
         """Test emotion prediction with threshold."""
         # Test implementation
@@ -376,10 +376,10 @@ Resolves: #456
 ```python
 class BERTEmotionClassifier(nn.Module):
     """BERT-based classifier for emotion detection.
-    
+
     This model fine-tunes a pre-trained BERT model for multi-label
     emotion classification using the GoEmotions taxonomy (28 emotions).
-    
+
     Attributes:
         bert: Pre-trained BERT model.
         dropout: Dropout layer for regularization.
@@ -389,7 +389,7 @@ class BERTEmotionClassifier(nn.Module):
         temperature: Temperature parameter for calibration.
         prediction_threshold: Threshold for positive predictions.
     """
-    
+
     def __init__(
         self,
         model_name: str = "bert-base-uncased",
@@ -397,7 +397,7 @@ class BERTEmotionClassifier(nn.Module):
         dropout_rate: float = 0.1,
     ):
         """Initialize the BERT emotion classifier.
-        
+
         Args:
             model_name: Name of the pre-trained BERT model.
             num_emotions: Number of emotion categories.
@@ -406,21 +406,21 @@ class BERTEmotionClassifier(nn.Module):
         super().__init__()
         self.model_name = model_name
         self.num_emotions = num_emotions
-        
+
         # Initialize BERT model
         self.bert = AutoModel.from_pretrained(model_name)
-        
+
         # Classifier head
         self.dropout = nn.Dropout(dropout_rate)
         self.classifier = nn.Linear(self.bert.config.hidden_size, num_emotions)
-        
+
         # Calibration parameters
         self.temperature = nn.Parameter(torch.ones(1))
         self.prediction_threshold = 0.6
-        
+
         # Initialize device
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
+
     def forward(
         self,
         input_ids: torch.Tensor,
@@ -428,12 +428,12 @@ class BERTEmotionClassifier(nn.Module):
         token_type_ids: Optional[torch.Tensor] = None,
     ) -> Dict[str, torch.Tensor]:
         """Forward pass through the model.
-        
+
         Args:
             input_ids: Token IDs of shape (batch_size, sequence_length).
             attention_mask: Attention mask of shape (batch_size, sequence_length).
             token_type_ids: Optional token type IDs.
-            
+
         Returns:
             Dictionary containing logits, probabilities, and calibrated logits.
         """
@@ -442,38 +442,38 @@ class BERTEmotionClassifier(nn.Module):
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
         )
-        
+
         pooled_output = outputs.pooler_output
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
-        
+
         # Apply temperature scaling for calibration
         calibrated_logits = logits / self.temperature
-        
+
         # Calculate probabilities
         probabilities = torch.sigmoid(calibrated_logits)
-        
+
         return {
             "logits": logits,
             "calibrated_logits": calibrated_logits,
             "probabilities": probabilities,
         }
-    
+
     def set_temperature(self, temperature: float) -> None:
         """Update temperature parameter for calibration.
-        
+
         Args:
             temperature: New temperature value (must be positive).
-            
+
         Raises:
             ValueError: If temperature is not positive.
         """
         if temperature <= 0:
             raise ValueError("Temperature must be positive")
-        
+
         with torch.no_grad():
             self.temperature.fill_(temperature)
-    
+
     def predict_emotions(
         self,
         texts: Union[str, List[str]],
@@ -481,12 +481,12 @@ class BERTEmotionClassifier(nn.Module):
         top_k: Optional[int] = None,
     ) -> Dict:
         """Predict emotions from input texts.
-        
+
         Args:
             texts: Input text or list of texts.
             threshold: Optional threshold override (default: self.prediction_threshold).
             top_k: Optional number of top emotions to return.
-            
+
         Returns:
             Dictionary with predicted emotions and probabilities.
         """
@@ -498,13 +498,13 @@ class BERTEmotionClassifier(nn.Module):
 ```python
 def load_config(config_path: str) -> Dict:
     """Load configuration from YAML file.
-    
+
     Args:
         config_path: Path to configuration file.
-        
+
     Returns:
         Dictionary containing configuration parameters.
-        
+
     Raises:
         FileNotFoundError: If configuration file doesn't exist.
         ValueError: If configuration file is invalid.
@@ -512,13 +512,13 @@ def load_config(config_path: str) -> Dict:
     try:
         with open(config_path, "r") as f:
             config = yaml.safe_load(f)
-            
+
         # Validate required fields
         required_fields = ["model", "training", "data"]
         for field in required_fields:
             if field not in config:
                 raise ValueError(f"Missing required field '{field}' in config")
-                
+
         return config
     except FileNotFoundError:
         raise FileNotFoundError(f"Configuration file not found: {config_path}")
@@ -531,13 +531,13 @@ def load_config(config_path: str) -> Dict:
 ```python
 def safe_model_load(model_path: str) -> nn.Module:
     """Safely load a PyTorch model with error handling.
-    
+
     Args:
         model_path: Path to model checkpoint.
-        
+
     Returns:
         Loaded PyTorch model.
-        
+
     Raises:
         ModelLoadError: If model loading fails.
     """
@@ -545,13 +545,13 @@ def safe_model_load(model_path: str) -> nn.Module:
         # Check if file exists
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file not found: {model_path}")
-            
+
         # Load checkpoint
         checkpoint = torch.load(model_path, map_location="cpu")
-        
+
         # Create model
         model, _ = create_bert_emotion_classifier()
-        
+
         # Handle different checkpoint formats
         if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
             model.load_state_dict(checkpoint["model_state_dict"])
@@ -559,7 +559,7 @@ def safe_model_load(model_path: str) -> nn.Module:
             model.load_state_dict(checkpoint)
         else:
             raise ValueError(f"Unexpected checkpoint format: {type(checkpoint)}")
-            
+
         return model
     except (FileNotFoundError, ValueError) as e:
         # Re-raise with custom exception
@@ -640,27 +640,27 @@ api_key = "sk-1234567890abcdef1234567890abcdef"
 ```python
 def analyze_text(text: str, max_length: int = 5000) -> Dict:
     """Analyze text for emotions.
-    
+
     Args:
         text: Input text to analyze.
         max_length: Maximum allowed text length.
-        
+
     Returns:
         Dictionary with analysis results.
-        
+
     Raises:
         ValueError: If text is invalid or too long.
     """
     # Validate input
     if not text or not isinstance(text, str):
         raise ValueError("Text must be a non-empty string")
-        
+
     if len(text) > max_length:
         raise ValueError(f"Text exceeds maximum length of {max_length} characters")
-    
+
     # Sanitize input
     text = text.strip()
-    
+
     # Process text
     # ...
 ```
@@ -716,7 +716,7 @@ Models should be saved with comprehensive metadata:
 ```python
 def save_model(model, path, metadata=None):
     """Save model with metadata.
-    
+
     Args:
         model: PyTorch model to save.
         path: Path to save the model.
@@ -724,7 +724,7 @@ def save_model(model, path, metadata=None):
     """
     # Create directory if it doesn't exist
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    
+
     # Prepare checkpoint
     checkpoint = {
         "model_state_dict": model.state_dict(),
@@ -738,7 +738,7 @@ def save_model(model, path, metadata=None):
         "version": "1.0.0",
         "timestamp": datetime.now().isoformat()
     }
-    
+
     # Save checkpoint
     torch.save(checkpoint, path)
 ```
@@ -793,4 +793,4 @@ This document is a living guide that should evolve with the project. When making
 3. Update this document after approval
 4. Communicate changes to the team
 
-Last updated: July 25, 2025 
+Last updated: July 25, 2025

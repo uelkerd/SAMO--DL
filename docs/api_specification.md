@@ -582,7 +582,7 @@ function EmotionAnalyzer() {
   const analyzeEmotions = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch('https://api.samo.ai/v1/emotions/analyze', {
         method: 'POST',
@@ -592,12 +592,12 @@ function EmotionAnalyzer() {
         },
         body: JSON.stringify({ text })
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error.message);
       }
-      
+
       const data = await response.json();
       setEmotions(data.emotions);
     } catch (err) {
@@ -609,17 +609,17 @@ function EmotionAnalyzer() {
 
   return (
     <div>
-      <textarea 
-        value={text} 
+      <textarea
+        value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Enter text to analyze emotions..."
       />
       <button onClick={analyzeEmotions} disabled={loading || !text}>
         {loading ? 'Analyzing...' : 'Analyze Emotions'}
       </button>
-      
+
       {error && <div className="error">{error}</div>}
-      
+
       {emotions && (
         <div className="results">
           <h3>Primary Emotion: {emotions.primary}</h3>
@@ -649,20 +649,20 @@ class EmotionAnalysisViewController: UIViewController {
     @IBOutlet weak var textView: UITextView!
     @IBOutlet weak var analyzeButton: UIButton!
     @IBOutlet weak var resultsView: UIView!
-    
+
     private let samoClient = SamoClient(apiKey: "your_api_key_here")
-    
+
     @IBAction func analyzeButtonTapped(_ sender: UIButton) {
         guard let text = textView.text, !text.isEmpty else { return }
-        
+
         analyzeButton.isEnabled = false
         analyzeButton.setTitle("Analyzing...", for: .normal)
-        
+
         samoClient.emotions.analyze(text: text) { [weak self] result in
             DispatchQueue.main.async {
                 self?.analyzeButton.isEnabled = true
                 self?.analyzeButton.setTitle("Analyze", for: .normal)
-                
+
                 switch result {
                 case .success(let emotions):
                     self?.displayResults(emotions)
@@ -672,11 +672,11 @@ class EmotionAnalysisViewController: UIViewController {
             }
         }
     }
-    
+
     private func displayResults(_ emotions: EmotionAnalysis) {
         // Display emotion results in UI
     }
-    
+
     private func showError(_ message: String) {
         let alert = UIAlertController(
             title: "Analysis Error",
@@ -798,4 +798,4 @@ curl -X POST "https://api.samo.ai/v1/emotions/analyze" \
 
 - Email: api-support@samo.ai
 - Developer Community: [https://community.samo.ai](https://community.samo.ai)
-- Status Page: [https://status.samo.ai](https://status.samo.ai) 
+- Status Page: [https://status.samo.ai](https://status.samo.ai)

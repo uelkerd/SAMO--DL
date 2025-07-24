@@ -12,6 +12,7 @@ Returns:
     0 if F1 score meets minimum threshold
     1 if F1 score is below minimum threshold
 """
+
 import os
 import sys
 import torch
@@ -74,44 +75,40 @@ def test_calibration():
     logger.info("Processing validation data...")
     all_labels = []
     all_predictions = []
-    
+
     batch_size = 32
     for i in range(0, len(val_dataset), batch_size):
-        batch = val_dataset[i:i+batch_size]
-        
+        batch = val_dataset[i : i + batch_size]
+
         # Tokenize
         inputs = tokenizer(
-            batch["text"], 
-            padding=True, 
-            truncation=True, 
-            max_length=512, 
-            return_tensors="pt"
+            batch["text"], padding=True, truncation=True, max_length=512, return_tensors="pt"
         ).to(device)
-        
+
         # Get predictions
         with torch.no_grad():
             outputs = model(**inputs)
             probabilities = torch.sigmoid(outputs / model.temperature)
             predictions = (probabilities > OPTIMAL_THRESHOLD).float().cpu().numpy()
-        
+
         # Process labels
         labels = torch.zeros((len(batch["labels"]), model.num_labels))
         for j, label_ids in enumerate(batch["labels"]):
             labels[j, label_ids] = 1
-        
+
         all_labels.extend(labels.numpy())
         all_predictions.extend(predictions)
-        
+
         if i % 500 == 0:
             logger.info(f"Processed {i}/{len(val_dataset)} samples...")
-    
+
     # Calculate metrics
     micro_f1 = f1_score(all_labels, all_predictions, average="micro")
     macro_f1 = f1_score(all_labels, all_predictions, average="macro")
-    
+
     logger.info(f"Micro F1: {micro_f1:.4f}")
     logger.info(f"Macro F1: {macro_f1:.4f}")
-    
+
     # Check if F1 score meets target
     if micro_f1 >= TARGET_F1_SCORE:
         logger.info(f"✅ F1 score {micro_f1:.4f} meets target of {TARGET_F1_SCORE}")
@@ -122,4 +119,4 @@ def test_calibration():
 
 
 if __name__ == "__main__":
-    sys.exit(test_calibration()) 
+    sys.exit(test_calibration())

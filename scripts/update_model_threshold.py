@@ -11,6 +11,7 @@ Usage:
 Arguments:
     --threshold: Optional threshold value (default: 0.6)
 """
+
 import os
 import sys
 import argparse
@@ -29,45 +30,42 @@ logger = logging.getLogger(__name__)
 # Constants
 DEFAULT_THRESHOLD = 0.6
 DEFAULT_TEMPERATURE = 1.0
-MODEL_PATHS = [
-    "models/checkpoints/bert_emotion_classifier.pth",
-    "test_checkpoints/best_model.pt"
-]
+MODEL_PATHS = ["models/checkpoints/bert_emotion_classifier.pth", "test_checkpoints/best_model.pt"]
 
 
 def update_threshold(threshold: float = DEFAULT_THRESHOLD):
     """Update the model's prediction threshold.
-    
+
     Args:
         threshold: New threshold value (0.0-1.0)
-    
+
     Returns:
         bool: True if successful, False otherwise
     """
     if threshold < 0.0 or threshold > 1.0:
         logger.error(f"Invalid threshold: {threshold}. Must be between 0.0 and 1.0")
         return False
-    
+
     # Find an existing model file
     model_path = None
     for path in MODEL_PATHS:
         if Path(path).exists():
             model_path = path
             break
-    
+
     if model_path is None:
         logger.error("No model file found. Please train a model first.")
         return False
-    
+
     logger.info(f"Loading model from {model_path}...")
-    
+
     try:
         # Load checkpoint
-        checkpoint = torch.load(model_path, map_location='cpu', weights_only=False)
-        
+        checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
+
         # Create model
         model, _ = create_bert_emotion_classifier()
-        
+
         # Load state dict
         if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
             model.load_state_dict(checkpoint["model_state_dict"])
@@ -76,26 +74,28 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
         else:
             logger.error(f"Unexpected checkpoint format: {type(checkpoint)}")
             return False
-        
+
         # Update threshold
-        logger.info(f"Updating prediction threshold from {model.prediction_threshold} to {threshold}")
+        logger.info(
+            f"Updating prediction threshold from {model.prediction_threshold} to {threshold}"
+        )
         model.prediction_threshold = threshold
-        
+
         # Set temperature
         model.set_temperature(DEFAULT_TEMPERATURE)
-        
+
         # Save model
         logger.info(f"Saving updated model to {model_path}")
-        
+
         if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
             checkpoint["model_state_dict"] = model.state_dict()
             torch.save(checkpoint, model_path)
         else:
             torch.save(model.state_dict(), model_path)
-        
+
         logger.info(f"✅ Model threshold updated successfully to {threshold}")
         return True
-        
+
     except Exception as e:
         logger.error(f"Error updating model threshold: {e}")
         return False
@@ -104,12 +104,12 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Update model prediction threshold")
     parser.add_argument(
-        "--threshold", 
-        type=float, 
+        "--threshold",
+        type=float,
         default=DEFAULT_THRESHOLD,
-        help=f"New threshold value (0.0-1.0, default: {DEFAULT_THRESHOLD})"
+        help=f"New threshold value (0.0-1.0, default: {DEFAULT_THRESHOLD})",
     )
-    
+
     args = parser.parse_args()
     success = update_threshold(args.threshold)
-    sys.exit(0 if success else 1) 
+    sys.exit(0 if success else 1)
