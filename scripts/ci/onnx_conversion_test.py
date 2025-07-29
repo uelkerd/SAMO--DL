@@ -87,9 +87,9 @@ def test_onnx_conversion():
         # Create dummy input for ONNX export
         batch_size = 1
         sequence_length = 128
-        dummy_input_ids = torch.randint(0, 30522, (batch_size, sequence_length))
-        dummy_attention_mask = torch.ones(batch_size, sequence_length)
-        dummy_token_type_ids = torch.zeros(batch_size, sequence_length)
+        dummy_input_ids = torch.randint(0, 30522, (batch_size, sequence_length), dtype=torch.long)
+        dummy_attention_mask = torch.ones(batch_size, sequence_length, dtype=torch.long)
+        dummy_token_type_ids = torch.zeros(batch_size, sequence_length, dtype=torch.long)
 
         # Benchmark PyTorch model
         logger.info("Benchmarking PyTorch model...")
