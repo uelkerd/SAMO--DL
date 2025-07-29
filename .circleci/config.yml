@@ -231,7 +231,7 @@ jobs:
           name: Model Calibration Test
           command: |
             echo "🌡️ Testing model calibration with optimal temperature and threshold..."
-            python scripts/test_calibration.py
+            python scripts/ci/model_calibration_test.py
       - run:
           name: Model Compression Test
           command: |
