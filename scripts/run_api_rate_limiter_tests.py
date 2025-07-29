@@ -27,8 +27,14 @@ if __name__ == "__main__":
         print(f"❌ Test file not found: {test_file}")
         sys.exit(1)
 
-    # Run pytest on the specific test file with coverage
-    args = [str(test_file), "--cov=src.api_rate_limiter", "--cov-report=term-missing", "-v"]
+    # Run pytest on the specific test file with coverage and threshold
+    args = [
+        str(test_file), 
+        "--cov=src.api_rate_limiter", 
+        "--cov-report=term-missing", 
+        "--cov-fail-under=5",
+        "-v"
+    ]
 
     # Run the tests
     result = pytest.main(args)
