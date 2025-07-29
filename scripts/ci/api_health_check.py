@@ -77,19 +77,27 @@ def test_api_validation():
     try:
         logger.info("🔒 Testing API validation...")
 
-        from pydantic import BaseModel, ValidationError
+        from pydantic import BaseModel, ValidationError, Field
 
         class TestRequest(BaseModel):
-            text: str
-            threshold: float = 0.2
+            text: str = Field(..., min_length=1, description="Text cannot be empty")
+            threshold: float = Field(0.2, ge=0.0, le=1.0, description="Threshold between 0 and 1")
 
-        # Test invalid request
+        # Test invalid request - empty text
         try:
             TestRequest(text="")  # Invalid: empty text
             logger.error("❌ Validation should have failed for invalid request")
             return False
         except ValidationError:
             logger.info("✅ Validation correctly rejected invalid request")
+
+        # Test invalid request - threshold out of range
+        try:
+            TestRequest(text="Valid text", threshold=1.5)  # Invalid: threshold > 1
+            logger.error("❌ Validation should have failed for invalid threshold")
+            return False
+        except ValidationError:
+            logger.info("✅ Validation correctly rejected invalid threshold")
 
         # Test valid request
         TestRequest(text="This is a valid test text.", threshold=0.3)
