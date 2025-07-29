@@ -1,32 +1,29 @@
 #!/usr/bin/env python3
 """
-Simple Focal Loss Training for Emotion Detection
+Simple Focal Loss Training Script
 
-This script implements Focal Loss to address class imbalance and improve F1 scores.
-Uses the existing dataset loader to avoid compatibility issues.
-
-Usage:
-    python3 focal_loss_training_simple.py
+This script provides a simple implementation of focal loss training for the SAMO-DL project.
+It includes proper path handling for different environments.
 """
 
 import sys
 import logging
 import torch
-from torch import nn
+import torch.nn as nn
 import torch.nn.functional as F
 from pathlib import Path
 
-# Add the project root to Python path
-project_root = Path(__file__).parent.parent.resolve()
+# Add project root to Python path
+project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
 
 # Now import the modules
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
 
 
 class FocalLoss(nn.Module):
