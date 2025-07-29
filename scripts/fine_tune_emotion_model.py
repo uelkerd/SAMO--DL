@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Focal Loss Training Script for SAMO Emotion Detection
+Fine-tune Emotion Detection Model on GoEmotions Dataset
 
-This script implements focal loss training to improve F1 score
-from the current 13.2% to target >50%.
+This script fine-tunes the BERT model on the GoEmotions dataset
+to improve emotion detection performance.
 """
 
 import os
@@ -25,39 +25,14 @@ from src.models.emotion_detection.training_pipeline import create_bert_emotion_c
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-class FocalLoss(nn.Module):
-    """Focal Loss for handling class imbalance."""
+def fine_tune_model():
+    """Fine-tune the emotion detection model on GoEmotions dataset."""
     
-    def __init__(self, alpha: float = 0.25, gamma: float = 2.0, reduction: str = "mean"):
-        super().__init__()
-        self.alpha = alpha
-        self.gamma = gamma
-        self.reduction = reduction
-    
-    def forward(self, inputs, targets):
-        """Forward pass with focal loss calculation."""
-        # BCE loss
-        bce_loss = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction='none')
-        
-        # Focal loss components
-        pt = torch.exp(-bce_loss)
-        focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
-        
-        if self.reduction == "mean":
-            return focal_loss.mean()
-        elif self.reduction == "sum":
-            return focal_loss.sum()
-        else:
-            return focal_loss
-
-def train_with_focal_loss():
-    """Train BERT model with focal loss for improved F1 score."""
-    
-    logger.info("🚀 Starting Focal Loss Training")
-    logger.info("   • Gamma: 2.0")
-    logger.info("   • Alpha: 0.25")
-    logger.info("   • Learning Rate: 2e-05")
-    logger.info("   • Epochs: 3")
+    logger.info("🎯 Starting Model Fine-tuning")
+    logger.info("   • Dataset: GoEmotions")
+    logger.info("   • Model: BERT-base-uncased")
+    logger.info("   • Epochs: 5")
+    logger.info("   • Learning Rate: 1e-05")
     
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -67,7 +42,7 @@ def train_with_focal_loss():
         # Load dataset
         logger.info("Loading GoEmotions dataset...")
         data_loader = GoEmotionsDataLoader()
-        datasets = data_loader.prepare_datasets()  # Fixed method name
+        datasets = data_loader.prepare_datasets()
         
         train_dataset = datasets["train_dataset"]
         val_dataset = datasets["val_dataset"]
@@ -83,16 +58,15 @@ def train_with_focal_loss():
         logger.info("Creating BERT model...")
         model, _ = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
-            class_weights=None,  # Use focal loss instead
-            freeze_bert_layers=4,
+            class_weights=class_weights,  # Use class weights for imbalance
+            freeze_bert_layers=2,  # Freeze fewer layers for fine-tuning
         )
         model.to(device)
         
-        # Create focal loss
-        focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
-        
-        # Setup optimizer
-        optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
+        # Setup loss and optimizer
+        criterion = nn.BCEWithLogitsLoss()
+        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5, weight_decay=0.01)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=5)
         
         # Create data loaders
         train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=16, shuffle=True)
@@ -102,8 +76,8 @@ def train_with_focal_loss():
         best_val_loss = float("inf")
         training_history = []
         
-        for epoch in range(3):  # Quick 3 epochs
-            logger.info(f"\nEpoch {epoch + 1}/3")
+        for epoch in range(5):  # 5 epochs for fine-tuning
+            logger.info(f"\nEpoch {epoch + 1}/5")
             
             # Training phase
             model.train()
@@ -119,7 +93,7 @@ def train_with_focal_loss():
                 
                 # Forward pass
                 outputs = model(input_ids, attention_mask=attention_mask)
-                loss = focal_loss(outputs["logits"], labels)
+                loss = criterion(outputs["logits"], labels)
                 
                 # Backward pass
                 loss.backward()
@@ -146,21 +120,27 @@ def train_with_focal_loss():
                     labels = batch["labels"].float().to(device)
                     
                     outputs = model(input_ids, attention_mask=attention_mask)
-                    loss = focal_loss(outputs["logits"], labels)
+                    loss = criterion(outputs["logits"], labels)
                     
                     val_loss += loss.item()
                     val_batches += 1
             
             avg_val_loss = val_loss / val_batches
             
+            # Update learning rate
+            scheduler.step()
+            current_lr = scheduler.get_last_lr()[0]
+            
             # Log progress
             logger.info(f"   • Train Loss: {avg_train_loss:.4f}")
             logger.info(f"   • Val Loss: {avg_val_loss:.4f}")
+            logger.info(f"   • Learning Rate: {current_lr:.2e}")
             
             training_history.append({
                 "epoch": epoch + 1,
                 "train_loss": avg_train_loss,
-                "val_loss": avg_val_loss
+                "val_loss": avg_val_loss,
+                "learning_rate": current_lr
             })
             
             # Save best model
@@ -171,43 +151,45 @@ def train_with_focal_loss():
                 # Save model
                 output_dir = "./models/checkpoints"
                 os.makedirs(output_dir, exist_ok=True)
-                model_path = os.path.join(output_dir, "focal_loss_best_model.pt")
+                model_path = os.path.join(output_dir, "fine_tuned_model.pt")
                 
                 torch.save({
                     "model_state_dict": model.state_dict(),
                     "optimizer_state_dict": optimizer.state_dict(),
+                    "scheduler_state_dict": scheduler.state_dict(),
                     "epoch": epoch + 1,
                     "val_loss": best_val_loss,
-                    "training_history": training_history
+                    "training_history": training_history,
+                    "class_weights": class_weights
                 }, model_path)
                 
                 logger.info(f"   • Model saved to: {model_path}")
         
-        logger.info("🎉 Focal Loss Training completed successfully!")
+        logger.info("🎉 Fine-tuning completed successfully!")
         logger.info(f"   • Best validation loss: {best_val_loss:.4f}")
-        logger.info(f"   • Model saved to: ./models/checkpoints/focal_loss_best_model.pt")
+        logger.info(f"   • Model saved to: ./models/checkpoints/fine_tuned_model.pt")
         
         return True
         
     except Exception as e:
-        logger.error(f"❌ Training failed: {e}")
+        logger.error(f"❌ Fine-tuning failed: {e}")
         import traceback
         traceback.print_exc()
         return False
 
 def main():
     """Main function."""
-    logger.info("🧪 Focal Loss Training Script")
-    logger.info("This script implements focal loss to improve F1 score")
+    logger.info("🎯 Fine-tuning Script")
+    logger.info("This script fine-tunes the emotion detection model on GoEmotions")
     
-    success = train_with_focal_loss()
+    success = fine_tune_model()
     
     if success:
-        logger.info("✅ Focal loss training completed successfully!")
+        logger.info("✅ Fine-tuning completed successfully!")
         sys.exit(0)
     else:
-        logger.error("❌ Training failed. Check the logs above.")
+        logger.error("❌ Fine-tuning failed. Check the logs above.")
         sys.exit(1)
 
 if __name__ == "__main__":
-    main()
+    main() 
