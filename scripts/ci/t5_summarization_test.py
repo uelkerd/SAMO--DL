@@ -13,7 +13,7 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from models.summarization.t5_summarizer import T5TextSummarizer
+from models.summarization.t5_summarizer import T5SummarizationModel, create_t5_summarizer
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -26,7 +26,7 @@ def test_t5_model_loading():
         logger.info("🤖 Testing T5 summarization model loading...")
 
         # Initialize model with CPU device for CI
-        model = T5TextSummarizer(
+        model = create_t5_summarizer(
             model_name="t5-small",  # Use small model for CI
             device="cpu",
         )
@@ -53,7 +53,7 @@ def test_t5_summarization():
         logger.info("📝 Testing T5 summarization functionality...")
 
         # Initialize model
-        model = T5TextSummarizer(model_name="t5-small", device="cpu")
+        model = create_t5_summarizer(model_name="t5-small", device="cpu")
 
         # Test text for summarization
         test_text = """
@@ -65,7 +65,11 @@ def test_t5_summarization():
         """
 
         # Perform summarization
-        summary = model.summarize(text=test_text.strip(), max_length=50, min_length=10)
+        summary = model.generate_summary(
+            text=test_text.strip(), 
+            max_length=50, 
+            min_length=10
+        )
 
         logger.info(f"✅ Summarization successful: {summary[:50]}...")
 
