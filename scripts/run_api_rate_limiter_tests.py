@@ -29,11 +29,11 @@ if __name__ == "__main__":
 
     # Run pytest on the specific test file with coverage and threshold
     args = [
-        str(test_file), 
-        "--cov=src.api_rate_limiter", 
-        "--cov-report=term-missing", 
+        str(test_file),
+        "--cov=src.api_rate_limiter",
+        "--cov-report=term-missing",
         "--cov-fail-under=5",
-        "-v"
+        "-v",
     ]
 
     # Run the tests
