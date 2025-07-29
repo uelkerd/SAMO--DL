@@ -124,7 +124,8 @@ def test_onnx_conversion():
         )
 
         # Verify ONNX file was created
-        assert output_path.exists(), f"ONNX model file not created: {output_path}"
+        if not output_path.exists():
+            raise AssertionError(f"ONNX model file not created: {output_path}")
         logger.info(f"✅ ONNX model created: {output_path}")
 
         # Test ONNX model loading and inference
@@ -149,8 +150,10 @@ def test_onnx_conversion():
             logger.info(f"✅ ONNX inference successful, output shape: {outputs[0].shape}")
             
             # Basic validation
-            assert outputs[0].shape[0] == batch_size, f"Expected batch size {batch_size}, got {outputs[0].shape[0]}"
-            assert outputs[0].shape[1] == 28, f"Expected 28 emotions, got {outputs[0].shape[1]}"
+            if outputs[0].shape[0] != batch_size:
+                raise AssertionError(f"Expected batch size {batch_size}, got {outputs[0].shape[0]}")
+            if outputs[0].shape[1] != 28:
+                raise AssertionError(f"Expected 28 emotions, got {outputs[0].shape[1]}")
             
             # Benchmark ONNX model
             logger.info("Benchmarking ONNX model...")
@@ -173,7 +176,8 @@ def test_onnx_conversion():
             logger.info(f"ONNX inference speedup: {speedup:.2f}x")
 
             # Basic validation
-            assert speedup > 0, f"Speedup should be positive: {speedup}"
+            if speedup <= 0:
+                raise AssertionError(f"Speedup should be positive: {speedup}")
             
         except ImportError:
             logger.warning("onnxruntime not found. Skipping ONNX benchmarking.")
