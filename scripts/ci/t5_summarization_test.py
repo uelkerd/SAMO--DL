@@ -34,9 +34,12 @@ def test_t5_model_loading():
         logger.info("✅ T5 model initialized successfully")
 
         # Test basic model properties
-        assert hasattr(model, "model"), "Model should have 'model' attribute"
-        assert hasattr(model, "tokenizer"), "Model should have 'tokenizer' attribute"
-        assert hasattr(model, "device"), "Model should have 'device' attribute"
+        if not hasattr(model, "model"):
+            raise AssertionError("Model should have 'model' attribute")
+        if not hasattr(model, "tokenizer"):
+            raise AssertionError("Model should have 'tokenizer' attribute")
+        if not hasattr(model, "device"):
+            raise AssertionError("Model should have 'device' attribute")
 
         logger.info("✅ Model attributes validation passed")
 
@@ -71,7 +74,8 @@ def test_t5_summarization():
 
         # Validate summary
         assert isinstance(summary, str), "Summary should be a string"
-        assert len(summary) > 0, "Summary should not be empty"
+        if len(summary) <= 0:
+            raise AssertionError("Summary should not be empty")
         assert len(summary) < len(test_text), "Summary should be shorter than input"
 
         logger.info("✅ Summary validation passed")
