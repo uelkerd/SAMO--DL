@@ -13,7 +13,7 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from models.summarization.t5_summarizer import T5SummarizationModel, create_t5_summarizer
+from models.summarization.t5_summarizer import create_t5_summarizer
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -66,8 +66,8 @@ def test_t5_summarization():
 
         # Perform summarization
         summary = model.generate_summary(
-            text=test_text.strip(), 
-            max_length=50, 
+            text=test_text.strip(),
+            max_length=50,
             min_length=10
         )
 
@@ -115,7 +115,7 @@ def main():
     logger.info(f"{'='*40}")
 
     if passed == total:
-        logger.info("�� All T5 model tests passed!")
+        logger.info("🎉 All T5 model tests passed!")
         return True
     else:
         logger.error("💥 Some T5 model tests failed!")
