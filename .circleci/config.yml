@@ -241,7 +241,7 @@ jobs:
           name: ONNX Conversion Test
           command: |
             echo "🔄 Testing ONNX conversion..."
-            python scripts/convert_to_onnx.py --input_model /tmp/compressed_model.pt --output_model /tmp/bert_emotion_classifier.onnx
+            python scripts/ci/onnx_conversion_test.py
       - run:
           name: T5 Summarization Test
           command: |
