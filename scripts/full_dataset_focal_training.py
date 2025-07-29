@@ -131,10 +131,10 @@ def download_go_emotions_manual():
                 if emotion_str != "[]":
                     # Remove brackets and split
                     emotion_list = emotion_str.strip("[]").split(",")
-                    for emotion in emotion_list:
-                        emotion = emotion.strip().strip("'")
-                        if emotion in emotion_labels:
-                            idx = emotion_labels.index(emotion)
+                    for emotion_name in emotion_list:
+                        emotion_name = emotion_name.strip().strip("'")
+                        if emotion_name in emotion_labels:
+                            idx = emotion_labels.index(emotion_name)
                             labels[idx] = 1
 
                 processed_data.append({"text": text, "labels": labels})
