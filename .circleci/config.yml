@@ -289,6 +289,7 @@ jobs:
             echo "🚀 Testing API response times..."
             python -c "
             import time
+            import json
             from src.unified_ai_api import app
             from fastapi.testclient import TestClient
 
@@ -296,10 +297,17 @@ jobs:
 
             # Test emotion detection speed
             start = time.time()
-            response = client.post('/analyze/journal', data={'text': 'I feel happy and excited today!'})
+            response = client.post(
+                '/analyze/journal', 
+                json={
+                    'text': 'I feel happy and excited today!',
+                    'generate_summary': True,
+                    'emotion_threshold': 0.1
+                }
+            )
             duration = time.time() - start
 
-            assert response.status_code == 200
+            assert response.status_code == 200, f'API returned {response.status_code}: {response.text}'
             assert duration < 2.0, f'API response too slow: {duration:.2f}s'
             print(f'✅ Emotion detection: {duration:.2f}s (<500ms target in production)')
             "
