@@ -10,8 +10,7 @@ import os
 import sys
 import logging
 import torch
-import torch.nn as nn
-import numpy as np
+from torch import nn
 from pathlib import Path
 
 # Add project root to path
@@ -19,55 +18,56 @@ project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
+
 
 class TemperatureScaling(nn.Module):
     """Temperature scaling for model calibration."""
-    
+
     def __init__(self):
         super().__init__()
         self.temperature = nn.Parameter(torch.ones(1) * 1.5)
-    
+
     def forward(self, logits):
         """Apply temperature scaling to logits."""
         return logits / self.temperature
 
+
 def calibrate_temperature(model, val_loader, device):
     """Calibrate temperature parameter on validation set."""
     logger.info("🔧 Calibrating temperature parameter...")
-    
+
     # Create temperature scaling layer
     temperature_scaling = TemperatureScaling().to(device)
-    
+
     # Collect logits and labels
     all_logits = []
     all_labels = []
-    
+
     model.eval()
     with torch.no_grad():
         for batch in val_loader:
             input_ids = batch["input_ids"].to(device)
             attention_mask = batch["attention_mask"].to(device)
             labels = batch["labels"].float().to(device)
-            
+
             outputs = model(input_ids, attention_mask=attention_mask)
             logits = outputs["logits"]
-            
+
             all_logits.append(logits.cpu())
             all_labels.append(labels.cpu())
-    
+
     # Concatenate all batches
     all_logits = torch.cat(all_logits, dim=0)
     all_labels = torch.cat(all_labels, dim=0)
-    
+
     # Optimize temperature parameter
     optimizer = torch.optim.LBFGS([temperature_scaling.temperature], lr=0.01, max_iter=50)
-    
+
     def eval():
         optimizer.zero_grad()
         loss = nn.functional.binary_cross_entropy_with_logits(
@@ -75,41 +75,42 @@ def calibrate_temperature(model, val_loader, device):
         )
         loss.backward()
         return loss
-    
+
     optimizer.step(eval)
-    
+
     optimal_temperature = temperature_scaling.temperature.item()
     logger.info(f"✅ Optimal temperature: {optimal_temperature:.3f}")
-    
+
     return temperature_scaling
+
 
 def apply_temperature_scaling():
     """Apply temperature scaling to improve model calibration."""
-    
+
     logger.info("🌡️ Starting Temperature Scaling")
     logger.info("   • Expected improvement: 5-10% F1 score")
     logger.info("   • Method: Model calibration")
-    
+
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info(f"Using device: {device}")
-    
+
     try:
         # Load dataset
         logger.info("Loading validation dataset...")
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()
         
-        val_dataset = datasets["val_dataset"]
+        val_dataset = datasets["validation"]  # Fixed key name
         val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
-        
+
         # Load trained model
         model_path = "./models/checkpoints/focal_loss_best_model.pt"
         if not os.path.exists(model_path):
             logger.error(f"❌ Model not found: {model_path}")
             logger.info("   • Please run focal_loss_training.py first")
             return False
-        
+
         logger.info(f"Loading model from {model_path}")
         model, _ = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
@@ -117,45 +118,50 @@ def apply_temperature_scaling():
             freeze_bert_layers=4,
         )
         model.to(device)
-        
+
         # Load checkpoint
         checkpoint = torch.load(model_path, map_location=device)
         model.load_state_dict(checkpoint["model_state_dict"])
         logger.info("✅ Model loaded successfully")
-        
+
         # Calibrate temperature
         temperature_scaling = calibrate_temperature(model, val_loader, device)
-        
+
         # Save calibrated model
         output_dir = "./models/checkpoints"
         os.makedirs(output_dir, exist_ok=True)
         calibrated_path = os.path.join(output_dir, "temperature_scaled_model.pt")
-        
-        torch.save({
-            "model_state_dict": model.state_dict(),
-            "temperature_scaling_state_dict": temperature_scaling.state_dict(),
-            "temperature": temperature_scaling.temperature.item(),
-            "original_checkpoint": checkpoint
-        }, calibrated_path)
-        
+
+        torch.save(
+            {
+                "model_state_dict": model.state_dict(),
+                "temperature_scaling_state_dict": temperature_scaling.state_dict(),
+                "temperature": temperature_scaling.temperature.item(),
+                "original_checkpoint": checkpoint,
+            },
+            calibrated_path,
+        )
+
         logger.info(f"✅ Calibrated model saved to: {calibrated_path}")
         logger.info(f"   • Temperature: {temperature_scaling.temperature.item():.3f}")
-        
+
         return True
-        
+
     except Exception as e:
         logger.error(f"❌ Temperature scaling failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """Main function."""
     logger.info("🌡️ Temperature Scaling Script")
     logger.info("This script calibrates the model for better F1 scores")
-    
+
     success = apply_temperature_scaling()
-    
+
     if success:
         logger.info("✅ Temperature scaling completed successfully!")
         sys.exit(0)
@@ -163,5 +169,6 @@ def main():
         logger.error("❌ Temperature scaling failed. Check the logs above.")
         sys.exit(1)
 
+
 if __name__ == "__main__":
-    main() 
+    main()
