@@ -24,7 +24,8 @@ MAX_TIMESTAMP_DIFF = 60
 class TestCompleteWorkflows:
     """End-to-end tests for SAMO AI complete user workflows."""
 
-    def test_text_journal_complete_workflow(self, api_client, sample_journal_entry):
+    @staticmethod
+    def test_text_journal_complete_workflow(api_client, sample_journal_entry):
         """Test complete text journal analysis workflow."""
         # Step 1: Submit journal entry for analysis
         start_time = time.time()
@@ -121,7 +122,8 @@ class TestCompleteWorkflows:
             # Cleanup
             Path(temp_audio_path).unlink(missing_ok=True)
 
-    def test_error_recovery_workflow(self, api_client):
+    @staticmethod
+    def test_error_recovery_workflow(api_client):
         """Test system error recovery and graceful degradation."""
         # Step 1: Test with invalid input
         response = api_client.post("/analyze/journal", data={"text": ""})
@@ -142,7 +144,8 @@ class TestCompleteWorkflows:
         assert "emotions" in data
         assert len(data["emotions"]) >= 0
 
-    def test_high_volume_workflow(self, api_client):
+    @staticmethod
+    def test_high_volume_workflow(api_client):
         """Test system behavior under high volume of requests."""
         test_texts = [
             "I feel incredibly happy today!",
@@ -180,7 +183,8 @@ class TestCompleteWorkflows:
         average_time = total_time / len(test_texts)
         assert average_time < 2.0  # Average processing under 2 seconds
 
-    def test_data_consistency_workflow(self, api_client):
+    @staticmethod
+    def test_data_consistency_workflow(api_client):
         """Test data consistency across multiple processing steps."""
         original_text = "I had an amazing day today! I completed my project and felt incredibly proud of my accomplishment."
 
@@ -214,7 +218,8 @@ class TestCompleteWorkflows:
         time_diff = (now - timestamp).total_seconds()
         assert time_diff < 60  # Within last minute
 
-    def test_configuration_workflow(self, api_client):
+    @staticmethod
+    def test_configuration_workflow(api_client):
         """Test different configuration options work correctly."""
         test_text = "I'm feeling mixed emotions about this situation."
 

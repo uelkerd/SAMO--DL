@@ -287,8 +287,9 @@ class DataDriftDetector:
             affected_features=affected_features,
         )
 
+    @staticmethod
     def _calculate_drift_score(
-        self, ref_mean: float, ref_std: float, current_mean: float, current_std: float
+        ref_mean: float, ref_std: float, current_mean: float, current_std: float
     ) -> float:
         """Calculate drift score between reference and current distributions.
 
@@ -338,7 +339,8 @@ class ModelHealthMonitor:
         self.tokenizer = None
         self._initialize_model()
 
-    def _load_config(self, config_path: str) -> dict[str, Any]:
+    @staticmethod
+    def _load_config(config_path: str) -> dict[str, Any]:
         """Load monitoring configuration.
 
         Args:
@@ -514,7 +516,8 @@ class ModelHealthMonitor:
             logger.error(f"Error collecting metrics: {e}")
             return None
 
-    def _get_memory_usage(self) -> float:
+    @staticmethod
+    def _get_memory_usage() -> float:
         """Get current memory usage in MB.
 
         Returns:
@@ -528,7 +531,8 @@ class ModelHealthMonitor:
         except ImportError:
             return 0.0
 
-    def _get_gpu_utilization(self) -> Optional[float]:
+    @staticmethod
+    def _get_gpu_utilization() -> Optional[float]:
         """Get GPU utilization percentage.
 
         Returns:
@@ -541,7 +545,8 @@ class ModelHealthMonitor:
             pass
         return None
 
-    def _check_data_drift(self) -> DriftMetrics:
+    @staticmethod
+    def _check_data_drift() -> DriftMetrics:
         """Check for data drift in incoming data.
 
         Returns:
@@ -593,7 +598,8 @@ class ModelHealthMonitor:
         except Exception as e:
             logger.error(f"Error triggering retraining: {e}")
 
-    def _save_alert(self, alert: Alert) -> None:
+    @staticmethod
+    def _save_alert(alert: Alert) -> None:
         """Save alert to file.
 
         Args:

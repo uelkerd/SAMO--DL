@@ -392,7 +392,8 @@ class WhisperTranscriber:
 
         return results
 
-    def _calculate_confidence(self, segments: list[dict]) -> float:
+    @staticmethod
+    def _calculate_confidence(segments: list[dict]) -> float:
         """Calculate overall confidence from segment data.
 
         Args:
@@ -418,7 +419,8 @@ class WhisperTranscriber:
 
         return float(np.mean(confidences)) if confidences else 0.5
 
-    def _assess_audio_quality(self, result: dict, metadata: dict) -> str:
+    @staticmethod
+    def _assess_audio_quality(result: dict, metadata: dict) -> str:
         """Assess audio quality based on transcription results.
 
         Args:

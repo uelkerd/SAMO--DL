@@ -95,7 +95,8 @@ class TestBertEmotionClassifier:
         assert output.shape == (2, 28)
         assert torch.all(torch.isfinite(output))
 
-    def test_predict_emotions(self):
+    @staticmethod
+    def test_predict_emotions():
         """Test emotion prediction with threshold."""
         # Mock model output - now returns logits directly
         with patch.object(BERTEmotionClassifier, "forward") as mock_forward:
@@ -182,7 +183,8 @@ class TestBertEmotionClassifier:
         model.eval()
         assert not model.training
 
-    def test_class_weights_handling(self):
+    @staticmethod
+    def test_class_weights_handling():
         """Test model handles class weights for imbalanced dataset."""
         from src.models.emotion_detection.bert_classifier import WeightedBCELoss
 

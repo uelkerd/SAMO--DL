@@ -20,7 +20,8 @@ class BaseEmbedder:
     def __init__(self) -> None:
         self.model = None
 
-    def fit(self, texts: list[str]) -> "BaseEmbedder":
+    @staticmethod
+    def fit(texts: list[str]) -> "BaseEmbedder":
         """Fit the embedding model on a list of texts.
 
         Args:
@@ -33,7 +34,8 @@ class BaseEmbedder:
         msg = "Subclasses must implement fit()"
         raise NotImplementedError(msg)
 
-    def transform(self, texts: list[str]) -> np.ndarray:
+    @staticmethod
+    def transform(texts: list[str]) -> np.ndarray:
         """Transform texts into embeddings.
 
         Args:
@@ -159,7 +161,8 @@ class Word2VecEmbedder(BaseEmbedder):
         self.epochs = epochs
         self.model = None
 
-    def _preprocess_texts(self, texts: list[str]) -> list[list[str]]:
+    @staticmethod
+    def _preprocess_texts(texts: list[str]) -> list[list[str]]:
         """Preprocess texts for Word2Vec training.
 
         Args:
@@ -317,7 +320,8 @@ class EmbeddingPipeline:
             }
         )
 
-    def save_embeddings_to_csv(self, embeddings_df: pd.DataFrame, output_path: str) -> None:
+    @staticmethod
+    def save_embeddings_to_csv(embeddings_df: pd.DataFrame, output_path: str) -> None:
         """Save embeddings DataFrame to CSV.
 
         Args:

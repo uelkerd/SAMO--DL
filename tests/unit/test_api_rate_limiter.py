@@ -23,7 +23,8 @@ from src.api_rate_limiter import (
 class TestRateLimitEntry:
     """Test suite for RateLimitEntry class."""
 
-    def test_rate_limit_entry_initialization(self):
+    @staticmethod
+    def test_rate_limit_entry_initialization():
         """Test RateLimitEntry initialization with default values."""
         entry = RateLimitEntry()
 
@@ -39,7 +40,8 @@ class TestRateLimitEntry:
 class TestRateLimitCache:
     """Test suite for RateLimitCache class."""
 
-    def test_cache_initialization(self):
+    @staticmethod
+    def test_cache_initialization():
         """Test RateLimitCache initialization."""
         cache = RateLimitCache()
 
@@ -50,7 +52,8 @@ class TestRateLimitCache:
         assert isinstance(cache.cache, dict)
         assert len(cache.cache) == 0
 
-    def test_get_creates_new_entry(self):
+    @staticmethod
+    def test_get_creates_new_entry():
         """Test get method creates a new entry if not exists."""
         cache = RateLimitCache()
         key = "test_client"
@@ -61,7 +64,8 @@ class TestRateLimitCache:
         assert isinstance(entry, RateLimitEntry)
         assert entry.tokens == DEFAULT_RATE_LIMIT
 
-    def test_get_returns_existing_entry(self):
+    @staticmethod
+    def test_get_returns_existing_entry():
         """Test get method returns existing entry."""
         cache = RateLimitCache()
         key = "test_client"
@@ -77,7 +81,8 @@ class TestRateLimitCache:
         assert second_entry is first_entry
         assert second_entry.tokens == 42
 
-    def test_cleanup_removes_old_entries(self):
+    @staticmethod
+    def test_cleanup_removes_old_entries():
         """Test _cleanup removes old entries."""
         cleanup_interval = 1  # 1 second for testing
         cache = RateLimitCache(cleanup_interval=cleanup_interval)
@@ -118,7 +123,8 @@ class TestRateLimiter:
             burst_limit=2,
         )
 
-    def test_initialization(self, mock_app):
+    @staticmethod
+    def test_initialization(mock_app):
         """Test RateLimiter initialization."""
         limiter = RateLimiter(mock_app)
 
@@ -129,7 +135,8 @@ class TestRateLimiter:
         assert isinstance(limiter.cache, RateLimitCache)
         assert callable(limiter.get_client_id)
 
-    def test_default_client_id_from_header(self):
+    @staticmethod
+    def test_default_client_id_from_header():
         """Test default client ID extraction from header."""
         limiter = RateLimiter(MagicMock())
 
@@ -142,7 +149,8 @@ class TestRateLimiter:
 
         assert client_id == "test-api-key"
 
-    def test_default_client_id_from_query_param(self):
+    @staticmethod
+    def test_default_client_id_from_query_param():
         """Test default client ID extraction from query parameter."""
         limiter = RateLimiter(MagicMock())
 
@@ -155,7 +163,8 @@ class TestRateLimiter:
 
         assert client_id == "test-api-key"
 
-    def test_default_client_id_from_ip(self):
+    @staticmethod
+    def test_default_client_id_from_ip():
         """Test default client ID extraction from IP address."""
         limiter = RateLimiter(MagicMock())
 
@@ -199,7 +208,8 @@ class TestRateLimiter:
 class TestAddRateLimiting:
     """Test suite for add_rate_limiting function."""
 
-    def test_add_rate_limiting(self):
+    @staticmethod
+    def test_add_rate_limiting():
         """Test add_rate_limiting adds middleware to FastAPI app."""
         app = FastAPI()
 
