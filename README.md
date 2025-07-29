@@ -1,3 +1,5 @@
+[![CircleCI](https://dl.circleci.com/status-badge/img/circleci/FSXowV52GpBGpAqYmKsFET/8tGsuAsXwe7SbvmqisuxA8/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/FSXowV52GpBGpAqYmKsFET/8tGsuAsXwe7SbvmqisuxA8/tree/main)
+
 # SAMO Deep Learning Repository
 
 **SAMO** is an AI-powered, voice-first journaling companion designed to provide real emotional reflection. This repository contains the core AI/ML components including emotion detection, text summarization, and voice processing capabilities.
