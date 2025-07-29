@@ -511,7 +511,8 @@ def test_evaluation_logic():
     perfect_predictions = true_labels.copy()
 
     # Random predictions
-    random_predictions = np.random.randint(0, 2, size=true_labels.shape)
+    rng = np.random.default_rng()
+    random_predictions = rng.integers(0, 2, size=true_labels.shape)
 
     # All zeros predictions
     zero_predictions = np.zeros_like(true_labels)

@@ -10,7 +10,6 @@ Usage:
 """
 
 import sys
-import os
 import logging
 import torch
 from torch import nn
@@ -38,7 +37,7 @@ try:
         sys.path.insert(0, str(project_root))
 
     print(f"🔧 Added project root to path: {project_root}")
-    print(f"📁 Current working directory: {os.getcwd()}")
+    print(f"📁 Current working directory: {Path.cwd()}")
     print(f"📋 Python path: {sys.path[:3]}...")
 
 except Exception as e:
