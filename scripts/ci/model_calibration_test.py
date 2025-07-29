@@ -112,7 +112,8 @@ def test_model_calibration():
         # Test temperature setting
         logger.info("Testing temperature calibration...")
         model.temperature.data.fill_(1.0)
-        assert model.temperature.item() == 1.0, "Temperature not set correctly"
+        if model.temperature.item() != 1.0:
+            raise AssertionError("Temperature not set correctly")
         logger.info("✅ Temperature calibration works")
 
         # Create test data
@@ -156,8 +157,10 @@ def test_model_calibration():
         logger.info(f"Macro F1: {macro_f1:.4f}")
 
         # Basic validation
-        assert 0 <= micro_f1 <= 1, f"Invalid F1 score: {micro_f1}"
-        assert 0 <= macro_f1 <= 1, f"Invalid F1 score: {macro_f1}"
+        if not 0 <= micro_f1 <= 1:
+            raise AssertionError(f"Invalid F1 score: {micro_f1}")
+        if not 0 <= macro_f1 <= 1:
+            raise AssertionError(f"Invalid F1 score: {macro_f1}")
 
         logger.info("✅ Metrics calculation works")
 

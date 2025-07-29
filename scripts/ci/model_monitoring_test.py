@@ -71,12 +71,15 @@ def test_performance_tracker():
 
         # Test current performance
         current_perf = tracker.get_current_performance()
-        assert "f1_score" in current_perf
-        assert current_perf["f1_score"] == 0.75
+        if "f1_score" not in current_perf:
+            raise AssertionError
+        if current_perf["f1_score"] != 0.75:
+            raise AssertionError
 
         # Test trend analysis
         trend = tracker.get_trend_analysis()
-        assert "insufficient_data" in trend
+        if "insufficient_data" not in trend:
+            raise AssertionError
 
         # Test degradation detection
         degradation_alert = tracker.detect_degradation()
@@ -121,7 +124,8 @@ def test_drift_detector():
 
         drift_metrics = detector.detect_drift(current_data)
         assert isinstance(drift_metrics, DriftMetrics)
-        assert not drift_metrics.drift_detected
+        if drift_metrics.drift_detected:
+            raise AssertionError
 
         # Test with drifted data
         drifted_data = pd.DataFrame(
@@ -161,10 +165,14 @@ def test_alert_system():
         )
 
         # Test alert properties
-        assert alert.alert_type == "TEST_ALERT"
-        assert alert.severity == "MEDIUM"
-        assert alert.message == "Test alert message"
-        assert not alert.action_required
+        if alert.alert_type != "TEST_ALERT":
+            raise AssertionError
+        if alert.severity != "MEDIUM":
+            raise AssertionError
+        if alert.message != "Test alert message":
+            raise AssertionError
+        if alert.action_required:
+            raise AssertionError
 
         # Test alert serialization
         alert_dict = {
@@ -201,7 +209,8 @@ def test_config_creation():
 
         # Check if config file was created
         config_path = Path(test_config_path)
-        assert config_path.exists()
+        if not config_path.exists():
+            raise AssertionError
 
         # Load and validate config
         import yaml
@@ -210,10 +219,14 @@ def test_config_creation():
             config = yaml.safe_load(f)
 
         # Check required fields
-        assert "model_path" in config
-        assert "window_size" in config
-        assert "monitor_interval" in config
-        assert "alert_threshold" in config
+        if "model_path" not in config:
+            raise AssertionError
+        if "window_size" not in config:
+            raise AssertionError
+        if "monitor_interval" not in config:
+            raise AssertionError
+        if "alert_threshold" not in config:
+            raise AssertionError
 
         # Clean up
         config_path.unlink()
@@ -254,15 +267,21 @@ def test_monitoring_initialization():
         monitor = ModelHealthMonitor(test_config_path)
 
         # Test basic properties
-        assert monitor.config["window_size"] == 10
-        assert monitor.config["alert_threshold"] == 0.1
-        assert not monitor.monitoring_active
+        if monitor.config["window_size"] != 10:
+            raise AssertionError
+        if monitor.config["alert_threshold"] != 0.1:
+            raise AssertionError
+        if monitor.monitoring_active:
+            raise AssertionError
 
         # Test health status
         health_status = monitor.get_health_status()
-        assert "timestamp" in health_status
-        assert "model_loaded" in health_status
-        assert "monitoring_active" in health_status
+        if "timestamp" not in health_status:
+            raise AssertionError
+        if "model_loaded" not in health_status:
+            raise AssertionError
+        if "monitoring_active" not in health_status:
+            raise AssertionError
 
         # Clean up
         Path(test_config_path).unlink()
@@ -295,13 +314,20 @@ def test_metrics_collection():
         )
 
         # Test metrics properties
-        assert metrics.f1_score == 0.75
-        assert metrics.precision == 0.78
-        assert metrics.recall == 0.72
-        assert metrics.inference_time_ms == 150.0
-        assert metrics.throughput_rps == 33.3
-        assert metrics.memory_usage_mb == 512.0
-        assert metrics.gpu_utilization == 45.0
+        if metrics.f1_score != 0.75:
+            raise AssertionError
+        if metrics.precision != 0.78:
+            raise AssertionError
+        if metrics.recall != 0.72:
+            raise AssertionError
+        if metrics.inference_time_ms != 150.0:
+            raise AssertionError
+        if metrics.throughput_rps != 33.3:
+            raise AssertionError
+        if metrics.memory_usage_mb != 512.0:
+            raise AssertionError
+        if metrics.gpu_utilization != 45.0:
+            raise AssertionError
 
         # Test metrics serialization
         metrics_dict = {

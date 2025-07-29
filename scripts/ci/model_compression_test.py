@@ -133,9 +133,12 @@ def test_model_compression():
         logger.info(f"Inference speedup: {speedup:.2f}x")
 
         # Basic validation
-        assert quantized_size < original_size, f"Quantized model should be smaller: {quantized_size} >= {original_size}"
-        assert size_reduction > 0, f"Size reduction should be positive: {size_reduction}"
-        assert speedup > 0, f"Speedup should be positive: {speedup}"
+        if quantized_size >= original_size:
+            raise AssertionError(f"Quantized model should be smaller: {quantized_size} >= {original_size}")
+        if size_reduction <= 0:
+            raise AssertionError(f"Size reduction should be positive: {size_reduction}")
+        if speedup <= 0:
+            raise AssertionError(f"Speedup should be positive: {speedup}")
 
         # Test model saving
         logger.info("Testing model saving...")
@@ -152,7 +155,8 @@ def test_model_compression():
         }, output_path)
         
         # Verify file was created
-        assert output_path.exists(), f"Compressed model file not created: {output_path}"
+        if not output_path.exists():
+            raise AssertionError(f"Compressed model file not created: {output_path}")
         logger.info(f"✅ Compressed model saved to {output_path}")
 
         # Clean up
