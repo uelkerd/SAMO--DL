@@ -19,8 +19,19 @@ except ImportError as e:
 class TestBertEmotionClassifier:
     """Test suite for BERT emotion detection classifier."""
 
-    def test_model_initialization(self):
+    @patch("transformers.AutoConfig.from_pretrained")
+    @patch("transformers.AutoModel.from_pretrained")
+    def test_model_initialization(self, mock_bert, mock_config):
         """Test model initializes with correct parameters."""
+        # Mock the config
+        mock_config_instance = MagicMock()
+        mock_config_instance.hidden_size = 768
+        mock_config.return_value = mock_config_instance
+        
+        # Mock the BERT model
+        mock_bert_instance = MagicMock()
+        mock_bert.return_value = mock_bert_instance
+        
         num_emotions = 28
         model = BERTEmotionClassifier(num_emotions=num_emotions)
 
@@ -31,8 +42,19 @@ class TestBertEmotionClassifier:
         assert hasattr(model.classifier, "0")  # First dropout layer
         assert hasattr(model.classifier, "3")  # Second dropout layer
 
-    def test_model_parameter_count(self):
+    @patch("transformers.AutoConfig.from_pretrained")
+    @patch("transformers.AutoModel.from_pretrained")
+    def test_model_parameter_count(self, mock_bert, mock_config):
         """Test model has expected number of parameters."""
+        # Mock the config
+        mock_config_instance = MagicMock()
+        mock_config_instance.hidden_size = 768
+        mock_config.return_value = mock_config_instance
+        
+        # Mock the BERT model
+        mock_bert_instance = MagicMock()
+        mock_bert.return_value = mock_bert_instance
+        
         model = BERTEmotionClassifier(num_emotions=28)
         total_params = sum(p.numel() for p in model.parameters())
 
@@ -110,8 +132,19 @@ class TestBertEmotionClassifier:
                         "gratitude" in predicted["predicted_emotions"]
                     )  # Index 3 maps to gratitude
 
-    def test_device_compatibility(self):
+    @patch("transformers.AutoConfig.from_pretrained")
+    @patch("transformers.AutoModel.from_pretrained")
+    def test_device_compatibility(self, mock_bert, mock_config):
         """Test model works on both CPU and GPU (if available)."""
+        # Mock the config
+        mock_config_instance = MagicMock()
+        mock_config_instance.hidden_size = 768
+        mock_config.return_value = mock_config_instance
+        
+        # Mock the BERT model
+        mock_bert_instance = MagicMock()
+        mock_bert.return_value = mock_bert_instance
+        
         model = BERTEmotionClassifier(num_emotions=28)
 
         # Test CPU
@@ -125,8 +158,19 @@ class TestBertEmotionClassifier:
             model = model.to(device)
             assert next(model.parameters()).device == device
 
-    def test_training_mode(self):
+    @patch("transformers.AutoConfig.from_pretrained")
+    @patch("transformers.AutoModel.from_pretrained")
+    def test_training_mode(self, mock_bert, mock_config):
         """Test model switches between training and evaluation modes."""
+        # Mock the config
+        mock_config_instance = MagicMock()
+        mock_config_instance.hidden_size = 768
+        mock_config.return_value = mock_config_instance
+        
+        # Mock the BERT model
+        mock_bert_instance = MagicMock()
+        mock_bert.return_value = mock_bert_instance
+        
         model = BERTEmotionClassifier(num_emotions=28)
 
         # Test training mode
@@ -154,8 +198,19 @@ class TestBertEmotionClassifier:
         assert loss.requires_grad
 
     @pytest.mark.slow
-    def test_emotion_label_mapping(self):
+    @patch("transformers.AutoConfig.from_pretrained")
+    @patch("transformers.AutoModel.from_pretrained")
+    def test_emotion_label_mapping(self, mock_bert, mock_config):
         """Test emotion label mapping matches GoEmotions dataset."""
+        # Mock the config
+        mock_config_instance = MagicMock()
+        mock_config_instance.hidden_size = 768
+        mock_config.return_value = mock_config_instance
+        
+        # Mock the BERT model
+        mock_bert_instance = MagicMock()
+        mock_bert.return_value = mock_bert_instance
+        
         model = BERTEmotionClassifier(num_emotions=28)
 
         expected_emotions = [
