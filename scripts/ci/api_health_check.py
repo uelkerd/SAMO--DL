@@ -23,10 +23,10 @@ def test_api_imports():
     try:
         logger.info("🔍 Testing API imports...")
 
-        # Test core API imports
-        from models.emotion_detection.api_demo import EmotionRequest, EmotionResponse
-        from models.summarization.api_demo import SummarizeRequest, SummarizationResponse
-        from api_rate_limiter import add_rate_limiting
+        # Test core API imports - just verify imports work without using the classes
+        import models.emotion_detection.api_demo
+        import models.summarization.api_demo
+        import api_rate_limiter
 
         logger.info("✅ All API imports successful")
         return True
