@@ -40,8 +40,8 @@ class SimpleBERTClassifier(torch.nn.Module):
         )
         self.temperature = torch.nn.Parameter(torch.ones(1))
 
-    def forward(self, input_ids, attention_mask):
-        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
+    def forward(self, input_ids, attention_mask, token_type_ids=None):
+        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids)
         pooled_output = outputs.pooler_output
         logits = self.classifier(pooled_output)
         return logits
@@ -132,9 +132,12 @@ def test_model_calibration():
                 text, padding=True, truncation=True, max_length=128, return_tensors="pt"
             ).to(device)
 
-            # Get predictions
+            # Get predictions (only pass required arguments)
             with torch.no_grad():
-                outputs = model(**inputs)
+                outputs = model(
+                    input_ids=inputs['input_ids'],
+                    attention_mask=inputs['attention_mask']
+                )
                 probabilities = torch.sigmoid(outputs / model.temperature)
                 predictions = (probabilities > 0.4).float().cpu().numpy()
                 all_predictions.append(predictions[0])
