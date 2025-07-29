@@ -41,29 +41,28 @@ def test_onnx_dependencies():
         logger.info("Testing basic ONNX functionality...")
         
         try:
-            # Create a simple ONNX model manually to test basic functionality
             import numpy as np
             
-            # Create a simple ONNX model with basic operations
+            # Create a simple ONNX model manually to test basic functionality
             from onnx import helper
             
             # Define input
             input_shape = [1, 768]
             input_tensor = helper.make_tensor_value_info(
-                'input', onnx.TensorProto.FLOAT, input_shape
+                'input_ids', onnx.TensorProto.FLOAT, input_shape
             )
             
             # Define output
             output_shape = [1, 28]
             output_tensor = helper.make_tensor_value_info(
-                'output', onnx.TensorProto.FLOAT, output_shape
+                'logits', onnx.TensorProto.FLOAT, output_shape
             )
             
             # Create a simple model with identity operation
             identity_node = helper.make_node(
                 'Identity',
-                inputs=['input'],
-                outputs=['output']
+                inputs=['input_ids'],
+                outputs=['logits']
             )
             
             # Create graph
@@ -97,7 +96,7 @@ def test_onnx_dependencies():
                 
                 # Test inference
                 test_input = np.random.randn(1, 768).astype(np.float32)
-                outputs = session.run(None, {'input': test_input})
+                outputs = session.run(None, {'input_ids': test_input})
                 logger.info(f"✅ ONNX Runtime inference successful, output shape: {outputs[0].shape}")
                 
             finally:
