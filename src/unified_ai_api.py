@@ -260,9 +260,9 @@ class JournalEntryRequest(BaseModel):
     emotion_threshold: float = Field(0.1, description="Threshold for emotion detection", ge=0, le=1)
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
-                "text": "Today I received a promotion at work and I'm really excited about it. My team has been incredibly supportive throughout the project.",
+                "text": "Today I received a promotion at work and I'm really excited about it.",
                 "generate_summary": True,
                 "emotion_threshold": 0.1,
             }
