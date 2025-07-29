@@ -49,7 +49,7 @@ class EmotionDetectionTrainer:
         output_dir: str = "./models/checkpoints",
         max_length: int = 512,
         batch_size: int = 16,
-        learning_rate: float = 2e-5,
+        learning_rate: float = 2e-6,  # Fixed: Reduced from 2e-5 to 2e-6
         num_epochs: int = 3,
         warmup_steps: int = 500,
         weight_decay: float = 0.01,

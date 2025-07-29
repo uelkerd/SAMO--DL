@@ -457,3 +457,4 @@ tracking/
 docs/_build/
 docs/build/
 site/
+.cursor/
