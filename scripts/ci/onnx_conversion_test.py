@@ -119,7 +119,7 @@ def test_onnx_conversion():
                 "token_type_ids": {0: "batch_size", 1: "sequence_length"},
                 "logits": {0: "batch_size"},
             },
-            opset_version=12,
+            opset_version=14,
             verbose=False,
         )
 
