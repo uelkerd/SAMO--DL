@@ -5,7 +5,6 @@ Debug Calibration Script
 This script helps debug the calibration test by checking file paths and permissions.
 """
 
-import os
 import logging
 from pathlib import Path
 
@@ -19,7 +18,7 @@ def debug_calibration_issue():
     logger.info("🔍 Debugging calibration test issue...")
 
     # Check current directory
-    logger.info(f"Current directory: {os.getcwd()}")
+    logger.info(f"Current directory: {Path.cwd()}")
 
     # Check if test_checkpoints directory exists
     checkpoint_dir = Path("test_checkpoints")
@@ -55,24 +54,12 @@ def debug_calibration_issue():
     # Check if we can import the required modules
     try:
         import torch
-
         logger.info("✅ PyTorch imported successfully")
     except ImportError as e:
         logger.error(f"❌ PyTorch import failed: {e}")
 
-    try:
-        from transformers import AutoTokenizer
-
-        logger.info("✅ Transformers imported successfully")
-    except ImportError as e:
-        logger.error(f"❌ Transformers import failed: {e}")
-
-    try:
-        from sklearn.metrics import f1_score
-
-        logger.info("✅ Scikit-learn imported successfully")
-    except ImportError as e:
-        logger.error(f"❌ Scikit-learn import failed: {e}")
+    # Note: transformers and sklearn imports removed as they were unused
+    # If needed for future debugging, import them when actually used
 
 
 if __name__ == "__main__":
