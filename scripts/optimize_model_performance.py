@@ -107,7 +107,8 @@ class ModelOptimizer:
 
         logger.info("  Dynamic quantization applied")
 
-    def _apply_knowledge_distillation(self) -> None:
+    @staticmethod
+    def _apply_knowledge_distillation() -> None:
         """Apply knowledge distillation if teacher model is available."""
         # This would require a larger teacher model
         # For now, skip this step

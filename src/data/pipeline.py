@@ -157,8 +157,8 @@ class DataPipeline:
 
         return results
 
+    @staticmethod
     def _load_data(
-        self,
         data_source: str | pd.DataFrame,
         source_type: str,
         user_id: int | None,

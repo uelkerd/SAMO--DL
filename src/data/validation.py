@@ -17,8 +17,9 @@ class DataValidator:
     def __init__(self) -> None:
         """Initialize data validator."""
 
+    @staticmethod
     def check_missing_values(
-        self, df: pd.DataFrame, required_columns: Optional[list[str]] = None
+        df: pd.DataFrame, required_columns: Optional[list[str]] = None
     ) -> dict[str, float]:
         """Check for missing values in DataFrame.
 
@@ -48,8 +49,9 @@ class DataValidator:
 
         return missing_stats
 
+    @staticmethod
     def check_data_types(
-        self, df: pd.DataFrame, expected_types: dict[str, type]
+        df: pd.DataFrame, expected_types: dict[str, type]
     ) -> dict[str, bool]:
         """Check if columns have expected data types.
 
@@ -90,7 +92,8 @@ class DataValidator:
 
         return type_check_results
 
-    def check_text_quality(self, df: pd.DataFrame, text_column: str = "content") -> pd.DataFrame:
+    @staticmethod
+    def check_text_quality(df: pd.DataFrame, text_column: str = "content") -> pd.DataFrame:
         """Check text quality metrics.
 
         Args:

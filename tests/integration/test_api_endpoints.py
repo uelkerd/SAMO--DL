@@ -13,7 +13,8 @@ import pytest
 class TestAPIEndpoints:
     """Integration tests for SAMO AI API endpoints."""
 
-    def test_health_endpoint(self, api_client):
+    @staticmethod
+    def test_health_endpoint(api_client):
         """Test /health endpoint returns correct status."""
         response = api_client.get("/health")
 
@@ -31,7 +32,8 @@ class TestAPIEndpoints:
             assert "loaded" in model_status
             assert "status" in model_status
 
-    def test_root_endpoint(self, api_client):
+    @staticmethod
+    def test_root_endpoint(api_client):
         """Test root endpoint returns welcome message."""
         response = api_client.get("/")
 
@@ -74,7 +76,8 @@ class TestAPIEndpoints:
             assert "emotion" in emotion
             assert "confidence" in emotion
 
-    def test_journal_analysis_validation(self, api_client):
+    @staticmethod
+    def test_journal_analysis_validation(api_client):
         """Test journal analysis input validation."""
         # Test empty text
         response = api_client.post("/analyze/journal", data={"text": ""})
@@ -89,7 +92,8 @@ class TestAPIEndpoints:
         response = api_client.post("/analyze/journal", data={})
         assert response.status_code == 422
 
-    def test_models_status_endpoint(self, api_client):
+    @staticmethod
+    def test_models_status_endpoint(api_client):
         """Test /models/status endpoint returns model information."""
         response = api_client.get("/models/status")
 
@@ -124,7 +128,8 @@ class TestAPIEndpoints:
         assert "processing_time" in data
         assert data["processing_time"] > 0
 
-    def test_error_handling(self, api_client):
+    @staticmethod
+    def test_error_handling(api_client):
         """Test API error handling and response format."""
         # Test invalid endpoint
         response = api_client.get("/invalid/endpoint")
@@ -138,7 +143,8 @@ class TestAPIEndpoints:
         )
         assert response.status_code == 422
 
-    def test_concurrent_requests(self, api_client):
+    @staticmethod
+    def test_concurrent_requests(api_client):
         """Test API handles concurrent requests."""
         import queue
         import threading
@@ -169,7 +175,8 @@ class TestAPIEndpoints:
             result = results.get()
             assert result == 200
 
-    def test_content_type_handling(self, api_client):
+    @staticmethod
+    def test_content_type_handling(api_client):
         """Test API handles different content types correctly."""
         test_data = {"text": "Testing content type handling."}
 
@@ -182,7 +189,8 @@ class TestAPIEndpoints:
         # Note: Depending on FastAPI configuration, this might need adjustment
         # For form-based endpoints, JSON might not be accepted
 
-    def test_response_consistency(self, api_client):
+    @staticmethod
+    def test_response_consistency(api_client):
         """Test API response format consistency across multiple calls."""
         test_data = {"text": "Testing response consistency."}
 

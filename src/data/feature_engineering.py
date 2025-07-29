@@ -32,8 +32,9 @@ class FeatureEngineer:
             )
             self.sentiment_analyzer = None
 
+    @staticmethod
     def extract_basic_features(
-        self, df: pd.DataFrame, text_column: str = "content"
+        df: pd.DataFrame, text_column: str = "content"
     ) -> pd.DataFrame:
         """Extract basic statistical features from text.
 
@@ -129,8 +130,8 @@ class FeatureEngineer:
 
         return df
 
+    @staticmethod
     def extract_topic_features(
-        self,
         df: pd.DataFrame,
         text_column: str = "content",
         n_topics: int = 10,
@@ -197,8 +198,9 @@ class FeatureEngineer:
 
         return df, topics_df
 
+    @staticmethod
     def extract_time_features(
-        self, df: pd.DataFrame, timestamp_column: str = "created_at"
+        df: pd.DataFrame, timestamp_column: str = "created_at"
     ) -> pd.DataFrame:
         """Extract time-related features from timestamp.
 

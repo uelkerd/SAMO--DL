@@ -73,7 +73,8 @@ class CodeQualityFixer:
         except Exception as e:
             logger.error(f"❌ Error processing {file_path}: {e}")
 
-    def _fix_security_issues(self, content: str) -> str:
+    @staticmethod
+    def _fix_security_issues(content: str) -> str:
         """Fix security-related issues (S-codes)."""
         # S311: Replace random with secrets for sample data generation
         if "sample_data.py" in content or "import random" in content:
@@ -99,7 +100,8 @@ class CodeQualityFixer:
 
         return content
 
-    def _fix_path_operations(self, content: str) -> str:
+    @staticmethod
+    def _fix_path_operations(content: str) -> str:
         """Fix path operations to use pathlib (PTH-codes)."""
         # Add pathlib import if needed
         if "os.path." in content or "os.makedirs" in content or "os.remove" in content:
@@ -134,7 +136,8 @@ class CodeQualityFixer:
 
         return content
 
-    def _fix_logging_fstrings(self, content: str) -> str:
+    @staticmethod
+    def _fix_logging_fstrings(content: str) -> str:
         """Fix logging f-string issues (G004)."""
         # Pattern: logger.level(f"message {variable}")
         # Replace with: logger.level("message %s", variable)
@@ -163,7 +166,8 @@ class CodeQualityFixer:
 
         return content
 
-    def _fix_datetime_timezone(self, content: str) -> str:
+    @staticmethod
+    def _fix_datetime_timezone(content: str) -> str:
         """Fix datetime timezone issues (DTZ005)."""
         # Add timezone import if needed
         if "datetime.now()" in content and "from datetime import timezone" not in content:
@@ -178,7 +182,8 @@ class CodeQualityFixer:
 
         return content
 
-    def _fix_exception_handling(self, content: str) -> str:
+    @staticmethod
+    def _fix_exception_handling(content: str) -> str:
         """Fix exception handling issues (B904)."""
         # Replace raise Exception(msg) with raise Exception(msg) from e
         content = re.sub(
@@ -189,7 +194,8 @@ class CodeQualityFixer:
 
         return content
 
-    def _fix_miscellaneous(self, content: str) -> str:
+    @staticmethod
+    def _fix_miscellaneous(content: str) -> str:
         """Fix miscellaneous issues."""
         # E721: Use isinstance() instead of type comparison
         content = re.sub(r"expected_type == str", r"expected_type is str", content)
