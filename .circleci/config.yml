@@ -282,7 +282,7 @@ jobs:
           name: Model Performance Benchmarks
           command: |
             echo "⚡ Running performance benchmarks..."
-            python scripts/optimize_performance.py --benchmark-only
+            python scripts/optimize_performance.py --benchmark
       - run:
           name: API Response Time Tests
           command: |
