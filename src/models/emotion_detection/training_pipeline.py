@@ -120,7 +120,7 @@ class EmotionDetectionTrainer:
 
         logger.info("Initialized EmotionDetectionTrainer")
 
-    def prepare_data(self, dev_mode: bool = True) -> dict[str, Any]:
+    def prepare_data(self, dev_mode: bool = False) -> dict[str, Any]:
         """Prepare GoEmotions dataset for training.
 
         Args:
