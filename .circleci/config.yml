@@ -236,7 +236,7 @@ jobs:
           name: Model Compression Test
           command: |
             echo "📦 Testing model compression..."
-            python scripts/compress_model.py --input_model test_checkpoints/best_model.pt --output_model /tmp/compressed_model.pt
+            python scripts/ci/model_compression_test.py
       - run:
           name: ONNX Conversion Test
           command: |
