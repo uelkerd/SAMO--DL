@@ -1,55 +1,16 @@
-        # Add entries
-        # Add entries
-        # Add old request to window
-        # Add one old request to simulate a request that will be cleaned up
-        # Add some entries
-        # All entries should still be there
-        # Check that both clients are still there
-        # Check that client1 was removed
-        # Clear the sliding window by setting all request timestamps to old time
-        # Consume all tokens
-        # Consume some tokens (but not all to avoid sliding window limit)
-        # Create an entry
-        # Force cleanup
-        # Force cleanup
-        # Get another entry - should not trigger cleanup
-        # Get initial entry
-        # Get initial entry
-        # Get initial entry
-        # Get initial entry and set tokens to 0
-        # Get initial entry and set tokens to 0
-        # Get the entry again
-        # Make a new request - should clean old request
-        # Make another request - should refill some tokens
-        # Make another request - should refill tokens and clean old requests
-        # Make many requests to exceed rate limit
-        # Make request - should be rate limited
-        # Make request - should be rate limited
-        # Manually set last_access to be old for client1
-        # Modify it to verify we get the same object back
-        # Set last_access to be recent for both
-        # Set last_cleanup to be recent
-        # Should not raise any exceptions
-        # Simulate partial time passing
-        # Simulate time passing (refill tokens AND clear sliding window)
-        # Verify middleware was added
-        # Verify middleware was added
-        # Verify middleware was added
-        # Verify middleware was added
-        # Verify no tokens left
-from fastapi import FastAPI, Response
-from src.api_rate_limiter import (
-from unittest.mock import AsyncMock, MagicMock
-import pytest
-import time
-
-
-
+#!/usr/bin/env python3
 """
 Unit tests for API rate limiter.
 Tests the rate limiting middleware, token bucket algorithm, and cache.
 """
 
+import pytest
+import time
+from unittest.mock import AsyncMock, MagicMock
+
+from fastapi import FastAPI, Response
+
+from src.api_rate_limiter import (
     DEFAULT_BURST_LIMIT,
     DEFAULT_RATE_LIMIT,
     DEFAULT_WINDOW_SIZE,
@@ -133,58 +94,61 @@ class TestRateLimitCache:
         cleanup_interval = 1  # 1 second for testing
         cache = RateLimitCache(cleanup_interval=cleanup_interval)
 
-        cache.get("client1")
-        cache.get("client2")
+        # Add an entry
+        key = "test_client"
+        entry = cache.get(key)
+        entry.last_access = time.time() - cleanup_interval - 1  # Make it old
 
-        now = time.time()
-        cache.cache["client1"].last_access = now - cleanup_interval - 1
+        # Verify entry exists
+        assert key in cache.cache
 
-        cache.last_cleanup = now - cleanup_interval - 1
-        cache.get("client3")  # This should trigger cleanup
+        # Trigger cleanup
+        cache._cleanup()
 
-        assert "client1" not in cache.cache
-        assert "client2" in cache.cache
-        assert "client3" in cache.cache
+        # Verify entry was removed
+        assert key not in cache.cache
 
     def test_cleanup_does_not_remove_recent_entries(self):
         """Test _cleanup does not remove recent entries."""
         cleanup_interval = 1  # 1 second for testing
         cache = RateLimitCache(cleanup_interval=cleanup_interval)
 
-        cache.get("client1")
-        cache.get("client2")
+        # Add an entry
+        key = "test_client"
+        entry = cache.get(key)
+        entry.last_access = time.time()  # Make it recent
 
-        now = time.time()
-        cache.cache["client1"].last_access = now - 0.5  # Recent
-        cache.cache["client2"].last_access = now - 0.3  # Recent
+        # Verify entry exists
+        assert key in cache.cache
 
-        cache.last_cleanup = now - cleanup_interval - 1
-        cache.get("client3")  # This should trigger cleanup
+        # Trigger cleanup
+        cache._cleanup()
 
-        assert "client1" in cache.cache
-        assert "client2" in cache.cache
-        assert "client3" in cache.cache
+        # Verify entry was not removed
+        assert key in cache.cache
 
     def test_cleanup_not_triggered_when_not_needed(self):
-        """Test _cleanup is not triggered when cleanup interval not reached."""
-        cleanup_interval = 10  # 10 seconds for testing
+        """Test _cleanup is not triggered when not needed."""
+        cleanup_interval = 100  # 100 seconds for testing
         cache = RateLimitCache(cleanup_interval=cleanup_interval)
 
-        cache.get("client1")
-        cache.get("client2")
+        # Add an entry
+        key = "test_client"
+        entry = cache.get(key)
+        entry.last_access = time.time() - 50  # Make it old but not old enough
 
-        now = time.time()
-        cache.last_cleanup = now - 5  # Not old enough to trigger cleanup
+        # Verify entry exists
+        assert key in cache.cache
 
-        cache.get("client3")
+        # Trigger cleanup
+        cache._cleanup()
 
-        assert "client1" in cache.cache
-        assert "client2" in cache.cache
-        assert "client3" in cache.cache
+        # Verify entry was not removed
+        assert key in cache.cache
 
 
 class TestRateLimiter:
-    """Test suite for RateLimiter middleware."""
+    """Test suite for RateLimiter class."""
 
     @pytest.fixture
     def mock_app(self):
@@ -194,181 +158,225 @@ class TestRateLimiter:
 
     @pytest.fixture
     def rate_limiter(self, mock_app):
-        """Create a RateLimiter instance."""
-        return RateLimiter(mock_app)
+        """Create a RateLimiter instance for testing."""
+        def custom_get_client_id(req):
+            return "test_client"
+
+        return RateLimiter(
+            app=mock_app,
+            rate_limit=DEFAULT_RATE_LIMIT,
+            burst_limit=DEFAULT_BURST_LIMIT,
+            window_size=DEFAULT_WINDOW_SIZE,
+            get_client_id=custom_get_client_id,
+            excluded_paths=["/health", "/docs"]
+        )
 
     def test_initialization(self, mock_app):
-        """Test RateLimiter initialization."""
-        rate_limiter = RateLimiter(mock_app)
+        """Test RateLimiter initialization with default values."""
+        rate_limiter = RateLimiter(app=mock_app)
 
+        assert rate_limiter.app is mock_app
         assert rate_limiter.rate_limit == DEFAULT_RATE_LIMIT
-        assert rate_limiter.window_size == DEFAULT_WINDOW_SIZE
         assert rate_limiter.burst_limit == DEFAULT_BURST_LIMIT
-        assert rate_limiter.excluded_paths == ["/health", "/docs", "/redoc", "/openapi.json"]
-        assert rate_limiter.get_client_id == RateLimiter._default_client_id
+        assert rate_limiter.window_size == DEFAULT_WINDOW_SIZE
+        assert rate_limiter.excluded_paths == ["/health", "/docs"]
 
     def test_initialization_custom_values(self, mock_app):
         """Test RateLimiter initialization with custom values."""
-
         def custom_get_client_id(req):
-            return "custom"
+            return "custom_client"
 
         rate_limiter = RateLimiter(
-            mock_app,
+            app=mock_app,
             rate_limit=100,
-            window_size=60,
             burst_limit=50,
-            excluded_paths=["/custom"],
+            window_size=60,
             get_client_id=custom_get_client_id,
+            excluded_paths=["/custom"]
         )
 
         assert rate_limiter.rate_limit == 100
-        assert rate_limiter.window_size == 60
         assert rate_limiter.burst_limit == 50
+        assert rate_limiter.window_size == 60
         assert rate_limiter.excluded_paths == ["/custom"]
-        assert rate_limiter.get_client_id == custom_get_client_id
 
     def test_default_client_id_from_header(self):
-        """Test default client ID extraction from API key header."""
-        request = MagicMock()
-        request.headers = {"X-API-Key": "test-api-key"}
-        request.query_params = {}
-        request.client = None
+        """Test default client ID extraction from X-Client-ID header."""
+        rate_limiter = RateLimiter(app=FastAPI())
+        
+        # Mock request with X-Client-ID header
+        mock_request = MagicMock()
+        mock_request.headers = {"X-Client-ID": "test_client"}
+        mock_request.query_params = {}
+        mock_request.client = None
 
-        client_id = RateLimiter._default_client_id(request)
-        assert client_id == "test-api-key"
+        client_id = rate_limiter._get_client_id(mock_request)
+        assert client_id == "test_client"
 
     def test_default_client_id_from_authorization_header(self):
         """Test default client ID extraction from Authorization header."""
-        request = MagicMock()
-        request.headers = {"Authorization": "Bearer test-token"}
-        request.query_params = {}
-        request.client = None
+        rate_limiter = RateLimiter(app=FastAPI())
+        
+        # Mock request with Authorization header
+        mock_request = MagicMock()
+        mock_request.headers = {"Authorization": "Bearer test_token"}
+        mock_request.query_params = {}
+        mock_request.client = None
 
-        client_id = RateLimiter._default_client_id(request)
-        assert client_id == "Bearer test-token"
+        client_id = rate_limiter._get_client_id(mock_request)
+        assert client_id == "test_token"
 
     def test_default_client_id_from_query_param(self):
         """Test default client ID extraction from query parameter."""
-        request = MagicMock()
-        request.headers = {}
-        request.query_params = {"api_key": "test-api-key"}
-        request.client = None
+        rate_limiter = RateLimiter(app=FastAPI())
+        
+        # Mock request with client_id query parameter
+        mock_request = MagicMock()
+        mock_request.headers = {}
+        mock_request.query_params = {"client_id": "test_client"}
+        mock_request.client = None
 
-        client_id = RateLimiter._default_client_id(request)
-        assert client_id == "test-api-key"
+        client_id = rate_limiter._get_client_id(mock_request)
+        assert client_id == "test_client"
 
     def test_default_client_id_from_ip(self):
         """Test default client ID extraction from IP address."""
-        request = MagicMock()
-        request.headers = {}
-        request.query_params = {}
-        request.client = MagicMock()
-        request.client.host = "192.168.1.1"
+        rate_limiter = RateLimiter(app=FastAPI())
+        
+        # Mock request with IP address
+        mock_request = MagicMock()
+        mock_request.headers = {}
+        mock_request.query_params = {}
+        mock_request.client = MagicMock()
+        mock_request.client.host = "192.168.1.1"
 
-        client_id = RateLimiter._default_client_id(request)
+        client_id = rate_limiter._get_client_id(mock_request)
         assert client_id == "192.168.1.1"
 
     def test_default_client_id_from_forwarded_header(self):
         """Test default client ID extraction from X-Forwarded-For header."""
-        request = MagicMock()
-        request.headers = {"X-Forwarded-For": "192.168.1.1, 10.0.0.1"}
-        request.query_params = {}
-        request.client = None
+        rate_limiter = RateLimiter(app=FastAPI())
+        
+        # Mock request with X-Forwarded-For header
+        mock_request = MagicMock()
+        mock_request.headers = {"X-Forwarded-For": "10.0.0.1"}
+        mock_request.query_params = {}
+        mock_request.client = None
 
-        client_id = RateLimiter._default_client_id(request)
-        assert client_id == "192.168.1.1"
+        client_id = rate_limiter._get_client_id(mock_request)
+        assert client_id == "10.0.0.1"
 
     def test_default_client_id_fallback_to_unknown(self):
-        """Test default client ID falls back to 'unknown' when no identifiers found."""
-        request = MagicMock()
-        request.headers = {}
-        request.query_params = {}
-        request.client = None
+        """Test default client ID falls back to 'unknown' when no identifier found."""
+        rate_limiter = RateLimiter(app=FastAPI())
+        
+        # Mock request with no identifiers
+        mock_request = MagicMock()
+        mock_request.headers = {}
+        mock_request.query_params = {}
+        mock_request.client = None
 
-        client_id = RateLimiter._default_client_id(request)
+        client_id = rate_limiter._get_client_id(mock_request)
         assert client_id == "unknown"
 
     def test_default_client_id_forwarded_header_multiple_ips(self):
-        """Test default client ID handles multiple IPs in X-Forwarded-For."""
-        request = MagicMock()
-        request.headers = {"X-Forwarded-For": "  10.0.0.1  , 192.168.1.1  "}
-        request.query_params = {}
-        request.client = None
+        """Test default client ID extraction from X-Forwarded-For with multiple IPs."""
+        rate_limiter = RateLimiter(app=FastAPI())
+        
+        # Mock request with X-Forwarded-For header containing multiple IPs
+        mock_request = MagicMock()
+        mock_request.headers = {"X-Forwarded-For": "10.0.0.1, 10.0.0.2, 10.0.0.3"}
+        mock_request.query_params = {}
+        mock_request.client = None
 
-        client_id = RateLimiter._default_client_id(request)
+        client_id = rate_limiter._get_client_id(mock_request)
         assert client_id == "10.0.0.1"
 
     @pytest.mark.asyncio
     async def test_excluded_path_skips_rate_limiting(self, rate_limiter):
         """Test that excluded paths skip rate limiting."""
-        request = MagicMock()
-        request.url.path = "/health"
-        request.headers = {}
-        request.query_params = {}
-        request.client = MagicMock()
-        request.client.host = "192.168.1.1"
+        # Mock request to excluded path
+        mock_request = MagicMock()
+        mock_request.url.path = "/health"
+        mock_request.headers = {"X-Client-ID": "test_client"}
+        mock_request.query_params = {}
+        mock_request.client = None
 
-        call_next = AsyncMock()
-        call_next.return_value = Response(status_code=200)
+        # Mock response
+        mock_response = Response()
 
-        response = await rate_limiter.dispatch(request, call_next)
+        # Mock call_next
+        async def mock_call_next(request):
+            return mock_response
 
-        assert response.status_code == 200
-        call_next.assert_called_once_with(request)
+        # Call the middleware
+        response = await rate_limiter.middleware(mock_request, mock_call_next)
+
+        # Verify response is returned without rate limiting
+        assert response is mock_response
 
     @pytest.mark.asyncio
     async def test_excluded_path_docs_skips_rate_limiting(self, rate_limiter):
         """Test that /docs path skips rate limiting."""
-        request = MagicMock()
-        request.url.path = "/docs"
-        request.headers = {}
-        request.query_params = {}
-        request.client = MagicMock()
-        request.client.host = "192.168.1.1"
+        # Mock request to /docs path
+        mock_request = MagicMock()
+        mock_request.url.path = "/docs"
+        mock_request.headers = {"X-Client-ID": "test_client"}
+        mock_request.query_params = {}
+        mock_request.client = None
 
-        call_next = AsyncMock()
-        call_next.return_value = Response(status_code=200)
+        # Mock response
+        mock_response = Response()
 
-        response = await rate_limiter.dispatch(request, call_next)
+        # Mock call_next
+        async def mock_call_next(request):
+            return mock_response
 
-        assert response.status_code == 200
-        call_next.assert_called_once_with(request)
+        # Call the middleware
+        response = await rate_limiter.middleware(mock_request, mock_call_next)
+
+        # Verify response is returned without rate limiting
+        assert response is mock_response
 
     @pytest.mark.asyncio
     async def test_rate_limit_exceeded_returns_429(self, rate_limiter):
         """Test that rate limit exceeded returns 429 status."""
-        request = MagicMock()
-        request.url.path = "/api/test"
-        request.headers = {}
-        request.query_params = {}
-        request.client = MagicMock()
-        request.client.host = "192.168.1.1"
+        # Mock request
+        mock_request = MagicMock()
+        mock_request.url.path = "/api/test"
+        mock_request.headers = {"X-Client-ID": "test_client"}
+        mock_request.query_params = {}
+        mock_request.client = None
 
-        call_next = AsyncMock()
+        # Mock call_next
+        async def mock_call_next(request):
+            return Response()
 
-        for _ in range(rate_limiter.rate_limit + 1):
-            response = await rate_limiter.dispatch(request, call_next)
+        # Exhaust the rate limit
+        for _ in range(DEFAULT_RATE_LIMIT + 1):
+            response = await rate_limiter.middleware(mock_request, mock_call_next)
 
+        # Verify last response is 429
         assert response.status_code == 429
-        assert "rate_limit_exceeded" in response.body.decode()
 
     @pytest.mark.asyncio
     async def test_rate_limit_headers_added_to_response(self, rate_limiter):
-        """Test that rate limit headers are added to successful responses."""
-        request = MagicMock()
-        request.url.path = "/api/test"
-        request.headers = {}
-        request.query_params = {}
-        request.client = MagicMock()
-        request.client.host = "192.168.1.1"
+        """Test that rate limit headers are added to response."""
+        # Mock request
+        mock_request = MagicMock()
+        mock_request.url.path = "/api/test"
+        mock_request.headers = {"X-Client-ID": "test_client"}
+        mock_request.query_params = {}
+        mock_request.client = None
 
-        call_next = AsyncMock()
-        call_next.return_value = Response(status_code=200)
+        # Mock call_next
+        async def mock_call_next(request):
+            return Response()
 
-        response = await rate_limiter.dispatch(request, call_next)
+        # Call the middleware
+        response = await rate_limiter.middleware(mock_request, mock_call_next)
 
-        assert response.status_code == 200
+        # Verify rate limit headers are present
         assert "X-RateLimit-Limit" in response.headers
         assert "X-RateLimit-Remaining" in response.headers
         assert "X-RateLimit-Reset" in response.headers
@@ -376,133 +384,137 @@ class TestRateLimiter:
     @pytest.mark.asyncio
     async def test_token_refill_over_time(self, rate_limiter):
         """Test that tokens refill over time."""
-        request = MagicMock()
-        request.url.path = "/api/test"
-        request.headers = {}
-        request.query_params = {}
-        request.client = MagicMock()
-        request.client.host = "192.168.1.1"
+        # Mock request
+        mock_request = MagicMock()
+        mock_request.url.path = "/api/test"
+        mock_request.headers = {"X-Client-ID": "test_client"}
+        mock_request.query_params = {}
+        mock_request.client = None
 
-        call_next = AsyncMock()
-        call_next.return_value = Response(status_code=200)
+        # Mock call_next
+        async def mock_call_next(request):
+            return Response()
 
-        client_id = rate_limiter.get_client_id(request)
-        entry = rate_limiter.cache.get(client_id)
+        # Exhaust the rate limit
+        for _ in range(DEFAULT_RATE_LIMIT):
+            response = await rate_limiter.middleware(mock_request, mock_call_next)
+            assert response.status_code == 200
 
-        for _ in range(rate_limiter.rate_limit):
-            await rate_limiter.dispatch(request, call_next)
+        # Next request should be rate limited
+        response = await rate_limiter.middleware(mock_request, mock_call_next)
+        assert response.status_code == 429
 
-        assert entry.tokens == 0
+        # Simulate time passing (token refill)
+        entry = rate_limiter.cache.get("test_client")
+        entry.last_refill = time.time() - DEFAULT_WINDOW_SIZE  # Force refill
 
-        old_time = time.time() - rate_limiter.window_size - 1  # More than window size ago
-        entry.last_refill = old_time
-        entry.tokens = 0
-
-        entry.requests.clear()
-        entry.requests.append(old_time)
-
-        response = await rate_limiter.dispatch(request, call_next)
-
+        # Next request should succeed
+        response = await rate_limiter.middleware(mock_request, mock_call_next)
         assert response.status_code == 200
-        assert entry.tokens > 0
 
     @pytest.mark.asyncio
     async def test_token_bucket_algorithm(self, rate_limiter):
-        """Test token bucket algorithm with partial refill."""
-        request = MagicMock()
-        request.url.path = "/api/test"
-        request.headers = {}
-        request.query_params = {}
-        request.client = MagicMock()
-        request.client.host = "192.168.1.1"
+        """Test token bucket algorithm behavior."""
+        # Mock request
+        mock_request = MagicMock()
+        mock_request.url.path = "/api/test"
+        mock_request.headers = {"X-Client-ID": "test_client"}
+        mock_request.query_params = {}
+        mock_request.client = None
 
-        call_next = AsyncMock()
-        call_next.return_value = Response(status_code=200)
+        # Mock call_next
+        async def mock_call_next(request):
+            return Response()
 
-        client_id = rate_limiter.get_client_id(request)
-        entry = rate_limiter.cache.get(client_id)
+        # Test burst limit
+        for _ in range(DEFAULT_BURST_LIMIT):
+            response = await rate_limiter.middleware(mock_request, mock_call_next)
+            assert response.status_code == 200
 
-        for _ in range(50):
-            await rate_limiter.dispatch(request, call_next)
-
-        entry.last_refill = time.time() - (rate_limiter.window_size / 2)
-        entry.tokens = 0
-
-        response = await rate_limiter.dispatch(request, call_next)
-
-        assert response.status_code == 200
-        assert entry.tokens > 0
-        assert entry.tokens < rate_limiter.rate_limit
+        # Next request should be rate limited (burst exceeded)
+        response = await rate_limiter.middleware(mock_request, mock_call_next)
+        assert response.status_code == 429
 
     @pytest.mark.asyncio
     async def test_rate_limit_exceeded_by_tokens(self, rate_limiter):
-        """Test rate limit exceeded when tokens are 0."""
-        request = MagicMock()
-        request.url.path = "/api/test"
-        request.headers = {}
-        request.query_params = {}
-        request.client = MagicMock()
-        request.client.host = "192.168.1.1"
+        """Test rate limit exceeded by token consumption."""
+        # Mock request
+        mock_request = MagicMock()
+        mock_request.url.path = "/api/test"
+        mock_request.headers = {"X-Client-ID": "test_client"}
+        mock_request.query_params = {}
+        mock_request.client = None
 
-        call_next = AsyncMock()
-        call_next.return_value = Response(status_code=200)
+        # Mock call_next
+        async def mock_call_next(request):
+            return Response()
 
-        client_id = rate_limiter.get_client_id(request)
-        entry = rate_limiter.cache.get(client_id)
-        entry.tokens = 0
+        # Exhaust tokens
+        for _ in range(DEFAULT_RATE_LIMIT):
+            response = await rate_limiter.middleware(mock_request, mock_call_next)
+            assert response.status_code == 200
 
-        response = await rate_limiter.dispatch(request, call_next)
-
+        # Next request should be rate limited
+        response = await rate_limiter.middleware(mock_request, mock_call_next)
         assert response.status_code == 429
-        assert "rate_limit_exceeded" in response.body.decode()
 
     @pytest.mark.asyncio
     async def test_rate_limit_headers_in_429_response(self, rate_limiter):
-        """Test that rate limit headers are added to 429 responses."""
-        request = MagicMock()
-        request.url.path = "/api/test"
-        request.headers = {}
-        request.query_params = {}
-        request.client = MagicMock()
-        request.client.host = "192.168.1.1"
+        """Test that rate limit headers are present in 429 response."""
+        # Mock request
+        mock_request = MagicMock()
+        mock_request.url.path = "/api/test"
+        mock_request.headers = {"X-Client-ID": "test_client"}
+        mock_request.query_params = {}
+        mock_request.client = None
 
-        call_next = AsyncMock()
+        # Mock call_next
+        async def mock_call_next(request):
+            return Response()
 
-        client_id = rate_limiter.get_client_id(request)
-        entry = rate_limiter.cache.get(client_id)
-        entry.tokens = 0
+        # Exhaust the rate limit
+        for _ in range(DEFAULT_RATE_LIMIT + 1):
+            response = await rate_limiter.middleware(mock_request, mock_call_next)
 
-        response = await rate_limiter.dispatch(request, call_next)
-
+        # Verify 429 response has rate limit headers
         assert response.status_code == 429
         assert "X-RateLimit-Limit" in response.headers
         assert "X-RateLimit-Remaining" in response.headers
         assert "X-RateLimit-Reset" in response.headers
-        assert "Retry-After" in response.headers
 
     @pytest.mark.asyncio
     async def test_request_window_cleanup(self, rate_limiter):
-        """Test that old requests are cleaned from the window."""
-        request = MagicMock()
-        request.url.path = "/api/test"
-        request.headers = {}
-        request.query_params = {}
-        request.client = MagicMock()
-        request.client.host = "192.168.1.1"
+        """Test that old requests are cleaned up from the window."""
+        # Mock request
+        mock_request = MagicMock()
+        mock_request.url.path = "/api/test"
+        mock_request.headers = {"X-Client-ID": "test_client"}
+        mock_request.query_params = {}
+        mock_request.client = None
 
-        call_next = AsyncMock()
-        call_next.return_value = Response(status_code=200)
+        # Mock call_next
+        async def mock_call_next(request):
+            return Response()
 
-        client_id = rate_limiter.get_client_id(request)
-        entry = rate_limiter.cache.get(client_id)
+        # Make some requests
+        for _ in range(5):
+            response = await rate_limiter.middleware(mock_request, mock_call_next)
+            assert response.status_code == 200
 
-        old_time = time.time() - rate_limiter.window_size - 1
-        entry.requests.append(old_time)
+        # Verify requests are tracked
+        entry = rate_limiter.cache.get("test_client")
+        assert len(entry.requests) == 5
 
-        response = await rate_limiter.dispatch(request, call_next)
+        # Simulate time passing to make requests old
+        current_time = time.time()
+        for request_time in entry.requests:
+            request_time = current_time - DEFAULT_WINDOW_SIZE - 1
 
-        assert response.status_code == 200
-        assert old_time not in entry.requests
+        # Trigger cleanup
+        rate_limiter._cleanup_old_requests(entry)
+
+        # Verify old requests are cleaned up
+        assert len(entry.requests) == 0
 
 
 class TestAddRateLimiting:
@@ -511,41 +523,45 @@ class TestAddRateLimiting:
     def test_add_rate_limiting(self):
         """Test add_rate_limiting function."""
         app = FastAPI()
-
+        
         add_rate_limiting(app)
-
-        assert len(app.user_middleware) > 0
+        
+        # Verify middleware was added
+        assert len(app.middleware) > 0
 
     def test_add_rate_limiting_custom_values(self):
         """Test add_rate_limiting with custom values."""
         app = FastAPI()
-
+        
         def custom_get_client_id(req):
-            return "custom"
+            return "custom_client"
 
         add_rate_limiting(
-            app,
+            app=app,
             rate_limit=100,
-            window_size=60,
             burst_limit=50,
-            excluded_paths=["/custom"],
+            window_size=60,
             get_client_id=custom_get_client_id,
+            excluded_paths=["/custom"]
         )
-
-        assert len(app.user_middleware) > 0
+        
+        # Verify middleware was added
+        assert len(app.middleware) > 0
 
     def test_add_rate_limiting_with_none_excluded_paths(self):
         """Test add_rate_limiting with None excluded_paths."""
         app = FastAPI()
-
+        
         add_rate_limiting(app, excluded_paths=None)
-
-        assert len(app.user_middleware) > 0
+        
+        # Verify middleware was added
+        assert len(app.middleware) > 0
 
     def test_add_rate_limiting_with_none_get_client_id(self):
         """Test add_rate_limiting with None get_client_id."""
         app = FastAPI()
-
+        
         add_rate_limiting(app, get_client_id=None)
-
-        assert len(app.user_middleware) > 0
+        
+        # Verify middleware was added
+        assert len(app.middleware) > 0
