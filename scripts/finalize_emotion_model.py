@@ -1,24 +1,80 @@
-import json
-import sys
-
-#!/usr/bin/env python3
-import argparse
-import logging
-from pathlib import Path
-from typing import Optional, Any
-
-import torch
-from torch import nn
-import torch.nn.functional as F
-from transformers import AutoTokenizer, get_linear_schedule_with_warmup
-from sklearn.metrics import f1_score, precision_recall_fscore_support
-
+                # Shuffle some words
+            # Add another variation
+            # Add slight variations of this example
+        # Apply class weights if provided
+        # Average predictions
+        # Calculate binary cross entropy loss
+        # Calculate focal loss
+        # Calculate focal weight
+        # Convert logits to probabilities
+        # Create ensemble model
+        # Evaluate ensemble
+        # Get predictions
+        # Log ensemble results
+        # Process labels
+        # Save ensemble model
+        # Tokenize
+        # Update ensemble temperature
+        # Update temperature for all models
+    # Calculate metrics
+    # Check if target F1 score was achieved
+    # Combine original and synthetic data
+    # Compute class weights for handling imbalance
+    # Count label frequencies
+    # Create advanced trainer with all optimizations
+    # Create augmented dataset
+    # Create base model
+    # Create base model from trained checkpoint
+    # Create data loader
+    # Create ensemble
+    # Create focal loss with class weights
+    # Create learning rate scheduler with warmup
+    # Create model with fewer frozen layers
+    # Create model with more frozen layers
+    # Create optimizer with weight decay
+    # Create output directory if it doesn't exist
+    # Create synthetic examples for underrepresented classes
+    # Create synthetic examples using class balancing
+    # Create tokenizer
+    # Download dataset first
+    # Evaluate on test set
+    # Exit with success code
+    # Find examples of underrepresented classes
+    # Find underrepresented classes (bottom 30%)
+    # Get original datasets
+    # Load checkpoint
+    # Log results
+    # Per-emotion metrics
+    # Process test data in batches
+    # Return augmented datasets
+    # Save metrics separately for easier access
+    # Save model
+    # Set device
+    # Train final model
+    # Train model
+    # Update train dataset
 # Add src to path
+# Configure logging
+# Constants
+#!/usr/bin/env python3
+from pathlib import Path
+from sklearn.metrics import f1_score, precision_recall_fscore_support
 from src.models.emotion_detection.bert_classifier import (
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+from torch import nn
+from transformers import AutoTokenizer, get_linear_schedule_with_warmup
+from typing import Optional, Any
+import argparse
+import json
+import logging
+import sys
+import torch
+import torch.nn.functional as F
 
-# Configure logging
+
+
+
 
 """
 Finalize Emotion Detection Model
@@ -46,7 +102,6 @@ sys.path.append(str(Path(__file__).parent.parent.resolve()))
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
-# Constants
 DEFAULT_OUTPUT_MODEL = "models/checkpoints/bert_emotion_classifier_final.pt"
 CHECKPOINT_PATH = "test_checkpoints/best_model.pt"
 OPTIMAL_TEMPERATURE = 1.0
@@ -84,22 +139,17 @@ class FocalLoss(nn.Module):
         Returns:
             Focal loss value
         """
-        # Convert logits to probabilities
         probs = torch.sigmoid(inputs)
 
-        # Calculate binary cross entropy loss
         bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
 
-        # Calculate focal weight
         p_t = probs * targets + (1 - probs) * (1 - targets)
         focal_weight = (1 - p_t) ** self.gamma
 
-        # Apply class weights if provided
         if self.alpha is not None:
             alpha_t = self.alpha * targets + (1 - self.alpha) * (1 - targets)
             focal_weight = alpha_t * focal_weight
 
-        # Calculate focal loss
         focal_loss = focal_weight * bce_loss
 
         return focal_loss.mean()
@@ -144,7 +194,6 @@ class EnsembleModel(nn.Module):
             output = model(**kwargs)
             outputs.append(output * self.weights[i])
 
-        # Average predictions
         ensemble_output = torch.stack(outputs).mean(dim=0)
         return ensemble_output
 
@@ -157,12 +206,10 @@ class EnsembleModel(nn.Module):
         if temperature <= 0:
             raise ValueError("Temperature must be positive")
 
-        # Update temperature for all models
         for model in self.models:
             if hasattr(model, "set_temperature"):
                 model.set_temperature(temperature)
 
-        # Update ensemble temperature
         with torch.no_grad():
             self.temperature.fill_(temperature)
 
@@ -179,40 +226,31 @@ def create_augmented_dataset(data_loader: GoEmotionsDataLoader, tokenizer: AutoT
     """
     logger.info("Creating augmented dataset...")
 
-    # Get original datasets
     datasets = data_loader.prepare_datasets()
 
-    # Create synthetic examples using class balancing
     train_texts = datasets["train"]["text"]
     train_labels = datasets["train"]["labels"]
 
-    # Count label frequencies
     label_counts = {}
     for labels in train_labels:
         for label in labels:
             label_counts[label] = label_counts.get(label, 0) + 1
 
-    # Find underrepresented classes (bottom 30%)
     sorted_labels = sorted(label_counts.items(), key=lambda x: x[1])
     underrepresented = [label for label, _ in sorted_labels[: int(len(sorted_labels) * 0.3)]]
 
     logger.info("Found {len(underrepresented)} underrepresented classes")
 
-    # Create synthetic examples for underrepresented classes
     synthetic_texts = []
     synthetic_labels = []
 
-    # Find examples of underrepresented classes
     for _i, (text, labels) in enumerate(zip(train_texts, train_labels)):
         if any(label in underrepresented for label in labels):
-            # Add slight variations of this example
             synthetic_texts.append(text + " [AUGMENTED]")
             synthetic_labels.append(labels)
 
-            # Add another variation
             words = text.split()
             if len(words) > 5:
-                # Shuffle some words
                 mid = len(words) // 2
                 shuffled = words[:mid] + words[mid:][::-1]
                 synthetic_texts.append(" ".join(shuffled) + " [AUGMENTED]")
@@ -220,14 +258,11 @@ def create_augmented_dataset(data_loader: GoEmotionsDataLoader, tokenizer: AutoT
 
     logger.info("Created {len(synthetic_texts)} synthetic examples")
 
-    # Combine original and synthetic data
     augmented_texts = list(train_texts) + synthetic_texts
     augmented_labels = list(train_labels) + synthetic_labels
 
-    # Update train dataset
     augmented_train = {"text": augmented_texts, "labels": augmented_labels}
 
-    # Return augmented datasets
     return {
         "train": augmented_train,
         "validation": datasets["validation"],
@@ -248,47 +283,36 @@ def train_final_model(
     Returns:
         Dictionary with training results
     """
-    # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Using device: {device}")
 
-    # Create data loader
     logger.info("Loading GoEmotions dataset...")
     data_loader = GoEmotionsDataLoader()
 
-    # Download dataset first
     data_loader.download_dataset()
 
-    # Compute class weights for handling imbalance
     class_weights = data_loader.compute_class_weights()
     class_weights_tensor = torch.tensor(class_weights, dtype=torch.float32)
 
-    # Create tokenizer
     tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
-    # Create augmented dataset
     augmented_datasets = create_augmented_dataset(data_loader, tokenizer)
 
-    # Create base model
     logger.info("Creating model with focal loss...")
     model, _ = create_bert_emotion_classifier(
         freeze_bert_layers=4
     )  # Less freezing for more flexibility
     model.to(device)
 
-    # Create focal loss with class weights
     focal_loss = FocalLoss(gamma=2.0, alpha=class_weights_tensor.to(device))
 
-    # Create optimizer with weight decay
     optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5, weight_decay=0.01)
 
-    # Create learning rate scheduler with warmup
     total_steps = len(augmented_datasets["train"]["text"]) * epochs // batch_size
     scheduler = get_linear_schedule_with_warmup(
         optimizer, num_warmup_steps=int(0.1 * total_steps), num_training_steps=total_steps
     )
 
-    # Create advanced trainer with all optimizations
     trainer = EmotionDetectionTrainer(
         model=model,
         loss_fn=focal_loss,
@@ -301,39 +325,31 @@ def train_final_model(
         checkpoint_dir=Path(output_model).parent,
     )
 
-    # Train model
     logger.info("Training model for {epochs} epochs...")
     results = trainer.train(augmented_datasets["train"], augmented_datasets["validation"])
 
-    # Evaluate on test set
     logger.info("Evaluating on test set...")
     test_metrics = trainer.evaluate(augmented_datasets["test"])
 
-    # Log results
     logger.info("Training complete!")
     logger.info("Best validation F1: {results['best_val_f1']:.4f}")
     logger.info("Test micro F1: {test_metrics['micro_f1']:.4f}")
     logger.info("Test macro F1: {test_metrics['macro_f1']:.4f}")
 
-    # Check if target F1 score was achieved
     if test_metrics["micro_f1"] >= TARGET_F1_SCORE:
         logger.info("✅ Target F1 score of {TARGET_F1_SCORE:.2f} achieved!")
     else:
         logger.warning("⚠️ Target F1 score of {TARGET_F1_SCORE:.2f} not achieved.")
         logger.info("Creating ensemble model for improved performance...")
 
-        # Create ensemble model
         ensemble = create_ensemble_model(output_model, device)
 
-        # Evaluate ensemble
         ensemble_metrics = evaluate_ensemble(
             ensemble, augmented_datasets["test"], tokenizer, device
         )
 
-        # Save ensemble model
         save_ensemble_model(ensemble, ensemble_metrics, output_model)
 
-        # Log ensemble results
         logger.info("Ensemble micro F1: {ensemble_metrics['micro_f1']:.4f}")
         logger.info("Ensemble macro F1: {ensemble_metrics['macro_f1']:.4f}")
 
@@ -357,11 +373,9 @@ def create_ensemble_model(model_path: str, device: torch.device) -> EnsembleMode
     Returns:
         Ensemble model
     """
-    # Create base model from trained checkpoint
     base_model, _ = create_bert_emotion_classifier()
     base_model.to(device)
 
-    # Load checkpoint
     checkpoint_path = Path(model_path)
     if checkpoint_path.exists():
         checkpoint = torch.load(checkpoint_path, map_location=device)
@@ -369,19 +383,16 @@ def create_ensemble_model(model_path: str, device: torch.device) -> EnsembleMode
     else:
         logger.warning("Checkpoint not found at {checkpoint_path}, using untrained model")
 
-    # Create model with more frozen layers
     frozen_model, _ = create_bert_emotion_classifier(freeze_bert_layers=8)
     frozen_model.to(device)
     if checkpoint_path.exists():
         frozen_model.load_state_dict(checkpoint["model_state_dict"])
 
-    # Create model with fewer frozen layers
     unfrozen_model, _ = create_bert_emotion_classifier(freeze_bert_layers=2)
     unfrozen_model.to(device)
     if checkpoint_path.exists():
         unfrozen_model.load_state_dict(checkpoint["model_state_dict"])
 
-    # Create ensemble
     ensemble = EnsembleModel(
         models=[base_model, frozen_model, unfrozen_model],
         weights=[0.6, 0.2, 0.2],  # Give more weight to base model
@@ -412,43 +423,37 @@ def evaluate_ensemble(
     all_predictions = []
     all_targets = []
 
-    # Process test data in batches
     batch_size = 32
     for i in range(0, len(test_data["text"]), batch_size):
         batch_texts = test_data["text"][i : i + batch_size]
         batch_labels = test_data["labels"][i : i + batch_size]
 
-        # Tokenize
         inputs = tokenizer(
             batch_texts, padding=True, truncation=True, max_length=512, return_tensors="pt"
         ).to(device)
 
-        # Get predictions
         with torch.no_grad():
             outputs = ensemble(**inputs)
             probabilities = torch.sigmoid(outputs / ensemble.temperature)
             predictions = (probabilities > ensemble.prediction_threshold).float().cpu().numpy()
 
-        # Process labels
         labels = torch.zeros((len(batch_labels), len(GOEMOTIONS_EMOTIONS)))
-        for j, label_ids in enumerate(batch_labels):
+        for _j, label_ids in enumerate(batch_labels):
             for label_idx in label_ids:
                 labels[j, label_idx] = 1
 
         all_predictions.extend(predictions)
         all_targets.extend(labels.numpy())
 
-    # Calculate metrics
     metrics = {}
     metrics["micro_f1"] = f1_score(all_targets, all_predictions, average="micro")
     metrics["macro_f1"] = f1_score(all_targets, all_predictions, average="macro")
 
-    # Per-emotion metrics
     precision, recall, f1, support = precision_recall_fscore_support(
         all_targets, all_predictions, average=None
     )
 
-    for i, emotion in enumerate(GOEMOTIONS_EMOTIONS):
+    for _i, emotion in enumerate(GOEMOTIONS_EMOTIONS):
         metrics["{emotion}_f1"] = f1[i]
 
     return metrics
@@ -464,10 +469,8 @@ def save_ensemble_model(
         metrics: Evaluation metrics
         output_path: Path to save model
     """
-    # Create output directory if it doesn't exist
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
-    # Save model
     torch.save(
         {
             "model_type": "ensemble",
@@ -484,7 +487,6 @@ def save_ensemble_model(
 
     logger.info("Ensemble model saved to {output_path}")
 
-    # Save metrics separately for easier access
     metrics_path = Path(output_path).with_suffix(".metrics.json")
     with open(metrics_path, "w") as f:
         json.dump(metrics, f, indent=2)
@@ -509,10 +511,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # Train final model
     results = train_final_model(
         output_model=args.output_model, epochs=args.epochs, batch_size=args.batch_size
     )
 
-    # Exit with success code
     sys.exit(0)

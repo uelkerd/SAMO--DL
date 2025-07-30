@@ -1,12 +1,12 @@
-import json
-import subprocess
-from pathlib import Path
-from typing import Any, Optional
-        # Create a temporary JS file
+            # Clean up the temporary file
             # Execute the script
             # Parse the output
-            # Clean up the temporary file
+        # Create a temporary JS file
         # Ensure we return a list, even if the result is a single dict
+from pathlib import Path
+from typing import Any, Optional
+import json
+import subprocess
 
 
 

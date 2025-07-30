@@ -1,10 +1,10 @@
-import logging
-import sys
-#!/usr/bin/env python3
-    # Test basic Python
-    # Test core modules one by one
         # Stop if we hit a KeyboardInterrupt
     # Summary
+    # Test basic Python
+    # Test core modules one by one
+#!/usr/bin/env python3
+import logging
+import sys
 
 
 
@@ -25,7 +25,7 @@ def test_import(module_name, description):
     except KeyboardInterrupt:
         logging.info("❌ {description} - KeyboardInterrupt")
         return False
-    except Exception as _:
+    except Exception as e:
         logging.info("❌ {description} - Error: {e}")
         return False
 
@@ -56,7 +56,7 @@ def main():
             logging.info("\n🚨 STOPPED: {description} caused KeyboardInterrupt")
             break
 
-    logging.info("\n" + "=" * 50)
+    logging.info(f"\n=" * 50)
     logging.info("📊 TEST SUMMARY:")
     working = sum(results)
     total = len(results)

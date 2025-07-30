@@ -1,22 +1,22 @@
-import numpy as np
-import sys
-#!/usr/bin/env python3
-import torch
-import logging
-from sklearn.metrics import f1_score
-from transformers import AutoTokenizer, AutoModel
-# Configure logging
-    # Create simple labels (one emotion per text)
+            # Get predictions (only pass required arguments)
+            # Tokenize
+        # Basic validation
         # Create model
-        # Test temperature setting
         # Create test data
         # Create tokenizer
-        # Test model inference
-            # Tokenize
-            # Get predictions (only pass required arguments)
         # Test metrics calculation
-        # Basic validation
+        # Test model inference
+        # Test temperature setting
         # Test threshold optimization
+    # Create simple labels (one emotion per text)
+# Configure logging
+#!/usr/bin/env python3
+from sklearn.metrics import f1_score
+from transformers import AutoTokenizer, AutoModel
+import logging
+import numpy as np
+import sys
+import torch
 
 
 
@@ -100,7 +100,7 @@ def create_test_data():
     }
 
     test_labels = []
-    for ___emotion in emotions:
+    for emotion in emotions:
         labels = [0] * 28
         if emotion in emotion_to_idx:
             labels[emotion_to_idx[emotion]] = 1
@@ -133,7 +133,7 @@ def test_model_calibration():
         logger.info("Testing model inference...")
         all_predictions = []
 
-        for ___text in test_texts:
+        for text in test_texts:
             inputs = tokenizer(
                 text, padding=True, truncation=True, max_length=128, return_tensors="pt"
             ).to(device)
@@ -168,7 +168,7 @@ def test_model_calibration():
         thresholds = [0.1, 0.2, 0.3, 0.4, 0.5]
         f1_scores = []
 
-        for ___threshold in thresholds:
+        for threshold in thresholds:
             predictions = (all_predictions > threshold).astype(int)
             f1 = f1_score(all_labels, predictions, average="micro", zero_division=0)
             f1_scores.append(f1)
@@ -181,7 +181,7 @@ def test_model_calibration():
         logger.info("🎉 All calibration tests passed!")
         return 0
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Calibration test failed: {e}")
         return 1
 

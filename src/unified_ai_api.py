@@ -1,3 +1,55 @@
+                # Cleanup
+                # Extract key emotions from the emotion analysis
+                # Fallback emotion analysis
+                # Fallback summary
+                # Mock emotion analysis (replace with actual model inference)
+                # Save uploaded file temporarily and transcribe
+                # Transcribe with Whisper
+                # Use the actual T5 summarizer
+            # Combine results
+            # Create a JournalEntryRequest for the text analysis
+            # Delegate to text analysis
+            # Enhanced insights for voice processing
+            # Fallback if transcription failed or is too short
+            # Import here to avoid issues if not available
+            # Update pipeline status
+            from src.models.emotion_detection.bert_classifier import (
+            from src.models.summarization.t5_summarizer import create_t5_summarizer
+            from src.models.voice_processing.whisper_transcriber import (
+        # (This would call the text analysis pipeline with transcribed_text)
+        # Continue in degraded mode
+        # Cross-model insights
+        # Emotion Analysis
+        # Load Emotion Detection Model
+        # Load Text Summarization Model
+        # Load Voice Processing Model
+        # Step 1: Voice Transcription
+        # Steps 2 & 3: Continue with text analysis using transcribed text
+        # Text Summarization
+    # Shutdown: Cleanup
+# Add CORS middleware
+# Add rate limiting middleware (100 requests/minute per user)
+# Configure logging
+# Custom exception handler for all exceptions
+# Global AI models (loaded on startup)
+# HTTP exception handler
+# Initialize FastAPI with lifecycle management
+# Request Models
+# Unified API Endpoints
+# Unified Response Models
+from .api_rate_limiter import add_rate_limiting
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from pathlib import Path
+from pydantic import BaseModel, Field
+from typing import Any, AsyncGenerator, Optional
+import logging
+import tempfile
+import time
+import traceback
+import uvicorn
 """Unified SAMO AI API - Complete Deep Learning Pipeline Integration.
 
 This module provides a unified API that combines all SAMO AI capabilities:
@@ -17,27 +69,12 @@ Key Features:
 - API rate limiting (100 requests/minute per user)
 """
 
-import logging
-import tempfile
-import time
-import traceback
-from contextlib import asynccontextmanager
-from pathlib import Path
-from typing import Any, AsyncGenerator, Optional
 
-import uvicorn
-from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile, status
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
 
-from .api_rate_limiter import add_rate_limiting
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Global AI models (loaded on startup)
 emotion_detector = None
 text_summarizer = None
 voice_transcriber = None
@@ -52,11 +89,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     start_time = time.time()
 
     try:
-        # Load Emotion Detection Model
         logger.info("Loading emotion detection model...")
         try:
-            # Import here to avoid issues if not available
-            from src.models.emotion_detection.bert_classifier import (
                 create_bert_emotion_classifier,
             )
 
@@ -65,19 +99,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         except Exception as exc:
             logger.warning(f"⚠️  Emotion detection model not available: {exc}")
 
-        # Load Text Summarization Model
         logger.info("Loading text summarization model...")
         try:
-            from src.models.summarization.t5_summarizer import create_t5_summarizer
             text_summarizer = create_t5_summarizer("t5-small")
             logger.info("✅ Text summarization model loaded")
         except Exception as exc:
             logger.warning(f"⚠️  Text summarization model not available: {exc}")
 
-        # Load Voice Processing Model
         logger.info("Loading voice processing model...")
         try:
-            from src.models.voice_processing.whisper_transcriber import (
                 create_whisper_transcriber,
             )
 
@@ -91,18 +121,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     except Exception as exc:
         logger.error(f"❌ Failed to load AI pipeline: {exc}")
-        # Continue in degraded mode
 
     yield  # App runs here
 
-    # Shutdown: Cleanup
     logger.info("🔄 Shutting down SAMO AI Pipeline...")
     emotion_detector = None
     text_summarizer = None
     voice_transcriber = None
 
 
-# Initialize FastAPI with lifecycle management
 app = FastAPI(
     title="SAMO Unified AI API",
     description="""
@@ -119,7 +146,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Add rate limiting middleware (100 requests/minute per user)
 add_rate_limiting(
     app,
     rate_limit=100,
@@ -127,7 +153,6 @@ add_rate_limiting(
     excluded_paths=["/health", "/docs", "/redoc", "/openapi.json"],
 )
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # In production, limit to specific origins
@@ -137,7 +162,6 @@ app.add_middleware(
 )
 
 
-# Custom exception handler for all exceptions
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
     """Handle all exceptions with structured response."""
@@ -155,7 +179,6 @@ async def general_exception_handler(request: Request, exc: Exception):
     )
 
 
-# HTTP exception handler
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
     """Handle HTTP exceptions with structured response."""
@@ -172,7 +195,6 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     )
 
 
-# Unified Response Models
 class EmotionAnalysis(BaseModel):
     """Emotion analysis results."""
 
@@ -244,7 +266,6 @@ class CompleteJournalAnalysis(BaseModel):
     )
 
 
-# Request Models
 class JournalEntryRequest(BaseModel):
     """Request model for journal entry analysis."""
 
@@ -268,7 +289,6 @@ class JournalEntryRequest(BaseModel):
         }
 
 
-# Unified API Endpoints
 @app.get("/health", tags=["System"])
 async def health_check() -> dict[str, Any]:
     """Comprehensive health check for all AI components.
@@ -339,11 +359,9 @@ async def analyze_journal_entry(
         generate_summary = request.generate_summary
         emotion_threshold = request.emotion_threshold
 
-        # Emotion Analysis
         emotion_analysis = None
         if emotion_detector:
             try:
-                # Mock emotion analysis (replace with actual model inference)
                 pipeline_status["emotion_detection"] = True
                 emotion_analysis = EmotionAnalysis(
                     emotions={
@@ -360,7 +378,6 @@ async def analyze_journal_entry(
             except Exception as exc:
                 logger.error(f"Emotion detection failed: {exc}")
                 pipeline_status["emotion_detection"] = False
-                # Fallback emotion analysis
                 emotion_analysis = EmotionAnalysis(
                     emotions={"neutral": 1.0},
                     primary_emotion="neutral",
@@ -376,15 +393,12 @@ async def analyze_journal_entry(
                 emotional_intensity="unknown",
             )
 
-        # Text Summarization
         text_summary = None
         if text_summarizer and generate_summary:
             try:
-                # Use the actual T5 summarizer
                 summary_text = text_summarizer.generate_summary(text)
                 pipeline_status["text_summarization"] = True
 
-                # Extract key emotions from the emotion analysis
                 key_emotions = [
                     emotion
                     for emotion, score in emotion_analysis.emotions.items()
@@ -403,7 +417,6 @@ async def analyze_journal_entry(
             except Exception as exc:
                 logger.error(f"Text summarization failed: {exc}")
                 pipeline_status["text_summarization"] = False
-                # Fallback summary
                 text_summary = TextSummary(
                     summary=text[:100] + "..." if len(text) > 100 else text,
                     key_emotions=[],
@@ -421,7 +434,6 @@ async def analyze_journal_entry(
 
         processing_time = (time.time() - start_time) * 1000
 
-        # Cross-model insights
         insights.update(
             {
                 "text_length": len(text),
@@ -490,13 +502,11 @@ async def analyze_voice_journal(
         raise HTTPException(status_code=400, detail="No audio file provided")
 
     try:
-        # Step 1: Voice Transcription
         transcription = None
         transcribed_text = ""
 
         if voice_transcriber:
             try:
-                # Save uploaded file temporarily and transcribe
                 temp_file = tempfile.NamedTemporaryFile(
                     suffix=Path(audio_file.filename).suffix, delete=False
                 )
@@ -505,7 +515,6 @@ async def analyze_voice_journal(
                 temp_file.write(content)
                 temp_file.close()
 
-                # Transcribe with Whisper
                 result = voice_transcriber.transcribe_audio(temp_file.name, language=language)
 
                 transcription = VoiceTranscription(
@@ -522,7 +531,6 @@ async def analyze_voice_journal(
                 pipeline_status["voice_processing"] = True
                 insights["transcription_quality"] = result.audio_quality
 
-                # Cleanup
                 Path(temp_file.name).unlink()
 
             except Exception as exc:
@@ -552,31 +560,24 @@ async def analyze_voice_journal(
                 audio_quality="unavailable",
             )
 
-        # Steps 2 & 3: Continue with text analysis using transcribed text
-        # (This would call the text analysis pipeline with transcribed_text)
         if transcribed_text and len(transcribed_text.strip()) > 10:
-            # Create a JournalEntryRequest for the text analysis
             journal_request = JournalEntryRequest(
                 text=transcribed_text,
                 generate_summary=generate_summary,
                 emotion_threshold=emotion_threshold,
             )
 
-            # Delegate to text analysis
             text_analysis = await analyze_journal_entry(
                 request=journal_request,
                 x_api_key=x_api_key,
             )
 
-            # Combine results
             processing_time = (time.time() - start_time) * 1000
 
-            # Update pipeline status
             text_analysis.pipeline_status.update(pipeline_status)
             text_analysis.processing_time_ms = processing_time
             text_analysis.transcription = transcription
 
-            # Enhanced insights for voice processing
             text_analysis.insights.update(insights)
             text_analysis.insights["input_modality"] = "voice"
             text_analysis.insights["full_pipeline"] = "voice → text → emotions → summary"
@@ -584,7 +585,6 @@ async def analyze_voice_journal(
             return text_analysis
 
         else:
-            # Fallback if transcription failed or is too short
             processing_time = (time.time() - start_time) * 1000
 
             return CompleteJournalAnalysis(

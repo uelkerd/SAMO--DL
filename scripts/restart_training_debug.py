@@ -1,15 +1,17 @@
+        # Start training
+        # Training configuration with debugging
+        from models.emotion_detection.training_pipeline import train_emotion_detection_model
+        import traceback
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+import logging
 import sys
 import traceback
 
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
 
-# Add src to path
-        from models.emotion_detection.training_pipeline import train_emotion_detection_model
 
-        # Training configuration with debugging
-        import traceback
 
 
 """
@@ -21,7 +23,6 @@ to identify the root cause of the 0.0000 loss issue.
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -53,13 +54,12 @@ def main():
         logger.info("\n🔍 Starting training with debugging...")
         logger.info("⚠️  Watch for DEBUG messages to identify the 0.0000 loss issue!")
 
-        # Start training
         results = train_emotion_detection_model(**config)
 
         logger.info("✅ Training completed!")
         logger.info("📊 Final results: {results}")
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Training failed: {e}")
         logger.error("Traceback: {traceback.format_exc()}")
         return False

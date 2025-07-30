@@ -1,24 +1,41 @@
-import traceback
-
-import logging
-import time
-import traceback
-from typing import Optional
-
-import torch
-import uvicorn
+        # Create response
+        # Create untrained model for demo (in production, load trained weights)
+        # Filter by threshold
+        # Get probabilities
+        # Get top emotions
+        # In a production system, we would batch these for efficiency
+        # Move to same device as model
+        # Prepare input
+        # Process each text individually
+        # Run inference
+        # Set to evaluation mode
+    import uvicorn
+# Add CORS middleware
+# Add rate limiting middleware (100 requests/minute per user)
+# Configure logging
+# Create FastAPI app
+# Custom exception handler
+# Global model storage
+# HTTP exception handler
+from ..api_rate_limiter import add_rate_limiting
+from .bert_classifier import create_bert_emotion_classifier
+from .dataset_loader import GOEMOTIONS_EMOTIONS
 from fastapi import FastAPI, Header, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, validator
 from transformers import AutoTokenizer
+from typing import Optional
+import logging
+import time
+import torch
+import traceback
+import traceback
+import uvicorn
 
-from ..api_rate_limiter import add_rate_limiting
-from .bert_classifier import create_bert_emotion_classifier
-from .dataset_loader import GOEMOTIONS_EMOTIONS
 
-# Configure logging
-    import uvicorn
+
+
 
 
 """SAMO Emotion Detection API Demo.
@@ -30,7 +47,6 @@ models and provides a preview of the API interface for Web Dev integration.
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Create FastAPI app
 app = FastAPI(
     title="SAMO Emotion Detection API",
     description="""
@@ -44,7 +60,6 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# Add rate limiting middleware (100 requests/minute per user)
 add_rate_limiting(
     app,
     rate_limit=100,
@@ -52,7 +67,6 @@ add_rate_limiting(
     excluded_paths=["/health", "/docs", "/redoc", "/openapi.json"],
 )
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # In production, limit to specific origins
@@ -61,7 +75,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Global model storage
 model = None
 tokenizer = None
 
@@ -113,7 +126,6 @@ class EmotionResponse(BaseModel):
     )
 
 
-# Custom exception handler
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
     """Handle all exceptions with structured response."""
@@ -131,7 +143,6 @@ async def general_exception_handler(request: Request, exc: Exception):
     )
 
 
-# HTTP exception handler
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
     """Handle HTTP exceptions with structured response."""
@@ -156,7 +167,6 @@ async def load_model() -> None:
     logger.info("Loading emotion detection model...")
 
     try:
-        # Create untrained model for demo (in production, load trained weights)
         model, _ = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
             freeze_bert_layers=0,  # Unfreeze for demo
@@ -164,12 +174,11 @@ async def load_model() -> None:
 
         tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
-        # Set to evaluation mode
         model.eval()
 
         logger.info("✅ Model loaded successfully!")
 
-    except Exception as _:
+    except Exception as e:
         logger.error("Failed to load model: {e}")
         logger.error(traceback.format_exc())
         raise
@@ -277,7 +286,6 @@ async def analyze_emotion(
     start_time = time.time()
 
     try:
-        # Prepare input
         inputs = tokenizer(
             request.text,
             return_tensors="pt",
@@ -286,25 +294,19 @@ async def analyze_emotion(
             max_length=128,
         )
 
-        # Move to same device as model
         device = next(model.parameters()).device
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
-        # Run inference
         with torch.no_grad():
             outputs = model(**inputs)
 
-        # Get probabilities
         probs = torch.sigmoid(outputs.logits)[0].tolist()
 
-        # Get top emotions
         sorted_indices = sorted(range(len(probs)), key=lambda i: probs[i], reverse=True)
         top_indices = sorted_indices[: request.top_k]
 
-        # Filter by threshold
         filtered_indices = [i for i in top_indices if probs[i] >= request.threshold]
 
-        # Create response
         primary_idx = sorted_indices[0]
         primary_emotion = GOEMOTIONS_EMOTIONS[primary_idx]
         primary_confidence = probs[primary_idx]
@@ -323,7 +325,7 @@ async def analyze_emotion(
             processing_time_ms=processing_time * 1000,
         )
 
-    except Exception as _:
+    except Exception as e:
         logger.error("Emotion analysis failed: {e}")
         logger.error(traceback.format_exc())
         raise HTTPException(
@@ -380,8 +382,6 @@ async def analyze_emotions_batch(
     results = []
 
     try:
-        # Process each text individually
-        # In a production system, we would batch these for efficiency
         for text in texts:
             request = EmotionRequest(text=text, threshold=threshold)
             result = await analyze_emotion(request, x_api_key=x_api_key)
@@ -399,7 +399,7 @@ async def analyze_emotions_batch(
     except HTTPException:
         raise
 
-    except Exception as _:
+    except Exception as e:
         logger.error("Batch emotion analysis failed: {e}")
         logger.error(traceback.format_exc())
         raise HTTPException(

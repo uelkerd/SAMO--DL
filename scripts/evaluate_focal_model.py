@@ -1,16 +1,38 @@
-import json
-import numpy as np
-
+            # Get predictions
+            # Get raw probabilities
+            # Move to device
+            # Move to device
+            # Tokenize
+            # Tokenize
+        from transformers import AutoModel, AutoTokenizer
+    # Calculate metrics
+    # Compare results
+    # Convert to numpy arrays
+    # Create model
+    # Create test data
+    # Evaluate with default threshold
+    # Evaluate with optimized threshold
+    # Get raw predictions first
+    # Load checkpoint
+    # Load trained model
+    # Optimize threshold
+    # Save results
+    # Setup device
+    # Show top 5 thresholds
+    # Test examples with known emotions
+    # Try different thresholds
+# Configure logging
 #!/usr/bin/env python3
-import logging
-import torch
-from torch import nn
 from pathlib import Path
 from sklearn.metrics import f1_score, precision_score, recall_score
+from torch import nn
 from tqdm import tqdm
+import json
+import logging
+import numpy as np
+import torch
 
-# Configure logging
-        from transformers import AutoModel, AutoTokenizer
+
 
 
 """
@@ -46,10 +68,8 @@ def load_trained_model(model_path):
     """Load the trained focal loss model."""
     logger.info("📂 Loading trained model from {model_path}")
 
-    # Create model
     model = SimpleBERTClassifier(model_name="bert-base-uncased", num_classes=28)
 
-    # Load checkpoint
     checkpoint = torch.load(model_path, map_location="cpu")
     model.load_state_dict(checkpoint["model_state_dict"])
 
@@ -67,7 +87,6 @@ def create_test_data():
     """Create test data for evaluation."""
     logger.info("📊 Creating test data for evaluation...")
 
-    # Test examples with known emotions
     test_data = [
         {
             "text": "I am extremely happy today!",
@@ -353,16 +372,13 @@ def evaluate_model(model, test_data, threshold=0.5):
             text = item["text"]
             true_labels = np.array(item["labels"])
 
-            # Tokenize
             encoding = model.tokenizer(
                 text, truncation=True, padding="max_length", max_length=256, return_tensors="pt"
             )
 
-            # Move to device
             input_ids = encoding["input_ids"].to(device)
             attention_mask = encoding["attention_mask"].to(device)
 
-            # Get predictions
             outputs = model(input_ids=input_ids, attention_mask=attention_mask)
             probabilities = torch.sigmoid(outputs)
             predictions = (probabilities > threshold).float().cpu().numpy().squeeze()
@@ -370,11 +386,9 @@ def evaluate_model(model, test_data, threshold=0.5):
             all_predictions.append(predictions)
             all_labels.append(true_labels)
 
-    # Convert to numpy arrays
     all_predictions = np.array(all_predictions)
     all_labels = np.array(all_labels)
 
-    # Calculate metrics
     f1_macro = f1_score(all_labels, all_predictions, average="macro", zero_division=0)
     f1_micro = f1_score(all_labels, all_predictions, average="micro", zero_division=0)
     f1_weighted = f1_score(all_labels, all_predictions, average="weighted", zero_division=0)
@@ -407,7 +421,6 @@ def optimize_threshold(model, test_data):
     device = next(model.parameters()).device
     model.eval()
 
-    # Get raw predictions first
     all_probabilities = []
     all_labels = []
 
@@ -416,16 +429,13 @@ def optimize_threshold(model, test_data):
             text = item["text"]
             true_labels = np.array(item["labels"])
 
-            # Tokenize
             encoding = model.tokenizer(
                 text, truncation=True, padding="max_length", max_length=256, return_tensors="pt"
             )
 
-            # Move to device
             input_ids = encoding["input_ids"].to(device)
             attention_mask = encoding["attention_mask"].to(device)
 
-            # Get raw probabilities
             outputs = model(input_ids=input_ids, attention_mask=attention_mask)
             probabilities = torch.sigmoid(outputs).cpu().numpy().squeeze()
 
@@ -435,7 +445,6 @@ def optimize_threshold(model, test_data):
     all_probabilities = np.array(all_probabilities)
     all_labels = np.array(all_labels)
 
-    # Try different thresholds
     thresholds = np.arange(0.1, 0.9, 0.05)
     best_f1 = 0
     best_threshold = 0.5
@@ -456,7 +465,6 @@ def optimize_threshold(model, test_data):
     logger.info("   • Best threshold: {best_threshold:.3f}")
     logger.info("   • Best F1 Macro: {best_f1:.4f}")
 
-    # Show top 5 thresholds
     results.sort(key=lambda x: x["f1_macro"], reverse=True)
     logger.info("📊 Top 5 thresholds:")
     for i, result in enumerate(results[:5]):
@@ -471,11 +479,9 @@ def main():
     """Main evaluation function."""
     logger.info("🎯 Starting Focal Loss Model Evaluation")
 
-    # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Device: {device}")
 
-    # Load trained model
     model_path = Path("models/emotion_detection/focal_loss_model.pt")
     if not model_path.exists():
         logger.error("❌ Model not found at {model_path}")
@@ -487,23 +493,18 @@ def main():
     model = load_trained_model(model_path)
     model = model.to(device)
 
-    # Create test data
     test_data = create_test_data()
     logger.info("✅ Test data created with {len(test_data)} examples")
 
-    # Evaluate with default threshold
     logger.info("=" * 50)
     default_results = evaluate_model(model, test_data, threshold=0.5)
 
-    # Optimize threshold
     logger.info("=" * 50)
     best_threshold, threshold_results = optimize_threshold(model, test_data)
 
-    # Evaluate with optimized threshold
     logger.info("=" * 50)
     optimized_results = evaluate_model(model, test_data, threshold=best_threshold)
 
-    # Compare results
     logger.info("=" * 50)
     logger.info("📊 Performance Comparison:")
     logger.info("   Default threshold (0.5):")
@@ -516,7 +517,6 @@ def main():
     improvement = optimized_results["f1_macro"] - default_results["f1_macro"]
     logger.info("   🎯 Improvement: {improvement:.4f} ({improvement*100:.2f}%)")
 
-    # Save results
     results = {
         "default_threshold": 0.5,
         "optimized_threshold": best_threshold,

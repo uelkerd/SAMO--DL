@@ -1,25 +1,36 @@
-import numpy as np
-import sys
-
-#!/usr/bin/env python3
-import logging
-import torch
-from pathlib import Path
-
-# Add project root to path
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-
-# Configure logging
+            # Note: Actual prediction would require tokenization and inference
+            # Simulate audio data
+        # Audio parameters
+        # Create model
+        # Extract features
+        # Generate synthetic audio data
+        # Load Whisper model
+        # Setup device
+        # Simulate audio features
+        # Simulate recording (don't actually record in test)
+        # Test with sample audio (simulated)
+        # Test with sample text
+        import librosa
         import pyaudio
         import wave
-
-        # Audio parameters
         import whisper
+    # Summary
+    # Test individual components
+# Add project root to path
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
+import logging
+import numpy as np
+import sys
+import torch
 
-        # Load Whisper model
-        import librosa
 
-        # Simulate audio features
+
+
+
+
 
 """
 Test Voice Pipeline for SAMO
@@ -56,10 +67,8 @@ def test_voice_recording():
         logger.info("   • Sample rate: 16kHz")
         logger.info("   • Channels: 1 (mono)")
 
-        # Simulate recording (don't actually record in test)
         frames = []
         for _i in range(0, int(rate / chunk * duration)):
-            # Simulate audio data
             frames.append(b"\x00" * chunk * 2)  # 2 bytes per sample
 
         stream.stop_stream()
@@ -75,7 +84,7 @@ def test_voice_recording():
     except ImportError:
         logger.warning("⚠️  PyAudio not available - skipping voice recording test")
         return False
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Voice recording test failed: {e}")
         return False
 
@@ -90,7 +99,6 @@ def test_whisper_transcription():
         logger.info("   • Model: {model.name}")
         logger.info("   • Parameters: {model.dims.n_text_state}M")
 
-        # Test with sample audio (simulated)
         logger.info("   • Transcription test: Simulated audio processing")
         logger.info("   • Expected output: Text transcription")
 
@@ -99,7 +107,7 @@ def test_whisper_transcription():
     except ImportError:
         logger.warning("⚠️  Whisper not available - skipping transcription test")
         return False
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Whisper transcription test failed: {e}")
         return False
 
@@ -109,11 +117,9 @@ def test_emotion_detection():
     logger.info("😊 Testing emotion detection...")
 
     try:
-        # Setup device
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logger.info("Using device: {device}")
 
-        # Create model
         model, _ = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
             class_weights=None,
@@ -125,7 +131,6 @@ def test_emotion_detection():
         logger.info("   • Model: BERT-base-uncased")
         logger.info("   • Device: {device}")
 
-        # Test with sample text
         test_texts = [
             "I'm so happy today!",
             "This is really frustrating.",
@@ -134,12 +139,11 @@ def test_emotion_detection():
 
         for text in test_texts:
             logger.info("   • Testing: '{text}'")
-            # Note: Actual prediction would require tokenization and inference
             logger.info("   • Result: Emotion detection ready")
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Emotion detection test failed: {e}")
         return False
 
@@ -153,10 +157,8 @@ def test_voice_emotion_features():
         duration = 3
         samples = int(sample_rate * duration)
 
-        # Generate synthetic audio data
         audio_data = np.random.randn(samples).astype(np.float32)
 
-        # Extract features
         mfccs = librosa.feature.mfcc(y=audio_data, sr=sample_rate, n_mfcc=13)
         spectral_centroids = librosa.feature.spectral_centroid(y=audio_data, sr=sample_rate)
         zero_crossing_rate = librosa.feature.zero_crossing_rate(audio_data)
@@ -171,7 +173,7 @@ def test_voice_emotion_features():
     except ImportError:
         logger.warning("⚠️  Librosa not available - skipping voice features test")
         return False
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Voice emotion features test failed: {e}")
         return False
 
@@ -181,7 +183,6 @@ def test_complete_pipeline():
     logger.info("🚀 Testing Complete Voice Pipeline")
     logger.info("=" * 50)
 
-    # Test individual components
     tests = [
         ("Voice Recording", test_voice_recording),
         ("Whisper Transcription", test_whisper_transcription),
@@ -203,11 +204,10 @@ def test_complete_pipeline():
             else:
                 logger.info("❌ {test_name}: FAILED")
 
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ {test_name}: ERROR - {e}")
             results.append((test_name, False))
 
-    # Summary
     logger.info("\n" + "=" * 50)
     logger.info("📊 PIPELINE TEST SUMMARY")
     logger.info("=" * 50)

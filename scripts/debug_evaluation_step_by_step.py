@@ -1,24 +1,24 @@
-import numpy as np
-import sys
-#!/usr/bin/env python3
-import logging
-import torch
-from pathlib import Path
-# Add src to path
-from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-# Set up logging
+                    # Find top-1 prediction
+        # Apply fallback manually to see what happens
+        # Apply threshold
+        # Calculate F1 scores manually
+        # Check which samples need fallback
+        # Micro F1
+    # Get validation data (small batch for debugging)
     # Initialize trainer
     # Load model
-    # Get validation data (small batch for debugging)
-    # Take just one batch for detailed analysis
     # Run model inference
+    # Take just one batch for detailed analysis
     # Test different thresholds
-        # Apply threshold
-        # Check which samples need fallback
-        # Apply fallback manually to see what happens
-                    # Find top-1 prediction
-        # Calculate F1 scores manually
-        # Micro F1
+# Add src to path
+# Set up logging
+#!/usr/bin/env python3
+from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+from pathlib import Path
+import logging
+import numpy as np
+import sys
+import torch
 
 
 
@@ -79,7 +79,7 @@ def debug_evaluation_step_by_step():
 
     thresholds = [0.1, 0.2, 0.3, 0.5]
 
-    for ___threshold in thresholds:
+    for threshold in thresholds:
         logger.info("\n🎯 Testing threshold: {threshold}")
 
         predictions_before_fallback = (probabilities >= threshold).float()

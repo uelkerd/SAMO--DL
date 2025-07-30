@@ -1,18 +1,18 @@
-import logging
-import sys
-#!/usr/bin/env python3
-import os
-import tempfile
-import pytest
-from pathlib import Path
-import contextlib
-# Add project root to path
-    # Get the path to the test file
-    # Create a temporary pytest configuration to avoid conflicts with pyproject.toml
+        # Clean up temporary file
+        # Print results
         # Run pytest with the temporary configuration
         # Run the tests
-        # Print results
-        # Clean up temporary file
+    # Create a temporary pytest configuration to avoid conflicts with pyproject.toml
+    # Get the path to the test file
+# Add project root to path
+#!/usr/bin/env python3
+from pathlib import Path
+import contextlib
+import logging
+import os
+import pytest
+import sys
+import tempfile
 
 
 

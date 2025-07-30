@@ -1,19 +1,19 @@
-import sys
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
-# Add src to path
-import torch
-from models.emotion_detection.bert_classifier import BERTEmotionClassifier
-# Configure logging
-        # Set device
-        # Initialize model - removed 'device' parameter as it's not in the constructor
-        # Move model to device after initialization
-        # Test model forward pass with dummy data
         # Create dummy input tensors and move to device
         # Forward pass
-        # Verify output dimensions
+        # Initialize model - removed 'device' parameter as it's not in the constructor
+        # Move model to device after initialization
+        # Set device
+        # Test model forward pass with dummy data
         # Test that outputs are reasonable (not NaN, finite)
+        # Verify output dimensions
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+from pathlib import Path
+import logging
+import sys
+import torch
 
 
 
@@ -75,7 +75,7 @@ def test_bert_model_loading():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ BERT model test failed: {e}")
         return False
 

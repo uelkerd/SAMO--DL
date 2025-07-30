@@ -1,15 +1,15 @@
-import logging
-import os
-import sys
-#!/usr/bin/env python3
-import subprocess
-from pathlib import Path
         # Split command for security (avoid shell=True)
     # Change to project root
     # Fix 1: Format code with ruff
     # Fix 2: Check for any remaining formatting issues
     # Fix 3: Run specific failing tests to verify fixes
     # Summary
+#!/usr/bin/env python3
+from pathlib import Path
+import logging
+import os
+import subprocess
+import sys
 
 
 
@@ -33,7 +33,7 @@ def run_command(cmd: str, description: str) -> tuple[bool, str]:
             logging.info("❌ {description} - FAILED")
             logging.info("Error: {result.stderr}")
             return False, result.stderr
-    except Exception as _:
+    except Exception as e:
         logging.info("❌ {description} - EXCEPTION: {e}")
         return False, str(e)
 
@@ -60,7 +60,7 @@ def main():
         "Testing predict emotions fix",
     )
 
-    logging.info("\n" + "=" * 50)
+    logging.info(f"\n=" * 50)
     logging.info("📊 CI Fix Summary:")
     logging.info("Code Formatting: {'✅ PASSED' if success1 else '❌ FAILED'}")
     logging.info("Linting Fixes: {'✅ PASSED' if success2 else '❌ FAILED'}")

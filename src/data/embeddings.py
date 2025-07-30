@@ -1,14 +1,14 @@
-import numpy as np
+            # Average vectors or use zero vector if no tokens found
+            # Get vectors for tokens that are in vocabulary
+        # Create DataFrame with IDs and embeddings
+# Configure logging
 # G004: Logging f-strings temporarily allowed for development
-import logging
-import pandas as pd
 from gensim.models import FastText, Word2Vec
 from gensim.utils import simple_preprocess
 from sklearn.feature_extraction.text import TfidfVectorizer
-# Configure logging
-            # Get vectors for tokens that are in vocabulary
-            # Average vectors or use zero vector if no tokens found
-        # Create DataFrame with IDs and embeddings
+import logging
+import numpy as np
+import pandas as pd
 
 
 
@@ -224,7 +224,7 @@ class Word2VecEmbedder(BaseEmbedder):
         tokenized_texts = self._preprocess_texts(texts)
         embeddings = []
 
-        for ___tokens in tokenized_texts:
+        for tokens in tokenized_texts:
             vectors = [self.model.wv[token] for token in tokens if token in self.model.wv]
 
             embedding = np.mean(vectors, axis=0) if vectors else np.zeros(self.vector_size)

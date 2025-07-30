@@ -1,36 +1,36 @@
-import sys
+        # Benchmark original model
+        # Benchmark quantized model
+        # Calculate speedup
+        # Check if input model exists
+        # Create model
+        # Create output directory if it doesn't exist
+        # Define quantization configuration
+        # Load checkpoint
+        # Load state dict
+        # Measure original model size
+        # Measure quantized model size
+        # Prepare model for quantization
+        # Quantize
+        # Quantize model
+        # Save compression metrics
+        # Save quantized model
+        # Set model to evaluation mode
+        # Set optimal temperature and threshold
+    # Benchmark
+    # Create dummy input (batch_size=1, seq_len=128)
+    # Warm up
+# Add src to path
+# Configure logging
+# Constants
 #!/usr/bin/env python3
+from pathlib import Path
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 import argparse
 import logging
+import sys
 import time
 import torch
 import torch.quantization
-from pathlib import Path
-# Add src to path
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-# Configure logging
-# Constants
-        # Check if input model exists
-        # Create output directory if it doesn't exist
-        # Load checkpoint
-        # Create model
-        # Load state dict
-        # Set optimal temperature and threshold
-        # Measure original model size
-        # Benchmark original model
-        # Quantize model
-        # Set model to evaluation mode
-        # Define quantization configuration
-        # Prepare model for quantization
-        # Quantize
-        # Measure quantized model size
-        # Benchmark quantized model
-        # Calculate speedup
-        # Save quantized model
-        # Save compression metrics
-    # Create dummy input (batch_size=1, seq_len=128)
-    # Warm up
-    # Benchmark
 
 
 
@@ -151,7 +151,7 @@ def compress_model(input_model: str, output_model: str) -> bool:
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("Error compressing model: {e}")
         return False
 

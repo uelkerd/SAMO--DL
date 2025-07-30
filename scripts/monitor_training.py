@@ -1,27 +1,27 @@
-import logging
-import json
-import sys
-from pathlib import Path
-from typing import Optional
-import matplotlib.pyplot as plt
-import numpy as np
-from datetime import datetime
+    # Analyze convergence
+    # Check model files
+    # Extract metrics
+    # F1 score curve
+    # Generate plots
+    # Load and analyze training history
+    # Loss curve
+    # Next Steps
+    # Performance Metrics
+    # Performance analysis
+    # Recommendations
+    # Save analysis report
+    # Training Progress
+    # Training time analysis
 # Add src to path for imports
 #!/usr/bin/env python3
-    # Extract metrics
-    # Analyze convergence
-    # Performance analysis
-    # Training time analysis
-    # Training Progress
-    # Performance Metrics
-    # Recommendations
-    # Next Steps
-    # Loss curve
-    # F1 score curve
-    # Check model files
-    # Load and analyze training history
-    # Generate plots
-    # Save analysis report
+from datetime import datetime
+from pathlib import Path
+from typing import Optional
+import json
+import logging
+import matplotlib.pyplot as plt
+import numpy as np
+import sys
 
 
 
@@ -63,7 +63,7 @@ def analyze_training_progress(history: list[dict]) -> dict:
         "recommendations": []
     }
 
-    for ___epoch_data in history:
+    for epoch_data in history:
         analysis["loss_progress"].append(epoch_data["train_loss"])
         analysis["f1_progress"].append(epoch_data["micro_f1"])
         analysis["training_time"].append(epoch_data["epoch_time"])

@@ -1,37 +1,37 @@
-import sys
-#!/usr/bin/env python3
-import argparse
-import logging
-import torch
-from torch import nn
-import torch.nn.functional as F
-from pathlib import Path
-# Add src to path
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-# Configure logging
+            # Backward pass
+            # Forward pass
+            # Log progress every 100 batches
+        # Apply alpha weighting
+        # Apply reduction
         # Apply sigmoid to get probabilities
         # Calculate binary cross entropy
         # Calculate focal loss components
-        # Apply alpha weighting
         # Combine all components
-        # Apply reduction
-    # Setup device
-    # Load dataset using existing loader
-    # Create model
-    # Create focal loss
-    # Setup optimizer
-    # Create data loaders
-    # Training loop
-        # Training phase
-            # Forward pass
-            # Backward pass
-            # Log progress every 100 batches
-        # Validation phase
         # Log progress
         # Save best model
-    # Save final model
+        # Training phase
+        # Validation phase
+    # Create data loaders
+    # Create focal loss
+    # Create model
+    # Load dataset using existing loader
     # Run training
+    # Save final model
+    # Setup device
+    # Setup optimizer
+    # Training loop
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from torch import nn
+import argparse
+import logging
+import sys
+import torch
+import torch.nn.functional as F
 
 
 
@@ -136,7 +136,7 @@ def train_with_focal_loss(
         logger.info("   • Validation: {len(val_dataset)} examples")
         logger.info("   • Test: {len(test_dataset)} examples")
 
-    except Exception as _:
+    except Exception as e:
         logger.error("Failed to load dataset: {e}")
         raise
 
@@ -165,7 +165,7 @@ def train_with_focal_loss(
         train_loss = 0.0
         num_batches = 0
 
-        for batch_idx, batch in enumerate(train_loader):
+        for _batch_idx, batch in enumerate(train_loader):
             input_ids = batch["input_ids"].to(device)
             attention_mask = batch["attention_mask"].to(device)
             labels = batch["labels"].float().to(device)
@@ -193,7 +193,7 @@ def train_with_focal_loss(
         val_batches = 0
 
         with torch.no_grad():
-            for ___batch in val_loader:
+            for batch in val_loader:
                 input_ids = batch["input_ids"].to(device)
                 attention_mask = batch["attention_mask"].to(device)
                 labels = batch["labels"].float().to(device)

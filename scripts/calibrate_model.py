@@ -1,19 +1,19 @@
+    # --- Calibration Search ---
+    # --- Load Data ---
+    # --- Load Model ---
+    # --- Report Results ---
+#!/usr/bin/env python3
+from models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
+from models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from pathlib import Path
+from sklearn.metrics import f1_score
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+from transformers import AutoTokenizer
 import logging
 import numpy as np
 import sys
-#!/usr/bin/env python3
-from pathlib import Path
 import torch
-from tqdm import tqdm
-from transformers import AutoTokenizer
-from torch.utils.data import DataLoader
-from sklearn.metrics import f1_score
-from models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
-from models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-    # --- Load Model ---
-    # --- Load Data ---
-    # --- Calibration Search ---
-    # --- Report Results ---
 
 
 
@@ -72,7 +72,7 @@ def calibrate_model():
     results = []
 
     logging.info("\n🌡️ Starting calibration search...")
-    for ___temp in temperatures:
+    for temp in temperatures:
         model.set_temperature(temp)
 
         all_probs = []
@@ -93,7 +93,7 @@ def calibrate_model():
         all_probs = torch.cat(all_probs).numpy()
         all_labels = torch.cat(all_labels).numpy()
 
-        for ___thresh in thresholds:
+        for thresh in thresholds:
             predictions = (all_probs > thresh).astype(int)
             micro_f1 = f1_score(all_labels, predictions, average="micro", zero_division=0)
 

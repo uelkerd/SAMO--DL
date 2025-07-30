@@ -1,23 +1,23 @@
-import json
-import sys
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
-# Add src to path
-from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
-# Set up logging
-    # Initialize trainer
-    # Load trained model
-    # Test different temperatures
-        # Update model temperature
-        # Evaluate with current temperature
         # Calculate predictions per sample (overprediction metric)
+        # Evaluate with current temperature
         # This is approximated from the debug output
         # Track best result
+        # Update model temperature
     # Display all results
-    # Save results for CircleCI
+    # Initialize trainer
+    # Load trained model
     # Provide recommendations
+    # Save results for CircleCI
+    # Test different temperatures
+# Add src to path
+# Set up logging
+#!/usr/bin/env python3
+from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+from pathlib import Path
+import json
+import logging
+import sys
 
 
 
@@ -60,7 +60,7 @@ def test_temperature_scaling():
     logger.info("🎯 Testing temperatures with threshold {threshold}")
     logger.info("=" * 80)
 
-    for ___temp in temperatures:
+    for temp in temperatures:
         logger.info("\n🌡️ Temperature: {temp}")
 
         trainer.model.set_temperature(temp)
@@ -93,7 +93,7 @@ def test_temperature_scaling():
     logger.info("{'Temp':<6} {'Macro F1':<10} {'Micro F1':<10} {'Pred/Sample':<12}")
     logger.info("-" * 50)
 
-    for ___result in results:
+    for result in results:
         logger.info(
             "{result['temperature']:<6.1f} "
             "{result['macro_f1']:<10.4f} "

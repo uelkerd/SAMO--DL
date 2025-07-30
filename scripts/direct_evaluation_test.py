@@ -1,26 +1,26 @@
-import numpy as np
-import sys
-#!/usr/bin/env python3
-from pathlib import Path
-import torch
-import logging
-# Add src to path
-from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+        # Apply sigmoid to get probabilities
+        # Apply threshold
+        # Calculate F1 manually
+        # Check if any samples have zero predictions
+        # Check what type of output we get
+        # Convert to numpy for metrics calculation
+        # Count expected predictions
+        # Get model output
+        # Test threshold application
+    # Get one batch from validation data
     # Initialize trainer
     # Load model
-    # Get one batch from validation data
-    # Unpack batch data
     # Move to device
     # Run model inference
-        # Get model output
-        # Check what type of output we get
-        # Apply sigmoid to get probabilities
-        # Test threshold application
-        # Count expected predictions
-        # Apply threshold
-        # Check if any samples have zero predictions
-        # Convert to numpy for metrics calculation
-        # Calculate F1 manually
+    # Unpack batch data
+# Add src to path
+#!/usr/bin/env python3
+from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+from pathlib import Path
+import logging
+import numpy as np
+import sys
+import torch
 
 
 

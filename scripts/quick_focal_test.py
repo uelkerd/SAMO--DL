@@ -1,20 +1,27 @@
+                # Simple focal loss implementation
+        # Add src to path
+        # Add src to path
+        # Create dummy inputs and targets
+        # Create model
+        # Load dataset
+        # Test focal loss
+        # Test with dummy data
+        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+        from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+        from torch import nn
+        import torch
+        import torch.nn.functional as F
+    # Summary
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+import logging
 import sys
 
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
 
-# Configure logging
-        import torch
-        from torch import nn
-        import torch.nn.functional as F
 
-        from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 
-        # Load dataset
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
-        # Create model
 
 """
 Quick Focal Loss Test
@@ -38,7 +45,6 @@ def test_focal_loss_math():
                 self.gamma = gamma
 
             def forward(self, inputs, targets):
-                # Simple focal loss implementation
                 probs = torch.sigmoid(inputs)
                 pt = probs * targets + (1 - probs) * (1 - targets)
                 focal_weight = (1 - pt) ** self.gamma
@@ -47,15 +53,12 @@ def test_focal_loss_math():
                 focal_loss = alpha_weight * focal_weight * bce_loss
                 return focal_loss.mean()
 
-        # Test with dummy data
         batch_size = 4
         num_classes = 28
 
-        # Create dummy inputs and targets
         inputs = torch.randn(batch_size, num_classes)
         targets = torch.randint(0, 2, (batch_size, num_classes)).float()
 
-        # Test focal loss
         focal_loss = SimpleFocalLoss(alpha=0.25, gamma=2.0)
         loss = focal_loss(inputs, targets)
 
@@ -66,7 +69,7 @@ def test_focal_loss_math():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Focal Loss Test FAILED: {e}")
         return False
 
@@ -76,7 +79,6 @@ def test_dataset_loading():
     logger.info("📊 Testing Dataset Loading...")
 
     try:
-        # Add src to path
         sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
         data_loader = GoEmotionsDataLoader()
@@ -92,7 +94,7 @@ def test_dataset_loading():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Dataset Loading Test FAILED: {e}")
         return False
 
@@ -102,7 +104,6 @@ def test_model_creation():
     logger.info("🤖 Testing Model Creation...")
 
     try:
-        # Add src to path
         sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
         model, loss_fn = create_bert_emotion_classifier(
@@ -119,7 +120,7 @@ def test_model_creation():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Model Creation Test FAILED: {e}")
         return False
 
@@ -141,11 +142,10 @@ def main():
         logger.info("\n📋 Running {test_name}...")
         try:
             results[test_name] = test_func()
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ {test_name} failed with exception: {e}")
             results[test_name] = False
 
-    # Summary
     logger.info("\n📊 Test Results Summary:")
     logger.info("=" * 30)
 

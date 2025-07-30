@@ -1,22 +1,34 @@
-import os
-import sys
-import traceback
-
-#!/usr/bin/env python3
-import logging
-import torch
-from torch import nn
-from pathlib import Path
-
-# Add project root to path
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-
-# Configure logging
+        # Calibrate temperature
+        # Create tokenized dataset
+        # Extract raw validation data
+        # Load checkpoint
+        # Load dataset
+        # Load trained model
+        # Save calibrated model
         from src.models.emotion_detection.bert_classifier import EmotionDataset
         from transformers import AutoTokenizer
-
         import traceback
+    # Collect logits and labels
+    # Concatenate all batches
+    # Create temperature scaling layer
+    # Optimize temperature parameter
+    # Setup device
+# Add project root to path
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
+from torch import nn
+import logging
+import os
+import sys
+import torch
+import traceback
+
+
+
+
 
 
 """
@@ -49,10 +61,8 @@ def calibrate_temperature(model, val_loader, device):
     """Calibrate temperature parameter on validation set."""
     logger.info("🔧 Calibrating temperature parameter...")
 
-    # Create temperature scaling layer
     temperature_scaling = TemperatureScaling().to(device)
 
-    # Collect logits and labels
     all_logits = []
     all_labels = []
 
@@ -69,11 +79,9 @@ def calibrate_temperature(model, val_loader, device):
             all_logits.append(logits.cpu())
             all_labels.append(labels.cpu())
 
-    # Concatenate all batches
     all_logits = torch.cat(all_logits, dim=0)
     all_labels = torch.cat(all_labels, dim=0)
 
-    # Optimize temperature parameter
     optimizer = torch.optim.LBFGS([temperature_scaling.temperature], lr=0.01, max_iter=50)
 
     def eval():
@@ -99,29 +107,24 @@ def apply_temperature_scaling():
     logger.info("   • Expected improvement: 5-10% F1 score")
     logger.info("   • Method: Model calibration")
 
-    # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Using device: {device}")
 
     try:
-        # Load dataset
         logger.info("Loading validation dataset...")
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()
 
-        # Extract raw validation data
         val_raw = datasets["validation"]
         val_texts = [item["text"] for item in val_raw]
         val_labels = [item["labels"] for item in val_raw]
 
-        # Create tokenized dataset
         tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
         val_dataset = EmotionDataset(val_texts, val_labels, tokenizer, max_length=512)
         val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
 
-        # Load trained model
         model_path = "./models/checkpoints/focal_loss_best_model.pt"
-        if not os.path.exists(model_path):
+        if not Path(model_path):
             logger.error("❌ Model not found: {model_path}")
             logger.info("   • Please run focal_loss_training.py first")
             return False
@@ -134,18 +137,15 @@ def apply_temperature_scaling():
         )
         model.to(device)
 
-        # Load checkpoint
         checkpoint = torch.load(model_path, map_location=device)
         model.load_state_dict(checkpoint["model_state_dict"])
         logger.info("✅ Model loaded successfully")
 
-        # Calibrate temperature
         temperature_scaling = calibrate_temperature(model, val_loader, device)
 
-        # Save calibrated model
         output_dir = "./models/checkpoints"
         os.makedirs(output_dir, exist_ok=True)
-        calibrated_path = os.path.join(output_dir, "temperature_scaled_model.pt")
+        calibrated_path = Path(output_dir, "temperature_scaled_model.pt")
 
         torch.save(
             {
@@ -162,7 +162,7 @@ def apply_temperature_scaling():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Temperature scaling failed: {e}")
         traceback.print_exc()
         return False

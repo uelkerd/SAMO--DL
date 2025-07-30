@@ -1,34 +1,34 @@
-import sys
-#!/usr/bin/env python3
-import logging
-from datetime import datetime, timezone
-from pathlib import Path
-# Add src to path
-import torch
-from torch import nn
-# Configure logging
-        # Create a simple model for testing
-        # Simple forward pass for testing
-    # Create synthetic input data
-    # Create synthetic labels (multi-label)
-    # Convert predictions to binary
-    # Calculate accuracy
-    # Calculate precision and recall (simplified)
-    # Calculate F1 score
-        # Create model and data
-        # Get predictions
-        # Calculate metrics
-        # Validate metrics
-        # Create model
-        # Create baseline data
-        # Create current data (simulate drift)
-        # Get baseline predictions
         # Calculate baseline and current metrics
         # Calculate drift (simplified)
-        # Validate drift detection
+        # Calculate metrics
+        # Create a simple model for testing
+        # Create baseline data
+        # Create current data (simulate drift)
+        # Create model
+        # Create model and data
         # Create monitoring log entry
+        # Get baseline predictions
+        # Get predictions
+        # Simple forward pass for testing
         # Simulate logging
+        # Validate drift detection
         # Validate log entry
+        # Validate metrics
+    # Calculate F1 score
+    # Calculate accuracy
+    # Calculate precision and recall (simplified)
+    # Convert predictions to binary
+    # Create synthetic input data
+    # Create synthetic labels (multi-label)
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from datetime import datetime, timezone
+from pathlib import Path
+from torch import nn
+import logging
+import sys
+import torch
 
 
 
@@ -129,7 +129,7 @@ def test_model_performance_monitoring():
         logger.info("✅ Model performance monitoring test passed")
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Model performance monitoring test failed: {e}")
         return False
 
@@ -168,7 +168,7 @@ def test_model_drift_detection():
         logger.info("✅ Model drift detection test passed")
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Model drift detection test failed: {e}")
         return False
 
@@ -204,7 +204,7 @@ def test_monitoring_logging():
         logger.info("✅ Monitoring logging test passed")
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Monitoring logging test failed: {e}")
         return False
 

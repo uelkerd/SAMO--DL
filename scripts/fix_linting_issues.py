@@ -1,16 +1,16 @@
-import logging
-import re
-from pathlib import Path
-#!/usr/bin/env python3
+            # Remove the line containing the unused import
+        # Apply fixes
+    # Add timezone import if needed
+    # Files that need fixing based on the CI errors
+    # Fix datetime.now() calls
     # Fix exception handlers that don't use the exception variable
     # Fix other exception patterns
     # Remove unused imports
-            # Remove the line containing the unused import
     # Replace hardcoded passwords in tests
-    # Add timezone import if needed
-    # Fix datetime.now() calls
-    # Files that need fixing based on the CI errors
-        # Apply fixes
+#!/usr/bin/env python3
+from pathlib import Path
+import logging
+import re
 
 
 
@@ -30,12 +30,12 @@ def fix_unused_exception_variables(file_path: Path) -> bool:
     content = file_path.read_text()
     original_content = content
 
-    pattern = r'except Exception as _:\s*\n\s*logger\.(error|warning|info)\("([^"]*)\{e\}([^"]*)"'
-    replacement = r'except Exception as _:\n        logger.\1(f"\2{e}\3")'
+    pattern = r'except Exception as e:\s*\n\s*logger\.(error|warning|info)\("([^"]*)\{e\}([^"]*)"'
+    replacement = r'except Exception as e:\n        logger.\1(f"\2{e}\3")'
     content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
 
-    pattern = r'except Exception as _:\s*\n\s*logger\.(error|warning|info)\("([^"]*)\{e!s\}([^"]*)"'
-    replacement = r'except Exception as _:\n        logger.\1(f"\2{e!s}\3")'
+    pattern = r'except Exception as e:\s*\n\s*logger\.(error|warning|info)\("([^"]*)\{e!s\}([^"]*)"'
+    replacement = r'except Exception as e:\n        logger.\1(f"\2{e!s}\3")'
     content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
 
     if content != original_content:
@@ -56,7 +56,7 @@ def fix_unused_imports(file_path: Path) -> bool:
         'from unittest.mock import patch',  # in some test files
     ]
 
-    for ___unused_import in unused_imports:
+    for unused_import in unused_imports:
         if unused_import in content:
             lines = content.split('\n')
             lines = [line for line in lines if unused_import not in line]
@@ -131,7 +131,7 @@ def main():
 
     fixed_files = []
 
-    for ___file_path in files_to_fix:
+    for file_path in files_to_fix:
         if not file_path.exists():
             logging.info(f"⚠️  File not found: {file_path}")
             continue
@@ -159,7 +159,7 @@ def main():
             fixed_files.append(file_path)
 
     logging.info(f"\n🎉 Fixed {len(fixed_files)} files:")
-    for ___file_path in fixed_files:
+    for file_path in fixed_files:
         logging.info(f"  - {file_path}")
 
 

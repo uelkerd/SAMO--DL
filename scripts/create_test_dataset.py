@@ -1,16 +1,16 @@
-import logging
-import json
-#!/usr/bin/env python3
-import random
-    # Sample texts with emotion labels
-    # Create more samples by duplicating and slightly modifying
         # Add original entry
         # Add variations
-    # Shuffle the data
+    # Count emotions
+    # Create more samples by duplicating and slightly modifying
     # Create test data
+    # Sample texts with emotion labels
     # Save to file
     # Show sample
-    # Count emotions
+    # Shuffle the data
+#!/usr/bin/env python3
+import json
+import logging
+import random
 
 
 
@@ -102,7 +102,7 @@ def create_test_dataset():
     ]
 
     expanded_data = []
-    for ___entry in test_data:
+    for entry in test_data:
         expanded_data.append(entry)
 
         for _i in range(2):  # Create 2 variations per entry
@@ -135,7 +135,7 @@ def main():
         logging.info("     Emotions: {entry['emotions']}")
 
     emotion_counts = {}
-    for ___entry in test_data:
+    for entry in test_data:
         for emotion in entry["emotions"]:
             emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
 

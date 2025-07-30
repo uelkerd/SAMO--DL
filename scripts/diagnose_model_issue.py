@@ -1,25 +1,25 @@
-import sys
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
-# Add src to path
-import torch
-from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-# Configure logging
+            # Check if all probabilities are high
+            # Forward pass
+            # Sample analysis
+        # Check gradients
+        # Create fake logits and labels
+        # Create simple test case
         # Create trainer
-        # Prepare data
-        # Load trained model
         # Get a few samples from validation set
         # Get one batch for detailed analysis
-            # Forward pass
-            # Check if all probabilities are high
-            # Sample analysis
-        # Create simple test case
-        # Create fake logits and labels
+        # Load trained model
+        # Prepare data
         # Set some emotions as positive
         # Test BCE loss
         # Test with class weights
-        # Check gradients
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+from pathlib import Path
+import logging
+import sys
+import torch
 
 
 
@@ -115,7 +115,7 @@ def diagnose_model_outputs():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Diagnosis failed: {e}")
         return False
 
@@ -155,7 +155,7 @@ def diagnose_loss_function():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Loss function diagnosis failed: {e}")
         return False
 

@@ -1,14 +1,31 @@
-import numpy as np
-
-import string
-
-import pandas as pd
+            import nltk
+        # Apply lemmatization if enabled
+        # Apply stemming if enabled
+        # Apply text preprocessing to content
+        # Average word length
+        # Character count
+        # Combine title and content for full text analysis
+        # Convert to lowercase if enabled
+        # Extract text features
+        # Handle missing values
+        # Initialize NLP components
+        # Join tokens back into text
+        # Make a copy to avoid modifying the original
+        # Remove punctuation if enabled
+        # Remove stopwords if enabled
+        # Sentence count (approximation)
+        # Tokenize text
+        # Word count
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer, WordNetLemmatizer
 from nltk.tokenize import word_tokenize
+import numpy as np
+import pandas as pd
+import string
 
 
-            import nltk
+
+
 
 
 class TextPreprocessor:
@@ -38,7 +55,6 @@ class TextPreprocessor:
         self.stemming = stemming
         self.lemmatization = lemmatization
 
-        # Initialize NLP components
         try:
             nltk.download("punkt", quiet=True)
             nltk.download("stopwords", quiet=True)
@@ -64,30 +80,23 @@ class TextPreprocessor:
         if not text or not isinstance(text, str):
             return ""
 
-        # Convert to lowercase if enabled
         if self.lowercase:
             text = text.lower()
 
-        # Remove punctuation if enabled
         if self.remove_punctuation:
             text = text.translate(str.maketrans("", "", string.punctuation))
 
-        # Tokenize text
         tokens = word_tokenize(text)
 
-        # Remove stopwords if enabled
         if self.remove_stopwords:
             tokens = [token for token in tokens if token not in self.stop_words]
 
-        # Apply stemming if enabled
         if self.stemming:
             tokens = [self.stemmer.stem(token) for token in tokens]
 
-        # Apply lemmatization if enabled
         if self.lemmatization:
             tokens = [self.lemmatizer.lemmatize(token) for token in tokens]
 
-        # Join tokens back into text
         return " ".join(tokens)
 
     def preprocess_df(
@@ -126,18 +135,14 @@ class TextPreprocessor:
         """
         df = df.copy()
 
-        # Character count
         df["char_count"] = df[text_column].apply(len)
 
-        # Word count
         df["word_count"] = df[text_column].apply(lambda x: len(x.split()))
 
-        # Sentence count (approximation)
         df["sentence_count"] = df[text_column].apply(
             lambda x: x.count(".") + x.count("!") + x.count("?") + 1
         )
 
-        # Average word length
         df["avg_word_length"] = df[text_column].apply(
             lambda x: np.mean([len(word) for word in x.split()]) if len(x.split()) > 0 else 0
         )
@@ -174,18 +179,13 @@ class JournalEntryPreprocessor:
             DataFrame with processed entries
 
         """
-        # Make a copy to avoid modifying the original
         df = df.copy()
 
-        # Handle missing values
         df[text_column] = df[text_column].fillna("")
         df[title_column] = df[title_column].fillna("")
 
-        # Combine title and content for full text analysis
         df["full_text"] = df[title_column] + " " + df[text_column]
 
-        # Apply text preprocessing to content
         df = self.text_preprocessor.preprocess_df(df, text_column=text_column)
 
-        # Extract text features
         return self.text_preprocessor.extract_features(df, text_column="processed_text")
