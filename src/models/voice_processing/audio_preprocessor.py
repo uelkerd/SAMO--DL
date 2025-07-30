@@ -64,8 +64,8 @@ class AudioPreprocessor:
 
             return True, "Valid audio file"
 
-        except Exception as e:
-            return False, "Error loading audio: {e!s}"
+        except Exception as _:
+            return False, "Error loading audio file"
 
     @staticmethod
     def preprocess_audio(
