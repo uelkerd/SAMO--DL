@@ -1,44 +1,44 @@
-import json
-import numpy as np
-#!/usr/bin/env python3
-import logging
-import torch
-from torch import nn
-import torch.nn.functional as F
-from pathlib import Path
-from sklearn.metrics import f1_score, precision_score, recall_score
-from tqdm import tqdm
-import random
-from transformers import AutoTokenizer, AutoModel
-import requests
-import pandas as pd
-# Configure logging
-    # GoEmotions dataset URLs
-            # Parse TSV file
-            # Convert emotion strings to binary labels
-                # Parse emotion labels
                     # Remove brackets and split
-    # Download all datasets
-    # Create larger, more diverse dataset
-    # Duplicate and shuffle for more data
-    # Split into train/val/test
-    # Create datasets
-    # Create dataloaders
+                # Parse emotion labels
+            # Convert emotion strings to binary labels
+            # Parse TSV file
         # Training
         # Validation
-    # Test different thresholds
-    # Final evaluation with best threshold
-    # Setup
-    # Download data
+    # Create dataloaders
+    # Create dataloaders
+    # Create datasets
+    # Create larger, more diverse dataset
     # Create model
     # Create tokenizer
-    # Create dataloaders
-    # Setup training
-    # Train model
+    # Download all datasets
+    # Download data
+    # Duplicate and shuffle for more data
     # Evaluate model
-    # Save model and results
+    # Final evaluation with best threshold
+    # GoEmotions dataset URLs
     # Save model
+    # Save model and results
     # Save results
+    # Setup
+    # Setup training
+    # Split into train/val/test
+    # Test different thresholds
+    # Train model
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+from sklearn.metrics import f1_score, precision_score, recall_score
+from torch import nn
+from tqdm import tqdm
+from transformers import AutoTokenizer, AutoModel
+import json
+import logging
+import numpy as np
+import pandas as pd
+import random
+import requests
+import torch
+import torch.nn.functional as F
 
 
 
@@ -154,7 +154,7 @@ def download_go_emotions_manual():
 
                 if emotion_str != "[]":
                     emotion_list = emotion_str.strip("[]").split(",")
-                    for ___emotion_name in emotion_list:
+                    for emotion_name in emotion_list:
                         emotion_name = emotion_name.strip().strip("'")
                         if emotion_name in emotion_labels:
                             idx = emotion_labels.index(emotion_name)
@@ -165,7 +165,7 @@ def download_go_emotions_manual():
             logger.info("✅ Downloaded and processed {filename}: {len(processed_data)} examples")
             return processed_data
 
-        except Exception as _:
+        except Exception as e:
             logger.warning("⚠️ Could not download {filename}: {e}")
             return []
 
@@ -213,7 +213,7 @@ def create_fallback_data():
     ]
 
     data = []
-    for i, text in enumerate(texts):
+    for _i, text in enumerate(texts):
         labels = [0] * 28
         emotion_idx = i % len(emotions)
         labels[emotion_idx] = 1
@@ -285,7 +285,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device, e
         train_losses = []
 
         progress_bar = tqdm(train_loader, desc="Training Epoch {epoch + 1}")
-        for batch_idx, batch in enumerate(progress_bar):
+        for _batch_idx, batch in enumerate(progress_bar):
             input_ids = batch["input_ids"].to(device)
             attention_mask = batch["attention_mask"].to(device)
             labels = batch["labels"].to(device)
@@ -306,7 +306,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device, e
 
         with torch.no_grad():
             progress_bar = tqdm(val_loader, desc="Validation Epoch {epoch + 1}")
-            for ___batch in progress_bar:
+            for batch in progress_bar:
                 input_ids = batch["input_ids"].to(device)
                 attention_mask = batch["attention_mask"].to(device)
                 labels = batch["labels"].to(device)

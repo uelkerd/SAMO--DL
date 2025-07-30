@@ -1,21 +1,47 @@
-import json
-import numpy as np
-
+            # Backward pass
+            # Forward pass
+            # Move batch to device
+        # Create a simple dataset structure
+        # Fallback to sample data
+        # Load the full dataset
+        # Log results
+        # Save best model
+        # Tokenize
+        # Training phase
+        # Try to use the datasets library with error handling
+        # Validation phase
+        from datasets import load_dataset
+        from transformers import AutoModel, AutoTokenizer
+    # Create datasets and dataloaders
+    # Create focal loss
+    # Create model
+    # Create optimizer with learning rate scheduling
+    # Download dataset
+    # Evaluate the model
+    # Save detailed results
+    # Save model
+    # Save the model and results
+    # Setup device
+    # Show final results
+    # Show top 3 thresholds
+    # Train the model
+    # Try different thresholds
+# Configure logging
 #!/usr/bin/env python3
-import logging
-import torch
-from torch import nn
-import torch.nn.functional as F
 from pathlib import Path
 from sklearn.metrics import f1_score, precision_score, recall_score
+from torch import nn
 from tqdm import tqdm
+import json
+import logging
+import numpy as np
+import torch
+import torch.nn.functional as F
 import warnings
 
-        from transformers import AutoModel, AutoTokenizer
 
-        from datasets import load_dataset
 
-        # Load the full dataset
+
 
 """
 Full-Scale Focal Loss Training for Emotion Detection
@@ -29,7 +55,6 @@ Usage:
 
 warnings.filterwarnings("ignore")
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -73,7 +98,6 @@ def download_full_dataset():
     logger.info("📊 Downloading full GoEmotions dataset...")
 
     try:
-        # Try to use the datasets library with error handling
         dataset = load_dataset("go_emotions", "simplified")
 
         logger.info("✅ Full dataset loaded successfully")
@@ -83,11 +107,10 @@ def download_full_dataset():
 
         return dataset
 
-    except Exception as _:
+    except Exception as e:
         logger.warning("⚠️  Could not load full dataset: {e}")
         logger.info("🔄 Falling back to sample data...")
 
-        # Fallback to sample data
         sample_data = [
             {
                 "text": "I am extremely happy today!",
@@ -487,7 +510,6 @@ def download_full_dataset():
             },
         ]
 
-        # Create a simple dataset structure
         return {"train": sample_data[:8], "validation": sample_data[8:10], "test": sample_data[10:]}
 
 
@@ -507,7 +529,6 @@ class SimpleDataset(torch.utils.data.Dataset):
         text = item["text"]
         labels = torch.tensor(item["labels"], dtype=torch.float)
 
-        # Tokenize
         encoding = self.tokenizer(
             text,
             truncation=True,
@@ -531,7 +552,6 @@ def train_model(model, train_dataloader, val_dataloader, focal_loss, optimizer, 
     training_history = []
 
     for epoch in range(epochs):
-        # Training phase
         model.train()
         train_loss = 0
         num_train_batches = 0
@@ -541,16 +561,13 @@ def train_model(model, train_dataloader, val_dataloader, focal_loss, optimizer, 
         for batch_idx, batch in enumerate(
             tqdm(train_dataloader, desc="Training Epoch {epoch + 1}")
         ):
-            # Move batch to device
             input_ids = batch["input_ids"].to(device)
             attention_mask = batch["attention_mask"].to(device)
             labels = batch["labels"].to(device)
 
-            # Forward pass
             outputs = model(input_ids=input_ids, attention_mask=attention_mask)
             loss = focal_loss(outputs, labels)
 
-            # Backward pass
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -563,7 +580,6 @@ def train_model(model, train_dataloader, val_dataloader, focal_loss, optimizer, 
 
         avg_train_loss = train_loss / num_train_batches
 
-        # Validation phase
         model.eval()
         val_loss = 0
         num_val_batches = 0
@@ -582,12 +598,10 @@ def train_model(model, train_dataloader, val_dataloader, focal_loss, optimizer, 
 
         avg_val_loss = val_loss / num_val_batches
 
-        # Log results
         logger.info("📊 Epoch {epoch + 1} Results:")
         logger.info("   • Train Loss: {avg_train_loss:.4f}")
         logger.info("   • Val Loss: {avg_val_loss:.4f}")
 
-        # Save best model
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
             logger.info("   🎯 New best validation loss: {best_val_loss:.4f}")
@@ -623,7 +637,6 @@ def evaluate_model_comprehensive(model, test_dataloader, device):
     all_probabilities = np.concatenate(all_probabilities, axis=0)
     all_labels = np.concatenate(all_labels, axis=0)
 
-    # Try different thresholds
     thresholds = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     best_f1 = 0
     best_threshold = 0.5
@@ -655,7 +668,6 @@ def evaluate_model_comprehensive(model, test_dataloader, device):
 
     logger.info("🎯 Best threshold: {best_threshold:.2f} (F1 Macro: {best_f1:.4f})")
 
-    # Show top 3 thresholds
     threshold_results.sort(key=lambda x: x["f1_macro"], reverse=True)
     logger.info("📊 Top 3 thresholds:")
     for i, result in enumerate(threshold_results[:3]):
@@ -670,14 +682,11 @@ def main():
     """Main training function."""
     logger.info("🚀 Starting SAMO-DL Full-Scale Focal Loss Training")
 
-    # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Device: {device}")
 
-    # Download dataset
     dataset = download_full_dataset()
 
-    # Create model
     logger.info("🤖 Creating BERT emotion classifier...")
     model = SimpleBERTClassifier(model_name="bert-base-uncased", num_classes=28)
     model = model.to(device)
@@ -689,16 +698,13 @@ def main():
     logger.info("   • Total parameters: {param_count:,}")
     logger.info("   • Trainable parameters: {trainable_count:,}")
 
-    # Create focal loss
     focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
     logger.info("✅ Focal Loss created (alpha=0.25, gamma=2.0)")
 
-    # Create optimizer with learning rate scheduling
     optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5, weight_decay=0.01)
     torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.8)
     logger.info("✅ Optimizer created (AdamW, lr=2e-5, weight_decay=0.01)")
 
-    # Create datasets and dataloaders
     logger.info("📊 Creating datasets and dataloaders...")
 
     train_dataset = SimpleDataset(dataset["train"], model.tokenizer, max_length=256)
@@ -714,20 +720,16 @@ def main():
     logger.info("   • Validation: {len(val_dataset)} examples")
     logger.info("   • Test: {len(test_dataset)} examples")
 
-    # Train the model
     training_history = train_model(
         model, train_dataloader, val_dataloader, focal_loss, optimizer, device, epochs=10
     )
 
-    # Evaluate the model
     best_threshold, threshold_results = evaluate_model_comprehensive(model, test_dataloader, device)
 
-    # Save the model and results
     logger.info("💾 Saving trained model and results...")
     model_dir = Path("models/emotion_detection")
     model_dir.mkdir(parents=True, exist_ok=True)
 
-    # Save model
     torch.save(
         {
             "model_state_dict": model.state_dict(),
@@ -742,7 +744,6 @@ def main():
         model_dir / "full_scale_focal_loss_model.pt",
     )
 
-    # Save detailed results
     results = {
         "best_threshold": best_threshold,
         "threshold_results": threshold_results,
@@ -763,7 +764,6 @@ def main():
     logger.info("✅ Results saved to {model_dir / 'full_scale_results.json'}")
     logger.info("🎉 Full-scale training completed successfully!")
 
-    # Show final results
     best_result = threshold_results[0]  # Already sorted by F1 macro
     logger.info("📊 Final Results Summary:")
     logger.info("   • Best F1 Macro: {best_result['f1_macro']:.4f}")

@@ -1,3 +1,18 @@
+# Configure logging
+# Suppress warnings from audio processing
+from dataclasses import dataclass
+from pathlib import Path
+from pydub import AudioSegment
+from typing import Any, Optional, Union
+import contextlib
+import logging
+import numpy as np
+import os
+import tempfile
+import time
+import torch
+import warnings
+import whisper
 """OpenAI Whisper Transcriber for SAMO Deep Learning.
 
 This module implements OpenAI Whisper for high-accuracy voice-to-text transcription
@@ -13,26 +28,11 @@ Key Features:
 - Batch transcription for multiple audio files
 """
 
-import contextlib
-import logging
-import os
-import tempfile
-import time
-import warnings
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Optional, Union
 
-import numpy as np
-import torch
-import whisper
-from pydub import AudioSegment
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Suppress warnings from audio processing
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 

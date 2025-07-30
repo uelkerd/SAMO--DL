@@ -1,55 +1,55 @@
-import sys
-#!/usr/bin/env python3
-import argparse
-import logging
-import torch
-from torch import nn
-import torch.nn.functional as F
-from pathlib import Path
-from typing import Optional
-import time
-# Add src to path
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-# Configure logging
-# Constants
-        # Convert logits to probabilities
-        # Calculate binary cross entropy loss
-        # Calculate focal weight
-        # Apply class weights if provided
-        # Calculate focal loss
                 # Test loading the checkpoint
-    # Set device
-    # Create data loader
-    # Create model with optimal settings
-    # Create trainer with development mode disabled for better results
-        # IMPORTANT: Disable dev mode to use full dataset
-        # Note: This will be handled in the trainer initialization
-    # Train model on full dataset
-    # Evaluate
-        # Load dataset
-        # Calculate class weights
-        # Create or load model
-        # Create focal loss
         # Additional training with focal loss
+        # Apply class weights if provided
+        # Calculate binary cross entropy loss
+        # Calculate class weights
+        # Calculate focal loss
+        # Calculate focal weight
+        # Check if target achieved
+        # Check if target achieved
+        # Convert logits to probabilities
+        # Create focal loss
+        # Create or load model
         # Create trainer for focal loss fine-tuning
         # Evaluate final model
-        # Save model
-        # Check if target achieved
-        # Train fresh model with extended epochs and full dataset
-        # Save model
-        # Check if target achieved
-        # Train multiple models with different configurations
+        # For now, save the best individual model
+        # IMPORTANT: Disable dev mode to use full dataset
+        # Load dataset
         # Model 1: Standard configuration
         # Model 2: Different learning rate
         # Model 3: With focal loss
+        # Note: This will be handled in the trainer initialization
+        # Save model
+        # Save model
         # Simple ensemble prediction (average of predictions)
-        # For now, save the best individual model
-    # Update output path
-    # Find valid checkpoint (if any)
+        # Train fresh model with extended epochs and full dataset
+        # Train multiple models with different configurations
     # Apply selected technique
+    # Create data loader
+    # Create model with optimal settings
+    # Create trainer with development mode disabled for better results
+    # Evaluate
+    # Find valid checkpoint (if any)
     # Report results
+    # Set device
+    # Train model on full dataset
+    # Update output path
+# Add src to path
+# Configure logging
+# Constants
+#!/usr/bin/env python3
+from pathlib import Path
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+from torch import nn
+from typing import Optional
+import argparse
+import logging
+import sys
+import time
+import torch
+import torch.nn.functional as F
 
 
 
@@ -108,7 +108,7 @@ class FocalLoss(nn.Module):
 
 def find_valid_checkpoint() -> Optional[str]:
     """Find a valid checkpoint file that can be loaded."""
-    for ___checkpoint_path in CHECKPOINT_PATHS:
+    for checkpoint_path in CHECKPOINT_PATHS:
         path = Path(checkpoint_path)
         if path.exists():
             try:
@@ -118,7 +118,7 @@ def find_valid_checkpoint() -> Optional[str]:
                     return str(path)
                 else:
                     logger.warning("⚠️ Checkpoint {checkpoint_path} has unexpected format")
-            except Exception as _:
+            except Exception as e:
                 logger.warning("⚠️ Checkpoint {checkpoint_path} is corrupted: {e}")
 
     logger.warning("No valid checkpoint found. Will train from scratch.")
@@ -233,7 +233,7 @@ def improve_with_focal_loss(checkpoint_path: Optional[str] = None) -> bool:
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Error improving model with Focal Loss: {e}")
         return False
 
@@ -268,7 +268,7 @@ def improve_with_full_training() -> bool:
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Error with full training: {e}")
         return False
 
@@ -312,7 +312,7 @@ def create_simple_ensemble(checkpoint_path: Optional[str] = None) -> bool:
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Error creating ensemble: {e}")
         return False
 

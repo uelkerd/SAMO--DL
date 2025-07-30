@@ -1,34 +1,67 @@
+            # Check per-class distribution
+        # All negative
+        # All positive
+        # Analyze first few batches
+        # Calculate statistics
+        # Check CUDA
+        # Check Vertex AI environment
+        # Check difference
+        # Check for critical issues
+        # Check for issues
+        # Check for issues
+        # Check for potential issues
+        # Compare with manual BCE
+        # Create model
+        # Create trainer with optimized configuration
+        # Ensure some positive labels
+        # Initialize model
+        # Load data
+        # Log class distribution
+        # Log results
+        # Prepare data
+        # Run all validations if none specified
+        # Run training
+        # Run validations
+        # Scenario 1: Mixed labels
+        # Start training
+        # Summary
+        # Test different scenarios
+        # Test edge cases
+        # Test forward pass
+        from google.cloud import aiplatform
+        from models.emotion_detection.bert_classifier import WeightedBCELoss
+        from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+        from models.emotion_detection.dataset_loader import create_goemotions_loader
+        from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+        import torch
+        import torch
+        import torch
+        import torch.nn.functional as F
+        import traceback
+        import transformers
+    # Model configuration
+    # Parse arguments
+    # Run validation if requested
+    # Training configuration
+    # Validate environment
+    # Validation configuration
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+from typing import Dict, Any, Optional
+import argparse
+import logging
 import os
 import sys
 import traceback
 
-#!/usr/bin/env python3
-import argparse
-import logging
-from pathlib import Path
-from typing import Dict, Any, Optional
 
-# Add src to path
-        import torch
-        import transformers
-        from google.cloud import aiplatform
 
-        from models.emotion_detection.dataset_loader import create_goemotions_loader
 
-        # Load data
-        from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-        import torch
 
-        # Create model
-        from models.emotion_detection.bert_classifier import WeightedBCELoss
-        import torch
-        import torch.nn.functional as F
 
-        # Test different scenarios
-        from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
-        # Create trainer with optimized configuration
-        import traceback
 
 """
 Vertex AI Training Script for SAMO Deep Learning.
@@ -39,7 +72,6 @@ to solve the 0.0000 loss issue and achieve >75% F1 score.
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -55,7 +87,6 @@ def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Vertex AI Training for SAMO Deep Learning")
 
-    # Model configuration
     parser.add_argument("--model_name", default="bert-base-uncased", help="Hugging Face model name")
     parser.add_argument("--batch_size", type=int, default=16, help="Training batch size")
     parser.add_argument("--learning_rate", type=float, default=2e-6, help="Learning rate (optimized for stability)")
@@ -63,13 +94,11 @@ def parse_arguments():
     parser.add_argument("--max_length", type=int, default=512, help="Maximum sequence length")
     parser.add_argument("--freeze_bert_layers", type=int, default=6, help="Number of BERT layers to freeze")
 
-    # Training configuration
     parser.add_argument("--use_focal_loss", action="store_true", help="Use focal loss instead of BCE")
     parser.add_argument("--class_weights", action="store_true", help="Use class weights for imbalanced data")
     parser.add_argument("--dev_mode", action="store_true", help="Run in development mode")
     parser.add_argument("--debug_mode", action="store_true", help="Enable debugging mode")
 
-    # Validation configuration
     parser.add_argument("--validation_mode", action="store_true", help="Run validation only")
     parser.add_argument("--check_data_distribution", action="store_true", help="Check data distribution")
     parser.add_argument("--check_model_architecture", action="store_true", help="Check model architecture")
@@ -88,14 +117,12 @@ def validate_environment():
         logger.info("✅ Transformers: {transformers.__version__}")
         logger.info("✅ Vertex AI: Available")
 
-        # Check CUDA
         if torch.cuda.is_available():
             logger.info("✅ CUDA: {torch.cuda.get_device_name(0)}")
             logger.info("✅ CUDA Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
         else:
             logger.warning("⚠️  CUDA not available, using CPU")
 
-        # Check Vertex AI environment
         project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
         region = os.getenv("VERTEX_AI_REGION", "us-central1")
 
@@ -104,7 +131,7 @@ def validate_environment():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Environment validation failed: {e}")
         return False
 
@@ -117,12 +144,11 @@ def validate_data_distribution():
         datasets = create_goemotions_loader(dev_mode=True)
         train_dataloader = datasets["train_dataloader"]
 
-        # Analyze first few batches
         total_samples = 0
         total_positive_labels = 0
         label_distribution = {}
 
-        for batch_idx, batch in enumerate(train_dataloader):
+        for _batch_idx, batch in enumerate(train_dataloader):
             if batch_idx >= 10:  # Check first 10 batches
                 break
 
@@ -130,19 +156,16 @@ def validate_data_distribution():
             total_samples += labels.shape[0]
             total_positive_labels += labels.sum().item()
 
-            # Check per-class distribution
             for class_idx in range(labels.shape[1]):
                 if class_idx not in label_distribution:
                     label_distribution[class_idx] = 0
                 label_distribution[class_idx] += labels[:, class_idx].sum().item()
 
-        # Calculate statistics
         positive_rate = total_positive_labels / (total_samples * 28)  # 28 emotion classes
         logger.info("✅ Total samples analyzed: {total_samples}")
         logger.info("✅ Total positive labels: {total_positive_labels}")
         logger.info("✅ Positive label rate: {positive_rate:.6f}")
 
-        # Check for critical issues
         if positive_rate == 0:
             logger.error("❌ CRITICAL: No positive labels found!")
             logger.error("   This will cause 0.0000 loss with BCE")
@@ -155,7 +178,6 @@ def validate_data_distribution():
             logger.warning("⚠️  Very low positive label rate")
             logger.warning("   Consider using focal loss or class weights")
 
-        # Log class distribution
         logger.info("📊 Class distribution (first 10 classes):")
         for class_idx in range(min(10, len(label_distribution))):
             count = label_distribution.get(class_idx, 0)
@@ -164,7 +186,7 @@ def validate_data_distribution():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Data distribution validation failed: {e}")
         return False
 
@@ -183,7 +205,6 @@ def validate_model_architecture():
         logger.info("✅ Model created: {model.count_parameters():,} parameters")
         logger.info("✅ Loss function: {type(loss_fn).__name__}")
 
-        # Test forward pass
         batch_size = 2
         seq_length = 64
         num_classes = 28
@@ -192,7 +213,6 @@ def validate_model_architecture():
         dummy_attention_mask = torch.ones(batch_size, seq_length)
         dummy_labels = torch.randint(0, 2, (batch_size, num_classes)).float()
 
-        # Ensure some positive labels
         dummy_labels[:, 0] = 1.0
 
         model.eval()
@@ -204,7 +224,6 @@ def validate_model_architecture():
         logger.info("   Logits shape: {logits.shape}")
         logger.info("   Loss value: {loss.item():.8f}")
 
-        # Check for issues
         if loss.item() <= 0:
             logger.error("❌ CRITICAL: Loss is zero or negative: {loss.item()}")
             return False
@@ -215,7 +234,7 @@ def validate_model_architecture():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Model architecture validation failed: {e}")
         return False
 
@@ -228,7 +247,6 @@ def validate_loss_function():
         batch_size = 4
         num_classes = 28
 
-        # Scenario 1: Mixed labels
         logits = torch.randn(batch_size, num_classes)
         labels = torch.randint(0, 2, (batch_size, num_classes)).float()
         labels[:, 0] = 1.0  # Ensure some positive labels
@@ -236,36 +254,30 @@ def validate_loss_function():
         loss_fn = WeightedBCELoss()
         loss1 = loss_fn(logits, labels)
 
-        # Compare with manual BCE
         bce_manual = F.binary_cross_entropy_with_logits(logits, labels, reduction="mean")
 
         logger.info("✅ Mixed labels loss: {loss1.item():.8f}")
         logger.info("✅ Manual BCE loss: {bce_manual.item():.8f}")
 
-        # Check difference
         loss_diff = abs(loss1.item() - bce_manual.item())
         if loss_diff > 1.0:
             logger.warning("⚠️  Large difference between custom and manual loss: {loss_diff}")
 
-        # Test edge cases
-        # All positive
         labels_all_pos = torch.ones(batch_size, num_classes)
         loss2 = loss_fn(logits, labels_all_pos)
         logger.info("✅ All positive loss: {loss2.item():.8f}")
 
-        # All negative
         labels_all_neg = torch.zeros(batch_size, num_classes)
         loss3 = loss_fn(logits, labels_all_neg)
         logger.info("✅ All negative loss: {loss3.item():.8f}")
 
-        # Check for issues
         if loss1.item() <= 0 or loss2.item() <= 0 or loss3.item() <= 0:
             logger.error("❌ CRITICAL: Loss function producing zero/negative values!")
             return False
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Loss function validation failed: {e}")
         return False
 
@@ -285,7 +297,6 @@ def validate_training_config(args):
         logger.info("   Focal loss: {args.use_focal_loss}")
         logger.info("   Class weights: {args.class_weights}")
 
-        # Check for potential issues
         if args.learning_rate > 1e-4:
             logger.warning("⚠️  Learning rate might be too high")
             logger.warning("   Consider reducing to 2e-6 or lower")
@@ -299,7 +310,7 @@ def validate_training_config(args):
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Training configuration validation failed: {e}")
         return False
 
@@ -319,26 +330,22 @@ def run_training(args):
             device=None,  # Let it auto-detect
         )
 
-        # Prepare data
         logger.info("📊 Preparing data...")
         trainer.prepare_data(dev_mode=args.dev_mode)
 
-        # Initialize model
         logger.info("🏗️  Initializing model...")
         trainer.initialize_model()
 
-        # Start training
         logger.info("🎯 Starting training...")
         results = trainer.train()
 
-        # Log results
         logger.info("📊 Training Results:")
         for key, value in results.items():
             logger.info("   {key}: {value}")
 
         return results
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Training failed: {e}")
         logger.error("Traceback: {traceback.format_exc()}")
         return None
@@ -349,15 +356,12 @@ def main():
     logger.info("🚀 SAMO Deep Learning - Vertex AI Training")
     logger.info("=" * 50)
 
-    # Parse arguments
     args = parse_arguments()
 
-    # Validate environment
     if not validate_environment():
         logger.error("❌ Environment validation failed")
         sys.exit(1)
 
-    # Run validation if requested
     if args.validation_mode:
         logger.info("🔍 Running validation mode...")
 
@@ -375,7 +379,6 @@ def main():
         if args.check_training_config:
             validations.append(("Training Config", lambda: validate_training_config(args)))
 
-        # Run all validations if none specified
         if not validations:
             validations = [
                 ("Data Distribution", validate_data_distribution),
@@ -384,7 +387,6 @@ def main():
                 ("Training Config", lambda: validate_training_config(args)),
             ]
 
-        # Run validations
         results = {}
         for name, validation_func in validations:
             logger.info("\n{'='*40}")
@@ -400,11 +402,10 @@ def main():
                 else:
                     logger.error("❌ {name} FAILED")
 
-            except Exception as _:
+            except Exception as e:
                 logger.error("❌ {name} ERROR: {e}")
                 results[name] = False
 
-        # Summary
         passed = sum(results.values())
         total = len(results)
 
@@ -424,7 +425,6 @@ def main():
             sys.exit(1)
 
     else:
-        # Run training
         logger.info("🎯 Running training mode...")
         results = run_training(args)
 

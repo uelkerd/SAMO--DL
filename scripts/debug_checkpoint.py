@@ -1,8 +1,8 @@
+    # Load checkpoint
+#!/usr/bin/env python3
+from pathlib import Path
 import logging
 import torch
-from pathlib import Path
-#!/usr/bin/env python3
-    # Load checkpoint
 
 
 
@@ -27,11 +27,11 @@ def debug_checkpoint():
 
     if isinstance(checkpoint, dict):
         logging.info("\n📋 Dictionary keys:")
-        for ___key in checkpoint:
+        for key in checkpoint:
             logging.info("  - {key}: {type(checkpoint[key])}")
     elif isinstance(checkpoint, tuple):
         logging.info("\n📋 Tuple length: {len(checkpoint)}")
-        for _i, item in enumerate(checkpoint):
+        for __i, item in enumerate(checkpoint):
             logging.info("  - Item {i}: {type(item)}")
             if isinstance(item, dict):
                 logging.info("    Keys: {list(item.keys())}")

@@ -1,10 +1,17 @@
-import logging
-
-import re
-from pathlib import Path
-
-
+        # Skip obvious unused imports
+    # Directories to fix
+    # Fix f-strings without placeholders (convert to regular strings)
+    # Fix missing newline at end of file
+    # Fix trailing whitespace
+    # Fix unused imports (basic removal)
+    # Only write if content changed
 #!/usr/bin/env python3
+from pathlib import Path
+import logging
+import re
+
+
+
 """
 Quick script to fix common Ruff linting issues
 """
@@ -15,29 +22,23 @@ def fix_file(file_path: str) -> None:
 
     original_content = content
 
-    # Fix trailing whitespace
     content = re.sub(r'[ \t]+$', '', content, flags=re.MULTILINE)
 
-    # Fix missing newline at end of file
     if not content.endswith('\n'):
         content += '\n'
 
-    # Fix f-strings without placeholders (convert to regular strings)
     content = re.sub(r'"([^"]*)"', r'"\1"', content)
     content = re.sub(r"'([^']*)'", r"'\1'", content)
 
-    # Fix unused imports (basic removal)
     lines = content.split('\n')
     fixed_lines = []
     for line in lines:
-        # Skip obvious unused imports
             if '#' not in line and '"""' not in line and "'''" not in line:
                 continue
         fixed_lines.append(line)
 
     content = '\n'.join(fixed_lines)
 
-    # Only write if content changed
     if content != original_content:
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(content)
@@ -48,7 +49,6 @@ def main():
     script_dir = Path(__file__).parent
     project_root = script_dir.parent
 
-    # Directories to fix
     dirs_to_fix = ['src', 'tests', 'scripts']
 
     for dir_name in dirs_to_fix:
@@ -57,7 +57,7 @@ def main():
             for py_file in dir_path.rglob('*.py'):
                 try:
                     fix_file(str(py_file))
-                except Exception as _:
+                except Exception as e:
                     logging.info("Error fixing {py_file}: {e}")
 
 if __name__ == "__main__":

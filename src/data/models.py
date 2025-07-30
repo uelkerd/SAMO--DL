@@ -1,13 +1,23 @@
+    # Relationships
+    # Relationships
+    # Relationships
+    # Relationships
+    # Relationships
+    # Relationships
+# Junction table for many-to-many relationship between journal entries and tags
+# Modern SQLAlchemy 2.0+ approach
+from datetime import datetime
+from pgvector.sqlalchemy import Vector
+from sqlalchemy import (
+from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.orm import DeclarativeBase, relationship
+import uuid
 """Database models for the SAMO-DL application.
 
 These models correspond to the tables in the PostgreSQL schema.
 """
 
-import uuid
-from datetime import datetime
 
-from pgvector.sqlalchemy import Vector
-from sqlalchemy import (
     Boolean,
     Column,
     DateTime,
@@ -19,10 +29,7 @@ from sqlalchemy import (
     Table,
     Text,
 )
-from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.orm import DeclarativeBase, relationship
 
-# Modern SQLAlchemy 2.0+ approach
 
 class Base(DeclarativeBase):
     """Base class for all SQLAlchemy models."""
@@ -30,7 +37,6 @@ class Base(DeclarativeBase):
     pass
 
 
-# Junction table for many-to-many relationship between journal entries and tags
 journal_entry_tags = Table(
     "journal_entry_tags",
     Base.metadata,
@@ -63,7 +69,6 @@ class User(Base):
     consent_given_at = Column(DateTime(timezone=True))
     data_retention_policy = Column(String(50), default="standard")
 
-    # Relationships
     journal_entries = relationship(
         "JournalEntry", back_populates="user", cascade="all, delete-orphan"
     )
@@ -92,7 +97,6 @@ class JournalEntry(Base):
     mood_category = Column(String(50))
     is_private = Column(Boolean, default=True)
 
-    # Relationships
     user = relationship("User", back_populates="journal_entries")
     embeddings = relationship(
         "Embedding", back_populates="journal_entry", cascade="all, delete-orphan"
@@ -120,7 +124,6 @@ class Embedding(Base):
     embedding = Column(Vector(768))  # 768 dimensions for BERT-base
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
 
-    # Relationships
     journal_entry = relationship("JournalEntry", back_populates="embeddings")
 
     def __repr__(self) -> str:
@@ -141,7 +144,6 @@ class Prediction(Base):
     is_feedback_given = Column(Boolean, default=False)
     feedback_rating = Column(Integer)
 
-    # Relationships
     user = relationship("User", back_populates="predictions")
 
     def __repr__(self) -> str:
@@ -164,7 +166,6 @@ class VoiceTranscription(Base):
     whisper_model_version = Column(String(100))
     confidence_score = Column(Float)
 
-    # Relationships
     user = relationship("User", back_populates="voice_transcriptions")
 
     def __repr__(self) -> str:
@@ -180,7 +181,6 @@ class Tag(Base):
     name = Column(String(100), unique=True, nullable=False)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
 
-    # Relationships
     entries = relationship("JournalEntry", secondary=journal_entry_tags, back_populates="tags")
 
     def __repr__(self) -> str:

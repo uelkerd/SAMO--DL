@@ -1,18 +1,18 @@
-from datetime import datetime, timezone
-        # Test valid emotion result
-        # This test will need actual model import to work
-        # TODO: Implement when API models are available
-        # For now, just validate the test structure
-        # Test validation logic
-        # Test minimum length
-        # Test maximum length (e.g., 10,000 characters)
-        # Test reasonable length
-        # Test valid extensions
-        # Test invalid extension
-        # Test invalid thresholds
-        # Test valid language codes
-        # Test invalid language codes
         # All successful responses should have these fields
+        # For now, just validate the test structure
+        # TODO: Implement when API models are available
+        # Test invalid extension
+        # Test invalid language codes
+        # Test invalid thresholds
+        # Test maximum length (e.g., 10,000 characters)
+        # Test minimum length
+        # Test reasonable length
+        # Test valid emotion result
+        # Test valid extensions
+        # Test valid language codes
+        # Test validation logic
+        # This test will need actual model import to work
+from datetime import datetime, timezone
 
 
 
@@ -98,7 +98,7 @@ class TestAPIModels:
         """Test audio file validation for voice endpoints."""
         valid_extensions = [".mp3", ".wav", ".m4a", ".flac", ".ogg"]
 
-        for ___ext in valid_extensions:
+        for ext in valid_extensions:
             filename = f"audio{ext}"
             assert any(filename.endswith(e) for e in valid_extensions)
 
@@ -109,23 +109,23 @@ class TestAPIModels:
         """Test confidence threshold validation."""
         valid_thresholds = [0.1, 0.5, 0.7, 0.9]
 
-        for ___threshold in valid_thresholds:
+        for threshold in valid_thresholds:
             assert 0.0 <= threshold <= 1.0
 
         invalid_thresholds = [-0.1, 1.5, 2.0]
-        for ___threshold in invalid_thresholds:
+        for threshold in invalid_thresholds:
             assert not (0.0 <= threshold <= 1.0)
 
     def test_language_code_validation(self):
         """Test language code validation for voice processing."""
         valid_languages = ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh"]
 
-        for ___lang in valid_languages:
+        for lang in valid_languages:
             assert len(lang) == 2
             assert lang.islower()
 
         invalid_languages = ["ENG", "english", "123", "x"]
-        for ___lang in invalid_languages:
+        for lang in invalid_languages:
             if len(lang) == 2:
                 assert not lang.islower() or not lang.isalpha()
 
@@ -140,7 +140,7 @@ class TestAPIModels:
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
-        for ___field in required_fields:
+        for field in required_fields:
             assert field in mock_response
 
         assert mock_response["status"] in ["success", "error"]

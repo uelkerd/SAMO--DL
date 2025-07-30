@@ -1,20 +1,49 @@
-import sys
-
-#!/usr/bin/env python3
-import logging
-import torch
-import torch.nn as nn
-from pathlib import Path
-from typing import Dict, Any, Tuple
-
-# Add src to path
+                    # The labels field contains a list of integer indices
+                    # The labels field contains a list of integer indices
+            # Backward pass
+            # Check for 0.0000 loss
+            # Create dummy inputs
+            # Create dummy inputs (in real implementation, use proper tokenization)
+            # Create dummy tensors for validation
+            # Forward pass
+            # Forward pass
+            # Get labels - FIXED: labels are lists, not dict keys
+            # Get labels from batch - FIXED: labels are lists, not dict keys
+            # Log every 50 batches
+        # Apply alpha weighting
+        # Apply sigmoid to get probabilities
+        # Calculate BCE loss
+        # Calculate focal loss
+        # Create optimized components
+        # Epoch summary
+        # Train model
+        # Training loop (simplified for validation)
+        # Validate before training
+        # Validation
+    # Create focal loss
+    # Create model with class weights
+    # Create simple data loaders (we'll implement proper batching later)
+    # Create zero tensor
+    # Load data to get class weights
+    # Load dataset
+    # Set positive labels to 1
+    # Use different learning rates for different layers
     from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
     from models.emotion_detection.dataset_loader import create_goemotions_loader
-
-    # Load data to get class weights
     from models.emotion_detection.dataset_loader import create_goemotions_loader
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+from typing import Dict, Any, Tuple
+import logging
+import sys
+import torch
+import torch.nn as nn
 
-    # Load dataset
+
+
+
 
 """
 Fixed Training Script with Optimized Configuration for SAMO Deep Learning.
@@ -28,7 +57,6 @@ This script addresses the 0.0000 loss issue with:
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -52,19 +80,15 @@ class FocalLoss(nn.Module):
         Returns:
             Focal loss value
         """
-        # Apply sigmoid to get probabilities
         probs = torch.sigmoid(inputs)
 
-        # Calculate BCE loss
         bce_loss = nn.functional.binary_cross_entropy_with_logits(
             inputs, targets, reduction="none"
         )
 
-        # Calculate focal loss
         pt = probs * targets + (1 - probs) * (1 - targets)
         focal_weight = (1 - pt) ** self.gamma
 
-        # Apply alpha weighting
         alpha_weight = self.alpha * targets + (1 - self.alpha) * (1 - targets)
 
         focal_loss = alpha_weight * focal_weight * bce_loss
@@ -88,14 +112,12 @@ def create_optimized_model() -> Tuple[nn.Module, nn.Module]:
 
     logger.info("   Class weights range: {class_weights.min():.4f} - {class_weights.max():.4f}")
 
-    # Create model with class weights
     model, _ = create_bert_emotion_classifier(
         model_name="bert-base-uncased",
         class_weights=class_weights,
         freeze_bert_layers=6,  # Progressive unfreezing
     )
 
-    # Create focal loss
     loss_fn = FocalLoss(alpha=0.25, gamma=2.0)  # Optimized for multi-label
 
     logger.info("✅ Model created: {model.count_parameters():,} parameters")
@@ -108,7 +130,6 @@ def create_optimized_optimizer(model: nn.Module) -> torch.optim.Optimizer:
     """Create optimizer with reduced learning rate."""
     logger.info("🔧 Creating optimized optimizer...")
 
-    # Use different learning rates for different layers
     no_decay = ["bias", "LayerNorm.weight"]
     optimizer_grouped_parameters = [
         {
@@ -152,7 +173,6 @@ def create_data_loaders(batch_size: int = 16) -> Dict[str, Any]:
     loader = create_goemotions_loader()
     datasets = loader.prepare_datasets()
 
-    # Create simple data loaders (we'll implement proper batching later)
     train_data = datasets["train"]
     val_data = datasets["validation"]
     test_data = datasets["test"]
@@ -171,10 +191,8 @@ def create_data_loaders(batch_size: int = 16) -> Dict[str, Any]:
 
 def convert_labels_to_tensor(label_list: list, num_classes: int = 28) -> torch.Tensor:
     """Convert list of label indices to binary tensor."""
-    # Create zero tensor
     label_tensor = torch.zeros(num_classes, dtype=torch.float32)
 
-    # Set positive labels to 1
     for label_idx in label_list:
         if 0 <= label_idx < num_classes:
             label_tensor[label_idx] = 1.0
@@ -194,25 +212,20 @@ def validate_model(model: nn.Module, loss_fn: nn.Module, val_data: Any, num_samp
         for i in range(0, min(num_samples, len(val_data)), 16):
             batch_data = val_data[i:i+16]
 
-            # Create dummy inputs (in real implementation, use proper tokenization)
             batch_size = len(batch_data)
             if batch_size == 0:
                 continue
 
-            # Create dummy tensors for validation
             input_ids = torch.randint(0, 1000, (batch_size, 64))
             attention_mask = torch.ones(batch_size, 64)
 
-            # Get labels from batch - FIXED: labels are lists, not dict keys
             labels = torch.zeros(batch_size, 28)
-            for j, example in enumerate(batch_data):
+            for _j, example in enumerate(batch_data):
                 if j < batch_size:
-                    # The labels field contains a list of integer indices
                     example_labels = example["labels"]  # This is a list like [0, 5, 12]
                     label_tensor = convert_labels_to_tensor(example_labels)
                     labels[j] = label_tensor
 
-            # Forward pass
             logits = model(input_ids, attention_mask)
             loss = loss_fn(logits, labels)
 
@@ -248,7 +261,6 @@ def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Opt
         epoch_loss = 0.0
         num_batches = 0
 
-        # Training loop (simplified for validation)
         for i in range(0, min(1000, len(train_data)), 16):  # Limit to 1000 examples for testing
             batch_data = train_data[i:i+16]
             batch_size = len(batch_data)
@@ -256,50 +268,41 @@ def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Opt
             if batch_size == 0:
                 continue
 
-            # Create dummy inputs
             input_ids = torch.randint(0, 1000, (batch_size, 64))
             attention_mask = torch.ones(batch_size, 64)
 
-            # Get labels - FIXED: labels are lists, not dict keys
             labels = torch.zeros(batch_size, 28)
-            for j, example in enumerate(batch_data):
+            for _j, example in enumerate(batch_data):
                 if j < batch_size:
-                    # The labels field contains a list of integer indices
                     example_labels = example["labels"]  # This is a list like [0, 5, 12]
                     label_tensor = convert_labels_to_tensor(example_labels)
                     labels[j] = label_tensor
 
-            # Forward pass
             optimizer.zero_grad()
             logits = model(input_ids, attention_mask)
             loss = loss_fn(logits, labels)
 
-            # Check for 0.0000 loss
             if loss.item() <= 0:
                 logger.error("❌ CRITICAL: Training loss is zero at batch {num_batches}!")
                 logger.error("   Logits: {logits.mean().item():.6f}")
                 logger.error("   Labels: {labels.mean().item():.6f}")
                 return {"status": "failed", "reason": "zero_loss", "epoch": epoch}
 
-            # Backward pass
             loss.backward()
             optimizer.step()
 
             epoch_loss += loss.item()
             num_batches += 1
 
-            # Log every 50 batches
             if num_batches % 50 == 0:
                 avg_loss = epoch_loss / num_batches
                 logger.info("   Batch {num_batches}: Loss = {avg_loss:.6f}")
 
-        # Epoch summary
         avg_epoch_loss = epoch_loss / num_batches if num_batches > 0 else float('in')
         training_history.append(avg_epoch_loss)
 
         logger.info("✅ Epoch {epoch + 1} complete: Loss = {avg_epoch_loss:.6f}")
 
-        # Validation
         val_results = validate_model(model, loss_fn, val_data, num_samples=100)
 
         if val_results["status"] == "failed":
@@ -326,12 +329,10 @@ def main():
     logger.info("=" * 60)
 
     try:
-        # Create optimized components
         model, loss_fn = create_optimized_model()
         optimizer = create_optimized_optimizer(model)
         data_loaders = create_data_loaders(batch_size=16)
 
-        # Validate before training
         logger.info("\n🔍 Pre-training validation...")
         val_results = validate_model(model, loss_fn, data_loaders["validation"])
 
@@ -339,7 +340,6 @@ def main():
             logger.error("❌ Pre-training validation failed")
             return False
 
-        # Train model
         logger.info("\n🚀 Starting training...")
         training_results = train_model(
             model, loss_fn, optimizer,
@@ -356,7 +356,7 @@ def main():
             logger.error("❌ Training failed: {training_results.get('reason', 'unknown')}")
             return False
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Training error: {e}")
         return False
 

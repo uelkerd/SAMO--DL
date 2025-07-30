@@ -1,30 +1,101 @@
-import sys
-
-#!/usr/bin/env python3
-import argparse
-import logging
-import torch
-from torch import nn
-import torch.nn.functional as F
-from pathlib import Path
-from typing import Optional
-from sklearn.metrics import f1_score
-
+                    # Backward pass
+                    # Calculate loss
+                    # Create one-hot encoded labels
+                    # Forward pass
+                    # Move batch to device
+                    # Tokenize
+                # Add to augmented dataset
+                # Apply sigmoid and threshold
+                # Average predictions
+                # Back-translate
+                # Create one-hot encoded labels
+                # English to German
+                # Forward pass
+                # German to English
+                # Get predictions from all models
+                # Move batch to device
+                # Tokenize
+                # Update ensemble temperature
+                # Update temperature for all models
+            # Augment a subset of the training data
+            # Combine original and augmented data
+            # Create augmented dataset
+            # Create custom datasets
+            # Create data loaders
+            # Create model and tokenizer
+            # Create optimizer
+            # Function for back-translation
+            # Get a small subset for augmentation (to save time)
+            # Move models to device
+            # Save model
+            # Train for a few epochs
+            # Train model on augmented data
+            from torch.utils.data import Dataset, DataLoader
+            from transformers import AutoTokenizer
+            from transformers import MarianMTModel, MarianTokenizer
+        # Apply class weights if provided
+        # Calculate binary cross entropy loss
+        # Calculate class weights
+        # Calculate focal loss
+        # Calculate focal weight
+        # Calculate metrics
+        # Check if transformers is available
+        # Convert logits to probabilities
+        # Create base model
+        # Create data loader for validation set
+        # Create dataset
+        # Create ensemble model
+        # Create ensemble of models with different configurations
+        # Create ensemble wrapper class
+        # Create model
+        # Create model with fewer frozen layers
+        # Create model with more frozen layers
+        # Create tokenizer
+        # Create trainer
+        # Create trainer with Focal Loss
+        # Create validation dataset and loader
+        # Evaluate
+        # Evaluate ensemble model
+        # Evaluate model
+        # Load checkpoint for base model
+        # Load dataset
+        # Load dataset
+        # Load dataset
+        # Load state dict for all models
+        # Load translation models (English -> German -> English)
+        # Perform back-translation augmentation on training data
+        # Process validation data
+        # Save ensemble model
+        # Save model
+        # Set models to evaluation mode
+        # Set optimal temperature and threshold
+        # Train model
+        from torch.utils.data import DataLoader
+        from torch.utils.data import Dataset
+        from transformers import AutoTokenizer
+    # Apply selected technique
+    # Set output model path
 # Add src to path
+# Configure logging
+# Constants
+#!/usr/bin/env python3
+from pathlib import Path
+from sklearn.metrics import f1_score
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+from torch import nn
+from typing import Optional
+import argparse
+import logging
+import sys
+import torch
+import torch.nn.functional as F
 
-# Configure logging
-            from transformers import MarianMTModel, MarianTokenizer
-            from torch.utils.data import Dataset, DataLoader
-            from transformers import AutoTokenizer
 
-        from torch.utils.data import DataLoader
-        from transformers import AutoTokenizer
 
-        # Create tokenizer
-        from torch.utils.data import Dataset
+
+
 
 
 """
@@ -48,7 +119,6 @@ sys.path.append(str(Path(__file__).parent.parent.resolve()))
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
-# Constants
 DEFAULT_OUTPUT_MODEL = "models/checkpoints/bert_emotion_classifier_improved.pt"
 CHECKPOINT_PATH = "test_checkpoints/best_model.pt"
 OPTIMAL_TEMPERATURE = 1.0
@@ -85,22 +155,17 @@ class FocalLoss(nn.Module):
         Returns:
             Focal loss value
         """
-        # Convert logits to probabilities
         probs = torch.sigmoid(inputs)
 
-        # Calculate binary cross entropy loss
         bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
 
-        # Calculate focal weight
         p_t = probs * targets + (1 - probs) * (1 - targets)
         focal_weight = (1 - p_t) ** self.gamma
 
-        # Apply class weights if provided
         if self.alpha is not None:
             alpha_t = self.alpha * targets + (1 - self.alpha) * (1 - targets)
             focal_weight = alpha_t * focal_weight
 
-        # Calculate focal loss
         focal_loss = focal_weight * bce_loss
 
         return focal_loss.mean()
@@ -115,21 +180,16 @@ def improve_with_focal_loss() -> bool:
     try:
         logger.info("Improving model with Focal Loss...")
 
-        # Load dataset
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()
 
-        # Calculate class weights
         class_weights = data_loader.compute_class_weights()
         class_weights_tensor = torch.tensor(class_weights, dtype=torch.float32)
 
-        # Create model
         model, _ = create_bert_emotion_classifier()
 
-        # Create trainer with Focal Loss
         focal_loss = FocalLoss(gamma=2.0, alpha=class_weights_tensor)
 
-        # Create trainer
         trainer = EmotionDetectionTrainer(
             model=model,
             loss_fn=focal_loss,
@@ -142,18 +202,15 @@ def improve_with_focal_loss() -> bool:
             dev_mode=True,  # Use smaller dataset for faster training
         )
 
-        # Train model
         logger.info("Training model with Focal Loss...")
         trainer.train(datasets["train"], datasets["validation"])
 
-        # Evaluate model
         logger.info("Evaluating model...")
         metrics = trainer.evaluate(datasets["test"])
 
         logger.info("Micro F1: {metrics['micro_f1']:.4f}")
         logger.info("Macro F1: {metrics['macro_f1']:.4f}")
 
-        # Save model
         output_path = Path(DEFAULT_OUTPUT_MODEL)
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -163,7 +220,7 @@ def improve_with_focal_loss() -> bool:
         logger.info("✅ Model improvement with Focal Loss complete!")
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("Error improving model with Focal Loss: {e}")
         return False
 
@@ -177,7 +234,6 @@ def improve_with_data_augmentation() -> bool:
     try:
         logger.info("Improving model with data augmentation...")
 
-        # Check if transformers is available
         try:
         except ImportError:
             logger.error(
@@ -185,14 +241,11 @@ def improve_with_data_augmentation() -> bool:
             )
             return False
 
-        # Load dataset
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()
 
-        # Perform back-translation augmentation on training data
         logger.info("Performing back-translation augmentation...")
 
-        # Load translation models (English -> German -> English)
         logger.info("Loading translation models...")
         try:
             en_de_model_name = "Helsinki-NLP/opus-mt-en-de"
@@ -204,29 +257,23 @@ def improve_with_data_augmentation() -> bool:
             de_en_tokenizer = MarianTokenizer.from_pretrained(de_en_model_name)
             de_en_model = MarianMTModel.from_pretrained(de_en_model_name)
 
-            # Move models to device
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             en_de_model.to(device)
             de_en_model.to(device)
 
-            # Function for back-translation
             def back_translate(text: str) -> str:
-                # English to German
                 en_de_inputs = en_de_tokenizer(text, return_tensors="pt").to(device)
                 en_de_outputs = en_de_model.generate(**en_de_inputs)
                 de_text = en_de_tokenizer.decode(en_de_outputs[0], skip_special_tokens=True)
 
-                # German to English
                 de_en_inputs = de_en_tokenizer(de_text, return_tensors="pt").to(device)
                 de_en_outputs = de_en_model.generate(**de_en_inputs)
                 en_text = de_en_tokenizer.decode(de_en_outputs[0], skip_special_tokens=True)
 
                 return en_text
 
-            # Augment a subset of the training data
             logger.info("Augmenting training data...")
 
-            # Get a small subset for augmentation (to save time)
             train_texts = datasets["train"]["text"][:100]  # Adjust size as needed
             train_labels = datasets["train"]["labels"][:100]
 
@@ -237,20 +284,16 @@ def improve_with_data_augmentation() -> bool:
                 if i % 10 == 0:
                     logger.info("Augmenting example {i}/{len(train_texts)}...")
 
-                # Back-translate
                 augmented_text = back_translate(text)
 
-                # Add to augmented dataset
                 augmented_texts.append(augmented_text)
                 augmented_labels.append(label)
 
-            # Combine original and augmented data
             combined_texts = list(train_texts) + augmented_texts
             combined_labels = list(train_labels) + augmented_labels
 
             logger.info("Augmented dataset size: {len(combined_texts)} examples")
 
-            # Create custom datasets
             class AugmentedDataset(Dataset):
                 def __init__(self, texts, labels, tokenizer, max_length=512):
                     self.texts = texts
@@ -265,7 +308,6 @@ def improve_with_data_augmentation() -> bool:
                     text = self.texts[idx]
                     label = self.labels[idx]
 
-                    # Tokenize
                     encoding = self.tokenizer(
                         text,
                         max_length=self.max_length,
@@ -274,7 +316,6 @@ def improve_with_data_augmentation() -> bool:
                         return_tensors="pt",
                     )
 
-                    # Create one-hot encoded labels
                     num_labels = 28  # GoEmotions has 28 emotions
                     one_hot_labels = torch.zeros(num_labels)
                     for label_idx in label:
@@ -286,42 +327,32 @@ def improve_with_data_augmentation() -> bool:
                         "labels": one_hot_labels,
                     }
 
-            # Create model and tokenizer
             model, _ = create_bert_emotion_classifier()
             tokenizer = AutoTokenizer.from_pretrained(model.model_name)
 
-            # Create augmented dataset
             augmented_dataset = AugmentedDataset(combined_texts, combined_labels, tokenizer)
 
-            # Create data loaders
             augmented_loader = DataLoader(augmented_dataset, batch_size=8, shuffle=True)
 
-            # Train model on augmented data
             logger.info("Training model on augmented data...")
 
-            # Create optimizer
             optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
 
-            # Train for a few epochs
             model.train()
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             model.to(device)
 
             for epoch in range(3):
                 logger.info("Epoch {epoch+1}/3")
-                for batch_idx, batch in enumerate(augmented_loader):
-                    # Move batch to device
+                for _batch_idx, batch in enumerate(augmented_loader):
                     input_ids = batch["input_ids"].to(device)
                     attention_mask = batch["attention_mask"].to(device)
                     labels = batch["labels"].to(device)
 
-                    # Forward pass
                     outputs = model(input_ids=input_ids, attention_mask=attention_mask)
 
-                    # Calculate loss
                     loss = F.binary_cross_entropy_with_logits(outputs, labels)
 
-                    # Backward pass
                     optimizer.zero_grad()
                     loss.backward()
                     optimizer.step()
@@ -329,7 +360,6 @@ def improve_with_data_augmentation() -> bool:
                     if batch_idx % 10 == 0:
                         logger.info("Batch {batch_idx}, Loss: {loss.item():.4f}")
 
-            # Save model
             output_path = Path(DEFAULT_OUTPUT_MODEL)
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -347,11 +377,11 @@ def improve_with_data_augmentation() -> bool:
             logger.info("✅ Model improvement with data augmentation complete!")
             return True
 
-        except Exception as _:
+        except Exception as e:
             logger.error("Error in back-translation: {e}")
             return False
 
-    except Exception as _:
+    except Exception as e:
         logger.error("Error improving model with data augmentation: {e}")
         return False
 
@@ -365,25 +395,19 @@ def improve_with_ensemble() -> bool:
     try:
         logger.info("Improving model with ensemble prediction...")
 
-        # Load dataset
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()
 
-        # Create ensemble of models with different configurations
         logger.info("Creating ensemble of models...")
 
-        # Create base model
         base_model, _ = create_bert_emotion_classifier()
 
-        # Create model with more frozen layers
         frozen_model, _ = create_bert_emotion_classifier()
         frozen_model.freeze_bert_layers = 8  # Freeze more layers
 
-        # Create model with fewer frozen layers
         unfrozen_model, _ = create_bert_emotion_classifier()
         unfrozen_model.freeze_bert_layers = 4  # Freeze fewer layers
 
-        # Load checkpoint for base model
         checkpoint_path = Path(CHECKPOINT_PATH)
         if not checkpoint_path.exists():
             logger.error("Checkpoint not found: {checkpoint_path}")
@@ -391,7 +415,6 @@ def improve_with_ensemble() -> bool:
 
         checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
 
-        # Load state dict for all models
         if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
             base_model.load_state_dict(checkpoint["model_state_dict"])
             frozen_model.load_state_dict(checkpoint["model_state_dict"])
@@ -400,7 +423,6 @@ def improve_with_ensemble() -> bool:
             logger.error("Unexpected checkpoint format: {type(checkpoint)}")
             return False
 
-        # Set optimal temperature and threshold
         base_model.set_temperature(OPTIMAL_TEMPERATURE)
         base_model.prediction_threshold = OPTIMAL_THRESHOLD
 
@@ -412,7 +434,6 @@ def improve_with_ensemble() -> bool:
             OPTIMAL_THRESHOLD * 1.1
         )  # Slightly different threshold
 
-        # Create ensemble wrapper class
         class EnsembleModel(nn.Module):
             def __init__(self, models: list[nn.Module], weights: Optional[list[float]] = None):
                 super().__init__()
@@ -423,14 +444,12 @@ def improve_with_ensemble() -> bool:
                 self.model_name = "bert-base-uncased"  # For compatibility
 
             def forward(self, **kwargs):
-                # Get predictions from all models
                 outputs = []
                 for i, model in enumerate(self.models):
                     with torch.no_grad():
                         output = model(**kwargs)
                         outputs.append(output * self.weights[i])
 
-                # Average predictions
                 ensemble_output = torch.stack(outputs).mean(dim=0)
                 return ensemble_output
 
@@ -439,34 +458,26 @@ def improve_with_ensemble() -> bool:
                 if temperature <= 0:
                     raise ValueError("Temperature must be positive")
 
-                # Update temperature for all models
                 for model in self.models:
                     model.set_temperature(temperature)
 
-                # Update ensemble temperature
                 with torch.no_grad():
                     self.temperature.fill_(temperature)
 
-        # Create ensemble model
         ensemble = EnsembleModel(
             models=[base_model, frozen_model, unfrozen_model],
             weights=[0.5, 0.25, 0.25],  # Base model has higher weight
         )
 
-        # Evaluate ensemble model
         logger.info("Evaluating ensemble model...")
 
-        # Set models to evaluation mode
         ensemble.eval()
 
-        # Create data loader for validation set
         tokenizer = AutoTokenizer.from_pretrained(base_model.model_name)
 
-        # Process validation data
         val_texts = datasets["validation"]["text"]
         val_labels = datasets["validation"]["labels"]
 
-        # Create dataset
         class ValidationDataset(Dataset):
             def __init__(self, texts, labels, tokenizer, max_length=512):
                 self.texts = texts
@@ -481,7 +492,6 @@ def improve_with_ensemble() -> bool:
                 text = self.texts[idx]
                 label = self.labels[idx]
 
-                # Tokenize
                 encoding = self.tokenizer(
                     text,
                     max_length=self.max_length,
@@ -490,7 +500,6 @@ def improve_with_ensemble() -> bool:
                     return_tensors="pt",
                 )
 
-                # Create one-hot encoded labels
                 num_labels = 28  # GoEmotions has 28 emotions
                 one_hot_labels = torch.zeros(num_labels)
                 for label_idx in label:
@@ -502,11 +511,9 @@ def improve_with_ensemble() -> bool:
                     "labels": one_hot_labels,
                 }
 
-        # Create validation dataset and loader
         val_dataset = ValidationDataset(val_texts, val_labels, tokenizer)
         val_loader = DataLoader(val_dataset, batch_size=32)
 
-        # Evaluate
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         ensemble.to(device)
 
@@ -515,29 +522,24 @@ def improve_with_ensemble() -> bool:
 
         with torch.no_grad():
             for batch in val_loader:
-                # Move batch to device
                 input_ids = batch["input_ids"].to(device)
                 attention_mask = batch["attention_mask"].to(device)
                 labels = batch["labels"]
 
-                # Forward pass
                 outputs = ensemble(input_ids=input_ids, attention_mask=attention_mask)
 
-                # Apply sigmoid and threshold
                 probs = torch.sigmoid(outputs / ensemble.temperature)
                 preds = (probs > ensemble.prediction_threshold).float().cpu().numpy()
 
                 all_preds.extend(preds)
                 all_labels.extend(labels.numpy())
 
-        # Calculate metrics
         micro_f1 = f1_score(all_labels, all_preds, average="micro")
         macro_f1 = f1_score(all_labels, all_preds, average="macro")
 
         logger.info("Ensemble Micro F1: {micro_f1:.4f}")
         logger.info("Ensemble Macro F1: {macro_f1:.4f}")
 
-        # Save ensemble model
         output_path = Path(DEFAULT_OUTPUT_MODEL)
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -560,7 +562,7 @@ def improve_with_ensemble() -> bool:
         logger.info("✅ Model improvement with ensemble prediction complete!")
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("Error improving model with ensemble prediction: {e}")
         return False
 
@@ -583,10 +585,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # Set output model path
     DEFAULT_OUTPUT_MODEL = args.output_model
 
-    # Apply selected technique
     if args.technique == "focal_loss":
         success = improve_with_focal_loss()
     elif args.technique == "augmentation":

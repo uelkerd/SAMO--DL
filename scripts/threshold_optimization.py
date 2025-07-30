@@ -1,20 +1,29 @@
+        # Collect validation logits and labels
+        # Concatenate all batches
+        # Load checkpoint
+        # Load dataset
+        # Load trained model
+        # Optimize thresholds
+        # Save optimized thresholds
+        # Try different thresholds
+        import traceback
+    # Setup device
+# Add project root to path
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+from sklearn.metrics import f1_score
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
+import logging
 import numpy as np
 import os
 import sys
+import torch
 import traceback
 
-#!/usr/bin/env python3
-import logging
-import torch
-from sklearn.metrics import f1_score
-from pathlib import Path
 
-# Add project root to path
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
 
-# Configure logging
-        import traceback
 
 
 """
@@ -42,7 +51,6 @@ def optimize_thresholds(val_logits, val_labels, num_classes=28):
         best_f1 = 0
         best_threshold = 0.5
 
-        # Try different thresholds
         for threshold in np.arange(0.1, 0.9, 0.05):
             predictions = (val_logits[:, i] > threshold).float()
             f1 = f1_score(val_labels[:, i], predictions, zero_division=0)
@@ -69,12 +77,10 @@ def apply_threshold_optimization():
     logger.info("   • Expected improvement: 10-15% F1 score")
     logger.info("   • Method: Per-class threshold tuning")
 
-    # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Using device: {device}")
 
     try:
-        # Load dataset
         logger.info("Loading validation dataset...")
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()
@@ -82,9 +88,8 @@ def apply_threshold_optimization():
         val_dataset = datasets["validation"]  # Fixed key name
         val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
 
-        # Load trained model
         model_path = "./models/checkpoints/focal_loss_best_model.pt"
-        if not os.path.exists(model_path):
+        if not Path(model_path):
             logger.error("❌ Model not found: {model_path}")
             logger.info("   • Please run focal_loss_training.py first")
             return False
@@ -97,12 +102,10 @@ def apply_threshold_optimization():
         )
         model.to(device)
 
-        # Load checkpoint
         checkpoint = torch.load(model_path, map_location=device)
         model.load_state_dict(checkpoint["model_state_dict"])
         logger.info("✅ Model loaded successfully")
 
-        # Collect validation logits and labels
         all_logits = []
         all_labels = []
 
@@ -119,17 +122,14 @@ def apply_threshold_optimization():
                 all_logits.append(logits.cpu())
                 all_labels.append(labels.cpu())
 
-        # Concatenate all batches
         val_logits = torch.cat(all_logits, dim=0)
         val_labels = torch.cat(all_labels, dim=0)
 
-        # Optimize thresholds
         thresholds, f1_scores = optimize_thresholds(val_logits, val_labels)
 
-        # Save optimized thresholds
         output_dir = "./models/checkpoints"
         os.makedirs(output_dir, exist_ok=True)
-        thresholds_path = os.path.join(output_dir, "optimized_thresholds.pt")
+        thresholds_path = Path(output_dir, "optimized_thresholds.pt")
 
         torch.save(
             {
@@ -147,7 +147,7 @@ def apply_threshold_optimization():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Threshold optimization failed: {e}")
         traceback.print_exc()
         return False

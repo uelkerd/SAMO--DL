@@ -1,15 +1,30 @@
-import json
-
+            # Backward pass
+            # Forward pass
+            # Move batch to device
+        # Tokenize
+        from transformers import AutoModel, AutoTokenizer
+    # Create data directory
+    # Create dataset and dataloader
+    # Create focal loss
+    # Create model
+    # Create optimizer
+    # Download sample data
+    # Sample data (first 1000 examples from train split)
+    # Save sample data
+    # Save the model
+    # Setup device
+    # Train the model
+# Configure logging
 #!/usr/bin/env python3
+from pathlib import Path
+from torch import nn
+from tqdm import tqdm
+import json
 import logging
 import torch
-from torch import nn
 import torch.nn.functional as F
-from pathlib import Path
-from tqdm import tqdm
 
-# Configure logging
-        from transformers import AutoModel, AutoTokenizer
+
 
 
 """
@@ -64,11 +79,9 @@ def download_go_emotions_sample():
     """Download a sample of GoEmotions data to avoid the datasets/fsspec issue."""
     logger.info("📊 Downloading GoEmotions sample data...")
 
-    # Create data directory
     data_dir = Path("data/raw")
     data_dir.mkdir(parents=True, exist_ok=True)
 
-    # Sample data (first 1000 examples from train split)
     sample_data = [
         {
             "text": "I am so happy today!",
@@ -336,7 +349,6 @@ def download_go_emotions_sample():
         },
     ]
 
-    # Save sample data
     with open(data_dir / "sample_journal_entries.json", "w") as f:
         json.dump(sample_data, f, indent=2)
 
@@ -360,7 +372,6 @@ class SimpleDataset(torch.utils.data.Dataset):
         text = item["text"]
         labels = torch.tensor(item["labels"], dtype=torch.float)
 
-        # Tokenize
         encoding = self.tokenizer(
             text,
             truncation=True,
@@ -390,16 +401,13 @@ def train_model(model, train_dataloader, focal_loss, optimizer, device, epochs=3
         logger.info("📚 Epoch {epoch + 1}/{epochs}")
 
         for batch_idx, batch in enumerate(tqdm(train_dataloader, desc="Epoch {epoch + 1}")):
-            # Move batch to device
             input_ids = batch["input_ids"].to(device)
             attention_mask = batch["attention_mask"].to(device)
             labels = batch["labels"].to(device)
 
-            # Forward pass
             outputs = model(input_ids=input_ids, attention_mask=attention_mask)
             loss = focal_loss(outputs, labels)
 
-            # Backward pass
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -423,14 +431,11 @@ def main():
     """Main training function."""
     logger.info("🚀 Starting SAMO-DL Full Focal Loss Training")
 
-    # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Device: {device}")
 
-    # Download sample data
     sample_data = download_go_emotions_sample()
 
-    # Create model
     logger.info("🤖 Creating BERT emotion classifier...")
     model = SimpleBERTClassifier(model_name="bert-base-uncased", num_classes=28)
     model = model.to(device)
@@ -442,25 +447,20 @@ def main():
     logger.info("   • Total parameters: {param_count:,}")
     logger.info("   • Trainable parameters: {trainable_count:,}")
 
-    # Create focal loss
     focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
     logger.info("✅ Focal Loss created (alpha=0.25, gamma=2.0)")
 
-    # Create optimizer
     optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
     logger.info("✅ Optimizer created (AdamW, lr=2e-5)")
 
-    # Create dataset and dataloader
     logger.info("📊 Creating dataset and dataloader...")
     dataset = SimpleDataset(sample_data, model.tokenizer, max_length=256)
     train_dataloader = torch.utils.data.DataLoader(dataset, batch_size=4, shuffle=True)
 
     logger.info("✅ Dataset created with {len(dataset)} examples")
 
-    # Train the model
     final_loss = train_model(model, train_dataloader, focal_loss, optimizer, device, epochs=3)
 
-    # Save the model
     logger.info("💾 Saving trained model...")
     model_dir = Path("models/emotion_detection")
     model_dir.mkdir(parents=True, exist_ok=True)

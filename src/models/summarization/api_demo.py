@@ -1,18 +1,31 @@
-import logging
-import time
+        # Calculate metrics
+        # Create detailed responses
+        # Generate batch summaries
+        # Generate summary
+        # Log performance
+    # Add runtime information
+    # Shutdown: Cleanup
+    # Startup: Load model
+    import uvicorn
+# API Endpoints
+# Configure logging
+# Error Handlers
+# G004: Logging f-strings temporarily allowed for development
+# Global model instance
+# Initialize FastAPI with lifecycle management
+# Request/Response Models
+from .t5_summarizer import T5SummarizationModel, create_t5_summarizer
 from contextlib import asynccontextmanager
-from typing import Optional
-
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from pydantic import BaseModel, Field, validator
-
-from .t5_summarizer import T5SummarizationModel, create_t5_summarizer
-
-# Configure logging
-    import uvicorn
+from typing import Optional
+import logging
+import time
 
 
-# G004: Logging f-strings temporarily allowed for development
+
+
+
 """FastAPI Endpoints for T5/BART Summarization - SAMO Deep Learning.
 
 This module provides production-ready API endpoints for text summarization
@@ -29,7 +42,6 @@ Key Features:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Global model instance
 summarization_model: Optional[T5SummarizationModel] = None
 
 
@@ -38,7 +50,6 @@ async def lifespan(app: FastAPI):
     """Manage model lifecycle - load on startup, cleanup on shutdown."""
     global summarization_model
 
-    # Startup: Load model
     logger.info("🚀 Loading T5 summarization model...")
     start_time = time.time()
 
@@ -55,18 +66,16 @@ async def lifespan(app: FastAPI):
             "Model info: {summarization_model.get_model_info()}", extra={"format_args": True}
         )
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Failed to load summarization model: {e}", extra={"format_args": True})
         raise RuntimeError("Model loading failed: {e}")
 
     yield  # App runs here
 
-    # Shutdown: Cleanup
     logger.info("🔄 Shutting down summarization service...")
     summarization_model = None
 
 
-# Initialize FastAPI with lifecycle management
 app = FastAPI(
     title="SAMO Summarization API",
     description="T5/BART-based text summarization for emotional journal analysis",
@@ -75,7 +84,6 @@ app = FastAPI(
 )
 
 
-# Request/Response Models
 class SummarizeRequest(BaseModel):
     """Request model for single text summarization."""
 
@@ -104,7 +112,7 @@ class BatchSummarizationRequest(BaseModel):
 
     @validator("texts")
     def validate_text_lengths(cls, texts):
-        for i, text in enumerate(texts):
+        for _i, text in enumerate(texts):
             if len(text) < 50:
                 raise ValueError("Text {i + 1} too short (minimum 50 characters)")
             if len(text) > 2000:
@@ -131,7 +139,6 @@ class BatchSummarizationResponse(BaseModel):
     average_processing_time_ms: float = Field(..., description="Average per-item processing time")
 
 
-# API Endpoints
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
@@ -158,19 +165,16 @@ async def summarize_text(request: SummarizeRequest):
     try:
         start_time = time.time()
 
-        # Generate summary
         summary = summarization_model.generate_summary(
             text=request.text, max_length=request.max_length, min_length=request.min_length
         )
 
         processing_time = (time.time() - start_time) * 1000  # Convert to ms
 
-        # Calculate metrics
         original_length = len(request.text)
         summary_length = len(summary)
         compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
 
-        # Log performance
         logger.info(
             "Summarized text: {original_length}→{summary_length} chars in {processing_time:.2f}ms",
             extra={"format_args": True},
@@ -185,7 +189,7 @@ async def summarize_text(request: SummarizeRequest):
             model_info=summarization_model.get_model_info(),
         )
 
-    except Exception as _:
+    except Exception as e:
         logger.error("Summarization error: {e}", extra={"format_args": True})
         raise HTTPException(status_code=500, detail="Summarization failed: {e!s}")
 
@@ -203,12 +207,10 @@ async def summarize_batch(request: BatchSummarizationRequest):
     try:
         start_time = time.time()
 
-        # Generate batch summaries
         summaries = [summarization_model.generate_summary(text) for text in request.texts]
 
         total_processing_time = (time.time() - start_time) * 1000
 
-        # Create detailed responses
         detailed_responses = []
         for text, summary in zip(request.texts, summaries):
             original_length = len(text)
@@ -239,7 +241,7 @@ async def summarize_batch(request: BatchSummarizationRequest):
             average_processing_time_ms=average_time,
         )
 
-    except Exception as _:
+    except Exception as e:
         logger.error("Batch summarization error: {e}", extra={"format_args": True})
         raise HTTPException(status_code=500, detail="Batch summarization failed: {e!s}")
 
@@ -252,7 +254,6 @@ async def get_model_info():
 
     info = summarization_model.get_model_info()
 
-    # Add runtime information
     info.update(
         {
             "api_version": "1.0.0",
@@ -286,7 +287,6 @@ async def warm_up_model(background_tasks: BackgroundTasks):
     return {"message": "Model warm-up initiated"}
 
 
-# Error Handlers
 @app.exception_handler(ValueError)
 async def value_error_handler(request, exc):
     logger.error("Validation error: {exc}", extra={"format_args": True})

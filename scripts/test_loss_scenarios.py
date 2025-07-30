@@ -1,12 +1,12 @@
-import logging
-#!/usr/bin/env python3
-import torch
-import torch.nn.functional as F
     # Scenario 1: Normal case
     # Scenario 2: All zeros
     # Scenario 3: All ones
     # Scenario 4: Perfect predictions
     # Scenario 5: Very small logits
+#!/usr/bin/env python3
+import logging
+import torch
+import torch.nn.functional as F
 
 
 

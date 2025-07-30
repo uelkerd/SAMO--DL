@@ -1,22 +1,26 @@
+        # Test with dummy data
+        from torch import nn
+        import sklearn
+        import torch
+        import torch
+        import torch.nn.functional as F
+        import transformers
+    # Check if gcloud is available
+    # Check if we have the deployment guide
+    # Summary
+    import subprocess
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+import logging
 import numpy as np
 import sys
 
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
 
-# Configure logging
-        import torch
-        from torch import nn
-        import torch.nn.functional as F
 
-        import torch
 
-        import transformers
 
-        import sklearn
 
-    import subprocess
 
 
 """
@@ -49,7 +53,6 @@ def validate_focal_loss():
                 focal_loss = alpha_weight * focal_weight * bce_loss
                 return focal_loss.mean()
 
-        # Test with dummy data
         inputs = torch.randn(4, 28)
         targets = torch.randint(0, 2, (4, 28)).float()
 
@@ -59,7 +62,7 @@ def validate_focal_loss():
         logger.info("✅ Focal Loss: PASSED (loss={loss.item():.4f})")
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Focal Loss: FAILED - {e}")
         return False
 
@@ -118,7 +121,6 @@ def validate_gcp_readiness():
     """Validate GCP deployment readiness."""
     logger.info("☁️ Validating GCP Readiness...")
 
-    # Check if gcloud is available
     try:
         result = subprocess.run(
             ["gcloud", "--version"], capture_output=True, text=True, timeout=10, check=False
@@ -133,7 +135,6 @@ def validate_gcp_readiness():
         logger.warning("   ⚠️ gcloud CLI: Not available (will need to install)")
         gcp_ready = False
 
-    # Check if we have the deployment guide
     if Path("docs/gcp_deployment_guide.md").exists():
         logger.info("   ✅ GCP Deployment Guide: Available")
         guide_ready = True
@@ -170,11 +171,10 @@ def main():
         logger.info("\n📋 Running {name} validation...")
         try:
             results[name] = validation_func()
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ {name} validation failed with exception: {e}")
             results[name] = False
 
-    # Summary
     logger.info("\n📊 Validation Results:")
     logger.info("=" * 30)
 

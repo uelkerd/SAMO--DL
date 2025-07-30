@@ -1,25 +1,25 @@
-import sys
-#!/usr/bin/env python3
-import logging
-import torch
-from torch import nn
-import torch.nn.functional as F
-from pathlib import Path
+            # Backward pass
+            # Forward pass
+            # Move batch to device
+    # Create focal loss
+    # Create model
+    # Create optimizer
+    # Get a small batch for testing
+    # Load dataset using existing loader
+    # Setup device
+    # Training loop (simplified for testing)
 # Add project root to Python path
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 # Configure logging
 # Now import the modules
-    # Setup device
-    # Load dataset using existing loader
-    # Create model
-    # Create focal loss
-    # Create optimizer
-    # Training loop (simplified for testing)
-    # Get a small batch for testing
-            # Move batch to device
-            # Forward pass
-            # Backward pass
+#!/usr/bin/env python3
+from pathlib import Path
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from torch import nn
+import logging
+import sys
+import torch
+import torch.nn.functional as F
 
 
 
@@ -79,7 +79,7 @@ def main():
         logger.info("   • Test examples: {len(test_dataset)}")
         logger.info("   • Emotion classes: {len(emotion_names)}")
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Failed to load dataset: {e}")
         return
 
@@ -97,7 +97,7 @@ def main():
         logger.info("   • Total parameters: {param_count:,}")
         logger.info("   • Trainable parameters: {trainable_count:,}")
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Failed to create model: {e}")
         return
 
@@ -118,7 +118,7 @@ def main():
     for _epoch in range(3):
         logger.info("📚 Epoch {epoch + 1}/3")
 
-        for batch_idx, batch in enumerate(train_dataloader):
+        for _batch_idx, batch in enumerate(train_dataloader):
             if batch_idx >= 5:  # Only do first 5 batches for testing
                 break
 

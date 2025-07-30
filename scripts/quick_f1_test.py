@@ -1,16 +1,23 @@
+        # Configuration 1: Standard training with full dataset
+        # Evaluate model
+        # Initialize model with class weights
+        # Prepare data with dev_mode=False for full dataset
+        # Report results
+        # Save the model
+        # Train model
+        import traceback
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+import logging
 import sys
+import torch
 import traceback
 
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
 
-# Add src to path
-import torch
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
-# Configure logging
-        import traceback
 
 
 """
@@ -30,7 +37,6 @@ def main():
     logger.info("🎯 Quick F1 Score Test and Improvement")
 
     try:
-        # Configuration 1: Standard training with full dataset
         logger.info("=" * 50)
         logger.info("Testing Configuration 1: Full Dataset Training")
         logger.info("=" * 50)
@@ -46,22 +52,17 @@ def main():
             device="cuda" if torch.cuda.is_available() else "cpu",
         )
 
-        # Prepare data with dev_mode=False for full dataset
         logger.info("Loading full GoEmotions dataset...")
         trainer.prepare_data(dev_mode=False)
 
-        # Initialize model with class weights
         trainer.initialize_model(class_weights=trainer.data_loader.class_weights)
 
-        # Train model
         logger.info("Training model...")
         trainer.train()
 
-        # Evaluate model
         logger.info("Evaluating model...")
         metrics = trainer.evaluate(trainer.test_dataset)
 
-        # Report results
         logger.info("=" * 50)
         logger.info("RESULTS - Configuration 1")
         logger.info("=" * 50)
@@ -78,7 +79,6 @@ def main():
         else:
             logger.info("⚠️ Need more optimization techniques.")
 
-        # Save the model
         checkpoint_path = Path("models/checkpoints/bert_emotion_classifier_quick_test.pt")
         checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -97,7 +97,7 @@ def main():
 
         return metrics["micro_f1"]
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Quick F1 test failed: {e}")
         logger.error(traceback.format_exc())
         return 0.0

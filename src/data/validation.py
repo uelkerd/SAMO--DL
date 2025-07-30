@@ -1,20 +1,20 @@
-import logging
-import pandas as pd
-from typing import Optional
-# Configure logging
-# G004: Logging f-strings temporarily allowed for development
-            # Get actual type
             # Check if types match (with some flexibility for numeric types)
+            # Get actual type
+        # Check data types
+        # Check for missing values
+        # Check for required columns
+        # Check text quality
+        # Identify potentially problematic entries
+        # Log summary of issues
         # Make a copy to avoid modifying the original
         # Text length
         # Word count
-        # Identify potentially problematic entries
-        # Log summary of issues
-        # Check for required columns
-        # Check for missing values
-        # Check data types
-        # Check text quality
     # Check for potentially harmful content (basic check)
+# Configure logging
+# G004: Logging f-strings temporarily allowed for development
+from typing import Optional
+import logging
+import pandas as pd
 
 
 
@@ -220,7 +220,7 @@ def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 
         return False, f"Text must be no more than {max_length} characters long"
 
     harmful_patterns = ["<script>", "javascript:", "data:text/html"]
-    for ___pattern in harmful_patterns:
+    for pattern in harmful_patterns:
         if pattern.lower() in input_text.lower():
             return False, f"Text contains potentially harmful content: {pattern}"
 

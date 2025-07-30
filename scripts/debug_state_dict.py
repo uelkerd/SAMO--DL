@@ -1,8 +1,8 @@
+    # Load checkpoint
+#!/usr/bin/env python3
+from pathlib import Path
 import logging
 import torch
-from pathlib import Path
-#!/usr/bin/env python3
-    # Load checkpoint
 
 
 
@@ -37,7 +37,7 @@ def debug_state_dict():
         logging.info("❌ State dict is a tuple")
         logging.info("Tuple length: {len(state_dict)}")
         logging.info("Tuple contents:")
-        for _i, _item in enumerate(state_dict):
+        for __i, _item in enumerate(state_dict):
             logging.info("  [{i}]: {type(item)} - {item}")
     else:
         logging.info("❌ Unexpected type: {type(state_dict)}")

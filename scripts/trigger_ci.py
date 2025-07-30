@@ -1,14 +1,14 @@
-import logging
-import subprocess
-#!/usr/bin/env python3
-        # Split command for security (avoid shell=True)
-    # Check current git status
-    # Check if we have uncommitted changes
         # Add all changes
         # Commit changes
+        # Split command for security (avoid shell=True)
+        # Try regular push as fallback
+    # Check current git status
+    # Check if we have uncommitted changes
     # Check if we need to push
     # Force push to trigger CI
-        # Try regular push as fallback
+#!/usr/bin/env python3
+import logging
+import subprocess
 
 
 
@@ -31,7 +31,7 @@ def run_command(cmd: str, description: str) -> tuple[bool, str]:
             logging.info("❌ {description} - FAILED")
             logging.info("Error: {result.stderr}")
             return False, result.stderr
-    except Exception as _:
+    except Exception as e:
         logging.info("❌ {description} - EXCEPTION: {e}")
         return False, str(e)
 

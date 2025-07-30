@@ -1,15 +1,15 @@
-import os
-import tempfile
-from pathlib import Path
-from unittest.mock import Mock, patch
-import numpy as np
-import pytest
-import torch
-from fastapi.testclient import TestClient
-from src.unified_ai_api import app
     # Create a simple sine wave for testing
 # Custom markers for test categorization
 # Skip GPU tests if CUDA not available
+from fastapi.testclient import TestClient
+from pathlib import Path
+from src.unified_ai_api import app
+from unittest.mock import Mock, patch
+import numpy as np
+import os
+import pytest
+import tempfile
+import torch
 
 
 
@@ -120,6 +120,6 @@ def pytest_collection_modifyitems(config, items):
     """Modify test collection based on available hardware."""
     skip_gpu = pytest.mark.skip(reason="CUDA not available")
 
-    for ___item in items:
+    for item in items:
         if "gpu" in item.keywords and not torch.cuda.is_available():
             item.add_marker(skip_gpu)

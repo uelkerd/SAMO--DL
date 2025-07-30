@@ -1,30 +1,30 @@
-import os
-#!/usr/bin/env python3
-import argparse
-import logging
-from pathlib import Path
-import torch
-# Set up logging
-# Environment setup
-# Resume training on GPU from epoch {epoch}
+    # Create resume script
+    # Determine optimal batch size
     # Disable tokenizers parallelism warning
     # Enable CUDA optimizations
     # GPU Info
-    # Optimization recommendations
-    # Speed estimates
-    # Determine optimal batch size
-# Auto-generated based on your GPU: {torch.cuda.get_device_name()}
-# Memory: {gpu_memory:.1f} GB
-# GPU-optimized training parameters
-# Train the model
-    # Save configuration
     # Load checkpoint
-    # Create resume script
-# Auto-generated GPU resume script
-# Load checkpoint and continue training
-# Train normally - the trainer will create a new model
-# TODO: Implement checkpoint resume functionality in trainer class
+    # Optimization recommendations
+    # Save configuration
     # Setup environment
+    # Speed estimates
+# Auto-generated GPU resume script
+# Auto-generated based on your GPU: {torch.cuda.get_device_name()}
+# Environment setup
+# GPU-optimized training parameters
+# Load checkpoint and continue training
+# Memory: {gpu_memory:.1f} GB
+# Resume training on GPU from epoch {epoch}
+# Set up logging
+# TODO: Implement checkpoint resume functionality in trainer class
+# Train normally - the trainer will create a new model
+# Train the model
+#!/usr/bin/env python3
+from pathlib import Path
+import argparse
+import logging
+import os
+import torch
 
 
 

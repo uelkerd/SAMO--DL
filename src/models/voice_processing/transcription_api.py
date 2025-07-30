@@ -1,3 +1,23 @@
+            # Calculate WER
+            # Calculate additional metrics
+            # Format results and update metrics
+            # Get transcription
+            # Perform transcription
+            # Process batch through transcriber
+            # Return evaluation
+            # Return formatted response
+            # Update metrics
+            # Update processing time
+            # Validate audio before transcription
+        # Initialize transcriber
+        # Track performance metrics
+from .audio_preprocessor import AudioPreprocessor
+from .whisper_transcriber import create_whisper_transcriber
+from pathlib import Path
+from typing import Optional, Union
+import jiwer
+import logging
+import time
 """Transcription API for SAMO Voice Processing.
 
 This module provides integration between the WhisperTranscriber and the
@@ -5,15 +25,8 @@ application API layer, handling transcription requests with proper error
 handling and performance monitoring.
 """
 
-import logging
-import time
-from pathlib import Path
-from typing import Optional, Union
 
-import jiwer
 
-from .audio_preprocessor import AudioPreprocessor
-from .whisper_transcriber import create_whisper_transcriber
 
 logger = logging.getLogger(__name__)
 
@@ -38,13 +51,11 @@ class TranscriptionAPI:
         """
         logger.info(f"Initializing TranscriptionAPI with model_size={model_size}")
 
-        # Track performance metrics
         self.total_requests = 0
         self.total_audio_duration = 0.0
         self.total_processing_time = 0.0
         self.error_count = 0
 
-        # Initialize transcriber
         try:
             start_time = time.time()
             self.transcriber = create_whisper_transcriber(
@@ -86,23 +97,19 @@ class TranscriptionAPI:
         self.total_requests += 1
 
         try:
-            # Validate audio before transcription
             is_valid, error_msg = AudioPreprocessor.validate_audio_file(audio_path)
             if not is_valid:
                 self.error_count += 1
                 raise ValueError(f"Audio validation failed: {error_msg}")
 
-            # Perform transcription
             result = self.transcriber.transcribe(
                 audio_path=audio_path, language=language, initial_prompt=initial_prompt
             )
 
-            # Update metrics
             processing_time = time.time() - start_time
             self.total_processing_time += processing_time
             self.total_audio_duration += result.duration
 
-            # Return formatted response
             return {
                 "text": result.text,
                 "language": result.language,
@@ -150,12 +157,10 @@ class TranscriptionAPI:
         results = []
 
         try:
-            # Process batch through transcriber
             transcription_results = self.transcriber.transcribe_batch(
                 audio_paths=audio_paths, language=language, initial_prompt=initial_prompt
             )
 
-            # Format results and update metrics
             for result in transcription_results:
                 self.total_audio_duration += result.duration
 
@@ -171,7 +176,6 @@ class TranscriptionAPI:
                     }
                 )
 
-            # Update processing time
             batch_processing_time = time.time() - start_time
             self.total_processing_time += batch_processing_time
 
@@ -193,18 +197,14 @@ class TranscriptionAPI:
             Dictionary with WER evaluation metrics
         """
         try:
-            # Get transcription
             result = self.transcribe(audio_path)
             transcription = result["text"]
 
-            # Calculate WER
             wer = jiwer.wer(reference_text, transcription)
 
-            # Calculate additional metrics
             word_accuracy = 1 - wer
             character_error_rate = jiwer.cer(reference_text, transcription)
 
-            # Return evaluation
             return {
                 "wer": wer,
                 "word_accuracy": word_accuracy,
