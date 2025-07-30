@@ -1,22 +1,42 @@
-import numpy as np
-
+            # Ensure computation is complete
+            # Inference
+            # Tokenize
+        # Calculate speedup
+        # Inference
+        # Performance recommendations
+        # Prepare inputs
+        # Tokenize
+    # Benchmark ONNX model
+    # Benchmark PyTorch model
+    # Create ONNX Runtime session
+    # Create dummy input
+    # Export to ONNX
+    # Import here to avoid circular imports
+    # Initialize model
+    # Load model
+    # Load model
+    # Performance assessment
+    # Sample texts for benchmarking
+    # Set output path
+    # Verify ONNX model
+    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+# Set up logging
 #!/usr/bin/env python3
+from pathlib import Path
+from transformers import AutoTokenizer
 import argparse
 import logging
-import statistics
-import time
-from pathlib import Path
-
+import numpy as np
 import onnx
 import onnxruntime as ort
+import statistics
+import time
 import torch
-from transformers import AutoTokenizer
 
-# Set up logging
-    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 
-    # Initialize model
-    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+
+
 
 
 """Performance Optimization Script for SAMO Deep Learning.
@@ -71,7 +91,6 @@ def check_gpu_setup() -> dict[str, any]:
         logger.info("   CUDA Version: {torch.version.cuda}")
         logger.info("   Memory: {memory_total / 1e9:.1f} GB total")
 
-        # Performance recommendations
         if memory_total < 8e9:  # Less than 8GB
             gpu_info["recommendations"].append(
                 "Consider using mixed precision training (fp16) to save memory"
@@ -116,17 +135,14 @@ def convert_to_onnx(
     """
     logger.info("🔄 Converting model to ONNX format...")
 
-    # Load model
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     checkpoint = torch.load(model_path, map_location=device)
 
-    # Import here to avoid circular imports
     model = BERTEmotionClassifier(model_name=model_name, num_emotions=28)
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
     model.to(device)
 
-    # Create dummy input
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     dummy_text = "This is a sample text for ONNX conversion."
     dummy_encoding = tokenizer(
@@ -137,11 +153,9 @@ def convert_to_onnx(
         return_tensors="pt",
     ).to(device)
 
-    # Set output path
     if output_path is None:
         output_path = model_path.replace(".pt", ".onnx")
 
-    # Export to ONNX
     torch.onnx.export(
         model,
         (dummy_encoding["input_ids"], dummy_encoding["attention_mask"]),
@@ -158,7 +172,6 @@ def convert_to_onnx(
         },
     )
 
-    # Verify ONNX model
     onnx_model = onnx.load(output_path)
     onnx.checker.check_model(onnx_model)
 
@@ -191,7 +204,6 @@ def benchmark_model_performance(
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-    # Sample texts for benchmarking
     sample_texts = [
         "I'm feeling great today, everything is going well!",
         "This situation is really frustrating and disappointing.",
@@ -206,25 +218,21 @@ def benchmark_model_performance(
 
     results = {}
 
-    # Benchmark PyTorch model
     if Path(model_path).exists():
         logger.info("Testing PyTorch model performance...")
         pytorch_latencies = benchmark_pytorch_model(model_path, sample_texts, tokenizer, device)
         results["pytorch"] = analyze_latencies(pytorch_latencies, "PyTorch")
 
-    # Benchmark ONNX model
     if onnx_path and Path(onnx_path).exists():
         logger.info("Testing ONNX model performance...")
         onnx_latencies = benchmark_onnx_model(onnx_path, sample_texts, tokenizer)
         results["onnx"] = analyze_latencies(onnx_latencies, "ONNX")
 
-        # Calculate speedup
         if "pytorch" in results:
             speedup = results["pytorch"]["mean_latency"] / results["onnx"]["mean_latency"]
             results["onnx_speedup"] = "{speedup:.2f}x"
             logger.info("🚀 ONNX Speedup: {speedup:.2f}x")
 
-    # Performance assessment
     results["target_latency"] = target_latency
     results["assessment"] = assess_performance(results, target_latency)
 
@@ -235,7 +243,6 @@ def benchmark_pytorch_model(
     model_path: str, texts: list[str], tokenizer, device: torch.device
 ) -> list[float]:
     """Benchmark PyTorch model inference times."""
-    # Load model
     checkpoint = torch.load(model_path, map_location=device)
 
     model = BERTEmotionClassifier(model_name="bert-base-uncased", num_emotions=28)
@@ -249,7 +256,6 @@ def benchmark_pytorch_model(
         for text in texts:
             start_time = time.time()
 
-            # Tokenize
             encoding = tokenizer(
                 text,
                 max_length=512,
@@ -258,10 +264,8 @@ def benchmark_pytorch_model(
                 return_tensors="pt",
             ).to(device)
 
-            # Inference
             model(encoding["input_ids"], encoding["attention_mask"])
 
-            # Ensure computation is complete
             if device.type == "cuda":
                 torch.cuda.synchronize()
 
@@ -273,7 +277,6 @@ def benchmark_pytorch_model(
 
 def benchmark_onnx_model(model_path: str, texts: list[str], tokenizer) -> list[float]:
     """Benchmark ONNX model inference times."""
-    # Create ONNX Runtime session
     session = ort.InferenceSession(model_path)
 
     latencies = []
@@ -281,7 +284,6 @@ def benchmark_onnx_model(model_path: str, texts: list[str], tokenizer) -> list[f
     for text in texts:
         start_time = time.time()
 
-        # Tokenize
         encoding = tokenizer(
             text,
             max_length=512,
@@ -290,13 +292,11 @@ def benchmark_onnx_model(model_path: str, texts: list[str], tokenizer) -> list[f
             return_tensors="np",
         )
 
-        # Prepare inputs
         inputs = {
             "input_ids": encoding["input_ids"].astype(np.int64),
             "attention_mask": encoding["attention_mask"].astype(np.int64),
         }
 
-        # Inference
         session.run(None, inputs)
 
         end_time = time.time()

@@ -1,11 +1,14 @@
+        # Check that is_feedback_given column has the correct default value
+        # Check that is_private column has the correct default value
+# Test constants
+from datetime import datetime, timezone
+from src.data.models import (
 """
 Unit tests for data models module.
 Tests data models, schemas, and validation.
 """
 
-from datetime import datetime, timezone
 
-from src.data.models import (
     Base,
     Embedding,
     JournalEntry,
@@ -15,8 +18,7 @@ from src.data.models import (
     VoiceTranscription,
 )
 
-# Test constants
-TEST_USER_PASSWORD_HASH = "test_hashed_password_123"
+TEST_USER_PASSWORD_HASH = "test_hashed_password_123"  # noqa: S105
 
 
 class TestBase:
@@ -70,7 +72,6 @@ class TestJournalEntry:
 
         assert entry.user_id == "test-user-id"
         assert entry.content == "Test journal entry"
-        # Check that is_private column has the correct default value
         assert JournalEntry.__table__.columns['is_private'].default.arg is True
 
     def test_journal_entry_with_all_fields(self):
@@ -138,7 +139,6 @@ class TestPrediction:
         assert prediction.user_id == "test-user-id"
         assert prediction.prediction_type == "emotion"
         assert prediction.prediction_content == {"happy": 0.8, "sad": 0.2}
-        # Check that is_feedback_given column has the correct default value
         assert Prediction.__table__.columns['is_feedback_given'].default.arg is False
 
     def test_prediction_with_all_fields(self):

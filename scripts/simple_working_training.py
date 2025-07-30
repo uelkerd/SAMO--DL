@@ -1,19 +1,36 @@
-import os
-import sys
-import traceback
-
-#!/usr/bin/env python3
-import logging
-import torch
-from torch import nn
-from pathlib import Path
-
+                # Backward pass
+                # Forward pass
+                # Log progress every 100 batches
+                # Save model
+            # Log progress
+            # Save best model
+            # Training phase
+            # Validation phase
+        # BCE loss
+        # Create data loaders
+        # Create focal loss
+        # Create model
+        # Focal loss components
+        # Load dataset
+        # Setup optimizer
+        # Training loop
+        import traceback
+    # Setup device
 # Add project root to path
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
+from torch import nn
+import logging
+import os
+import sys
+import torch
+import traceback
 
-# Configure logging
-        import traceback
+
+
 
 
 """
@@ -43,10 +60,8 @@ class FocalLoss(nn.Module):
 
     def forward(self, inputs, targets):
         """Forward pass with focal loss calculation."""
-        # BCE loss
         bce_loss = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
 
-        # Focal loss components
         pt = torch.exp(-bce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
 
@@ -67,12 +82,10 @@ def train_simple_model():
     logger.info("   • Epochs: 2 (quick training)")
     logger.info("   • Batch Size: 16")
 
-    # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Using device: {device}")
 
     try:
-        # Load dataset
         logger.info("Loading GoEmotions dataset...")
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()  # Use correct method name
@@ -87,7 +100,6 @@ def train_simple_model():
         logger.info("   • Validation: {len(val_dataset)} examples")
         logger.info("   • Test: {len(test_dataset)} examples")
 
-        # Create model
         logger.info("Creating BERT model...")
         model, _ = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
@@ -96,24 +108,19 @@ def train_simple_model():
         )
         model.to(device)
 
-        # Create focal loss
         focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
 
-        # Setup optimizer
         optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
 
-        # Create data loaders
         train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=16, shuffle=True)
         val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
 
-        # Training loop
         best_val_loss = float("in")
         training_history = []
 
         for epoch in range(2):  # Quick 2 epochs
             logger.info("\nEpoch {epoch + 1}/2")
 
-            # Training phase
             model.train()
             train_loss = 0.0
             num_batches = 0
@@ -125,24 +132,20 @@ def train_simple_model():
 
                 optimizer.zero_grad()
 
-                # Forward pass
                 outputs = model(input_ids, attention_mask=attention_mask)
                 loss = focal_loss(outputs["logits"], labels)
 
-                # Backward pass
                 loss.backward()
                 optimizer.step()
 
                 train_loss += loss.item()
                 num_batches += 1
 
-                # Log progress every 100 batches
                 if num_batches % 100 == 0:
                     logger.info("   • Batch {num_batches}: Loss = {loss.item():.4f}")
 
             avg_train_loss = train_loss / num_batches
 
-            # Validation phase
             model.eval()
             val_loss = 0.0
             val_batches = 0
@@ -161,7 +164,6 @@ def train_simple_model():
 
             avg_val_loss = val_loss / val_batches
 
-            # Log progress
             logger.info("   • Train Loss: {avg_train_loss:.4f}")
             logger.info("   • Val Loss: {avg_val_loss:.4f}")
 
@@ -169,15 +171,13 @@ def train_simple_model():
                 {"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": avg_val_loss}
             )
 
-            # Save best model
             if avg_val_loss < best_val_loss:
                 best_val_loss = avg_val_loss
                 logger.info("   • New best validation loss: {best_val_loss:.4f}")
 
-                # Save model
                 output_dir = "./models/checkpoints"
                 os.makedirs(output_dir, exist_ok=True)
-                model_path = os.path.join(output_dir, "simple_working_model.pt")
+                model_path = Path(output_dir, "simple_working_model.pt")
 
                 torch.save(
                     {
@@ -198,7 +198,7 @@ def train_simple_model():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Training failed: {e}")
         traceback.print_exc()
         return False

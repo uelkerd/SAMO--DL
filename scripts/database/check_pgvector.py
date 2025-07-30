@@ -1,16 +1,23 @@
+        # Check if vector extension is available
+        # Close cursor and connection
+        # Connect to the database
+        # Create a cursor
+    # Fall back to individual environment variables
+    # dotenv not installed, skip loading
+    from dotenv import load_dotenv
+# Load environment variables from .env file
+# Parse DATABASE_URL or fall back to individual env vars
+#!/usr/bin/env python3
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from urllib.parse import urlparse
 import logging
-
 import os
+import psycopg2
 import sys
 
-#!/usr/bin/env python3
-from urllib.parse import urlparse
 
-import psycopg2
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-# Load environment variables from .env file
-    from dotenv import load_dotenv
+
 
 
 """Script to check if pgvector extension is installed in PostgreSQL."""
@@ -18,10 +25,8 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 try:
     load_dotenv()
 except ImportError:
-    # dotenv not installed, skip loading
     pass
 
-# Parse DATABASE_URL or fall back to individual env vars
 DATABASE_URL = os.environ.get("DATABASE_URL")
 if DATABASE_URL:
     parsed = urlparse(DATABASE_URL)
@@ -31,7 +36,6 @@ if DATABASE_URL:
     DB_PORT = parsed.port or 5432
     DB_NAME = parsed.path.lstrip("/")
 else:
-    # Fall back to individual environment variables
     DB_USER = os.environ.get("DB_USER", "samouser")
     DB_PASSWORD = os.environ.get("DB_PASSWORD", "samopassword")
     DB_HOST = os.environ.get("DB_HOST", "localhost")
@@ -42,7 +46,6 @@ else:
 def check_pgvector():
     """Check if pgvector extension is installed and available."""
     try:
-        # Connect to the database
         conn = psycopg2.connect(
             dbname=DB_NAME,
             user=DB_USER,
@@ -52,10 +55,8 @@ def check_pgvector():
         )
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 
-        # Create a cursor
         cur = conn.cursor()
 
-        # Check if vector extension is available
         cur.execute("SELECT extname FROM pg_extension WHERE extname = 'vector';")
         is_installed = cur.fetchone() is not None
 
@@ -73,7 +74,6 @@ def check_pgvector():
             logging.info("   - \\c {DB_NAME}")
             logging.info("   - CREATE EXTENSION vector;")
 
-        # Close cursor and connection
         cur.close()
         conn.close()
 

@@ -1,16 +1,32 @@
+                # Backward pass
+                # Forward pass
+                # Log progress every 10 batches
+                # Save model
+            # Create mini-batches
+            # Log progress
+            # Save best model
+            # Training phase
+            # Validation phase
+        # Create focal loss
+        # Create model
+        # Create synthetic data
+        # Setup optimizer
+        # Training loop
+        from transformers import AutoModel, AutoTokenizer
+        import traceback
+    # Create random input data
+    # Setup device
+# Configure logging
+#!/usr/bin/env python3
+from torch import nn
+import logging
 import os
 import sys
+import torch
 import traceback
 
-#!/usr/bin/env python3
-import logging
-import torch
-from torch import nn
 
-# Configure logging
-        from transformers import AutoModel, AutoTokenizer
 
-        import traceback
 
 
 """
@@ -66,7 +82,6 @@ def create_synthetic_data(num_samples=1000, seq_length=128):
     """Create synthetic training data to avoid dataset loading issues."""
     logger.info("Creating synthetic data: {num_samples} samples")
 
-    # Create random input data
     input_ids = torch.randint(0, 30522, (num_samples, seq_length))  # BERT vocab size
     attention_mask = torch.ones(num_samples, seq_length)
     labels = torch.randint(0, 2, (num_samples, 28)).float()  # 28 emotion classes
@@ -82,39 +97,31 @@ def train_minimal_model():
     logger.info("   • Synthetic data to avoid dataset loading issues")
     logger.info("   • Focal Loss for class imbalance")
 
-    # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Using device: {device}")
 
     try:
-        # Create model
         logger.info("Creating BERT model...")
         model = SimpleBERTClassifier(num_classes=28)
         model.to(device)
 
-        # Create focal loss
         focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
 
-        # Setup optimizer
         optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
 
-        # Create synthetic data
         train_input_ids, train_attention_mask, train_labels = create_synthetic_data(1000)
         val_input_ids, val_attention_mask, val_labels = create_synthetic_data(200)
 
-        # Training loop
         best_val_loss = float("in")
         training_history = []
 
         for epoch in range(3):  # Quick 3 epochs
             logger.info("\nEpoch {epoch + 1}/3")
 
-            # Training phase
             model.train()
             train_loss = 0.0
             num_batches = 0
 
-            # Create mini-batches
             batch_size = 16
             for i in range(0, len(train_input_ids), batch_size):
                 batch_input_ids = train_input_ids[i : i + batch_size].to(device)
@@ -123,24 +130,20 @@ def train_minimal_model():
 
                 optimizer.zero_grad()
 
-                # Forward pass
                 outputs = model(batch_input_ids, attention_mask=batch_attention_mask)
                 loss = focal_loss(outputs["logits"], batch_labels)
 
-                # Backward pass
                 loss.backward()
                 optimizer.step()
 
                 train_loss += loss.item()
                 num_batches += 1
 
-                # Log progress every 10 batches
                 if num_batches % 10 == 0:
                     logger.info("   • Batch {num_batches}: Loss = {loss.item():.4f}")
 
             avg_train_loss = train_loss / num_batches
 
-            # Validation phase
             model.eval()
             val_loss = 0.0
             val_batches = 0
@@ -159,7 +162,6 @@ def train_minimal_model():
 
             avg_val_loss = val_loss / val_batches
 
-            # Log progress
             logger.info("   • Train Loss: {avg_train_loss:.4f}")
             logger.info("   • Val Loss: {avg_val_loss:.4f}")
 
@@ -167,15 +169,13 @@ def train_minimal_model():
                 {"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": avg_val_loss}
             )
 
-            # Save best model
             if avg_val_loss < best_val_loss:
                 best_val_loss = avg_val_loss
                 logger.info("   • New best validation loss: {best_val_loss:.4f}")
 
-                # Save model
                 output_dir = "./models/checkpoints"
                 os.makedirs(output_dir, exist_ok=True)
-                model_path = os.path.join(output_dir, "minimal_working_model.pt")
+                model_path = Path(output_dir, "minimal_working_model.pt")
 
                 torch.save(
                     {
@@ -196,7 +196,7 @@ def train_minimal_model():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Training failed: {e}")
         traceback.print_exc()
         return False

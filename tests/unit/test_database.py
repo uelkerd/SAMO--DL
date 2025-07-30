@@ -1,10 +1,18 @@
+            # Clean up
+            # It's okay if this fails in test environment without real DB
+            # Log the exception for debugging purposes
+        # In a real test environment, we'd mock the engine
+        # Test that we can create a session (though we won't actually use it)
+        # This test ensures the function exists and has proper error handling
+        # This test ensures the function exists and has proper error handling
+        # This test just ensures the function exists and can be called
+from src.data.database import (
+import logging
 """Unit tests for database module.
 Tests database connection, operations, and utilities.
 """
 
-import logging
 
-from src.data.database import (
     Base,
     SessionLocal,
     db_session,
@@ -58,15 +66,12 @@ class TestDatabaseFunctions:
         try:
             db = next(db_gen)
             assert db is not None
-            # Clean up
             db.close()
         except StopIteration:
             pass
 
     def test_init_db_creates_tables(self):
         """Test init_db function can be called without error."""
-        # This test just ensures the function exists and can be called
-        # In a real test environment, we'd mock the engine
         assert callable(init_db)
 
     def test_engine_configuration(self):
@@ -78,13 +83,10 @@ class TestDatabaseFunctions:
     def test_session_local_configuration(self):
         """Test SessionLocal is properly configured."""
         assert callable(SessionLocal)
-        # Test that we can create a session (though we won't actually use it)
         try:
             session = SessionLocal()
             session.close()
         except Exception as exc:
-            # It's okay if this fails in test environment without real DB
-            # Log the exception for debugging purposes
             logger.debug(f"Session creation failed (expected in test environment): {exc}")
 
 
@@ -93,10 +95,8 @@ class TestDatabaseErrorHandling:
 
     def test_get_db_error_handling(self):
         """Test get_db function handles errors gracefully."""
-        # This test ensures the function exists and has proper error handling
         assert callable(get_db)
 
     def test_init_db_error_handling(self):
         """Test init_db function handles errors gracefully."""
-        # This test ensures the function exists and has proper error handling
         assert callable(init_db)

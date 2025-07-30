@@ -1,20 +1,43 @@
-import sys
-
-#!/usr/bin/env python3
-import argparse
-import logging
-import time
-import importlib.util
-import torch
-from pathlib import Path
-
-# Add src to path
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-
-# Configure logging
-    import onnxruntime as ort
-
+            # Benchmark ONNX model
+            # Calculate speedup
+            # Save metrics
+        # Benchmark PyTorch model
+        # Check if input model exists
+        # Check if onnxruntime is available
+        # Create a wrapper function for export
+        # Create dummy input for ONNX export
+        # Create model
+        # Create output directory if it doesn't exist
+        # Define input names and output names
+        # Export to ONNX
+        # Export to ONNX
+        # Load checkpoint
+        # Load state dict
+        # Set model to evaluation mode
+        # Set optimal temperature and threshold
+    # Benchmark
+    # Benchmark
     # Create ONNX session
+    # Prepare inputs
+    # Warm up
+    # Warm up
+    import onnxruntime as ort
+# Add src to path
+# Configure logging
+# Constants
+#!/usr/bin/env python3
+from pathlib import Path
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+import argparse
+import importlib.util
+import logging
+import sys
+import time
+import torch
+
+
+
+
 
 """
 Convert Model to ONNX
@@ -34,7 +57,6 @@ sys.path.append(str(Path(__file__).parent.parent.resolve()))
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
-# Constants
 DEFAULT_INPUT_MODEL = "models/checkpoints/bert_emotion_classifier_quantized.pt"
 DEFAULT_OUTPUT_MODEL = "models/checkpoints/bert_emotion_classifier.onnx"
 OPTIMAL_TEMPERATURE = 1.0
@@ -54,25 +76,20 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
     try:
         device = torch.device("cpu")  # ONNX conversion requires CPU
 
-        # Check if input model exists
         input_path = Path(input_model)
         if not input_path.exists():
             logger.error("Input model not found: {input_path}")
             return False
 
-        # Create output directory if it doesn't exist
         output_path = Path(output_model)
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         logger.info("Loading model from {input_path}...")
 
-        # Load checkpoint
         checkpoint = torch.load(input_path, map_location=device, weights_only=False)
 
-        # Create model
         model, _ = create_bert_emotion_classifier()
 
-        # Load state dict
         if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
             model.load_state_dict(checkpoint["model_state_dict"])
         elif isinstance(checkpoint, dict):
@@ -81,40 +98,32 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
             logger.error("Unexpected checkpoint format: {type(checkpoint)}")
             return False
 
-        # Set optimal temperature and threshold
         model.set_temperature(OPTIMAL_TEMPERATURE)
         model.prediction_threshold = OPTIMAL_THRESHOLD
 
-        # Set model to evaluation mode
         model.eval()
 
-        # Create dummy input for ONNX export
         batch_size = 1
         sequence_length = 128
         dummy_input_ids = torch.randint(0, 30522, (batch_size, sequence_length))
         dummy_attention_mask = torch.ones(batch_size, sequence_length)
         dummy_token_type_ids = torch.zeros(batch_size, sequence_length)
 
-        # Benchmark PyTorch model
         logger.info("Benchmarking PyTorch model...")
         pytorch_inference_time = benchmark_pytorch_inference(
             model, dummy_input_ids, dummy_attention_mask
         )
 
-        # Export to ONNX
         logger.info("Converting model to ONNX format...")
 
-        # Define input names and output names
         input_names = ["input_ids", "attention_mask", "token_type_ids"]
         output_names = ["logits"]
 
-        # Create a wrapper function for export
         def wrapper_function(input_ids, attention_mask, token_type_ids):
             return model(
                 input_ids=input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids
             )
 
-        # Export to ONNX
         torch.onnx.export(
             model,
             (dummy_input_ids, dummy_attention_mask, dummy_token_type_ids),
@@ -133,9 +142,7 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
 
         logger.info("✅ Model converted to ONNX format: {output_path}")
 
-        # Check if onnxruntime is available
         if importlib.util.find_spec("onnxruntime") is not None:
-            # Benchmark ONNX model
             logger.info("Benchmarking ONNX model...")
             onnx_inference_time = benchmark_onnx_inference(
                 output_path,
@@ -144,11 +151,9 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
                 dummy_token_type_ids.numpy(),
             )
 
-            # Calculate speedup
             speedup = pytorch_inference_time / onnx_inference_time
             logger.info("ONNX inference speedup: {speedup:.2f}x")
 
-            # Save metrics
             metrics = {
                 "pytorch_inference_ms": pytorch_inference_time * 1000,
                 "onnx_inference_ms": onnx_inference_time * 1000,
@@ -165,7 +170,7 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("Error converting model to ONNX: {e}")
         return False
 
@@ -182,12 +187,10 @@ def benchmark_pytorch_inference(model, input_ids, attention_mask, num_runs=50):
     Returns:
         float: Average inference time in seconds
     """
-    # Warm up
     for _ in range(10):
         with torch.no_grad():
             _ = model(input_ids=input_ids, attention_mask=attention_mask)
 
-    # Benchmark
     start_time = time.time()
     for _ in range(num_runs):
         with torch.no_grad():
@@ -212,18 +215,15 @@ def benchmark_onnx_inference(model_path, input_ids, attention_mask, token_type_i
     """
     session = ort.InferenceSession(model_path)
 
-    # Prepare inputs
     ort_inputs = {
         "input_ids": input_ids,
         "attention_mask": attention_mask,
         "token_type_ids": token_type_ids,
     }
 
-    # Warm up
     for _ in range(10):
         _ = session.run(None, ort_inputs)
 
-    # Benchmark
     start_time = time.time()
     for _ in range(num_runs):
         _ = session.run(None, ort_inputs)

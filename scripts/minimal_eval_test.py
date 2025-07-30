@@ -1,12 +1,12 @@
-import torch
-import logging
-#!/usr/bin/env python3
-    # Create synthetic data matching what we observed
-    # Create probabilities similar to what we observed
-    # min: 0.1150, max: 0.9119, mean: 0.4681
-    # Count how many should be above threshold
     # Apply threshold (this is the exact line from our evaluation function)
     # Check fallback logic
+    # Count how many should be above threshold
+    # Create probabilities similar to what we observed
+    # Create synthetic data matching what we observed
+    # min: 0.1150, max: 0.9119, mean: 0.4681
+#!/usr/bin/env python3
+import logging
+import torch
 
 
 """

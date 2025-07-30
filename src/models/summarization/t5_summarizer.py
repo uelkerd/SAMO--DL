@@ -1,20 +1,44 @@
-import time
-
+            # Add task prefix for T5 if needed
+            # Decode batch summaries
+            # Generate summaries
+            # Tokenize batch
+            # Try generic seq2seq
+        # Add task prefix for T5
+        # Add task prefix for T5
+        # Decode summary
+        # Generate summary
+        # Initialize tokenizer
+        # Model info
+        # Move to device
+        # Set device
+        # Tokenize input
+        # Tokenize input
+        # Tokenize target
+        # Use config defaults if not specified
+    # Create model
+    # Generate summaries
+    # Model info
+    # Sample journal entries
+    # Test batch processing
+# Configure logging
 # G004: Logging f-strings temporarily allowed for development
-import logging
-import warnings
+# Suppress tokenizer warnings
 from dataclasses import dataclass
-from typing import Optional, Any
-
-import torch
+from journal entries and conversations, providing intelligent summaries
 from torch import nn
 from torch.utils.data import Dataset
 from transformers import (
+from typing import Optional, Any
+import logging
+import time
+import torch
+import warnings
+
+
 
 """T5/BART Summarization Model for SAMO Deep Learning.
 
 This module implements T5 and BART models for extracting emotional core
-from journal entries and conversations, providing intelligent summaries
 that preserve emotional context and key insights.
 
 Key Features:
@@ -33,11 +57,9 @@ Key Features:
     T5Tokenizer,
 )
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Suppress tokenizer warnings
 warnings.filterwarnings(
     "ignore", category=UserWarning, module="transformers.tokenization_utils_base"
 )
@@ -100,11 +122,9 @@ class SummarizationDataset(Dataset):
         text = self.texts[idx]
         summary = self.summaries[idx]
 
-        # Add task prefix for T5
         if "t5" in self.tokenizer.name_or_path.lower():
             text = "summarize: {text}"
 
-        # Tokenize input
         source_encoding = self.tokenizer(
             text,
             max_length=self.max_source_length,
@@ -113,7 +133,6 @@ class SummarizationDataset(Dataset):
             return_tensors="pt",
         )
 
-        # Tokenize target
         target_encoding = self.tokenizer(
             summary,
             max_length=self.max_target_length,
@@ -149,7 +168,6 @@ class T5SummarizationModel(nn.Module):
 
         self.model_name = self.config.model_name
 
-        # Set device
         if self.config.device is None:
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         else:
@@ -159,7 +177,6 @@ class T5SummarizationModel(nn.Module):
             "Initializing {self.model_name} summarization model...", extra={"format_args": True}
         )
 
-        # Initialize tokenizer
         if "bart" in self.model_name.lower():
             self.tokenizer = BartTokenizer.from_pretrained(self.model_name)
             self.model = BartForConditionalGeneration.from_pretrained(self.model_name)
@@ -167,14 +184,11 @@ class T5SummarizationModel(nn.Module):
             self.tokenizer = T5Tokenizer.from_pretrained(self.model_name)
             self.model = T5ForConditionalGeneration.from_pretrained(self.model_name)
         else:
-            # Try generic seq2seq
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             self.model = AutoModelForSeq2SeqLM.from_pretrained(self.model_name)
 
-        # Move to device
         self.model.to(self.device)
 
-        # Model info
         self.num_parameters = self.model.num_parameters()
         logger.info(
             "Loaded {self.model_name} with {self.num_parameters:,} parameters",
@@ -223,7 +237,6 @@ class T5SummarizationModel(nn.Module):
         Returns:
             Generated summary text
         """
-        # Use config defaults if not specified
         max_length = max_length or self.config.max_target_length
         min_length = min_length or self.config.min_target_length
         num_beams = num_beams or self.config.num_beams
@@ -233,11 +246,9 @@ class T5SummarizationModel(nn.Module):
         )
         no_repeat_ngram_size = no_repeat_ngram_size or self.config.no_repeat_ngram_size
 
-        # Add task prefix for T5
         if "t5" in self.model_name.lower():
             text = "summarize: {text}"
 
-        # Tokenize input
         inputs = self.tokenizer(
             text,
             max_length=self.config.max_source_length,
@@ -246,7 +257,6 @@ class T5SummarizationModel(nn.Module):
             return_tensors="pt",
         ).to(self.device)
 
-        # Generate summary
         self.model.eval()
         with torch.no_grad():
             summary_ids = self.model.generate(
@@ -263,7 +273,6 @@ class T5SummarizationModel(nn.Module):
                 do_sample=False,  # Use beam search, not sampling
             )
 
-        # Decode summary
         summary = self.tokenizer.decode(
             summary_ids[0], skip_special_tokens=True, clean_up_tokenization_spaces=True
         )
@@ -288,11 +297,9 @@ class T5SummarizationModel(nn.Module):
         for i in range(0, len(texts), batch_size):
             batch_texts = texts[i : i + batch_size]
 
-            # Add task prefix for T5 if needed
             if "t5" in self.model_name.lower():
                 batch_texts = ["summarize: {text}" for text in batch_texts]
 
-            # Tokenize batch
             inputs = self.tokenizer(
                 batch_texts,
                 max_length=self.config.max_source_length,
@@ -301,7 +308,6 @@ class T5SummarizationModel(nn.Module):
                 return_tensors="pt",
             ).to(self.device)
 
-            # Generate summaries
             self.model.eval()
             with torch.no_grad():
                 summary_ids = self.model.generate(
@@ -322,7 +328,6 @@ class T5SummarizationModel(nn.Module):
                     do_sample=False,
                 )
 
-            # Decode batch summaries
             batch_summaries = self.tokenizer.batch_decode(
                 summary_ids, skip_special_tokens=True, clean_up_tokenization_spaces=True
             )
@@ -385,10 +390,8 @@ def test_summarization_model() -> None:
     """Test the summarization model with sample journal entries."""
     logger.info("Testing T5 summarization model...")
 
-    # Create model
     model = create_t5_summarizer("t5-small")
 
-    # Sample journal entries
     test_texts = [
         """Today was such a rollercoaster of emotions. I started the morning feeling anxious about my job interview, but I tried to stay positive. The interview actually went really well - I felt confident and articulate. The interviewer seemed impressed with my experience. After that, I met up with Sarah for coffee and we talked about everything that's been going on in our lives. She's been struggling with her relationship, and I tried to be supportive. By evening, I was exhausted but also proud of myself for handling a stressful day so well. I'm learning to trust myself more and not overthink everything.""",
         """Had a difficult conversation with mom today about dad's health. The doctors want to run more tests, and we're all worried. I hate feeling so helpless when someone I love is suffering. But I'm grateful that our family is pulling together during this time. My sister and I are planning to visit next weekend to help out. Sometimes I wonder if I'm strong enough to handle these kinds of challenges, but I know I have to be there for the people who matter most. Love really is everything.""",
@@ -399,7 +402,6 @@ def test_summarization_model() -> None:
         "Generating summaries for {len(test_texts)} journal entries...", extra={"format_args": True}
     )
 
-    # Generate summaries
     for _i, text in enumerate(test_texts, 1):
         model.generate_summary(text)
 
@@ -407,14 +409,12 @@ def test_summarization_model() -> None:
         logger.info("Original ({len(text)} chars): {text[:100]}...", extra={"format_args": True})
         logger.info("Summary ({len(summary)} chars): {summary}", extra={"format_args": True})
 
-    # Test batch processing
     logger.info("\nTesting batch summarization...")
     batch_summaries = model.generate_batch_summaries(test_texts, batch_size=2)
 
     for _i, _summary in enumerate(batch_summaries, 1):
         logger.info("Batch Summary {i}: {summary}", extra={"format_args": True})
 
-    # Model info
     model.get_model_info()
     logger.info("\nModel Info: {info}", extra={"format_args": True})
 

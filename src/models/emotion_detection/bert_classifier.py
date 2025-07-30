@@ -1,20 +1,83 @@
-import numpy as np
-
+                        # Find the highest probability emotion for this sample
+                # Apply top-1 fallback only to samples with zero predictions
+            # Apply fallback for samples with no predictions above threshold
+            # Apply sigmoid to get probabilities
+            # Apply threshold to get binary predictions
+            # Apply weights: shape [batch_size, num_classes]
+            # Collect results
+            # Debug: Check predictions immediately after threshold application
+            # Debug: Log probability statistics (only first batch)
+            # Ensure class weights are on the same device
+            # Final debug check for first batch
+            # Forward pass
+            # Forward pass returns logits directly now
+            # Handle both dict and tensor model outputs
+            # Handle both dict and tuple batch formats
+            # Return top K emotions
+            # Track inference time
+            # Use the stored probabilities attribute
+            # Use threshold-based prediction
+        # Apply class weights if provided
+        # Apply initial layer freezing if specified
+        # Apply reduction
+        # Apply temperature scaling for calibration
+        # BERT forward pass
+        # Calculate which layers to unfreeze
+        # Classification head
+        # Compute binary cross entropy
+        # Correctly update the parameter's value in-place
+        # Create multi-label target vector
+        # For internal use, we'll store these as attributes
+        # Freeze embedding layer
+        # Freeze specified number of encoder layers
+        # Get BERT hidden size (768 for bert-base)
+        # Get emotion predictions
+        # Get primary emotion (highest probability)
+        # Handle batch dimension
+        # Handle single text vs list of texts
+        # Initialize BERT backbone
+        # Initialize classification layers with Xavier initialization
+        # Initialize device attribute
+        # Load BERT configuration and modify for our task
+        # Return calibrated logits for evaluation
+        # Temperature parameter for confidence calibration
+        # Tokenize input texts
+        # Tokenize text
+        # Two-layer classification head for non-linear feature combination
+        # Unfreeze embedding layer if unfreezing any layers
+        # Unfreeze layers from the top
+        # Use [CLS] token representation for classification
+    # Combine all predictions and targets
+    # Compute metrics
+    # Create loss function with class weights
+    # Create model
+    # Create model and loss function
+    # Debug information
+    # Forward pass
+    # Overall metrics
+    # Per-emotion metrics
+    # Performance metrics
+    # Test forward pass
+    # Test the BERT emotion classifier
+    # Tokenize
+# Configure logging
 # G004: Logging f-strings temporarily allowed for development
-import logging
-import time
-import warnings
-from typing import Optional, Union
-
-import torch
-from torch import nn
-import torch.nn.functional as F
+# Suppress warnings for cleaner output
+from .dataset_loader import GOEMOTIONS_EMOTIONS
 from sklearn.metrics import f1_score, precision_recall_fscore_support
+from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from transformers import (
-from .dataset_loader import GOEMOTIONS_EMOTIONS
+from typing import Optional, Union
+import logging
+import numpy as np
+import time
+import torch
+import torch.nn.functional as F
+import warnings
 
-# Configure logging
+
+
 
 """BERT Emotion Classifier for SAMO Deep Learning.
 
@@ -38,7 +101,6 @@ Key Features:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Suppress warnings for cleaner output
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
@@ -81,21 +143,16 @@ class BERTEmotionClassifier(nn.Module):
         self.temperature = temperature
         self.prediction_threshold = 0.6  # Updated from 0.5 to 0.6 based on calibration
 
-        # Initialize device attribute
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        # Load BERT configuration and modify for our task
         config = AutoConfig.from_pretrained(model_name)
         config.hidden_dropout_prob = hidden_dropout_prob
         config.attention_probs_dropout_prob = hidden_dropout_prob
 
-        # Initialize BERT backbone
         self.bert = AutoModel.from_pretrained(model_name, config=config)
 
-        # Get BERT hidden size (768 for bert-base)
         self.bert_hidden_size = config.hidden_size
 
-        # Two-layer classification head for non-linear feature combination
         self.classifier = nn.Sequential(
             nn.Dropout(classifier_dropout_prob),
             nn.Linear(self.bert_hidden_size, self.bert_hidden_size),
@@ -104,13 +161,10 @@ class BERTEmotionClassifier(nn.Module):
             nn.Linear(self.bert_hidden_size, self.num_emotions),
         )
 
-        # Temperature parameter for confidence calibration
         self.temperature = nn.Parameter(torch.ones(1))
 
-        # Initialize classification layers with Xavier initialization
         self._init_classification_layers()
 
-        # Apply initial layer freezing if specified
         if freeze_bert_layers > 0:
             self._freeze_bert_layers(freeze_bert_layers)
 
@@ -131,11 +185,9 @@ class BERTEmotionClassifier(nn.Module):
         Args:
             num_layers: Number of layers to freeze (0 = none, 12 = all)
         """
-        # Freeze embedding layer
         for param in self.bert.embeddings.parameters():
             param.requires_grad = False
 
-        # Freeze specified number of encoder layers
         for i in range(min(num_layers, len(self.bert.encoder.layer))):
             for param in self.bert.encoder.layer[i].parameters():
                 param.requires_grad = False
@@ -148,12 +200,10 @@ class BERTEmotionClassifier(nn.Module):
         Args:
             num_layers: Number of additional layers to unfreeze
         """
-        # Unfreeze embedding layer if unfreezing any layers
         if num_layers > 0:
             for param in self.bert.embeddings.parameters():
                 param.requires_grad = True
 
-        # Calculate which layers to unfreeze
         total_layers = len(self.bert.encoder.layer)
         currently_frozen = sum(
             1 for layer in self.bert.encoder.layer if not next(layer.parameters()).requires_grad
@@ -162,7 +212,6 @@ class BERTEmotionClassifier(nn.Module):
         layers_to_unfreeze = min(num_layers, currently_frozen)
         start_layer = total_layers - currently_frozen
 
-        # Unfreeze layers from the top
         for i in range(start_layer, start_layer + layers_to_unfreeze):
             for param in self.bert.encoder.layer[i].parameters():
                 param.requires_grad = True
@@ -185,7 +234,6 @@ class BERTEmotionClassifier(nn.Module):
         Returns:
             Logits tensor for emotion predictions
         """
-        # BERT forward pass
         bert_outputs = self.bert(
             input_ids=input_ids,
             attention_mask=attention_mask,
@@ -193,20 +241,15 @@ class BERTEmotionClassifier(nn.Module):
             output_attentions=False,
         )
 
-        # Use [CLS] token representation for classification
         pooled_output = bert_outputs.pooler_output
 
-        # Classification head
         logits = self.classifier(pooled_output)
 
-        # Apply temperature scaling for calibration
         calibrated_logits = logits / self.temperature
 
-        # For internal use, we'll store these as attributes
         self._calibrated_logits = calibrated_logits
         self._probabilities = torch.sigmoid(calibrated_logits)
 
-        # Return calibrated logits for evaluation
         return calibrated_logits
 
     def set_temperature(self, temperature: float) -> None:
@@ -218,7 +261,6 @@ class BERTEmotionClassifier(nn.Module):
         if temperature <= 0:
             raise ValueError("Temperature must be positive")
 
-        # Correctly update the parameter's value in-place
         with torch.no_grad():
             self.temperature.fill_(temperature)
 
@@ -242,11 +284,9 @@ class BERTEmotionClassifier(nn.Module):
         """
         self.eval()
 
-        # Handle single text vs list of texts
         if isinstance(texts, str):
             texts = [texts]
 
-        # Tokenize input texts
         tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         encoded = tokenizer(
             texts, padding=True, truncation=True, max_length=512, return_tensors="pt"
@@ -256,28 +296,21 @@ class BERTEmotionClassifier(nn.Module):
         attention_mask = encoded["attention_mask"].to(self.device)
 
         with torch.no_grad():
-            # Forward pass returns logits directly now
             _ = self.forward(input_ids, attention_mask)
-            # Use the stored probabilities attribute
             probabilities = self._probabilities.cpu().numpy()
 
-        # Handle batch dimension
         if probabilities.ndim == 2:
             probabilities = probabilities[0]  # Take first example if batch
 
-        # Get emotion predictions
         if top_k is not None:
-            # Return top K emotions
             top_indices = np.argsort(probabilities)[-top_k:][::-1]
             predicted_emotions = [GOEMOTIONS_EMOTIONS[i] for i in top_indices]
             emotion_scores = probabilities[top_indices].tolist()
         else:
-            # Use threshold-based prediction
             predicted_indices = np.where(probabilities >= threshold)[0]
             predicted_emotions = [GOEMOTIONS_EMOTIONS[i] for i in predicted_indices]
             emotion_scores = probabilities[predicted_indices].tolist()
 
-        # Get primary emotion (highest probability)
         primary_emotion_idx = np.argmax(probabilities)
         primary_emotion = GOEMOTIONS_EMOTIONS[primary_emotion_idx]
         primary_confidence = probabilities[primary_emotion_idx]
@@ -334,19 +367,14 @@ class WeightedBCELoss(nn.Module):
         Returns:
             Computed loss tensor
         """
-        # Compute binary cross entropy
         bce_loss = F.binary_cross_entropy_with_logits(logits, targets.float(), reduction="none")
 
-        # Apply class weights if provided
         if self.class_weights is not None:
-            # Ensure class weights are on the same device
             weights = self.class_weights.to(logits.device)
-            # Apply weights: shape [batch_size, num_classes]
             weighted_loss = bce_loss * weights.unsqueeze(0)
         else:
             weighted_loss = bce_loss
 
-        # Apply reduction
         if self.reduction == "mean":
             return weighted_loss.mean()
         if self.reduction == "sum":
@@ -386,7 +414,6 @@ class EmotionDataset(Dataset):
         text = str(self.texts[idx])
         label_ids = self.labels[idx]
 
-        # Tokenize text
         encoding = self.tokenizer(
             text,
             truncation=True,
@@ -395,7 +422,6 @@ class EmotionDataset(Dataset):
             return_tensors="pt",
         )
 
-        # Create multi-label target vector
         target = torch.zeros(self.num_emotions, dtype=torch.float32)
         for label_id in label_ids:
             if 0 <= label_id < self.num_emotions:
@@ -423,10 +449,8 @@ def create_bert_emotion_classifier(
     Returns:
         Tuple of (model, loss_function)
     """
-    # Create model
     model = BERTEmotionClassifier(model_name=model_name, freeze_bert_layers=freeze_bert_layers)
 
-    # Create loss function with class weights
     loss_weights = None
     if class_weights is not None:
         loss_weights = torch.FloatTensor(class_weights)
@@ -464,10 +488,9 @@ def evaluate_emotion_classifier(
     total_time = 0
 
     with torch.no_grad():
-        for batch_idx, batch in enumerate(dataloader):
+        for _batch_idx, batch in enumerate(dataloader):
             start_time = time.time()
 
-            # Handle both dict and tuple batch formats
             if isinstance(batch, dict):
                 input_ids = batch["input_ids"].to(device)
                 attention_mask = batch["attention_mask"].to(device)
@@ -478,16 +501,12 @@ def evaluate_emotion_classifier(
                 attention_mask = attention_mask.to(device)
                 targets = targets.to(device)
 
-            # Forward pass
             model_output = model(input_ids, attention_mask)
 
-            # Handle both dict and tensor model outputs
             logits = model_output["logits"] if isinstance(model_output, dict) else model_output
 
-            # Apply sigmoid to get probabilities
             probabilities = torch.sigmoid(logits)
 
-            # Debug: Log probability statistics (only first batch)
             if batch_idx == 0:
                 logger.info(
                     "DEBUG: Probability stats - min: {probabilities.min():.4f}, max: {probabilities.max():.4f}, mean: {probabilities.mean():.4f}"
@@ -496,10 +515,8 @@ def evaluate_emotion_classifier(
                     "DEBUG: Probability distribution - 0.1: {(probabilities >= 0.1).sum()}, 0.2: {(probabilities >= 0.2).sum()}, 0.5: {(probabilities >= 0.5).sum()}"
                 )
 
-            # Apply threshold to get binary predictions
             predictions = (probabilities >= threshold).float()
 
-            # Debug: Check predictions immediately after threshold application
             if batch_idx == 0:
                 expected_sum = (probabilities >= threshold).sum().item()
                 actual_sum = predictions.sum().item()
@@ -508,15 +525,12 @@ def evaluate_emotion_classifier(
                 logger.info("  - Actual predictions: {actual_sum}")
                 logger.info("  - Match: {'✅' if expected_sum == actual_sum else '❌'}")
 
-            # Apply fallback for samples with no predictions above threshold
             samples_needing_fallback = predictions.sum(dim=1) == 0
             num_samples_needing_fallback = samples_needing_fallback.sum().item()
 
             if num_samples_needing_fallback > 0:
-                # Apply top-1 fallback only to samples with zero predictions
                 for sample_idx in range(predictions.shape[0]):
                     if samples_needing_fallback[sample_idx]:
-                        # Find the highest probability emotion for this sample
                         top_emotion_idx = torch.argmax(probabilities[sample_idx])
                         predictions[sample_idx, top_emotion_idx] = 1.0
 
@@ -525,7 +539,6 @@ def evaluate_emotion_classifier(
                         "DEBUG: Applied top-1 fallback to {num_samples_needing_fallback} samples"
                     )
 
-            # Final debug check for first batch
             if batch_idx == 0:
                 final_sum = predictions.sum().item()
                 final_mean = predictions.mean().item()
@@ -535,19 +548,15 @@ def evaluate_emotion_classifier(
                 logger.info("  - Mean: {final_mean:.4f}")
                 logger.info("  - Samples with zero predictions: {samples_with_zero_after}")
 
-            # Collect results
             all_predictions.append(predictions.cpu().numpy())
             all_targets.append(targets.cpu().numpy())
 
-            # Track inference time
             batch_time = time.time() - start_time
             total_time += batch_time
 
-    # Combine all predictions and targets
     all_predictions = np.vstack(all_predictions)
     all_targets = np.vstack(all_targets)
 
-    # Debug information
     logger.info("Evaluation debug - Predictions shape: {all_predictions.shape}")
     logger.info("Evaluation debug - Targets shape: {all_targets.shape}")
     logger.info("Evaluation debug - Predictions sum: {all_predictions.sum()}")
@@ -555,25 +564,21 @@ def evaluate_emotion_classifier(
     logger.info("Evaluation debug - Predictions mean: {all_predictions.mean():.4f}")
     logger.info("Evaluation debug - Targets mean: {all_targets.mean():.4f}")
 
-    # Compute metrics
     metrics = {}
 
-    # Overall metrics
     metrics["micro_f1"] = f1_score(all_targets, all_predictions, average="micro")
     metrics["macro_f1"] = f1_score(all_targets, all_predictions, average="macro")
 
-    # Per-emotion metrics
     precision, recall, f1, support = precision_recall_fscore_support(
         all_targets, all_predictions, average=None
     )
 
-    for i, emotion in enumerate(GOEMOTIONS_EMOTIONS):
+    for _i, emotion in enumerate(GOEMOTIONS_EMOTIONS):
         metrics["{emotion}_f1"] = f1[i]
         metrics["{emotion}_precision"] = precision[i]
         metrics["{emotion}_recall"] = recall[i]
         metrics["{emotion}_support"] = support[i]
 
-    # Performance metrics
     metrics["avg_inference_time_ms"] = (total_time / len(dataloader)) * 1000
     metrics["examples_per_second"] = len(all_predictions) / total_time
 
@@ -586,21 +591,16 @@ def evaluate_emotion_classifier(
 
 
 if __name__ == "__main__":
-    # Test the BERT emotion classifier
 
-    # Create model and loss function
     model, loss_fn = create_bert_emotion_classifier()
 
-    # Test forward pass
     tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
     test_text = "I'm feeling really excited about this new project!"
 
-    # Tokenize
     inputs = tokenizer(
         test_text, return_tensors="pt", padding=True, truncation=True, max_length=512
     )
 
-    # Forward pass
     with torch.no_grad():
         outputs = model(**inputs)
         predictions = model.predict_emotions(**inputs)

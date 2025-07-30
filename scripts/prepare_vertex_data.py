@@ -1,49 +1,49 @@
-import json
-import os
-import sys
-#!/usr/bin/env python3
-import pandas as pd
-from collections import Counter
-import logging
-from google.cloud import storage
-import tempfile
-from typing import Any
-from sklearn.model_selection import train_test_split
-# Configure logging
-        # GoEmotions emotion labels (27 emotions)
-            # Convert to DataFrame
+                # Convert to comma-separated string
+                # Find similar samples to base synthetic data on
+                # Oversample to reach target
             # Analyze current state
+            # Convert to DataFrame
+            # Convert to Vertex AI format
+            # Find samples with this emotion
+            # Format: "text","emotion1,emotion2,emotion3"
+            # Split data
+            # Write to files
         # Analyze emotion distribution
+        # Balance dataset
+        # Cleanup
+        # Convert to Vertex AI format
+        # Create temporary files
+        # Data rows
+        # Display analysis
+        # Get target counts for each emotion (aim for at least 2% representation)
+        # GoEmotions emotion labels (27 emotions)
+        # Header
         # Identify class imbalance issues
         # Identify issues
-        # Strategy 1: Oversample minority classes
-        # Get target counts for each emotion (aim for at least 2% representation)
-            # Find samples with this emotion
-                # Oversample to reach target
-        # Strategy 2: Add synthetic samples for very rare emotions
-                # Find similar samples to base synthetic data on
-        # Re-analyze balanced dataset
-        # Create temporary files
-            # Split data
-            # Convert to Vertex AI format
-            # Write to files
-        # Header
-        # Data rows
-                # Convert to comma-separated string
-            # Format: "text","emotion1,emotion2,emotion3"
-        # Upload train file
-        # Upload test file
-        # Save locally
-        # Upload to GCS
-    # Check if data file exists
         # Initialize data preparation
         # Load and analyze data
-        # Display analysis
-        # Balance dataset
-        # Convert to Vertex AI format
-        # Upload to GCS
+        # Re-analyze balanced dataset
+        # Save locally
         # Save metadata
-        # Cleanup
+        # Strategy 1: Oversample minority classes
+        # Strategy 2: Add synthetic samples for very rare emotions
+        # Upload test file
+        # Upload to GCS
+        # Upload to GCS
+        # Upload train file
+    # Check if data file exists
+# Configure logging
+#!/usr/bin/env python3
+from collections import Counter
+from google.cloud import storage
+from sklearn.model_selection import train_test_split
+from typing import Any
+import json
+import logging
+import os
+import pandas as pd
+import sys
+import tempfile
 
 
 
@@ -117,7 +117,7 @@ class SAMOVertexDataPreparation:
 
             return df, analysis
 
-        except Exception as _:
+        except Exception as e:
             logger.error("Error loading data: {e}")
             raise
 
@@ -139,7 +139,7 @@ class SAMOVertexDataPreparation:
         for _, row in df.iterrows():
             emotions = row.get("emotions", [])
             if isinstance(emotions, list):
-                for ___emotion in emotions:
+                for emotion in emotions:
                     emotion_counts[emotion] += 1
                 total_emotions += len(emotions)
 
@@ -256,7 +256,7 @@ class SAMOVertexDataPreparation:
 
             return train_file.name, test_file.name
 
-        except Exception as _:
+        except Exception as e:
             logger.error("Error in conversion: {e}")
             raise
 
@@ -330,7 +330,7 @@ class SAMOVertexDataPreparation:
             os.unlink(train_file)
             os.unlink(test_file)
             logger.info("Temporary files cleaned up")
-        except Exception as _:
+        except Exception as e:
             logger.warning("Error cleaning up temp files: {e}")
 
 
@@ -349,7 +349,7 @@ def main():
     logging.info("📦 Bucket: {bucket_name}")
     logging.info("📁 Data: {data_path}")
 
-    if not os.path.exists(data_path):
+    if not Path(data_path):
         logging.info("❌ Data file not found: {data_path}")
         sys.exit(1)
 
@@ -382,7 +382,7 @@ def main():
         logging.info("✅ Metadata: {metadata_file}")
         logging.info("\n🚀 Ready for Vertex AI AutoML training!")
 
-    except Exception as _:
+    except Exception as e:
         logging.info("❌ Error during data preparation: {e}")
         logger.error("Data preparation failed: {e}")
         sys.exit(1)

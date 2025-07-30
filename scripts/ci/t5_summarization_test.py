@@ -1,16 +1,16 @@
-import sys
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
-# Add src to path
-from models.summarization.t5_summarizer import create_t5_summarizer
-# Configure logging
-        # Initialize model with CPU device for CI
-        # Test basic model properties
         # Initialize model
-        # Test text for summarization
+        # Initialize model with CPU device for CI
         # Perform summarization
+        # Test basic model properties
+        # Test text for summarization
         # Validate summary
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from models.summarization.t5_summarizer import create_t5_summarizer
+from pathlib import Path
+import logging
+import sys
 
 
 
@@ -48,7 +48,7 @@ def test_t5_model_loading():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ T5 model loading failed: {e}")
         return False
 
@@ -84,7 +84,7 @@ def test_t5_summarization():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ T5 summarization test failed: {e}")
         return False
 

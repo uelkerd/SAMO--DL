@@ -1,24 +1,39 @@
+            # Create custom job with correct API syntax
+            # Create hyperparameter tuning job with correct API syntax
+            # Create validation job with correct API syntax
+            # Import Vertex AI
+            # Initialize Vertex AI
+            # Model monitoring configuration
+            # Pipeline configuration
+            from google.cloud import aiplatform
+            from google.cloud import aiplatform
+            from google.cloud import aiplatform
+            from google.cloud import aiplatform
+            from google.cloud import storage
+        # Step 1: Environment setup
+        # Step 2: Create validation job
+        # Step 3: Create custom training job
+        # Step 4: Create hyperparameter tuning
+        # Step 5: Create monitoring
+        # Step 6: Create automated pipeline
+    # Create Vertex AI setup
+    # Get project ID from environment or user input
+    # Setup complete infrastructure
+    # Summary
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+from typing import Dict, Any, Optional
+import logging
 import os
 import sys
 
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
-from typing import Dict, Any, Optional
 
-# Add src to path
-            from google.cloud import aiplatform
-            from google.cloud import storage
 
-            from google.cloud import aiplatform
 
-            # Create custom job with correct API syntax
-            from google.cloud import aiplatform
 
-            # Create hyperparameter tuning job with correct API syntax
-            from google.cloud import aiplatform
 
-            # Create validation job with correct API syntax
 
 """
 Fixed Vertex AI Setup for SAMO Deep Learning Project.
@@ -29,7 +44,6 @@ to solve the 0.0000 loss issue and provide managed ML training.
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -50,10 +64,8 @@ class VertexAISetupFixed:
         logger.info("🔧 Setting up Vertex AI environment...")
 
         try:
-            # Import Vertex AI
             logger.info("✅ Vertex AI SDK available")
 
-            # Initialize Vertex AI
             aiplatform.init(
                 project=self.project_id,
                 location=self.region,
@@ -64,7 +76,7 @@ class VertexAISetupFixed:
 
             return True
 
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ Vertex AI setup failed: {e}")
             return False
 
@@ -96,7 +108,7 @@ class VertexAISetupFixed:
 
             return {"job": job, "success": True}
 
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ Custom training job creation failed: {e}")
             return {"success": False, "error": str(e)}
 
@@ -142,7 +154,7 @@ class VertexAISetupFixed:
 
             return {"tuning_job": tuning_job, "success": True}
 
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ Hyperparameter tuning job creation failed: {e}")
             return {"success": False, "error": str(e)}
 
@@ -151,7 +163,6 @@ class VertexAISetupFixed:
         logger.info("📊 Setting up model monitoring...")
 
         try:
-            # Model monitoring configuration
             monitoring_config = {
                 "display_name": "samo-emotion-detection-monitoring",
                 "model_display_name": self.model_display_name,
@@ -174,7 +185,7 @@ class VertexAISetupFixed:
 
             return {"config": monitoring_config, "success": True}
 
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ Model monitoring setup failed: {e}")
             return {"success": False, "error": str(e)}
 
@@ -183,7 +194,6 @@ class VertexAISetupFixed:
         logger.info("🔄 Creating automated ML pipeline...")
 
         try:
-            # Pipeline configuration
             pipeline_config = {
                 "display_name": "samo-emotion-detection-pipeline",
                 "pipeline_root": "gs://{self.project_id}-vertex-ai/pipelines",
@@ -208,7 +218,7 @@ class VertexAISetupFixed:
 
             return {"config": pipeline_config, "success": True}
 
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ Automated pipeline setup failed: {e}")
             return {"success": False, "error": str(e)}
 
@@ -230,7 +240,7 @@ class VertexAISetupFixed:
 
             return True
 
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ Validation job creation failed: {e}")
             return False
 
@@ -240,32 +250,26 @@ class VertexAISetupFixed:
 
         results = {}
 
-        # Step 1: Environment setup
         if not self.setup_environment():
             logger.error("❌ Environment setup failed")
             return results
 
-        # Step 2: Create validation job
         logger.info("\n📋 Step 1: Creating validation job...")
         validation_success = self.run_validation_on_vertex()
         results["validation"] = validation_success
 
-        # Step 3: Create custom training job
         logger.info("\n📋 Step 2: Creating custom training job...")
         training_result = self.create_custom_training_job()
         results["training"] = training_result.get("success", False)
 
-        # Step 4: Create hyperparameter tuning
         logger.info("\n📋 Step 3: Creating hyperparameter tuning...")
         tuning_result = self.create_hyperparameter_tuning_job()
         results["tuning"] = tuning_result.get("success", False)
 
-        # Step 5: Create monitoring
         logger.info("\n📋 Step 4: Creating model monitoring...")
         monitoring_result = self.create_model_monitoring()
         results["monitoring"] = monitoring_result.get("success", False)
 
-        # Step 6: Create automated pipeline
         logger.info("\n📋 Step 5: Creating automated pipeline...")
         pipeline_result = self.create_automated_pipeline()
         results["pipeline"] = pipeline_result.get("success", False)
@@ -278,7 +282,6 @@ def main():
     logger.info("🚀 SAMO Deep Learning - Fixed Vertex AI Setup")
     logger.info("=" * 50)
 
-    # Get project ID from environment or user input
     project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
     if not project_id:
         project_id = input("Enter your GCP Project ID: ").strip()
@@ -287,13 +290,10 @@ def main():
         logger.error("❌ Project ID is required")
         sys.exit(1)
 
-    # Create Vertex AI setup
     vertex_setup = VertexAISetupFixed(project_id=project_id)
 
-    # Setup complete infrastructure
     results = vertex_setup.setup_complete_infrastructure()
 
-    # Summary
     logger.info("\n{'='*50}")
     logger.info("📊 VERTEX AI SETUP SUMMARY")
     logger.info("{'='*50}")

@@ -1,27 +1,27 @@
-import sys
-#!/usr/bin/env python3
-import logging
-import time
-from pathlib import Path
-# Add src to path
-import torch
-from models.emotion_detection.training_pipeline import train_emotion_detection_model
-from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
-from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-# Configure logging
-        # Run training with development mode enabled
-        # Validate results
-        # Success criteria
-        # Overall assessment
         # Create trainer and load small dataset
-        # Prepare small dataset
+        # Find best threshold
         # Load a pre-trained model if available, otherwise skip
         # Load model
+        # Overall assessment
+        # Prepare small dataset
+        # Run training with development mode enabled
+        # Success criteria
         # Test different thresholds
-        # Find best threshold
+        # Validate results
+    # Summary
     # Test 1: Development mode training
     # Test 2: Threshold tuning
-    # Summary
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+from models.emotion_detection.training_pipeline import train_emotion_detection_model
+from pathlib import Path
+import logging
+import sys
+import time
+import torch
 
 
 
@@ -104,7 +104,7 @@ def test_development_mode():
             )
             return False
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Training test failed with error: {e}")
         return False
 
@@ -137,7 +137,7 @@ def test_threshold_tuning():
         thresholds = [0.1, 0.2, 0.3, 0.4, 0.5]
         results = {}
 
-        for ___threshold in thresholds:
+        for threshold in thresholds:
             logger.info("Testing threshold: {threshold}")
             metrics = evaluate_emotion_classifier(
                 trainer.model, trainer.val_dataloader, trainer.device, threshold=threshold
@@ -159,7 +159,7 @@ def test_threshold_tuning():
             logger.warning("⚠️  All thresholds produced low F1 scores")
             return False
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Threshold tuning test failed: {e}")
         return False
 

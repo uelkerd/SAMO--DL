@@ -1,8 +1,8 @@
-import sys
+    # Current status based on your summary
+# Configure logging
 #!/usr/bin/env python3
 import logging
-# Configure logging
-    # Current status based on your summary
+import sys
 
 
 
@@ -99,6 +99,6 @@ if __name__ == "__main__":
         logger.info("   • Feasible: {'YES' if results['feasible'] else 'NO'}")
         logger.info("   • Next: {' → '.join(results['next_steps'][:2])}")
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Validation failed: {e}")
         sys.exit(1)
