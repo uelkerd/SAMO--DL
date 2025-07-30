@@ -433,14 +433,14 @@ async def validate_audio(audio_file: UploadFile = File(...)):
                 content={"valid": False, "error": "validation_failed", "message": error_msg},
             )
 
-    except Exception as e:
-        logger.error("Audio validation error: {e}", extra={"format_args": True})
+    except Exception as _:
+        logger.error("Audio validation error occurred")
         return JSONResponse(
             status_code=500,
             content={
                 "valid": False,
                 "error": "validation_error",
-                "message": "Error validating audio: {e!s}",
+                "message": "Error validating audio file",
             },
         )
 
