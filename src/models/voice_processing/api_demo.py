@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 from typing import Any
 
+import uvicorn
 from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
@@ -16,22 +17,6 @@ from .audio_preprocessor import AudioPreprocessor
 from .whisper_transcriber import WhisperTranscriber, create_whisper_transcriber
 
 # Configure logging
-    import uvicorn
-
-
-"""FastAPI Endpoints for OpenAI Whisper Voice Processing - SAMO Deep Learning.
-
-This module provides production-ready API endpoints for voice-to-text transcription
-that integrate with the SAMO Web Development backend.
-
-Key Features:
-- Multi-format audio upload and transcription
-- Batch audio processing for multiple files
-- Real-time transcription with confidence scoring
-- Audio quality assessment and validation
-- Performance monitoring and error handling
-"""
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -64,7 +49,7 @@ async def lifespan(app: FastAPI):
         )
 
     except Exception:
-        logger.error("❌ Failed to load Whisper model: {e}", extra={"format_args": True})
+        logger.error("❌ Failed to load Whisper model: {exc}", extra={"format_args": True})
         logger.info("⚠️  Running in development mode without Whisper model")
         whisper_transcriber = None  # Continue without model for development
 
@@ -250,7 +235,7 @@ async def transcribe_batch(
         start_time = time.time()
 
         # Process each file
-        for i, audio_file in enumerate(audio_files):
+        for _i, audio_file in enumerate(audio_files):
             try:
                 # Validate file
                 if not audio_file.filename:
