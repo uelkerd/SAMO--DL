@@ -1,21 +1,16 @@
-import logging
-
-import sys
-
 #!/usr/bin/env python3
-from pathlib import Path
+"""Test script to verify rate limiter fix."""
 
+import asyncio
+import logging
+import sys
 import time
-from unittest.mock import MagicMock, AsyncMock
+from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock
+
 from fastapi import Response
 
 from src.api_rate_limiter import RateLimiter
-
-
-    import asyncio
-
-
-"""Test script to verify rate limiter fix."""
 
 sys.path.insert(0, str(Path(__file__).parent / ".."))
 

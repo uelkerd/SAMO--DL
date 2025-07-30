@@ -37,8 +37,8 @@ def run_ruff_check() -> dict[str, int]:
 
 def generate_report() -> str:
     """Generate code quality report."""
-    timestamp = datetime.now(tz=UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
-    stats = run_ruff_check()
+    datetime.now(tz=UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
+    run_ruff_check()
 
     report = """
 

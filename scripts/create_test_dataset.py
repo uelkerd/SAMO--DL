@@ -105,7 +105,7 @@ def create_test_dataset():
     for ___entry in test_data:
         expanded_data.append(entry)
 
-        for i in range(2):  # Create 2 variations per entry
+        for _i in range(2):  # Create 2 variations per entry
             variation = entry.copy()
             variation["text"] = "Variation {i+1}: {entry['text']}"
             expanded_data.append(variation)
@@ -130,7 +130,7 @@ def main():
     logging.info("📁 Saved to: {output_file}")
 
     logging.info("\n📊 Sample entries:")
-    for i, entry in enumerate(test_data[:3]):
+    for _i, entry in enumerate(test_data[:3]):
         logging.info("  {i+1}. Text: '{entry['text'][:50]}...'")
         logging.info("     Emotions: {entry['emotions']}")
 
@@ -140,7 +140,7 @@ def main():
             emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
 
     logging.info("\n📈 Emotion distribution:")
-    for emotion, count in sorted(emotion_counts.items()):
+    for emotion, _count in sorted(emotion_counts.items()):
         logging.info("  - {emotion}: {count} samples")
 
 

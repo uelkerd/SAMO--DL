@@ -173,7 +173,7 @@ def test_model_calibration():
             f1 = f1_score(all_labels, predictions, average="micro", zero_division=0)
             f1_scores.append(f1)
 
-        best_threshold = thresholds[np.argmax(f1_scores)]
+        thresholds[np.argmax(f1_scores)]
         logger.info("Best threshold: {best_threshold:.1f} (F1: {max(f1_scores):.4f})")
 
         logger.info("✅ Threshold optimization works")

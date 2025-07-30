@@ -200,7 +200,7 @@ def test_calibration():
     all_predictions = np.array(all_predictions)
 
     micro_f1 = f1_score(all_labels, all_predictions, average="micro", zero_division=0)
-    macro_f1 = f1_score(all_labels, all_predictions, average="macro", zero_division=0)
+    f1_score(all_labels, all_predictions, average="macro", zero_division=0)
 
     logger.info("Micro F1: {micro_f1:.4f}")
     logger.info("Macro F1: {macro_f1:.4f}")

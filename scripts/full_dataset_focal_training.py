@@ -278,7 +278,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device, e
     """Train the model."""
     best_val_loss = float("in")
 
-    for epoch in range(epochs):
+    for _epoch in range(epochs):
         logger.info("📚 Epoch {epoch + 1}/{epochs}")
 
         model.train()
@@ -315,7 +315,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device, e
                 loss = criterion(outputs, labels)
                 val_losses.append(loss.item())
 
-        avg_train_loss = np.mean(train_losses)
+        np.mean(train_losses)
         avg_val_loss = np.mean(val_losses)
 
         logger.info("📊 Epoch {epoch + 1} Results:")

@@ -89,8 +89,7 @@ def test_development_mode():
         }
 
         logger.info("✅ Success Criteria Check:")
-        for criterion, passed in success_criteria.items():
-            status = "✅ PASS" if passed else "❌ FAIL"
+        for _criterion, _passed in success_criteria.items():
             logger.info("  {criterion}: {status}")
 
         passed_criteria = sum(success_criteria.values())

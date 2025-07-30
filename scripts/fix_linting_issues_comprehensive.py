@@ -3,7 +3,6 @@ import re
 import shutil
 import logging
 from pathlib import Path
-from typing import List, Tuple
 import ast
         # Find all import lines
         # Reconstruct with imports at top
@@ -57,7 +56,7 @@ class ComprehensiveLintingFixer:
         self.fixed_files = []
         self.errors = []
 
-    def find_python_files(self, directories: List[str]) -> List[Path]:
+    def find_python_files(self, directories: list[str]) -> list[Path]:
         """Find all Python files in specified directories."""
         python_files = []
         for directory in directories:
@@ -65,7 +64,7 @@ class ComprehensiveLintingFixer:
                 python_files.extend(Path(directory).rglob("*.py"))
         return python_files
 
-    def separate_imports_and_code(self, lines: List[str]) -> Tuple[List[str], List[str]]:
+    def separate_imports_and_code(self, lines: list[str]) -> tuple[list[str], list[str]]:
         """Separate import lines from other code lines."""
         import_lines = []
         non_import_lines = []
@@ -81,7 +80,7 @@ class ComprehensiveLintingFixer:
 
         return import_lines, non_import_lines
 
-    def filter_imports(self, lines: List[str]) -> List[str]:
+    def filter_imports(self, lines: list[str]) -> list[str]:
         """Filter out unused imports."""
         filtered_lines = []
 
@@ -227,7 +226,7 @@ class ComprehensiveLintingFixer:
             self.errors.append(f"Error fixing {file_path}: {e}")
             return False
 
-    def run_on_directories(self, directories: List[str]) -> int:
+    def run_on_directories(self, directories: list[str]) -> int:
         """Run the fixer on all Python files in specified directories."""
         logging.info(f"🔍 Scanning directories: {directories}")
 
