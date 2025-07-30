@@ -26,7 +26,7 @@ def test_import(module_name, description):
         logging.info("❌ {description} - KeyboardInterrupt")
         return False
     except Exception as e:
-        logging.info("❌ {description} - Error: {e}")
+        logging.info(f"❌ {description} - Error: {e}")
         return False
 
 
@@ -56,7 +56,7 @@ def main():
             logging.info("\n🚨 STOPPED: {description} caused KeyboardInterrupt")
             break
 
-    logging.info("\n" + "=" * 50)
+    logging.info(f"\n{'=' * 50}")
     logging.info("📊 TEST SUMMARY:")
     working = sum(results)
     total = len(results)
