@@ -1,9 +1,18 @@
 import logging
-
 import json
-
 #!/usr/bin/env python3
 import random
+    # Sample texts with emotion labels
+    # Create more samples by duplicating and slightly modifying
+        # Add original entry
+        # Add variations
+    # Shuffle the data
+    # Create test data
+    # Save to file
+    # Show sample
+    # Count emotions
+
+
 
 
 
@@ -14,7 +23,6 @@ Create a test dataset with emotion labels for Vertex AI
 def create_test_dataset():
     """Create a test dataset with emotion labels"""
 
-    # Sample texts with emotion labels
     test_data = [
         {
             "text": "I'm so happy today! Everything is going perfectly.",
@@ -93,19 +101,15 @@ def create_test_dataset():
         {"text": "Today was uneventful.", "emotions": ["neutral"]},
     ]
 
-    # Create more samples by duplicating and slightly modifying
     expanded_data = []
-    for entry in test_data:
-        # Add original entry
+    for __entry in test_data:
         expanded_data.append(entry)
 
-        # Add variations
         for i in range(2):  # Create 2 variations per entry
             variation = entry.copy()
             variation["text"] = "Variation {i+1}: {entry['text']}"
             expanded_data.append(variation)
 
-    # Shuffle the data
     random.shuffle(expanded_data)
 
     return expanded_data
@@ -115,10 +119,8 @@ def main():
     """Main function"""
     logging.info("🚀 Creating test dataset with emotion labels...")
 
-    # Create test data
     test_data = create_test_dataset()
 
-    # Save to file
     output_file = "data/raw/test_emotion_dataset.json"
 
     with open(output_file, "w") as f:
@@ -127,15 +129,13 @@ def main():
     logging.info("✅ Created test dataset with {len(test_data)} samples")
     logging.info("📁 Saved to: {output_file}")
 
-    # Show sample
     logging.info("\n📊 Sample entries:")
     for i, entry in enumerate(test_data[:3]):
         logging.info("  {i+1}. Text: '{entry['text'][:50]}...'")
         logging.info("     Emotions: {entry['emotions']}")
 
-    # Count emotions
     emotion_counts = {}
-    for entry in test_data:
+    for __entry in test_data:
         for emotion in entry["emotions"]:
             emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
 

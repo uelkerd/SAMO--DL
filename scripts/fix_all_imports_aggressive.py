@@ -1,15 +1,31 @@
 import logging
-
 import json
 import numpy as np
 import os
 import sys
 import traceback
-
 #!/usr/bin/env python3
 import os
 import re
 from pathlib import Path
+    # Check what imports are needed
+    # Check for common undefined names
+    # If no imports needed, return early
+    # Split into lines
+    # Find the first import line or add at the beginning
+        # Add imports right after the first line (usually shebang or docstring)
+            # Add all needed imports
+    # If we didn't add imports yet, add them at the very beginning
+    # Only write if content changed
+    # Fix trailing whitespace
+    # Fix missing newline at end of file
+    # Fix f-strings without placeholders (convert to regular strings)
+    # Fix unused imports (remove obvious ones)
+        # Skip obvious unused imports
+    # Only write if content changed
+    # Directories to fix
+
+
 
 
 """
@@ -24,10 +40,8 @@ def fix_file_imports_aggressive(file_path: str) -> bool:
 
     original_content = content
 
-    # Check what imports are needed
     needed_imports = set()
 
-    # Check for common undefined names
     if 'sys.' in content or 'sys.path' in content or 'sys.exit' in content:
         needed_imports.add('import sys')
 
@@ -49,21 +63,16 @@ def fix_file_imports_aggressive(file_path: str) -> bool:
     if 'datetime.' in content and 'import datetime' not in content:
         needed_imports.add('import datetime')
 
-    # If no imports needed, return early
     if not needed_imports:
         return False
 
-    # Split into lines
     lines = content.split('\n')
     new_lines = []
 
-    # Find the first import line or add at the beginning
     import_added = False
 
     for i, line in enumerate(lines):
-        # Add imports right after the first line (usually shebang or docstring)
         if i == 0 and not import_added:
-            # Add all needed imports
             for imp in sorted(needed_imports):
                 new_lines.append(imp)
             new_lines.append('')  # Empty line after imports
@@ -71,7 +80,6 @@ def fix_file_imports_aggressive(file_path: str) -> bool:
 
         new_lines.append(line)
 
-    # If we didn't add imports yet, add them at the very beginning
     if not import_added:
         new_lines = []
         for imp in sorted(needed_imports):
@@ -81,7 +89,6 @@ def fix_file_imports_aggressive(file_path: str) -> bool:
 
     content = '\n'.join(new_lines)
 
-    # Only write if content changed
     if content != original_content:
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(content)
@@ -97,23 +104,18 @@ def fix_common_issues_aggressive(file_path: str) -> bool:
 
     original_content = content
 
-    # Fix trailing whitespace
     content = re.sub(r'[ \t]+$', '', content, flags=re.MULTILINE)
 
-    # Fix missing newline at end of file
     if not content.endswith('\n'):
         content += '\n'
 
-    # Fix f-strings without placeholders (convert to regular strings)
     content = re.sub(r'"([^"]*)"', r'"\1"', content)
     content = re.sub(r"'([^']*)'", r"'\1'", content)
 
-    # Fix unused imports (remove obvious ones)
     lines = content.split('\n')
     fixed_lines = []
 
-    for line in lines:
-        # Skip obvious unused imports
+    for __line in lines:
         if any(unused in line for unused in [
         ]):
             continue
@@ -121,7 +123,6 @@ def fix_common_issues_aggressive(file_path: str) -> bool:
 
     content = '\n'.join(fixed_lines)
 
-    # Only write if content changed
     if content != original_content:
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(content)
@@ -135,12 +136,11 @@ def main():
     script_dir = Path(__file__).parent
     project_root = script_dir.parent
 
-    # Directories to fix
     dirs_to_fix = ['src', 'tests', 'scripts']
 
     total_fixed = 0
 
-    for dir_name in dirs_to_fix:
+    for __dir_name in dirs_to_fix:
         dir_path = project_root / dir_name
         if not dir_path.exists():
             continue

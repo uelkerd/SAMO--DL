@@ -1,7 +1,6 @@
 import json
 import os
 import sys
-
 #!/usr/bin/env python3
 import pandas as pd
 from collections import Counter
@@ -10,8 +9,43 @@ from google.cloud import storage
 import tempfile
 from typing import Any
 from sklearn.model_selection import train_test_split
-
 # Configure logging
+        # GoEmotions emotion labels (27 emotions)
+            # Convert to DataFrame
+            # Analyze current state
+        # Analyze emotion distribution
+        # Identify class imbalance issues
+        # Identify issues
+        # Strategy 1: Oversample minority classes
+        # Get target counts for each emotion (aim for at least 2% representation)
+            # Find samples with this emotion
+                # Oversample to reach target
+        # Strategy 2: Add synthetic samples for very rare emotions
+                # Find similar samples to base synthetic data on
+        # Re-analyze balanced dataset
+        # Create temporary files
+            # Split data
+            # Convert to Vertex AI format
+            # Write to files
+        # Header
+        # Data rows
+                # Convert to comma-separated string
+            # Format: "text","emotion1,emotion2,emotion3"
+        # Upload train file
+        # Upload test file
+        # Save locally
+        # Upload to GCS
+    # Check if data file exists
+        # Initialize data preparation
+        # Load and analyze data
+        # Display analysis
+        # Balance dataset
+        # Convert to Vertex AI format
+        # Upload to GCS
+        # Save metadata
+        # Cleanup
+
+
 
 """
 SAMO GoEmotions Data Preparation for Vertex AI AutoML
@@ -31,7 +65,6 @@ class SAMOVertexDataPreparation:
         self.storage_client = storage.Client()
         self.bucket = self.storage_client.bucket(bucket_name)
 
-        # GoEmotions emotion labels (27 emotions)
         self.emotion_labels = [
             "admiration",
             "amusement",
@@ -78,10 +111,8 @@ class SAMOVertexDataPreparation:
 
             logger.info("Loaded {len(data)} entries")
 
-            # Convert to DataFrame
             df = pd.DataFrame(data)
 
-            # Analyze current state
             analysis = self._analyze_dataset(df)
 
             return df, analysis
@@ -102,21 +133,19 @@ class SAMOVertexDataPreparation:
             "issues": [],
         }
 
-        # Analyze emotion distribution
         emotion_counts = Counter()
         total_emotions = 0
 
         for _, row in df.iterrows():
             emotions = row.get("emotions", [])
             if isinstance(emotions, list):
-                for emotion in emotions:
+                for __emotion in emotions:
                     emotion_counts[emotion] += 1
                 total_emotions += len(emotions)
 
         analysis["emotion_distribution"] = dict(emotion_counts)
         analysis["avg_emotions_per_sample"] = total_emotions / len(df) if df.shape[0] > 0 else 0
 
-        # Identify class imbalance issues
         total_samples = len(df)
         for emotion, count in emotion_counts.items():
             percentage = (count / total_samples) * 100
@@ -126,7 +155,6 @@ class SAMOVertexDataPreparation:
                 "severely_imbalanced": percentage < 1.0,  # Less than 1% is severely imbalanced
             }
 
-        # Identify issues
         severely_imbalanced = [
             e for e, data in analysis["class_imbalance"].items() if data["severely_imbalanced"]
         ]
@@ -148,15 +176,12 @@ class SAMOVertexDataPreparation:
         """Balance the dataset to improve F1 scores"""
         logger.info("Balancing dataset...")
 
-        # Strategy 1: Oversample minority classes
         balanced_samples = []
 
-        # Get target counts for each emotion (aim for at least 2% representation)
         target_percentage = 2.0
         target_count = max(50, int(len(df) * target_percentage / 100))
 
         for emotion in self.emotion_labels:
-            # Find samples with this emotion
             emotion_samples = []
             for _, row in df.iterrows():
                 emotions = row.get("emotions", [])
@@ -167,7 +192,6 @@ class SAMOVertexDataPreparation:
             logger.info("Emotion '{emotion}': {current_count} samples")
 
             if current_count < target_count and current_count > 0:
-                # Oversample to reach target
                 oversample_factor = target_count // current_count + 1
                 for _ in range(oversample_factor):
                     balanced_samples.extend(emotion_samples)
@@ -177,14 +201,12 @@ class SAMOVertexDataPreparation:
             else:
                 balanced_samples.extend(emotion_samples)
 
-        # Strategy 2: Add synthetic samples for very rare emotions
         for emotion in self.emotion_labels:
             emotion_samples = [s for s in balanced_samples if emotion in s.get("emotions", [])]
 
             if len(emotion_samples) < 10:  # Very rare emotion
                 logger.info("Creating synthetic samples for '{emotion}'")
 
-                # Find similar samples to base synthetic data on
                 similar_samples = [
                     s
                     for s in df.to_dict("records")
@@ -200,7 +222,6 @@ class SAMOVertexDataPreparation:
 
         balanced_df = pd.DataFrame(balanced_samples)
 
-        # Re-analyze balanced dataset
         self._analyze_dataset(balanced_df)
 
         logger.info("Balancing complete:")
@@ -214,19 +235,15 @@ class SAMOVertexDataPreparation:
         """Convert dataset to Vertex AI AutoML format"""
         logger.info("Converting to Vertex AI format...")
 
-        # Create temporary files
         train_file = tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False)
         test_file = tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False)
 
         try:
-            # Split data
             train_df, test_df = train_test_split(df, test_size=0.2, random_state=42, stratify=None)
 
-            # Convert to Vertex AI format
             train_data = self._convert_to_vertex_format(train_df, "train")
             test_data = self._convert_to_vertex_format(test_df, "test")
 
-            # Write to files
             train_file.write(train_data)
             test_file.write(test_data)
 
@@ -247,22 +264,18 @@ class SAMOVertexDataPreparation:
         """Convert DataFrame to Vertex AI CSV format"""
         lines = []
 
-        # Header
         header = "text,emotions\n"
         lines.append(header)
 
-        # Data rows
         for _, row in df.iterrows():
             text = row.get("text", "").replace('"', '""')  # Escape quotes
             emotions = row.get("emotions", [])
 
             if isinstance(emotions, list):
-                # Convert to comma-separated string
                 emotion_str = ",".join(emotions)
             else:
                 emotion_str = str(emotions)
 
-            # Format: "text","emotion1,emotion2,emotion3"
             line = '"{text}","{emotion_str}"\n'
             lines.append(line)
 
@@ -272,13 +285,11 @@ class SAMOVertexDataPreparation:
         """Upload prepared data to Google Cloud Storage"""
         logger.info("Uploading to Google Cloud Storage...")
 
-        # Upload train file
         train_blob_name = "vertex_ai_data/train_data.csv"
         train_blob = self.bucket.blob(train_blob_name)
         train_blob.upload_from_filename(train_file)
         train_gcs_uri = "gs://{self.bucket_name}/{train_blob_name}"
 
-        # Upload test file
         test_blob_name = "vertex_ai_data/test_data.csv"
         test_blob = self.bucket.blob(test_blob_name)
         test_blob.upload_from_filename(test_file)
@@ -303,12 +314,10 @@ class SAMOVertexDataPreparation:
             "vertex_ai_format": "multi-label-classification",
         }
 
-        # Save locally
         metadata_file = "vertex_ai_metadata.json"
         with open(metadata_file, "w") as f:
             json.dump(metadata, f, indent=2)
 
-        # Upload to GCS
         metadata_blob_name = "vertex_ai_data/metadata.json"
         metadata_blob = self.bucket.blob(metadata_blob_name)
         metadata_blob.upload_from_filename(metadata_file)
@@ -331,62 +340,53 @@ class SAMOVertexDataPreparation:
 def main():
     """Main execution function"""
     if len(sys.argv) != 4:
-        print("Usage: python prepare_vertex_data.py <project_id> <bucket_name> <data_path>")
+        logging.info("Usage: python prepare_vertex_data.py <project_id> <bucket_name> <data_path>")
         sys.exit(1)
 
     project_id = sys.argv[1]
     bucket_name = sys.argv[2]
     data_path = sys.argv[3]
 
-    print("🚀 Starting SAMO Vertex AI Data Preparation...")
-    print("📊 Project: {project_id}")
-    print("📦 Bucket: {bucket_name}")
-    print("📁 Data: {data_path}")
+    logging.info("🚀 Starting SAMO Vertex AI Data Preparation...")
+    logging.info("📊 Project: {project_id}")
+    logging.info("📦 Bucket: {bucket_name}")
+    logging.info("📁 Data: {data_path}")
 
-    # Check if data file exists
     if not os.path.exists(data_path):
-        print("❌ Data file not found: {data_path}")
+        logging.info("❌ Data file not found: {data_path}")
         sys.exit(1)
 
     try:
-        # Initialize data preparation
         preparer = SAMOVertexDataPreparation(project_id, bucket_name)
 
-        # Load and analyze data
         df, analysis = preparer.load_and_analyze_data(data_path)
 
-        # Display analysis
-        print("\n📈 Dataset Analysis:")
-        print("- Total samples: {analysis['total_samples']}")
-        print("- Average emotions per sample: {analysis['avg_emotions_per_sample']:.2f}")
-        print("- Issues found: {len(analysis['issues'])}")
+        logging.info("\n📈 Dataset Analysis:")
+        logging.info("- Total samples: {analysis['total_samples']}")
+        logging.info("- Average emotions per sample: {analysis['avg_emotions_per_sample']:.2f}")
+        logging.info("- Issues found: {len(analysis['issues'])}")
 
         if analysis["issues"]:
-            print("- Issues: {', '.join(analysis['issues'])}")
+            logging.info("- Issues: {', '.join(analysis['issues'])}")
 
-        # Balance dataset
         balanced_df = preparer.balance_dataset(df, analysis)
 
-        # Convert to Vertex AI format
         train_file, test_file = preparer.convert_to_vertex_format(balanced_df)
 
-        # Upload to GCS
         train_uri, test_uri = preparer.upload_to_gcs(train_file, test_file)
 
-        # Save metadata
         metadata_file = preparer.save_metadata(analysis, train_uri, test_uri)
 
-        # Cleanup
         preparer.cleanup_temp_files(train_file, test_file)
 
-        print("\n🎉 Data preparation complete!")
-        print("✅ Train data: {train_uri}")
-        print("✅ Test data: {test_uri}")
-        print("✅ Metadata: {metadata_file}")
-        print("\n🚀 Ready for Vertex AI AutoML training!")
+        logging.info("\n🎉 Data preparation complete!")
+        logging.info("✅ Train data: {train_uri}")
+        logging.info("✅ Test data: {test_uri}")
+        logging.info("✅ Metadata: {metadata_file}")
+        logging.info("\n🚀 Ready for Vertex AI AutoML training!")
 
     except Exception as _:
-        print("❌ Error during data preparation: {e}")
+        logging.info("❌ Error during data preparation: {e}")
         logger.error("Data preparation failed: {e}")
         sys.exit(1)
 

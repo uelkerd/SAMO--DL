@@ -1,11 +1,17 @@
 import logging
-
 import os
 import sys
-
 #!/usr/bin/env python3
 import subprocess
 from pathlib import Path
+        # Split command for security (avoid shell=True)
+    # Change to project root
+    # Fix 1: Format code with ruff
+    # Fix 2: Check for any remaining formatting issues
+    # Fix 3: Run specific failing tests to verify fixes
+    # Summary
+
+
 
 
 
@@ -17,7 +23,6 @@ def run_command(cmd: str, description: str) -> tuple[bool, str]:
     """Run a command and return success status and output."""
     logging.info("🔄 {description}...")
     try:
-        # Split command for security (avoid shell=True)
         cmd_list = cmd.split()
         result = subprocess.run(cmd_list, check=False, capture_output=True, text=True)
         output = result.stdout.strip()
@@ -38,17 +43,13 @@ def main():
     logging.info("🔧 Fixing CI Issues for SAMO Deep Learning")
     logging.info("=" * 50)
 
-    # Change to project root
     project_root = Path(__file__).parent.parent
     os.chdir(project_root)
 
-    # Fix 1: Format code with ruff
     success1, _ = run_command("ruff format src/ tests/ scripts/", "Formatting code with ru")
 
-    # Fix 2: Check for any remaining formatting issues
     success2, _ = run_command("ruff check src/ tests/ scripts/ --fix", "Fixing linting issues")
 
-    # Fix 3: Run specific failing tests to verify fixes
     success3, _ = run_command(
         "python -m pytest tests/unit/test_emotion_detection.py::TestBertEmotionClassifier::test_forward_pass -v",
         "Testing forward pass fix",
@@ -59,7 +60,6 @@ def main():
         "Testing predict emotions fix",
     )
 
-    # Summary
     logging.info("\n" + "=" * 50)
     logging.info("📊 CI Fix Summary:")
     logging.info("Code Formatting: {'✅ PASSED' if success1 else '❌ FAILED'}")

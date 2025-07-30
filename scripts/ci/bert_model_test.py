@@ -1,14 +1,22 @@
 import sys
-
 #!/usr/bin/env python3
 import logging
 from pathlib import Path
-
 # Add src to path
 import torch
 from models.emotion_detection.bert_classifier import BERTEmotionClassifier
-
 # Configure logging
+        # Set device
+        # Initialize model - removed 'device' parameter as it's not in the constructor
+        # Move model to device after initialization
+        # Test model forward pass with dummy data
+        # Create dummy input tensors and move to device
+        # Forward pass
+        # Verify output dimensions
+        # Test that outputs are reasonable (not NaN, finite)
+
+
+
 
 """
 BERT Model Loading Test for CI/CD Pipeline.
@@ -28,43 +36,35 @@ def test_bert_model_loading():
     try:
         logger.info("🤖 Testing BERT emotion detection model loading...")
 
-        # Set device
         device = torch.device("cpu")  # Use CPU for CI
 
-        # Initialize model - removed 'device' parameter as it's not in the constructor
         model = BERTEmotionClassifier(
             model_name="bert-base-uncased",
             num_emotions=28,
         )
 
-        # Move model to device after initialization
         model.to(device)
 
         logger.info("✅ Model initialized with {model.count_parameters():,} parameters")
 
-        # Test model forward pass with dummy data
         batch_size = 2
         seq_length = 32
 
-        # Create dummy input tensors and move to device
         input_ids = torch.randint(0, 1000, (batch_size, seq_length)).to(device)
         attention_mask = torch.ones(batch_size, seq_length).to(device)
 
-        # Forward pass
         model.eval()
         with torch.no_grad():
             outputs = model(input_ids, attention_mask)
 
         logger.info("✅ Forward pass successful, output shape: {outputs.shape}")
 
-        # Verify output dimensions
         expected_shape = (batch_size, 28)  # 28 emotions
         if outputs.shape != expected_shape:
             raise ValueError("Expected output shape {expected_shape}, got {outputs.shape}")
 
         logger.info("✅ Output shape validation passed")
 
-        # Test that outputs are reasonable (not NaN, finite)
         if torch.isnan(outputs).any():
             raise ValueError("Model outputs contain NaN values")
 

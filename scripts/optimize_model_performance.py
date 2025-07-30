@@ -1,20 +1,57 @@
 import numpy as np
 import sys
-
 #!/usr/bin/env python3
 import logging
 import time
 from pathlib import Path
 from typing import Any
-
 # Add src to path
 import torch
 from torch import nn
 from transformers import AutoTokenizer
-
 from models.emotion_detection.bert_classifier import BERTEmotionClassifier
-
 # Configure logging
+        # Load checkpoint
+        # Initialize model
+        # Load state dict
+        # Load tokenizer
+        # 1. Pruning - Remove less important weights
+        # 2. Quantization - Reduce precision
+        # 3. Knowledge distillation (if teacher model available)
+        # Prune attention heads and layers
+                # Prune 20% of weights with lowest magnitude
+        # Quantize the model
+        # This would require a larger teacher model
+        # For now, skip this step
+        # Create dummy input
+        # ONNX export
+        # 1. Batch processing
+        # 2. Input preprocessing optimization
+        # 3. Memory optimization
+            # Tokenize batch
+            # Warmup
+            # Benchmark
+        # Cache tokenizer vocabulary
+        # Enable gradient checkpointing for memory efficiency
+        # Use mixed precision if available
+        # Benchmark metrics
+            # Tokenize
+            # Measure inference time
+            # Get predictions
+        # Calculate statistics
+    # Check if model exists
+        # Initialize optimizer
+        # Load model
+        # Apply optimizations
+        # Convert to ONNX
+        # Benchmark performance
+        # Save optimized model
+        # Success criteria check
+        # Overall assessment
+
+
+
+
 
 """SAMO Model Performance Optimization Script.
 
@@ -53,18 +90,14 @@ class ModelOptimizer:
         """Load the trained BERT model."""
         logger.info("Loading model from {self.model_path}")
 
-        # Load checkpoint
         checkpoint = torch.load(self.model_path, map_location=self.device)
 
-        # Initialize model
         self.model = BERTEmotionClassifier(model_name="bert-base-uncased", num_emotions=28)
 
-        # Load state dict
         self.model.load_state_dict(checkpoint["model_state_dict"])
         self.model.to(self.device)
         self.model.eval()
 
-        # Load tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
         logger.info("Model loaded successfully. Parameters: {self.model.count_parameters():,}")
@@ -73,13 +106,10 @@ class ModelOptimizer:
         """Apply model compression techniques."""
         logger.info("🔧 Applying model compression...")
 
-        # 1. Pruning - Remove less important weights
         self._apply_pruning()
 
-        # 2. Quantization - Reduce precision
         self._apply_quantization()
 
-        # 3. Knowledge distillation (if teacher model available)
         self._apply_knowledge_distillation()
 
         logger.info("✅ Model compression completed")
@@ -88,10 +118,8 @@ class ModelOptimizer:
         """Apply structured pruning to reduce model size."""
         logger.info("  Applying structured pruning...")
 
-        # Prune attention heads and layers
         for _name, module in self.model.named_modules():
             if isinstance(module, nn.Linear):
-                # Prune 20% of weights with lowest magnitude
                 with torch.no_grad():
                     weights = module.weight.data
                     threshold = torch.quantile(torch.abs(weights), 0.2)
@@ -104,26 +132,21 @@ class ModelOptimizer:
         """Apply quantization to reduce precision."""
         logger.info("  Applying dynamic quantization...")
 
-        # Quantize the model
         self.model = torch.quantization.quantize_dynamic(self.model, {nn.Linear}, dtype=torch.qint8)
 
         logger.info("  Dynamic quantization applied")
 
     def _apply_knowledge_distillation(self) -> None:
         """Apply knowledge distillation if teacher model is available."""
-        # This would require a larger teacher model
-        # For now, skip this step
         logger.info("  Knowledge distillation skipped (no teacher model)")
 
     def convert_to_onnx(self) -> str:
         """Convert model to ONNX format for faster inference."""
         logger.info("🔄 Converting model to ONNX format...")
 
-        # Create dummy input
         dummy_input_ids = torch.randint(0, 1000, (1, 512)).to(self.device)
         dummy_attention_mask = torch.ones(1, 512).to(self.device)
 
-        # ONNX export
         onnx_path = self.output_dir / "emotion_detection_model.onnx"
 
         torch.onnx.export(
@@ -151,13 +174,10 @@ class ModelOptimizer:
 
         optimizations = {}
 
-        # 1. Batch processing
         optimizations["batch_size"] = self._optimize_batch_size()
 
-        # 2. Input preprocessing optimization
         optimizations["preprocessing"] = self._optimize_preprocessing()
 
-        # 3. Memory optimization
         optimizations["memory"] = self._optimize_memory()
 
         logger.info("✅ Inference optimization completed")
@@ -178,8 +198,7 @@ class ModelOptimizer:
         best_batch_size = 1
         best_throughput = 0
 
-        for batch_size in batch_sizes:
-            # Tokenize batch
+        for __batch_size in batch_sizes:
             encoded = self.tokenizer(
                 test_texts[:batch_size],
                 padding=True,
@@ -188,12 +207,10 @@ class ModelOptimizer:
                 return_tensors="pt",
             ).to(self.device)
 
-            # Warmup
             with torch.no_grad():
                 for _ in range(3):
                     _ = self.model(**encoded)
 
-            # Benchmark
             start_time = time.time()
             with torch.no_grad():
                 for _ in range(10):
@@ -215,7 +232,6 @@ class ModelOptimizer:
         """Optimize input preprocessing."""
         logger.info("  Optimizing preprocessing...")
 
-        # Cache tokenizer vocabulary
         vocab_size = self.tokenizer.vocab_size
         special_tokens = self.tokenizer.special_tokens_map
 
@@ -233,11 +249,9 @@ class ModelOptimizer:
         """Optimize memory usage."""
         logger.info("  Optimizing memory usage...")
 
-        # Enable gradient checkpointing for memory efficiency
         if hasattr(self.model.bert, "gradient_checkpointing_enable"):
             self.model.bert.gradient_checkpointing_enable()
 
-        # Use mixed precision if available
         if torch.cuda.is_available():
             self.model = self.model.half()
 
@@ -268,17 +282,14 @@ class ModelOptimizer:
                 "I'm confused about what to do next.",
             ]
 
-        # Benchmark metrics
         latencies = []
         accuracies = []
 
-        for text in test_texts:
-            # Tokenize
+        for __text in test_texts:
             encoded = self.tokenizer(
                 text, padding=True, truncation=True, max_length=512, return_tensors="pt"
             ).to(self.device)
 
-            # Measure inference time
             start_time = time.time()
             with torch.no_grad():
                 logits = self.model(**encoded)
@@ -288,11 +299,9 @@ class ModelOptimizer:
             latency = (end_time - start_time) * 1000  # Convert to ms
             latencies.append(latency)
 
-            # Get predictions
             predictions = (probabilities >= 0.2).float()
             accuracies.append(predictions.sum().item() > 0)  # At least one emotion predicted
 
-        # Calculate statistics
         avg_latency = np.mean(latencies)
         p95_latency = np.percentile(latencies, 95)
         p99_latency = np.percentile(latencies, 99)
@@ -343,7 +352,6 @@ def main():
     logger.info("🚀 SAMO Model Performance Optimization Pipeline")
     logger.info("=" * 60)
 
-    # Check if model exists
     model_path = "./test_checkpoints_dev/best_model.pt"
     if not Path(model_path).exists():
         logger.error("❌ Model not found at {model_path}")
@@ -351,26 +359,19 @@ def main():
         return 1
 
     try:
-        # Initialize optimizer
         optimizer = ModelOptimizer(model_path)
 
-        # Load model
         optimizer.load_model()
 
-        # Apply optimizations
         optimizer.compress_model()
         optimizer.optimize_inference()
 
-        # Convert to ONNX
         onnx_path = optimizer.convert_to_onnx()
 
-        # Benchmark performance
         performance_results = optimizer.benchmark_performance()
 
-        # Save optimized model
         optimized_path = optimizer.save_optimized_model()
 
-        # Success criteria check
         success_criteria = {
             "p95_latency_under_500ms": performance_results["p95_latency_ms"] < 500,
             "accuracy_above_50%": performance_results["accuracy"] > 0.5,
@@ -383,7 +384,6 @@ def main():
             status = "✅ PASS" if passed else "❌ FAIL"
             logger.info("  {criterion}: {status}")
 
-        # Overall assessment
         passed_criteria = sum(success_criteria.values())
         total_criteria = len(success_criteria)
 

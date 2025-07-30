@@ -1,15 +1,20 @@
 import sys
-
 #!/usr/bin/env python3
 import logging
 from pathlib import Path
-
 # Add src to path
 import torch
 from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
 from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
 # Configure logging
+        # Create trainer
+        # Prepare data and model
+        # Load trained model
+        # Test different thresholds with fixed evaluation
+        # Success criteria
+
+
+
 
 """Test Fixed Evaluation Function.
 
@@ -28,7 +33,6 @@ def main():
     logger.info("🧪 Testing Fixed Evaluation Function")
 
     try:
-        # Create trainer
         trainer = EmotionDetectionTrainer(
             model_name="bert-base-uncased",
             cache_dir="./data/cache",
@@ -37,11 +41,9 @@ def main():
             device="cpu",
         )
 
-        # Prepare data and model
         trainer.prepare_data(dev_mode=True)
         trainer.initialize_model(class_weights=trainer.data_loader.class_weights)
 
-        # Load trained model
         model_path = Path("./test_checkpoints_dev/best_model.pt")
         if not model_path.exists():
             logger.error("❌ No trained model found. Run training first.")
@@ -52,7 +54,6 @@ def main():
 
         logger.info("✅ Model loaded successfully")
 
-        # Test different thresholds with fixed evaluation
         thresholds = [0.1, 0.15, 0.2, 0.25, 0.3]
 
         logger.info("🎯 Testing thresholds with FIXED evaluation function:")
@@ -61,7 +62,7 @@ def main():
         best_f1 = 0.0
         best_threshold = 0.2
 
-        for threshold in thresholds:
+        for __threshold in thresholds:
             logger.info("🔍 Threshold: {threshold}")
 
             metrics = evaluate_emotion_classifier(
@@ -82,7 +83,6 @@ def main():
         logger.info("  🎯 Best Threshold: {best_threshold}")
         logger.info("  📈 Best Macro F1: {best_f1:.4f}")
 
-        # Success criteria
         if best_f1 > 0.15:  # 15% is reasonable for emotion detection
             logger.info("🎉 SUCCESS: Model is working well with fixed evaluation!")
             logger.info("🚀 Ready to proceed with full training or deployment!")

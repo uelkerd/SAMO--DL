@@ -1,17 +1,30 @@
 import sys
-
 #!/usr/bin/env python3
 import logging
 import time
 from pathlib import Path
-
 # Add src to path
 import torch
 from models.emotion_detection.training_pipeline import train_emotion_detection_model
 from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
 from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
 # Configure logging
+        # Run training with development mode enabled
+        # Validate results
+        # Success criteria
+        # Overall assessment
+        # Create trainer and load small dataset
+        # Prepare small dataset
+        # Load a pre-trained model if available, otherwise skip
+        # Load model
+        # Test different thresholds
+        # Find best threshold
+    # Test 1: Development mode training
+    # Test 2: Threshold tuning
+    # Summary
+
+
+
 
 """Quick Training Test Script for SAMO Emotion Detection.
 
@@ -44,7 +57,6 @@ def test_development_mode():
     start_time = time.time()
 
     try:
-        # Run training with development mode enabled
         results = train_emotion_detection_model(
             model_name="bert-base-uncased",
             cache_dir="./data/cache",
@@ -59,7 +71,6 @@ def test_development_mode():
         training_time = time.time() - start_time
         training_minutes = training_time / 60
 
-        # Validate results
         logger.info("📊 Training Results Analysis:")
         logger.info("⏱️  Total training time: {training_minutes:.1f} minutes")
         logger.info("📈 Final test Macro F1: {results['final_test_metrics']['macro_f1']:.4f}")
@@ -67,7 +78,6 @@ def test_development_mode():
         logger.info("🏆 Best validation score: {results['best_validation_score']:.4f}")
         logger.info("🔄 Total epochs completed: {results['total_epochs']}")
 
-        # Success criteria
         success_criteria = {
             "training_time_under_2_hours": training_minutes < 120,
             "macro_f1_above_0.05": results["final_test_metrics"]["macro_f1"]
@@ -83,7 +93,6 @@ def test_development_mode():
             status = "✅ PASS" if passed else "❌ FAIL"
             logger.info("  {criterion}: {status}")
 
-        # Overall assessment
         passed_criteria = sum(success_criteria.values())
         total_criteria = len(success_criteria)
 
@@ -106,7 +115,6 @@ def test_threshold_tuning():
     logger.info("🎯 Testing Evaluation Threshold Tuning")
 
     try:
-        # Create trainer and load small dataset
         trainer = EmotionDetectionTrainer(
             model_name="bert-base-uncased",
             cache_dir="./data/cache",
@@ -116,25 +124,21 @@ def test_threshold_tuning():
             device="cpu",
         )
 
-        # Prepare small dataset
         trainer.prepare_data(dev_mode=True)
 
-        # Load a pre-trained model if available, otherwise skip
         model_path = Path("./test_checkpoints_dev/best_model.pt")
         if not model_path.exists():
             logger.info("No pre-trained model found, skipping threshold tuning test")
             return True
 
-        # Load model
 
         checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
         trainer.model.load_state_dict(checkpoint["model_state_dict"])
 
-        # Test different thresholds
         thresholds = [0.1, 0.2, 0.3, 0.4, 0.5]
         results = {}
 
-        for threshold in thresholds:
+        for __threshold in thresholds:
             logger.info("Testing threshold: {threshold}")
             metrics = evaluate_emotion_classifier(
                 trainer.model, trainer.val_dataloader, trainer.device, threshold=threshold
@@ -144,7 +148,6 @@ def test_threshold_tuning():
                 "  Macro F1: {metrics['macro_f1']:.4f}, Micro F1: {metrics['micro_f1']:.4f}"
             )
 
-        # Find best threshold
         best_threshold = max(results.keys(), key=lambda t: results[t]["macro_f1"])
         best_f1 = results[best_threshold]["macro_f1"]
 
@@ -167,13 +170,10 @@ def main():
     logger.info("🧪 SAMO Emotion Detection - Quick Training Test Suite")
     logger.info("=" * 60)
 
-    # Test 1: Development mode training
     test1_passed = test_development_mode()
 
-    # Test 2: Threshold tuning
     test2_passed = test_threshold_tuning()
 
-    # Summary
     logger.info("=" * 60)
     logger.info("📋 Test Summary:")
     logger.info("  Development Mode Test: {'✅ PASS' if test1_passed else '❌ FAIL'}")
