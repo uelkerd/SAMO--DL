@@ -3,6 +3,22 @@ import sys
 import traceback
 
 #!/usr/bin/env python3
+import logging
+import torch
+from torch import nn
+from pathlib import Path
+
+# Add project root to path
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
+
+# Configure logging
+        from src.models.emotion_detection.bert_classifier import EmotionDataset
+        from transformers import AutoTokenizer
+
+        import traceback
+
+
 """
 Temperature Scaling for Model Calibration
 
@@ -10,19 +26,9 @@ This script applies temperature scaling to improve model calibration
 and potentially boost F1 score by 5-10%.
 """
 
-import logging
-import torch
-from torch import nn
-from pathlib import Path
-
-# Add project root to path
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -109,9 +115,6 @@ def apply_temperature_scaling():
         val_labels = [item["labels"] for item in val_raw]
 
         # Create tokenized dataset
-        from src.models.emotion_detection.bert_classifier import EmotionDataset
-        from transformers import AutoTokenizer
-
         tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
         val_dataset = EmotionDataset(val_texts, val_labels, tokenizer, max_length=512)
         val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
@@ -159,10 +162,8 @@ def apply_temperature_scaling():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Temperature scaling failed: {e}")
-        import traceback
-
         traceback.print_exc()
         return False
 

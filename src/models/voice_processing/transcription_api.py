@@ -1,10 +1,3 @@
-"""Transcription API for SAMO Voice Processing.
-
-This module provides integration between the WhisperTranscriber and the
-application API layer, handling transcription requests with proper error
-handling and performance monitoring.
-"""
-
 import logging
 import time
 from pathlib import Path
@@ -12,6 +5,16 @@ from typing import Optional, Union
 
 from .audio_preprocessor import AudioPreprocessor
 from .whisper_transcriber import create_whisper_transcriber
+
+        import jiwer
+
+
+"""Transcription API for SAMO Voice Processing.
+
+This module provides integration between the WhisperTranscriber and the
+application API layer, handling transcription requests with proper error
+handling and performance monitoring.
+"""
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +55,7 @@ class TranscriptionAPI:
             logger.info(f"✅ TranscriptionAPI initialized in {startup_time:.2f}s")
             self.ready = True
 
-        except Exception as e:
+        except Exception as _:
             logger.error(f"❌ Failed to initialize TranscriptionAPI: {e}")
             self.transcriber = None
             self.ready = False
@@ -118,7 +121,7 @@ class TranscriptionAPI:
                 },
             }
 
-        except Exception as e:
+        except Exception as _:
             self.error_count += 1
             logger.error(f"Transcription failed: {e}")
             raise RuntimeError(f"Transcription failed: {e}") from e
@@ -175,7 +178,7 @@ class TranscriptionAPI:
 
             return results
 
-        except Exception as e:
+        except Exception as _:
             self.error_count += len(audio_paths)
             logger.error(f"Batch transcription failed: {e}")
             raise RuntimeError(f"Batch transcription failed: {e}") from e
@@ -190,8 +193,6 @@ class TranscriptionAPI:
         Returns:
             Dictionary with WER evaluation metrics
         """
-        import jiwer
-
         try:
             # Get transcription
             result = self.transcribe(audio_path)
@@ -216,7 +217,7 @@ class TranscriptionAPI:
                 "audio_quality": result["audio_quality"],
             }
 
-        except Exception as e:
+        except Exception as _:
             logger.error(f"WER evaluation failed: {e}")
             raise RuntimeError(f"WER evaluation failed: {e}") from e
 

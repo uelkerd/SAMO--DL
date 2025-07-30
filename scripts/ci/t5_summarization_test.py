@@ -1,6 +1,14 @@
 import sys
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+
+# Add src to path
+from models.summarization.t5_summarizer import create_t5_summarizer
+
+# Configure logging
+
 """
 T5 Summarization Model Test for CI/CD Pipeline.
 
@@ -8,15 +16,8 @@ This script validates that the T5 text summarization model
 can be loaded and initialized correctly.
 """
 
-import logging
-from pathlib import Path
-
-# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from models.summarization.t5_summarizer import create_t5_summarizer
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -43,7 +44,7 @@ def test_t5_model_loading():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ T5 model loading failed: {e}")
         return False
 
@@ -83,7 +84,7 @@ def test_t5_summarization():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ T5 summarization test failed: {e}")
         return False
 

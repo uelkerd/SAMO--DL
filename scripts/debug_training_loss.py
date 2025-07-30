@@ -1,6 +1,27 @@
 import sys
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+
+# Add src to path
+import torch
+from torch import nn
+
+# Configure logging
+        from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+
+        # Initialize trainer
+        from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+
+        # Initialize trainer and model
+        from models.emotion_detection.bert_classifier import WeightedBCELoss
+
+        # Test different loss configurations
+        from models.emotion_detection.dataset_loader import create_goemotions_loader
+
+        # Get class weights
+
 """
 Debug Training Loss Script for SAMO Deep Learning.
 
@@ -11,16 +32,8 @@ This script investigates why training loss is showing 0.0000 by examining:
 - Numerical precision issues
 """
 
-import logging
-from pathlib import Path
-
-# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-import torch
-from torch import nn
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -30,9 +43,6 @@ def debug_data_loading():
     logger.info("🔍 Debugging data loading...")
 
     try:
-        from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
-        # Initialize trainer
         trainer = EmotionDetectionTrainer(
             model_name="bert-base-uncased",
             batch_size=4,  # Small batch for debugging
@@ -83,7 +93,7 @@ def debug_data_loading():
 
         return datasets
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Error in data loading: {e}")
         return None
 
@@ -93,9 +103,6 @@ def debug_model_outputs(datasets):
     logger.info("🔍 Debugging model outputs...")
 
     try:
-        from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
-        # Initialize trainer and model
         trainer = EmotionDetectionTrainer(
             model_name="bert-base-uncased",
             batch_size=4,
@@ -138,7 +145,7 @@ def debug_model_outputs(datasets):
 
         return logits, predictions, labels
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Error in model outputs: {e}")
         return None, None, None
 
@@ -148,9 +155,6 @@ def debug_loss_calculation(logits, predictions, labels):
     logger.info("🔍 Debugging loss calculation...")
 
     try:
-        from models.emotion_detection.bert_classifier import WeightedBCELoss
-
-        # Test different loss configurations
         logger.info("📊 Testing different loss configurations:")
 
         # 1. Standard BCE loss
@@ -201,7 +205,7 @@ def debug_loss_calculation(logits, predictions, labels):
             'with_epsilon': loss_eps.item()
         }
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Error in loss calculation: {e}")
         return None
 
@@ -211,9 +215,6 @@ def debug_class_weights():
     logger.info("🔍 Debugging class weights...")
 
     try:
-        from models.emotion_detection.dataset_loader import create_goemotions_loader
-
-        # Get class weights
         datasets = create_goemotions_loader(dev_mode=True)
         class_weights = datasets.get('class_weights')
 
@@ -238,7 +239,7 @@ def debug_class_weights():
 
         return class_weights
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Error in class weights: {e}")
         return None
 

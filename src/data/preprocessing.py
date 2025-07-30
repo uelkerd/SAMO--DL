@@ -8,6 +8,9 @@ from nltk.stem import PorterStemmer, WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 
 
+            import nltk
+
+
 class TextPreprocessor:
     """Text preprocessing pipeline for journal entries."""
 
@@ -37,8 +40,6 @@ class TextPreprocessor:
 
         # Initialize NLP components
         try:
-            import nltk
-
             nltk.download("punkt", quiet=True)
             nltk.download("stopwords", quiet=True)
             nltk.download("wordnet", quiet=True)

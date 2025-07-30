@@ -2,11 +2,6 @@ import json
 import sys
 
 #!/usr/bin/env python3
-"""
-SAMO Vertex AI AutoML Training Pipeline
-Trains an AutoML model for emotion detection with F1 score optimization
-"""
-
 import logging
 import time
 from datetime import datetime
@@ -14,6 +9,12 @@ from google.cloud import aiplatform
 from google.cloud import storage
 
 # Configure logging
+
+"""
+SAMO Vertex AI AutoML Training Pipeline
+Trains an AutoML model for emotion detection with F1 score optimization
+"""
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -213,7 +214,7 @@ class SAMOVertexAutoMLTraining:
 
             return results
 
-        except Exception as e:
+        except Exception as _:
             logger.error("Training pipeline failed: {e}")
             return None
 

@@ -2,6 +2,21 @@ import json
 import numpy as np
 
 #!/usr/bin/env python3
+import logging
+import torch
+from torch import nn
+import torch.nn.functional as F
+from pathlib import Path
+from sklearn.metrics import f1_score, precision_score, recall_score
+from tqdm import tqdm
+import warnings
+
+        from transformers import AutoModel, AutoTokenizer
+
+        from datasets import load_dataset
+
+        # Load the full dataset
+
 """
 Full-Scale Focal Loss Training for Emotion Detection
 
@@ -11,15 +26,6 @@ It includes proper data loading, extended training, and comprehensive evaluation
 Usage:
     python3 full_scale_focal_training.py
 """
-
-import logging
-import torch
-from torch import nn
-import torch.nn.functional as F
-from pathlib import Path
-from sklearn.metrics import f1_score, precision_score, recall_score
-from tqdm import tqdm
-import warnings
 
 warnings.filterwarnings("ignore")
 
@@ -52,8 +58,6 @@ class SimpleBERTClassifier(nn.Module):
 
     def __init__(self, model_name="bert-base-uncased", num_classes=28):
         super().__init__()
-        from transformers import AutoModel, AutoTokenizer
-
         self.bert = AutoModel.from_pretrained(model_name)
         self.classifier = nn.Linear(self.bert.config.hidden_size, num_classes)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -70,9 +74,6 @@ def download_full_dataset():
 
     try:
         # Try to use the datasets library with error handling
-        from datasets import load_dataset
-
-        # Load the full dataset
         dataset = load_dataset("go_emotions", "simplified")
 
         logger.info("✅ Full dataset loaded successfully")
@@ -82,7 +83,7 @@ def download_full_dataset():
 
         return dataset
 
-    except Exception as e:
+    except Exception as _:
         logger.warning("⚠️  Could not load full dataset: {e}")
         logger.info("🔄 Falling back to sample data...")
 

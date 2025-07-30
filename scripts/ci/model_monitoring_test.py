@@ -2,6 +2,16 @@ import sys
 import time
 
 #!/usr/bin/env python3
+import logging
+from datetime import datetime, timezone
+from pathlib import Path
+
+# Add src to path
+import torch
+from torch import nn
+
+# Configure logging
+
 """
 Model Monitoring Test for CI/CD Pipeline.
 
@@ -9,17 +19,8 @@ This script validates that model monitoring functionality works correctly
 without requiring external model checkpoints.
 """
 
-import logging
-from datetime import datetime, timezone
-from pathlib import Path
-
-# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-import torch
-from torch import nn
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -119,7 +120,7 @@ def test_model_performance_monitoring():
         logger.info("✅ Model performance monitoring test passed")
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Model performance monitoring test failed: {e}")
         return False
 
@@ -165,7 +166,7 @@ def test_model_drift_detection():
         logger.info("✅ Model drift detection test passed")
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Model drift detection test failed: {e}")
         return False
 
@@ -204,7 +205,7 @@ def test_monitoring_logging():
         logger.info("✅ Monitoring logging test passed")
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Monitoring logging test failed: {e}")
         return False
 

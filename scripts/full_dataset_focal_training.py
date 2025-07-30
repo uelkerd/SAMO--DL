@@ -2,16 +2,6 @@ import json
 import numpy as np
 
 #!/usr/bin/env python3
-"""
-Full Dataset Focal Loss Training
-
-This script trains the model on the complete GoEmotions dataset using the proven focal loss approach.
-It addresses the datasets/fsspec compatibility issue by using alternative loading methods.
-
-Usage:
-    python3 scripts/full_dataset_focal_training.py
-"""
-
 import logging
 import torch
 from torch import nn
@@ -25,6 +15,17 @@ import requests
 import pandas as pd
 
 # Configure logging
+
+"""
+Full Dataset Focal Loss Training
+
+This script trains the model on the complete GoEmotions dataset using the proven focal loss approach.
+It addresses the datasets/fsspec compatibility issue by using alternative loading methods.
+
+Usage:
+    python3 scripts/full_dataset_focal_training.py
+"""
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -143,7 +144,7 @@ def download_go_emotions_manual():
             logger.info("✅ Downloaded and processed {filename}: {len(processed_data)} examples")
             return processed_data
 
-        except Exception as e:
+        except Exception as _:
             logger.warning("⚠️ Could not download {filename}: {e}")
             return []
 

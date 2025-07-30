@@ -1,6 +1,32 @@
 import sys
 
 #!/usr/bin/env python3
+import argparse
+import logging
+import torch
+from torch import nn
+import torch.nn.functional as F
+from pathlib import Path
+from typing import Optional
+from sklearn.metrics import f1_score
+
+# Add src to path
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+
+# Configure logging
+            from transformers import MarianMTModel, MarianTokenizer
+            from torch.utils.data import Dataset, DataLoader
+            from transformers import AutoTokenizer
+
+        from torch.utils.data import DataLoader
+        from transformers import AutoTokenizer
+
+        # Create tokenizer
+        from torch.utils.data import Dataset
+
+
 """
 Improve Model F1 Score
 
@@ -18,22 +44,7 @@ Arguments:
     --output_model: Path to save improved model (default: models/checkpoints/bert_emotion_classifier_improved.pt)
 """
 
-import argparse
-import logging
-import torch
-from torch import nn
-import torch.nn.functional as F
-from pathlib import Path
-from typing import Optional
-from sklearn.metrics import f1_score
-
-# Add src to path
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -152,7 +163,7 @@ def improve_with_focal_loss() -> bool:
         logger.info("✅ Model improvement with Focal Loss complete!")
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("Error improving model with Focal Loss: {e}")
         return False
 
@@ -168,7 +179,6 @@ def improve_with_data_augmentation() -> bool:
 
         # Check if transformers is available
         try:
-            from transformers import MarianMTModel, MarianTokenizer
         except ImportError:
             logger.error(
                 "transformers library not found. Please install it with: pip install transformers"
@@ -241,9 +251,6 @@ def improve_with_data_augmentation() -> bool:
             logger.info("Augmented dataset size: {len(combined_texts)} examples")
 
             # Create custom datasets
-            from torch.utils.data import Dataset, DataLoader
-            from transformers import AutoTokenizer
-
             class AugmentedDataset(Dataset):
                 def __init__(self, texts, labels, tokenizer, max_length=512):
                     self.texts = texts
@@ -340,11 +347,11 @@ def improve_with_data_augmentation() -> bool:
             logger.info("✅ Model improvement with data augmentation complete!")
             return True
 
-        except Exception as e:
+        except Exception as _:
             logger.error("Error in back-translation: {e}")
             return False
 
-    except Exception as e:
+    except Exception as _:
         logger.error("Error improving model with data augmentation: {e}")
         return False
 
@@ -453,10 +460,6 @@ def improve_with_ensemble() -> bool:
         ensemble.eval()
 
         # Create data loader for validation set
-        from torch.utils.data import DataLoader
-        from transformers import AutoTokenizer
-
-        # Create tokenizer
         tokenizer = AutoTokenizer.from_pretrained(base_model.model_name)
 
         # Process validation data
@@ -464,8 +467,6 @@ def improve_with_ensemble() -> bool:
         val_labels = datasets["validation"]["labels"]
 
         # Create dataset
-        from torch.utils.data import Dataset
-
         class ValidationDataset(Dataset):
             def __init__(self, texts, labels, tokenizer, max_length=512):
                 self.texts = texts
@@ -559,7 +560,7 @@ def improve_with_ensemble() -> bool:
         logger.info("✅ Model improvement with ensemble prediction complete!")
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("Error improving model with ensemble prediction: {e}")
         return False
 

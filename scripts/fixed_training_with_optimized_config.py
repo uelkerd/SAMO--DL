@@ -1,6 +1,21 @@
 import sys
 
 #!/usr/bin/env python3
+import logging
+import torch
+import torch.nn as nn
+from pathlib import Path
+from typing import Dict, Any, Tuple
+
+# Add src to path
+    from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+    from models.emotion_detection.dataset_loader import create_goemotions_loader
+
+    # Load data to get class weights
+    from models.emotion_detection.dataset_loader import create_goemotions_loader
+
+    # Load dataset
+
 """
 Fixed Training Script with Optimized Configuration for SAMO Deep Learning.
 
@@ -11,13 +26,6 @@ This script addresses the 0.0000 loss issue with:
 4. Proper validation and monitoring
 """
 
-import logging
-import torch
-import torch.nn as nn
-from pathlib import Path
-from typing import Dict, Any, Tuple
-
-# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 # Configure logging
@@ -73,10 +81,6 @@ def create_optimized_model() -> Tuple[nn.Module, nn.Module]:
     """Create model with optimized configuration."""
     logger.info("🔧 Creating optimized model...")
 
-    from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-    from models.emotion_detection.dataset_loader import create_goemotions_loader
-
-    # Load data to get class weights
     logger.info("   Loading dataset for class weights...")
     loader = create_goemotions_loader()
     datasets = loader.prepare_datasets()
@@ -145,9 +149,6 @@ def create_data_loaders(batch_size: int = 16) -> Dict[str, Any]:
     """Create data loaders with proper batching."""
     logger.info("🔧 Creating data loaders...")
 
-    from models.emotion_detection.dataset_loader import create_goemotions_loader
-
-    # Load dataset
     loader = create_goemotions_loader()
     datasets = loader.prepare_datasets()
 
@@ -355,7 +356,7 @@ def main():
             logger.error("❌ Training failed: {training_results.get('reason', 'unknown')}")
             return False
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Training error: {e}")
         return False
 

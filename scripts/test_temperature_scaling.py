@@ -2,6 +2,15 @@ import json
 import sys
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+
+# Add src to path
+from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+
+# Set up logging
+
 """
 Temperature Scaling Test for BERT Emotion Classifier.
 
@@ -9,16 +18,8 @@ This script tests different temperature values to find optimal calibration
 that reduces overprediction and improves F1 scores.
 """
 
-import logging
-from pathlib import Path
-
-# Add src to path
 sys.path.append(str(Path(__file__).parent.parent / "src"))
 
-from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
-
-# Set up logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
 logger = logging.getLogger(__name__)
 

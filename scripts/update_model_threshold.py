@@ -2,6 +2,16 @@ import os
 import sys
 
 #!/usr/bin/env python3
+import argparse
+import torch
+import logging
+from pathlib import Path
+
+# Add src to path
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+
+# Configure logging
+
 """
 Update Model Threshold
 
@@ -15,16 +25,7 @@ Arguments:
     --threshold: Optional threshold value (default: 0.6)
 """
 
-import argparse
-import torch
-import logging
-from pathlib import Path
-
-# Add src to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -97,7 +98,7 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
         logger.info("✅ Model threshold updated successfully to {threshold}")
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("Error updating model threshold: {e}")
         return False
 

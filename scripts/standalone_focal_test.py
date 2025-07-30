@@ -1,6 +1,20 @@
 import sys
 
 #!/usr/bin/env python3
+import logging
+import torch
+from torch import nn
+import torch.nn.functional as F
+
+# Configure logging
+        from transformers import AutoTokenizer, AutoModel
+        from torch import nn
+
+        # Create a simple BERT classifier
+        from datasets import load_dataset
+
+        # Load a small subset for testing
+
 """
 Standalone Focal Loss Test
 
@@ -11,12 +25,6 @@ Usage:
     python3 standalone_focal_test.py
 """
 
-import logging
-import torch
-from torch import nn
-import torch.nn.functional as F
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -69,10 +77,6 @@ def test_bert_import():
     logger.info("🤖 Testing BERT model creation...")
 
     try:
-        from transformers import AutoTokenizer, AutoModel
-        from torch import nn
-
-        # Create a simple BERT classifier
         model_name = "bert-base-uncased"
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         bert_model = AutoModel.from_pretrained(model_name)
@@ -97,7 +101,7 @@ def test_bert_import():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ BERT Model Test FAILED: {e}")
         return False
 
@@ -107,9 +111,6 @@ def test_dataset_download():
     logger.info("📊 Testing GoEmotions dataset download...")
 
     try:
-        from datasets import load_dataset
-
-        # Load a small subset for testing
         dataset = load_dataset("go_emotions", "simplified", split="train[:100]")
 
         logger.info("✅ Dataset Download Test PASSED")
@@ -120,7 +121,7 @@ def test_dataset_download():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Dataset Download Test FAILED: {e}")
         return False
 
@@ -145,7 +146,7 @@ def main():
         logger.info("\n📋 Running {test_name}...")
         try:
             results[test_name] = test_func()
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ {test_name} failed with exception: {e}")
             results[test_name] = False
 

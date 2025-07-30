@@ -1,8 +1,3 @@
-"""
-SAMO Deep Learning - Pytest Configuration and Shared Fixtures
-Provides common test utilities, fixtures, and configuration.
-"""
-
 import os
 import tempfile
 from pathlib import Path
@@ -13,6 +8,16 @@ import pytest
 import torch
 
 # Test configuration
+    from fastapi.testclient import TestClient
+
+    from src.unified_ai_api import app
+
+
+"""
+SAMO Deep Learning - Pytest Configuration and Shared Fixtures
+Provides common test utilities, fixtures, and configuration.
+"""
+
 os.environ["TESTING"] = "1"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -98,10 +103,6 @@ def cpu_device():
 @pytest.fixture
 def api_client():
     """Provide FastAPI test client."""
-    from fastapi.testclient import TestClient
-
-    from src.unified_ai_api import app
-
     return TestClient(app)
 
 

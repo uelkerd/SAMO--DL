@@ -1,11 +1,9 @@
+import logging
+
 import sys
 
 #!/usr/bin/env python3
-"""Test script to verify rate limiter fix."""
-
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent / ".."))
 
 import time
 from unittest.mock import MagicMock, AsyncMock
@@ -14,9 +12,16 @@ from fastapi import Response
 from src.api_rate_limiter import RateLimiter
 
 
+    import asyncio
+
+
+"""Test script to verify rate limiter fix."""
+
+sys.path.insert(0, str(Path(__file__).parent / ".."))
+
 async def test_token_refill_logic():
     """Test the token refill logic manually."""
-    print("🧪 Testing token refill logic...")
+    logging.info("🧪 Testing token refill logic...")
 
     # Create a mock app
     mock_app = MagicMock()
@@ -40,8 +45,8 @@ async def test_token_refill_logic():
     client_id = rate_limiter.get_client_id(request)
     entry = rate_limiter.cache.get(client_id)
 
-    print("✅ Initial tokens: {entry.tokens}")
-    print("✅ Initial requests in window: {len(entry.requests)}")
+    logging.info("✅ Initial tokens: {entry.tokens}")
+    logging.info("✅ Initial requests in window: {len(entry.requests)}")
 
     # Consume all tokens
     for i in range(100):
@@ -69,20 +74,18 @@ async def test_token_refill_logic():
     # Make another request
     response = await rate_limiter.dispatch(request, call_next)
 
-    print("✅ Response status: {response.status_code}")
-    print("✅ Final tokens: {entry.tokens}")
-    print("✅ Final requests in window: {len(entry.requests)}")
+    logging.info("✅ Response status: {response.status_code}")
+    logging.info("✅ Final tokens: {entry.tokens}")
+    logging.info("✅ Final requests in window: {len(entry.requests)}")
 
     if response.status_code == 200 and entry.tokens > 0:
-        print("🎉 Test PASSED! Token refill is working correctly.")
+        logging.info("🎉 Test PASSED! Token refill is working correctly.")
         return True
     else:
-        print("❌ Test FAILED! Token refill is not working.")
+        logging.info("❌ Test FAILED! Token refill is not working.")
         return False
 
 
 if __name__ == "__main__":
-    import asyncio
-
     success = asyncio.run(test_token_refill_logic())
     sys.exit(0 if success else 1)

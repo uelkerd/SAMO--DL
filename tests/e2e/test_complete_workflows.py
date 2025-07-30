@@ -1,8 +1,3 @@
-"""
-End-to-end tests for complete user workflows.
-Tests full system integration, data flow, and user scenarios.
-"""
-
 import tempfile
 import time
 from pathlib import Path
@@ -12,6 +7,15 @@ from unittest.mock import patch
 
 
 # Test constants
+        import datetime
+
+        # Use more robust timestamp parsing
+
+"""
+End-to-end tests for complete user workflows.
+Tests full system integration, data flow, and user scenarios.
+"""
+
 HTTP_OK = 200
 HTTP_UNPROCESSABLE_ENTITY = 422
 MAX_WORKFLOW_TIME = 3.0
@@ -203,9 +207,6 @@ class TestCompleteWorkflows:
         # Step 4: Verify timestamp consistency
         assert "timestamp" in data
         # Timestamp should be recent (within last minute)
-        import datetime
-
-        # Use more robust timestamp parsing
         timestamp_str = data["timestamp"]
         if timestamp_str.endswith("Z"):
             timestamp_str = timestamp_str[:-1] + "+00:00"

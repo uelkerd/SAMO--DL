@@ -3,11 +3,6 @@ import os
 import sys
 
 #!/usr/bin/env python3
-"""
-SAMO GoEmotions Data Preparation for Vertex AI AutoML
-Converts your current dataset to Vertex AI format and addresses F1 score issues
-"""
-
 import pandas as pd
 from collections import Counter
 import logging
@@ -17,6 +12,12 @@ from typing import Any
 from sklearn.model_selection import train_test_split
 
 # Configure logging
+
+"""
+SAMO GoEmotions Data Preparation for Vertex AI AutoML
+Converts your current dataset to Vertex AI format and addresses F1 score issues
+"""
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -85,7 +86,7 @@ class SAMOVertexDataPreparation:
 
             return df, analysis
 
-        except Exception as e:
+        except Exception as _:
             logger.error("Error loading data: {e}")
             raise
 
@@ -238,7 +239,7 @@ class SAMOVertexDataPreparation:
 
             return train_file.name, test_file.name
 
-        except Exception as e:
+        except Exception as _:
             logger.error("Error in conversion: {e}")
             raise
 
@@ -323,7 +324,7 @@ class SAMOVertexDataPreparation:
             os.unlink(train_file)
             os.unlink(test_file)
             logger.info("Temporary files cleaned up")
-        except Exception as e:
+        except Exception as _:
             logger.warning("Error cleaning up temp files: {e}")
 
 
@@ -384,7 +385,7 @@ def main():
         print("✅ Metadata: {metadata_file}")
         print("\n🚀 Ready for Vertex AI AutoML training!")
 
-    except Exception as e:
+    except Exception as _:
         print("❌ Error during data preparation: {e}")
         logger.error("Data preparation failed: {e}")
         sys.exit(1)

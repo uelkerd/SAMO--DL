@@ -3,6 +3,19 @@ import sys
 import traceback
 
 #!/usr/bin/env python3
+import logging
+import torch
+from torch import nn
+from pathlib import Path
+
+# Add project root to path
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
+
+# Configure logging
+        import traceback
+
+
 """
 Simple Working Training Script - FIXES ALL ISSUES
 
@@ -12,19 +25,9 @@ This script addresses the critical issues:
 3. Proper error handling
 """
 
-import logging
-import torch
-from torch import nn
-from pathlib import Path
-
-# Add project root to path
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -195,10 +198,8 @@ def train_simple_model():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Training failed: {e}")
-        import traceback
-
         traceback.print_exc()
         return False
 

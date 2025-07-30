@@ -1,3 +1,14 @@
+import time
+from collections import deque
+from dataclasses import dataclass, field
+from typing import Callable, Optional
+
+from fastapi import FastAPI, Request, Response
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.types import ASGIApp
+
+# Default rate limit constants
+
 """API Rate Limiter for SAMO Deep Learning.
 
 This module implements rate limiting for the SAMO API endpoints using FastAPI middleware.
@@ -12,16 +23,6 @@ Key Features:
 - Cache-based storage with automatic cleanup
 """
 
-import time
-from collections import deque
-from dataclasses import dataclass, field
-from typing import Callable, Optional
-
-from fastapi import FastAPI, Request, Response
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.types import ASGIApp
-
-# Default rate limit constants
 DEFAULT_RATE_LIMIT = 100  # 100 requests per minute
 DEFAULT_WINDOW_SIZE = 60  # 1 minute (in seconds)
 DEFAULT_BURST_LIMIT = 10  # Allow 10 requests at once

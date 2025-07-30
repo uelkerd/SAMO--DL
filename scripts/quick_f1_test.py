@@ -2,22 +2,25 @@ import sys
 import traceback
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+
+# Add src to path
+import torch
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+
+# Configure logging
+        import traceback
+
+
 """
 Quick F1 Score Test and Improvement
 
 Simple script to test current F1 performance and apply basic improvements.
 """
 
-import logging
-from pathlib import Path
-
-# Add src to path
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
-import torch
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -94,10 +97,8 @@ def main():
 
         return metrics["micro_f1"]
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Quick F1 test failed: {e}")
-        import traceback
-
         logger.error(traceback.format_exc())
         return 0.0
 
