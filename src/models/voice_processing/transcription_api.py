@@ -6,6 +6,7 @@ handling and performance monitoring.
 """
 
 import logging
+import time
 from pathlib import Path
 from typing import Optional, Union
 
@@ -33,7 +34,7 @@ class TranscriptionAPI:
             language: Default language for transcription (None for auto-detect)
             device: Compute device (cuda, cpu, None for auto-detect)
         """
-        logger.info("Initializing TranscriptionAPI with model_size={model_size}")
+        logger.info(f"Initializing TranscriptionAPI with model_size={model_size}")
 
         # Track performance metrics
         self.total_requests = 0
@@ -48,7 +49,7 @@ class TranscriptionAPI:
                 model_size=model_size, language=language, device=device
             )
             startup_time = time.time() - start_time
-            logger.info("✅ TranscriptionAPI initialized in {startup_time:.2f}s")
+            logger.info(f"✅ TranscriptionAPI initialized in {startup_time:.2f}s")
             self.ready = True
 
         except Exception as e:
@@ -87,7 +88,7 @@ class TranscriptionAPI:
             is_valid, error_msg = AudioPreprocessor.validate_audio_file(audio_path)
             if not is_valid:
                 self.error_count += 1
-                raise ValueError("Audio validation failed: {error_msg}")
+                raise ValueError(f"Audio validation failed: {error_msg}")
 
             # Perform transcription
             result = self.transcriber.transcribe(
@@ -119,8 +120,8 @@ class TranscriptionAPI:
 
         except Exception as e:
             self.error_count += 1
-            logger.error("Transcription failed: {e}")
-            raise RuntimeError("Transcription failed: {e}") from e
+            logger.error(f"Transcription failed: {e}")
+            raise RuntimeError(f"Transcription failed: {e}") from e
 
     def transcribe_batch(
         self,
@@ -176,8 +177,8 @@ class TranscriptionAPI:
 
         except Exception as e:
             self.error_count += len(audio_paths)
-            logger.error("Batch transcription failed: {e}")
-            raise RuntimeError("Batch transcription failed: {e}") from e
+            logger.error(f"Batch transcription failed: {e}")
+            raise RuntimeError(f"Batch transcription failed: {e}") from e
 
     def evaluate_wer(self, audio_path: Union[str, Path], reference_text: str) -> dict:
         """Calculate Word Error Rate for transcription.
@@ -216,8 +217,8 @@ class TranscriptionAPI:
             }
 
         except Exception as e:
-        logger.error(f"WER evaluation failed: {e}"))
-            raise RuntimeError("WER evaluation failed: {e}") from e
+            logger.error(f"WER evaluation failed: {e}")
+            raise RuntimeError(f"WER evaluation failed: {e}") from e
 
     def get_performance_metrics(self) -> dict:
         """Get transcription performance metrics.

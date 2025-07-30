@@ -4,7 +4,11 @@ Tests full system integration, data flow, and user scenarios.
 """
 
 import tempfile
+import time
 from pathlib import Path
+
+import pytest
+from unittest.mock import patch
 
 
 # Test constants

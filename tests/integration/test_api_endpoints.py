@@ -1,7 +1,14 @@
 """
 Integration tests for API endpoints.
-Tests actual API behavior, endpoint integration, and response consistency.
+Tests API functionality, request/response handling, and error scenarios.
 """
+
+import json
+import time
+from typing import Dict, Any
+
+import pytest
+from fastapi.testclient import TestClient
 
 
 
