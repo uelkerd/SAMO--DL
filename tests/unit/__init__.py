@@ -4,6 +4,6 @@
 # Note: These imports are used by pytest for test discovery
 __all__ = [
     "test_api_models",
-    "test_emotion_detection", 
     "test_api_rate_limiter",
+    "test_emotion_detection",
 ]
