@@ -70,11 +70,32 @@ def train_with_focal_loss():
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()  # Fixed method name
         
-        train_dataset = datasets["train"]  # Fixed key name
-        val_dataset = datasets["validation"]  # Fixed key name
-        test_dataset = datasets["test"]  # Fixed key name
+        # Extract raw data
+        train_raw = datasets["train"]
+        val_raw = datasets["validation"]
+        test_raw = datasets["test"]
         class_weights = datasets["class_weights"]
-
+        
+        # Extract texts and labels from raw datasets
+        train_texts = [item["text"] for item in train_raw]
+        train_labels = [item["labels"] for item in train_raw]
+        
+        val_texts = [item["text"] for item in val_raw]
+        val_labels = [item["labels"] for item in val_raw]
+        
+        test_texts = [item["text"] for item in test_raw]
+        test_labels = [item["labels"] for item in test_raw]
+        
+        # Create tokenized datasets
+        from src.models.emotion_detection.bert_classifier import EmotionDataset
+        from transformers import AutoTokenizer
+        
+        tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+        
+        train_dataset = EmotionDataset(train_texts, train_labels, tokenizer, max_length=512)
+        val_dataset = EmotionDataset(val_texts, val_labels, tokenizer, max_length=512)
+        test_dataset = EmotionDataset(test_texts, test_labels, tokenizer, max_length=512)
+        
         logger.info("Dataset loaded successfully:")
         logger.info(f"   • Train: {len(train_dataset)} examples")
         logger.info(f"   • Validation: {len(val_dataset)} examples")

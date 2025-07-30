@@ -6,15 +6,28 @@ Create a test dataset with emotion labels for Vertex AI
 import json
 import random
 
+
 def create_test_dataset():
     """Create a test dataset with emotion labels"""
-    
+
     # Sample texts with emotion labels
     test_data = [
-        {"text": "I'm so happy today! Everything is going perfectly.", "emotions": ["joy", "optimism"]},
-        {"text": "This is absolutely terrible. I can't believe this happened.", "emotions": ["anger", "disappointment"]},
-        {"text": "I'm really scared about what might happen next.", "emotions": ["fear", "nervousness"]},
-        {"text": "Thank you so much for your help. I really appreciate it.", "emotions": ["gratitude", "approval"]},
+        {
+            "text": "I'm so happy today! Everything is going perfectly.",
+            "emotions": ["joy", "optimism"],
+        },
+        {
+            "text": "This is absolutely terrible. I can't believe this happened.",
+            "emotions": ["anger", "disappointment"],
+        },
+        {
+            "text": "I'm really scared about what might happen next.",
+            "emotions": ["fear", "nervousness"],
+        },
+        {
+            "text": "Thank you so much for your help. I really appreciate it.",
+            "emotions": ["gratitude", "approval"],
+        },
         {"text": "I'm confused about what to do next.", "emotions": ["confusion"]},
         {"text": "This is disgusting. I can't stand it.", "emotions": ["disgust"]},
         {"text": "I'm so proud of what we accomplished together.", "emotions": ["pride", "joy"]},
@@ -25,7 +38,10 @@ def create_test_dataset():
         {"text": "I'm curious about how this works.", "emotions": ["curiosity"]},
         {"text": "I really want to learn more about this.", "emotions": ["desire", "curiosity"]},
         {"text": "I care about your wellbeing.", "emotions": ["caring"]},
-        {"text": "I admire your dedication to this project.", "emotions": ["admiration", "approval"]},
+        {
+            "text": "I admire your dedication to this project.",
+            "emotions": ["admiration", "approval"],
+        },
         {"text": "This is so funny! I can't stop laughing.", "emotions": ["amusement", "joy"]},
         {"text": "I'm annoyed by all these interruptions.", "emotions": ["annoyance", "anger"]},
         {"text": "I disapprove of this behavior.", "emotions": ["disapproval"]},
@@ -35,7 +51,10 @@ def create_test_dataset():
         {"text": "I'm optimistic about the future.", "emotions": ["optimism"]},
         {"text": "I'm nervous about the presentation.", "emotions": ["nervousness", "fear"]},
         {"text": "Today was just an ordinary day.", "emotions": ["neutral"]},
-        {"text": "I'm excited about the new opportunities.", "emotions": ["excitement", "optimism"]},
+        {
+            "text": "I'm excited about the new opportunities.",
+            "emotions": ["excitement", "optimism"],
+        },
         {"text": "I'm disappointed with the results.", "emotions": ["disappointment", "sadness"]},
         {"text": "This makes me so angry!", "emotions": ["anger"]},
         {"text": "I'm grateful for all the support.", "emotions": ["gratitude", "joy"]},
@@ -67,57 +86,59 @@ def create_test_dataset():
         {"text": "I regret my harsh words.", "emotions": ["remorse"]},
         {"text": "I'm sad about the news.", "emotions": ["sadness"]},
         {"text": "I'm surprised by the gift.", "emotions": ["surprise"]},
-        {"text": "Today was uneventful.", "emotions": ["neutral"]}
+        {"text": "Today was uneventful.", "emotions": ["neutral"]},
     ]
-    
+
     # Create more samples by duplicating and slightly modifying
     expanded_data = []
     for entry in test_data:
         # Add original entry
         expanded_data.append(entry)
-        
+
         # Add variations
         for i in range(2):  # Create 2 variations per entry
             variation = entry.copy()
             variation["text"] = f"Variation {i+1}: {entry['text']}"
             expanded_data.append(variation)
-    
+
     # Shuffle the data
     random.shuffle(expanded_data)
-    
+
     return expanded_data
+
 
 def main():
     """Main function"""
     print("🚀 Creating test dataset with emotion labels...")
-    
+
     # Create test data
     test_data = create_test_dataset()
-    
+
     # Save to file
     output_file = "data/raw/test_emotion_dataset.json"
-    
-    with open(output_file, 'w') as f:
+
+    with open(output_file, "w") as f:
         json.dump(test_data, f, indent=2)
-    
+
     print(f"✅ Created test dataset with {len(test_data)} samples")
     print(f"📁 Saved to: {output_file}")
-    
+
     # Show sample
     print("\n📊 Sample entries:")
     for i, entry in enumerate(test_data[:3]):
         print(f"  {i+1}. Text: '{entry['text'][:50]}...'")
         print(f"     Emotions: {entry['emotions']}")
-    
+
     # Count emotions
     emotion_counts = {}
     for entry in test_data:
-        for emotion in entry['emotions']:
+        for emotion in entry["emotions"]:
             emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
-    
-    print(f"\n📈 Emotion distribution:")
+
+    print("\n📈 Emotion distribution:")
     for emotion, count in sorted(emotion_counts.items()):
         print(f"  - {emotion}: {count} samples")
 
+
 if __name__ == "__main__":
-    main() 
+    main()
