@@ -1,32 +1,4 @@
-                # Calculate metrics
-            # Test different thresholds
-        # Get predictions
-        # Tokenize
-        from transformers import AutoModel, AutoTokenizer
-    # All ones predictions
-    # All zeros predictions
-    # Create synthetic data
-    # Create test data
-    # Diagnose predictions
-    # GoEmotions emotion names (28 classes)
-    # Load trained model
-    # Perfect predictions
-    # Random predictions
-    # Setup device
-    # Test evaluation logic first
-    # Test examples with proper emotion labels
-# Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
-from sklearn.metrics import f1_score, precision_score, recall_score
-from torch import nn
-import logging
-import numpy as np
-import torch
-
-
-
-
 """
 Diagnose F1 Score Issue
 
@@ -37,6 +9,16 @@ Usage:
     python3 diagnose_f1_issue.py
 """
 
+import logging
+import numpy as np
+import torch
+from pathlib import Path
+from sklearn.metrics import f1_score, precision_score, recall_score
+from torch import nn
+from transformers import AutoModel, AutoTokenizer
+import sys
+
+# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -58,7 +40,7 @@ class SimpleBERTClassifier(nn.Module):
 
 def load_trained_model(model_path):
     """Load the trained model."""
-    logger.info("📂 Loading trained model from {model_path}")
+    logger.info(f"📂 Loading trained model from {model_path}")
 
     model = SimpleBERTClassifier(model_name="bert-base-uncased", num_classes=28)
     checkpoint = torch.load(model_path, map_location="cpu")
@@ -72,511 +54,194 @@ def create_test_data():
     """Create test data with proper emotion labels."""
     logger.info("📊 Creating test data with proper emotion labels...")
 
-    emotion_names = [
-        "admiration",
-        "amusement",
-        "anger",
-        "annoyance",
-        "approval",
-        "caring",
-        "confusion",
-        "curiosity",
-        "desire",
-        "disappointment",
-        "disapproval",
-        "disgust",
-        "embarrassment",
-        "excitement",
-        "fear",
-        "gratitude",
-        "grie",
-        "joy",
-        "love",
-        "nervousness",
-        "optimism",
-        "pride",
-        "realization",
-        "relie",
-        "remorse",
-        "sadness",
-        "surprise",
-        "neutral",
-    ]
-
+    # Create test examples with proper emotion labels
     test_data = [
         {
-            "text": "I am extremely happy today!",
-            "labels": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                1,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ],  # joy
+            "text": "I am so happy today!",
+            "labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # joy
         },
         {
-            "text": "This is absolutely disgusting!",
-            "labels": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                1,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ],  # disgust
+            "text": "This makes me very angry!",
+            "labels": [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # anger
         },
         {
-            "text": "I'm feeling really sad and depressed",
-            "labels": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                1,
-                0,
-                0,
-            ],  # sadness
+            "text": "I feel sad and disappointed.",
+            "labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]  # disappointment, sadness
         },
         {
-            "text": "This makes me so angry!",
-            "labels": [
-                0,
-                0,
-                1,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ],  # anger
+            "text": "This is amazing and exciting!",
+            "labels": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # admiration, excitement
         },
         {
-            "text": "I love this so much!",
-            "labels": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                1,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ],  # love
-        },
-        {
-            "text": "This is really frustrating",
-            "labels": [
-                0,
-                0,
-                0,
-                1,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ],  # annoyance
-        },
-        {
-            "text": "I'm confused about this situation",
-            "labels": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                1,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ],  # confusion
-        },
-        {
-            "text": "This is amazing and wonderful!",
-            "labels": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                1,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ],  # excitement
-        },
+            "text": "I'm neutral about this.",
+            "labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]  # neutral
+        }
     ]
 
-    return test_data, emotion_names
+    logger.info(f"✅ Created {len(test_data)} test examples")
+    return test_data
 
 
 def diagnose_predictions(model, test_data, device):
-    """Diagnose prediction outputs and label formats."""
-    logger.info("🔍 Diagnosing predictions and labels...")
+    """Diagnose predictions and evaluation logic."""
+    logger.info("🔍 Diagnosing predictions...")
 
     model.eval()
+    results = []
 
-    for _i, item in enumerate(test_data):
-        text = item["text"]
-        true_labels = np.array(item["labels"])
+    for i, example in enumerate(test_data):
+        text = example["text"]
+        true_labels = example["labels"]
 
-        logger.info("\n📝 Example {i+1}: '{text}'")
-        logger.info("   True labels: {true_labels}")
-        logger.info("   Sum of labels: {np.sum(true_labels)}")
-        logger.info("   Non-zero indices: {np.where(true_labels > 0)[0]}")
-
-        encoding = model.tokenizer(
-            text, truncation=True, padding="max_length", max_length=256, return_tensors="pt"
+        # Tokenize
+        inputs = model.tokenizer(
+            text,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512,
+            padding=True
         )
 
+        input_ids = inputs["input_ids"].to(device)
+        attention_mask = inputs["attention_mask"].to(device)
+
+        # Get predictions
         with torch.no_grad():
-            input_ids = encoding["input_ids"].to(device)
-            attention_mask = encoding["attention_mask"].to(device)
+            logits = model(input_ids=input_ids, attention_mask=attention_mask)
+            predictions = torch.sigmoid(logits)
 
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-            raw_logits = outputs.cpu().numpy().squeeze()
-            probabilities = torch.sigmoid(outputs).cpu().numpy().squeeze()
+        # Convert to numpy
+        pred_np = predictions.cpu().numpy()[0]
+        true_np = np.array(true_labels)
 
-            for threshold in [0.1, 0.3, 0.5, 0.7]:
-                predictions = (probabilities > threshold).astype(float)
+        # Calculate metrics
+        f1_macro = f1_score(true_np, pred_np > 0.5, average='macro', zero_division=0)
+        f1_micro = f1_score(true_np, pred_np > 0.5, average='micro', zero_division=0)
+        precision = precision_score(true_np, pred_np > 0.5, average='macro', zero_division=0)
+        recall = recall_score(true_np, pred_np > 0.5, average='macro', zero_division=0)
 
-                logger.info("   Threshold {threshold}:")
-                logger.info("     Raw logits (first 5): {raw_logits[:5]}")
-                logger.info("     Probabilities (first 5): {probabilities[:5]}")
-                logger.info("     Predictions: {predictions}")
-                logger.info("     Sum of predictions: {np.sum(predictions)}")
-                logger.info("     Non-zero indices: {np.where(predictions > 0)[0]}")
+        results.append({
+            "text": text,
+            "true_labels": true_labels,
+            "predictions": pred_np.tolist(),
+            "f1_macro": f1_macro,
+            "f1_micro": f1_micro,
+            "precision": precision,
+            "recall": recall
+        })
 
-                f1 = f1_score(true_labels, predictions, average="macro", zero_division=0)
-                precision = precision_score(
-                    true_labels, predictions, average="macro", zero_division=0
-                )
-                recall = recall_score(true_labels, predictions, average="macro", zero_division=0)
+        logger.info(f"📊 Example {i+1}:")
+        logger.info(f"   Text: {text}")
+        logger.info(f"   True labels: {true_labels}")
+        logger.info(f"   Predictions: {pred_np.tolist()}")
+        logger.info(f"   F1 Macro: {f1_macro:.4f}")
+        logger.info(f"   F1 Micro: {f1_micro:.4f}")
+        logger.info(f"   Precision: {precision:.4f}")
+        logger.info(f"   Recall: {recall:.4f}")
 
-                logger.info("     F1: {f1:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}")
+    return results
 
 
 def test_evaluation_logic():
-    """Test the evaluation logic with synthetic data."""
-    logger.info("🧮 Testing evaluation logic with synthetic data...")
+    """Test evaluation logic with synthetic data."""
+    logger.info("🧪 Testing evaluation logic with synthetic data...")
 
-    true_labels = np.array(
-        [
-            [
-                1,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ],  # class 0
-            [
-                0,
-                1,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ],  # class 1
-            [
-                0,
-                0,
-                1,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ],  # class 2
-        ]
-    )
-
-    perfect_predictions = true_labels.copy()
-
+    # Create synthetic data
+    num_samples = 100
+    num_classes = 28
     rng = np.random.default_rng()
-    random_predictions = rng.integers(0, 2, size=true_labels.shape)
 
-    zero_predictions = np.zeros_like(true_labels)
+    # Perfect predictions
+    perfect_true = rng.integers(0, 2, (num_samples, num_classes))
+    perfect_pred = perfect_true.copy()
+    perfect_f1 = f1_score(perfect_true, perfect_pred, average='macro', zero_division=0)
+    logger.info(f"✅ Perfect predictions F1: {perfect_f1:.4f}")
 
-    ones_predictions = np.ones_like(true_labels)
+    # Random predictions
+    random_pred = rng.integers(0, 2, (num_samples, num_classes))
+    random_f1 = f1_score(perfect_true, random_pred, average='macro', zero_division=0)
+    logger.info(f"📊 Random predictions F1: {random_f1:.4f}")
 
-    test_cases = [
-        ("Perfect", perfect_predictions),
-        ("Random", random_predictions),
-        ("All Zeros", zero_predictions),
-        ("All Ones", ones_predictions),
-    ]
+    # All ones predictions
+    all_ones_pred = np.ones((num_samples, num_classes))
+    all_ones_f1 = f1_score(perfect_true, all_ones_pred, average='macro', zero_division=0)
+    logger.info(f"📊 All ones predictions F1: {all_ones_f1:.4f}")
 
-    for name, predictions in test_cases:
-        f1_macro = f1_score(true_labels, predictions, average="macro", zero_division=0)
-        f1_micro = f1_score(true_labels, predictions, average="micro", zero_division=0)
-        precision = precision_score(true_labels, predictions, average="macro", zero_division=0)
-        recall = recall_score(true_labels, predictions, average="macro", zero_division=0)
+    # All zeros predictions
+    all_zeros_pred = np.zeros((num_samples, num_classes))
+    all_zeros_f1 = f1_score(perfect_true, all_zeros_pred, average='macro', zero_division=0)
+    logger.info(f"📊 All zeros predictions F1: {all_zeros_f1:.4f}")
 
-        logger.info("   {name}:")
-        logger.info("     F1 Macro: {f1_macro:.4f}")
-        logger.info("     F1 Micro: {f1_micro:.4f}")
-        logger.info("     Precision: {precision:.4f}")
-        logger.info("     Recall: {recall:.4f}")
+    # Test different thresholds
+    thresholds = [0.1, 0.3, 0.5, 0.7, 0.9]
+    for threshold in thresholds:
+        threshold_pred = (perfect_pred > threshold).astype(int)
+        threshold_f1 = f1_score(perfect_true, threshold_pred, average='macro', zero_division=0)
+        logger.info(f"📊 Threshold {threshold} F1: {threshold_f1:.4f}")
+
+    return True
 
 
 def main():
-    """Main diagnostic function."""
-    logger.info("🔍 Starting F1 Score Issue Diagnosis")
+    """Main function."""
+    logger.info("🚀 Starting F1 Score Diagnosis...")
 
+    # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info("Device: {device}")
+    logger.info(f"🔧 Using device: {device}")
 
-    logger.info("=" * 60)
-    test_evaluation_logic()
+    # Test evaluation logic first
+    if not test_evaluation_logic():
+        logger.error("❌ Evaluation logic test failed")
+        return False
 
-    logger.info("=" * 60)
-    model_path = Path("models/emotion_detection/full_scale_focal_loss_model.pt")
+    # Check if model file exists
+    model_path = Path("test_checkpoints/best_model.pt")
     if not model_path.exists():
-        logger.error("❌ Model not found at {model_path}")
-        return
+        logger.warning(f"⚠️ Model file not found: {model_path}")
+        logger.info("📊 Running diagnosis with synthetic data only")
+        return True
 
-    model = load_trained_model(model_path)
-    model = model.to(device)
+    try:
+        # Load trained model
+        model = load_trained_model(model_path)
+        model.to(device)
 
-    test_data, emotion_names = create_test_data()
-    logger.info("✅ Test data created with {len(test_data)} examples")
-    logger.info("✅ Emotion names: {emotion_names}")
+        # Create test data
+        test_data = create_test_data()
 
-    logger.info("=" * 60)
-    diagnose_predictions(model, test_data, device)
+        # Diagnose predictions
+        results = diagnose_predictions(model, test_data, device)
 
-    logger.info("=" * 60)
-    logger.info("🎯 Diagnosis completed!")
-    logger.info("📋 Check the output above to identify the issue with F1 scores")
+        # Summary
+        avg_f1_macro = np.mean([r["f1_macro"] for r in results])
+        avg_f1_micro = np.mean([r["f1_micro"] for r in results])
+        avg_precision = np.mean([r["precision"] for r in results])
+        avg_recall = np.mean([r["recall"] for r in results])
+
+        logger.info("📋 Summary:")
+        logger.info(f"   Average F1 Macro: {avg_f1_macro:.4f}")
+        logger.info(f"   Average F1 Micro: {avg_f1_micro:.4f}")
+        logger.info(f"   Average Precision: {avg_precision:.4f}")
+        logger.info(f"   Average Recall: {avg_recall:.4f}")
+
+        if avg_f1_macro < 0.1:
+            logger.warning("⚠️ Very low F1 scores detected!")
+            logger.info("   Possible issues:")
+            logger.info("   - Label format mismatch")
+            logger.info("   - Threshold too high/low")
+            logger.info("   - Model not trained properly")
+            logger.info("   - Evaluation logic error")
+
+        logger.info("🎉 F1 Score Diagnosis Complete!")
+        return True
+
+    except Exception as e:
+        logger.error(f"❌ Diagnosis failed: {e}")
+        return False
 
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    if not success:
+        sys.exit(1)
