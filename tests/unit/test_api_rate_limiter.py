@@ -38,12 +38,8 @@ class TestRateLimitEntry:
     def test_rate_limit_entry_custom_values(self):
         """Test RateLimitEntry initialization with custom values."""
         custom_time = time.time()
-        entry = RateLimitEntry(
-            tokens=50,
-            last_refill=custom_time,
-            last_access=custom_time
-        )
-        
+        entry = RateLimitEntry(tokens=50, last_refill=custom_time, last_access=custom_time)
+
         assert entry.tokens == 50
         assert entry.last_refill == custom_time
         assert entry.last_access == custom_time
@@ -188,14 +184,17 @@ class TestRateLimiter:
 
     def test_initialization_custom_values(self, mock_app):
         """Test RateLimiter initialization with custom values."""
-        custom_get_client_id = lambda req: "custom"
+
+        def custom_get_client_id(req):
+            return "custom"
+
         rate_limiter = RateLimiter(
             mock_app,
             rate_limit=100,
             window_size=60,
             burst_limit=50,
             excluded_paths=["/custom"],
-            get_client_id=custom_get_client_id
+            get_client_id=custom_get_client_id,
         )
 
         assert rate_limiter.rate_limit == 100
@@ -374,11 +373,17 @@ class TestRateLimiter:
         # Verify no tokens left
         assert entry.tokens == 0
 
-        # Simulate time passing (refill tokens)
-        entry.last_refill = time.time() - rate_limiter.window_size
+        # Simulate time passing (refill tokens AND clear sliding window)
+        old_time = time.time() - rate_limiter.window_size - 1  # More than window size ago
+        entry.last_refill = old_time
         entry.tokens = 0
 
-        # Make another request - should refill tokens
+        # Clear the sliding window by setting all request timestamps to old time
+        entry.requests.clear()
+        # Add one old request to simulate a request that will be cleaned up
+        entry.requests.append(old_time)
+
+        # Make another request - should refill tokens and clean old requests
         response = await rate_limiter.dispatch(request, call_next)
 
         assert response.status_code == 200
@@ -401,7 +406,7 @@ class TestRateLimiter:
         client_id = rate_limiter.get_client_id(request)
         entry = rate_limiter.cache.get(client_id)
 
-        # Consume some tokens
+        # Consume some tokens (but not all to avoid sliding window limit)
         for _ in range(50):
             await rate_limiter.dispatch(request, call_next)
 
@@ -500,44 +505,46 @@ class TestAddRateLimiting:
     def test_add_rate_limiting(self):
         """Test add_rate_limiting function."""
         app = FastAPI()
-        
+
         # Should not raise any exceptions
         add_rate_limiting(app)
-        
+
         # Verify middleware was added
         assert len(app.user_middleware) > 0
 
     def test_add_rate_limiting_custom_values(self):
         """Test add_rate_limiting with custom values."""
         app = FastAPI()
-        
-        custom_get_client_id = lambda req: "custom"
+
+        def custom_get_client_id(req):
+            return "custom"
+
         add_rate_limiting(
             app,
             rate_limit=100,
             window_size=60,
             burst_limit=50,
             excluded_paths=["/custom"],
-            get_client_id=custom_get_client_id
+            get_client_id=custom_get_client_id,
         )
-        
+
         # Verify middleware was added
         assert len(app.user_middleware) > 0
 
     def test_add_rate_limiting_with_none_excluded_paths(self):
         """Test add_rate_limiting with None excluded_paths."""
         app = FastAPI()
-        
+
         add_rate_limiting(app, excluded_paths=None)
-        
+
         # Verify middleware was added
         assert len(app.user_middleware) > 0
 
     def test_add_rate_limiting_with_none_get_client_id(self):
         """Test add_rate_limiting with None get_client_id."""
         app = FastAPI()
-        
+
         add_rate_limiting(app, get_client_id=None)
-        
+
         # Verify middleware was added
         assert len(app.user_middleware) > 0
