@@ -72,8 +72,8 @@ class TestJournalEntry:
 
         assert entry.user_id == "test-user-id"
         assert entry.content == "Test journal entry"
-        # is_private defaults to True in the model
-        assert entry.is_private is True
+        # Check that is_private column has the correct default value
+        assert JournalEntry.__table__.columns['is_private'].default.arg is True
 
     def test_journal_entry_with_all_fields(self):
         """Test JournalEntry with all fields."""
@@ -140,8 +140,8 @@ class TestPrediction:
         assert prediction.user_id == "test-user-id"
         assert prediction.prediction_type == "emotion"
         assert prediction.prediction_content == {"happy": 0.8, "sad": 0.2}
-        # is_feedback_given defaults to False in the model
-        assert prediction.is_feedback_given is False
+        # Check that is_feedback_given column has the correct default value
+        assert Prediction.__table__.columns['is_feedback_given'].default.arg is False
 
     def test_prediction_with_all_fields(self):
         """Test Prediction with all fields."""
