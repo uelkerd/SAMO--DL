@@ -1,3 +1,5 @@
+import traceback
+
 # G004: Logging f-strings temporarily allowed for development
 """Unified SAMO AI API - Complete Deep Learning Pipeline Integration.
 
@@ -291,9 +293,9 @@ async def health_check() -> dict[str, Any]:
             "status": "loaded" if voice_transcriber is not None else "not_available"
         }
     }
-    
+
     pipeline_ready = any([emotion_detector, text_summarizer, voice_transcriber])
-    
+
     status = {
         "status": "healthy" if pipeline_ready else "degraded",
         "models": models_loaded,

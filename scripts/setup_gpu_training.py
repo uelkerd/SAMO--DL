@@ -1,3 +1,5 @@
+import os
+
 #!/usr/bin/env python3
 """GPU Training Setup Script for SAMO Deep Learning.
 

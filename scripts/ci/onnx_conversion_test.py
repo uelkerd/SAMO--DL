@@ -1,3 +1,7 @@
+import numpy as np
+import os
+import sys
+
 #!/usr/bin/env python3
 """
 ONNX Conversion Test for CI/CD Pipeline.

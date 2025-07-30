@@ -1,3 +1,6 @@
+import numpy as np
+import sys
+
 #!/usr/bin/env python3
 """
 Direct test of evaluation logic to find and fix the bug.

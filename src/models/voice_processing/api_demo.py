@@ -1,3 +1,5 @@
+import os
+
 # G004: Logging f-strings temporarily allowed for development
 """FastAPI Endpoints for OpenAI Whisper Voice Processing - SAMO Deep Learning.
 

@@ -1,3 +1,5 @@
+import numpy as np
+
 import string
 
 import pandas as pd

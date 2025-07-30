@@ -1,3 +1,7 @@
+import json
+import os
+import sys
+
 #!/usr/bin/env python3
 """
 Minimal test script

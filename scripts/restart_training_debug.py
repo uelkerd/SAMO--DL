@@ -1,3 +1,6 @@
+import sys
+import traceback
+
 #!/usr/bin/env python3
 """
 Restart Training with Debugging Script for SAMO Deep Learning.

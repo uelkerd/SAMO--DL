@@ -1,3 +1,6 @@
+import sys
+import traceback
+
 #!/usr/bin/env python3
 """
 Debug script to understand the dataset structure.

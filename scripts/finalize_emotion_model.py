@@ -1,3 +1,6 @@
+import json
+import sys
+
 #!/usr/bin/env python3
 """
 Finalize Emotion Detection Model

@@ -1,3 +1,7 @@
+import numpy as np
+import os
+import sys
+
 #!/usr/bin/env python3
 """
 Whisper Voice Transcription Test for CI/CD Pipeline.

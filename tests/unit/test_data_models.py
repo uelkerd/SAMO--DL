@@ -1,3 +1,5 @@
+import time
+
 """
 Unit tests for data models module.
 Tests data models, schemas, and validation.

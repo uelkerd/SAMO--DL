@@ -1,3 +1,7 @@
+import datetime
+import os
+import time
+
 #!/usr/bin/env python3
 """Generate code quality report for SAMO Deep Learning project.
 
@@ -14,7 +18,7 @@ def run_ruff_check() -> dict[str, int]:
     """Run Ruff check and return statistics."""
     try:
         subprocess.run(
-            ["ruf", "check", "src/", "--output-format=json"],
+            ["ru", "check", "src/", "--output-format=json"],
             capture_output=True,
             text=True,
             check=False,
