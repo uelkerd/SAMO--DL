@@ -108,7 +108,7 @@ class FocalLoss(nn.Module):
 
 def find_valid_checkpoint() -> Optional[str]:
     """Find a valid checkpoint file that can be loaded."""
-    for __checkpoint_path in CHECKPOINT_PATHS:
+    for ___checkpoint_path in CHECKPOINT_PATHS:
         path = Path(checkpoint_path)
         if path.exists():
             try:

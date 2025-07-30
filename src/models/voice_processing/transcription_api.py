@@ -1,20 +1,19 @@
-import logging
-import time
-from pathlib import Path
-from typing import Optional, Union
-
-from .audio_preprocessor import AudioPreprocessor
-from .whisper_transcriber import create_whisper_transcriber
-
-        import jiwer
-
-
 """Transcription API for SAMO Voice Processing.
 
 This module provides integration between the WhisperTranscriber and the
 application API layer, handling transcription requests with proper error
 handling and performance monitoring.
 """
+
+import logging
+import time
+from pathlib import Path
+from typing import Optional, Union
+
+import jiwer
+
+from .audio_preprocessor import AudioPreprocessor
+from .whisper_transcriber import create_whisper_transcriber
 
 logger = logging.getLogger(__name__)
 
@@ -55,8 +54,8 @@ class TranscriptionAPI:
             logger.info(f"✅ TranscriptionAPI initialized in {startup_time:.2f}s")
             self.ready = True
 
-        except Exception as _:
-            logger.error(f"❌ Failed to initialize TranscriptionAPI: {e}")
+        except Exception as exc:
+            logger.error(f"❌ Failed to initialize TranscriptionAPI: {exc}")
             self.transcriber = None
             self.ready = False
 
@@ -121,10 +120,10 @@ class TranscriptionAPI:
                 },
             }
 
-        except Exception as _:
+        except Exception as exc:
             self.error_count += 1
-            logger.error(f"Transcription failed: {e}")
-            raise RuntimeError(f"Transcription failed: {e}") from e
+            logger.error(f"Transcription failed: {exc}")
+            raise RuntimeError(f"Transcription failed: {exc}") from exc
 
     def transcribe_batch(
         self,
@@ -178,10 +177,10 @@ class TranscriptionAPI:
 
             return results
 
-        except Exception as _:
+        except Exception as exc:
             self.error_count += len(audio_paths)
-            logger.error(f"Batch transcription failed: {e}")
-            raise RuntimeError(f"Batch transcription failed: {e}") from e
+            logger.error(f"Batch transcription failed: {exc}")
+            raise RuntimeError(f"Batch transcription failed: {exc}") from exc
 
     def evaluate_wer(self, audio_path: Union[str, Path], reference_text: str) -> dict:
         """Calculate Word Error Rate for transcription.
@@ -217,9 +216,9 @@ class TranscriptionAPI:
                 "audio_quality": result["audio_quality"],
             }
 
-        except Exception as _:
-            logger.error(f"WER evaluation failed: {e}")
-            raise RuntimeError(f"WER evaluation failed: {e}") from e
+        except Exception as exc:
+            logger.error(f"WER evaluation failed: {exc}")
+            raise RuntimeError(f"WER evaluation failed: {exc}") from exc
 
     def get_performance_metrics(self) -> dict:
         """Get transcription performance metrics.

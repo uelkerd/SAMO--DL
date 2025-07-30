@@ -100,7 +100,7 @@ def create_test_data():
     }
 
     test_labels = []
-    for __emotion in emotions:
+    for ___emotion in emotions:
         labels = [0] * 28
         if emotion in emotion_to_idx:
             labels[emotion_to_idx[emotion]] = 1
@@ -133,7 +133,7 @@ def test_model_calibration():
         logger.info("Testing model inference...")
         all_predictions = []
 
-        for __text in test_texts:
+        for ___text in test_texts:
             inputs = tokenizer(
                 text, padding=True, truncation=True, max_length=128, return_tensors="pt"
             ).to(device)
@@ -168,7 +168,7 @@ def test_model_calibration():
         thresholds = [0.1, 0.2, 0.3, 0.4, 0.5]
         f1_scores = []
 
-        for __threshold in thresholds:
+        for ___threshold in thresholds:
             predictions = (all_predictions > threshold).astype(int)
             f1 = f1_score(all_labels, predictions, average="micro", zero_division=0)
             f1_scores.append(f1)
