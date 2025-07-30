@@ -6,12 +6,9 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pytest
 import torch
+from fastapi.testclient import TestClient
 
-# Test configuration
-    from fastapi.testclient import TestClient
-
-    from src.unified_ai_api import app
-
+from src.unified_ai_api import app
 
 """
 SAMO Deep Learning - Pytest Configuration and Shared Fixtures
