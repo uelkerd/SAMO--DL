@@ -7,7 +7,6 @@ and can be imported without errors.
 """
 
 import logging
-import sys
 from pathlib import Path
 
 # Add src to path
@@ -39,7 +38,7 @@ def test_api_imports():
         return True
 
     except Exception as e:
-        logger.error(f"❌ API import test failed: {e}")
+        logger.error("❌ API import test failed: {e}")
         return False
 
 
@@ -56,11 +55,11 @@ def test_api_models():
             threshold: float = 0.2
 
         test_request = TestRequest(text="I feel happy and excited today!")
-        logger.info(f"✅ Test request created: {test_request.text[:30]}...")
+        logger.info("✅ Test request created: {test_request.text[:30]}...")
 
         # Test rate limiter functionality
         from api_rate_limiter import RateLimitCache, RateLimitEntry
-        
+
         cache = RateLimitCache()
         entry = cache.get("test_client")
         logger.info("✅ Rate limiter cache created successfully")
@@ -68,7 +67,7 @@ def test_api_models():
         return True
 
     except Exception as e:
-        logger.error(f"❌ API model test failed: {e}")
+        logger.error("❌ API model test failed: {e}")
         return False
 
 
@@ -106,7 +105,7 @@ def test_api_validation():
         return True
 
     except Exception as e:
-        logger.error(f"❌ API validation test failed: {e}")
+        logger.error("❌ API validation test failed: {e}")
         return False
 
 
@@ -124,19 +123,19 @@ def main():
     total = len(tests)
 
     for test_name, test_func in tests:
-        logger.info(f"\n{'='*50}")
-        logger.info(f"Running: {test_name}")
-        logger.info(f"{'='*50}")
+        logger.info("\n{'='*50}")
+        logger.info("Running: {test_name}")
+        logger.info("{'='*50}")
 
         if test_func():
             passed += 1
-            logger.info(f"✅ {test_name}: PASSED")
+            logger.info("✅ {test_name}: PASSED")
         else:
-            logger.error(f"❌ {test_name}: FAILED")
+            logger.error("❌ {test_name}: FAILED")
 
-    logger.info(f"\n{'='*50}")
-    logger.info(f"API Health Check Results: {passed}/{total} tests passed")
-    logger.info(f"{'='*50}")
+    logger.info("\n{'='*50}")
+    logger.info("API Health Check Results: {passed}/{total} tests passed")
+    logger.info("{'='*50}")
 
     if passed < total:
         logger.error("💥 Some API health checks failed!")

@@ -1,4 +1,3 @@
-import json
 from typing import Optional
 
 import pandas as pd

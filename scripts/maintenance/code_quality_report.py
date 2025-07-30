@@ -14,7 +14,7 @@ def run_ruff_check() -> dict[str, int]:
     """Run Ruff check and return statistics."""
     try:
         subprocess.run(
-            ["ruff", "check", "src/", "--output-format=json"],
+            ["ruf", "check", "src/", "--output-format=json"],
             capture_output=True,
             text=True,
             check=False,
@@ -30,7 +30,7 @@ def generate_report() -> str:
     timestamp = datetime.now(tz=UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
     stats = run_ruff_check()
 
-    report = f"""
+    report = """
 # SAMO Deep Learning - Code Quality Report
 
 Generated: {timestamp}
@@ -68,7 +68,7 @@ def main() -> None:
     report_path = logs_dir / "code_quality_report.md"
     report_path.write_text(report + "\n")
 
-    print(f"✅ Code quality report generated: {report_path}")
+    print("✅ Code quality report generated: {report_path}")
     print("\n" + "=" * 50)
     print(report)
 

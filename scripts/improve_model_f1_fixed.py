@@ -13,7 +13,6 @@ Arguments:
     --output_model: Path to save improved model
 """
 
-import sys
 import argparse
 import logging
 import torch
@@ -82,12 +81,12 @@ def find_valid_checkpoint() -> Optional[str]:
                 # Test loading the checkpoint
                 checkpoint = torch.load(path, map_location="cpu", weights_only=False)
                 if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
-                    logger.info(f"✅ Found valid checkpoint: {checkpoint_path}")
+                    logger.info("✅ Found valid checkpoint: {checkpoint_path}")
                     return str(path)
                 else:
-                    logger.warning(f"⚠️ Checkpoint {checkpoint_path} has unexpected format")
+                    logger.warning("⚠️ Checkpoint {checkpoint_path} has unexpected format")
             except Exception as e:
-                logger.warning(f"⚠️ Checkpoint {checkpoint_path} is corrupted: {e}")
+                logger.warning("⚠️ Checkpoint {checkpoint_path} is corrupted: {e}")
 
     logger.warning("No valid checkpoint found. Will train from scratch.")
     return None
@@ -99,7 +98,7 @@ def train_fresh_model(epochs: int = 3, batch_size: int = 16) -> tuple[nn.Module,
 
     # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Using device: {device}")
+    logger.info("Using device: {device}")
 
     # Create data loader
     data_loader = GoEmotionsDataLoader()
@@ -126,14 +125,14 @@ def train_fresh_model(epochs: int = 3, batch_size: int = 16) -> tuple[nn.Module,
     )
 
     # Train model on full dataset
-    logger.info(f"Training model for {epochs} epochs with batch_size={batch_size}")
+    logger.info("Training model for {epochs} epochs with batch_size={batch_size}")
     trainer.train(datasets["train"], datasets["validation"])
 
     # Evaluate
     metrics = trainer.evaluate(datasets["test"])
 
     logger.info(
-        f"Fresh model results - Micro F1: {metrics['micro_f1']:.4f}, Macro F1: {metrics['macro_f1']:.4f}"
+        "Fresh model results - Micro F1: {metrics['micro_f1']:.4f}, Macro F1: {metrics['macro_f1']:.4f}"
     )
 
     return model, metrics
@@ -155,14 +154,14 @@ def improve_with_focal_loss(checkpoint_path: Optional[str] = None) -> bool:
 
         # Create or load model
         if checkpoint_path and Path(checkpoint_path).exists():
-            logger.info(f"Loading model from checkpoint: {checkpoint_path}")
+            logger.info("Loading model from checkpoint: {checkpoint_path}")
             model, _ = create_bert_emotion_classifier()
             checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
             model.load_state_dict(checkpoint["model_state_dict"])
         else:
             logger.info("Training fresh model with Focal Loss...")
             model, initial_metrics = train_fresh_model(epochs=5, batch_size=32)
-            logger.info(f"Fresh model baseline - F1: {initial_metrics.get('micro_f1', 0):.4f}")
+            logger.info("Fresh model baseline - F1: {initial_metrics.get('micro_f1', 0):.4f}")
 
         # Create focal loss
         focal_loss = FocalLoss(gamma=2.0, alpha=class_weights_tensor)
@@ -190,7 +189,7 @@ def improve_with_focal_loss(checkpoint_path: Optional[str] = None) -> bool:
         metrics = trainer.evaluate(datasets["test"])
 
         logger.info(
-            f"Focal Loss results - Micro F1: {metrics['micro_f1']:.4f}, Macro F1: {metrics['macro_f1']:.4f}"
+            "Focal Loss results - Micro F1: {metrics['micro_f1']:.4f}, Macro F1: {metrics['macro_f1']:.4f}"
         )
 
         # Save model
@@ -208,18 +207,18 @@ def improve_with_focal_loss(checkpoint_path: Optional[str] = None) -> bool:
             output_path,
         )
 
-        logger.info(f"✅ Focal Loss model saved to {output_path}")
+        logger.info("✅ Focal Loss model saved to {output_path}")
 
         # Check if target achieved
         if metrics["micro_f1"] >= 0.75:
             logger.info("🎉 Target F1 score of 75% achieved!")
         else:
-            logger.info(f"📊 Current F1: {metrics['micro_f1']:.1%}, Target: 75%")
+            logger.info("📊 Current F1: {metrics['micro_f1']:.1%}, Target: 75%")
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ Error improving model with Focal Loss: {e}")
+        logger.error("❌ Error improving model with Focal Loss: {e}")
         return False
 
 
@@ -246,18 +245,18 @@ def improve_with_full_training() -> bool:
             output_path,
         )
 
-        logger.info(f"✅ Full training model saved to {output_path}")
+        logger.info("✅ Full training model saved to {output_path}")
 
         # Check if target achieved
         if metrics["micro_f1"] >= 0.75:
             logger.info("🎉 Target F1 score of 75% achieved!")
         else:
-            logger.info(f"📊 Current F1: {metrics['micro_f1']:.1%}, Target: 75%")
+            logger.info("📊 Current F1: {metrics['micro_f1']:.1%}, Target: 75%")
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ Error with full training: {e}")
+        logger.error("❌ Error with full training: {e}")
         return False
 
 
@@ -301,13 +300,13 @@ def create_simple_ensemble(checkpoint_path: Optional[str] = None) -> bool:
             output_path,
         )
 
-        logger.info(f"✅ Best ensemble model saved to {output_path}")
-        logger.info(f"Best F1 score: {best_model[1].get('micro_f1', 0):.4f}")
+        logger.info("✅ Best ensemble model saved to {output_path}")
+        logger.info("Best F1 score: {best_model[1].get('micro_f1', 0):.4f}")
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ Error creating ensemble: {e}")
+        logger.error("❌ Error creating ensemble: {e}")
         return False
 
 
@@ -324,7 +323,7 @@ if __name__ == "__main__":
         "--output_model",
         type=str,
         default=DEFAULT_OUTPUT_MODEL,
-        help=f"Path to save improved model (default: {DEFAULT_OUTPUT_MODEL})",
+        help="Path to save improved model (default: {DEFAULT_OUTPUT_MODEL})",
     )
 
     args = parser.parse_args()
@@ -332,7 +331,7 @@ if __name__ == "__main__":
     # Update output path
     DEFAULT_OUTPUT_MODEL = args.output_model
 
-    logger.info(f"🎯 Starting F1 improvement with technique: {args.technique}")
+    logger.info("🎯 Starting F1 improvement with technique: {args.technique}")
 
     # Find valid checkpoint (if any)
     checkpoint_path = find_valid_checkpoint()
@@ -347,15 +346,15 @@ if __name__ == "__main__":
     elif args.technique == "ensemble":
         success = create_simple_ensemble(checkpoint_path)
     else:
-        logger.error(f"Unknown technique: {args.technique}")
+        logger.error("Unknown technique: {args.technique}")
         success = False
 
     # Report results
     duration = time.time() - start_time
     if success:
-        logger.info(f"✅ F1 improvement completed successfully in {duration:.1f}s")
-        logger.info(f"Model saved to: {args.output_model}")
+        logger.info("✅ F1 improvement completed successfully in {duration:.1f}s")
+        logger.info("Model saved to: {args.output_model}")
     else:
-        logger.error(f"❌ F1 improvement failed after {duration:.1f}s")
+        logger.error("❌ F1 improvement failed after {duration:.1f}s")
 
     sys.exit(0 if success else 1)

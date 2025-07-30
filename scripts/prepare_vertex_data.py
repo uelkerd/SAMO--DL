@@ -4,14 +4,11 @@ SAMO GoEmotions Data Preparation for Vertex AI AutoML
 Converts your current dataset to Vertex AI format and addresses F1 score issues
 """
 
-import json
 import pandas as pd
 from collections import Counter
 import logging
 from google.cloud import storage
 import tempfile
-import os
-import sys
 from typing import Any
 from sklearn.model_selection import train_test_split
 
@@ -47,14 +44,14 @@ class SAMOVertexDataPreparation:
             "excitement",
             "fear",
             "gratitude",
-            "grief",
+            "grie",
             "joy",
             "love",
             "nervousness",
             "optimism",
             "pride",
             "realization",
-            "relief",
+            "relie",
             "remorse",
             "sadness",
             "surprise",
@@ -62,19 +59,19 @@ class SAMOVertexDataPreparation:
         ]
 
         logger.info("Initialized SAMO Vertex Data Preparation")
-        logger.info(f"Project: {project_id}")
-        logger.info(f"Bucket: {bucket_name}")
-        logger.info(f"Emotion labels: {len(self.emotion_labels)} emotions")
+        logger.info("Project: {project_id}")
+        logger.info("Bucket: {bucket_name}")
+        logger.info("Emotion labels: {len(self.emotion_labels)} emotions")
 
     def load_and_analyze_data(self, data_path: str) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Load and analyze the current dataset"""
-        logger.info(f"Loading data from: {data_path}")
+        logger.info("Loading data from: {data_path}")
 
         try:
             with open(data_path, encoding="utf-8") as f:
                 data = json.load(f)
 
-            logger.info(f"Loaded {len(data)} entries")
+            logger.info("Loaded {len(data)} entries")
 
             # Convert to DataFrame
             df = pd.DataFrame(data)
@@ -85,7 +82,7 @@ class SAMOVertexDataPreparation:
             return df, analysis
 
         except Exception as e:
-            logger.error(f"Error loading data: {e}")
+            logger.error("Error loading data: {e}")
             raise
 
     def _analyze_dataset(self, df: pd.DataFrame) -> dict[str, Any]:
@@ -130,15 +127,15 @@ class SAMOVertexDataPreparation:
         ]
 
         if severely_imbalanced:
-            analysis["issues"].append(f"Severely imbalanced classes: {severely_imbalanced}")
+            analysis["issues"].append("Severely imbalanced classes: {severely_imbalanced}")
 
         if analysis["avg_emotions_per_sample"] < 1.0:
             analysis["issues"].append("Low emotion density per sample")
 
         logger.info("Analysis complete:")
-        logger.info(f"- Total samples: {analysis['total_samples']}")
-        logger.info(f"- Average emotions per sample: {analysis['avg_emotions_per_sample']:.2f}")
-        logger.info(f"- Severely imbalanced classes: {len(severely_imbalanced)}")
+        logger.info("- Total samples: {analysis['total_samples']}")
+        logger.info("- Average emotions per sample: {analysis['avg_emotions_per_sample']:.2f}")
+        logger.info("- Severely imbalanced classes: {len(severely_imbalanced)}")
 
         return analysis
 
@@ -162,7 +159,7 @@ class SAMOVertexDataPreparation:
                     emotion_samples.append(row.to_dict())
 
             current_count = len(emotion_samples)
-            logger.info(f"Emotion '{emotion}': {current_count} samples")
+            logger.info("Emotion '{emotion}': {current_count} samples")
 
             if current_count < target_count and current_count > 0:
                 # Oversample to reach target
@@ -170,7 +167,7 @@ class SAMOVertexDataPreparation:
                 for _ in range(oversample_factor):
                     balanced_samples.extend(emotion_samples)
                 logger.info(
-                    f"  -> Oversampled to {len(emotion_samples) * oversample_factor} samples"
+                    "  -> Oversampled to {len(emotion_samples) * oversample_factor} samples"
                 )
             else:
                 balanced_samples.extend(emotion_samples)
@@ -180,7 +177,7 @@ class SAMOVertexDataPreparation:
             emotion_samples = [s for s in balanced_samples if emotion in s.get("emotions", [])]
 
             if len(emotion_samples) < 10:  # Very rare emotion
-                logger.info(f"Creating synthetic samples for '{emotion}'")
+                logger.info("Creating synthetic samples for '{emotion}'")
 
                 # Find similar samples to base synthetic data on
                 similar_samples = [
@@ -193,7 +190,7 @@ class SAMOVertexDataPreparation:
                     for i in range(10 - len(emotion_samples)):
                         base_sample = similar_samples[i % len(similar_samples)].copy()
                         base_sample["emotions"] = [emotion]
-                        base_sample["text"] = f"[SYNTHETIC] {base_sample.get('text', '')}"
+                        base_sample["text"] = "[SYNTHETIC] {base_sample.get('text', '')}"
                         balanced_samples.append(base_sample)
 
         balanced_df = pd.DataFrame(balanced_samples)
@@ -202,9 +199,9 @@ class SAMOVertexDataPreparation:
         self._analyze_dataset(balanced_df)
 
         logger.info("Balancing complete:")
-        logger.info(f"- Original samples: {len(df)}")
-        logger.info(f"- Balanced samples: {len(balanced_df)}")
-        logger.info(f"- Improvement: {len(balanced_df) - len(df)} additional samples")
+        logger.info("- Original samples: {len(df)}")
+        logger.info("- Balanced samples: {len(balanced_df)}")
+        logger.info("- Improvement: {len(balanced_df) - len(df)} additional samples")
 
         return balanced_df
 
@@ -232,13 +229,13 @@ class SAMOVertexDataPreparation:
             test_file.close()
 
             logger.info("Conversion complete:")
-            logger.info(f"- Train samples: {len(train_df)}")
-            logger.info(f"- Test samples: {len(test_df)}")
+            logger.info("- Train samples: {len(train_df)}")
+            logger.info("- Test samples: {len(test_df)}")
 
             return train_file.name, test_file.name
 
         except Exception as e:
-            logger.error(f"Error in conversion: {e}")
+            logger.error("Error in conversion: {e}")
             raise
 
     def _convert_to_vertex_format(self, df: pd.DataFrame, split_name: str) -> str:
@@ -261,7 +258,7 @@ class SAMOVertexDataPreparation:
                 emotion_str = str(emotions)
 
             # Format: "text","emotion1,emotion2,emotion3"
-            line = f'"{text}","{emotion_str}"\n'
+            line = '"{text}","{emotion_str}"\n'
             lines.append(line)
 
         return "".join(lines)
@@ -274,17 +271,17 @@ class SAMOVertexDataPreparation:
         train_blob_name = "vertex_ai_data/train_data.csv"
         train_blob = self.bucket.blob(train_blob_name)
         train_blob.upload_from_filename(train_file)
-        train_gcs_uri = f"gs://{self.bucket_name}/{train_blob_name}"
+        train_gcs_uri = "gs://{self.bucket_name}/{train_blob_name}"
 
         # Upload test file
         test_blob_name = "vertex_ai_data/test_data.csv"
         test_blob = self.bucket.blob(test_blob_name)
         test_blob.upload_from_filename(test_file)
-        test_gcs_uri = f"gs://{self.bucket_name}/{test_blob_name}"
+        test_gcs_uri = "gs://{self.bucket_name}/{test_blob_name}"
 
         logger.info("Upload complete:")
-        logger.info(f"- Train data: {train_gcs_uri}")
-        logger.info(f"- Test data: {test_gcs_uri}")
+        logger.info("- Train data: {train_gcs_uri}")
+        logger.info("- Test data: {test_gcs_uri}")
 
         return train_gcs_uri, test_gcs_uri
 
@@ -311,8 +308,8 @@ class SAMOVertexDataPreparation:
         metadata_blob = self.bucket.blob(metadata_blob_name)
         metadata_blob.upload_from_filename(metadata_file)
 
-        logger.info(f"Metadata saved: {metadata_file}")
-        logger.info(f"Metadata uploaded: gs://{self.bucket_name}/{metadata_blob_name}")
+        logger.info("Metadata saved: {metadata_file}")
+        logger.info("Metadata uploaded: gs://{self.bucket_name}/{metadata_blob_name}")
 
         return metadata_file
 
@@ -323,7 +320,7 @@ class SAMOVertexDataPreparation:
             os.unlink(test_file)
             logger.info("Temporary files cleaned up")
         except Exception as e:
-            logger.warning(f"Error cleaning up temp files: {e}")
+            logger.warning("Error cleaning up temp files: {e}")
 
 
 def main():
@@ -337,13 +334,13 @@ def main():
     data_path = sys.argv[3]
 
     print("🚀 Starting SAMO Vertex AI Data Preparation...")
-    print(f"📊 Project: {project_id}")
-    print(f"📦 Bucket: {bucket_name}")
-    print(f"📁 Data: {data_path}")
+    print("📊 Project: {project_id}")
+    print("📦 Bucket: {bucket_name}")
+    print("📁 Data: {data_path}")
 
     # Check if data file exists
     if not os.path.exists(data_path):
-        print(f"❌ Data file not found: {data_path}")
+        print("❌ Data file not found: {data_path}")
         sys.exit(1)
 
     try:
@@ -355,12 +352,12 @@ def main():
 
         # Display analysis
         print("\n📈 Dataset Analysis:")
-        print(f"- Total samples: {analysis['total_samples']}")
-        print(f"- Average emotions per sample: {analysis['avg_emotions_per_sample']:.2f}")
-        print(f"- Issues found: {len(analysis['issues'])}")
+        print("- Total samples: {analysis['total_samples']}")
+        print("- Average emotions per sample: {analysis['avg_emotions_per_sample']:.2f}")
+        print("- Issues found: {len(analysis['issues'])}")
 
         if analysis["issues"]:
-            print(f"- Issues: {', '.join(analysis['issues'])}")
+            print("- Issues: {', '.join(analysis['issues'])}")
 
         # Balance dataset
         balanced_df = preparer.balance_dataset(df, analysis)
@@ -378,14 +375,14 @@ def main():
         preparer.cleanup_temp_files(train_file, test_file)
 
         print("\n🎉 Data preparation complete!")
-        print(f"✅ Train data: {train_uri}")
-        print(f"✅ Test data: {test_uri}")
-        print(f"✅ Metadata: {metadata_file}")
+        print("✅ Train data: {train_uri}")
+        print("✅ Test data: {test_uri}")
+        print("✅ Metadata: {metadata_file}")
         print("\n🚀 Ready for Vertex AI AutoML training!")
 
     except Exception as e:
-        print(f"❌ Error during data preparation: {e}")
-        logger.error(f"Data preparation failed: {e}")
+        print("❌ Error during data preparation: {e}")
+        logger.error("Data preparation failed: {e}")
         sys.exit(1)
 
 

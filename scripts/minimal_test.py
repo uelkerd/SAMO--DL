@@ -3,14 +3,11 @@
 Minimal test script
 """
 
-import sys
-import json
-import os
 
 
 def main():
     print("🚀 Minimal test script running!")
-    print(f"Arguments: {sys.argv}")
+    print("Arguments: {sys.argv}")
 
     if len(sys.argv) != 4:
         print("Usage: python minimal_test.py <project_id> <bucket_name> <data_path>")
@@ -20,16 +17,16 @@ def main():
     bucket_name = sys.argv[2]
     data_path = sys.argv[3]
 
-    print(f"✅ Project: {project_id}")
-    print(f"✅ Bucket: {bucket_name}")
-    print(f"✅ Data: {data_path}")
+    print("✅ Project: {project_id}")
+    print("✅ Bucket: {bucket_name}")
+    print("✅ Data: {data_path}")
 
     # Test data file
     if os.path.exists(data_path):
         print("✅ Data file exists!")
         with open(data_path) as f:
             data = json.load(f)
-        print(f"✅ Loaded {len(data)} entries")
+        print("✅ Loaded {len(data)} entries")
     else:
         print("❌ Data file not found")
 

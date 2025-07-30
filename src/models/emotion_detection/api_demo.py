@@ -112,7 +112,7 @@ class EmotionResponse(BaseModel):
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
     """Handle all exceptions with structured response."""
-    logger.error(f"Unhandled exception: {exc}")
+    logger.error("Unhandled exception: {exc}")
     logger.error(traceback.format_exc())
 
     return JSONResponse(
@@ -165,7 +165,7 @@ async def load_model() -> None:
         logger.info("✅ Model loaded successfully!")
 
     except Exception as e:
-        logger.error(f"Failed to load model: {e}")
+        logger.error("Failed to load model: {e}")
         logger.error(traceback.format_exc())
         raise
 
@@ -216,7 +216,7 @@ async def list_emotions():
                 "love",
                 "optimism",
                 "pride",
-                "relief",
+                "relie",
             ],
             "negative": [
                 "anger",
@@ -226,7 +226,7 @@ async def list_emotions():
                 "disgust",
                 "embarrassment",
                 "fear",
-                "grief",
+                "grie",
                 "nervousness",
                 "remorse",
                 "sadness",
@@ -319,11 +319,11 @@ async def analyze_emotion(
         )
 
     except Exception as e:
-        logger.error(f"Emotion analysis failed: {e}")
+        logger.error("Emotion analysis failed: {e}")
         logger.error(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Emotion analysis failed: {e}",
+            detail="Emotion analysis failed: {e}",
         )
 
 
@@ -395,11 +395,11 @@ async def analyze_emotions_batch(
         raise
 
     except Exception as e:
-        logger.error(f"Batch emotion analysis failed: {e}")
+        logger.error("Batch emotion analysis failed: {e}")
         logger.error(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Batch analysis failed: {e}",
+            detail="Batch analysis failed: {e}",
         )
 
 

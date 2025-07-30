@@ -99,7 +99,7 @@ class SummarizationDataset(Dataset):
 
         # Add task prefix for T5
         if "t5" in self.tokenizer.name_or_path.lower():
-            text = f"summarize: {text}"
+            text = "summarize: {text}"
 
         # Tokenize input
         source_encoding = self.tokenizer(
@@ -232,7 +232,7 @@ class T5SummarizationModel(nn.Module):
 
         # Add task prefix for T5
         if "t5" in self.model_name.lower():
-            text = f"summarize: {text}"
+            text = "summarize: {text}"
 
         # Tokenize input
         inputs = self.tokenizer(
@@ -287,7 +287,7 @@ class T5SummarizationModel(nn.Module):
 
             # Add task prefix for T5 if needed
             if "t5" in self.model_name.lower():
-                batch_texts = [f"summarize: {text}" for text in batch_texts]
+                batch_texts = ["summarize: {text}" for text in batch_texts]
 
             # Tokenize batch
             inputs = self.tokenizer(

@@ -7,7 +7,6 @@ can be loaded and initialized correctly.
 """
 
 import logging
-import sys
 from pathlib import Path
 
 # Add src to path
@@ -38,7 +37,7 @@ def test_bert_model_loading():
         # Move model to device after initialization
         model.to(device)
 
-        logger.info(f"✅ Model initialized with {model.count_parameters():,} parameters")
+        logger.info("✅ Model initialized with {model.count_parameters():,} parameters")
 
         # Test model forward pass with dummy data
         batch_size = 2
@@ -53,12 +52,12 @@ def test_bert_model_loading():
         with torch.no_grad():
             outputs = model(input_ids, attention_mask)
 
-        logger.info(f"✅ Forward pass successful, output shape: {outputs.shape}")
+        logger.info("✅ Forward pass successful, output shape: {outputs.shape}")
 
         # Verify output dimensions
         expected_shape = (batch_size, 28)  # 28 emotions
         if outputs.shape != expected_shape:
-            raise ValueError(f"Expected output shape {expected_shape}, got {outputs.shape}")
+            raise ValueError("Expected output shape {expected_shape}, got {outputs.shape}")
 
         logger.info("✅ Output shape validation passed")
 
@@ -74,7 +73,7 @@ def test_bert_model_loading():
         return True
 
     except Exception as e:
-        logger.error(f"❌ BERT model test failed: {e}")
+        logger.error("❌ BERT model test failed: {e}")
         return False
 
 

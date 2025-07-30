@@ -9,9 +9,7 @@ Usage:
     python scripts/simple_finalize_model.py
 """
 
-import sys
 import logging
-import json
 from pathlib import Path
 
 # Add src to path
@@ -43,7 +41,7 @@ def create_final_model(output_model: str = DEFAULT_OUTPUT_MODEL) -> dict:
     # Check if checkpoint exists
     checkpoint_path = Path(CHECKPOINT_PATH)
     if not checkpoint_path.exists():
-        logger.error(f"Checkpoint not found at {checkpoint_path}")
+        logger.error("Checkpoint not found at {checkpoint_path}")
         logger.info("Please run training first to create a checkpoint")
         return {"error": "Checkpoint not found"}
 
@@ -79,8 +77,8 @@ def create_final_model(output_model: str = DEFAULT_OUTPUT_MODEL) -> dict:
     with open(metadata_path, "w") as f:
         json.dump(model_info, f, indent=2)
 
-    logger.info(f"✅ Final model created at: {output_path}")
-    logger.info(f"✅ Model metadata saved at: {metadata_path}")
+    logger.info("✅ Final model created at: {output_path}")
+    logger.info("✅ Model metadata saved at: {metadata_path}")
 
     return model_info
 
@@ -99,13 +97,13 @@ def verify_model_requirements() -> bool:
     for module in required_modules:
         try:
             __import__(module)
-            logger.info(f"✅ {module} available")
+            logger.info("✅ {module} available")
         except ImportError:
             missing_modules.append(module)
-            logger.warning(f"❌ {module} not available")
+            logger.warning("❌ {module} not available")
 
     if missing_modules:
-        logger.error(f"Missing required modules: {missing_modules}")
+        logger.error("Missing required modules: {missing_modules}")
         logger.info("Please install missing dependencies:")
         logger.info("pip install torch transformers datasets scikit-learn")
         return False
@@ -127,15 +125,15 @@ def main():
         model_info = create_final_model()
 
         if "error" in model_info:
-            logger.error(f"❌ Failed to create model: {model_info['error']}")
+            logger.error("❌ Failed to create model: {model_info['error']}")
             sys.exit(1)
 
         logger.info("✅ Model finalization completed successfully!")
-        logger.info(f"📁 Model saved to: {model_info['model_path']}")
-        logger.info(f"📊 Target F1 Score: {TARGET_F1_SCORE}")
+        logger.info("📁 Model saved to: {model_info['model_path']}")
+        logger.info("📊 Target F1 Score: {TARGET_F1_SCORE}")
 
     except Exception as e:
-        logger.error(f"❌ Error during model finalization: {e}")
+        logger.error("❌ Error during model finalization: {e}")
         sys.exit(1)
 
 

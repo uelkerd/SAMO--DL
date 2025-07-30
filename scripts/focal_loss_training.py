@@ -6,8 +6,6 @@ This script implements focal loss training to improve F1 score
 from the current 13.2% to target >50%.
 """
 
-import os
-import sys
 import logging
 import torch
 from torch import nn
@@ -62,44 +60,44 @@ def train_with_focal_loss():
 
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Using device: {device}")
+    logger.info("Using device: {device}")
 
     try:
         # Load dataset
         logger.info("Loading GoEmotions dataset...")
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()  # Fixed method name
-        
+
         # Extract raw data
         train_raw = datasets["train"]
         val_raw = datasets["validation"]
         test_raw = datasets["test"]
         class_weights = datasets["class_weights"]
-        
+
         # Extract texts and labels from raw datasets
         train_texts = [item["text"] for item in train_raw]
         train_labels = [item["labels"] for item in train_raw]
-        
+
         val_texts = [item["text"] for item in val_raw]
         val_labels = [item["labels"] for item in val_raw]
-        
+
         test_texts = [item["text"] for item in test_raw]
         test_labels = [item["labels"] for item in test_raw]
-        
+
         # Create tokenized datasets
         from src.models.emotion_detection.bert_classifier import EmotionDataset
         from transformers import AutoTokenizer
-        
+
         tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
-        
+
         train_dataset = EmotionDataset(train_texts, train_labels, tokenizer, max_length=512)
         val_dataset = EmotionDataset(val_texts, val_labels, tokenizer, max_length=512)
         test_dataset = EmotionDataset(test_texts, test_labels, tokenizer, max_length=512)
-        
+
         logger.info("Dataset loaded successfully:")
-        logger.info(f"   • Train: {len(train_dataset)} examples")
-        logger.info(f"   • Validation: {len(val_dataset)} examples")
-        logger.info(f"   • Test: {len(test_dataset)} examples")
+        logger.info("   • Train: {len(train_dataset)} examples")
+        logger.info("   • Validation: {len(val_dataset)} examples")
+        logger.info("   • Test: {len(test_dataset)} examples")
 
         # Create model
         logger.info("Creating BERT model...")
@@ -121,7 +119,7 @@ def train_with_focal_loss():
         val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
 
         # Training loop
-        best_val_loss = float("inf")
+        best_val_loss = float("in")
         training_history = []
 
         for epoch in range(3):  # Quick 3 epochs
@@ -152,7 +150,7 @@ def train_with_focal_loss():
 
                 # Log progress every 100 batches
                 if num_batches % 100 == 0:
-                    logger.info(f"   • Batch {num_batches}: Loss = {loss.item():.4f}")
+                    logger.info("   • Batch {num_batches}: Loss = {loss.item():.4f}")
 
             avg_train_loss = train_loss / num_batches
 
@@ -176,8 +174,8 @@ def train_with_focal_loss():
             avg_val_loss = val_loss / val_batches
 
             # Log progress
-            logger.info(f"   • Train Loss: {avg_train_loss:.4f}")
-            logger.info(f"   • Val Loss: {avg_val_loss:.4f}")
+            logger.info("   • Train Loss: {avg_train_loss:.4f}")
+            logger.info("   • Val Loss: {avg_val_loss:.4f}")
 
             training_history.append(
                 {"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": avg_val_loss}
@@ -186,7 +184,7 @@ def train_with_focal_loss():
             # Save best model
             if avg_val_loss < best_val_loss:
                 best_val_loss = avg_val_loss
-                logger.info(f"   • New best validation loss: {best_val_loss:.4f}")
+                logger.info("   • New best validation loss: {best_val_loss:.4f}")
 
                 # Save model
                 output_dir = "./models/checkpoints"
@@ -204,16 +202,16 @@ def train_with_focal_loss():
                     model_path,
                 )
 
-                logger.info(f"   • Model saved to: {model_path}")
+                logger.info("   • Model saved to: {model_path}")
 
         logger.info("🎉 Focal Loss Training completed successfully!")
-        logger.info(f"   • Best validation loss: {best_val_loss:.4f}")
+        logger.info("   • Best validation loss: {best_val_loss:.4f}")
         logger.info("   • Model saved to: ./models/checkpoints/focal_loss_best_model.pt")
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ Training failed: {e}")
+        logger.error("❌ Training failed: {e}")
         import traceback
 
         traceback.print_exc()
