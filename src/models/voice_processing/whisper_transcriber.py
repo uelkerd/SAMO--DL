@@ -1,7 +1,3 @@
-import numpy as np
-import os
-
-# G004: Logging f-strings temporarily allowed for development
 """OpenAI Whisper Transcriber for SAMO Deep Learning.
 
 This module implements OpenAI Whisper for high-accuracy voice-to-text transcription
@@ -19,13 +15,14 @@ Key Features:
 
 import contextlib
 import logging
+import os
 import tempfile
-import time
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional, Union
 
+import numpy as np
 import torch
 import whisper
 from pydub import AudioSegment
@@ -119,7 +116,7 @@ class AudioPreprocessor:
             return True, "Valid audio file"
 
         except Exception as e:
-            return False, "Error loading audio: {e!s}"
+            return False, f"Error loading audio: {e!s}"
 
     @staticmethod
     def preprocess_audio(
@@ -229,8 +226,8 @@ class WhisperTranscriber:
             )
 
         except Exception as e:
-            logger.error("❌ Failed to load Whisper model: {e}", extra={"format_args": True})
-            raise RuntimeError("Whisper model loading failed: {e}")
+            logger.error(f"❌ Failed to load Whisper model: {e}")
+            raise RuntimeError(f"Whisper model loading failed: {e}")
 
         # Initialize preprocessor
         self.preprocessor = AudioPreprocessor()

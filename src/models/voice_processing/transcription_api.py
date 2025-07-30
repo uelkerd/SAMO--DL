@@ -6,7 +6,6 @@ handling and performance monitoring.
 """
 
 import logging
-import time
 from pathlib import Path
 from typing import Optional, Union
 
@@ -53,7 +52,7 @@ class TranscriptionAPI:
             self.ready = True
 
         except Exception as e:
-            logger.error("❌ Failed to initialize TranscriptionAPI: {e}")
+            logger.error(f"❌ Failed to initialize TranscriptionAPI: {e}")
             self.transcriber = None
             self.ready = False
 
@@ -217,7 +216,7 @@ class TranscriptionAPI:
             }
 
         except Exception as e:
-            logger.error("WER evaluation failed: {e}")
+        logger.error(f"WER evaluation failed: {e}"))
             raise RuntimeError("WER evaluation failed: {e}") from e
 
     def get_performance_metrics(self) -> dict:
