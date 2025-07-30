@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Test script to verify rate limiter fix."""
 
-import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent / ".."))
@@ -39,19 +38,19 @@ async def test_token_refill_logic():
     client_id = rate_limiter.get_client_id(request)
     entry = rate_limiter.cache.get(client_id)
 
-    print(f"✅ Initial tokens: {entry.tokens}")
-    print(f"✅ Initial requests in window: {len(entry.requests)}")
+    print("✅ Initial tokens: {entry.tokens}")
+    print("✅ Initial requests in window: {len(entry.requests)}")
 
     # Consume all tokens
     for i in range(100):
         await rate_limiter.dispatch(request, call_next)
         if i % 20 == 0:
             print(
-                f"   Request {i+1}: tokens={entry.tokens}, requests_in_window={len(entry.requests)}"
+                "   Request {i+1}: tokens={entry.tokens}, requests_in_window={len(entry.requests)}"
             )
 
     print(
-        f"✅ After consuming all tokens: tokens={entry.tokens}, requests_in_window={len(entry.requests)}"
+        "✅ After consuming all tokens: tokens={entry.tokens}, requests_in_window={len(entry.requests)}"
     )
 
     # Simulate time passing
@@ -62,15 +61,15 @@ async def test_token_refill_logic():
     entry.requests.append(old_time)
 
     print(
-        f"✅ After simulating time passing: tokens={entry.tokens}, requests_in_window={len(entry.requests)}"
+        "✅ After simulating time passing: tokens={entry.tokens}, requests_in_window={len(entry.requests)}"
     )
 
     # Make another request
     response = await rate_limiter.dispatch(request, call_next)
 
-    print(f"✅ Response status: {response.status_code}")
-    print(f"✅ Final tokens: {entry.tokens}")
-    print(f"✅ Final requests in window: {len(entry.requests)}")
+    print("✅ Response status: {response.status_code}")
+    print("✅ Final tokens: {entry.tokens}")
+    print("✅ Final requests in window: {len(entry.requests)}")
 
     if response.status_code == 200 and entry.tokens > 0:
         print("🎉 Test PASSED! Token refill is working correctly.")

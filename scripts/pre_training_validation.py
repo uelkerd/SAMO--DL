@@ -7,7 +7,6 @@ issues like 0.0000 loss, data problems, model issues, etc.
 """
 
 import logging
-import sys
 from pathlib import Path
 
 # Add src to path
@@ -36,19 +35,18 @@ class PreTrainingValidator:
         try:
             import torch
             import transformers
-            import numpy as np
             import pandas as pd
 
-            logger.info(f"✅ PyTorch version: {torch.__version__}")
-            logger.info(f"✅ Transformers version: {transformers.__version__}")
-            logger.info(f"✅ NumPy version: {np.__version__}")
-            logger.info(f"✅ Pandas version: {pd.__version__}")
+            logger.info("✅ PyTorch version: {torch.__version__}")
+            logger.info("✅ Transformers version: {transformers.__version__}")
+            logger.info("✅ NumPy version: {np.__version__}")
+            logger.info("✅ Pandas version: {pd.__version__}")
 
             # Check CUDA availability
             if torch.cuda.is_available():
-                logger.info(f"✅ CUDA available: {torch.cuda.get_device_name(0)}")
+                logger.info("✅ CUDA available: {torch.cuda.get_device_name(0)}")
                 logger.info(
-                    f"✅ CUDA memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
+                    "✅ CUDA memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
                 )
             else:
                 logger.warning("⚠️  CUDA not available, using CPU")
@@ -57,8 +55,8 @@ class PreTrainingValidator:
             return True
 
         except ImportError as e:
-            logger.error(f"❌ Missing dependency: {e}")
-            self.critical_issues.append(f"Missing dependency: {e}")
+            logger.error("❌ Missing dependency: {e}")
+            self.critical_issues.append("Missing dependency: {e}")
             self.validation_results["environment"] = False
             return False
 
@@ -76,16 +74,16 @@ class PreTrainingValidator:
             required_keys = ["train_dataloader", "val_dataloader", "class_weights"]
             for key in required_keys:
                 if key not in datasets:
-                    logger.error(f"❌ Missing dataset key: {key}")
-                    self.critical_issues.append(f"Missing dataset key: {key}")
+                    logger.error("❌ Missing dataset key: {key}")
+                    self.critical_issues.append("Missing dataset key: {key}")
                     return False
 
             train_dataloader = datasets["train_dataloader"]
             val_dataloader = datasets["val_dataloader"]
             class_weights = datasets["class_weights"]
 
-            logger.info(f"✅ Train batches: {len(train_dataloader)}")
-            logger.info(f"✅ Val batches: {len(val_dataloader)}")
+            logger.info("✅ Train batches: {len(train_dataloader)}")
+            logger.info("✅ Val batches: {len(val_dataloader)}")
 
             # Validate first batch
             first_batch = next(iter(train_dataloader))
@@ -93,8 +91,8 @@ class PreTrainingValidator:
 
             for key in required_batch_keys:
                 if key not in first_batch:
-                    logger.error(f"❌ Missing batch key: {key}")
-                    self.critical_issues.append(f"Missing batch key: {key}")
+                    logger.error("❌ Missing batch key: {key}")
+                    self.critical_issues.append("Missing batch key: {key}")
                     return False
 
             # Check data shapes and types
@@ -102,23 +100,23 @@ class PreTrainingValidator:
             attention_mask = first_batch["attention_mask"]
             labels = first_batch["labels"]
 
-            logger.info(f"✅ Input shape: {input_ids.shape}")
-            logger.info(f"✅ Attention shape: {attention_mask.shape}")
-            logger.info(f"✅ Labels shape: {labels.shape}")
+            logger.info("✅ Input shape: {input_ids.shape}")
+            logger.info("✅ Attention shape: {attention_mask.shape}")
+            logger.info("✅ Labels shape: {labels.shape}")
 
             # Validate labels
             if labels.dtype not in (torch.float32, torch.float64):
-                logger.error(f"❌ Labels should be float, got: {labels.dtype}")
-                self.critical_issues.append(f"Invalid labels dtype: {labels.dtype}")
+                logger.error("❌ Labels should be float, got: {labels.dtype}")
+                self.critical_issues.append("Invalid labels dtype: {labels.dtype}")
                 return False
 
             # Check for all-zero or all-one labels
             labels_sum = labels.sum().item()
             labels_total = labels.numel()
 
-            logger.info(f"✅ Labels sum: {labels_sum}")
-            logger.info(f"✅ Labels total: {labels_total}")
-            logger.info(f"✅ Labels mean: {labels.float().mean().item():.6f}")
+            logger.info("✅ Labels sum: {labels_sum}")
+            logger.info("✅ Labels total: {labels_total}")
+            logger.info("✅ Labels mean: {labels.float().mean().item():.6f}")
 
             if labels_sum == 0:
                 logger.error("❌ CRITICAL: All labels are zero!")
@@ -132,9 +130,9 @@ class PreTrainingValidator:
 
             # Check class weights
             if class_weights is not None:
-                logger.info(f"✅ Class weights shape: {class_weights.shape}")
-                logger.info(f"✅ Class weights min: {class_weights.min():.6f}")
-                logger.info(f"✅ Class weights max: {class_weights.max():.6f}")
+                logger.info("✅ Class weights shape: {class_weights.shape}")
+                logger.info("✅ Class weights min: {class_weights.min():.6f}")
+                logger.info("✅ Class weights max: {class_weights.max():.6f}")
 
                 if class_weights.min() <= 0:
                     logger.error("❌ CRITICAL: Class weights contain zero or negative values!")
@@ -149,8 +147,8 @@ class PreTrainingValidator:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Data loading validation failed: {e}")
-            self.critical_issues.append(f"Data loading error: {e}")
+            logger.error("❌ Data loading validation failed: {e}")
+            self.critical_issues.append("Data loading error: {e}")
             self.validation_results["data_loading"] = False
             return False
 
@@ -169,8 +167,8 @@ class PreTrainingValidator:
             )
 
             logger.info("✅ Model created successfully")
-            logger.info(f"✅ Model parameters: {model.count_parameters():,}")
-            logger.info(f"✅ Loss function: {type(loss_fn).__name__}")
+            logger.info("✅ Model parameters: {model.count_parameters():,}")
+            logger.info("✅ Loss function: {type(loss_fn).__name__}")
 
             # Test forward pass with dummy data
             batch_size = 4
@@ -195,13 +193,13 @@ class PreTrainingValidator:
                 loss = loss_fn(logits, dummy_labels)
 
             logger.info("✅ Forward pass successful")
-            logger.info(f"✅ Logits shape: {logits.shape}")
-            logger.info(f"✅ Loss value: {loss.item():.6f}")
+            logger.info("✅ Logits shape: {logits.shape}")
+            logger.info("✅ Loss value: {loss.item():.6f}")
 
             # Validate outputs
             if logits.shape != (batch_size, num_classes):
-                logger.error(f"❌ Wrong logits shape: {logits.shape}")
-                self.critical_issues.append(f"Wrong logits shape: {logits.shape}")
+                logger.error("❌ Wrong logits shape: {logits.shape}")
+                self.critical_issues.append("Wrong logits shape: {logits.shape}")
                 return False
 
             if torch.isnan(logits).any():
@@ -216,8 +214,8 @@ class PreTrainingValidator:
 
             # Test loss function
             if loss.item() <= 0:
-                logger.error(f"❌ CRITICAL: Loss is zero or negative: {loss.item()}")
-                self.critical_issues.append(f"Invalid loss value: {loss.item()}")
+                logger.error("❌ CRITICAL: Loss is zero or negative: {loss.item()}")
+                self.critical_issues.append("Invalid loss value: {loss.item()}")
                 return False
 
             if torch.isnan(loss).any():
@@ -229,8 +227,8 @@ class PreTrainingValidator:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Model architecture validation failed: {e}")
-            self.critical_issues.append(f"Model architecture error: {e}")
+            logger.error("❌ Model architecture validation failed: {e}")
+            self.critical_issues.append("Model architecture error: {e}")
             self.validation_results["model_architecture"] = False
             return False
 
@@ -256,9 +254,9 @@ class PreTrainingValidator:
             trainer.initialize_model()
 
             logger.info("✅ Trainer created successfully")
-            logger.info(f"✅ Optimizer: {type(trainer.optimizer).__name__}")
-            logger.info(f"✅ Scheduler: {type(trainer.scheduler).__name__}")
-            logger.info(f"✅ Learning rate: {trainer.learning_rate}")
+            logger.info("✅ Optimizer: {type(trainer.optimizer).__name__}")
+            logger.info("✅ Scheduler: {type(trainer.scheduler).__name__}")
+            logger.info("✅ Learning rate: {trainer.learning_rate}")
 
             # Test optimizer
             if not isinstance(trainer.optimizer, AdamW):
@@ -273,13 +271,13 @@ class PreTrainingValidator:
 
             # Test learning rate
             if trainer.learning_rate <= 0:
-                logger.error(f"❌ Invalid learning rate: {trainer.learning_rate}")
-                self.critical_issues.append(f"Invalid learning rate: {trainer.learning_rate}")
+                logger.error("❌ Invalid learning rate: {trainer.learning_rate}")
+                self.critical_issues.append("Invalid learning rate: {trainer.learning_rate}")
                 return False
 
             if trainer.learning_rate > 1e-3:
-                logger.warning(f"⚠️  Learning rate might be too high: {trainer.learning_rate}")
-                self.warnings.append(f"High learning rate: {trainer.learning_rate}")
+                logger.warning("⚠️  Learning rate might be too high: {trainer.learning_rate}")
+                self.warnings.append("High learning rate: {trainer.learning_rate}")
 
             # Test one training step
             batch = next(iter(trainer.train_dataloader))
@@ -307,29 +305,29 @@ class PreTrainingValidator:
 
             if param_count > 0:
                 total_norm = total_norm ** (1.0 / 2)
-                logger.info(f"✅ Gradient norm: {total_norm:.6f}")
+                logger.info("✅ Gradient norm: {total_norm:.6f}")
 
                 if total_norm > 100:
                     logger.warning("⚠️  Large gradient norm detected")
-                    self.warnings.append(f"Large gradient norm: {total_norm}")
+                    self.warnings.append("Large gradient norm: {total_norm}")
 
                 if total_norm < 1e-8:
                     logger.warning("⚠️  Very small gradient norm detected")
-                    self.warnings.append(f"Small gradient norm: {total_norm}")
+                    self.warnings.append("Small gradient norm: {total_norm}")
 
             # Optimizer step
             trainer.optimizer.step()
             trainer.scheduler.step()
 
             logger.info("✅ Training step completed successfully")
-            logger.info(f"✅ Loss after step: {loss.item():.6f}")
+            logger.info("✅ Loss after step: {loss.item():.6f}")
 
             self.validation_results["training_components"] = True
             return True
 
         except Exception as e:
-            logger.error(f"❌ Training components validation failed: {e}")
-            self.critical_issues.append(f"Training components error: {e}")
+            logger.error("❌ Training components validation failed: {e}")
+            self.critical_issues.append("Training components error: {e}")
             self.validation_results["training_components"] = False
             return False
 
@@ -345,17 +343,17 @@ class PreTrainingValidator:
                 path = Path(dir_path)
                 if not path.exists():
                     path.mkdir(parents=True, exist_ok=True)
-                    logger.info(f"✅ Created directory: {dir_path}")
+                    logger.info("✅ Created directory: {dir_path}")
 
                 # Test write permissions
                 test_file = path / "test_write.tmp"
                 try:
                     test_file.write_text("test")
                     test_file.unlink()
-                    logger.info(f"✅ Write permission: {dir_path}")
+                    logger.info("✅ Write permission: {dir_path}")
                 except Exception:
-                    logger.error(f"❌ No write permission: {dir_path}")
-                    self.critical_issues.append(f"No write permission: {dir_path}")
+                    logger.error("❌ No write permission: {dir_path}")
+                    self.critical_issues.append("No write permission: {dir_path}")
                     return False
 
             # Check available disk space
@@ -364,18 +362,18 @@ class PreTrainingValidator:
             total, used, free = shutil.disk_usage(".")
             free_gb = free / (1024**3)
 
-            logger.info(f"✅ Available disk space: {free_gb:.1f} GB")
+            logger.info("✅ Available disk space: {free_gb:.1f} GB")
 
             if free_gb < 10:
                 logger.warning("⚠️  Low disk space (< 10 GB)")
-                self.warnings.append(f"Low disk space: {free_gb:.1f} GB")
+                self.warnings.append("Low disk space: {free_gb:.1f} GB")
 
             self.validation_results["file_system"] = True
             return True
 
         except Exception as e:
-            logger.error(f"❌ File system validation failed: {e}")
-            self.critical_issues.append(f"File system error: {e}")
+            logger.error("❌ File system validation failed: {e}")
+            self.critical_issues.append("File system error: {e}")
             self.validation_results["file_system"] = False
             return False
 
@@ -394,58 +392,58 @@ class PreTrainingValidator:
         all_passed = True
 
         for name, validation_func in validations:
-            logger.info(f"\n{'='*60}")
-            logger.info(f"Running: {name} Validation")
-            logger.info(f"{'='*60}")
+            logger.info("\n{'='*60}")
+            logger.info("Running: {name} Validation")
+            logger.info("{'='*60}")
 
             try:
                 if not validation_func():
                     all_passed = False
-                    logger.error(f"❌ {name} validation FAILED")
+                    logger.error("❌ {name} validation FAILED")
                 else:
-                    logger.info(f"✅ {name} validation PASSED")
+                    logger.info("✅ {name} validation PASSED")
             except Exception as e:
-                logger.error(f"❌ {name} validation ERROR: {e}")
-                self.critical_issues.append(f"{name} validation error: {e}")
+                logger.error("❌ {name} validation ERROR: {e}")
+                self.critical_issues.append("{name} validation error: {e}")
                 all_passed = False
 
         return all_passed
 
     def generate_report(self) -> None:
         """Generate comprehensive validation report."""
-        logger.info(f"\n{'='*80}")
+        logger.info("\n{'='*80}")
         logger.info("📋 PRE-TRAINING VALIDATION REPORT")
-        logger.info(f"{'='*80}")
+        logger.info("{'='*80}")
 
         # Summary
         total_checks = len(self.validation_results)
         passed_checks = sum(self.validation_results.values())
 
         logger.info("📊 Validation Summary:")
-        logger.info(f"   Total checks: {total_checks}")
-        logger.info(f"   Passed: {passed_checks}")
-        logger.info(f"   Failed: {total_checks - passed_checks}")
+        logger.info("   Total checks: {total_checks}")
+        logger.info("   Passed: {passed_checks}")
+        logger.info("   Failed: {total_checks - passed_checks}")
 
         # Critical issues
         if self.critical_issues:
-            logger.error(f"\n❌ CRITICAL ISSUES ({len(self.critical_issues)}):")
+            logger.error("\n❌ CRITICAL ISSUES ({len(self.critical_issues)}):")
             for i, issue in enumerate(self.critical_issues, 1):
-                logger.error(f"   {i}. {issue}")
+                logger.error("   {i}. {issue}")
 
         # Warnings
         if self.warnings:
-            logger.warning(f"\n⚠️  WARNINGS ({len(self.warnings)}):")
+            logger.warning("\n⚠️  WARNINGS ({len(self.warnings)}):")
             for i, warning in enumerate(self.warnings, 1):
-                logger.warning(f"   {i}. {warning}")
+                logger.warning("   {i}. {warning}")
 
         # Final recommendation
         if self.critical_issues:
             logger.error(
-                f"\n🚫 TRAINING BLOCKED: {len(self.critical_issues)} critical issues found!"
+                "\n🚫 TRAINING BLOCKED: {len(self.critical_issues)} critical issues found!"
             )
             logger.error("   Please fix all critical issues before starting training.")
         elif self.warnings:
-            logger.warning(f"\n⚠️  TRAINING ALLOWED with {len(self.warnings)} warnings.")
+            logger.warning("\n⚠️  TRAINING ALLOWED with {len(self.warnings)} warnings.")
             logger.warning("   Consider addressing warnings before training.")
         else:
             logger.info("\n✅ TRAINING READY: All validations passed!")

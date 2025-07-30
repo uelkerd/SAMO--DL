@@ -13,8 +13,6 @@ Returns:
     1 if F1 score is below minimum threshold
 """
 
-import os
-import sys
 import torch
 import logging
 from pathlib import Path
@@ -40,13 +38,13 @@ OPTIMAL_THRESHOLD = 0.6
 def test_calibration():
     """Test model with optimal calibration settings."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Using device: {device}")
+    logger.info("Using device: {device}")
 
     # Load model
     logger.info("Loading model...")
     checkpoint_path = Path(CHECKPOINT_PATH)
     if not checkpoint_path.exists():
-        logger.error(f"Checkpoint not found at {checkpoint_path}")
+        logger.error("Checkpoint not found at {checkpoint_path}")
         return 1
 
     # Create model
@@ -59,7 +57,7 @@ def test_calibration():
     model.eval()
 
     # Set optimal temperature
-    logger.info(f"Setting temperature to {OPTIMAL_TEMPERATURE}")
+    logger.info("Setting temperature to {OPTIMAL_TEMPERATURE}")
     model.set_temperature(OPTIMAL_TEMPERATURE)
 
     # Load validation data
@@ -100,21 +98,21 @@ def test_calibration():
         all_predictions.extend(predictions)
 
         if i % 500 == 0:
-            logger.info(f"Processed {i}/{len(val_dataset)} samples...")
+            logger.info("Processed {i}/{len(val_dataset)} samples...")
 
     # Calculate metrics
     micro_f1 = f1_score(all_labels, all_predictions, average="micro")
     macro_f1 = f1_score(all_labels, all_predictions, average="macro")
 
-    logger.info(f"Micro F1: {micro_f1:.4f}")
-    logger.info(f"Macro F1: {macro_f1:.4f}")
+    logger.info("Micro F1: {micro_f1:.4f}")
+    logger.info("Macro F1: {macro_f1:.4f}")
 
     # Check if F1 score meets target
     if micro_f1 >= TARGET_F1_SCORE:
-        logger.info(f"✅ F1 score {micro_f1:.4f} meets target of {TARGET_F1_SCORE}")
+        logger.info("✅ F1 score {micro_f1:.4f} meets target of {TARGET_F1_SCORE}")
         return 0
     else:
-        logger.error(f"❌ F1 score {micro_f1:.4f} below target of {TARGET_F1_SCORE}")
+        logger.error("❌ F1 score {micro_f1:.4f} below target of {TARGET_F1_SCORE}")
         return 1
 
 

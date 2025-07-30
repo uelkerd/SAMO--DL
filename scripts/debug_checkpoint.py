@@ -19,19 +19,19 @@ def debug_checkpoint():
     # Load checkpoint
     checkpoint = torch.load(checkpoint_path, map_location="cpu")
 
-    print(f"Checkpoint type: {type(checkpoint)}")
-    print(f"Checkpoint content: {checkpoint}")
+    print("Checkpoint type: {type(checkpoint)}")
+    print("Checkpoint content: {checkpoint}")
 
     if isinstance(checkpoint, dict):
         print("\n📋 Dictionary keys:")
         for key in checkpoint:
-            print(f"  - {key}: {type(checkpoint[key])}")
+            print("  - {key}: {type(checkpoint[key])}")
     elif isinstance(checkpoint, tuple):
-        print(f"\n📋 Tuple length: {len(checkpoint)}")
+        print("\n📋 Tuple length: {len(checkpoint)}")
         for i, item in enumerate(checkpoint):
-            print(f"  - Item {i}: {type(item)}")
+            print("  - Item {i}: {type(item)}")
             if isinstance(item, dict):
-                print(f"    Keys: {list(item.keys())}")
+                print("    Keys: {list(item.keys())}")
 
 
 if __name__ == "__main__":

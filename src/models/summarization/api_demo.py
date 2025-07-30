@@ -54,7 +54,7 @@ async def lifespan(app: FastAPI):
 
     except Exception as e:
         logger.error("❌ Failed to load summarization model: {e}", extra={"format_args": True})
-        raise RuntimeError(f"Model loading failed: {e}")
+        raise RuntimeError("Model loading failed: {e}")
 
     yield  # App runs here
 
@@ -103,9 +103,9 @@ class BatchSummarizationRequest(BaseModel):
     def validate_text_lengths(cls, texts):
         for i, text in enumerate(texts):
             if len(text) < 50:
-                raise ValueError(f"Text {i + 1} too short (minimum 50 characters)")
+                raise ValueError("Text {i + 1} too short (minimum 50 characters)")
             if len(text) > 2000:
-                raise ValueError(f"Text {i + 1} too long (maximum 2000 characters)")
+                raise ValueError("Text {i + 1} too long (maximum 2000 characters)")
         return texts
 
 
@@ -184,7 +184,7 @@ async def summarize_text(request: SummarizeRequest):
 
     except Exception as e:
         logger.error("Summarization error: {e}", extra={"format_args": True})
-        raise HTTPException(status_code=500, detail=f"Summarization failed: {e!s}")
+        raise HTTPException(status_code=500, detail="Summarization failed: {e!s}")
 
 
 @app.post("/summarize/batch", response_model=BatchSummarizationResponse)
@@ -238,7 +238,7 @@ async def summarize_batch(request: BatchSummarizationRequest):
 
     except Exception as e:
         logger.error("Batch summarization error: {e}", extra={"format_args": True})
-        raise HTTPException(status_code=500, detail=f"Batch summarization failed: {e!s}")
+        raise HTTPException(status_code=500, detail="Batch summarization failed: {e!s}")
 
 
 @app.get("/model/info")

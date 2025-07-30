@@ -18,10 +18,8 @@ Arguments:
     --batch_size: Training batch size (default: 16)
 """
 
-import sys
 import argparse
 import logging
-import json
 from pathlib import Path
 from typing import Optional, Any
 
@@ -194,7 +192,7 @@ def create_augmented_dataset(data_loader: GoEmotionsDataLoader, tokenizer: AutoT
     sorted_labels = sorted(label_counts.items(), key=lambda x: x[1])
     underrepresented = [label for label, _ in sorted_labels[: int(len(sorted_labels) * 0.3)]]
 
-    logger.info(f"Found {len(underrepresented)} underrepresented classes")
+    logger.info("Found {len(underrepresented)} underrepresented classes")
 
     # Create synthetic examples for underrepresented classes
     synthetic_texts = []
@@ -216,7 +214,7 @@ def create_augmented_dataset(data_loader: GoEmotionsDataLoader, tokenizer: AutoT
                 synthetic_texts.append(" ".join(shuffled) + " [AUGMENTED]")
                 synthetic_labels.append(labels)
 
-    logger.info(f"Created {len(synthetic_texts)} synthetic examples")
+    logger.info("Created {len(synthetic_texts)} synthetic examples")
 
     # Combine original and synthetic data
     augmented_texts = list(train_texts) + synthetic_texts
@@ -248,7 +246,7 @@ def train_final_model(
     """
     # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Using device: {device}")
+    logger.info("Using device: {device}")
 
     # Create data loader
     logger.info("Loading GoEmotions dataset...")
@@ -300,7 +298,7 @@ def train_final_model(
     )
 
     # Train model
-    logger.info(f"Training model for {epochs} epochs...")
+    logger.info("Training model for {epochs} epochs...")
     results = trainer.train(augmented_datasets["train"], augmented_datasets["validation"])
 
     # Evaluate on test set
@@ -309,15 +307,15 @@ def train_final_model(
 
     # Log results
     logger.info("Training complete!")
-    logger.info(f"Best validation F1: {results['best_val_f1']:.4f}")
-    logger.info(f"Test micro F1: {test_metrics['micro_f1']:.4f}")
-    logger.info(f"Test macro F1: {test_metrics['macro_f1']:.4f}")
+    logger.info("Best validation F1: {results['best_val_f1']:.4f}")
+    logger.info("Test micro F1: {test_metrics['micro_f1']:.4f}")
+    logger.info("Test macro F1: {test_metrics['macro_f1']:.4f}")
 
     # Check if target F1 score was achieved
     if test_metrics["micro_f1"] >= TARGET_F1_SCORE:
-        logger.info(f"✅ Target F1 score of {TARGET_F1_SCORE:.2f} achieved!")
+        logger.info("✅ Target F1 score of {TARGET_F1_SCORE:.2f} achieved!")
     else:
-        logger.warning(f"⚠️ Target F1 score of {TARGET_F1_SCORE:.2f} not achieved.")
+        logger.warning("⚠️ Target F1 score of {TARGET_F1_SCORE:.2f} not achieved.")
         logger.info("Creating ensemble model for improved performance...")
 
         # Create ensemble model
@@ -332,14 +330,14 @@ def train_final_model(
         save_ensemble_model(ensemble, ensemble_metrics, output_model)
 
         # Log ensemble results
-        logger.info(f"Ensemble micro F1: {ensemble_metrics['micro_f1']:.4f}")
-        logger.info(f"Ensemble macro F1: {ensemble_metrics['macro_f1']:.4f}")
+        logger.info("Ensemble micro F1: {ensemble_metrics['micro_f1']:.4f}")
+        logger.info("Ensemble macro F1: {ensemble_metrics['macro_f1']:.4f}")
 
         if ensemble_metrics["micro_f1"] >= TARGET_F1_SCORE:
-            logger.info(f"✅ Target F1 score of {TARGET_F1_SCORE:.2f} achieved with ensemble!")
+            logger.info("✅ Target F1 score of {TARGET_F1_SCORE:.2f} achieved with ensemble!")
         else:
             logger.warning(
-                f"⚠️ Target F1 score of {TARGET_F1_SCORE:.2f} not achieved with ensemble."
+                "⚠️ Target F1 score of {TARGET_F1_SCORE:.2f} not achieved with ensemble."
             )
 
     return results
@@ -365,7 +363,7 @@ def create_ensemble_model(model_path: str, device: torch.device) -> EnsembleMode
         checkpoint = torch.load(checkpoint_path, map_location=device)
         base_model.load_state_dict(checkpoint["model_state_dict"])
     else:
-        logger.warning(f"Checkpoint not found at {checkpoint_path}, using untrained model")
+        logger.warning("Checkpoint not found at {checkpoint_path}, using untrained model")
 
     # Create model with more frozen layers
     frozen_model, _ = create_bert_emotion_classifier(freeze_bert_layers=8)
@@ -447,7 +445,7 @@ def evaluate_ensemble(
     )
 
     for i, emotion in enumerate(GOEMOTIONS_EMOTIONS):
-        metrics[f"{emotion}_f1"] = f1[i]
+        metrics["{emotion}_f1"] = f1[i]
 
     return metrics
 
@@ -480,14 +478,14 @@ def save_ensemble_model(
         output_path,
     )
 
-    logger.info(f"Ensemble model saved to {output_path}")
+    logger.info("Ensemble model saved to {output_path}")
 
     # Save metrics separately for easier access
     metrics_path = Path(output_path).with_suffix(".metrics.json")
     with open(metrics_path, "w") as f:
         json.dump(metrics, f, indent=2)
 
-    logger.info(f"Metrics saved to {metrics_path}")
+    logger.info("Metrics saved to {metrics_path}")
 
 
 if __name__ == "__main__":
@@ -496,7 +494,7 @@ if __name__ == "__main__":
         "--output_model",
         type=str,
         default=DEFAULT_OUTPUT_MODEL,
-        help=f"Path to save final model (default: {DEFAULT_OUTPUT_MODEL})",
+        help="Path to save final model (default: {DEFAULT_OUTPUT_MODEL})",
     )
     parser.add_argument(
         "--epochs", type=int, default=5, help="Number of training epochs (default: 5)"

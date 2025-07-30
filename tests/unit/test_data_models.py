@@ -24,7 +24,7 @@ class TestBaseModel:
     def test_base_model_initialization(self):
         """Test BaseModel initialization."""
         model = BaseModel()
-        
+
         assert hasattr(model, 'id')
         assert hasattr(model, 'created_at')
         assert hasattr(model, 'updated_at')
@@ -37,7 +37,7 @@ class TestBaseModel:
             created_at=custom_time,
             updated_at=custom_time
         )
-        
+
         assert model.id == 1
         assert model.created_at == custom_time
         assert model.updated_at == custom_time
@@ -52,7 +52,7 @@ class TestUser:
             username="testuser",
             email="test@example.com"
         )
-        
+
         assert user.username == "testuser"
         assert user.email == "test@example.com"
         assert user.is_active is True
@@ -67,7 +67,7 @@ class TestUser:
             created_at=datetime.now(),
             updated_at=datetime.now()
         )
-        
+
         assert user.id == 1
         assert user.username == "testuser"
         assert user.email == "test@example.com"
@@ -83,7 +83,7 @@ class TestJournalEntry:
             user_id=1,
             content="Test journal entry"
         )
-        
+
         assert entry.user_id == 1
         assert entry.content == "Test journal entry"
         assert entry.is_analyzed is False
@@ -99,7 +99,7 @@ class TestJournalEntry:
             created_at=custom_time,
             updated_at=custom_time
         )
-        
+
         assert entry.id == 1
         assert entry.user_id == 1
         assert entry.content == "Test journal entry"
@@ -117,7 +117,7 @@ class TestEmotionAnalysis:
             journal_entry_id=1,
             emotions={"happy": 0.8, "sad": 0.2}
         )
-        
+
         assert analysis.journal_entry_id == 1
         assert analysis.emotions == {"happy": 0.8, "sad": 0.2}
         assert analysis.confidence == 0.0
@@ -133,7 +133,7 @@ class TestEmotionAnalysis:
             created_at=custom_time,
             updated_at=custom_time
         )
-        
+
         assert analysis.id == 1
         assert analysis.journal_entry_id == 1
         assert analysis.emotions == {"happy": 0.8, "sad": 0.2}
@@ -151,7 +151,7 @@ class TestSummaryAnalysis:
             journal_entry_id=1,
             summary="This is a test summary"
         )
-        
+
         assert analysis.journal_entry_id == 1
         assert analysis.summary == "This is a test summary"
         assert analysis.word_count == 0
@@ -167,7 +167,7 @@ class TestSummaryAnalysis:
             created_at=custom_time,
             updated_at=custom_time
         )
-        
+
         assert analysis.id == 1
         assert analysis.journal_entry_id == 1
         assert analysis.summary == "This is a test summary"
@@ -185,7 +185,7 @@ class TestVoiceAnalysis:
             journal_entry_id=1,
             transcription="This is a test transcription"
         )
-        
+
         assert analysis.journal_entry_id == 1
         assert analysis.transcription == "This is a test transcription"
         assert analysis.confidence == 0.0
@@ -202,7 +202,7 @@ class TestVoiceAnalysis:
             created_at=custom_time,
             updated_at=custom_time
         )
-        
+
         assert analysis.id == 1
         assert analysis.journal_entry_id == 1
         assert analysis.transcription == "This is a test transcription"
@@ -221,7 +221,7 @@ class TestAnalysisResult:
             journal_entry_id=1,
             analysis_type="emotion"
         )
-        
+
         assert result.journal_entry_id == 1
         assert result.analysis_type == "emotion"
         assert result.status == "pending"
@@ -238,7 +238,7 @@ class TestAnalysisResult:
             created_at=custom_time,
             updated_at=custom_time
         )
-        
+
         assert result.id == 1
         assert result.journal_entry_id == 1
         assert result.analysis_type == "emotion"
@@ -254,6 +254,6 @@ class TestAnalysisResult:
             analysis_type="emotion",
             status="invalid_status"
         )
-        
+
         # Should accept any string for status
-        assert result.status == "invalid_status" 
+        assert result.status == "invalid_status"

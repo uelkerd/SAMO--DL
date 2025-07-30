@@ -4,8 +4,6 @@ SAMO Vertex AI AutoML Training Pipeline
 Trains an AutoML model for emotion detection with F1 score optimization
 """
 
-import sys
-import json
 import logging
 import time
 from datetime import datetime
@@ -29,7 +27,7 @@ class SAMOVertexAutoMLTraining:
 
         # Initialize Vertex AI
         aiplatform.init(project=project_id, location=self.region)
-        logger.info(f"Initialized Vertex AI for project: {project_id}")
+        logger.info("Initialized Vertex AI for project: {project_id}")
 
     def load_metadata(self) -> dict:
         """Load training metadata"""
@@ -38,7 +36,7 @@ class SAMOVertexAutoMLTraining:
         blob = bucket.blob("vertex_ai_data/metadata.json")
 
         metadata = json.loads(blob.download_as_text())
-        logger.info(f"Loaded metadata: {len(metadata['emotions'])} emotions")
+        logger.info("Loaded metadata: {len(metadata['emotions'])} emotions")
         return metadata
 
     def check_csv_structure(self) -> str:
@@ -49,7 +47,7 @@ class SAMOVertexAutoMLTraining:
 
         # Download first few lines to check structure
         content = blob.download_as_text().split("\n")[:5]
-        logger.info(f"CSV header: {content[0]}")
+        logger.info("CSV header: {content[0]}")
 
         # Find the target column (should be the emotion labels column)
         columns = content[0].split(",")
@@ -65,28 +63,28 @@ class SAMOVertexAutoMLTraining:
             # If no emotion column found, use the last column (typically labels)
             target_column = columns[-1]
 
-        logger.info(f"Using target column: {target_column}")
+        logger.info("Using target column: {target_column}")
         return target_column
 
     def create_dataset(self, metadata: dict) -> str:
         """Create Vertex AI dataset"""
-        dataset_display_name = f"samo-emotion-dataset-{int(time.time())}"
+        dataset_display_name = "samo-emotion-dataset-{int(time.time())}"
 
         # Create dataset
         dataset = aiplatform.TextDataset.create(
             display_name=dataset_display_name,
-            gcs_source=f"gs://{self.bucket_name}/vertex_ai_data/train_data.csv",
+            gcs_source="gs://{self.bucket_name}/vertex_ai_data/train_data.csv",
             project=self.project_id,
             location=self.region,
         )
 
         self.dataset_id = dataset.name
-        logger.info(f"Created dataset: {self.dataset_id}")
+        logger.info("Created dataset: {self.dataset_id}")
         return self.dataset_id
 
     def train_model(self, dataset_id: str, metadata: dict) -> str:
         """Train AutoML model"""
-        model_display_name = f"samo-emotion-model-{int(time.time())}"
+        model_display_name = "samo-emotion-model-{int(time.time())}"
 
         # Get the correct target column
         target_column = self.check_csv_structure()
@@ -113,7 +111,7 @@ class SAMOVertexAutoMLTraining:
         )
 
         self.model_id = model.name
-        logger.info(f"Started training: {self.model_id}")
+        logger.info("Started training: {self.model_id}")
         return self.model_id
 
     def monitor_training(self, model_id: str) -> dict:
@@ -131,18 +129,18 @@ class SAMOVertexAutoMLTraining:
                 logger.error("❌ Training failed!")
                 return None
             else:
-                logger.info(f"Training status: {training_job.state.name}")
+                logger.info("Training status: {training_job.state.name}")
                 time.sleep(300)  # Check every 5 minutes
 
         # Get model evaluation
         evaluation = model.evaluate()
-        logger.info(f"Model evaluation: {evaluation}")
+        logger.info("Model evaluation: {evaluation}")
 
         return {"model_id": model_id, "evaluation": evaluation, "training_complete": True}
 
     def deploy_model(self, model_id: str) -> str:
         """Deploy model to endpoint"""
-        endpoint_display_name = f"samo-emotion-endpoint-{int(time.time())}"
+        endpoint_display_name = "samo-emotion-endpoint-{int(time.time())}"
 
         endpoint = aiplatform.Endpoint.create(
             display_name=endpoint_display_name, project=self.project_id, location=self.region
@@ -157,7 +155,7 @@ class SAMOVertexAutoMLTraining:
             max_replica_count=3,
         )
 
-        logger.info(f"Deployed model to endpoint: {endpoint.name}")
+        logger.info("Deployed model to endpoint: {endpoint.name}")
         return endpoint.name
 
     def run_training_pipeline(self) -> dict:
@@ -207,13 +205,13 @@ class SAMOVertexAutoMLTraining:
             blob.upload_from_string(json.dumps(results, indent=2))
 
             logger.info("🎉 Training pipeline completed successfully!")
-            logger.info(f"✅ Model ID: {model_id}")
-            logger.info(f"✅ Endpoint ID: {endpoint_id}")
+            logger.info("✅ Model ID: {model_id}")
+            logger.info("✅ Endpoint ID: {endpoint_id}")
 
             return results
 
         except Exception as e:
-            logger.error(f"Training pipeline failed: {e}")
+            logger.error("Training pipeline failed: {e}")
             return None
 
 
@@ -227,8 +225,8 @@ def main():
     bucket_name = sys.argv[2]
 
     print("🚀 Starting SAMO Vertex AI AutoML Training...")
-    print(f"📊 Project: {project_id}")
-    print(f"📦 Bucket: {bucket_name}")
+    print("📊 Project: {project_id}")
+    print("📦 Bucket: {bucket_name}")
 
     # Initialize and run training
     trainer = SAMOVertexAutoMLTraining(project_id, bucket_name)
@@ -236,8 +234,8 @@ def main():
 
     if results:
         print("🎉 Training completed successfully!")
-        print(f"✅ Model ID: {results['model_id']}")
-        print(f"✅ Endpoint ID: {results['endpoint_id']}")
+        print("✅ Model ID: {results['model_id']}")
+        print("✅ Endpoint ID: {results['endpoint_id']}")
         print("🚀 Ready for production deployment!")
     else:
         print("❌ Training failed!")

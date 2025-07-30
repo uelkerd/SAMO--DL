@@ -6,7 +6,6 @@ This script provides a simple implementation of focal loss training for the SAMO
 It includes proper path handling for different environments.
 """
 
-import sys
 import logging
 import torch
 import torch.nn as nn
@@ -51,7 +50,7 @@ def main():
 
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Device: {device}")
+    logger.info("Device: {device}")
 
     # Load dataset using existing loader
     logger.info("📊 Loading GoEmotions dataset...")
@@ -65,13 +64,13 @@ def main():
         emotion_names = data_loader.emotion_names
 
         logger.info("✅ Dataset loaded successfully")
-        logger.info(f"   • Train examples: {len(train_dataset)}")
-        logger.info(f"   • Validation examples: {len(val_dataset)}")
-        logger.info(f"   • Test examples: {len(test_dataset)}")
-        logger.info(f"   • Emotion classes: {len(emotion_names)}")
+        logger.info("   • Train examples: {len(train_dataset)}")
+        logger.info("   • Validation examples: {len(val_dataset)}")
+        logger.info("   • Test examples: {len(test_dataset)}")
+        logger.info("   • Emotion classes: {len(emotion_names)}")
 
     except Exception as e:
-        logger.error(f"❌ Failed to load dataset: {e}")
+        logger.error("❌ Failed to load dataset: {e}")
         return
 
     # Create model
@@ -86,11 +85,11 @@ def main():
         trainable_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
         logger.info("✅ Model created successfully")
-        logger.info(f"   • Total parameters: {param_count:,}")
-        logger.info(f"   • Trainable parameters: {trainable_count:,}")
+        logger.info("   • Total parameters: {param_count:,}")
+        logger.info("   • Trainable parameters: {trainable_count:,}")
 
     except Exception as e:
-        logger.error(f"❌ Failed to create model: {e}")
+        logger.error("❌ Failed to create model: {e}")
         return
 
     # Create focal loss
@@ -112,7 +111,7 @@ def main():
     )
 
     for epoch in range(3):
-        logger.info(f"📚 Epoch {epoch + 1}/3")
+        logger.info("📚 Epoch {epoch + 1}/3")
 
         for batch_idx, batch in enumerate(train_dataloader):
             if batch_idx >= 5:  # Only do first 5 batches for testing
@@ -133,7 +132,7 @@ def main():
             optimizer.step()
 
             if batch_idx % 2 == 0:
-                logger.info(f"   Batch {batch_idx}: Loss = {loss.item():.4f}")
+                logger.info("   Batch {batch_idx}: Loss = {loss.item():.4f}")
 
     logger.info("✅ Training completed successfully!")
     logger.info("🎯 Focal Loss training is working correctly")

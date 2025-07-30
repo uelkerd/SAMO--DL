@@ -3,13 +3,11 @@
 Simple Temperature Scaling Test - Using Local Sample Data.
 """
 
-import sys
 from pathlib import Path
 
 sys.path.append(str(Path.cwd() / "src"))
 
 import torch
-import json
 from models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
 from torch.utils.data import DataLoader
 
@@ -19,7 +17,7 @@ def simple_temperature_test_local():
 
     # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
+    print("Using device: {device}")
 
     # Load checkpoint
     checkpoint_path = Path("test_checkpoints/best_model.pt")
@@ -80,7 +78,7 @@ def simple_temperature_test_local():
     dataset = EmotionDataset(test_texts, emotion_labels, max_length=512)
     dataloader = DataLoader(dataset, batch_size=2, shuffle=False)
 
-    print(f"✅ Created test dataset with {len(test_texts)} samples")
+    print("✅ Created test dataset with {len(test_texts)} samples")
 
     # Test different temperatures
     temperatures = [1.0, 2.0, 3.0, 4.0]
@@ -89,7 +87,7 @@ def simple_temperature_test_local():
     print("=" * 50)
 
     for temp in temperatures:
-        print(f"\n📊 Temperature: {temp}")
+        print("\n📊 Temperature: {temp}")
 
         # Set temperature
         model.set_temperature(temp)
@@ -130,17 +128,17 @@ def simple_temperature_test_local():
         # Calculate macro F1
         macro_f1 = f1_score(label_np, pred_np, average="macro", zero_division=0)
 
-        print(f"   Micro F1: {micro_f1:.4f}")
-        print(f"   Macro F1: {macro_f1:.4f}")
+        print("   Micro F1: {micro_f1:.4f}")
+        print("   Macro F1: {macro_f1:.4f}")
 
         # Show some predictions
         print("   Sample predictions (first 2 samples):")
         for i in range(min(2, len(test_texts))):
             pred_emotions = pred_np[i]
             true_emotions = label_np[i]
-            print(f"     Text: {test_texts[i][:50]}...")
-            print(f"     Pred: {pred_emotions}")
-            print(f"     True: {true_emotions}")
+            print("     Text: {test_texts[i][:50]}...")
+            print("     Pred: {pred_emotions}")
+            print("     True: {true_emotions}")
 
     print("\n✅ Temperature scaling test completed!")
 

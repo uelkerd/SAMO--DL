@@ -5,7 +5,6 @@ Simple Validation for GCP Deployment
 Quick validation of core components before GCP deployment.
 """
 
-import sys
 import logging
 from pathlib import Path
 
@@ -45,11 +44,11 @@ def validate_focal_loss():
         focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
         loss = focal_loss(inputs, targets)
 
-        logger.info(f"✅ Focal Loss: PASSED (loss={loss.item():.4f})")
+        logger.info("✅ Focal Loss: PASSED (loss={loss.item():.4f})")
         return True
 
     except Exception as e:
-        logger.error(f"❌ Focal Loss: FAILED - {e}")
+        logger.error("❌ Focal Loss: FAILED - {e}")
         return False
 
 
@@ -68,16 +67,16 @@ def validate_script_files():
     missing_files = []
     for script in required_scripts:
         if Path(script).exists():
-            logger.info(f"   ✅ {script}")
+            logger.info("   ✅ {script}")
         else:
-            logger.error(f"   ❌ {script} - MISSING")
+            logger.error("   ❌ {script} - MISSING")
             missing_files.append(script)
 
     if missing_files:
-        logger.error(f"❌ Script Files: FAILED - {len(missing_files)} files missing")
+        logger.error("❌ Script Files: FAILED - {len(missing_files)} files missing")
         return False
     else:
-        logger.info(f"✅ Script Files: PASSED - All {len(required_scripts)} files found")
+        logger.info("✅ Script Files: PASSED - All {len(required_scripts)} files found")
         return True
 
 
@@ -88,25 +87,24 @@ def validate_python_environment():
     try:
         import torch
 
-        logger.info(f"   ✅ PyTorch: {torch.__version__}")
+        logger.info("   ✅ PyTorch: {torch.__version__}")
 
         import transformers
 
-        logger.info(f"   ✅ Transformers: {transformers.__version__}")
+        logger.info("   ✅ Transformers: {transformers.__version__}")
 
-        import numpy as np
 
-        logger.info(f"   ✅ NumPy: {np.__version__}")
+        logger.info("   ✅ NumPy: {np.__version__}")
 
         import sklearn
 
-        logger.info(f"   ✅ Scikit-learn: {sklearn.__version__}")
+        logger.info("   ✅ Scikit-learn: {sklearn.__version__}")
 
         logger.info("✅ Python Environment: PASSED")
         return True
 
     except ImportError as e:
-        logger.error(f"❌ Python Environment: FAILED - {e}")
+        logger.error("❌ Python Environment: FAILED - {e}")
         return False
 
 
@@ -165,11 +163,11 @@ def main():
     results = {}
 
     for name, validation_func in validations:
-        logger.info(f"\n📋 Running {name} validation...")
+        logger.info("\n📋 Running {name} validation...")
         try:
             results[name] = validation_func()
         except Exception as e:
-            logger.error(f"❌ {name} validation failed with exception: {e}")
+            logger.error("❌ {name} validation failed with exception: {e}")
             results[name] = False
 
     # Summary
@@ -181,9 +179,9 @@ def main():
 
     for name, result in results.items():
         status = "✅ PASS" if result else "❌ FAIL"
-        logger.info(f"   • {name}: {status}")
+        logger.info("   • {name}: {status}")
 
-    logger.info(f"\n🎯 Overall: {passed}/{total} validations passed")
+    logger.info("\n🎯 Overall: {passed}/{total} validations passed")
 
     if passed >= 3:  # At least 3 out of 4 should pass
         logger.info("✅ Ready for GCP deployment!")

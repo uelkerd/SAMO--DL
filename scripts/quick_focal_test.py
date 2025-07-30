@@ -5,7 +5,6 @@ Quick Focal Loss Test
 Minimal test to validate focal loss implementation without complex dependencies.
 """
 
-import sys
 import logging
 from pathlib import Path
 
@@ -52,14 +51,14 @@ def test_focal_loss_math():
         loss = focal_loss(inputs, targets)
 
         logger.info("✅ Focal Loss Test PASSED")
-        logger.info(f"   • Loss value: {loss.item():.4f}")
-        logger.info(f"   • Input shape: {inputs.shape}")
-        logger.info(f"   • Target shape: {targets.shape}")
+        logger.info("   • Loss value: {loss.item():.4f}")
+        logger.info("   • Input shape: {inputs.shape}")
+        logger.info("   • Target shape: {targets.shape}")
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ Focal Loss Test FAILED: {e}")
+        logger.error("❌ Focal Loss Test FAILED: {e}")
         return False
 
 
@@ -81,14 +80,14 @@ def test_dataset_loading():
         val_size = len(datasets["validation"])
 
         logger.info("✅ Dataset Loading Test PASSED")
-        logger.info(f"   • Train examples: {train_size}")
-        logger.info(f"   • Validation examples: {val_size}")
-        logger.info(f"   • Class weights computed: {datasets['class_weights'] is not None}")
+        logger.info("   • Train examples: {train_size}")
+        logger.info("   • Validation examples: {val_size}")
+        logger.info("   • Class weights computed: {datasets['class_weights'] is not None}")
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ Dataset Loading Test FAILED: {e}")
+        logger.error("❌ Dataset Loading Test FAILED: {e}")
         return False
 
 
@@ -111,14 +110,14 @@ def test_model_creation():
         trainable_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
         logger.info("✅ Model Creation Test PASSED")
-        logger.info(f"   • Total parameters: {param_count:,}")
-        logger.info(f"   • Trainable parameters: {trainable_count:,}")
-        logger.info(f"   • Model type: {type(model).__name__}")
+        logger.info("   • Total parameters: {param_count:,}")
+        logger.info("   • Trainable parameters: {trainable_count:,}")
+        logger.info("   • Model type: {type(model).__name__}")
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ Model Creation Test FAILED: {e}")
+        logger.error("❌ Model Creation Test FAILED: {e}")
         return False
 
 
@@ -136,11 +135,11 @@ def main():
     results = {}
 
     for test_name, test_func in tests:
-        logger.info(f"\n📋 Running {test_name}...")
+        logger.info("\n📋 Running {test_name}...")
         try:
             results[test_name] = test_func()
         except Exception as e:
-            logger.error(f"❌ {test_name} failed with exception: {e}")
+            logger.error("❌ {test_name} failed with exception: {e}")
             results[test_name] = False
 
     # Summary
@@ -152,9 +151,9 @@ def main():
 
     for test_name, result in results.items():
         status = "✅ PASS" if result else "❌ FAIL"
-        logger.info(f"   • {test_name}: {status}")
+        logger.info("   • {test_name}: {status}")
 
-    logger.info(f"\n🎯 Overall: {passed}/{total} tests passed")
+    logger.info("\n🎯 Overall: {passed}/{total} tests passed")
 
     if passed == total:
         logger.info("✅ All tests passed! Ready for GCP deployment.")

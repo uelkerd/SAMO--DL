@@ -13,13 +13,11 @@ Returns:
     1 if F1 score is below minimum threshold
 """
 
-import sys
 import torch
 import logging
 from pathlib import Path
 from sklearn.metrics import f1_score
 from transformers import AutoTokenizer, AutoModel
-import numpy as np
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -67,10 +65,10 @@ def find_valid_checkpoint():
             try:
                 # Try to load the checkpoint
                 torch.load(path, map_location="cpu", weights_only=False)
-                logger.info(f"✅ Found valid checkpoint: {checkpoint_path}")
+                logger.info("✅ Found valid checkpoint: {checkpoint_path}")
                 return str(path)
             except Exception as e:
-                logger.warning(f"⚠️ Checkpoint {checkpoint_path} is corrupted: {e}")
+                logger.warning("⚠️ Checkpoint {checkpoint_path} is corrupted: {e}")
                 continue
 
     logger.warning("No valid checkpoint found. Will create a simple test model.")
@@ -103,7 +101,7 @@ def create_test_data():
         "frustration",
         "disgust",
         "sadness",
-        "grief",
+        "grie",
         "sadness",
         "love",
     ]
@@ -115,7 +113,7 @@ def create_test_data():
         "frustration": 4,
         "disgust": 5,
         "sadness": 6,
-        "grief": 7,
+        "grie": 7,
         "neutral": 27,
     }
 
@@ -132,7 +130,7 @@ def create_test_data():
 def test_calibration():
     """Test model with optimal calibration settings."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Using device: {device}")
+    logger.info("Using device: {device}")
 
     # Find valid checkpoint
     checkpoint_path = find_valid_checkpoint()
@@ -151,7 +149,7 @@ def test_calibration():
             else:
                 logger.warning("⚠️ Checkpoint format unexpected, using default model")
         except Exception as e:
-            logger.warning(f"⚠️ Could not load checkpoint: {e}")
+            logger.warning("⚠️ Could not load checkpoint: {e}")
             logger.info("Using default model")
     else:
         # Create new model
@@ -160,13 +158,13 @@ def test_calibration():
         model.to(device)
 
     # Set optimal temperature
-    logger.info(f"Setting temperature to {OPTIMAL_TEMPERATURE}")
+    logger.info("Setting temperature to {OPTIMAL_TEMPERATURE}")
     model.temperature.data.fill_(OPTIMAL_TEMPERATURE)
     model.eval()
 
     # Create test data
     test_texts, test_labels = create_test_data()
-    logger.info(f"Created {len(test_texts)} test examples")
+    logger.info("Created {len(test_texts)} test examples")
 
     # Create tokenizer
     tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
@@ -199,15 +197,15 @@ def test_calibration():
     micro_f1 = f1_score(all_labels, all_predictions, average="micro", zero_division=0)
     macro_f1 = f1_score(all_labels, all_predictions, average="macro", zero_division=0)
 
-    logger.info(f"Micro F1: {micro_f1:.4f}")
-    logger.info(f"Macro F1: {macro_f1:.4f}")
+    logger.info("Micro F1: {micro_f1:.4f}")
+    logger.info("Macro F1: {macro_f1:.4f}")
 
     # Check if F1 score meets target
     if micro_f1 >= TARGET_F1_SCORE:
-        logger.info(f"✅ F1 score {micro_f1:.4f} meets target of {TARGET_F1_SCORE}")
+        logger.info("✅ F1 score {micro_f1:.4f} meets target of {TARGET_F1_SCORE}")
         return 0
     else:
-        logger.error(f"❌ F1 score {micro_f1:.4f} below target of {TARGET_F1_SCORE}")
+        logger.error("❌ F1 score {micro_f1:.4f} below target of {TARGET_F1_SCORE}")
         return 1
 
 

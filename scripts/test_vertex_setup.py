@@ -3,9 +3,6 @@
 Simple test script to verify Vertex AI setup
 """
 
-import json
-import sys
-import os
 
 
 def main():
@@ -21,16 +18,16 @@ def main():
     data_path = sys.argv[3]
 
     print("✅ Arguments parsed:")
-    print(f"  - Project: {project_id}")
-    print(f"  - Bucket: {bucket_name}")
-    print(f"  - Data: {data_path}")
+    print("  - Project: {project_id}")
+    print("  - Bucket: {bucket_name}")
+    print("  - Data: {data_path}")
 
     # Test 2: Check data file
     if not os.path.exists(data_path):
-        print(f"❌ Data file not found: {data_path}")
+        print("❌ Data file not found: {data_path}")
         sys.exit(1)
 
-    print(f"✅ Data file exists: {data_path}")
+    print("✅ Data file exists: {data_path}")
 
     # Test 3: Load and analyze data
     try:
@@ -38,19 +35,19 @@ def main():
             data = json.load(f)
 
         print("✅ Data loaded successfully:")
-        print(f"  - Total entries: {len(data)}")
+        print("  - Total entries: {len(data)}")
 
         if len(data) > 0:
             sample = data[0]
-            print(f"  - Sample keys: {list(sample.keys())}")
+            print("  - Sample keys: {list(sample.keys())}")
 
             if "emotions" in sample:
                 emotions = sample["emotions"]
-                print(f"  - Sample emotions: {emotions}")
-                print(f"  - Emotion type: {type(emotions)}")
+                print("  - Sample emotions: {emotions}")
+                print("  - Emotion type: {type(emotions)}")
 
     except Exception as e:
-        print(f"❌ Error loading data: {e}")
+        print("❌ Error loading data: {e}")
         sys.exit(1)
 
     # Test 4: Try to import required packages
@@ -59,14 +56,14 @@ def main():
 
         print("✅ pandas imported successfully")
     except ImportError as e:
-        print(f"❌ pandas import failed: {e}")
+        print("❌ pandas import failed: {e}")
 
     try:
         from google.cloud import storage
 
         print("✅ google-cloud-storage imported successfully")
     except ImportError as e:
-        print(f"❌ google-cloud-storage import failed: {e}")
+        print("❌ google-cloud-storage import failed: {e}")
 
     print("\n🎉 All tests passed! Ready for data preparation.")
 

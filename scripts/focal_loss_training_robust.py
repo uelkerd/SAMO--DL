@@ -9,7 +9,6 @@ Usage:
     python3 focal_loss_training_robust.py
 """
 
-import sys
 import logging
 import torch
 from torch import nn
@@ -36,12 +35,12 @@ try:
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
 
-    print(f"🔧 Added project root to path: {project_root}")
-    print(f"📁 Current working directory: {Path.cwd()}")
-    print(f"📋 Python path: {sys.path[:3]}...")
+    print("🔧 Added project root to path: {project_root}")
+    print("📁 Current working directory: {Path.cwd()}")
+    print("📋 Python path: {sys.path[:3]}...")
 
 except Exception as e:
-    print(f"⚠️  Path setup warning: {e}")
+    print("⚠️  Path setup warning: {e}")
 
 # Now try to import the modules
 try:
@@ -50,7 +49,7 @@ try:
 
     print("✅ Successfully imported modules")
 except ImportError as e:
-    print(f"❌ Import error: {e}")
+    print("❌ Import error: {e}")
     print("🔧 Trying alternative import approach...")
 
     # Alternative: Try to import directly from the file paths
@@ -80,7 +79,7 @@ except ImportError as e:
         print("✅ Successfully imported modules using alternative approach")
 
     except Exception as e2:
-        print(f"❌ Alternative import also failed: {e2}")
+        print("❌ Alternative import also failed: {e2}")
         print("🔧 Please check the project structure and run from the correct directory")
         sys.exit(1)
 
@@ -114,7 +113,7 @@ def main():
 
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Device: {device}")
+    logger.info("Device: {device}")
 
     # Load dataset using existing loader
     logger.info("📊 Loading GoEmotions dataset...")
@@ -128,13 +127,13 @@ def main():
         emotion_names = data_loader.emotion_names
 
         logger.info("✅ Dataset loaded successfully")
-        logger.info(f"   • Train examples: {len(train_dataset)}")
-        logger.info(f"   • Validation examples: {len(val_dataset)}")
-        logger.info(f"   • Test examples: {len(test_dataset)}")
-        logger.info(f"   • Emotion classes: {len(emotion_names)}")
+        logger.info("   • Train examples: {len(train_dataset)}")
+        logger.info("   • Validation examples: {len(val_dataset)}")
+        logger.info("   • Test examples: {len(test_dataset)}")
+        logger.info("   • Emotion classes: {len(emotion_names)}")
 
     except Exception as e:
-        logger.error(f"❌ Failed to load dataset: {e}")
+        logger.error("❌ Failed to load dataset: {e}")
         return
 
     # Create model
@@ -149,11 +148,11 @@ def main():
         trainable_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
         logger.info("✅ Model created successfully")
-        logger.info(f"   • Total parameters: {param_count:,}")
-        logger.info(f"   • Trainable parameters: {trainable_count:,}")
+        logger.info("   • Total parameters: {param_count:,}")
+        logger.info("   • Trainable parameters: {trainable_count:,}")
 
     except Exception as e:
-        logger.error(f"❌ Failed to create model: {e}")
+        logger.error("❌ Failed to create model: {e}")
         return
 
     # Create focal loss
@@ -175,7 +174,7 @@ def main():
     )
 
     for epoch in range(3):
-        logger.info(f"📚 Epoch {epoch + 1}/3")
+        logger.info("📚 Epoch {epoch + 1}/3")
 
         for batch_idx, batch in enumerate(train_dataloader):
             if batch_idx >= 5:  # Only do first 5 batches for testing
@@ -196,7 +195,7 @@ def main():
             optimizer.step()
 
             if batch_idx % 2 == 0:
-                logger.info(f"   Batch {batch_idx}: Loss = {loss.item():.4f}")
+                logger.info("   Batch {batch_idx}: Loss = {loss.item():.4f}")
 
     logger.info("✅ Training completed successfully!")
     logger.info("🎯 Focal Loss training is working correctly")

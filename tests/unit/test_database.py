@@ -21,7 +21,7 @@ class TestDatabaseConnection:
         """Test DatabaseConnection initialization."""
         mock_connection = MagicMock()
         db_conn = DatabaseConnection(mock_connection)
-        
+
         assert db_conn.connection == mock_connection
         assert db_conn.is_connected() is True
 
@@ -29,17 +29,17 @@ class TestDatabaseConnection:
         """Test DatabaseConnection close method."""
         mock_connection = MagicMock()
         db_conn = DatabaseConnection(mock_connection)
-        
+
         db_conn.close()
         mock_connection.close.assert_called_once()
 
     def test_database_connection_context_manager(self):
         """Test DatabaseConnection as context manager."""
         mock_connection = MagicMock()
-        
+
         with DatabaseConnection(mock_connection) as db_conn:
             assert db_conn.connection == mock_connection
-        
+
         mock_connection.close.assert_called_once()
 
 
@@ -51,9 +51,9 @@ class TestDatabaseFunctions:
         """Test get_database_connection function."""
         mock_connection = MagicMock()
         mock_db_conn_class.return_value = mock_connection
-        
+
         result = get_database_connection()
-        
+
         assert result == mock_connection
         mock_db_conn_class.assert_called_once()
 
@@ -64,12 +64,12 @@ class TestDatabaseFunctions:
         mock_cursor = MagicMock()
         mock_connection.cursor.return_value = mock_cursor
         mock_db_conn_class.return_value = mock_connection
-        
+
         query = "SELECT * FROM test_table"
         params = {"id": 1}
-        
+
         execute_query(query, params)
-        
+
         mock_connection.cursor.assert_called_once()
         mock_cursor.execute.assert_called_once_with(query, params)
         mock_connection.commit.assert_called_once()
@@ -82,11 +82,11 @@ class TestDatabaseFunctions:
         mock_cursor = MagicMock()
         mock_connection.cursor.return_value = mock_cursor
         mock_db_conn_class.return_value = mock_connection
-        
+
         query = "SELECT * FROM test_table"
-        
+
         execute_query(query)
-        
+
         mock_connection.cursor.assert_called_once()
         mock_cursor.execute.assert_called_once_with(query, None)
         mock_connection.commit.assert_called_once()
@@ -97,9 +97,9 @@ class TestDatabaseFunctions:
         """Test close_database_connection function."""
         mock_connection = MagicMock()
         mock_db_conn_class.return_value = mock_connection
-        
+
         close_database_connection()
-        
+
         mock_connection.close.assert_called_once()
 
 
@@ -114,12 +114,12 @@ class TestDatabaseErrorHandling:
         mock_connection.cursor.return_value = mock_cursor
         mock_cursor.execute.side_effect = Exception("Database error")
         mock_db_conn_class.return_value = mock_connection
-        
+
         query = "SELECT * FROM test_table"
-        
+
         with pytest.raises(Exception, match="Database error"):
             execute_query(query)
-        
+
         mock_cursor.close.assert_called_once()
 
     @patch('src.data.database.DatabaseConnection')
@@ -128,8 +128,8 @@ class TestDatabaseErrorHandling:
         mock_connection = MagicMock()
         mock_connection.cursor.side_effect = Exception("Cursor error")
         mock_db_conn_class.return_value = mock_connection
-        
+
         query = "SELECT * FROM test_table"
-        
+
         with pytest.raises(Exception, match="Cursor error"):
-            execute_query(query) 
+            execute_query(query)

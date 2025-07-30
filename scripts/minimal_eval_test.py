@@ -24,9 +24,9 @@ def test_evaluation_logic():
     probabilities = torch.rand(batch_size, num_emotions) * 0.8 + 0.1
 
     print("🔍 Testing evaluation logic:")
-    print(f"  Probabilities shape: {probabilities.shape}")
+    print("  Probabilities shape: {probabilities.shape}")
     print(
-        f"  Probabilities min/max/mean: {probabilities.min():.4f}/{probabilities.max():.4f}/{probabilities.mean():.4f}"
+        "  Probabilities min/max/mean: {probabilities.min():.4f}/{probabilities.max():.4f}/{probabilities.mean():.4f}"
     )
 
     # Count how many should be above threshold
@@ -34,17 +34,17 @@ def test_evaluation_logic():
     total_positions = batch_size * num_emotions
 
     print(
-        f"  Expected above threshold: {expected_above_threshold}/{total_positions} ({100*expected_above_threshold/total_positions:.1f}%)"
+        "  Expected above threshold: {expected_above_threshold}/{total_positions} ({100*expected_above_threshold/total_positions:.1f}%)"
     )
 
     # Apply threshold (this is the exact line from our evaluation function)
     predictions = (probabilities >= threshold).float()
 
     print("  Predictions after threshold:")
-    print(f"    - Sum: {predictions.sum().item()}")
-    print(f"    - Mean: {predictions.mean().item():.4f}")
+    print("    - Sum: {predictions.sum().item()}")
+    print("    - Mean: {predictions.mean().item():.4f}")
     print(
-        f"    - Match expected: {'✅' if predictions.sum().item() == expected_above_threshold else '❌'}"
+        "    - Match expected: {'✅' if predictions.sum().item() == expected_above_threshold else '❌'}"
     )
 
     # Check fallback logic
@@ -52,8 +52,8 @@ def test_evaluation_logic():
     batch_has_no_predictions = samples_with_zero > 0
 
     print("  Fallback check:")
-    print(f"    - Samples with zero predictions: {samples_with_zero}")
-    print(f"    - Needs fallback: {batch_has_no_predictions}")
+    print("    - Samples with zero predictions: {samples_with_zero}")
+    print("    - Needs fallback: {batch_has_no_predictions}")
 
     if batch_has_no_predictions:
         print("  Applying fallback...")
@@ -65,9 +65,9 @@ def test_evaluation_logic():
                 predictions[sample_idx, top_idx] = 1.0
 
         samples_after = (predictions.sum(dim=1) == 0).sum().item()
-        print(f"    - Applied fallback to {samples_before - samples_after} samples")
-        print(f"    - Final predictions sum: {predictions.sum().item()}")
-        print(f"    - Final predictions mean: {predictions.mean().item():.4f}")
+        print("    - Applied fallback to {samples_before - samples_after} samples")
+        print("    - Final predictions sum: {predictions.sum().item()}")
+        print("    - Final predictions mean: {predictions.mean().item():.4f}")
 
     return predictions
 
