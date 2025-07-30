@@ -3,8 +3,6 @@ Unit tests for database module.
 Tests database connection, operations, and utilities.
 """
 
-import pytest
-from unittest.mock import MagicMock, patch
 
 from src.data.database import (
     get_db,
@@ -82,9 +80,10 @@ class TestDatabaseFunctions:
         try:
             session = SessionLocal()
             session.close()
-        except Exception:
+        except Exception as e:
             # It's okay if this fails in test environment without real DB
-            pass
+            # Log the exception for debugging purposes
+            print(f"Session creation failed (expected in test environment): {e}")
 
 
 class TestDatabaseErrorHandling:

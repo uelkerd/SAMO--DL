@@ -1,4 +1,3 @@
-import time
 
 """
 Unit tests for API data models and validation.

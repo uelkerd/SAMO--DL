@@ -3,10 +3,7 @@ Integration tests for API endpoints.
 Tests actual API behavior, endpoint integration, and response consistency.
 """
 
-import time
-from unittest.mock import patch
 
-import pytest
 
 
 @pytest.mark.integration
@@ -152,7 +149,7 @@ class TestAPIEndpoints:
                 response = api_client.post("/analyze/journal", json=test_data)
                 results.put(response.status_code)
             except Exception as e:
-                results.put("Error: {e}")
+                results.put(f"Error: {e}")
 
         # Create multiple threads
         threads = []
