@@ -10,39 +10,23 @@ from datetime import datetime
 from unittest.mock import MagicMock
 
 from src.data.models import (
-    BaseModel,
+    Base,
     User,
     JournalEntry,
-    EmotionAnalysis,
-    SummaryAnalysis,
-    VoiceAnalysis,
-    AnalysisResult
+    Embedding,
+    Prediction,
+    VoiceTranscription,
+    Tag
 )
 
 
-class TestBaseModel:
-    """Test suite for BaseModel class."""
+class TestBase:
+    """Test suite for Base class."""
 
-    def test_base_model_initialization(self):
-        """Test BaseModel initialization."""
-        model = BaseModel()
-
-        assert hasattr(model, 'id')
-        assert hasattr(model, 'created_at')
-        assert hasattr(model, 'updated_at')
-
-    def test_base_model_with_custom_values(self):
-        """Test BaseModel with custom values."""
-        custom_time = datetime.now()
-        model = BaseModel(
-            id=1,
-            created_at=custom_time,
-            updated_at=custom_time
-        )
-
-        assert model.id == 1
-        assert model.created_at == custom_time
-        assert model.updated_at == custom_time
+    def test_base_class_exists(self):
+        """Test that Base class exists and is properly configured."""
+        assert hasattr(Base, 'metadata')
+        assert hasattr(Base, '__tablename__') is False  # Base class shouldn't have tablename
 
 
 class TestUser:
@@ -51,29 +35,29 @@ class TestUser:
     def test_user_initialization(self):
         """Test User initialization."""
         user = User(
-            username="testuser",
-            email="test@example.com"
+            email="test@example.com",
+            password_hash="hashed_password"
         )
 
-        assert user.username == "testuser"
         assert user.email == "test@example.com"
-        assert user.is_active is True
+        assert user.password_hash == "hashed_password"
 
     def test_user_with_all_fields(self):
         """Test User with all fields."""
+        custom_time = datetime.now()
         user = User(
-            id=1,
-            username="testuser",
             email="test@example.com",
-            is_active=False,
-            created_at=datetime.now(),
-            updated_at=datetime.now()
+            password_hash="hashed_password",
+            consent_version="1.0",
+            consent_given_at=custom_time,
+            data_retention_policy="standard"
         )
 
-        assert user.id == 1
-        assert user.username == "testuser"
         assert user.email == "test@example.com"
-        assert user.is_active is False
+        assert user.password_hash == "hashed_password"
+        assert user.consent_version == "1.0"
+        assert user.consent_given_at == custom_time
+        assert user.data_retention_policy == "standard"
 
 
 class TestJournalEntry:
@@ -82,180 +66,154 @@ class TestJournalEntry:
     def test_journal_entry_initialization(self):
         """Test JournalEntry initialization."""
         entry = JournalEntry(
-            user_id=1,
+            user_id="test-user-id",
             content="Test journal entry"
         )
 
-        assert entry.user_id == 1
+        assert entry.user_id == "test-user-id"
         assert entry.content == "Test journal entry"
-        assert entry.is_analyzed is False
+        assert entry.is_private is True
 
     def test_journal_entry_with_all_fields(self):
         """Test JournalEntry with all fields."""
         custom_time = datetime.now()
         entry = JournalEntry(
-            id=1,
-            user_id=1,
+            user_id="test-user-id",
+            title="Test Title",
             content="Test journal entry",
-            is_analyzed=True,
+            sentiment_score=0.8,
+            mood_category="happy",
+            is_private=False,
             created_at=custom_time,
             updated_at=custom_time
         )
 
-        assert entry.id == 1
-        assert entry.user_id == 1
+        assert entry.user_id == "test-user-id"
+        assert entry.title == "Test Title"
         assert entry.content == "Test journal entry"
-        assert entry.is_analyzed is True
+        assert entry.sentiment_score == 0.8
+        assert entry.mood_category == "happy"
+        assert entry.is_private is False
         assert entry.created_at == custom_time
         assert entry.updated_at == custom_time
 
 
-class TestEmotionAnalysis:
-    """Test suite for EmotionAnalysis model."""
+class TestEmbedding:
+    """Test suite for Embedding model."""
 
-    def test_emotion_analysis_initialization(self):
-        """Test EmotionAnalysis initialization."""
-        analysis = EmotionAnalysis(
-            journal_entry_id=1,
-            emotions={"happy": 0.8, "sad": 0.2}
+    def test_embedding_initialization(self):
+        """Test Embedding initialization."""
+        embedding = Embedding(
+            entry_id="test-entry-id",
+            model_version="bert-base-uncased"
         )
 
-        assert analysis.journal_entry_id == 1
-        assert analysis.emotions == {"happy": 0.8, "sad": 0.2}
-        assert analysis.confidence == 0.0
+        assert embedding.entry_id == "test-entry-id"
+        assert embedding.model_version == "bert-base-uncased"
 
-    def test_emotion_analysis_with_all_fields(self):
-        """Test EmotionAnalysis with all fields."""
+    def test_embedding_with_all_fields(self):
+        """Test Embedding with all fields."""
         custom_time = datetime.now()
-        analysis = EmotionAnalysis(
-            id=1,
-            journal_entry_id=1,
-            emotions={"happy": 0.8, "sad": 0.2},
-            confidence=0.85,
-            created_at=custom_time,
-            updated_at=custom_time
+        embedding = Embedding(
+            entry_id="test-entry-id",
+            model_version="bert-base-uncased",
+            created_at=custom_time
         )
 
-        assert analysis.id == 1
-        assert analysis.journal_entry_id == 1
-        assert analysis.emotions == {"happy": 0.8, "sad": 0.2}
-        assert analysis.confidence == 0.85
-        assert analysis.created_at == custom_time
-        assert analysis.updated_at == custom_time
+        assert embedding.entry_id == "test-entry-id"
+        assert embedding.model_version == "bert-base-uncased"
+        assert embedding.created_at == custom_time
 
 
-class TestSummaryAnalysis:
-    """Test suite for SummaryAnalysis model."""
+class TestPrediction:
+    """Test suite for Prediction model."""
 
-    def test_summary_analysis_initialization(self):
-        """Test SummaryAnalysis initialization."""
-        analysis = SummaryAnalysis(
-            journal_entry_id=1,
-            summary="This is a test summary"
+    def test_prediction_initialization(self):
+        """Test Prediction initialization."""
+        prediction = Prediction(
+            user_id="test-user-id",
+            prediction_type="emotion",
+            prediction_content={"happy": 0.8, "sad": 0.2}
         )
 
-        assert analysis.journal_entry_id == 1
-        assert analysis.summary == "This is a test summary"
-        assert analysis.word_count == 0
+        assert prediction.user_id == "test-user-id"
+        assert prediction.prediction_type == "emotion"
+        assert prediction.prediction_content == {"happy": 0.8, "sad": 0.2}
+        assert prediction.is_feedback_given is False
 
-    def test_summary_analysis_with_all_fields(self):
-        """Test SummaryAnalysis with all fields."""
+    def test_prediction_with_all_fields(self):
+        """Test Prediction with all fields."""
         custom_time = datetime.now()
-        analysis = SummaryAnalysis(
-            id=1,
-            journal_entry_id=1,
-            summary="This is a test summary",
-            word_count=5,
-            created_at=custom_time,
-            updated_at=custom_time
+        prediction = Prediction(
+            user_id="test-user-id",
+            prediction_type="emotion",
+            prediction_content={"happy": 0.8, "sad": 0.2},
+            confidence_score=0.85,
+            is_feedback_given=True,
+            feedback_rating=5,
+            created_at=custom_time
         )
 
-        assert analysis.id == 1
-        assert analysis.journal_entry_id == 1
-        assert analysis.summary == "This is a test summary"
-        assert analysis.word_count == 5
-        assert analysis.created_at == custom_time
-        assert analysis.updated_at == custom_time
+        assert prediction.user_id == "test-user-id"
+        assert prediction.prediction_type == "emotion"
+        assert prediction.prediction_content == {"happy": 0.8, "sad": 0.2}
+        assert prediction.confidence_score == 0.85
+        assert prediction.is_feedback_given is True
+        assert prediction.feedback_rating == 5
+        assert prediction.created_at == custom_time
 
 
-class TestVoiceAnalysis:
-    """Test suite for VoiceAnalysis model."""
+class TestVoiceTranscription:
+    """Test suite for VoiceTranscription model."""
 
-    def test_voice_analysis_initialization(self):
-        """Test VoiceAnalysis initialization."""
-        analysis = VoiceAnalysis(
-            journal_entry_id=1,
-            transcription="This is a test transcription"
+    def test_voice_transcription_initialization(self):
+        """Test VoiceTranscription initialization."""
+        transcription = VoiceTranscription(
+            user_id="test-user-id",
+            transcript_text="This is a test transcription"
         )
 
-        assert analysis.journal_entry_id == 1
-        assert analysis.transcription == "This is a test transcription"
-        assert analysis.confidence == 0.0
+        assert transcription.user_id == "test-user-id"
+        assert transcription.transcript_text == "This is a test transcription"
 
-    def test_voice_analysis_with_all_fields(self):
-        """Test VoiceAnalysis with all fields."""
+    def test_voice_transcription_with_all_fields(self):
+        """Test VoiceTranscription with all fields."""
         custom_time = datetime.now()
-        analysis = VoiceAnalysis(
-            id=1,
-            journal_entry_id=1,
-            transcription="This is a test transcription",
-            confidence=0.92,
-            audio_duration=30.5,
-            created_at=custom_time,
-            updated_at=custom_time
+        transcription = VoiceTranscription(
+            user_id="test-user-id",
+            audio_file_path="/path/to/audio.wav",
+            transcript_text="This is a test transcription",
+            duration_seconds=30,
+            whisper_model_version="whisper-1",
+            confidence_score=0.92,
+            created_at=custom_time
         )
 
-        assert analysis.id == 1
-        assert analysis.journal_entry_id == 1
-        assert analysis.transcription == "This is a test transcription"
-        assert analysis.confidence == 0.92
-        assert analysis.audio_duration == 30.5
-        assert analysis.created_at == custom_time
-        assert analysis.updated_at == custom_time
+        assert transcription.user_id == "test-user-id"
+        assert transcription.audio_file_path == "/path/to/audio.wav"
+        assert transcription.transcript_text == "This is a test transcription"
+        assert transcription.duration_seconds == 30
+        assert transcription.whisper_model_version == "whisper-1"
+        assert transcription.confidence_score == 0.92
+        assert transcription.created_at == custom_time
 
 
-class TestAnalysisResult:
-    """Test suite for AnalysisResult model."""
+class TestTag:
+    """Test suite for Tag model."""
 
-    def test_analysis_result_initialization(self):
-        """Test AnalysisResult initialization."""
-        result = AnalysisResult(
-            journal_entry_id=1,
-            analysis_type="emotion"
-        )
+    def test_tag_initialization(self):
+        """Test Tag initialization."""
+        tag = Tag(name="test-tag")
 
-        assert result.journal_entry_id == 1
-        assert result.analysis_type == "emotion"
-        assert result.status == "pending"
+        assert tag.name == "test-tag"
 
-    def test_analysis_result_with_all_fields(self):
-        """Test AnalysisResult with all fields."""
+    def test_tag_with_all_fields(self):
+        """Test Tag with all fields."""
         custom_time = datetime.now()
-        result = AnalysisResult(
-            id=1,
-            journal_entry_id=1,
-            analysis_type="emotion",
-            status="completed",
-            result_data={"emotions": {"happy": 0.8}},
-            created_at=custom_time,
-            updated_at=custom_time
+        tag = Tag(
+            name="test-tag",
+            created_at=custom_time
         )
 
-        assert result.id == 1
-        assert result.journal_entry_id == 1
-        assert result.analysis_type == "emotion"
-        assert result.status == "completed"
-        assert result.result_data == {"emotions": {"happy": 0.8}}
-        assert result.created_at == custom_time
-        assert result.updated_at == custom_time
-
-    def test_analysis_result_status_validation(self):
-        """Test AnalysisResult status validation."""
-        result = AnalysisResult(
-            journal_entry_id=1,
-            analysis_type="emotion",
-            status="invalid_status"
-        )
-
-        # Should accept any string for status
-        assert result.status == "invalid_status"
+        assert tag.name == "test-tag"
+        assert tag.created_at == custom_time
