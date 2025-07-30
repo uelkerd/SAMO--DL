@@ -9,6 +9,7 @@ Usage:
     python scripts/run_api_rate_limiter_tests.py
 """
 
+import sys
 import pytest
 from pathlib import Path
 
