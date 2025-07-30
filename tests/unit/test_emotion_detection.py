@@ -1,16 +1,23 @@
-"""
-Unit tests for BERT emotion detection model.
-Tests model initialization, forward pass, and emotion classification logic.
-"""
-
 from unittest.mock import patch, MagicMock
 
 import pytest
 import torch
 
-try:
     from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
-except ImportError as e:
+        from transformers.modeling_outputs import BaseModelOutputWithPooling
+
+        # Mock BERT output with proper structure
+        from src.models.emotion_detection.bert_classifier import WeightedBCELoss
+
+        # Test with sample class weights
+
+"""
+Unit tests for BERT emotion detection model.
+Tests model initialization, forward pass, and emotion classification logic.
+"""
+
+try:
+except ImportError as _:
     raise RuntimeError(
         "Failed to import BERTEmotionClassifier. Ensure all model dependencies are installed."
     ) from e
@@ -67,9 +74,6 @@ class TestBertEmotionClassifier:
     def test_forward_pass(self, mock_bert):
         """Test forward pass through the model."""
         # Create a proper mock for BERT output
-        from transformers.modeling_outputs import BaseModelOutputWithPooling
-
-        # Mock BERT output with proper structure
         mock_bert_output = BaseModelOutputWithPooling(
             last_hidden_state=torch.randn(2, 10, 768),
             pooler_output=torch.randn(2, 768),  # This is what we actually use
@@ -184,9 +188,6 @@ class TestBertEmotionClassifier:
 
     def test_class_weights_handling(self):
         """Test model handles class weights for imbalanced dataset."""
-        from src.models.emotion_detection.bert_classifier import WeightedBCELoss
-
-        # Test with sample class weights
         class_weights = torch.tensor([0.1, 0.5, 1.0, 2.0, 5.0], requires_grad=True)
         criterion = WeightedBCELoss(class_weights)
 

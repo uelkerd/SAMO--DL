@@ -1,3 +1,17 @@
+import logging
+import time
+from contextlib import asynccontextmanager
+from typing import Optional
+
+from fastapi import BackgroundTasks, FastAPI, HTTPException
+from pydantic import BaseModel, Field, validator
+
+from .t5_summarizer import T5SummarizationModel, create_t5_summarizer
+
+# Configure logging
+    import uvicorn
+
+
 # G004: Logging f-strings temporarily allowed for development
 """FastAPI Endpoints for T5/BART Summarization - SAMO Deep Learning.
 
@@ -12,17 +26,6 @@ Key Features:
 - Performance monitoring
 """
 
-import logging
-import time
-from contextlib import asynccontextmanager
-from typing import Optional
-
-from fastapi import BackgroundTasks, FastAPI, HTTPException
-from pydantic import BaseModel, Field, validator
-
-from .t5_summarizer import T5SummarizationModel, create_t5_summarizer
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -52,7 +55,7 @@ async def lifespan(app: FastAPI):
             "Model info: {summarization_model.get_model_info()}", extra={"format_args": True}
         )
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Failed to load summarization model: {e}", extra={"format_args": True})
         raise RuntimeError("Model loading failed: {e}")
 
@@ -182,7 +185,7 @@ async def summarize_text(request: SummarizeRequest):
             model_info=summarization_model.get_model_info(),
         )
 
-    except Exception as e:
+    except Exception as _:
         logger.error("Summarization error: {e}", extra={"format_args": True})
         raise HTTPException(status_code=500, detail="Summarization failed: {e!s}")
 
@@ -236,7 +239,7 @@ async def summarize_batch(request: BatchSummarizationRequest):
             average_processing_time_ms=average_time,
         )
 
-    except Exception as e:
+    except Exception as _:
         logger.error("Batch summarization error: {e}", extra={"format_args": True})
         raise HTTPException(status_code=500, detail="Batch summarization failed: {e!s}")
 
@@ -291,8 +294,6 @@ async def value_error_handler(request, exc):
 
 
 if __name__ == "__main__":
-    import uvicorn
-
     logger.info("🚀 Starting SAMO Summarization API...")
     uvicorn.run(
         "api_demo:app",

@@ -1,8 +1,3 @@
-"""
-Unit tests for API rate limiter.
-Tests the rate limiting middleware, token bucket algorithm, and cache.
-"""
-
 import time
 from unittest.mock import AsyncMock, MagicMock
 
@@ -10,6 +5,12 @@ import pytest
 from fastapi import FastAPI, Response
 
 from src.api_rate_limiter import (
+
+"""
+Unit tests for API rate limiter.
+Tests the rate limiting middleware, token bucket algorithm, and cache.
+"""
+
     DEFAULT_BURST_LIMIT,
     DEFAULT_RATE_LIMIT,
     DEFAULT_WINDOW_SIZE,

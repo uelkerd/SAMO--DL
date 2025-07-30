@@ -3,6 +3,16 @@ import os
 import sys
 
 #!/usr/bin/env python3
+import logging
+
+# Configure logging
+            import onnx
+            import onnxruntime as ort
+            from onnx import helper
+
+            # Define input
+            import tempfile
+
 """
 ONNX Conversion Test for CI/CD Pipeline.
 
@@ -10,9 +20,6 @@ This script validates that ONNX dependencies are available
 and basic functionality works without complex imports.
 """
 
-import logging
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -24,18 +31,16 @@ def test_onnx_dependencies():
 
         # Check if ONNX is available
         try:
-            import onnx
             logger.info("✅ ONNX version: {onnx.__version__}")
-        except ImportError as e:
+        except ImportError as _:
             logger.warning("⚠️ ONNX not available: {e}")
             logger.info("⏭️ Skipping ONNX test - ONNX not installed")
             return True  # Skip test but don't fail
 
         # Check if ONNX Runtime is available
         try:
-            import onnxruntime as ort
             logger.info("✅ ONNX Runtime version: {ort.__version__}")
-        except ImportError as e:
+        except ImportError as _:
             logger.warning("⚠️ ONNX Runtime not available: {e}")
             logger.info("⏭️ Skipping ONNX Runtime test - not installed")
             return True  # Skip test but don't fail
@@ -46,9 +51,6 @@ def test_onnx_dependencies():
         try:
 
             # Create a simple ONNX model manually to test basic functionality
-            from onnx import helper
-
-            # Define input
             input_shape = [1, 768]
             input_tensor = helper.make_tensor_value_info(
                 'input_ids', onnx.TensorProto.FLOAT, input_shape
@@ -83,7 +85,6 @@ def test_onnx_dependencies():
             logger.info("Testing ONNX Runtime with simple model...")
 
             # Create temporary file
-            import tempfile
             with tempfile.NamedTemporaryFile(suffix=".onnx", delete=False) as temp_file:
                 temp_path = temp_file.name
 
@@ -108,7 +109,7 @@ def test_onnx_dependencies():
                 except:
                     pass
 
-        except Exception as e:
+        except Exception as _:
             logger.warning("⚠️ Basic ONNX functionality test failed: {e}")
             logger.info("⏭️ Skipping complex ONNX conversion test")
             return True  # Skip test but don't fail
@@ -116,7 +117,7 @@ def test_onnx_dependencies():
         logger.info("✅ ONNX dependencies test passed")
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ ONNX dependencies test failed: {e}")
         return False
 

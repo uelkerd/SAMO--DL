@@ -2,15 +2,16 @@ import os
 import sys
 
 #!/usr/bin/env python3
-"""
-Simple Vertex AI Training Script
-"""
-
 import logging
 import pandas as pd
 from google.cloud import aiplatform
 
 # Configure logging
+
+"""
+Simple Vertex AI Training Script
+"""
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -85,7 +86,7 @@ def main():
         print("✅ Training started: {model.name}")
         print("🎉 Model training initiated successfully!")
 
-    except Exception as e:
+    except Exception as _:
         print("❌ Training failed: {e}")
         logger.error("Training failed: {e}")
         sys.exit(1)

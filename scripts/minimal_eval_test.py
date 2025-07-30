@@ -1,10 +1,11 @@
+import torch
+import logging
+
+
 #!/usr/bin/env python3
 """
 Minimal test of evaluation logic to isolate the bug.
 """
-
-import torch
-import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

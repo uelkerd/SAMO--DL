@@ -2,6 +2,16 @@ import sys
 import traceback
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+
+# Add src to path
+        from models.emotion_detection.training_pipeline import train_emotion_detection_model
+
+        # Training configuration with debugging
+        import traceback
+
+
 """
 Restart Training with Debugging Script for SAMO Deep Learning.
 
@@ -9,10 +19,6 @@ This script restarts the emotion detection training with comprehensive debugging
 to identify the root cause of the 0.0000 loss issue.
 """
 
-import logging
-from pathlib import Path
-
-# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 # Configure logging
@@ -29,9 +35,6 @@ def main():
     logger.info("🚀 Restarting training with comprehensive debugging...")
 
     try:
-        from models.emotion_detection.training_pipeline import train_emotion_detection_model
-
-        # Training configuration with debugging
         config = {
             "model_name": "bert-base-uncased",
             "cache_dir": "./data/cache",
@@ -56,10 +59,8 @@ def main():
         logger.info("✅ Training completed!")
         logger.info("📊 Final results: {results}")
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Training failed: {e}")
-        import traceback
-
         logger.error("Traceback: {traceback.format_exc()}")
         return False
 

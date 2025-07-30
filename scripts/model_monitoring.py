@@ -3,6 +3,28 @@ import numpy as np
 import sys
 
 #!/usr/bin/env python3
+import argparse
+import logging
+import time
+import yaml
+import threading
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any, Optional
+from dataclasses import dataclass, asdict
+from collections import deque
+
+import pandas as pd
+import torch
+from transformers import AutoTokenizer
+
+# Add src to path
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+
+# Configure logging
+            import psutil
+
+
 """
 Model Monitoring Script for REQ-DL-010
 
@@ -21,26 +43,7 @@ Arguments:
     --alert_threshold: Performance degradation threshold for alerts (default: 0.1)
 """
 
-import argparse
-import logging
-import time
-import yaml
-import threading
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Optional
-from dataclasses import dataclass, asdict
-from collections import deque
-
-import pandas as pd
-import torch
-from transformers import AutoTokenizer
-
-# Add src to path
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -387,7 +390,7 @@ class ModelHealthMonitor:
                 logger.info("Model initialized for monitoring")
             else:
                 logger.warning("Model not found: {model_path}")
-        except Exception as e:
+        except Exception as _:
             logger.error("Error initializing model: {e}")
 
     def start_monitoring(self) -> None:
@@ -444,7 +447,7 @@ class ModelHealthMonitor:
                 # Sleep for monitoring interval
                 time.sleep(self.config.get("monitor_interval", DEFAULT_MONITOR_INTERVAL))
 
-            except Exception as e:
+            except Exception as _:
                 logger.error("Error in monitoring loop: {e}")
                 time.sleep(60)  # Wait before retrying
 
@@ -511,7 +514,7 @@ class ModelHealthMonitor:
                 gpu_utilization=gpu_utilization,
             )
 
-        except Exception as e:
+        except Exception as _:
             logger.error("Error collecting metrics: {e}")
             return None
 
@@ -522,8 +525,6 @@ class ModelHealthMonitor:
             Memory usage in MB
         """
         try:
-            import psutil
-
             process = psutil.Process()
             return process.memory_info().rss / (1024 * 1024)
         except ImportError:
@@ -591,7 +592,7 @@ class ModelHealthMonitor:
             )
             self.alerts.append(retrain_alert)
 
-        except Exception as e:
+        except Exception as _:
             logger.error("Error triggering retraining: {e}")
 
     def _save_alert(self, alert: Alert) -> None:
@@ -608,7 +609,7 @@ class ModelHealthMonitor:
             with open(alert_file, "w") as f:
                 json.dump(asdict(alert), f, indent=2, default=str)
 
-        except Exception as e:
+        except Exception as _:
             logger.error("Error saving alert: {e}")
 
     def get_health_status(self) -> dict[str, Any]:

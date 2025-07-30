@@ -1,10 +1,15 @@
+from src.data.validation import (
+        import pandas as pd
+        import pandas as pd
+        import pandas as pd
+        import pandas as pd
+
 """
 Unit tests for validation module.
 Tests data validation, schema validation, and input validation.
 """
 
 
-from src.data.validation import (
     validate_text_input,
     DataValidator
 )
@@ -24,7 +29,6 @@ class TestDataValidator:
 
     def test_check_missing_values(self):
         """Test check_missing_values method."""
-        import pandas as pd
         validator = DataValidator()
 
         # Create test DataFrame
@@ -35,7 +39,7 @@ class TestDataValidator:
         })
 
         result = validator.check_missing_values(df, required_columns=['user_id', 'content'])
-        
+
         assert 'user_id' in result
         assert 'content' in result
         assert result['user_id'] == 25.0  # 1 out of 4 is missing
@@ -43,7 +47,6 @@ class TestDataValidator:
 
     def test_check_data_types(self):
         """Test check_data_types method."""
-        import pandas as pd
         validator = DataValidator()
 
         # Create test DataFrame
@@ -60,14 +63,13 @@ class TestDataValidator:
         }
 
         result = validator.check_data_types(df, expected_types)
-        
+
         assert result['user_id'] is True
         assert result['content'] is True
         assert result['is_private'] is True
 
     def test_check_text_quality(self):
         """Test check_text_quality method."""
-        import pandas as pd
         validator = DataValidator()
 
         # Create test DataFrame
@@ -76,7 +78,7 @@ class TestDataValidator:
         })
 
         result = validator.check_text_quality(df, text_column='content')
-        
+
         assert 'text_length' in result.columns
         assert 'word_count' in result.columns
         assert 'is_empty' in result.columns
@@ -84,7 +86,6 @@ class TestDataValidator:
 
     def test_validate_journal_entries(self):
         """Test validate_journal_entries method."""
-        import pandas as pd
         validator = DataValidator()
 
         # Create test DataFrame
@@ -107,7 +108,7 @@ class TestDataValidator:
         validation_passed, validated_df = validator.validate_journal_entries(
             df, required_columns, expected_types
         )
-        
+
         assert validation_passed is True
         assert 'text_length' in validated_df.columns
         assert 'word_count' in validated_df.columns

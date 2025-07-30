@@ -2,6 +2,21 @@ import json
 import numpy as np
 
 # G004: Logging f-strings temporarily allowed for development
+import logging
+import time
+from pathlib import Path
+from typing import Any, Optional
+
+import torch
+from torch.optim import AdamW
+from torch.utils.data import DataLoader
+from transformers import AutoTokenizer, get_linear_schedule_with_warmup
+
+from .bert_classifier import (
+from .dataset_loader import (
+                import torch.nn.functional as F
+
+
 """Training Pipeline for SAMO Emotion Detection.
 
 This module implements the complete training pipeline that combines the GoEmotions
@@ -16,22 +31,10 @@ Key Features:
 - Learning rate scheduling with warmup
 """
 
-import logging
-import time
-from pathlib import Path
-from typing import Any, Optional
-
-import torch
-from torch.optim import AdamW
-from torch.utils.data import DataLoader
-from transformers import AutoTokenizer, get_linear_schedule_with_warmup
-
-from .bert_classifier import (
     EmotionDataset,
     create_bert_emotion_classifier,
     evaluate_emotion_classifier,
 )
-from .dataset_loader import (
     create_goemotions_loader,
 )
 
@@ -385,8 +388,6 @@ class EmotionDetectionTrainer:
                 logger.info("   Raw loss: {loss.item():.8f}")
 
                 # Test different loss calculations
-                import torch.nn.functional as F
-
                 bce_manual = F.binary_cross_entropy_with_logits(
                     logits, labels.float(), reduction="mean"
                 )
@@ -626,7 +627,7 @@ class EmotionDetectionTrainer:
             with Path(history_path).open("w") as f:
                 json.dump(serializable_history, f, indent=2)
             logger.info("Training history saved to {history_path}")
-        except Exception as e:
+        except Exception as _:
             logger.error("Failed to save training history: {e}")
             # Save a simplified version without problematic data
             simplified_history = []

@@ -1,20 +1,23 @@
+import logging
+
 import sys
 
 #!/usr/bin/env python3
-"""
-Quick Temperature Scaling Test.
-"""
-
 from pathlib import Path
-
-sys.path.append(str(Path.cwd() / "src"))
 
 from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
 
 
+
+"""
+Quick Temperature Scaling Test.
+"""
+
+sys.path.append(str(Path.cwd() / "src"))
+
 def quick_temperature_test():
-    print("🌡️ Quick Temperature Scaling Test")
+    logging.info("🌡️ Quick Temperature Scaling Test")
 
     # Initialize trainer with dev_mode
     trainer = EmotionDetectionTrainer()
@@ -22,21 +25,21 @@ def quick_temperature_test():
     # Load model
     model_path = Path("test_checkpoints/best_model.pt")
     if not model_path.exists():
-        print("❌ Model not found")
+        logging.info("❌ Model not found")
         return
 
     trainer.load_model(str(model_path))
-    print("✅ Model loaded")
+    logging.info("✅ Model loaded")
 
     # Test temperatures
     temperatures = [1.0, 2.0, 3.0, 4.0]
     threshold = 0.5
 
-    print("\n🎯 Testing temperatures with threshold {threshold}")
-    print("-" * 50)
+    logging.info("\n🎯 Testing temperatures with threshold {threshold}")
+    logging.info("-" * 50)
 
     for temp in temperatures:
-        print("\n🌡️ Temperature: {temp}")
+        logging.info("\n🌡️ Temperature: {temp}")
 
         # Update temperature
         trainer.model.set_temperature(temp)
@@ -46,10 +49,10 @@ def quick_temperature_test():
             trainer.model, trainer.val_loader, trainer.device, threshold=threshold
         )
 
-        print("  📊 Macro F1: {metrics['macro_f1']:.4f}")
-        print("  📊 Micro F1: {metrics['micro_f1']:.4f}")
+        logging.info("  📊 Macro F1: {metrics['macro_f1']:.4f}")
+        logging.info("  📊 Micro F1: {metrics['micro_f1']:.4f}")
 
-    print("\n🎉 Temperature scaling test complete!")
+    logging.info("\n🎉 Temperature scaling test complete!")
 
 
 if __name__ == "__main__":

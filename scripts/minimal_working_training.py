@@ -3,16 +3,21 @@ import sys
 import traceback
 
 #!/usr/bin/env python3
-"""
-Minimal Working Training Script
-Uses only working modules to avoid environment issues
-"""
-
 import logging
 import torch
 from torch import nn
 
 # Configure logging
+        from transformers import AutoModel, AutoTokenizer
+
+        import traceback
+
+
+"""
+Minimal Working Training Script
+Uses only working modules to avoid environment issues
+"""
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -22,8 +27,6 @@ class SimpleBERTClassifier(nn.Module):
 
     def __init__(self, num_classes=28, model_name="bert-base-uncased"):
         super().__init__()
-        from transformers import AutoModel, AutoTokenizer
-
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.bert = AutoModel.from_pretrained(model_name)
         self.dropout = nn.Dropout(0.1)
@@ -193,10 +196,8 @@ def train_minimal_model():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Training failed: {e}")
-        import traceback
-
         traceback.print_exc()
         return False
 

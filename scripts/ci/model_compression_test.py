@@ -2,6 +2,16 @@ import sys
 import time
 
 #!/usr/bin/env python3
+import logging
+import tempfile
+from pathlib import Path
+
+# Add src to path
+import torch
+from torch import nn
+
+# Configure logging
+
 """
 Model Compression Test for CI/CD Pipeline.
 
@@ -9,17 +19,8 @@ This script validates that model compression (quantization) works correctly
 without requiring external model checkpoints.
 """
 
-import logging
-import tempfile
-from pathlib import Path
-
-# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-import torch
-from torch import nn
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -132,7 +133,7 @@ def test_model_compression():
         logger.info("✅ Model compression test passed")
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Model compression test failed: {e}")
         return False
 

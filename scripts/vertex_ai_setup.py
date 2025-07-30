@@ -2,6 +2,31 @@ import os
 import sys
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+from typing import Dict, Any, Optional
+
+# Add src to path
+            import subprocess
+            from google.cloud import aiplatform
+            from google.cloud import storage
+
+            from google.cloud import aiplatform
+
+            # Training job configuration
+            from google.cloud import aiplatform
+
+            # Hyperparameter tuning configuration
+            from google.cloud import aiplatform
+
+            # Model monitoring configuration
+            from google.cloud import aiplatform
+
+            # Pipeline configuration
+            from google.cloud import aiplatform
+
+            # Create validation job
+
 """
 Vertex AI Setup for SAMO Deep Learning Project.
 
@@ -9,11 +34,6 @@ This script sets up Vertex AI infrastructure to solve the 0.0000 loss issue
 and provide managed ML training, deployment, and monitoring.
 """
 
-import logging
-from pathlib import Path
-from typing import Dict, Any, Optional
-
-# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 # Configure logging
@@ -43,16 +63,12 @@ class VertexAISetup:
 
         try:
             # Install Vertex AI SDK
-            import subprocess
             subprocess.run([
                 sys.executable, "-m", "pip", "install",
                 "google-cloud-aiplatform", "google-cloud-storage"
             ], check=True)
 
             # Import Vertex AI
-            from google.cloud import aiplatform
-            from google.cloud import storage
-
             logger.info("✅ Vertex AI SDK installed successfully")
 
             # Initialize Vertex AI
@@ -66,7 +82,7 @@ class VertexAISetup:
 
             return True
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ Vertex AI setup failed: {e}")
             return False
 
@@ -75,9 +91,6 @@ class VertexAISetup:
         logger.info("🚀 Creating Vertex AI custom training job...")
 
         try:
-            from google.cloud import aiplatform
-
-            # Training job configuration
             job_config = {
                 "display_name": "samo-emotion-detection-training",
                 "container_uri": "gcr.io/cloud-aiplatform/training/pytorch-gpu.2-0:latest",
@@ -132,7 +145,7 @@ class VertexAISetup:
 
             return {"job": job, "config": job_config}
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ Custom training job creation failed: {e}")
             return {}
 
@@ -141,9 +154,6 @@ class VertexAISetup:
         logger.info("🎯 Creating hyperparameter tuning job...")
 
         try:
-            from google.cloud import aiplatform
-
-            # Hyperparameter tuning configuration
             tuning_config = {
                 "display_name": "samo-emotion-detection-tuning",
                 "container_uri": "gcr.io/cloud-aiplatform/training/pytorch-gpu.2-0:latest",
@@ -207,7 +217,7 @@ class VertexAISetup:
 
             return {"tuning_job": tuning_job, "config": tuning_config}
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ Hyperparameter tuning job creation failed: {e}")
             return {}
 
@@ -216,9 +226,6 @@ class VertexAISetup:
         logger.info("📊 Setting up model monitoring...")
 
         try:
-            from google.cloud import aiplatform
-
-            # Model monitoring configuration
             monitoring_config = {
                 "display_name": "samo-emotion-detection-monitoring",
                 "model_display_name": self.model_display_name,
@@ -241,7 +248,7 @@ class VertexAISetup:
 
             return {"config": monitoring_config}
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ Model monitoring setup failed: {e}")
             return {}
 
@@ -250,9 +257,6 @@ class VertexAISetup:
         logger.info("🔄 Creating automated ML pipeline...")
 
         try:
-            from google.cloud import aiplatform
-
-            # Pipeline configuration
             pipeline_config = {
                 "display_name": "samo-emotion-detection-pipeline",
                 "pipeline_root": "gs://{self.project_id}-vertex-ai/pipelines",
@@ -277,7 +281,7 @@ class VertexAISetup:
 
             return {"config": pipeline_config}
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ Automated pipeline setup failed: {e}")
             return {}
 
@@ -286,9 +290,6 @@ class VertexAISetup:
         logger.info("🔍 Running validation on Vertex AI...")
 
         try:
-            from google.cloud import aiplatform
-
-            # Create validation job
             validation_config = {
                 "display_name": "samo-validation-job",
                 "container_uri": "gcr.io/cloud-aiplatform/training/pytorch-cpu.2-0:latest",
@@ -320,7 +321,7 @@ class VertexAISetup:
 
             return True
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ Validation job creation failed: {e}")
             return False
 

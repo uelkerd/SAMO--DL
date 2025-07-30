@@ -1,18 +1,21 @@
+import logging
+
 import datetime
 import os
 import time
 
 #!/usr/bin/env python3
+import subprocess
+from datetime import UTC, datetime
+from pathlib import Path
+
+
+
 """Generate code quality report for SAMO Deep Learning project.
 
 This script demonstrates the pre-commit hooks in action by creating
 a simple maintenance script that follows code quality standards.
 """
-
-import subprocess
-from datetime import UTC, datetime
-from pathlib import Path
-
 
 def run_ruff_check() -> dict[str, int]:
     """Run Ruff check and return statistics."""
@@ -72,9 +75,9 @@ def main() -> None:
     report_path = logs_dir / "code_quality_report.md"
     report_path.write_text(report + "\n")
 
-    print("✅ Code quality report generated: {report_path}")
-    print("\n" + "=" * 50)
-    print(report)
+    logging.info("✅ Code quality report generated: {report_path}")
+    logging.info("\n" + "=" * 50)
+    logging.info(report)
 
 
 if __name__ == "__main__":

@@ -2,6 +2,30 @@ import numpy as np
 import sys
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+
+# Add src to path
+        import torch
+        import transformers
+        import pandas as pd
+
+        from models.emotion_detection.dataset_loader import create_goemotions_loader
+
+        # Create loader without dev_mode parameter
+        from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+        import torch
+
+        # Create model
+        from models.emotion_detection.bert_classifier import WeightedBCELoss
+        import torch
+        import torch.nn.functional as F
+
+        # Test different scenarios
+        from models.emotion_detection.dataset_loader import create_goemotions_loader
+
+        # Load data
+
 """
 Local Validation and Debug Script for SAMO Deep Learning.
 
@@ -9,10 +33,6 @@ This script performs targeted validation to identify the root cause of the 0.000
 It can be run locally to diagnose problems before deploying to GCP.
 """
 
-import logging
-from pathlib import Path
-
-# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 # Configure logging
@@ -25,10 +45,6 @@ def check_environment():
     logger.info("🔍 Checking environment...")
 
     try:
-        import torch
-        import transformers
-        import pandas as pd
-
         logger.info("✅ PyTorch: {torch.__version__}")
         logger.info("✅ Transformers: {transformers.__version__}")
         logger.info("✅ NumPy: {np.__version__}")
@@ -42,7 +58,7 @@ def check_environment():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Environment check failed: {e}")
         return False
 
@@ -52,9 +68,6 @@ def check_data_loading():
     logger.info("🔍 Checking data loading...")
 
     try:
-        from models.emotion_detection.dataset_loader import create_goemotions_loader
-
-        # Create loader without dev_mode parameter
         logger.info("   Loading dataset...")
         loader = create_goemotions_loader()
 
@@ -79,7 +92,7 @@ def check_data_loading():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Data loading failed: {e}")
         return False
 
@@ -89,10 +102,6 @@ def check_model_creation():
     logger.info("🔍 Checking model creation...")
 
     try:
-        from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-        import torch
-
-        # Create model
         model, loss_fn = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
             class_weights=None,
@@ -134,7 +143,7 @@ def check_model_creation():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Model creation failed: {e}")
         return False
 
@@ -144,11 +153,6 @@ def check_loss_function():
     logger.info("🔍 Checking loss function...")
 
     try:
-        from models.emotion_detection.bert_classifier import WeightedBCELoss
-        import torch
-        import torch.nn.functional as F
-
-        # Test different scenarios
         batch_size = 4
         num_classes = 28
 
@@ -175,7 +179,7 @@ def check_loss_function():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Loss function check failed: {e}")
         return False
 
@@ -185,9 +189,6 @@ def check_data_distribution():
     logger.info("🔍 Checking data distribution...")
 
     try:
-        from models.emotion_detection.dataset_loader import create_goemotions_loader
-
-        # Load data
         loader = create_goemotions_loader()
         datasets = loader.prepare_datasets()
 
@@ -244,7 +245,7 @@ def check_data_distribution():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Data distribution check failed: {e}")
         return False
 
@@ -279,7 +280,7 @@ def main():
             else:
                 logger.error("❌ {name} FAILED")
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ {name} ERROR: {e}")
             results[name] = False
 

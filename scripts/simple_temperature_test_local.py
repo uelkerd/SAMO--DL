@@ -1,34 +1,40 @@
+import logging
+
 import json
 import sys
 
 #!/usr/bin/env python3
-"""
-Simple Temperature Scaling Test - Using Local Sample Data.
-"""
-
 from pathlib import Path
-
-sys.path.append(str(Path.cwd() / "src"))
 
 import torch
 from models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
 from torch.utils.data import DataLoader
 
 
+        from sklearn.metrics import f1_score
+
+        # Convert to numpy for sklearn
+
+"""
+Simple Temperature Scaling Test - Using Local Sample Data.
+"""
+
+sys.path.append(str(Path.cwd() / "src"))
+
 def simple_temperature_test_local():
-    print("🌡️ Simple Temperature Scaling Test (Local Data)")
+    logging.info("🌡️ Simple Temperature Scaling Test (Local Data)")
 
     # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print("Using device: {device}")
+    logging.info("Using device: {device}")
 
     # Load checkpoint
     checkpoint_path = Path("test_checkpoints/best_model.pt")
     if not checkpoint_path.exists():
-        print("❌ Model not found")
+        logging.info("❌ Model not found")
         return
 
-    print("📦 Loading checkpoint...")
+    logging.info("📦 Loading checkpoint...")
     checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
 
     # Initialize model
@@ -46,14 +52,14 @@ def simple_temperature_test_local():
     model.to(device)
     model.eval()
 
-    print("✅ Model loaded successfully!")
+    logging.info("✅ Model loaded successfully!")
 
     # Load sample data
-    print("📊 Loading sample data...")
+    logging.info("📊 Loading sample data...")
     sample_data_path = Path("data/raw/sample_journal_entries.json")
 
     if not sample_data_path.exists():
-        print("❌ Sample data not found")
+        logging.info("❌ Sample data not found")
         return
 
     with open(sample_data_path) as f:
@@ -81,16 +87,16 @@ def simple_temperature_test_local():
     dataset = EmotionDataset(test_texts, emotion_labels, max_length=512)
     dataloader = DataLoader(dataset, batch_size=2, shuffle=False)
 
-    print("✅ Created test dataset with {len(test_texts)} samples")
+    logging.info("✅ Created test dataset with {len(test_texts)} samples")
 
     # Test different temperatures
     temperatures = [1.0, 2.0, 3.0, 4.0]
 
-    print("\n🌡️ Testing Temperature Scaling:")
-    print("=" * 50)
+    logging.info("\n🌡️ Testing Temperature Scaling:")
+    logging.info("=" * 50)
 
     for temp in temperatures:
-        print("\n📊 Temperature: {temp}")
+        logging.info("\n📊 Temperature: {temp}")
 
         # Set temperature
         model.set_temperature(temp)
@@ -119,9 +125,6 @@ def simple_temperature_test_local():
         all_labels = torch.cat(all_labels, dim=0)
 
         # Calculate metrics
-        from sklearn.metrics import f1_score
-
-        # Convert to numpy for sklearn
         pred_np = all_predictions.numpy()
         label_np = all_labels.numpy()
 
@@ -131,19 +134,19 @@ def simple_temperature_test_local():
         # Calculate macro F1
         macro_f1 = f1_score(label_np, pred_np, average="macro", zero_division=0)
 
-        print("   Micro F1: {micro_f1:.4f}")
-        print("   Macro F1: {macro_f1:.4f}")
+        logging.info("   Micro F1: {micro_f1:.4f}")
+        logging.info("   Macro F1: {macro_f1:.4f}")
 
         # Show some predictions
-        print("   Sample predictions (first 2 samples):")
+        logging.info("   Sample predictions (first 2 samples):")
         for i in range(min(2, len(test_texts))):
             pred_emotions = pred_np[i]
             true_emotions = label_np[i]
-            print("     Text: {test_texts[i][:50]}...")
-            print("     Pred: {pred_emotions}")
-            print("     True: {true_emotions}")
+            logging.info("     Text: {test_texts[i][:50]}...")
+            logging.info("     Pred: {pred_emotions}")
+            logging.info("     True: {true_emotions}")
 
-    print("\n✅ Temperature scaling test completed!")
+    logging.info("\n✅ Temperature scaling test completed!")
 
 
 if __name__ == "__main__":

@@ -2,6 +2,24 @@ import json
 import sys
 
 #!/usr/bin/env python3
+import argparse
+import logging
+from pathlib import Path
+from typing import Optional, Any
+
+import torch
+from torch import nn
+import torch.nn.functional as F
+from transformers import AutoTokenizer, get_linear_schedule_with_warmup
+from sklearn.metrics import f1_score, precision_recall_fscore_support
+
+# Add src to path
+from src.models.emotion_detection.bert_classifier import (
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+
+# Configure logging
+
 """
 Finalize Emotion Detection Model
 
@@ -21,27 +39,10 @@ Arguments:
     --batch_size: Training batch size (default: 16)
 """
 
-import argparse
-import logging
-from pathlib import Path
-from typing import Optional, Any
-
-import torch
-from torch import nn
-import torch.nn.functional as F
-from transformers import AutoTokenizer, get_linear_schedule_with_warmup
-from sklearn.metrics import f1_score, precision_recall_fscore_support
-
-# Add src to path
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
-from src.models.emotion_detection.bert_classifier import (
     create_bert_emotion_classifier,
     GOEMOTIONS_EMOTIONS,
 )
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 

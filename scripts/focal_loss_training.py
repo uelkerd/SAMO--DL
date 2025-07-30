@@ -3,6 +3,22 @@ import sys
 import traceback
 
 #!/usr/bin/env python3
+import logging
+import torch
+from torch import nn
+from pathlib import Path
+
+# Add project root to path
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
+
+# Configure logging
+        from src.models.emotion_detection.bert_classifier import EmotionDataset
+        from transformers import AutoTokenizer
+
+        import traceback
+
+
 """
 Focal Loss Training Script for SAMO Emotion Detection
 
@@ -10,19 +26,9 @@ This script implements focal loss training to improve F1 score
 from the current 13.2% to target >50%.
 """
 
-import logging
-import torch
-from torch import nn
-from pathlib import Path
-
-# Add project root to path
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -89,9 +95,6 @@ def train_with_focal_loss():
         test_labels = [item["labels"] for item in test_raw]
 
         # Create tokenized datasets
-        from src.models.emotion_detection.bert_classifier import EmotionDataset
-        from transformers import AutoTokenizer
-
         tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
         train_dataset = EmotionDataset(train_texts, train_labels, tokenizer, max_length=512)
@@ -214,10 +217,8 @@ def train_with_focal_loss():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Training failed: {e}")
-        import traceback
-
         traceback.print_exc()
         return False
 

@@ -1,3 +1,12 @@
+import logging
+import tempfile
+from pathlib import Path
+from typing import Optional, Union
+
+from pydub import AudioSegment
+
+# Configure logging
+
 # G004: Logging f-strings temporarily allowed for development
 """Audio Preprocessing for SAMO Voice Processing.
 
@@ -12,14 +21,6 @@ Key Features:
 - Metadata extraction and quality assessment
 """
 
-import logging
-import tempfile
-from pathlib import Path
-from typing import Optional, Union
-
-from pydub import AudioSegment
-
-# Configure logging
 logger = logging.getLogger(__name__)
 
 
