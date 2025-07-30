@@ -2,6 +2,18 @@ import os
 import sys
 
 #!/usr/bin/env python3
+import torch
+import logging
+from pathlib import Path
+from sklearn.metrics import f1_score
+from transformers import AutoTokenizer
+
+# Add src to path
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+
+# Configure logging
+
 """
 Test Model Calibration
 
@@ -16,18 +28,7 @@ Returns:
     1 if F1 score is below minimum threshold
 """
 
-import torch
-import logging
-from pathlib import Path
-from sklearn.metrics import f1_score
-from transformers import AutoTokenizer
-
-# Add src to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 

@@ -1,16 +1,17 @@
 import json
 
+import subprocess
+from pathlib import Path
+from typing import Any, Optional
+
+
+
 """Prisma client utility for the SAMO-DL application.
 
 This module provides functions to interact with the Prisma client via subprocess calls.
 
 It's a simple wrapper that allows Python code to execute Prisma commands.
 """
-
-import subprocess
-from pathlib import Path
-from typing import Any, Optional
-
 
 class PrismaClient:
     """A simple wrapper class for Prisma client operations.

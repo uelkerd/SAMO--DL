@@ -2,6 +2,13 @@ import numpy as np
 import sys
 
 #!/usr/bin/env python3
+import torch
+import logging
+from sklearn.metrics import f1_score
+from transformers import AutoTokenizer, AutoModel
+
+# Configure logging
+
 """
 CI Model Calibration Test
 
@@ -16,12 +23,6 @@ Returns:
     1 if test fails
 """
 
-import torch
-import logging
-from sklearn.metrics import f1_score
-from transformers import AutoTokenizer, AutoModel
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -180,7 +181,7 @@ def test_model_calibration():
         logger.info("🎉 All calibration tests passed!")
         return 0
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Calibration test failed: {e}")
         return 1
 

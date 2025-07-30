@@ -1,6 +1,20 @@
 import sys
 
 #!/usr/bin/env python3
+import logging
+import torch
+from torch import nn
+import torch.nn.functional as F
+from pathlib import Path
+
+# Multiple approaches to add project root to Python path
+    from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+    from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+
+        import importlib.util
+
+        # Load bert_classifier module
+
 """
 Robust Focal Loss Training for Emotion Detection
 
@@ -11,13 +25,6 @@ Usage:
     python3 focal_loss_training_robust.py
 """
 
-import logging
-import torch
-from torch import nn
-import torch.nn.functional as F
-from pathlib import Path
-
-# Multiple approaches to add project root to Python path
 try:
     # Approach 1: Get the script's directory and go up to project root
     script_dir = Path(__file__).parent.resolve()
@@ -41,24 +48,18 @@ try:
     print("📁 Current working directory: {Path.cwd()}")
     print("📋 Python path: {sys.path[:3]}...")
 
-except Exception as e:
+except Exception as _:
     print("⚠️  Path setup warning: {e}")
 
 # Now try to import the modules
 try:
-    from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-    from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-
     print("✅ Successfully imported modules")
-except ImportError as e:
+except ImportError as _:
     print("❌ Import error: {e}")
     print("🔧 Trying alternative import approach...")
 
     # Alternative: Try to import directly from the file paths
     try:
-        import importlib.util
-
-        # Load bert_classifier module
         bert_spec = importlib.util.spec_from_file_location(
             "bert_classifier",
             project_root / "src" / "models" / "emotion_detection" / "bert_classifier.py",
@@ -134,7 +135,7 @@ def main():
         logger.info("   • Test examples: {len(test_dataset)}")
         logger.info("   • Emotion classes: {len(emotion_names)}")
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Failed to load dataset: {e}")
         return
 
@@ -153,7 +154,7 @@ def main():
         logger.info("   • Total parameters: {param_count:,}")
         logger.info("   • Trainable parameters: {trainable_count:,}")
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Failed to create model: {e}")
         return
 

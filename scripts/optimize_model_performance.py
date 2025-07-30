@@ -2,6 +2,20 @@ import numpy as np
 import sys
 
 #!/usr/bin/env python3
+import logging
+import time
+from pathlib import Path
+from typing import Any
+
+# Add src to path
+import torch
+from torch import nn
+from transformers import AutoTokenizer
+
+from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+
+# Configure logging
+
 """SAMO Model Performance Optimization Script.
 
 This script implements the critical optimizations needed to achieve production performance:
@@ -15,21 +29,8 @@ Target: <500ms response time for 95th percentile requests
 Current: 614ms (from training logs)
 """
 
-import logging
-import time
-from pathlib import Path
-from typing import Any
-
-# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-import torch
-from torch import nn
-from transformers import AutoTokenizer
-
-from models.emotion_detection.bert_classifier import BERTEmotionClassifier
-
-# Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
@@ -397,7 +398,7 @@ def main():
             )
             return 1
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Optimization failed: {e}")
         return 1
 

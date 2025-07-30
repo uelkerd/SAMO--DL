@@ -3,13 +3,6 @@ import os
 import sys
 
 #!/usr/bin/env python3
-"""
-Whisper Voice Transcription Test for CI/CD Pipeline.
-
-This script validates the Whisper transcription model functionality
-with a simple test audio file.
-"""
-
 import logging
 import tempfile
 from pathlib import Path
@@ -17,6 +10,22 @@ from pathlib import Path
 import contextlib
 
 # Add src to path
+        from scipy.io import wavfile
+
+        # Create a temporary WAV file with a simple tone
+        from models.voice_processing.whisper_transcriber import (
+        from models.voice_processing.audio_preprocessor import AudioPreprocessor
+
+        # Generate test audio
+        from models.voice_processing.whisper_transcriber import (
+
+"""
+Whisper Voice Transcription Test for CI/CD Pipeline.
+
+This script validates the Whisper transcription model functionality
+with a simple test audio file.
+"""
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 # Configure logging
@@ -27,9 +36,6 @@ logger = logging.getLogger(__name__)
 def generate_test_audio():
     """Generate a simple synthetic test audio for Whisper testing."""
     try:
-        from scipy.io import wavfile
-
-        # Create a temporary WAV file with a simple tone
         temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
         temp_file.close()
 
@@ -49,7 +55,7 @@ def generate_test_audio():
 
         return temp_file.name
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Failed to generate test audio: {e}")
         return None
 
@@ -64,7 +70,7 @@ def test_whisper_imports():
         logger.info("✅ Whisper imports successful")
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Whisper import test failed: {e}")
         return False
 
@@ -75,7 +81,6 @@ def test_whisper_instantiation():
         logger.info("🤖 Testing WhisperTranscriber instantiation...")
 
         # Import WhisperTranscriber
-        from models.voice_processing.whisper_transcriber import (
             TranscriptionConfig,
             WhisperTranscriber,
         )
@@ -97,7 +102,7 @@ def test_whisper_instantiation():
         logger.info("✅ WhisperTranscriber instantiated successfully")
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ WhisperTranscriber instantiation failed: {e}")
         return False
 
@@ -108,9 +113,6 @@ def test_audio_preprocessor():
         logger.info("🎵 Testing AudioPreprocessor...")
 
         # Import AudioPreprocessor
-        from models.voice_processing.audio_preprocessor import AudioPreprocessor
-
-        # Generate test audio
         audio_path = generate_test_audio()
         if not audio_path:
             logger.error("❌ Cannot test AudioPreprocessor without test audio")
@@ -145,7 +147,7 @@ def test_audio_preprocessor():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ AudioPreprocessor test failed: {e}")
         return False
 
@@ -156,7 +158,6 @@ def test_minimal_transcription():
         logger.info("📝 Testing minimal transcription...")
 
         # Import necessary components
-        from models.voice_processing.whisper_transcriber import (
             TranscriptionConfig,
             WhisperTranscriber,
         )
@@ -188,7 +189,7 @@ def test_minimal_transcription():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Minimal transcription test failed: {e}")
         return False
 

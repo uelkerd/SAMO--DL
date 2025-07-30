@@ -1,6 +1,10 @@
 import sys
 
 #!/usr/bin/env python3
+import logging
+
+# Configure logging
+
 """
 Validate Current F1 Score
 
@@ -8,9 +12,6 @@ Simple script to check the current emotion detection model performance
 and provide actionable recommendations for improvement.
 """
 
-import logging
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -98,6 +99,6 @@ if __name__ == "__main__":
         logger.info("   • Feasible: {'YES' if results['feasible'] else 'NO'}")
         logger.info("   • Next: {' → '.join(results['next_steps'][:2])}")
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Validation failed: {e}")
         sys.exit(1)

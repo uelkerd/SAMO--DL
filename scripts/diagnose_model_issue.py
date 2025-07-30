@@ -1,22 +1,23 @@
 import sys
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+
+# Add src to path
+import torch
+from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+
+# Configure logging
+
 """Diagnose Model Issue - Why is the model predicting all emotions?
 
 This script investigates why the BERT model is predicting all emotions
 as positive instead of learning proper discrimination.
 """
 
-import logging
-from pathlib import Path
-
-# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-import torch
-from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -108,7 +109,7 @@ def diagnose_model_outputs():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Diagnosis failed: {e}")
         return False
 
@@ -154,7 +155,7 @@ def diagnose_loss_function():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Loss function diagnosis failed: {e}")
         return False
 

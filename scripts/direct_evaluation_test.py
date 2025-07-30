@@ -2,18 +2,19 @@ import numpy as np
 import sys
 
 #!/usr/bin/env python3
-"""
-Direct test of evaluation logic to find and fix the bug.
-"""
-
 from pathlib import Path
 import torch
 import logging
 
 # Add src to path
-sys.path.append(str(Path(__file__).parent.parent / "src"))
-
 from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+
+
+"""
+Direct test of evaluation logic to find and fix the bug.
+"""
+
+sys.path.append(str(Path(__file__).parent.parent / "src"))
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
 logger = logging.getLogger(__name__)

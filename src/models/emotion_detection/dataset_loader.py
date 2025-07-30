@@ -1,6 +1,19 @@
 import numpy as np
 
 # G004: Logging f-strings temporarily allowed for development
+import logging
+
+import numpy as np
+import torch
+from datasets import load_dataset
+from transformers import AutoTokenizer
+from collections import Counter
+from typing import Any, Union
+
+# Configure logging
+        import re
+
+
 """GoEmotions Dataset Loader for SAMO Emotion Detection.
 
 This module implements comprehensive GoEmotions dataset loading and preprocessing
@@ -13,16 +26,6 @@ Key Features:
 - Domain adaptation preparation for journal entries
 """
 
-import logging
-
-import numpy as np
-import torch
-from datasets import load_dataset
-from transformers import AutoTokenizer
-from collections import Counter
-from typing import Any, Union
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -111,8 +114,6 @@ class GoEmotionsPreprocessor:
         text = " ".join(processed_words)
 
         # Normalize repeated characters (soooo -> so [REPEAT])
-        import re
-
         text = re.sub(r"(.)\1{2,}", r"\1 [REPEAT]", text)
 
         return text.strip()
@@ -190,7 +191,7 @@ class GoEmotionsDataLoader:
             dataset = load_dataset("go_emotions", cache_dir=self.cache_dir, token=False)
             self.dataset = dataset
             logger.info("✅ GoEmotions dataset downloaded successfully.")
-        except Exception as e:
+        except Exception as _:
             logger.error("Failed to download GoEmotions dataset: {e}")
             raise
 

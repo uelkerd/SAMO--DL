@@ -2,16 +2,30 @@ import numpy as np
 import sys
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+
+# Configure logging
+        import torch
+
+        import transformers
+
+        import sklearn
+
+        import torch
+        from torch import nn
+        import torch.nn.functional as F
+
+        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+
+        # Create model
+
 """
 Minimal Validation for Core Components
 
 Quick validation of essential components before GCP deployment.
 """
 
-import logging
-from pathlib import Path
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -21,25 +35,19 @@ def test_imports():
     logger.info("📦 Testing Basic Imports...")
 
     try:
-        import torch
-
         logger.info("   ✅ PyTorch: {torch.__version__}")
-
-        import transformers
 
         logger.info("   ✅ Transformers: {transformers.__version__}")
 
 
         logger.info("   ✅ NumPy: {np.__version__}")
 
-        import sklearn
-
         logger.info("   ✅ Scikit-learn: {sklearn.__version__}")
 
         logger.info("✅ Basic Imports: PASSED")
         return True
 
-    except ImportError as e:
+    except ImportError as _:
         logger.error("❌ Basic Imports: FAILED - {e}")
         return False
 
@@ -49,10 +57,6 @@ def test_focal_loss():
     logger.info("🧮 Testing Focal Loss...")
 
     try:
-        import torch
-        from torch import nn
-        import torch.nn.functional as F
-
         class FocalLoss(nn.Module):
             def __init__(self, alpha=0.25, gamma=2.0):
                 super().__init__()
@@ -79,7 +83,7 @@ def test_focal_loss():
         logger.info("✅ Focal Loss: PASSED")
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Focal Loss: FAILED - {e}")
         return False
 
@@ -121,9 +125,6 @@ def test_model_creation():
         # Add src to path
         sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-
-        # Create model
         model, loss_fn = create_bert_emotion_classifier(
             model_name="bert-base-uncased", class_weights=None, freeze_bert_layers=4
         )
@@ -136,7 +137,7 @@ def test_model_creation():
         logger.info("✅ Model Creation: PASSED")
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Model Creation: FAILED - {e}")
         return False
 
@@ -159,7 +160,7 @@ def main():
         logger.info("\n📋 Running {name}...")
         try:
             results[name] = validation_func()
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ {name} failed with exception: {e}")
             results[name] = False
 

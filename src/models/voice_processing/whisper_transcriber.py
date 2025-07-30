@@ -1,18 +1,3 @@
-"""OpenAI Whisper Transcriber for SAMO Deep Learning.
-
-This module implements OpenAI Whisper for high-accuracy voice-to-text transcription
-of journal entries, supporting multiple audio formats with confidence scoring
-and quality assessment.
-
-Key Features:
-- OpenAI Whisper model integration (tiny, base, small, medium, large)
-- Multi-format audio support (MP3, WAV, M4A, OGG)
-- Confidence scoring and quality assessment
-- Chunk-based processing for long audio files
-- Production-ready error handling and logging
-- Batch transcription for multiple audio files
-"""
-
 import contextlib
 import logging
 import os
@@ -29,6 +14,22 @@ import whisper
 from pydub import AudioSegment
 
 # Configure logging
+
+"""OpenAI Whisper Transcriber for SAMO Deep Learning.
+
+This module implements OpenAI Whisper for high-accuracy voice-to-text transcription
+of journal entries, supporting multiple audio formats with confidence scoring
+and quality assessment.
+
+Key Features:
+- OpenAI Whisper model integration (tiny, base, small, medium, large)
+- Multi-format audio support (MP3, WAV, M4A, OGG)
+- Confidence scoring and quality assessment
+- Chunk-based processing for long audio files
+- Production-ready error handling and logging
+- Batch transcription for multiple audio files
+"""
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -116,7 +117,7 @@ class AudioPreprocessor:
 
             return True, "Valid audio file"
 
-        except Exception as e:
+        except Exception as _:
             return False, f"Error loading audio: {e!s}"
 
     @staticmethod
@@ -226,7 +227,7 @@ class WhisperTranscriber:
                 extra={"format_args": True},
             )
 
-        except Exception as e:
+        except Exception as _:
             logger.error(f"❌ Failed to load Whisper model: {e}")
             raise RuntimeError(f"Whisper model loading failed: {e}")
 

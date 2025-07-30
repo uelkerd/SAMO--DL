@@ -1,6 +1,21 @@
 import sys
 
 #!/usr/bin/env python3
+import argparse
+import logging
+import time
+import importlib.util
+import torch
+from pathlib import Path
+
+# Add src to path
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+
+# Configure logging
+    import onnxruntime as ort
+
+    # Create ONNX session
+
 """
 Convert Model to ONNX
 
@@ -15,18 +30,7 @@ Arguments:
     --output_model: Path to save ONNX model (default: models/checkpoints/bert_emotion_classifier.onnx)
 """
 
-import argparse
-import logging
-import time
-import importlib.util
-import torch
-from pathlib import Path
-
-# Add src to path
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -161,7 +165,7 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("Error converting model to ONNX: {e}")
         return False
 
@@ -206,9 +210,6 @@ def benchmark_onnx_inference(model_path, input_ids, attention_mask, token_type_i
     Returns:
         float: Average inference time in seconds
     """
-    import onnxruntime as ort
-
-    # Create ONNX session
     session = ort.InferenceSession(model_path)
 
     # Prepare inputs

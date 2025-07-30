@@ -1,6 +1,20 @@
 import sys
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+
+# Add src to path
+        import api_rate_limiter
+        from pydantic import BaseModel, ValidationError
+        from fastapi import FastAPI
+        from pydantic import BaseModel
+
+        from api_rate_limiter import RateLimitCache, RateLimitEntry
+
+        from pydantic import BaseModel, ValidationError, Field
+
+
 """
 API Health Check for CI/CD Pipeline.
 
@@ -8,10 +22,6 @@ This script validates that all API components are working correctly
 and can be imported without errors.
 """
 
-import logging
-from pathlib import Path
-
-# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 # Configure logging
@@ -25,21 +35,18 @@ def test_api_imports():
         logger.info("🔍 Testing API imports...")
 
         # Test basic API imports without triggering deep learning models
-        import api_rate_limiter
         logger.info("✅ API rate limiter import successful")
 
         # Test Pydantic imports
-        from pydantic import BaseModel, ValidationError
         logger.info("✅ Pydantic imports successful")
 
         # Test FastAPI imports
-        from fastapi import FastAPI
         logger.info("✅ FastAPI imports successful")
 
         logger.info("✅ All API imports successful")
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ API import test failed: {e}")
         return False
 
@@ -50,8 +57,6 @@ def test_api_models():
         logger.info("🤖 Testing API model instantiation...")
 
         # Test basic Pydantic model creation
-        from pydantic import BaseModel
-
         class TestRequest(BaseModel):
             text: str
             threshold: float = 0.2
@@ -60,15 +65,13 @@ def test_api_models():
         logger.info("✅ Test request created: {test_request.text[:30]}...")
 
         # Test rate limiter functionality
-        from api_rate_limiter import RateLimitCache, RateLimitEntry
-
         cache = RateLimitCache()
         entry = cache.get("test_client")
         logger.info("✅ Rate limiter cache created successfully")
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ API model test failed: {e}")
         return False
 
@@ -77,8 +80,6 @@ def test_api_validation():
     """Test API request validation."""
     try:
         logger.info("🔒 Testing API validation...")
-
-        from pydantic import BaseModel, ValidationError, Field
 
         class TestRequest(BaseModel):
             text: str = Field(..., min_length=1, description="Text cannot be empty")
@@ -106,7 +107,7 @@ def test_api_validation():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ API validation test failed: {e}")
         return False
 

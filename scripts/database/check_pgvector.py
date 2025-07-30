@@ -1,18 +1,21 @@
+import logging
+
 import os
 import sys
 
 #!/usr/bin/env python3
-"""Script to check if pgvector extension is installed in PostgreSQL."""
-
 from urllib.parse import urlparse
 
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 # Load environment variables from .env file
-try:
     from dotenv import load_dotenv
 
+
+"""Script to check if pgvector extension is installed in PostgreSQL."""
+
+try:
     load_dotenv()
 except ImportError:
     # dotenv not installed, skip loading
@@ -57,18 +60,18 @@ def check_pgvector():
         is_installed = cur.fetchone() is not None
 
         if is_installed:
-            print("✅ pgvector extension is installed and available.")
+            logging.info("✅ pgvector extension is installed and available.")
         else:
-            print("❌ pgvector extension is NOT installed.")
-            print("\nTo install pgvector:")
-            print("1. Install the extension in your PostgreSQL server:")
-            print("   - On Ubuntu/Debian: sudo apt install postgresql-15-pgvector")
-            print("   - On macOS with Homebrew: brew install pgvector")
-            print("   - From source: https://github.com/pgvector/pgvector#installation")
-            print("\n2. Enable the extension in your database:")
-            print("   - psql -U postgres")
-            print("   - \\c {DB_NAME}")
-            print("   - CREATE EXTENSION vector;")
+            logging.info("❌ pgvector extension is NOT installed.")
+            logging.info("\nTo install pgvector:")
+            logging.info("1. Install the extension in your PostgreSQL server:")
+            logging.info("   - On Ubuntu/Debian: sudo apt install postgresql-15-pgvector")
+            logging.info("   - On macOS with Homebrew: brew install pgvector")
+            logging.info("   - From source: https://github.com/pgvector/pgvector#installation")
+            logging.info("\n2. Enable the extension in your database:")
+            logging.info("   - psql -U postgres")
+            logging.info("   - \\c {DB_NAME}")
+            logging.info("   - CREATE EXTENSION vector;")
 
         # Close cursor and connection
         cur.close()
@@ -77,7 +80,7 @@ def check_pgvector():
         return is_installed
 
     except psycopg2.Error as e:
-        print("Error connecting to PostgreSQL: {e}")
+        logging.info("Error connecting to PostgreSQL: {e}")
         return False
 
 

@@ -1,11 +1,5 @@
 import traceback
 
-"""SAMO Emotion Detection API Demo.
-
-This demo showcases the emotion detection pipeline working with pre-trained
-models and provides a preview of the API interface for Web Dev integration.
-"""
-
 import logging
 import time
 import traceback
@@ -24,6 +18,15 @@ from .bert_classifier import create_bert_emotion_classifier
 from .dataset_loader import GOEMOTIONS_EMOTIONS
 
 # Configure logging
+    import uvicorn
+
+
+"""SAMO Emotion Detection API Demo.
+
+This demo showcases the emotion detection pipeline working with pre-trained
+models and provides a preview of the API interface for Web Dev integration.
+"""
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -166,7 +169,7 @@ async def load_model() -> None:
 
         logger.info("✅ Model loaded successfully!")
 
-    except Exception as e:
+    except Exception as _:
         logger.error("Failed to load model: {e}")
         logger.error(traceback.format_exc())
         raise
@@ -320,7 +323,7 @@ async def analyze_emotion(
             processing_time_ms=processing_time * 1000,
         )
 
-    except Exception as e:
+    except Exception as _:
         logger.error("Emotion analysis failed: {e}")
         logger.error(traceback.format_exc())
         raise HTTPException(
@@ -396,7 +399,7 @@ async def analyze_emotions_batch(
     except HTTPException:
         raise
 
-    except Exception as e:
+    except Exception as _:
         logger.error("Batch emotion analysis failed: {e}")
         logger.error(traceback.format_exc())
         raise HTTPException(
@@ -406,8 +409,6 @@ async def analyze_emotions_batch(
 
 
 if __name__ == "__main__":
-    import uvicorn
-
     logger.info("🚀 Starting SAMO Emotion Detection API...")
     uvicorn.run(
         "api_demo:app",

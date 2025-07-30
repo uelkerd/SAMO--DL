@@ -1,3 +1,5 @@
+import logging
+
 import json
 import numpy as np
 import os
@@ -5,14 +7,15 @@ import sys
 import traceback
 
 #!/usr/bin/env python3
+import os
+import re
+from pathlib import Path
+
+
 """
 Aggressive script to fix ALL missing imports across the codebase.
 This addresses the extensive linting errors causing CircleCI failures.
 """
-
-import os
-import re
-from pathlib import Path
 
 def fix_file_imports_aggressive(file_path: str) -> bool:
     """Aggressively fix missing imports in a file."""
@@ -82,7 +85,7 @@ def fix_file_imports_aggressive(file_path: str) -> bool:
     if content != original_content:
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(content)
-        print("Fixed imports in: {file_path}")
+        logging.info("Fixed imports in: {file_path}")
         return True
 
     return False
@@ -122,7 +125,7 @@ def fix_common_issues_aggressive(file_path: str) -> bool:
     if content != original_content:
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(content)
-        print("Fixed common issues in: {file_path}")
+        logging.info("Fixed common issues in: {file_path}")
         return True
 
     return False
@@ -148,10 +151,10 @@ def main():
                 fixed_common = fix_common_issues_aggressive(str(py_file))
                 if fixed_imports or fixed_common:
                     total_fixed += 1
-            except Exception as e:
-                print("Error fixing {py_file}: {e}")
+            except Exception as _:
+                logging.info("Error fixing {py_file}: {e}")
 
-    print("\n✅ Fixed {total_fixed} files")
+    logging.info("\n✅ Fixed {total_fixed} files")
 
 if __name__ == "__main__":
     main()

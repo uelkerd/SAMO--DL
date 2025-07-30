@@ -9,6 +9,7 @@ from typing import Any, Optional
 import pandas as pd
 
 # Sample topics to generate journal entries about
+
 TOPICS = [
     "work",
     "family",

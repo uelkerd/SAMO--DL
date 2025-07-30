@@ -1,6 +1,21 @@
 import numpy as np
 
 # G004: Logging f-strings temporarily allowed for development
+import logging
+import time
+import warnings
+from typing import Optional, Union
+
+import torch
+from torch import nn
+import torch.nn.functional as F
+from sklearn.metrics import f1_score, precision_recall_fscore_support
+from torch.utils.data import DataLoader, Dataset
+from transformers import (
+from .dataset_loader import GOEMOTIONS_EMOTIONS
+
+# Configure logging
+
 """BERT Emotion Classifier for SAMO Deep Learning.
 
 This module implements the BERT-based emotion detection model following the
@@ -15,25 +30,11 @@ Key Features:
 - Temperature scaling for confidence calibration
 """
 
-import logging
-import time
-import warnings
-from typing import Optional, Union
-
-import torch
-from torch import nn
-import torch.nn.functional as F
-from sklearn.metrics import f1_score, precision_recall_fscore_support
-from torch.utils.data import DataLoader, Dataset
-from transformers import (
     AutoConfig,
     AutoModel,
     AutoTokenizer,
 )
 
-from .dataset_loader import GOEMOTIONS_EMOTIONS
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 

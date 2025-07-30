@@ -1,44 +1,49 @@
+import logging
+
 import sys
 
 #!/usr/bin/env python3
-"""
-Simple Temperature Scaling Test - Direct Model Loading.
-"""
-
 from pathlib import Path
-
-sys.path.append(str(Path.cwd() / "src"))
 
 import torch
 from models.emotion_detection.bert_classifier import (
-    create_bert_emotion_classifier,
-    evaluate_emotion_classifier,
-)
 from models.emotion_detection.dataset_loader import create_goemotions_loader
 
 
-def simple_temperature_test():
-    print("🌡️ Simple Temperature Scaling Test")
-
-    # Set device
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print("Using device: {device}")
-
-    # Load checkpoint
-    checkpoint_path = Path("test_checkpoints/best_model.pt")
-    if not checkpoint_path.exists():
-        print("❌ Model not found")
-        return
-
-    print("📦 Loading checkpoint...")
-    checkpoint = torch.load(checkpoint_path, map_location=device)
-
-    # Create data loader for evaluation
-    print("📊 Preparing validation data...")
     from torch.utils.data import DataLoader
     from models.emotion_detection.bert_classifier import EmotionDataset
 
     # Create GoEmotions loader
+    from transformers import AutoTokenizer
+
+
+"""
+Simple Temperature Scaling Test - Direct Model Loading.
+"""
+
+sys.path.append(str(Path.cwd() / "src"))
+
+    create_bert_emotion_classifier,
+    evaluate_emotion_classifier,
+)
+def simple_temperature_test():
+    logging.info("🌡️ Simple Temperature Scaling Test")
+
+    # Set device
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    logging.info("Using device: {device}")
+
+    # Load checkpoint
+    checkpoint_path = Path("test_checkpoints/best_model.pt")
+    if not checkpoint_path.exists():
+        logging.info("❌ Model not found")
+        return
+
+    logging.info("📦 Loading checkpoint...")
+    checkpoint = torch.load(checkpoint_path, map_location=device)
+
+    # Create data loader for evaluation
+    logging.info("📊 Preparing validation data...")
     goemotions_loader = create_goemotions_loader()
     datasets = goemotions_loader.prepare_datasets()
 
@@ -54,8 +59,6 @@ def simple_temperature_test():
     val_labels = [val_labels[i] for i in val_indices]
 
     # Create tokenizer
-    from transformers import AutoTokenizer
-
     tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
     # Create dataset and dataloader
@@ -63,7 +66,7 @@ def simple_temperature_test():
     val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=0)
 
     # Create model
-    print("🤖 Creating model...")
+    logging.info("🤖 Creating model...")
     model, _ = create_bert_emotion_classifier(
         model_name="bert-base-uncased", class_weights=None, freeze_bert_layers=0
     )
@@ -72,17 +75,17 @@ def simple_temperature_test():
     model.load_state_dict(checkpoint["model_state_dict"])
     model.to(device)
     model.eval()
-    print("✅ Model loaded successfully")
+    logging.info("✅ Model loaded successfully")
 
     # Test temperatures
     temperatures = [1.0, 2.0, 3.0, 4.0]
     threshold = 0.5
 
-    print("\n🎯 Testing temperatures with threshold {threshold}")
-    print("-" * 50)
+    logging.info("\n🎯 Testing temperatures with threshold {threshold}")
+    logging.info("-" * 50)
 
     for temp in temperatures:
-        print("\n🌡️ Temperature: {temp}")
+        logging.info("\n🌡️ Temperature: {temp}")
 
         # Update temperature
         model.set_temperature(temp)
@@ -90,10 +93,10 @@ def simple_temperature_test():
         # Quick evaluation
         metrics = evaluate_emotion_classifier(model, val_loader, device, threshold=threshold)
 
-        print("  📊 Macro F1: {metrics['macro_f1']:.4f}")
-        print("  📊 Micro F1: {metrics['micro_f1']:.4f}")
+        logging.info("  📊 Macro F1: {metrics['macro_f1']:.4f}")
+        logging.info("  📊 Micro F1: {metrics['micro_f1']:.4f}")
 
-    print("\n🎉 Temperature scaling test complete!")
+    logging.info("\n🎉 Temperature scaling test complete!")
 
 
 if __name__ == "__main__":

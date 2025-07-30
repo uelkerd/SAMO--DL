@@ -2,6 +2,25 @@ import numpy as np
 import sys
 
 #!/usr/bin/env python3
+import logging
+import torch
+from pathlib import Path
+
+# Add project root to path
+from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
+
+# Configure logging
+        import pyaudio
+        import wave
+
+        # Audio parameters
+        import whisper
+
+        # Load Whisper model
+        import librosa
+
+        # Simulate audio features
+
 """
 Test Voice Pipeline for SAMO
 
@@ -9,17 +28,9 @@ This script tests the complete voice-first pipeline including
 audio recording, transcription, and emotion detection.
 """
 
-import logging
-import torch
-from pathlib import Path
-
-# Add project root to path
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -29,10 +40,6 @@ def test_voice_recording():
     logger.info("🎤 Testing voice recording...")
 
     try:
-        import pyaudio
-        import wave
-
-        # Audio parameters
         chunk = 1024
         format = pyaudio.paInt16
         channels = 1
@@ -68,7 +75,7 @@ def test_voice_recording():
     except ImportError:
         logger.warning("⚠️  PyAudio not available - skipping voice recording test")
         return False
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Voice recording test failed: {e}")
         return False
 
@@ -78,9 +85,6 @@ def test_whisper_transcription():
     logger.info("🤖 Testing Whisper transcription...")
 
     try:
-        import whisper
-
-        # Load Whisper model
         model = whisper.load_model("base")
         logger.info("✅ Whisper model loaded successfully")
         logger.info("   • Model: {model.name}")
@@ -95,7 +99,7 @@ def test_whisper_transcription():
     except ImportError:
         logger.warning("⚠️  Whisper not available - skipping transcription test")
         return False
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Whisper transcription test failed: {e}")
         return False
 
@@ -135,7 +139,7 @@ def test_emotion_detection():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Emotion detection test failed: {e}")
         return False
 
@@ -145,9 +149,6 @@ def test_voice_emotion_features():
     logger.info("🎵 Testing voice emotion features...")
 
     try:
-        import librosa
-
-        # Simulate audio features
         sample_rate = 16000
         duration = 3
         samples = int(sample_rate * duration)
@@ -170,7 +171,7 @@ def test_voice_emotion_features():
     except ImportError:
         logger.warning("⚠️  Librosa not available - skipping voice features test")
         return False
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Voice emotion features test failed: {e}")
         return False
 
@@ -202,7 +203,7 @@ def test_complete_pipeline():
             else:
                 logger.info("❌ {test_name}: FAILED")
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ {test_name}: ERROR - {e}")
             results.append((test_name, False))
 

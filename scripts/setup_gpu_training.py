@@ -1,6 +1,21 @@
 import os
 
 #!/usr/bin/env python3
+import argparse
+import logging
+from pathlib import Path
+
+import torch
+
+# Set up logging
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+
+# Environment setup
+import torch
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+
+# Resume training on GPU from epoch {epoch}
+
 """GPU Training Setup Script for SAMO Deep Learning.
 
 This script helps transition the current CPU training to GPU training
@@ -11,13 +26,6 @@ Usage:
     python scripts/setup_gpu_training.py --resume-training --checkpoint ./test_checkpoints/best_model.pt
 """
 
-import argparse
-import logging
-from pathlib import Path
-
-import torch
-
-# Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -95,9 +103,6 @@ def create_gpu_training_config():
 # Auto-generated based on your GPU: {torch.cuda.get_device_name()}
 # Memory: {gpu_memory:.1f} GB
 
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
-# Environment setup
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 
 # GPU-optimized training parameters
@@ -154,10 +159,6 @@ def resume_training_on_gpu(checkpoint_path: str) -> None:
     resume_script = """#!/usr/bin/env python3
 # Auto-generated GPU resume script
 
-import torch
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
-# Resume training on GPU from epoch {epoch}
 trainer = EmotionDetectionTrainer(
     model_name="bert-base-uncased",
     cache_dir="./data/cache",

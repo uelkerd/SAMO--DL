@@ -1,8 +1,3 @@
-"""
-Integration tests for API endpoints.
-Tests API functionality, request/response handling, and error scenarios.
-"""
-
 import time
 from unittest.mock import patch
 
@@ -10,6 +5,15 @@ import pytest
 
 
 
+
+        import queue
+        import threading
+
+
+"""
+Integration tests for API endpoints.
+Tests API functionality, request/response handling, and error scenarios.
+"""
 
 @pytest.mark.integration
 class TestAPIEndpoints:
@@ -143,9 +147,6 @@ class TestAPIEndpoints:
 
     def test_concurrent_requests(self, api_client):
         """Test API handles concurrent requests."""
-        import queue
-        import threading
-
         results = queue.Queue()
         test_data = {"text": "Testing concurrent request handling."}
 
@@ -153,7 +154,7 @@ class TestAPIEndpoints:
             try:
                 response = api_client.post("/analyze/journal", json=test_data)
                 results.put(response.status_code)
-            except Exception as e:
+            except Exception as _:
                 results.put(f"Error: {e}")
 
         # Create multiple threads

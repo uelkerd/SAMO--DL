@@ -1,6 +1,17 @@
 import json
 
 #!/usr/bin/env python3
+import argparse
+import logging
+from pathlib import Path
+
+import torch
+from transformers import AutoTokenizer
+
+# Set up logging
+    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+
+
 """Domain Adaptation Testing for SAMO Deep Learning.
 
 This script tests how well the GoEmotions-trained model performs on
@@ -11,14 +22,6 @@ Usage:
     python scripts/test_domain_adaptation.py --create-journal-samples
 """
 
-import argparse
-import logging
-from pathlib import Path
-
-import torch
-from transformers import AutoTokenizer
-
-# Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -141,8 +144,6 @@ def predict_emotions(
     checkpoint = torch.load(model_path, map_location=device)
 
     # Import and initialize model
-    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
-
     model = BERTEmotionClassifier(model_name=model_name, num_emotions=28)
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
