@@ -70,9 +70,8 @@ def main():
         datasets = data_loader.prepare_datasets()
 
         train_dataset = datasets["train"]
-        val_dataset = datasets["validation"]
-        test_dataset = datasets["test"]
-        emotion_names = data_loader.emotion_names
+        datasets["validation"]
+        datasets["test"]
 
         logger.info("✅ Dataset loaded successfully")
         logger.info("   • Train examples: {len(train_dataset)}")
@@ -91,8 +90,8 @@ def main():
         )
         model = model.to(device)
 
-        param_count = sum(p.numel() for p in model.parameters())
-        trainable_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        sum(p.numel() for p in model.parameters())
+        sum(p.numel() for p in model.parameters() if p.requires_grad)
 
         logger.info("✅ Model created successfully")
         logger.info("   • Total parameters: {param_count:,}")
@@ -116,7 +115,7 @@ def main():
         train_dataset, batch_size=batch_size, shuffle=True
     )
 
-    for epoch in range(3):
+    for _epoch in range(3):
         logger.info("📚 Epoch {epoch + 1}/3")
 
         for batch_idx, batch in enumerate(train_dataloader):

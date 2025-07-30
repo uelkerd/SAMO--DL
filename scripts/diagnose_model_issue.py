@@ -92,8 +92,8 @@ def diagnose_model_outputs():
             logger.info("  Probabilities mean: {probabilities.mean():.4f}")
             logger.info("  Probabilities std: {probabilities.std():.4f}")
 
-            high_prob_count = (probabilities > 0.5).sum()
-            total_predictions = probabilities.numel()
+            (probabilities > 0.5).sum()
+            probabilities.numel()
 
             logger.info(
                 "  Predictions > 0.5: {high_prob_count}/{total_predictions} ({100*high_prob_count/total_predictions:.1f}%)"
@@ -103,8 +103,8 @@ def diagnose_model_outputs():
                 sample_probs = probabilities[i]
                 sample_labels = labels[i]
 
-                top_emotions_idx = torch.topk(sample_probs, 5).indices
-                true_emotions_idx = torch.where(sample_labels == 1)[0]
+                torch.topk(sample_probs, 5).indices
+                torch.where(sample_labels == 1)[0]
 
                 logger.info("  Sample {i}:")
                 logger.info("    True emotions: {true_emotions_idx.tolist()}")
@@ -144,7 +144,7 @@ def diagnose_loss_function():
 
         pos_weight = torch.ones(num_emotions) * 2.0  # Give more weight to positive class
         weighted_bce = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
-        weighted_loss = weighted_bce(logits, labels)
+        weighted_bce(logits, labels)
 
         logger.info("Weighted BCE Loss: {weighted_loss.item():.4f}")
 
@@ -171,7 +171,7 @@ def main():
     ]
 
     passed = 0
-    for test_name, test_func in tests:
+    for _test_name, test_func in tests:
         logger.info("\n🔍 {test_name}")
         if test_func():
             passed += 1

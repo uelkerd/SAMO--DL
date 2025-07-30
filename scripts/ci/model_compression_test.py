@@ -103,7 +103,7 @@ def test_model_compression():
         dummy_input = torch.randint(0, 30522, (batch_size, sequence_length))
 
         original_size = get_model_size(model)
-        original_time = benchmark_inference(model, dummy_input)
+        benchmark_inference(model, dummy_input)
 
         logger.info("Original model size: {original_size:.2f} MB")
         logger.info("Original inference time: {original_time:.2f} ms")
@@ -114,7 +114,7 @@ def test_model_compression():
         )
 
         compressed_size = get_model_size(quantized_model)
-        compressed_time = benchmark_inference(quantized_model, dummy_input)
+        benchmark_inference(quantized_model, dummy_input)
 
         logger.info("Compressed model size: {compressed_size:.2f} MB")
         logger.info("Compressed inference time: {compressed_time:.2f} ms")
@@ -148,7 +148,7 @@ def main():
     passed = 0
     total = len(tests)
 
-    for test_name, test_func in tests:
+    for _test_name, test_func in tests:
         logger.info("\n{'='*40}")
         logger.info("Running: {test_name}")
         logger.info("{'='*40}")

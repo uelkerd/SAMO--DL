@@ -90,8 +90,8 @@ def test_direct_evaluation():
         threshold = 0.2
         logger.info("\n🎯 Testing threshold: {threshold}")
 
-        expected_predictions = (probabilities >= threshold).sum().item()
-        total_positions = probabilities.numel()
+        (probabilities >= threshold).sum().item()
+        probabilities.numel()
 
         logger.info(
             "📊 Expected predictions: {expected_predictions}/{total_positions} ({100*expected_predictions/total_positions:.1f}%)"
@@ -106,7 +106,7 @@ def test_direct_evaluation():
             "  - Match expected: {'✅' if predictions.sum().item() == expected_predictions else '❌'}"
         )
 
-        samples_per_batch = predictions.shape[0]
+        predictions.shape[0]
         samples_with_zero = (predictions.sum(dim=1) == 0).sum().item()
 
         logger.info("📊 Fallback analysis:")
@@ -147,7 +147,7 @@ def test_direct_evaluation():
 
         precision = tp / (tp + fp) if (tp + fp) > 0 else 0
         recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-        f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
+        2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
 
         logger.info("📈 Manual F1 calculation:")
         logger.info("  - TP: {tp}, FP: {fp}, FN: {fn}")

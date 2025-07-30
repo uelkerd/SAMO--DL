@@ -60,7 +60,6 @@ def main():
         logger.info("=" * 60)
 
         best_f1 = 0.0
-        best_threshold = 0.2
 
         for ___threshold in thresholds:
             logger.info("🔍 Threshold: {threshold}")
@@ -70,13 +69,11 @@ def main():
             )
 
             macro_f1 = metrics["macro_f1"]
-            micro_f1 = metrics["micro_f1"]
+            metrics["micro_f1"]
 
             logger.info("  📊 Macro F1: {macro_f1:.4f} | Micro F1: {micro_f1:.4f}")
 
-            if macro_f1 > best_f1:
-                best_f1 = macro_f1
-                best_threshold = threshold
+            best_f1 = max(best_f1, macro_f1)
 
         logger.info("=" * 60)
         logger.info("🏆 BEST RESULTS:")

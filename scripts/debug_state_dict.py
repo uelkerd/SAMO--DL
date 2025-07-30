@@ -31,13 +31,13 @@ def debug_state_dict():
         logging.info("✅ State dict is a dictionary")
         logging.info("Number of keys: {len(state_dict.keys())}")
         logging.info("First few keys:")
-        for i, key in enumerate(list(state_dict.keys())[:5]):
+        for _i, _key in enumerate(list(state_dict.keys())[:5]):
             logging.info("  {key}: {type(state_dict[key])}")
     elif isinstance(state_dict, tuple):
         logging.info("❌ State dict is a tuple")
         logging.info("Tuple length: {len(state_dict)}")
         logging.info("Tuple contents:")
-        for i, item in enumerate(state_dict):
+        for _i, _item in enumerate(state_dict):
             logging.info("  [{i}]: {type(item)} - {item}")
     else:
         logging.info("❌ Unexpected type: {type(state_dict)}")
