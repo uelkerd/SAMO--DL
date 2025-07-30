@@ -1,39 +1,42 @@
+import logging
+
 import os
 import sys
 
 #!/usr/bin/env python3
-"""
-Script to fix CI issues identified in the SAMO Deep Learning project.
-"""
-
 import subprocess
 from pathlib import Path
 
 
+
+"""
+Script to fix CI issues identified in the SAMO Deep Learning project.
+"""
+
 def run_command(cmd: str, description: str) -> tuple[bool, str]:
     """Run a command and return success status and output."""
-    print("🔄 {description}...")
+    logging.info("🔄 {description}...")
     try:
         # Split command for security (avoid shell=True)
         cmd_list = cmd.split()
         result = subprocess.run(cmd_list, check=False, capture_output=True, text=True)
         output = result.stdout.strip()
         if result.returncode == 0:
-            print("✅ {description} - SUCCESS")
+            logging.info("✅ {description} - SUCCESS")
             return True, output
         else:
-            print("❌ {description} - FAILED")
-            print("Error: {result.stderr}")
+            logging.info("❌ {description} - FAILED")
+            logging.info("Error: {result.stderr}")
             return False, result.stderr
-    except Exception as e:
-        print("❌ {description} - EXCEPTION: {e}")
+    except Exception as _:
+        logging.info("❌ {description} - EXCEPTION: {e}")
         return False, str(e)
 
 
 def main():
     """Main function to fix CI issues."""
-    print("🔧 Fixing CI Issues for SAMO Deep Learning")
-    print("=" * 50)
+    logging.info("🔧 Fixing CI Issues for SAMO Deep Learning")
+    logging.info("=" * 50)
 
     # Change to project root
     project_root = Path(__file__).parent.parent
@@ -57,18 +60,18 @@ def main():
     )
 
     # Summary
-    print("\n" + "=" * 50)
-    print("📊 CI Fix Summary:")
-    print("Code Formatting: {'✅ PASSED' if success1 else '❌ FAILED'}")
-    print("Linting Fixes: {'✅ PASSED' if success2 else '❌ FAILED'}")
-    print("Forward Pass Test: {'✅ PASSED' if success3 else '❌ FAILED'}")
-    print("Predict Emotions Test: {'✅ PASSED' if success4 else '❌ FAILED'}")
+    logging.info("\n" + "=" * 50)
+    logging.info("📊 CI Fix Summary:")
+    logging.info("Code Formatting: {'✅ PASSED' if success1 else '❌ FAILED'}")
+    logging.info("Linting Fixes: {'✅ PASSED' if success2 else '❌ FAILED'}")
+    logging.info("Forward Pass Test: {'✅ PASSED' if success3 else '❌ FAILED'}")
+    logging.info("Predict Emotions Test: {'✅ PASSED' if success4 else '❌ FAILED'}")
 
     if all([success1, success2, success3, success4]):
-        print("\n🎉 All CI issues fixed successfully!")
+        logging.info("\n🎉 All CI issues fixed successfully!")
         return 0
     else:
-        print("\n⚠️ Some issues remain. Please check the output above.")
+        logging.info("\n⚠️ Some issues remain. Please check the output above.")
         return 1
 
 

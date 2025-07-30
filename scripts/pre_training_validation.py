@@ -2,6 +2,30 @@ import numpy as np
 import sys
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+
+# Add src to path
+import torch
+
+# Configure logging
+            import torch
+            import transformers
+            import pandas as pd
+
+            from models.emotion_detection.dataset_loader import create_goemotions_loader
+
+            # Load data in dev mode
+            from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+
+            # Create model
+            from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+            from torch.optim import AdamW
+
+            # Create trainer
+            import shutil
+
+
 """
 Pre-Training Validation Script for SAMO Deep Learning.
 
@@ -9,16 +33,9 @@ This script performs comprehensive validation BEFORE training starts to prevent
 issues like 0.0000 loss, data problems, model issues, etc.
 """
 
-import logging
-from pathlib import Path
-
-# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 # Import torch early for validation
-import torch
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -36,10 +53,6 @@ class PreTrainingValidator:
         logger.info("🔍 Validating environment...")
 
         try:
-            import torch
-            import transformers
-            import pandas as pd
-
             logger.info("✅ PyTorch version: {torch.__version__}")
             logger.info("✅ Transformers version: {transformers.__version__}")
             logger.info("✅ NumPy version: {np.__version__}")
@@ -57,7 +70,7 @@ class PreTrainingValidator:
             self.validation_results["environment"] = True
             return True
 
-        except ImportError as e:
+        except ImportError as _:
             logger.error("❌ Missing dependency: {e}")
             self.critical_issues.append("Missing dependency: {e}")
             self.validation_results["environment"] = False
@@ -68,9 +81,6 @@ class PreTrainingValidator:
         logger.info("🔍 Validating data loading...")
 
         try:
-            from models.emotion_detection.dataset_loader import create_goemotions_loader
-
-            # Load data in dev mode
             datasets = create_goemotions_loader(dev_mode=True)
 
             # Check dataset structure
@@ -149,7 +159,7 @@ class PreTrainingValidator:
             self.validation_results["data_loading"] = True
             return True
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ Data loading validation failed: {e}")
             self.critical_issues.append("Data loading error: {e}")
             self.validation_results["data_loading"] = False
@@ -160,9 +170,6 @@ class PreTrainingValidator:
         logger.info("🔍 Validating model architecture...")
 
         try:
-            from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-
-            # Create model
             model, loss_fn = create_bert_emotion_classifier(
                 model_name="bert-base-uncased",
                 class_weights=None,  # Test without weights first
@@ -229,7 +236,7 @@ class PreTrainingValidator:
             self.validation_results["model_architecture"] = True
             return True
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ Model architecture validation failed: {e}")
             self.critical_issues.append("Model architecture error: {e}")
             self.validation_results["model_architecture"] = False
@@ -240,10 +247,6 @@ class PreTrainingValidator:
         logger.info("🔍 Validating training components...")
 
         try:
-            from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-            from torch.optim import AdamW
-
-            # Create trainer
             trainer = EmotionDetectionTrainer(
                 model_name="bert-base-uncased",
                 batch_size=8,
@@ -328,7 +331,7 @@ class PreTrainingValidator:
             self.validation_results["training_components"] = True
             return True
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ Training components validation failed: {e}")
             self.critical_issues.append("Training components error: {e}")
             self.validation_results["training_components"] = False
@@ -360,8 +363,6 @@ class PreTrainingValidator:
                     return False
 
             # Check available disk space
-            import shutil
-
             total, used, free = shutil.disk_usage(".")
             free_gb = free / (1024**3)
 
@@ -374,7 +375,7 @@ class PreTrainingValidator:
             self.validation_results["file_system"] = True
             return True
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ File system validation failed: {e}")
             self.critical_issues.append("File system error: {e}")
             self.validation_results["file_system"] = False
@@ -405,7 +406,7 @@ class PreTrainingValidator:
                     logger.error("❌ {name} validation FAILED")
                 else:
                     logger.info("✅ {name} validation PASSED")
-            except Exception as e:
+            except Exception as _:
                 logger.error("❌ {name} validation ERROR: {e}")
                 self.critical_issues.append("{name} validation error: {e}")
                 all_passed = False

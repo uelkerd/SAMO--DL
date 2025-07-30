@@ -2,6 +2,13 @@ import json
 import sys
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+
+# Add src to path
+    import shutil
+
+
 """
 Simple Model Finalization Script
 
@@ -12,10 +19,6 @@ Usage:
     python scripts/simple_finalize_model.py
 """
 
-import logging
-from pathlib import Path
-
-# Add src to path
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
 # Configure logging
@@ -53,8 +56,6 @@ def create_final_model(output_model: str = DEFAULT_OUTPUT_MODEL) -> dict:
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Copy checkpoint to final location
-    import shutil
-
     shutil.copy2(checkpoint_path, output_path)
 
     # Create model metadata
@@ -135,7 +136,7 @@ def main():
         logger.info("📁 Model saved to: {model_info['model_path']}")
         logger.info("📊 Target F1 Score: {TARGET_F1_SCORE}")
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Error during model finalization: {e}")
         sys.exit(1)
 

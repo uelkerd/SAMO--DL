@@ -1,12 +1,15 @@
+import logging
+
 import json
 
 #!/usr/bin/env python3
+import random
+
+
+
 """
 Create a test dataset with emotion labels for Vertex AI
 """
-
-import random
-
 
 def create_test_dataset():
     """Create a test dataset with emotion labels"""
@@ -110,7 +113,7 @@ def create_test_dataset():
 
 def main():
     """Main function"""
-    print("🚀 Creating test dataset with emotion labels...")
+    logging.info("🚀 Creating test dataset with emotion labels...")
 
     # Create test data
     test_data = create_test_dataset()
@@ -121,14 +124,14 @@ def main():
     with open(output_file, "w") as f:
         json.dump(test_data, f, indent=2)
 
-    print("✅ Created test dataset with {len(test_data)} samples")
-    print("📁 Saved to: {output_file}")
+    logging.info("✅ Created test dataset with {len(test_data)} samples")
+    logging.info("📁 Saved to: {output_file}")
 
     # Show sample
-    print("\n📊 Sample entries:")
+    logging.info("\n📊 Sample entries:")
     for i, entry in enumerate(test_data[:3]):
-        print("  {i+1}. Text: '{entry['text'][:50]}...'")
-        print("     Emotions: {entry['emotions']}")
+        logging.info("  {i+1}. Text: '{entry['text'][:50]}...'")
+        logging.info("     Emotions: {entry['emotions']}")
 
     # Count emotions
     emotion_counts = {}
@@ -136,9 +139,9 @@ def main():
         for emotion in entry["emotions"]:
             emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
 
-    print("\n📈 Emotion distribution:")
+    logging.info("\n📈 Emotion distribution:")
     for emotion, count in sorted(emotion_counts.items()):
-        print("  - {emotion}: {count} samples")
+        logging.info("  - {emotion}: {count} samples")
 
 
 if __name__ == "__main__":

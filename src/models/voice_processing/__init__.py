@@ -1,3 +1,8 @@
+from .audio_preprocessor import AudioPreprocessor, preprocess_audio
+from .transcription_api import TranscriptionAPI
+from .whisper_transcriber import WhisperTranscriber, create_whisper_transcriber
+
+
 """SAMO Deep Learning - Voice Processing Module.
 
 This module implements OpenAI Whisper-based voice-to-text processing for
@@ -15,10 +20,6 @@ Performance Targets:
 - Audio Format Support: MP3, WAV, M4A, OGG
 - Real-time Processing: Up to 5-minute audio clips
 """
-
-from .audio_preprocessor import AudioPreprocessor, preprocess_audio
-from .transcription_api import TranscriptionAPI
-from .whisper_transcriber import WhisperTranscriber, create_whisper_transcriber
 
 __version__ = "0.1.0"
 __author__ = "SAMO Deep Learning Team"

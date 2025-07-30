@@ -1,17 +1,6 @@
 import numpy as np
 
 #!/usr/bin/env python3
-"""Performance Optimization Script for SAMO Deep Learning.
-
-This script handles GPU setup verification, ONNX model conversion,
-and comprehensive performance benchmarking to meet <500ms P95 targets.
-
-Usage:
-    python scripts/optimize_performance.py --check-gpu
-    python scripts/optimize_performance.py --convert-onnx --model-path ./models/checkpoints/best_model.pt
-    python scripts/optimize_performance.py --benchmark --target-latency 500
-"""
-
 import argparse
 import logging
 import statistics
@@ -24,6 +13,23 @@ import torch
 from transformers import AutoTokenizer
 
 # Set up logging
+    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+
+    # Initialize model
+    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+
+
+"""Performance Optimization Script for SAMO Deep Learning.
+
+This script handles GPU setup verification, ONNX model conversion,
+and comprehensive performance benchmarking to meet <500ms P95 targets.
+
+Usage:
+    python scripts/optimize_performance.py --check-gpu
+    python scripts/optimize_performance.py --convert-onnx --model-path ./models/checkpoints/best_model.pt
+    python scripts/optimize_performance.py --benchmark --target-latency 500
+"""
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -115,9 +121,6 @@ def convert_to_onnx(
     checkpoint = torch.load(model_path, map_location=device)
 
     # Import here to avoid circular imports
-    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
-
-    # Initialize model
     model = BERTEmotionClassifier(model_name=model_name, num_emotions=28)
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
@@ -234,8 +237,6 @@ def benchmark_pytorch_model(
     """Benchmark PyTorch model inference times."""
     # Load model
     checkpoint = torch.load(model_path, map_location=device)
-
-    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 
     model = BERTEmotionClassifier(model_name="bert-base-uncased", num_emotions=28)
     model.load_state_dict(checkpoint["model_state_dict"])

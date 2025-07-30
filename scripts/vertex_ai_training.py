@@ -3,6 +3,33 @@ import sys
 import traceback
 
 #!/usr/bin/env python3
+import argparse
+import logging
+from pathlib import Path
+from typing import Dict, Any, Optional
+
+# Add src to path
+        import torch
+        import transformers
+        from google.cloud import aiplatform
+
+        from models.emotion_detection.dataset_loader import create_goemotions_loader
+
+        # Load data
+        from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+        import torch
+
+        # Create model
+        from models.emotion_detection.bert_classifier import WeightedBCELoss
+        import torch
+        import torch.nn.functional as F
+
+        # Test different scenarios
+        from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+
+        # Create trainer with optimized configuration
+        import traceback
+
 """
 Vertex AI Training Script for SAMO Deep Learning.
 
@@ -10,12 +37,6 @@ This script runs training on Vertex AI with optimized configuration
 to solve the 0.0000 loss issue and achieve >75% F1 score.
 """
 
-import argparse
-import logging
-from pathlib import Path
-from typing import Dict, Any, Optional
-
-# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 # Configure logging
@@ -63,10 +84,6 @@ def validate_environment():
     logger.info("🔍 Validating Vertex AI environment...")
 
     try:
-        import torch
-        import transformers
-        from google.cloud import aiplatform
-
         logger.info("✅ PyTorch: {torch.__version__}")
         logger.info("✅ Transformers: {transformers.__version__}")
         logger.info("✅ Vertex AI: Available")
@@ -87,7 +104,7 @@ def validate_environment():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Environment validation failed: {e}")
         return False
 
@@ -97,9 +114,6 @@ def validate_data_distribution():
     logger.info("🔍 Validating data distribution...")
 
     try:
-        from models.emotion_detection.dataset_loader import create_goemotions_loader
-
-        # Load data
         datasets = create_goemotions_loader(dev_mode=True)
         train_dataloader = datasets["train_dataloader"]
 
@@ -150,7 +164,7 @@ def validate_data_distribution():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Data distribution validation failed: {e}")
         return False
 
@@ -160,10 +174,6 @@ def validate_model_architecture():
     logger.info("🔍 Validating model architecture...")
 
     try:
-        from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-        import torch
-
-        # Create model
         model, loss_fn = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
             class_weights=None,
@@ -205,7 +215,7 @@ def validate_model_architecture():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Model architecture validation failed: {e}")
         return False
 
@@ -215,11 +225,6 @@ def validate_loss_function():
     logger.info("🔍 Validating loss function...")
 
     try:
-        from models.emotion_detection.bert_classifier import WeightedBCELoss
-        import torch
-        import torch.nn.functional as F
-
-        # Test different scenarios
         batch_size = 4
         num_classes = 28
 
@@ -260,7 +265,7 @@ def validate_loss_function():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Loss function validation failed: {e}")
         return False
 
@@ -294,7 +299,7 @@ def validate_training_config(args):
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Training configuration validation failed: {e}")
         return False
 
@@ -304,9 +309,6 @@ def run_training(args):
     logger.info("🚀 Starting Vertex AI training...")
 
     try:
-        from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
-        # Create trainer with optimized configuration
         trainer = EmotionDetectionTrainer(
             model_name=args.model_name,
             batch_size=args.batch_size,
@@ -336,9 +338,8 @@ def run_training(args):
 
         return results
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Training failed: {e}")
-        import traceback
         logger.error("Traceback: {traceback.format_exc()}")
         return None
 
@@ -399,7 +400,7 @@ def main():
                 else:
                     logger.error("❌ {name} FAILED")
 
-            except Exception as e:
+            except Exception as _:
                 logger.error("❌ {name} ERROR: {e}")
                 results[name] = False
 

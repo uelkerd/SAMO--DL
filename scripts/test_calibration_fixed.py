@@ -2,6 +2,14 @@ import numpy as np
 import sys
 
 #!/usr/bin/env python3
+import torch
+import logging
+from pathlib import Path
+from sklearn.metrics import f1_score
+from transformers import AutoTokenizer, AutoModel
+
+# Configure logging
+
 """
 Fixed Model Calibration Test
 
@@ -16,13 +24,6 @@ Returns:
     1 if F1 score is below minimum threshold
 """
 
-import torch
-import logging
-from pathlib import Path
-from sklearn.metrics import f1_score
-from transformers import AutoTokenizer, AutoModel
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -70,7 +71,7 @@ def find_valid_checkpoint():
                 torch.load(path, map_location="cpu", weights_only=False)
                 logger.info("✅ Found valid checkpoint: {checkpoint_path}")
                 return str(path)
-            except Exception as e:
+            except Exception as _:
                 logger.warning("⚠️ Checkpoint {checkpoint_path} is corrupted: {e}")
                 continue
 
@@ -151,7 +152,7 @@ def test_calibration():
                 logger.info("✅ Model loaded successfully")
             else:
                 logger.warning("⚠️ Checkpoint format unexpected, using default model")
-        except Exception as e:
+        except Exception as _:
             logger.warning("⚠️ Could not load checkpoint: {e}")
             logger.info("Using default model")
     else:

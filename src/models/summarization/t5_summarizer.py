@@ -1,6 +1,16 @@
 import time
 
 # G004: Logging f-strings temporarily allowed for development
+import logging
+import warnings
+from dataclasses import dataclass
+from typing import Optional, Any
+
+import torch
+from torch import nn
+from torch.utils.data import Dataset
+from transformers import (
+
 """T5/BART Summarization Model for SAMO Deep Learning.
 
 This module implements T5 and BART models for extracting emotional core
@@ -15,15 +25,6 @@ Key Features:
 - Production-ready with proper error handling and logging
 """
 
-import logging
-import warnings
-from dataclasses import dataclass
-from typing import Optional, Any
-
-import torch
-from torch import nn
-from torch.utils.data import Dataset
-from transformers import (
     AutoModelForSeq2SeqLM,
     AutoTokenizer,
     BartForConditionalGeneration,

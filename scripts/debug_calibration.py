@@ -1,3 +1,11 @@
+import logging
+from pathlib import Path
+
+# Configure logging
+                import torch
+
+        import torch
+
 #!/usr/bin/env python3
 """
 Debug Calibration Script
@@ -5,10 +13,6 @@ Debug Calibration Script
 This script helps debug the calibration test by checking file paths and permissions.
 """
 
-import logging
-from pathlib import Path
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -37,14 +41,12 @@ def debug_calibration_issue():
 
             # Try to read the file
             try:
-                import torch
-
                 checkpoint = torch.load(checkpoint_file, map_location="cpu", weights_only=False)
                 logger.info("✅ Checkpoint loaded successfully")
                 logger.info(
                     "Checkpoint keys: {list(checkpoint.keys()) if isinstance(checkpoint, dict) else 'Not a dict'}"
                 )
-            except Exception as e:
+            except Exception as _:
                 logger.error("❌ Failed to load checkpoint: {e}")
         else:
             logger.error("❌ best_model.pt does not exist")
@@ -53,9 +55,8 @@ def debug_calibration_issue():
 
     # Check if we can import the required modules
     try:
-        import torch
         logger.info("✅ PyTorch imported successfully")
-    except ImportError as e:
+    except ImportError as _:
         logger.error("❌ PyTorch import failed: {e}")
 
     # Note: transformers and sklearn imports removed as they were unused

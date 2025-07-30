@@ -1,16 +1,27 @@
 import sys
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+
+# Configure logging
+        import torch
+        from torch import nn
+        import torch.nn.functional as F
+
+        from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+
+        # Load dataset
+        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+
+        # Create model
+
 """
 Quick Focal Loss Test
 
 Minimal test to validate focal loss implementation without complex dependencies.
 """
 
-import logging
-from pathlib import Path
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -20,10 +31,6 @@ def test_focal_loss_math():
     logger.info("🧮 Testing Focal Loss Mathematics...")
 
     try:
-        import torch
-        from torch import nn
-        import torch.nn.functional as F
-
         class SimpleFocalLoss(nn.Module):
             def __init__(self, alpha=0.25, gamma=2.0):
                 super().__init__()
@@ -59,7 +66,7 @@ def test_focal_loss_math():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Focal Loss Test FAILED: {e}")
         return False
 
@@ -72,9 +79,6 @@ def test_dataset_loading():
         # Add src to path
         sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
-        from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-
-        # Load dataset
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()  # Use correct method name
 
@@ -88,7 +92,7 @@ def test_dataset_loading():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Dataset Loading Test FAILED: {e}")
         return False
 
@@ -101,9 +105,6 @@ def test_model_creation():
         # Add src to path
         sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-
-        # Create model
         model, loss_fn = create_bert_emotion_classifier(
             model_name="bert-base-uncased", class_weights=None, freeze_bert_layers=4
         )
@@ -118,7 +119,7 @@ def test_model_creation():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Model Creation Test FAILED: {e}")
         return False
 
@@ -140,7 +141,7 @@ def main():
         logger.info("\n📋 Running {test_name}...")
         try:
             results[test_name] = test_func()
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ {test_name} failed with exception: {e}")
             results[test_name] = False
 

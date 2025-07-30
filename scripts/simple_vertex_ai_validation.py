@@ -2,6 +2,14 @@ import os
 import sys
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+
+# Configure logging
+        from google.cloud import aiplatform
+
+        # Get project ID
+
 """
 Simple Vertex AI Validation for SAMO Deep Learning.
 
@@ -9,10 +17,6 @@ This script runs a simple validation on Vertex AI to identify the 0.0000 loss is
 without complex infrastructure setup.
 """
 
-import logging
-from pathlib import Path
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -24,9 +28,6 @@ def main():
 
     try:
         # Import Vertex AI
-        from google.cloud import aiplatform
-
-        # Get project ID
         project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "the-tendril-466607-n8")
         region = "us-central1"
 
@@ -70,7 +71,7 @@ def main():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Vertex AI validation failed: {e}")
         logger.error("")
         logger.error("🔧 ALTERNATIVE APPROACH:")

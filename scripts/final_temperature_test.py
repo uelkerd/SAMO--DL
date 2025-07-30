@@ -1,13 +1,9 @@
+import logging
+
 import sys
 
 #!/usr/bin/env python3
-"""
-Final Temperature Scaling Test - Guaranteed to Work!
-"""
-
 from pathlib import Path
-
-sys.path.append(str(Path.cwd() / "src"))
 
 import torch
 from models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
@@ -15,41 +11,51 @@ from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
 
 
+            from sklearn.metrics import f1_score
+
+            # Convert to numpy for sklearn
+
+"""
+Final Temperature Scaling Test - Guaranteed to Work!
+"""
+
+sys.path.append(str(Path.cwd() / "src"))
+
 def final_temperature_test():
-    print("🌡️ FINAL Temperature Scaling Test")
+    logging.info("🌡️ FINAL Temperature Scaling Test")
 
     # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print("Using device: {device}")
+    logging.info("Using device: {device}")
 
     # Load checkpoint
     checkpoint_path = Path("test_checkpoints/best_model.pt")
     if not checkpoint_path.exists():
-        print("❌ Model not found")
+        logging.info("❌ Model not found")
         return
 
-    print("📦 Loading checkpoint...")
+    logging.info("📦 Loading checkpoint...")
 
     try:
         # Load with weights_only=False for PyTorch 2.6 compatibility
         checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
-        print("✅ Checkpoint loaded successfully! Type: {type(checkpoint)}")
+        logging.info("✅ Checkpoint loaded successfully! Type: {type(checkpoint)}")
 
         # Debug checkpoint structure
         if isinstance(checkpoint, dict):
-            print("📋 Checkpoint keys: {list(checkpoint.keys())}")
-            print("🎯 Best F1 score: {checkpoint.get('best_score', 'N/A')}")
+            logging.info("📋 Checkpoint keys: {list(checkpoint.keys())}")
+            logging.info("🎯 Best F1 score: {checkpoint.get('best_score', 'N/A')}")
         elif isinstance(checkpoint, tuple):
-            print("📋 Tuple length: {len(checkpoint)}")
+            logging.info("📋 Tuple length: {len(checkpoint)}")
             for i, item in enumerate(checkpoint):
-                print("  - Item {i}: {type(item)}")
+                logging.info("  - Item {i}: {type(item)}")
 
-    except Exception as e:
-        print("❌ Failed to load checkpoint: {e}")
+    except Exception as _:
+        logging.info("❌ Failed to load checkpoint: {e}")
         return
 
     # Initialize model
-    print("🤖 Creating model...")
+    logging.info("🤖 Creating model...")
     model, _ = create_bert_emotion_classifier()  # Unpack the model from the tuple
 
     # Load state dict
@@ -59,10 +65,10 @@ def final_temperature_test():
             # Handle case where model_state_dict itself is a tuple
             if isinstance(state_dict, tuple):
                 actual_state_dict = state_dict[0]
-                print("✅ Found tuple model_state_dict, using first element")
+                logging.info("✅ Found tuple model_state_dict, using first element")
             else:
                 actual_state_dict = state_dict
-                print("✅ Found dictionary model_state_dict")
+                logging.info("✅ Found dictionary model_state_dict")
             model.load_state_dict(actual_state_dict)
         elif isinstance(checkpoint, tuple):
             model.load_state_dict(checkpoint[0])
@@ -71,14 +77,14 @@ def final_temperature_test():
 
         model.to(device)
         model.eval()
-        print("✅ Model loaded successfully!")
+        logging.info("✅ Model loaded successfully!")
 
-    except Exception as e:
-        print("❌ Failed to load model state: {e}")
+    except Exception as _:
+        logging.info("❌ Failed to load model state: {e}")
         return
 
     # Create simple test data
-    print("📊 Creating test data...")
+    logging.info("📊 Creating test data...")
     test_texts = [
         "I am feeling happy today!",
         "This makes me so angry and frustrated.",
@@ -98,23 +104,23 @@ def final_temperature_test():
     ]
 
     # Create tokenizer
-    print("🔒 Loading tokenizer...")
+    logging.info("🔒 Loading tokenizer...")
     tokenizer = AutoTokenizer.from_pretrained(model.model_name)
 
     # Create dataset
     dataset = EmotionDataset(test_texts, emotion_labels, tokenizer=tokenizer, max_length=512)
     dataloader = DataLoader(dataset, batch_size=2, shuffle=False)
 
-    print("✅ Created test dataset with {len(test_texts)} samples")
+    logging.info("✅ Created test dataset with {len(test_texts)} samples")
 
     # Test different temperatures
     temperatures = [1.0, 2.0, 3.0, 4.0]
 
-    print("\n🌡️ Testing Temperature Scaling:")
-    print("=" * 50)
+    logging.info("\n🌡️ Testing Temperature Scaling:")
+    logging.info("=" * 50)
 
     for temp in temperatures:
-        print("\n📊 Temperature: {temp}")
+        logging.info("\n📊 Temperature: {temp}")
 
         try:
             # Set temperature
@@ -135,7 +141,7 @@ def final_temperature_test():
 
                     # Log raw probabilities for the first sample to observe scaling
                     if batch_idx == 0:
-                        print("   Probabilities (Temp {temp}, first sample):")
+                        logging.info("   Probabilities (Temp {temp}, first sample):")
                         print(
                             "   {probabilities[0, :8].detach().numpy().round(4)}..."
                         )  # Print first 8
@@ -151,9 +157,6 @@ def final_temperature_test():
             all_labels = torch.cat(all_labels, dim=0)
 
             # Calculate metrics
-            from sklearn.metrics import f1_score
-
-            # Convert to numpy for sklearn
             pred_np = all_predictions.numpy()
             label_np = all_labels.numpy()
 
@@ -163,22 +166,22 @@ def final_temperature_test():
             # Calculate macro F1
             macro_f1 = f1_score(label_np, pred_np, average="macro", zero_division=0)
 
-            print("   Micro F1: {micro_f1:.4f}")
-            print("   Macro F1: {macro_f1:.4f}")
+            logging.info("   Micro F1: {micro_f1:.4f}")
+            logging.info("   Macro F1: {macro_f1:.4f}")
 
             # Show some predictions
-            print("   Sample predictions (first 2 samples):")
+            logging.info("   Sample predictions (first 2 samples):")
             for i in range(min(2, len(test_texts))):
                 pred_emotions = pred_np[i]
                 true_emotions = label_np[i]
-                print("     Text: {test_texts[i][:50]}...")
-                print("     Pred: {pred_emotions}")
-                print("     True: {true_emotions}")
+                logging.info("     Text: {test_texts[i][:50]}...")
+                logging.info("     Pred: {pred_emotions}")
+                logging.info("     True: {true_emotions}")
 
-        except Exception as e:
-            print("   ❌ Error at temperature {temp}: {e}")
+        except Exception as _:
+            logging.info("   ❌ Error at temperature {temp}: {e}")
 
-    print("\n✅ Temperature scaling test completed!")
+    logging.info("\n✅ Temperature scaling test completed!")
 
 
 if __name__ == "__main__":

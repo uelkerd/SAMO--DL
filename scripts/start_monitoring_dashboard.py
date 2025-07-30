@@ -1,6 +1,17 @@
 import sys
 
 #!/usr/bin/env python3
+import argparse
+import logging
+import threading
+import time
+from pathlib import Path
+
+# Add src to path
+        from scripts.model_monitoring import ModelHealthMonitor
+
+        # Initialize monitor
+
 """
 Model Monitoring Dashboard Starter
 
@@ -16,13 +27,6 @@ Arguments:
     --port: Dashboard port (default: 8080)
 """
 
-import argparse
-import logging
-import threading
-import time
-from pathlib import Path
-
-# Add src to path
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
 # Configure logging
@@ -45,9 +49,6 @@ def start_monitoring_system(config_path: str, port: int) -> None:
 
     try:
         # Import monitoring components
-        from scripts.model_monitoring import ModelHealthMonitor
-
-        # Initialize monitor
         monitor = ModelHealthMonitor(config_path)
 
         # Start monitoring in background thread
@@ -73,7 +74,7 @@ def start_monitoring_system(config_path: str, port: int) -> None:
             monitor.stop_monitoring()
             logger.info("✅ Monitoring system stopped gracefully")
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Failed to start monitoring system: {e}")
         sys.exit(1)
 

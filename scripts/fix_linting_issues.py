@@ -1,3 +1,10 @@
+import logging
+
+import re
+from pathlib import Path
+
+
+
 #!/usr/bin/env python3
 """
 Fix all linting issues identified by Ruff in the CI pipeline.
@@ -9,25 +16,21 @@ This script addresses:
 - Timezone issues (DTZ005)
 """
 
-import re
-from pathlib import Path
-
-
 def fix_unused_exception_variables(file_path: Path) -> bool:
     """Fix unused exception variables by using f-strings."""
     content = file_path.read_text()
     original_content = content
-    
+
     # Fix exception handlers that don't use the exception variable
-    pattern = r'except Exception as e:\s*\n\s*logger\.(error|warning|info)\("([^"]*)\{e\}([^"]*)"'
-    replacement = r'except Exception as e:\n        logger.\1(f"\2{e}\3")'
+    pattern = r'except Exception as _:\s*\n\s*logger\.(error|warning|info)\("([^"]*)\{e\}([^"]*)"'
+    replacement = r'except Exception as _:\n        logger.\1(f"\2{e}\3")'
     content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
-    
+
     # Fix other exception patterns
-    pattern = r'except Exception as e:\s*\n\s*logger\.(error|warning|info)\("([^"]*)\{e!s\}([^"]*)"'
-    replacement = r'except Exception as e:\n        logger.\1(f"\2{e!s}\3")'
+    pattern = r'except Exception as _:\s*\n\s*logger\.(error|warning|info)\("([^"]*)\{e!s\}([^"]*)"'
+    replacement = r'except Exception as _:\n        logger.\1(f"\2{e!s}\3")'
     content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
-    
+
     if content != original_content:
         file_path.write_text(content)
         return True
@@ -38,7 +41,7 @@ def fix_unused_imports(file_path: Path) -> bool:
     """Remove unused imports."""
     content = file_path.read_text()
     original_content = content
-    
+
     # Remove unused imports
     unused_imports = [
         'import time',  # in test files
@@ -46,14 +49,14 @@ def fix_unused_imports(file_path: Path) -> bool:
         'from unittest.mock import MagicMock',  # in some test files
         'from unittest.mock import patch',  # in some test files
     ]
-    
+
     for unused_import in unused_imports:
         if unused_import in content:
             # Remove the line containing the unused import
             lines = content.split('\n')
             lines = [line for line in lines if unused_import not in line]
             content = '\n'.join(lines)
-    
+
     if content != original_content:
         file_path.write_text(content)
         return True
@@ -64,16 +67,16 @@ def fix_hardcoded_passwords(file_path: Path) -> bool:
     """Replace hardcoded passwords with test-safe values."""
     content = file_path.read_text()
     original_content = content
-    
+
     # Replace hardcoded passwords in tests
     replacements = [
         ('"password_hash"', '"test_password_hash"'),
         ('password_hash="password_hash"', 'password_hash="test_password_hash"'),
     ]
-    
+
     for old, new in replacements:
         content = content.replace(old, new)
-    
+
     if content != original_content:
         file_path.write_text(content)
         return True
@@ -84,7 +87,7 @@ def fix_timezone_issues(file_path: Path) -> bool:
     """Fix datetime.now() calls to include timezone."""
     content = file_path.read_text()
     original_content = content
-    
+
     # Add timezone import if needed
     if 'datetime.now()' in content and 'from datetime import timezone' not in content:
         if 'from datetime import datetime' in content:
@@ -97,10 +100,10 @@ def fix_timezone_issues(file_path: Path) -> bool:
                 'import datetime',
                 'import datetime\nfrom datetime import timezone'
             )
-    
+
     # Fix datetime.now() calls
     content = content.replace('datetime.now()', 'datetime.now(timezone.utc)')
-    
+
     if content != original_content:
         file_path.write_text(content)
         return True
@@ -110,7 +113,7 @@ def fix_timezone_issues(file_path: Path) -> bool:
 def main():
     """Fix all linting issues in the codebase."""
     project_root = Path(__file__).parent.parent
-    
+
     # Files that need fixing based on the CI errors
     files_to_fix = [
         project_root / "src" / "models" / "voice_processing" / "transcription_api.py",
@@ -124,41 +127,41 @@ def main():
         project_root / "tests" / "unit" / "test_database.py",
         project_root / "tests" / "unit" / "test_validation.py",
     ]
-    
+
     fixed_files = []
-    
+
     for file_path in files_to_fix:
         if not file_path.exists():
-            print(f"⚠️  File not found: {file_path}")
+            logging.info(f"⚠️  File not found: {file_path}")
             continue
-            
-        print(f"🔧 Fixing: {file_path}")
+
+        logging.info(f"🔧 Fixing: {file_path}")
         file_fixed = False
-        
+
         # Apply fixes
         if fix_unused_exception_variables(file_path):
             file_fixed = True
-            print(f"  ✅ Fixed unused exception variables")
-            
+            logging.info(f"  ✅ Fixed unused exception variables")
+
         if fix_unused_imports(file_path):
             file_fixed = True
-            print(f"  ✅ Fixed unused imports")
-            
+            logging.info(f"  ✅ Fixed unused imports")
+
         if fix_hardcoded_passwords(file_path):
             file_fixed = True
-            print(f"  ✅ Fixed hardcoded passwords")
-            
+            logging.info(f"  ✅ Fixed hardcoded passwords")
+
         if fix_timezone_issues(file_path):
             file_fixed = True
-            print(f"  ✅ Fixed timezone issues")
-            
+            logging.info(f"  ✅ Fixed timezone issues")
+
         if file_fixed:
             fixed_files.append(file_path)
-    
-    print(f"\n🎉 Fixed {len(fixed_files)} files:")
+
+    logging.info(f"\n🎉 Fixed {len(fixed_files)} files:")
     for file_path in fixed_files:
-        print(f"  - {file_path}")
+        logging.info(f"  - {file_path}")
 
 
 if __name__ == "__main__":
-    main() 
+    main()

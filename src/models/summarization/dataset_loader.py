@@ -1,3 +1,8 @@
+import logging
+
+from torch.utils.data import Dataset
+
+
 """Dataset Loader for T5/BART Summarization - SAMO Deep Learning.
 
 This module provides dataset loading and preprocessing functionality
@@ -5,10 +10,6 @@ for training summarization models on journal entries.
 
 Placeholder implementation - will be expanded once we have real data.
 """
-
-import logging
-
-from torch.utils.data import Dataset
 
 logger = logging.getLogger(__name__)
 

@@ -1,23 +1,24 @@
 import sys
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+
+# Add src to path
+import torch
+from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+
+# Configure logging
+
 """Fix Threshold Tuning for Better F1 Scores.
 
 The current model is getting low F1 scores (7-8%) because the evaluation
 threshold (0.2) is still too high. This script tests lower thresholds.
 """
 
-import logging
-from pathlib import Path
-
-# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-import torch
-from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
-from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -86,7 +87,7 @@ def main():
             logger.warning("⚠️  F1 scores still low. Model may need more training.")
             return 1
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Threshold tuning failed: {e}")
         return 1
 

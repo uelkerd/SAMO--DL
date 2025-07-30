@@ -4,6 +4,19 @@ import sys
 import traceback
 
 #!/usr/bin/env python3
+import logging
+import torch
+from sklearn.metrics import f1_score
+from pathlib import Path
+
+# Add project root to path
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
+
+# Configure logging
+        import traceback
+
+
 """
 Threshold Optimization for Multi-label Classification
 
@@ -11,19 +24,9 @@ This script optimizes per-class thresholds to improve F1 score
 by 10-15% through better classification boundaries.
 """
 
-import logging
-import torch
-from sklearn.metrics import f1_score
-from pathlib import Path
-
-# Add project root to path
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -144,10 +147,8 @@ def apply_threshold_optimization():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Threshold optimization failed: {e}")
-        import traceback
-
         traceback.print_exc()
         return False
 
