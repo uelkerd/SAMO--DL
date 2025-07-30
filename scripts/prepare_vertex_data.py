@@ -139,7 +139,7 @@ class SAMOVertexDataPreparation:
         for _, row in df.iterrows():
             emotions = row.get("emotions", [])
             if isinstance(emotions, list):
-                for __emotion in emotions:
+                for ___emotion in emotions:
                     emotion_counts[emotion] += 1
                 total_emotions += len(emotions)
 

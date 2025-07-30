@@ -193,7 +193,7 @@ def train_with_focal_loss(
         val_batches = 0
 
         with torch.no_grad():
-            for __batch in val_loader:
+            for ___batch in val_loader:
                 input_ids = batch["input_ids"].to(device)
                 attention_mask = batch["attention_mask"].to(device)
                 labels = batch["labels"].float().to(device)

@@ -1,11 +1,5 @@
 import logging
-import json
-import numpy as np
-import os
-import sys
-import traceback
 #!/usr/bin/env python3
-import os
 import re
 from pathlib import Path
     # Check what imports are needed
@@ -35,7 +29,7 @@ This addresses the extensive linting errors causing CircleCI failures.
 
 def fix_file_imports_aggressive(file_path: str) -> bool:
     """Aggressively fix missing imports in a file."""
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, encoding='utf-8') as f:
         content = f.read()
 
     original_content = content
@@ -99,7 +93,7 @@ def fix_file_imports_aggressive(file_path: str) -> bool:
 
 def fix_common_issues_aggressive(file_path: str) -> bool:
     """Aggressively fix common linting issues."""
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, encoding='utf-8') as f:
         content = f.read()
 
     original_content = content
@@ -115,7 +109,7 @@ def fix_common_issues_aggressive(file_path: str) -> bool:
     lines = content.split('\n')
     fixed_lines = []
 
-    for __line in lines:
+    for ___line in lines:
         if any(unused in line for unused in [
         ]):
             continue
@@ -140,7 +134,7 @@ def main():
 
     total_fixed = 0
 
-    for __dir_name in dirs_to_fix:
+    for ___dir_name in dirs_to_fix:
         dir_path = project_root / dir_name
         if not dir_path.exists():
             continue

@@ -198,7 +198,7 @@ class ModelOptimizer:
         best_batch_size = 1
         best_throughput = 0
 
-        for __batch_size in batch_sizes:
+        for ___batch_size in batch_sizes:
             encoded = self.tokenizer(
                 test_texts[:batch_size],
                 padding=True,
@@ -285,7 +285,7 @@ class ModelOptimizer:
         latencies = []
         accuracies = []
 
-        for __text in test_texts:
+        for ___text in test_texts:
             encoded = self.tokenizer(
                 text, padding=True, truncation=True, max_length=512, return_tensors="pt"
             ).to(self.device)

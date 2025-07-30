@@ -74,7 +74,7 @@ def calibrate_model():
     results = []
 
     logging.info("\n🌡️ Starting calibration search...")
-    for __temp in temperatures:
+    for ___temp in temperatures:
         model.set_temperature(temp)
 
         all_probs = []
@@ -95,7 +95,7 @@ def calibrate_model():
         all_probs = torch.cat(all_probs).numpy()
         all_labels = torch.cat(all_labels).numpy()
 
-        for __thresh in thresholds:
+        for ___thresh in thresholds:
             predictions = (all_probs > thresh).astype(int)
             micro_f1 = f1_score(all_labels, predictions, average="micro", zero_division=0)
 

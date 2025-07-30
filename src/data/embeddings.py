@@ -224,7 +224,7 @@ class Word2VecEmbedder(BaseEmbedder):
         tokenized_texts = self._preprocess_texts(texts)
         embeddings = []
 
-        for __tokens in tokenized_texts:
+        for ___tokens in tokenized_texts:
             vectors = [self.model.wv[token] for token in tokens if token in self.model.wv]
 
             embedding = np.mean(vectors, axis=0) if vectors else np.zeros(self.vector_size)

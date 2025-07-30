@@ -60,5 +60,4 @@ def init_db() -> None:
 
     This function should be called when the application starts.
     """
-
     Base.metadata.create_all(bind=engine)
