@@ -130,9 +130,9 @@ def main():
     logging.info("📁 Saved to: {output_file}")
 
     logging.info("\n📊 Sample entries:")
-    for _i, entry in enumerate(test_data[:3]):
-        logging.info("  {i+1}. Text: '{entry['text'][:50]}...'")
-        logging.info("     Emotions: {entry['emotions']}")
+    for i, entry in enumerate(test_data[:3]):
+        logging.info(f"  {i+1}. Text: '{entry['text'][:50]}...'")
+        logging.info(f"     Emotions: {entry['emotions']}")
 
     emotion_counts = {}
     for entry in test_data:
@@ -140,8 +140,8 @@ def main():
             emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
 
     logging.info("\n📈 Emotion distribution:")
-    for emotion, _count in sorted(emotion_counts.items()):
-        logging.info("  - {emotion}: {count} samples")
+    for emotion, count in sorted(emotion_counts.items()):
+        logging.info(f"  - {emotion}: {count} samples")
 
 
 if __name__ == "__main__":
