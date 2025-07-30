@@ -117,7 +117,7 @@ class SAMOVertexDataPreparation:
 
             return df, analysis
 
-        except Exception as e:
+        except Exception:
             logger.error("Error loading data: {e}")
             raise
 
@@ -256,7 +256,7 @@ class SAMOVertexDataPreparation:
 
             return train_file.name, test_file.name
 
-        except Exception as e:
+        except Exception:
             logger.error("Error in conversion: {e}")
             raise
 
@@ -330,7 +330,7 @@ class SAMOVertexDataPreparation:
             os.unlink(train_file)
             os.unlink(test_file)
             logger.info("Temporary files cleaned up")
-        except Exception as e:
+        except Exception:
             logger.warning("Error cleaning up temp files: {e}")
 
 
@@ -382,7 +382,7 @@ def main():
         logging.info("✅ Metadata: {metadata_file}")
         logging.info("\n🚀 Ready for Vertex AI AutoML training!")
 
-    except Exception as e:
+    except Exception:
         logging.info("❌ Error during data preparation: {e}")
         logger.error("Data preparation failed: {e}")
         sys.exit(1)

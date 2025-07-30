@@ -79,7 +79,7 @@ def main():
         logger.info("   • Test examples: {len(test_dataset)}")
         logger.info("   • Emotion classes: {len(emotion_names)}")
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Failed to load dataset: {e}")
         return
 
@@ -97,7 +97,7 @@ def main():
         logger.info("   • Total parameters: {param_count:,}")
         logger.info("   • Trainable parameters: {trainable_count:,}")
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Failed to create model: {e}")
         return
 

@@ -44,7 +44,7 @@ def analyze_loss_pattern():
     ]
 
     logger.info("📋 Possible causes of 0.0000 loss:")
-    for cause in causes:
+    for _cause in causes:
         logger.info("   {cause}")
 
     return causes
@@ -91,7 +91,7 @@ def suggest_debugging_steps():
     ]
 
     logger.info("📋 Recommended debugging steps:")
-    for step in steps:
+    for _step in steps:
         logger.info("   {step}")
 
     return steps

@@ -98,7 +98,7 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
         logger.info("✅ Model threshold updated successfully to {threshold}")
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("Error updating model threshold: {e}")
         return False
 

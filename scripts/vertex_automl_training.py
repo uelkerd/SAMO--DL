@@ -215,7 +215,7 @@ class SAMOVertexAutoMLTraining:
 
             return results
 
-        except Exception as e:
+        except Exception:
             logger.error("Training pipeline failed: {e}")
             return None
 

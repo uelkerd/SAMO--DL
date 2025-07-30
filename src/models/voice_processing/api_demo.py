@@ -213,7 +213,7 @@ async def transcribe_audio(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         logger.error("Transcription error: {e}", extra={"format_args": True})
         raise HTTPException(status_code=500, detail="Transcription failed: {e!s}")
 
@@ -423,7 +423,7 @@ async def validate_audio(audio_file: UploadFile = File(...)):
                 content={"valid": False, "error": "validation_failed", "message": error_msg},
             )
 
-    except Exception as e:
+    except Exception:
         logger.error("Audio validation error occurred")
         return JSONResponse(
             status_code=500,

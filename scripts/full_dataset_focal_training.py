@@ -165,7 +165,7 @@ def download_go_emotions_manual():
             logger.info("✅ Downloaded and processed {filename}: {len(processed_data)} examples")
             return processed_data
 
-        except Exception as e:
+        except Exception:
             logger.warning("⚠️ Could not download {filename}: {e}")
             return []
 
