@@ -45,7 +45,7 @@ def quick_temperature_test():
 
         trainer.model.set_temperature(temp)
 
-        metrics = evaluate_emotion_classifier(
+        evaluate_emotion_classifier(
             trainer.model, trainer.val_loader, trainer.device, threshold=threshold
         )
 

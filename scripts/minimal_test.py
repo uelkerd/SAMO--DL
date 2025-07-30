@@ -21,8 +21,8 @@ def main():
         logging.info("Usage: python minimal_test.py <project_id> <bucket_name> <data_path>")
         return
 
-    project_id = sys.argv[1]
-    bucket_name = sys.argv[2]
+    sys.argv[1]
+    sys.argv[2]
     data_path = sys.argv[3]
 
     logging.info("✅ Project: {project_id}")
@@ -32,7 +32,7 @@ def main():
     if os.path.exists(data_path):
         logging.info("✅ Data file exists!")
         with open(data_path) as f:
-            data = json.load(f)
+            json.load(f)
         logging.info("✅ Loaded {len(data)} entries")
     else:
         logging.info("❌ Data file not found")

@@ -222,7 +222,7 @@ def main():
     passed = 0
     total = len(tests)
 
-    for test_name, test_func in tests:
+    for _test_name, test_func in tests:
         logger.info("\n{'='*40}")
         logger.info("Running: {test_name}")
         logger.info("{'='*40}")

@@ -366,11 +366,11 @@ def main():
         optimizer.compress_model()
         optimizer.optimize_inference()
 
-        onnx_path = optimizer.convert_to_onnx()
+        optimizer.convert_to_onnx()
 
         performance_results = optimizer.benchmark_performance()
 
-        optimized_path = optimizer.save_optimized_model()
+        optimizer.save_optimized_model()
 
         success_criteria = {
             "p95_latency_under_500ms": performance_results["p95_latency_ms"] < 500,
@@ -380,8 +380,7 @@ def main():
         }
 
         logger.info("✅ Success Criteria Check:")
-        for criterion, passed in success_criteria.items():
-            status = "✅ PASS" if passed else "❌ FAIL"
+        for _criterion, _passed in success_criteria.items():
             logger.info("  {criterion}: {status}")
 
         passed_criteria = sum(success_criteria.values())

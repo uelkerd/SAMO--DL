@@ -128,7 +128,7 @@ def train_with_focal_loss(
 
         train_dataset = datasets["train"]
         val_dataset = datasets["validation"]
-        test_dataset = datasets["test"]
+        datasets["test"]
         datasets["class_weights"]
 
         logger.info("Dataset loaded successfully:")
@@ -273,7 +273,7 @@ def main():
 
     args = parser.parse_args()
 
-    results = train_with_focal_loss(
+    train_with_focal_loss(
         gamma=args.gamma,
         alpha=args.alpha,
         learning_rate=args.lr,

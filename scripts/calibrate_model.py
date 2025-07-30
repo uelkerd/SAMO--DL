@@ -68,8 +68,6 @@ def calibrate_model():
     temperatures = np.linspace(1.0, 15.0, 15)
     thresholds = np.linspace(0.1, 0.9, 9)
     best_f1 = 0
-    best_temp = 0
-    best_thresh = 0
 
     results = []
 
@@ -101,10 +99,7 @@ def calibrate_model():
 
             results.append((temp, thresh, micro_f1))
 
-            if micro_f1 > best_f1:
-                best_f1 = micro_f1
-                best_temp = temp
-                best_thresh = thresh
+            best_f1 = max(best_f1, micro_f1)
 
     logging.info("\n🎉 Calibration Complete!")
     logging.info("=" * 50)
@@ -115,7 +110,7 @@ def calibrate_model():
 
     logging.info("\nTop 5 Results:")
     sorted_results = sorted(results, key=lambda x: x[2], reverse=True)
-    for i, (temp, thresh, f1) in enumerate(sorted_results[:5]):
+    for _i, (_temp, _thresh, _f1) in enumerate(sorted_results[:5]):
         logging.info(" {i+1}. Temp: {temp:.2f}, Thresh: {thresh:.2f}, F1: {f1:.4f}")
 
 

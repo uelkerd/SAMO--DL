@@ -28,7 +28,7 @@ def main():
         sys.exit(1)
 
     project_id = sys.argv[1]
-    bucket_name = sys.argv[2]
+    sys.argv[2]
 
     logging.info("🚀 Starting simple Vertex AI training...")
     logging.info("📊 Project: {project_id}")
@@ -46,7 +46,7 @@ def main():
             sys.exit(1)
 
         train_df = pd.read_csv(train_path)
-        test_df = pd.read_csv(test_path)
+        pd.read_csv(test_path)
 
         logging.info("✅ Training data loaded: {len(train_df)} samples")
         logging.info("✅ Test data loaded: {len(test_df)} samples")
@@ -74,7 +74,7 @@ def main():
             display_name="samo-emotions-model", prediction_type="classification", multi_label=True
         )
 
-        model = job.run(
+        job.run(
             dataset=dataset,
             target_column=target_column,
             training_fraction_split=0.8,

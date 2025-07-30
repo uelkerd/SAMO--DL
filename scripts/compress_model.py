@@ -146,7 +146,7 @@ def compress_model(input_model: str, output_model: str) -> bool:
         }
 
         logger.info("📊 Compression metrics:")
-        for key, value in metrics.items():
+        for _key, _value in metrics.items():
             logger.info("  {key}: {value:.2f}")
 
         return True

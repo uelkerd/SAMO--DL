@@ -33,8 +33,8 @@ def test_evaluation_logic():
         "  Probabilities min/max/mean: {probabilities.min():.4f}/{probabilities.max():.4f}/{probabilities.mean():.4f}"
     )
 
-    expected_above_threshold = (probabilities >= threshold).sum().item()
-    total_positions = batch_size * num_emotions
+    (probabilities >= threshold).sum().item()
+    batch_size * num_emotions
 
     print(
         "  Expected above threshold: {expected_above_threshold}/{total_positions} ({100*expected_above_threshold/total_positions:.1f}%)"
@@ -58,14 +58,14 @@ def test_evaluation_logic():
 
     if batch_has_no_predictions:
         logging.info("  Applying fallback...")
-        samples_before = (predictions.sum(dim=1) == 0).sum().item()
+        (predictions.sum(dim=1) == 0).sum().item()
 
         for sample_idx in range(predictions.shape[0]):
             if predictions[sample_idx].sum() == 0:
                 top_idx = torch.topk(probabilities[sample_idx], k=1, dim=0)[1]
                 predictions[sample_idx, top_idx] = 1.0
 
-        samples_after = (predictions.sum(dim=1) == 0).sum().item()
+        (predictions.sum(dim=1) == 0).sum().item()
         logging.info("    - Applied fallback to {samples_before - samples_after} samples")
         logging.info("    - Final predictions sum: {predictions.sum().item()}")
         logging.info("    - Final predictions mean: {predictions.mean().item():.4f}")
