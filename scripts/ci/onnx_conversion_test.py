@@ -87,13 +87,12 @@ def test_onnx_dependencies():
                 logger.info(f"✅ ONNX Runtime inference successful, output shape: {outputs[0].shape}")
 
             finally:
-                try:
+                from contextlib import suppress
+                with suppress(BaseException):
                     os.unlink(temp_path)
-                except:
-                    pass
 
         except Exception as e:
-            logger.warning("⚠️ Basic ONNX functionality test failed: {e}")
+            logger.warning(f"⚠️ Basic ONNX functionality test failed: {e}")
             logger.info("⏭️ Skipping complex ONNX conversion test")
             return True  # Skip test but don't fail
 
@@ -101,7 +100,7 @@ def test_onnx_dependencies():
         return True
 
     except Exception as e:
-        logger.error("❌ ONNX dependencies test failed: {e}")
+        logger.error(f"❌ ONNX dependencies test failed: {e}")
         return False
 
 
@@ -117,19 +116,19 @@ def main():
     total = len(tests)
 
     for test_name, test_func in tests:
-        logger.info("\n{'='*40}")
-        logger.info("Running: {test_name}")
-        logger.info("{'='*40}")
+        logger.info(f"\n{'='*40}")
+        logger.info(f"Running: {test_name}")
+        logger.info(f"{'='*40}")
 
         if test_func():
             passed += 1
-            logger.info("✅ {test_name}: PASSED")
+            logger.info(f"✅ {test_name}: PASSED")
         else:
-            logger.error("❌ {test_name}: FAILED")
+            logger.error(f"❌ {test_name}: FAILED")
 
-    logger.info("\n{'='*40}")
-    logger.info("ONNX Conversion Tests Results: {passed}/{total} tests passed")
-    logger.info("{'='*40}")
+    logger.info(f"\n{'='*40}")
+    logger.info(f"ONNX Conversion Tests Results: {passed}/{total} tests passed")
+    logger.info(f"{'='*40}")
 
     if passed == total:
         logger.info("🎉 All ONNX conversion tests passed!")
