@@ -1,44 +1,4 @@
-            # Benchmark ONNX model
-            # Calculate speedup
-            # Save metrics
-        # Benchmark PyTorch model
-        # Check if input model exists
-        # Check if onnxruntime is available
-        # Create a wrapper function for export
-        # Create dummy input for ONNX export
-        # Create model
-        # Create output directory if it doesn't exist
-        # Define input names and output names
-        # Export to ONNX
-        # Export to ONNX
-        # Load checkpoint
-        # Load state dict
-        # Set model to evaluation mode
-        # Set optimal temperature and threshold
-    # Benchmark
-    # Benchmark
-    # Create ONNX session
-    # Prepare inputs
-    # Warm up
-    # Warm up
-    import onnxruntime as ort
-# Add src to path
-# Configure logging
-# Constants
 #!/usr/bin/env python3
-from pathlib import Path
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-import argparse
-import importlib.util
-import logging
-import sys
-import time
-import torch
-
-
-
-
-
 """
 Convert Model to ONNX
 
@@ -53,10 +13,24 @@ Arguments:
     --output_model: Path to save ONNX model (default: models/checkpoints/bert_emotion_classifier.onnx)
 """
 
+import argparse
+import logging
+import sys
+import time
+from pathlib import Path
+
+import torch
+
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+
+# Add src to path
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
+
+# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
+# Constants
 DEFAULT_INPUT_MODEL = "models/checkpoints/bert_emotion_classifier_quantized.pt"
 DEFAULT_OUTPUT_MODEL = "models/checkpoints/bert_emotion_classifier.onnx"
 OPTIMAL_TEMPERATURE = 1.0
@@ -78,13 +52,13 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
 
         input_path = Path(input_model)
         if not input_path.exists():
-            logger.error("Input model not found: {input_path}")
+            logger.error(f"Input model not found: {input_path}")
             return False
 
         output_path = Path(output_model)
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        logger.info("Loading model from {input_path}...")
+        logger.info(f"Loading model from {input_path}...")
 
         checkpoint = torch.load(input_path, map_location=device, weights_only=False)
 
@@ -95,7 +69,7 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
         elif isinstance(checkpoint, dict):
             model.load_state_dict(checkpoint)
         else:
-            logger.error("Unexpected checkpoint format: {type(checkpoint)}")
+            logger.error(f"Unexpected checkpoint format: {type(checkpoint)}")
             return False
 
         model.set_temperature(OPTIMAL_TEMPERATURE)
@@ -119,136 +93,126 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
         input_names = ["input_ids", "attention_mask", "token_type_ids"]
         output_names = ["logits"]
 
+        # Create a wrapper function for the model
         def wrapper_function(input_ids, attention_mask, token_type_ids):
-            return model(
-                input_ids=input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids
-            )
+            return model(input_ids, attention_mask, token_type_ids)
 
+        # Export to ONNX
         torch.onnx.export(
             model,
             (dummy_input_ids, dummy_attention_mask, dummy_token_type_ids),
             output_path,
+            export_params=True,
+            opset_version=11,
+            do_constant_folding=True,
             input_names=input_names,
             output_names=output_names,
             dynamic_axes={
-                "input_ids": {0: "batch_size", 1: "sequence_length"},
-                "attention_mask": {0: "batch_size", 1: "sequence_length"},
-                "token_type_ids": {0: "batch_size", 1: "sequence_length"},
+                "input_ids": {0: "batch_size"},
+                "attention_mask": {0: "batch_size"},
+                "token_type_ids": {0: "batch_size"},
                 "logits": {0: "batch_size"},
             },
-            opset_version=12,
-            verbose=False,
         )
 
-        logger.info("✅ Model converted to ONNX format: {output_path}")
+        logger.info(f"Model converted and saved to {output_path}")
 
-        if importlib.util.find_spec("onnxruntime") is not None:
-            logger.info("Benchmarking ONNX model...")
-            onnx_inference_time = benchmark_onnx_inference(
-                output_path,
-                dummy_input_ids.numpy(),
-                dummy_attention_mask.numpy(),
-                dummy_token_type_ids.numpy(),
-            )
+        # Benchmark ONNX model
+        logger.info("Benchmarking ONNX model...")
+        onnx_inference_time = benchmark_onnx_inference(
+            output_path, dummy_input_ids, dummy_attention_mask, dummy_token_type_ids
+        )
 
-            speedup = pytorch_inference_time / onnx_inference_time
-            logger.info("ONNX inference speedup: {speedup:.2f}x")
-
-            metrics = {
-                "pytorch_inference_ms": pytorch_inference_time * 1000,
-                "onnx_inference_ms": onnx_inference_time * 1000,
-                "speedup": speedup,
-            }
-
-            logger.info("📊 Conversion metrics:")
-            for key, value in metrics.items():
-                logger.info("  {key}: {value:.2f}")
-
-        else:
-            logger.warning("onnxruntime not found. Skipping ONNX benchmarking.")
-            logger.info("To install: pip install onnxruntime")
+        # Compare performance
+        speedup = pytorch_inference_time / onnx_inference_time
+        logger.info(f"PyTorch inference time: {pytorch_inference_time:.4f}s")
+        logger.info(f"ONNX inference time: {onnx_inference_time:.4f}s")
+        logger.info(f"Speedup: {speedup:.2f}x")
 
         return True
 
     except Exception as e:
-        logger.error("Error converting model to ONNX: {e}")
+        logger.error(f"ONNX conversion failed: {e}")
         return False
 
 
 def benchmark_pytorch_inference(model, input_ids, attention_mask, num_runs=50):
-    """Benchmark PyTorch model inference time.
+    """Benchmark PyTorch model inference time."""
+    model.eval()
+    
+    # Warm up
+    with torch.no_grad():
+        for _ in range(10):
+            _ = model(input_ids, attention_mask)
 
-    Args:
-        model: PyTorch model
-        input_ids: Input IDs tensor
-        attention_mask: Attention mask tensor
-        num_runs: Number of inference runs to average
-
-    Returns:
-        float: Average inference time in seconds
-    """
-    for _ in range(10):
-        with torch.no_grad():
-            _ = model(input_ids=input_ids, attention_mask=attention_mask)
-
+    # Benchmark
     start_time = time.time()
-    for _ in range(num_runs):
-        with torch.no_grad():
-            _ = model(input_ids=input_ids, attention_mask=attention_mask)
+    with torch.no_grad():
+        for _ in range(num_runs):
+            _ = model(input_ids, attention_mask)
     end_time = time.time()
 
     return (end_time - start_time) / num_runs
 
 
 def benchmark_onnx_inference(model_path, input_ids, attention_mask, token_type_ids, num_runs=50):
-    """Benchmark ONNX model inference time.
+    """Benchmark ONNX model inference time."""
+    import onnxruntime as ort
 
-    Args:
-        model_path: Path to ONNX model
-        input_ids: Input IDs numpy array
-        attention_mask: Attention mask numpy array
-        token_type_ids: Token type IDs numpy array
-        num_runs: Number of inference runs to average
-
-    Returns:
-        float: Average inference time in seconds
-    """
+    # Create ONNX session
     session = ort.InferenceSession(model_path)
-
-    ort_inputs = {
-        "input_ids": input_ids,
-        "attention_mask": attention_mask,
-        "token_type_ids": token_type_ids,
+    
+    # Prepare inputs
+    input_feed = {
+        "input_ids": input_ids.numpy(),
+        "attention_mask": attention_mask.numpy(),
+        "token_type_ids": token_type_ids.numpy(),
     }
 
+    # Warm up
     for _ in range(10):
-        _ = session.run(None, ort_inputs)
+        _ = session.run(None, input_feed)
 
+    # Benchmark
     start_time = time.time()
     for _ in range(num_runs):
-        _ = session.run(None, ort_inputs)
+        _ = session.run(None, input_feed)
     end_time = time.time()
 
     return (end_time - start_time) / num_runs
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Convert BERT emotion classifier model to ONNX format"
-    )
+def main():
+    """Main function."""
+    parser = argparse.ArgumentParser(description="Convert BERT emotion classifier to ONNX")
     parser.add_argument(
         "--input_model",
         type=str,
         default=DEFAULT_INPUT_MODEL,
-        help="Path to input model (default: {DEFAULT_INPUT_MODEL})",
+        help="Path to input model",
     )
     parser.add_argument(
         "--output_model",
         type=str,
         default=DEFAULT_OUTPUT_MODEL,
-        help="Path to save ONNX model (default: {DEFAULT_OUTPUT_MODEL})",
+        help="Path to save ONNX model",
     )
 
     args = parser.parse_args()
+
+    logger.info("🚀 Starting ONNX conversion...")
+    logger.info(f"Input model: {args.input_model}")
+    logger.info(f"Output model: {args.output_model}")
+
     success = convert_to_onnx(args.input_model, args.output_model)
-    sys.exit(0 if success else 1)
+
+    if success:
+        logger.info("✅ ONNX conversion completed successfully!")
+        return 0
+    else:
+        logger.error("❌ ONNX conversion failed!")
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
