@@ -8,8 +8,6 @@ and evaluates the Word Error Rate (WER) of the Whisper transcription model.
 
 import argparse
 import logging
-import os
-import sys
 import tempfile
 import time
 from pathlib import Path
@@ -47,7 +45,7 @@ def download_librispeech_sample(
     Returns:
         List of dicts with audio path and reference text
     """
-    logger.info(f"Loading LibriSpeech test-clean (max_samples={max_samples})...")
+    logger.info("Loading LibriSpeech test-clean (max_samples={max_samples})...")
 
     # Create output directory if needed
     if output_dir is None:
@@ -69,10 +67,10 @@ def download_librispeech_sample(
             # Extract sample info
             audio = sample["audio"]
             text = sample["text"]
-            file_id = f"{sample['chapter_id']}_{sample['id']}"
+            file_id = "{sample['chapter_id']}_{sample['id']}"
 
             # Save audio to file
-            audio_path = Path(output_dir) / f"{file_id}.wav"
+            audio_path = Path(output_dir) / "{file_id}.wav"
 
             # Skip if already exists
             if audio_path.exists():
@@ -92,13 +90,13 @@ def download_librispeech_sample(
             samples.append({"path": str(audio_path), "reference": text})
 
             if i % 10 == 0:
-                logger.info(f"Downloaded {i+1}/{max_samples} samples...")
+                logger.info("Downloaded {i+1}/{max_samples} samples...")
 
-        logger.info(f"✅ Downloaded {len(samples)} LibriSpeech samples to {output_dir}")
+        logger.info("✅ Downloaded {len(samples)} LibriSpeech samples to {output_dir}")
         return samples
 
     except Exception as e:
-        logger.error(f"❌ Failed to download LibriSpeech: {e}")
+        logger.error("❌ Failed to download LibriSpeech: {e}")
         return []
 
 
@@ -113,7 +111,7 @@ def evaluate_wer(api: TranscriptionAPI, samples: list[dict], model_size: str) ->
     Returns:
         Evaluation metrics dict
     """
-    logger.info(f"Evaluating WER on {len(samples)} samples...")
+    logger.info("Evaluating WER on {len(samples)} samples...")
 
     results = []
     references = []
@@ -163,7 +161,7 @@ def evaluate_wer(api: TranscriptionAPI, samples: list[dict], model_size: str) ->
             )
 
         except Exception as e:
-            logger.error(f"Failed on sample {i}: {e}")
+            logger.error("Failed on sample {i}: {e}")
 
     # Calculate global WER
     global_wer = jiwer.wer(references, transcriptions)
@@ -230,7 +228,7 @@ def main():
 
     args = parser.parse_args()
 
-    logger.info(f"🚀 Starting Whisper WER evaluation with {args.model_size} model")
+    logger.info("🚀 Starting Whisper WER evaluation with {args.model_size} model")
     start_time = time.time()
 
     # Create output directory
@@ -263,42 +261,41 @@ def main():
     logger.info("=" * 50)
 
     summary = evaluation_results["summary"]
-    logger.info(f"Model: {summary['model_size']}")
-    logger.info(f"Device: {summary['device']}")
-    logger.info(f"Samples: {summary['samples']}")
-    logger.info(f"Global WER: {summary['global_wer']:.4f}")
-    logger.info(f"Average WER: {summary['average_wer']:.4f}")
-    logger.info(f"Median WER: {summary['median_wer']:.4f}")
-    logger.info(f"Samples with WER < 15%: {summary['wer_below_15_percent']*100:.1f}%")
-    logger.info(f"Real-time factor: {summary['avg_real_time_factor']:.2f}x")
-    logger.info(f"Total audio: {summary['total_audio_duration']:.1f}s")
-    logger.info(f"Total processing: {summary['total_processing_time']:.1f}s")
+    logger.info("Model: {summary['model_size']}")
+    logger.info("Device: {summary['device']}")
+    logger.info("Samples: {summary['samples']}")
+    logger.info("Global WER: {summary['global_wer']:.4f}")
+    logger.info("Average WER: {summary['average_wer']:.4f}")
+    logger.info("Median WER: {summary['median_wer']:.4f}")
+    logger.info("Samples with WER < 15%: {summary['wer_below_15_percent']*100:.1f}%")
+    logger.info("Real-time factor: {summary['avg_real_time_factor']:.2f}x")
+    logger.info("Total audio: {summary['total_audio_duration']:.1f}s")
+    logger.info("Total processing: {summary['total_processing_time']:.1f}s")
 
     # Save results if output directory provided
     if args.output_dir:
         # Save summary
-        summary_path = Path(args.output_dir) / f"whisper_{args.model_size}_wer_summary.json"
-        import json
+        summary_path = Path(args.output_dir) / "whisper_{args.model_size}_wer_summary.json"
 
         with open(summary_path, "w") as f:
             json.dump(summary, f, indent=2)
 
         # Save detailed results
-        details_path = Path(args.output_dir) / f"whisper_{args.model_size}_wer_details.csv"
+        details_path = Path(args.output_dir) / "whisper_{args.model_size}_wer_details.csv"
         evaluation_results["dataframe"].to_csv(details_path, index=False)
 
-        logger.info(f"✅ Results saved to {args.output_dir}")
+        logger.info("✅ Results saved to {args.output_dir}")
 
     total_time = time.time() - start_time
-    logger.info(f"✅ Evaluation completed in {total_time:.1f}s")
+    logger.info("✅ Evaluation completed in {total_time:.1f}s")
 
     # Determine if we meet the target WER
     target_wer = 0.15  # 15% target WER
     if summary["global_wer"] <= target_wer:
-        logger.info(f"🎉 SUCCESS: WER {summary['global_wer']:.4f} meets target of {target_wer:.4f}")
+        logger.info("🎉 SUCCESS: WER {summary['global_wer']:.4f} meets target of {target_wer:.4f}")
         return 0
     else:
-        logger.warning(f"⚠️ WER {summary['global_wer']:.4f} exceeds target of {target_wer:.4f}")
+        logger.warning("⚠️ WER {summary['global_wer']:.4f} exceeds target of {target_wer:.4f}")
         return 0  # Still return success
 
 

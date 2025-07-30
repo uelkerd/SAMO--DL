@@ -14,8 +14,6 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from pathlib import Path
-import json
-import numpy as np
 from sklearn.metrics import f1_score, precision_score, recall_score
 from tqdm import tqdm
 import random
@@ -93,14 +91,14 @@ def download_go_emotions_manual():
         "excitement",
         "fear",
         "gratitude",
-        "grief",
+        "grie",
         "joy",
         "love",
         "nervousness",
         "optimism",
         "pride",
         "realization",
-        "relief",
+        "relie",
         "remorse",
         "sadness",
         "surprise",
@@ -139,11 +137,11 @@ def download_go_emotions_manual():
 
                 processed_data.append({"text": text, "labels": labels})
 
-            logger.info(f"✅ Downloaded and processed {filename}: {len(processed_data)} examples")
+            logger.info("✅ Downloaded and processed {filename}: {len(processed_data)} examples")
             return processed_data
 
         except Exception as e:
-            logger.warning(f"⚠️ Could not download {filename}: {e}")
+            logger.warning("⚠️ Could not download {filename}: {e}")
             return []
 
     # Download all datasets
@@ -259,7 +257,7 @@ def create_dataloaders(data, tokenizer, batch_size=16):
 
 def train_model(model, train_loader, val_loader, criterion, optimizer, device, epochs=10):
     """Train the model."""
-    best_val_loss = float("inf")
+    best_val_loss = float("in")
 
     for epoch in range(epochs):
         logger.info(f"📚 Epoch {epoch + 1}/{epochs}")
@@ -268,7 +266,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device, e
         model.train()
         train_losses = []
 
-        progress_bar = tqdm(train_loader, desc=f"Training Epoch {epoch + 1}")
+        progress_bar = tqdm(train_loader, desc="Training Epoch {epoch + 1}")
         for batch_idx, batch in enumerate(progress_bar):
             input_ids = batch["input_ids"].to(device)
             attention_mask = batch["attention_mask"].to(device)
@@ -283,14 +281,14 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device, e
             train_losses.append(loss.item())
 
             if batch_idx % 10 == 0:
-                logger.info(f"   Batch {batch_idx}: Loss = {loss.item():.4f}")
+                logger.info("   Batch {batch_idx}: Loss = {loss.item():.4f}")
 
         # Validation
         model.eval()
         val_losses = []
 
         with torch.no_grad():
-            progress_bar = tqdm(val_loader, desc=f"Validation Epoch {epoch + 1}")
+            progress_bar = tqdm(val_loader, desc="Validation Epoch {epoch + 1}")
             for batch in progress_bar:
                 input_ids = batch["input_ids"].to(device)
                 attention_mask = batch["attention_mask"].to(device)
@@ -303,13 +301,13 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device, e
         avg_train_loss = np.mean(train_losses)
         avg_val_loss = np.mean(val_losses)
 
-        logger.info(f"📊 Epoch {epoch + 1} Results:")
-        logger.info(f"   • Train Loss: {avg_train_loss:.4f}")
-        logger.info(f"   • Val Loss: {avg_val_loss:.4f}")
+        logger.info("📊 Epoch {epoch + 1} Results:")
+        logger.info("   • Train Loss: {avg_train_loss:.4f}")
+        logger.info("   • Val Loss: {avg_val_loss:.4f}")
 
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
-            logger.info(f"   🎯 New best validation loss: {best_val_loss:.4f}")
+            logger.info("   🎯 New best validation loss: {best_val_loss:.4f}")
 
     return best_val_loss
 
@@ -364,7 +362,7 @@ def evaluate_model(model, test_loader, device):
         f1_micro = f1_score(all_labels, predictions, average="micro", zero_division=0)
 
         logger.info(
-            f"   Threshold {threshold:.2f}: F1 Macro = {f1_macro:.4f}, F1 Micro = {f1_micro:.4f}"
+            "   Threshold {threshold:.2f}: F1 Macro = {f1_macro:.4f}, F1 Micro = {f1_micro:.4f}"
         )
 
         if f1_macro > best_f1:
@@ -397,15 +395,15 @@ def main():
 
     # Setup
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Device: {device}")
+    logger.info("Device: {device}")
 
     # Download data
     data = download_go_emotions_manual()
 
     logger.info("✅ Dataset loaded:")
-    logger.info(f"   • Train: {len(data['train'])} examples")
-    logger.info(f"   • Validation: {len(data['validation'])} examples")
-    logger.info(f"   • Test: {len(data['test'])} examples")
+    logger.info("   • Train: {len(data['train'])} examples")
+    logger.info("   • Validation: {len(data['validation'])} examples")
+    logger.info("   • Test: {len(data['test'])} examples")
 
     # Create model
     logger.info("🤖 Creating BERT emotion classifier...")
@@ -413,9 +411,9 @@ def main():
     model.to(device)
 
     logger.info("✅ Model created successfully")
-    logger.info(f"   • Total parameters: {sum(p.numel() for p in model.parameters()):,}")
+    logger.info("   • Total parameters: {sum(p.numel() for p in model.parameters()):,}")
     logger.info(
-        f"   • Trainable parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
+        "   • Trainable parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
     )
 
     # Create tokenizer
@@ -426,9 +424,9 @@ def main():
     train_loader, val_loader, test_loader = create_dataloaders(data, tokenizer)
 
     logger.info("✅ Dataloaders created:")
-    logger.info(f"   • Train: {len(train_loader.dataset)} examples")
-    logger.info(f"   • Validation: {len(val_loader.dataset)} examples")
-    logger.info(f"   • Test: {len(test_loader.dataset)} examples")
+    logger.info("   • Train: {len(train_loader.dataset)} examples")
+    logger.info("   • Validation: {len(val_loader.dataset)} examples")
+    logger.info("   • Test: {len(test_loader.dataset)} examples")
 
     # Setup training
     criterion = FocalLoss(alpha=0.25, gamma=2.0)
@@ -443,14 +441,14 @@ def main():
         model, train_loader, val_loader, criterion, optimizer, device, epochs=10
     )
 
-    logger.info(f"🎯 Training completed! Best validation loss: {best_val_loss:.4f}")
+    logger.info("🎯 Training completed! Best validation loss: {best_val_loss:.4f}")
 
     # Evaluate model
     logger.info("🔍 Running comprehensive evaluation...")
     results = evaluate_model(model, test_loader, device)
 
     logger.info(
-        f"🎯 Best threshold: {results['best_threshold']:.2f} (F1 Macro: {results['f1_macro']:.4f})"
+        "🎯 Best threshold: {results['best_threshold']:.2f} (F1 Macro: {results['f1_macro']:.4f})"
     )
 
     # Save model and results
@@ -486,16 +484,16 @@ def main():
             indent=2,
         )
 
-    logger.info(f"✅ Model saved to {model_path}")
-    logger.info(f"✅ Results saved to {results_path}")
+    logger.info("✅ Model saved to {model_path}")
+    logger.info("✅ Results saved to {results_path}")
 
     logger.info("🎉 Full dataset focal loss training completed successfully!")
     logger.info("📊 Final Results Summary:")
-    logger.info(f"   • Best F1 Macro: {results['f1_macro']:.4f}")
-    logger.info(f"   • Best F1 Micro: {results['f1_micro']:.4f}")
-    logger.info(f"   • Best Threshold: {results['best_threshold']:.2f}")
-    logger.info(f"   • Precision Macro: {results['precision_macro']:.4f}")
-    logger.info(f"   • Recall Macro: {results['recall_macro']:.4f}")
+    logger.info("   • Best F1 Macro: {results['f1_macro']:.4f}")
+    logger.info("   • Best F1 Micro: {results['f1_micro']:.4f}")
+    logger.info("   • Best Threshold: {results['best_threshold']:.2f}")
+    logger.info("   • Precision Macro: {results['precision_macro']:.4f}")
+    logger.info("   • Recall Macro: {results['recall_macro']:.4f}")
 
 
 if __name__ == "__main__":

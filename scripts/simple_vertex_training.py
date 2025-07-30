@@ -3,8 +3,6 @@
 Simple Vertex AI Training Script
 """
 
-import os
-import sys
 import logging
 import pandas as pd
 from google.cloud import aiplatform
@@ -23,8 +21,8 @@ def main():
     bucket_name = sys.argv[2]
 
     print("🚀 Starting simple Vertex AI training...")
-    print(f"📊 Project: {project_id}")
-    print(f"📦 Bucket: {bucket_name}")
+    print("📊 Project: {project_id}")
+    print("📦 Bucket: {bucket_name}")
 
     try:
         # Initialize Vertex AI
@@ -36,36 +34,36 @@ def main():
         test_path = "vertex_ai_data/test_data.csv"
 
         if not os.path.exists(train_path):
-            print(f"❌ Training data not found: {train_path}")
+            print("❌ Training data not found: {train_path}")
             sys.exit(1)
 
         # Load data
         train_df = pd.read_csv(train_path)
         test_df = pd.read_csv(test_path)
 
-        print(f"✅ Training data loaded: {len(train_df)} samples")
-        print(f"✅ Test data loaded: {len(test_df)} samples")
-        print(f"📋 Columns: {train_df.columns.tolist()}")
-        print(f"📋 First row: {train_df.iloc[0].to_dict()}")
+        print("✅ Training data loaded: {len(train_df)} samples")
+        print("✅ Test data loaded: {len(test_df)} samples")
+        print("📋 Columns: {train_df.columns.tolist()}")
+        print("📋 First row: {train_df.iloc[0].to_dict()}")
 
         # Check target column
         target_column = "emotions"
         if target_column not in train_df.columns:
             print(
-                f"❌ Target column '{target_column}' not found in columns: {train_df.columns.tolist()}"
+                "❌ Target column '{target_column}' not found in columns: {train_df.columns.tolist()}"
             )
             sys.exit(1)
 
-        print(f"✅ Target column '{target_column}' found")
+        print("✅ Target column '{target_column}' found")
 
         # Create dataset
         dataset = aiplatform.TextDataset.create(
             display_name="samo-emotions-dataset",
-            gcs_source=f"gs://{bucket_name}/vertex_ai_data/train_data.csv",
+            gcs_source="gs://{bucket_name}/vertex_ai_data/train_data.csv",
             import_schema_uri=aiplatform.schema.dataset.ioformat.text.multi_label_classification,
         )
 
-        print(f"✅ Dataset created: {dataset.name}")
+        print("✅ Dataset created: {dataset.name}")
 
         # Start training
         job = aiplatform.AutoMLTextTrainingJob(
@@ -81,12 +79,12 @@ def main():
             model_display_name="samo-emotions-automl",
         )
 
-        print(f"✅ Training started: {model.name}")
+        print("✅ Training started: {model.name}")
         print("🎉 Model training initiated successfully!")
 
     except Exception as e:
-        print(f"❌ Training failed: {e}")
-        logger.error(f"Training failed: {e}")
+        print("❌ Training failed: {e}")
+        logger.error("Training failed: {e}")
         sys.exit(1)
 
 

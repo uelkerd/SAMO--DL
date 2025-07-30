@@ -3,7 +3,6 @@
 Final Temperature Scaling Test - Guaranteed to Work!
 """
 
-import sys
 from pathlib import Path
 
 sys.path.append(str(Path.cwd() / "src"))
@@ -19,7 +18,7 @@ def final_temperature_test():
 
     # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
+    print("Using device: {device}")
 
     # Load checkpoint
     checkpoint_path = Path("test_checkpoints/best_model.pt")
@@ -32,19 +31,19 @@ def final_temperature_test():
     try:
         # Load with weights_only=False for PyTorch 2.6 compatibility
         checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
-        print(f"✅ Checkpoint loaded successfully! Type: {type(checkpoint)}")
+        print("✅ Checkpoint loaded successfully! Type: {type(checkpoint)}")
 
         # Debug checkpoint structure
         if isinstance(checkpoint, dict):
-            print(f"📋 Checkpoint keys: {list(checkpoint.keys())}")
-            print(f"🎯 Best F1 score: {checkpoint.get('best_score', 'N/A')}")
+            print("📋 Checkpoint keys: {list(checkpoint.keys())}")
+            print("🎯 Best F1 score: {checkpoint.get('best_score', 'N/A')}")
         elif isinstance(checkpoint, tuple):
-            print(f"📋 Tuple length: {len(checkpoint)}")
+            print("📋 Tuple length: {len(checkpoint)}")
             for i, item in enumerate(checkpoint):
-                print(f"  - Item {i}: {type(item)}")
+                print("  - Item {i}: {type(item)}")
 
     except Exception as e:
-        print(f"❌ Failed to load checkpoint: {e}")
+        print("❌ Failed to load checkpoint: {e}")
         return
 
     # Initialize model
@@ -73,7 +72,7 @@ def final_temperature_test():
         print("✅ Model loaded successfully!")
 
     except Exception as e:
-        print(f"❌ Failed to load model state: {e}")
+        print("❌ Failed to load model state: {e}")
         return
 
     # Create simple test data
@@ -104,7 +103,7 @@ def final_temperature_test():
     dataset = EmotionDataset(test_texts, emotion_labels, tokenizer=tokenizer, max_length=512)
     dataloader = DataLoader(dataset, batch_size=2, shuffle=False)
 
-    print(f"✅ Created test dataset with {len(test_texts)} samples")
+    print("✅ Created test dataset with {len(test_texts)} samples")
 
     # Test different temperatures
     temperatures = [1.0, 2.0, 3.0, 4.0]
@@ -113,7 +112,7 @@ def final_temperature_test():
     print("=" * 50)
 
     for temp in temperatures:
-        print(f"\n📊 Temperature: {temp}")
+        print("\n📊 Temperature: {temp}")
 
         try:
             # Set temperature
@@ -134,9 +133,9 @@ def final_temperature_test():
 
                     # Log raw probabilities for the first sample to observe scaling
                     if batch_idx == 0:
-                        print(f"   Probabilities (Temp {temp}, first sample):")
+                        print("   Probabilities (Temp {temp}, first sample):")
                         print(
-                            f"   {probabilities[0, :8].detach().numpy().round(4)}..."
+                            "   {probabilities[0, :8].detach().numpy().round(4)}..."
                         )  # Print first 8
 
                     # Apply threshold
@@ -162,20 +161,20 @@ def final_temperature_test():
             # Calculate macro F1
             macro_f1 = f1_score(label_np, pred_np, average="macro", zero_division=0)
 
-            print(f"   Micro F1: {micro_f1:.4f}")
-            print(f"   Macro F1: {macro_f1:.4f}")
+            print("   Micro F1: {micro_f1:.4f}")
+            print("   Macro F1: {macro_f1:.4f}")
 
             # Show some predictions
             print("   Sample predictions (first 2 samples):")
             for i in range(min(2, len(test_texts))):
                 pred_emotions = pred_np[i]
                 true_emotions = label_np[i]
-                print(f"     Text: {test_texts[i][:50]}...")
-                print(f"     Pred: {pred_emotions}")
-                print(f"     True: {true_emotions}")
+                print("     Text: {test_texts[i][:50]}...")
+                print("     Pred: {pred_emotions}")
+                print("     True: {true_emotions}")
 
         except Exception as e:
-            print(f"   ❌ Error at temperature {temp}: {e}")
+            print("   ❌ Error at temperature {temp}: {e}")
 
     print("\n✅ Temperature scaling test completed!")
 

@@ -6,7 +6,6 @@ Simple script to check the current emotion detection model performance
 and provide actionable recommendations for improvement.
 """
 
-import sys
 import logging
 
 # Configure logging
@@ -25,9 +24,9 @@ def main():
     progress = (current_f1 / target_f1) * 100
 
     logger.info("📊 CURRENT PERFORMANCE:")
-    logger.info(f"   • F1 Score: {current_f1}%")
-    logger.info(f"   • Target: {target_f1}%")
-    logger.info(f"   • Progress: {progress:.1f}% of target")
+    logger.info("   • F1 Score: {current_f1}%")
+    logger.info("   • Target: {target_f1}%")
+    logger.info("   • Progress: {progress:.1f}% of target")
 
     logger.info("\n🔍 ROOT CAUSE ANALYSIS:")
     logger.info("   • Training Data: Using full dataset (63,812 examples)")
@@ -69,9 +68,9 @@ def main():
     logger.info("   • Week 3: Production Deployment + Monitoring")
 
     logger.info("\n✅ SUCCESS METRICS:")
-    logger.info(f"   • Target F1: {target_f1}%")
-    logger.info(f"   • Current: {current_f1}%")
-    logger.info(f"   • Gap: {target_f1 - current_f1:.1f}%")
+    logger.info("   • Target F1: {target_f1}%")
+    logger.info("   • Current: {current_f1}%")
+    logger.info("   • Gap: {target_f1 - current_f1:.1f}%")
     logger.info("   • Feasible: YES (multiple improvement paths available)")
 
     return {
@@ -92,11 +91,11 @@ if __name__ == "__main__":
     try:
         results = main()
         logger.info("\n🎯 FINAL ASSESSMENT:")
-        logger.info(f"   • F1 Score: {results['current_f1']}%")
-        logger.info(f"   • Progress: {results['progress_percent']:.1f}% of target")
-        logger.info(f"   • Feasible: {'YES' if results['feasible'] else 'NO'}")
-        logger.info(f"   • Next: {' → '.join(results['next_steps'][:2])}")
+        logger.info("   • F1 Score: {results['current_f1']}%")
+        logger.info("   • Progress: {results['progress_percent']:.1f}% of target")
+        logger.info("   • Feasible: {'YES' if results['feasible'] else 'NO'}")
+        logger.info("   • Next: {' → '.join(results['next_steps'][:2])}")
 
     except Exception as e:
-        logger.error(f"❌ Validation failed: {e}")
+        logger.error("❌ Validation failed: {e}")
         sys.exit(1)

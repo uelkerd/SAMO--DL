@@ -13,7 +13,6 @@ Arguments:
     --output_model: Path to save compressed model (default: models/checkpoints/bert_emotion_classifier_quantized.pt)
 """
 
-import sys
 import argparse
 import logging
 import time
@@ -52,14 +51,14 @@ def compress_model(input_model: str, output_model: str) -> bool:
         # Check if input model exists
         input_path = Path(input_model)
         if not input_path.exists():
-            logger.error(f"Input model not found: {input_path}")
+            logger.error("Input model not found: {input_path}")
             return False
 
         # Create output directory if it doesn't exist
         output_path = Path(output_model)
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        logger.info(f"Loading model from {input_path}...")
+        logger.info("Loading model from {input_path}...")
 
         # Load checkpoint
         checkpoint = torch.load(input_path, map_location=device, weights_only=False)
@@ -73,7 +72,7 @@ def compress_model(input_model: str, output_model: str) -> bool:
         elif isinstance(checkpoint, dict):
             model.load_state_dict(checkpoint)
         else:
-            logger.error(f"Unexpected checkpoint format: {type(checkpoint)}")
+            logger.error("Unexpected checkpoint format: {type(checkpoint)}")
             return False
 
         # Set optimal temperature and threshold
@@ -82,7 +81,7 @@ def compress_model(input_model: str, output_model: str) -> bool:
 
         # Measure original model size
         original_size = get_model_size(model)
-        logger.info(f"Original model size: {original_size:.2f} MB")
+        logger.info("Original model size: {original_size:.2f} MB")
 
         # Benchmark original model
         logger.info("Benchmarking original model...")
@@ -107,8 +106,8 @@ def compress_model(input_model: str, output_model: str) -> bool:
 
         # Measure quantized model size
         quantized_size = get_model_size(quantized_model)
-        logger.info(f"Quantized model size: {quantized_size:.2f} MB")
-        logger.info(f"Size reduction: {(1 - quantized_size/original_size) * 100:.1f}%")
+        logger.info("Quantized model size: {quantized_size:.2f} MB")
+        logger.info("Size reduction: {(1 - quantized_size/original_size) * 100:.1f}%")
 
         # Benchmark quantized model
         logger.info("Benchmarking quantized model...")
@@ -116,10 +115,10 @@ def compress_model(input_model: str, output_model: str) -> bool:
 
         # Calculate speedup
         speedup = original_inference_time / quantized_inference_time
-        logger.info(f"Inference speedup: {speedup:.2f}x")
+        logger.info("Inference speedup: {speedup:.2f}x")
 
         # Save quantized model
-        logger.info(f"Saving quantized model to {output_path}...")
+        logger.info("Saving quantized model to {output_path}...")
 
         if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
             checkpoint["model_state_dict"] = quantized_model.state_dict()
@@ -142,12 +141,12 @@ def compress_model(input_model: str, output_model: str) -> bool:
 
         logger.info("📊 Compression metrics:")
         for key, value in metrics.items():
-            logger.info(f"  {key}: {value:.2f}")
+            logger.info("  {key}: {value:.2f}")
 
         return True
 
     except Exception as e:
-        logger.error(f"Error compressing model: {e}")
+        logger.error("Error compressing model: {e}")
         return False
 
 
@@ -204,13 +203,13 @@ if __name__ == "__main__":
         "--input_model",
         type=str,
         default=DEFAULT_INPUT_MODEL,
-        help=f"Path to input model (default: {DEFAULT_INPUT_MODEL})",
+        help="Path to input model (default: {DEFAULT_INPUT_MODEL})",
     )
     parser.add_argument(
         "--output_model",
         type=str,
         default=DEFAULT_OUTPUT_MODEL,
-        help=f"Path to save compressed model (default: {DEFAULT_OUTPUT_MODEL})",
+        help="Path to save compressed model (default: {DEFAULT_OUTPUT_MODEL})",
     )
 
     args = parser.parse_args()

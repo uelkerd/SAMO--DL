@@ -7,7 +7,6 @@ can be loaded and initialized correctly.
 """
 
 import logging
-import sys
 from pathlib import Path
 
 # Add src to path
@@ -43,7 +42,7 @@ def test_t5_model_loading():
         return True
 
     except Exception as e:
-        logger.error(f"❌ T5 model loading failed: {e}")
+        logger.error("❌ T5 model loading failed: {e}")
         return False
 
 
@@ -71,7 +70,7 @@ def test_t5_summarization():
             min_length=10
         )
 
-        logger.info(f"✅ Summarization successful: {summary[:50]}...")
+        logger.info("✅ Summarization successful: {summary[:50]}...")
 
         # Validate summary
         assert isinstance(summary, str), "Summary should be a string"
@@ -83,7 +82,7 @@ def test_t5_summarization():
         return True
 
     except Exception as e:
-        logger.error(f"❌ T5 summarization test failed: {e}")
+        logger.error("❌ T5 summarization test failed: {e}")
         return False
 
 
@@ -100,19 +99,19 @@ def main():
     total = len(tests)
 
     for test_name, test_func in tests:
-        logger.info(f"\n{'='*40}")
-        logger.info(f"Running: {test_name}")
-        logger.info(f"{'='*40}")
+        logger.info("\n{'='*40}")
+        logger.info("Running: {test_name}")
+        logger.info("{'='*40}")
 
         if test_func():
             passed += 1
-            logger.info(f"✅ {test_name}: PASSED")
+            logger.info("✅ {test_name}: PASSED")
         else:
-            logger.error(f"❌ {test_name}: FAILED")
+            logger.error("❌ {test_name}: FAILED")
 
-    logger.info(f"\n{'='*40}")
-    logger.info(f"T5 Tests Results: {passed}/{total} tests passed")
-    logger.info(f"{'='*40}")
+    logger.info("\n{'='*40}")
+    logger.info("T5 Tests Results: {passed}/{total} tests passed")
+    logger.info("{'='*40}")
 
     if passed == total:
         logger.info("🎉 All T5 model tests passed!")

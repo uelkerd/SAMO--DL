@@ -13,7 +13,6 @@ import logging
 import torch
 from torch import nn
 from pathlib import Path
-import numpy as np
 from sklearn.metrics import f1_score, precision_score, recall_score
 
 # Configure logging
@@ -40,7 +39,7 @@ class SimpleBERTClassifier(nn.Module):
 
 def load_trained_model(model_path):
     """Load the trained model."""
-    logger.info(f"📂 Loading trained model from {model_path}")
+    logger.info("📂 Loading trained model from {model_path}")
 
     model = SimpleBERTClassifier(model_name="bert-base-uncased", num_classes=28)
     checkpoint = torch.load(model_path, map_location="cpu")
@@ -72,14 +71,14 @@ def create_test_data():
         "excitement",
         "fear",
         "gratitude",
-        "grief",
+        "grie",
         "joy",
         "love",
         "nervousness",
         "optimism",
         "pride",
         "realization",
-        "relief",
+        "relie",
         "remorse",
         "sadness",
         "surprise",
@@ -367,10 +366,10 @@ def diagnose_predictions(model, test_data, device):
         text = item["text"]
         true_labels = np.array(item["labels"])
 
-        logger.info(f"\n📝 Example {i+1}: '{text}'")
-        logger.info(f"   True labels: {true_labels}")
-        logger.info(f"   Sum of labels: {np.sum(true_labels)}")
-        logger.info(f"   Non-zero indices: {np.where(true_labels > 0)[0]}")
+        logger.info("\n📝 Example {i+1}: '{text}'")
+        logger.info("   True labels: {true_labels}")
+        logger.info("   Sum of labels: {np.sum(true_labels)}")
+        logger.info("   Non-zero indices: {np.where(true_labels > 0)[0]}")
 
         # Tokenize
         encoding = model.tokenizer(
@@ -390,12 +389,12 @@ def diagnose_predictions(model, test_data, device):
             for threshold in [0.1, 0.3, 0.5, 0.7]:
                 predictions = (probabilities > threshold).astype(float)
 
-                logger.info(f"   Threshold {threshold}:")
-                logger.info(f"     Raw logits (first 5): {raw_logits[:5]}")
-                logger.info(f"     Probabilities (first 5): {probabilities[:5]}")
-                logger.info(f"     Predictions: {predictions}")
-                logger.info(f"     Sum of predictions: {np.sum(predictions)}")
-                logger.info(f"     Non-zero indices: {np.where(predictions > 0)[0]}")
+                logger.info("   Threshold {threshold}:")
+                logger.info("     Raw logits (first 5): {raw_logits[:5]}")
+                logger.info("     Probabilities (first 5): {probabilities[:5]}")
+                logger.info("     Predictions: {predictions}")
+                logger.info("     Sum of predictions: {np.sum(predictions)}")
+                logger.info("     Non-zero indices: {np.where(predictions > 0)[0]}")
 
                 # Calculate metrics
                 f1 = f1_score(true_labels, predictions, average="macro", zero_division=0)
@@ -404,7 +403,7 @@ def diagnose_predictions(model, test_data, device):
                 )
                 recall = recall_score(true_labels, predictions, average="macro", zero_division=0)
 
-                logger.info(f"     F1: {f1:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}")
+                logger.info("     F1: {f1:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}")
 
 
 def test_evaluation_logic():
@@ -533,11 +532,11 @@ def test_evaluation_logic():
         precision = precision_score(true_labels, predictions, average="macro", zero_division=0)
         recall = recall_score(true_labels, predictions, average="macro", zero_division=0)
 
-        logger.info(f"   {name}:")
-        logger.info(f"     F1 Macro: {f1_macro:.4f}")
-        logger.info(f"     F1 Micro: {f1_micro:.4f}")
-        logger.info(f"     Precision: {precision:.4f}")
-        logger.info(f"     Recall: {recall:.4f}")
+        logger.info("   {name}:")
+        logger.info("     F1 Macro: {f1_macro:.4f}")
+        logger.info("     F1 Micro: {f1_micro:.4f}")
+        logger.info("     Precision: {precision:.4f}")
+        logger.info("     Recall: {recall:.4f}")
 
 
 def main():
@@ -546,7 +545,7 @@ def main():
 
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Device: {device}")
+    logger.info("Device: {device}")
 
     # Test evaluation logic first
     logger.info("=" * 60)
@@ -556,7 +555,7 @@ def main():
     logger.info("=" * 60)
     model_path = Path("models/emotion_detection/full_scale_focal_loss_model.pt")
     if not model_path.exists():
-        logger.error(f"❌ Model not found at {model_path}")
+        logger.error("❌ Model not found at {model_path}")
         return
 
     model = load_trained_model(model_path)
@@ -564,8 +563,8 @@ def main():
 
     # Create test data
     test_data, emotion_names = create_test_data()
-    logger.info(f"✅ Test data created with {len(test_data)} examples")
-    logger.info(f"✅ Emotion names: {emotion_names}")
+    logger.info("✅ Test data created with {len(test_data)} examples")
+    logger.info("✅ Emotion names: {emotion_names}")
 
     # Diagnose predictions
     logger.info("=" * 60)

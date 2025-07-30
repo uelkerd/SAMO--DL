@@ -7,9 +7,7 @@ that reduces overprediction and improves F1 scores.
 """
 
 import logging
-import sys
 from pathlib import Path
-import json
 
 # Add src to path
 sys.path.append(str(Path(__file__).parent.parent / "src"))
@@ -33,7 +31,7 @@ def test_temperature_scaling():
     # Load trained model
     model_path = Path("models/checkpoints/bert_emotion_classifier.pth")
     if not model_path.exists():
-        logger.error(f"❌ Model not found at {model_path}")
+        logger.error("❌ Model not found at {model_path}")
         return
 
     trainer.load_model(str(model_path))
@@ -47,11 +45,11 @@ def test_temperature_scaling():
     best_f1 = 0.0
     best_temp = 1.0
 
-    logger.info(f"🎯 Testing temperatures with threshold {threshold}")
+    logger.info("🎯 Testing temperatures with threshold {threshold}")
     logger.info("=" * 80)
 
     for temp in temperatures:
-        logger.info(f"\n🌡️ Temperature: {temp}")
+        logger.info("\n🌡️ Temperature: {temp}")
 
         # Update model temperature
         trainer.model.set_temperature(temp)
@@ -73,8 +71,8 @@ def test_temperature_scaling():
         }
         results.append(result)
 
-        logger.info(f"  📊 Macro F1: {metrics['macro_f1']:.4f}")
-        logger.info(f"  📊 Micro F1: {metrics['micro_f1']:.4f}")
+        logger.info("  📊 Macro F1: {metrics['macro_f1']:.4f}")
+        logger.info("  📊 Micro F1: {metrics['micro_f1']:.4f}")
 
         # Track best result
         if metrics["macro_f1"] > best_f1:
@@ -86,19 +84,19 @@ def test_temperature_scaling():
     logger.info("=" * 80)
 
     # Display all results
-    logger.info(f"{'Temp':<6} {'Macro F1':<10} {'Micro F1':<10} {'Pred/Sample':<12}")
+    logger.info("{'Temp':<6} {'Macro F1':<10} {'Micro F1':<10} {'Pred/Sample':<12}")
     logger.info("-" * 50)
 
     for result in results:
         logger.info(
-            f"{result['temperature']:<6.1f} "
-            f"{result['macro_f1']:<10.4f} "
-            f"{result['micro_f1']:<10.4f} "
-            f"{result.get('predictions_per_sample', 0):<12.2f}"
+            "{result['temperature']:<6.1f} "
+            "{result['macro_f1']:<10.4f} "
+            "{result['micro_f1']:<10.4f} "
+            "{result.get('predictions_per_sample', 0):<12.2f}"
         )
 
-    logger.info(f"\n🎯 BEST TEMPERATURE: {best_temp}")
-    logger.info(f"🎯 BEST MACRO F1: {best_f1:.4f}")
+    logger.info("\n🎯 BEST TEMPERATURE: {best_temp}")
+    logger.info("🎯 BEST MACRO F1: {best_f1:.4f}")
 
     # Save results for CircleCI
     output_file = Path("temperature_scaling_results.json")
@@ -111,21 +109,21 @@ def test_temperature_scaling():
                 "recommendation": {
                     "temperature": best_temp,
                     "threshold": threshold,
-                    "expected_improvement": f"F1 improved from ~0.076 to {best_f1:.4f}",
+                    "expected_improvement": "F1 improved from ~0.076 to {best_f1:.4f}",
                 },
             },
             f,
             indent=2,
         )
 
-    logger.info(f"📁 Results saved to {output_file}")
+    logger.info("📁 Results saved to {output_file}")
 
     # Provide recommendations
     if best_f1 > 0.15:  # Significant improvement
         logger.info(
-            f"🎉 SUCCESS! Temperature scaling improved F1 by {(best_f1 / 0.076 - 1) * 100:.1f}%"
+            "🎉 SUCCESS! Temperature scaling improved F1 by {(best_f1 / 0.076 - 1) * 100:.1f}%"
         )
-        logger.info(f"💡 RECOMMENDATION: Use temperature={best_temp} with threshold={threshold}")
+        logger.info("💡 RECOMMENDATION: Use temperature={best_temp} with threshold={threshold}")
     else:
         logger.info("⚠️ Temperature scaling provided modest improvement")
         logger.info(

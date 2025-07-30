@@ -5,7 +5,6 @@ The current model is getting low F1 scores (7-8%) because the evaluation
 threshold (0.2) is still too high. This script tests lower thresholds.
 """
 
-import sys
 import logging
 from pathlib import Path
 
@@ -59,7 +58,7 @@ def main():
         logger.info("Testing lower thresholds...")
 
         for threshold in thresholds:
-            logger.info(f"🔍 Testing threshold: {threshold}")
+            logger.info("🔍 Testing threshold: {threshold}")
 
             metrics = evaluate_emotion_classifier(
                 trainer.model, trainer.val_dataloader, trainer.device, threshold=threshold
@@ -68,15 +67,15 @@ def main():
             macro_f1 = metrics["macro_f1"]
             micro_f1 = metrics["micro_f1"]
 
-            logger.info(f"  Macro F1: {macro_f1:.4f}, Micro F1: {micro_f1:.4f}")
+            logger.info("  Macro F1: {macro_f1:.4f}, Micro F1: {micro_f1:.4f}")
 
             if macro_f1 > best_f1:
                 best_f1 = macro_f1
                 best_threshold = threshold
 
         logger.info("=" * 50)
-        logger.info(f"🎯 BEST THRESHOLD: {best_threshold}")
-        logger.info(f"🏆 BEST MACRO F1: {best_f1:.4f}")
+        logger.info("🎯 BEST THRESHOLD: {best_threshold}")
+        logger.info("🏆 BEST MACRO F1: {best_f1:.4f}")
 
         if best_f1 > 0.15:  # 15% is reasonable for this dataset
             logger.info("🎉 Found good threshold! Model is working well.")
@@ -86,7 +85,7 @@ def main():
             return 1
 
     except Exception as e:
-        logger.error(f"❌ Threshold tuning failed: {e}")
+        logger.error("❌ Threshold tuning failed: {e}")
         return 1
 
 

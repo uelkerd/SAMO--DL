@@ -43,7 +43,7 @@ class DataValidator:
 
             if column in required_columns and missing_count > 0:
                 logger.warning(
-                    f"Required column '{column}' has {missing_count} missing values ({missing_percent:.2f}%)"
+                    "Required column '{column}' has {missing_count} missing values ({missing_percent:.2f}%)"
                 )
 
         return missing_stats
@@ -84,7 +84,7 @@ class DataValidator:
                 is_match = actual_type == expected_type
                 if not is_match:
                     logger.warning(
-                        f"Column '{column}' has type {actual_type}, expected {expected_type}"
+                        "Column '{column}' has type {actual_type}, expected {expected_type}"
                     )
                 type_check_results[column] = is_match
 
@@ -128,11 +128,11 @@ class DataValidator:
         very_short_count = result_df["is_very_short"].sum()
 
         if empty_count > 0:
-            logger.warning(f"Found {empty_count} empty entries in '{text_column}' column")
+            logger.warning("Found {empty_count} empty entries in '{text_column}' column")
 
         if very_short_count > 0:
             logger.warning(
-                f"Found {very_short_count} very short entries (< 5 words) in '{text_column}' column"
+                "Found {very_short_count} very short entries (< 5 words) in '{text_column}' column"
             )
 
         return result_df

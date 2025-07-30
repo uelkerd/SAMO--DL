@@ -5,7 +5,6 @@ Minimal Validation for Core Components
 Quick validation of essential components before GCP deployment.
 """
 
-import sys
 import logging
 from pathlib import Path
 
@@ -21,25 +20,24 @@ def test_imports():
     try:
         import torch
 
-        logger.info(f"   ✅ PyTorch: {torch.__version__}")
+        logger.info("   ✅ PyTorch: {torch.__version__}")
 
         import transformers
 
-        logger.info(f"   ✅ Transformers: {transformers.__version__}")
+        logger.info("   ✅ Transformers: {transformers.__version__}")
 
-        import numpy as np
 
-        logger.info(f"   ✅ NumPy: {np.__version__}")
+        logger.info("   ✅ NumPy: {np.__version__}")
 
         import sklearn
 
-        logger.info(f"   ✅ Scikit-learn: {sklearn.__version__}")
+        logger.info("   ✅ Scikit-learn: {sklearn.__version__}")
 
         logger.info("✅ Basic Imports: PASSED")
         return True
 
     except ImportError as e:
-        logger.error(f"❌ Basic Imports: FAILED - {e}")
+        logger.error("❌ Basic Imports: FAILED - {e}")
         return False
 
 
@@ -74,12 +72,12 @@ def test_focal_loss():
         focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
         loss = focal_loss(inputs, targets)
 
-        logger.info(f"   ✅ Focal Loss: {loss.item():.4f}")
+        logger.info("   ✅ Focal Loss: {loss.item():.4f}")
         logger.info("✅ Focal Loss: PASSED")
         return True
 
     except Exception as e:
-        logger.error(f"❌ Focal Loss: FAILED - {e}")
+        logger.error("❌ Focal Loss: FAILED - {e}")
         return False
 
 
@@ -99,16 +97,16 @@ def test_file_structure():
     missing_files = []
     for file_path in required_files:
         if Path(file_path).exists():
-            logger.info(f"   ✅ {file_path}")
+            logger.info("   ✅ {file_path}")
         else:
-            logger.error(f"   ❌ {file_path} - MISSING")
+            logger.error("   ❌ {file_path} - MISSING")
             missing_files.append(file_path)
 
     if missing_files:
-        logger.error(f"❌ File Structure: FAILED - {len(missing_files)} files missing")
+        logger.error("❌ File Structure: FAILED - {len(missing_files)} files missing")
         return False
     else:
-        logger.info(f"✅ File Structure: PASSED - All {len(required_files)} files found")
+        logger.info("✅ File Structure: PASSED - All {len(required_files)} files found")
         return True
 
 
@@ -130,13 +128,13 @@ def test_model_creation():
         param_count = sum(p.numel() for p in model.parameters())
         trainable_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
-        logger.info(f"   ✅ Model created: {param_count:,} total params")
-        logger.info(f"   ✅ Trainable: {trainable_count:,} params")
+        logger.info("   ✅ Model created: {param_count:,} total params")
+        logger.info("   ✅ Trainable: {trainable_count:,} params")
         logger.info("✅ Model Creation: PASSED")
         return True
 
     except Exception as e:
-        logger.error(f"❌ Model Creation: FAILED - {e}")
+        logger.error("❌ Model Creation: FAILED - {e}")
         return False
 
 
@@ -155,11 +153,11 @@ def main():
     results = {}
 
     for name, validation_func in validations:
-        logger.info(f"\n📋 Running {name}...")
+        logger.info("\n📋 Running {name}...")
         try:
             results[name] = validation_func()
         except Exception as e:
-            logger.error(f"❌ {name} failed with exception: {e}")
+            logger.error("❌ {name} failed with exception: {e}")
             results[name] = False
 
     # Summary
@@ -171,9 +169,9 @@ def main():
 
     for name, result in results.items():
         status = "✅ PASS" if result else "❌ FAIL"
-        logger.info(f"   • {name}: {status}")
+        logger.info("   • {name}: {status}")
 
-    logger.info(f"\n🎯 Overall: {passed}/{total} validations passed")
+    logger.info("\n🎯 Overall: {passed}/{total} validations passed")
 
     if passed >= 3:
         logger.info("✅ Ready for GCP deployment!")

@@ -14,7 +14,6 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from pathlib import Path
-import json
 from tqdm import tqdm
 
 # Configure logging
@@ -338,7 +337,7 @@ def download_go_emotions_sample():
     with open(data_dir / "sample_journal_entries.json", "w") as f:
         json.dump(sample_data, f, indent=2)
 
-    logger.info(f"✅ Sample data saved to {data_dir / 'sample_journal_entries.json'}")
+    logger.info("✅ Sample data saved to {data_dir / 'sample_journal_entries.json'}")
     return sample_data
 
 
@@ -376,7 +375,7 @@ class SimpleDataset(torch.utils.data.Dataset):
 
 def train_model(model, train_dataloader, focal_loss, optimizer, device, epochs=3):
     """Train the model with focal loss."""
-    logger.info(f"🚀 Starting training for {epochs} epochs...")
+    logger.info("🚀 Starting training for {epochs} epochs...")
 
     model.train()
     total_loss = 0
@@ -385,9 +384,9 @@ def train_model(model, train_dataloader, focal_loss, optimizer, device, epochs=3
         epoch_loss = 0
         num_batches = 0
 
-        logger.info(f"📚 Epoch {epoch + 1}/{epochs}")
+        logger.info("📚 Epoch {epoch + 1}/{epochs}")
 
-        for batch_idx, batch in enumerate(tqdm(train_dataloader, desc=f"Epoch {epoch + 1}")):
+        for batch_idx, batch in enumerate(tqdm(train_dataloader, desc="Epoch {epoch + 1}")):
             # Move batch to device
             input_ids = batch["input_ids"].to(device)
             attention_mask = batch["attention_mask"].to(device)
@@ -406,14 +405,14 @@ def train_model(model, train_dataloader, focal_loss, optimizer, device, epochs=3
             num_batches += 1
 
             if batch_idx % 2 == 0:
-                logger.info(f"   Batch {batch_idx}: Loss = {loss.item():.4f}")
+                logger.info("   Batch {batch_idx}: Loss = {loss.item():.4f}")
 
         avg_epoch_loss = epoch_loss / num_batches
         total_loss += avg_epoch_loss
-        logger.info(f"📊 Epoch {epoch + 1} average loss: {avg_epoch_loss:.4f}")
+        logger.info("📊 Epoch {epoch + 1} average loss: {avg_epoch_loss:.4f}")
 
     avg_total_loss = total_loss / epochs
-    logger.info(f"🎯 Training completed! Average loss: {avg_total_loss:.4f}")
+    logger.info("🎯 Training completed! Average loss: {avg_total_loss:.4f}")
     return avg_total_loss
 
 
@@ -423,7 +422,7 @@ def main():
 
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Device: {device}")
+    logger.info("Device: {device}")
 
     # Download sample data
     sample_data = download_go_emotions_sample()
@@ -437,8 +436,8 @@ def main():
     trainable_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
     logger.info("✅ Model created successfully")
-    logger.info(f"   • Total parameters: {param_count:,}")
-    logger.info(f"   • Trainable parameters: {trainable_count:,}")
+    logger.info("   • Total parameters: {param_count:,}")
+    logger.info("   • Trainable parameters: {trainable_count:,}")
 
     # Create focal loss
     focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
@@ -453,7 +452,7 @@ def main():
     dataset = SimpleDataset(sample_data, model.tokenizer, max_length=256)
     train_dataloader = torch.utils.data.DataLoader(dataset, batch_size=4, shuffle=True)
 
-    logger.info(f"✅ Dataset created with {len(dataset)} examples")
+    logger.info("✅ Dataset created with {len(dataset)} examples")
 
     # Train the model
     final_loss = train_model(model, train_dataloader, focal_loss, optimizer, device, epochs=3)
@@ -475,7 +474,7 @@ def main():
         model_dir / "focal_loss_model.pt",
     )
 
-    logger.info(f"✅ Model saved to {model_dir / 'focal_loss_model.pt'}")
+    logger.info("✅ Model saved to {model_dir / 'focal_loss_model.pt'}")
     logger.info("🎉 Focal Loss training completed successfully!")
     logger.info("📈 Ready for evaluation and threshold optimization")
 

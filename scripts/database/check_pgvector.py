@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Script to check if pgvector extension is installed in PostgreSQL."""
 
-import os
-import sys
 from urllib.parse import urlparse
 
 import psycopg2
@@ -66,7 +64,7 @@ def check_pgvector():
             print("   - From source: https://github.com/pgvector/pgvector#installation")
             print("\n2. Enable the extension in your database:")
             print("   - psql -U postgres")
-            print(f"   - \\c {DB_NAME}")
+            print("   - \\c {DB_NAME}")
             print("   - CREATE EXTENSION vector;")
 
         # Close cursor and connection
@@ -76,7 +74,7 @@ def check_pgvector():
         return is_installed
 
     except psycopg2.Error as e:
-        print(f"Error connecting to PostgreSQL: {e}")
+        print("Error connecting to PostgreSQL: {e}")
         return False
 
 

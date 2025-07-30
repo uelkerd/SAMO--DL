@@ -18,7 +18,6 @@ import time
 import warnings
 from typing import Optional, Union
 
-import numpy as np
 import torch
 from torch import nn
 import torch.nn.functional as F
@@ -113,7 +112,7 @@ class BERTEmotionClassifier(nn.Module):
             self._freeze_bert_layers(freeze_bert_layers)
 
         logger.info(
-            f"Initialized BERT emotion classifier with {self.count_parameters():,} parameters"
+            "Initialized BERT emotion classifier with {self.count_parameters():,} parameters"
         )
 
     def _init_classification_layers(self) -> None:
@@ -138,7 +137,7 @@ class BERTEmotionClassifier(nn.Module):
             for param in self.bert.encoder.layer[i].parameters():
                 param.requires_grad = False
 
-        logger.info(f"Frozen {num_layers} BERT layers for progressive training")
+        logger.info("Frozen {num_layers} BERT layers for progressive training")
 
     def unfreeze_bert_layers(self, num_layers: int) -> None:
         """Unfreeze BERT layers for progressive unfreezing strategy.
@@ -165,7 +164,7 @@ class BERTEmotionClassifier(nn.Module):
             for param in self.bert.encoder.layer[i].parameters():
                 param.requires_grad = True
 
-        logger.info(f"Unfroze {layers_to_unfreeze} additional BERT layers")
+        logger.info("Unfroze {layers_to_unfreeze} additional BERT layers")
 
     def forward(
         self,
@@ -220,7 +219,7 @@ class BERTEmotionClassifier(nn.Module):
         with torch.no_grad():
             self.temperature.fill_(temperature)
 
-        logger.info(f"Updated temperature to {temperature}")
+        logger.info("Updated temperature to {temperature}")
 
     def predict_emotions(
         self,
@@ -319,7 +318,7 @@ class WeightedBCELoss(nn.Module):
 
         if class_weights is not None:
             logger.info(
-                f"Initialized WeightedBCELoss with class weights: min={class_weights.min():.3f}, max={class_weights.max():.3f}"
+                "Initialized WeightedBCELoss with class weights: min={class_weights.min():.3f}, max={class_weights.max():.3f}"
             )
 
     def forward(self, logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
@@ -432,7 +431,7 @@ def create_bert_emotion_classifier(
     loss_fn = WeightedBCELoss(class_weights=loss_weights)
 
     logger.info(
-        f"Created BERT emotion classifier: {model.count_parameters():,} trainable parameters"
+        "Created BERT emotion classifier: {model.count_parameters():,} trainable parameters"
     )
 
     return model, loss_fn
@@ -488,10 +487,10 @@ def evaluate_emotion_classifier(
             # Debug: Log probability statistics (only first batch)
             if batch_idx == 0:
                 logger.info(
-                    f"DEBUG: Probability stats - min: {probabilities.min():.4f}, max: {probabilities.max():.4f}, mean: {probabilities.mean():.4f}"
+                    "DEBUG: Probability stats - min: {probabilities.min():.4f}, max: {probabilities.max():.4f}, mean: {probabilities.mean():.4f}"
                 )
                 logger.info(
-                    f"DEBUG: Probability distribution - 0.1: {(probabilities >= 0.1).sum()}, 0.2: {(probabilities >= 0.2).sum()}, 0.5: {(probabilities >= 0.5).sum()}"
+                    "DEBUG: Probability distribution - 0.1: {(probabilities >= 0.1).sum()}, 0.2: {(probabilities >= 0.2).sum()}, 0.5: {(probabilities >= 0.5).sum()}"
                 )
 
             # Apply threshold to get binary predictions
@@ -501,10 +500,10 @@ def evaluate_emotion_classifier(
             if batch_idx == 0:
                 expected_sum = (probabilities >= threshold).sum().item()
                 actual_sum = predictions.sum().item()
-                logger.info(f"DEBUG: Threshold {threshold} application:")
-                logger.info(f"  - Expected predictions: {expected_sum}")
-                logger.info(f"  - Actual predictions: {actual_sum}")
-                logger.info(f"  - Match: {'✅' if expected_sum == actual_sum else '❌'}")
+                logger.info("DEBUG: Threshold {threshold} application:")
+                logger.info("  - Expected predictions: {expected_sum}")
+                logger.info("  - Actual predictions: {actual_sum}")
+                logger.info("  - Match: {'✅' if expected_sum == actual_sum else '❌'}")
 
             # Apply fallback for samples with no predictions above threshold
             samples_needing_fallback = predictions.sum(dim=1) == 0
@@ -520,7 +519,7 @@ def evaluate_emotion_classifier(
 
                 if batch_idx == 0:
                     logger.info(
-                        f"DEBUG: Applied top-1 fallback to {num_samples_needing_fallback} samples"
+                        "DEBUG: Applied top-1 fallback to {num_samples_needing_fallback} samples"
                     )
 
             # Final debug check for first batch
@@ -529,9 +528,9 @@ def evaluate_emotion_classifier(
                 final_mean = predictions.mean().item()
                 samples_with_zero_after = (predictions.sum(dim=1) == 0).sum().item()
                 logger.info("DEBUG: Final predictions for batch 0:")
-                logger.info(f"  - Sum: {final_sum}")
-                logger.info(f"  - Mean: {final_mean:.4f}")
-                logger.info(f"  - Samples with zero predictions: {samples_with_zero_after}")
+                logger.info("  - Sum: {final_sum}")
+                logger.info("  - Mean: {final_mean:.4f}")
+                logger.info("  - Samples with zero predictions: {samples_with_zero_after}")
 
             # Collect results
             all_predictions.append(predictions.cpu().numpy())
@@ -546,12 +545,12 @@ def evaluate_emotion_classifier(
     all_targets = np.vstack(all_targets)
 
     # Debug information
-    logger.info(f"Evaluation debug - Predictions shape: {all_predictions.shape}")
-    logger.info(f"Evaluation debug - Targets shape: {all_targets.shape}")
-    logger.info(f"Evaluation debug - Predictions sum: {all_predictions.sum()}")
-    logger.info(f"Evaluation debug - Targets sum: {all_targets.sum()}")
-    logger.info(f"Evaluation debug - Predictions mean: {all_predictions.mean():.4f}")
-    logger.info(f"Evaluation debug - Targets mean: {all_targets.mean():.4f}")
+    logger.info("Evaluation debug - Predictions shape: {all_predictions.shape}")
+    logger.info("Evaluation debug - Targets shape: {all_targets.shape}")
+    logger.info("Evaluation debug - Predictions sum: {all_predictions.sum()}")
+    logger.info("Evaluation debug - Targets sum: {all_targets.sum()}")
+    logger.info("Evaluation debug - Predictions mean: {all_predictions.mean():.4f}")
+    logger.info("Evaluation debug - Targets mean: {all_targets.mean():.4f}")
 
     # Compute metrics
     metrics = {}
@@ -566,19 +565,19 @@ def evaluate_emotion_classifier(
     )
 
     for i, emotion in enumerate(GOEMOTIONS_EMOTIONS):
-        metrics[f"{emotion}_f1"] = f1[i]
-        metrics[f"{emotion}_precision"] = precision[i]
-        metrics[f"{emotion}_recall"] = recall[i]
-        metrics[f"{emotion}_support"] = support[i]
+        metrics["{emotion}_f1"] = f1[i]
+        metrics["{emotion}_precision"] = precision[i]
+        metrics["{emotion}_recall"] = recall[i]
+        metrics["{emotion}_support"] = support[i]
 
     # Performance metrics
     metrics["avg_inference_time_ms"] = (total_time / len(dataloader)) * 1000
     metrics["examples_per_second"] = len(all_predictions) / total_time
 
     logger.info(
-        f"Evaluation complete - Micro F1: {metrics['micro_f1']:.3f}, Macro F1: {metrics['macro_f1']:.3f}"
+        "Evaluation complete - Micro F1: {metrics['micro_f1']:.3f}, Macro F1: {metrics['macro_f1']:.3f}"
     )
-    logger.info(f"Average inference time: {metrics['avg_inference_time_ms']:.1f}ms")
+    logger.info("Average inference time: {metrics['avg_inference_time_ms']:.1f}ms")
 
     return metrics
 

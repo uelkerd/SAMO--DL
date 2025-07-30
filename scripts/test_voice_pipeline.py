@@ -6,10 +6,8 @@ This script tests the complete voice-first pipeline including
 audio recording, transcription, and emotion detection.
 """
 
-import sys
 import logging
 import torch
-import numpy as np
 from pathlib import Path
 
 # Add project root to path
@@ -59,8 +57,8 @@ def test_voice_recording():
         p.terminate()
 
         logger.info("✅ Voice recording test completed")
-        logger.info(f"   • Duration: {duration} seconds")
-        logger.info(f"   • Frames captured: {len(frames)}")
+        logger.info("   • Duration: {duration} seconds")
+        logger.info("   • Frames captured: {len(frames)}")
 
         return True
 
@@ -68,7 +66,7 @@ def test_voice_recording():
         logger.warning("⚠️  PyAudio not available - skipping voice recording test")
         return False
     except Exception as e:
-        logger.error(f"❌ Voice recording test failed: {e}")
+        logger.error("❌ Voice recording test failed: {e}")
         return False
 
 
@@ -82,8 +80,8 @@ def test_whisper_transcription():
         # Load Whisper model
         model = whisper.load_model("base")
         logger.info("✅ Whisper model loaded successfully")
-        logger.info(f"   • Model: {model.name}")
-        logger.info(f"   • Parameters: {model.dims.n_text_state}M")
+        logger.info("   • Model: {model.name}")
+        logger.info("   • Parameters: {model.dims.n_text_state}M")
 
         # Test with sample audio (simulated)
         logger.info("   • Transcription test: Simulated audio processing")
@@ -95,7 +93,7 @@ def test_whisper_transcription():
         logger.warning("⚠️  Whisper not available - skipping transcription test")
         return False
     except Exception as e:
-        logger.error(f"❌ Whisper transcription test failed: {e}")
+        logger.error("❌ Whisper transcription test failed: {e}")
         return False
 
 
@@ -106,7 +104,7 @@ def test_emotion_detection():
     try:
         # Setup device
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        logger.info(f"Using device: {device}")
+        logger.info("Using device: {device}")
 
         # Create model
         model, _ = create_bert_emotion_classifier(
@@ -118,7 +116,7 @@ def test_emotion_detection():
 
         logger.info("✅ Emotion detection model created successfully")
         logger.info("   • Model: BERT-base-uncased")
-        logger.info(f"   • Device: {device}")
+        logger.info("   • Device: {device}")
 
         # Test with sample text
         test_texts = [
@@ -128,14 +126,14 @@ def test_emotion_detection():
         ]
 
         for text in test_texts:
-            logger.info(f"   • Testing: '{text}'")
+            logger.info("   • Testing: '{text}'")
             # Note: Actual prediction would require tokenization and inference
             logger.info("   • Result: Emotion detection ready")
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ Emotion detection test failed: {e}")
+        logger.error("❌ Emotion detection test failed: {e}")
         return False
 
 
@@ -160,9 +158,9 @@ def test_voice_emotion_features():
         zero_crossing_rate = librosa.feature.zero_crossing_rate(audio_data)
 
         logger.info("✅ Voice emotion features extracted successfully")
-        logger.info(f"   • MFCC features: {mfccs.shape}")
-        logger.info(f"   • Spectral centroids: {spectral_centroids.shape}")
-        logger.info(f"   • Zero crossing rate: {zero_crossing_rate.shape}")
+        logger.info("   • MFCC features: {mfccs.shape}")
+        logger.info("   • Spectral centroids: {spectral_centroids.shape}")
+        logger.info("   • Zero crossing rate: {zero_crossing_rate.shape}")
 
         return True
 
@@ -170,7 +168,7 @@ def test_voice_emotion_features():
         logger.warning("⚠️  Librosa not available - skipping voice features test")
         return False
     except Exception as e:
-        logger.error(f"❌ Voice emotion features test failed: {e}")
+        logger.error("❌ Voice emotion features test failed: {e}")
         return False
 
 
@@ -189,7 +187,7 @@ def test_complete_pipeline():
 
     results = []
     for test_name, test_func in tests:
-        logger.info(f"\n📋 {test_name}")
+        logger.info("\n📋 {test_name}")
         logger.info("-" * 30)
 
         try:
@@ -197,12 +195,12 @@ def test_complete_pipeline():
             results.append((test_name, success))
 
             if success:
-                logger.info(f"✅ {test_name}: PASSED")
+                logger.info("✅ {test_name}: PASSED")
             else:
-                logger.info(f"❌ {test_name}: FAILED")
+                logger.info("❌ {test_name}: FAILED")
 
         except Exception as e:
-            logger.error(f"❌ {test_name}: ERROR - {e}")
+            logger.error("❌ {test_name}: ERROR - {e}")
             results.append((test_name, False))
 
     # Summary
@@ -215,9 +213,9 @@ def test_complete_pipeline():
 
     for test_name, success in results:
         status = "✅ PASSED" if success else "❌ FAILED"
-        logger.info(f"   • {test_name}: {status}")
+        logger.info("   • {test_name}: {status}")
 
-    logger.info(f"\n🎯 Overall: {passed}/{total} tests passed")
+    logger.info("\n🎯 Overall: {passed}/{total} tests passed")
 
     if passed == total:
         logger.info("🎉 All tests passed! Voice pipeline is ready.")

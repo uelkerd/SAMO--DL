@@ -13,10 +13,8 @@ Returns:
     1 if test fails
 """
 
-import sys
 import torch
 import logging
-import numpy as np
 from sklearn.metrics import f1_score
 from transformers import AutoTokenizer, AutoModel
 
@@ -71,7 +69,7 @@ def create_test_data():
         "frustration",
         "disgust",
         "sadness",
-        "grief",
+        "grie",
         "sadness",
         "love",
     ]
@@ -83,7 +81,7 @@ def create_test_data():
         "frustration": 4,
         "disgust": 5,
         "sadness": 6,
-        "grief": 7,
+        "grie": 7,
         "neutral": 27,
     }
 
@@ -101,7 +99,7 @@ def test_model_calibration():
     """Test model calibration functionality."""
     try:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        logger.info(f"Using device: {device}")
+        logger.info("Using device: {device}")
 
         # Create model
         logger.info("Creating BERT emotion classifier...")
@@ -117,7 +115,7 @@ def test_model_calibration():
 
         # Create test data
         test_texts, test_labels = create_test_data()
-        logger.info(f"Created {len(test_texts)} test examples")
+        logger.info("Created {len(test_texts)} test examples")
 
         # Create tokenizer
         tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
@@ -152,12 +150,12 @@ def test_model_calibration():
         micro_f1 = f1_score(all_labels, all_predictions, average="micro", zero_division=0)
         macro_f1 = f1_score(all_labels, all_predictions, average="macro", zero_division=0)
 
-        logger.info(f"Micro F1: {micro_f1:.4f}")
-        logger.info(f"Macro F1: {macro_f1:.4f}")
+        logger.info("Micro F1: {micro_f1:.4f}")
+        logger.info("Macro F1: {macro_f1:.4f}")
 
         # Basic validation
-        assert 0 <= micro_f1 <= 1, f"Invalid F1 score: {micro_f1}"
-        assert 0 <= macro_f1 <= 1, f"Invalid F1 score: {macro_f1}"
+        assert 0 <= micro_f1 <= 1, "Invalid F1 score: {micro_f1}"
+        assert 0 <= macro_f1 <= 1, "Invalid F1 score: {macro_f1}"
 
         logger.info("✅ Metrics calculation works")
 
@@ -172,7 +170,7 @@ def test_model_calibration():
             f1_scores.append(f1)
 
         best_threshold = thresholds[np.argmax(f1_scores)]
-        logger.info(f"Best threshold: {best_threshold:.1f} (F1: {max(f1_scores):.4f})")
+        logger.info("Best threshold: {best_threshold:.1f} (F1: {max(f1_scores):.4f})")
 
         logger.info("✅ Threshold optimization works")
 
@@ -180,7 +178,7 @@ def test_model_calibration():
         return 0
 
     except Exception as e:
-        logger.error(f"❌ Calibration test failed: {e}")
+        logger.error("❌ Calibration test failed: {e}")
         return 1
 
 

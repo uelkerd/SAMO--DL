@@ -1,7 +1,6 @@
 # G004: Logging f-strings temporarily allowed for development
 import logging
 
-import numpy as np
 import pandas as pd
 from gensim.models import FastText, Word2Vec
 from gensim.utils import simple_preprocess
@@ -101,7 +100,7 @@ class TfidfEmbedder(BaseEmbedder):
 
         """
         logger.info(
-            f"Fitting TF-IDF vectorizer on {len(texts)} texts with max_features={self.max_features}"
+            "Fitting TF-IDF vectorizer on {len(texts)} texts with max_features={self.max_features}"
         )
         self.model.fit(texts)
         logger.info(
@@ -185,7 +184,7 @@ class Word2VecEmbedder(BaseEmbedder):
         tokenized_texts = self._preprocess_texts(texts)
 
         logger.info(
-            f"Training Word2Vec model with vector_size={self.vector_size}, window={self.window}"
+            "Training Word2Vec model with vector_size={self.vector_size}, window={self.window}"
         )
         self.model = Word2Vec(
             sentences=tokenized_texts,
@@ -198,7 +197,7 @@ class Word2VecEmbedder(BaseEmbedder):
         )
 
         logger.info(
-            f"Word2Vec model trained with {len(self.model.wv.index_to_key)} words in vocabulary"
+            "Word2Vec model trained with {len(self.model.wv.index_to_key)} words in vocabulary"
         )
         return self
 
@@ -248,7 +247,7 @@ class FastTextEmbedder(Word2VecEmbedder):
         tokenized_texts = self._preprocess_texts(texts)
 
         logger.info(
-            f"Training FastText model with vector_size={self.vector_size}, window={self.window}"
+            "Training FastText model with vector_size={self.vector_size}, window={self.window}"
         )
         self.model = FastText(
             sentences=tokenized_texts,
@@ -261,7 +260,7 @@ class FastTextEmbedder(Word2VecEmbedder):
         )
 
         logger.info(
-            f"FastText model trained with {len(self.model.wv.index_to_key)} words in vocabulary"
+            "FastText model trained with {len(self.model.wv.index_to_key)} words in vocabulary"
         )
         return self
 
@@ -296,7 +295,7 @@ class EmbeddingPipeline:
 
         """
         if text_column not in df.columns:
-            msg = f"Text column '{text_column}' not found in DataFrame"
+            msg = "Text column '{text_column}' not found in DataFrame"
             raise ValueError(msg)
 
         texts = df[text_column].tolist()

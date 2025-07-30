@@ -14,7 +14,6 @@ Arguments:
     --port: Dashboard port (default: 8080)
 """
 
-import sys
 import argparse
 import logging
 import threading
@@ -54,7 +53,7 @@ def start_monitoring_system(config_path: str, port: int) -> None:
         monitor_thread.start()
 
         logger.info("✅ Model monitoring started successfully!")
-        logger.info(f"📊 Dashboard available at: http://localhost:{port}")
+        logger.info("📊 Dashboard available at: http://localhost:{port}")
         logger.info("🔍 Monitoring metrics every 5 minutes")
         logger.info("🚨 Alerts configured for performance degradation")
         logger.info("📈 Data drift detection enabled")
@@ -65,7 +64,7 @@ def start_monitoring_system(config_path: str, port: int) -> None:
             while True:
                 time.sleep(60)
                 health_status = monitor.get_health_status()
-                logger.info(f"💚 System Health: {health_status['overall_status']}")
+                logger.info("💚 System Health: {health_status['overall_status']}")
 
         except KeyboardInterrupt:
             logger.info("🛑 Stopping monitoring system...")
@@ -73,7 +72,7 @@ def start_monitoring_system(config_path: str, port: int) -> None:
             logger.info("✅ Monitoring system stopped gracefully")
 
     except Exception as e:
-        logger.error(f"❌ Failed to start monitoring system: {e}")
+        logger.error("❌ Failed to start monitoring system: {e}")
         sys.exit(1)
 
 
@@ -84,17 +83,17 @@ def main():
         "--config_path",
         type=str,
         default=DEFAULT_CONFIG_PATH,
-        help=f"Path to monitoring configuration (default: {DEFAULT_CONFIG_PATH})",
+        help="Path to monitoring configuration (default: {DEFAULT_CONFIG_PATH})",
     )
     parser.add_argument(
-        "--port", type=int, default=DEFAULT_PORT, help=f"Dashboard port (default: {DEFAULT_PORT})"
+        "--port", type=int, default=DEFAULT_PORT, help="Dashboard port (default: {DEFAULT_PORT})"
     )
 
     args = parser.parse_args()
 
     # Check if config file exists
     if not Path(args.config_path).exists():
-        logger.error(f"❌ Configuration file not found: {args.config_path}")
+        logger.error("❌ Configuration file not found: {args.config_path}")
         logger.info("Please create the monitoring configuration first")
         sys.exit(1)
 

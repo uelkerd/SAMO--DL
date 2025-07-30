@@ -9,7 +9,6 @@ Usage:
     python scripts/run_api_rate_limiter_tests.py
 """
 
-import sys
 import pytest
 from pathlib import Path
 
@@ -24,7 +23,7 @@ if __name__ == "__main__":
     test_file = project_root / "tests" / "unit" / "test_api_rate_limiter.py"
 
     if not test_file.exists():
-        print(f"❌ Test file not found: {test_file}")
+        print("❌ Test file not found: {test_file}")
         sys.exit(1)
 
     # Run pytest on the specific test file with coverage and threshold
@@ -43,6 +42,6 @@ if __name__ == "__main__":
     if result == 0:
         print("✅ API Rate Limiter tests passed!")
     else:
-        print(f"❌ API Rate Limiter tests failed with exit code: {result}")
+        print("❌ API Rate Limiter tests failed with exit code: {result}")
 
     sys.exit(result)

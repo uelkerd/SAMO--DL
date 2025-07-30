@@ -8,21 +8,21 @@ import subprocess
 
 def run_command(cmd: str, description: str) -> tuple[bool, str]:
     """Run a command and return success status and output."""
-    print(f"🔄 {description}...")
+    print("🔄 {description}...")
     try:
         # Split command for security (avoid shell=True)
         cmd_list = cmd.split()
         result = subprocess.run(cmd_list, capture_output=True, text=True, check=False)
         output = result.stdout.strip()
         if result.returncode == 0:
-            print(f"✅ {description} - SUCCESS")
+            print("✅ {description} - SUCCESS")
             return True, output
         else:
-            print(f"❌ {description} - FAILED")
-            print(f"Error: {result.stderr}")
+            print("❌ {description} - FAILED")
+            print("Error: {result.stderr}")
             return False, result.stderr
     except Exception as e:
-        print(f"❌ {description} - EXCEPTION: {e}")
+        print("❌ {description} - EXCEPTION: {e}")
         return False, str(e)
 
 
@@ -37,7 +37,7 @@ def main():
         print("❌ Failed to check git status")
         return
 
-    print(f"Git Status:\n{status_output}")
+    print("Git Status:\n{status_output}")
 
     # Check if we have uncommitted changes
     if (
@@ -67,7 +67,7 @@ def main():
         print("❌ Failed to check git log")
         return
 
-    print(f"Recent commits:\n{log_output}")
+    print("Recent commits:\n{log_output}")
 
     # Force push to trigger CI
     print("🚀 Force pushing to trigger CI pipeline...")
@@ -79,7 +79,7 @@ def main():
         print("📊 Check CircleCI dashboard for the new pipeline run.")
     else:
         print("❌ Failed to push changes")
-        print(f"Push output: {push_output}")
+        print("Push output: {push_output}")
 
         # Try regular push as fallback
         print("🔄 Trying regular push as fallback...")

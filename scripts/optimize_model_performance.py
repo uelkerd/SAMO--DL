@@ -13,7 +13,6 @@ Current: 614ms (from training logs)
 """
 
 import logging
-import sys
 import time
 from pathlib import Path
 from typing import Any
@@ -21,7 +20,6 @@ from typing import Any
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-import numpy as np
 import torch
 from torch import nn
 from transformers import AutoTokenizer
@@ -49,7 +47,7 @@ class ModelOptimizer:
 
     def load_model(self) -> None:
         """Load the trained BERT model."""
-        logger.info(f"Loading model from {self.model_path}")
+        logger.info("Loading model from {self.model_path}")
 
         # Load checkpoint
         checkpoint = torch.load(self.model_path, map_location=self.device)
@@ -65,7 +63,7 @@ class ModelOptimizer:
         # Load tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
-        logger.info(f"Model loaded successfully. Parameters: {self.model.count_parameters():,}")
+        logger.info("Model loaded successfully. Parameters: {self.model.count_parameters():,}")
 
     def compress_model(self) -> None:
         """Apply model compression techniques."""
@@ -140,7 +138,7 @@ class ModelOptimizer:
             },
         )
 
-        logger.info(f"✅ ONNX model saved to {onnx_path}")
+        logger.info("✅ ONNX model saved to {onnx_path}")
         return str(onnx_path)
 
     def optimize_inference(self) -> dict[str, Any]:
@@ -205,7 +203,7 @@ class ModelOptimizer:
                 best_batch_size = batch_size
 
         logger.info(
-            f"  Optimal batch size: {best_batch_size} (throughput: {best_throughput:.1f} samples/sec)"
+            "  Optimal batch size: {best_batch_size} (throughput: {best_throughput:.1f} samples/sec)"
         )
         return best_batch_size
 
@@ -224,7 +222,7 @@ class ModelOptimizer:
             "padding_strategy": "longest",
         }
 
-        logger.info(f"  Preprocessing optimized: vocab_size={vocab_size}")
+        logger.info("  Preprocessing optimized: vocab_size={vocab_size}")
         return optimizations
 
     def _optimize_memory(self) -> dict[str, Any]:
@@ -305,11 +303,11 @@ class ModelOptimizer:
         }
 
         logger.info("📊 Performance Results:")
-        logger.info(f"  Average latency: {avg_latency:.2f}ms")
-        logger.info(f"  95th percentile latency: {p95_latency:.2f}ms")
-        logger.info(f"  99th percentile latency: {p99_latency:.2f}ms")
-        logger.info(f"  Accuracy: {accuracy:.2%}")
-        logger.info(f"  Throughput: {results['throughput_samples_per_sec']:.1f} samples/sec")
+        logger.info("  Average latency: {avg_latency:.2f}ms")
+        logger.info("  95th percentile latency: {p95_latency:.2f}ms")
+        logger.info("  99th percentile latency: {p99_latency:.2f}ms")
+        logger.info("  Accuracy: {accuracy:.2%}")
+        logger.info("  Throughput: {results['throughput_samples_per_sec']:.1f} samples/sec")
 
         return results
 
@@ -332,7 +330,7 @@ class ModelOptimizer:
             optimized_path,
         )
 
-        logger.info(f"✅ Optimized model saved to {optimized_path}")
+        logger.info("✅ Optimized model saved to {optimized_path}")
         return str(optimized_path)
 
 
@@ -344,7 +342,7 @@ def main():
     # Check if model exists
     model_path = "./test_checkpoints_dev/best_model.pt"
     if not Path(model_path).exists():
-        logger.error(f"❌ Model not found at {model_path}")
+        logger.error("❌ Model not found at {model_path}")
         logger.info("Please run training first: python scripts/test_quick_training.py")
         return 1
 
@@ -379,7 +377,7 @@ def main():
         logger.info("✅ Success Criteria Check:")
         for criterion, passed in success_criteria.items():
             status = "✅ PASS" if passed else "❌ FAIL"
-            logger.info(f"  {criterion}: {status}")
+            logger.info("  {criterion}: {status}")
 
         # Overall assessment
         passed_criteria = sum(success_criteria.values())
@@ -387,17 +385,17 @@ def main():
 
         if passed_criteria == total_criteria:
             logger.info("🎉 OPTIMIZATION SUCCESSFUL! Model meets all performance targets.")
-            logger.info(f"📁 Optimized model saved to: {optimized_path}")
-            logger.info(f"📁 ONNX model saved to: {onnx_path}")
+            logger.info("📁 Optimized model saved to: {optimized_path}")
+            logger.info("📁 ONNX model saved to: {onnx_path}")
             return 0
         else:
             logger.warning(
-                f"⚠️  {passed_criteria}/{total_criteria} criteria met. Some optimizations needed."
+                "⚠️  {passed_criteria}/{total_criteria} criteria met. Some optimizations needed."
             )
             return 1
 
     except Exception as e:
-        logger.error(f"❌ Optimization failed: {e}")
+        logger.error("❌ Optimization failed: {e}")
         return 1
 
 

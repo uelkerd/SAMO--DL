@@ -92,7 +92,7 @@ class TestAPIModels:
 
         # Test valid extensions
         for ext in valid_extensions:
-            filename = f"audio{ext}"
+            filename = "audio{ext}"
             assert any(filename.endswith(e) for e in valid_extensions)
 
         # Test invalid extension

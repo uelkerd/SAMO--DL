@@ -6,11 +6,8 @@ This script optimizes per-class thresholds to improve F1 score
 by 10-15% through better classification boundaries.
 """
 
-import os
-import sys
 import logging
 import torch
-import numpy as np
 from sklearn.metrics import f1_score
 from pathlib import Path
 
@@ -49,10 +46,10 @@ def optimize_thresholds(val_logits, val_labels, num_classes=28):
         thresholds.append(best_threshold)
         best_f1_scores.append(best_f1)
 
-        logger.info(f"   • Class {i}: threshold={best_threshold:.3f}, F1={best_f1:.3f}")
+        logger.info("   • Class {i}: threshold={best_threshold:.3f}, F1={best_f1:.3f}")
 
     avg_f1 = np.mean(best_f1_scores)
-    logger.info(f"✅ Average F1 score: {avg_f1:.3f}")
+    logger.info("✅ Average F1 score: {avg_f1:.3f}")
 
     return thresholds, best_f1_scores
 
@@ -66,25 +63,25 @@ def apply_threshold_optimization():
 
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Using device: {device}")
+    logger.info("Using device: {device}")
 
     try:
         # Load dataset
         logger.info("Loading validation dataset...")
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()
-        
+
         val_dataset = datasets["validation"]  # Fixed key name
         val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
 
         # Load trained model
         model_path = "./models/checkpoints/focal_loss_best_model.pt"
         if not os.path.exists(model_path):
-            logger.error(f"❌ Model not found: {model_path}")
+            logger.error("❌ Model not found: {model_path}")
             logger.info("   • Please run focal_loss_training.py first")
             return False
 
-        logger.info(f"Loading model from {model_path}")
+        logger.info("Loading model from {model_path}")
         model, _ = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
             class_weights=None,
@@ -136,14 +133,14 @@ def apply_threshold_optimization():
             thresholds_path,
         )
 
-        logger.info(f"✅ Optimized thresholds saved to: {thresholds_path}")
-        logger.info(f"   • Average F1: {np.mean(f1_scores):.3f}")
-        logger.info(f"   • Threshold range: {min(thresholds):.3f} - {max(thresholds):.3f}")
+        logger.info("✅ Optimized thresholds saved to: {thresholds_path}")
+        logger.info("   • Average F1: {np.mean(f1_scores):.3f}")
+        logger.info("   • Threshold range: {min(thresholds):.3f} - {max(thresholds):.3f}")
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ Threshold optimization failed: {e}")
+        logger.error("❌ Threshold optimization failed: {e}")
         import traceback
 
         traceback.print_exc()

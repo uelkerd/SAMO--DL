@@ -3,7 +3,6 @@ import logging
 import re
 
 import nltk
-import numpy as np
 import pandas as pd
 from nltk.sentiment import SentimentIntensityAnalyzer
 from sklearn.decomposition import TruncatedSVD
@@ -173,7 +172,7 @@ class FeatureEngineer:
 
         # Add topic scores as features
         for i in range(n_topics):
-            df[f"topic_{i + 1}_score"] = topic_matrix[:, i]
+            df["topic_{i + 1}_score"] = topic_matrix[:, i]
 
         # Get top words for each topic
         topic_words = {}
@@ -182,7 +181,7 @@ class FeatureEngineer:
             top_word_indices = comp.argsort()[: -n_top_words - 1 : -1]
             # Get the actual words
             top_words = [feature_names[idx] for idx in top_word_indices]
-            topic_words[f"topic_{i + 1}"] = top_words
+            topic_words["topic_{i + 1}"] = top_words
 
         # Convert topics to DataFrame for easier inspection
         topics_df = pd.DataFrame(topic_words)
@@ -213,7 +212,7 @@ class FeatureEngineer:
         df = df.copy()
 
         if timestamp_column not in df.columns:
-            logger.warning(f"Timestamp column '{timestamp_column}' not found in DataFrame")
+            logger.warning("Timestamp column '{timestamp_column}' not found in DataFrame")
             return df
 
         # Try to ensure timestamp column is datetime type

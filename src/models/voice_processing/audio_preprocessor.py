@@ -44,11 +44,11 @@ class AudioPreprocessor:
 
         # Check file exists
         if not audio_path.exists():
-            return False, f"Audio file not found: {audio_path}"
+            return False, "Audio file not found: {audio_path}"
 
         # Check file extension
         if audio_path.suffix.lower() not in AudioPreprocessor.SUPPORTED_FORMATS:
-            return False, f"Unsupported audio format: {audio_path.suffix}"
+            return False, "Unsupported audio format: {audio_path.suffix}"
 
         try:
             # Load audio to validate
@@ -57,15 +57,15 @@ class AudioPreprocessor:
             # Check duration
             duration = len(audio) / 1000.0  # Convert to seconds
             if duration > AudioPreprocessor.MAX_DURATION:
-                return False, f"Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s"
+                return False, "Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s"
 
             if duration < 0.1:  # Too short
-                return False, f"Audio too short: {duration:.1f}s"
+                return False, "Audio too short: {duration:.1f}s"
 
             return True, "Valid audio file"
 
         except Exception as e:
-            return False, f"Error loading audio: {e!s}"
+            return False, "Error loading audio: {e!s}"
 
     @staticmethod
     def preprocess_audio(
