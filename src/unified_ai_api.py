@@ -1,27 +1,3 @@
-import logging
-import time
-import traceback
-from contextlib import asynccontextmanager
-from pathlib import Path
-from typing import Any, AsyncGenerator, Optional
-
-from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile, status
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
-
-from .api_rate_limiter import add_rate_limiting
-
-# Configure logging
-            from src.models.emotion_detection.bert_classifier import (
-            from src.models.summarization.t5_summarizer import create_t5_summarizer
-
-            from src.models.voice_processing.whisper_transcriber import (
-                import tempfile
-
-    import uvicorn
-
-
 """Unified SAMO AI API - Complete Deep Learning Pipeline Integration.
 
 This module provides a unified API that combines all SAMO AI capabilities:
@@ -41,9 +17,24 @@ Key Features:
 - API rate limiting (100 requests/minute per user)
 """
 
+import logging
+import tempfile
+import time
+import traceback
+from contextlib import asynccontextmanager
+from pathlib import Path
+from typing import Any, AsyncGenerator, Optional
+
+from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
+
+from .api_rate_limiter import add_rate_limiting
+
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 # Global AI models (loaded on startup)
 emotion_detector = None
@@ -64,38 +55,41 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         logger.info("Loading emotion detection model...")
         try:
             # Import here to avoid issues if not available
+            from src.models.emotion_detection.bert_classifier import (
                 create_bert_emotion_classifier,
             )
 
             emotion_detector, _ = create_bert_emotion_classifier()
             logger.info("✅ Emotion detection model loaded")
-        except Exception as _:
-            logger.warning(f"⚠️  Emotion detection model not available: {e}")
+        except Exception as exc:
+            logger.warning(f"⚠️  Emotion detection model not available: {exc}")
 
         # Load Text Summarization Model
         logger.info("Loading text summarization model...")
         try:
+            from src.models.summarization.t5_summarizer import create_t5_summarizer
             text_summarizer = create_t5_summarizer("t5-small")
             logger.info("✅ Text summarization model loaded")
-        except Exception as _:
-            logger.warning(f"⚠️  Text summarization model not available: {e}")
+        except Exception as exc:
+            logger.warning(f"⚠️  Text summarization model not available: {exc}")
 
         # Load Voice Processing Model
         logger.info("Loading voice processing model...")
         try:
+            from src.models.voice_processing.whisper_transcriber import (
                 create_whisper_transcriber,
             )
 
             voice_transcriber = create_whisper_transcriber("base")
             logger.info("✅ Voice processing model loaded")
-        except Exception as _:
-            logger.warning(f"⚠️  Voice processing model not available: {e}")
+        except Exception as exc:
+            logger.warning(f"⚠️  Voice processing model not available: {exc}")
 
         load_time = time.time() - start_time
         logger.info(f"🎯 SAMO AI Pipeline loaded in {load_time:.2f}s")
 
-    except Exception as _:
-        logger.error(f"❌ Failed to load AI pipeline: {e}")
+    except Exception as exc:
+        logger.error(f"❌ Failed to load AI pipeline: {exc}")
         # Continue in degraded mode
 
     yield  # App runs here
@@ -362,8 +356,8 @@ async def analyze_journal_entry(
                     emotional_intensity="high",
                 )
                 insights["emotional_profile"] = "Predominantly positive with high confidence"
-            except Exception as _:
-                logger.error(f"Emotion detection failed: {e}")
+            except Exception as exc:
+                logger.error(f"Emotion detection failed: {exc}")
                 pipeline_status["emotion_detection"] = False
                 # Fallback emotion analysis
                 emotion_analysis = EmotionAnalysis(
@@ -405,8 +399,8 @@ async def analyze_journal_entry(
 
                 insights["summary_quality"] = "Generated with emotional context preservation"
 
-            except Exception as _:
-                logger.error(f"Text summarization failed: {e}")
+            except Exception as exc:
+                logger.error(f"Text summarization failed: {exc}")
                 pipeline_status["text_summarization"] = False
                 # Fallback summary
                 text_summary = TextSummary(
@@ -445,10 +439,10 @@ async def analyze_journal_entry(
             insights=insights,
         )
 
-    except Exception as _:
-        logger.error(f"Journal analysis failed: {e}")
+    except Exception as exc:
+        logger.error(f"Journal analysis failed: {exc}")
         logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=f"Analysis failed: {e!s}") from e
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {exc!s}") from exc
 
 
 @app.post(
@@ -530,8 +524,8 @@ async def analyze_voice_journal(
                 # Cleanup
                 Path(temp_file.name).unlink()
 
-            except Exception as _:
-                logger.error(f"Voice transcription failed: {e}")
+            except Exception as exc:
+                logger.error(f"Voice transcription failed: {exc}")
                 logger.error(traceback.format_exc())
                 pipeline_status["voice_processing"] = False
                 transcription = VoiceTranscription(
@@ -615,10 +609,10 @@ async def analyze_voice_journal(
                 },
             )
 
-    except Exception as _:
-        logger.error(f"Voice journal analysis failed: {e}")
+    except Exception as exc:
+        logger.error(f"Voice journal analysis failed: {exc}")
         logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=f"Voice analysis failed: {e!s}") from e
+        raise HTTPException(status_code=500, detail=f"Voice analysis failed: {exc!s}") from exc
 
 
 @app.get(
