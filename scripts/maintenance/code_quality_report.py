@@ -74,7 +74,7 @@ def main() -> None:
     report_path.write_text(report + "\n")
 
     logging.info("✅ Code quality report generated: {report_path}")
-    logging.info(f"\n=" * 50)
+    logging.info("\n=" * 50)
     logging.info(report)
 
 

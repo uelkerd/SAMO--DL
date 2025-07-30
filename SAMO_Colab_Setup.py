@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SAMO Voice-First Development - Google Colab Setup Script
+"""SAMO Voice-First Development - Google Colab Setup Script.
 
 This script sets up the complete SAMO environment in Google Colab
 for voice-first emotion detection development.
@@ -13,42 +13,29 @@ Usage in Colab:
 import os
 import sys
 import subprocess
+from typing import Optional
 
-def print_header():
+def print_header() -> None:
     """Print setup header."""
-    print("🎤 SAMO Voice-First Development - Google Colab Setup")
-    print("=" * 60)
-    print("🎯 Goal: Voice-first emotion detection system")
-    print("🎯 Current F1: 13.2% (Target: >50%)")
-    print("🎯 Features: Real-time voice + text emotion detection")
-    print("🎯 Environment: Google Colab (GPU accelerated)")
-    print("=" * 60)
 
-def check_gpu():
+def check_gpu() -> Optional[bool]:
     """Check GPU availability."""
-    print("\n🔍 Checking GPU availability...")
     try:
         import torch
         gpu_available = torch.cuda.is_available()
-        print("✅ PyTorch installed")
-        print(f"✅ GPU available: {gpu_available}")
         
         if gpu_available:
-            gpu_name = torch.cuda.get_device_name(0)
-            gpu_memory = torch.cuda.get_device_properties(0).total_memory / 1e9
-            print(f"✅ GPU: {gpu_name}")
-            print(f"✅ GPU Memory: {gpu_memory:.1f} GB")
+            torch.cuda.get_device_name(0)
+            torch.cuda.get_device_properties(0).total_memory / 1e9
         else:
-            print("⚠️  No GPU available - using CPU")
+            pass
         
         return True
     except ImportError:
-        print("❌ PyTorch not installed")
         return False
 
-def clone_repository():
+def clone_repository() -> Optional[bool]:
     """Clone SAMO repository."""
-    print("\n📥 Cloning SAMO repository...")
     try:
         # Clone repository
         subprocess.run([
@@ -57,22 +44,16 @@ def clone_repository():
         
         # Change to repository directory
         os.chdir("SAMO--DL")
-        print("✅ Repository cloned successfully!")
         return True
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to clone repository: {e}")
+    except subprocess.CalledProcessError:
         return False
 
-def install_dependencies():
+def install_dependencies() -> bool:
     """Install all dependencies."""
-    print("\n📦 Installing dependencies...")
-    
     # Install SAMO package
     try:
         subprocess.run(["pip", "install", "-e", "."], check=True)
-        print("✅ SAMO package installed")
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to install SAMO package: {e}")
+    except subprocess.CalledProcessError:
         return False
     
     # Install voice processing libraries
@@ -87,45 +68,33 @@ def install_dependencies():
     for package in voice_packages:
         try:
             subprocess.run(["pip", "install", package], check=True)
-            print(f"✅ {package} installed")
-        except subprocess.CalledProcessError as e:
-            print(f"❌ Failed to install {package}: {e}")
+        except subprocess.CalledProcessError:
             return False
     
     return True
 
-def test_audio_libraries():
+def test_audio_libraries() -> bool:
     """Test audio processing libraries."""
-    print("\n🎤 Testing audio libraries...")
-    
     try:
         import soundfile as sf
-        print("✅ soundfile imported")
-    except ImportError as e:
-        print(f"❌ soundfile import failed: {e}")
+    except ImportError:
         return False
     
     try:
         import librosa
-        print("✅ librosa imported")
-    except ImportError as e:
-        print(f"❌ librosa import failed: {e}")
+    except ImportError:
         return False
     
     try:
         import whisper
-        model = whisper.load_model("base")
-        print("✅ Whisper model loaded")
-    except ImportError as e:
-        print(f"❌ Whisper import failed: {e}")
+        whisper.load_model("base")
+    except ImportError:
         return False
     
     return True
 
-def create_voice_demo():
+def create_voice_demo() -> bool:
     """Create voice processing demo."""
-    print("\n🎤 Creating voice processing demo...")
-    
     demo_code = '''
 # Voice Processing Demo
 import pyaudio
@@ -220,13 +189,10 @@ print(f"📊 Audio features: {features}")
     with open("voice_demo.py", "w") as f:
         f.write(demo_code)
     
-    print("✅ Voice demo created: voice_demo.py")
     return True
 
-def create_f1_optimization_script():
+def create_f1_optimization_script() -> bool:
     """Create F1 optimization script."""
-    print("\n🎯 Creating F1 optimization script...")
-    
     f1_code = '''
 # F1 Score Optimization Script
 import torch
@@ -297,70 +263,29 @@ if __name__ == "__main__":
     with open("f1_optimization.py", "w") as f:
         f.write(f1_code)
     
-    print("✅ F1 optimization script created: f1_optimization.py")
     return True
 
-def print_next_steps():
+def print_next_steps() -> None:
     """Print next steps for the user."""
-    print("\n" + "=" * 60)
-    print("🎉 SETUP COMPLETE!")
-    print("=" * 60)
-    
-    print("\n📋 Next Steps:")
-    print("1. 🎤 Test voice processing:")
-    print("   !python voice_demo.py")
-    
-    print("\n2. 🎯 Run F1 optimization:")
-    print("   !python f1_optimization.py")
-    
-    print("\n3. 🔗 Test complete pipeline:")
-    print("   !python scripts/simple_working_training.py")
-    
-    print("\n4. 📊 Monitor progress:")
-    print("   - Check F1 score improvements")
-    print("   - Test voice + text integration")
-    print("   - Optimize performance")
-    
-    print("\n🎯 Success Metrics:")
-    print("- F1 Score: >50% (currently 13.2%)")
-    print("- Voice Processing: Real-time audio input")
-    print("- Response Time: <500ms")
-    print("- Multi-modal: Text + Voice + Emotion")
-    
-    print("\n🚀 Voice-First Features:")
-    print("- Real-time microphone input")
-    print("- Voice-to-text with Whisper")
-    print("- Voice emotion detection")
-    print("- Combined voice + text analysis")
-    
-    print("\n💰 Cost Benefits:")
-    print("- Free GPU acceleration")
-    print("- No local environment issues")
-    print("- Built-in audio processing")
-    print("- Collaborative development")
 
-def main():
+def main() -> bool:
     """Main setup function."""
     print_header()
     
     # Check GPU
     if not check_gpu():
-        print("❌ GPU check failed")
         return False
     
     # Clone repository
     if not clone_repository():
-        print("❌ Repository clone failed")
         return False
     
     # Install dependencies
     if not install_dependencies():
-        print("❌ Dependency installation failed")
         return False
     
     # Test audio libraries
     if not test_audio_libraries():
-        print("❌ Audio library test failed")
         return False
     
     # Create demo scripts
@@ -375,7 +300,6 @@ def main():
 if __name__ == "__main__":
     success = main()
     if success:
-        print("\n✅ SAMO Colab setup completed successfully!")
+        pass
     else:
-        print("\n❌ SAMO Colab setup failed!")
         sys.exit(1)
