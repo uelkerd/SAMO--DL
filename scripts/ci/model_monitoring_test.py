@@ -1,3 +1,6 @@
+import sys
+import time
+
 #!/usr/bin/env python3
 """
 Model Monitoring Test for CI/CD Pipeline.

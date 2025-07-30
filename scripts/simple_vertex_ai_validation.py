@@ -1,3 +1,6 @@
+import os
+import sys
+
 #!/usr/bin/env python3
 """
 Simple Vertex AI Validation for SAMO Deep Learning.

@@ -1,3 +1,5 @@
+import time
+
 # G004: Logging f-strings temporarily allowed for development
 """T5/BART Summarization Model for SAMO Deep Learning.
 

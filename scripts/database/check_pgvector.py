@@ -1,3 +1,6 @@
+import os
+import sys
+
 #!/usr/bin/env python3
 """Script to check if pgvector extension is installed in PostgreSQL."""
 

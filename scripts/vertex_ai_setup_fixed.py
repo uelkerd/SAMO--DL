@@ -1,3 +1,6 @@
+import os
+import sys
+
 #!/usr/bin/env python3
 """
 Fixed Vertex AI Setup for SAMO Deep Learning Project.

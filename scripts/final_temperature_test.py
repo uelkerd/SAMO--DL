@@ -1,3 +1,5 @@
+import sys
+
 #!/usr/bin/env python3
 """
 Final Temperature Scaling Test - Guaranteed to Work!

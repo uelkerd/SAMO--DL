@@ -1,3 +1,5 @@
+import sys
+
 #!/usr/bin/env python3
 """
 Focal Loss Training for Emotion Detection (Fixed Version)
@@ -147,7 +149,7 @@ def train_with_focal_loss(
     training_history = []
 
     for epoch in range(num_epochs):
-        logger.info(f"\n📈 Epoch {epoch + 1}/{num_epochs}")
+        logger.info("\n📈 Epoch {epoch + 1}/{num_epochs}")
 
         # Training phase
         model.train()

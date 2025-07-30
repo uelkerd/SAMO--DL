@@ -1,3 +1,5 @@
+import sys
+
 #!/usr/bin/env python3
 """
 Convert Model to ONNX

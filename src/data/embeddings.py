@@ -1,3 +1,5 @@
+import numpy as np
+
 # G004: Logging f-strings temporarily allowed for development
 import logging
 

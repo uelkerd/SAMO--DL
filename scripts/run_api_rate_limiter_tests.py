@@ -1,3 +1,5 @@
+import sys
+
 #!/usr/bin/env python3
 """
 Run API Rate Limiter Tests

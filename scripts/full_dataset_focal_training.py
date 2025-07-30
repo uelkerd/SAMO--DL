@@ -1,3 +1,6 @@
+import json
+import numpy as np
+
 #!/usr/bin/env python3
 """
 Full Dataset Focal Loss Training
@@ -260,7 +263,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device, e
     best_val_loss = float("in")
 
     for epoch in range(epochs):
-        logger.info(f"📚 Epoch {epoch + 1}/{epochs}")
+        logger.info("📚 Epoch {epoch + 1}/{epochs}")
 
         # Training
         model.train()
