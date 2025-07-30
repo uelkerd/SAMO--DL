@@ -1,40 +1,4 @@
-            # Get predictions
-            # Get raw probabilities
-            # Move to device
-            # Move to device
-            # Tokenize
-            # Tokenize
-        from transformers import AutoModel, AutoTokenizer
-    # Calculate metrics
-    # Compare results
-    # Convert to numpy arrays
-    # Create model
-    # Create test data
-    # Evaluate with default threshold
-    # Evaluate with optimized threshold
-    # Get raw predictions first
-    # Load checkpoint
-    # Load trained model
-    # Optimize threshold
-    # Save results
-    # Setup device
-    # Show top 5 thresholds
-    # Test examples with known emotions
-    # Try different thresholds
-# Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
-from sklearn.metrics import f1_score, precision_score, recall_score
-from torch import nn
-from tqdm import tqdm
-import json
-import logging
-import numpy as np
-import torch
-
-
-
-
 """
 Evaluate Focal Loss Trained Model
 
@@ -45,6 +9,18 @@ Usage:
     python3 evaluate_focal_model.py
 """
 
+import json
+import logging
+import numpy as np
+import sys
+import torch
+from pathlib import Path
+from sklearn.metrics import f1_score, precision_score, recall_score
+from torch import nn
+from tqdm import tqdm
+from transformers import AutoModel, AutoTokenizer
+
+# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -66,7 +42,7 @@ class SimpleBERTClassifier(nn.Module):
 
 def load_trained_model(model_path):
     """Load the trained focal loss model."""
-    logger.info("📂 Loading trained model from {model_path}")
+    logger.info(f"📂 Loading trained model from {model_path}")
 
     model = SimpleBERTClassifier(model_name="bert-base-uncased", num_classes=28)
 
@@ -74,11 +50,11 @@ def load_trained_model(model_path):
     model.load_state_dict(checkpoint["model_state_dict"])
 
     logger.info("✅ Model loaded successfully")
-    logger.info("   • Final loss: {checkpoint['final_loss']:.4f}")
-    logger.info("   • Focal loss alpha: {checkpoint['focal_loss_alpha']}")
-    logger.info("   • Focal loss gamma: {checkpoint['focal_loss_gamma']}")
-    logger.info("   • Learning rate: {checkpoint['learning_rate']}")
-    logger.info("   • Epochs trained: {checkpoint['epochs']}")
+    logger.info(f"   • Final loss: {checkpoint['final_loss']:.4f}")
+    logger.info(f"   • Focal loss alpha: {checkpoint['focal_loss_alpha']}")
+    logger.info(f"   • Focal loss gamma: {checkpoint['focal_loss_gamma']}")
+    logger.info(f"   • Learning rate: {checkpoint['learning_rate']}")
+    logger.info(f"   • Epochs trained: {checkpoint['epochs']}")
 
     return model
 
@@ -87,330 +63,103 @@ def create_test_data():
     """Create test data for evaluation."""
     logger.info("📊 Creating test data for evaluation...")
 
+    # Test examples with known emotions
     test_data = [
         {
             "text": "I am extremely happy today!",
-            "labels": [
-                0,
-                1,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ],
-        },
-        {
-            "text": "This is absolutely disgusting!",
-            "labels": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ],
-        },
-        {
-            "text": "I'm feeling really sad and depressed",
-            "labels": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ],
+            "labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # joy
         },
         {
             "text": "This makes me so angry!",
-            "labels": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ],
+            "labels": [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # anger
         },
         {
-            "text": "I love this so much!",
-            "labels": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ],
+            "text": "I feel sad and disappointed.",
+            "labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]  # disappointment, sadness
         },
         {
-            "text": "This is really frustrating",
-            "labels": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ],
+            "text": "This is amazing and exciting!",
+            "labels": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # admiration, excitement
         },
         {
-            "text": "I'm confused about this situation",
-            "labels": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ],
-        },
-        {
-            "text": "This is amazing and wonderful!",
-            "labels": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            ],
-        },
+            "text": "I'm neutral about this.",
+            "labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]  # neutral
+        }
     ]
 
+    logger.info(f"✅ Created {len(test_data)} test examples")
     return test_data
 
 
 def evaluate_model(model, test_data, threshold=0.5):
-    """Evaluate the model with given threshold."""
-    logger.info("🔍 Evaluating model with threshold {threshold}")
+    """Evaluate model with given threshold."""
+    logger.info(f"🔍 Evaluating model with threshold {threshold}...")
 
-    device = next(model.parameters()).device
     model.eval()
+    device = next(model.parameters()).device
 
+    all_true_labels = []
     all_predictions = []
-    all_labels = []
+    all_probabilities = []
 
-    with torch.no_grad():
-        for item in tqdm(test_data, desc="Evaluating"):
-            text = item["text"]
-            true_labels = np.array(item["labels"])
+    for example in tqdm(test_data, desc="Evaluating"):
+        text = example["text"]
+        true_labels = example["labels"]
 
-            encoding = model.tokenizer(
-                text, truncation=True, padding="max_length", max_length=256, return_tensors="pt"
-            )
+        # Tokenize
+        inputs = model.tokenizer(
+            text,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512,
+            padding=True
+        )
 
-            input_ids = encoding["input_ids"].to(device)
-            attention_mask = encoding["attention_mask"].to(device)
+        # Move to device
+        input_ids = inputs["input_ids"].to(device)
+        attention_mask = inputs["attention_mask"].to(device)
 
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-            probabilities = torch.sigmoid(outputs)
-            predictions = (probabilities > threshold).float().cpu().numpy().squeeze()
+        # Get raw predictions
+        with torch.no_grad():
+            logits = model(input_ids=input_ids, attention_mask=attention_mask)
+            probabilities = torch.sigmoid(logits)
 
-            all_predictions.append(predictions)
-            all_labels.append(true_labels)
+        # Get predictions
+        predictions = (probabilities > threshold).float()
 
-    all_predictions = np.array(all_predictions)
-    all_labels = np.array(all_labels)
+        # Convert to numpy arrays
+        pred_np = predictions.cpu().numpy()[0]
+        true_np = np.array(true_labels)
+        prob_np = probabilities.cpu().numpy()[0]
 
-    f1_macro = f1_score(all_labels, all_predictions, average="macro", zero_division=0)
-    f1_micro = f1_score(all_labels, all_predictions, average="micro", zero_division=0)
-    f1_weighted = f1_score(all_labels, all_predictions, average="weighted", zero_division=0)
+        all_true_labels.append(true_np)
+        all_predictions.append(pred_np)
+        all_probabilities.append(prob_np)
 
-    precision_macro = precision_score(all_labels, all_predictions, average="macro", zero_division=0)
-    recall_macro = recall_score(all_labels, all_predictions, average="macro", zero_division=0)
+    # Calculate metrics
+    all_true = np.array(all_true_labels)
+    all_pred = np.array(all_predictions)
+    all_probs = np.array(all_probabilities)
 
-    logger.info("📊 Evaluation Results (threshold={threshold}):")
-    logger.info("   • F1 Macro: {f1_macro:.4f}")
-    logger.info("   • F1 Micro: {f1_micro:.4f}")
-    logger.info("   • F1 Weighted: {f1_weighted:.4f}")
-    logger.info("   • Precision Macro: {precision_macro:.4f}")
-    logger.info("   • Recall Macro: {recall_macro:.4f}")
+    f1_macro = f1_score(all_true, all_pred, average='macro', zero_division=0)
+    f1_micro = f1_score(all_true, all_pred, average='micro', zero_division=0)
+    precision = precision_score(all_true, all_pred, average='macro', zero_division=0)
+    recall = recall_score(all_true, all_pred, average='macro', zero_division=0)
+
+    logger.info(f"📊 Results with threshold {threshold}:")
+    logger.info(f"   F1 Macro: {f1_macro:.4f}")
+    logger.info(f"   F1 Micro: {f1_micro:.4f}")
+    logger.info(f"   Precision: {precision:.4f}")
+    logger.info(f"   Recall: {recall:.4f}")
 
     return {
-        "f1_macro": f1_macro,
-        "f1_micro": f1_micro,
-        "f1_weighted": f1_weighted,
-        "precision_macro": precision_macro,
-        "recall_macro": recall_macro,
-        "predictions": all_predictions,
-        "labels": all_labels,
+        'f1_macro': f1_macro,
+        'f1_micro': f1_micro,
+        'precision': precision,
+        'recall': recall,
+        'probabilities': all_probs,
+        'predictions': all_pred,
+        'true_labels': all_true
     }
 
 
@@ -418,123 +167,139 @@ def optimize_threshold(model, test_data):
     """Optimize threshold for best F1 score."""
     logger.info("🎯 Optimizing threshold for best F1 score...")
 
-    device = next(model.parameters()).device
+    # Get raw probabilities first
     model.eval()
+    device = next(model.parameters()).device
 
+    all_true_labels = []
     all_probabilities = []
-    all_labels = []
 
-    with torch.no_grad():
-        for item in tqdm(test_data, desc="Getting predictions"):
-            text = item["text"]
-            true_labels = np.array(item["labels"])
+    for example in tqdm(test_data, desc="Getting probabilities"):
+        text = example["text"]
+        true_labels = example["labels"]
 
-            encoding = model.tokenizer(
-                text, truncation=True, padding="max_length", max_length=256, return_tensors="pt"
-            )
+        # Tokenize
+        inputs = model.tokenizer(
+            text,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512,
+            padding=True
+        )
 
-            input_ids = encoding["input_ids"].to(device)
-            attention_mask = encoding["attention_mask"].to(device)
+        # Move to device
+        input_ids = inputs["input_ids"].to(device)
+        attention_mask = inputs["attention_mask"].to(device)
 
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-            probabilities = torch.sigmoid(outputs).cpu().numpy().squeeze()
+        # Get raw probabilities
+        with torch.no_grad():
+            logits = model(input_ids=input_ids, attention_mask=attention_mask)
+            probabilities = torch.sigmoid(logits)
 
-            all_probabilities.append(probabilities)
-            all_labels.append(true_labels)
+        all_true_labels.append(np.array(true_labels))
+        all_probabilities.append(probabilities.cpu().numpy()[0])
 
-    all_probabilities = np.array(all_probabilities)
-    all_labels = np.array(all_labels)
+    all_true = np.array(all_true_labels)
+    all_probs = np.array(all_probabilities)
 
+    # Try different thresholds
     thresholds = np.arange(0.1, 0.9, 0.05)
     best_f1 = 0
     best_threshold = 0.5
     results = []
 
     for threshold in thresholds:
-        predictions = (all_probabilities > threshold).astype(float)
-        f1_macro = f1_score(all_labels, predictions, average="macro", zero_division=0)
-        f1_micro = f1_score(all_labels, predictions, average="micro", zero_division=0)
+        predictions = (all_probs > threshold).astype(float)
+        f1 = f1_score(all_true, predictions, average='macro', zero_division=0)
+        results.append({'threshold': threshold, 'f1': f1})
 
-        results.append({"threshold": threshold, "f1_macro": f1_macro, "f1_micro": f1_micro})
-
-        if f1_macro > best_f1:
-            best_f1 = f1_macro
+        if f1 > best_f1:
+            best_f1 = f1
             best_threshold = threshold
 
-    logger.info("🎯 Threshold Optimization Results:")
-    logger.info("   • Best threshold: {best_threshold:.3f}")
-    logger.info("   • Best F1 Macro: {best_f1:.4f}")
-
-    results.sort(key=lambda x: x["f1_macro"], reverse=True)
+    # Show top 5 thresholds
+    results.sort(key=lambda x: x['f1'], reverse=True)
     logger.info("📊 Top 5 thresholds:")
     for i, result in enumerate(results[:5]):
-        logger.info(
-            "   {i+1}. Threshold {result['threshold']:.3f}: F1 Macro = {result['f1_macro']:.4f}"
-        )
+        logger.info(f"   {i+1}. Threshold {result['threshold']:.2f}: F1 = {result['f1']:.4f}")
 
-    return best_threshold, results
+    logger.info(f"🎯 Best threshold: {best_threshold:.2f} (F1 = {best_f1:.4f})")
+
+    return best_threshold, best_f1
 
 
 def main():
     """Main evaluation function."""
-    logger.info("🎯 Starting Focal Loss Model Evaluation")
+    logger.info("🚀 Starting Focal Loss Model Evaluation...")
 
+    # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info("Device: {device}")
+    logger.info(f"🔧 Using device: {device}")
 
-    model_path = Path("models/emotion_detection/focal_loss_model.pt")
+    # Check if model file exists
+    model_path = Path("test_checkpoints/best_model.pt")
     if not model_path.exists():
-        logger.error("❌ Model not found at {model_path}")
-        logger.info(
-            "🔧 Please run the training script first: python3 scripts/full_focal_training.py"
-        )
-        return
+        logger.error(f"❌ Model file not found: {model_path}")
+        return False
 
-    model = load_trained_model(model_path)
-    model = model.to(device)
+    try:
+        # Load trained model
+        model = load_trained_model(model_path)
+        model.to(device)
 
-    test_data = create_test_data()
-    logger.info("✅ Test data created with {len(test_data)} examples")
+        # Create test data
+        test_data = create_test_data()
 
-    logger.info("=" * 50)
-    default_results = evaluate_model(model, test_data, threshold=0.5)
+        # Evaluate with default threshold
+        logger.info("=" * 50)
+        default_results = evaluate_model(model, test_data, threshold=0.5)
 
-    logger.info("=" * 50)
-    best_threshold, threshold_results = optimize_threshold(model, test_data)
+        # Optimize threshold
+        logger.info("=" * 50)
+        best_threshold, best_f1 = optimize_threshold(model, test_data)
 
-    logger.info("=" * 50)
-    optimized_results = evaluate_model(model, test_data, threshold=best_threshold)
+        # Evaluate with optimized threshold
+        logger.info("=" * 50)
+        optimized_results = evaluate_model(model, test_data, threshold=best_threshold)
 
-    logger.info("=" * 50)
-    logger.info("📊 Performance Comparison:")
-    logger.info("   Default threshold (0.5):")
-    logger.info("     • F1 Macro: {default_results['f1_macro']:.4f}")
-    logger.info("     • F1 Micro: {default_results['f1_micro']:.4f}")
-    logger.info("   Optimized threshold ({best_threshold:.3f}):")
-    logger.info("     • F1 Macro: {optimized_results['f1_macro']:.4f}")
-    logger.info("     • F1 Micro: {optimized_results['f1_micro']:.4f}")
+        # Compare results
+        logger.info("=" * 50)
+        logger.info("📋 Comparison:")
+        logger.info(f"   Default threshold (0.5): F1 = {default_results['f1_macro']:.4f}")
+        logger.info(f"   Optimized threshold ({best_threshold:.2f}): F1 = {optimized_results['f1_macro']:.4f}")
+        logger.info(f"   Improvement: {optimized_results['f1_macro'] - default_results['f1_macro']:.4f}")
 
-    improvement = optimized_results["f1_macro"] - default_results["f1_macro"]
-    logger.info("   🎯 Improvement: {improvement:.4f} ({improvement*100:.2f}%)")
+        # Save results
+        results = {
+            'default_threshold': {
+                'threshold': 0.5,
+                'f1_macro': default_results['f1_macro'],
+                'f1_micro': default_results['f1_micro'],
+                'precision': default_results['precision'],
+                'recall': default_results['recall']
+            },
+            'optimized_threshold': {
+                'threshold': best_threshold,
+                'f1_macro': optimized_results['f1_macro'],
+                'f1_micro': optimized_results['f1_micro'],
+                'precision': optimized_results['precision'],
+                'recall': optimized_results['recall']
+            }
+        }
 
-    results = {
-        "default_threshold": 0.5,
-        "optimized_threshold": best_threshold,
-        "default_results": default_results,
-        "optimized_results": optimized_results,
-        "threshold_results": threshold_results,
-        "improvement": improvement,
-    }
+        with open('evaluation_results.json', 'w') as f:
+            json.dump(results, f, indent=2)
 
-    results_dir = Path("models/emotion_detection")
-    results_dir.mkdir(parents=True, exist_ok=True)
+        logger.info("💾 Results saved to evaluation_results.json")
+        logger.info("🎉 Evaluation Complete!")
+        return True
 
-    with open(results_dir / "evaluation_results.json", "w") as f:
-        json.dump(results, f, indent=2, default=str)
-
-    logger.info("✅ Results saved to {results_dir / 'evaluation_results.json'}")
-    logger.info("🎉 Evaluation completed successfully!")
+    except Exception as e:
+        logger.error(f"❌ Evaluation failed: {e}")
+        return False
 
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    if not success:
+        sys.exit(1)
