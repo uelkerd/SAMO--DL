@@ -101,7 +101,17 @@ def apply_temperature_scaling():
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()
         
-        val_dataset = datasets["validation"]  # Fixed key name
+        # Extract raw validation data
+        val_raw = datasets["validation"]
+        val_texts = [item["text"] for item in val_raw]
+        val_labels = [item["labels"] for item in val_raw]
+        
+        # Create tokenized dataset
+        from src.models.emotion_detection.bert_classifier import EmotionDataset
+        from transformers import AutoTokenizer
+        
+        tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+        val_dataset = EmotionDataset(val_texts, val_labels, tokenizer, max_length=512)
         val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
 
         # Load trained model
