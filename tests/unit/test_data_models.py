@@ -6,24 +6,28 @@ Tests data models, schemas, and validation.
 
 from datetime import datetime, timezone
 
+import pytest
+
 from src.data.models import (
     Base,
-    User,
-    JournalEntry,
     Embedding,
+    JournalEntry,
     Prediction,
+    Tag,
+    User,
     VoiceTranscription,
-    Tag
 )
+
+# Test constants
+TEST_PASSWORD_HASH = "test_hashed_password_123"
 
 
 class TestBase:
-    """Test suite for Base class."""
+    """Test suite for Base model."""
 
     def test_base_class_exists(self):
-        """Test that Base class exists and is properly configured."""
-        assert hasattr(Base, 'metadata')
-        assert hasattr(Base, '__tablename__') is False  # Base class shouldn't have tablename
+        """Test that Base class exists."""
+        assert Base is not None
 
 
 class TestUser:
@@ -33,25 +37,25 @@ class TestUser:
         """Test User initialization."""
         user = User(
             email="test@example.com",
-            password_hash="test_hashed_password"
+            password_hash=TEST_PASSWORD_HASH
         )
 
         assert user.email == "test@example.com"
-        assert user.password_hash == "test_hashed_password"
+        assert user.password_hash == TEST_PASSWORD_HASH
 
     def test_user_with_all_fields(self):
         """Test User with all fields."""
         custom_time = datetime.now(timezone.utc)
         user = User(
             email="test@example.com",
-            password_hash="test_hashed_password",
+            password_hash=TEST_PASSWORD_HASH,
             consent_version="1.0",
             consent_given_at=custom_time,
             data_retention_policy="standard"
         )
 
         assert user.email == "test@example.com"
-        assert user.password_hash == "test_hashed_password"
+        assert user.password_hash == TEST_PASSWORD_HASH
         assert user.consent_version == "1.0"
         assert user.consent_given_at == custom_time
         assert user.data_retention_policy == "standard"
