@@ -2,24 +2,11 @@ import logging
 import tempfile
 from pathlib import Path
 from typing import Optional, Union
+
 from pydub import AudioSegment
+
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
-        # Check file exists
-        # Check file extension
-            # Load audio to validate
-            # Check duration
-        # Validate input
-        # Load audio
-        # Get original metadata
-        # Convert to mono if stereo
-        # Normalize sample rate to 16kHz (Whisper's expected rate)
-        # Apply light noise reduction (normalize volume)
-        # Generate output path if not provided
-        # Export processed audio as WAV
-        # Updated metadata
-
-
 
 """Audio Preprocessing for SAMO Voice Processing.
 
@@ -74,8 +61,8 @@ class AudioPreprocessor:
 
             return True, "Valid audio file"
 
-        except Exception as _:
-            return False, "Error loading audio file"
+        except Exception as exc:
+            return False, f"Error loading audio file: {exc}"
 
     @staticmethod
     def preprocess_audio(
