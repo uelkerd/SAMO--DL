@@ -1,3 +1,7 @@
+import os
+import sys
+import traceback
+
 #!/usr/bin/env python3
 """
 Temperature Scaling for Model Calibration

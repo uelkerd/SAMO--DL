@@ -1,3 +1,5 @@
+import traceback
+
 """SAMO Emotion Detection API Demo.
 
 This demo showcases the emotion detection pipeline working with pre-trained

@@ -1,3 +1,7 @@
+import os
+import sys
+import traceback
+
 #!/usr/bin/env python3
 """
 Minimal Working Training Script
@@ -100,7 +104,7 @@ def train_minimal_model():
         training_history = []
 
         for epoch in range(3):  # Quick 3 epochs
-            logger.info(f"\nEpoch {epoch + 1}/3")
+            logger.info("\nEpoch {epoch + 1}/3")
 
             # Training phase
             model.train()

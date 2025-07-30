@@ -1,3 +1,6 @@
+import json
+import numpy as np
+
 #!/usr/bin/env python3
 """
 Fixed Focal Loss Training with Proper Data and Thresholds
@@ -284,7 +287,7 @@ def train_model(model, train_data, val_data, device, epochs=10):
     best_model_state = None
 
     for epoch in range(epochs):
-        logger.info(f"📚 Epoch {epoch + 1}/{epochs}")
+        logger.info("📚 Epoch {epoch + 1}/{epochs}")
 
         # Training
         model.train()

@@ -1,3 +1,6 @@
+import json
+import numpy as np
+
 #!/usr/bin/env python3
 """
 Full-Scale Focal Loss Training for Emotion Detection
@@ -532,7 +535,7 @@ def train_model(model, train_dataloader, val_dataloader, focal_loss, optimizer, 
         train_loss = 0
         num_train_batches = 0
 
-        logger.info(f"📚 Epoch {epoch + 1}/{epochs}")
+        logger.info("📚 Epoch {epoch + 1}/{epochs}")
 
         for batch_idx, batch in enumerate(
             tqdm(train_dataloader, desc="Training Epoch {epoch + 1}")

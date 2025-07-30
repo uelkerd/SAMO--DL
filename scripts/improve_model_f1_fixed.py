@@ -1,3 +1,5 @@
+import sys
+
 #!/usr/bin/env python3
 """
 Fixed F1 Score Improvement Script

@@ -1,3 +1,5 @@
+import os
+
 #!/usr/bin/env python3
 """
 Simple Loss Debug Script for SAMO Deep Learning.

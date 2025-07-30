@@ -1,3 +1,5 @@
+import sys
+
 #!/usr/bin/env python3
 """Quick Training Test Script for SAMO Emotion Detection.
 

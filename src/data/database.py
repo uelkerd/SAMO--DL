@@ -1,3 +1,5 @@
+import os
+
 """Database connection utilities for the SAMO-DL application."""
 
 
