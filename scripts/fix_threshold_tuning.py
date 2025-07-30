@@ -55,7 +55,6 @@ def main():
         trainer.model.load_state_dict(checkpoint["model_state_dict"])
 
         thresholds = [0.01, 0.05, 0.1, 0.15, 0.2]
-        best_threshold = 0.2
         best_f1 = 0.0
 
         logger.info("Testing lower thresholds...")
@@ -68,13 +67,11 @@ def main():
             )
 
             macro_f1 = metrics["macro_f1"]
-            micro_f1 = metrics["micro_f1"]
+            metrics["micro_f1"]
 
             logger.info("  Macro F1: {macro_f1:.4f}, Micro F1: {micro_f1:.4f}")
 
-            if macro_f1 > best_f1:
-                best_f1 = macro_f1
-                best_threshold = threshold
+            best_f1 = max(best_f1, macro_f1)
 
         logger.info("=" * 50)
         logger.info("🎯 BEST THRESHOLD: {best_threshold}")

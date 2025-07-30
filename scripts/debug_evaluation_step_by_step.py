@@ -132,7 +132,7 @@ def debug_evaluation_step_by_step():
 
         micro_precision = tp / (tp + fp) if (tp + fp) > 0 else 0
         micro_recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-        micro_f1 = (
+        (
             2 * micro_precision * micro_recall / (micro_precision + micro_recall)
             if (micro_precision + micro_recall) > 0
             else 0

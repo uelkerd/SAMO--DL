@@ -268,13 +268,10 @@ class SAMOVertexDataPreparation:
         lines.append(header)
 
         for _, row in df.iterrows():
-            text = row.get("text", "").replace('"', '""')  # Escape quotes
+            row.get("text", "").replace('"', '""')  # Escape quotes
             emotions = row.get("emotions", [])
 
-            if isinstance(emotions, list):
-                emotion_str = ",".join(emotions)
-            else:
-                emotion_str = str(emotions)
+            ",".join(emotions) if isinstance(emotions, list) else str(emotions)
 
             line = '"{text}","{emotion_str}"\n'
             lines.append(line)
@@ -375,7 +372,7 @@ def main():
 
         train_uri, test_uri = preparer.upload_to_gcs(train_file, test_file)
 
-        metadata_file = preparer.save_metadata(analysis, train_uri, test_uri)
+        preparer.save_metadata(analysis, train_uri, test_uri)
 
         preparer.cleanup_temp_files(train_file, test_file)
 

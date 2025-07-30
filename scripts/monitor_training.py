@@ -2,7 +2,7 @@ import logging
 import json
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Optional
 import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
@@ -34,7 +34,7 @@ and provides insights on performance, convergence, and next steps.
 
 sys.path.append(str(Path(__file__).parent.parent / "src"))
 
-def load_training_history(checkpoint_dir: str = "test_checkpoints_dev") -> List[Dict]:
+def load_training_history(checkpoint_dir: str = "test_checkpoints_dev") -> list[dict]:
     """Load training history from checkpoint directory."""
     history_file = Path(checkpoint_dir) / "training_history.json"
 
@@ -47,7 +47,7 @@ def load_training_history(checkpoint_dir: str = "test_checkpoints_dev") -> List[
 
     return history
 
-def analyze_training_progress(history: List[Dict]) -> Dict:
+def analyze_training_progress(history: list[dict]) -> dict:
     """Analyze training progress and provide insights."""
     if not history:
         return {"error": "No training history found"}
@@ -103,7 +103,7 @@ def analyze_training_progress(history: List[Dict]) -> Dict:
 
     return analysis
 
-def generate_training_report(analysis: Dict) -> str:
+def generate_training_report(analysis: dict) -> str:
     """Generate a comprehensive training report."""
     report = []
     report.append("=" * 60)
@@ -163,7 +163,7 @@ def generate_training_report(analysis: Dict) -> str:
 
     return "\n".join(report)
 
-def plot_training_curves(history: List[Dict], save_path: Optional[str] = None):
+def plot_training_curves(history: list[dict], save_path: Optional[str] = None):
     """Plot training curves for visualization."""
     if not history:
         logging.info("❌ No training history to plot")
@@ -197,7 +197,7 @@ def plot_training_curves(history: List[Dict], save_path: Optional[str] = None):
     else:
         plt.show()
 
-def check_model_files(checkpoint_dir: str = "test_checkpoints_dev") -> Dict:
+def check_model_files(checkpoint_dir: str = "test_checkpoints_dev") -> dict:
     """Check if model files exist and are valid."""
     checkpoint_path = Path(checkpoint_dir)
 

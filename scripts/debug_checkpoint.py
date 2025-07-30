@@ -31,7 +31,7 @@ def debug_checkpoint():
             logging.info("  - {key}: {type(checkpoint[key])}")
     elif isinstance(checkpoint, tuple):
         logging.info("\n📋 Tuple length: {len(checkpoint)}")
-        for i, item in enumerate(checkpoint):
+        for _i, item in enumerate(checkpoint):
             logging.info("  - Item {i}: {type(item)}")
             if isinstance(item, dict):
                 logging.info("    Keys: {list(item.keys())}")

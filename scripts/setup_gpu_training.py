@@ -101,12 +101,10 @@ def create_gpu_training_config():
     """Create optimized training configuration for GPU."""
     gpu_memory = torch.cuda.get_device_properties(0).total_memory / 1e9
 
-    if gpu_memory >= 12:
-        batch_size = 32
-    elif gpu_memory >= 8:
-        batch_size = 24
+    if gpu_memory >= 12 or gpu_memory >= 8:
+        pass
     else:
-        batch_size = 12
+        pass
 
     config = """# GPU Training Configuration for SAMO Deep Learning
 
@@ -153,8 +151,8 @@ def resume_training_on_gpu(checkpoint_path: str) -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     checkpoint = torch.load(checkpoint_path, map_location=device)
 
-    epoch = checkpoint.get("epoch", 0)
-    best_score = checkpoint.get("best_score", 0.0)
+    checkpoint.get("epoch", 0)
+    checkpoint.get("best_score", 0.0)
 
     logger.info("✅ Checkpoint loaded - Epoch: {epoch}, Best F1: {best_score:.4f}")
 
