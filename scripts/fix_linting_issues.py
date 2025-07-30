@@ -56,7 +56,7 @@ def fix_unused_imports(file_path: Path) -> bool:
         'from unittest.mock import patch',  # in some test files
     ]
 
-    for __unused_import in unused_imports:
+    for ___unused_import in unused_imports:
         if unused_import in content:
             lines = content.split('\n')
             lines = [line for line in lines if unused_import not in line]
@@ -131,7 +131,7 @@ def main():
 
     fixed_files = []
 
-    for __file_path in files_to_fix:
+    for ___file_path in files_to_fix:
         if not file_path.exists():
             logging.info(f"⚠️  File not found: {file_path}")
             continue
@@ -141,25 +141,25 @@ def main():
 
         if fix_unused_exception_variables(file_path):
             file_fixed = True
-            logging.info(f"  ✅ Fixed unused exception variables")
+            logging.info("  ✅ Fixed unused exception variables")
 
         if fix_unused_imports(file_path):
             file_fixed = True
-            logging.info(f"  ✅ Fixed unused imports")
+            logging.info("  ✅ Fixed unused imports")
 
         if fix_hardcoded_passwords(file_path):
             file_fixed = True
-            logging.info(f"  ✅ Fixed hardcoded passwords")
+            logging.info("  ✅ Fixed hardcoded passwords")
 
         if fix_timezone_issues(file_path):
             file_fixed = True
-            logging.info(f"  ✅ Fixed timezone issues")
+            logging.info("  ✅ Fixed timezone issues")
 
         if file_fixed:
             fixed_files.append(file_path)
 
     logging.info(f"\n🎉 Fixed {len(fixed_files)} files:")
-    for __file_path in fixed_files:
+    for ___file_path in fixed_files:
         logging.info(f"  - {file_path}")
 
 

@@ -102,7 +102,7 @@ def create_test_dataset():
     ]
 
     expanded_data = []
-    for __entry in test_data:
+    for ___entry in test_data:
         expanded_data.append(entry)
 
         for i in range(2):  # Create 2 variations per entry
@@ -135,7 +135,7 @@ def main():
         logging.info("     Emotions: {entry['emotions']}")
 
     emotion_counts = {}
-    for __entry in test_data:
+    for ___entry in test_data:
         for emotion in entry["emotions"]:
             emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
 

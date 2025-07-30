@@ -5,10 +5,7 @@ import logging
 from pathlib import Path
 import torch
 # Set up logging
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 # Environment setup
-import torch
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 # Resume training on GPU from epoch {epoch}
     # Disable tokenizers parallelism warning
     # Enable CUDA optimizations

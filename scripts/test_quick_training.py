@@ -138,7 +138,7 @@ def test_threshold_tuning():
         thresholds = [0.1, 0.2, 0.3, 0.4, 0.5]
         results = {}
 
-        for __threshold in thresholds:
+        for ___threshold in thresholds:
             logger.info("Testing threshold: {threshold}")
             metrics = evaluate_emotion_classifier(
                 trainer.model, trainer.val_dataloader, trainer.device, threshold=threshold

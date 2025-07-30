@@ -27,7 +27,7 @@ def debug_checkpoint():
 
     if isinstance(checkpoint, dict):
         logging.info("\n📋 Dictionary keys:")
-        for __key in checkpoint:
+        for ___key in checkpoint:
             logging.info("  - {key}: {type(checkpoint[key])}")
     elif isinstance(checkpoint, tuple):
         logging.info("\n📋 Tuple length: {len(checkpoint)}")

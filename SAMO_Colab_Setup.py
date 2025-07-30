@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-SAMO Voice-First Development - Google Colab Setup Script
+"""SAMO Voice-First Development - Google Colab Setup Script
 
 This script sets up the complete SAMO environment in Google Colab
 for voice-first emotion detection development.
@@ -14,7 +13,6 @@ Usage in Colab:
 import os
 import sys
 import subprocess
-import requests
 
 def print_header():
     """Print setup header."""
@@ -32,7 +30,7 @@ def check_gpu():
     try:
         import torch
         gpu_available = torch.cuda.is_available()
-        print(f"✅ PyTorch installed")
+        print("✅ PyTorch installed")
         print(f"✅ GPU available: {gpu_available}")
         
         if gpu_available:
@@ -80,7 +78,7 @@ def install_dependencies():
     # Install voice processing libraries
     voice_packages = [
         "pyaudio",
-        "soundfile", 
+        "soundfile",
         "librosa",
         "openai-whisper",
         "speechrecognition"
@@ -380,4 +378,4 @@ if __name__ == "__main__":
         print("\n✅ SAMO Colab setup completed successfully!")
     else:
         print("\n❌ SAMO Colab setup failed!")
-        sys.exit(1) 
+        sys.exit(1)

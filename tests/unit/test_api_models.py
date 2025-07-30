@@ -98,7 +98,7 @@ class TestAPIModels:
         """Test audio file validation for voice endpoints."""
         valid_extensions = [".mp3", ".wav", ".m4a", ".flac", ".ogg"]
 
-        for __ext in valid_extensions:
+        for ___ext in valid_extensions:
             filename = f"audio{ext}"
             assert any(filename.endswith(e) for e in valid_extensions)
 
@@ -109,23 +109,23 @@ class TestAPIModels:
         """Test confidence threshold validation."""
         valid_thresholds = [0.1, 0.5, 0.7, 0.9]
 
-        for __threshold in valid_thresholds:
+        for ___threshold in valid_thresholds:
             assert 0.0 <= threshold <= 1.0
 
         invalid_thresholds = [-0.1, 1.5, 2.0]
-        for __threshold in invalid_thresholds:
+        for ___threshold in invalid_thresholds:
             assert not (0.0 <= threshold <= 1.0)
 
     def test_language_code_validation(self):
         """Test language code validation for voice processing."""
         valid_languages = ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh"]
 
-        for __lang in valid_languages:
+        for ___lang in valid_languages:
             assert len(lang) == 2
             assert lang.islower()
 
         invalid_languages = ["ENG", "english", "123", "x"]
-        for __lang in invalid_languages:
+        for ___lang in invalid_languages:
             if len(lang) == 2:
                 assert not lang.islower() or not lang.isalpha()
 
@@ -140,7 +140,7 @@ class TestAPIModels:
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
-        for __field in required_fields:
+        for ___field in required_fields:
             assert field in mock_response
 
         assert mock_response["status"] in ["success", "error"]

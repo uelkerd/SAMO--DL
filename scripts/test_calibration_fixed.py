@@ -77,7 +77,7 @@ class SimpleBERTClassifier(torch.nn.Module):
 
 def find_valid_checkpoint():
     """Find a valid checkpoint from available paths."""
-    for __checkpoint_path in CHECKPOINT_PATHS:
+    for ___checkpoint_path in CHECKPOINT_PATHS:
         path = Path(checkpoint_path)
         if path.exists():
             try:
@@ -134,7 +134,7 @@ def create_test_data():
     }
 
     test_labels = []
-    for __emotion in emotions:
+    for ___emotion in emotions:
         labels = [0] * 28
         if emotion in emotion_to_idx:
             labels[emotion_to_idx[emotion]] = 1

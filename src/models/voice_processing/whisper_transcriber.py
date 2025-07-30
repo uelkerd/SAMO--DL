@@ -1,62 +1,3 @@
-import contextlib
-import logging
-import os
-import tempfile
-import time
-import warnings
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Optional, Union
-import numpy as np
-import torch
-import whisper
-from pydub import AudioSegment
-# Configure logging
-# Suppress warnings from audio processing
-        # Check file exists
-        # Check file extension
-            # Load audio to validate
-            # Check duration
-        # Validate input
-        # Load audio
-        # Get original metadata
-        # Convert to mono if stereo
-        # Normalize sample rate to 16kHz (Whisper's expected rate)
-        # Apply light noise reduction (normalize volume)
-        # Generate output path if not provided
-        # Export processed audio as WAV
-        # Updated metadata
-        # Set device
-        # Load Whisper model
-        # Initialize preprocessor
-        # Preprocess audio
-            # Transcription options
-            # Remove None values
-            # Perform transcription
-            # Calculate metrics
-            # Assess audio quality
-            # Calculate confidence from segments
-            # Cleanup temporary processed audio file
-                # Add error result
-        # Whisper doesn't directly provide confidence, but we can estimate
-        # from avg_logprob and no_speech_prob
-            # Convert average log probability to confidence estimate
-            # Simple heuristic: higher logprob and lower no_speech_prob = higher confidence
-        # Factors for quality assessment
-        # Quality scoring
-        # Good compression ratio (2.4 is threshold)
-        # Good average log probability (higher is better)
-        # Low no-speech probability (lower is better)
-        # Map score to quality level
-    # Create transcriber
-    # For testing, we'll create a simple test - note this requires actual audio
-    # In a real test, you would:
-    # result = transcriber.transcribe_audio("path/to/test/audio.wav")
-    # logger.info("Transcription: {result.text}", extra={"format_args": True})
-    # logger.info("Confidence: {result.confidence:.2f}", extra={"format_args": True})
-
-
-
 """OpenAI Whisper Transcriber for SAMO Deep Learning.
 
 This module implements OpenAI Whisper for high-accuracy voice-to-text transcription
@@ -72,9 +13,26 @@ Key Features:
 - Batch transcription for multiple audio files
 """
 
+import contextlib
+import logging
+import os
+import tempfile
+import time
+import warnings
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Optional, Union
+
+import numpy as np
+import torch
+import whisper
+from pydub import AudioSegment
+
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Suppress warnings from audio processing
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -154,8 +112,8 @@ class AudioPreprocessor:
 
             return True, "Valid audio file"
 
-        except Exception as _:
-            return False, f"Error loading audio: {e!s}"
+        except Exception as exc:
+            return False, f"Error loading audio: {exc!s}"
 
     @staticmethod
     def preprocess_audio(
@@ -253,9 +211,9 @@ class WhisperTranscriber:
                 extra={"format_args": True},
             )
 
-        except Exception as _:
-            logger.error(f"❌ Failed to load Whisper model: {e}")
-            raise RuntimeError(f"Whisper model loading failed: {e}")
+        except Exception as exc:
+            logger.error(f"❌ Failed to load Whisper model: {exc}")
+            raise RuntimeError(f"Whisper model loading failed: {exc}")
 
         self.preprocessor = AudioPreprocessor()
 
@@ -421,7 +379,7 @@ class WhisperTranscriber:
             return 0.0
 
         confidences = []
-        for __segment in segments:
+        for segment in segments:
             avg_logprob = segment.get("avg_logprob", -1.0)
             no_speech_prob = segment.get("no_speech_prob", 0.5)
 

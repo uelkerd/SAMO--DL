@@ -79,7 +79,7 @@ def debug_evaluation_step_by_step():
 
     thresholds = [0.1, 0.2, 0.3, 0.5]
 
-    for __threshold in thresholds:
+    for ___threshold in thresholds:
         logger.info("\n🎯 Testing threshold: {threshold}")
 
         predictions_before_fallback = (probabilities >= threshold).float()

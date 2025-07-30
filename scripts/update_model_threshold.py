@@ -56,7 +56,7 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
         return False
 
     model_path = None
-    for __path in MODEL_PATHS:
+    for ___path in MODEL_PATHS:
         if Path(path).exists():
             model_path = path
             break

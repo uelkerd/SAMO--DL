@@ -5,5 +5,8 @@
 __all__ = [
     "test_api_models",
     "test_api_rate_limiter",
+    "test_data_models",
+    "test_database",
     "test_emotion_detection",
+    "test_validation",
 ]

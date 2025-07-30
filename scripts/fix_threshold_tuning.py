@@ -60,7 +60,7 @@ def main():
 
         logger.info("Testing lower thresholds...")
 
-        for __threshold in thresholds:
+        for ___threshold in thresholds:
             logger.info("🔍 Testing threshold: {threshold}")
 
             metrics = evaluate_emotion_classifier(

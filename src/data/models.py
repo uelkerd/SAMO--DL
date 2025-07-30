@@ -1,21 +1,13 @@
-import time
+"""Database models for the SAMO-DL application.
+
+These models correspond to the tables in the PostgreSQL schema.
+"""
 
 import uuid
 from datetime import datetime
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
-from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.orm import DeclarativeBase, relationship
-
-
-# Modern SQLAlchemy 2.0+ approach
-
-"""Database models for the SAMO-DL application.
-
-These models correspond to the tables in the PostgreSQL schema.
-"""
-
     Boolean,
     Column,
     DateTime,
@@ -27,6 +19,11 @@ These models correspond to the tables in the PostgreSQL schema.
     Table,
     Text,
 )
+from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.orm import DeclarativeBase, relationship
+
+# Modern SQLAlchemy 2.0+ approach
+
 class Base(DeclarativeBase):
     """Base class for all SQLAlchemy models."""
 
