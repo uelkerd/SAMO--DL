@@ -277,18 +277,31 @@ async def health_check() -> dict[str, Any]:
     Returns:
         Status information for each AI component and overall system health
     """
-    status = {
-        "status": "healthy",
-        "components": {
-            "emotion_detection": emotion_detector is not None,
-            "text_summarization": text_summarizer is not None,
-            "voice_processing": voice_transcriber is not None,
+    models_loaded = {
+        "emotion_detector": {
+            "loaded": emotion_detector is not None,
+            "status": "loaded" if emotion_detector is not None else "not_available"
         },
-        "pipeline_ready": any([emotion_detector, text_summarizer, voice_transcriber]),
+        "text_summarizer": {
+            "loaded": text_summarizer is not None,
+            "status": "loaded" if text_summarizer is not None else "not_available"
+        },
+        "voice_transcriber": {
+            "loaded": voice_transcriber is not None,
+            "status": "loaded" if voice_transcriber is not None else "not_available"
+        }
+    }
+    
+    pipeline_ready = any([emotion_detector, text_summarizer, voice_transcriber])
+    
+    status = {
+        "status": "healthy" if pipeline_ready else "degraded",
+        "models": models_loaded,
+        "timestamp": time.time(),
+        "pipeline_ready": pipeline_ready,
     }
 
-    if not status["pipeline_ready"]:
-        status["status"] = "degraded"
+    if not pipeline_ready:
         status["message"] = "Running in development mode - some AI models not available"
 
     return status
@@ -619,7 +632,7 @@ async def get_models_status() -> dict[str, Any]:
         Detailed status information about each model, including capabilities
     """
     return {
-        "emotion_detection": {
+        "emotion_detector": {
             "loaded": emotion_detector is not None,
             "model_type": "BERT + GoEmotions",
             "capabilities": [
@@ -628,7 +641,7 @@ async def get_models_status() -> dict[str, Any]:
                 "confidence scoring",
             ],
         },
-        "text_summarization": {
+        "text_summarizer": {
             "loaded": text_summarizer is not None,
             "model_type": "T5/BART",
             "capabilities": [
@@ -637,7 +650,7 @@ async def get_models_status() -> dict[str, Any]:
                 "batch processing",
             ],
         },
-        "voice_processing": {
+        "voice_transcriber": {
             "loaded": voice_transcriber is not None,
             "model_type": "OpenAI Whisper",
             "capabilities": [
