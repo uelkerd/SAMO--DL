@@ -18,7 +18,7 @@ import torch
 from datasets import load_dataset
 from transformers import AutoTokenizer
 from collections import Counter
-from typing import Any
+from typing import Any, Union
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -144,7 +144,7 @@ class GoEmotionsDataLoader:
 
     def __init__(
         self,
-        cache_dir: str | None = None,
+        cache_dir: Union[str, None] = None,
         model_name: str = "bert-base-uncased",
         max_length: int = 512,
         test_size: float = 0.2,
@@ -339,7 +339,7 @@ class GoEmotionsDataLoader:
 
 
 def create_goemotions_loader(
-    cache_dir: str | None = None, model_name: str = "bert-base-uncased"
+    cache_dir: Union[str, None] = None, model_name: str = "bert-base-uncased"
 ) -> GoEmotionsDataLoader:
     """Factory function to create configured GoEmotions data loader.
 
