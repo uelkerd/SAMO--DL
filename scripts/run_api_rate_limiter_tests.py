@@ -11,7 +11,9 @@ Usage:
     python scripts/run_api_rate_limiter_tests.py
 """
 
+import os
 import sys
+import tempfile
 import pytest
 from pathlib import Path
 
@@ -26,25 +28,37 @@ if __name__ == "__main__":
     test_file = project_root / "tests" / "unit" / "test_api_rate_limiter.py"
 
     if not test_file.exists():
-        print("❌ Test file not found: {test_file}")
+        print(f"❌ Test file not found: {test_file}")
         sys.exit(1)
 
-    # Run pytest on the specific test file with coverage and threshold
-    args = [
-        str(test_file),
-        "--cov=src.api_rate_limiter",
-        "--cov-report=term-missing",
-        "--cov-fail-under=5",
-        "-v",
-    ]
+    # Create a temporary pytest configuration to avoid conflicts with pyproject.toml
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.ini', delete=False) as f:
+        f.write("""[pytest]
+addopts = --cov=src.api_rate_limiter --cov-report=term-missing --cov-fail-under=5 -v --tb=short
+""")
+        temp_config = f.name
 
-    # Run the tests
-    result = pytest.main(args)
+    try:
+        # Run pytest with the temporary configuration
+        args = [
+            str(test_file),
+            f"--config-file={temp_config}",
+        ]
 
-    # Print results
-    if result == 0:
-        print("✅ API Rate Limiter tests passed!")
-    else:
-        print("❌ API Rate Limiter tests failed with exit code: {result}")
+        # Run the tests
+        result = pytest.main(args)
 
-    sys.exit(result)
+        # Print results
+        if result == 0:
+            print("✅ API Rate Limiter tests passed!")
+        else:
+            print(f"❌ API Rate Limiter tests failed with exit code: {result}")
+
+        sys.exit(result)
+    
+    finally:
+        # Clean up temporary file
+        try:
+            os.unlink(temp_config)
+        except OSError:
+            pass
