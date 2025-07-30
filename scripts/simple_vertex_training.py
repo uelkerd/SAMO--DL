@@ -8,7 +8,6 @@
 #!/usr/bin/env python3
 from google.cloud import aiplatform
 import logging
-import os
 import pandas as pd
 import sys
 
@@ -86,7 +85,7 @@ def main():
         logging.info("✅ Training started: {model.name}")
         logging.info("🎉 Model training initiated successfully!")
 
-    except Exception as e:
+    except Exception:
         logging.info("❌ Training failed: {e}")
         logger.error("Training failed: {e}")
         sys.exit(1)

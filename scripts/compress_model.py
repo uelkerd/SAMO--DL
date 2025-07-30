@@ -151,7 +151,7 @@ def compress_model(input_model: str, output_model: str) -> bool:
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("Error compressing model: {e}")
         return False
 

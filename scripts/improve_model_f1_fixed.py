@@ -118,7 +118,7 @@ def find_valid_checkpoint() -> Optional[str]:
                     return str(path)
                 else:
                     logger.warning("⚠️ Checkpoint {checkpoint_path} has unexpected format")
-            except Exception as e:
+            except Exception:
                 logger.warning("⚠️ Checkpoint {checkpoint_path} is corrupted: {e}")
 
     logger.warning("No valid checkpoint found. Will train from scratch.")
@@ -233,7 +233,7 @@ def improve_with_focal_loss(checkpoint_path: Optional[str] = None) -> bool:
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Error improving model with Focal Loss: {e}")
         return False
 
@@ -268,7 +268,7 @@ def improve_with_full_training() -> bool:
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Error with full training: {e}")
         return False
 
@@ -312,7 +312,7 @@ def create_simple_ensemble(checkpoint_path: Optional[str] = None) -> bool:
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Error creating ensemble: {e}")
         return False
 

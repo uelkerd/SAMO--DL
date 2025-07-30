@@ -5,7 +5,6 @@
 #!/usr/bin/env python3
 import json
 import logging
-import os
 import sys
 """Simple test script to verify Vertex AI setup"""
 
