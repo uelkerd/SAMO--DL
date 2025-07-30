@@ -1,16 +1,21 @@
 import os
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+
+# Configure logging
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+
 """
 Simple Loss Debug Script for SAMO Deep Learning.
 
 This script investigates the 0.0000 loss issue with minimal dependencies.
 """
 
-import logging
-from pathlib import Path
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -94,10 +99,6 @@ def create_test_script():
 """
 Simple Test Script for Loss Debugging
 """
-
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
 
 def test_bce_loss():
     """Test BCE loss with different scenarios."""

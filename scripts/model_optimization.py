@@ -3,6 +3,25 @@ import numpy as np
 import sys
 
 #!/usr/bin/env python3
+import argparse
+import logging
+import time
+from pathlib import Path
+from typing import Any, Union, Optional
+
+import torch
+from tqdm import tqdm
+from transformers import AutoTokenizer
+
+# Add src to path
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+
+# Configure logging
+        import onnx
+
+        import onnxruntime as ort
+
+
 """
 Model Optimization Script for REQ-DL-008
 
@@ -21,21 +40,7 @@ Arguments:
     --benchmark: Run performance benchmarks on optimized models
 """
 
-import argparse
-import logging
-import time
-from pathlib import Path
-from typing import Any, Union, Optional
-
-import torch
-from tqdm import tqdm
-from transformers import AutoTokenizer
-
-# Add src to path
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -162,15 +167,13 @@ def convert_to_onnx(model: torch.nn.Module, output_path: str, opset_version: int
 
     # Verify ONNX model
     try:
-        import onnx
-
         onnx_model = onnx.load(output_path)
         onnx.checker.check_model(onnx_model)
         logger.info("✅ ONNX model verified successfully")
     except ImportError:
         logger.warning("⚠️ ONNX package not installed, skipping verification")
         logger.info("To install: pip install onnx")
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ ONNX model verification failed: {e}")
 
     return output_path
@@ -212,14 +215,12 @@ def benchmark_models(
     # Check if ONNX Runtime is available
     onnx_available = False
     try:
-        import onnxruntime as ort
-
         onnx_session = ort.InferenceSession(onnx_path)
         onnx_available = True
     except ImportError:
         logger.warning("⚠️ ONNX Runtime not installed, skipping ONNX benchmarks")
         logger.info("To install: pip install onnxruntime")
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Error loading ONNX model: {e}")
 
     # Benchmark for different batch sizes
@@ -380,7 +381,7 @@ def verify_gpu_compatibility(model: torch.nn.Module) -> bool:
             logger.error("❌ Model outputs differ between CPU and GPU")
             return False
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Error during GPU compatibility check: {e}")
         return False
     finally:

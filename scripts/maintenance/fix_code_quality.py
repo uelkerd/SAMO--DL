@@ -3,6 +3,12 @@ import os
 import sys
 
 #!/usr/bin/env python3
+import logging
+import re
+from pathlib import Path
+
+# Configure logging
+
 """SAMO-DL Code Quality Fix Script.
 
 Systematically fixes the most critical code quality issues identified by ruff:
@@ -16,11 +22,6 @@ Usage:
     python scripts/maintenance/fix_code_quality.py
 """
 
-import logging
-import re
-from pathlib import Path
-
-# Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
@@ -73,7 +74,7 @@ class CodeQualityFixer:
 
             self.files_processed += 1
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ Error processing {file_path}: {e}")
 
     def _fix_security_issues(self, content: str) -> str:

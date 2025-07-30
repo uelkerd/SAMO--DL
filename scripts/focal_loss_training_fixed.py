@@ -1,6 +1,19 @@
 import sys
 
 #!/usr/bin/env python3
+import argparse
+import logging
+import torch
+from torch import nn
+import torch.nn.functional as F
+from pathlib import Path
+
+# Add src to path
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+
+# Configure logging
+
 """
 Focal Loss Training for Emotion Detection (Fixed Version)
 
@@ -11,20 +24,8 @@ Usage:
     python scripts/focal_loss_training_fixed.py [--gamma 2.0] [--alpha 0.25]
 """
 
-import argparse
-import logging
-import torch
-from torch import nn
-import torch.nn.functional as F
-from pathlib import Path
-
-# Add src to path
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -121,7 +122,7 @@ def train_with_focal_loss(
         logger.info("   • Validation: {len(val_dataset)} examples")
         logger.info("   • Test: {len(test_dataset)} examples")
 
-    except Exception as e:
+    except Exception as _:
         logger.error("Failed to load dataset: {e}")
         raise
 

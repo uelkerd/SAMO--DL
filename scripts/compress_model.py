@@ -1,6 +1,18 @@
 import sys
 
 #!/usr/bin/env python3
+import argparse
+import logging
+import time
+import torch
+import torch.quantization
+from pathlib import Path
+
+# Add src to path
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+
+# Configure logging
+
 """
 Compress Model
 
@@ -15,18 +27,7 @@ Arguments:
     --output_model: Path to save compressed model (default: models/checkpoints/bert_emotion_classifier_quantized.pt)
 """
 
-import argparse
-import logging
-import time
-import torch
-import torch.quantization
-from pathlib import Path
-
-# Add src to path
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -147,7 +148,7 @@ def compress_model(input_model: str, output_model: str) -> bool:
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("Error compressing model: {e}")
         return False
 

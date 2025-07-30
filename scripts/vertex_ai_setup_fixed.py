@@ -2,6 +2,24 @@ import os
 import sys
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+from typing import Dict, Any, Optional
+
+# Add src to path
+            from google.cloud import aiplatform
+            from google.cloud import storage
+
+            from google.cloud import aiplatform
+
+            # Create custom job with correct API syntax
+            from google.cloud import aiplatform
+
+            # Create hyperparameter tuning job with correct API syntax
+            from google.cloud import aiplatform
+
+            # Create validation job with correct API syntax
+
 """
 Fixed Vertex AI Setup for SAMO Deep Learning Project.
 
@@ -9,11 +27,6 @@ This script sets up Vertex AI infrastructure with correct API syntax
 to solve the 0.0000 loss issue and provide managed ML training.
 """
 
-import logging
-from pathlib import Path
-from typing import Dict, Any, Optional
-
-# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 # Configure logging
@@ -38,9 +51,6 @@ class VertexAISetupFixed:
 
         try:
             # Import Vertex AI
-            from google.cloud import aiplatform
-            from google.cloud import storage
-
             logger.info("✅ Vertex AI SDK available")
 
             # Initialize Vertex AI
@@ -54,7 +64,7 @@ class VertexAISetupFixed:
 
             return True
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ Vertex AI setup failed: {e}")
             return False
 
@@ -63,9 +73,6 @@ class VertexAISetupFixed:
         logger.info("🚀 Creating Vertex AI custom training job...")
 
         try:
-            from google.cloud import aiplatform
-
-            # Create custom job with correct API syntax
             job = aiplatform.CustomTrainingJob(
                 display_name="samo-emotion-detection-training",
                 container_uri="gcr.io/cloud-aiplatform/training/pytorch-gpu.2-0:latest",
@@ -89,7 +96,7 @@ class VertexAISetupFixed:
 
             return {"job": job, "success": True}
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ Custom training job creation failed: {e}")
             return {"success": False, "error": str(e)}
 
@@ -98,9 +105,6 @@ class VertexAISetupFixed:
         logger.info("🎯 Creating hyperparameter tuning job...")
 
         try:
-            from google.cloud import aiplatform
-
-            # Create hyperparameter tuning job with correct API syntax
             tuning_job = aiplatform.HyperparameterTuningJob(
                 display_name="samo-emotion-detection-tuning",
                 container_uri="gcr.io/cloud-aiplatform/training/pytorch-gpu.2-0:latest",
@@ -138,7 +142,7 @@ class VertexAISetupFixed:
 
             return {"tuning_job": tuning_job, "success": True}
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ Hyperparameter tuning job creation failed: {e}")
             return {"success": False, "error": str(e)}
 
@@ -170,7 +174,7 @@ class VertexAISetupFixed:
 
             return {"config": monitoring_config, "success": True}
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ Model monitoring setup failed: {e}")
             return {"success": False, "error": str(e)}
 
@@ -204,7 +208,7 @@ class VertexAISetupFixed:
 
             return {"config": pipeline_config, "success": True}
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ Automated pipeline setup failed: {e}")
             return {"success": False, "error": str(e)}
 
@@ -213,9 +217,6 @@ class VertexAISetupFixed:
         logger.info("🔍 Running validation on Vertex AI...")
 
         try:
-            from google.cloud import aiplatform
-
-            # Create validation job with correct API syntax
             validation_job = aiplatform.CustomTrainingJob(
                 display_name="samo-validation-job",
                 container_uri="gcr.io/cloud-aiplatform/training/pytorch-cpu.2-0:latest",
@@ -229,7 +230,7 @@ class VertexAISetupFixed:
 
             return True
 
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ Validation job creation failed: {e}")
             return False
 

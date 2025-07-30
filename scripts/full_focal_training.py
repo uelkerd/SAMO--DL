@@ -1,6 +1,17 @@
 import json
 
 #!/usr/bin/env python3
+import logging
+import torch
+from torch import nn
+import torch.nn.functional as F
+from pathlib import Path
+from tqdm import tqdm
+
+# Configure logging
+        from transformers import AutoModel, AutoTokenizer
+
+
 """
 Full Focal Loss Training for Emotion Detection
 
@@ -11,14 +22,6 @@ Usage:
     python3 full_focal_training.py
 """
 
-import logging
-import torch
-from torch import nn
-import torch.nn.functional as F
-from pathlib import Path
-from tqdm import tqdm
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -47,8 +50,6 @@ class SimpleBERTClassifier(nn.Module):
 
     def __init__(self, model_name="bert-base-uncased", num_classes=28):
         super().__init__()
-        from transformers import AutoModel, AutoTokenizer
-
         self.bert = AutoModel.from_pretrained(model_name)
         self.classifier = nn.Linear(self.bert.config.hidden_size, num_classes)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)

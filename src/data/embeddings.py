@@ -9,6 +9,7 @@ from gensim.utils import simple_preprocess
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 # Configure logging
+
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )

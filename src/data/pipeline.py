@@ -9,21 +9,22 @@ from pathlib import Path
 import pandas as pd
 
 from .embeddings import (
+from .feature_engineering import FeatureEngineer
+from .loaders import (
+from .preprocessing import JournalEntryPreprocessor
+from .validation import DataValidator
+
+# Configure logging
+
     EmbeddingPipeline,
     FastTextEmbedder,
     TfidfEmbedder,
     Word2VecEmbedder,
 )
-from .feature_engineering import FeatureEngineer
-from .loaders import (
     load_entries_from_csv,
     load_entries_from_db,
     load_entries_from_json,
 )
-from .preprocessing import JournalEntryPreprocessor
-from .validation import DataValidator
-
-# Configure logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )

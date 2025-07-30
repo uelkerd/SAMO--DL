@@ -1,6 +1,15 @@
 import sys
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+
+# Add src to path
+import torch
+from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+
+# Configure logging
+
 """
 BERT Model Loading Test for CI/CD Pipeline.
 
@@ -8,16 +17,8 @@ This script validates that the BERT emotion detection model
 can be loaded and initialized correctly.
 """
 
-import logging
-from pathlib import Path
-
-# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-import torch
-from models.emotion_detection.bert_classifier import BERTEmotionClassifier
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -74,7 +75,7 @@ def test_bert_model_loading():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ BERT model test failed: {e}")
         return False
 

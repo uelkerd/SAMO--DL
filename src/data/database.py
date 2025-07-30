@@ -1,13 +1,14 @@
 import os
 
-"""Database connection utilities for the SAMO-DL application."""
-
-
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 # Get database connection details from environment variables
+
+"""Database connection utilities for the SAMO-DL application."""
+
+
 DB_USER = os.environ.get("DB_USER", "samouser")
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "samopassword")
 DB_HOST = os.environ.get("DB_HOST", "localhost")

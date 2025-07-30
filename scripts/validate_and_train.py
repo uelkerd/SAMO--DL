@@ -2,6 +2,19 @@ import sys
 import traceback
 
 #!/usr/bin/env python3
+import logging
+import time
+from pathlib import Path
+
+# Add src to path
+        from pre_training_validation import PreTrainingValidator
+
+        from models.emotion_detection.training_pipeline import train_emotion_detection_model
+
+        # Training configuration optimized for debugging
+        import traceback
+
+
 """
 Validate and Train Script for SAMO Deep Learning.
 
@@ -9,11 +22,6 @@ This script runs comprehensive pre-training validation and only starts training
 if all critical checks pass. This prevents wasting 4+ hours on failed training.
 """
 
-import logging
-import time
-from pathlib import Path
-
-# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 # Configure logging
@@ -33,15 +41,13 @@ def run_pre_training_validation():
         # Import the validation module
 
         sys.path.insert(0, str(Path(__file__).parent))
-        from pre_training_validation import PreTrainingValidator
-
         validator = PreTrainingValidator()
         all_passed = validator.run_all_validations()
         validator.generate_report()
 
         return all_passed, validator.critical_issues, validator.warnings
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Pre-training validation failed: {e}")
         return False, ["Validation error: {e}"], []
 
@@ -51,9 +57,6 @@ def run_training_with_debugging():
     logger.info("🚀 Starting training with debugging...")
 
     try:
-        from models.emotion_detection.training_pipeline import train_emotion_detection_model
-
-        # Training configuration optimized for debugging
         config = {
             "model_name": "bert-base-uncased",
             "cache_dir": "./data/cache",
@@ -79,10 +82,8 @@ def run_training_with_debugging():
 
         return True, results
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Training failed: {e}")
-        import traceback
-
         logger.error("Traceback: {traceback.format_exc()}")
         return False, None
 

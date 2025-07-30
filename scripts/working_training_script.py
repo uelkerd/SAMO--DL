@@ -2,16 +2,20 @@ import sys
 import traceback
 
 #!/usr/bin/env python3
-"""
-Working Training Script based on the successful local validation approach.
-"""
-
 import logging
 import torch
 import torch.nn as nn
 from pathlib import Path
 
 # Add src to path
+        from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+
+        import traceback
+
+"""
+Working Training Script based on the successful local validation approach.
+"""
+
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 # Configure logging
@@ -28,8 +32,6 @@ def main():
     try:
         # Step 1: Create model (this worked in validation)
         logger.info("🔧 Step 1: Creating model...")
-        from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-
         model, loss_fn = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
             class_weights=None,  # We'll handle this differently
@@ -110,9 +112,8 @@ def main():
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Training error: {e}")
-        import traceback
         traceback.print_exc()
         return False
 

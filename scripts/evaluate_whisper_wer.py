@@ -3,13 +3,6 @@ import os
 import sys
 
 #!/usr/bin/env python3
-"""
-Evaluate Whisper model performance using LibriSpeech test set.
-
-This script downloads a portion of the LibriSpeech test-clean dataset
-and evaluates the Word Error Rate (WER) of the Whisper transcription model.
-"""
-
 import argparse
 import logging
 import tempfile
@@ -24,12 +17,22 @@ import tqdm
 from datasets import load_dataset
 
 # Add src directory to path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
-
-# Import local modules
 from models.voice_processing.transcription_api import TranscriptionAPI, create_transcription_api
 
 # Configure logging
+            import soundfile as sf
+
+
+"""
+Evaluate Whisper model performance using LibriSpeech test set.
+
+This script downloads a portion of the LibriSpeech test-clean dataset
+and evaluates the Word Error Rate (WER) of the Whisper transcription model.
+"""
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+
+# Import local modules
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -82,8 +85,6 @@ def download_librispeech_sample(
                 continue
 
             # Save audio data
-            import soundfile as sf
-
             sf.write(
                 str(audio_path),
                 audio["array"],
@@ -99,7 +100,7 @@ def download_librispeech_sample(
         logger.info("✅ Downloaded {len(samples)} LibriSpeech samples to {output_dir}")
         return samples
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Failed to download LibriSpeech: {e}")
         return []
 
@@ -164,7 +165,7 @@ def evaluate_wer(api: TranscriptionAPI, samples: list[dict], model_size: str) ->
                 }
             )
 
-        except Exception as e:
+        except Exception as _:
             logger.error("Failed on sample {i}: {e}")
 
     # Calculate global WER

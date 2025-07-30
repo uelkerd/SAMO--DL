@@ -1,19 +1,6 @@
 import os
 
 # G004: Logging f-strings temporarily allowed for development
-"""FastAPI Endpoints for OpenAI Whisper Voice Processing - SAMO Deep Learning.
-
-This module provides production-ready API endpoints for voice-to-text transcription
-that integrate with the SAMO Web Development backend.
-
-Key Features:
-- Multi-format audio upload and transcription
-- Batch audio processing for multiple files
-- Real-time transcription with confidence scoring
-- Audio quality assessment and validation
-- Performance monitoring and error handling
-"""
-
 import logging
 import tempfile
 import time
@@ -29,6 +16,22 @@ from .audio_preprocessor import AudioPreprocessor
 from .whisper_transcriber import WhisperTranscriber, create_whisper_transcriber
 
 # Configure logging
+    import uvicorn
+
+
+"""FastAPI Endpoints for OpenAI Whisper Voice Processing - SAMO Deep Learning.
+
+This module provides production-ready API endpoints for voice-to-text transcription
+that integrate with the SAMO Web Development backend.
+
+Key Features:
+- Multi-format audio upload and transcription
+- Batch audio processing for multiple files
+- Real-time transcription with confidence scoring
+- Audio quality assessment and validation
+- Performance monitoring and error handling
+"""
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -208,7 +211,7 @@ async def transcribe_audio(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception as _:
         logger.error("Transcription error: {e}", extra={"format_args": True})
         raise HTTPException(status_code=500, detail="Transcription failed: {e!s}")
 
@@ -340,7 +343,7 @@ async def transcribe_batch(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception as _:
         logger.error("Batch transcription error: {e}", extra={"format_args": True})
         raise HTTPException(status_code=500, detail="Batch transcription failed: {e!s}") from e
 
@@ -478,8 +481,6 @@ async def value_error_handler(request, exc):
 
 
 if __name__ == "__main__":
-    import uvicorn
-
     logger.info("🚀 Starting SAMO Voice Processing API...")
     uvicorn.run(
         "api_demo:app",

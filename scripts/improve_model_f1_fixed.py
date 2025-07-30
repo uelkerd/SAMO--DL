@@ -1,6 +1,22 @@
 import sys
 
 #!/usr/bin/env python3
+import argparse
+import logging
+import torch
+from torch import nn
+import torch.nn.functional as F
+from pathlib import Path
+from typing import Optional
+import time
+
+# Add src to path
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+
+# Configure logging
+
 """
 Fixed F1 Score Improvement Script
 
@@ -15,22 +31,7 @@ Arguments:
     --output_model: Path to save improved model
 """
 
-import argparse
-import logging
-import torch
-from torch import nn
-import torch.nn.functional as F
-from pathlib import Path
-from typing import Optional
-import time
-
-# Add src to path
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -87,7 +88,7 @@ def find_valid_checkpoint() -> Optional[str]:
                     return str(path)
                 else:
                     logger.warning("⚠️ Checkpoint {checkpoint_path} has unexpected format")
-            except Exception as e:
+            except Exception as _:
                 logger.warning("⚠️ Checkpoint {checkpoint_path} is corrupted: {e}")
 
     logger.warning("No valid checkpoint found. Will train from scratch.")
@@ -219,7 +220,7 @@ def improve_with_focal_loss(checkpoint_path: Optional[str] = None) -> bool:
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Error improving model with Focal Loss: {e}")
         return False
 
@@ -257,7 +258,7 @@ def improve_with_full_training() -> bool:
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Error with full training: {e}")
         return False
 
@@ -307,7 +308,7 @@ def create_simple_ensemble(checkpoint_path: Optional[str] = None) -> bool:
 
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Error creating ensemble: {e}")
         return False
 

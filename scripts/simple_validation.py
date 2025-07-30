@@ -2,16 +2,29 @@ import numpy as np
 import sys
 
 #!/usr/bin/env python3
+import logging
+from pathlib import Path
+
+# Configure logging
+        import torch
+        from torch import nn
+        import torch.nn.functional as F
+
+        import torch
+
+        import transformers
+
+        import sklearn
+
+    import subprocess
+
+
 """
 Simple Validation for GCP Deployment
 
 Quick validation of core components before GCP deployment.
 """
 
-import logging
-from pathlib import Path
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -21,10 +34,6 @@ def validate_focal_loss():
     logger.info("🧮 Validating Focal Loss Implementation...")
 
     try:
-        import torch
-        from torch import nn
-        import torch.nn.functional as F
-
         class FocalLoss(nn.Module):
             def __init__(self, alpha=0.25, gamma=2.0):
                 super().__init__()
@@ -50,7 +59,7 @@ def validate_focal_loss():
         logger.info("✅ Focal Loss: PASSED (loss={loss.item():.4f})")
         return True
 
-    except Exception as e:
+    except Exception as _:
         logger.error("❌ Focal Loss: FAILED - {e}")
         return False
 
@@ -88,25 +97,19 @@ def validate_python_environment():
     logger.info("🐍 Validating Python Environment...")
 
     try:
-        import torch
-
         logger.info("   ✅ PyTorch: {torch.__version__}")
-
-        import transformers
 
         logger.info("   ✅ Transformers: {transformers.__version__}")
 
 
         logger.info("   ✅ NumPy: {np.__version__}")
 
-        import sklearn
-
         logger.info("   ✅ Scikit-learn: {sklearn.__version__}")
 
         logger.info("✅ Python Environment: PASSED")
         return True
 
-    except ImportError as e:
+    except ImportError as _:
         logger.error("❌ Python Environment: FAILED - {e}")
         return False
 
@@ -116,8 +119,6 @@ def validate_gcp_readiness():
     logger.info("☁️ Validating GCP Readiness...")
 
     # Check if gcloud is available
-    import subprocess
-
     try:
         result = subprocess.run(
             ["gcloud", "--version"], capture_output=True, text=True, timeout=10, check=False
@@ -169,7 +170,7 @@ def main():
         logger.info("\n📋 Running {name} validation...")
         try:
             results[name] = validation_func()
-        except Exception as e:
+        except Exception as _:
             logger.error("❌ {name} validation failed with exception: {e}")
             results[name] = False
 

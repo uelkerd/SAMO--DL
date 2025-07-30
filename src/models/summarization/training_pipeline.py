@@ -1,11 +1,12 @@
+import logging
+
+
 """Training Pipeline for T5/BART Summarization - SAMO Deep Learning.
 
 This module provides the complete training pipeline for summarization models.
 
 Placeholder implementation - will be expanded with full training logic.
 """
-
-import logging
 
 logger = logging.getLogger(__name__)
 
