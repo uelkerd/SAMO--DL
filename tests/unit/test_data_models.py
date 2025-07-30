@@ -6,8 +6,6 @@ Tests data models, schemas, and validation.
 
 from datetime import datetime, timezone
 
-import pytest
-
 from src.data.models import (
     Base,
     Embedding,
@@ -19,7 +17,7 @@ from src.data.models import (
 )
 
 # Test constants
-TEST_PASSWORD_HASH = "test_hashed_password_123"
+TEST_USER_PASSWORD_HASH = "test_hashed_password_123"
 
 
 class TestBase:
@@ -37,25 +35,25 @@ class TestUser:
         """Test User initialization."""
         user = User(
             email="test@example.com",
-            password_hash=TEST_PASSWORD_HASH
+            password_hash=TEST_USER_PASSWORD_HASH
         )
 
         assert user.email == "test@example.com"
-        assert user.password_hash == TEST_PASSWORD_HASH
+        assert user.password_hash == TEST_USER_PASSWORD_HASH
 
     def test_user_with_all_fields(self):
         """Test User with all fields."""
         custom_time = datetime.now(timezone.utc)
         user = User(
             email="test@example.com",
-            password_hash=TEST_PASSWORD_HASH,
+            password_hash=TEST_USER_PASSWORD_HASH,
             consent_version="1.0",
             consent_given_at=custom_time,
             data_retention_policy="standard"
         )
 
         assert user.email == "test@example.com"
-        assert user.password_hash == TEST_PASSWORD_HASH
+        assert user.password_hash == TEST_USER_PASSWORD_HASH
         assert user.consent_version == "1.0"
         assert user.consent_given_at == custom_time
         assert user.data_retention_policy == "standard"
