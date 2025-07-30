@@ -17,11 +17,9 @@ Arguments:
     --alert_threshold: Performance degradation threshold for alerts (default: 0.1)
 """
 
-import sys
 import argparse
 import logging
 import time
-import json
 import yaml
 import threading
 from datetime import datetime, timedelta
@@ -30,7 +28,6 @@ from typing import Any, Optional
 from dataclasses import dataclass, asdict
 from collections import deque
 
-import numpy as np
 import pandas as pd
 import torch
 from transformers import AutoTokenizer
@@ -169,7 +166,7 @@ class PerformanceTracker:
                 timestamp=datetime.now(),
                 alert_type="PERFORMANCE_DEGRADATION",
                 severity=severity,
-                message=f"Model performance degraded by {max_degradation:.2%}",
+                message="Model performance degraded by {max_degradation:.2%}",
                 metrics={
                     "f1_degradation": f1_degradation,
                     "precision_degradation": precision_degradation,
@@ -352,7 +349,7 @@ class ModelHealthMonitor:
             with open(config_file) as f:
                 return yaml.safe_load(f)
         else:
-            logger.warning(f"Config file not found: {config_path}, using defaults")
+            logger.warning("Config file not found: {config_path}, using defaults")
             return {
                 "window_size": 100,
                 "monitor_interval": DEFAULT_MONITOR_INTERVAL,
@@ -385,9 +382,9 @@ class ModelHealthMonitor:
 
                 logger.info("Model initialized for monitoring")
             else:
-                logger.warning(f"Model not found: {model_path}")
+                logger.warning("Model not found: {model_path}")
         except Exception as e:
-            logger.error(f"Error initializing model: {e}")
+            logger.error("Error initializing model: {e}")
 
     def start_monitoring(self) -> None:
         """Start continuous monitoring."""
@@ -433,7 +430,7 @@ class ModelHealthMonitor:
                             timestamp=datetime.now(),
                             alert_type="DATA_DRIFT",
                             severity="MEDIUM",
-                            message=f"Data drift detected in {len(drift_metrics.affected_features)} features",
+                            message="Data drift detected in {len(drift_metrics.affected_features)} features",
                             metrics=asdict(drift_metrics),
                             action_required=False,
                         )
@@ -444,7 +441,7 @@ class ModelHealthMonitor:
                 time.sleep(self.config.get("monitor_interval", DEFAULT_MONITOR_INTERVAL))
 
             except Exception as e:
-                logger.error(f"Error in monitoring loop: {e}")
+                logger.error("Error in monitoring loop: {e}")
                 time.sleep(60)  # Wait before retrying
 
     def _collect_metrics(self) -> Optional[ModelMetrics]:
@@ -511,7 +508,7 @@ class ModelHealthMonitor:
             )
 
         except Exception as e:
-            logger.error(f"Error collecting metrics: {e}")
+            logger.error("Error collecting metrics: {e}")
             return None
 
     def _get_memory_usage(self) -> float:
@@ -564,7 +561,7 @@ class ModelHealthMonitor:
         Args:
             alert: Alert to handle
         """
-        logger.warning(f"ALERT [{alert.severity}]: {alert.message}")
+        logger.warning("ALERT [{alert.severity}]: {alert.message}")
 
         if alert.action_required:
             logger.info("Action required - triggering retraining pipeline")
@@ -591,7 +588,7 @@ class ModelHealthMonitor:
             self.alerts.append(retrain_alert)
 
         except Exception as e:
-            logger.error(f"Error triggering retraining: {e}")
+            logger.error("Error triggering retraining: {e}")
 
     def _save_alert(self, alert: Alert) -> None:
         """Save alert to file.
@@ -603,12 +600,12 @@ class ModelHealthMonitor:
             alerts_dir = Path("logs/alerts")
             alerts_dir.mkdir(parents=True, exist_ok=True)
 
-            alert_file = alerts_dir / f"alert_{alert.timestamp.strftime('%Y%m%d_%H%M%S')}.json"
+            alert_file = alerts_dir / "alert_{alert.timestamp.strftime('%Y%m%d_%H%M%S')}.json"
             with open(alert_file, "w") as f:
                 json.dump(asdict(alert), f, indent=2, default=str)
 
         except Exception as e:
-            logger.error(f"Error saving alert: {e}")
+            logger.error("Error saving alert: {e}")
 
     def get_health_status(self) -> dict[str, Any]:
         """Get current model health status.
@@ -676,7 +673,7 @@ def create_monitoring_config(output_path: str = DEFAULT_CONFIG_PATH) -> None:
     with open(output_path, "w") as f:
         yaml.dump(config, f, default_flow_style=False, indent=2)
 
-    logger.info(f"Monitoring configuration created: {output_path}")
+    logger.info("Monitoring configuration created: {output_path}")
 
 
 if __name__ == "__main__":
@@ -685,19 +682,19 @@ if __name__ == "__main__":
         "--config_path",
         type=str,
         default=DEFAULT_CONFIG_PATH,
-        help=f"Path to monitoring configuration (default: {DEFAULT_CONFIG_PATH})",
+        help="Path to monitoring configuration (default: {DEFAULT_CONFIG_PATH})",
     )
     parser.add_argument(
         "--monitor_interval",
         type=int,
         default=DEFAULT_MONITOR_INTERVAL,
-        help=f"Monitoring interval in seconds (default: {DEFAULT_MONITOR_INTERVAL})",
+        help="Monitoring interval in seconds (default: {DEFAULT_MONITOR_INTERVAL})",
     )
     parser.add_argument(
         "--alert_threshold",
         type=float,
         default=DEFAULT_ALERT_THRESHOLD,
-        help=f"Performance degradation threshold for alerts (default: {DEFAULT_ALERT_THRESHOLD})",
+        help="Performance degradation threshold for alerts (default: {DEFAULT_ALERT_THRESHOLD})",
     )
     parser.add_argument(
         "--create_config", action="store_true", help="Create default monitoring configuration"
@@ -726,6 +723,6 @@ if __name__ == "__main__":
 
         # Print final status
         status = monitor.get_health_status()
-        logger.info(f"Final status: {status}")
+        logger.info("Final status: {status}")
 
     sys.exit(0)

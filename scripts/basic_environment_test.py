@@ -4,21 +4,20 @@ Basic Environment Test Script
 Tests imports one by one to identify issues
 """
 
-import sys
 
 
 def test_import(module_name, description):
     """Test importing a module and report status."""
     try:
-        print(f"🔍 Testing {description}...")
+        print("🔍 Testing {description}...")
         __import__(module_name)
-        print(f"✅ {description} OK")
+        print("✅ {description} OK")
         return True
     except KeyboardInterrupt:
-        print(f"❌ {description} - KeyboardInterrupt")
+        print("❌ {description} - KeyboardInterrupt")
         return False
     except Exception as e:
-        print(f"❌ {description} - Error: {e}")
+        print("❌ {description} - Error: {e}")
         return False
 
 
@@ -48,7 +47,7 @@ def main():
 
         # Stop if we hit a KeyboardInterrupt
         if not result and "KeyboardInterrupt" in str(sys.exc_info()[1]):
-            print(f"\n🚨 STOPPED: {description} caused KeyboardInterrupt")
+            print("\n🚨 STOPPED: {description} caused KeyboardInterrupt")
             break
 
     # Summary
@@ -56,8 +55,8 @@ def main():
     print("📊 TEST SUMMARY:")
     working = sum(results)
     total = len(results)
-    print(f"✅ Working: {working}/{total}")
-    print(f"❌ Failed: {total - working}/{total}")
+    print("✅ Working: {working}/{total}")
+    print("❌ Failed: {total - working}/{total}")
 
     if working == total:
         print("🎉 All tests passed! Environment is working.")

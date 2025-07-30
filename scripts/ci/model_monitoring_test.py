@@ -7,7 +7,6 @@ without requiring external model checkpoints.
 """
 
 import logging
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -48,10 +47,10 @@ def create_synthetic_data(num_samples=100, num_emotions=28):
     # Create synthetic input data
     input_ids = torch.randint(0, 30522, (num_samples, 128))
     attention_mask = torch.ones(num_samples, 128)
-    
+
     # Create synthetic labels (multi-label)
     labels = torch.randint(0, 2, (num_samples, num_emotions)).float()
-    
+
     return input_ids, attention_mask, labels
 
 
@@ -59,23 +58,23 @@ def calculate_metrics(predictions, labels, threshold=0.5):
     """Calculate basic metrics for monitoring."""
     # Convert predictions to binary
     binary_predictions = (predictions > threshold).float()
-    
+
     # Calculate accuracy
     correct = (binary_predictions == labels).float().sum()
     total = labels.numel()
     accuracy = correct / total
-    
+
     # Calculate precision and recall (simplified)
     true_positives = (binary_predictions * labels).sum()
     predicted_positives = binary_predictions.sum()
     actual_positives = labels.sum()
-    
+
     precision = true_positives / (predicted_positives + 1e-8)
     recall = true_positives / (actual_positives + 1e-8)
-    
+
     # Calculate F1 score
     f1_score = 2 * (precision * recall) / (precision + recall + 1e-8)
-    
+
     return {
         'accuracy': accuracy.item(),
         'precision': precision.item(),
@@ -92,7 +91,7 @@ def test_model_performance_monitoring():
         # Create model and data
         model = SimpleBERTClassifier(num_emotions=28)
         model.eval()
-        
+
         input_ids, attention_mask, labels = create_synthetic_data(100, 28)
 
         # Get predictions
@@ -102,11 +101,11 @@ def test_model_performance_monitoring():
 
         # Calculate metrics
         metrics = calculate_metrics(probabilities, labels, threshold=0.5)
-        
-        logger.info(f"Accuracy: {metrics['accuracy']:.4f}")
-        logger.info(f"Precision: {metrics['precision']:.4f}")
-        logger.info(f"Recall: {metrics['recall']:.4f}")
-        logger.info(f"F1 Score: {metrics['f1_score']:.4f}")
+
+        logger.info("Accuracy: {metrics['accuracy']:.4f}")
+        logger.info("Precision: {metrics['precision']:.4f}")
+        logger.info("Recall: {metrics['recall']:.4f}")
+        logger.info("F1 Score: {metrics['f1_score']:.4f}")
 
         # Validate metrics
         assert 0 <= metrics['accuracy'] <= 1, "Accuracy should be between 0 and 1"
@@ -118,7 +117,7 @@ def test_model_performance_monitoring():
         return True
 
     except Exception as e:
-        logger.error(f"❌ Model performance monitoring test failed: {e}")
+        logger.error("❌ Model performance monitoring test failed: {e}")
         return False
 
 
@@ -133,7 +132,7 @@ def test_model_drift_detection():
 
         # Create baseline data
         baseline_input_ids, baseline_attention_mask, baseline_labels = create_synthetic_data(100, 28)
-        
+
         # Create current data (simulate drift)
         current_input_ids, current_attention_mask, current_labels = create_synthetic_data(100, 28)
 
@@ -141,7 +140,7 @@ def test_model_drift_detection():
         with torch.no_grad():
             baseline_logits = model(baseline_input_ids, baseline_attention_mask)
             baseline_probabilities = torch.sigmoid(baseline_logits)
-            
+
             current_logits = model(current_input_ids, current_attention_mask)
             current_probabilities = torch.sigmoid(current_logits)
 
@@ -153,8 +152,8 @@ def test_model_drift_detection():
         accuracy_drift = abs(current_metrics['accuracy'] - baseline_metrics['accuracy'])
         f1_drift = abs(current_metrics['f1_score'] - baseline_metrics['f1_score'])
 
-        logger.info(f"Accuracy drift: {accuracy_drift:.4f}")
-        logger.info(f"F1 score drift: {f1_drift:.4f}")
+        logger.info("Accuracy drift: {accuracy_drift:.4f}")
+        logger.info("F1 score drift: {f1_drift:.4f}")
 
         # Validate drift detection
         assert accuracy_drift >= 0, "Drift should be non-negative"
@@ -164,7 +163,7 @@ def test_model_drift_detection():
         return True
 
     except Exception as e:
-        logger.error(f"❌ Model drift detection test failed: {e}")
+        logger.error("❌ Model drift detection test failed: {e}")
         return False
 
 
@@ -191,7 +190,7 @@ def test_monitoring_logging():
             'status': 'healthy'
         }
 
-        logger.info(f"Monitoring log entry: {log_entry}")
+        logger.info("Monitoring log entry: {log_entry}")
 
         # Validate log entry
         assert 'timestamp' in log_entry, "Log entry should have timestamp"
@@ -203,7 +202,7 @@ def test_monitoring_logging():
         return True
 
     except Exception as e:
-        logger.error(f"❌ Monitoring logging test failed: {e}")
+        logger.error("❌ Monitoring logging test failed: {e}")
         return False
 
 
@@ -221,19 +220,19 @@ def main():
     total = len(tests)
 
     for test_name, test_func in tests:
-        logger.info(f"\n{'='*40}")
-        logger.info(f"Running: {test_name}")
-        logger.info(f"{'='*40}")
+        logger.info("\n{'='*40}")
+        logger.info("Running: {test_name}")
+        logger.info("{'='*40}")
 
         if test_func():
             passed += 1
-            logger.info(f"✅ {test_name}: PASSED")
+            logger.info("✅ {test_name}: PASSED")
         else:
-            logger.error(f"❌ {test_name}: FAILED")
+            logger.error("❌ {test_name}: FAILED")
 
-    logger.info(f"\n{'='*40}")
-    logger.info(f"Monitoring Tests Results: {passed}/{total} tests passed")
-    logger.info(f"{'='*40}")
+    logger.info("\n{'='*40}")
+    logger.info("Monitoring Tests Results: {passed}/{total} tests passed")
+    logger.info("{'='*40}")
 
     if passed == total:
         logger.info("🎉 All model monitoring tests passed!")

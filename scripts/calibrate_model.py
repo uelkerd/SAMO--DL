@@ -6,13 +6,11 @@ This script finds the optimal temperature and threshold for the emotion detectio
 model by evaluating its performance on the validation set across a range of values.
 """
 
-import sys
 from pathlib import Path
 
 sys.path.append(str(Path.cwd() / "src"))
 
 import torch
-import numpy as np
 from tqdm import tqdm
 from transformers import AutoTokenizer
 from torch.utils.data import DataLoader
@@ -26,7 +24,7 @@ def calibrate_model():
     """Find the best temperature and threshold for the model."""
     print("🚀 Starting Model Calibration Script")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
+    print("Using device: {device}")
 
     # --- Load Model ---
     print("🤖 Loading trained model...")
@@ -57,7 +55,7 @@ def calibrate_model():
         max_length=128,  # Use a reasonable max length
     )
     val_dataloader = DataLoader(val_dataset, batch_size=64)
-    print(f"✅ Loaded {len(val_dataset)} validation samples.")
+    print("✅ Loaded {len(val_dataset)} validation samples.")
 
     # --- Calibration Search ---
     temperatures = np.linspace(1.0, 15.0, 15)
@@ -76,7 +74,7 @@ def calibrate_model():
         all_labels = []
 
         with torch.no_grad():
-            for batch in tqdm(val_dataloader, desc=f"Temp: {temp:.1f}", leave=False):
+            for batch in tqdm(val_dataloader, desc="Temp: {temp:.1f}", leave=False):
                 input_ids = batch["input_ids"].to(device)
                 attention_mask = batch["attention_mask"].to(device)
                 labels = batch["labels"].to(device)
@@ -104,15 +102,15 @@ def calibrate_model():
     # --- Report Results ---
     print("\n🎉 Calibration Complete!")
     print("=" * 50)
-    print(f"🏆 Best Micro F1 Score: {best_f1:.4f}")
-    print(f"🔥 Best Temperature:     {best_temp:.2f}")
-    print(f"🎯 Best Threshold:       {best_thresh:.2f}")
+    print("🏆 Best Micro F1 Score: {best_f1:.4f}")
+    print("🔥 Best Temperature:     {best_temp:.2f}")
+    print("🎯 Best Threshold:       {best_thresh:.2f}")
     print("=" * 50)
 
     print("\nTop 5 Results:")
     sorted_results = sorted(results, key=lambda x: x[2], reverse=True)
     for i, (temp, thresh, f1) in enumerate(sorted_results[:5]):
-        print(f" {i+1}. Temp: {temp:.2f}, Thresh: {thresh:.2f}, F1: {f1:.4f}")
+        print(" {i+1}. Temp: {temp:.2f}, Thresh: {thresh:.2f}, F1: {f1:.4f}")
 
 
 if __name__ == "__main__":

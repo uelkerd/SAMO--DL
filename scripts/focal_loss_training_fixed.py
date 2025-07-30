@@ -9,7 +9,6 @@ Usage:
     python scripts/focal_loss_training_fixed.py [--gamma 2.0] [--alpha 0.25]
 """
 
-import sys
 import argparse
 import logging
 import torch
@@ -99,10 +98,10 @@ def train_with_focal_loss(
 
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Device: {device}")
-    logger.info(f"CPU Threads: {torch.get_num_threads()}")
-    logger.info(f"Parameters: gamma={gamma}, alpha={alpha}, lr={learning_rate}")
-    logger.info(f"Batch size: {batch_size}, Max length: {max_length}")
+    logger.info("Device: {device}")
+    logger.info("CPU Threads: {torch.get_num_threads()}")
+    logger.info("Parameters: gamma={gamma}, alpha={alpha}, lr={learning_rate}")
+    logger.info("Batch size: {batch_size}, Max length: {max_length}")
 
     # Load dataset using existing loader
     logger.info("📊 Loading GoEmotions dataset...")
@@ -116,12 +115,12 @@ def train_with_focal_loss(
         datasets["class_weights"]
 
         logger.info("Dataset loaded successfully:")
-        logger.info(f"   • Train: {len(train_dataset)} examples")
-        logger.info(f"   • Validation: {len(val_dataset)} examples")
-        logger.info(f"   • Test: {len(test_dataset)} examples")
+        logger.info("   • Train: {len(train_dataset)} examples")
+        logger.info("   • Validation: {len(val_dataset)} examples")
+        logger.info("   • Test: {len(test_dataset)} examples")
 
     except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
+        logger.error("Failed to load dataset: {e}")
         raise
 
     # Create model
@@ -144,7 +143,7 @@ def train_with_focal_loss(
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
     # Training loop
-    best_val_loss = float("inf")
+    best_val_loss = float("in")
     training_history = []
 
     for epoch in range(num_epochs):
@@ -176,7 +175,7 @@ def train_with_focal_loss(
             # Log progress every 100 batches
             if (batch_idx + 1) % 100 == 0:
                 logger.info(
-                    f"   Batch {batch_idx + 1}/{len(train_loader)}, Loss: {loss.item():.4f}"
+                    "   Batch {batch_idx + 1}/{len(train_loader)}, Loss: {loss.item():.4f}"
                 )
 
         avg_train_loss = train_loss / num_batches
@@ -201,8 +200,8 @@ def train_with_focal_loss(
         avg_val_loss = val_loss / val_batches
 
         # Log progress
-        logger.info(f"   • Train Loss: {avg_train_loss:.4f}")
-        logger.info(f"   • Val Loss: {avg_val_loss:.4f}")
+        logger.info("   • Train Loss: {avg_train_loss:.4f}")
+        logger.info("   • Val Loss: {avg_val_loss:.4f}")
 
         training_history.append(
             {"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": avg_val_loss}
@@ -226,7 +225,7 @@ def train_with_focal_loss(
                 checkpoint_path,
             )
 
-            logger.info(f"   💾 Saved best model (val_loss: {avg_val_loss:.4f})")
+            logger.info("   💾 Saved best model (val_loss: {avg_val_loss:.4f})")
 
     # Save final model
     final_checkpoint_path = Path(output_dir) / "focal_loss_final_model.pt"
@@ -243,9 +242,9 @@ def train_with_focal_loss(
     )
 
     logger.info("✅ Training completed!")
-    logger.info(f"   • Best validation loss: {best_val_loss:.4f}")
-    logger.info(f"   • Final validation loss: {avg_val_loss:.4f}")
-    logger.info(f"   • Models saved to: {output_dir}")
+    logger.info("   • Best validation loss: {best_val_loss:.4f}")
+    logger.info("   • Final validation loss: {avg_val_loss:.4f}")
+    logger.info("   • Models saved to: {output_dir}")
 
     return {
         "best_val_loss": best_val_loss,
@@ -282,7 +281,7 @@ def main():
     )
 
     logger.info("🎉 Focal Loss training completed successfully!")
-    logger.info(f"📊 Results: {results}")
+    logger.info("📊 Results: {results}")
 
 
 if __name__ == "__main__":

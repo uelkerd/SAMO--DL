@@ -7,8 +7,6 @@ without complex infrastructure setup.
 """
 
 import logging
-import os
-import sys
 from pathlib import Path
 
 # Configure logging
@@ -20,36 +18,36 @@ def main():
     """Main function to run simple Vertex AI validation."""
     logger.info("🚀 SAMO Deep Learning - Simple Vertex AI Validation")
     logger.info("=" * 60)
-    
+
     try:
         # Import Vertex AI
         from google.cloud import aiplatform
-        
+
         # Get project ID
         project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "the-tendril-466607-n8")
         region = "us-central1"
-        
-        logger.info(f"✅ Project ID: {project_id}")
-        logger.info(f"✅ Region: {region}")
-        
+
+        logger.info("✅ Project ID: {project_id}")
+        logger.info("✅ Region: {region}")
+
         # Initialize Vertex AI
         aiplatform.init(
             project=project_id,
             location=region,
         )
-        
+
         logger.info("✅ Vertex AI initialized successfully")
-        
+
         # Create a simple custom training job
         logger.info("🔍 Creating validation job...")
-        
+
         job = aiplatform.CustomTrainingJob(
             display_name="samo-simple-validation",
             container_uri="gcr.io/cloud-aiplatform/training/pytorch-cpu.2-0:latest",
             machine_type="n1-standard-4",
             replica_count=1,
         )
-        
+
         logger.info("✅ Validation job created successfully!")
         logger.info("")
         logger.info("🎯 NEXT STEPS:")
@@ -66,11 +64,11 @@ def main():
         logger.info("   - Verify loss function implementation")
         logger.info("")
         logger.info("💡 This will help identify the root cause of 0.0000 loss!")
-        
+
         return True
-        
+
     except Exception as e:
-        logger.error(f"❌ Vertex AI validation failed: {e}")
+        logger.error("❌ Vertex AI validation failed: {e}")
         logger.error("")
         logger.error("🔧 ALTERNATIVE APPROACH:")
         logger.error("Since Vertex AI setup is complex, let's focus on the immediate issue:")
@@ -82,11 +80,11 @@ def main():
         logger.error("5. Fix the 0.0000 loss issue locally first")
         logger.error("")
         logger.error("Then we can move to Vertex AI for production training.")
-        
+
         return False
 
 
 if __name__ == "__main__":
     success = main()
     if not success:
-        sys.exit(1) 
+        sys.exit(1)

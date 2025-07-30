@@ -7,7 +7,6 @@ to identify the root cause of the 0.0000 loss issue.
 """
 
 import logging
-import sys
 from pathlib import Path
 
 # Add src to path
@@ -43,7 +42,7 @@ def main():
 
         logger.info("📋 Training Configuration:")
         for key, value in config.items():
-            logger.info(f"   {key}: {value}")
+            logger.info("   {key}: {value}")
 
         logger.info("\n🔍 Starting training with debugging...")
         logger.info("⚠️  Watch for DEBUG messages to identify the 0.0000 loss issue!")
@@ -52,13 +51,13 @@ def main():
         results = train_emotion_detection_model(**config)
 
         logger.info("✅ Training completed!")
-        logger.info(f"📊 Final results: {results}")
+        logger.info("📊 Final results: {results}")
 
     except Exception as e:
-        logger.error(f"❌ Training failed: {e}")
+        logger.error("❌ Training failed: {e}")
         import traceback
 
-        logger.error(f"Traceback: {traceback.format_exc()}")
+        logger.error("Traceback: {traceback.format_exc()}")
         return False
 
     return True

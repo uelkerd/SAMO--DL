@@ -5,7 +5,6 @@ This script tests the fixed evaluation function to see if we get
 realistic F1 scores now that the fallback bug is fixed.
 """
 
-import sys
 import logging
 from pathlib import Path
 
@@ -60,7 +59,7 @@ def main():
         best_threshold = 0.2
 
         for threshold in thresholds:
-            logger.info(f"🔍 Threshold: {threshold}")
+            logger.info("🔍 Threshold: {threshold}")
 
             metrics = evaluate_emotion_classifier(
                 trainer.model, trainer.val_dataloader, trainer.device, threshold=threshold
@@ -69,7 +68,7 @@ def main():
             macro_f1 = metrics["macro_f1"]
             micro_f1 = metrics["micro_f1"]
 
-            logger.info(f"  📊 Macro F1: {macro_f1:.4f} | Micro F1: {micro_f1:.4f}")
+            logger.info("  📊 Macro F1: {macro_f1:.4f} | Micro F1: {micro_f1:.4f}")
 
             if macro_f1 > best_f1:
                 best_f1 = macro_f1
@@ -77,8 +76,8 @@ def main():
 
         logger.info("=" * 60)
         logger.info("🏆 BEST RESULTS:")
-        logger.info(f"  🎯 Best Threshold: {best_threshold}")
-        logger.info(f"  📈 Best Macro F1: {best_f1:.4f}")
+        logger.info("  🎯 Best Threshold: {best_threshold}")
+        logger.info("  📈 Best Macro F1: {best_f1:.4f}")
 
         # Success criteria
         if best_f1 > 0.15:  # 15% is reasonable for emotion detection
@@ -95,7 +94,7 @@ def main():
             return 1
 
     except Exception as e:
-        logger.error(f"❌ Test failed: {e}")
+        logger.error("❌ Test failed: {e}")
         return 1
 
 

@@ -11,7 +11,6 @@ Usage:
 
 import argparse
 import logging
-import os
 from pathlib import Path
 
 import torch
@@ -48,22 +47,22 @@ def check_gpu_availability() -> bool:
     device_name = torch.cuda.get_device_name()
     memory_total = torch.cuda.get_device_properties(0).total_memory / 1e9
 
-    logger.info(f"✅ GPU Available: {device_name}")
-    logger.info(f"   Memory: {memory_total:.1f} GB")
+    logger.info("✅ GPU Available: {device_name}")
+    logger.info("   Memory: {memory_total:.1f} GB")
 
     # Optimization recommendations
     print("\n💡 GPU Training Optimizations:")
 
     if memory_total >= 12:  # 12GB+ GPU
-        print(f"   • Use batch_size=32 (you have {memory_total:.1f}GB memory)")
+        print("   • Use batch_size=32 (you have {memory_total:.1f}GB memory)")
         print("   • Enable mixed precision training (fp16)")
         print("   • Consider gradient accumulation for larger effective batch sizes")
     elif memory_total >= 8:  # 8-12GB GPU
-        print(f"   • Use batch_size=16-24 (you have {memory_total:.1f}GB memory)")
+        print("   • Use batch_size=16-24 (you have {memory_total:.1f}GB memory)")
         print("   • Enable mixed precision training (fp16)")
         print("   • Monitor memory usage")
     else:  # <8GB GPU
-        print(f"   • Use batch_size=8-12 (you have {memory_total:.1f}GB memory)")
+        print("   • Use batch_size=8-12 (you have {memory_total:.1f}GB memory)")
         print("   • Enable mixed precision training (fp16) - REQUIRED")
         print("   • Consider gradient checkpointing to save memory")
 
@@ -90,11 +89,10 @@ def create_gpu_training_config():
     else:
         batch_size = 12
 
-    config = f"""# GPU Training Configuration for SAMO Deep Learning
+    config = """# GPU Training Configuration for SAMO Deep Learning
 # Auto-generated based on your GPU: {torch.cuda.get_device_name()}
 # Memory: {gpu_memory:.1f} GB
 
-import os
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 # Environment setup
@@ -118,16 +116,16 @@ trainer = EmotionDetectionTrainer(
 # Train the model
 results = trainer.train()
 
-print(f"\\nTraining completed!")
-print(f"Best validation score: {{results['best_validation_score']:.4f}}")
-print(f"Final test Macro F1: {{results['final_test_metrics']['macro_f1']:.4f}}")
+print("\\nTraining completed!")
+print("Best validation score: {{results['best_validation_score']:.4f}}")
+print("Final test Macro F1: {{results['final_test_metrics']['macro_f1']:.4f}}")
 """
 
     # Save configuration
     config_path = Path("train_gpu.py")
     config_path.write_text(config)
 
-    logger.info(f"✅ GPU training script created: {config_path}")
+    logger.info("✅ GPU training script created: {config_path}")
     logger.info("Run with: python train_gpu.py")
 
     return config_path
@@ -136,10 +134,10 @@ print(f"Final test Macro F1: {{results['final_test_metrics']['macro_f1']:.4f}}")
 def resume_training_on_gpu(checkpoint_path: str) -> None:
     """Resume training from CPU checkpoint on GPU."""
     if not Path(checkpoint_path).exists():
-        logger.error(f"Checkpoint not found: {checkpoint_path}")
+        logger.error("Checkpoint not found: {checkpoint_path}")
         return
 
-    logger.info(f"📁 Loading checkpoint: {checkpoint_path}")
+    logger.info("📁 Loading checkpoint: {checkpoint_path}")
 
     # Load checkpoint
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -148,10 +146,10 @@ def resume_training_on_gpu(checkpoint_path: str) -> None:
     epoch = checkpoint.get("epoch", 0)
     best_score = checkpoint.get("best_score", 0.0)
 
-    logger.info(f"✅ Checkpoint loaded - Epoch: {epoch}, Best F1: {best_score:.4f}")
+    logger.info("✅ Checkpoint loaded - Epoch: {epoch}, Best F1: {best_score:.4f}")
 
     # Create resume script
-    resume_script = f"""#!/usr/bin/env python3
+    resume_script = """#!/usr/bin/env python3
 # Auto-generated GPU resume script
 
 import torch
@@ -177,17 +175,17 @@ print("Checkpoint path: {checkpoint_path}")
 # TODO: Implement checkpoint resume functionality in trainer class
 results = trainer.train()
 
-print(f"\\nGPU training completed!")
-print(f"Best validation score: {{results['best_validation_score']:.4f}}")
+print("\\nGPU training completed!")
+print("Best validation score: {{results['best_validation_score']:.4f}}")
 """
 
     script_path = Path("resume_gpu_training.py")
     script_path.write_text(resume_script)
 
-    logger.info(f"✅ Resume script created: {script_path}")
+    logger.info("✅ Resume script created: {script_path}")
     print("\n💡 To resume training on GPU:")
     print("   1. Let current CPU training complete")
-    print(f"   2. Run: python {script_path}")
+    print("   2. Run: python {script_path}")
     print("   3. Monitor GPU usage with: watch -n 1 nvidia-smi")
 
 

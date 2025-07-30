@@ -6,8 +6,6 @@ This script applies temperature scaling to improve model calibration
 and potentially boost F1 score by 5-10%.
 """
 
-import os
-import sys
 import logging
 import torch
 from torch import nn
@@ -79,7 +77,7 @@ def calibrate_temperature(model, val_loader, device):
     optimizer.step(eval)
 
     optimal_temperature = temperature_scaling.temperature.item()
-    logger.info(f"✅ Optimal temperature: {optimal_temperature:.3f}")
+    logger.info("✅ Optimal temperature: {optimal_temperature:.3f}")
 
     return temperature_scaling
 
@@ -93,23 +91,23 @@ def apply_temperature_scaling():
 
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Using device: {device}")
+    logger.info("Using device: {device}")
 
     try:
         # Load dataset
         logger.info("Loading validation dataset...")
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()
-        
+
         # Extract raw validation data
         val_raw = datasets["validation"]
         val_texts = [item["text"] for item in val_raw]
         val_labels = [item["labels"] for item in val_raw]
-        
+
         # Create tokenized dataset
         from src.models.emotion_detection.bert_classifier import EmotionDataset
         from transformers import AutoTokenizer
-        
+
         tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
         val_dataset = EmotionDataset(val_texts, val_labels, tokenizer, max_length=512)
         val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
@@ -117,11 +115,11 @@ def apply_temperature_scaling():
         # Load trained model
         model_path = "./models/checkpoints/focal_loss_best_model.pt"
         if not os.path.exists(model_path):
-            logger.error(f"❌ Model not found: {model_path}")
+            logger.error("❌ Model not found: {model_path}")
             logger.info("   • Please run focal_loss_training.py first")
             return False
 
-        logger.info(f"Loading model from {model_path}")
+        logger.info("Loading model from {model_path}")
         model, _ = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
             class_weights=None,
@@ -152,13 +150,13 @@ def apply_temperature_scaling():
             calibrated_path,
         )
 
-        logger.info(f"✅ Calibrated model saved to: {calibrated_path}")
-        logger.info(f"   • Temperature: {temperature_scaling.temperature.item():.3f}")
+        logger.info("✅ Calibrated model saved to: {calibrated_path}")
+        logger.info("   • Temperature: {temperature_scaling.temperature.item():.3f}")
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ Temperature scaling failed: {e}")
+        logger.error("❌ Temperature scaling failed: {e}")
         import traceback
 
         traceback.print_exc()

@@ -7,7 +7,6 @@ without requiring external model checkpoints.
 """
 
 import logging
-import sys
 import tempfile
 from pathlib import Path
 
@@ -98,8 +97,8 @@ def test_model_compression():
         original_size = get_model_size(model)
         original_time = benchmark_inference(model, dummy_input)
 
-        logger.info(f"Original model size: {original_size:.2f} MB")
-        logger.info(f"Original inference time: {original_time:.2f} ms")
+        logger.info("Original model size: {original_size:.2f} MB")
+        logger.info("Original inference time: {original_time:.2f} ms")
 
         # Test quantization
         logger.info("Testing quantization...")
@@ -111,12 +110,12 @@ def test_model_compression():
         compressed_size = get_model_size(quantized_model)
         compressed_time = benchmark_inference(quantized_model, dummy_input)
 
-        logger.info(f"Compressed model size: {compressed_size:.2f} MB")
-        logger.info(f"Compressed inference time: {compressed_time:.2f} ms")
+        logger.info("Compressed model size: {compressed_size:.2f} MB")
+        logger.info("Compressed inference time: {compressed_time:.2f} ms")
 
         # Calculate compression ratio
         compression_ratio = original_size / compressed_size
-        logger.info(f"Compression ratio: {compression_ratio:.2f}x")
+        logger.info("Compression ratio: {compression_ratio:.2f}x")
 
         # Validate compression
         assert compressed_size < original_size, "Model should be smaller after compression"
@@ -125,13 +124,13 @@ def test_model_compression():
         # Test saving compressed model
         with tempfile.NamedTemporaryFile(suffix=".pt", delete=True) as temp_file:
             torch.save(quantized_model.state_dict(), temp_file.name)
-            logger.info(f"✅ Compressed model saved to {temp_file.name}")
+            logger.info("✅ Compressed model saved to {temp_file.name}")
 
         logger.info("✅ Model compression test passed")
         return True
 
     except Exception as e:
-        logger.error(f"❌ Model compression test failed: {e}")
+        logger.error("❌ Model compression test failed: {e}")
         return False
 
 
@@ -147,19 +146,19 @@ def main():
     total = len(tests)
 
     for test_name, test_func in tests:
-        logger.info(f"\n{'='*40}")
-        logger.info(f"Running: {test_name}")
-        logger.info(f"{'='*40}")
+        logger.info("\n{'='*40}")
+        logger.info("Running: {test_name}")
+        logger.info("{'='*40}")
 
         if test_func():
             passed += 1
-            logger.info(f"✅ {test_name}: PASSED")
+            logger.info("✅ {test_name}: PASSED")
         else:
-            logger.error(f"❌ {test_name}: FAILED")
+            logger.error("❌ {test_name}: FAILED")
 
-    logger.info(f"\n{'='*40}")
-    logger.info(f"Compression Tests Results: {passed}/{total} tests passed")
-    logger.info(f"{'='*40}")
+    logger.info("\n{'='*40}")
+    logger.info("Compression Tests Results: {passed}/{total} tests passed")
+    logger.info("{'='*40}")
 
     if passed == total:
         logger.info("🎉 All model compression tests passed!")

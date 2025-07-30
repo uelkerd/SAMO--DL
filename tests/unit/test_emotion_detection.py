@@ -27,11 +27,11 @@ class TestBertEmotionClassifier:
         mock_config_instance = MagicMock()
         mock_config_instance.hidden_size = 768
         mock_config.return_value = mock_config_instance
-        
+
         # Mock the BERT model
         mock_bert_instance = MagicMock()
         mock_bert.return_value = mock_bert_instance
-        
+
         num_emotions = 28
         model = BERTEmotionClassifier(num_emotions=num_emotions)
 
@@ -50,11 +50,11 @@ class TestBertEmotionClassifier:
         mock_config_instance = MagicMock()
         mock_config_instance.hidden_size = 768
         mock_config.return_value = mock_config_instance
-        
+
         # Mock the BERT model
         mock_bert_instance = MagicMock()
         mock_bert.return_value = mock_bert_instance
-        
+
         model = BERTEmotionClassifier(num_emotions=28)
         total_params = sum(p.numel() for p in model.parameters())
 
@@ -141,11 +141,11 @@ class TestBertEmotionClassifier:
         mock_config_instance = MagicMock()
         mock_config_instance.hidden_size = 768
         mock_config.return_value = mock_config_instance
-        
+
         # Mock the BERT model
         mock_bert_instance = MagicMock()
         mock_bert.return_value = mock_bert_instance
-        
+
         model = BERTEmotionClassifier(num_emotions=28)
 
         # Test CPU
@@ -167,11 +167,11 @@ class TestBertEmotionClassifier:
         mock_config_instance = MagicMock()
         mock_config_instance.hidden_size = 768
         mock_config.return_value = mock_config_instance
-        
+
         # Mock the BERT model
         mock_bert_instance = MagicMock()
         mock_bert.return_value = mock_bert_instance
-        
+
         model = BERTEmotionClassifier(num_emotions=28)
 
         # Test training mode
@@ -207,11 +207,11 @@ class TestBertEmotionClassifier:
         mock_config_instance = MagicMock()
         mock_config_instance.hidden_size = 768
         mock_config.return_value = mock_config_instance
-        
+
         # Mock the BERT model
         mock_bert_instance = MagicMock()
         mock_bert.return_value = mock_bert_instance
-        
+
         model = BERTEmotionClassifier(num_emotions=28)
 
         expected_emotions = [
@@ -231,14 +231,14 @@ class TestBertEmotionClassifier:
             "excitement",
             "fear",
             "gratitude",
-            "grief",
+            "grie",
             "joy",
             "love",
             "nervousness",
             "optimism",
             "pride",
             "realization",
-            "relief",
+            "relie",
             "remorse",
             "sadness",
             "surprise",

@@ -5,7 +5,6 @@ This module provides functions to interact with the Prisma client via subprocess
 It's a simple wrapper that allows Python code to execute Prisma commands.
 """
 
-import json
 import subprocess
 from pathlib import Path
 from typing import Any, Optional
@@ -33,7 +32,7 @@ class PrismaClient:
         """
         # Create a temporary JS file
         with Path("temp_prisma_script.js").open("w") as f:
-            f.write(f"""
+            f.write("""
 const {{ PrismaClient }} = require('@prisma/client');
 const prisma = new PrismaClient();
 
@@ -67,7 +66,7 @@ main();
             # Parse the output
             return json.loads(result.stdout)
         except subprocess.CalledProcessError as e:
-            msg = f"Prisma command failed: {e.stderr}"
+            msg = "Prisma command failed: {e.stderr}"
             raise Exception(msg) from e
         finally:
             # Clean up the temporary file
@@ -88,12 +87,12 @@ main();
             Dict[str, Any]: Created user data
 
         """
-        script = f"""
+        script = """
         return prisma.user.create({{
             data: {{
                 email: '{email}',
                 passwordHash: '{password_hash}',
-                consentVersion: {f"'{consent_version}'" if consent_version else "null"},
+                consentVersion: {"'{consent_version}'" if consent_version else "null"},
                 consentGivenAt: {"new Date()" if consent_version else "null"}
             }}
         }});
@@ -116,7 +115,7 @@ main();
             Dict[str, Any]: Created journal entry data
 
         """
-        script = f"""
+        script = """
         return prisma.journalEntry.create({{
             data: {{
                 userId: '{user_id}',
@@ -144,7 +143,7 @@ main();
             Optional[Dict[str, Any]]: User data or None if not found
 
         """
-        script = f"""
+        script = """
         return prisma.user.findUnique({{
             where: {{ email: '{email}' }}
         }});
@@ -164,7 +163,7 @@ main();
             list[dict[str, Any]]: List of journal entries
 
         """
-        script = f"""
+        script = """
         return prisma.journalEntry.findMany({{
             where: {{ userId: '{user_id}' }},
             take: {limit},

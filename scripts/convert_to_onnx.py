@@ -13,7 +13,6 @@ Arguments:
     --output_model: Path to save ONNX model (default: models/checkpoints/bert_emotion_classifier.onnx)
 """
 
-import sys
 import argparse
 import logging
 import time
@@ -52,14 +51,14 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
         # Check if input model exists
         input_path = Path(input_model)
         if not input_path.exists():
-            logger.error(f"Input model not found: {input_path}")
+            logger.error("Input model not found: {input_path}")
             return False
 
         # Create output directory if it doesn't exist
         output_path = Path(output_model)
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        logger.info(f"Loading model from {input_path}...")
+        logger.info("Loading model from {input_path}...")
 
         # Load checkpoint
         checkpoint = torch.load(input_path, map_location=device, weights_only=False)
@@ -73,7 +72,7 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
         elif isinstance(checkpoint, dict):
             model.load_state_dict(checkpoint)
         else:
-            logger.error(f"Unexpected checkpoint format: {type(checkpoint)}")
+            logger.error("Unexpected checkpoint format: {type(checkpoint)}")
             return False
 
         # Set optimal temperature and threshold
@@ -126,7 +125,7 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
             verbose=False,
         )
 
-        logger.info(f"✅ Model converted to ONNX format: {output_path}")
+        logger.info("✅ Model converted to ONNX format: {output_path}")
 
         # Check if onnxruntime is available
         if importlib.util.find_spec("onnxruntime") is not None:
@@ -141,7 +140,7 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
 
             # Calculate speedup
             speedup = pytorch_inference_time / onnx_inference_time
-            logger.info(f"ONNX inference speedup: {speedup:.2f}x")
+            logger.info("ONNX inference speedup: {speedup:.2f}x")
 
             # Save metrics
             metrics = {
@@ -152,7 +151,7 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
 
             logger.info("📊 Conversion metrics:")
             for key, value in metrics.items():
-                logger.info(f"  {key}: {value:.2f}")
+                logger.info("  {key}: {value:.2f}")
 
         else:
             logger.warning("onnxruntime not found. Skipping ONNX benchmarking.")
@@ -161,7 +160,7 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
         return True
 
     except Exception as e:
-        logger.error(f"Error converting model to ONNX: {e}")
+        logger.error("Error converting model to ONNX: {e}")
         return False
 
 
@@ -238,13 +237,13 @@ if __name__ == "__main__":
         "--input_model",
         type=str,
         default=DEFAULT_INPUT_MODEL,
-        help=f"Path to input model (default: {DEFAULT_INPUT_MODEL})",
+        help="Path to input model (default: {DEFAULT_INPUT_MODEL})",
     )
     parser.add_argument(
         "--output_model",
         type=str,
         default=DEFAULT_OUTPUT_MODEL,
-        help=f"Path to save ONNX model (default: {DEFAULT_OUTPUT_MODEL})",
+        help="Path to save ONNX model (default: {DEFAULT_OUTPUT_MODEL})",
     )
 
     args = parser.parse_args()

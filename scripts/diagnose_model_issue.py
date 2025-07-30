@@ -5,7 +5,6 @@ This script investigates why the BERT model is predicting all emotions
 as positive instead of learning proper discrimination.
 """
 
-import sys
 import logging
 from pathlib import Path
 
@@ -60,10 +59,10 @@ def diagnose_model_outputs():
             labels = batch["labels"]
 
             logger.info("📊 Batch Analysis:")
-            logger.info(f"  Input shape: {input_ids.shape}")
-            logger.info(f"  Labels shape: {labels.shape}")
-            logger.info(f"  Labels sum per sample: {labels.sum(dim=1).tolist()}")
-            logger.info(f"  Labels mean: {labels.float().mean():.4f}")
+            logger.info("  Input shape: {input_ids.shape}")
+            logger.info("  Labels shape: {labels.shape}")
+            logger.info("  Labels sum per sample: {labels.sum(dim=1).tolist()}")
+            logger.info("  Labels mean: {labels.float().mean():.4f}")
 
             # Forward pass
             with torch.no_grad():
@@ -71,23 +70,23 @@ def diagnose_model_outputs():
                 probabilities = torch.sigmoid(logits)
 
             logger.info("📈 Model Output Analysis:")
-            logger.info(f"  Logits shape: {logits.shape}")
-            logger.info(f"  Logits range: [{logits.min():.4f}, {logits.max():.4f}]")
-            logger.info(f"  Logits mean: {logits.mean():.4f}")
-            logger.info(f"  Logits std: {logits.std():.4f}")
+            logger.info("  Logits shape: {logits.shape}")
+            logger.info("  Logits range: [{logits.min():.4f}, {logits.max():.4f}]")
+            logger.info("  Logits mean: {logits.mean():.4f}")
+            logger.info("  Logits std: {logits.std():.4f}")
 
             logger.info(
-                f"  Probabilities range: [{probabilities.min():.4f}, {probabilities.max():.4f}]"
+                "  Probabilities range: [{probabilities.min():.4f}, {probabilities.max():.4f}]"
             )
-            logger.info(f"  Probabilities mean: {probabilities.mean():.4f}")
-            logger.info(f"  Probabilities std: {probabilities.std():.4f}")
+            logger.info("  Probabilities mean: {probabilities.mean():.4f}")
+            logger.info("  Probabilities std: {probabilities.std():.4f}")
 
             # Check if all probabilities are high
             high_prob_count = (probabilities > 0.5).sum()
             total_predictions = probabilities.numel()
 
             logger.info(
-                f"  Predictions > 0.5: {high_prob_count}/{total_predictions} ({100*high_prob_count/total_predictions:.1f}%)"
+                "  Predictions > 0.5: {high_prob_count}/{total_predictions} ({100*high_prob_count/total_predictions:.1f}%)"
             )
 
             # Sample analysis
@@ -98,17 +97,17 @@ def diagnose_model_outputs():
                 top_emotions_idx = torch.topk(sample_probs, 5).indices
                 true_emotions_idx = torch.where(sample_labels == 1)[0]
 
-                logger.info(f"  Sample {i}:")
-                logger.info(f"    True emotions: {true_emotions_idx.tolist()}")
-                logger.info(f"    Top predicted: {top_emotions_idx.tolist()}")
-                logger.info(f"    Top probs: {sample_probs[top_emotions_idx].tolist()}")
+                logger.info("  Sample {i}:")
+                logger.info("    True emotions: {true_emotions_idx.tolist()}")
+                logger.info("    Top predicted: {top_emotions_idx.tolist()}")
+                logger.info("    Top probs: {sample_probs[top_emotions_idx].tolist()}")
 
             break
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ Diagnosis failed: {e}")
+        logger.error("❌ Diagnosis failed: {e}")
         return False
 
 
@@ -128,33 +127,33 @@ def diagnose_loss_function():
         labels[0, [1, 5, 10]] = 1  # Sample 0 has emotions 1, 5, 10
         labels[1, [2, 7]] = 1  # Sample 1 has emotions 2, 7
 
-        logger.info(f"Test logits shape: {logits.shape}")
-        logger.info(f"Test labels shape: {labels.shape}")
-        logger.info(f"Labels per sample: {labels.sum(dim=1).tolist()}")
+        logger.info("Test logits shape: {logits.shape}")
+        logger.info("Test labels shape: {labels.shape}")
+        logger.info("Labels per sample: {labels.sum(dim=1).tolist()}")
 
         # Test BCE loss
         bce_loss = torch.nn.BCEWithLogitsLoss()
         loss = bce_loss(logits, labels)
 
-        logger.info(f"BCE Loss: {loss.item():.4f}")
+        logger.info("BCE Loss: {loss.item():.4f}")
 
         # Test with class weights
         pos_weight = torch.ones(num_emotions) * 2.0  # Give more weight to positive class
         weighted_bce = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
         weighted_loss = weighted_bce(logits, labels)
 
-        logger.info(f"Weighted BCE Loss: {weighted_loss.item():.4f}")
+        logger.info("Weighted BCE Loss: {weighted_loss.item():.4f}")
 
         # Check gradients
         logits.requires_grad_(True)
         loss.backward()
 
-        logger.info(f"Gradient magnitude: {logits.grad.abs().mean():.6f}")
+        logger.info("Gradient magnitude: {logits.grad.abs().mean():.6f}")
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ Loss function diagnosis failed: {e}")
+        logger.error("❌ Loss function diagnosis failed: {e}")
         return False
 
 
@@ -170,15 +169,15 @@ def main():
 
     passed = 0
     for test_name, test_func in tests:
-        logger.info(f"\n🔍 {test_name}")
+        logger.info("\n🔍 {test_name}")
         if test_func():
             passed += 1
-            logger.info(f"✅ {test_name} completed")
+            logger.info("✅ {test_name} completed")
         else:
-            logger.error(f"❌ {test_name} failed")
+            logger.error("❌ {test_name} failed")
 
     logger.info("=" * 50)
-    logger.info(f"📊 Diagnostics completed: {passed}/{len(tests)} tests passed")
+    logger.info("📊 Diagnostics completed: {passed}/{len(tests)} tests passed")
 
     return 0 if passed == len(tests) else 1
 

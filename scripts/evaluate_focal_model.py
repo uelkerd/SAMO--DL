@@ -13,8 +13,6 @@ import logging
 import torch
 from torch import nn
 from pathlib import Path
-import json
-import numpy as np
 from sklearn.metrics import f1_score, precision_score, recall_score
 from tqdm import tqdm
 
@@ -42,7 +40,7 @@ class SimpleBERTClassifier(nn.Module):
 
 def load_trained_model(model_path):
     """Load the trained focal loss model."""
-    logger.info(f"📂 Loading trained model from {model_path}")
+    logger.info("📂 Loading trained model from {model_path}")
 
     # Create model
     model = SimpleBERTClassifier(model_name="bert-base-uncased", num_classes=28)
@@ -52,11 +50,11 @@ def load_trained_model(model_path):
     model.load_state_dict(checkpoint["model_state_dict"])
 
     logger.info("✅ Model loaded successfully")
-    logger.info(f"   • Final loss: {checkpoint['final_loss']:.4f}")
-    logger.info(f"   • Focal loss alpha: {checkpoint['focal_loss_alpha']}")
-    logger.info(f"   • Focal loss gamma: {checkpoint['focal_loss_gamma']}")
-    logger.info(f"   • Learning rate: {checkpoint['learning_rate']}")
-    logger.info(f"   • Epochs trained: {checkpoint['epochs']}")
+    logger.info("   • Final loss: {checkpoint['final_loss']:.4f}")
+    logger.info("   • Focal loss alpha: {checkpoint['focal_loss_alpha']}")
+    logger.info("   • Focal loss gamma: {checkpoint['focal_loss_gamma']}")
+    logger.info("   • Learning rate: {checkpoint['learning_rate']}")
+    logger.info("   • Epochs trained: {checkpoint['epochs']}")
 
     return model
 
@@ -338,7 +336,7 @@ def create_test_data():
 
 def evaluate_model(model, test_data, threshold=0.5):
     """Evaluate the model with given threshold."""
-    logger.info(f"🔍 Evaluating model with threshold {threshold}")
+    logger.info("🔍 Evaluating model with threshold {threshold}")
 
     device = next(model.parameters()).device
     model.eval()
@@ -380,12 +378,12 @@ def evaluate_model(model, test_data, threshold=0.5):
     precision_macro = precision_score(all_labels, all_predictions, average="macro", zero_division=0)
     recall_macro = recall_score(all_labels, all_predictions, average="macro", zero_division=0)
 
-    logger.info(f"📊 Evaluation Results (threshold={threshold}):")
-    logger.info(f"   • F1 Macro: {f1_macro:.4f}")
-    logger.info(f"   • F1 Micro: {f1_micro:.4f}")
-    logger.info(f"   • F1 Weighted: {f1_weighted:.4f}")
-    logger.info(f"   • Precision Macro: {precision_macro:.4f}")
-    logger.info(f"   • Recall Macro: {recall_macro:.4f}")
+    logger.info("📊 Evaluation Results (threshold={threshold}):")
+    logger.info("   • F1 Macro: {f1_macro:.4f}")
+    logger.info("   • F1 Micro: {f1_micro:.4f}")
+    logger.info("   • F1 Weighted: {f1_weighted:.4f}")
+    logger.info("   • Precision Macro: {precision_macro:.4f}")
+    logger.info("   • Recall Macro: {recall_macro:.4f}")
 
     return {
         "f1_macro": f1_macro,
@@ -451,15 +449,15 @@ def optimize_threshold(model, test_data):
             best_threshold = threshold
 
     logger.info("🎯 Threshold Optimization Results:")
-    logger.info(f"   • Best threshold: {best_threshold:.3f}")
-    logger.info(f"   • Best F1 Macro: {best_f1:.4f}")
+    logger.info("   • Best threshold: {best_threshold:.3f}")
+    logger.info("   • Best F1 Macro: {best_f1:.4f}")
 
     # Show top 5 thresholds
     results.sort(key=lambda x: x["f1_macro"], reverse=True)
     logger.info("📊 Top 5 thresholds:")
     for i, result in enumerate(results[:5]):
         logger.info(
-            f"   {i+1}. Threshold {result['threshold']:.3f}: F1 Macro = {result['f1_macro']:.4f}"
+            "   {i+1}. Threshold {result['threshold']:.3f}: F1 Macro = {result['f1_macro']:.4f}"
         )
 
     return best_threshold, results
@@ -471,12 +469,12 @@ def main():
 
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Device: {device}")
+    logger.info("Device: {device}")
 
     # Load trained model
     model_path = Path("models/emotion_detection/focal_loss_model.pt")
     if not model_path.exists():
-        logger.error(f"❌ Model not found at {model_path}")
+        logger.error("❌ Model not found at {model_path}")
         logger.info(
             "🔧 Please run the training script first: python3 scripts/full_focal_training.py"
         )
@@ -487,7 +485,7 @@ def main():
 
     # Create test data
     test_data = create_test_data()
-    logger.info(f"✅ Test data created with {len(test_data)} examples")
+    logger.info("✅ Test data created with {len(test_data)} examples")
 
     # Evaluate with default threshold
     logger.info("=" * 50)
@@ -505,14 +503,14 @@ def main():
     logger.info("=" * 50)
     logger.info("📊 Performance Comparison:")
     logger.info("   Default threshold (0.5):")
-    logger.info(f"     • F1 Macro: {default_results['f1_macro']:.4f}")
-    logger.info(f"     • F1 Micro: {default_results['f1_micro']:.4f}")
-    logger.info(f"   Optimized threshold ({best_threshold:.3f}):")
-    logger.info(f"     • F1 Macro: {optimized_results['f1_macro']:.4f}")
-    logger.info(f"     • F1 Micro: {optimized_results['f1_micro']:.4f}")
+    logger.info("     • F1 Macro: {default_results['f1_macro']:.4f}")
+    logger.info("     • F1 Micro: {default_results['f1_micro']:.4f}")
+    logger.info("   Optimized threshold ({best_threshold:.3f}):")
+    logger.info("     • F1 Macro: {optimized_results['f1_macro']:.4f}")
+    logger.info("     • F1 Micro: {optimized_results['f1_micro']:.4f}")
 
     improvement = optimized_results["f1_macro"] - default_results["f1_macro"]
-    logger.info(f"   🎯 Improvement: {improvement:.4f} ({improvement*100:.2f}%)")
+    logger.info("   🎯 Improvement: {improvement:.4f} ({improvement*100:.2f}%)")
 
     # Save results
     results = {
@@ -530,7 +528,7 @@ def main():
     with open(results_dir / "evaluation_results.json", "w") as f:
         json.dump(results, f, indent=2, default=str)
 
-    logger.info(f"✅ Results saved to {results_dir / 'evaluation_results.json'}")
+    logger.info("✅ Results saved to {results_dir / 'evaluation_results.json'}")
     logger.info("🎉 Evaluation completed successfully!")
 
 

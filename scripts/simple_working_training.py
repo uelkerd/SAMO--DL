@@ -8,8 +8,6 @@ This script addresses the critical issues:
 3. Proper error handling
 """
 
-import os
-import sys
 import logging
 import torch
 from torch import nn
@@ -64,7 +62,7 @@ def train_simple_model():
 
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Using device: {device}")
+    logger.info("Using device: {device}")
 
     try:
         # Load dataset
@@ -78,9 +76,9 @@ def train_simple_model():
         datasets["class_weights"]
 
         logger.info("Dataset loaded successfully:")
-        logger.info(f"   • Train: {len(train_dataset)} examples")
-        logger.info(f"   • Validation: {len(val_dataset)} examples")
-        logger.info(f"   • Test: {len(test_dataset)} examples")
+        logger.info("   • Train: {len(train_dataset)} examples")
+        logger.info("   • Validation: {len(val_dataset)} examples")
+        logger.info("   • Test: {len(test_dataset)} examples")
 
         # Create model
         logger.info("Creating BERT model...")
@@ -102,7 +100,7 @@ def train_simple_model():
         val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
 
         # Training loop
-        best_val_loss = float("inf")
+        best_val_loss = float("in")
         training_history = []
 
         for epoch in range(2):  # Quick 2 epochs
@@ -133,7 +131,7 @@ def train_simple_model():
 
                 # Log progress every 100 batches
                 if num_batches % 100 == 0:
-                    logger.info(f"   • Batch {num_batches}: Loss = {loss.item():.4f}")
+                    logger.info("   • Batch {num_batches}: Loss = {loss.item():.4f}")
 
             avg_train_loss = train_loss / num_batches
 
@@ -157,8 +155,8 @@ def train_simple_model():
             avg_val_loss = val_loss / val_batches
 
             # Log progress
-            logger.info(f"   • Train Loss: {avg_train_loss:.4f}")
-            logger.info(f"   • Val Loss: {avg_val_loss:.4f}")
+            logger.info("   • Train Loss: {avg_train_loss:.4f}")
+            logger.info("   • Val Loss: {avg_val_loss:.4f}")
 
             training_history.append(
                 {"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": avg_val_loss}
@@ -167,7 +165,7 @@ def train_simple_model():
             # Save best model
             if avg_val_loss < best_val_loss:
                 best_val_loss = avg_val_loss
-                logger.info(f"   • New best validation loss: {best_val_loss:.4f}")
+                logger.info("   • New best validation loss: {best_val_loss:.4f}")
 
                 # Save model
                 output_dir = "./models/checkpoints"
@@ -185,16 +183,16 @@ def train_simple_model():
                     model_path,
                 )
 
-                logger.info(f"   • Model saved to: {model_path}")
+                logger.info("   • Model saved to: {model_path}")
 
         logger.info("🎉 Training completed successfully!")
-        logger.info(f"   • Best validation loss: {best_val_loss:.4f}")
+        logger.info("   • Best validation loss: {best_val_loss:.4f}")
         logger.info("   • Model saved to: ./models/checkpoints/simple_working_model.pt")
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ Training failed: {e}")
+        logger.error("❌ Training failed: {e}")
         import traceback
 
         traceback.print_exc()

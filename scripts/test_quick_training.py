@@ -16,7 +16,6 @@ Expected Results:
 """
 
 import logging
-import sys
 import time
 from pathlib import Path
 
@@ -59,11 +58,11 @@ def test_development_mode():
 
         # Validate results
         logger.info("📊 Training Results Analysis:")
-        logger.info(f"⏱️  Total training time: {training_minutes:.1f} minutes")
-        logger.info(f"📈 Final test Macro F1: {results['final_test_metrics']['macro_f1']:.4f}")
-        logger.info(f"📈 Final test Micro F1: {results['final_test_metrics']['micro_f1']:.4f}")
-        logger.info(f"🏆 Best validation score: {results['best_validation_score']:.4f}")
-        logger.info(f"🔄 Total epochs completed: {results['total_epochs']}")
+        logger.info("⏱️  Total training time: {training_minutes:.1f} minutes")
+        logger.info("📈 Final test Macro F1: {results['final_test_metrics']['macro_f1']:.4f}")
+        logger.info("📈 Final test Micro F1: {results['final_test_metrics']['micro_f1']:.4f}")
+        logger.info("🏆 Best validation score: {results['best_validation_score']:.4f}")
+        logger.info("🔄 Total epochs completed: {results['total_epochs']}")
 
         # Success criteria
         success_criteria = {
@@ -79,7 +78,7 @@ def test_development_mode():
         logger.info("✅ Success Criteria Check:")
         for criterion, passed in success_criteria.items():
             status = "✅ PASS" if passed else "❌ FAIL"
-            logger.info(f"  {criterion}: {status}")
+            logger.info("  {criterion}: {status}")
 
         # Overall assessment
         passed_criteria = sum(success_criteria.values())
@@ -90,12 +89,12 @@ def test_development_mode():
             return True
         else:
             logger.warning(
-                f"⚠️  {passed_criteria}/{total_criteria} tests passed. Some issues remain."
+                "⚠️  {passed_criteria}/{total_criteria} tests passed. Some issues remain."
             )
             return False
 
     except Exception as e:
-        logger.error(f"❌ Training test failed with error: {e}")
+        logger.error("❌ Training test failed with error: {e}")
         return False
 
 
@@ -133,20 +132,20 @@ def test_threshold_tuning():
         results = {}
 
         for threshold in thresholds:
-            logger.info(f"Testing threshold: {threshold}")
+            logger.info("Testing threshold: {threshold}")
             metrics = evaluate_emotion_classifier(
                 trainer.model, trainer.val_dataloader, trainer.device, threshold=threshold
             )
             results[threshold] = {"macro_f1": metrics["macro_f1"], "micro_f1": metrics["micro_f1"]}
             logger.info(
-                f"  Macro F1: {metrics['macro_f1']:.4f}, Micro F1: {metrics['micro_f1']:.4f}"
+                "  Macro F1: {metrics['macro_f1']:.4f}, Micro F1: {metrics['micro_f1']:.4f}"
             )
 
         # Find best threshold
         best_threshold = max(results.keys(), key=lambda t: results[t]["macro_f1"])
         best_f1 = results[best_threshold]["macro_f1"]
 
-        logger.info(f"🎯 Best threshold: {best_threshold} (Macro F1: {best_f1:.4f})")
+        logger.info("🎯 Best threshold: {best_threshold} (Macro F1: {best_f1:.4f})")
 
         if best_f1 > 0.1:
             logger.info("✅ Threshold tuning successful - found working threshold")
@@ -156,7 +155,7 @@ def test_threshold_tuning():
             return False
 
     except Exception as e:
-        logger.error(f"❌ Threshold tuning test failed: {e}")
+        logger.error("❌ Threshold tuning test failed: {e}")
         return False
 
 
@@ -174,8 +173,8 @@ def main():
     # Summary
     logger.info("=" * 60)
     logger.info("📋 Test Summary:")
-    logger.info(f"  Development Mode Test: {'✅ PASS' if test1_passed else '❌ FAIL'}")
-    logger.info(f"  Threshold Tuning Test: {'✅ PASS' if test2_passed else '❌ FAIL'}")
+    logger.info("  Development Mode Test: {'✅ PASS' if test1_passed else '❌ FAIL'}")
+    logger.info("  Threshold Tuning Test: {'✅ PASS' if test2_passed else '❌ FAIL'}")
 
     if test1_passed and test2_passed:
         logger.info("🎉 ALL TESTS PASSED! Ready for production training.")
