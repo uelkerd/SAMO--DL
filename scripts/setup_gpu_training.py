@@ -1,20 +1,38 @@
 import os
-
 #!/usr/bin/env python3
 import argparse
 import logging
 from pathlib import Path
-
 import torch
-
 # Set up logging
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
 # Environment setup
 import torch
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
 # Resume training on GPU from epoch {epoch}
+    # Disable tokenizers parallelism warning
+    # Enable CUDA optimizations
+    # GPU Info
+    # Optimization recommendations
+    # Speed estimates
+    # Determine optimal batch size
+# Auto-generated based on your GPU: {torch.cuda.get_device_name()}
+# Memory: {gpu_memory:.1f} GB
+# GPU-optimized training parameters
+# Train the model
+    # Save configuration
+    # Load checkpoint
+    # Create resume script
+# Auto-generated GPU resume script
+# Load checkpoint and continue training
+# Train normally - the trainer will create a new model
+# TODO: Implement checkpoint resume functionality in trainer class
+    # Setup environment
+
+
+
+
+
 
 """GPU Training Setup Script for SAMO Deep Learning.
 
@@ -32,10 +50,8 @@ logger = logging.getLogger(__name__)
 
 def setup_gpu_environment() -> None:
     """Set up environment variables for optimal GPU training."""
-    # Disable tokenizers parallelism warning
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-    # Enable CUDA optimizations
     os.environ["CUDA_LAUNCH_BLOCKING"] = "0"  # Async CUDA kernels for speed
     os.environ["TORCH_CUDA_ARCH_LIST"] = "7.5;8.0;8.6"  # Support modern GPUs
 
@@ -53,36 +69,33 @@ def check_gpu_availability() -> bool:
         )
         return False
 
-    # GPU Info
     device_name = torch.cuda.get_device_name()
     memory_total = torch.cuda.get_device_properties(0).total_memory / 1e9
 
     logger.info("✅ GPU Available: {device_name}")
     logger.info("   Memory: {memory_total:.1f} GB")
 
-    # Optimization recommendations
-    print("\n💡 GPU Training Optimizations:")
+    logging.info("\n💡 GPU Training Optimizations:")
 
     if memory_total >= 12:  # 12GB+ GPU
-        print("   • Use batch_size=32 (you have {memory_total:.1f}GB memory)")
-        print("   • Enable mixed precision training (fp16)")
-        print("   • Consider gradient accumulation for larger effective batch sizes")
+        logging.info("   • Use batch_size=32 (you have {memory_total:.1f}GB memory)")
+        logging.info("   • Enable mixed precision training (fp16)")
+        logging.info("   • Consider gradient accumulation for larger effective batch sizes")
     elif memory_total >= 8:  # 8-12GB GPU
-        print("   • Use batch_size=16-24 (you have {memory_total:.1f}GB memory)")
-        print("   • Enable mixed precision training (fp16)")
-        print("   • Monitor memory usage")
+        logging.info("   • Use batch_size=16-24 (you have {memory_total:.1f}GB memory)")
+        logging.info("   • Enable mixed precision training (fp16)")
+        logging.info("   • Monitor memory usage")
     else:  # <8GB GPU
-        print("   • Use batch_size=8-12 (you have {memory_total:.1f}GB memory)")
-        print("   • Enable mixed precision training (fp16) - REQUIRED")
-        print("   • Consider gradient checkpointing to save memory")
+        logging.info("   • Use batch_size=8-12 (you have {memory_total:.1f}GB memory)")
+        logging.info("   • Enable mixed precision training (fp16) - REQUIRED")
+        logging.info("   • Consider gradient checkpointing to save memory")
 
-    # Speed estimates
     if "A100" in device_name or "V100" in device_name:
-        print("   • Expected training speedup: 15-20x vs CPU")
+        logging.info("   • Expected training speedup: 15-20x vs CPU")
     elif "RTX" in device_name or "T4" in device_name:
-        print("   • Expected training speedup: 8-12x vs CPU")
+        logging.info("   • Expected training speedup: 8-12x vs CPU")
     else:
-        print("   • Expected training speedup: 5-8x vs CPU")
+        logging.info("   • Expected training speedup: 5-8x vs CPU")
 
     return True
 
@@ -91,7 +104,6 @@ def create_gpu_training_config():
     """Create optimized training configuration for GPU."""
     gpu_memory = torch.cuda.get_device_properties(0).total_memory / 1e9
 
-    # Determine optimal batch size
     if gpu_memory >= 12:
         batch_size = 32
     elif gpu_memory >= 8:
@@ -100,12 +112,9 @@ def create_gpu_training_config():
         batch_size = 12
 
     config = """# GPU Training Configuration for SAMO Deep Learning
-# Auto-generated based on your GPU: {torch.cuda.get_device_name()}
-# Memory: {gpu_memory:.1f} GB
 
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 
-# GPU-optimized training parameters
 trainer = EmotionDetectionTrainer(
     model_name="bert-base-uncased",
     cache_dir="./data/cache",
@@ -120,15 +129,13 @@ trainer = EmotionDetectionTrainer(
     device="cuda"  # Force GPU usage
 )
 
-# Train the model
 results = trainer.train()
 
-print("\\nTraining completed!")
-print("Best validation score: {{results['best_validation_score']:.4f}}")
-print("Final test Macro F1: {{results['final_test_metrics']['macro_f1']:.4f}}")
+logging.info("\\nTraining completed!")
+logging.info("Best validation score: {{results['best_validation_score']:.4f}}")
+logging.info("Final test Macro F1: {{results['final_test_metrics']['macro_f1']:.4f}}")
 """
 
-    # Save configuration
     config_path = Path("train_gpu.py")
     config_path.write_text(config)
 
@@ -146,7 +153,6 @@ def resume_training_on_gpu(checkpoint_path: str) -> None:
 
     logger.info("📁 Loading checkpoint: {checkpoint_path}")
 
-    # Load checkpoint
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     checkpoint = torch.load(checkpoint_path, map_location=device)
 
@@ -155,9 +161,7 @@ def resume_training_on_gpu(checkpoint_path: str) -> None:
 
     logger.info("✅ Checkpoint loaded - Epoch: {epoch}, Best F1: {best_score:.4f}")
 
-    # Create resume script
     resume_script = """#!/usr/bin/env python3
-# Auto-generated GPU resume script
 
 trainer = EmotionDetectionTrainer(
     model_name="bert-base-uncased",
@@ -169,27 +173,24 @@ trainer = EmotionDetectionTrainer(
     device="cuda"
 )
 
-# Load checkpoint and continue training
-print("Resuming training on GPU from checkpoint...")
-print("Note: You may need to manually implement checkpoint loading in the trainer")
-print("Checkpoint path: {checkpoint_path}")
+logging.info("Resuming training on GPU from checkpoint...")
+logging.info("Note: You may need to manually implement checkpoint loading in the trainer")
+logging.info("Checkpoint path: {checkpoint_path}")
 
-# Train normally - the trainer will create a new model
-# TODO: Implement checkpoint resume functionality in trainer class
 results = trainer.train()
 
-print("\\nGPU training completed!")
-print("Best validation score: {{results['best_validation_score']:.4f}}")
+logging.info("\\nGPU training completed!")
+logging.info("Best validation score: {{results['best_validation_score']:.4f}}")
 """
 
     script_path = Path("resume_gpu_training.py")
     script_path.write_text(resume_script)
 
     logger.info("✅ Resume script created: {script_path}")
-    print("\n💡 To resume training on GPU:")
-    print("   1. Let current CPU training complete")
-    print("   2. Run: python {script_path}")
-    print("   3. Monitor GPU usage with: watch -n 1 nvidia-smi")
+    logging.info("\n💡 To resume training on GPU:")
+    logging.info("   1. Let current CPU training complete")
+    logging.info("   2. Run: python {script_path}")
+    logging.info("   3. Monitor GPU usage with: watch -n 1 nvidia-smi")
 
 
 def main() -> None:
@@ -201,12 +202,11 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    # Setup environment
     setup_gpu_environment()
 
     if args.check or not any([args.create_config, args.resume_training]):
         if check_gpu_availability():
-            print("\n🚀 Ready for GPU training!")
+            logging.info("\n🚀 Ready for GPU training!")
         else:
             return
 

@@ -1,11 +1,12 @@
 import logging
-
 import torch
 from pathlib import Path
-
-
-
 #!/usr/bin/env python3
+    # Load checkpoint
+
+
+
+
 """
 Debug Checkpoint Format
 """
@@ -19,7 +20,6 @@ def debug_checkpoint():
 
     logging.info("🔍 Debugging checkpoint format...")
 
-    # Load checkpoint
     checkpoint = torch.load(checkpoint_path, map_location="cpu")
 
     logging.info("Checkpoint type: {type(checkpoint)}")
@@ -27,7 +27,7 @@ def debug_checkpoint():
 
     if isinstance(checkpoint, dict):
         logging.info("\n📋 Dictionary keys:")
-        for key in checkpoint:
+        for __key in checkpoint:
             logging.info("  - {key}: {type(checkpoint[key])}")
     elif isinstance(checkpoint, tuple):
         logging.info("\n📋 Tuple length: {len(checkpoint)}")

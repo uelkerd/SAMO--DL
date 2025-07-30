@@ -1,16 +1,24 @@
 import os
 import sys
-
 #!/usr/bin/env python3
 import argparse
 import torch
 import logging
 from pathlib import Path
-
 # Add src to path
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-
 # Configure logging
+# Constants
+    # Find an existing model file
+        # Load checkpoint
+        # Create model
+        # Load state dict
+        # Update threshold
+        # Set temperature
+        # Save model
+
+
+
 
 """
 Update Model Threshold
@@ -29,7 +37,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
-# Constants
 DEFAULT_THRESHOLD = 0.6
 DEFAULT_TEMPERATURE = 1.0
 MODEL_PATHS = ["models/checkpoints/bert_emotion_classifier.pth", "test_checkpoints/best_model.pt"]
@@ -48,9 +55,8 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
         logger.error("Invalid threshold: {threshold}. Must be between 0.0 and 1.0")
         return False
 
-    # Find an existing model file
     model_path = None
-    for path in MODEL_PATHS:
+    for __path in MODEL_PATHS:
         if Path(path).exists():
             model_path = path
             break
@@ -62,13 +68,10 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
     logger.info("Loading model from {model_path}...")
 
     try:
-        # Load checkpoint
         checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
 
-        # Create model
         model, _ = create_bert_emotion_classifier()
 
-        # Load state dict
         if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
             model.load_state_dict(checkpoint["model_state_dict"])
         elif isinstance(checkpoint, dict):
@@ -77,16 +80,13 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
             logger.error("Unexpected checkpoint format: {type(checkpoint)}")
             return False
 
-        # Update threshold
         logger.info(
             "Updating prediction threshold from {model.prediction_threshold} to {threshold}"
         )
         model.prediction_threshold = threshold
 
-        # Set temperature
         model.set_temperature(DEFAULT_TEMPERATURE)
 
-        # Save model
         logger.info("Saving updated model to {model_path}")
 
         if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:

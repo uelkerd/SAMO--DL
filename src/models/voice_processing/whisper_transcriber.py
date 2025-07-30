@@ -7,13 +7,55 @@ import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional, Union
-
 import numpy as np
 import torch
 import whisper
 from pydub import AudioSegment
-
 # Configure logging
+# Suppress warnings from audio processing
+        # Check file exists
+        # Check file extension
+            # Load audio to validate
+            # Check duration
+        # Validate input
+        # Load audio
+        # Get original metadata
+        # Convert to mono if stereo
+        # Normalize sample rate to 16kHz (Whisper's expected rate)
+        # Apply light noise reduction (normalize volume)
+        # Generate output path if not provided
+        # Export processed audio as WAV
+        # Updated metadata
+        # Set device
+        # Load Whisper model
+        # Initialize preprocessor
+        # Preprocess audio
+            # Transcription options
+            # Remove None values
+            # Perform transcription
+            # Calculate metrics
+            # Assess audio quality
+            # Calculate confidence from segments
+            # Cleanup temporary processed audio file
+                # Add error result
+        # Whisper doesn't directly provide confidence, but we can estimate
+        # from avg_logprob and no_speech_prob
+            # Convert average log probability to confidence estimate
+            # Simple heuristic: higher logprob and lower no_speech_prob = higher confidence
+        # Factors for quality assessment
+        # Quality scoring
+        # Good compression ratio (2.4 is threshold)
+        # Good average log probability (higher is better)
+        # Low no-speech probability (lower is better)
+        # Map score to quality level
+    # Create transcriber
+    # For testing, we'll create a simple test - note this requires actual audio
+    # In a real test, you would:
+    # result = transcriber.transcribe_audio("path/to/test/audio.wav")
+    # logger.info("Transcription: {result.text}", extra={"format_args": True})
+    # logger.info("Confidence: {result.confidence:.2f}", extra={"format_args": True})
+
+
 
 """OpenAI Whisper Transcriber for SAMO Deep Learning.
 
@@ -33,7 +75,6 @@ Key Features:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Suppress warnings from audio processing
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -95,19 +136,15 @@ class AudioPreprocessor:
         """
         audio_path = Path(audio_path)
 
-        # Check file exists
         if not audio_path.exists():
             return False, "Audio file not found: {audio_path}"
 
-        # Check file extension
         if audio_path.suffix.lower() not in AudioPreprocessor.SUPPORTED_FORMATS:
             return False, "Unsupported audio format: {audio_path.suffix}"
 
         try:
-            # Load audio to validate
             audio = AudioSegment.from_file(str(audio_path))
 
-            # Check duration
             duration = len(audio) / 1000.0  # Convert to seconds
             if duration > AudioPreprocessor.MAX_DURATION:
                 return False, "Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s"
@@ -135,17 +172,14 @@ class AudioPreprocessor:
         """
         audio_path = Path(audio_path)
 
-        # Validate input
         is_valid, error_msg = AudioPreprocessor.validate_audio_file(audio_path)
         if not is_valid:
             raise ValueError(error_msg)
 
         logger.info("Preprocessing audio: {audio_path}", extra={"format_args": True})
 
-        # Load audio
         audio = AudioSegment.from_file(str(audio_path))
 
-        # Get original metadata
         original_metadata = {
             "duration": len(audio) / 1000.0,
             "sample_rate": audio.frame_rate,
@@ -154,31 +188,25 @@ class AudioPreprocessor:
             "file_size": audio_path.stat().st_size,
         }
 
-        # Convert to mono if stereo
         if audio.channels > 1:
             audio = audio.set_channels(1)
             logger.info("Converted stereo to mono")
 
-        # Normalize sample rate to 16kHz (Whisper's expected rate)
         if audio.frame_rate != AudioPreprocessor.TARGET_SAMPLE_RATE:
             audio = audio.set_frame_rate(AudioPreprocessor.TARGET_SAMPLE_RATE)
             logger.info(
                 "Resampled to {AudioPreprocessor.TARGET_SAMPLE_RATE}Hz", extra={"format_args": True}
             )
 
-        # Apply light noise reduction (normalize volume)
         audio = audio.normalize()
 
-        # Generate output path if not provided
         if output_path is None:
             temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
             output_path = temp_file.name
             temp_file.close()
 
-        # Export processed audio as WAV
         audio.export(str(output_path), format="wav")
 
-        # Updated metadata
         processed_metadata = {
             **original_metadata,
             "processed_duration": len(audio) / 1000.0,
@@ -208,7 +236,6 @@ class WhisperTranscriber:
         if model_size:
             self.config.model_size = model_size
 
-        # Set device
         if self.config.device is None:
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         else:
@@ -219,7 +246,6 @@ class WhisperTranscriber:
         )
         logger.info("Device: {self.device}", extra={"format_args": True})
 
-        # Load Whisper model
         try:
             self.model = whisper.load_model(self.config.model_size, device=self.device)
             logger.info(
@@ -231,7 +257,6 @@ class WhisperTranscriber:
             logger.error(f"❌ Failed to load Whisper model: {e}")
             raise RuntimeError(f"Whisper model loading failed: {e}")
 
-        # Initialize preprocessor
         self.preprocessor = AudioPreprocessor()
 
     def transcribe(
@@ -254,11 +279,9 @@ class WhisperTranscriber:
 
         logger.info("Starting transcription: {audio_path}", extra={"format_args": True})
 
-        # Preprocess audio
         processed_audio_path, audio_metadata = self.preprocessor.preprocess_audio(audio_path)
 
         try:
-            # Transcription options
             transcribe_options = {
                 "language": language or self.config.language,
                 "task": self.config.task,
@@ -276,13 +299,10 @@ class WhisperTranscriber:
                 "no_speech_threshold": self.config.no_speech_threshold,
             }
 
-            # Remove None values
             transcribe_options = {k: v for k, v in transcribe_options.items() if v is not None}
 
-            # Perform transcription
             result = self.model.transcribe(processed_audio_path, **transcribe_options)
 
-            # Calculate metrics
             processing_time = time.time() - start_time
             word_count = len(result["text"].split())
             speaking_rate = (
@@ -291,10 +311,8 @@ class WhisperTranscriber:
                 else 0
             )
 
-            # Assess audio quality
             audio_quality = self._assess_audio_quality(result, audio_metadata)
 
-            # Calculate confidence from segments
             confidence = self._calculate_confidence(result.get("segments", []))
 
             transcription_result = TranscriptionResult(
@@ -322,7 +340,6 @@ class WhisperTranscriber:
             return transcription_result
 
         finally:
-            # Cleanup temporary processed audio file
             if processed_audio_path != str(audio_path):
                 with contextlib.suppress(Exception):
                     os.unlink(processed_audio_path)
@@ -363,7 +380,6 @@ class WhisperTranscriber:
 
             except Exception:
                 logger.error("Failed to transcribe {audio_path}: {e}", extra={"format_args": True})
-                # Add error result
                 results.append(
                     TranscriptionResult(
                         text="",
@@ -404,15 +420,11 @@ class WhisperTranscriber:
         if not segments:
             return 0.0
 
-        # Whisper doesn't directly provide confidence, but we can estimate
-        # from avg_logprob and no_speech_prob
         confidences = []
-        for segment in segments:
-            # Convert average log probability to confidence estimate
+        for __segment in segments:
             avg_logprob = segment.get("avg_logprob", -1.0)
             no_speech_prob = segment.get("no_speech_prob", 0.5)
 
-            # Simple heuristic: higher logprob and lower no_speech_prob = higher confidence
             segment_confidence = min(1.0, max(0.0, np.exp(avg_logprob) * (1 - no_speech_prob)))
             confidences.append(segment_confidence)
 
@@ -428,33 +440,27 @@ class WhisperTranscriber:
         Returns:
             Quality assessment: excellent, good, fair, poor
         """
-        # Factors for quality assessment
         compression_ratio = result.get("compression_ratio", 2.0)
         avg_logprob = result.get("avg_logprob", -0.5)
         no_speech_prob = result.get("no_speech_prob", 0.3)
 
-        # Quality scoring
         quality_score = 0
 
-        # Good compression ratio (2.4 is threshold)
         if compression_ratio <= 2.4:
             quality_score += 2
         elif compression_ratio <= 3.0:
             quality_score += 1
 
-        # Good average log probability (higher is better)
         if avg_logprob > -0.3:
             quality_score += 2
         elif avg_logprob > -0.5:
             quality_score += 1
 
-        # Low no-speech probability (lower is better)
         if no_speech_prob < 0.2:
             quality_score += 2
         elif no_speech_prob < 0.4:
             quality_score += 1
 
-        # Map score to quality level
         if quality_score >= 5:
             return "excellent"
         elif quality_score >= 3:
@@ -502,17 +508,11 @@ def test_whisper_transcriber() -> None:
     """Test Whisper transcriber with sample audio."""
     logger.info("Testing Whisper transcriber...")
 
-    # Create transcriber
     transcriber = create_whisper_transcriber("base")
 
-    # For testing, we'll create a simple test - note this requires actual audio
     logger.info("Whisper transcriber initialized successfully")
     logger.info("Model info:", transcriber.get_model_info())
 
-    # In a real test, you would:
-    # result = transcriber.transcribe_audio("path/to/test/audio.wav")
-    # logger.info("Transcription: {result.text}", extra={"format_args": True})
-    # logger.info("Confidence: {result.confidence:.2f}", extra={"format_args": True})
 
     logger.info("✅ Whisper transcriber test complete!")
 

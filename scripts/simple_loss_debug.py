@@ -1,13 +1,25 @@
 import os
-
 #!/usr/bin/env python3
 import logging
 from pathlib import Path
-
 # Configure logging
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+    # Common causes of 0.0000 loss
+    # Look for training log files
+    # Scenario 1: Normal case
+    # Scenario 2: All zeros
+    # Scenario 3: All ones
+    # Scenario 4: Perfect predictions
+    # Scenario 5: Very small logits
+    # Analyze loss pattern
+    # Check training logs
+    # Suggest debugging steps
+    # Create test script
+    # Summary
+
+
 
 
 """
@@ -24,7 +36,6 @@ def analyze_loss_pattern():
     """Analyze the pattern of 0.0000 loss values."""
     logger.info("🔍 Analyzing 0.0000 loss pattern...")
 
-    # Common causes of 0.0000 loss
     causes = [
         "1. **All labels are zero** - If all target labels are 0, BCE loss can be 0",
         "2. **All labels are one** - If all target labels are 1, and predictions are perfect",
@@ -37,7 +48,7 @@ def analyze_loss_pattern():
     ]
 
     logger.info("📋 Possible causes of 0.0000 loss:")
-    for cause in causes:
+    for __cause in causes:
         logger.info("   {cause}")
 
     return causes
@@ -47,7 +58,6 @@ def check_training_logs():
     """Check for patterns in training logs."""
     logger.info("🔍 Checking training log patterns...")
 
-    # Look for training log files
     log_patterns = [
         "*.log",
         "logs/*.log",
@@ -55,13 +65,13 @@ def check_training_logs():
     ]
 
     found_logs = []
-    for pattern in log_patterns:
+    for __pattern in log_patterns:
         for log_file in Path(".").glob(pattern):
             found_logs.append(log_file)
 
     if found_logs:
         logger.info("📁 Found {len(found_logs)} log files:")
-        for log_file in found_logs:
+        for __log_file in found_logs:
             logger.info("   {log_file}")
     else:
         logger.info("📁 No log files found")
@@ -85,7 +95,7 @@ def suggest_debugging_steps():
     ]
 
     logger.info("📋 Recommended debugging steps:")
-    for step in steps:
+    for __step in steps:
         logger.info("   {step}")
 
     return steps
@@ -102,42 +112,37 @@ Simple Test Script for Loss Debugging
 
 def test_bce_loss():
     """Test BCE loss with different scenarios."""
-    print("🧪 Testing BCE Loss Scenarios...")
+    logging.info("🧪 Testing BCE Loss Scenarios...")
 
-    # Scenario 1: Normal case
     logits = torch.randn(4, 28)  # 4 samples, 28 classes
     labels = torch.randint(0, 2, (4, 28)).float()  # Random binary labels
 
     loss = F.binary_cross_entropy_with_logits(logits, labels)
-    print("Normal case - Loss: {loss.item():.6f}")
+    logging.info("Normal case - Loss: {loss.item():.6f}")
 
-    # Scenario 2: All zeros
     logits = torch.randn(4, 28)
     labels = torch.zeros(4, 28)
 
     loss = F.binary_cross_entropy_with_logits(logits, labels)
-    print("All zeros - Loss: {loss.item():.6f}")
+    logging.info("All zeros - Loss: {loss.item():.6f}")
 
-    # Scenario 3: All ones
     logits = torch.randn(4, 28)
     labels = torch.ones(4, 28)
 
     loss = F.binary_cross_entropy_with_logits(logits, labels)
-    print("All ones - Loss: {loss.item():.6f}")
+    logging.info("All ones - Loss: {loss.item():.6f}")
 
-    # Scenario 4: Perfect predictions
     logits = torch.tensor([[10.0, -10.0, 10.0, -10.0]] * 4)  # Strong predictions
     labels = torch.tensor([[1.0, 0.0, 1.0, 0.0]] * 4)  # Perfect targets
 
     loss = F.binary_cross_entropy_with_logits(logits, labels)
-    print("Perfect predictions - Loss: {loss.item():.6f}")
+    logging.info("Perfect predictions - Loss: {loss.item():.6f}")
 
-    # Scenario 5: Very small logits
     logits = torch.tensor([[0.001, -0.001, 0.001, -0.001]] * 4)
     labels = torch.tensor([[1.0, 0.0, 1.0, 0.0]] * 4)
 
     loss = F.binary_cross_entropy_with_logits(logits, labels)
-    print("Small logits - Loss: {loss.item():.6f}")
+    logging.info("Small logits - Loss: {loss.item():.6f}")
 
 if __name__ == "__main__":
     test_bce_loss()
@@ -154,19 +159,14 @@ def main():
     """Main debugging function."""
     logger.info("🚀 Starting simple loss debugging...")
 
-    # Analyze loss pattern
     causes = analyze_loss_pattern()
 
-    # Check training logs
     logs = check_training_logs()
 
-    # Suggest debugging steps
     steps = suggest_debugging_steps()
 
-    # Create test script
     test_script = create_test_script()
 
-    # Summary
     logger.info("\n" + "="*60)
     logger.info("📋 SIMPLE DEBUG SUMMARY")
     logger.info("="*60)

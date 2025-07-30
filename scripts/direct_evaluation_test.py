@@ -1,13 +1,28 @@
 import numpy as np
 import sys
-
 #!/usr/bin/env python3
 from pathlib import Path
 import torch
 import logging
-
 # Add src to path
 from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+    # Initialize trainer
+    # Load model
+    # Get one batch from validation data
+    # Unpack batch data
+    # Move to device
+    # Run model inference
+        # Get model output
+        # Check what type of output we get
+        # Apply sigmoid to get probabilities
+        # Test threshold application
+        # Count expected predictions
+        # Apply threshold
+        # Check if any samples have zero predictions
+        # Convert to numpy for metrics calculation
+        # Calculate F1 manually
+
+
 
 
 """
@@ -25,10 +40,8 @@ def test_direct_evaluation():
 
     logger.info("🔍 Direct evaluation test")
 
-    # Initialize trainer
     trainer = EmotionDetectionTrainer(dev_mode=True, batch_size=32, num_epochs=1)
 
-    # Load model
     model_path = Path("models/checkpoints/bert_emotion_classifier.pth")
     if not model_path.exists():
         logger.error("❌ Model not found at {model_path}")
@@ -37,11 +50,9 @@ def test_direct_evaluation():
     trainer.load_model(str(model_path))
     logger.info("✅ Model loaded")
 
-    # Get one batch from validation data
     val_loader = trainer.val_loader
     batch = next(iter(val_loader))
 
-    # Unpack batch data
     if isinstance(batch, dict):
         input_ids = batch["input_ids"]
         attention_mask = batch["attention_mask"]
@@ -54,19 +65,15 @@ def test_direct_evaluation():
     logger.info("  - Targets shape: {targets.shape}")
     logger.info("  - Targets sum: {targets.sum().item()}")
 
-    # Move to device
     device = trainer.device
     input_ids = input_ids.to(device)
     attention_mask = attention_mask.to(device)
     targets = targets.to(device)
 
-    # Run model inference
     trainer.model.eval()
     with torch.no_grad():
-        # Get model output
         model_output = trainer.model(input_ids, attention_mask)
 
-        # Check what type of output we get
         logger.info("📊 Model output type: {type(model_output)}")
 
         logits = model_output["logits"] if isinstance(model_output, dict) else model_output
@@ -74,18 +81,15 @@ def test_direct_evaluation():
         logger.info("📊 Logits shape: {logits.shape}")
         logger.info("📊 Logits min/max: {logits.min().item():.4f}/{logits.max().item():.4f}")
 
-        # Apply sigmoid to get probabilities
         probabilities = torch.sigmoid(logits)
         logger.info("📊 Probabilities shape: {probabilities.shape}")
         logger.info(
             "📊 Probabilities min/max/mean: {probabilities.min().item():.4f}/{probabilities.max().item():.4f}/{probabilities.mean().item():.4f}"
         )
 
-        # Test threshold application
         threshold = 0.2
         logger.info("\n🎯 Testing threshold: {threshold}")
 
-        # Count expected predictions
         expected_predictions = (probabilities >= threshold).sum().item()
         total_positions = probabilities.numel()
 
@@ -93,7 +97,6 @@ def test_direct_evaluation():
             "📊 Expected predictions: {expected_predictions}/{total_positions} ({100*expected_predictions/total_positions:.1f}%)"
         )
 
-        # Apply threshold
         predictions = (probabilities >= threshold).float()
 
         logger.info("📊 Actual predictions:")
@@ -103,7 +106,6 @@ def test_direct_evaluation():
             "  - Match expected: {'✅' if predictions.sum().item() == expected_predictions else '❌'}"
         )
 
-        # Check if any samples have zero predictions
         samples_per_batch = predictions.shape[0]
         samples_with_zero = (predictions.sum(dim=1) == 0).sum().item()
 
@@ -136,11 +138,9 @@ def test_direct_evaluation():
 
             predictions = predictions_with_fallback
 
-        # Convert to numpy for metrics calculation
         predictions_np = predictions.cpu().numpy()
         targets_np = targets.cpu().numpy()
 
-        # Calculate F1 manually
         tp = np.sum(predictions_np * targets_np)
         fp = np.sum(predictions_np * (1 - targets_np))
         fn = np.sum((1 - predictions_np) * targets_np)

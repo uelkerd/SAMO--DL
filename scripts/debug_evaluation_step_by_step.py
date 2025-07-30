@@ -1,15 +1,27 @@
 import numpy as np
 import sys
-
 #!/usr/bin/env python3
 import logging
 import torch
 from pathlib import Path
-
 # Add src to path
 from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
 # Set up logging
+    # Initialize trainer
+    # Load model
+    # Get validation data (small batch for debugging)
+    # Take just one batch for detailed analysis
+    # Run model inference
+    # Test different thresholds
+        # Apply threshold
+        # Check which samples need fallback
+        # Apply fallback manually to see what happens
+                    # Find top-1 prediction
+        # Calculate F1 scores manually
+        # Micro F1
+
+
+
 
 """
 Debug the evaluation function step by step to find the exact issue.
@@ -26,12 +38,10 @@ def debug_evaluation_step_by_step():
 
     logger.info("🔍 Step-by-step evaluation debugging")
 
-    # Initialize trainer
     trainer = EmotionDetectionTrainer(dev_mode=True, batch_size=128, num_epochs=1)
 
     logger.info("✅ Trainer initialized")
 
-    # Load model
     model_path = Path("models/checkpoints/bert_emotion_classifier.pth")
     if not model_path.exists():
         logger.error("❌ Model not found at {model_path}")
@@ -40,10 +50,8 @@ def debug_evaluation_step_by_step():
     trainer.load_model(str(model_path))
     logger.info("✅ Model loaded")
 
-    # Get validation data (small batch for debugging)
     val_loader = trainer.val_loader
 
-    # Take just one batch for detailed analysis
     batch = next(iter(val_loader))
     input_ids, attention_mask, targets = batch
 
@@ -54,7 +62,6 @@ def debug_evaluation_step_by_step():
     logger.info("  📊 Target sum: {targets.sum().item()}")
     logger.info("  📊 Target mean: {targets.mean().item():.4f}")
 
-    # Run model inference
     trainer.model.eval()
     with torch.no_grad():
         outputs = trainer.model(input_ids, attention_mask)
@@ -70,13 +77,11 @@ def debug_evaluation_step_by_step():
     )
     logger.info("  📊 Probabilities mean: {probabilities.mean().item():.4f}")
 
-    # Test different thresholds
     thresholds = [0.1, 0.2, 0.3, 0.5]
 
-    for threshold in thresholds:
+    for __threshold in thresholds:
         logger.info("\n🎯 Testing threshold: {threshold}")
 
-        # Apply threshold
         predictions_before_fallback = (probabilities >= threshold).float()
         logger.info("  📊 Predictions before fallback:")
         logger.info("    - Shape: {predictions_before_fallback.shape}")
@@ -89,7 +94,6 @@ def debug_evaluation_step_by_step():
             "    - Samples with >0 predictions: {(predictions_before_fallback.sum(dim=1) > 0).sum().item()}"
         )
 
-        # Check which samples need fallback
         samples_needing_fallback = predictions_before_fallback.sum(dim=1) == 0
         num_samples_needing_fallback = samples_needing_fallback.sum().item()
 
@@ -99,7 +103,6 @@ def debug_evaluation_step_by_step():
             "    - Percentage needing fallback: {100 * num_samples_needing_fallback / predictions_before_fallback.shape[0]:.1f}%"
         )
 
-        # Apply fallback manually to see what happens
         predictions_after_fallback = predictions_before_fallback.clone()
 
         if num_samples_needing_fallback > 0:
@@ -107,7 +110,6 @@ def debug_evaluation_step_by_step():
 
             for sample_idx in range(predictions_after_fallback.shape[0]):
                 if predictions_after_fallback[sample_idx].sum() == 0:
-                    # Find top-1 prediction
                     top_idx = torch.topk(probabilities[sample_idx], k=1, dim=0)[1]
                     predictions_after_fallback[sample_idx, top_idx] = 1.0
                     logger.info(
@@ -121,11 +123,9 @@ def debug_evaluation_step_by_step():
             "    - Samples with 0 predictions: {(predictions_after_fallback.sum(dim=1) == 0).sum().item()}"
         )
 
-        # Calculate F1 scores manually
         predictions_np = predictions_after_fallback.cpu().numpy()
         targets_np = targets.cpu().numpy()
 
-        # Micro F1
         tp = np.sum(predictions_np * targets_np)
         fp = np.sum(predictions_np * (1 - targets_np))
         fn = np.sum((1 - predictions_np) * targets_np)
