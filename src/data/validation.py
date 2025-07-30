@@ -195,3 +195,32 @@ class DataValidator:
             logger.warning("Data validation failed")
 
         return validation_passed, df_with_quality
+
+
+def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 10000) -> tuple[bool, str]:
+    """Validate text input for journal entries.
+    
+    Args:
+        input_text: Text to validate
+        min_length: Minimum allowed length
+        max_length: Maximum allowed length
+        
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    if not isinstance(input_text, str):
+        return False, "Input must be a string"
+    
+    if len(input_text.strip()) < min_length:
+        return False, f"Text must be at least {min_length} characters long"
+    
+    if len(input_text) > max_length:
+        return False, f"Text must be no more than {max_length} characters long"
+    
+    # Check for potentially harmful content (basic check)
+    harmful_patterns = ["<script>", "javascript:", "data:text/html"]
+    for pattern in harmful_patterns:
+        if pattern.lower() in input_text.lower():
+            return False, f"Text contains potentially harmful content: {pattern}"
+    
+    return True, ""
