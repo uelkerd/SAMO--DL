@@ -27,14 +27,14 @@ def test_onnx_dependencies():
         logger.info("🔄 Testing ONNX dependencies...")
 
         try:
-            logger.info("✅ ONNX version: {onnx.__version__}")
+            logger.info(f"✅ ONNX version: {onnx.__version__}")
         except ImportError as _:
             logger.warning("⚠️ ONNX not available: {e}")
             logger.info("⏭️ Skipping ONNX test - ONNX not installed")
             return True  # Skip test but don't fail
 
         try:
-            logger.info("✅ ONNX Runtime version: {ort.__version__}")
+            logger.info(f"✅ ONNX Runtime version: {ort.__version__}")
         except ImportError as _:
             logger.warning("⚠️ ONNX Runtime not available: {e}")
             logger.info("⏭️ Skipping ONNX Runtime test - not installed")
@@ -77,14 +77,14 @@ def test_onnx_dependencies():
 
             try:
                 onnx.save(onnx_model, temp_path)
-                logger.info("✅ ONNX model saved to {temp_path}")
+                logger.info(f"✅ ONNX model saved to {temp_path}")
 
                 session = ort.InferenceSession(temp_path)
                 logger.info("✅ ONNX Runtime session created")
 
-                test_input = np.random.randn(1, 768).astype(np.float32)
+                test_input = np.random.default_rng().standard_normal((1, 768)).astype(np.float32)
                 outputs = session.run(None, {'input_ids': test_input})
-                logger.info("✅ ONNX Runtime inference successful, output shape: {outputs[0].shape}")
+                logger.info(f"✅ ONNX Runtime inference successful, output shape: {outputs[0].shape}")
 
             finally:
                 try:
