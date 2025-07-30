@@ -1,7 +1,5 @@
 import logging
 import datetime
-import os
-import time
 #!/usr/bin/env python3
 import subprocess
 from datetime import UTC, datetime

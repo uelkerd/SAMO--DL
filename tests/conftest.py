@@ -120,6 +120,6 @@ def pytest_collection_modifyitems(config, items):
     """Modify test collection based on available hardware."""
     skip_gpu = pytest.mark.skip(reason="CUDA not available")
 
-    for __item in items:
+    for ___item in items:
         if "gpu" in item.keywords and not torch.cuda.is_available():
             item.add_marker(skip_gpu)

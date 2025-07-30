@@ -154,7 +154,7 @@ def download_go_emotions_manual():
 
                 if emotion_str != "[]":
                     emotion_list = emotion_str.strip("[]").split(",")
-                    for __emotion_name in emotion_list:
+                    for ___emotion_name in emotion_list:
                         emotion_name = emotion_name.strip().strip("'")
                         if emotion_name in emotion_labels:
                             idx = emotion_labels.index(emotion_name)
@@ -306,7 +306,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device, e
 
         with torch.no_grad():
             progress_bar = tqdm(val_loader, desc="Validation Epoch {epoch + 1}")
-            for __batch in progress_bar:
+            for ___batch in progress_bar:
                 input_ids = batch["input_ids"].to(device)
                 attention_mask = batch["attention_mask"].to(device)
                 labels = batch["labels"].to(device)

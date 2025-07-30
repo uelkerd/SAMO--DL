@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-import os
 import re
-import sys
 import shutil
 import logging
 from pathlib import Path
-from typing import List, Set, Tuple, Dict
+from typing import List, Tuple
 import ast
         # Find all import lines
         # Reconstruct with imports at top
@@ -62,10 +60,40 @@ class ComprehensiveLintingFixer:
     def find_python_files(self, directories: List[str]) -> List[Path]:
         """Find all Python files in specified directories."""
         python_files = []
-        for _directory in directories:
+        for directory in directories:
             if Path(directory).exists():
                 python_files.extend(Path(directory).rglob("*.py"))
         return python_files
+
+    def separate_imports_and_code(self, lines: List[str]) -> Tuple[List[str], List[str]]:
+        """Separate import lines from other code lines."""
+        import_lines = []
+        non_import_lines = []
+
+        for line in lines:
+            stripped = line.strip()
+            if (stripped.startswith('import ') or
+                stripped.startswith('from ') or
+                stripped.startswith('#')):
+                import_lines.append(line)
+            else:
+                non_import_lines.append(line)
+
+        return import_lines, non_import_lines
+
+    def filter_imports(self, lines: List[str]) -> List[str]:
+        """Filter out unused imports."""
+        filtered_lines = []
+
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith('import ') or stripped.startswith('from '):
+                # Keep all imports for now - we'll let ruff handle unused imports
+                filtered_lines.append(line)
+            else:
+                filtered_lines.append(line)
+
+        return filtered_lines
 
     def backup_file(self, file_path: Path) -> Path:
         """Create a backup of the file."""
@@ -76,7 +104,7 @@ class ComprehensiveLintingFixer:
     def validate_python_syntax(self, file_path: Path) -> bool:
         """Validate that the file has correct Python syntax."""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding='utf-8') as f:
                 ast.parse(f.read())
             return True
         except SyntaxError as e:
@@ -171,7 +199,7 @@ class ComprehensiveLintingFixer:
         try:
             backup_path = self.backup_file(file_path)
 
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding='utf-8') as f:
                 content = f.read()
 
             original_content = content
@@ -195,11 +223,11 @@ class ComprehensiveLintingFixer:
 
             return False
 
-        except Exception as _:
+        except Exception as e:
             self.errors.append(f"Error fixing {file_path}: {e}")
             return False
 
-    def run_on_directories(self, directories: List[str]) -> None:
+    def run_on_directories(self, directories: List[str]) -> int:
         """Run the fixer on all Python files in specified directories."""
         logging.info(f"🔍 Scanning directories: {directories}")
 
@@ -207,7 +235,7 @@ class ComprehensiveLintingFixer:
         logging.info(f"📁 Found {len(python_files)} Python files")
 
         fixed_count = 0
-        for _file_path in python_files:
+        for file_path in python_files:
             logging.info(f"🔧 Processing: {file_path}")
             if self.fix_all_issues(file_path):
                 fixed_count += 1
@@ -217,9 +245,11 @@ class ComprehensiveLintingFixer:
             logging.info(f"  ✅ {file_path}")
 
         if self.errors:
-            logging.info(f"\n❌ Errors encountered:")
+            logging.info("\n❌ Errors encountered:")
             for error in self.errors:
                 logging.info(f"  ⚠️  {error}")
+
+        return fixed_count
 
 
 def main():
@@ -236,7 +266,8 @@ def main():
     ]
 
     fixer = ComprehensiveLintingFixer()
-    fixer.run_on_directories(directories)
+    fixed_count = fixer.run_on_directories(directories)
+    logging.info(f"\n🎉 Total files fixed: {fixed_count}")
 
 
 if __name__ == "__main__":

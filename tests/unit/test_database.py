@@ -1,17 +1,16 @@
-import logging
-
-from src.data.database import (
-
 """Unit tests for database module.
 Tests database connection, operations, and utilities.
 """
 
-    get_db,
-    init_db,
-    engine,
+import logging
+
+from src.data.database import (
+    Base,
     SessionLocal,
     db_session,
-    Base
+    engine,
+    get_db,
+    init_db,
 )
 
 logger = logging.getLogger(__name__)
@@ -83,10 +82,10 @@ class TestDatabaseFunctions:
         try:
             session = SessionLocal()
             session.close()
-        except Exception as _:
+        except Exception as exc:
             # It's okay if this fails in test environment without real DB
             # Log the exception for debugging purposes
-            logger.debug(f"Session creation failed (expected in test environment): {e}")
+            logger.debug(f"Session creation failed (expected in test environment): {exc}")
 
 
 class TestDatabaseErrorHandling:

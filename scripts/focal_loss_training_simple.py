@@ -2,7 +2,7 @@ import sys
 #!/usr/bin/env python3
 import logging
 import torch
-import torch.nn as nn
+from torch import nn
 import torch.nn.functional as F
 from pathlib import Path
 # Add project root to Python path

@@ -72,7 +72,7 @@ class SAMOVertexAutoMLTraining:
         columns = content[0].split(",")
         target_column = None
 
-        for __col in columns:
+        for ___col in columns:
             if "emotion" in col.lower() or "label" in col.lower():
                 target_column = col
                 break
