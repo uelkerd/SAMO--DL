@@ -117,7 +117,7 @@ class ComprehensiveLintingFixer:
         import_lines = []
         non_import_lines = []
 
-        for _line in lines:
+        for line in lines:
             stripped = line.strip()
             if (stripped.startswith('import ') or
                 stripped.startswith('from ') or
@@ -142,7 +142,7 @@ class ComprehensiveLintingFixer:
         lines = content.split('\n')
         filtered_lines = []
 
-        for _line in lines:
+        for line in lines:
             stripped = line.strip()
             if stripped.startswith('import ') or stripped.startswith('from '):
                 import_name = self.extract_import_name(stripped)

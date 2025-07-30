@@ -6,8 +6,6 @@ import logging
 import os
 import sys
 
-import pandas as pd
-from google.cloud import storage
 
 
 def main():
@@ -18,8 +16,8 @@ def main():
         logging.info("Usage: python test_vertex_setup.py <project_id> <bucket_name> <data_path>")
         sys.exit(1)
 
-    project_id = sys.argv[1]
-    bucket_name = sys.argv[2]
+    sys.argv[1]
+    sys.argv[2]
     data_path = sys.argv[3]
 
     logging.info("✅ Arguments parsed:")
@@ -47,23 +45,23 @@ def main():
             logging.info("  - Sample keys: {list(sample.keys())}")
 
             if "emotions" in sample:
-                emotions = sample["emotions"]
+                sample["emotions"]
                 logging.info("  - Sample emotions: {emotions}")
                 logging.info("  - Emotion type: {type(emotions)}")
 
-    except Exception as exc:
+    except Exception:
         logging.info("❌ Error loading data: {exc}")
         sys.exit(1)
 
     # Test 4: Try to import required packages
     try:
         logging.info("✅ pandas imported successfully")
-    except ImportError as exc:
+    except ImportError:
         logging.info("❌ pandas import failed: {exc}")
 
     try:
         logging.info("✅ google-cloud-storage imported successfully")
-    except ImportError as exc:
+    except ImportError:
         logging.info("❌ google-cloud-storage import failed: {exc}")
 
     logging.info("\n🎉 All tests passed! Ready for data preparation.")
