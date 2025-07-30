@@ -1,29 +1,4 @@
-        # Test FastAPI imports
-        # Test Pydantic imports
-        # Test basic API imports without triggering deep learning models
-        # Test basic Pydantic model creation
-        # Test invalid request - empty text
-        # Test invalid request - threshold out of range
-        # Test rate limiter functionality
-        # Test valid request
-        from api_rate_limiter import RateLimitCache, RateLimitEntry
-        from fastapi import FastAPI
-        from pydantic import BaseModel
-        from pydantic import BaseModel, ValidationError
-        from pydantic import BaseModel, ValidationError, Field
-        import api_rate_limiter
-# Add src to path
-# Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
-import logging
-import sys
-
-
-
-
-
-
 """
 API Health Check for CI/CD Pipeline.
 
@@ -31,10 +6,21 @@ This script validates that all API components are working correctly
 and can be imported without errors.
 """
 
+import logging
+import sys
+from pathlib import Path
+
+# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Test imports
+from api_rate_limiter import RateLimitCache, RateLimitEntry
+from fastapi import FastAPI
+from pydantic import BaseModel, ValidationError, Field
 
 
 def test_api_imports():
