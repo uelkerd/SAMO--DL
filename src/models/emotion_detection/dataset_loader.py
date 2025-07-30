@@ -13,7 +13,6 @@ Key Features:
 
 import logging
 
-import numpy as np
 import torch
 from datasets import load_dataset
 from transformers import AutoTokenizer
@@ -42,14 +41,14 @@ GOEMOTIONS_EMOTIONS = [
     "excitement",
     "fear",
     "gratitude",
-    "grief",
+    "grie",
     "joy",
     "love",
     "nervousness",
     "optimism",
     "pride",
     "realization",
-    "relief",
+    "relie",
     "remorse",
     "sadness",
     "surprise",
@@ -73,7 +72,7 @@ class GoEmotionsPreprocessor:
         """
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.max_length = max_length
-        logger.info(f"Initialized preprocessor with {model_name}, max_length={max_length}")
+        logger.info("Initialized preprocessor with {model_name}, max_length={max_length}")
 
     def clean_text(self, text: str) -> str:
         """Clean and normalize text while preserving emotional signals.
@@ -102,7 +101,7 @@ class GoEmotionsPreprocessor:
         processed_words = []
         for word in words:
             if word.isupper() and len(word) > 2:
-                processed_words.append(f"[CAPS] {word.lower()}")
+                processed_words.append("[CAPS] {word.lower()}")
             else:
                 processed_words.append(word)
 
@@ -189,7 +188,7 @@ class GoEmotionsDataLoader:
             self.dataset = dataset
             logger.info("✅ GoEmotions dataset downloaded successfully.")
         except Exception as e:
-            logger.error(f"Failed to download GoEmotions dataset: {e}")
+            logger.error("Failed to download GoEmotions dataset: {e}")
             raise
 
     def analyze_dataset_statistics(self) -> dict[str, Any]:
@@ -234,12 +233,12 @@ class GoEmotionsDataLoader:
         }
 
         # Log key statistics
-        logger.info(f"Total examples: {total_labels}")
+        logger.info("Total examples: {total_labels}")
         logger.info(
-            f"Multi-label examples: {total_labels - sum(1 for count in label_counts.values() if count == 1)} ({stats['multi_label_percentage']:.1f}%)"
+            "Multi-label examples: {total_labels - sum(1 for count in label_counts.values() if count == 1)} ({stats['multi_label_percentage']:.1f}%)"
         )
-        logger.info(f"Most frequent emotions: {stats['most_frequent_emotions']}")
-        logger.info(f"Least frequent emotions: {stats['least_frequent_emotions']}")
+        logger.info("Most frequent emotions: {stats['most_frequent_emotions']}")
+        logger.info("Least frequent emotions: {stats['least_frequent_emotions']}")
 
         return stats
 
@@ -270,7 +269,7 @@ class GoEmotionsDataLoader:
         class_weights = class_weights / np.sum(class_weights)
 
         logger.info(
-            f"Computed class weights. Min: {class_weights.min():.4f}, Max: {class_weights.max():.4f}"
+            "Computed class weights. Min: {class_weights.min():.4f}, Max: {class_weights.max():.4f}"
         )
         return class_weights
 
@@ -291,13 +290,13 @@ class GoEmotionsDataLoader:
         test_ds = self.dataset["test"]
 
         # Log split sizes
-        logger.info(f"Train set: {len(train_ds)} examples")
-        logger.info(f"Validation set: {len(val_ds)} examples")
-        logger.info(f"Test set: {len(test_ds)} examples")
+        logger.info("Train set: {len(train_ds)} examples")
+        logger.info("Validation set: {len(val_ds)} examples")
+        logger.info("Test set: {len(test_ds)} examples")
 
         return train_ds, val_ds, test_ds
 
-    def prepare_datasets(self) -> dict:
+    def prepare_datasets(self, force_download: bool = False) -> dict:
         """Complete pipeline to prepare GoEmotions datasets.
 
         Args:

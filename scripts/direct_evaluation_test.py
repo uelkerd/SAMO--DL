@@ -3,10 +3,8 @@
 Direct test of evaluation logic to find and fix the bug.
 """
 
-import sys
 from pathlib import Path
 import torch
-import numpy as np
 import logging
 
 # Add src to path
@@ -29,7 +27,7 @@ def test_direct_evaluation():
     # Load model
     model_path = Path("models/checkpoints/bert_emotion_classifier.pth")
     if not model_path.exists():
-        logger.error(f"❌ Model not found at {model_path}")
+        logger.error("❌ Model not found at {model_path}")
         return
 
     trainer.load_model(str(model_path))
@@ -48,9 +46,9 @@ def test_direct_evaluation():
         input_ids, attention_mask, targets = batch
 
     logger.info("📊 Batch info:")
-    logger.info(f"  - Input shape: {input_ids.shape}")
-    logger.info(f"  - Targets shape: {targets.shape}")
-    logger.info(f"  - Targets sum: {targets.sum().item()}")
+    logger.info("  - Input shape: {input_ids.shape}")
+    logger.info("  - Targets shape: {targets.shape}")
+    logger.info("  - Targets sum: {targets.sum().item()}")
 
     # Move to device
     device = trainer.device
@@ -65,40 +63,40 @@ def test_direct_evaluation():
         model_output = trainer.model(input_ids, attention_mask)
 
         # Check what type of output we get
-        logger.info(f"📊 Model output type: {type(model_output)}")
+        logger.info("📊 Model output type: {type(model_output)}")
 
         logits = model_output["logits"] if isinstance(model_output, dict) else model_output
 
-        logger.info(f"📊 Logits shape: {logits.shape}")
-        logger.info(f"📊 Logits min/max: {logits.min().item():.4f}/{logits.max().item():.4f}")
+        logger.info("📊 Logits shape: {logits.shape}")
+        logger.info("📊 Logits min/max: {logits.min().item():.4f}/{logits.max().item():.4f}")
 
         # Apply sigmoid to get probabilities
         probabilities = torch.sigmoid(logits)
-        logger.info(f"📊 Probabilities shape: {probabilities.shape}")
+        logger.info("📊 Probabilities shape: {probabilities.shape}")
         logger.info(
-            f"📊 Probabilities min/max/mean: {probabilities.min().item():.4f}/{probabilities.max().item():.4f}/{probabilities.mean().item():.4f}"
+            "📊 Probabilities min/max/mean: {probabilities.min().item():.4f}/{probabilities.max().item():.4f}/{probabilities.mean().item():.4f}"
         )
 
         # Test threshold application
         threshold = 0.2
-        logger.info(f"\n🎯 Testing threshold: {threshold}")
+        logger.info("\n🎯 Testing threshold: {threshold}")
 
         # Count expected predictions
         expected_predictions = (probabilities >= threshold).sum().item()
         total_positions = probabilities.numel()
 
         logger.info(
-            f"📊 Expected predictions: {expected_predictions}/{total_positions} ({100*expected_predictions/total_positions:.1f}%)"
+            "📊 Expected predictions: {expected_predictions}/{total_positions} ({100*expected_predictions/total_positions:.1f}%)"
         )
 
         # Apply threshold
         predictions = (probabilities >= threshold).float()
 
         logger.info("📊 Actual predictions:")
-        logger.info(f"  - Sum: {predictions.sum().item()}")
-        logger.info(f"  - Mean: {predictions.mean().item():.4f}")
+        logger.info("  - Sum: {predictions.sum().item()}")
+        logger.info("  - Mean: {predictions.mean().item():.4f}")
         logger.info(
-            f"  - Match expected: {'✅' if predictions.sum().item() == expected_predictions else '❌'}"
+            "  - Match expected: {'✅' if predictions.sum().item() == expected_predictions else '❌'}"
         )
 
         # Check if any samples have zero predictions
@@ -106,14 +104,14 @@ def test_direct_evaluation():
         samples_with_zero = (predictions.sum(dim=1) == 0).sum().item()
 
         logger.info("📊 Fallback analysis:")
-        logger.info(f"  - Total samples: {samples_per_batch}")
-        logger.info(f"  - Samples with zero predictions: {samples_with_zero}")
+        logger.info("  - Total samples: {samples_per_batch}")
+        logger.info("  - Samples with zero predictions: {samples_with_zero}")
         logger.info(
-            f"  - Percentage needing fallback: {100*samples_with_zero/samples_per_batch:.1f}%"
+            "  - Percentage needing fallback: {100*samples_with_zero/samples_per_batch:.1f}%"
         )
 
         if samples_with_zero > 0:
-            logger.info(f"🔧 Applying fallback to {samples_with_zero} samples...")
+            logger.info("🔧 Applying fallback to {samples_with_zero} samples...")
 
             predictions_with_fallback = predictions.clone()
             fallback_count = 0
@@ -125,11 +123,11 @@ def test_direct_evaluation():
                     fallback_count += 1
 
             logger.info("📊 After fallback:")
-            logger.info(f"  - Applied to {fallback_count} samples")
-            logger.info(f"  - Final sum: {predictions_with_fallback.sum().item()}")
-            logger.info(f"  - Final mean: {predictions_with_fallback.mean().item():.4f}")
+            logger.info("  - Applied to {fallback_count} samples")
+            logger.info("  - Final sum: {predictions_with_fallback.sum().item()}")
+            logger.info("  - Final mean: {predictions_with_fallback.mean().item():.4f}")
             logger.info(
-                f"  - Samples with zero: {(predictions_with_fallback.sum(dim=1) == 0).sum().item()}"
+                "  - Samples with zero: {(predictions_with_fallback.sum(dim=1) == 0).sum().item()}"
             )
 
             predictions = predictions_with_fallback
@@ -148,10 +146,10 @@ def test_direct_evaluation():
         f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
 
         logger.info("📈 Manual F1 calculation:")
-        logger.info(f"  - TP: {tp}, FP: {fp}, FN: {fn}")
-        logger.info(f"  - Precision: {precision:.4f}")
-        logger.info(f"  - Recall: {recall:.4f}")
-        logger.info(f"  - F1: {f1:.4f}")
+        logger.info("  - TP: {tp}, FP: {fp}, FN: {fn}")
+        logger.info("  - Precision: {precision:.4f}")
+        logger.info("  - Recall: {recall:.4f}")
+        logger.info("  - F1: {f1:.4f}")
 
 
 if __name__ == "__main__":

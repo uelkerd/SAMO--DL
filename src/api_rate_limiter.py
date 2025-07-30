@@ -212,7 +212,7 @@ class RateLimiter(BaseHTTPMiddleware):
 
             content = {
                 "error": "rate_limit_exceeded",
-                "message": f"Rate limit exceeded. {self.rate_limit} requests allowed per minute.",
+                "message": "Rate limit exceeded. {self.rate_limit} requests allowed per minute.",
                 "rate_limit": self.rate_limit,
                 "window_size_seconds": self.window_size,
                 "retry_after_seconds": self.window_size,

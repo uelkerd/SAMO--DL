@@ -3,7 +3,6 @@ SAMO Deep Learning - Pytest Configuration and Shared Fixtures
 Provides common test utilities, fixtures, and configuration.
 """
 
-import os
 import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -44,7 +43,6 @@ def sample_journal_entry():
 def sample_audio_data():
     """Provide sample audio data for voice processing tests."""
     # Create a simple sine wave for testing
-    import numpy as np
 
     sample_rate = 16000
     duration = 2.0  # seconds

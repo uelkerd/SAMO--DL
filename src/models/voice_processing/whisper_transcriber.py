@@ -16,7 +16,6 @@ Key Features:
 
 import contextlib
 import logging
-import os
 import tempfile
 import time
 import warnings
@@ -24,7 +23,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional, Union
 
-import numpy as np
 import torch
 import whisper
 from pydub import AudioSegment
@@ -97,11 +95,11 @@ class AudioPreprocessor:
 
         # Check file exists
         if not audio_path.exists():
-            return False, f"Audio file not found: {audio_path}"
+            return False, "Audio file not found: {audio_path}"
 
         # Check file extension
         if audio_path.suffix.lower() not in AudioPreprocessor.SUPPORTED_FORMATS:
-            return False, f"Unsupported audio format: {audio_path.suffix}"
+            return False, "Unsupported audio format: {audio_path.suffix}"
 
         try:
             # Load audio to validate
@@ -110,15 +108,15 @@ class AudioPreprocessor:
             # Check duration
             duration = len(audio) / 1000.0  # Convert to seconds
             if duration > AudioPreprocessor.MAX_DURATION:
-                return False, f"Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s"
+                return False, "Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s"
 
             if duration < 0.1:  # Too short
-                return False, f"Audio too short: {duration:.1f}s"
+                return False, "Audio too short: {duration:.1f}s"
 
             return True, "Valid audio file"
 
         except Exception as e:
-            return False, f"Error loading audio: {e!s}"
+            return False, "Error loading audio: {e!s}"
 
     @staticmethod
     def preprocess_audio(
@@ -229,7 +227,7 @@ class WhisperTranscriber:
 
         except Exception as e:
             logger.error("❌ Failed to load Whisper model: {e}", extra={"format_args": True})
-            raise RuntimeError(f"Whisper model loading failed: {e}")
+            raise RuntimeError("Whisper model loading failed: {e}")
 
         # Initialize preprocessor
         self.preprocessor = AudioPreprocessor()
@@ -263,7 +261,7 @@ class WhisperTranscriber:
                 "language": language or self.config.language,
                 "task": self.config.task,
                 "temperature": self.config.temperature,
-                "best_of": self.config.best_of,
+                "best_o": self.config.best_of,
                 "beam_size": self.config.beam_size,
                 "patience": self.config.patience,
                 "length_penalty": self.config.length_penalty,

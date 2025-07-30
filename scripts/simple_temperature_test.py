@@ -3,7 +3,6 @@
 Simple Temperature Scaling Test - Direct Model Loading.
 """
 
-import sys
 from pathlib import Path
 
 sys.path.append(str(Path.cwd() / "src"))
@@ -21,7 +20,7 @@ def simple_temperature_test():
 
     # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
+    print("Using device: {device}")
 
     # Load checkpoint
     checkpoint_path = Path("test_checkpoints/best_model.pt")
@@ -77,11 +76,11 @@ def simple_temperature_test():
     temperatures = [1.0, 2.0, 3.0, 4.0]
     threshold = 0.5
 
-    print(f"\n🎯 Testing temperatures with threshold {threshold}")
+    print("\n🎯 Testing temperatures with threshold {threshold}")
     print("-" * 50)
 
     for temp in temperatures:
-        print(f"\n🌡️ Temperature: {temp}")
+        print("\n🌡️ Temperature: {temp}")
 
         # Update temperature
         model.set_temperature(temp)
@@ -89,8 +88,8 @@ def simple_temperature_test():
         # Quick evaluation
         metrics = evaluate_emotion_classifier(model, val_loader, device, threshold=threshold)
 
-        print(f"  📊 Macro F1: {metrics['macro_f1']:.4f}")
-        print(f"  📊 Micro F1: {metrics['micro_f1']:.4f}")
+        print("  📊 Macro F1: {metrics['macro_f1']:.4f}")
+        print("  📊 Micro F1: {metrics['micro_f1']:.4f}")
 
     print("\n🎉 Temperature scaling test complete!")
 

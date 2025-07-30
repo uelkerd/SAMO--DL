@@ -151,7 +151,7 @@ class TestAPIEndpoints:
                 response = api_client.post("/analyze/journal", data=test_data)
                 results.put(response.status_code)
             except Exception as e:
-                results.put(f"Error: {e}")
+                results.put("Error: {e}")
 
         # Create multiple threads
         threads = []

@@ -16,7 +16,6 @@ Arguments:
     --output_model: Path to save improved model (default: models/checkpoints/bert_emotion_classifier_improved.pt)
 """
 
-import sys
 import argparse
 import logging
 import torch
@@ -138,21 +137,21 @@ def improve_with_focal_loss() -> bool:
         logger.info("Evaluating model...")
         metrics = trainer.evaluate(datasets["test"])
 
-        logger.info(f"Micro F1: {metrics['micro_f1']:.4f}")
-        logger.info(f"Macro F1: {metrics['macro_f1']:.4f}")
+        logger.info("Micro F1: {metrics['micro_f1']:.4f}")
+        logger.info("Macro F1: {metrics['macro_f1']:.4f}")
 
         # Save model
         output_path = Path(DEFAULT_OUTPUT_MODEL)
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        logger.info(f"Saving improved model to {output_path}...")
+        logger.info("Saving improved model to {output_path}...")
         trainer.save_checkpoint(output_path, metrics)
 
         logger.info("✅ Model improvement with Focal Loss complete!")
         return True
 
     except Exception as e:
-        logger.error(f"Error improving model with Focal Loss: {e}")
+        logger.error("Error improving model with Focal Loss: {e}")
         return False
 
 
@@ -224,7 +223,7 @@ def improve_with_data_augmentation() -> bool:
 
             for i, (text, label) in enumerate(zip(train_texts, train_labels)):
                 if i % 10 == 0:
-                    logger.info(f"Augmenting example {i}/{len(train_texts)}...")
+                    logger.info("Augmenting example {i}/{len(train_texts)}...")
 
                 # Back-translate
                 augmented_text = back_translate(text)
@@ -237,7 +236,7 @@ def improve_with_data_augmentation() -> bool:
             combined_texts = list(train_texts) + augmented_texts
             combined_labels = list(train_labels) + augmented_labels
 
-            logger.info(f"Augmented dataset size: {len(combined_texts)} examples")
+            logger.info("Augmented dataset size: {len(combined_texts)} examples")
 
             # Create custom datasets
             from torch.utils.data import Dataset, DataLoader
@@ -300,7 +299,7 @@ def improve_with_data_augmentation() -> bool:
             model.to(device)
 
             for epoch in range(3):
-                logger.info(f"Epoch {epoch+1}/3")
+                logger.info("Epoch {epoch+1}/3")
                 for batch_idx, batch in enumerate(augmented_loader):
                     # Move batch to device
                     input_ids = batch["input_ids"].to(device)
@@ -319,13 +318,13 @@ def improve_with_data_augmentation() -> bool:
                     optimizer.step()
 
                     if batch_idx % 10 == 0:
-                        logger.info(f"Batch {batch_idx}, Loss: {loss.item():.4f}")
+                        logger.info("Batch {batch_idx}, Loss: {loss.item():.4f}")
 
             # Save model
             output_path = Path(DEFAULT_OUTPUT_MODEL)
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
-            logger.info(f"Saving improved model to {output_path}...")
+            logger.info("Saving improved model to {output_path}...")
             torch.save(
                 {
                     "model_state_dict": model.state_dict(),
@@ -340,11 +339,11 @@ def improve_with_data_augmentation() -> bool:
             return True
 
         except Exception as e:
-            logger.error(f"Error in back-translation: {e}")
+            logger.error("Error in back-translation: {e}")
             return False
 
     except Exception as e:
-        logger.error(f"Error improving model with data augmentation: {e}")
+        logger.error("Error improving model with data augmentation: {e}")
         return False
 
 
@@ -378,7 +377,7 @@ def improve_with_ensemble() -> bool:
         # Load checkpoint for base model
         checkpoint_path = Path(CHECKPOINT_PATH)
         if not checkpoint_path.exists():
-            logger.error(f"Checkpoint not found: {checkpoint_path}")
+            logger.error("Checkpoint not found: {checkpoint_path}")
             return False
 
         checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
@@ -389,7 +388,7 @@ def improve_with_ensemble() -> bool:
             frozen_model.load_state_dict(checkpoint["model_state_dict"])
             unfrozen_model.load_state_dict(checkpoint["model_state_dict"])
         else:
-            logger.error(f"Unexpected checkpoint format: {type(checkpoint)}")
+            logger.error("Unexpected checkpoint format: {type(checkpoint)}")
             return False
 
         # Set optimal temperature and threshold
@@ -532,14 +531,14 @@ def improve_with_ensemble() -> bool:
         micro_f1 = f1_score(all_labels, all_preds, average="micro")
         macro_f1 = f1_score(all_labels, all_preds, average="macro")
 
-        logger.info(f"Ensemble Micro F1: {micro_f1:.4f}")
-        logger.info(f"Ensemble Macro F1: {macro_f1:.4f}")
+        logger.info("Ensemble Micro F1: {micro_f1:.4f}")
+        logger.info("Ensemble Macro F1: {macro_f1:.4f}")
 
         # Save ensemble model
         output_path = Path(DEFAULT_OUTPUT_MODEL)
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        logger.info(f"Saving ensemble model to {output_path}...")
+        logger.info("Saving ensemble model to {output_path}...")
         torch.save(
             {
                 "model_type": "ensemble",
@@ -559,7 +558,7 @@ def improve_with_ensemble() -> bool:
         return True
 
     except Exception as e:
-        logger.error(f"Error improving model with ensemble prediction: {e}")
+        logger.error("Error improving model with ensemble prediction: {e}")
         return False
 
 
@@ -576,7 +575,7 @@ if __name__ == "__main__":
         "--output_model",
         type=str,
         default=DEFAULT_OUTPUT_MODEL,
-        help=f"Path to save improved model (default: {DEFAULT_OUTPUT_MODEL})",
+        help="Path to save improved model (default: {DEFAULT_OUTPUT_MODEL})",
     )
 
     args = parser.parse_args()
@@ -592,7 +591,7 @@ if __name__ == "__main__":
     elif args.technique == "ensemble":
         success = improve_with_ensemble()
     else:
-        logger.error(f"Unknown technique: {args.technique}")
+        logger.error("Unknown technique: {args.technique}")
         success = False
 
     sys.exit(0 if success else 1)

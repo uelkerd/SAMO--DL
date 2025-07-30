@@ -7,7 +7,6 @@ if all critical checks pass. This prevents wasting 4+ hours on failed training.
 """
 
 import logging
-import sys
 import time
 from pathlib import Path
 
@@ -29,7 +28,6 @@ def run_pre_training_validation():
 
     try:
         # Import the validation module
-        import sys
 
         sys.path.insert(0, str(Path(__file__).parent))
         from pre_training_validation import PreTrainingValidator
@@ -41,8 +39,8 @@ def run_pre_training_validation():
         return all_passed, validator.critical_issues, validator.warnings
 
     except Exception as e:
-        logger.error(f"❌ Pre-training validation failed: {e}")
-        return False, [f"Validation error: {e}"], []
+        logger.error("❌ Pre-training validation failed: {e}")
+        return False, ["Validation error: {e}"], []
 
 
 def run_training_with_debugging():
@@ -66,23 +64,23 @@ def run_training_with_debugging():
 
         logger.info("📋 Training Configuration:")
         for key, value in config.items():
-            logger.info(f"   {key}: {value}")
+            logger.info("   {key}: {value}")
 
         # Start training
         start_time = time.time()
         results = train_emotion_detection_model(**config)
         training_time = time.time() - start_time
 
-        logger.info(f"✅ Training completed in {training_time/60:.1f} minutes!")
-        logger.info(f"📊 Final results: {results}")
+        logger.info("✅ Training completed in {training_time/60:.1f} minutes!")
+        logger.info("📊 Final results: {results}")
 
         return True, results
 
     except Exception as e:
-        logger.error(f"❌ Training failed: {e}")
+        logger.error("❌ Training failed: {e}")
         import traceback
 
-        logger.error(f"Traceback: {traceback.format_exc()}")
+        logger.error("Traceback: {traceback.format_exc()}")
         return False, None
 
 
@@ -101,12 +99,12 @@ def main():
         logger.error("\n❌ VALIDATION FAILED - Training blocked!")
         logger.error("Critical issues found:")
         for i, issue in enumerate(critical_issues, 1):
-            logger.error(f"   {i}. {issue}")
+            logger.error("   {i}. {issue}")
 
         if warnings:
             logger.warning("\nWarnings (non-blocking):")
             for i, warning in enumerate(warnings, 1):
-                logger.warning(f"   {i}. {warning}")
+                logger.warning("   {i}. {warning}")
 
         logger.error("\n🔧 Please fix all critical issues before running training again.")
         return False
@@ -115,9 +113,9 @@ def main():
     logger.info("\n✅ VALIDATION PASSED!")
 
     if warnings:
-        logger.warning(f"\n⚠️  {len(warnings)} warnings detected:")
+        logger.warning("\n⚠️  {len(warnings)} warnings detected:")
         for i, warning in enumerate(warnings, 1):
-            logger.warning(f"   {i}. {warning}")
+            logger.warning("   {i}. {warning}")
 
         logger.warning("\nConsider addressing these warnings before proceeding.")
 
@@ -152,7 +150,7 @@ def main():
         logger.info("📊 Results summary:")
         if results:
             for key, value in results.items():
-                logger.info(f"   {key}: {value}")
+                logger.info("   {key}: {value}")
 
         logger.info("\n📁 Check the following files for details:")
         logger.info("   • training_session.log - Complete training log")

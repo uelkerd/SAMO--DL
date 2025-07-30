@@ -6,8 +6,6 @@ This script fine-tunes the BERT model on the GoEmotions dataset
 to improve emotion detection performance.
 """
 
-import os
-import sys
 import logging
 import torch
 from torch import nn
@@ -36,23 +34,23 @@ def fine_tune_model():
 
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Using device: {device}")
+    logger.info("Using device: {device}")
 
     try:
         # Load dataset
         logger.info("Loading GoEmotions dataset...")
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()
-        
+
         train_dataset = datasets["train"]  # Fixed key name
         val_dataset = datasets["validation"]  # Fixed key name
         test_dataset = datasets["test"]  # Fixed key name
         class_weights = datasets["class_weights"]
 
         logger.info("Dataset loaded successfully:")
-        logger.info(f"   • Train: {len(train_dataset)} examples")
-        logger.info(f"   • Validation: {len(val_dataset)} examples")
-        logger.info(f"   • Test: {len(test_dataset)} examples")
+        logger.info("   • Train: {len(train_dataset)} examples")
+        logger.info("   • Validation: {len(val_dataset)} examples")
+        logger.info("   • Test: {len(test_dataset)} examples")
 
         # Create model
         logger.info("Creating BERT model...")
@@ -73,7 +71,7 @@ def fine_tune_model():
         val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
 
         # Training loop
-        best_val_loss = float("inf")
+        best_val_loss = float("in")
         training_history = []
 
         for epoch in range(5):  # 5 epochs for fine-tuning
@@ -104,7 +102,7 @@ def fine_tune_model():
 
                 # Log progress every 100 batches
                 if num_batches % 100 == 0:
-                    logger.info(f"   • Batch {num_batches}: Loss = {loss.item():.4f}")
+                    logger.info("   • Batch {num_batches}: Loss = {loss.item():.4f}")
 
             avg_train_loss = train_loss / num_batches
 
@@ -132,9 +130,9 @@ def fine_tune_model():
             current_lr = scheduler.get_last_lr()[0]
 
             # Log progress
-            logger.info(f"   • Train Loss: {avg_train_loss:.4f}")
-            logger.info(f"   • Val Loss: {avg_val_loss:.4f}")
-            logger.info(f"   • Learning Rate: {current_lr:.2e}")
+            logger.info("   • Train Loss: {avg_train_loss:.4f}")
+            logger.info("   • Val Loss: {avg_val_loss:.4f}")
+            logger.info("   • Learning Rate: {current_lr:.2e}")
 
             training_history.append(
                 {
@@ -148,7 +146,7 @@ def fine_tune_model():
             # Save best model
             if avg_val_loss < best_val_loss:
                 best_val_loss = avg_val_loss
-                logger.info(f"   • New best validation loss: {best_val_loss:.4f}")
+                logger.info("   • New best validation loss: {best_val_loss:.4f}")
 
                 # Save model
                 output_dir = "./models/checkpoints"
@@ -168,16 +166,16 @@ def fine_tune_model():
                     model_path,
                 )
 
-                logger.info(f"   • Model saved to: {model_path}")
+                logger.info("   • Model saved to: {model_path}")
 
         logger.info("🎉 Fine-tuning completed successfully!")
-        logger.info(f"   • Best validation loss: {best_val_loss:.4f}")
+        logger.info("   • Best validation loss: {best_val_loss:.4f}")
         logger.info("   • Model saved to: ./models/checkpoints/fine_tuned_model.pt")
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ Fine-tuning failed: {e}")
+        logger.error("❌ Fine-tuning failed: {e}")
         import traceback
 
         traceback.print_exc()

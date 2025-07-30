@@ -10,7 +10,6 @@ Usage:
 """
 
 import argparse
-import json
 import logging
 from pathlib import Path
 
@@ -36,7 +35,7 @@ def create_journal_test_samples() -> list[dict[str, any]]:
         },
         {
             "text": "The meditation session this morning left me feeling so peaceful and centered. I love these quiet moments of reflection.",
-            "expected_emotions": ["relief", "gratitude", "love"],
+            "expected_emotions": ["relie", "gratitude", "love"],
         },
         # Negative emotions
         {
@@ -76,7 +75,7 @@ def create_journal_test_samples() -> list[dict[str, any]]:
         },
         {
             "text": "Therapy was intense today. We talked about childhood memories I'd forgotten. It's painful but I know this healing work is important.",
-            "expected_emotions": ["sadness", "grief", "caring", "optimism"],
+            "expected_emotions": ["sadness", "grie", "caring", "optimism"],
         },
     ]
 
@@ -87,7 +86,7 @@ def create_journal_test_samples() -> list[dict[str, any]]:
     with open(output_path, "w") as f:
         json.dump(journal_samples, f, indent=2)
 
-    logger.info(f"✅ Created {len(journal_samples)} journal test samples: {output_path}")
+    logger.info("✅ Created {len(journal_samples)} journal test samples: {output_path}")
     return journal_samples
 
 
@@ -111,14 +110,14 @@ def load_emotion_mapping() -> dict[str, int]:
         "excitement",
         "fear",
         "gratitude",
-        "grief",
+        "grie",
         "joy",
         "love",
         "nervousness",
         "optimism",
         "pride",
         "realization",
-        "relief",
+        "relie",
         "remorse",
         "sadness",
         "surprise",
@@ -234,12 +233,12 @@ def analyze_domain_adaptation(
         elif expected.intersection(predicted):
             partial_matches += 1
 
-        logger.info(f"\nSample {i + 1}:")
-        logger.info(f"Text: {sample['text'][:100]}...")
-        logger.info(f"Expected: {expected}")
-        logger.info(f"Predicted: {predicted}")
+        logger.info("\nSample {i + 1}:")
+        logger.info("Text: {sample['text'][:100]}...")
+        logger.info("Expected: {expected}")
+        logger.info("Predicted: {predicted}")
         logger.info(
-            f"Match: {'✅ Exact' if expected == predicted else '🟡 Partial' if expected.intersection(predicted) else '❌ None'}"
+            "Match: {'✅ Exact' if expected == predicted else '🟡 Partial' if expected.intersection(predicted) else '❌ None'}"
         )
 
     # Calculate metrics
@@ -290,11 +289,11 @@ def main() -> None:
 
     if args.create_journal_samples or not any([args.test_adaptation]):
         samples = create_journal_test_samples()
-        print(f"\n✅ Created {len(samples)} journal test samples")
+        print("\n✅ Created {len(samples)} journal test samples")
 
     if args.test_adaptation:
         if not Path(args.model_path).exists():
-            logger.error(f"Model not found: {args.model_path}")
+            logger.error("Model not found: {args.model_path}")
             return
 
         analysis = analyze_domain_adaptation(args.model_path)
@@ -304,21 +303,21 @@ def main() -> None:
         print("=" * 60)
 
         metrics = analysis["domain_analysis"]
-        print(f"\nExact Accuracy: {metrics['exact_accuracy']:.2%}")
-        print(f"Partial Accuracy: {metrics['partial_accuracy']:.2%}")
-        print(f"Exact Matches: {metrics['exact_matches']}/{analysis['total_samples']}")
-        print(f"Partial Matches: {metrics['partial_matches']}/{analysis['total_samples']}")
-        print(f"No Matches: {metrics['no_matches']}/{analysis['total_samples']}")
+        print("\nExact Accuracy: {metrics['exact_accuracy']:.2%}")
+        print("Partial Accuracy: {metrics['partial_accuracy']:.2%}")
+        print("Exact Matches: {metrics['exact_matches']}/{analysis['total_samples']}")
+        print("Partial Matches: {metrics['partial_matches']}/{analysis['total_samples']}")
+        print("No Matches: {metrics['no_matches']}/{analysis['total_samples']}")
 
         print("\n💡 Recommendations:")
         for rec in analysis["recommendations"]:
-            print(f"   {rec}")
+            print("   {rec}")
 
         # Save detailed results
         results_path = Path("domain_adaptation_results.json")
         with open(results_path, "w") as f:
             json.dump(analysis, f, indent=2)
-        print(f"\n📄 Detailed results saved to: {results_path}")
+        print("\n📄 Detailed results saved to: {results_path}")
 
 
 if __name__ == "__main__":

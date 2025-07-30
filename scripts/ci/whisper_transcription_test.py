@@ -7,12 +7,9 @@ with a simple test audio file.
 """
 
 import logging
-import os
-import sys
 import tempfile
 from pathlib import Path
 
-import numpy as np
 import contextlib
 
 # Add src to path
@@ -44,12 +41,12 @@ def generate_test_audio():
 
         # Write to file
         wavfile.write(temp_file.name, sample_rate, data)
-        logger.info(f"✅ Generated test audio: {temp_file.name}")
+        logger.info("✅ Generated test audio: {temp_file.name}")
 
         return temp_file.name
 
     except Exception as e:
-        logger.error(f"❌ Failed to generate test audio: {e}")
+        logger.error("❌ Failed to generate test audio: {e}")
         return None
 
 
@@ -64,7 +61,7 @@ def test_whisper_imports():
         return True
 
     except Exception as e:
-        logger.error(f"❌ Whisper import test failed: {e}")
+        logger.error("❌ Whisper import test failed: {e}")
         return False
 
 
@@ -97,7 +94,7 @@ def test_whisper_instantiation():
         return True
 
     except Exception as e:
-        logger.error(f"❌ WhisperTranscriber instantiation failed: {e}")
+        logger.error("❌ WhisperTranscriber instantiation failed: {e}")
         return False
 
 
@@ -118,7 +115,7 @@ def test_audio_preprocessor():
         # Validate audio file
         is_valid, message = AudioPreprocessor.validate_audio_file(audio_path)
         if not is_valid:
-            logger.error(f"❌ AudioPreprocessor validation failed: {message}")
+            logger.error("❌ AudioPreprocessor validation failed: {message}")
             return False
 
         logger.info("✅ AudioPreprocessor validation successful")
@@ -130,7 +127,7 @@ def test_audio_preprocessor():
         expected_keys = ["duration", "sample_rate", "channels", "processed_sample_rate"]
         for key in expected_keys:
             if key not in metadata:
-                logger.error(f"❌ Missing expected metadata key: {key}")
+                logger.error("❌ Missing expected metadata key: {key}")
                 return False
 
         logger.info("✅ AudioPreprocessor preprocessing successful")
@@ -145,7 +142,7 @@ def test_audio_preprocessor():
         return True
 
     except Exception as e:
-        logger.error(f"❌ AudioPreprocessor test failed: {e}")
+        logger.error("❌ AudioPreprocessor test failed: {e}")
         return False
 
 
@@ -175,9 +172,9 @@ def test_minimal_transcription():
         # since our test audio is just a sine wave, but we're testing the pipeline
         result = transcriber.transcribe(audio_path)
 
-        logger.info(f"Transcription result: {result.text}")
-        logger.info(f"Confidence: {result.confidence:.2f}")
-        logger.info(f"Audio quality: {result.audio_quality}")
+        logger.info("Transcription result: {result.text}")
+        logger.info("Confidence: {result.confidence:.2f}")
+        logger.info("Audio quality: {result.audio_quality}")
 
         logger.info("✅ Minimal transcription test completed")
 
@@ -188,7 +185,7 @@ def test_minimal_transcription():
         return True
 
     except Exception as e:
-        logger.error(f"❌ Minimal transcription test failed: {e}")
+        logger.error("❌ Minimal transcription test failed: {e}")
         return False
 
 
@@ -215,19 +212,19 @@ def main():
     total = len(tests)
 
     for test_name, test_func in tests:
-        logger.info(f"\n{'='*50}")
-        logger.info(f"Running: {test_name}")
-        logger.info(f"{'='*50}")
+        logger.info("\n{'='*50}")
+        logger.info("Running: {test_name}")
+        logger.info("{'='*50}")
 
         if test_func():
             passed += 1
-            logger.info(f"✅ {test_name}: PASSED")
+            logger.info("✅ {test_name}: PASSED")
         else:
-            logger.error(f"❌ {test_name}: FAILED")
+            logger.error("❌ {test_name}: FAILED")
 
-    logger.info(f"\n{'='*50}")
-    logger.info(f"Whisper Transcription Test Results: {passed}/{total} tests passed")
-    logger.info(f"{'='*50}")
+    logger.info("\n{'='*50}")
+    logger.info("Whisper Transcription Test Results: {passed}/{total} tests passed")
+    logger.info("{'='*50}")
 
     if passed == total:
         logger.info("🎉 All Whisper transcription tests passed!")

@@ -17,16 +17,13 @@ Arguments:
     --benchmark: Run performance benchmarks on optimized models
 """
 
-import sys
 import argparse
 import logging
 import time
-import json
 from pathlib import Path
 from typing import Any, Union, Optional
 
 import torch
-import numpy as np
 from tqdm import tqdm
 from transformers import AutoTokenizer
 
@@ -65,7 +62,7 @@ def apply_dynamic_quantization(
 
     # Measure original model size
     original_size = get_model_size_mb(model_path)
-    logger.info(f"Original model size: {original_size:.2f} MB")
+    logger.info("Original model size: {original_size:.2f} MB")
 
     # Apply dynamic quantization to linear layers
     quantized_model = torch.quantization.quantize_dynamic(
@@ -85,17 +82,17 @@ def apply_dynamic_quantization(
 
     # Measure quantized model size
     quantized_size = get_model_size_mb(output_path)
-    logger.info(f"Quantized model size: {quantized_size:.2f} MB")
+    logger.info("Quantized model size: {quantized_size:.2f} MB")
 
     # Calculate size reduction
     size_reduction = (original_size - quantized_size) / original_size * 100
-    logger.info(f"Size reduction: {size_reduction:.2f}%")
+    logger.info("Size reduction: {size_reduction:.2f}%")
 
     # Check if target size is achieved
     if quantized_size <= TARGET_SIZE_MB:
-        logger.info(f"✅ Target size achieved: {quantized_size:.2f} MB <= {TARGET_SIZE_MB} MB")
+        logger.info("✅ Target size achieved: {quantized_size:.2f} MB <= {TARGET_SIZE_MB} MB")
     else:
-        logger.warning(f"⚠️ Target size not achieved: {quantized_size:.2f} MB > {TARGET_SIZE_MB} MB")
+        logger.warning("⚠️ Target size not achieved: {quantized_size:.2f} MB > {TARGET_SIZE_MB} MB")
 
     # Return metrics
     return {
@@ -157,7 +154,7 @@ def convert_to_onnx(model: torch.nn.Module, output_path: str, opset_version: int
         verbose=False,
     )
 
-    logger.info(f"Model converted to ONNX format: {output_path}")
+    logger.info("Model converted to ONNX format: {output_path}")
 
     # Verify ONNX model
     try:
@@ -170,7 +167,7 @@ def convert_to_onnx(model: torch.nn.Module, output_path: str, opset_version: int
         logger.warning("⚠️ ONNX package not installed, skipping verification")
         logger.info("To install: pip install onnx")
     except Exception as e:
-        logger.error(f"❌ ONNX model verification failed: {e}")
+        logger.error("❌ ONNX model verification failed: {e}")
 
     return output_path
 
@@ -219,14 +216,14 @@ def benchmark_models(
         logger.warning("⚠️ ONNX Runtime not installed, skipping ONNX benchmarks")
         logger.info("To install: pip install onnxruntime")
     except Exception as e:
-        logger.error(f"❌ Error loading ONNX model: {e}")
+        logger.error("❌ Error loading ONNX model: {e}")
 
     # Benchmark for different batch sizes
     for batch_size in batch_sizes:
-        logger.info(f"Benchmarking with batch_size={batch_size}...")
+        logger.info("Benchmarking with batch_size={batch_size}...")
 
         # Generate random input texts
-        texts = [f"This is test sentence {i} for benchmarking." for i in range(batch_size)]
+        texts = ["This is test sentence {i} for benchmarking." for i in range(batch_size)]
 
         # Tokenize
         inputs = tokenizer(
@@ -267,14 +264,14 @@ def benchmark_models(
                 onnx_times.append(time.time() - start_time)
 
         # Calculate statistics
-        results["pytorch_original"][f"batch_{batch_size}"] = {
+        results["pytorch_original"]["batch_{batch_size}"] = {
             "mean_ms": np.mean(original_times) * 1000,
             "median_ms": np.median(original_times) * 1000,
             "p95_ms": np.percentile(original_times, 95) * 1000,
             "p99_ms": np.percentile(original_times, 99) * 1000,
         }
 
-        results["pytorch_quantized"][f"batch_{batch_size}"] = {
+        results["pytorch_quantized"]["batch_{batch_size}"] = {
             "mean_ms": np.mean(quantized_times) * 1000,
             "median_ms": np.median(quantized_times) * 1000,
             "p95_ms": np.percentile(quantized_times, 95) * 1000,
@@ -283,7 +280,7 @@ def benchmark_models(
         }
 
         if onnx_available:
-            results["onnx"][f"batch_{batch_size}"] = {
+            results["onnx"]["batch_{batch_size}"] = {
                 "mean_ms": np.mean(onnx_times) * 1000,
                 "median_ms": np.median(onnx_times) * 1000,
                 "p95_ms": np.percentile(onnx_times, 95) * 1000,
@@ -292,29 +289,29 @@ def benchmark_models(
             }
 
         # Log results
-        logger.info(f"Batch size: {batch_size}")
+        logger.info("Batch size: {batch_size}")
         logger.info(
-            f"Original PyTorch: {results['pytorch_original'][f'batch_{batch_size}']['mean_ms']:.2f} ms"
+            "Original PyTorch: {results['pytorch_original']['batch_{batch_size}']['mean_ms']:.2f} ms"
         )
         logger.info(
-            f"Quantized PyTorch: {results['pytorch_quantized'][f'batch_{batch_size}']['mean_ms']:.2f} ms "
-            + f"(speedup: {results['pytorch_quantized'][f'batch_{batch_size}']['speedup']:.2f}x)"
+            "Quantized PyTorch: {results['pytorch_quantized']['batch_{batch_size}']['mean_ms']:.2f} ms "
+            + "(speedup: {results['pytorch_quantized']['batch_{batch_size}']['speedup']:.2f}x)"
         )
 
         if onnx_available:
             logger.info(
-                f"ONNX Runtime: {results['onnx'][f'batch_{batch_size}']['mean_ms']:.2f} ms "
-                + f"(speedup: {results['onnx'][f'batch_{batch_size}']['speedup']:.2f}x)"
+                "ONNX Runtime: {results['onnx']['batch_{batch_size}']['mean_ms']:.2f} ms "
+                + "(speedup: {results['onnx']['batch_{batch_size}']['speedup']:.2f}x)"
             )
 
             # Check if target speedup is achieved with ONNX
-            if results["onnx"][f"batch_{batch_size}"]["speedup"] >= TARGET_SPEEDUP:
+            if results["onnx"]["batch_{batch_size}"]["speedup"] >= TARGET_SPEEDUP:
                 logger.info(
-                    f"✅ Target speedup achieved: {results['onnx'][f'batch_{batch_size}']['speedup']:.2f}x >= {TARGET_SPEEDUP}x"
+                    "✅ Target speedup achieved: {results['onnx']['batch_{batch_size}']['speedup']:.2f}x >= {TARGET_SPEEDUP}x"
                 )
             else:
                 logger.warning(
-                    f"⚠️ Target speedup not achieved: {results['onnx'][f'batch_{batch_size}']['speedup']:.2f}x < {TARGET_SPEEDUP}x"
+                    "⚠️ Target speedup not achieved: {results['onnx']['batch_{batch_size}']['speedup']:.2f}x < {TARGET_SPEEDUP}x"
                 )
 
     return results
@@ -380,7 +377,7 @@ def verify_gpu_compatibility(model: torch.nn.Module) -> bool:
             return False
 
     except Exception as e:
-        logger.error(f"❌ Error during GPU compatibility check: {e}")
+        logger.error("❌ Error during GPU compatibility check: {e}")
         return False
     finally:
         # Move model back to CPU
@@ -403,12 +400,12 @@ def optimize_model(model_path: str, output_dir: str, run_benchmark: bool = False
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Load model
-    logger.info(f"Loading model from {model_path}...")
+    logger.info("Loading model from {model_path}...")
     device = torch.device("cpu")  # Use CPU for optimization
 
     # Check if model exists
     if not Path(model_path).exists():
-        logger.error(f"Model not found: {model_path}")
+        logger.error("Model not found: {model_path}")
         return {}
 
     # Load checkpoint
@@ -424,7 +421,7 @@ def optimize_model(model_path: str, output_dir: str, run_benchmark: bool = False
     elif isinstance(checkpoint, dict):
         model.load_state_dict(checkpoint)
     else:
-        logger.error(f"Unexpected checkpoint format: {type(checkpoint)}")
+        logger.error("Unexpected checkpoint format: {type(checkpoint)}")
         return {}
 
     # Set model to evaluation mode
@@ -459,7 +456,7 @@ def optimize_model(model_path: str, output_dir: str, run_benchmark: bool = False
         benchmark_path = output_dir / "benchmark_results.json"
         with open(benchmark_path, "w") as f:
             json.dump(benchmark_results, f, indent=2)
-        logger.info(f"Benchmark results saved to {benchmark_path}")
+        logger.info("Benchmark results saved to {benchmark_path}")
 
     # Collect all metrics
     results = {
@@ -473,18 +470,18 @@ def optimize_model(model_path: str, output_dir: str, run_benchmark: bool = False
     results_path = output_dir / "optimization_results.json"
     with open(results_path, "w") as f:
         json.dump(results, f, indent=2)
-    logger.info(f"Optimization results saved to {results_path}")
+    logger.info("Optimization results saved to {results_path}")
 
     # Log summary
     logger.info("\n=== Optimization Summary ===")
-    logger.info(f"Original model size: {quantization_metrics['original_size_mb']:.2f} MB")
-    logger.info(f"Quantized model size: {quantization_metrics['quantized_size_mb']:.2f} MB")
-    logger.info(f"Size reduction: {quantization_metrics['size_reduction_percent']:.2f}%")
-    logger.info(f"ONNX model path: {onnx_path}")
-    logger.info(f"GPU compatible: {'Yes' if gpu_compatible else 'No'}")
+    logger.info("Original model size: {quantization_metrics['original_size_mb']:.2f} MB")
+    logger.info("Quantized model size: {quantization_metrics['quantized_size_mb']:.2f} MB")
+    logger.info("Size reduction: {quantization_metrics['size_reduction_percent']:.2f}%")
+    logger.info("ONNX model path: {onnx_path}")
+    logger.info("GPU compatible: {'Yes' if gpu_compatible else 'No'}")
 
     if run_benchmark and "onnx" in benchmark_results and "batch_1" in benchmark_results["onnx"]:
-        logger.info(f"ONNX speedup: {benchmark_results['onnx']['batch_1']['speedup']:.2f}x")
+        logger.info("ONNX speedup: {benchmark_results['onnx']['batch_1']['speedup']:.2f}x")
 
     # Check if all requirements are met
     all_requirements_met = (
@@ -514,13 +511,13 @@ if __name__ == "__main__":
         "--model_path",
         type=str,
         default=DEFAULT_MODEL_PATH,
-        help=f"Path to input model (default: {DEFAULT_MODEL_PATH})",
+        help="Path to input model (default: {DEFAULT_MODEL_PATH})",
     )
     parser.add_argument(
         "--output_dir",
         type=str,
         default=DEFAULT_OUTPUT_DIR,
-        help=f"Directory to save optimized models (default: {DEFAULT_OUTPUT_DIR})",
+        help="Directory to save optimized models (default: {DEFAULT_OUTPUT_DIR})",
     )
     parser.add_argument(
         "--benchmark", action="store_true", help="Run performance benchmarks on optimized models"

@@ -3,7 +3,6 @@
 Quick Temperature Scaling Test.
 """
 
-import sys
 from pathlib import Path
 
 sys.path.append(str(Path.cwd() / "src"))
@@ -31,11 +30,11 @@ def quick_temperature_test():
     temperatures = [1.0, 2.0, 3.0, 4.0]
     threshold = 0.5
 
-    print(f"\n🎯 Testing temperatures with threshold {threshold}")
+    print("\n🎯 Testing temperatures with threshold {threshold}")
     print("-" * 50)
 
     for temp in temperatures:
-        print(f"\n🌡️ Temperature: {temp}")
+        print("\n🌡️ Temperature: {temp}")
 
         # Update temperature
         trainer.model.set_temperature(temp)
@@ -45,8 +44,8 @@ def quick_temperature_test():
             trainer.model, trainer.val_loader, trainer.device, threshold=threshold
         )
 
-        print(f"  📊 Macro F1: {metrics['macro_f1']:.4f}")
-        print(f"  📊 Micro F1: {metrics['micro_f1']:.4f}")
+        print("  📊 Macro F1: {metrics['macro_f1']:.4f}")
+        print("  📊 Micro F1: {metrics['micro_f1']:.4f}")
 
     print("\n🎉 Temperature scaling test complete!")
 

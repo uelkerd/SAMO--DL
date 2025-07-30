@@ -5,7 +5,6 @@ Quick F1 Score Test and Improvement
 Simple script to test current F1 performance and apply basic improvements.
 """
 
-import sys
 import logging
 from pathlib import Path
 
@@ -60,8 +59,8 @@ def main():
         logger.info("=" * 50)
         logger.info("RESULTS - Configuration 1")
         logger.info("=" * 50)
-        logger.info(f"Micro F1: {metrics['micro_f1']:.4f} ({metrics['micro_f1']:.1%})")
-        logger.info(f"Macro F1: {metrics['macro_f1']:.4f} ({metrics['macro_f1']:.1%})")
+        logger.info("Micro F1: {metrics['micro_f1']:.4f} ({metrics['micro_f1']:.1%})")
+        logger.info("Macro F1: {metrics['macro_f1']:.4f} ({metrics['macro_f1']:.1%})")
         logger.info("Target F1: 0.7500 (75.0%)")
 
         if metrics["micro_f1"] >= 0.75:
@@ -88,12 +87,12 @@ def main():
             checkpoint_path,
         )
 
-        logger.info(f"Model saved to: {checkpoint_path}")
+        logger.info("Model saved to: {checkpoint_path}")
 
         return metrics["micro_f1"]
 
     except Exception as e:
-        logger.error(f"❌ Quick F1 test failed: {e}")
+        logger.error("❌ Quick F1 test failed: {e}")
         import traceback
 
         logger.error(traceback.format_exc())
@@ -102,12 +101,12 @@ def main():
 
 if __name__ == "__main__":
     f1_score = main()
-    print(f"\n🎯 FINAL F1 SCORE: {f1_score:.4f} ({f1_score:.1%})")
+    print("\n🎯 FINAL F1 SCORE: {f1_score:.4f} ({f1_score:.1%})")
 
     if f1_score >= 0.75:
         print("🎉 SUCCESS: Target achieved!")
         sys.exit(0)
     else:
-        print(f"📊 PROGRESS: {f1_score/0.75:.1%} of target achieved")
+        print("📊 PROGRESS: {f1_score/0.75:.1%} of target achieved")
         print("Next steps: Try focal loss or ensemble techniques")
         sys.exit(1)

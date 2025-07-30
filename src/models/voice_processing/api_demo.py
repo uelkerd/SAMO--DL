@@ -13,7 +13,6 @@ Key Features:
 """
 
 import logging
-import os
 import tempfile
 import time
 from contextlib import asynccontextmanager, suppress
@@ -158,8 +157,8 @@ async def transcribe_audio(
     if file_extension not in AudioPreprocessor.SUPPORTED_FORMATS:
         raise HTTPException(
             status_code=400,
-            detail=f"Unsupported audio format: {file_extension}. "
-            f"Supported formats: {list(AudioPreprocessor.SUPPORTED_FORMATS)}",
+            detail="Unsupported audio format: {file_extension}. "
+            "Supported formats: {list(AudioPreprocessor.SUPPORTED_FORMATS)}",
         )
 
     # Save uploaded file temporarily
@@ -199,8 +198,8 @@ async def transcribe_audio(
         )
 
         logger.info(
-            f"Transcribed {audio_file.filename}: {result.word_count} words, "
-            f"{result.confidence:.2f} confidence, {result.processing_time:.2f}s"
+            "Transcribed {audio_file.filename}: {result.word_count} words, "
+            "{result.confidence:.2f} confidence, {result.processing_time:.2f}s"
         )
 
         return response
@@ -209,7 +208,7 @@ async def transcribe_audio(
         raise
     except Exception as e:
         logger.error("Transcription error: {e}", extra={"format_args": True})
-        raise HTTPException(status_code=500, detail=f"Transcription failed: {e!s}")
+        raise HTTPException(status_code=500, detail="Transcription failed: {e!s}")
 
     finally:
         # Cleanup temporary file
@@ -250,11 +249,11 @@ async def transcribe_batch(
             try:
                 # Validate file
                 if not audio_file.filename:
-                    raise ValueError(f"File {i + 1}: No filename provided")
+                    raise ValueError("File {i + 1}: No filename provided")
 
                 file_extension = Path(audio_file.filename).suffix.lower()
                 if file_extension not in AudioPreprocessor.SUPPORTED_FORMATS:
-                    raise ValueError(f"File {i + 1}: Unsupported format {file_extension}")
+                    raise ValueError("File {i + 1}: Unsupported format {file_extension}")
 
                 # Save to temporary file
                 temp_file = tempfile.NamedTemporaryFile(suffix=file_extension, delete=False)
@@ -267,7 +266,7 @@ async def transcribe_batch(
                 # Validate audio
                 is_valid, error_msg = AudioPreprocessor.validate_audio_file(temp_file.name)
                 if not is_valid:
-                    raise ValueError(f"File {i + 1}: {error_msg}")
+                    raise ValueError("File {i + 1}: {error_msg}")
 
                 # Transcribe
                 result = whisper_transcriber.transcribe_audio(
@@ -331,8 +330,8 @@ async def transcribe_batch(
         )
 
         logger.info(
-            f"Batch transcription complete: {success_count}/{len(audio_files)} successful, "
-            f"{total_processing_time:.2f}ms total"
+            "Batch transcription complete: {success_count}/{len(audio_files)} successful, "
+            "{total_processing_time:.2f}ms total"
         )
 
         return response
@@ -341,7 +340,7 @@ async def transcribe_batch(
         raise
     except Exception as e:
         logger.error("Batch transcription error: {e}", extra={"format_args": True})
-        raise HTTPException(status_code=500, detail=f"Batch transcription failed: {e!s}") from e
+        raise HTTPException(status_code=500, detail="Batch transcription failed: {e!s}") from e
 
     finally:
         # Cleanup temporary files
@@ -394,7 +393,7 @@ async def validate_audio(audio_file: UploadFile = File(...)):
             content={
                 "valid": False,
                 "error": "unsupported_format",
-                "message": f"Unsupported audio format: {file_extension}",
+                "message": "Unsupported audio format: {file_extension}",
                 "supported_formats": list(AudioPreprocessor.SUPPORTED_FORMATS),
             },
         )
@@ -439,7 +438,7 @@ async def validate_audio(audio_file: UploadFile = File(...)):
             content={
                 "valid": False,
                 "error": "validation_error",
-                "message": f"Error validating audio: {e!s}",
+                "message": "Error validating audio: {e!s}",
             },
         )
 

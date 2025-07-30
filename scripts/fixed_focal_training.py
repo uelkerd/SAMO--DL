@@ -17,8 +17,6 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from pathlib import Path
-import json
-import numpy as np
 from sklearn.metrics import f1_score, precision_score, recall_score
 from tqdm import tqdm
 import random
@@ -82,14 +80,14 @@ def create_proper_training_data():
         "excitement",
         "fear",
         "gratitude",
-        "grief",
+        "grie",
         "joy",
         "love",
         "nervousness",
         "optimism",
         "pride",
         "realization",
-        "relief",
+        "relie",
         "remorse",
         "sadness",
         "surprise",
@@ -241,10 +239,10 @@ def create_proper_training_data():
     val_data = training_data[train_size : train_size + val_size]
     test_data = training_data[train_size + val_size :]
 
-    logger.info(f"✅ Created {len(training_data)} examples:")
-    logger.info(f"   • Train: {len(train_data)} examples")
-    logger.info(f"   • Validation: {len(val_data)} examples")
-    logger.info(f"   • Test: {len(test_data)} examples")
+    logger.info("✅ Created {len(training_data)} examples:")
+    logger.info("   • Train: {len(train_data)} examples")
+    logger.info("   • Validation: {len(val_data)} examples")
+    logger.info("   • Test: {len(test_data)} examples")
 
     return train_data, val_data, test_data, emotion_names
 
@@ -282,7 +280,7 @@ def train_model(model, train_data, val_data, device, epochs=10):
     criterion = FocalLoss(alpha=0.25, gamma=2.0)
     optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5, weight_decay=0.01)
 
-    best_val_loss = float("inf")
+    best_val_loss = float("in")
     best_model_state = None
 
     for epoch in range(epochs):
@@ -292,7 +290,7 @@ def train_model(model, train_data, val_data, device, epochs=10):
         model.train()
         train_loss = 0.0
 
-        for i, item in enumerate(tqdm(train_data, desc=f"Training Epoch {epoch + 1}")):
+        for i, item in enumerate(tqdm(train_data, desc="Training Epoch {epoch + 1}")):
             input_ids = item["input_ids"].unsqueeze(0).to(device)
             attention_mask = item["attention_mask"].unsqueeze(0).to(device)
             labels = item["labels"].unsqueeze(0).to(device)
@@ -306,7 +304,7 @@ def train_model(model, train_data, val_data, device, epochs=10):
             train_loss += loss.item()
 
             if i % 10 == 0:
-                logger.info(f"   Batch {i}: Loss = {loss.item():.4f}")
+                logger.info("   Batch {i}: Loss = {loss.item():.4f}")
 
         avg_train_loss = train_loss / len(train_data)
 
@@ -315,7 +313,7 @@ def train_model(model, train_data, val_data, device, epochs=10):
         val_loss = 0.0
 
         with torch.no_grad():
-            for item in tqdm(val_data, desc=f"Validation Epoch {epoch + 1}"):
+            for item in tqdm(val_data, desc="Validation Epoch {epoch + 1}"):
                 input_ids = item["input_ids"].unsqueeze(0).to(device)
                 attention_mask = item["attention_mask"].unsqueeze(0).to(device)
                 labels = item["labels"].unsqueeze(0).to(device)
@@ -326,18 +324,18 @@ def train_model(model, train_data, val_data, device, epochs=10):
 
         avg_val_loss = val_loss / len(val_data)
 
-        logger.info(f"📊 Epoch {epoch + 1} Results:")
-        logger.info(f"   • Train Loss: {avg_train_loss:.4f}")
-        logger.info(f"   • Val Loss: {avg_val_loss:.4f}")
+        logger.info("📊 Epoch {epoch + 1} Results:")
+        logger.info("   • Train Loss: {avg_train_loss:.4f}")
+        logger.info("   • Val Loss: {avg_val_loss:.4f}")
 
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
             best_model_state = model.state_dict().copy()
-            logger.info(f"   🎯 New best validation loss: {best_val_loss:.4f}")
+            logger.info("   🎯 New best validation loss: {best_val_loss:.4f}")
 
     # Load best model
     model.load_state_dict(best_model_state)
-    logger.info(f"🎯 Training completed! Best validation loss: {best_val_loss:.4f}")
+    logger.info("🎯 Training completed! Best validation loss: {best_val_loss:.4f}")
 
     return model
 
@@ -382,14 +380,14 @@ def evaluate_model(model, test_data, device):
         recall_score(all_true_labels, predictions, average="macro", zero_division=0)
 
         logger.info(
-            f"   Threshold {threshold:.2f}: F1 Macro = {f1_macro:.4f}, F1 Micro = {f1_micro:.4f}"
+            "   Threshold {threshold:.2f}: F1 Macro = {f1_macro:.4f}, F1 Micro = {f1_micro:.4f}"
         )
 
         if f1_macro > best_f1:
             best_f1 = f1_macro
             best_threshold = threshold
 
-    logger.info(f"🎯 Best threshold: {best_threshold:.2f} (F1 Macro: {best_f1:.4f})")
+    logger.info("🎯 Best threshold: {best_threshold:.2f} (F1 Macro: {best_f1:.4f})")
 
     # Final evaluation with best threshold
     best_predictions = (all_probabilities > best_threshold).astype(float)
@@ -407,7 +405,7 @@ def evaluate_model(model, test_data, device):
         "precision": final_precision,
         "recall": final_recall,
         "all_thresholds": {
-            f"{t:.2f}": f1_score(
+            "{t:.2f}": f1_score(
                 all_true_labels,
                 (all_probabilities > t).astype(float),
                 average="macro",
@@ -426,7 +424,7 @@ def main():
 
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Device: {device}")
+    logger.info("Device: {device}")
 
     # Create proper training data
     train_data, val_data, test_data, emotion_names = create_proper_training_data()
@@ -437,9 +435,9 @@ def main():
     model = model.to(device)
 
     logger.info("✅ Model created successfully")
-    logger.info(f"   • Total parameters: {sum(p.numel() for p in model.parameters()):,}")
+    logger.info("   • Total parameters: {sum(p.numel() for p in model.parameters()):,}")
     logger.info(
-        f"   • Trainable parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
+        "   • Trainable parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
     )
 
     # Create dataloaders
@@ -449,9 +447,9 @@ def main():
     test_loader = create_dataloader(test_data, model, batch_size=8)
 
     logger.info("✅ Dataloaders created:")
-    logger.info(f"   • Train: {len(train_loader)} examples")
-    logger.info(f"   • Validation: {len(val_loader)} examples")
-    logger.info(f"   • Test: {len(test_loader)} examples")
+    logger.info("   • Train: {len(train_loader)} examples")
+    logger.info("   • Validation: {len(val_loader)} examples")
+    logger.info("   • Test: {len(test_loader)} examples")
 
     # Train model
     model = train_model(model, train_loader, val_loader, device, epochs=10)
@@ -482,17 +480,17 @@ def main():
     with open(results_path, "w") as f:
         json.dump(results, f, indent=2)
 
-    logger.info(f"✅ Model saved to {model_path}")
-    logger.info(f"✅ Results saved to {results_path}")
+    logger.info("✅ Model saved to {model_path}")
+    logger.info("✅ Results saved to {results_path}")
 
     # Final summary
     logger.info("🎉 Fixed focal loss training completed successfully!")
     logger.info("📊 Final Results Summary:")
-    logger.info(f"   • Best F1 Macro: {results['f1_macro']:.4f}")
-    logger.info(f"   • Best F1 Micro: {results['f1_micro']:.4f}")
-    logger.info(f"   • Best Threshold: {results['best_threshold']:.2f}")
-    logger.info(f"   • Precision Macro: {results['precision']:.4f}")
-    logger.info(f"   • Recall Macro: {results['recall']:.4f}")
+    logger.info("   • Best F1 Macro: {results['f1_macro']:.4f}")
+    logger.info("   • Best F1 Micro: {results['f1_micro']:.4f}")
+    logger.info("   • Best Threshold: {results['best_threshold']:.2f}")
+    logger.info("   • Precision Macro: {results['precision']:.4f}")
+    logger.info("   • Recall Macro: {results['recall']:.4f}")
 
 
 if __name__ == "__main__":

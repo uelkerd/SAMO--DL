@@ -73,7 +73,7 @@ class User(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<User(id='{self.id}', email='{self.email}')>"
+        return "<User(id='{self.id}', email='{self.email}')>"
 
 
 class JournalEntry(Base):
@@ -101,7 +101,7 @@ class JournalEntry(Base):
 
     def __repr__(self) -> str:
         return (
-            f"<JournalEntry(id='{self.id}', title='{self.title}', created_at='{self.created_at}')>"
+            "<JournalEntry(id='{self.id}', title='{self.title}', created_at='{self.created_at}')>"
         )
 
 
@@ -124,7 +124,7 @@ class Embedding(Base):
     journal_entry = relationship("JournalEntry", back_populates="embeddings")
 
     def __repr__(self) -> str:
-        return f"<Embedding(id='{self.id}', entry_id='{self.entry_id}', model_version='{self.model_version}')>"
+        return "<Embedding(id='{self.id}', entry_id='{self.entry_id}', model_version='{self.model_version}')>"
 
 
 class Prediction(Base):
@@ -146,7 +146,7 @@ class Prediction(Base):
 
     def __repr__(self) -> str:
         return (
-            f"<Prediction(id='{self.id}', type='{self.prediction_type}', user_id='{self.user_id}')>"
+            "<Prediction(id='{self.id}', type='{self.prediction_type}', user_id='{self.user_id}')>"
         )
 
 
@@ -168,7 +168,7 @@ class VoiceTranscription(Base):
     user = relationship("User", back_populates="voice_transcriptions")
 
     def __repr__(self) -> str:
-        return f"<VoiceTranscription(id='{self.id}', user_id='{self.user_id}', duration={self.duration_seconds}s)>"
+        return "<VoiceTranscription(id='{self.id}', user_id='{self.user_id}', duration={self.duration_seconds}s)>"
 
 
 class Tag(Base):
@@ -184,4 +184,4 @@ class Tag(Base):
     entries = relationship("JournalEntry", secondary=journal_entry_tags, back_populates="tags")
 
     def __repr__(self) -> str:
-        return f"<Tag(id='{self.id}', name='{self.name}')>"
+        return "<Tag(id='{self.id}', name='{self.name}')>"

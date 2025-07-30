@@ -18,22 +18,22 @@ def debug_calibration_issue():
     logger.info("🔍 Debugging calibration test issue...")
 
     # Check current directory
-    logger.info(f"Current directory: {Path.cwd()}")
+    logger.info("Current directory: {Path.cwd()}")
 
     # Check if test_checkpoints directory exists
     checkpoint_dir = Path("test_checkpoints")
-    logger.info(f"test_checkpoints directory exists: {checkpoint_dir.exists()}")
+    logger.info("test_checkpoints directory exists: {checkpoint_dir.exists()}")
 
     if checkpoint_dir.exists():
-        logger.info(f"test_checkpoints contents: {list(checkpoint_dir.iterdir())}")
+        logger.info("test_checkpoints contents: {list(checkpoint_dir.iterdir())}")
 
         # Check specific file
         checkpoint_file = checkpoint_dir / "best_model.pt"
-        logger.info(f"best_model.pt exists: {checkpoint_file.exists()}")
+        logger.info("best_model.pt exists: {checkpoint_file.exists()}")
 
         if checkpoint_file.exists():
-            logger.info(f"File size: {checkpoint_file.stat().st_size} bytes")
-            logger.info(f"File permissions: {oct(checkpoint_file.stat().st_mode)}")
+            logger.info("File size: {checkpoint_file.stat().st_size} bytes")
+            logger.info("File permissions: {oct(checkpoint_file.stat().st_mode)}")
 
             # Try to read the file
             try:
@@ -42,10 +42,10 @@ def debug_calibration_issue():
                 checkpoint = torch.load(checkpoint_file, map_location="cpu", weights_only=False)
                 logger.info("✅ Checkpoint loaded successfully")
                 logger.info(
-                    f"Checkpoint keys: {list(checkpoint.keys()) if isinstance(checkpoint, dict) else 'Not a dict'}"
+                    "Checkpoint keys: {list(checkpoint.keys()) if isinstance(checkpoint, dict) else 'Not a dict'}"
                 )
             except Exception as e:
-                logger.error(f"❌ Failed to load checkpoint: {e}")
+                logger.error("❌ Failed to load checkpoint: {e}")
         else:
             logger.error("❌ best_model.pt does not exist")
     else:
@@ -56,7 +56,7 @@ def debug_calibration_issue():
         import torch
         logger.info("✅ PyTorch imported successfully")
     except ImportError as e:
-        logger.error(f"❌ PyTorch import failed: {e}")
+        logger.error("❌ PyTorch import failed: {e}")
 
     # Note: transformers and sklearn imports removed as they were unused
     # If needed for future debugging, import them when actually used
