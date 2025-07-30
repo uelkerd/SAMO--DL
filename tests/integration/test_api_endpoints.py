@@ -55,38 +55,38 @@ class TestAPIEndpoints:
             "confidence_threshold": 0.5,
         }
 
-        response = api_client.post("/analyze/journal", data=test_data)
+        response = api_client.post("/analyze/journal", json=test_data)
 
         assert response.status_code == 200
         data = response.json()
 
         # Check response structure
-        assert "text" in data
-        assert "emotions" in data
+        assert "emotion_analysis" in data
         assert "summary" in data
-        assert "processing_time" in data
-        assert "timestamp" in data
+        assert "processing_time_ms" in data
+        assert "pipeline_status" in data
+        assert "insights" in data
 
-        # Check emotions structure
-        assert isinstance(data["emotions"], list)
-        if len(data["emotions"]) > 0:
-            emotion = data["emotions"][0]
-            assert "emotion" in emotion
-            assert "confidence" in emotion
+        # Check emotion analysis structure
+        emotion_analysis = data["emotion_analysis"]
+        assert "emotions" in emotion_analysis
+        assert "primary_emotion" in emotion_analysis
+        assert "confidence" in emotion_analysis
+        assert isinstance(emotion_analysis["emotions"], dict)
 
     def test_journal_analysis_validation(self, api_client):
         """Test journal analysis input validation."""
         # Test empty text
-        response = api_client.post("/analyze/journal", data={"text": ""})
+        response = api_client.post("/analyze/journal", json={"text": ""})
         assert response.status_code == 422
 
         # Test very long text
         long_text = "x" * 10001
-        response = api_client.post("/analyze/journal", data={"text": long_text})
+        response = api_client.post("/analyze/journal", json={"text": long_text})
         assert response.status_code == 422
 
         # Test missing required field
-        response = api_client.post("/analyze/journal", data={})
+        response = api_client.post("/analyze/journal", json={})
         assert response.status_code == 422
 
     def test_models_status_endpoint(self, api_client):
@@ -102,7 +102,8 @@ class TestAPIEndpoints:
         for model in expected_models:
             assert model in data
             assert "loaded" in data[model]
-            assert "model_info" in data[model]
+            assert "model_type" in data[model]
+            assert "capabilities" in data[model]
 
     @pytest.mark.slow
     def test_performance_requirements(self, api_client):
@@ -110,7 +111,7 @@ class TestAPIEndpoints:
         test_data = {"text": "I feel great today! This is a wonderful experience."}
 
         start_time = time.time()
-        response = api_client.post("/analyze/journal", data=test_data)
+        response = api_client.post("/analyze/journal", json=test_data)
         end_time = time.time()
 
         response_time = end_time - start_time
@@ -121,8 +122,8 @@ class TestAPIEndpoints:
 
         # Check processing time in response
         data = response.json()
-        assert "processing_time" in data
-        assert data["processing_time"] > 0
+        assert "processing_time_ms" in data
+        assert data["processing_time_ms"] > 0
 
     def test_error_handling(self, api_client):
         """Test API error handling and response format."""
@@ -148,7 +149,7 @@ class TestAPIEndpoints:
 
         def make_request():
             try:
-                response = api_client.post("/analyze/journal", data=test_data)
+                response = api_client.post("/analyze/journal", json=test_data)
                 results.put(response.status_code)
             except Exception as e:
                 results.put("Error: {e}")
@@ -173,14 +174,14 @@ class TestAPIEndpoints:
         """Test API handles different content types correctly."""
         test_data = {"text": "Testing content type handling."}
 
-        # Test form data (default)
-        response = api_client.post("/analyze/journal", data=test_data)
+        # Test JSON content type (primary)
+        response = api_client.post("/analyze/journal", json=test_data)
         assert response.status_code == 200
 
-        # Test JSON content type (should also work)
-        response = api_client.post("/analyze/journal", json=test_data)
+        # Test form data (fallback)
+        response = api_client.post("/analyze/journal", data=test_data)
         # Note: Depending on FastAPI configuration, this might need adjustment
-        # For form-based endpoints, JSON might not be accepted
+        # For JSON-based endpoints, form data might not be accepted
 
     def test_response_consistency(self, api_client):
         """Test API response format consistency across multiple calls."""
@@ -188,18 +189,20 @@ class TestAPIEndpoints:
 
         responses = []
         for _ in range(3):
-            response = api_client.post("/analyze/journal", data=test_data)
+            response = api_client.post("/analyze/journal", json=test_data)
             assert response.status_code == 200
             responses.append(response.json())
 
         # Check all responses have same structure
-        required_fields = ["text", "emotions", "processing_time", "timestamp"]
+        required_fields = ["emotion_analysis", "summary", "processing_time_ms", "pipeline_status", "insights"]
 
         for response_data in responses:
             for field in required_fields:
                 assert field in response_data
 
             # Check field types are consistent
-            assert isinstance(response_data["emotions"], list)
-            assert isinstance(response_data["processing_time"], int | float)
-            assert isinstance(response_data["timestamp"], str)
+            assert isinstance(response_data["emotion_analysis"], dict)
+            assert isinstance(response_data["summary"], dict)
+            assert isinstance(response_data["processing_time_ms"], (int, float))
+            assert isinstance(response_data["pipeline_status"], dict)
+            assert isinstance(response_data["insights"], dict)
