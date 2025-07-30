@@ -48,7 +48,7 @@ def test_t5_model_loading():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ T5 model loading failed: {e}")
         return False
 
@@ -84,7 +84,7 @@ def test_t5_summarization():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ T5 summarization test failed: {e}")
         return False
 

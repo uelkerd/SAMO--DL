@@ -129,7 +129,7 @@ def test_model_performance_monitoring():
         logger.info("✅ Model performance monitoring test passed")
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Model performance monitoring test failed: {e}")
         return False
 
@@ -168,7 +168,7 @@ def test_model_drift_detection():
         logger.info("✅ Model drift detection test passed")
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Model drift detection test failed: {e}")
         return False
 
@@ -204,7 +204,7 @@ def test_monitoring_logging():
         logger.info("✅ Monitoring logging test passed")
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Monitoring logging test failed: {e}")
         return False
 

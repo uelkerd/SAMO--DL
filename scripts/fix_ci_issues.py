@@ -60,7 +60,7 @@ def main():
         "Testing predict emotions fix",
     )
 
-    logging.info(f"\n=" * 50)
+    logging.info("\n=" * 50)
     logging.info("📊 CI Fix Summary:")
     logging.info("Code Formatting: {'✅ PASSED' if success1 else '❌ FAILED'}")
     logging.info("Linting Fixes: {'✅ PASSED' if success2 else '❌ FAILED'}")

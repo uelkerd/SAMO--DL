@@ -145,7 +145,7 @@ def main():
                 fixed_common = fix_common_issues_aggressive(str(py_file))
                 if fixed_imports or fixed_common:
                     total_fixed += 1
-            except Exception as e:
+            except Exception:
                 logging.info("Error fixing {py_file}: {e}")
 
     logging.info("\n✅ Fixed {total_fixed} files")

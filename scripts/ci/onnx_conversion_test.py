@@ -1,38 +1,21 @@
-                # Clean up
-                # Load and test with ONNX Runtime
-                # Save model
-                # Test inference
-            # Create a simple ONNX model manually to test basic functionality
-            # Create a simple model with identity operation
-            # Create graph
-            # Create model
-            # Create temporary file
-            # Define input
-            # Define output
-            # Test ONNX Runtime with simple model
-            from onnx import helper
-            import onnx
-            import onnxruntime as ort
-            import tempfile
-        # Check if ONNX Runtime is available
-        # Check if ONNX is available
-        # Test basic ONNX functionality without complex imports
-# Configure logging
 #!/usr/bin/env python3
-import logging
-import numpy as np
-import os
-import sys
-
-
-
-
 """
 ONNX Conversion Test for CI/CD Pipeline.
 
 This script validates that ONNX dependencies are available
 and basic functionality works without complex imports.
 """
+
+import logging
+import numpy as np
+import os
+import sys
+import tempfile
+
+# Test imports
+from onnx import helper
+import onnx
+import onnxruntime as ort
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

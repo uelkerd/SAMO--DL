@@ -84,7 +84,7 @@ def find_valid_checkpoint():
                 torch.load(path, map_location="cpu", weights_only=False)
                 logger.info("✅ Found valid checkpoint: {checkpoint_path}")
                 return str(path)
-            except Exception as e:
+            except Exception:
                 logger.warning("⚠️ Checkpoint {checkpoint_path} is corrupted: {e}")
                 continue
 
@@ -162,7 +162,7 @@ def test_calibration():
                 logger.info("✅ Model loaded successfully")
             else:
                 logger.warning("⚠️ Checkpoint format unexpected, using default model")
-        except Exception as e:
+        except Exception:
             logger.warning("⚠️ Could not load checkpoint: {e}")
             logger.info("Using default model")
     else:

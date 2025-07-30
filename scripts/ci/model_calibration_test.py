@@ -181,7 +181,7 @@ def test_model_calibration():
         logger.info("🎉 All calibration tests passed!")
         return 0
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Calibration test failed: {e}")
         return 1
 

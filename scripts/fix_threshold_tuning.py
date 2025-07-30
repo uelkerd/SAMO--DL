@@ -84,7 +84,7 @@ def main():
             logger.warning("⚠️  F1 scores still low. Model may need more training.")
             return 1
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Threshold tuning failed: {e}")
         return 1
 
