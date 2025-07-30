@@ -136,7 +136,7 @@ def train_with_focal_loss(
         logger.info("   • Validation: {len(val_dataset)} examples")
         logger.info("   • Test: {len(test_dataset)} examples")
 
-    except Exception as e:
+    except Exception:
         logger.error("Failed to load dataset: {e}")
         raise
 

@@ -115,7 +115,7 @@ def diagnose_model_outputs():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Diagnosis failed: {e}")
         return False
 
@@ -155,7 +155,7 @@ def diagnose_loss_function():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Loss function diagnosis failed: {e}")
         return False
 

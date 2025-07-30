@@ -93,7 +93,7 @@ def main():
             )
             return 1
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Test failed: {e}")
         return 1
 

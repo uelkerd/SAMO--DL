@@ -75,7 +75,7 @@ def test_bert_model_loading():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ BERT model test failed: {e}")
         return False
 

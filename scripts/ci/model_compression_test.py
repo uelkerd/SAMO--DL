@@ -132,7 +132,7 @@ def test_model_compression():
         logger.info("✅ Model compression test passed")
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Model compression test failed: {e}")
         return False
 

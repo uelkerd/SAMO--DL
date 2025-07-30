@@ -17,10 +17,7 @@
         # Sort imports
 #!/usr/bin/env python3
 from pathlib import Path
-from typing import List, Tuple
-import os
 import re
-import sys
 """
 Comprehensive Linting Fix Script for SAMO Deep Learning.
 
@@ -47,7 +44,7 @@ class ComprehensiveLintingFixer:
     def fix_file(self, file_path: str) -> bool:
         """Fix all linting issues in a single file."""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding='utf-8') as f:
                 content = f.read()
 
             original_content = content
@@ -86,7 +83,7 @@ class ComprehensiveLintingFixer:
             print(f"  ❌ Error fixing {file_path}: {e}")
             return False
 
-    def fix_undefined_names(self, content: str) -> Tuple[str, int]:
+    def fix_undefined_names(self, content: str) -> tuple[str, int]:
         """Fix F821: Undefined name errors."""
         fixes = 0
         
@@ -104,7 +101,7 @@ class ComprehensiveLintingFixer:
 
         return content, fixes
 
-    def fix_import_sorting(self, content: str) -> Tuple[str, int]:
+    def fix_import_sorting(self, content: str) -> tuple[str, int]:
         """Fix S-series: Import sorting issues."""
         fixes = 0
         
@@ -114,8 +111,8 @@ class ComprehensiveLintingFixer:
         
         for line in lines:
             stripped = line.strip()
-            if (stripped.startswith('import ') or 
-                stripped.startswith('from ') or 
+            if (stripped.startswith('import ') or
+                stripped.startswith('from ') or
                 stripped.startswith('#')):
                 import_lines.append(line)
             else:
@@ -129,7 +126,7 @@ class ComprehensiveLintingFixer:
             
         return new_content, fixes
 
-    def fix_path_issues(self, content: str) -> Tuple[str, int]:
+    def fix_path_issues(self, content: str) -> tuple[str, int]:
         """Fix P-series: Path issues."""
         fixes = 0
         
@@ -147,7 +144,7 @@ class ComprehensiveLintingFixer:
 
         return content, fixes
 
-    def fix_logging_issues(self, content: str) -> Tuple[str, int]:
+    def fix_logging_issues(self, content: str) -> tuple[str, int]:
         """Fix G003: Logging issues."""
         fixes = 0
         
@@ -161,7 +158,7 @@ class ComprehensiveLintingFixer:
 
         return content, fixes
 
-    def fix_loop_variables(self, content: str) -> Tuple[str, int]:
+    def fix_loop_variables(self, content: str) -> tuple[str, int]:
         """Fix B007: Loop control variable issues."""
         fixes = 0
         
@@ -175,7 +172,7 @@ class ComprehensiveLintingFixer:
 
         return content, fixes
 
-    def fix_minor_issues(self, content: str) -> Tuple[str, int]:
+    def fix_minor_issues(self, content: str) -> tuple[str, int]:
         """Fix other minor issues."""
         fixes = 0
         
@@ -210,12 +207,12 @@ class ComprehensiveLintingFixer:
                 self.process_directory(directory)
         
         print("\n" + "=" * 60)
-        print(f"🎉 COMPREHENSIVE LINTING FIX COMPLETE!")
+        print("🎉 COMPREHENSIVE LINTING FIX COMPLETE!")
         print(f"📊 Files fixed: {len(self.fixed_files)}")
         print(f"🔧 Total fixes applied: {self.total_fixes}")
         
         if self.fixed_files:
-            print(f"\n✅ Fixed files:")
+            print("\n✅ Fixed files:")
             for file_path in self.fixed_files:
                 print(f"  - {file_path}")
 

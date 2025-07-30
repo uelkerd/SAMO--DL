@@ -104,7 +104,7 @@ def test_development_mode():
             )
             return False
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Training test failed with error: {e}")
         return False
 
@@ -159,7 +159,7 @@ def test_threshold_tuning():
             logger.warning("⚠️  All thresholds produced low F1 scores")
             return False
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Threshold tuning test failed: {e}")
         return False
 
