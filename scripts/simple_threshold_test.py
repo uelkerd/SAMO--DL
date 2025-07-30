@@ -38,8 +38,8 @@ def test_threshold_application():
     logging.info("\n🎯 Applying threshold: {threshold}")
 
     above_threshold = probabilities >= threshold
-    num_above_threshold = above_threshold.sum().item()
-    total_positions = batch_size * num_emotions
+    above_threshold.sum().item()
+    batch_size * num_emotions
 
     logging.info("📊 Threshold analysis:")
     logging.info("  - Total positions: {total_positions}")

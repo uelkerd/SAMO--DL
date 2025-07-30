@@ -1,19 +1,13 @@
-import logging
+#!/usr/bin/env python3
+"""Simple test script to verify Vertex AI setup"""
 
 import json
+import logging
 import os
 import sys
 
-#!/usr/bin/env python3
-        import pandas as pd
-
-        from google.cloud import storage
-
-
-"""
-Simple test script to verify Vertex AI setup
-"""
-
+import pandas as pd
+from google.cloud import storage
 
 
 def main():
@@ -57,20 +51,20 @@ def main():
                 logging.info("  - Sample emotions: {emotions}")
                 logging.info("  - Emotion type: {type(emotions)}")
 
-    except Exception as _:
-        logging.info("❌ Error loading data: {e}")
+    except Exception as exc:
+        logging.info("❌ Error loading data: {exc}")
         sys.exit(1)
 
     # Test 4: Try to import required packages
     try:
         logging.info("✅ pandas imported successfully")
-    except ImportError as _:
-        logging.info("❌ pandas import failed: {e}")
+    except ImportError as exc:
+        logging.info("❌ pandas import failed: {exc}")
 
     try:
         logging.info("✅ google-cloud-storage imported successfully")
-    except ImportError as _:
-        logging.info("❌ google-cloud-storage import failed: {e}")
+    except ImportError as exc:
+        logging.info("❌ google-cloud-storage import failed: {exc}")
 
     logging.info("\n🎉 All tests passed! Ready for data preparation.")
 

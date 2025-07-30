@@ -155,13 +155,13 @@ def main():
     """Main debugging function."""
     logger.info("🚀 Starting simple loss debugging...")
 
-    causes = analyze_loss_pattern()
+    analyze_loss_pattern()
 
-    logs = check_training_logs()
+    check_training_logs()
 
-    steps = suggest_debugging_steps()
+    suggest_debugging_steps()
 
-    test_script = create_test_script()
+    create_test_script()
 
     logger.info("\n" + "="*60)
     logger.info("📋 SIMPLE DEBUG SUMMARY")

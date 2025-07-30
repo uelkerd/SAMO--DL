@@ -5,6 +5,7 @@ import os
 import tempfile
 import pytest
 from pathlib import Path
+import contextlib
 # Add project root to path
     # Get the path to the test file
     # Create a temporary pytest configuration to avoid conflicts with pyproject.toml
@@ -60,7 +61,5 @@ addopts = --cov=src.api_rate_limiter --cov-report=term-missing --cov-fail-under=
         sys.exit(result)
 
     finally:
-        try:
+        with contextlib.suppress(OSError):
             os.unlink(temp_config)
-        except OSError:
-            pass

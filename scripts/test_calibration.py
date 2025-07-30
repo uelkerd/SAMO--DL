@@ -107,7 +107,7 @@ def test_calibration():
             logger.info("Processed {i}/{len(val_dataset)} samples...")
 
     micro_f1 = f1_score(all_labels, all_predictions, average="micro")
-    macro_f1 = f1_score(all_labels, all_predictions, average="macro")
+    f1_score(all_labels, all_predictions, average="macro")
 
     logger.info("Micro F1: {micro_f1:.4f}")
     logger.info("Macro F1: {macro_f1:.4f}")
