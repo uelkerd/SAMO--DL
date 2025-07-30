@@ -1,18 +1,11 @@
-            # Clean up
-            # It's okay if this fails in test environment without real DB
-            # Log the exception for debugging purposes
-        # In a real test environment, we'd mock the engine
-        # Test that we can create a session (though we won't actually use it)
-        # This test ensures the function exists and has proper error handling
-        # This test ensures the function exists and has proper error handling
-        # This test just ensures the function exists and can be called
-from src.data.database import (
-import logging
+#!/usr/bin/env python3
 """Unit tests for database module.
 Tests database connection, operations, and utilities.
 """
 
+import logging
 
+from src.data.database import (
     Base,
     SessionLocal,
     db_session,
