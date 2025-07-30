@@ -1,53 +1,53 @@
-import numpy as np
-import sys
-#!/usr/bin/env python3
-import logging
-import time
-from pathlib import Path
-from typing import Any
-# Add src to path
-import torch
-from torch import nn
-from transformers import AutoTokenizer
-from models.emotion_detection.bert_classifier import BERTEmotionClassifier
-# Configure logging
-        # Load checkpoint
-        # Initialize model
-        # Load state dict
-        # Load tokenizer
-        # 1. Pruning - Remove less important weights
-        # 2. Quantization - Reduce precision
-        # 3. Knowledge distillation (if teacher model available)
-        # Prune attention heads and layers
                 # Prune 20% of weights with lowest magnitude
-        # Quantize the model
-        # This would require a larger teacher model
-        # For now, skip this step
-        # Create dummy input
-        # ONNX export
-        # 1. Batch processing
-        # 2. Input preprocessing optimization
-        # 3. Memory optimization
+            # Benchmark
+            # Get predictions
+            # Measure inference time
+            # Tokenize
             # Tokenize batch
             # Warmup
-            # Benchmark
-        # Cache tokenizer vocabulary
-        # Enable gradient checkpointing for memory efficiency
-        # Use mixed precision if available
-        # Benchmark metrics
-            # Tokenize
-            # Measure inference time
-            # Get predictions
-        # Calculate statistics
-    # Check if model exists
-        # Initialize optimizer
-        # Load model
+        # 1. Batch processing
+        # 1. Pruning - Remove less important weights
+        # 2. Input preprocessing optimization
+        # 2. Quantization - Reduce precision
+        # 3. Knowledge distillation (if teacher model available)
+        # 3. Memory optimization
         # Apply optimizations
-        # Convert to ONNX
+        # Benchmark metrics
         # Benchmark performance
+        # Cache tokenizer vocabulary
+        # Calculate statistics
+        # Convert to ONNX
+        # Create dummy input
+        # Enable gradient checkpointing for memory efficiency
+        # For now, skip this step
+        # Initialize model
+        # Initialize optimizer
+        # Load checkpoint
+        # Load model
+        # Load state dict
+        # Load tokenizer
+        # ONNX export
+        # Overall assessment
+        # Prune attention heads and layers
+        # Quantize the model
         # Save optimized model
         # Success criteria check
-        # Overall assessment
+        # This would require a larger teacher model
+        # Use mixed precision if available
+    # Check if model exists
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+from pathlib import Path
+from torch import nn
+from transformers import AutoTokenizer
+from typing import Any
+import logging
+import numpy as np
+import sys
+import time
+import torch
 
 
 
@@ -198,7 +198,7 @@ class ModelOptimizer:
         best_batch_size = 1
         best_throughput = 0
 
-        for ___batch_size in batch_sizes:
+        for batch_size in batch_sizes:
             encoded = self.tokenizer(
                 test_texts[:batch_size],
                 padding=True,
@@ -285,7 +285,7 @@ class ModelOptimizer:
         latencies = []
         accuracies = []
 
-        for ___text in test_texts:
+        for text in test_texts:
             encoded = self.tokenizer(
                 text, padding=True, truncation=True, max_length=512, return_tensors="pt"
             ).to(self.device)
@@ -397,7 +397,7 @@ def main():
             )
             return 1
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Optimization failed: {e}")
         return 1
 

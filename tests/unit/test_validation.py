@@ -1,8 +1,12 @@
+        # Create test DataFrame
+        # Create test DataFrame
+        # Create test DataFrame
+        # Create test DataFrame
+        import pandas as pd
+        import pandas as pd
+        import pandas as pd
+        import pandas as pd
 from src.data.validation import (
-        import pandas as pd
-        import pandas as pd
-        import pandas as pd
-        import pandas as pd
 
 """
 Unit tests for validation module.
@@ -31,7 +35,6 @@ class TestDataValidator:
         """Test check_missing_values method."""
         validator = DataValidator()
 
-        # Create test DataFrame
         df = pd.DataFrame({
             'user_id': [1, 2, None, 4],
             'content': ['text1', 'text2', 'text3', None],
@@ -49,7 +52,6 @@ class TestDataValidator:
         """Test check_data_types method."""
         validator = DataValidator()
 
-        # Create test DataFrame
         df = pd.DataFrame({
             'user_id': [1, 2, 3, 4],
             'content': ['text1', 'text2', 'text3', 'text4'],
@@ -72,7 +74,6 @@ class TestDataValidator:
         """Test check_text_quality method."""
         validator = DataValidator()
 
-        # Create test DataFrame
         df = pd.DataFrame({
             'content': ['This is a test', '', '   ', 'Another test with more words']
         })
@@ -88,7 +89,6 @@ class TestDataValidator:
         """Test validate_journal_entries method."""
         validator = DataValidator()
 
-        # Create test DataFrame
         df = pd.DataFrame({
             'user_id': [1, 2, 3, 4],
             'content': ['text1', 'text2', 'text3', 'text4'],

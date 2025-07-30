@@ -1,19 +1,25 @@
-import sys
-
+        # Create a simple BERT classifier
+        # Create a simple classifier head
+        # Load a small subset for testing
+        # Test with a simple input
+        from datasets import load_dataset
+        from torch import nn
+        from transformers import AutoTokenizer, AutoModel
+    # Compute loss
+    # Create focal loss
+    # Create synthetic data
+    # Setup device
+# Configure logging
 #!/usr/bin/env python3
-import logging
-import torch
 from torch import nn
+import logging
+import sys
+import torch
 import torch.nn.functional as F
 
-# Configure logging
-        from transformers import AutoTokenizer, AutoModel
-        from torch import nn
 
-        # Create a simple BERT classifier
-        from datasets import load_dataset
 
-        # Load a small subset for testing
+
 
 """
 Standalone Focal Loss Test
@@ -52,16 +58,13 @@ def test_focal_loss():
     """Test focal loss with synthetic data."""
     logger.info("🧮 Testing Focal Loss with synthetic data...")
 
-    # Create synthetic data
     batch_size = 4
     num_classes = 28
     inputs = torch.randn(batch_size, num_classes)
     targets = torch.randint(0, 2, (batch_size, num_classes)).float()
 
-    # Create focal loss
     focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
 
-    # Compute loss
     loss = focal_loss(inputs, targets)
 
     logger.info("✅ Focal Loss Test PASSED")
@@ -81,11 +84,9 @@ def test_bert_import():
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         bert_model = AutoModel.from_pretrained(model_name)
 
-        # Create a simple classifier head
         num_classes = 28
         classifier = nn.Linear(bert_model.config.hidden_size, num_classes)
 
-        # Test with a simple input
         text = "I am happy today"
         inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True)
 
@@ -101,7 +102,7 @@ def test_bert_import():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ BERT Model Test FAILED: {e}")
         return False
 
@@ -121,7 +122,7 @@ def test_dataset_download():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Dataset Download Test FAILED: {e}")
         return False
 
@@ -131,7 +132,6 @@ def main():
     logger.info("🎯 Standalone Focal Loss Validation Tests")
     logger.info("=" * 50)
 
-    # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Device: {device}")
 
@@ -146,7 +146,7 @@ def main():
         logger.info("\n📋 Running {test_name}...")
         try:
             results[test_name] = test_func()
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ {test_name} failed with exception: {e}")
             results[test_name] = False
 

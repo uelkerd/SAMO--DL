@@ -1,16 +1,23 @@
-import sys
-
+        # Import monitoring components
+        # Initialize monitor
+        # Keep main thread alive
+        # Start monitoring in background thread
+        from scripts.model_monitoring import ModelHealthMonitor
+    # Check if config file exists
+    # Start monitoring system
+# Add src to path
+# Configure logging
+# Constants
 #!/usr/bin/env python3
+from pathlib import Path
 import argparse
 import logging
+import sys
 import threading
 import time
-from pathlib import Path
 
-# Add src to path
-        from scripts.model_monitoring import ModelHealthMonitor
 
-        # Initialize monitor
+
 
 """
 Model Monitoring Dashboard Starter
@@ -29,11 +36,9 @@ Arguments:
 
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
-# Constants
 DEFAULT_CONFIG_PATH = "configs/monitoring.yaml"
 DEFAULT_PORT = 8080
 
@@ -48,10 +53,8 @@ def start_monitoring_system(config_path: str, port: int) -> None:
     logger.info("🚀 Starting SAMO Model Monitoring System...")
 
     try:
-        # Import monitoring components
         monitor = ModelHealthMonitor(config_path)
 
-        # Start monitoring in background thread
         monitor_thread = threading.Thread(target=monitor.start_monitoring, daemon=True)
         monitor_thread.start()
 
@@ -62,7 +65,6 @@ def start_monitoring_system(config_path: str, port: int) -> None:
         logger.info("📈 Data drift detection enabled")
         logger.info("🔄 Automated retraining triggers active")
 
-        # Keep main thread alive
         try:
             while True:
                 time.sleep(60)
@@ -74,7 +76,7 @@ def start_monitoring_system(config_path: str, port: int) -> None:
             monitor.stop_monitoring()
             logger.info("✅ Monitoring system stopped gracefully")
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Failed to start monitoring system: {e}")
         sys.exit(1)
 
@@ -94,13 +96,11 @@ def main():
 
     args = parser.parse_args()
 
-    # Check if config file exists
     if not Path(args.config_path).exists():
         logger.error("❌ Configuration file not found: {args.config_path}")
         logger.info("Please create the monitoring configuration first")
         sys.exit(1)
 
-    # Start monitoring system
     start_monitoring_system(args.config_path, args.port)
 
 

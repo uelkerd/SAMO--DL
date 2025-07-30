@@ -1,13 +1,39 @@
+                # For sample data, add development comment
+            # Add secrets import if not present
+            # Apply all fix categories
+            # Replace random.choice with secrets.choice for non-dev code
+            # Write back if changes were made
+        # Add pathlib import if needed
+        # Add timezone import if needed
+        # D205: Add blank line after docstring summary
+        # E721: Use isinstance() instead of type comparison
+        # For now, add comments to acknowledge the G004 violations
+        # PTH103: os.makedirs -> Path.mkdir
+        # PTH107: os.remove -> Path.unlink
+        # PTH110: os.path.exists -> Path.exists
+        # PTH118: os.path.join -> Path / operator
+        # PTH120: os.path.dirname -> Path.parent
+        # PTH123: open() -> Path.open()
+        # Pattern: logger.level("message {variable}")
+        # Process all Python files in src directory
+        # Replace datetime.now() with timezone-aware version
+        # Replace raise Exception(msg) with raise Exception(msg) from e
+        # Replace with: logger.level("message %s", variable)
+        # S104: Fix hardcoded interface binding - make it configurable
+        # S311: Replace random with secrets for sample data generation
+        # This is a more complex fix that requires understanding context
+    # Apply fixes
+    # Get project root directory
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
 import datetime
+import logging
 import os
+import re
 import sys
 
-#!/usr/bin/env python3
-import logging
-import re
-from pathlib import Path
 
-# Configure logging
 
 """SAMO-DL Code Quality Fix Script.
 
@@ -40,7 +66,6 @@ class CodeQualityFixer:
         """Apply all code quality fixes."""
         logger.info("🔧 Starting SAMO-DL code quality fixes...")
 
-        # Process all Python files in src directory
         python_files = list(self.src_dir.rglob("*.py"))
         logger.info("Found {len(python_files)} Python files to process")
 
@@ -57,7 +82,6 @@ class CodeQualityFixer:
             content = file_path.read_text(encoding="utf-8")
             original_content = content
 
-            # Apply all fix categories
             content = self._fix_security_issues(content)
             content = self._fix_path_operations(content)
             content = self._fix_logging_fstrings(content)
@@ -65,7 +89,6 @@ class CodeQualityFixer:
             content = self._fix_exception_handling(content)
             content = self._fix_miscellaneous(content)
 
-            # Write back if changes were made
             if content != original_content:
                 file_path.write_text(content, encoding="utf-8")
                 fixes_count = len(original_content.split("\n")) - len(content.split("\n")) + 1
@@ -74,27 +97,22 @@ class CodeQualityFixer:
 
             self.files_processed += 1
 
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ Error processing {file_path}: {e}")
 
     def _fix_security_issues(self, content: str) -> str:
         """Fix security-related issues (S-codes)."""
-        # S311: Replace random with secrets for sample data generation
         if "sample_data.py" in content or "import random" in content:
-            # Add secrets import if not present
             if "import secrets" not in content and "random." in content:
                 content = re.sub(r"import random\n", "import random\nimport secrets\n", content)
 
-            # Replace random.choice with secrets.choice for non-dev code
             if "sample_data.py" in str(content):
-                # For sample data, add development comment
                 content = re.sub(
                     r"(random\.choice\([^)]+\))",
                     r"\1  # S311: OK for development sample data",
                     content,
                 )
 
-        # S104: Fix hardcoded interface binding - make it configurable
         content = re.sub(
             r'host="0\.0\.0\.0"',
             r'host="127.0.0.1"  # Changed from 0.0.0.0 for security',
@@ -105,42 +123,33 @@ class CodeQualityFixer:
 
     def _fix_path_operations(self, content: str) -> str:
         """Fix path operations to use pathlib (PTH-codes)."""
-        # Add pathlib import if needed
         if "os.path." in content or "os.makedirs" in content or "os.remove" in content:
             if "from pathlib import Path" not in content:
 
-        # PTH118: os.path.join -> Path / operator
         content = re.sub(r"os\.path\.join\(([^)]+)\)", r"Path(\1).as_posix()", content)
 
-        # PTH120: os.path.dirname -> Path.parent
         content = re.sub(r"os\.path\.dirname\(([^)]+)\)", r"Path(\1).parent", content)
 
-        # PTH103: os.makedirs -> Path.mkdir
         content = re.sub(
             r"os\.makedirs\(([^,]+),\s*exist_ok=True\)",
             r"Path(\1).mkdir(parents=True, exist_ok=True)",
             content,
         )
 
-        # PTH123: open() -> Path.open()
         content = re.sub(
             r'with open\(([^,]+),\s*"([^"]+)"\)\s+as\s+([^:]+):',
             r'with Path(\1).open("\2") as \3:',
             content,
         )
 
-        # PTH107: os.remove -> Path.unlink
         content = re.sub(r"os\.remove\(([^)]+)\)", r"Path(\1).unlink()", content)
 
-        # PTH110: os.path.exists -> Path.exists
         content = re.sub(r"os\.path\.exists\(([^)]+)\)", r"Path(\1).exists()", content)
 
         return content
 
     def _fix_logging_fstrings(self, content: str) -> str:
         """Fix logging f-string issues (G004)."""
-        # Pattern: logger.level("message {variable}")
-        # Replace with: logger.level("message %s", variable)
         patterns = [
             (
                 r'logger\.info\("([^"]*\{[^}]+\}[^"]*)"\)',
@@ -159,8 +168,6 @@ class CodeQualityFixer:
         for pattern, replacement in patterns:
             content = re.sub(pattern, replacement, content)
 
-        # For now, add comments to acknowledge the G004 violations
-        # This is a more complex fix that requires understanding context
         if "logger." in content and '"' in content:
             content = "# G004: Logging f-strings temporarily allowed for development\n" + content
 
@@ -168,7 +175,6 @@ class CodeQualityFixer:
 
     def _fix_datetime_timezone(self, content: str) -> str:
         """Fix datetime timezone issues (DTZ005)."""
-        # Add timezone import if needed
         if "datetime.now()" in content and "from datetime import timezone" not in content:
             content = re.sub(
                 r"from datetime import ([^\n]+)",
@@ -176,14 +182,12 @@ class CodeQualityFixer:
                 content,
             )
 
-        # Replace datetime.now() with timezone-aware version
         content = re.sub(r"datetime\.now\(\)", r"datetime.now(timezone.utc)", content)
 
         return content
 
     def _fix_exception_handling(self, content: str) -> str:
         """Fix exception handling issues (B904)."""
-        # Replace raise Exception(msg) with raise Exception(msg) from e
         content = re.sub(
             r"except ([^:]+) as e:\n(\s+)([^\n]+)\n(\s+)raise Exception\(([^)]+)\)",
             r"except \1 as e:\n\2\3\n\4raise Exception(\5) from e",
@@ -194,10 +198,8 @@ class CodeQualityFixer:
 
     def _fix_miscellaneous(self, content: str) -> str:
         """Fix miscellaneous issues."""
-        # E721: Use isinstance() instead of type comparison
         content = re.sub(r"expected_type == str", r"expected_type is str", content)
 
-        # D205: Add blank line after docstring summary
         content = re.sub(r'"""([^"]+)\.\n([A-Z])', r'"""\1.\n\n\2', content)
 
         return content
@@ -205,7 +207,6 @@ class CodeQualityFixer:
 
 def main() -> int:
     """Main execution function."""
-    # Get project root directory
     project_root = Path(__file__).parent.parent.parent
     src_dir = project_root / "src"
 
@@ -213,7 +214,6 @@ def main() -> int:
         logger.error("❌ Source directory not found: {src_dir}")
         return 1
 
-    # Apply fixes
     fixer = CodeQualityFixer(src_dir)
     fixer.apply_all_fixes()
 

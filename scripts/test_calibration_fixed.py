@@ -1,27 +1,27 @@
-import numpy as np
-import sys
+                # Try to load the checkpoint
+        # Create new model
+        # Get predictions
+        # Load existing model
+        # Tokenize
+    # Calculate metrics
+    # Check if F1 score meets target
+    # Convert to numpy arrays
+    # Create simple labels (one emotion per text)
+    # Create test data
+    # Create tokenizer
+    # Find valid checkpoint
+    # Process test data
+    # Set optimal temperature
+# Configure logging
+# Constants
 #!/usr/bin/env python3
-import torch
-import logging
 from pathlib import Path
 from sklearn.metrics import f1_score
 from transformers import AutoTokenizer, AutoModel
-# Configure logging
-# Constants
-                # Try to load the checkpoint
-    # Create simple labels (one emotion per text)
-    # Find valid checkpoint
-        # Load existing model
-        # Create new model
-    # Set optimal temperature
-    # Create test data
-    # Create tokenizer
-    # Process test data
-        # Tokenize
-        # Get predictions
-    # Convert to numpy arrays
-    # Calculate metrics
-    # Check if F1 score meets target
+import logging
+import numpy as np
+import sys
+import torch
 
 
 
@@ -77,14 +77,14 @@ class SimpleBERTClassifier(torch.nn.Module):
 
 def find_valid_checkpoint():
     """Find a valid checkpoint from available paths."""
-    for ___checkpoint_path in CHECKPOINT_PATHS:
+    for checkpoint_path in CHECKPOINT_PATHS:
         path = Path(checkpoint_path)
         if path.exists():
             try:
                 torch.load(path, map_location="cpu", weights_only=False)
                 logger.info("✅ Found valid checkpoint: {checkpoint_path}")
                 return str(path)
-            except Exception as _:
+            except Exception as e:
                 logger.warning("⚠️ Checkpoint {checkpoint_path} is corrupted: {e}")
                 continue
 
@@ -134,7 +134,7 @@ def create_test_data():
     }
 
     test_labels = []
-    for ___emotion in emotions:
+    for emotion in emotions:
         labels = [0] * 28
         if emotion in emotion_to_idx:
             labels[emotion_to_idx[emotion]] = 1
@@ -162,7 +162,7 @@ def test_calibration():
                 logger.info("✅ Model loaded successfully")
             else:
                 logger.warning("⚠️ Checkpoint format unexpected, using default model")
-        except Exception as _:
+        except Exception as e:
             logger.warning("⚠️ Could not load checkpoint: {e}")
             logger.info("Using default model")
     else:

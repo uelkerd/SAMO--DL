@@ -1,9 +1,9 @@
-import logging
+    # Test data file
+#!/usr/bin/env python3
 import json
+import logging
 import os
 import sys
-#!/usr/bin/env python3
-    # Test data file
 
 
 
@@ -29,7 +29,7 @@ def main():
     logging.info("✅ Bucket: {bucket_name}")
     logging.info("✅ Data: {data_path}")
 
-    if os.path.exists(data_path):
+    if Path(data_path):
         logging.info("✅ Data file exists!")
         with open(data_path) as f:
             json.load(f)

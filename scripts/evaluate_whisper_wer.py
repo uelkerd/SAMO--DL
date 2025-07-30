@@ -1,26 +1,56 @@
-import json
-import os
-import sys
-
+            # Add to samples list
+            # Calculate WER
+            # Collect timing info
+            # Extract sample info
+            # Get paths and references
+            # Get text and metrics
+            # Save audio data
+            # Save audio to file
+            # Skip if already exists
+            # Store result
+            # Transcribe
+            import soundfile as sf
+        # Prepare samples
+        # Save detailed results
+        # Save summary
+    # Average timing
+    # Calculate global WER
+    # Calculate metrics
+    # Create TranscriptionAPI
+    # Create output directory
+    # Create output directory if needed
+    # Create summary
+    # Determine if we meet the target WER
+    # Download or load LibriSpeech samples
+    # Load dataset
+    # Print summary
+    # Process each sample
+    # Run evaluation
+    # Save results if output directory provided
+    # Store detailed results
+# Add src directory to path
+# Configure logging
+# Import local modules
 #!/usr/bin/env python3
-import argparse
-import logging
-import tempfile
-import time
+from datasets import load_dataset
+from models.voice_processing.transcription_api import TranscriptionAPI, create_transcription_api
 from pathlib import Path
 from typing import Optional
-
+import argparse
 import jiwer
+import json
+import logging
+import os
 import pandas as pd
+import sys
+import tempfile
+import time
 import torch
 import tqdm
-from datasets import load_dataset
 
-# Add src directory to path
-from models.voice_processing.transcription_api import TranscriptionAPI, create_transcription_api
 
-# Configure logging
-            import soundfile as sf
+
+
 
 
 """
@@ -32,7 +62,6 @@ and evaluates the Word Error Rate (WER) of the Whisper transcription model.
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-# Import local modules
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -54,44 +83,36 @@ def download_librispeech_sample(
     """
     logger.info("Loading LibriSpeech test-clean (max_samples={max_samples})...")
 
-    # Create output directory if needed
     if output_dir is None:
         output_dir = tempfile.mkdtemp(prefix="librispeech_")
     else:
         output_dir = Path(output_dir)
         output_dir.mkdir(exist_ok=True, parents=True)
 
-    # Load dataset
     try:
         dataset = load_dataset("librispeech_asr", "clean", split="test", streaming=True)
 
-        # Prepare samples
         samples = []
-        for i, sample in enumerate(dataset):
+        for _i, sample in enumerate(dataset):
             if i >= max_samples:
                 break
 
-            # Extract sample info
             audio = sample["audio"]
             text = sample["text"]
             file_id = "{sample['chapter_id']}_{sample['id']}"
 
-            # Save audio to file
             audio_path = Path(output_dir) / "{file_id}.wav"
 
-            # Skip if already exists
             if audio_path.exists():
                 samples.append({"path": str(audio_path), "reference": text})
                 continue
 
-            # Save audio data
             sf.write(
                 str(audio_path),
                 audio["array"],
                 audio["sampling_rate"],
             )
 
-            # Add to samples list
             samples.append({"path": str(audio_path), "reference": text})
 
             if i % 10 == 0:
@@ -100,7 +121,7 @@ def download_librispeech_sample(
         logger.info("✅ Downloaded {len(samples)} LibriSpeech samples to {output_dir}")
         return samples
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Failed to download LibriSpeech: {e}")
         return []
 
@@ -125,32 +146,25 @@ def evaluate_wer(api: TranscriptionAPI, samples: list[dict], model_size: str) ->
     processing_times = []
     audio_durations = []
 
-    # Process each sample
     for i, sample in enumerate(tqdm.tqdm(samples, desc="Evaluating")):
         try:
-            # Get paths and references
             audio_path = sample["path"]
             reference = sample["reference"].lower().strip()
             references.append(reference)
 
-            # Transcribe
             start_time = time.time()
             result = api.transcribe(audio_path)
             processing_time = time.time() - start_time
 
-            # Get text and metrics
             transcription = result["text"].lower().strip()
             transcriptions.append(transcription)
 
-            # Calculate WER
             wer = jiwer.wer(reference, transcription)
             wers.append(wer)
 
-            # Collect timing info
             processing_times.append(processing_time)
             audio_durations.append(result["duration"])
 
-            # Store result
             results.append(
                 {
                     "id": i,
@@ -165,20 +179,16 @@ def evaluate_wer(api: TranscriptionAPI, samples: list[dict], model_size: str) ->
                 }
             )
 
-        except Exception as _:
+        except Exception as e:
             logger.error("Failed on sample {i}: {e}")
 
-    # Calculate global WER
     global_wer = jiwer.wer(references, transcriptions)
 
-    # Calculate metrics
     avg_wer = sum(wers) / len(wers) if wers else 0
     median_wer = sorted(wers)[len(wers) // 2] if wers else 0
 
-    # Average timing
     avg_rtf = sum(processing_times) / sum(audio_durations) if audio_durations else 0
 
-    # Create summary
     evaluation_summary = {
         "model_size": model_size,
         "samples": len(samples),
@@ -192,7 +202,6 @@ def evaluate_wer(api: TranscriptionAPI, samples: list[dict], model_size: str) ->
         "device": "cuda" if torch.cuda.is_available() else "cpu",
     }
 
-    # Store detailed results
     results_df = pd.DataFrame(results)
 
     return {
@@ -236,11 +245,9 @@ def main():
     logger.info("🚀 Starting Whisper WER evaluation with {args.model_size} model")
     start_time = time.time()
 
-    # Create output directory
     if args.output_dir:
         os.makedirs(args.output_dir, exist_ok=True)
 
-    # Download or load LibriSpeech samples
     samples = download_librispeech_sample(
         output_dir=args.librispeech_dir,
         max_samples=args.samples,
@@ -250,17 +257,14 @@ def main():
         logger.error("No LibriSpeech samples available. Exiting.")
         return 1
 
-    # Create TranscriptionAPI
     api = create_transcription_api(model_size=args.model_size)
 
-    # Run evaluation
     evaluation_results = evaluate_wer(
         api=api,
         samples=samples,
         model_size=args.model_size,
     )
 
-    # Print summary
     logger.info("\n" + "=" * 50)
     logger.info("Whisper WER Evaluation Results:")
     logger.info("=" * 50)
@@ -277,15 +281,12 @@ def main():
     logger.info("Total audio: {summary['total_audio_duration']:.1f}s")
     logger.info("Total processing: {summary['total_processing_time']:.1f}s")
 
-    # Save results if output directory provided
     if args.output_dir:
-        # Save summary
         summary_path = Path(args.output_dir) / "whisper_{args.model_size}_wer_summary.json"
 
         with open(summary_path, "w") as f:
             json.dump(summary, f, indent=2)
 
-        # Save detailed results
         details_path = Path(args.output_dir) / "whisper_{args.model_size}_wer_details.csv"
         evaluation_results["dataframe"].to_csv(details_path, index=False)
 
@@ -294,7 +295,6 @@ def main():
     total_time = time.time() - start_time
     logger.info("✅ Evaluation completed in {total_time:.1f}s")
 
-    # Determine if we meet the target WER
     target_wer = 0.15  # 15% target WER
     if summary["global_wer"] <= target_wer:
         logger.info("🎉 SUCCESS: WER {summary['global_wer']:.4f} meets target of {target_wer:.4f}")

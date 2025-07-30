@@ -1,10 +1,49 @@
-import time
-from unittest.mock import AsyncMock, MagicMock
-
-import pytest
+        # Add entries
+        # Add entries
+        # Add old request to window
+        # Add one old request to simulate a request that will be cleaned up
+        # Add some entries
+        # All entries should still be there
+        # Check that both clients are still there
+        # Check that client1 was removed
+        # Clear the sliding window by setting all request timestamps to old time
+        # Consume all tokens
+        # Consume some tokens (but not all to avoid sliding window limit)
+        # Create an entry
+        # Force cleanup
+        # Force cleanup
+        # Get another entry - should not trigger cleanup
+        # Get initial entry
+        # Get initial entry
+        # Get initial entry
+        # Get initial entry and set tokens to 0
+        # Get initial entry and set tokens to 0
+        # Get the entry again
+        # Make a new request - should clean old request
+        # Make another request - should refill some tokens
+        # Make another request - should refill tokens and clean old requests
+        # Make many requests to exceed rate limit
+        # Make request - should be rate limited
+        # Make request - should be rate limited
+        # Manually set last_access to be old for client1
+        # Modify it to verify we get the same object back
+        # Set last_access to be recent for both
+        # Set last_cleanup to be recent
+        # Should not raise any exceptions
+        # Simulate partial time passing
+        # Simulate time passing (refill tokens AND clear sliding window)
+        # Verify middleware was added
+        # Verify middleware was added
+        # Verify middleware was added
+        # Verify middleware was added
+        # Verify no tokens left
 from fastapi import FastAPI, Response
-
 from src.api_rate_limiter import (
+from unittest.mock import AsyncMock, MagicMock
+import pytest
+import time
+
+
 
 """
 Unit tests for API rate limiter.
@@ -81,12 +120,9 @@ class TestRateLimitCache:
         cache = RateLimitCache()
         key = "test_client"
 
-        # Create an entry
         first_entry = cache.get(key)
-        # Modify it to verify we get the same object back
         first_entry.tokens = 42
 
-        # Get the entry again
         second_entry = cache.get(key)
 
         assert second_entry is first_entry
@@ -97,19 +133,15 @@ class TestRateLimitCache:
         cleanup_interval = 1  # 1 second for testing
         cache = RateLimitCache(cleanup_interval=cleanup_interval)
 
-        # Add some entries
         cache.get("client1")
         cache.get("client2")
 
-        # Manually set last_access to be old for client1
         now = time.time()
         cache.cache["client1"].last_access = now - cleanup_interval - 1
 
-        # Force cleanup
         cache.last_cleanup = now - cleanup_interval - 1
         cache.get("client3")  # This should trigger cleanup
 
-        # Check that client1 was removed
         assert "client1" not in cache.cache
         assert "client2" in cache.cache
         assert "client3" in cache.cache
@@ -119,20 +151,16 @@ class TestRateLimitCache:
         cleanup_interval = 1  # 1 second for testing
         cache = RateLimitCache(cleanup_interval=cleanup_interval)
 
-        # Add entries
         cache.get("client1")
         cache.get("client2")
 
-        # Set last_access to be recent for both
         now = time.time()
         cache.cache["client1"].last_access = now - 0.5  # Recent
         cache.cache["client2"].last_access = now - 0.3  # Recent
 
-        # Force cleanup
         cache.last_cleanup = now - cleanup_interval - 1
         cache.get("client3")  # This should trigger cleanup
 
-        # Check that both clients are still there
         assert "client1" in cache.cache
         assert "client2" in cache.cache
         assert "client3" in cache.cache
@@ -142,18 +170,14 @@ class TestRateLimitCache:
         cleanup_interval = 10  # 10 seconds for testing
         cache = RateLimitCache(cleanup_interval=cleanup_interval)
 
-        # Add entries
         cache.get("client1")
         cache.get("client2")
 
-        # Set last_cleanup to be recent
         now = time.time()
         cache.last_cleanup = now - 5  # Not old enough to trigger cleanup
 
-        # Get another entry - should not trigger cleanup
         cache.get("client3")
 
-        # All entries should still be there
         assert "client1" in cache.cache
         assert "client2" in cache.cache
         assert "client3" in cache.cache
@@ -323,7 +347,6 @@ class TestRateLimiter:
 
         call_next = AsyncMock()
 
-        # Make many requests to exceed rate limit
         for _ in range(rate_limiter.rate_limit + 1):
             response = await rate_limiter.dispatch(request, call_next)
 
@@ -363,28 +386,21 @@ class TestRateLimiter:
         call_next = AsyncMock()
         call_next.return_value = Response(status_code=200)
 
-        # Get initial entry
         client_id = rate_limiter.get_client_id(request)
         entry = rate_limiter.cache.get(client_id)
 
-        # Consume all tokens
         for _ in range(rate_limiter.rate_limit):
             await rate_limiter.dispatch(request, call_next)
 
-        # Verify no tokens left
         assert entry.tokens == 0
 
-        # Simulate time passing (refill tokens AND clear sliding window)
         old_time = time.time() - rate_limiter.window_size - 1  # More than window size ago
         entry.last_refill = old_time
         entry.tokens = 0
 
-        # Clear the sliding window by setting all request timestamps to old time
         entry.requests.clear()
-        # Add one old request to simulate a request that will be cleaned up
         entry.requests.append(old_time)
 
-        # Make another request - should refill tokens and clean old requests
         response = await rate_limiter.dispatch(request, call_next)
 
         assert response.status_code == 200
@@ -403,19 +419,15 @@ class TestRateLimiter:
         call_next = AsyncMock()
         call_next.return_value = Response(status_code=200)
 
-        # Get initial entry
         client_id = rate_limiter.get_client_id(request)
         entry = rate_limiter.cache.get(client_id)
 
-        # Consume some tokens (but not all to avoid sliding window limit)
         for _ in range(50):
             await rate_limiter.dispatch(request, call_next)
 
-        # Simulate partial time passing
         entry.last_refill = time.time() - (rate_limiter.window_size / 2)
         entry.tokens = 0
 
-        # Make another request - should refill some tokens
         response = await rate_limiter.dispatch(request, call_next)
 
         assert response.status_code == 200
@@ -435,12 +447,10 @@ class TestRateLimiter:
         call_next = AsyncMock()
         call_next.return_value = Response(status_code=200)
 
-        # Get initial entry and set tokens to 0
         client_id = rate_limiter.get_client_id(request)
         entry = rate_limiter.cache.get(client_id)
         entry.tokens = 0
 
-        # Make request - should be rate limited
         response = await rate_limiter.dispatch(request, call_next)
 
         assert response.status_code == 429
@@ -458,12 +468,10 @@ class TestRateLimiter:
 
         call_next = AsyncMock()
 
-        # Get initial entry and set tokens to 0
         client_id = rate_limiter.get_client_id(request)
         entry = rate_limiter.cache.get(client_id)
         entry.tokens = 0
 
-        # Make request - should be rate limited
         response = await rate_limiter.dispatch(request, call_next)
 
         assert response.status_code == 429
@@ -485,15 +493,12 @@ class TestRateLimiter:
         call_next = AsyncMock()
         call_next.return_value = Response(status_code=200)
 
-        # Get initial entry
         client_id = rate_limiter.get_client_id(request)
         entry = rate_limiter.cache.get(client_id)
 
-        # Add old request to window
         old_time = time.time() - rate_limiter.window_size - 1
         entry.requests.append(old_time)
 
-        # Make a new request - should clean old request
         response = await rate_limiter.dispatch(request, call_next)
 
         assert response.status_code == 200
@@ -507,10 +512,8 @@ class TestAddRateLimiting:
         """Test add_rate_limiting function."""
         app = FastAPI()
 
-        # Should not raise any exceptions
         add_rate_limiting(app)
 
-        # Verify middleware was added
         assert len(app.user_middleware) > 0
 
     def test_add_rate_limiting_custom_values(self):
@@ -529,7 +532,6 @@ class TestAddRateLimiting:
             get_client_id=custom_get_client_id,
         )
 
-        # Verify middleware was added
         assert len(app.user_middleware) > 0
 
     def test_add_rate_limiting_with_none_excluded_paths(self):
@@ -538,7 +540,6 @@ class TestAddRateLimiting:
 
         add_rate_limiting(app, excluded_paths=None)
 
-        # Verify middleware was added
         assert len(app.user_middleware) > 0
 
     def test_add_rate_limiting_with_none_get_client_id(self):
@@ -547,5 +548,4 @@ class TestAddRateLimiting:
 
         add_rate_limiting(app, get_client_id=None)
 
-        # Verify middleware was added
         assert len(app.user_middleware) > 0

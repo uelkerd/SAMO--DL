@@ -1,19 +1,38 @@
-import sys
-
-#!/usr/bin/env python3
-import logging
-import torch
-from torch import nn
-import torch.nn.functional as F
-from pathlib import Path
-
-# Multiple approaches to add project root to Python path
+            # Backward pass
+            # Forward pass
+            # Move batch to device
+        # Create aliases
+        # Load bert_classifier module
+        # Load dataset_loader module
+        # Look for src directory in parent directories
+        import importlib.util
+    # Add to Python path
+    # Alternative: Try to import directly from the file paths
+    # Approach 1: Get the script's directory and go up to project root
+    # Approach 2: Try to find the project root by looking for src directory
+    # Create focal loss
+    # Create model
+    # Create optimizer
+    # Get a small batch for testing
+    # Load dataset using existing loader
+    # Setup device
+    # Training loop (simplified for testing)
     from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
     from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+# Configure logging
+# Multiple approaches to add project root to Python path
+# Now try to import the modules
+#!/usr/bin/env python3
+from pathlib import Path
+from torch import nn
+import logging
+import sys
+import torch
+import torch.nn.functional as F
 
-        import importlib.util
 
-        # Load bert_classifier module
+
+
 
 """
 Robust Focal Loss Training for Emotion Detection
@@ -26,13 +45,10 @@ Usage:
 """
 
 try:
-    # Approach 1: Get the script's directory and go up to project root
     script_dir = Path(__file__).parent.resolve()
     project_root = script_dir.parent.resolve()
 
-    # Approach 2: Try to find the project root by looking for src directory
     if not (project_root / "src").exists():
-        # Look for src directory in parent directories
         current = script_dir
         while current.parent != current:
             current = current.parent
@@ -40,7 +56,6 @@ try:
                 project_root = current
                 break
 
-    # Add to Python path
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
 
@@ -48,17 +63,15 @@ try:
     print("📁 Current working directory: {Path.cwd()}")
     print("📋 Python path: {sys.path[:3]}...")
 
-except Exception as _:
+except Exception as e:
     print("⚠️  Path setup warning: {e}")
 
-# Now try to import the modules
 try:
     print("✅ Successfully imported modules")
 except ImportError as _:
     print("❌ Import error: {e}")
     print("🔧 Trying alternative import approach...")
 
-    # Alternative: Try to import directly from the file paths
     try:
         bert_spec = importlib.util.spec_from_file_location(
             "bert_classifier",
@@ -67,7 +80,6 @@ except ImportError as _:
         bert_module = importlib.util.module_from_spec(bert_spec)
         bert_spec.loader.exec_module(bert_module)
 
-        # Load dataset_loader module
         loader_spec = importlib.util.spec_from_file_location(
             "dataset_loader",
             project_root / "src" / "models" / "emotion_detection" / "dataset_loader.py",
@@ -75,7 +87,6 @@ except ImportError as _:
         loader_module = importlib.util.module_from_spec(loader_spec)
         loader_spec.loader.exec_module(loader_module)
 
-        # Create aliases
         create_bert_emotion_classifier = bert_module.create_bert_emotion_classifier
         GoEmotionsDataLoader = loader_module.GoEmotionsDataLoader
 
@@ -86,7 +97,6 @@ except ImportError as _:
         print("🔧 Please check the project structure and run from the correct directory")
         sys.exit(1)
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -114,11 +124,9 @@ def main():
     """Main training function."""
     logger.info("🚀 Starting SAMO-DL Focal Loss Training (Robust)")
 
-    # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Device: {device}")
 
-    # Load dataset using existing loader
     logger.info("📊 Loading GoEmotions dataset...")
     try:
         data_loader = GoEmotionsDataLoader()
@@ -135,11 +143,10 @@ def main():
         logger.info("   • Test examples: {len(test_dataset)}")
         logger.info("   • Emotion classes: {len(emotion_names)}")
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Failed to load dataset: {e}")
         return
 
-    # Create model
     logger.info("🤖 Creating BERT emotion classifier...")
     try:
         model, _ = create_bert_emotion_classifier(
@@ -154,23 +161,19 @@ def main():
         logger.info("   • Total parameters: {param_count:,}")
         logger.info("   • Trainable parameters: {trainable_count:,}")
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Failed to create model: {e}")
         return
 
-    # Create focal loss
     focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
     logger.info("✅ Focal Loss created (alpha=0.25, gamma=2.0)")
 
-    # Create optimizer
     optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
     logger.info("✅ Optimizer created (AdamW, lr=2e-5)")
 
-    # Training loop (simplified for testing)
     logger.info("🚀 Starting training loop...")
     model.train()
 
-    # Get a small batch for testing
     batch_size = 8
     train_dataloader = torch.utils.data.DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True
@@ -179,20 +182,17 @@ def main():
     for epoch in range(3):
         logger.info("📚 Epoch {epoch + 1}/3")
 
-        for batch_idx, batch in enumerate(train_dataloader):
+        for _batch_idx, batch in enumerate(train_dataloader):
             if batch_idx >= 5:  # Only do first 5 batches for testing
                 break
 
-            # Move batch to device
             input_ids = batch["input_ids"].to(device)
             attention_mask = batch["attention_mask"].to(device)
             labels = batch["labels"].to(device)
 
-            # Forward pass
             outputs = model(input_ids=input_ids, attention_mask=attention_mask)
             loss = focal_loss(outputs, labels)
 
-            # Backward pass
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()

@@ -1,23 +1,23 @@
-import json
-import random
+        # Add hour/minute/second for more realistic timestamps
+        # Create the entry
+        # Generate a random date within the range
+        # Randomly select user_id
+    # Convert datetime objects to strings for JSON serialization
+    # Convert string dates back to datetime
+    # Ensure output directory exists
+    # Generate 100 entries from 5 users over the past 60 days
+    # Save to data/raw directory
+# Additional sentences to add variety
+# Emotion categories for entries
+# Sample topics to generate journal entries about
+# Templates for journal entry content
+# Title templates
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Any, Optional
+import json
 import pandas as pd
-# Sample topics to generate journal entries about
-# Emotion categories for entries
-# Templates for journal entry content
-# Additional sentences to add variety
-# Title templates
-        # Randomly select user_id
-        # Generate a random date within the range
-        # Add hour/minute/second for more realistic timestamps
-        # Create the entry
-    # Ensure output directory exists
-    # Convert datetime objects to strings for JSON serialization
-    # Convert string dates back to datetime
-    # Generate 100 entries from 5 users over the past 60 days
-    # Save to data/raw directory
+import random
 
 
 
@@ -198,7 +198,7 @@ def save_entries_to_json(entries: list[dict[str, Any]], output_path: str) -> Non
     Path(Path(output_path).parent).mkdir(parents=True, exist_ok=True)
 
     serializable_entries = []
-    for ___entry in entries:
+    for entry in entries:
         serializable_entry = entry.copy()
         serializable_entry["created_at"] = entry["created_at"].isoformat()
         serializable_entry["updated_at"] = entry["updated_at"].isoformat()

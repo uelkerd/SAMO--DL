@@ -1,23 +1,23 @@
-import logging
-#!/usr/bin/env python3
-import re
-from pathlib import Path
-    # Check what imports are needed
-    # Check for common undefined names
-    # If no imports needed, return early
-    # Split into lines
-    # Find the first import line or add at the beginning
-        # Add imports right after the first line (usually shebang or docstring)
             # Add all needed imports
+        # Add imports right after the first line (usually shebang or docstring)
+        # Skip obvious unused imports
+    # Check for common undefined names
+    # Check what imports are needed
+    # Directories to fix
+    # Find the first import line or add at the beginning
+    # Fix f-strings without placeholders (convert to regular strings)
+    # Fix missing newline at end of file
+    # Fix trailing whitespace
+    # Fix unused imports (remove obvious ones)
+    # If no imports needed, return early
     # If we didn't add imports yet, add them at the very beginning
     # Only write if content changed
-    # Fix trailing whitespace
-    # Fix missing newline at end of file
-    # Fix f-strings without placeholders (convert to regular strings)
-    # Fix unused imports (remove obvious ones)
-        # Skip obvious unused imports
     # Only write if content changed
-    # Directories to fix
+    # Split into lines
+#!/usr/bin/env python3
+from pathlib import Path
+import logging
+import re
 
 
 
@@ -65,7 +65,7 @@ def fix_file_imports_aggressive(file_path: str) -> bool:
 
     import_added = False
 
-    for i, line in enumerate(lines):
+    for _i, line in enumerate(lines):
         if i == 0 and not import_added:
             for imp in sorted(needed_imports):
                 new_lines.append(imp)
@@ -109,7 +109,7 @@ def fix_common_issues_aggressive(file_path: str) -> bool:
     lines = content.split('\n')
     fixed_lines = []
 
-    for ___line in lines:
+    for line in lines:
         if any(unused in line for unused in [
         ]):
             continue
@@ -134,7 +134,7 @@ def main():
 
     total_fixed = 0
 
-    for ___dir_name in dirs_to_fix:
+    for dir_name in dirs_to_fix:
         dir_path = project_root / dir_name
         if not dir_path.exists():
             continue
@@ -145,7 +145,7 @@ def main():
                 fixed_common = fix_common_issues_aggressive(str(py_file))
                 if fixed_imports or fixed_common:
                     total_fixed += 1
-            except Exception as _:
+            except Exception as e:
                 logging.info("Error fixing {py_file}: {e}")
 
     logging.info("\n✅ Fixed {total_fixed} files")

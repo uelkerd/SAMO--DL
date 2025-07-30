@@ -1,14 +1,17 @@
+        # Create a simple custom training job
+        # Get project ID
+        # Import Vertex AI
+        # Initialize Vertex AI
+        from google.cloud import aiplatform
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+import logging
 import os
 import sys
 
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
 
-# Configure logging
-        from google.cloud import aiplatform
 
-        # Get project ID
 
 """
 Simple Vertex AI Validation for SAMO Deep Learning.
@@ -27,14 +30,12 @@ def main():
     logger.info("=" * 60)
 
     try:
-        # Import Vertex AI
         project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "the-tendril-466607-n8")
         region = "us-central1"
 
         logger.info("✅ Project ID: {project_id}")
         logger.info("✅ Region: {region}")
 
-        # Initialize Vertex AI
         aiplatform.init(
             project=project_id,
             location=region,
@@ -42,7 +43,6 @@ def main():
 
         logger.info("✅ Vertex AI initialized successfully")
 
-        # Create a simple custom training job
         logger.info("🔍 Creating validation job...")
 
         job = aiplatform.CustomTrainingJob(
@@ -71,7 +71,7 @@ def main():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Vertex AI validation failed: {e}")
         logger.error("")
         logger.error("🔧 ALTERNATIVE APPROACH:")

@@ -1,19 +1,34 @@
-import os
-import sys
-import traceback
-
-#!/usr/bin/env python3
-import logging
-import torch
-from torch import nn
-from pathlib import Path
-
+                # Backward pass
+                # Forward pass
+                # Log progress every 100 batches
+                # Save model
+            # Log progress
+            # Save best model
+            # Training phase
+            # Update learning rate
+            # Validation phase
+        # Create data loaders
+        # Create model
+        # Load dataset
+        # Setup loss and optimizer
+        # Training loop
+        import traceback
+    # Setup device
 # Add project root to path
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
+from torch import nn
+import logging
+import os
+import sys
+import torch
+import traceback
 
-# Configure logging
-        import traceback
+
+
 
 
 """
@@ -39,12 +54,10 @@ def fine_tune_model():
     logger.info("   • Epochs: 5")
     logger.info("   • Learning Rate: 1e-05")
 
-    # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Using device: {device}")
 
     try:
-        # Load dataset
         logger.info("Loading GoEmotions dataset...")
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()
@@ -59,7 +72,6 @@ def fine_tune_model():
         logger.info("   • Validation: {len(val_dataset)} examples")
         logger.info("   • Test: {len(test_dataset)} examples")
 
-        # Create model
         logger.info("Creating BERT model...")
         model, _ = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
@@ -68,23 +80,19 @@ def fine_tune_model():
         )
         model.to(device)
 
-        # Setup loss and optimizer
         criterion = nn.BCEWithLogitsLoss()
         optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5, weight_decay=0.01)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=5)
 
-        # Create data loaders
         train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=16, shuffle=True)
         val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
 
-        # Training loop
         best_val_loss = float("in")
         training_history = []
 
         for epoch in range(5):  # 5 epochs for fine-tuning
             logger.info("\nEpoch {epoch + 1}/5")
 
-            # Training phase
             model.train()
             train_loss = 0.0
             num_batches = 0
@@ -96,24 +104,20 @@ def fine_tune_model():
 
                 optimizer.zero_grad()
 
-                # Forward pass
                 outputs = model(input_ids, attention_mask=attention_mask)
                 loss = criterion(outputs["logits"], labels)
 
-                # Backward pass
                 loss.backward()
                 optimizer.step()
 
                 train_loss += loss.item()
                 num_batches += 1
 
-                # Log progress every 100 batches
                 if num_batches % 100 == 0:
                     logger.info("   • Batch {num_batches}: Loss = {loss.item():.4f}")
 
             avg_train_loss = train_loss / num_batches
 
-            # Validation phase
             model.eval()
             val_loss = 0.0
             val_batches = 0
@@ -132,11 +136,9 @@ def fine_tune_model():
 
             avg_val_loss = val_loss / val_batches
 
-            # Update learning rate
             scheduler.step()
             current_lr = scheduler.get_last_lr()[0]
 
-            # Log progress
             logger.info("   • Train Loss: {avg_train_loss:.4f}")
             logger.info("   • Val Loss: {avg_val_loss:.4f}")
             logger.info("   • Learning Rate: {current_lr:.2e}")
@@ -150,15 +152,13 @@ def fine_tune_model():
                 }
             )
 
-            # Save best model
             if avg_val_loss < best_val_loss:
                 best_val_loss = avg_val_loss
                 logger.info("   • New best validation loss: {best_val_loss:.4f}")
 
-                # Save model
                 output_dir = "./models/checkpoints"
                 os.makedirs(output_dir, exist_ok=True)
-                model_path = os.path.join(output_dir, "fine_tuned_model.pt")
+                model_path = Path(output_dir, "fine_tuned_model.pt")
 
                 torch.save(
                     {
@@ -181,7 +181,7 @@ def fine_tune_model():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Fine-tuning failed: {e}")
         traceback.print_exc()
         return False

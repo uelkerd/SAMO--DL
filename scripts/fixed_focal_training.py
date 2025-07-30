@@ -1,18 +1,49 @@
-import json
-import numpy as np
-
+        # Tokenize
+        # Training
+        # Validation
+        from transformers import AutoModel, AutoTokenizer
+    # Anger examples
+    # Create dataloaders
+    # Create directories
+    # Create diverse training data with proper emotion labels
+    # Create labeled data
+    # Create model
+    # Create proper training data
+    # Disgust examples
+    # Evaluate model
+    # Fear examples
+    # Final evaluation with best threshold
+    # Final summary
+    # GoEmotions emotion names (28 classes)
+    # Joy examples
+    # Load best model
+    # Love examples
+    # Neutral examples
+    # Sadness examples
+    # Save model
+    # Save model and results
+    # Save results
+    # Setup
+    # Setup device
+    # Shuffle the data
+    # Split into train/val/test
+    # Surprise examples
+    # Test different thresholds
+    # Train model
+# Configure logging
 #!/usr/bin/env python3
-import logging
-import torch
-from torch import nn
-import torch.nn.functional as F
 from pathlib import Path
 from sklearn.metrics import f1_score, precision_score, recall_score
+from torch import nn
 from tqdm import tqdm
+import json
+import logging
+import numpy as np
 import random
+import torch
+import torch.nn.functional as F
 
-# Configure logging
-        from transformers import AutoModel, AutoTokenizer
+
 
 
 """
@@ -66,7 +97,6 @@ def create_proper_training_data():
     """Create proper training data with diverse emotion labels."""
     logger.info("📊 Creating proper training data with diverse emotion labels...")
 
-    # GoEmotions emotion names (28 classes)
     emotion_names = [
         "admiration",
         "amusement",
@@ -98,10 +128,8 @@ def create_proper_training_data():
         "neutral",
     ]
 
-    # Create diverse training data with proper emotion labels
     training_data = []
 
-    # Joy examples
     joy_texts = [
         "I am extremely happy today!",
         "This makes me so joyful!",
@@ -115,7 +143,6 @@ def create_proper_training_data():
         "This is absolutely amazing!",
     ]
 
-    # Anger examples
     anger_texts = [
         "This makes me so angry!",
         "I'm furious about this!",
@@ -129,7 +156,6 @@ def create_proper_training_data():
         "I'm so annoyed by this!",
     ]
 
-    # Sadness examples
     sadness_texts = [
         "I'm feeling really sad and depressed",
         "This makes me so unhappy",
@@ -143,7 +169,6 @@ def create_proper_training_data():
         "This makes me feel miserable",
     ]
 
-    # Love examples
     love_texts = [
         "I love this so much!",
         "This is absolutely wonderful!",
@@ -157,7 +182,6 @@ def create_proper_training_data():
         "This fills my heart with love!",
     ]
 
-    # Fear examples
     fear_texts = [
         "I'm really scared about this",
         "This is terrifying!",
@@ -171,7 +195,6 @@ def create_proper_training_data():
         "This is really alarming",
     ]
 
-    # Disgust examples
     disgust_texts = [
         "This is absolutely disgusting!",
         "This is revolting!",
@@ -185,7 +208,6 @@ def create_proper_training_data():
         "This is really repulsive",
     ]
 
-    # Surprise examples
     surprise_texts = [
         "I'm really surprised by this!",
         "This is unexpected!",
@@ -199,7 +221,6 @@ def create_proper_training_data():
         "This is really remarkable!",
     ]
 
-    # Neutral examples
     neutral_texts = [
         "This is just okay",
         "I don't really care about this",
@@ -213,7 +234,6 @@ def create_proper_training_data():
         "This is just whatever",
     ]
 
-    # Create labeled data
     emotion_data = [
         (joy_texts, 17),  # joy index
         (anger_texts, 2),  # anger index
@@ -231,10 +251,8 @@ def create_proper_training_data():
             labels[emotion_idx] = 1
             training_data.append({"text": text, "labels": labels})
 
-    # Shuffle the data
     random.shuffle(training_data)
 
-    # Split into train/val/test
     total = len(training_data)
     train_size = int(0.7 * total)
     val_size = int(0.15 * total)
@@ -259,7 +277,6 @@ def create_dataloader(data, model, batch_size=8):
         text = item["text"]
         labels = torch.tensor(item["labels"], dtype=torch.float32)
 
-        # Tokenize
         encoding = model.tokenizer(
             text, truncation=True, padding="max_length", max_length=256, return_tensors="pt"
         )
@@ -279,7 +296,6 @@ def train_model(model, train_data, val_data, device, epochs=10):
     """Train the model with focal loss."""
     logger.info("🚀 Starting training...")
 
-    # Setup
     model.train()
     criterion = FocalLoss(alpha=0.25, gamma=2.0)
     optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5, weight_decay=0.01)
@@ -290,7 +306,6 @@ def train_model(model, train_data, val_data, device, epochs=10):
     for epoch in range(epochs):
         logger.info("📚 Epoch {epoch + 1}/{epochs}")
 
-        # Training
         model.train()
         train_loss = 0.0
 
@@ -312,7 +327,6 @@ def train_model(model, train_data, val_data, device, epochs=10):
 
         avg_train_loss = train_loss / len(train_data)
 
-        # Validation
         model.eval()
         val_loss = 0.0
 
@@ -337,7 +351,6 @@ def train_model(model, train_data, val_data, device, epochs=10):
             best_model_state = model.state_dict().copy()
             logger.info("   🎯 New best validation loss: {best_val_loss:.4f}")
 
-    # Load best model
     model.load_state_dict(best_model_state)
     logger.info("🎯 Training completed! Best validation loss: {best_val_loss:.4f}")
 
@@ -368,7 +381,6 @@ def evaluate_model(model, test_data, device):
     all_true_labels = np.array(all_true_labels)
     all_probabilities = np.array(all_probabilities)
 
-    # Test different thresholds
     thresholds = np.arange(0.1, 0.9, 0.05)
     best_f1 = 0.0
     best_threshold = 0.5
@@ -393,7 +405,6 @@ def evaluate_model(model, test_data, device):
 
     logger.info("🎯 Best threshold: {best_threshold:.2f} (F1 Macro: {best_f1:.4f})")
 
-    # Final evaluation with best threshold
     best_predictions = (all_probabilities > best_threshold).astype(float)
     final_f1_macro = f1_score(all_true_labels, best_predictions, average="macro", zero_division=0)
     final_f1_micro = f1_score(all_true_labels, best_predictions, average="micro", zero_division=0)
@@ -426,14 +437,11 @@ def main():
     """Main training function."""
     logger.info("🚀 Starting Fixed Focal Loss Training")
 
-    # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Device: {device}")
 
-    # Create proper training data
     train_data, val_data, test_data, emotion_names = create_proper_training_data()
 
-    # Create model
     logger.info("🤖 Creating BERT emotion classifier...")
     model = SimpleBERTClassifier(model_name="bert-base-uncased", num_classes=28)
     model = model.to(device)
@@ -444,7 +452,6 @@ def main():
         "   • Trainable parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
     )
 
-    # Create dataloaders
     logger.info("📊 Creating dataloaders...")
     train_loader = create_dataloader(train_data, model, batch_size=8)
     val_loader = create_dataloader(val_data, model, batch_size=8)
@@ -455,20 +462,15 @@ def main():
     logger.info("   • Validation: {len(val_loader)} examples")
     logger.info("   • Test: {len(test_loader)} examples")
 
-    # Train model
     model = train_model(model, train_loader, val_loader, device, epochs=10)
 
-    # Evaluate model
     results = evaluate_model(model, test_loader, device)
 
-    # Save model and results
     logger.info("💾 Saving trained model and results...")
 
-    # Create directories
     model_dir = Path("models/emotion_detection")
     model_dir.mkdir(parents=True, exist_ok=True)
 
-    # Save model
     model_path = model_dir / "fixed_focal_loss_model.pt"
     torch.save(
         {
@@ -479,7 +481,6 @@ def main():
         model_path,
     )
 
-    # Save results
     results_path = model_dir / "fixed_focal_results.json"
     with open(results_path, "w") as f:
         json.dump(results, f, indent=2)
@@ -487,7 +488,6 @@ def main():
     logger.info("✅ Model saved to {model_path}")
     logger.info("✅ Results saved to {results_path}")
 
-    # Final summary
     logger.info("🎉 Fixed focal loss training completed successfully!")
     logger.info("📊 Final Results Summary:")
     logger.info("   • Best F1 Macro: {results['f1_macro']:.4f}")

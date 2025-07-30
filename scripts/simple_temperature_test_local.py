@@ -1,19 +1,38 @@
-import logging
-
-import json
-import sys
-
-#!/usr/bin/env python3
-from pathlib import Path
-
-import torch
-from models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
-from torch.utils.data import DataLoader
-
-
-        from sklearn.metrics import f1_score
-
+                # Apply threshold
+        # Calculate macro F1
+        # Calculate metrics
+        # Calculate micro F1
+        # Concatenate results
         # Convert to numpy for sklearn
+        # If it's a tuple, assume first element is the state dict
+        # If it's just the state dict directly
+        # Run evaluation
+        # Set temperature
+        # Show some predictions
+        from sklearn.metrics import f1_score
+    # Create dataset
+    # Create emotion labels (simplified for testing)
+    # Create simple test data
+    # Handle different checkpoint formats
+    # Initialize model
+    # Load checkpoint
+    # Load sample data
+    # Set device
+    # Test different temperatures
+#!/usr/bin/env python3
+from models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
+from pathlib import Path
+from torch.utils.data import DataLoader
+import json
+import logging
+import sys
+import torch
+
+
+
+
+
+
 
 """
 Simple Temperature Scaling Test - Using Local Sample Data.
@@ -24,11 +43,9 @@ sys.path.append(str(Path.cwd() / "src"))
 def simple_temperature_test_local():
     logging.info("🌡️ Simple Temperature Scaling Test (Local Data)")
 
-    # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logging.info("Using device: {device}")
 
-    # Load checkpoint
     checkpoint_path = Path("test_checkpoints/best_model.pt")
     if not checkpoint_path.exists():
         logging.info("❌ Model not found")
@@ -37,24 +54,19 @@ def simple_temperature_test_local():
     logging.info("📦 Loading checkpoint...")
     checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
 
-    # Initialize model
     model = create_bert_emotion_classifier()
 
-    # Handle different checkpoint formats
     if isinstance(checkpoint, dict):
         model.load_state_dict(checkpoint["model_state_dict"])
     elif isinstance(checkpoint, tuple):
-        # If it's a tuple, assume first element is the state dict
         model.load_state_dict(checkpoint[0])
     else:
-        # If it's just the state dict directly
         model.load_state_dict(checkpoint)
     model.to(device)
     model.eval()
 
     logging.info("✅ Model loaded successfully!")
 
-    # Load sample data
     logging.info("📊 Loading sample data...")
     sample_data_path = Path("data/raw/sample_journal_entries.json")
 
@@ -65,7 +77,6 @@ def simple_temperature_test_local():
     with open(sample_data_path) as f:
         json.load(f)
 
-    # Create simple test data
     test_texts = [
         "I am feeling happy today!",
         "This makes me so angry and frustrated.",
@@ -74,7 +85,6 @@ def simple_temperature_test_local():
         "This is really disappointing and upsetting.",
     ]
 
-    # Create emotion labels (simplified for testing)
     emotion_labels = [
         [1, 0, 0, 0, 0],  # happy
         [0, 1, 0, 0, 0],  # angry
@@ -83,13 +93,11 @@ def simple_temperature_test_local():
         [0, 0, 0, 0, 1],  # disappointed
     ]
 
-    # Create dataset
     dataset = EmotionDataset(test_texts, emotion_labels, max_length=512)
     dataloader = DataLoader(dataset, batch_size=2, shuffle=False)
 
     logging.info("✅ Created test dataset with {len(test_texts)} samples")
 
-    # Test different temperatures
     temperatures = [1.0, 2.0, 3.0, 4.0]
 
     logging.info("\n🌡️ Testing Temperature Scaling:")
@@ -98,10 +106,8 @@ def simple_temperature_test_local():
     for temp in temperatures:
         logging.info("\n📊 Temperature: {temp}")
 
-        # Set temperature
         model.set_temperature(temp)
 
-        # Run evaluation
         all_predictions = []
         all_labels = []
 
@@ -114,30 +120,24 @@ def simple_temperature_test_local():
                 outputs = model(input_ids, attention_mask)
                 probabilities = torch.sigmoid(outputs)
 
-                # Apply threshold
                 predictions = (probabilities > 0.2).float()
 
                 all_predictions.append(predictions.cpu())
                 all_labels.append(labels.cpu())
 
-        # Concatenate results
         all_predictions = torch.cat(all_predictions, dim=0)
         all_labels = torch.cat(all_labels, dim=0)
 
-        # Calculate metrics
         pred_np = all_predictions.numpy()
         label_np = all_labels.numpy()
 
-        # Calculate micro F1
         micro_f1 = f1_score(label_np, pred_np, average="micro", zero_division=0)
 
-        # Calculate macro F1
         macro_f1 = f1_score(label_np, pred_np, average="macro", zero_division=0)
 
         logging.info("   Micro F1: {micro_f1:.4f}")
         logging.info("   Macro F1: {macro_f1:.4f}")
 
-        # Show some predictions
         logging.info("   Sample predictions (first 2 samples):")
         for i in range(min(2, len(test_texts))):
             pred_emotions = pred_np[i]

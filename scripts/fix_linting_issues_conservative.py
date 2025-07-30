@@ -1,12 +1,31 @@
+                # Continue import block for empty lines and comments
+            # Add logging import if not present
+            # Apply fixes in order
+            # Check if this is an import line
+            # Extract items and sort them
+            # Only replace if it's a single letter (likely unused)
+            # Only write if content changed
+            # Reconstruct the __all__ list
+            # Replace print statements
+        # Check if the import is actually used
+        # Critical imports that should never be removed
+        # Only replace print statements that are not in test files
+        # Pattern to match __all__ lists
+        # Pattern to match exception handlers with unused variables
+        # Patterns that indicate imports might be needed
+        # Process directories in order of priority
+        # Reconstruct with imports at top
+        # Summary
+        # and are not already in logging context
+#!/usr/bin/env python3
+from pathlib import Path
+from typing import List, Set, Tuple
 import os
 import re
 import sys
-from pathlib import Path
-from typing import List, Set, Tuple
 
 
 
-#!/usr/bin/env python3
 """
 Conservative Linting Fix Script for SAMO Deep Learning.
 
@@ -34,13 +53,11 @@ class ConservativeLintingFixer:
         self.fixed_files = []
         self.skipped_files = []
 
-        # Critical imports that should never be removed
         self.critical_imports = {
             'time', 'pytest', 'patch', 'mock', 'logging', 'os', 'sys',
             'pathlib', 'typing', 'json', 'tempfile', 'contextlib'
         }
 
-        # Patterns that indicate imports might be needed
         self.import_usage_patterns = [
             r'\btime\.\w+\b',
             r'\bpytest\.\w+\b',
@@ -65,7 +82,6 @@ class ConservativeLintingFixer:
         if import_name in self.critical_imports:
             return True
 
-        # Check if the import is actually used
         for pattern in self.import_usage_patterns:
             if re.search(pattern, file_content):
                 return True
@@ -74,13 +90,11 @@ class ConservativeLintingFixer:
 
     def fix_f841_unused_variables(self, content: str) -> str:
         """Fix F841: Replace unused variables with underscore."""
-        # Pattern to match exception handlers with unused variables
         pattern = r'except\s+(\w+)\s+as\s+(\w+):'
 
         def replace_exception(match):
             exception_type = match.group(1)
             variable_name = match.group(2)
-            # Only replace if it's a single letter (likely unused)
             if len(variable_name) == 1:
                 return f'except {exception_type} as _:'
             return match.group(0)
@@ -97,19 +111,16 @@ class ConservativeLintingFixer:
         for line in lines:
             stripped = line.strip()
 
-            # Check if this is an import line
             if (stripped.startswith('import ') or
                 stripped.startswith('from ') and ' import ' in stripped):
                 imports.append(line)
                 in_import_block = True
             elif in_import_block and (stripped == '' or stripped.startswith('#')):
-                # Continue import block for empty lines and comments
                 imports.append(line)
             else:
                 in_import_block = False
                 other_lines.append(line)
 
-        # Reconstruct with imports at top
         result = []
         if imports:
             result.extend(imports)
@@ -122,11 +133,9 @@ class ConservativeLintingFixer:
         """Fix RUF022: Sort __all__ lists."""
         def sort_all_list(match):
             all_content = match.group(1)
-            # Extract items and sort them
             items = [item.strip().strip('"\'') for item in all_content.split(',')]
             items = [item for item in items if item]  # Remove empty items
             items.sort()
-            # Reconstruct the __all__ list
             formatted_items = [f'"{item}"' for item in items]
             return f'__all__ = [
     "\n",
@@ -134,7 +143,6 @@ class ConservativeLintingFixer:
     "\n    {",
 ]'
 
-        # Pattern to match __all__ lists
         pattern = r'__all__\s*=\s*\[(.*?)\]'
         return re.sub(pattern, sort_all_list, content, flags=re.DOTALL)
 
@@ -146,14 +154,10 @@ class ConservativeLintingFixer:
 
     def fix_t201_print_statements(self, content: str) -> str:
         """Fix T201: Replace print statements with logging."""
-        # Only replace print statements that are not in test files
-        # and are not already in logging context
         if 'print(' in content and 'logging' not in content:
-            # Add logging import if not present
             if 'import logging' not in content:
                 content = 'import logging\n\n' + content
 
-            # Replace print statements
             content = re.sub(r'print\((.*?)\)', r'logging.info(\1)', content)
 
         return content
@@ -166,14 +170,12 @@ class ConservativeLintingFixer:
 
             original_content = content
 
-            # Apply fixes in order
             content = self.fix_f841_unused_variables(content)
             content = self.fix_e402_import_order(content)
             content = self.fix_ruf022_all_sorting(content)
             content = self.fix_w291_trailing_whitespace(content)
             content = self.fix_t201_print_statements(content)
 
-            # Only write if content changed
             if content != original_content:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(content)
@@ -182,7 +184,7 @@ class ConservativeLintingFixer:
 
             return False
 
-        except Exception as _:
+        except Exception as e:
             print(f"Error fixing {file_path}: {e}")
             self.skipped_files.append(str(file_path))
             return False
@@ -209,14 +211,12 @@ class ConservativeLintingFixer:
         print("🔧 Starting Conservative Linting Fixer...")
         print("=" * 50)
 
-        # Process directories in order of priority
         directories = ['scripts', 'src', 'tests']
 
         for directory in directories:
             print(f"\n📁 Processing {directory}/ directory...")
             self.process_directory(directory)
 
-        # Summary
         print("\n" + "=" * 50)
         print("📊 SUMMARY:")
         print(f"✅ Files fixed: {len(self.fixed_files)}")

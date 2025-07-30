@@ -1,22 +1,22 @@
-import sys
-#!/usr/bin/env python3
-import logging
-import tempfile
-from pathlib import Path
-# Add src to path
-import torch
-from torch import nn
-# Configure logging
-        # Create a simple model for testing
-        # Simple forward pass for testing
-        # Create simple model
-        # Create dummy input
-        # Get original model size and performance
-        # Test quantization
-        # Get compressed model size and performance
         # Calculate compression ratio
-        # Validate compression
+        # Create a simple model for testing
+        # Create dummy input
+        # Create simple model
+        # Get compressed model size and performance
+        # Get original model size and performance
+        # Simple forward pass for testing
+        # Test quantization
         # Test saving compressed model
+        # Validate compression
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+from torch import nn
+import logging
+import sys
+import tempfile
+import torch
 
 
 
@@ -132,7 +132,7 @@ def test_model_compression():
         logger.info("✅ Model compression test passed")
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Model compression test failed: {e}")
         return False
 

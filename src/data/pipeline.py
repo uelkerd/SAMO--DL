@@ -1,20 +1,34 @@
-import datetime
-import time
-
+        # Create output directory if it doesn't exist
+        # Generate timestamp for filenames
+        # Return results
+        # Save embeddings
+        # Save featured data (main output)
+        # Save intermediate data if requested
+        # Save results if output directory is provided
+        # Save topics if available
+        # Set up embedding pipeline based on specified method
+        # Step 1: Load the data
+        # Step 2: Validate raw data
+        # Step 3: Preprocess data
+        # Step 4: Feature engineering
+        # Step 5: Generate embeddings
+# Configure logging
 # G004: Logging f-strings temporarily allowed for development
-import logging
-from datetime import UTC, datetime
-from pathlib import Path
-
-import pandas as pd
-
 from .embeddings import (
 from .feature_engineering import FeatureEngineer
 from .loaders import (
 from .preprocessing import JournalEntryPreprocessor
 from .validation import DataValidator
+from datetime import UTC, datetime
+from pathlib import Path
+import datetime
+import logging
+import pandas as pd
+import time
 
-# Configure logging
+
+
+
 
     EmbeddingPipeline,
     FastTextEmbedder,
@@ -54,7 +68,6 @@ class DataPipeline:
         self.validator = validator or DataValidator()
         self.feature_engineer = feature_engineer or FeatureEngineer()
 
-        # Set up embedding pipeline based on specified method
         if embedding_method == "tfid":
             embedder = TfidfEmbedder(max_features=1000)
         elif embedding_method == "word2vec":
@@ -93,7 +106,6 @@ class DataPipeline:
             Dictionary of DataFrames with raw, processed, featured and embeddings data
 
         """
-        # Step 1: Load the data
         raw_df = self._load_data(data_source, source_type, user_id, limit)
 
         if raw_df.empty:
@@ -105,7 +117,6 @@ class DataPipeline:
             extra={"format_args": True},
         )
 
-        # Step 2: Validate raw data
         validation_passed, validated_df = self.validator.validate_journal_entries(raw_df)
 
         if not validation_passed:
@@ -113,11 +124,9 @@ class DataPipeline:
                 "Data validation failed. Continuing with validated data, but results may be unreliable."
             )
 
-        # Step 3: Preprocess data
         processed_df = self.preprocessor.preprocess(validated_df)
         logger.info("Preprocessing completed")
 
-        # Step 4: Feature engineering
         if extract_topics:
             featured_df, topics_df = self.feature_engineer.extract_all_features(
                 processed_df, extract_topics=True
@@ -130,13 +139,11 @@ class DataPipeline:
             topics_df = None
             logger.info("Feature extraction completed (without topics)")
 
-        # Step 5: Generate embeddings
         embeddings_df = self.embedding_pipeline.generate_embeddings(
             featured_df, text_column="processed_text", id_column="id"
         )
         logger.info("Generated {len(embeddings_df)} embeddings using {self.embedding_method}")
 
-        # Save results if output directory is provided
         if output_dir:
             self._save_results(
                 output_dir,
@@ -148,7 +155,6 @@ class DataPipeline:
                 save_intermediates,
             )
 
-        # Return results
         results = {
             "raw": raw_df,
             "processed": processed_df,
@@ -229,24 +235,19 @@ class DataPipeline:
             save_intermediates: Whether to save intermediate DataFrames
 
         """
-        # Create output directory if it doesn't exist
         Path(output_dir).mkdir(parents=True, exist_ok=True)
 
-        # Generate timestamp for filenames
         timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
 
-        # Save featured data (main output)
         featured_df.to_csv(
             Path(output_dir, "journal_features_{timestamp}.csv").as_posix(),
             index=False,
         )
         logger.info("Saved featured data to {output_dir}/journal_features_{timestamp}.csv")
 
-        # Save embeddings
         embeddings_path = Path(output_dir, "journal_embeddings_{timestamp}.csv").as_posix()
         self.embedding_pipeline.save_embeddings_to_csv(embeddings_df, embeddings_path)
 
-        # Save topics if available
         if topics_df is not None:
             topics_df.to_csv(
                 Path(output_dir, "journal_topics_{timestamp}.csv").as_posix(),
@@ -254,7 +255,6 @@ class DataPipeline:
             )
             logger.info("Saved topic data to {output_dir}/journal_topics_{timestamp}.csv")
 
-        # Save intermediate data if requested
         if save_intermediates:
             raw_df.to_csv(Path(output_dir, "journal_raw_{timestamp}.csv").as_posix(), index=False)
             logger.info(

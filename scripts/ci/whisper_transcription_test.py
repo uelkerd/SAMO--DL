@@ -1,23 +1,49 @@
+        # ("Minimal Transcription", test_minimal_transcription),
+        # Attempt transcription
+        # Clean up
+        # Clean up
+        # Create a temporary WAV file with a simple tone
+        # Create transcriber
+        # Create transcriber with tiny model
+        # For CI, use CPU even if GPU is available
+        # Generate test audio
+        # Generate test audio
+        # Generate test tone
+        # Import AudioPreprocessor
+        # Import WhisperTranscriber
+        # Import necessary components
+        # Import required modules
+        # Note: This will likely result in empty or nonsensical transcription
+        # Sample parameters
+        # Skip this test if in CI to avoid long model downloads
+        # Test preprocessing
+        # Test with tiny model (smallest, fastest) for CI purposes
+        # Validate audio file
+        # Verify metadata
+        # Verify model is loaded
+        # Write to file
+        # since our test audio is just a sine wave, but we're testing the pipeline
+        from models.voice_processing.audio_preprocessor import AudioPreprocessor
+        from models.voice_processing.whisper_transcriber import (
+        from models.voice_processing.whisper_transcriber import (
+        from scipy.io import wavfile
+    # Check if we're in CI environment
+    # Only run minimal transcription test locally, not in CI
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+import contextlib
+import logging
 import numpy as np
 import os
 import sys
-
-#!/usr/bin/env python3
-import logging
 import tempfile
-from pathlib import Path
 
-import contextlib
 
-# Add src to path
-        from scipy.io import wavfile
 
-        # Create a temporary WAV file with a simple tone
-        from models.voice_processing.whisper_transcriber import (
-        from models.voice_processing.audio_preprocessor import AudioPreprocessor
 
-        # Generate test audio
-        from models.voice_processing.whisper_transcriber import (
+
 
 """
 Whisper Voice Transcription Test for CI/CD Pipeline.
@@ -28,7 +54,6 @@ with a simple test audio file.
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -39,23 +64,20 @@ def generate_test_audio():
         temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
         temp_file.close()
 
-        # Sample parameters
         sample_rate = 16000  # 16kHz as expected by Whisper
         duration = 2.0  # 2 seconds
         frequency = 440.0  # 440 Hz tone
 
-        # Generate test tone
         t = np.linspace(0.0, duration, int(duration * sample_rate))
         amplitude = np.iinfo(np.int16).max / 4
         data = (amplitude * np.sin(2.0 * np.pi * frequency * t)).astype(np.int16)
 
-        # Write to file
         wavfile.write(temp_file.name, sample_rate, data)
         logger.info("✅ Generated test audio: {temp_file.name}")
 
         return temp_file.name
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Failed to generate test audio: {e}")
         return None
 
@@ -65,12 +87,11 @@ def test_whisper_imports():
     try:
         logger.info("🔍 Testing Whisper imports...")
 
-        # Import required modules
 
         logger.info("✅ Whisper imports successful")
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Whisper import test failed: {e}")
         return False
 
@@ -80,21 +101,16 @@ def test_whisper_instantiation():
     try:
         logger.info("🤖 Testing WhisperTranscriber instantiation...")
 
-        # Import WhisperTranscriber
             TranscriptionConfig,
             WhisperTranscriber,
         )
 
-        # Test with tiny model (smallest, fastest) for CI purposes
         config = TranscriptionConfig(model_size="tiny")
 
-        # For CI, use CPU even if GPU is available
         config.device = "cpu"
 
-        # Create transcriber
         transcriber = WhisperTranscriber(config)
 
-        # Verify model is loaded
         if transcriber.model is None:
             logger.error("❌ WhisperTranscriber instantiated but model is None")
             return False
@@ -102,7 +118,7 @@ def test_whisper_instantiation():
         logger.info("✅ WhisperTranscriber instantiated successfully")
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ WhisperTranscriber instantiation failed: {e}")
         return False
 
@@ -112,13 +128,11 @@ def test_audio_preprocessor():
     try:
         logger.info("🎵 Testing AudioPreprocessor...")
 
-        # Import AudioPreprocessor
         audio_path = generate_test_audio()
         if not audio_path:
             logger.error("❌ Cannot test AudioPreprocessor without test audio")
             return False
 
-        # Validate audio file
         is_valid, message = AudioPreprocessor.validate_audio_file(audio_path)
         if not is_valid:
             logger.error("❌ AudioPreprocessor validation failed: {message}")
@@ -126,10 +140,8 @@ def test_audio_preprocessor():
 
         logger.info("✅ AudioPreprocessor validation successful")
 
-        # Test preprocessing
         processed_path, metadata = AudioPreprocessor.preprocess_audio(audio_path)
 
-        # Verify metadata
         expected_keys = ["duration", "sample_rate", "channels", "processed_sample_rate"]
         for key in expected_keys:
             if key not in metadata:
@@ -138,7 +150,6 @@ def test_audio_preprocessor():
 
         logger.info("✅ AudioPreprocessor preprocessing successful")
 
-        # Clean up
         try:
             os.unlink(audio_path)
             os.unlink(processed_path)
@@ -147,7 +158,7 @@ def test_audio_preprocessor():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ AudioPreprocessor test failed: {e}")
         return False
 
@@ -157,24 +168,18 @@ def test_minimal_transcription():
     try:
         logger.info("📝 Testing minimal transcription...")
 
-        # Import necessary components
             TranscriptionConfig,
             WhisperTranscriber,
         )
 
-        # Generate test audio
         audio_path = generate_test_audio()
         if not audio_path:
             logger.error("❌ Cannot test transcription without test audio")
             return False
 
-        # Create transcriber with tiny model
         config = TranscriptionConfig(model_size="tiny", device="cpu")
         transcriber = WhisperTranscriber(config)
 
-        # Attempt transcription
-        # Note: This will likely result in empty or nonsensical transcription
-        # since our test audio is just a sine wave, but we're testing the pipeline
         result = transcriber.transcribe(audio_path)
 
         logger.info("Transcription result: {result.text}")
@@ -183,13 +188,12 @@ def test_minimal_transcription():
 
         logger.info("✅ Minimal transcription test completed")
 
-        # Clean up
         with contextlib.suppress(Exception):
             os.unlink(audio_path)
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Minimal transcription test failed: {e}")
         return False
 
@@ -202,14 +206,10 @@ def main():
         ("Whisper Imports", test_whisper_imports),
         ("Whisper Instantiation", test_whisper_instantiation),
         ("Audio Preprocessor", test_audio_preprocessor),
-        # Skip this test if in CI to avoid long model downloads
-        # ("Minimal Transcription", test_minimal_transcription),
     ]
 
-    # Check if we're in CI environment
     in_ci = os.environ.get("CI") == "true"
 
-    # Only run minimal transcription test locally, not in CI
     if not in_ci:
         tests.append(("Minimal Transcription", test_minimal_transcription))
 
