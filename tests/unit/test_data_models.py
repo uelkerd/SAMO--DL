@@ -1,13 +1,10 @@
-import time
 
 """
 Unit tests for data models module.
 Tests data models, schemas, and validation.
 """
 
-import pytest
-from datetime import datetime
-from unittest.mock import MagicMock
+from datetime import datetime, timezone
 
 from src.data.models import (
     Base,
@@ -36,25 +33,25 @@ class TestUser:
         """Test User initialization."""
         user = User(
             email="test@example.com",
-            password_hash="hashed_password"
+            password_hash="test_hashed_password"
         )
 
         assert user.email == "test@example.com"
-        assert user.password_hash == "hashed_password"
+        assert user.password_hash == "test_hashed_password"
 
     def test_user_with_all_fields(self):
         """Test User with all fields."""
-        custom_time = datetime.now()
+        custom_time = datetime.now(timezone.utc)
         user = User(
             email="test@example.com",
-            password_hash="hashed_password",
+            password_hash="test_hashed_password",
             consent_version="1.0",
             consent_given_at=custom_time,
             data_retention_policy="standard"
         )
 
         assert user.email == "test@example.com"
-        assert user.password_hash == "hashed_password"
+        assert user.password_hash == "test_hashed_password"
         assert user.consent_version == "1.0"
         assert user.consent_given_at == custom_time
         assert user.data_retention_policy == "standard"
@@ -77,7 +74,7 @@ class TestJournalEntry:
 
     def test_journal_entry_with_all_fields(self):
         """Test JournalEntry with all fields."""
-        custom_time = datetime.now()
+        custom_time = datetime.now(timezone.utc)
         entry = JournalEntry(
             user_id="test-user-id",
             title="Test Title",
@@ -114,7 +111,7 @@ class TestEmbedding:
 
     def test_embedding_with_all_fields(self):
         """Test Embedding with all fields."""
-        custom_time = datetime.now()
+        custom_time = datetime.now(timezone.utc)
         embedding = Embedding(
             entry_id="test-entry-id",
             model_version="bert-base-uncased",
@@ -145,7 +142,7 @@ class TestPrediction:
 
     def test_prediction_with_all_fields(self):
         """Test Prediction with all fields."""
-        custom_time = datetime.now()
+        custom_time = datetime.now(timezone.utc)
         prediction = Prediction(
             user_id="test-user-id",
             prediction_type="emotion",
@@ -180,7 +177,7 @@ class TestVoiceTranscription:
 
     def test_voice_transcription_with_all_fields(self):
         """Test VoiceTranscription with all fields."""
-        custom_time = datetime.now()
+        custom_time = datetime.now(timezone.utc)
         transcription = VoiceTranscription(
             user_id="test-user-id",
             audio_file_path="/path/to/audio.wav",
@@ -211,7 +208,7 @@ class TestTag:
 
     def test_tag_with_all_fields(self):
         """Test Tag with all fields."""
-        custom_time = datetime.now()
+        custom_time = datetime.now(timezone.utc)
         tag = Tag(
             name="test-tag",
             created_at=custom_time
