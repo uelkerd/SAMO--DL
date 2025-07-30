@@ -1,14 +1,11 @@
-        # Check that is_feedback_given column has the correct default value
-        # Check that is_private column has the correct default value
-# Test constants
-from datetime import datetime, timezone
-from src.data.models import (
-"""
-Unit tests for data models module.
+#!/usr/bin/env python3
+"""Unit tests for data models module.
 Tests data models, schemas, and validation.
 """
 
+from datetime import datetime, timezone
 
+from src.data.models import (
     Base,
     Embedding,
     JournalEntry,
@@ -104,24 +101,26 @@ class TestEmbedding:
     def test_embedding_initialization(self):
         """Test Embedding initialization."""
         embedding = Embedding(
-            entry_id="test-entry-id",
-            model_version="bert-base-uncased"
+            journal_entry_id="test-entry-id",
+            embedding_vector=[0.1, 0.2, 0.3]
         )
 
-        assert embedding.entry_id == "test-entry-id"
-        assert embedding.model_version == "bert-base-uncased"
+        assert embedding.journal_entry_id == "test-entry-id"
+        assert embedding.embedding_vector == [0.1, 0.2, 0.3]
 
     def test_embedding_with_all_fields(self):
         """Test Embedding with all fields."""
         custom_time = datetime.now(timezone.utc)
         embedding = Embedding(
-            entry_id="test-entry-id",
-            model_version="bert-base-uncased",
+            journal_entry_id="test-entry-id",
+            embedding_vector=[0.1, 0.2, 0.3],
+            model_name="test-model",
             created_at=custom_time
         )
 
-        assert embedding.entry_id == "test-entry-id"
-        assert embedding.model_version == "bert-base-uncased"
+        assert embedding.journal_entry_id == "test-entry-id"
+        assert embedding.embedding_vector == [0.1, 0.2, 0.3]
+        assert embedding.model_name == "test-model"
         assert embedding.created_at == custom_time
 
 
@@ -131,35 +130,32 @@ class TestPrediction:
     def test_prediction_initialization(self):
         """Test Prediction initialization."""
         prediction = Prediction(
-            user_id="test-user-id",
+            journal_entry_id="test-entry-id",
             prediction_type="emotion",
-            prediction_content={"happy": 0.8, "sad": 0.2}
+            prediction_value={"happy": 0.8, "sad": 0.2}
         )
 
-        assert prediction.user_id == "test-user-id"
+        assert prediction.journal_entry_id == "test-entry-id"
         assert prediction.prediction_type == "emotion"
-        assert prediction.prediction_content == {"happy": 0.8, "sad": 0.2}
-        assert Prediction.__table__.columns['is_feedback_given'].default.arg is False
+        assert prediction.prediction_value == {"happy": 0.8, "sad": 0.2}
 
     def test_prediction_with_all_fields(self):
         """Test Prediction with all fields."""
         custom_time = datetime.now(timezone.utc)
         prediction = Prediction(
-            user_id="test-user-id",
+            journal_entry_id="test-entry-id",
             prediction_type="emotion",
-            prediction_content={"happy": 0.8, "sad": 0.2},
-            confidence_score=0.85,
-            is_feedback_given=True,
-            feedback_rating=5,
+            prediction_value={"happy": 0.8, "sad": 0.2},
+            confidence_score=0.95,
+            model_name="test-model",
             created_at=custom_time
         )
 
-        assert prediction.user_id == "test-user-id"
+        assert prediction.journal_entry_id == "test-entry-id"
         assert prediction.prediction_type == "emotion"
-        assert prediction.prediction_content == {"happy": 0.8, "sad": 0.2}
-        assert prediction.confidence_score == 0.85
-        assert prediction.is_feedback_given is True
-        assert prediction.feedback_rating == 5
+        assert prediction.prediction_value == {"happy": 0.8, "sad": 0.2}
+        assert prediction.confidence_score == 0.95
+        assert prediction.model_name == "test-model"
         assert prediction.created_at == custom_time
 
 
@@ -169,32 +165,32 @@ class TestVoiceTranscription:
     def test_voice_transcription_initialization(self):
         """Test VoiceTranscription initialization."""
         transcription = VoiceTranscription(
-            user_id="test-user-id",
-            transcript_text="This is a test transcription"
+            journal_entry_id="test-entry-id",
+            transcription_text="Test transcription"
         )
 
-        assert transcription.user_id == "test-user-id"
-        assert transcription.transcript_text == "This is a test transcription"
+        assert transcription.journal_entry_id == "test-entry-id"
+        assert transcription.transcription_text == "Test transcription"
 
     def test_voice_transcription_with_all_fields(self):
         """Test VoiceTranscription with all fields."""
         custom_time = datetime.now(timezone.utc)
         transcription = VoiceTranscription(
-            user_id="test-user-id",
+            journal_entry_id="test-entry-id",
+            transcription_text="Test transcription",
             audio_file_path="/path/to/audio.wav",
-            transcript_text="This is a test transcription",
-            duration_seconds=30,
-            whisper_model_version="whisper-1",
-            confidence_score=0.92,
+            confidence_score=0.95,
+            model_name="whisper-large",
+            processing_time=2.5,
             created_at=custom_time
         )
 
-        assert transcription.user_id == "test-user-id"
+        assert transcription.journal_entry_id == "test-entry-id"
+        assert transcription.transcription_text == "Test transcription"
         assert transcription.audio_file_path == "/path/to/audio.wav"
-        assert transcription.transcript_text == "This is a test transcription"
-        assert transcription.duration_seconds == 30
-        assert transcription.whisper_model_version == "whisper-1"
-        assert transcription.confidence_score == 0.92
+        assert transcription.confidence_score == 0.95
+        assert transcription.model_name == "whisper-large"
+        assert transcription.processing_time == 2.5
         assert transcription.created_at == custom_time
 
 
@@ -212,8 +208,12 @@ class TestTag:
         custom_time = datetime.now(timezone.utc)
         tag = Tag(
             name="test-tag",
+            description="Test tag description",
+            color="#FF0000",
             created_at=custom_time
         )
 
         assert tag.name == "test-tag"
+        assert tag.description == "Test tag description"
+        assert tag.color == "#FF0000"
         assert tag.created_at == custom_time
