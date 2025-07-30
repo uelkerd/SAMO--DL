@@ -2,13 +2,16 @@ import os
 import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
-
 import numpy as np
 import pytest
 import torch
 from fastapi.testclient import TestClient
-
 from src.unified_ai_api import app
+    # Create a simple sine wave for testing
+# Custom markers for test categorization
+# Skip GPU tests if CUDA not available
+
+
 
 """
 SAMO Deep Learning - Pytest Configuration and Shared Fixtures
@@ -46,7 +49,6 @@ def sample_journal_entry():
 @pytest.fixture
 def sample_audio_data():
     """Provide sample audio data for voice processing tests."""
-    # Create a simple sine wave for testing
 
     sample_rate = 16000
     duration = 2.0  # seconds
@@ -103,7 +105,6 @@ def api_client():
     return TestClient(app)
 
 
-# Custom markers for test categorization
 def pytest_configure(config):
     """Register custom markers."""
     config.addinivalue_line(
@@ -115,11 +116,10 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "model: marks tests that load ML models")
 
 
-# Skip GPU tests if CUDA not available
 def pytest_collection_modifyitems(config, items):
     """Modify test collection based on available hardware."""
     skip_gpu = pytest.mark.skip(reason="CUDA not available")
 
-    for item in items:
+    for __item in items:
         if "gpu" in item.keywords and not torch.cuda.is_available():
             item.add_marker(skip_gpu)

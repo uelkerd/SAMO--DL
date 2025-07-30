@@ -1,5 +1,4 @@
 import logging
-
 import json
 import os
 import sys
@@ -8,10 +7,25 @@ from typing import Dict, List, Optional, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
-
 # Add src to path for imports
-
 #!/usr/bin/env python3
+    # Extract metrics
+    # Analyze convergence
+    # Performance analysis
+    # Training time analysis
+    # Training Progress
+    # Performance Metrics
+    # Recommendations
+    # Next Steps
+    # Loss curve
+    # F1 score curve
+    # Check model files
+    # Load and analyze training history
+    # Generate plots
+    # Save analysis report
+
+
+
 """
 Training Monitor for SAMO Emotion Detection Model
 
@@ -50,14 +64,12 @@ def analyze_training_progress(history: List[Dict]) -> Dict:
         "recommendations": []
     }
 
-    # Extract metrics
-    for epoch_data in history:
+    for __epoch_data in history:
         analysis["loss_progress"].append(epoch_data["train_loss"])
         analysis["f1_progress"].append(epoch_data["micro_f1"])
         analysis["training_time"].append(epoch_data["epoch_time"])
         analysis["learning_rate"].append(epoch_data["learning_rate"])
 
-    # Analyze convergence
     if len(analysis["loss_progress"]) >= 2:
         latest_loss = analysis["loss_progress"][-1]
         previous_loss = analysis["loss_progress"][-2]
@@ -76,7 +88,6 @@ def analyze_training_progress(history: List[Dict]) -> Dict:
             analysis["convergence_status"] = "diverging"
             analysis["recommendations"].append("❌ Loss increasing - check learning rate and data")
 
-    # Performance analysis
     latest_f1 = analysis["f1_progress"][-1]
     if latest_f1 > 0.8:
         analysis["recommendations"].append("🎯 Excellent F1 score achieved!")
@@ -85,7 +96,6 @@ def analyze_training_progress(history: List[Dict]) -> Dict:
     else:
         analysis["recommendations"].append("📊 F1 score needs improvement - consider data augmentation")
 
-    # Training time analysis
     avg_epoch_time = np.mean(analysis["training_time"])
     analysis["avg_epoch_time_minutes"] = avg_epoch_time / 60
 
@@ -103,7 +113,6 @@ def generate_training_report(analysis: Dict) -> str:
     report.append(f"📅 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     report.append("")
 
-    # Training Progress
     report.append("📊 TRAINING PROGRESS")
     report.append("-" * 30)
     report.append(f"Total Epochs: {analysis['total_epochs']}")
@@ -111,7 +120,6 @@ def generate_training_report(analysis: Dict) -> str:
     report.append(f"Convergence Status: {analysis['convergence_status'].upper()}")
     report.append("")
 
-    # Performance Metrics
     if analysis["loss_progress"]:
         latest_loss = analysis["loss_progress"][-1]
         initial_loss = analysis["loss_progress"][0]
@@ -130,14 +138,12 @@ def generate_training_report(analysis: Dict) -> str:
         report.append(f"Average Epoch Time: {analysis['avg_epoch_time_minutes']:.1f} minutes")
         report.append("")
 
-    # Recommendations
     report.append("💡 RECOMMENDATIONS")
     report.append("-" * 30)
     for rec in analysis["recommendations"]:
         report.append(f"• {rec}")
     report.append("")
 
-    # Next Steps
     report.append("🚀 NEXT STEPS")
     report.append("-" * 30)
     if analysis["convergence_status"] in ["excellent", "good"]:
@@ -170,7 +176,6 @@ def plot_training_curves(history: List[Dict], save_path: Optional[str] = None):
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
 
-    # Loss curve
     ax1.plot(epochs, losses, 'b-o', linewidth=2, markersize=6)
     ax1.set_title('Training Loss Over Time', fontsize=14, fontweight='bold')
     ax1.set_xlabel('Epoch')
@@ -178,7 +183,6 @@ def plot_training_curves(history: List[Dict], save_path: Optional[str] = None):
     ax1.grid(True, alpha=0.3)
     ax1.set_ylim(bottom=0)
 
-    # F1 score curve
     ax2.plot(epochs, f1_scores, 'g-o', linewidth=2, markersize=6)
     ax2.set_title('F1 Score Over Time', fontsize=14, fontweight='bold')
     ax2.set_xlabel('Epoch')
@@ -227,7 +231,6 @@ def main():
     logging.info("🔍 SAMO Training Monitor")
     logging.info("=" * 40)
 
-    # Check model files
     logging.info("\n📁 Checking model files...")
     model_status = check_model_files()
 
@@ -237,7 +240,6 @@ def main():
         else:
             logging.info(f"❌ {name}: Not found")
 
-    # Load and analyze training history
     logging.info("\n📊 Analyzing training progress...")
     history = load_training_history()
 
@@ -251,14 +253,12 @@ def main():
 
     logging.info("\n" + report)
 
-    # Generate plots
     logging.info("\n📈 Generating training curves...")
     plots_dir = Path("logs/plots")
     plots_dir.mkdir(exist_ok=True)
     plot_path = plots_dir / f"training_curves_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
     plot_training_curves(history, str(plot_path))
 
-    # Save analysis report
     report_path = plots_dir / f"training_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
     with open(report_path, 'w') as f:
         f.write(report)

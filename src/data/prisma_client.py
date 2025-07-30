@@ -1,8 +1,13 @@
 import json
-
 import subprocess
 from pathlib import Path
 from typing import Any, Optional
+        # Create a temporary JS file
+            # Execute the script
+            # Parse the output
+            # Clean up the temporary file
+        # Ensure we return a list, even if the result is a single dict
+
 
 
 
@@ -33,7 +38,6 @@ class PrismaClient:
             Exception: If the script execution fails
 
         """
-        # Create a temporary JS file
         with Path("temp_prisma_script.js").open("w") as f:
             f.write("""
 const {{ PrismaClient }} = require('@prisma/client');
@@ -58,7 +62,6 @@ main();
 """)
 
         try:
-            # Execute the script
             result = subprocess.run(
                 ["node", "temp_prisma_script.js"],
                 capture_output=True,
@@ -66,13 +69,11 @@ main();
                 check=True,
             )
 
-            # Parse the output
             return json.loads(result.stdout)
         except subprocess.CalledProcessError as e:
             msg = "Prisma command failed: {e.stderr}"
             raise Exception(msg) from e
         finally:
-            # Clean up the temporary file
             if Path("temp_prisma_script.js").exists():
                 Path("temp_prisma_script.js").unlink()
 
@@ -175,7 +176,6 @@ main();
         """
 
         result = self.execute_prisma_command(script)
-        # Ensure we return a list, even if the result is a single dict
         if isinstance(result, list):
             return result
         elif isinstance(result, dict):

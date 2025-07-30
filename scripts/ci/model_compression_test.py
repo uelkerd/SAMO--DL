@@ -1,16 +1,26 @@
 import sys
 import time
-
 #!/usr/bin/env python3
 import logging
 import tempfile
 from pathlib import Path
-
 # Add src to path
 import torch
 from torch import nn
-
 # Configure logging
+        # Create a simple model for testing
+        # Simple forward pass for testing
+        # Create simple model
+        # Create dummy input
+        # Get original model size and performance
+        # Test quantization
+        # Get compressed model size and performance
+        # Calculate compression ratio
+        # Validate compression
+        # Test saving compressed model
+
+
+
 
 """
 Model Compression Test for CI/CD Pipeline.
@@ -30,7 +40,6 @@ class SimpleBERTClassifier(nn.Module):
 
     def __init__(self, num_emotions=28):
         super().__init__()
-        # Create a simple model for testing
         self.embedding = nn.Embedding(30522, 768)  # BERT vocab size
         self.classifier = nn.Sequential(
             nn.Linear(768, 256),
@@ -40,7 +49,6 @@ class SimpleBERTClassifier(nn.Module):
         )
 
     def forward(self, input_ids, attention_mask=None):
-        # Simple forward pass for testing
         embeddings = self.embedding(input_ids)
         pooled = torch.mean(embeddings, dim=1)  # Simple pooling
         return self.classifier(pooled)
@@ -88,44 +96,36 @@ def test_model_compression():
     try:
         logger.info("📦 Testing model compression...")
 
-        # Create simple model
         model = SimpleBERTClassifier(num_emotions=28)
         model.eval()
 
-        # Create dummy input
         batch_size = 1
         sequence_length = 128
         dummy_input = torch.randint(0, 30522, (batch_size, sequence_length))
 
-        # Get original model size and performance
         original_size = get_model_size(model)
         original_time = benchmark_inference(model, dummy_input)
 
         logger.info("Original model size: {original_size:.2f} MB")
         logger.info("Original inference time: {original_time:.2f} ms")
 
-        # Test quantization
         logger.info("Testing quantization...")
         quantized_model = torch.quantization.quantize_dynamic(
             model, {nn.Linear}, dtype=torch.qint8
         )
 
-        # Get compressed model size and performance
         compressed_size = get_model_size(quantized_model)
         compressed_time = benchmark_inference(quantized_model, dummy_input)
 
         logger.info("Compressed model size: {compressed_size:.2f} MB")
         logger.info("Compressed inference time: {compressed_time:.2f} ms")
 
-        # Calculate compression ratio
         compression_ratio = original_size / compressed_size
         logger.info("Compression ratio: {compression_ratio:.2f}x")
 
-        # Validate compression
         assert compressed_size < original_size, "Model should be smaller after compression"
         assert compression_ratio > 1.0, "Compression ratio should be greater than 1"
 
-        # Test saving compressed model
         with tempfile.NamedTemporaryFile(suffix=".pt", delete=True) as temp_file:
             torch.save(quantized_model.state_dict(), temp_file.name)
             logger.info("✅ Compressed model saved to {temp_file.name}")

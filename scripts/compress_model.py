@@ -1,5 +1,4 @@
 import sys
-
 #!/usr/bin/env python3
 import argparse
 import logging
@@ -7,11 +6,34 @@ import time
 import torch
 import torch.quantization
 from pathlib import Path
-
 # Add src to path
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-
 # Configure logging
+# Constants
+        # Check if input model exists
+        # Create output directory if it doesn't exist
+        # Load checkpoint
+        # Create model
+        # Load state dict
+        # Set optimal temperature and threshold
+        # Measure original model size
+        # Benchmark original model
+        # Quantize model
+        # Set model to evaluation mode
+        # Define quantization configuration
+        # Prepare model for quantization
+        # Quantize
+        # Measure quantized model size
+        # Benchmark quantized model
+        # Calculate speedup
+        # Save quantized model
+        # Save compression metrics
+    # Create dummy input (batch_size=1, seq_len=128)
+    # Warm up
+    # Benchmark
+
+
+
 
 """
 Compress Model
@@ -31,7 +53,6 @@ sys.path.append(str(Path(__file__).parent.parent.resolve()))
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
-# Constants
 DEFAULT_INPUT_MODEL = "test_checkpoints/best_model.pt"
 DEFAULT_OUTPUT_MODEL = "models/checkpoints/bert_emotion_classifier_quantized.pt"
 OPTIMAL_TEMPERATURE = 1.0
@@ -51,25 +72,20 @@ def compress_model(input_model: str, output_model: str) -> bool:
     try:
         device = torch.device("cpu")  # Quantization requires CPU
 
-        # Check if input model exists
         input_path = Path(input_model)
         if not input_path.exists():
             logger.error("Input model not found: {input_path}")
             return False
 
-        # Create output directory if it doesn't exist
         output_path = Path(output_model)
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         logger.info("Loading model from {input_path}...")
 
-        # Load checkpoint
         checkpoint = torch.load(input_path, map_location=device, weights_only=False)
 
-        # Create model
         model, _ = create_bert_emotion_classifier()
 
-        # Load state dict
         if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
             model.load_state_dict(checkpoint["model_state_dict"])
         elif isinstance(checkpoint, dict):
@@ -78,49 +94,37 @@ def compress_model(input_model: str, output_model: str) -> bool:
             logger.error("Unexpected checkpoint format: {type(checkpoint)}")
             return False
 
-        # Set optimal temperature and threshold
         model.set_temperature(OPTIMAL_TEMPERATURE)
         model.prediction_threshold = OPTIMAL_THRESHOLD
 
-        # Measure original model size
         original_size = get_model_size(model)
         logger.info("Original model size: {original_size:.2f} MB")
 
-        # Benchmark original model
         logger.info("Benchmarking original model...")
         original_inference_time = benchmark_inference(model)
 
-        # Quantize model
         logger.info("Applying dynamic quantization...")
 
-        # Set model to evaluation mode
         model.eval()
 
-        # Define quantization configuration
         torch.quantization.get_default_qconfig("fbgemm")
 
-        # Prepare model for quantization
         torch.quantization.prepare(model, inplace=True)
 
-        # Quantize
         quantized_model = torch.quantization.quantize_dynamic(
             model, {torch.nn.Linear}, dtype=torch.qint8
         )
 
-        # Measure quantized model size
         quantized_size = get_model_size(quantized_model)
         logger.info("Quantized model size: {quantized_size:.2f} MB")
         logger.info("Size reduction: {(1 - quantized_size/original_size) * 100:.1f}%")
 
-        # Benchmark quantized model
         logger.info("Benchmarking quantized model...")
         quantized_inference_time = benchmark_inference(quantized_model)
 
-        # Calculate speedup
         speedup = original_inference_time / quantized_inference_time
         logger.info("Inference speedup: {speedup:.2f}x")
 
-        # Save quantized model
         logger.info("Saving quantized model to {output_path}...")
 
         if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
@@ -132,7 +136,6 @@ def compress_model(input_model: str, output_model: str) -> bool:
 
         logger.info("✅ Model compression complete!")
 
-        # Save compression metrics
         metrics = {
             "original_size_mb": original_size,
             "quantized_size_mb": quantized_size,
@@ -179,18 +182,15 @@ def benchmark_inference(model: torch.nn.Module, num_runs: int = 50) -> float:
     Returns:
         float: Average inference time in seconds
     """
-    # Create dummy input (batch_size=1, seq_len=128)
     dummy_input = {
         "input_ids": torch.randint(0, 30522, (1, 128)),
         "attention_mask": torch.ones(1, 128),
     }
 
-    # Warm up
     for _ in range(10):
         with torch.no_grad():
             _ = model(**dummy_input)
 
-    # Benchmark
     start_time = time.time()
     for _ in range(num_runs):
         with torch.no_grad():

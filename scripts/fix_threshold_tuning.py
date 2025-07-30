@@ -1,15 +1,20 @@
 import sys
-
 #!/usr/bin/env python3
 import logging
 from pathlib import Path
-
 # Add src to path
 import torch
 from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
 from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
 # Configure logging
+        # Create trainer and load dataset
+        # Prepare dataset
+        # Initialize the model with class weights
+        # Load trained model
+        # Test much lower thresholds
+
+
+
 
 """Fix Threshold Tuning for Better F1 Scores.
 
@@ -28,7 +33,6 @@ def main():
     logger.info("🎯 Testing Lower Thresholds for Better F1 Scores")
 
     try:
-        # Create trainer and load dataset
         trainer = EmotionDetectionTrainer(
             model_name="bert-base-uncased",
             cache_dir="./data/cache",
@@ -38,13 +42,10 @@ def main():
             device="cpu",
         )
 
-        # Prepare dataset
         trainer.prepare_data(dev_mode=True)
 
-        # Initialize the model with class weights
         trainer.initialize_model(class_weights=trainer.data_loader.class_weights)
 
-        # Load trained model
         model_path = Path("./test_checkpoints_dev/best_model.pt")
         if not model_path.exists():
             logger.error("❌ No trained model found. Run test_quick_training.py first.")
@@ -53,14 +54,13 @@ def main():
         checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
         trainer.model.load_state_dict(checkpoint["model_state_dict"])
 
-        # Test much lower thresholds
         thresholds = [0.01, 0.05, 0.1, 0.15, 0.2]
         best_threshold = 0.2
         best_f1 = 0.0
 
         logger.info("Testing lower thresholds...")
 
-        for threshold in thresholds:
+        for __threshold in thresholds:
             logger.info("🔍 Testing threshold: {threshold}")
 
             metrics = evaluate_emotion_classifier(

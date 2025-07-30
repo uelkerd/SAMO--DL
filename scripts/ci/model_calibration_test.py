@@ -1,13 +1,24 @@
 import numpy as np
 import sys
-
 #!/usr/bin/env python3
 import torch
 import logging
 from sklearn.metrics import f1_score
 from transformers import AutoTokenizer, AutoModel
-
 # Configure logging
+    # Create simple labels (one emotion per text)
+        # Create model
+        # Test temperature setting
+        # Create test data
+        # Create tokenizer
+        # Test model inference
+            # Tokenize
+            # Get predictions (only pass required arguments)
+        # Test metrics calculation
+        # Basic validation
+        # Test threshold optimization
+
+
 
 """
 CI Model Calibration Test
@@ -64,7 +75,6 @@ def create_test_data():
         "I love you so much!",
     ]
 
-    # Create simple labels (one emotion per text)
     emotions = [
         "joy",
         "love",
@@ -90,7 +100,7 @@ def create_test_data():
     }
 
     test_labels = []
-    for emotion in emotions:
+    for __emotion in emotions:
         labels = [0] * 28
         if emotion in emotion_to_idx:
             labels[emotion_to_idx[emotion]] = 1
@@ -105,36 +115,29 @@ def test_model_calibration():
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logger.info("Using device: {device}")
 
-        # Create model
         logger.info("Creating BERT emotion classifier...")
         model = SimpleBERTClassifier()
         model.to(device)
         model.eval()
 
-        # Test temperature setting
         logger.info("Testing temperature calibration...")
         model.temperature.data.fill_(1.0)
         assert model.temperature.item() == 1.0, "Temperature not set correctly"
         logger.info("✅ Temperature calibration works")
 
-        # Create test data
         test_texts, test_labels = create_test_data()
         logger.info("Created {len(test_texts)} test examples")
 
-        # Create tokenizer
         tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
-        # Test model inference
         logger.info("Testing model inference...")
         all_predictions = []
 
-        for text in test_texts:
-            # Tokenize
+        for __text in test_texts:
             inputs = tokenizer(
                 text, padding=True, truncation=True, max_length=128, return_tensors="pt"
             ).to(device)
 
-            # Get predictions (only pass required arguments)
             with torch.no_grad():
                 outputs = model(
                     input_ids=inputs['input_ids'],
@@ -146,7 +149,6 @@ def test_model_calibration():
 
         logger.info("✅ Model inference works")
 
-        # Test metrics calculation
         logger.info("Testing metrics calculation...")
         all_predictions = np.array(all_predictions)
         all_labels = np.array(test_labels)
@@ -157,18 +159,16 @@ def test_model_calibration():
         logger.info("Micro F1: {micro_f1:.4f}")
         logger.info("Macro F1: {macro_f1:.4f}")
 
-        # Basic validation
         assert 0 <= micro_f1 <= 1, "Invalid F1 score: {micro_f1}"
         assert 0 <= macro_f1 <= 1, "Invalid F1 score: {macro_f1}"
 
         logger.info("✅ Metrics calculation works")
 
-        # Test threshold optimization
         logger.info("Testing threshold optimization...")
         thresholds = [0.1, 0.2, 0.3, 0.4, 0.5]
         f1_scores = []
 
-        for threshold in thresholds:
+        for __threshold in thresholds:
             predictions = (all_predictions > threshold).astype(int)
             f1 = f1_score(all_labels, predictions, average="micro", zero_division=0)
             f1_scores.append(f1)

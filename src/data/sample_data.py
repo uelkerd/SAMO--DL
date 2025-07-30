@@ -1,14 +1,27 @@
 import json
 import time
-
 import random
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Any, Optional
-
 import pandas as pd
-
 # Sample topics to generate journal entries about
+# Emotion categories for entries
+# Templates for journal entry content
+# Additional sentences to add variety
+# Title templates
+        # Randomly select user_id
+        # Generate a random date within the range
+        # Add hour/minute/second for more realistic timestamps
+        # Create the entry
+    # Ensure output directory exists
+    # Convert datetime objects to strings for JSON serialization
+    # Convert string dates back to datetime
+    # Generate 100 entries from 5 users over the past 60 days
+    # Save to data/raw directory
+
+
+
 
 TOPICS = [
     "work",
@@ -30,7 +43,6 @@ TOPICS = [
     "reflection",
 ]
 
-# Emotion categories for entries
 EMOTIONS = [
     "happy",
     "sad",
@@ -46,7 +58,6 @@ EMOTIONS = [
     "content",
 ]
 
-# Templates for journal entry content
 ENTRY_TEMPLATES = [
     "Today I felt {emotion} about {topic}. {additional_sentence}",
     "I spent time on {topic} today. {additional_sentence} Overall I'm feeling {emotion}.",
@@ -60,7 +71,6 @@ ENTRY_TEMPLATES = [
     "Today's {topic} activities made me feel {emotion}. {additional_sentence}",
 ]
 
-# Additional sentences to add variety
 ADDITIONAL_SENTENCES = [
     "I'm hoping things will improve soon.",
     "I'm trying to maintain a positive outlook.",
@@ -84,7 +94,6 @@ ADDITIONAL_SENTENCES = [
     "I'm being patient with the process.",
 ]
 
-# Title templates
 TITLE_TEMPLATES = [
     "Thoughts on {topic}",
     "My {topic} journey",
@@ -162,21 +171,17 @@ def generate_entries(
     entries = []
 
     for i in range(num_entries):
-        # Randomly select user_id
         user_id = random.randint(1, num_users)
 
-        # Generate a random date within the range
         days_offset = random.randint(0, date_range)
         entry_date = start_date + timedelta(days=days_offset)
 
-        # Add hour/minute/second for more realistic timestamps
         entry_date = entry_date.replace(
             hour=random.randint(7, 23),
             minute=random.randint(0, 59),
             second=random.randint(0, 59),
         )
 
-        # Create the entry
         entry = generate_entry(user_id, entry_date, id_start=i + 1)
         entries.append(entry)
 
@@ -191,12 +196,10 @@ def save_entries_to_json(entries: list[dict[str, Any]], output_path: str) -> Non
         output_path: Path to save the JSON file
 
     """
-    # Ensure output directory exists
     Path(Path(output_path).parent).mkdir(parents=True, exist_ok=True)
 
-    # Convert datetime objects to strings for JSON serialization
     serializable_entries = []
-    for entry in entries:
+    for __entry in entries:
         serializable_entry = entry.copy()
         serializable_entry["created_at"] = entry["created_at"].isoformat()
         serializable_entry["updated_at"] = entry["updated_at"].isoformat()
@@ -221,7 +224,6 @@ def load_sample_entries(json_path: str) -> pd.DataFrame:
 
     df = pd.DataFrame(entries)
 
-    # Convert string dates back to datetime
     df["created_at"] = pd.to_datetime(df["created_at"])
     df["updated_at"] = pd.to_datetime(df["updated_at"])
 
@@ -229,10 +231,8 @@ def load_sample_entries(json_path: str) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    # Generate 100 entries from 5 users over the past 60 days
     entries = generate_entries(num_entries=100, num_users=5)
 
-    # Save to data/raw directory
     output_dir = Path(
         Path(__file__).parent.parent.parent,
         "data",

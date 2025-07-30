@@ -1,10 +1,18 @@
 import logging
-
 import torch
-
-
-
 #!/usr/bin/env python3
+    # Create synthetic probability data that matches what we saw in debug output
+    # Create probabilities with similar distribution to what we observed
+    # mean=0.4681, min=0.1150, max=0.9119
+    # Test threshold application
+    # Count probabilities above threshold
+    # Apply threshold to get predictions
+    # Check for samples with no predictions
+    # Apply fallback logic
+
+
+
+
 """
 Simple test to isolate the threshold application bug.
 """
@@ -14,12 +22,9 @@ def test_threshold_application():
 
     logging.info("🔍 Testing threshold application with synthetic data")
 
-    # Create synthetic probability data that matches what we saw in debug output
     batch_size = 434
     num_emotions = 28
 
-    # Create probabilities with similar distribution to what we observed
-    # mean=0.4681, min=0.1150, max=0.9119
     torch.manual_seed(42)  # For reproducibility
     probabilities = torch.rand(batch_size, num_emotions) * 0.8 + 0.1  # Range 0.1 to 0.9
 
@@ -29,11 +34,9 @@ def test_threshold_application():
     logging.info("  - Max: {probabilities.max():.4f}")
     logging.info("  - Mean: {probabilities.mean():.4f}")
 
-    # Test threshold application
     threshold = 0.2
     logging.info("\n🎯 Applying threshold: {threshold}")
 
-    # Count probabilities above threshold
     above_threshold = probabilities >= threshold
     num_above_threshold = above_threshold.sum().item()
     total_positions = batch_size * num_emotions
@@ -43,7 +46,6 @@ def test_threshold_application():
     logging.info("  - Positions >= {threshold}: {num_above_threshold}")
     logging.info("  - Percentage >= {threshold}: {100 * num_above_threshold / total_positions:.1f}%")
 
-    # Apply threshold to get predictions
     predictions = (probabilities >= threshold).float()
 
     logging.info("📊 Predictions after threshold:")
@@ -53,11 +55,9 @@ def test_threshold_application():
     logging.info("  - Expected sum: {num_above_threshold}")
     logging.info("  - Match: {'✅' if predictions.sum().item() == num_above_threshold else '❌'}")
 
-    # Check for samples with no predictions
     samples_with_no_predictions = (predictions.sum(dim=1) == 0).sum().item()
     logging.info("  - Samples with 0 predictions: {samples_with_no_predictions}")
 
-    # Apply fallback logic
     if samples_with_no_predictions > 0:
         logging.info("\n🔧 Applying fallback to {samples_with_no_predictions} samples...")
 

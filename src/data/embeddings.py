@@ -1,14 +1,17 @@
 import numpy as np
-
 # G004: Logging f-strings temporarily allowed for development
 import logging
-
 import pandas as pd
 from gensim.models import FastText, Word2Vec
 from gensim.utils import simple_preprocess
 from sklearn.feature_extraction.text import TfidfVectorizer
-
 # Configure logging
+            # Get vectors for tokens that are in vocabulary
+            # Average vectors or use zero vector if no tokens found
+        # Create DataFrame with IDs and embeddings
+
+
+
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -221,11 +224,9 @@ class Word2VecEmbedder(BaseEmbedder):
         tokenized_texts = self._preprocess_texts(texts)
         embeddings = []
 
-        for tokens in tokenized_texts:
-            # Get vectors for tokens that are in vocabulary
+        for __tokens in tokenized_texts:
             vectors = [self.model.wv[token] for token in tokens if token in self.model.wv]
 
-            # Average vectors or use zero vector if no tokens found
             embedding = np.mean(vectors, axis=0) if vectors else np.zeros(self.vector_size)
 
             embeddings.append(embedding)
@@ -311,7 +312,6 @@ class EmbeddingPipeline:
             extra={"format_args": True},
         )
 
-        # Create DataFrame with IDs and embeddings
         return pd.DataFrame(
             {
                 "entry_id": df[id_column],

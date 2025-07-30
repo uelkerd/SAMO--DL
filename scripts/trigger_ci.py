@@ -1,10 +1,18 @@
 import logging
-
 import subprocess
-
-
-
 #!/usr/bin/env python3
+        # Split command for security (avoid shell=True)
+    # Check current git status
+    # Check if we have uncommitted changes
+        # Add all changes
+        # Commit changes
+    # Check if we need to push
+    # Force push to trigger CI
+        # Try regular push as fallback
+
+
+
+
 """
 Script to check git status and trigger CI pipeline.
 """
@@ -13,7 +21,6 @@ def run_command(cmd: str, description: str) -> tuple[bool, str]:
     """Run a command and return success status and output."""
     logging.info("🔄 {description}...")
     try:
-        # Split command for security (avoid shell=True)
         cmd_list = cmd.split()
         result = subprocess.run(cmd_list, capture_output=True, text=True, check=False)
         output = result.stdout.strip()
@@ -34,7 +41,6 @@ def main():
     logging.info("🚀 Triggering CI Pipeline for SAMO Deep Learning")
     logging.info("=" * 50)
 
-    # Check current git status
     success, status_output = run_command("git status", "Checking git status")
     if not success:
         logging.info("❌ Failed to check git status")
@@ -42,20 +48,17 @@ def main():
 
     logging.info("Git Status:\n{status_output}")
 
-    # Check if we have uncommitted changes
     if (
         "Changes not staged for commit" in status_output
         or "Changes to be committed" in status_output
     ):
         logging.info("📝 Found uncommitted changes, committing them...")
 
-        # Add all changes
         success, _ = run_command("git add .", "Adding all changes")
         if not success:
             logging.info("❌ Failed to add changes")
             return
 
-        # Commit changes
         success, _ = run_command(
             'git commit -m "Fix CI test failures: BERT mocking and predict_emotions bug"',
             "Committing changes",
@@ -64,7 +67,6 @@ def main():
             logging.info("❌ Failed to commit changes")
             return
 
-    # Check if we need to push
     success, log_output = run_command("git log --oneline -3", "Checking recent commits")
     if not success:
         logging.info("❌ Failed to check git log")
@@ -72,7 +74,6 @@ def main():
 
     logging.info("Recent commits:\n{log_output}")
 
-    # Force push to trigger CI
     logging.info("🚀 Force pushing to trigger CI pipeline...")
     success, push_output = run_command("git push --force-with-lease", "Force pushing to remote")
 
@@ -84,7 +85,6 @@ def main():
         logging.info("❌ Failed to push changes")
         logging.info("Push output: {push_output}")
 
-        # Try regular push as fallback
         logging.info("🔄 Trying regular push as fallback...")
         success, push_output = run_command("git push", "Regular push")
         if success:

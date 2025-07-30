@@ -1,13 +1,19 @@
 import logging
-
 import datetime
 import os
 import time
-
 #!/usr/bin/env python3
 import subprocess
 from datetime import UTC, datetime
 from pathlib import Path
+        # Parse JSON output would go here in a real implementation
+# SAMO Deep Learning - Code Quality Report
+## Ruff Analysis
+## Pre-commit Status
+## Recommendations
+    # Save to logs directory
+
+
 
 
 
@@ -26,7 +32,6 @@ def run_ruff_check() -> dict[str, int]:
             text=True,
             check=False,
         )
-        # Parse JSON output would go here in a real implementation
         return {"errors": 334, "warnings": 164, "fixed": 164}
     except subprocess.SubprocessError:
         return {"errors": 0, "warnings": 0, "fixed": 0}
@@ -38,22 +43,18 @@ def generate_report() -> str:
     stats = run_ruff_check()
 
     report = """
-# SAMO Deep Learning - Code Quality Report
 
 Generated: {timestamp}
 
-## Ruff Analysis
 - Errors Found: {stats["errors"]}
 - Warnings: {stats["warnings"]}
 - Auto-fixed: {stats["fixed"]}
 
-## Pre-commit Status
 ✅ Ruff linting and formatting enabled
 ✅ Security scanning with Bandit
 ✅ Secret detection configured
 ✅ File quality checks active
 
-## Recommendations
 1. Address remaining Ruff violations gradually
 2. Focus on security issues (S-prefixed codes) first
 3. Consider Boolean trap patterns (FBT codes)
@@ -68,7 +69,6 @@ def main() -> None:
     """Main entry point."""
     report = generate_report()
 
-    # Save to logs directory
     logs_dir = Path(".logs")
     logs_dir.mkdir(exist_ok=True)
 

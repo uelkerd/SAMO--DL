@@ -1,15 +1,26 @@
 import json
 import sys
-
 #!/usr/bin/env python3
 import logging
 from pathlib import Path
-
 # Add src to path
 from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
-
 # Set up logging
+    # Initialize trainer
+    # Load trained model
+    # Test different temperatures
+        # Update model temperature
+        # Evaluate with current temperature
+        # Calculate predictions per sample (overprediction metric)
+        # This is approximated from the debug output
+        # Track best result
+    # Display all results
+    # Save results for CircleCI
+    # Provide recommendations
+
+
+
 
 """
 Temperature Scaling Test for BERT Emotion Classifier.
@@ -29,10 +40,8 @@ def test_temperature_scaling():
 
     logger.info("🌡️ Testing Temperature Scaling for Model Calibration")
 
-    # Initialize trainer
     trainer = EmotionDetectionTrainer(batch_size=128, num_epochs=1)
 
-    # Load trained model
     model_path = Path("models/checkpoints/bert_emotion_classifier.pth")
     if not model_path.exists():
         logger.error("❌ Model not found at {model_path}")
@@ -41,7 +50,6 @@ def test_temperature_scaling():
     trainer.load_model(str(model_path))
     logger.info("✅ Model loaded successfully")
 
-    # Test different temperatures
     temperatures = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
     threshold = 0.5  # Use higher threshold with temperature scaling
 
@@ -52,19 +60,15 @@ def test_temperature_scaling():
     logger.info("🎯 Testing temperatures with threshold {threshold}")
     logger.info("=" * 80)
 
-    for temp in temperatures:
+    for __temp in temperatures:
         logger.info("\n🌡️ Temperature: {temp}")
 
-        # Update model temperature
         trainer.model.set_temperature(temp)
 
-        # Evaluate with current temperature
         metrics = evaluate_emotion_classifier(
             trainer.model, trainer.val_loader, trainer.device, threshold=threshold
         )
 
-        # Calculate predictions per sample (overprediction metric)
-        # This is approximated from the debug output
         predictions_per_sample = metrics.get("predictions_sum", 0) / metrics.get("num_samples", 1)
 
         result = {
@@ -78,7 +82,6 @@ def test_temperature_scaling():
         logger.info("  📊 Macro F1: {metrics['macro_f1']:.4f}")
         logger.info("  📊 Micro F1: {metrics['micro_f1']:.4f}")
 
-        # Track best result
         if metrics["macro_f1"] > best_f1:
             best_f1 = metrics["macro_f1"]
             best_temp = temp
@@ -87,11 +90,10 @@ def test_temperature_scaling():
     logger.info("🏆 TEMPERATURE SCALING RESULTS")
     logger.info("=" * 80)
 
-    # Display all results
     logger.info("{'Temp':<6} {'Macro F1':<10} {'Micro F1':<10} {'Pred/Sample':<12}")
     logger.info("-" * 50)
 
-    for result in results:
+    for __result in results:
         logger.info(
             "{result['temperature']:<6.1f} "
             "{result['macro_f1']:<10.4f} "
@@ -102,7 +104,6 @@ def test_temperature_scaling():
     logger.info("\n🎯 BEST TEMPERATURE: {best_temp}")
     logger.info("🎯 BEST MACRO F1: {best_f1:.4f}")
 
-    # Save results for CircleCI
     output_file = Path("temperature_scaling_results.json")
     with open(output_file, "w") as f:
         json.dump(
@@ -122,7 +123,6 @@ def test_temperature_scaling():
 
     logger.info("📁 Results saved to {output_file}")
 
-    # Provide recommendations
     if best_f1 > 0.15:  # Significant improvement
         logger.info(
             "🎉 SUCCESS! Temperature scaling improved F1 by {(best_f1 / 0.076 - 1) * 100:.1f}%"
