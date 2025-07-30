@@ -1,15 +1,15 @@
-import logging
-import datetime
-#!/usr/bin/env python3
-import subprocess
-from datetime import UTC, datetime
-from pathlib import Path
         # Parse JSON output would go here in a real implementation
+    # Save to logs directory
 # SAMO Deep Learning - Code Quality Report
-## Ruff Analysis
+#!/usr/bin/env python3
 ## Pre-commit Status
 ## Recommendations
-    # Save to logs directory
+## Ruff Analysis
+from datetime import UTC, datetime
+from pathlib import Path
+import datetime
+import logging
+import subprocess
 
 
 
@@ -74,7 +74,7 @@ def main() -> None:
     report_path.write_text(report + "\n")
 
     logging.info("✅ Code quality report generated: {report_path}")
-    logging.info("\n" + "=" * 50)
+    logging.info(f"\n=" * 50)
     logging.info(report)
 
 

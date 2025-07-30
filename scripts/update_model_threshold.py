@@ -1,21 +1,21 @@
-import os
-import sys
-#!/usr/bin/env python3
-import argparse
-import torch
-import logging
-from pathlib import Path
+        # Create model
+        # Load checkpoint
+        # Load state dict
+        # Save model
+        # Set temperature
+        # Update threshold
+    # Find an existing model file
 # Add src to path
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 # Configure logging
 # Constants
-    # Find an existing model file
-        # Load checkpoint
-        # Create model
-        # Load state dict
-        # Update threshold
-        # Set temperature
-        # Save model
+#!/usr/bin/env python3
+from pathlib import Path
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+import argparse
+import logging
+import os
+import sys
+import torch
 
 
 
@@ -33,7 +33,7 @@ Arguments:
     --threshold: Optional threshold value (default: 0.6)
 """
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.append(Path(Path(os.path.dirname(__file__), "..")))
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
         return False
 
     model_path = None
-    for ___path in MODEL_PATHS:
+    for path in MODEL_PATHS:
         if Path(path).exists():
             model_path = path
             break
@@ -98,7 +98,7 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
         logger.info("✅ Model threshold updated successfully to {threshold}")
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("Error updating model threshold: {e}")
         return False
 

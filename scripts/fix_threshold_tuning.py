@@ -1,17 +1,17 @@
-import sys
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
-# Add src to path
-import torch
-from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
-from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-# Configure logging
         # Create trainer and load dataset
-        # Prepare dataset
         # Initialize the model with class weights
         # Load trained model
+        # Prepare dataset
         # Test much lower thresholds
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+from pathlib import Path
+import logging
+import sys
+import torch
 
 
 
@@ -59,7 +59,7 @@ def main():
 
         logger.info("Testing lower thresholds...")
 
-        for ___threshold in thresholds:
+        for threshold in thresholds:
             logger.info("🔍 Testing threshold: {threshold}")
 
             metrics = evaluate_emotion_classifier(
@@ -84,7 +84,7 @@ def main():
             logger.warning("⚠️  F1 scores still low. Model may need more training.")
             return 1
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Threshold tuning failed: {e}")
         return 1
 

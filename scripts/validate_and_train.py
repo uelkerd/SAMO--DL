@@ -1,18 +1,25 @@
+        # Import the validation module
+        # Start training
+        # Training configuration optimized for debugging
+        from models.emotion_detection.training_pipeline import train_emotion_detection_model
+        from pre_training_validation import PreTrainingValidator
+        import traceback
+    # Ask for user confirmation
+    # Step 1: Pre-training validation
+    # Step 2: User confirmation
+    # Step 3: Start training
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+import logging
 import sys
+import time
 import traceback
 
-#!/usr/bin/env python3
-import logging
-import time
-from pathlib import Path
 
-# Add src to path
-        from pre_training_validation import PreTrainingValidator
 
-        from models.emotion_detection.training_pipeline import train_emotion_detection_model
 
-        # Training configuration optimized for debugging
-        import traceback
 
 
 """
@@ -24,7 +31,6 @@ if all critical checks pass. This prevents wasting 4+ hours on failed training.
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -38,7 +44,6 @@ def run_pre_training_validation():
     logger.info("🔍 Running pre-training validation...")
 
     try:
-        # Import the validation module
 
         sys.path.insert(0, str(Path(__file__).parent))
         validator = PreTrainingValidator()
@@ -47,7 +52,7 @@ def run_pre_training_validation():
 
         return all_passed, validator.critical_issues, validator.warnings
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Pre-training validation failed: {e}")
         return False, ["Validation error: {e}"], []
 
@@ -72,7 +77,6 @@ def run_training_with_debugging():
         for key, value in config.items():
             logger.info("   {key}: {value}")
 
-        # Start training
         start_time = time.time()
         results = train_emotion_detection_model(**config)
         training_time = time.time() - start_time
@@ -82,7 +86,7 @@ def run_training_with_debugging():
 
         return True, results
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Training failed: {e}")
         logger.error("Traceback: {traceback.format_exc()}")
         return False, None
@@ -93,7 +97,6 @@ def main():
     logger.info("🚀 SAMO Deep Learning - Validate and Train")
     logger.info("=" * 60)
 
-    # Step 1: Pre-training validation
     logger.info("\n📋 STEP 1: Pre-Training Validation")
     logger.info("-" * 40)
 
@@ -113,7 +116,6 @@ def main():
         logger.error("\n🔧 Please fix all critical issues before running training again.")
         return False
 
-    # Step 2: User confirmation
     logger.info("\n✅ VALIDATION PASSED!")
 
     if warnings:
@@ -133,7 +135,6 @@ def main():
     logger.info("   • Epochs: 2")
     logger.info("   • Debug mode: Enabled")
 
-    # Ask for user confirmation
     try:
         response = input("\n🤔 Proceed with training? (y/N): ").strip().lower()
         if response not in ["y", "yes"]:
@@ -143,7 +144,6 @@ def main():
         logger.info("\n❌ Training cancelled by user.")
         return False
 
-    # Step 3: Start training
     logger.info("\n📋 STEP 3: Training Execution")
     logger.info("-" * 40)
 

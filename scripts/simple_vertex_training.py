@@ -1,16 +1,16 @@
-import os
-import sys
-#!/usr/bin/env python3
-import logging
-import pandas as pd
-from google.cloud import aiplatform
-# Configure logging
+        # Check target column
+        # Create dataset
         # Initialize Vertex AI
         # Load and check data
         # Load data
-        # Check target column
-        # Create dataset
         # Start training
+# Configure logging
+#!/usr/bin/env python3
+from google.cloud import aiplatform
+import logging
+import os
+import pandas as pd
+import sys
 
 
 
@@ -41,7 +41,7 @@ def main():
         train_path = "vertex_ai_data/train_data.csv"
         test_path = "vertex_ai_data/test_data.csv"
 
-        if not os.path.exists(train_path):
+        if not Path(train_path):
             logging.info("❌ Training data not found: {train_path}")
             sys.exit(1)
 
@@ -86,7 +86,7 @@ def main():
         logging.info("✅ Training started: {model.name}")
         logging.info("🎉 Model training initiated successfully!")
 
-    except Exception as _:
+    except Exception as e:
         logging.info("❌ Training failed: {e}")
         logger.error("Training failed: {e}")
         sys.exit(1)

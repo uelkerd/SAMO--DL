@@ -1,26 +1,49 @@
-import sys
-
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
-
-# Add src to path
-import torch
-from torch import nn
-
-# Configure logging
-        from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
-        # Initialize trainer
-        from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
-        # Initialize trainer and model
-        from models.emotion_detection.bert_classifier import WeightedBCELoss
-
-        # Test different loss configurations
-        from models.emotion_detection.dataset_loader import create_goemotions_loader
-
+            # Check for all-zero or all-one labels
+            # Check for extreme values
+            # Check label distribution per class
+            # Show first 10 class weights
+        # 1. Standard BCE loss
+        # 2. Manual BCE calculation
+        # 3. Weighted BCE loss (no weights)
+        # 4. Check individual components
+        # 5. Check for numerical precision issues
+        # 6. Test with small epsilon
+        # Check data statistics
+        # Check for extreme values
+        # Check if all losses are zero
+        # Examine first batch
+        # Forward pass
         # Get class weights
+        # Get first batch
+        # Initialize model
+        # Initialize trainer
+        # Initialize trainer and model
+        # Prepare data
+        # Test different loss configurations
+        from models.emotion_detection.bert_classifier import WeightedBCELoss
+        from models.emotion_detection.dataset_loader import create_goemotions_loader
+        from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+        from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+    # Debug class weights
+    # Debug data loading
+    # Debug loss calculation
+    # Debug model outputs
+    # Summary
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+from torch import nn
+import logging
+import sys
+import torch
+
+
+
+
+
+
+
 
 """
 Debug Training Loss Script for SAMO Deep Learning.
@@ -50,18 +73,15 @@ def debug_data_loading():
             dev_mode=True
         )
 
-        # Prepare data
         datasets = trainer.prepare_data(dev_mode=True)
 
-        # Check data statistics
         train_dataloader = datasets["train_dataloader"]
         val_dataloader = datasets["val_dataloader"]
 
         logger.info("✅ Train dataloader: {len(train_dataloader)} batches")
         logger.info("✅ Val dataloader: {len(val_dataloader)} batches")
 
-        # Examine first batch
-        for batch_idx, batch in enumerate(train_dataloader):
+        for _batch_idx, batch in enumerate(train_dataloader):
             if batch_idx >= 2:  # Only check first 2 batches
                 break
 
@@ -79,13 +99,11 @@ def debug_data_loading():
             logger.info("   Non-zero labels: {(labels > 0).sum().item()}")
             logger.info("   Total labels: {labels.numel()}")
 
-            # Check for all-zero or all-one labels
             if labels.sum() == 0:
                 logger.error("❌ WARNING: All labels are zero!")
             elif labels.sum() == labels.numel():
                 logger.error("❌ WARNING: All labels are one!")
 
-            # Check label distribution per class
             for i in range(labels.shape[1]):
                 class_count = labels[:, i].sum().item()
                 if class_count > 0:
@@ -93,7 +111,7 @@ def debug_data_loading():
 
         return datasets
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Error in data loading: {e}")
         return None
 
@@ -110,17 +128,14 @@ def debug_model_outputs(datasets):
             dev_mode=True
         )
 
-        # Initialize model
         trainer.prepare_data(dev_mode=True)
         trainer.initialize_model()
 
-        # Get first batch
         batch = next(iter(trainer.train_dataloader))
         input_ids = batch["input_ids"].to(trainer.device)
         attention_mask = batch["attention_mask"].to(trainer.device)
         labels = batch["labels"].to(trainer.device)
 
-        # Forward pass
         trainer.model.eval()
         with torch.no_grad():
             logits = trainer.model(input_ids, attention_mask)
@@ -137,7 +152,6 @@ def debug_model_outputs(datasets):
         logger.info("   Predictions max: {predictions.max().item():.6f}")
         logger.info("   Predictions mean: {predictions.mean().item():.6f}")
 
-        # Check for extreme values
         if torch.isnan(logits).any():
             logger.error("❌ WARNING: NaN values in logits!")
         if torch.isinf(logits).any():
@@ -145,7 +159,7 @@ def debug_model_outputs(datasets):
 
         return logits, predictions, labels
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Error in model outputs: {e}")
         return None, None, None
 
@@ -157,24 +171,20 @@ def debug_loss_calculation(logits, predictions, labels):
     try:
         logger.info("📊 Testing different loss configurations:")
 
-        # 1. Standard BCE loss
         bce_loss = nn.BCEWithLogitsLoss(reduction='mean')
         loss_standard = bce_loss(logits, labels.float())
         logger.info("   Standard BCE Loss: {loss_standard.item():.6f}")
 
-        # 2. Manual BCE calculation
         bce_manual = torch.nn.functional.binary_cross_entropy_with_logits(
             logits, labels.float(), reduction='none'
         )
         loss_manual = bce_manual.mean()
         logger.info("   Manual BCE Loss: {loss_manual.item():.6f}")
 
-        # 3. Weighted BCE loss (no weights)
         weighted_bce = WeightedBCELoss(class_weights=None)
         loss_weighted = weighted_bce(logits, labels)
         logger.info("   Weighted BCE Loss (no weights): {loss_weighted.item():.6f}")
 
-        # 4. Check individual components
         logger.info("📊 Individual loss components:")
         for i in range(min(5, logits.shape[1])):  # Check first 5 classes
             class_logits = logits[:, i]
@@ -186,13 +196,11 @@ def debug_loss_calculation(logits, predictions, labels):
                        "labels_sum={class_labels.sum().item()}, "
                        "logits_mean={class_logits.mean().item():.6f}")
 
-        # 5. Check for numerical precision issues
         logger.info("📊 Numerical precision check:")
         logger.info("   Logits precision: {logits.dtype}")
         logger.info("   Labels precision: {labels.dtype}")
         logger.info("   Device: {logits.device}")
 
-        # 6. Test with small epsilon
         epsilon = 1e-8
         logits_eps = logits + epsilon
         loss_eps = bce_loss(logits_eps, labels.float())
@@ -205,7 +213,7 @@ def debug_loss_calculation(logits, predictions, labels):
             'with_epsilon': loss_eps.item()
         }
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Error in loss calculation: {e}")
         return None
 
@@ -226,20 +234,18 @@ def debug_class_weights():
             logger.info("   Mean: {class_weights.mean():.6f}")
             logger.info("   Std: {class_weights.std():.6f}")
 
-            # Check for extreme values
             if class_weights.min() <= 0:
                 logger.error("❌ WARNING: Class weights contain zero or negative values!")
             if class_weights.max() > 100:
                 logger.error("❌ WARNING: Class weights contain very large values!")
 
-            # Show first 10 class weights
             logger.info("📊 First 10 class weights:")
             for i in range(min(10, len(class_weights))):
                 logger.info("   Class {i}: {class_weights[i]:.6f}")
 
         return class_weights
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Error in class weights: {e}")
         return None
 
@@ -248,25 +254,20 @@ def main():
     """Main debugging function."""
     logger.info("🚀 Starting training loss debugging...")
 
-    # Debug data loading
     datasets = debug_data_loading()
     if datasets is None:
         logger.error("❌ Failed to load data, stopping debug")
         return
 
-    # Debug class weights
     class_weights = debug_class_weights()
 
-    # Debug model outputs
     logits, predictions, labels = debug_model_outputs(datasets)
     if logits is None:
         logger.error("❌ Failed to get model outputs, stopping debug")
         return
 
-    # Debug loss calculation
     loss_results = debug_loss_calculation(logits, predictions, labels)
 
-    # Summary
     logger.info("\n" + "="*60)
     logger.info("📋 DEBUG SUMMARY")
     logger.info("="*60)
@@ -276,7 +277,6 @@ def main():
         for loss_type, value in loss_results.items():
             logger.info("   {loss_type}: {value:.6f}")
 
-        # Check if all losses are zero
         all_zero = all(abs(v) < 1e-10 for v in loss_results.values())
         if all_zero:
             logger.error("❌ CRITICAL: All loss values are effectively zero!")

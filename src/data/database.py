@@ -1,14 +1,14 @@
-import os
+    # Create tables
+    # Import all models here to ensure they're registered with Base.metadata
+# Create engine
+# Create scoped session for thread safety
+# Create sessionmaker
+# Create the database URL
+# Get database connection details from environment variables
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
-# Get database connection details from environment variables
-# Create the database URL
-# Create engine
-# Create sessionmaker
-# Create scoped session for thread safety
-    # Import all models here to ensure they're registered with Base.metadata
-    # Create tables
+import os
 
 
 

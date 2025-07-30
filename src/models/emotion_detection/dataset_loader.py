@@ -1,17 +1,43 @@
-import numpy as np
-
+            # Explicitly disable token usage for public dataset
+        # Analyze statistics
+        # But normalize to consistent representation
+        # Calculate label frequencies
+        # Calculate statistics
+        # Calculate weights: inverse frequency
+        # Clean texts first
+        # Combine labels from all splits to get overall statistics
+        # Compute class weights
+        # Create splits
+        # Data storage
+        # Download dataset
+        # Initialize preprocessor
+        # Log key statistics
+        # Log split sizes
+        # Normalize repeated characters (soooo -> so [REPEAT])
+        # Normalize weights
+        # Preserve ALL CAPS emotional expressions
+        # Preserve emotional punctuation patterns (!!!, ???)
+        # Remove excessive whitespace while preserving structure
+        # The dataset is already split by HuggingFace
+        # Tokenize with BERT tokenizer
+        # Use the same logic as analyze_dataset_statistics
+        import re
+    # Test the data loader
+# Configure logging
+# Emotion mappings for readability
 # G004: Logging f-strings temporarily allowed for development
-import logging
-
-import numpy as np
-import torch
+# GoEmotions emotion categories (27 emotions + neutral)
+from collections import Counter
 from datasets import load_dataset
 from transformers import AutoTokenizer
-from collections import Counter
 from typing import Any, Union
+import logging
+import numpy as np
+import numpy as np
+import torch
 
-# Configure logging
-        import re
+
+
 
 
 """GoEmotions Dataset Loader for SAMO Emotion Detection.
@@ -29,7 +55,6 @@ Key Features:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# GoEmotions emotion categories (27 emotions + neutral)
 GOEMOTIONS_EMOTIONS = [
     "admiration",
     "amusement",
@@ -61,7 +86,6 @@ GOEMOTIONS_EMOTIONS = [
     "neutral",
 ]
 
-# Emotion mappings for readability
 EMOTION_ID_TO_LABEL = dict(enumerate(GOEMOTIONS_EMOTIONS))
 EMOTION_LABEL_TO_ID = {emotion: i for i, emotion in enumerate(GOEMOTIONS_EMOTIONS)}
 
@@ -94,15 +118,11 @@ class GoEmotionsPreprocessor:
         if not isinstance(text, str):
             return ""
 
-        # Remove excessive whitespace while preserving structure
         text = " ".join(text.split())
 
-        # Preserve emotional punctuation patterns (!!!, ???)
-        # But normalize to consistent representation
         text = text.replace("!!!", " [EXCITE] ")
         text = text.replace("???", " [CONFUSE] ")
 
-        # Preserve ALL CAPS emotional expressions
         words = text.split()
         processed_words = []
         for word in words:
@@ -113,7 +133,6 @@ class GoEmotionsPreprocessor:
 
         text = " ".join(processed_words)
 
-        # Normalize repeated characters (soooo -> so [REPEAT])
         text = re.sub(r"(.)\1{2,}", r"\1 [REPEAT]", text)
 
         return text.strip()
@@ -127,10 +146,8 @@ class GoEmotionsPreprocessor:
         Returns:
             Dictionary with tokenized inputs for BERT
         """
-        # Clean texts first
         cleaned_texts = [self.clean_text(text) for text in texts]
 
-        # Tokenize with BERT tokenizer
         encoded = self.tokenizer(
             cleaned_texts,
             truncation=True,
@@ -171,10 +188,8 @@ class GoEmotionsDataLoader:
         self.val_size = val_size
         self.random_state = random_state
 
-        # Initialize preprocessor
         self.preprocessor = GoEmotionsPreprocessor(model_name, max_length)
 
-        # Data storage
         self.raw_dataset = None
         self.train_dataset = None
         self.val_dataset = None
@@ -187,11 +202,10 @@ class GoEmotionsDataLoader:
         """Download GoEmotions dataset from Hugging Face Hub."""
         try:
             logger.info("Downloading GoEmotions dataset...")
-            # Explicitly disable token usage for public dataset
             dataset = load_dataset("go_emotions", cache_dir=self.cache_dir, token=False)
             self.dataset = dataset
             logger.info("✅ GoEmotions dataset downloaded successfully.")
-        except Exception as _:
+        except Exception as e:
             logger.error("Failed to download GoEmotions dataset: {e}")
             raise
 
@@ -200,18 +214,15 @@ class GoEmotionsDataLoader:
         if self.dataset is None:
             raise ValueError("Dataset not loaded. Call download_dataset() first.")
 
-        # Combine labels from all splits to get overall statistics
         all_labels = []
         for split in self.dataset:
             all_labels.extend(
                 [label for labels in self.dataset[split]["labels"] for label in labels]
             )
 
-        # Calculate label frequencies
         label_counts = Counter(all_labels)
         total_labels = len(all_labels)
 
-        # Calculate statistics
         emotion_frequencies = {
             emotion: count / total_labels for emotion, count in label_counts.items()
         }
@@ -236,7 +247,6 @@ class GoEmotionsDataLoader:
             )[:5],
         }
 
-        # Log key statistics
         logger.info("Total examples: {total_labels}")
         logger.info(
             "Multi-label examples: {total_labels - sum(1 for count in label_counts.values() if count == 1)} ({stats['multi_label_percentage']:.1f}%)"
@@ -251,7 +261,6 @@ class GoEmotionsDataLoader:
         if self.dataset is None:
             raise ValueError("Dataset not loaded. Call download_dataset() first.")
 
-        # Use the same logic as analyze_dataset_statistics
         all_labels = []
         for split in self.dataset:
             all_labels.extend(
@@ -261,7 +270,6 @@ class GoEmotionsDataLoader:
         label_counts = Counter(all_labels)
         total_samples = sum(label_counts.values())
 
-        # Calculate weights: inverse frequency
         class_weights = np.array(
             [
                 total_samples / label_counts.get(i, 1)  # Use .get for safety
@@ -269,7 +277,6 @@ class GoEmotionsDataLoader:
             ]
         )
 
-        # Normalize weights
         class_weights = class_weights / np.sum(class_weights)
 
         logger.info(
@@ -288,12 +295,10 @@ class GoEmotionsDataLoader:
 
         logger.info("Creating train/val/test splits...")
 
-        # The dataset is already split by HuggingFace
         train_ds = self.dataset["train"]
         val_ds = self.dataset["validation"]
         test_ds = self.dataset["test"]
 
-        # Log split sizes
         logger.info("Train set: {len(train_ds)} examples")
         logger.info("Validation set: {len(val_ds)} examples")
         logger.info("Test set: {len(test_ds)} examples")
@@ -311,17 +316,13 @@ class GoEmotionsDataLoader:
         """
         logger.info("Starting GoEmotions dataset preparation...")
 
-        # Download dataset
         if self.raw_dataset is None or force_download:
             self.download_dataset()
 
-        # Analyze statistics
         stats = self.analyze_dataset_statistics()
 
-        # Compute class weights
         class_weights = self.compute_class_weights()
 
-        # Create splits
         train_ds, val_ds, test_ds = self.create_train_val_test_splits()
 
         result = {
@@ -357,7 +358,6 @@ def create_goemotions_loader(
 
 
 if __name__ == "__main__":
-    # Test the data loader
 
     loader = create_goemotions_loader()
     datasets = loader.prepare_datasets()

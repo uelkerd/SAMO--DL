@@ -1,19 +1,19 @@
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
-# Configure logging
+    # Analyze loss pattern
+    # Check training logs
     # Common causes of 0.0000 loss
+    # Create test script
     # Look for training log files
     # Scenario 1: Normal case
     # Scenario 2: All zeros
     # Scenario 3: All ones
     # Scenario 4: Perfect predictions
     # Scenario 5: Very small logits
-    # Analyze loss pattern
-    # Check training logs
     # Suggest debugging steps
-    # Create test script
     # Summary
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+import logging
 
 
 
@@ -44,7 +44,7 @@ def analyze_loss_pattern():
     ]
 
     logger.info("📋 Possible causes of 0.0000 loss:")
-    for ___cause in causes:
+    for cause in causes:
         logger.info("   {cause}")
 
     return causes
@@ -61,13 +61,13 @@ def check_training_logs():
     ]
 
     found_logs = []
-    for ___pattern in log_patterns:
+    for pattern in log_patterns:
         for log_file in Path().glob(pattern):
             found_logs.append(log_file)
 
     if found_logs:
         logger.info("📁 Found {len(found_logs)} log files:")
-        for ___log_file in found_logs:
+        for log_file in found_logs:
             logger.info("   {log_file}")
     else:
         logger.info("📁 No log files found")
@@ -91,7 +91,7 @@ def suggest_debugging_steps():
     ]
 
     logger.info("📋 Recommended debugging steps:")
-    for ___step in steps:
+    for step in steps:
         logger.info("   {step}")
 
     return steps

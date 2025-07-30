@@ -1,14 +1,36 @@
+            # Check field types are consistent
+        # CI environment should respond within 2 seconds
+        # Check all requests succeeded
+        # Check all responses have same structure
+        # Check emotion analysis structure
+        # Check expected models
+        # Check model status structure
+        # Check processing time in response
+        # Check required fields
+        # Check response structure
+        # Create multiple threads
+        # For JSON-based endpoints, form data might not be accepted
+        # Mock the emotion detection
+        # Note: Depending on FastAPI configuration, this might need adjustment
+        # Test JSON content type (primary)
+        # Test empty text
+        # Test form data (fallback)
+        # Test invalid endpoint
+        # Test malformed request
+        # Test missing required field
+        # Test very long text
+        # Wait for all threads to complete
+from unittest.mock import patch
+import pytest
+import queue
+import threading
+import time
 """
 Integration tests for API endpoints.
 Tests API functionality, request/response handling, and error scenarios.
 """
 
-import queue
-import threading
-import time
-from unittest.mock import patch
 
-import pytest
 
 
 @pytest.mark.integration
@@ -22,12 +44,10 @@ class TestAPIEndpoints:
         assert response.status_code == 200
         data = response.json()
 
-        # Check required fields
         assert "status" in data
         assert "models" in data
         assert "timestamp" in data
 
-        # Check model status structure
         assert isinstance(data["models"], dict)
         for _model_name, model_status in data["models"].items():
             assert "loaded" in model_status
@@ -47,7 +67,6 @@ class TestAPIEndpoints:
     @patch("src.models.emotion_detection.bert_classifier.BERTEmotionClassifier")
     def test_journal_analysis_endpoint(self, mock_bert, api_client):
         """Test /analyze/journal endpoint with text input."""
-        # Mock the emotion detection
         mock_model = mock_bert.return_value
         mock_model.predict_emotions.return_value = [0, 13, 17]  # joy, excitement, gratitude
 
@@ -62,14 +81,12 @@ class TestAPIEndpoints:
         assert response.status_code == 200
         data = response.json()
 
-        # Check response structure
         assert "emotion_analysis" in data
         assert "summary" in data
         assert "processing_time_ms" in data
         assert "pipeline_status" in data
         assert "insights" in data
 
-        # Check emotion analysis structure
         emotion_analysis = data["emotion_analysis"]
         assert "emotions" in emotion_analysis
         assert "primary_emotion" in emotion_analysis
@@ -78,16 +95,13 @@ class TestAPIEndpoints:
 
     def test_journal_analysis_validation(self, api_client):
         """Test journal analysis input validation."""
-        # Test empty text
         response = api_client.post("/analyze/journal", json={"text": ""})
         assert response.status_code == 422
 
-        # Test very long text
         long_text = "x" * 10001
         response = api_client.post("/analyze/journal", json={"text": long_text})
         assert response.status_code == 422
 
-        # Test missing required field
         response = api_client.post("/analyze/journal", json={})
         assert response.status_code == 422
 
@@ -98,7 +112,6 @@ class TestAPIEndpoints:
         assert response.status_code == 200
         data = response.json()
 
-        # Check expected models
         expected_models = ["emotion_detector", "text_summarizer", "voice_transcriber"]
 
         for model in expected_models:
@@ -119,21 +132,17 @@ class TestAPIEndpoints:
         response_time = end_time - start_time
 
         assert response.status_code == 200
-        # CI environment should respond within 2 seconds
         assert response_time < 2.0
 
-        # Check processing time in response
         data = response.json()
         assert "processing_time_ms" in data
         assert data["processing_time_ms"] > 0
 
     def test_error_handling(self, api_client):
         """Test API error handling and response format."""
-        # Test invalid endpoint
         response = api_client.get("/invalid/endpoint")
         assert response.status_code == 404
 
-        # Test malformed request
         response = api_client.post(
             "/analyze/journal",
             data={"invalid": "data"},
@@ -150,21 +159,18 @@ class TestAPIEndpoints:
             try:
                 response = api_client.post("/analyze/journal", json=test_data)
                 results.put(response.status_code)
-            except Exception as _:
+            except Exception as e:
                 results.put(f"Error: {e}")
 
-        # Create multiple threads
         threads = []
         for _ in range(5):
             thread = threading.Thread(target=make_request)
             threads.append(thread)
             thread.start()
 
-        # Wait for all threads to complete
         for thread in threads:
             thread.join()
 
-        # Check all requests succeeded
         while not results.empty():
             result = results.get()
             assert result == 200
@@ -173,14 +179,10 @@ class TestAPIEndpoints:
         """Test API handles different content types correctly."""
         test_data = {"text": "Testing content type handling."}
 
-        # Test JSON content type (primary)
         response = api_client.post("/analyze/journal", json=test_data)
         assert response.status_code == 200
 
-        # Test form data (fallback)
         response = api_client.post("/analyze/journal", data=test_data)
-        # Note: Depending on FastAPI configuration, this might need adjustment
-        # For JSON-based endpoints, form data might not be accepted
 
     def test_response_consistency(self, api_client):
         """Test API response format consistency across multiple calls."""
@@ -192,14 +194,12 @@ class TestAPIEndpoints:
             assert response.status_code == 200
             responses.append(response.json())
 
-        # Check all responses have same structure
         required_fields = ["emotion_analysis", "summary", "processing_time_ms", "pipeline_status", "insights"]
 
         for response_data in responses:
             for field in required_fields:
                 assert field in response_data
 
-            # Check field types are consistent
             assert isinstance(response_data["emotion_analysis"], dict)
             assert isinstance(response_data["summary"], dict)
             assert isinstance(response_data["processing_time_ms"], (int, float))

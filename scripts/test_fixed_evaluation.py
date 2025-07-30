@@ -1,17 +1,17 @@
-import sys
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
+        # Create trainer
+        # Load trained model
+        # Prepare data and model
+        # Success criteria
+        # Test different thresholds with fixed evaluation
 # Add src to path
-import torch
+# Configure logging
+#!/usr/bin/env python3
 from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
 from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-# Configure logging
-        # Create trainer
-        # Prepare data and model
-        # Load trained model
-        # Test different thresholds with fixed evaluation
-        # Success criteria
+from pathlib import Path
+import logging
+import sys
+import torch
 
 
 
@@ -61,7 +61,7 @@ def main():
 
         best_f1 = 0.0
 
-        for ___threshold in thresholds:
+        for threshold in thresholds:
             logger.info("🔍 Threshold: {threshold}")
 
             metrics = evaluate_emotion_classifier(
@@ -93,7 +93,7 @@ def main():
             )
             return 1
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Test failed: {e}")
         return 1
 

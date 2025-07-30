@@ -1,29 +1,61 @@
-import numpy as np
-import sys
-
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
-
-# Add src to path
-import torch
-
-# Configure logging
-            import torch
-            import transformers
-            import pandas as pd
-
-            from models.emotion_detection.dataset_loader import create_goemotions_loader
-
-            # Load data in dev mode
-            from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-
+                # Test write permissions
+            # Backward pass
+            # Check CUDA availability
+            # Check available disk space
+            # Check class weights
+            # Check data shapes and types
+            # Check dataset structure
+            # Check for all-zero or all-one labels
+            # Check gradients
+            # Check output directories
             # Create model
+            # Create trainer
+            # Forward pass
+            # Load data in dev mode
+            # Move to device if available
+            # Optimizer step
+            # Prepare data
+            # Test forward pass
+            # Test forward pass with dummy data
+            # Test learning rate
+            # Test loss function
+            # Test one training step
+            # Test optimizer
+            # Test scheduler
+            # Validate first batch
+            # Validate labels
+            # Validate outputs
+            from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+            from models.emotion_detection.dataset_loader import create_goemotions_loader
             from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
             from torch.optim import AdamW
-
-            # Create trainer
+            import pandas as pd
             import shutil
+            import torch
+            import transformers
+        # Critical issues
+        # Final recommendation
+        # Summary
+        # Warnings
+    # Exit with appropriate code
+    # Generate report
+    # Run all validations
+# Add src to path
+# Configure logging
+# Import torch early for validation
+#!/usr/bin/env python3
+from pathlib import Path
+import logging
+import numpy as np
+import sys
+import torch
+
+
+
+
+
+
+
 
 
 """
@@ -35,7 +67,6 @@ issues like 0.0000 loss, data problems, model issues, etc.
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-# Import torch early for validation
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -58,7 +89,6 @@ class PreTrainingValidator:
             logger.info("✅ NumPy version: {np.__version__}")
             logger.info("✅ Pandas version: {pd.__version__}")
 
-            # Check CUDA availability
             if torch.cuda.is_available():
                 logger.info("✅ CUDA available: {torch.cuda.get_device_name(0)}")
                 logger.info(
@@ -83,7 +113,6 @@ class PreTrainingValidator:
         try:
             datasets = create_goemotions_loader(dev_mode=True)
 
-            # Check dataset structure
             required_keys = ["train_dataloader", "val_dataloader", "class_weights"]
             for key in required_keys:
                 if key not in datasets:
@@ -98,7 +127,6 @@ class PreTrainingValidator:
             logger.info("✅ Train batches: {len(train_dataloader)}")
             logger.info("✅ Val batches: {len(val_dataloader)}")
 
-            # Validate first batch
             first_batch = next(iter(train_dataloader))
             required_batch_keys = ["input_ids", "attention_mask", "labels"]
 
@@ -108,7 +136,6 @@ class PreTrainingValidator:
                     self.critical_issues.append("Missing batch key: {key}")
                     return False
 
-            # Check data shapes and types
             input_ids = first_batch["input_ids"]
             attention_mask = first_batch["attention_mask"]
             labels = first_batch["labels"]
@@ -117,13 +144,11 @@ class PreTrainingValidator:
             logger.info("✅ Attention shape: {attention_mask.shape}")
             logger.info("✅ Labels shape: {labels.shape}")
 
-            # Validate labels
             if labels.dtype not in (torch.float32, torch.float64):
                 logger.error("❌ Labels should be float, got: {labels.dtype}")
                 self.critical_issues.append("Invalid labels dtype: {labels.dtype}")
                 return False
 
-            # Check for all-zero or all-one labels
             labels_sum = labels.sum().item()
             labels_total = labels.numel()
 
@@ -141,7 +166,6 @@ class PreTrainingValidator:
                 self.critical_issues.append("All labels are one")
                 return False
 
-            # Check class weights
             if class_weights is not None:
                 logger.info("✅ Class weights shape: {class_weights.shape}")
                 logger.info("✅ Class weights min: {class_weights.min():.6f}")
@@ -159,7 +183,7 @@ class PreTrainingValidator:
             self.validation_results["data_loading"] = True
             return True
 
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ Data loading validation failed: {e}")
             self.critical_issues.append("Data loading error: {e}")
             self.validation_results["data_loading"] = False
@@ -180,7 +204,6 @@ class PreTrainingValidator:
             logger.info("✅ Model parameters: {model.count_parameters():,}")
             logger.info("✅ Loss function: {type(loss_fn).__name__}")
 
-            # Test forward pass with dummy data
             batch_size = 4
             seq_length = 128
             num_classes = 28
@@ -189,14 +212,12 @@ class PreTrainingValidator:
             dummy_attention_mask = torch.ones(batch_size, seq_length)
             dummy_labels = torch.randint(0, 2, (batch_size, num_classes)).float()
 
-            # Move to device if available
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             model.to(device)
             dummy_input_ids = dummy_input_ids.to(device)
             dummy_attention_mask = dummy_attention_mask.to(device)
             dummy_labels = dummy_labels.to(device)
 
-            # Test forward pass
             model.eval()
             with torch.no_grad():
                 logits = model(dummy_input_ids, dummy_attention_mask)
@@ -206,7 +227,6 @@ class PreTrainingValidator:
             logger.info("✅ Logits shape: {logits.shape}")
             logger.info("✅ Loss value: {loss.item():.6f}")
 
-            # Validate outputs
             if logits.shape != (batch_size, num_classes):
                 logger.error("❌ Wrong logits shape: {logits.shape}")
                 self.critical_issues.append("Wrong logits shape: {logits.shape}")
@@ -222,7 +242,6 @@ class PreTrainingValidator:
                 self.critical_issues.append("Inf in model outputs")
                 return False
 
-            # Test loss function
             if loss.item() <= 0:
                 logger.error("❌ CRITICAL: Loss is zero or negative: {loss.item()}")
                 self.critical_issues.append("Invalid loss value: {loss.item()}")
@@ -236,7 +255,7 @@ class PreTrainingValidator:
             self.validation_results["model_architecture"] = True
             return True
 
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ Model architecture validation failed: {e}")
             self.critical_issues.append("Model architecture error: {e}")
             self.validation_results["model_architecture"] = False
@@ -255,7 +274,6 @@ class PreTrainingValidator:
                 dev_mode=True,
             )
 
-            # Prepare data
             trainer.prepare_data(dev_mode=True)
             trainer.initialize_model()
 
@@ -264,18 +282,15 @@ class PreTrainingValidator:
             logger.info("✅ Scheduler: {type(trainer.scheduler).__name__}")
             logger.info("✅ Learning rate: {trainer.learning_rate}")
 
-            # Test optimizer
             if not isinstance(trainer.optimizer, AdamW):
                 logger.warning("⚠️  Optimizer is not AdamW")
                 self.warnings.append("Non-standard optimizer")
 
-            # Test scheduler
             if trainer.scheduler is None:
                 logger.error("❌ Scheduler is None!")
                 self.critical_issues.append("Missing scheduler")
                 return False
 
-            # Test learning rate
             if trainer.learning_rate <= 0:
                 logger.error("❌ Invalid learning rate: {trainer.learning_rate}")
                 self.critical_issues.append("Invalid learning rate: {trainer.learning_rate}")
@@ -285,22 +300,18 @@ class PreTrainingValidator:
                 logger.warning("⚠️  Learning rate might be too high: {trainer.learning_rate}")
                 self.warnings.append("High learning rate: {trainer.learning_rate}")
 
-            # Test one training step
             batch = next(iter(trainer.train_dataloader))
             input_ids = batch["input_ids"].to(trainer.device)
             attention_mask = batch["attention_mask"].to(trainer.device)
             labels = batch["labels"].to(trainer.device)
 
-            # Forward pass
             trainer.model.train()
             logits = trainer.model(input_ids, attention_mask)
             loss = trainer.loss_fn(logits, labels)
 
-            # Backward pass
             trainer.optimizer.zero_grad()
             loss.backward()
 
-            # Check gradients
             total_norm = 0
             param_count = 0
             for p in trainer.model.parameters():
@@ -321,7 +332,6 @@ class PreTrainingValidator:
                     logger.warning("⚠️  Very small gradient norm detected")
                     self.warnings.append("Small gradient norm: {total_norm}")
 
-            # Optimizer step
             trainer.optimizer.step()
             trainer.scheduler.step()
 
@@ -331,7 +341,7 @@ class PreTrainingValidator:
             self.validation_results["training_components"] = True
             return True
 
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ Training components validation failed: {e}")
             self.critical_issues.append("Training components error: {e}")
             self.validation_results["training_components"] = False
@@ -342,7 +352,6 @@ class PreTrainingValidator:
         logger.info("🔍 Validating file system...")
 
         try:
-            # Check output directories
             output_dirs = ["./models/emotion_detection", "./data/cache", "./logs"]
 
             for dir_path in output_dirs:
@@ -351,7 +360,6 @@ class PreTrainingValidator:
                     path.mkdir(parents=True, exist_ok=True)
                     logger.info("✅ Created directory: {dir_path}")
 
-                # Test write permissions
                 test_file = path / "test_write.tmp"
                 try:
                     test_file.write_text("test")
@@ -362,7 +370,6 @@ class PreTrainingValidator:
                     self.critical_issues.append("No write permission: {dir_path}")
                     return False
 
-            # Check available disk space
             total, used, free = shutil.disk_usage(".")
             free_gb = free / (1024**3)
 
@@ -375,7 +382,7 @@ class PreTrainingValidator:
             self.validation_results["file_system"] = True
             return True
 
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ File system validation failed: {e}")
             self.critical_issues.append("File system error: {e}")
             self.validation_results["file_system"] = False
@@ -406,7 +413,7 @@ class PreTrainingValidator:
                     logger.error("❌ {name} validation FAILED")
                 else:
                     logger.info("✅ {name} validation PASSED")
-            except Exception as _:
+            except Exception as e:
                 logger.error("❌ {name} validation ERROR: {e}")
                 self.critical_issues.append("{name} validation error: {e}")
                 all_passed = False
@@ -419,7 +426,6 @@ class PreTrainingValidator:
         logger.info("📋 PRE-TRAINING VALIDATION REPORT")
         logger.info("{'='*80}")
 
-        # Summary
         total_checks = len(self.validation_results)
         passed_checks = sum(self.validation_results.values())
 
@@ -428,19 +434,16 @@ class PreTrainingValidator:
         logger.info("   Passed: {passed_checks}")
         logger.info("   Failed: {total_checks - passed_checks}")
 
-        # Critical issues
         if self.critical_issues:
             logger.error("\n❌ CRITICAL ISSUES ({len(self.critical_issues)}):")
             for i, issue in enumerate(self.critical_issues, 1):
                 logger.error("   {i}. {issue}")
 
-        # Warnings
         if self.warnings:
             logger.warning("\n⚠️  WARNINGS ({len(self.warnings)}):")
             for i, warning in enumerate(self.warnings, 1):
                 logger.warning("   {i}. {warning}")
 
-        # Final recommendation
         if self.critical_issues:
             logger.error(
                 "\n🚫 TRAINING BLOCKED: {len(self.critical_issues)} critical issues found!"
@@ -458,13 +461,10 @@ def main():
     """Main validation function."""
     validator = PreTrainingValidator()
 
-    # Run all validations
     validator.run_all_validations()
 
-    # Generate report
     validator.generate_report()
 
-    # Exit with appropriate code
     if validator.critical_issues:
         logger.error("❌ Validation failed - training blocked!")
         return False

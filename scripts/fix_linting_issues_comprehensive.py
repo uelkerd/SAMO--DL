@@ -1,25 +1,26 @@
-#!/usr/bin/env python3
-import re
-import shutil
-import logging
-from pathlib import Path
-import ast
+                    # Only remove if it's clearly unused and not necessary
+                    # Restore backup
+                # Check if this import is actually used
+                # Keep all imports for now - we'll let ruff handle unused imports
+                # Validate syntax
+            # Add logging import if not present
+            # Apply fixes
+            # Create backup
+            # Only write if content changed
+            # Read content
         # Find all import lines
-        # Reconstruct with imports at top
         # Fix unused exception variables
         # Fix unused loop variables
-                # Check if this import is actually used
-                    # Only remove if it's clearly unused and not necessary
-        # Simple check - can be improved
-            # Add logging import if not present
+        # Reconstruct with imports at top
         # Replace print statements
-            # Create backup
-            # Read content
-            # Apply fixes
-            # Only write if content changed
-                # Validate syntax
-                    # Restore backup
+        # Simple check - can be improved
     # Directories to process
+#!/usr/bin/env python3
+from pathlib import Path
+import ast
+import logging
+import re
+import shutil
 """
 Comprehensive Linting Fix Script for SAMO Deep Learning.
 
@@ -87,7 +88,6 @@ class ComprehensiveLintingFixer:
         for line in lines:
             stripped = line.strip()
             if stripped.startswith('import ') or stripped.startswith('from '):
-                # Keep all imports for now - we'll let ruff handle unused imports
                 filtered_lines.append(line)
             else:
                 filtered_lines.append(line)
@@ -130,8 +130,8 @@ class ComprehensiveLintingFixer:
 
     def fix_unused_variables(self, content: str) -> str:
         """Fix unused variables by replacing with underscore."""
-        content = re.sub(r'except Exception as _:', 'except Exception as _:', content)
-        content = re.sub(r'except Exception as _:', 'except Exception as _:', content)
+        content = re.sub(r'except Exception as e:', 'except Exception as e:', content)
+        content = re.sub(r'except Exception as e:', 'except Exception as e:', content)
 
         content = re.sub(r'for (\w+) in (\w+):', r'for _\1 in \2:', content)
 
@@ -177,7 +177,7 @@ class ComprehensiveLintingFixer:
         if 'print(' in content and 'import logging' not in content:
             lines = content.split('\n')
             import_added = False
-            for i, line in enumerate(lines):
+            for _i, line in enumerate(lines):
                 if line.strip().startswith('import ') or line.strip().startswith('from '):
                     if not import_added:
                         lines.insert(i, 'import logging')

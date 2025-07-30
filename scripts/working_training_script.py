@@ -1,16 +1,25 @@
-import sys
-import traceback
-
+                # Backward pass
+                # Check for 0.0000 loss
+                # Create dummy batch
+                # Forward pass
+        # Step 1: Create model (this worked in validation)
+        # Step 2: Create optimizer with reduced learning rate
+        # Step 3: Test forward pass (this worked in validation)
+        # Step 4: Simple training loop with dummy data
+        from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+        import traceback
+# Add src to path
+# Configure logging
 #!/usr/bin/env python3
+from pathlib import Path
 import logging
+import sys
 import torch
 import torch.nn as nn
-from pathlib import Path
+import traceback
 
-# Add src to path
-        from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
-        import traceback
+
 
 """
 Working Training Script based on the successful local validation approach.
@@ -18,7 +27,6 @@ Working Training Script based on the successful local validation approach.
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -30,7 +38,6 @@ def main():
     logger.info("Using the approach that worked in local validation")
 
     try:
-        # Step 1: Create model (this worked in validation)
         logger.info("🔧 Step 1: Creating model...")
         model, loss_fn = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
@@ -40,7 +47,6 @@ def main():
 
         logger.info("✅ Model created: {model.count_parameters():,} parameters")
 
-        # Step 2: Create optimizer with reduced learning rate
         logger.info("🔧 Step 2: Creating optimizer...")
         optimizer = torch.optim.AdamW(
             model.parameters(),
@@ -51,7 +57,6 @@ def main():
 
         logger.info("✅ Optimizer created with lr=2e-6")
 
-        # Step 3: Test forward pass (this worked in validation)
         logger.info("🔧 Step 3: Testing forward pass...")
         batch_size = 2
         seq_length = 64
@@ -69,7 +74,6 @@ def main():
 
         logger.info("✅ Forward pass successful: Loss = {loss.item():.6f}")
 
-        # Step 4: Simple training loop with dummy data
         logger.info("🔧 Step 4: Starting simple training...")
         model.train()
 
@@ -78,23 +82,19 @@ def main():
             num_batches = 10  # Small number for testing
 
             for batch in range(num_batches):
-                # Create dummy batch
                 input_ids = torch.randint(0, 1000, (batch_size, seq_length))
                 attention_mask = torch.ones(batch_size, seq_length)
                 labels = torch.randint(0, 2, (batch_size, num_classes)).float()
                 labels[:, 0] = 1.0  # Ensure some positive labels
 
-                # Forward pass
                 optimizer.zero_grad()
                 logits = model(input_ids, attention_mask)
                 loss = loss_fn(logits, labels)
 
-                # Check for 0.0000 loss
                 if loss.item() <= 0:
                     logger.error("❌ CRITICAL: Loss is zero at batch {batch}!")
                     return False
 
-                # Backward pass
                 loss.backward()
                 optimizer.step()
 
@@ -112,7 +112,7 @@ def main():
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Training error: {e}")
         traceback.print_exc()
         return False

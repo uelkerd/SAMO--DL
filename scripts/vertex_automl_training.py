@@ -1,30 +1,30 @@
-import json
-import sys
-#!/usr/bin/env python3
-import logging
-import time
-from datetime import datetime
-from google.cloud import aiplatform
-from google.cloud import storage
-# Configure logging
-        # Initialize Vertex AI
-        # Download first few lines to check structure
-        # Find the target column (should be the emotion labels column)
-        # Look for emotion-related columns
             # If no emotion column found, use the last column (typically labels)
-        # Create dataset
-        # Get the correct target column
-        # Configure training job
-        # Start training
-        # Get model evaluation
+            # Save results to GCS
             # Step 1: Load metadata
             # Step 2: Create dataset
             # Step 3: Train model
             # Step 4: Monitor training
             # Step 5: Deploy model
             # Step 6: Save results
-            # Save results to GCS
+        # Configure training job
+        # Create dataset
+        # Download first few lines to check structure
+        # Find the target column (should be the emotion labels column)
+        # Get model evaluation
+        # Get the correct target column
+        # Initialize Vertex AI
+        # Look for emotion-related columns
+        # Start training
     # Initialize and run training
+# Configure logging
+#!/usr/bin/env python3
+from datetime import datetime
+from google.cloud import aiplatform
+from google.cloud import storage
+import json
+import logging
+import sys
+import time
 
 
 
@@ -72,7 +72,7 @@ class SAMOVertexAutoMLTraining:
         columns = content[0].split(",")
         target_column = None
 
-        for ___col in columns:
+        for col in columns:
             if "emotion" in col.lower() or "label" in col.lower():
                 target_column = col
                 break
@@ -215,7 +215,7 @@ class SAMOVertexAutoMLTraining:
 
             return results
 
-        except Exception as _:
+        except Exception as e:
             logger.error("Training pipeline failed: {e}")
             return None
 

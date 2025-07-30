@@ -1,14 +1,14 @@
-import logging
-import sys
-#!/usr/bin/env python3
-from pathlib import Path
-from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+        # Quick evaluation
+        # Update temperature
     # Initialize trainer with dev_mode
     # Load model
     # Test temperatures
-        # Update temperature
-        # Quick evaluation
+#!/usr/bin/env python3
+from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+from pathlib import Path
+import logging
+import sys
 
 
 
@@ -40,7 +40,7 @@ def quick_temperature_test():
     logging.info("\n🎯 Testing temperatures with threshold {threshold}")
     logging.info("-" * 50)
 
-    for ___temp in temperatures:
+    for temp in temperatures:
         logging.info("\n🌡️ Temperature: {temp}")
 
         trainer.model.set_temperature(temp)

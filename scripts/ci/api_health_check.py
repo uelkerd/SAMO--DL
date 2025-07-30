@@ -1,18 +1,27 @@
-import sys
-
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
-
-# Add src to path
-        import api_rate_limiter
-        from pydantic import BaseModel, ValidationError
+        # Test FastAPI imports
+        # Test Pydantic imports
+        # Test basic API imports without triggering deep learning models
+        # Test basic Pydantic model creation
+        # Test invalid request - empty text
+        # Test invalid request - threshold out of range
+        # Test rate limiter functionality
+        # Test valid request
+        from api_rate_limiter import RateLimitCache, RateLimitEntry
         from fastapi import FastAPI
         from pydantic import BaseModel
-
-        from api_rate_limiter import RateLimitCache, RateLimitEntry
-
+        from pydantic import BaseModel, ValidationError
         from pydantic import BaseModel, ValidationError, Field
+        import api_rate_limiter
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+import logging
+import sys
+
+
+
+
 
 
 """
@@ -24,7 +33,6 @@ and can be imported without errors.
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -34,19 +42,16 @@ def test_api_imports():
     try:
         logger.info("🔍 Testing API imports...")
 
-        # Test basic API imports without triggering deep learning models
         logger.info("✅ API rate limiter import successful")
 
-        # Test Pydantic imports
         logger.info("✅ Pydantic imports successful")
 
-        # Test FastAPI imports
         logger.info("✅ FastAPI imports successful")
 
         logger.info("✅ All API imports successful")
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ API import test failed: {e}")
         return False
 
@@ -56,7 +61,6 @@ def test_api_models():
     try:
         logger.info("🤖 Testing API model instantiation...")
 
-        # Test basic Pydantic model creation
         class TestRequest(BaseModel):
             text: str
             threshold: float = 0.2
@@ -64,14 +68,13 @@ def test_api_models():
         test_request = TestRequest(text="I feel happy and excited today!")
         logger.info("✅ Test request created: {test_request.text[:30]}...")
 
-        # Test rate limiter functionality
         cache = RateLimitCache()
         entry = cache.get("test_client")
         logger.info("✅ Rate limiter cache created successfully")
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ API model test failed: {e}")
         return False
 
@@ -85,7 +88,6 @@ def test_api_validation():
             text: str = Field(..., min_length=1, description="Text cannot be empty")
             threshold: float = Field(0.2, ge=0.0, le=1.0, description="Threshold between 0 and 1")
 
-        # Test invalid request - empty text
         try:
             TestRequest(text="")  # Invalid: empty text
             logger.error("❌ Validation should have failed for invalid request")
@@ -93,7 +95,6 @@ def test_api_validation():
         except ValidationError:
             logger.info("✅ Validation correctly rejected invalid request")
 
-        # Test invalid request - threshold out of range
         try:
             TestRequest(text="Valid text", threshold=1.5)  # Invalid: threshold > 1
             logger.error("❌ Validation should have failed for invalid threshold")
@@ -101,13 +102,12 @@ def test_api_validation():
         except ValidationError:
             logger.info("✅ Validation correctly rejected invalid threshold")
 
-        # Test valid request
         TestRequest(text="This is a valid test text.", threshold=0.3)
         logger.info("✅ Valid request accepted")
 
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ API validation test failed: {e}")
         return False
 

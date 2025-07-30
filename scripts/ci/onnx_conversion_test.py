@@ -1,17 +1,31 @@
+                # Clean up
+                # Load and test with ONNX Runtime
+                # Save model
+                # Test inference
+            # Create a simple ONNX model manually to test basic functionality
+            # Create a simple model with identity operation
+            # Create graph
+            # Create model
+            # Create temporary file
+            # Define input
+            # Define output
+            # Test ONNX Runtime with simple model
+            from onnx import helper
+            import onnx
+            import onnxruntime as ort
+            import tempfile
+        # Check if ONNX Runtime is available
+        # Check if ONNX is available
+        # Test basic ONNX functionality without complex imports
+# Configure logging
+#!/usr/bin/env python3
+import logging
 import numpy as np
 import os
 import sys
 
-#!/usr/bin/env python3
-import logging
 
-# Configure logging
-            import onnx
-            import onnxruntime as ort
-            from onnx import helper
 
-            # Define input
-            import tempfile
 
 """
 ONNX Conversion Test for CI/CD Pipeline.
@@ -29,7 +43,6 @@ def test_onnx_dependencies():
     try:
         logger.info("🔄 Testing ONNX dependencies...")
 
-        # Check if ONNX is available
         try:
             logger.info("✅ ONNX version: {onnx.__version__}")
         except ImportError as _:
@@ -37,7 +50,6 @@ def test_onnx_dependencies():
             logger.info("⏭️ Skipping ONNX test - ONNX not installed")
             return True  # Skip test but don't fail
 
-        # Check if ONNX Runtime is available
         try:
             logger.info("✅ ONNX Runtime version: {ort.__version__}")
         except ImportError as _:
@@ -45,31 +57,26 @@ def test_onnx_dependencies():
             logger.info("⏭️ Skipping ONNX Runtime test - not installed")
             return True  # Skip test but don't fail
 
-        # Test basic ONNX functionality without complex imports
         logger.info("Testing basic ONNX functionality...")
 
         try:
 
-            # Create a simple ONNX model manually to test basic functionality
             input_shape = [1, 768]
             input_tensor = helper.make_tensor_value_info(
                 'input_ids', onnx.TensorProto.FLOAT, input_shape
             )
 
-            # Define output
             output_shape = [1, 28]
             output_tensor = helper.make_tensor_value_info(
                 'logits', onnx.TensorProto.FLOAT, output_shape
             )
 
-            # Create a simple model with identity operation
             identity_node = helper.make_node(
                 'Identity',
                 inputs=['input_ids'],
                 outputs=['logits']
             )
 
-            # Create graph
             graph = helper.make_graph(
                 [identity_node],
                 'test-model',
@@ -77,39 +84,32 @@ def test_onnx_dependencies():
                 [output_tensor]
             )
 
-            # Create model
             onnx_model = helper.make_model(graph)
             logger.info("✅ Basic ONNX model creation successful")
 
-            # Test ONNX Runtime with simple model
             logger.info("Testing ONNX Runtime with simple model...")
 
-            # Create temporary file
             with tempfile.NamedTemporaryFile(suffix=".onnx", delete=False) as temp_file:
                 temp_path = temp_file.name
 
             try:
-                # Save model
                 onnx.save(onnx_model, temp_path)
                 logger.info("✅ ONNX model saved to {temp_path}")
 
-                # Load and test with ONNX Runtime
                 session = ort.InferenceSession(temp_path)
                 logger.info("✅ ONNX Runtime session created")
 
-                # Test inference
                 test_input = np.random.randn(1, 768).astype(np.float32)
                 outputs = session.run(None, {'input_ids': test_input})
                 logger.info("✅ ONNX Runtime inference successful, output shape: {outputs[0].shape}")
 
             finally:
-                # Clean up
                 try:
                     os.unlink(temp_path)
                 except:
                     pass
 
-        except Exception as _:
+        except Exception as e:
             logger.warning("⚠️ Basic ONNX functionality test failed: {e}")
             logger.info("⏭️ Skipping complex ONNX conversion test")
             return True  # Skip test but don't fail
@@ -117,7 +117,7 @@ def test_onnx_dependencies():
         logger.info("✅ ONNX dependencies test passed")
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ ONNX dependencies test failed: {e}")
         return False
 

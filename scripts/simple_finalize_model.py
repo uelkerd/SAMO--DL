@@ -1,12 +1,21 @@
+    # Check if checkpoint exists
+    # Copy checkpoint to final location
+    # Create final model
+    # Create model metadata
+    # Create output directory
+    # Save metadata
+    # Verify requirements
+    import shutil
+# Add src to path
+# Configure logging
+# Constants
+#!/usr/bin/env python3
+from pathlib import Path
 import json
+import logging
 import sys
 
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
 
-# Add src to path
-    import shutil
 
 
 """
@@ -21,11 +30,9 @@ Usage:
 
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
-# Constants
 DEFAULT_OUTPUT_MODEL = "models/checkpoints/bert_emotion_classifier_final.pt"
 CHECKPOINT_PATH = "test_checkpoints/best_model.pt"
 OPTIMAL_TEMPERATURE = 1.0
@@ -44,21 +51,17 @@ def create_final_model(output_model: str = DEFAULT_OUTPUT_MODEL) -> dict:
     """
     logger.info("Creating final emotion detection model...")
 
-    # Check if checkpoint exists
     checkpoint_path = Path(CHECKPOINT_PATH)
     if not checkpoint_path.exists():
         logger.error("Checkpoint not found at {checkpoint_path}")
         logger.info("Please run training first to create a checkpoint")
         return {"error": "Checkpoint not found"}
 
-    # Create output directory
     output_path = Path(output_model)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Copy checkpoint to final location
     shutil.copy2(checkpoint_path, output_path)
 
-    # Create model metadata
     model_info = {
         "model_path": str(output_path),
         "checkpoint_source": str(checkpoint_path),
@@ -76,7 +79,6 @@ def create_final_model(output_model: str = DEFAULT_OUTPUT_MODEL) -> dict:
         ],
     }
 
-    # Save metadata
     metadata_path = output_path.with_suffix(".metadata.json")
     with open(metadata_path, "w") as f:
         json.dump(model_info, f, indent=2)
@@ -119,12 +121,10 @@ def main():
     """Main function."""
     logger.info("🚀 Starting Simple Model Finalization...")
 
-    # Verify requirements
     if not verify_model_requirements():
         logger.error("❌ Requirements not met. Exiting.")
         sys.exit(1)
 
-    # Create final model
     try:
         model_info = create_final_model()
 
@@ -136,7 +136,7 @@ def main():
         logger.info("📁 Model saved to: {model_info['model_path']}")
         logger.info("📊 Target F1 Score: {TARGET_F1_SCORE}")
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Error during model finalization: {e}")
         sys.exit(1)
 

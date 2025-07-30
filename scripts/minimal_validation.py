@@ -1,24 +1,27 @@
+        # Add src to path
+        # Create model
+        # Test with dummy data
+        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+        from torch import nn
+        import sklearn
+        import torch
+        import torch
+        import torch.nn.functional as F
+        import transformers
+    # Summary
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+import logging
 import numpy as np
 import sys
 
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
 
-# Configure logging
-        import torch
 
-        import transformers
 
-        import sklearn
 
-        import torch
-        from torch import nn
-        import torch.nn.functional as F
 
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
-        # Create model
 
 """
 Minimal Validation for Core Components
@@ -72,7 +75,6 @@ def test_focal_loss():
                 focal_loss = alpha_weight * focal_weight * bce_loss
                 return focal_loss.mean()
 
-        # Test with dummy data
         inputs = torch.randn(4, 28)
         targets = torch.randint(0, 2, (4, 28)).float()
 
@@ -83,7 +85,7 @@ def test_focal_loss():
         logger.info("✅ Focal Loss: PASSED")
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Focal Loss: FAILED - {e}")
         return False
 
@@ -122,7 +124,6 @@ def test_model_creation():
     logger.info("🤖 Testing Model Creation...")
 
     try:
-        # Add src to path
         sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
         model, loss_fn = create_bert_emotion_classifier(
@@ -137,7 +138,7 @@ def test_model_creation():
         logger.info("✅ Model Creation: PASSED")
         return True
 
-    except Exception as _:
+    except Exception as e:
         logger.error("❌ Model Creation: FAILED - {e}")
         return False
 
@@ -160,11 +161,10 @@ def main():
         logger.info("\n📋 Running {name}...")
         try:
             results[name] = validation_func()
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ {name} failed with exception: {e}")
             results[name] = False
 
-    # Summary
     logger.info("\n📊 Validation Results:")
     logger.info("=" * 30)
 

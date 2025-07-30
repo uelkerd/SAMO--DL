@@ -1,14 +1,30 @@
-import numpy as np
-
+                # Calculate metrics
+            # Test different thresholds
+        # Get predictions
+        # Tokenize
+        from transformers import AutoModel, AutoTokenizer
+    # All ones predictions
+    # All zeros predictions
+    # Create synthetic data
+    # Create test data
+    # Diagnose predictions
+    # GoEmotions emotion names (28 classes)
+    # Load trained model
+    # Perfect predictions
+    # Random predictions
+    # Setup device
+    # Test evaluation logic first
+    # Test examples with proper emotion labels
+# Configure logging
 #!/usr/bin/env python3
-import logging
-import torch
-from torch import nn
 from pathlib import Path
 from sklearn.metrics import f1_score, precision_score, recall_score
+from torch import nn
+import logging
+import numpy as np
+import torch
 
-# Configure logging
-        from transformers import AutoModel, AutoTokenizer
+
 
 
 """
@@ -56,7 +72,6 @@ def create_test_data():
     """Create test data with proper emotion labels."""
     logger.info("📊 Creating test data with proper emotion labels...")
 
-    # GoEmotions emotion names (28 classes)
     emotion_names = [
         "admiration",
         "amusement",
@@ -88,7 +103,6 @@ def create_test_data():
         "neutral",
     ]
 
-    # Test examples with proper emotion labels
     test_data = [
         {
             "text": "I am extremely happy today!",
@@ -365,7 +379,7 @@ def diagnose_predictions(model, test_data, device):
 
     model.eval()
 
-    for i, item in enumerate(test_data):
+    for _i, item in enumerate(test_data):
         text = item["text"]
         true_labels = np.array(item["labels"])
 
@@ -374,12 +388,10 @@ def diagnose_predictions(model, test_data, device):
         logger.info("   Sum of labels: {np.sum(true_labels)}")
         logger.info("   Non-zero indices: {np.where(true_labels > 0)[0]}")
 
-        # Tokenize
         encoding = model.tokenizer(
             text, truncation=True, padding="max_length", max_length=256, return_tensors="pt"
         )
 
-        # Get predictions
         with torch.no_grad():
             input_ids = encoding["input_ids"].to(device)
             attention_mask = encoding["attention_mask"].to(device)
@@ -388,7 +400,6 @@ def diagnose_predictions(model, test_data, device):
             raw_logits = outputs.cpu().numpy().squeeze()
             probabilities = torch.sigmoid(outputs).cpu().numpy().squeeze()
 
-            # Test different thresholds
             for threshold in [0.1, 0.3, 0.5, 0.7]:
                 predictions = (probabilities > threshold).astype(float)
 
@@ -399,7 +410,6 @@ def diagnose_predictions(model, test_data, device):
                 logger.info("     Sum of predictions: {np.sum(predictions)}")
                 logger.info("     Non-zero indices: {np.where(predictions > 0)[0]}")
 
-                # Calculate metrics
                 f1 = f1_score(true_labels, predictions, average="macro", zero_division=0)
                 precision = precision_score(
                     true_labels, predictions, average="macro", zero_division=0
@@ -413,7 +423,6 @@ def test_evaluation_logic():
     """Test the evaluation logic with synthetic data."""
     logger.info("🧮 Testing evaluation logic with synthetic data...")
 
-    # Create synthetic data
     true_labels = np.array(
         [
             [
@@ -509,17 +518,13 @@ def test_evaluation_logic():
         ]
     )
 
-    # Perfect predictions
     perfect_predictions = true_labels.copy()
 
-    # Random predictions
     rng = np.random.default_rng()
     random_predictions = rng.integers(0, 2, size=true_labels.shape)
 
-    # All zeros predictions
     zero_predictions = np.zeros_like(true_labels)
 
-    # All ones predictions
     ones_predictions = np.ones_like(true_labels)
 
     test_cases = [
@@ -546,15 +551,12 @@ def main():
     """Main diagnostic function."""
     logger.info("🔍 Starting F1 Score Issue Diagnosis")
 
-    # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Device: {device}")
 
-    # Test evaluation logic first
     logger.info("=" * 60)
     test_evaluation_logic()
 
-    # Load trained model
     logger.info("=" * 60)
     model_path = Path("models/emotion_detection/full_scale_focal_loss_model.pt")
     if not model_path.exists():
@@ -564,12 +566,10 @@ def main():
     model = load_trained_model(model_path)
     model = model.to(device)
 
-    # Create test data
     test_data, emotion_names = create_test_data()
     logger.info("✅ Test data created with {len(test_data)} examples")
     logger.info("✅ Emotion names: {emotion_names}")
 
-    # Diagnose predictions
     logger.info("=" * 60)
     diagnose_predictions(model, test_data, device)
 

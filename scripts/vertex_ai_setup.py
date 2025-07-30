@@ -1,31 +1,48 @@
+            # Create custom job
+            # Create hyperparameter tuning job
+            # Create validation job
+            # Create validation job
+            # Hyperparameter tuning configuration
+            # Import Vertex AI
+            # Initialize Vertex AI
+            # Install Vertex AI SDK
+            # Model monitoring configuration
+            # Pipeline configuration
+            # Training job configuration
+            from google.cloud import aiplatform
+            from google.cloud import aiplatform
+            from google.cloud import aiplatform
+            from google.cloud import aiplatform
+            from google.cloud import aiplatform
+            from google.cloud import aiplatform
+            from google.cloud import storage
+            import subprocess
+        # Step 1: Environment setup
+        # Step 2: Create validation job
+        # Step 3: Create custom training job
+        # Step 4: Create hyperparameter tuning
+        # Step 5: Create monitoring
+        # Step 6: Create automated pipeline
+    # Create Vertex AI setup
+    # Get project ID from environment or user input
+    # Setup complete infrastructure
+    # Summary
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+from typing import Dict, Any, Optional
+import logging
 import os
 import sys
 
-#!/usr/bin/env python3
-import logging
-from pathlib import Path
-from typing import Dict, Any, Optional
 
-# Add src to path
-            import subprocess
-            from google.cloud import aiplatform
-            from google.cloud import storage
 
-            from google.cloud import aiplatform
 
-            # Training job configuration
-            from google.cloud import aiplatform
 
-            # Hyperparameter tuning configuration
-            from google.cloud import aiplatform
 
-            # Model monitoring configuration
-            from google.cloud import aiplatform
 
-            # Pipeline configuration
-            from google.cloud import aiplatform
 
-            # Create validation job
 
 """
 Vertex AI Setup for SAMO Deep Learning Project.
@@ -36,7 +53,6 @@ and provide managed ML training, deployment, and monitoring.
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -62,16 +78,13 @@ class VertexAISetup:
         logger.info("🔧 Setting up Vertex AI environment...")
 
         try:
-            # Install Vertex AI SDK
             subprocess.run([
                 sys.executable, "-m", "pip", "install",
                 "google-cloud-aiplatform", "google-cloud-storage"
             ], check=True)
 
-            # Import Vertex AI
             logger.info("✅ Vertex AI SDK installed successfully")
 
-            # Initialize Vertex AI
             aiplatform.init(
                 project=self.project_id,
                 location=self.region,
@@ -82,7 +95,7 @@ class VertexAISetup:
 
             return True
 
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ Vertex AI setup failed: {e}")
             return False
 
@@ -120,7 +133,6 @@ class VertexAISetup:
                 "enable_dashboard_access": True,
             }
 
-            # Create custom job
             job = aiplatform.CustomTrainingJob(
                 display_name=job_config["display_name"],
                 container_uri=job_config["container_uri"],
@@ -145,7 +157,7 @@ class VertexAISetup:
 
             return {"job": job, "config": job_config}
 
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ Custom training job creation failed: {e}")
             return {}
 
@@ -195,7 +207,6 @@ class VertexAISetup:
                 }
             }
 
-            # Create hyperparameter tuning job
             tuning_job = aiplatform.HyperparameterTuningJob(
                 display_name=tuning_config["display_name"],
                 container_uri=tuning_config["container_uri"],
@@ -217,7 +228,7 @@ class VertexAISetup:
 
             return {"tuning_job": tuning_job, "config": tuning_config}
 
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ Hyperparameter tuning job creation failed: {e}")
             return {}
 
@@ -248,7 +259,7 @@ class VertexAISetup:
 
             return {"config": monitoring_config}
 
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ Model monitoring setup failed: {e}")
             return {}
 
@@ -281,7 +292,7 @@ class VertexAISetup:
 
             return {"config": pipeline_config}
 
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ Automated pipeline setup failed: {e}")
             return {}
 
@@ -306,7 +317,6 @@ class VertexAISetup:
                 "replica_count": 1,
             }
 
-            # Create validation job
             validation_job = aiplatform.CustomTrainingJob(
                 display_name=validation_config["display_name"],
                 container_uri=validation_config["container_uri"],
@@ -321,7 +331,7 @@ class VertexAISetup:
 
             return True
 
-        except Exception as _:
+        except Exception as e:
             logger.error("❌ Validation job creation failed: {e}")
             return False
 
@@ -331,32 +341,26 @@ class VertexAISetup:
 
         results = {}
 
-        # Step 1: Environment setup
         if not self.setup_environment():
             logger.error("❌ Environment setup failed")
             return results
 
-        # Step 2: Create validation job
         logger.info("\n📋 Step 1: Creating validation job...")
         validation_success = self.run_validation_on_vertex()
         results["validation"] = validation_success
 
-        # Step 3: Create custom training job
         logger.info("\n📋 Step 2: Creating custom training job...")
         training_result = self.create_custom_training_job()
         results["training"] = training_result
 
-        # Step 4: Create hyperparameter tuning
         logger.info("\n📋 Step 3: Creating hyperparameter tuning...")
         tuning_result = self.create_hyperparameter_tuning_job()
         results["tuning"] = tuning_result
 
-        # Step 5: Create monitoring
         logger.info("\n📋 Step 4: Creating model monitoring...")
         monitoring_result = self.create_model_monitoring()
         results["monitoring"] = monitoring_result
 
-        # Step 6: Create automated pipeline
         logger.info("\n📋 Step 5: Creating automated pipeline...")
         pipeline_result = self.create_automated_pipeline()
         results["pipeline"] = pipeline_result
@@ -369,7 +373,6 @@ def main():
     logger.info("🚀 SAMO Deep Learning - Vertex AI Setup")
     logger.info("=" * 50)
 
-    # Get project ID from environment or user input
     project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
     if not project_id:
         project_id = input("Enter your GCP Project ID: ").strip()
@@ -378,13 +381,10 @@ def main():
         logger.error("❌ Project ID is required")
         sys.exit(1)
 
-    # Create Vertex AI setup
     vertex_setup = VertexAISetup(project_id=project_id)
 
-    # Setup complete infrastructure
     results = vertex_setup.setup_complete_infrastructure()
 
-    # Summary
     logger.info("\n{'='*50}")
     logger.info("📊 VERTEX AI SETUP SUMMARY")
     logger.info("{'='*50}")

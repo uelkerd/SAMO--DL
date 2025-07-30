@@ -1,44 +1,44 @@
-import numpy as np
-# G004: Logging f-strings temporarily allowed for development
-import logging
-import re
-import nltk
-import pandas as pd
-from nltk.sentiment import SentimentIntensityAnalyzer
-from sklearn.decomposition import TruncatedSVD
-from sklearn.feature_extraction.text import TfidfVectorizer
-# Configure logging
+            # Get the actual words
+            # Get top word indices for this topic
+        # Add topic scores as features
+        # Apply SVD to reduce dimensions and extract topics
+        # Apply sentiment analyzer to get scores
+        # Assign dominant topic to each document
+        # Average word length
+        # Character count
+        # Convert topics to DataFrame for easier inspection
+        # Create TF-IDF vectorizer
+        # Create sentiment category based on compound score
         # Ensure NLTK resources are downloaded
         # Ensure text column is string type
-        # Character count
-        # Word count
-        # Average word length
-        # Sentence count
-        # Words per sentence
-        # Unique word count
-        # Lexical diversity (unique words / total words)
         # Ensure text column is string type
-        # Apply sentiment analyzer to get scores
-        # Extract sentiment components into separate columns
-        # Create sentiment category based on compound score
         # Ensure text column is string type
-        # Create TF-IDF vectorizer
-        # Transform texts to TF-IDF matrix
-        # Get feature names (words)
-        # Apply SVD to reduce dimensions and extract topics
-        # Add topic scores as features
-        # Get top words for each topic
-            # Get top word indices for this topic
-            # Get the actual words
-        # Convert topics to DataFrame for easier inspection
-        # Assign dominant topic to each document
-        # Try to ensure timestamp column is datetime type
-        # Extract basic time components
-        # Time of day features
         # Extract basic text features
+        # Extract basic time components
+        # Extract sentiment components into separate columns
         # Extract sentiment features
         # Extract time features
         # Extract topic features if requested
+        # Get feature names (words)
+        # Get top words for each topic
+        # Lexical diversity (unique words / total words)
+        # Sentence count
+        # Time of day features
+        # Transform texts to TF-IDF matrix
+        # Try to ensure timestamp column is datetime type
+        # Unique word count
+        # Word count
+        # Words per sentence
+# Configure logging
+# G004: Logging f-strings temporarily allowed for development
+from nltk.sentiment import SentimentIntensityAnalyzer
+from sklearn.decomposition import TruncatedSVD
+from sklearn.feature_extraction.text import TfidfVectorizer
+import logging
+import nltk
+import numpy as np
+import pandas as pd
+import re
 
 
 
