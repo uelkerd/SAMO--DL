@@ -18,8 +18,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Test imports
-from api_rate_limiter import RateLimitCache, RateLimitEntry
-from fastapi import FastAPI
+from api_rate_limiter import RateLimitCache
 from pydantic import BaseModel, ValidationError, Field
 
 
@@ -38,7 +37,7 @@ def test_api_imports():
         return True
 
     except Exception as e:
-        logger.error("❌ API import test failed: {e}")
+        logger.error(f"❌ API import test failed: {e}")
         return False
 
 
@@ -52,16 +51,16 @@ def test_api_models():
             threshold: float = 0.2
 
         test_request = TestRequest(text="I feel happy and excited today!")
-        logger.info("✅ Test request created: {test_request.text[:30]}...")
+        logger.info(f"✅ Test request created: {test_request.text[:30]}...")
 
         cache = RateLimitCache()
-        entry = cache.get("test_client")
+        cache.get("test_client")
         logger.info("✅ Rate limiter cache created successfully")
 
         return True
 
     except Exception as e:
-        logger.error("❌ API model test failed: {e}")
+        logger.error(f"❌ API model test failed: {e}")
         return False
 
 
@@ -94,7 +93,7 @@ def test_api_validation():
         return True
 
     except Exception as e:
-        logger.error("❌ API validation test failed: {e}")
+        logger.error(f"❌ API validation test failed: {e}")
         return False
 
 
@@ -111,20 +110,20 @@ def main():
     passed = 0
     total = len(tests)
 
-    for test_name, test_func in tests:
-        logger.info("\n{'='*50}")
-        logger.info("Running: {test_name}")
-        logger.info("{'='*50}")
+    for _test_name, test_func in tests:
+        logger.info(f"\n{'='*50}")
+        logger.info(f"Running: {_test_name}")
+        logger.info(f"{'='*50}")
 
         if test_func():
             passed += 1
-            logger.info("✅ {test_name}: PASSED")
+            logger.info(f"✅ {_test_name}: PASSED")
         else:
-            logger.error("❌ {test_name}: FAILED")
+            logger.error(f"❌ {_test_name}: FAILED")
 
-    logger.info("\n{'='*50}")
-    logger.info("API Health Check Results: {passed}/{total} tests passed")
-    logger.info("{'='*50}")
+    logger.info(f"\n{'='*50}")
+    logger.info(f"API Health Check Results: {passed}/{total} tests passed")
+    logger.info(f"{'='*50}")
 
     if passed < total:
         logger.error("💥 Some API health checks failed!")
