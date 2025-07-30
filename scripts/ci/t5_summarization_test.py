@@ -1,3 +1,5 @@
+import sys
+
 #!/usr/bin/env python3
 """
 T5 Summarization Model Test for CI/CD Pipeline.

@@ -1,3 +1,5 @@
+import sys
+
 #!/usr/bin/env python3
 """
 Basic Environment Test Script

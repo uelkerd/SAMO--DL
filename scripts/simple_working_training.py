@@ -1,3 +1,7 @@
+import os
+import sys
+import traceback
+
 #!/usr/bin/env python3
 """
 Simple Working Training Script - FIXES ALL ISSUES
@@ -104,7 +108,7 @@ def train_simple_model():
         training_history = []
 
         for epoch in range(2):  # Quick 2 epochs
-            logger.info(f"\nEpoch {epoch + 1}/2")
+            logger.info("\nEpoch {epoch + 1}/2")
 
             # Training phase
             model.train()

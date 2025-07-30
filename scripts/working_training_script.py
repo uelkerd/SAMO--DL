@@ -1,3 +1,6 @@
+import sys
+import traceback
+
 #!/usr/bin/env python3
 """
 Working Training Script based on the successful local validation approach.

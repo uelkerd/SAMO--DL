@@ -1,3 +1,5 @@
+import json
+
 #!/usr/bin/env python3
 """
 Create a test dataset with emotion labels for Vertex AI

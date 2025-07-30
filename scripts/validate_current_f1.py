@@ -1,3 +1,5 @@
+import sys
+
 #!/usr/bin/env python3
 """
 Validate Current F1 Score

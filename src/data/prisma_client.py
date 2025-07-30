@@ -1,3 +1,5 @@
+import json
+
 """Prisma client utility for the SAMO-DL application.
 
 This module provides functions to interact with the Prisma client via subprocess calls.

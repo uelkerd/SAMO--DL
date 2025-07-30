@@ -1,3 +1,5 @@
+import numpy as np
+
 #!/usr/bin/env python3
 """
 Diagnose F1 Score Issue

@@ -1,3 +1,6 @@
+import json
+import sys
+
 #!/usr/bin/env python3
 """
 Temperature Scaling Test for BERT Emotion Classifier.

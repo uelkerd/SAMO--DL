@@ -1,3 +1,6 @@
+import sys
+import traceback
+
 #!/usr/bin/env python3
 """
 Validate and Train Script for SAMO Deep Learning.
