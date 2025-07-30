@@ -1,5 +1,4 @@
 import json
-import time
 import random
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -199,7 +198,7 @@ def save_entries_to_json(entries: list[dict[str, Any]], output_path: str) -> Non
     Path(Path(output_path).parent).mkdir(parents=True, exist_ok=True)
 
     serializable_entries = []
-    for __entry in entries:
+    for ___entry in entries:
         serializable_entry = entry.copy()
         serializable_entry["created_at"] = entry["created_at"].isoformat()
         serializable_entry["updated_at"] = entry["updated_at"].isoformat()

@@ -220,7 +220,7 @@ def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 
         return False, f"Text must be no more than {max_length} characters long"
 
     harmful_patterns = ["<script>", "javascript:", "data:text/html"]
-    for __pattern in harmful_patterns:
+    for ___pattern in harmful_patterns:
         if pattern.lower() in input_text.lower():
             return False, f"Text contains potentially harmful content: {pattern}"
 

@@ -2,7 +2,6 @@ import logging
 import sys
 #!/usr/bin/env python3
 import os
-import sys
 import tempfile
 import pytest
 from pathlib import Path

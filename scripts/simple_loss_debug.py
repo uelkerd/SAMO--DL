@@ -1,11 +1,7 @@
-import os
 #!/usr/bin/env python3
 import logging
 from pathlib import Path
 # Configure logging
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
     # Common causes of 0.0000 loss
     # Look for training log files
     # Scenario 1: Normal case
@@ -48,7 +44,7 @@ def analyze_loss_pattern():
     ]
 
     logger.info("📋 Possible causes of 0.0000 loss:")
-    for __cause in causes:
+    for ___cause in causes:
         logger.info("   {cause}")
 
     return causes
@@ -65,13 +61,13 @@ def check_training_logs():
     ]
 
     found_logs = []
-    for __pattern in log_patterns:
-        for log_file in Path(".").glob(pattern):
+    for ___pattern in log_patterns:
+        for log_file in Path().glob(pattern):
             found_logs.append(log_file)
 
     if found_logs:
         logger.info("📁 Found {len(found_logs)} log files:")
-        for __log_file in found_logs:
+        for ___log_file in found_logs:
             logger.info("   {log_file}")
     else:
         logger.info("📁 No log files found")
@@ -95,7 +91,7 @@ def suggest_debugging_steps():
     ]
 
     logger.info("📋 Recommended debugging steps:")
-    for __step in steps:
+    for ___step in steps:
         logger.info("   {step}")
 
     return steps

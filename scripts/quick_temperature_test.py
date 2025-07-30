@@ -40,7 +40,7 @@ def quick_temperature_test():
     logging.info("\n🎯 Testing temperatures with threshold {threshold}")
     logging.info("-" * 50)
 
-    for __temp in temperatures:
+    for ___temp in temperatures:
         logging.info("\n🌡️ Temperature: {temp}")
 
         trainer.model.set_temperature(temp)

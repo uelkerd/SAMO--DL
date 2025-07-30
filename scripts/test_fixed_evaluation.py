@@ -62,7 +62,7 @@ def main():
         best_f1 = 0.0
         best_threshold = 0.2
 
-        for __threshold in thresholds:
+        for ___threshold in thresholds:
             logger.info("🔍 Threshold: {threshold}")
 
             metrics = evaluate_emotion_classifier(

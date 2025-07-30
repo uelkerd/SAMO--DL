@@ -60,7 +60,7 @@ def test_temperature_scaling():
     logger.info("🎯 Testing temperatures with threshold {threshold}")
     logger.info("=" * 80)
 
-    for __temp in temperatures:
+    for ___temp in temperatures:
         logger.info("\n🌡️ Temperature: {temp}")
 
         trainer.model.set_temperature(temp)
@@ -93,7 +93,7 @@ def test_temperature_scaling():
     logger.info("{'Temp':<6} {'Macro F1':<10} {'Micro F1':<10} {'Pred/Sample':<12}")
     logger.info("-" * 50)
 
-    for __result in results:
+    for ___result in results:
         logger.info(
             "{result['temperature']:<6.1f} "
             "{result['macro_f1']:<10.4f} "

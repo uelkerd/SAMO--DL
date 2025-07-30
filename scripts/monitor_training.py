@@ -1,9 +1,8 @@
 import logging
 import json
-import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
@@ -43,7 +42,7 @@ def load_training_history(checkpoint_dir: str = "test_checkpoints_dev") -> List[
         logging.info(f"❌ Training history not found at {history_file}")
         return []
 
-    with open(history_file, 'r') as f:
+    with open(history_file) as f:
         history = json.load(f)
 
     return history
@@ -64,7 +63,7 @@ def analyze_training_progress(history: List[Dict]) -> Dict:
         "recommendations": []
     }
 
-    for __epoch_data in history:
+    for ___epoch_data in history:
         analysis["loss_progress"].append(epoch_data["train_loss"])
         analysis["f1_progress"].append(epoch_data["micro_f1"])
         analysis["training_time"].append(epoch_data["epoch_time"])

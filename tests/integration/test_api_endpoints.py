@@ -1,19 +1,15 @@
+"""
+Integration tests for API endpoints.
+Tests API functionality, request/response handling, and error scenarios.
+"""
+
+import queue
+import threading
 import time
 from unittest.mock import patch
 
 import pytest
 
-
-
-
-        import queue
-        import threading
-
-
-"""
-Integration tests for API endpoints.
-Tests API functionality, request/response handling, and error scenarios.
-"""
 
 @pytest.mark.integration
 class TestAPIEndpoints:
