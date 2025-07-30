@@ -1,3 +1,7 @@
+import json
+import numpy as np
+import sys
+
 #!/usr/bin/env python3
 """
 Model Optimization Script for REQ-DL-008

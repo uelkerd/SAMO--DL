@@ -1,3 +1,6 @@
+import sys
+import traceback
+
 #!/usr/bin/env python3
 """
 Simple test to understand the dataset object type.

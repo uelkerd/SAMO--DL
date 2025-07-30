@@ -1,3 +1,6 @@
+import numpy as np
+import sys
+
 #!/usr/bin/env python3
 """
 Local Validation and Debug Script for SAMO Deep Learning.

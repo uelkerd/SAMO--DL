@@ -1,3 +1,6 @@
+import numpy as np
+import sys
+
 #!/usr/bin/env python3
 """
 Model Calibration Script

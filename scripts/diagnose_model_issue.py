@@ -1,3 +1,5 @@
+import sys
+
 #!/usr/bin/env python3
 """Diagnose Model Issue - Why is the model predicting all emotions?
 

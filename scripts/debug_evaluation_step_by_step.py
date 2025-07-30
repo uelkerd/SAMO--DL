@@ -1,3 +1,6 @@
+import numpy as np
+import sys
+
 #!/usr/bin/env python3
 """
 Debug the evaluation function step by step to find the exact issue.

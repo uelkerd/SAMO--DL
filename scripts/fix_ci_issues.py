@@ -1,3 +1,6 @@
+import os
+import sys
+
 #!/usr/bin/env python3
 """
 Script to fix CI issues identified in the SAMO Deep Learning project.
@@ -37,7 +40,7 @@ def main():
     os.chdir(project_root)
 
     # Fix 1: Format code with ruff
-    success1, _ = run_command("ruff format src/ tests/ scripts/", "Formatting code with ruf")
+    success1, _ = run_command("ruff format src/ tests/ scripts/", "Formatting code with ru")
 
     # Fix 2: Check for any remaining formatting issues
     success2, _ = run_command("ruff check src/ tests/ scripts/ --fix", "Fixing linting issues")

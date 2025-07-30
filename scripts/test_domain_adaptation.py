@@ -1,3 +1,5 @@
+import json
+
 #!/usr/bin/env python3
 """Domain Adaptation Testing for SAMO Deep Learning.
 

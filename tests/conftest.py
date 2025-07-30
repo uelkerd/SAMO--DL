@@ -1,3 +1,6 @@
+import numpy as np
+import os
+
 """
 SAMO Deep Learning - Pytest Configuration and Shared Fixtures
 Provides common test utilities, fixtures, and configuration.

@@ -1,3 +1,7 @@
+import os
+import sys
+import traceback
+
 #!/usr/bin/env python3
 """
 Fine-tune Emotion Detection Model on GoEmotions Dataset
@@ -75,7 +79,7 @@ def fine_tune_model():
         training_history = []
 
         for epoch in range(5):  # 5 epochs for fine-tuning
-            logger.info(f"\nEpoch {epoch + 1}/5")
+            logger.info("\nEpoch {epoch + 1}/5")
 
             # Training phase
             model.train()

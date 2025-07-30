@@ -1,3 +1,5 @@
+import os
+
 """
 End-to-end tests for complete user workflows.
 Tests full system integration, data flow, and user scenarios.

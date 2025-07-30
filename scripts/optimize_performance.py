@@ -1,3 +1,5 @@
+import numpy as np
+
 #!/usr/bin/env python3
 """Performance Optimization Script for SAMO Deep Learning.
 

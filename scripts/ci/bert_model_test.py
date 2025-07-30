@@ -1,3 +1,5 @@
+import sys
+
 #!/usr/bin/env python3
 """
 BERT Model Loading Test for CI/CD Pipeline.

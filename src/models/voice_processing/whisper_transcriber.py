@@ -1,3 +1,6 @@
+import numpy as np
+import os
+
 # G004: Logging f-strings temporarily allowed for development
 """OpenAI Whisper Transcriber for SAMO Deep Learning.
 

@@ -1,3 +1,7 @@
+import os
+import sys
+import traceback
+
 #!/usr/bin/env python3
 """
 Vertex AI Training Script for SAMO Deep Learning.

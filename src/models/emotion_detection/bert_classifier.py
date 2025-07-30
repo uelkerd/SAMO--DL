@@ -1,3 +1,5 @@
+import numpy as np
+
 # G004: Logging f-strings temporarily allowed for development
 """BERT Emotion Classifier for SAMO Deep Learning.
 

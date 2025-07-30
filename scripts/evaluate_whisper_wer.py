@@ -1,3 +1,7 @@
+import json
+import os
+import sys
+
 #!/usr/bin/env python3
 """
 Evaluate Whisper model performance using LibriSpeech test set.
