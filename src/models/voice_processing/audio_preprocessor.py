@@ -2,12 +2,25 @@ import logging
 import tempfile
 from pathlib import Path
 from typing import Optional, Union
-
 from pydub import AudioSegment
-
 # Configure logging
-
 # G004: Logging f-strings temporarily allowed for development
+        # Check file exists
+        # Check file extension
+            # Load audio to validate
+            # Check duration
+        # Validate input
+        # Load audio
+        # Get original metadata
+        # Convert to mono if stereo
+        # Normalize sample rate to 16kHz (Whisper's expected rate)
+        # Apply light noise reduction (normalize volume)
+        # Generate output path if not provided
+        # Export processed audio as WAV
+        # Updated metadata
+
+
+
 """Audio Preprocessing for SAMO Voice Processing.
 
 This module provides audio format handling and preprocessing functionality
@@ -43,19 +56,15 @@ class AudioPreprocessor:
         """
         audio_path = Path(audio_path)
 
-        # Check file exists
         if not audio_path.exists():
             return False, "Audio file not found: {audio_path}"
 
-        # Check file extension
         if audio_path.suffix.lower() not in AudioPreprocessor.SUPPORTED_FORMATS:
             return False, "Unsupported audio format: {audio_path.suffix}"
 
         try:
-            # Load audio to validate
             audio = AudioSegment.from_file(str(audio_path))
 
-            # Check duration
             duration = len(audio) / 1000.0  # Convert to seconds
             if duration > AudioPreprocessor.MAX_DURATION:
                 return False, "Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s"
@@ -83,17 +92,14 @@ class AudioPreprocessor:
         """
         audio_path = Path(audio_path)
 
-        # Validate input
         is_valid, error_msg = AudioPreprocessor.validate_audio_file(audio_path)
         if not is_valid:
             raise ValueError(error_msg)
 
         logger.info("Preprocessing audio: {audio_path}", extra={"format_args": True})
 
-        # Load audio
         audio = AudioSegment.from_file(str(audio_path))
 
-        # Get original metadata
         original_metadata = {
             "duration": len(audio) / 1000.0,
             "sample_rate": audio.frame_rate,
@@ -102,31 +108,25 @@ class AudioPreprocessor:
             "file_size": audio_path.stat().st_size,
         }
 
-        # Convert to mono if stereo
         if audio.channels > 1:
             audio = audio.set_channels(1)
             logger.info("Converted stereo to mono")
 
-        # Normalize sample rate to 16kHz (Whisper's expected rate)
         if audio.frame_rate != AudioPreprocessor.TARGET_SAMPLE_RATE:
             audio = audio.set_frame_rate(AudioPreprocessor.TARGET_SAMPLE_RATE)
             logger.info(
                 "Resampled to {AudioPreprocessor.TARGET_SAMPLE_RATE}Hz", extra={"format_args": True}
             )
 
-        # Apply light noise reduction (normalize volume)
         audio = audio.normalize()
 
-        # Generate output path if not provided
         if output_path is None:
             temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
             output_path = temp_file.name
             temp_file.close()
 
-        # Export processed audio as WAV
         audio.export(str(output_path), format="wav")
 
-        # Updated metadata
         processed_metadata = {
             **original_metadata,
             "processed_duration": len(audio) / 1000.0,

@@ -1,8 +1,12 @@
 import logging
-
 import sys
-
 #!/usr/bin/env python3
+    # Test basic Python
+    # Test core modules one by one
+        # Stop if we hit a KeyboardInterrupt
+    # Summary
+
+
 
 """
 Basic Environment Test Script
@@ -31,11 +35,9 @@ def main():
     logging.info("🧪 Basic Environment Test")
     logging.info("=" * 50)
 
-    # Test basic Python
     logging.info("🔍 Testing basic Python...")
     logging.info("✅ Basic Python OK")
 
-    # Test core modules one by one
     tests = [
         ("torch", "PyTorch"),
         ("numpy", "NumPy"),
@@ -50,12 +52,10 @@ def main():
         result = test_import(module, description)
         results.append(result)
 
-        # Stop if we hit a KeyboardInterrupt
         if not result and "KeyboardInterrupt" in str(sys.exc_info()[1]):
             logging.info("\n🚨 STOPPED: {description} caused KeyboardInterrupt")
             break
 
-    # Summary
     logging.info("\n" + "=" * 50)
     logging.info("📊 TEST SUMMARY:")
     working = sum(results)

@@ -1,4 +1,18 @@
 from datetime import datetime, timezone
+        # Test valid emotion result
+        # This test will need actual model import to work
+        # TODO: Implement when API models are available
+        # For now, just validate the test structure
+        # Test validation logic
+        # Test minimum length
+        # Test maximum length (e.g., 10,000 characters)
+        # Test reasonable length
+        # Test valid extensions
+        # Test invalid extension
+        # Test invalid thresholds
+        # Test valid language codes
+        # Test invalid language codes
+        # All successful responses should have these fields
 
 
 
@@ -13,13 +27,9 @@ class TestAPIModels:
 
     def test_emotion_result_validation(self):
         """Test EmotionResult model validation."""
-        # Test valid emotion result
         valid_data = {"emotion": "joy", "confidence": 0.85, "probability": 0.92}
 
-        # This test will need actual model import to work
-        # TODO: Implement when API models are available
 
-        # For now, just validate the test structure
         assert valid_data["emotion"] == "joy"
         assert 0.0 <= valid_data["confidence"] <= 1.0
         assert 0.0 <= valid_data["probability"] <= 1.0
@@ -32,7 +42,6 @@ class TestAPIModels:
             "probability": 0.92,
         }
 
-        # Test validation logic
         assert invalid_data["confidence"] > 1.0  # This should be caught by validation
 
     def test_summary_result_validation(self):
@@ -76,15 +85,12 @@ class TestAPIModels:
 
     def test_text_length_validation(self):
         """Test text length validation for different endpoints."""
-        # Test minimum length
         short_text = "Hi"
         assert len(short_text) >= 2  # Minimum viable input
 
-        # Test maximum length (e.g., 10,000 characters)
         long_text = "x" * 10001
         assert len(long_text) > 10000  # Should be rejected
 
-        # Test reasonable length
         normal_text = "This is a normal journal entry with reasonable length."
         assert 10 <= len(normal_text) <= 10000
 
@@ -92,12 +98,10 @@ class TestAPIModels:
         """Test audio file validation for voice endpoints."""
         valid_extensions = [".mp3", ".wav", ".m4a", ".flac", ".ogg"]
 
-        # Test valid extensions
-        for ext in valid_extensions:
+        for __ext in valid_extensions:
             filename = f"audio{ext}"
             assert any(filename.endswith(e) for e in valid_extensions)
 
-        # Test invalid extension
         invalid_filename = "audio.txt"
         assert not any(invalid_filename.endswith(e) for e in valid_extensions)
 
@@ -105,32 +109,28 @@ class TestAPIModels:
         """Test confidence threshold validation."""
         valid_thresholds = [0.1, 0.5, 0.7, 0.9]
 
-        for threshold in valid_thresholds:
+        for __threshold in valid_thresholds:
             assert 0.0 <= threshold <= 1.0
 
-        # Test invalid thresholds
         invalid_thresholds = [-0.1, 1.5, 2.0]
-        for threshold in invalid_thresholds:
+        for __threshold in invalid_thresholds:
             assert not (0.0 <= threshold <= 1.0)
 
     def test_language_code_validation(self):
         """Test language code validation for voice processing."""
         valid_languages = ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh"]
 
-        # Test valid language codes
-        for lang in valid_languages:
+        for __lang in valid_languages:
             assert len(lang) == 2
             assert lang.islower()
 
-        # Test invalid language codes
         invalid_languages = ["ENG", "english", "123", "x"]
-        for lang in invalid_languages:
+        for __lang in invalid_languages:
             if len(lang) == 2:
                 assert not lang.islower() or not lang.isalpha()
 
     def test_response_format_consistency(self):
         """Test API response format consistency."""
-        # All successful responses should have these fields
         required_fields = ["status", "data", "processing_time", "timestamp"]
 
         mock_response = {
@@ -140,7 +140,7 @@ class TestAPIModels:
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
-        for field in required_fields:
+        for __field in required_fields:
             assert field in mock_response
 
         assert mock_response["status"] in ["success", "error"]

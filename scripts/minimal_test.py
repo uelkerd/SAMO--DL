@@ -1,10 +1,11 @@
 import logging
-
 import json
 import os
 import sys
-
 #!/usr/bin/env python3
+    # Test data file
+
+
 
 """
 Minimal test script
@@ -28,7 +29,6 @@ def main():
     logging.info("✅ Bucket: {bucket_name}")
     logging.info("✅ Data: {data_path}")
 
-    # Test data file
     if os.path.exists(data_path):
         logging.info("✅ Data file exists!")
         with open(data_path) as f:

@@ -1,16 +1,38 @@
 import sys
 import time
-
 #!/usr/bin/env python3
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-
 # Add src to path
 import torch
 from torch import nn
-
 # Configure logging
+        # Create a simple model for testing
+        # Simple forward pass for testing
+    # Create synthetic input data
+    # Create synthetic labels (multi-label)
+    # Convert predictions to binary
+    # Calculate accuracy
+    # Calculate precision and recall (simplified)
+    # Calculate F1 score
+        # Create model and data
+        # Get predictions
+        # Calculate metrics
+        # Validate metrics
+        # Create model
+        # Create baseline data
+        # Create current data (simulate drift)
+        # Get baseline predictions
+        # Calculate baseline and current metrics
+        # Calculate drift (simplified)
+        # Validate drift detection
+        # Create monitoring log entry
+        # Simulate logging
+        # Validate log entry
+
+
+
 
 """
 Model Monitoring Test for CI/CD Pipeline.
@@ -30,7 +52,6 @@ class SimpleBERTClassifier(nn.Module):
 
     def __init__(self, num_emotions=28):
         super().__init__()
-        # Create a simple model for testing
         self.embedding = nn.Embedding(30522, 768)  # BERT vocab size
         self.classifier = nn.Sequential(
             nn.Linear(768, 256),
@@ -40,7 +61,6 @@ class SimpleBERTClassifier(nn.Module):
         )
 
     def forward(self, input_ids, attention_mask=None):
-        # Simple forward pass for testing
         embeddings = self.embedding(input_ids)
         pooled = torch.mean(embeddings, dim=1)  # Simple pooling
         return self.classifier(pooled)
@@ -48,11 +68,9 @@ class SimpleBERTClassifier(nn.Module):
 
 def create_synthetic_data(num_samples=100, num_emotions=28):
     """Create synthetic data for testing."""
-    # Create synthetic input data
     input_ids = torch.randint(0, 30522, (num_samples, 128))
     attention_mask = torch.ones(num_samples, 128)
 
-    # Create synthetic labels (multi-label)
     labels = torch.randint(0, 2, (num_samples, num_emotions)).float()
 
     return input_ids, attention_mask, labels
@@ -60,15 +78,12 @@ def create_synthetic_data(num_samples=100, num_emotions=28):
 
 def calculate_metrics(predictions, labels, threshold=0.5):
     """Calculate basic metrics for monitoring."""
-    # Convert predictions to binary
     binary_predictions = (predictions > threshold).float()
 
-    # Calculate accuracy
     correct = (binary_predictions == labels).float().sum()
     total = labels.numel()
     accuracy = correct / total
 
-    # Calculate precision and recall (simplified)
     true_positives = (binary_predictions * labels).sum()
     predicted_positives = binary_predictions.sum()
     actual_positives = labels.sum()
@@ -76,7 +91,6 @@ def calculate_metrics(predictions, labels, threshold=0.5):
     precision = true_positives / (predicted_positives + 1e-8)
     recall = true_positives / (actual_positives + 1e-8)
 
-    # Calculate F1 score
     f1_score = 2 * (precision * recall) / (precision + recall + 1e-8)
 
     return {
@@ -92,18 +106,15 @@ def test_model_performance_monitoring():
     try:
         logger.info("📊 Testing model performance monitoring...")
 
-        # Create model and data
         model = SimpleBERTClassifier(num_emotions=28)
         model.eval()
 
         input_ids, attention_mask, labels = create_synthetic_data(100, 28)
 
-        # Get predictions
         with torch.no_grad():
             logits = model(input_ids, attention_mask)
             probabilities = torch.sigmoid(logits)
 
-        # Calculate metrics
         metrics = calculate_metrics(probabilities, labels, threshold=0.5)
 
         logger.info("Accuracy: {metrics['accuracy']:.4f}")
@@ -111,7 +122,6 @@ def test_model_performance_monitoring():
         logger.info("Recall: {metrics['recall']:.4f}")
         logger.info("F1 Score: {metrics['f1_score']:.4f}")
 
-        # Validate metrics
         assert 0 <= metrics['accuracy'] <= 1, "Accuracy should be between 0 and 1"
         assert 0 <= metrics['precision'] <= 1, "Precision should be between 0 and 1"
         assert 0 <= metrics['recall'] <= 1, "Recall should be between 0 and 1"
@@ -130,17 +140,13 @@ def test_model_drift_detection():
     try:
         logger.info("🔄 Testing model drift detection...")
 
-        # Create model
         model = SimpleBERTClassifier(num_emotions=28)
         model.eval()
 
-        # Create baseline data
         baseline_input_ids, baseline_attention_mask, baseline_labels = create_synthetic_data(100, 28)
 
-        # Create current data (simulate drift)
         current_input_ids, current_attention_mask, current_labels = create_synthetic_data(100, 28)
 
-        # Get baseline predictions
         with torch.no_grad():
             baseline_logits = model(baseline_input_ids, baseline_attention_mask)
             baseline_probabilities = torch.sigmoid(baseline_logits)
@@ -148,18 +154,15 @@ def test_model_drift_detection():
             current_logits = model(current_input_ids, current_attention_mask)
             current_probabilities = torch.sigmoid(current_logits)
 
-        # Calculate baseline and current metrics
         baseline_metrics = calculate_metrics(baseline_probabilities, baseline_labels)
         current_metrics = calculate_metrics(current_probabilities, current_labels)
 
-        # Calculate drift (simplified)
         accuracy_drift = abs(current_metrics['accuracy'] - baseline_metrics['accuracy'])
         f1_drift = abs(current_metrics['f1_score'] - baseline_metrics['f1_score'])
 
         logger.info("Accuracy drift: {accuracy_drift:.4f}")
         logger.info("F1 score drift: {f1_drift:.4f}")
 
-        # Validate drift detection
         assert accuracy_drift >= 0, "Drift should be non-negative"
         assert f1_drift >= 0, "Drift should be non-negative"
 
@@ -176,7 +179,6 @@ def test_monitoring_logging():
     try:
         logger.info("📝 Testing monitoring logging...")
 
-        # Create monitoring log entry
         timestamp = datetime.now(timezone.utc)
         model_version = "test-v1.0.0"
         metrics = {
@@ -186,7 +188,6 @@ def test_monitoring_logging():
             'f1_score': 0.85
         }
 
-        # Simulate logging
         log_entry = {
             'timestamp': timestamp.isoformat(),
             'model_version': model_version,
@@ -196,7 +197,6 @@ def test_monitoring_logging():
 
         logger.info("Monitoring log entry: {log_entry}")
 
-        # Validate log entry
         assert 'timestamp' in log_entry, "Log entry should have timestamp"
         assert 'model_version' in log_entry, "Log entry should have model version"
         assert 'metrics' in log_entry, "Log entry should have metrics"

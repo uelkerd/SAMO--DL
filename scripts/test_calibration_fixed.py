@@ -1,14 +1,29 @@
 import numpy as np
 import sys
-
 #!/usr/bin/env python3
 import torch
 import logging
 from pathlib import Path
 from sklearn.metrics import f1_score
 from transformers import AutoTokenizer, AutoModel
-
 # Configure logging
+# Constants
+                # Try to load the checkpoint
+    # Create simple labels (one emotion per text)
+    # Find valid checkpoint
+        # Load existing model
+        # Create new model
+    # Set optimal temperature
+    # Create test data
+    # Create tokenizer
+    # Process test data
+        # Tokenize
+        # Get predictions
+    # Convert to numpy arrays
+    # Calculate metrics
+    # Check if F1 score meets target
+
+
 
 """
 Fixed Model Calibration Test
@@ -27,7 +42,6 @@ Returns:
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
-# Constants
 CHECKPOINT_PATHS = [
     "test_checkpoints/best_model.pt",
     "models/emotion_detection/fixed_focal_loss_model.pt",
@@ -63,11 +77,10 @@ class SimpleBERTClassifier(torch.nn.Module):
 
 def find_valid_checkpoint():
     """Find a valid checkpoint from available paths."""
-    for checkpoint_path in CHECKPOINT_PATHS:
+    for __checkpoint_path in CHECKPOINT_PATHS:
         path = Path(checkpoint_path)
         if path.exists():
             try:
-                # Try to load the checkpoint
                 torch.load(path, map_location="cpu", weights_only=False)
                 logger.info("✅ Found valid checkpoint: {checkpoint_path}")
                 return str(path)
@@ -96,7 +109,6 @@ def create_test_data():
         "I love you so much!",
     ]
 
-    # Create simple labels (one emotion per text)
     emotions = [
         "joy",
         "love",
@@ -122,7 +134,7 @@ def create_test_data():
     }
 
     test_labels = []
-    for emotion in emotions:
+    for __emotion in emotions:
         labels = [0] * 28
         if emotion in emotion_to_idx:
             labels[emotion_to_idx[emotion]] = 1
@@ -136,11 +148,9 @@ def test_calibration():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Using device: {device}")
 
-    # Find valid checkpoint
     checkpoint_path = find_valid_checkpoint()
 
     if checkpoint_path:
-        # Load existing model
         logger.info("Loading existing model...")
         model = SimpleBERTClassifier()
         model.to(device)
@@ -156,35 +166,28 @@ def test_calibration():
             logger.warning("⚠️ Could not load checkpoint: {e}")
             logger.info("Using default model")
     else:
-        # Create new model
         logger.info("Creating new model...")
         model = SimpleBERTClassifier()
         model.to(device)
 
-    # Set optimal temperature
     logger.info("Setting temperature to {OPTIMAL_TEMPERATURE}")
     model.temperature.data.fill_(OPTIMAL_TEMPERATURE)
     model.eval()
 
-    # Create test data
     test_texts, test_labels = create_test_data()
     logger.info("Created {len(test_texts)} test examples")
 
-    # Create tokenizer
     tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
-    # Process test data
     logger.info("Processing test data...")
     all_labels = []
     all_predictions = []
 
     for _i, (text, labels) in enumerate(zip(test_texts, test_labels)):
-        # Tokenize
         inputs = tokenizer(
             text, padding=True, truncation=True, max_length=128, return_tensors="pt"
         ).to(device)
 
-        # Get predictions
         with torch.no_grad():
             outputs = model(**inputs)
             probabilities = torch.sigmoid(outputs / model.temperature)
@@ -193,18 +196,15 @@ def test_calibration():
         all_labels.append(labels)
         all_predictions.append(predictions[0])  # Remove batch dimension
 
-    # Convert to numpy arrays
     all_labels = np.array(all_labels)
     all_predictions = np.array(all_predictions)
 
-    # Calculate metrics
     micro_f1 = f1_score(all_labels, all_predictions, average="micro", zero_division=0)
     macro_f1 = f1_score(all_labels, all_predictions, average="macro", zero_division=0)
 
     logger.info("Micro F1: {micro_f1:.4f}")
     logger.info("Macro F1: {macro_f1:.4f}")
 
-    # Check if F1 score meets target
     if micro_f1 >= TARGET_F1_SCORE:
         logger.info("✅ F1 score {micro_f1:.4f} meets target of {TARGET_F1_SCORE}")
         return 0

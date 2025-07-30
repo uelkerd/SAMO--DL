@@ -1,15 +1,21 @@
 import logging
-
 import sys
-
 #!/usr/bin/env python3
 import os
 import sys
 import tempfile
 import pytest
 from pathlib import Path
-
 # Add project root to path
+    # Get the path to the test file
+    # Create a temporary pytest configuration to avoid conflicts with pyproject.toml
+        # Run pytest with the temporary configuration
+        # Run the tests
+        # Print results
+        # Clean up temporary file
+
+
+
 
 """
 Run API Rate Limiter Tests
@@ -27,14 +33,12 @@ sys.path.append(str(project_root))
 if __name__ == "__main__":
     logging.info("🧪 Running API Rate Limiter Tests...")
 
-    # Get the path to the test file
     test_file = project_root / "tests" / "unit" / "test_api_rate_limiter.py"
 
     if not test_file.exists():
         logging.info(f"❌ Test file not found: {test_file}")
         sys.exit(1)
 
-    # Create a temporary pytest configuration to avoid conflicts with pyproject.toml
     with tempfile.NamedTemporaryFile(mode='w', suffix='.ini', delete=False) as f:
         f.write("""[pytest]
 addopts = --cov=src.api_rate_limiter --cov-report=term-missing --cov-fail-under=5 -v --tb=short
@@ -42,16 +46,13 @@ addopts = --cov=src.api_rate_limiter --cov-report=term-missing --cov-fail-under=
         temp_config = f.name
 
     try:
-        # Run pytest with the temporary configuration
         args = [
             str(test_file),
             f"--config-file={temp_config}",
         ]
 
-        # Run the tests
         result = pytest.main(args)
 
-        # Print results
         if result == 0:
             logging.info("✅ API Rate Limiter tests passed!")
         else:
@@ -60,7 +61,6 @@ addopts = --cov=src.api_rate_limiter --cov-report=term-missing --cov-fail-under=
         sys.exit(result)
 
     finally:
-        # Clean up temporary file
         try:
             os.unlink(temp_config)
         except OSError:

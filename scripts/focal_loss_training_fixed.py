@@ -1,5 +1,4 @@
 import sys
-
 #!/usr/bin/env python3
 import argparse
 import logging
@@ -7,12 +6,35 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from pathlib import Path
-
 # Add src to path
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-
 # Configure logging
+        # Apply sigmoid to get probabilities
+        # Calculate binary cross entropy
+        # Calculate focal loss components
+        # Apply alpha weighting
+        # Combine all components
+        # Apply reduction
+    # Setup device
+    # Load dataset using existing loader
+    # Create model
+    # Create focal loss
+    # Setup optimizer
+    # Create data loaders
+    # Training loop
+        # Training phase
+            # Forward pass
+            # Backward pass
+            # Log progress every 100 batches
+        # Validation phase
+        # Log progress
+        # Save best model
+    # Save final model
+    # Run training
+
+
+
 
 """
 Focal Loss Training for Emotion Detection (Fixed Version)
@@ -49,23 +71,17 @@ class FocalLoss(nn.Module):
         Returns:
             Focal loss value
         """
-        # Apply sigmoid to get probabilities
         probs = torch.sigmoid(inputs)
 
-        # Calculate binary cross entropy
         bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
 
-        # Calculate focal loss components
         pt = probs * targets + (1 - probs) * (1 - targets)  # p_t
         focal_weight = (1 - pt) ** self.gamma
 
-        # Apply alpha weighting
         alpha_weight = self.alpha * targets + (1 - self.alpha) * (1 - targets)
 
-        # Combine all components
         focal_loss = alpha_weight * focal_weight * bce_loss
 
-        # Apply reduction
         if self.reduction == "mean":
             return focal_loss.mean()
         elif self.reduction == "sum":
@@ -99,14 +115,12 @@ def train_with_focal_loss(
     """
     logger.info("🚀 Starting SAMO-DL Focal Loss Training")
 
-    # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Device: {device}")
     logger.info("CPU Threads: {torch.get_num_threads()}")
     logger.info("Parameters: gamma={gamma}, alpha={alpha}, lr={learning_rate}")
     logger.info("Batch size: {batch_size}, Max length: {max_length}")
 
-    # Load dataset using existing loader
     logger.info("📊 Loading GoEmotions dataset...")
     try:
         data_loader = GoEmotionsDataLoader()
@@ -126,7 +140,6 @@ def train_with_focal_loss(
         logger.error("Failed to load dataset: {e}")
         raise
 
-    # Create model
     logger.info("🤖 Creating BERT model...")
     model, _ = create_bert_emotion_classifier(
         model_name="bert-base-uncased",
@@ -135,24 +148,19 @@ def train_with_focal_loss(
     )
     model.to(device)
 
-    # Create focal loss
     focal_loss = FocalLoss(alpha=alpha, gamma=gamma)
 
-    # Setup optimizer
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
-    # Create data loaders
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
-    # Training loop
     best_val_loss = float("in")
     training_history = []
 
     for epoch in range(num_epochs):
         logger.info("\n📈 Epoch {epoch + 1}/{num_epochs}")
 
-        # Training phase
         model.train()
         train_loss = 0.0
         num_batches = 0
@@ -164,18 +172,15 @@ def train_with_focal_loss(
 
             optimizer.zero_grad()
 
-            # Forward pass
             outputs = model(input_ids, attention_mask=attention_mask)
             loss = focal_loss(outputs, labels)
 
-            # Backward pass
             loss.backward()
             optimizer.step()
 
             train_loss += loss.item()
             num_batches += 1
 
-            # Log progress every 100 batches
             if (batch_idx + 1) % 100 == 0:
                 logger.info(
                     "   Batch {batch_idx + 1}/{len(train_loader)}, Loss: {loss.item():.4f}"
@@ -183,13 +188,12 @@ def train_with_focal_loss(
 
         avg_train_loss = train_loss / num_batches
 
-        # Validation phase
         model.eval()
         val_loss = 0.0
         val_batches = 0
 
         with torch.no_grad():
-            for batch in val_loader:
+            for __batch in val_loader:
                 input_ids = batch["input_ids"].to(device)
                 attention_mask = batch["attention_mask"].to(device)
                 labels = batch["labels"].float().to(device)
@@ -202,7 +206,6 @@ def train_with_focal_loss(
 
         avg_val_loss = val_loss / val_batches
 
-        # Log progress
         logger.info("   • Train Loss: {avg_train_loss:.4f}")
         logger.info("   • Val Loss: {avg_val_loss:.4f}")
 
@@ -210,7 +213,6 @@ def train_with_focal_loss(
             {"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": avg_val_loss}
         )
 
-        # Save best model
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
             checkpoint_path = Path(output_dir) / "focal_loss_best_model.pt"
@@ -230,7 +232,6 @@ def train_with_focal_loss(
 
             logger.info("   💾 Saved best model (val_loss: {avg_val_loss:.4f})")
 
-    # Save final model
     final_checkpoint_path = Path(output_dir) / "focal_loss_final_model.pt"
     torch.save(
         {
@@ -272,7 +273,6 @@ def main():
 
     args = parser.parse_args()
 
-    # Run training
     results = train_with_focal_loss(
         gamma=args.gamma,
         alpha=args.alpha,
