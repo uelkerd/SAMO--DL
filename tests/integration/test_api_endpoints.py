@@ -5,7 +5,8 @@ Tests API functionality, request/response handling, and error scenarios.
 
 import json
 import time
-from typing import Dict, Any
+from typing import Dict
+from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient

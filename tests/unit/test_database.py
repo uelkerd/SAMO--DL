@@ -1,8 +1,8 @@
-"""
-Unit tests for database module.
+"""Unit tests for database module.
 Tests database connection, operations, and utilities.
 """
 
+import logging
 
 from src.data.database import (
     get_db,
@@ -12,6 +12,8 @@ from src.data.database import (
     db_session,
     Base
 )
+
+logger = logging.getLogger(__name__)
 
 
 class TestDatabaseConnection:
@@ -83,7 +85,7 @@ class TestDatabaseFunctions:
         except Exception as e:
             # It's okay if this fails in test environment without real DB
             # Log the exception for debugging purposes
-            print(f"Session creation failed (expected in test environment): {e}")
+            logger.debug(f"Session creation failed (expected in test environment): {e}")
 
 
 class TestDatabaseErrorHandling:
