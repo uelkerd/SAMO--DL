@@ -3,8 +3,6 @@ Unit tests for validation module.
 Tests data validation, schema validation, and input validation.
 """
 
-import pytest
-from unittest.mock import MagicMock, patch
 
 from src.data.validation import (
     validate_text_input,
