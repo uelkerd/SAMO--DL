@@ -1,14 +1,28 @@
 import sys
-
 #!/usr/bin/env python3
 import logging
 from pathlib import Path
-
 # Add src to path
 import torch
 from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-
 # Configure logging
+        # Create trainer
+        # Prepare data
+        # Load trained model
+        # Get a few samples from validation set
+        # Get one batch for detailed analysis
+            # Forward pass
+            # Check if all probabilities are high
+            # Sample analysis
+        # Create simple test case
+        # Create fake logits and labels
+        # Set some emotions as positive
+        # Test BCE loss
+        # Test with class weights
+        # Check gradients
+
+
+
 
 """Diagnose Model Issue - Why is the model predicting all emotions?
 
@@ -27,7 +41,6 @@ def diagnose_model_outputs():
     logger.info("🔍 Diagnosing Model Output Issue")
 
     try:
-        # Create trainer
         trainer = EmotionDetectionTrainer(
             model_name="bert-base-uncased",
             cache_dir="./data/cache",
@@ -36,11 +49,9 @@ def diagnose_model_outputs():
             device="cpu",
         )
 
-        # Prepare data
         trainer.prepare_data(dev_mode=True)
         trainer.initialize_model(class_weights=trainer.data_loader.class_weights)
 
-        # Load trained model
         model_path = Path("./test_checkpoints_dev/best_model.pt")
         if model_path.exists():
             checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
@@ -49,10 +60,8 @@ def diagnose_model_outputs():
         else:
             logger.info("⚠️  No trained model found, using fresh model")
 
-        # Get a few samples from validation set
         trainer.model.eval()
 
-        # Get one batch for detailed analysis
         for batch_idx, batch in enumerate(trainer.val_dataloader):
             if batch_idx > 0:  # Only analyze first batch
                 break
@@ -67,7 +76,6 @@ def diagnose_model_outputs():
             logger.info("  Labels sum per sample: {labels.sum(dim=1).tolist()}")
             logger.info("  Labels mean: {labels.float().mean():.4f}")
 
-            # Forward pass
             with torch.no_grad():
                 logits = trainer.model(input_ids, attention_mask=attention_mask)
                 probabilities = torch.sigmoid(logits)
@@ -84,7 +92,6 @@ def diagnose_model_outputs():
             logger.info("  Probabilities mean: {probabilities.mean():.4f}")
             logger.info("  Probabilities std: {probabilities.std():.4f}")
 
-            # Check if all probabilities are high
             high_prob_count = (probabilities > 0.5).sum()
             total_predictions = probabilities.numel()
 
@@ -92,7 +99,6 @@ def diagnose_model_outputs():
                 "  Predictions > 0.5: {high_prob_count}/{total_predictions} ({100*high_prob_count/total_predictions:.1f}%)"
             )
 
-            # Sample analysis
             for i in range(min(3, input_ids.shape[0])):
                 sample_probs = probabilities[i]
                 sample_labels = labels[i]
@@ -119,14 +125,11 @@ def diagnose_loss_function():
     logger.info("🔍 Diagnosing Loss Function")
 
     try:
-        # Create simple test case
         batch_size, num_emotions = 4, 28
 
-        # Create fake logits and labels
         logits = torch.randn(batch_size, num_emotions) * 2  # Random logits
         labels = torch.zeros(batch_size, num_emotions)
 
-        # Set some emotions as positive
         labels[0, [1, 5, 10]] = 1  # Sample 0 has emotions 1, 5, 10
         labels[1, [2, 7]] = 1  # Sample 1 has emotions 2, 7
 
@@ -134,20 +137,17 @@ def diagnose_loss_function():
         logger.info("Test labels shape: {labels.shape}")
         logger.info("Labels per sample: {labels.sum(dim=1).tolist()}")
 
-        # Test BCE loss
         bce_loss = torch.nn.BCEWithLogitsLoss()
         loss = bce_loss(logits, labels)
 
         logger.info("BCE Loss: {loss.item():.4f}")
 
-        # Test with class weights
         pos_weight = torch.ones(num_emotions) * 2.0  # Give more weight to positive class
         weighted_bce = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
         weighted_loss = weighted_bce(logits, labels)
 
         logger.info("Weighted BCE Loss: {weighted_loss.item():.4f}")
 
-        # Check gradients
         logits.requires_grad_(True)
         loss.backward()
 

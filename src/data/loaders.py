@@ -1,12 +1,12 @@
 import json
-
 from typing import Optional
-
 import pandas as pd
-
 from .database import db_session
 from .models import JournalEntry
 from .prisma_client import PrismaClient
+
+
+
 
 
 

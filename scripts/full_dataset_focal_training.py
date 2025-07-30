@@ -1,6 +1,5 @@
 import json
 import numpy as np
-
 #!/usr/bin/env python3
 import logging
 import torch
@@ -13,8 +12,35 @@ import random
 from transformers import AutoTokenizer, AutoModel
 import requests
 import pandas as pd
-
 # Configure logging
+    # GoEmotions dataset URLs
+            # Parse TSV file
+            # Convert emotion strings to binary labels
+                # Parse emotion labels
+                    # Remove brackets and split
+    # Download all datasets
+    # Create larger, more diverse dataset
+    # Duplicate and shuffle for more data
+    # Split into train/val/test
+    # Create datasets
+    # Create dataloaders
+        # Training
+        # Validation
+    # Test different thresholds
+    # Final evaluation with best threshold
+    # Setup
+    # Download data
+    # Create model
+    # Create tokenizer
+    # Create dataloaders
+    # Setup training
+    # Train model
+    # Evaluate model
+    # Save model and results
+    # Save model
+    # Save results
+
+
 
 """
 Full Dataset Focal Loss Training
@@ -73,7 +99,6 @@ def download_go_emotions_manual():
     data_dir = Path("data/raw")
     data_dir.mkdir(parents=True, exist_ok=True)
 
-    # GoEmotions dataset URLs
     train_url = "https://raw.githubusercontent.com/google-research/google-research/master/goemotions/data/train.tsv"
     dev_url = "https://raw.githubusercontent.com/google-research/google-research/master/goemotions/data/dev.tsv"
     test_url = "https://raw.githubusercontent.com/google-research/google-research/master/goemotions/data/test.tsv"
@@ -118,22 +143,18 @@ def download_go_emotions_manual():
             with open(filepath, "w", encoding="utf-8") as f:
                 f.write(response.text)
 
-            # Parse TSV file
             df = pd.read_csv(filepath, sep="\t", header=None, names=["text", "emotions", "id"])
 
-            # Convert emotion strings to binary labels
             processed_data = []
             for _, row in df.iterrows():
                 text = row["text"]
                 emotion_str = row["emotions"]
 
-                # Parse emotion labels
                 labels = [0] * 28  # 27 emotions + neutral
 
                 if emotion_str != "[]":
-                    # Remove brackets and split
                     emotion_list = emotion_str.strip("[]").split(",")
-                    for emotion_name in emotion_list:
+                    for __emotion_name in emotion_list:
                         emotion_name = emotion_name.strip().strip("'")
                         if emotion_name in emotion_labels:
                             idx = emotion_labels.index(emotion_name)
@@ -148,7 +169,6 @@ def download_go_emotions_manual():
             logger.warning("⚠️ Could not download {filename}: {e}")
             return []
 
-    # Download all datasets
     train_data = download_and_process(train_url, "train.tsv")
     dev_data = download_and_process(dev_url, "dev.tsv")
     test_data = download_and_process(test_url, "test.tsv")
@@ -164,7 +184,6 @@ def create_fallback_data():
     """Create fallback data if download fails."""
     logger.info("🔄 Creating fallback data...")
 
-    # Create larger, more diverse dataset
     emotions = ["joy", "anger", "sadness", "love", "fear", "disgust", "surprise", "neutral"]
     texts = [
         "I am so happy today!",
@@ -200,11 +219,9 @@ def create_fallback_data():
         labels[emotion_idx] = 1
         data.append({"text": text, "labels": labels})
 
-    # Duplicate and shuffle for more data
     extended_data = data * 10
     random.shuffle(extended_data)
 
-    # Split into train/val/test
     train_size = int(0.7 * len(extended_data))
     val_size = int(0.15 * len(extended_data))
 
@@ -246,12 +263,10 @@ def create_dataloaders(data, tokenizer, batch_size=16):
                 "labels": labels,
             }
 
-    # Create datasets
     train_dataset = EmotionDataset(data["train"], tokenizer)
     val_dataset = EmotionDataset(data["validation"], tokenizer)
     test_dataset = EmotionDataset(data["test"], tokenizer)
 
-    # Create dataloaders
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
@@ -266,7 +281,6 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device, e
     for epoch in range(epochs):
         logger.info("📚 Epoch {epoch + 1}/{epochs}")
 
-        # Training
         model.train()
         train_losses = []
 
@@ -287,13 +301,12 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device, e
             if batch_idx % 10 == 0:
                 logger.info("   Batch {batch_idx}: Loss = {loss.item():.4f}")
 
-        # Validation
         model.eval()
         val_losses = []
 
         with torch.no_grad():
             progress_bar = tqdm(val_loader, desc="Validation Epoch {epoch + 1}")
-            for batch in progress_bar:
+            for __batch in progress_bar:
                 input_ids = batch["input_ids"].to(device)
                 attention_mask = batch["attention_mask"].to(device)
                 labels = batch["labels"].to(device)
@@ -337,7 +350,6 @@ def evaluate_model(model, test_loader, device):
     all_predictions = np.vstack(all_predictions)
     all_labels = np.vstack(all_labels)
 
-    # Test different thresholds
     logger.info("🎯 Testing thresholds for optimal F1 score...")
     best_f1 = 0
     best_threshold = 0.5
@@ -373,7 +385,6 @@ def evaluate_model(model, test_loader, device):
             best_f1 = f1_macro
             best_threshold = threshold
 
-    # Final evaluation with best threshold
     best_predictions = (all_predictions > best_threshold).astype(int)
 
     precision_macro = precision_score(
@@ -397,11 +408,9 @@ def main():
     """Main training function."""
     logger.info("🚀 Starting Full Dataset Focal Loss Training")
 
-    # Setup
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Device: {device}")
 
-    # Download data
     data = download_go_emotions_manual()
 
     logger.info("✅ Dataset loaded:")
@@ -409,7 +418,6 @@ def main():
     logger.info("   • Validation: {len(data['validation'])} examples")
     logger.info("   • Test: {len(data['test'])} examples")
 
-    # Create model
     logger.info("🤖 Creating BERT emotion classifier...")
     model = SimpleBERTClassifier()
     model.to(device)
@@ -420,10 +428,8 @@ def main():
         "   • Trainable parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
     )
 
-    # Create tokenizer
     tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
-    # Create dataloaders
     logger.info("📊 Creating dataloaders...")
     train_loader, val_loader, test_loader = create_dataloaders(data, tokenizer)
 
@@ -432,14 +438,12 @@ def main():
     logger.info("   • Validation: {len(val_loader.dataset)} examples")
     logger.info("   • Test: {len(test_loader.dataset)} examples")
 
-    # Setup training
     criterion = FocalLoss(alpha=0.25, gamma=2.0)
     optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5, weight_decay=0.01)
 
     logger.info("✅ Focal Loss created (alpha=0.25, gamma=2.0)")
     logger.info("✅ Optimizer created (AdamW, lr=2e-5, weight_decay=0.01)")
 
-    # Train model
     logger.info("🚀 Starting training...")
     best_val_loss = train_model(
         model, train_loader, val_loader, criterion, optimizer, device, epochs=10
@@ -447,7 +451,6 @@ def main():
 
     logger.info("🎯 Training completed! Best validation loss: {best_val_loss:.4f}")
 
-    # Evaluate model
     logger.info("🔍 Running comprehensive evaluation...")
     results = evaluate_model(model, test_loader, device)
 
@@ -455,13 +458,11 @@ def main():
         "🎯 Best threshold: {results['best_threshold']:.2f} (F1 Macro: {results['f1_macro']:.4f})"
     )
 
-    # Save model and results
     logger.info("💾 Saving trained model and results...")
 
     models_dir = Path("models/emotion_detection")
     models_dir.mkdir(parents=True, exist_ok=True)
 
-    # Save model
     model_path = models_dir / "full_dataset_focal_loss_model.pt"
     torch.save(
         {
@@ -472,7 +473,6 @@ def main():
         model_path,
     )
 
-    # Save results
     results_path = models_dir / "full_dataset_focal_results.json"
     with open(results_path, "w") as f:
         json.dump(

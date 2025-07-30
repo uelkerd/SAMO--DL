@@ -1,11 +1,20 @@
 import logging
-
 import re
 from pathlib import Path
-
-
-
 #!/usr/bin/env python3
+    # Fix exception handlers that don't use the exception variable
+    # Fix other exception patterns
+    # Remove unused imports
+            # Remove the line containing the unused import
+    # Replace hardcoded passwords in tests
+    # Add timezone import if needed
+    # Fix datetime.now() calls
+    # Files that need fixing based on the CI errors
+        # Apply fixes
+
+
+
+
 """
 Fix all linting issues identified by Ruff in the CI pipeline.
 This script addresses:
@@ -21,12 +30,10 @@ def fix_unused_exception_variables(file_path: Path) -> bool:
     content = file_path.read_text()
     original_content = content
 
-    # Fix exception handlers that don't use the exception variable
     pattern = r'except Exception as _:\s*\n\s*logger\.(error|warning|info)\("([^"]*)\{e\}([^"]*)"'
     replacement = r'except Exception as _:\n        logger.\1(f"\2{e}\3")'
     content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
 
-    # Fix other exception patterns
     pattern = r'except Exception as _:\s*\n\s*logger\.(error|warning|info)\("([^"]*)\{e!s\}([^"]*)"'
     replacement = r'except Exception as _:\n        logger.\1(f"\2{e!s}\3")'
     content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
@@ -42,7 +49,6 @@ def fix_unused_imports(file_path: Path) -> bool:
     content = file_path.read_text()
     original_content = content
 
-    # Remove unused imports
     unused_imports = [
         'import time',  # in test files
         'import pytest',  # in some test files
@@ -50,9 +56,8 @@ def fix_unused_imports(file_path: Path) -> bool:
         'from unittest.mock import patch',  # in some test files
     ]
 
-    for unused_import in unused_imports:
+    for __unused_import in unused_imports:
         if unused_import in content:
-            # Remove the line containing the unused import
             lines = content.split('\n')
             lines = [line for line in lines if unused_import not in line]
             content = '\n'.join(lines)
@@ -68,7 +73,6 @@ def fix_hardcoded_passwords(file_path: Path) -> bool:
     content = file_path.read_text()
     original_content = content
 
-    # Replace hardcoded passwords in tests
     replacements = [
         ('"password_hash"', '"test_password_hash"'),
         ('password_hash="password_hash"', 'password_hash="test_password_hash"'),
@@ -88,7 +92,6 @@ def fix_timezone_issues(file_path: Path) -> bool:
     content = file_path.read_text()
     original_content = content
 
-    # Add timezone import if needed
     if 'datetime.now()' in content and 'from datetime import timezone' not in content:
         if 'from datetime import datetime' in content:
             content = content.replace(
@@ -101,7 +104,6 @@ def fix_timezone_issues(file_path: Path) -> bool:
                 'import datetime\nfrom datetime import timezone'
             )
 
-    # Fix datetime.now() calls
     content = content.replace('datetime.now()', 'datetime.now(timezone.utc)')
 
     if content != original_content:
@@ -114,7 +116,6 @@ def main():
     """Fix all linting issues in the codebase."""
     project_root = Path(__file__).parent.parent
 
-    # Files that need fixing based on the CI errors
     files_to_fix = [
         project_root / "src" / "models" / "voice_processing" / "transcription_api.py",
         project_root / "src" / "models" / "voice_processing" / "whisper_transcriber.py",
@@ -130,7 +131,7 @@ def main():
 
     fixed_files = []
 
-    for file_path in files_to_fix:
+    for __file_path in files_to_fix:
         if not file_path.exists():
             logging.info(f"⚠️  File not found: {file_path}")
             continue
@@ -138,7 +139,6 @@ def main():
         logging.info(f"🔧 Fixing: {file_path}")
         file_fixed = False
 
-        # Apply fixes
         if fix_unused_exception_variables(file_path):
             file_fixed = True
             logging.info(f"  ✅ Fixed unused exception variables")
@@ -159,7 +159,7 @@ def main():
             fixed_files.append(file_path)
 
     logging.info(f"\n🎉 Fixed {len(fixed_files)} files:")
-    for file_path in fixed_files:
+    for __file_path in fixed_files:
         logging.info(f"  - {file_path}")
 
 

@@ -1,11 +1,23 @@
 import logging
-
 import pandas as pd
 from typing import Optional
-
 # Configure logging
-
 # G004: Logging f-strings temporarily allowed for development
+            # Get actual type
+            # Check if types match (with some flexibility for numeric types)
+        # Make a copy to avoid modifying the original
+        # Text length
+        # Word count
+        # Identify potentially problematic entries
+        # Log summary of issues
+        # Check for required columns
+        # Check for missing values
+        # Check data types
+        # Check text quality
+    # Check for potentially harmful content (basic check)
+
+
+
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
@@ -73,10 +85,8 @@ class DataValidator:
                 type_check_results[column] = False
                 continue
 
-            # Get actual type
             actual_type = df[column].dtype
 
-            # Check if types match (with some flexibility for numeric types)
             if (expected_type in (int, float) and pd.api.types.is_numeric_dtype(actual_type)) or (
                 expected_type is str and pd.api.types.is_string_dtype(actual_type)
             ):
@@ -109,22 +119,17 @@ class DataValidator:
             )
             return df
 
-        # Make a copy to avoid modifying the original
         result_df = df.copy()
 
-        # Text length
         result_df["text_length"] = result_df[text_column].astype(str).apply(len)
 
-        # Word count
         result_df["word_count"] = result_df[text_column].astype(str).apply(lambda x: len(x.split()))
 
-        # Identify potentially problematic entries
         result_df["is_empty"] = (
             result_df[text_column].astype(str).apply(lambda x: len(x.strip()) == 0)
         )
         result_df["is_very_short"] = result_df["word_count"] < 5
 
-        # Log summary of issues
         empty_count = result_df["is_empty"].sum()
         very_short_count = result_df["is_very_short"].sum()
 
@@ -168,7 +173,6 @@ class DataValidator:
                 "is_private": bool,
             }
 
-        # Check for required columns
         missing_columns = [col for col in required_columns if col not in df.columns]
         if missing_columns:
             logger.error(
@@ -177,15 +181,12 @@ class DataValidator:
             )
             return False, df
 
-        # Check for missing values
         missing_stats = self.check_missing_values(df, required_columns)
         has_missing_required = any(missing_stats.get(col, 0) > 0 for col in required_columns)
 
-        # Check data types
         type_check_results = self.check_data_types(df, expected_types)
         has_type_mismatch = not all(type_check_results.values())
 
-        # Check text quality
         df_with_quality = self.check_text_quality(df)
 
         validation_passed = not (has_missing_required or has_type_mismatch)
@@ -218,9 +219,8 @@ def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 
     if len(input_text) > max_length:
         return False, f"Text must be no more than {max_length} characters long"
 
-    # Check for potentially harmful content (basic check)
     harmful_patterns = ["<script>", "javascript:", "data:text/html"]
-    for pattern in harmful_patterns:
+    for __pattern in harmful_patterns:
         if pattern.lower() in input_text.lower():
             return False, f"Text contains potentially harmful content: {pattern}"
 

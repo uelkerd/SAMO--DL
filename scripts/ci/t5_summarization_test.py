@@ -1,13 +1,19 @@
 import sys
-
 #!/usr/bin/env python3
 import logging
 from pathlib import Path
-
 # Add src to path
 from models.summarization.t5_summarizer import create_t5_summarizer
-
 # Configure logging
+        # Initialize model with CPU device for CI
+        # Test basic model properties
+        # Initialize model
+        # Test text for summarization
+        # Perform summarization
+        # Validate summary
+
+
+
 
 """
 T5 Summarization Model Test for CI/CD Pipeline.
@@ -27,7 +33,6 @@ def test_t5_model_loading():
     try:
         logger.info("🤖 Testing T5 summarization model loading...")
 
-        # Initialize model with CPU device for CI
         model = create_t5_summarizer(
             model_name="t5-small",  # Use small model for CI
             device="cpu",
@@ -35,7 +40,6 @@ def test_t5_model_loading():
 
         logger.info("✅ T5 model initialized successfully")
 
-        # Test basic model properties
         assert hasattr(model, "model"), "Model should have 'model' attribute"
         assert hasattr(model, "tokenizer"), "Model should have 'tokenizer' attribute"
         assert hasattr(model, "device"), "Model should have 'device' attribute"
@@ -54,10 +58,8 @@ def test_t5_summarization():
     try:
         logger.info("📝 Testing T5 summarization functionality...")
 
-        # Initialize model
         model = create_t5_summarizer(model_name="t5-small", device="cpu")
 
-        # Test text for summarization
         test_text = """
         The T5 (Text-To-Text Transfer Transformer) model is a transformer-based
         architecture that treats every NLP problem as a text-to-text problem.
@@ -66,7 +68,6 @@ def test_t5_summarization():
         translation, and question answering.
         """
 
-        # Perform summarization
         summary = model.generate_summary(
             text=test_text.strip(),
             max_length=50,
@@ -75,7 +76,6 @@ def test_t5_summarization():
 
         logger.info("✅ Summarization successful: {summary[:50]}...")
 
-        # Validate summary
         assert isinstance(summary, str), "Summary should be a string"
         assert len(summary) > 0, "Summary should not be empty"
         assert len(summary) < len(test_text), "Summary should be shorter than input"

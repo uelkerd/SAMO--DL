@@ -1,15 +1,27 @@
 import sys
-
 #!/usr/bin/env python3
 import logging
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from pathlib import Path
-
 # Add project root to Python path
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+# Configure logging
+# Now import the modules
+    # Setup device
+    # Load dataset using existing loader
+    # Create model
+    # Create focal loss
+    # Create optimizer
+    # Training loop (simplified for testing)
+    # Get a small batch for testing
+            # Move batch to device
+            # Forward pass
+            # Backward pass
+
+
 
 
 
@@ -23,11 +35,9 @@ It includes proper path handling for different environments.
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
-# Now import the modules
 class FocalLoss(nn.Module):
     """Focal Loss implementation for multi-label classification."""
 
@@ -51,11 +61,9 @@ def main():
     """Main training function."""
     logger.info("🚀 Starting SAMO-DL Focal Loss Training (Simple)")
 
-    # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Device: {device}")
 
-    # Load dataset using existing loader
     logger.info("📊 Loading GoEmotions dataset...")
     try:
         data_loader = GoEmotionsDataLoader()
@@ -76,7 +84,6 @@ def main():
         logger.error("❌ Failed to load dataset: {e}")
         return
 
-    # Create model
     logger.info("🤖 Creating BERT emotion classifier...")
     try:
         model, _ = create_bert_emotion_classifier(
@@ -95,19 +102,15 @@ def main():
         logger.error("❌ Failed to create model: {e}")
         return
 
-    # Create focal loss
     focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
     logger.info("✅ Focal Loss created (alpha=0.25, gamma=2.0)")
 
-    # Create optimizer
     optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
     logger.info("✅ Optimizer created (AdamW, lr=2e-5)")
 
-    # Training loop (simplified for testing)
     logger.info("🚀 Starting training loop...")
     model.train()
 
-    # Get a small batch for testing
     batch_size = 8
     train_dataloader = torch.utils.data.DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True
@@ -120,16 +123,13 @@ def main():
             if batch_idx >= 5:  # Only do first 5 batches for testing
                 break
 
-            # Move batch to device
             input_ids = batch["input_ids"].to(device)
             attention_mask = batch["attention_mask"].to(device)
             labels = batch["labels"].to(device)
 
-            # Forward pass
             outputs = model(input_ids=input_ids, attention_mask=attention_mask)
             loss = focal_loss(outputs, labels)
 
-            # Backward pass
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()

@@ -1,19 +1,23 @@
 import logging
-
 import numpy as np
 import sys
-
 #!/usr/bin/env python3
 from pathlib import Path
-
 import torch
 from tqdm import tqdm
 from transformers import AutoTokenizer
 from torch.utils.data import DataLoader
 from sklearn.metrics import f1_score
-
 from models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
 from models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+    # --- Load Model ---
+    # --- Load Data ---
+    # --- Calibration Search ---
+    # --- Report Results ---
+
+
+
+
 
 
 
@@ -32,7 +36,6 @@ def calibrate_model():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logging.info("Using device: {device}")
 
-    # --- Load Model ---
     logging.info("🤖 Loading trained model...")
     checkpoint_path = Path("test_checkpoints/best_model.pt")
     if not checkpoint_path.exists():
@@ -48,7 +51,6 @@ def calibrate_model():
     model.eval()
     logging.info("✅ Model loaded successfully.")
 
-    # --- Load Data ---
     logging.info("📊 Loading validation data...")
     data_loader = GoEmotionsDataLoader()
     datasets = data_loader.prepare_datasets()
@@ -63,7 +65,6 @@ def calibrate_model():
     val_dataloader = DataLoader(val_dataset, batch_size=64)
     logging.info("✅ Loaded {len(val_dataset)} validation samples.")
 
-    # --- Calibration Search ---
     temperatures = np.linspace(1.0, 15.0, 15)
     thresholds = np.linspace(0.1, 0.9, 9)
     best_f1 = 0
@@ -73,7 +74,7 @@ def calibrate_model():
     results = []
 
     logging.info("\n🌡️ Starting calibration search...")
-    for temp in temperatures:
+    for __temp in temperatures:
         model.set_temperature(temp)
 
         all_probs = []
@@ -94,7 +95,7 @@ def calibrate_model():
         all_probs = torch.cat(all_probs).numpy()
         all_labels = torch.cat(all_labels).numpy()
 
-        for thresh in thresholds:
+        for __thresh in thresholds:
             predictions = (all_probs > thresh).astype(int)
             micro_f1 = f1_score(all_labels, predictions, average="micro", zero_division=0)
 
@@ -105,7 +106,6 @@ def calibrate_model():
                 best_temp = temp
                 best_thresh = thresh
 
-    # --- Report Results ---
     logging.info("\n🎉 Calibration Complete!")
     logging.info("=" * 50)
     logging.info("🏆 Best Micro F1 Score: {best_f1:.4f}")

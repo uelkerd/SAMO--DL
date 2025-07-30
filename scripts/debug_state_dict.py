@@ -1,11 +1,12 @@
 import logging
-
 import torch
 from pathlib import Path
-
-
-
 #!/usr/bin/env python3
+    # Load checkpoint
+
+
+
+
 """
 Debug Model State Dict Structure
 """
@@ -19,7 +20,6 @@ def debug_state_dict():
 
     logging.info("🔍 Debugging model_state_dict structure...")
 
-    # Load checkpoint
     checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
 
     logging.info("Checkpoint type: {type(checkpoint)}")

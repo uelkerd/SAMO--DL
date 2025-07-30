@@ -1,10 +1,16 @@
 import os
-
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
-
 # Get database connection details from environment variables
+# Create the database URL
+# Create engine
+# Create sessionmaker
+# Create scoped session for thread safety
+    # Import all models here to ensure they're registered with Base.metadata
+    # Create tables
+
+
 
 """Database connection utilities for the SAMO-DL application."""
 
@@ -15,10 +21,8 @@ DB_HOST = os.environ.get("DB_HOST", "localhost")
 DB_PORT = os.environ.get("DB_PORT", "5432")
 DB_NAME = os.environ.get("DB_NAME", "samodb")
 
-# Create the database URL
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-# Create engine
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,  # Check connection before using
@@ -27,10 +31,8 @@ engine = create_engine(
     pool_recycle=3600,  # Recycle connections after 1 hour
 )
 
-# Create sessionmaker
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Create scoped session for thread safety
 db_session = scoped_session(SessionLocal)
 
 Base = declarative_base()
@@ -58,7 +60,5 @@ def init_db() -> None:
 
     This function should be called when the application starts.
     """
-    # Import all models here to ensure they're registered with Base.metadata
 
-    # Create tables
     Base.metadata.create_all(bind=engine)
