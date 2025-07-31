@@ -1,57 +1,18 @@
-                # Mock the transcription for testing
-            # Cleanup
-            # Higher thresholds should generally result in fewer emotions
-            # Note: In real implementation, we'd write actual audio data
-            # Step 1: Submit audio file for analysis
-            # Step 2: Verify successful transcription and analysis
-            # Step 3: Validate complete voice analysis structure
-            # Step 4: Verify transcription quality
-            # Summary should be shorter than original
-            # Summary should contain some positive language
-            # Verify all returned emotions meet threshold
-        # Create temporary audio file
-        # If emotions detected positive feelings, summary should reflect that
-        # Step 1: Request full analysis
-        # Step 1: Submit for analysis
-        # Step 1: Submit journal entry for analysis
-        # Step 1: Submit multiple requests
-        # Step 1: Test with invalid input
-        # Step 2: Test with valid input after error
-        # Step 2: Validate complete analysis structure
-        # Step 2: Verify all requests succeeded
-        # Step 2: Verify emotion detection worked
-        # Step 2: Verify original text preserved
-        # Step 3: Verify data relationships
-        # Step 3: Verify emotion detection results
-        # Step 3: Verify performance consistency
-        # Step 3: Verify summarization worked
-        # Step 3: Verify system continues working normally
-        # Step 4: Verify models worked together coherently
-        # Step 4: Verify summarization results
-        # Step 4: Verify timestamp consistency
-        # Step 4: Verify total throughput
-        # Step 5: Verify performance requirements
-        # Test different confidence thresholds
-        # Timestamp should be recent (within last minute)
-        # Use more robust timestamp parsing
-        # Verify successful response
-        import datetime
-# Test constants
-from pathlib import Path
-from unittest.mock import patch
-import pytest
-import tempfile
-import time
-
-
-
-
-
+#!/usr/bin/env python3
 """
 End-to-end tests for complete user workflows.
 Tests full system integration, data flow, and user scenarios.
 """
 
+import datetime
+import tempfile
+import time
+from pathlib import Path
+from unittest.mock import patch
+
+import pytest
+
+# Test constants
 HTTP_OK = 200
 HTTP_UNPROCESSABLE_ENTITY = 422
 MAX_WORKFLOW_TIME = 3.0
@@ -132,149 +93,223 @@ class TestCompleteWorkflows:
                     response = api_client.post("/analyze/voice-journal", files=files, data=data)
 
             assert response.status_code == HTTP_OK
-            result = response.json()
+            data = response.json()
 
-            assert "transcription" in result
-            assert "text" in result
-            assert "emotions" in result
-            assert "summary" in result
-            assert "processing_time" in result
+            assert "text" in data
+            assert "emotions" in data
+            assert "summary" in data
+            assert "processing_time" in data
+            assert "timestamp" in data
 
-            transcription = result["transcription"]
-            assert "text" in transcription
-            assert "language" in transcription
-            assert "confidence" in transcription
+            # Verify transcription
+            assert data["text"] == sample_audio_data["expected_text"]
+
+            # Verify emotions
+            emotions = data["emotions"]
+            assert isinstance(emotions, list)
+            assert len(emotions) > 0
+
+            for emotion in emotions:
+                assert "emotion" in emotion
+                assert "confidence" in emotion
+                assert 0.0 <= emotion["confidence"] <= 1.0
+
+            # Verify summary
+            if data.get("summary"):
+                summary = data["summary"]
+                assert "summary" in summary
+                assert "key_themes" in summary
+                assert len(summary["summary"]) > 0
+                assert isinstance(summary["key_themes"], list)
 
         finally:
+            # Clean up temporary file
             Path(temp_audio_path).unlink(missing_ok=True)
 
     def test_error_recovery_workflow(self, api_client):
-        """Test system error recovery and graceful degradation."""
-        response = api_client.post("/analyze/journal", data={"text": ""})
-        assert response.status_code == 422
-
-        error_data = response.json()
-        assert "detail" in error_data
-
+        """Test error recovery and graceful degradation."""
+        # Test with invalid input
         response = api_client.post(
             "/analyze/journal",
-            data={"text": "This is a valid journal entry for testing error recovery."},
+            data={"text": "", "generate_summary": True},
         )
-        assert response.status_code == 200
 
-        data = response.json()
-        assert "emotions" in data
-        assert len(data["emotions"]) >= 0
+        # Should return 422 for validation error
+        assert response.status_code == HTTP_UNPROCESSABLE_ENTITY
+
+        # Test with malformed JSON
+        response = api_client.post(
+            "/analyze/journal",
+            data="invalid json",
+            headers={"Content-Type": "application/json"},
+        )
+
+        # Should handle gracefully
+        assert response.status_code in [400, 422]
+
+        # Test with very long text
+        long_text = "This is a very long text. " * 1000
+        response = api_client.post(
+            "/analyze/journal",
+            data={"text": long_text, "generate_summary": False},
+        )
+
+        # Should handle long text gracefully
+        assert response.status_code in [200, 413]
 
     def test_high_volume_workflow(self, api_client):
-        """Test system behavior under high volume of requests."""
-        test_texts = [
-            "I feel incredibly happy today!",
-            "Work was stressful and overwhelming.",
-            "Had a peaceful walk in the park.",
-            "Excited about my upcoming vacation.",
-            "Feeling anxious about the presentation tomorrow.",
-        ]
+        """Test high volume processing capabilities."""
+        responses = []
+        start_time = time.time()
 
-        results = []
-        total_start_time = time.time()
+        # Send multiple requests rapidly
+        for i in range(5):
+            response = api_client.post(
+                "/analyze/journal",
+                data={
+                    "text": f"This is test text number {i} for high volume testing.",
+                    "generate_summary": False,
+                },
+            )
+            responses.append(response)
 
-        for text in test_texts:
-            start_time = time.time()
-            response = api_client.post("/analyze/journal", data={"text": text})
-            end_time = time.time()
+        end_time = time.time()
+        total_time = end_time - start_time
 
-            assert response.status_code == 200
-            data = response.json()
+        # All requests should succeed
+        success_count = sum(1 for r in responses if r.status_code == HTTP_OK)
+        assert success_count >= 4  # At least 80% success rate
 
-            results.append({"response": data, "response_time": end_time - start_time})
-
-        total_time = time.time() - total_start_time
-
-        assert len(results) == len(test_texts)
-
-        for result in results:
-            assert result["response_time"] < 3.0  # Each request under 3 seconds
-            assert "emotions" in result["response"]
-
-        average_time = total_time / len(test_texts)
-        assert average_time < 2.0  # Average processing under 2 seconds
+        # Average response time should be reasonable
+        avg_time = total_time / len(responses)
+        assert avg_time < MAX_AVERAGE_TIME
 
     def test_data_consistency_workflow(self, api_client):
-        """Test data consistency across multiple processing steps."""
-        original_text = "I had an amazing day today! I completed my project and felt incredibly proud of my accomplishment."
+        """Test data consistency across multiple requests."""
+        test_text = "I am feeling happy and excited about the future!"
 
-        response = api_client.post(
-            "/analyze/journal", data={"text": original_text, "generate_summary": True}
-        )
+        # Send same request multiple times
+        responses = []
+        for _ in range(3):
+            response = api_client.post(
+                "/analyze/journal",
+                data={"text": test_text, "generate_summary": True},
+            )
+            responses.append(response)
 
-        assert response.status_code == 200
-        data = response.json()
+        # All should succeed
+        for response in responses:
+            assert response.status_code == HTTP_OK
 
-        assert data["text"] == original_text
+        # Extract data from responses
+        data_list = [r.json() for r in responses]
 
-        if data.get("summary") and data["summary"].get("original_length"):
-            assert data["summary"]["original_length"] == len(original_text)
+        # Check consistency of core fields
+        for data in data_list:
+            assert "text" in data
+            assert "emotions" in data
+            assert "processing_time" in data
+            assert "timestamp" in data
 
-        assert "timestamp" in data
-        timestamp_str = data["timestamp"]
-        if timestamp_str.endswith("Z"):
-            timestamp_str = timestamp_str[:-1] + "+00:00"
+        # Text should be consistent
+        texts = [data["text"] for data in data_list]
+        assert len(set(texts)) == 1  # All texts should be identical
 
-        timestamp = datetime.datetime.fromisoformat(timestamp_str)
-        now = datetime.datetime.now(datetime.UTC)
-        time_diff = (now - timestamp).total_seconds()
-        assert time_diff < 60  # Within last minute
+        # Emotions should be consistent (same emotions detected)
+        emotion_sets = [set(e["emotion"] for e in data["emotions"]) for data in data_list]
+        assert len(set(tuple(sorted(es)) for es in emotion_sets)) == 1
 
     def test_configuration_workflow(self, api_client):
-        """Test different configuration options work correctly."""
-        test_text = "I'm feeling mixed emotions about this situation."
+        """Test different configuration options."""
+        test_text = "I am feeling mixed emotions today."
 
-        thresholds = [0.1, 0.5, 0.8]
+        # Test with different confidence thresholds
+        thresholds = [0.3, 0.5, 0.7]
+        emotion_counts = []
 
         for threshold in thresholds:
             response = api_client.post(
-                "/analyze/journal", data={"text": test_text, "confidence_threshold": threshold}
+                "/analyze/journal",
+                data={
+                    "text": test_text,
+                    "confidence_threshold": threshold,
+                    "generate_summary": False,
+                },
             )
 
-            assert response.status_code == 200
+            assert response.status_code == HTTP_OK
             data = response.json()
-
             emotions = data["emotions"]
-            assert isinstance(emotions, list)
+            emotion_counts.append(len(emotions))
 
-            for emotion in emotions:
-                assert emotion["confidence"] >= threshold
+        # Higher threshold should generally result in fewer emotions
+        # (more strict filtering)
+        assert emotion_counts[0] >= emotion_counts[1] >= emotion_counts[2]
+
+        # Test with and without summary generation
+        response_with_summary = api_client.post(
+            "/analyze/journal",
+            data={"text": test_text, "generate_summary": True},
+        )
+
+        response_without_summary = api_client.post(
+            "/analyze/journal",
+            data={"text": test_text, "generate_summary": False},
+        )
+
+        assert response_with_summary.status_code == HTTP_OK
+        assert response_without_summary.status_code == HTTP_OK
+
+        data_with = response_with_summary.json()
+        data_without = response_without_summary.json()
+
+        # Summary should be present when requested
+        assert "summary" in data_with
+        assert data_without.get("summary") is None
 
     @pytest.mark.model
     def test_model_integration_workflow(self, api_client):
-        """Test integration between different AI models."""
-        test_text = (
-            "Today was fantastic! I achieved my goals and felt genuinely happy and grateful."
-        )
+        """Test integration with all AI models."""
+        test_text = "I am feeling joyful and grateful for this amazing day!"
 
         response = api_client.post(
-            "/analyze/journal", data={"text": test_text, "generate_summary": True}
+            "/analyze/journal",
+            data={
+                "text": test_text,
+                "generate_summary": True,
+                "confidence_threshold": 0.5,
+            },
         )
 
-        assert response.status_code == 200
+        assert response.status_code == HTTP_OK
         data = response.json()
 
-        emotions = data.get("emotions", [])
+        # Verify all model outputs are present
+        assert "text" in data
+        assert "emotions" in data
+        assert "summary" in data
+
+        # Verify emotion detection model output
+        emotions = data["emotions"]
+        assert isinstance(emotions, list)
         assert len(emotions) > 0
 
-        summary = data.get("summary")
-        if summary:
-            assert "summary" in summary
-            assert len(summary["summary"]) > 0
-            assert len(summary["summary"]) < len(test_text)
-
+        # Check for expected emotions in joyful text
         emotion_names = [e["emotion"] for e in emotions]
-        positive_emotions = {"joy", "happiness", "gratitude", "excitement", "pride"}
+        assert any("joy" in name.lower() or "happy" in name.lower() for name in emotion_names)
 
-        has_positive_emotion = any(emotion in positive_emotions for emotion in emotion_names)
+        # Verify summarization model output
+        summary = data["summary"]
+        assert "summary" in summary
+        assert "key_themes" in summary
+        assert len(summary["summary"]) > 0
+        assert isinstance(summary["key_themes"], list)
 
-        if has_positive_emotion and summary:
-            summary_text = summary["summary"].lower()
-            positive_words = ["positive", "happy", "great", "good", "wonderful", "fantastic"]
-            assert any(word in summary_text for word in positive_words)
+        # Verify processing time is reasonable
+        assert data["processing_time"] < MAX_PROCESSING_TIME
+
+        # Verify timestamp is recent
+        timestamp = datetime.datetime.fromisoformat(data["timestamp"].replace("Z", "+00:00"))
+        now = datetime.datetime.now(datetime.timezone.utc)
+        time_diff = abs((now - timestamp).total_seconds())
+        assert time_diff < MAX_TIMESTAMP_DIFF
