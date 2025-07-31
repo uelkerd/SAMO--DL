@@ -4,6 +4,290 @@
 
 **SAMO** is an AI-powered, voice-first journaling companion designed to provide real emotional reflection. This repository contains the core AI/ML components including emotion detection, text summarization, and voice processing capabilities.
 
+## 🏗️ **System Architecture**
+
+### **High-Level System Overview**
+
+```mermaid
+graph TB
+    subgraph "Frontend Applications"
+        Web[Web App]
+        Mobile[Mobile App]
+        Voice[Voice Interface]
+    end
+    
+    subgraph "API Gateway"
+        Gateway[FastAPI Gateway]
+        RateLimit[Rate Limiter]
+        Auth[Authentication]
+    end
+    
+    subgraph "Core AI Pipeline"
+        VoiceProc[Voice Processing<br/>OpenAI Whisper]
+        EmotionDet[Emotion Detection<br/>BERT + GoEmotions]
+        TextSum[Text Summarization<br/>T5/BART]
+        UnifiedAPI[Unified AI API]
+    end
+    
+    subgraph "Data Layer"
+        DB[(PostgreSQL<br/>+ pgvector)]
+        Cache[(Redis Cache)]
+        Storage[File Storage]
+    end
+    
+    subgraph "ML Infrastructure"
+        Training[Model Training<br/>PyTorch]
+        Optimization[Performance<br/>ONNX + GPU]
+        Monitoring[ML Monitoring<br/>+ Logging]
+    end
+    
+    Web --> Gateway
+    Mobile --> Gateway
+    Voice --> Gateway
+    
+    Gateway --> RateLimit
+    RateLimit --> Auth
+    Auth --> UnifiedAPI
+    
+    UnifiedAPI --> VoiceProc
+    UnifiedAPI --> EmotionDet
+    UnifiedAPI --> TextSum
+    
+    VoiceProc --> DB
+    EmotionDet --> DB
+    TextSum --> DB
+    
+    UnifiedAPI --> Cache
+    VoiceProc --> Storage
+    
+    Training --> Optimization
+    Optimization --> Monitoring
+    Monitoring --> UnifiedAPI
+```
+
+### **AI Model Pipeline Flow**
+
+```mermaid
+flowchart TD
+    subgraph "Input Processing"
+        A[Voice Input] --> B[Audio Preprocessing]
+        C[Text Input] --> D[Text Validation]
+        B --> E[Whisper Transcription]
+        D --> F[Tokenization]
+    end
+    
+    subgraph "AI Analysis Pipeline"
+        E --> G[Emotion Detection<br/>BERT Classifier]
+        F --> G
+        G --> H[Emotion Analysis<br/>28 Categories]
+        
+        E --> I[Text Summarization<br/>T5 Model]
+        F --> I
+        I --> J[Core Extraction<br/>Emotional Summary]
+        
+        H --> K[Cross-Model Insights]
+        J --> K
+    end
+    
+    subgraph "Output Generation"
+        K --> L[Unified Response]
+        L --> M[JSON API Response]
+        L --> N[Database Storage]
+        L --> O[Analytics & Monitoring]
+    end
+    
+    subgraph "Performance Optimization"
+        P[GPU Acceleration]
+        Q[ONNX Conversion]
+        R[Batch Processing]
+        S[Async Processing]
+    end
+    
+    G --> P
+    I --> P
+    P --> Q
+    Q --> R
+    R --> S
+```
+
+### **Data Flow Architecture**
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant API as FastAPI Gateway
+    participant RateLimit as Rate Limiter
+    participant Voice as Voice Processor
+    participant Emotion as Emotion Detector
+    participant Summary as Text Summarizer
+    participant DB as PostgreSQL
+    participant Cache as Redis
+    
+    Client->>API: POST /analyze/voice-journal
+    API->>RateLimit: Check rate limits
+    RateLimit->>API: Allow/Deny
+    
+    API->>Voice: Transcribe audio
+    Voice->>Voice: Process with Whisper
+    Voice->>API: Return transcription
+    
+    API->>Emotion: Analyze emotions
+    Emotion->>Emotion: BERT classification
+    Emotion->>API: Return emotion scores
+    
+    API->>Summary: Generate summary
+    Summary->>Summary: T5 processing
+    Summary->>API: Return summary
+    
+    API->>DB: Store results
+    API->>Cache: Cache for performance
+    API->>Client: Return unified response
+```
+
+### **Model Training & Deployment Pipeline**
+
+```mermaid
+graph LR
+    subgraph "Data Pipeline"
+        A[Raw Data] --> B[Data Preprocessing]
+        B --> C[Feature Engineering]
+        C --> D[Validation Split]
+    end
+    
+    subgraph "Model Development"
+        D --> E[Model Training<br/>PyTorch]
+        E --> F[Hyperparameter Tuning]
+        F --> G[Model Evaluation]
+        G --> H[Performance Testing]
+    end
+    
+    subgraph "Optimization"
+        H --> I[GPU Optimization]
+        I --> J[ONNX Conversion]
+        J --> K[Model Compression]
+        K --> L[Benchmarking]
+    end
+    
+    subgraph "Deployment"
+        L --> M[Model Registry]
+        M --> N[API Integration]
+        N --> O[Production Deployment]
+        O --> P[Monitoring & Alerting]
+    end
+    
+    subgraph "Quality Assurance"
+        Q[Unit Tests]
+        R[Integration Tests]
+        S[Performance Tests]
+        T[Security Scans]
+    end
+    
+    E --> Q
+    N --> R
+    L --> S
+    O --> T
+```
+
+### **Database Schema Overview**
+
+```mermaid
+erDiagram
+    JOURNAL_ENTRIES {
+        uuid id PK
+        text content
+        timestamp created_at
+        text user_id FK
+        json emotion_analysis
+        json summary_data
+        float processing_time_ms
+    }
+    
+    EMOTION_ANALYSES {
+        uuid id PK
+        uuid journal_entry_id FK
+        json emotions
+        string primary_emotion
+        float confidence
+        string emotional_intensity
+    }
+    
+    TEXT_SUMMARIES {
+        uuid id PK
+        uuid journal_entry_id FK
+        text summary
+        array key_emotions
+        float compression_ratio
+        string emotional_tone
+    }
+    
+    VOICE_TRANSCRIPTIONS {
+        uuid id PK
+        uuid journal_entry_id FK
+        text transcribed_text
+        string language
+        float confidence
+        float duration
+        int word_count
+    }
+    
+    MODEL_PERFORMANCE {
+        uuid id PK
+        string model_name
+        float latency_ms
+        float accuracy
+        timestamp recorded_at
+        json metadata
+    }
+    
+    JOURNAL_ENTRIES ||--o{ EMOTION_ANALYSES : "has"
+    JOURNAL_ENTRIES ||--o{ TEXT_SUMMARIES : "has"
+    JOURNAL_ENTRIES ||--o{ VOICE_TRANSCRIPTIONS : "has"
+```
+
+### **CI/CD Pipeline Architecture**
+
+```mermaid
+graph TD
+    subgraph "Development"
+        A[Code Changes] --> B[Pre-commit Hooks]
+        B --> C[Ruff Linting]
+        C --> D[Security Scans]
+        D --> E[Unit Tests]
+    end
+    
+    subgraph "Continuous Integration"
+        E --> F[CircleCI Pipeline]
+        F --> G[Integration Tests]
+        G --> H[Performance Benchmarks]
+        H --> I[Code Coverage]
+        I --> J[Security Analysis]
+    end
+    
+    subgraph "Quality Gates"
+        J --> K{Tests Pass?}
+        K -->|Yes| L{Coverage > 80%?}
+        K -->|No| M[Fail Build]
+        L -->|Yes| N{Security Clean?}
+        L -->|No| O[Improve Coverage]
+        N -->|Yes| P[Deploy to Staging]
+        N -->|No| Q[Fix Vulnerabilities]
+    end
+    
+    subgraph "Deployment"
+        P --> R[Staging Tests]
+        R --> S[Performance Validation]
+        S --> T[Production Deployment]
+        T --> U[Health Monitoring]
+    end
+    
+    subgraph "Monitoring"
+        U --> V[Error Tracking]
+        V --> W[Performance Metrics]
+        W --> X[User Analytics]
+        X --> Y[ML Model Monitoring]
+    end
+```
+
 ## 🎯 **Current Status: Week 1-2 Complete + Week 3-4: 80% Complete, Significantly Ahead of Schedule**
 
 **🚀 Foundation Phase SUCCESS**: Infrastructure transformed from compromised state to production-ready ML pipeline
