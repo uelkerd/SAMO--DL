@@ -13,14 +13,21 @@ Usage:
 
 import argparse
 import logging
+import os
 import statistics
 import sys
 import time
 from pathlib import Path
 
-# Add project root to Python path
-project_root = Path(__file__).parent.parent
+# Add project root to Python path - more robust for CI environments
+script_dir = Path(__file__).resolve().parent
+project_root = script_dir.parent
 sys.path.insert(0, str(project_root))
+
+# Debug logging for path resolution
+print(f"Script directory: {script_dir}")
+print(f"Project root: {project_root}")
+print(f"Python path: {sys.path[:3]}")  # Show first 3 entries
 
 import numpy as np
 import onnx
