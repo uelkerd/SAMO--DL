@@ -1,35 +1,19 @@
 #!/usr/bin/env python3
-"""T5/BART Summarization Model for SAMO Deep Learning.
+"""
+T5-based Text Summarization for SAMO Deep Learning.
 
-This module implements T5 and BART models for extracting emotional core
-from journal entries and conversations, providing intelligent summaries
-that preserve emotional context and key insights.
-
-Key Features:
-- T5 and BART model support with optimized preprocessing
-- Emotional context preservation in summaries
-- Length-aware summarization (adaptive to content complexity)
-- ROUGE-score optimization for quality
-- Production-ready with proper error handling and logging
+This module provides T5-based text summarization capabilities for
+journal entries and other text content.
 """
 
 import logging
-import time
 import warnings
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Dict, List, Optional, Union
 
 import torch
 import torch.nn as nn
-from torch.utils.data import Dataset
-from transformers import (
-    AutoModelForSeq2SeqLM,
-    AutoTokenizer,
-    BartForConditionalGeneration,
-    BartTokenizer,
-    T5ForConditionalGeneration,
-    T5Tokenizer,
-)
+from transformers import AutoTokenizer, T5ForConditionalGeneration
 
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development

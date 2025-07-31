@@ -1,18 +1,14 @@
 #!/usr/bin/env python3
-"""Text preprocessing for SAMO Deep Learning.
+"""
+Text Preprocessing Module for SAMO Deep Learning.
 
-This module provides comprehensive text preprocessing functionality for journal entries,
-including tokenization, normalization, and feature extraction.
-
-Key Features:
-- Multi-stage text preprocessing pipeline
-- Configurable preprocessing options
-- Feature extraction for text analysis
-- NLTK integration for advanced NLP
+This module provides comprehensive text preprocessing functionality
+for journal entries and other text data.
 """
 
+import re
 import string
-from typing import Optional
+from typing import List
 
 import nltk
 import numpy as np
