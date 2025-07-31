@@ -54,6 +54,7 @@ class BERTEmotionClassifier(nn.Module):
         classifier_dropout_prob: float = 0.5,
         freeze_bert_layers: int = 0,
         temperature: float = 1.0,  # Temperature scaling for calibration
+        class_weights: Optional[torch.Tensor] = None,
     ) -> None:
         """Initialize BERT emotion classifier.
 
@@ -64,6 +65,7 @@ class BERTEmotionClassifier(nn.Module):
             classifier_dropout_prob: Dropout rate for classification head
             freeze_bert_layers: Number of BERT layers to freeze initially
             temperature: Temperature scaling parameter for probability calibration
+            class_weights: Optional class weights for imbalanced data
         """
         super().__init__()
 
@@ -74,6 +76,8 @@ class BERTEmotionClassifier(nn.Module):
         self.freeze_bert_layers = freeze_bert_layers
         self.temperature = temperature
         self.prediction_threshold = 0.6  # Updated from 0.5 to 0.6 based on calibration
+        self.class_weights = class_weights
+        self.emotion_labels = GOEMOTIONS_EMOTIONS[:num_emotions]
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -197,17 +201,31 @@ class BERTEmotionClassifier(nn.Module):
         texts: Union[str, list[str]],
         threshold: float = 0.5,
         top_k: Optional[int] = None,
-    ) -> dict[str, Union[list[str], torch.Tensor, list[float]]]:
+        input_ids: Optional[torch.Tensor] = None,
+        attention_mask: Optional[torch.Tensor] = None,
+    ) -> Union[dict[str, Union[list[str], torch.Tensor, list[float]]], list[list[int]]]:
         """Predict emotions for given texts.
 
         Args:
-            texts: Single text or list of texts
+            texts: Single text or list of texts (ignored if input_ids provided)
             threshold: Prediction threshold for binary classification
             top_k: Return top-k emotions per text
+            input_ids: Pre-tokenized input IDs (for testing)
+            attention_mask: Pre-tokenized attention mask (for testing)
 
         Returns:
-            Dictionary with predictions, probabilities, and emotion names
+            Dictionary with predictions, probabilities, and emotion names, or list of predictions for testing
         """
+        # Handle direct input_ids/attention_mask for testing
+        if input_ids is not None and attention_mask is not None:
+            self.eval()
+            with torch.no_grad():
+                logits = self.forward(input_ids, attention_mask)
+                probabilities = torch.sigmoid(logits)
+                predictions = (probabilities > threshold).float()
+                return predictions.cpu().numpy().tolist()
+
+        # Original implementation for text input
         if isinstance(texts, str):
             texts = [texts]
 
