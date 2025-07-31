@@ -1,41 +1,6 @@
-            # Add rate limit headers to normal responses
-            # Consume one token
-            # Process request
-            # Rate limit exceeded
-        # Add rate limit headers
-        # Add request timestamp to window
-        # Check if rate limit exceeded
-        # Clean old requests outside window
-        # Direct client IP
-        # Fallback to client IP address
-        # Find keys that haven't been accessed in a long time
-        # Function to extract client ID (API key or IP)
-        # Get client identifier
-        # Get rate limit entry for this client
-        # Periodic cleanup of old entries
-        # Refill tokens based on time elapsed
-        # Remove expired keys
-        # Skip rate limiting for excluded paths
-        # Token refill calculation (tokens accumulate over time)
-        # Try API key from header
-        # Try API key from query param
-        # Update last access time
-    # Last time this entry was used (for cleanup)
-    # Last token refill time
-    # Sliding window for token bucket
-    # Sliding window of request timestamps
-# Default rate limit constants
-from collections import deque
-from dataclasses import dataclass, field
-from fastapi import FastAPI, Request, Response
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.types import ASGIApp
-from typing import Callable, Optional
-import time
-
-
-
-"""API Rate Limiter for SAMO Deep Learning.
+#!/usr/bin/env python3
+"""
+API Rate Limiter for SAMO Deep Learning.
 
 This module implements rate limiting for the SAMO API endpoints using FastAPI middleware.
 It uses a token bucket algorithm to limit the rate of requests per user based on API keys
@@ -49,6 +14,16 @@ Key Features:
 - Cache-based storage with automatic cleanup
 """
 
+import time
+from collections import deque
+from dataclasses import dataclass, field
+from typing import Callable, Optional
+
+from fastapi import FastAPI, Request, Response
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.types import ASGIApp
+
+# Default rate limit constants
 DEFAULT_RATE_LIMIT = 100  # 100 requests per minute
 DEFAULT_WINDOW_SIZE = 60  # 1 minute (in seconds)
 DEFAULT_BURST_LIMIT = 10  # Allow 10 requests at once
@@ -60,11 +35,8 @@ class RateLimitEntry:
     """Rate limit tracking for a single client."""
 
     requests: deque = field(default_factory=lambda: deque(maxlen=1000))
-
     tokens: int = DEFAULT_RATE_LIMIT
-
     last_refill: float = field(default_factory=time.time)
-
     last_access: float = field(default_factory=time.time)
 
 
@@ -101,22 +73,19 @@ class RateLimitCache:
         return self.cache[key]
 
     def _cleanup(self):
-        """Remove old entries from cache."""
-        now = time.time()
-        expired_keys = []
-
-        for key, entry in self.cache.items():
-            if now - entry.last_access > self.cleanup_interval:
-                expired_keys.append(key)
-
+        """Remove expired keys."""
+        current_time = time.time()
+        expired_keys = [
+            key for key, entry in self.cache.items()
+            if current_time - entry.last_access > self.cleanup_interval
+        ]
         for key in expired_keys:
             del self.cache[key]
-
-        self.last_cleanup = now
+        self.last_cleanup = current_time
 
 
 class RateLimiter(BaseHTTPMiddleware):
-    """Middleware for API rate limiting."""
+    """FastAPI middleware for rate limiting."""
 
     def __init__(
         self,
@@ -127,116 +96,116 @@ class RateLimiter(BaseHTTPMiddleware):
         excluded_paths: Optional[list[str]] = None,
         get_client_id: Optional[Callable[[Request], str]] = None,
     ):
-        """Initialize rate limiter middleware.
+        """Initialize rate limiter.
 
         Args:
             app: FastAPI application
-            rate_limit: Maximum number of requests allowed per window
+            rate_limit: Maximum requests per window
             window_size: Time window in seconds
-            burst_limit: Maximum requests to process at once
-            excluded_paths: URL paths to exclude from rate limiting
+            burst_limit: Maximum burst requests
+            excluded_paths: Paths to exclude from rate limiting
             get_client_id: Function to extract client ID from request
         """
         super().__init__(app)
         self.rate_limit = rate_limit
         self.window_size = window_size
         self.burst_limit = burst_limit
-        self.excluded_paths = excluded_paths or ["/health", "/docs", "/redoc", "/openapi.json"]
-        self.cache = RateLimitCache()
-
+        self.excluded_paths = excluded_paths or ["/health", "/docs"]
         self.get_client_id = get_client_id or self._default_client_id
+        self.cache = RateLimitCache()
 
     @staticmethod
     def _default_client_id(request: Request) -> str:
-        """Default method to extract client ID from request.
+        """Extract client ID from request using multiple strategies."""
+        # Try API key from header
+        if "X-Client-ID" in request.headers:
+            return request.headers["X-Client-ID"]
+        
+        # Try API key from Authorization header
+        if "Authorization" in request.headers:
+            auth_header = request.headers["Authorization"]
+            if auth_header.startswith("Bearer "):
+                return auth_header[7:]  # Remove "Bearer " prefix
+        
+        # Try API key from query param
+        if "client_id" in request.query_params:
+            return request.query_params["client_id"]
+        
+        # Try X-Forwarded-For header
+        if "X-Forwarded-For" in request.headers:
+            forwarded_for = request.headers["X-Forwarded-For"]
+            # Take the first IP if multiple are present
+            return forwarded_for.split(",")[0].strip()
+        
+        # Fallback to client IP address
+        if request.client:
+            return request.client.host
+        
+        # Final fallback
+        return "unknown"
 
-        Tries API key from header or query param first, falls back to IP address.
+    def _get_client_id(self, request: Request) -> str:
+        """Get client identifier."""
+        return self.get_client_id(request)
 
-        Args:
-            request: FastAPI request
-
-        Returns:
-            Client identifier string
-        """
-        api_key = request.headers.get("X-API-Key") or request.headers.get("Authorization")
-        if api_key:
-            return api_key
-
-        api_key = request.query_params.get("api_key")
-        if api_key:
-            return api_key
-
-        forwarded = request.headers.get("X-Forwarded-For")
-        if forwarded:
-            return forwarded.split(",")[0].strip()
-
-        return request.client.host if request.client else "unknown"
+    async def middleware(self, request: Request, call_next):
+        """Middleware function for rate limiting."""
+        return await self.dispatch(request, call_next)
 
     async def dispatch(self, request: Request, call_next):
-        """Process request with rate limiting.
+        """Process request with rate limiting."""
+        # Skip rate limiting for excluded paths
+        if any(request.url.path.startswith(path) for path in self.excluded_paths):
+            return await call_next(request)
 
-        Args:
-            request: FastAPI request
-            call_next: Next middleware/handler
-
-        Returns:
-            Response
-        """
-        for path in self.excluded_paths:
-            if request.url.path.startswith(path):
-                return await call_next(request)
-
-        client_id = self.get_client_id(request)
-
+        # Get client identifier
+        client_id = self._get_client_id(request)
+        
+        # Get rate limit entry for this client
         entry = self.cache.get(client_id)
-
-        now = time.time()
-        time_passed = now - entry.last_refill
-
-        new_tokens = int(time_passed * (self.rate_limit / self.window_size))
-        entry.tokens = min(self.rate_limit, entry.tokens + new_tokens)
-        entry.last_refill = now
-
-        entry.requests.append(now)
-
-        while entry.requests and entry.requests[0] < now - self.window_size:
+        
+        # Clean old requests outside window
+        current_time = time.time()
+        while entry.requests and current_time - entry.requests[0] > self.window_size:
             entry.requests.popleft()
-
-        requests_in_window = len(entry.requests)
-
-        response = None
-
-        if requests_in_window > self.rate_limit or entry.tokens <= 0:
-            headers = {
-                "X-RateLimit-Limit": str(self.rate_limit),
-                "X-RateLimit-Remaining": "0",
-                "X-RateLimit-Reset": str(int(entry.last_refill + self.window_size)),
-                "Retry-After": str(self.window_size),
-            }
-
-            content = {
-                "error": "rate_limit_exceeded",
-                "message": "Rate limit exceeded. {self.rate_limit} requests allowed per minute.",
-                "rate_limit": self.rate_limit,
-                "window_size_seconds": self.window_size,
-                "retry_after_seconds": self.window_size,
-            }
-
+        
+        # Refill tokens based on time elapsed
+        time_since_refill = current_time - entry.last_refill
+        tokens_to_add = int(time_since_refill * (self.rate_limit / self.window_size))
+        entry.tokens = min(self.rate_limit, entry.tokens + tokens_to_add)
+        entry.last_refill = current_time
+        
+        # Check if rate limit exceeded
+        if len(entry.requests) >= self.burst_limit or entry.tokens <= 0:
+            # Rate limit exceeded
             response = Response(
+                content="Rate limit exceeded",
                 status_code=429,
-                content=str(content),
-                headers=headers,
-                media_type="application/json",
+                media_type="text/plain"
             )
-        else:
-            entry.tokens -= 1
-
-            response = await call_next(request)
-
+            
+            # Add rate limit headers
             response.headers["X-RateLimit-Limit"] = str(self.rate_limit)
-            response.headers["X-RateLimit-Remaining"] = str(self.rate_limit - requests_in_window)
-            response.headers["X-RateLimit-Reset"] = str(int(now + self.window_size))
-
+            response.headers["X-RateLimit-Remaining"] = "0"
+            response.headers["X-RateLimit-Reset"] = str(int(current_time + self.window_size))
+            response.headers["Retry-After"] = str(self.window_size)
+            
+            return response
+        
+        # Consume one token
+        entry.tokens -= 1
+        
+        # Add request timestamp to window
+        entry.requests.append(current_time)
+        
+        # Process request
+        response = await call_next(request)
+        
+        # Add rate limit headers to normal responses
+        response.headers["X-RateLimit-Limit"] = str(self.rate_limit)
+        response.headers["X-RateLimit-Remaining"] = str(entry.tokens)
+        response.headers["X-RateLimit-Reset"] = str(int(current_time + self.window_size))
+        
         return response
 
 
@@ -248,21 +217,29 @@ def add_rate_limiting(
     excluded_paths: Optional[list[str]] = None,
     get_client_id: Optional[Callable[[Request], str]] = None,
 ) -> None:
-    """Add rate limiting middleware to a FastAPI application.
+    """Add rate limiting middleware to FastAPI app.
 
     Args:
         app: FastAPI application
-        rate_limit: Maximum number of requests allowed per window
+        rate_limit: Maximum requests per window
         window_size: Time window in seconds
-        burst_limit: Maximum requests to process at once
-        excluded_paths: URL paths to exclude from rate limiting
+        burst_limit: Maximum burst requests
+        excluded_paths: Paths to exclude from rate limiting
         get_client_id: Function to extract client ID from request
     """
-    app.add_middleware(
-        RateLimiter,
+    middleware = RateLimiter(
+        app=app,
         rate_limit=rate_limit,
         window_size=window_size,
         burst_limit=burst_limit,
         excluded_paths=excluded_paths,
         get_client_id=get_client_id,
     )
+    
+    # Add middleware to app
+    app.add_middleware(RateLimiter, 
+                      rate_limit=rate_limit,
+                      window_size=window_size,
+                      burst_limit=burst_limit,
+                      excluded_paths=excluded_paths,
+                      get_client_id=get_client_id)
