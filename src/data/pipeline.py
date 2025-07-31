@@ -1,44 +1,43 @@
-        # Create output directory if it doesn't exist
-        # Generate timestamp for filenames
-        # Return results
-        # Save embeddings
-        # Save featured data (main output)
-        # Save intermediate data if requested
-        # Save results if output directory is provided
-        # Save topics if available
-        # Set up embedding pipeline based on specified method
-        # Step 1: Load the data
-        # Step 2: Validate raw data
-        # Step 3: Preprocess data
-        # Step 4: Feature engineering
-        # Step 5: Generate embeddings
-# Configure logging
-# G004: Logging f-strings temporarily allowed for development
-from .embeddings import (
-from .feature_engineering import FeatureEngineer
-from .loaders import (
-from .preprocessing import JournalEntryPreprocessor
-from .validation import DataValidator
-from datetime import UTC, datetime
-from pathlib import Path
+#!/usr/bin/env python3
+"""Data Pipeline for SAMO Deep Learning.
+
+This module orchestrates the complete data processing pipeline for journal entries,
+including loading, validation, preprocessing, feature engineering, and embedding generation.
+
+Key Features:
+- Multi-source data loading (database, JSON, CSV)
+- Comprehensive data validation
+- Text preprocessing and feature engineering
+- Multiple embedding methods (TF-IDF, Word2Vec, FastText)
+- Topic extraction and analysis
+- Configurable output and intermediate data saving
+"""
+
 import datetime
 import logging
-import pandas as pd
 import time
+from datetime import UTC, datetime
+from pathlib import Path
 
+import pandas as pd
 
-
-
-
+from .embeddings import (
     EmbeddingPipeline,
     FastTextEmbedder,
     TfidfEmbedder,
     Word2VecEmbedder,
 )
+from .feature_engineering import FeatureEngineer
+from .loaders import (
     load_entries_from_csv,
     load_entries_from_db,
     load_entries_from_json,
 )
+from .preprocessing import JournalEntryPreprocessor
+from .validation import DataValidator
+
+# Configure logging
+# G004: Logging f-strings temporarily allowed for development
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
@@ -75,7 +74,7 @@ class DataPipeline:
         elif embedding_method == "fasttext":
             embedder = FastTextEmbedder(vector_size=100)
         else:
-            logger.warning("Unknown embedding method '{embedding_method}'. Defaulting to TF-IDF.")
+            logger.warning(f"Unknown embedding method '{embedding_method}'. Defaulting to TF-IDF.")
             embedder = TfidfEmbedder(max_features=1000)
 
         self.embedding_pipeline = EmbeddingPipeline(embedder)
