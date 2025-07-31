@@ -256,9 +256,18 @@ async def health_check() -> dict[str, Any]:
         "status": "healthy",
         "timestamp": time.time(),
         "models": {
-            "emotion_detection": emotion_detector is not None,
-            "text_summarization": text_summarizer is not None,
-            "voice_processing": voice_transcriber is not None,
+            "emotion_detection": {
+                "loaded": emotion_detector is not None,
+                "status": "available" if emotion_detector is not None else "unavailable"
+            },
+            "text_summarization": {
+                "loaded": text_summarizer is not None,
+                "status": "available" if text_summarizer is not None else "unavailable"
+            },
+            "voice_processing": {
+                "loaded": voice_transcriber is not None,
+                "status": "available" if voice_transcriber is not None else "unavailable"
+            },
         },
     }
 
@@ -456,19 +465,25 @@ async def analyze_voice_journal(
 async def get_models_status() -> dict[str, Any]:
     """Get detailed status of all AI models."""
     return {
-        "emotion_detection": {
-            "available": emotion_detector is not None,
+        "emotion_detector": {
+            "loaded": emotion_detector is not None,
             "model_type": "BERT + GoEmotions",
+            "capabilities": ["Multi-label emotion classification", "Emotion intensity analysis"],
+            "available": emotion_detector is not None,
             "description": "Multi-label emotion classification",
         },
-        "text_summarization": {
-            "available": text_summarizer is not None,
+        "text_summarizer": {
+            "loaded": text_summarizer is not None,
             "model_type": "T5",
+            "capabilities": ["Text summarization", "Content compression"],
+            "available": text_summarizer is not None,
             "description": "Text summarization and compression",
         },
-        "voice_processing": {
-            "available": voice_transcriber is not None,
+        "voice_transcriber": {
+            "loaded": voice_transcriber is not None,
             "model_type": "OpenAI Whisper",
+            "capabilities": ["Speech-to-text transcription", "Language detection"],
+            "available": voice_transcriber is not None,
             "description": "Speech-to-text transcription",
         },
         "pipeline": {
@@ -488,6 +503,7 @@ async def get_models_status() -> dict[str, Any]:
 async def root() -> dict[str, Any]:
     """Root endpoint with API information."""
     return {
+        "message": "SAMO AI Unified API is running",
         "name": "SAMO AI Unified API",
         "version": "1.0.0",
         "description": "Complete Deep Learning Pipeline for Voice Journal Analysis",
