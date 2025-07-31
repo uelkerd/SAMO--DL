@@ -1,36 +1,3 @@
-        # Tokenize
-        # Training
-        # Validation
-        from transformers import AutoModel, AutoTokenizer
-    # Anger examples
-    # Create dataloaders
-    # Create directories
-    # Create diverse training data with proper emotion labels
-    # Create labeled data
-    # Create model
-    # Create proper training data
-    # Disgust examples
-    # Evaluate model
-    # Fear examples
-    # Final evaluation with best threshold
-    # Final summary
-    # GoEmotions emotion names (28 classes)
-    # Joy examples
-    # Load best model
-    # Love examples
-    # Neutral examples
-    # Sadness examples
-    # Save model
-    # Save model and results
-    # Save results
-    # Setup
-    # Setup device
-    # Shuffle the data
-    # Split into train/val/test
-    # Surprise examples
-    # Test different thresholds
-    # Train model
-# Configure logging
 #!/usr/bin/env python3
 from pathlib import Path
 from sklearn.metrics import f1_score, precision_score, recall_score
@@ -42,9 +9,7 @@ import numpy as np
 import random
 import torch
 import torch.nn.functional as F
-
-
-
+from transformers import AutoModel, AutoTokenizer
 
 """
 Fixed Focal Loss Training with Proper Data and Thresholds
@@ -98,403 +63,370 @@ def create_proper_training_data():
     logger.info("📊 Creating proper training data with diverse emotion labels...")
 
     emotion_names = [
-        "admiration",
-        "amusement",
-        "anger",
-        "annoyance",
-        "approval",
-        "caring",
-        "confusion",
-        "curiosity",
-        "desire",
-        "disappointment",
-        "disapproval",
-        "disgust",
-        "embarrassment",
-        "excitement",
-        "fear",
-        "gratitude",
-        "grie",
-        "joy",
-        "love",
-        "nervousness",
-        "optimism",
-        "pride",
-        "realization",
-        "relie",
-        "remorse",
-        "sadness",
-        "surprise",
-        "neutral",
+        "admiration", "amusement", "anger", "annoyance", "approval", "caring",
+        "confusion", "curiosity", "desire", "disappointment", "disapproval",
+        "disgust", "embarrassment", "excitement", "fear", "gratitude", "grief",
+        "joy", "love", "nervousness", "optimism", "pride", "realization",
+        "relief", "remorse", "sadness", "surprise", "neutral"
     ]
 
+    # Create diverse training data with proper emotion labels
     training_data = []
-
-    joy_texts = [
-        "I am extremely happy today!",
-        "This makes me so joyful!",
-        "I'm feeling great and excited!",
-        "What a wonderful day!",
-        "I'm so delighted with this!",
-        "This brings me so much happiness!",
-        "I'm thrilled about this news!",
-        "What a fantastic experience!",
+    
+    # Joy examples
+    joy_examples = [
+        "I'm so happy today! Everything is going great!",
+        "This is the best day ever! I can't stop smiling!",
+        "I feel amazing and full of energy!",
+        "What a wonderful surprise! I'm thrilled!",
         "I'm overjoyed with the results!",
-        "This is absolutely amazing!",
+        "This makes me so happy and excited!",
+        "I'm feeling great and optimistic!",
+        "What a fantastic experience!",
+        "I'm delighted with how things turned out!",
+        "This brings me so much joy!"
     ]
-
-    anger_texts = [
-        "This makes me so angry!",
-        "I'm furious about this!",
+    
+    # Sadness examples
+    sadness_examples = [
+        "I'm feeling really down today.",
+        "Everything seems so hopeless right now.",
+        "I'm so sad and lonely.",
+        "This is really depressing me.",
+        "I feel like crying.",
+        "I'm heartbroken over what happened.",
+        "This is so disappointing and sad.",
+        "I'm feeling really low today.",
+        "Everything is going wrong.",
+        "I'm so upset about this situation."
+    ]
+    
+    # Anger examples
+    anger_examples = [
+        "I'm so angry about this!",
         "This is absolutely infuriating!",
-        "I'm so mad right now!",
-        "This is driving me crazy!",
+        "I can't believe this is happening!",
+        "I'm furious with the situation!",
+        "This makes me so mad!",
         "I'm really pissed off!",
-        "This is so frustrating!",
-        "I'm boiling with rage!",
         "This is unacceptable!",
-        "I'm so annoyed by this!",
+        "I'm so frustrated and angry!",
+        "This is driving me crazy!",
+        "I'm really annoyed and angry!"
     ]
-
-    sadness_texts = [
-        "I'm feeling really sad and depressed",
-        "This makes me so unhappy",
-        "I'm feeling down today",
-        "This is really disappointing",
-        "I'm so upset about this",
-        "This breaks my heart",
-        "I'm feeling blue today",
-        "This is really disheartening",
-        "I'm so sorrowful",
-        "This makes me feel miserable",
+    
+    # Fear examples
+    fear_examples = [
+        "I'm really scared about what might happen.",
+        "This is terrifying me.",
+        "I'm afraid of the consequences.",
+        "This is making me anxious and fearful.",
+        "I'm worried about the future.",
+        "This is really frightening.",
+        "I'm scared of what comes next.",
+        "This is causing me a lot of fear.",
+        "I'm terrified of the outcome.",
+        "This is making me really nervous."
     ]
-
-    love_texts = [
-        "I love this so much!",
-        "This is absolutely wonderful!",
-        "I adore this!",
-        "This is so beautiful!",
-        "I'm in love with this!",
-        "This is perfect!",
-        "I cherish this moment!",
-        "This is so precious!",
-        "I'm so grateful for this!",
-        "This fills my heart with love!",
+    
+    # Love examples
+    love_examples = [
+        "I love you so much!",
+        "You mean everything to me.",
+        "I'm so in love with you.",
+        "You make me so happy.",
+        "I adore you completely.",
+        "You're the best thing in my life.",
+        "I'm so grateful for your love.",
+        "You're my everything.",
+        "I love spending time with you.",
+        "You're the love of my life."
     ]
-
-    fear_texts = [
-        "I'm really scared about this",
-        "This is terrifying!",
-        "I'm afraid of what might happen",
-        "This is really frightening",
-        "I'm worried about this",
-        "This makes me anxious",
-        "I'm nervous about this",
-        "This is really concerning",
-        "I'm scared of the outcome",
-        "This is really alarming",
-    ]
-
-    disgust_texts = [
+    
+    # Disgust examples
+    disgust_examples = [
         "This is absolutely disgusting!",
+        "I'm repulsed by this.",
+        "This is so gross!",
+        "I can't stand this.",
+        "This is really nasty.",
+        "I'm disgusted by what I saw.",
         "This is revolting!",
-        "I'm repulsed by this",
-        "This is really gross",
-        "This makes me sick",
-        "This is really nasty",
-        "I'm disgusted by this",
-        "This is really vile",
-        "This is really foul",
-        "This is really repulsive",
+        "I'm appalled by this.",
+        "This is really sickening.",
+        "I'm really grossed out."
     ]
-
-    surprise_texts = [
+    
+    # Surprise examples
+    surprise_examples = [
+        "Oh my God! I can't believe this!",
+        "This is completely unexpected!",
+        "Wow! I'm so surprised!",
+        "This is amazing! I didn't see this coming!",
+        "I'm shocked by this news!",
+        "This is incredible!",
+        "I'm stunned by this revelation!",
+        "This is unbelievable!",
         "I'm really surprised by this!",
-        "This is unexpected!",
-        "Wow, I didn't see that coming!",
-        "This is really shocking!",
-        "I'm amazed by this!",
-        "This is really astonishing!",
-        "I'm stunned by this!",
-        "This is really incredible!",
-        "I'm blown away by this!",
-        "This is really remarkable!",
+        "This is astonishing!"
+    ]
+    
+    # Neutral examples
+    neutral_examples = [
+        "The weather is cloudy today.",
+        "I went to the store to buy groceries.",
+        "The meeting is scheduled for tomorrow.",
+        "I need to finish my work.",
+        "The book is on the table.",
+        "I'm going to the library.",
+        "The car is parked outside.",
+        "I have an appointment at 3 PM.",
+        "The computer is working fine.",
+        "I'm reading a book."
     ]
 
-    neutral_texts = [
-        "This is just okay",
-        "I don't really care about this",
-        "This is neither good nor bad",
-        "I'm indifferent to this",
-        "This doesn't affect me much",
-        "This is just normal",
-        "I don't have strong feelings about this",
-        "This is just average",
-        "I'm neutral about this",
-        "This is just whatever",
-    ]
+    # Create labeled data
+    for text in joy_examples:
+        labels = [0] * 28
+        labels[emotion_names.index("joy")] = 1
+        training_data.append({"text": text, "labels": labels})
+    
+    for text in sadness_examples:
+        labels = [0] * 28
+        labels[emotion_names.index("sadness")] = 1
+        training_data.append({"text": text, "labels": labels})
+    
+    for text in anger_examples:
+        labels = [0] * 28
+        labels[emotion_names.index("anger")] = 1
+        training_data.append({"text": text, "labels": labels})
+    
+    for text in fear_examples:
+        labels = [0] * 28
+        labels[emotion_names.index("fear")] = 1
+        training_data.append({"text": text, "labels": labels})
+    
+    for text in love_examples:
+        labels = [0] * 28
+        labels[emotion_names.index("love")] = 1
+        training_data.append({"text": text, "labels": labels})
+    
+    for text in disgust_examples:
+        labels = [0] * 28
+        labels[emotion_names.index("disgust")] = 1
+        training_data.append({"text": text, "labels": labels})
+    
+    for text in surprise_examples:
+        labels = [0] * 28
+        labels[emotion_names.index("surprise")] = 1
+        training_data.append({"text": text, "labels": labels})
+    
+    for text in neutral_examples:
+        labels = [0] * 28
+        labels[emotion_names.index("neutral")] = 1
+        training_data.append({"text": text, "labels": labels})
 
-    emotion_data = [
-        (joy_texts, 17),  # joy index
-        (anger_texts, 2),  # anger index
-        (sadness_texts, 25),  # sadness index
-        (love_texts, 18),  # love index
-        (fear_texts, 14),  # fear index
-        (disgust_texts, 11),  # disgust index
-        (surprise_texts, 26),  # surprise index
-        (neutral_texts, 27),  # neutral index
-    ]
-
-    for texts, emotion_idx in emotion_data:
-        for text in texts:
-            labels = [0] * 28
-            labels[emotion_idx] = 1
-            training_data.append({"text": text, "labels": labels})
-
+    # Shuffle the data
     random.shuffle(training_data)
-
-    total = len(training_data)
-    train_size = int(0.7 * total)
-    val_size = int(0.15 * total)
-
+    
+    # Split into train/val/test
+    total_samples = len(training_data)
+    train_size = int(0.7 * total_samples)
+    val_size = int(0.15 * total_samples)
+    
     train_data = training_data[:train_size]
-    val_data = training_data[train_size : train_size + val_size]
-    test_data = training_data[train_size + val_size :]
-
-    logger.info("✅ Created {len(training_data)} examples:")
-    logger.info("   • Train: {len(train_data)} examples")
-    logger.info("   • Validation: {len(val_data)} examples")
-    logger.info("   • Test: {len(test_data)} examples")
-
-    return train_data, val_data, test_data, emotion_names
+    val_data = training_data[train_size:train_size + val_size]
+    test_data = training_data[train_size + val_size:]
+    
+    logger.info(f"✅ Created {len(train_data)} training, {len(val_data)} validation, {len(test_data)} test samples")
+    
+    return train_data, val_data, test_data
 
 
 def create_dataloader(data, model, batch_size=8):
     """Create a simple dataloader for the data."""
-    dataset = []
-
-    for item in data:
-        text = item["text"]
-        labels = torch.tensor(item["labels"], dtype=torch.float32)
-
-        encoding = model.tokenizer(
-            text, truncation=True, padding="max_length", max_length=256, return_tensors="pt"
+    dataloader = []
+    
+    for i in range(0, len(data), batch_size):
+        batch = data[i:i + batch_size]
+        
+        texts = [item["text"] for item in batch]
+        labels = [item["labels"] for item in batch]
+        
+        # Tokenize
+        tokenized = model.tokenizer(
+            texts,
+            padding=True,
+            truncation=True,
+            max_length=512,
+            return_tensors="pt"
         )
-
-        dataset.append(
-            {
-                "input_ids": encoding["input_ids"].squeeze(),
-                "attention_mask": encoding["attention_mask"].squeeze(),
-                "labels": labels,
-            }
-        )
-
-    return dataset
+        
+        dataloader.append({
+            "input_ids": tokenized["input_ids"],
+            "attention_mask": tokenized["attention_mask"],
+            "labels": torch.tensor(labels, dtype=torch.float32)
+        })
+    
+    return dataloader
 
 
 def train_model(model, train_data, val_data, device, epochs=10):
     """Train the model with focal loss."""
-    logger.info("🚀 Starting training...")
-
-    model.train()
-    criterion = FocalLoss(alpha=0.25, gamma=2.0)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5, weight_decay=0.01)
-
-    best_val_loss = float("in")
-    best_model_state = None
-
+    logger.info("🚀 Starting model training...")
+    
+    model.to(device)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
+    criterion = FocalLoss()
+    
+    best_val_loss = float('inf')
+    
     for epoch in range(epochs):
-        logger.info("📚 Epoch {epoch + 1}/{epochs}")
-
         model.train()
-        train_loss = 0.0
-
-        for i, item in enumerate(tqdm(train_data, desc="Training Epoch {epoch + 1}")):
-            input_ids = item["input_ids"].unsqueeze(0).to(device)
-            attention_mask = item["attention_mask"].unsqueeze(0).to(device)
-            labels = item["labels"].unsqueeze(0).to(device)
-
+        total_loss = 0
+        
+        for batch in tqdm(train_data, desc=f"Epoch {epoch + 1}/{epochs}"):
+            input_ids = batch["input_ids"].to(device)
+            attention_mask = batch["attention_mask"].to(device)
+            labels = batch["labels"].to(device)
+            
             optimizer.zero_grad()
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+            outputs = model(input_ids, attention_mask)
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
-
-            train_loss += loss.item()
-
-            if i % 10 == 0:
-                logger.info("   Batch {i}: Loss = {loss.item():.4f}")
-
-        avg_train_loss = train_loss / len(train_data)
-
+            
+            total_loss += loss.item()
+        
+        # Validation
         model.eval()
-        val_loss = 0.0
-
+        val_loss = 0
         with torch.no_grad():
-            for item in tqdm(val_data, desc="Validation Epoch {epoch + 1}"):
-                input_ids = item["input_ids"].unsqueeze(0).to(device)
-                attention_mask = item["attention_mask"].unsqueeze(0).to(device)
-                labels = item["labels"].unsqueeze(0).to(device)
-
-                outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+            for batch in val_data:
+                input_ids = batch["input_ids"].to(device)
+                attention_mask = batch["attention_mask"].to(device)
+                labels = batch["labels"].to(device)
+                
+                outputs = model(input_ids, attention_mask)
                 loss = criterion(outputs, labels)
                 val_loss += loss.item()
-
+        
+        avg_train_loss = total_loss / len(train_data)
         avg_val_loss = val_loss / len(val_data)
-
-        logger.info("📊 Epoch {epoch + 1} Results:")
-        logger.info("   • Train Loss: {avg_train_loss:.4f}")
-        logger.info("   • Val Loss: {avg_val_loss:.4f}")
-
+        
+        logger.info(f"Epoch {epoch + 1}: Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}")
+        
+        # Save best model
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
-            best_model_state = model.state_dict().copy()
-            logger.info("   🎯 New best validation loss: {best_val_loss:.4f}")
-
-    model.load_state_dict(best_model_state)
-    logger.info("🎯 Training completed! Best validation loss: {best_val_loss:.4f}")
-
+            torch.save(model.state_dict(), "best_focal_model.pth")
+            logger.info(f"✅ Saved best model with val loss: {best_val_loss:.4f}")
+    
     return model
 
 
 def evaluate_model(model, test_data, device):
-    """Evaluate the model with proper threshold optimization."""
-    logger.info("🔍 Running comprehensive evaluation...")
-
+    """Evaluate the model with different thresholds."""
+    logger.info("📊 Evaluating model with different thresholds...")
+    
     model.eval()
-
-    all_true_labels = []
-    all_probabilities = []
-
+    all_predictions = []
+    all_labels = []
+    
     with torch.no_grad():
-        for item in tqdm(test_data, desc="Evaluating"):
-            input_ids = item["input_ids"].unsqueeze(0).to(device)
-            attention_mask = item["attention_mask"].unsqueeze(0).to(device)
-            labels = item["labels"].cpu().numpy()
-
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-            probabilities = torch.sigmoid(outputs).cpu().numpy().squeeze()
-
-            all_true_labels.append(labels)
-            all_probabilities.append(probabilities)
-
-    all_true_labels = np.array(all_true_labels)
-    all_probabilities = np.array(all_probabilities)
-
-    thresholds = np.arange(0.1, 0.9, 0.05)
-    best_f1 = 0.0
+        for batch in test_data:
+            input_ids = batch["input_ids"].to(device)
+            attention_mask = batch["attention_mask"].to(device)
+            labels = batch["labels"].to(device)
+            
+            outputs = model(input_ids, attention_mask)
+            predictions = torch.sigmoid(outputs)
+            
+            all_predictions.append(predictions.cpu().numpy())
+            all_labels.append(labels.cpu().numpy())
+    
+    all_predictions = np.concatenate(all_predictions, axis=0)
+    all_labels = np.concatenate(all_labels, axis=0)
+    
+    # Test different thresholds
+    thresholds = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    best_f1 = 0
     best_threshold = 0.5
-
-    logger.info("🎯 Testing thresholds for optimal F1 score...")
-
+    
     for threshold in thresholds:
-        predictions = (all_probabilities > threshold).astype(float)
-
-        f1_macro = f1_score(all_true_labels, predictions, average="macro", zero_division=0)
-        f1_micro = f1_score(all_true_labels, predictions, average="micro", zero_division=0)
-        precision_score(all_true_labels, predictions, average="macro", zero_division=0)
-        recall_score(all_true_labels, predictions, average="macro", zero_division=0)
-
-        logger.info(
-            "   Threshold {threshold:.2f}: F1 Macro = {f1_macro:.4f}, F1 Micro = {f1_micro:.4f}"
-        )
-
-        if f1_macro > best_f1:
-            best_f1 = f1_macro
+        binary_predictions = (all_predictions > threshold).astype(int)
+        
+        # Calculate metrics
+        f1 = f1_score(all_labels, binary_predictions, average='weighted', zero_division=0)
+        precision = precision_score(all_labels, binary_predictions, average='weighted', zero_division=0)
+        recall = recall_score(all_labels, binary_predictions, average='weighted', zero_division=0)
+        
+        logger.info(f"Threshold {threshold}: F1={f1:.4f}, Precision={precision:.4f}, Recall={recall:.4f}")
+        
+        if f1 > best_f1:
+            best_f1 = f1
             best_threshold = threshold
-
-    logger.info("🎯 Best threshold: {best_threshold:.2f} (F1 Macro: {best_f1:.4f})")
-
-    best_predictions = (all_probabilities > best_threshold).astype(float)
-    final_f1_macro = f1_score(all_true_labels, best_predictions, average="macro", zero_division=0)
-    final_f1_micro = f1_score(all_true_labels, best_predictions, average="micro", zero_division=0)
-    final_precision = precision_score(
-        all_true_labels, best_predictions, average="macro", zero_division=0
-    )
-    final_recall = recall_score(all_true_labels, best_predictions, average="macro", zero_division=0)
-
-    results = {
-        "best_threshold": best_threshold,
-        "f1_macro": final_f1_macro,
-        "f1_micro": final_f1_micro,
+    
+    logger.info(f"🎯 Best threshold: {best_threshold} with F1: {best_f1:.4f}")
+    
+    # Final evaluation with best threshold
+    binary_predictions = (all_predictions > best_threshold).astype(int)
+    final_f1 = f1_score(all_labels, binary_predictions, average='weighted', zero_division=0)
+    final_precision = precision_score(all_labels, binary_predictions, average='weighted', zero_division=0)
+    final_recall = recall_score(all_labels, binary_predictions, average='weighted', zero_division=0)
+    
+    logger.info(f"🏆 Final Results - F1: {final_f1:.4f}, Precision: {final_precision:.4f}, Recall: {final_recall:.4f}")
+    
+    return {
+        "f1": final_f1,
         "precision": final_precision,
         "recall": final_recall,
-        "all_thresholds": {
-            "{t:.2f}": f1_score(
-                all_true_labels,
-                (all_probabilities > t).astype(float),
-                average="macro",
-                zero_division=0,
-            )
-            for t in thresholds
-        },
+        "best_threshold": best_threshold
     }
-
-    return results
 
 
 def main():
     """Main training function."""
-    logger.info("🚀 Starting Fixed Focal Loss Training")
-
+    logger.info("🎯 Starting Fixed Focal Loss Training")
+    
+    # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info("Device: {device}")
-
-    train_data, val_data, test_data, emotion_names = create_proper_training_data()
-
-    logger.info("🤖 Creating BERT emotion classifier...")
-    model = SimpleBERTClassifier(model_name="bert-base-uncased", num_classes=28)
-    model = model.to(device)
-
-    logger.info("✅ Model created successfully")
-    logger.info("   • Total parameters: {sum(p.numel() for p in model.parameters()):,}")
-    logger.info(
-        "   • Trainable parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
-    )
-
-    logger.info("📊 Creating dataloaders...")
-    train_loader = create_dataloader(train_data, model, batch_size=8)
-    val_loader = create_dataloader(val_data, model, batch_size=8)
-    test_loader = create_dataloader(test_data, model, batch_size=8)
-
-    logger.info("✅ Dataloaders created:")
-    logger.info("   • Train: {len(train_loader)} examples")
-    logger.info("   • Validation: {len(val_loader)} examples")
-    logger.info("   • Test: {len(test_loader)} examples")
-
-    model = train_model(model, train_loader, val_loader, device, epochs=10)
-
-    results = evaluate_model(model, test_loader, device)
-
-    logger.info("💾 Saving trained model and results...")
-
-    model_dir = Path("models/emotion_detection")
-    model_dir.mkdir(parents=True, exist_ok=True)
-
-    model_path = model_dir / "fixed_focal_loss_model.pt"
-    torch.save(
-        {
-            "model_state_dict": model.state_dict(),
-            "best_threshold": results["best_threshold"],
-            "emotion_names": emotion_names,
-        },
-        model_path,
-    )
-
-    results_path = model_dir / "fixed_focal_results.json"
-    with open(results_path, "w") as f:
+    logger.info(f"🖥️ Using device: {device}")
+    
+    # Create directories
+    Path("models").mkdir(exist_ok=True)
+    Path("results").mkdir(exist_ok=True)
+    
+    # Create proper training data
+    train_data, val_data, test_data = create_proper_training_data()
+    
+    # Create model
+    model = SimpleBERTClassifier()
+    logger.info(f"🤖 Created model with {sum(p.numel() for p in model.parameters())} parameters")
+    
+    # Create dataloaders
+    train_dataloader = create_dataloader(train_data, model, batch_size=8)
+    val_dataloader = create_dataloader(val_data, model, batch_size=8)
+    test_dataloader = create_dataloader(test_data, model, batch_size=8)
+    
+    # Train model
+    trained_model = train_model(model, train_dataloader, val_dataloader, device, epochs=5)
+    
+    # Load best model
+    trained_model.load_state_dict(torch.load("best_focal_model.pth"))
+    
+    # Evaluate model
+    results = evaluate_model(trained_model, test_dataloader, device)
+    
+    # Save results
+    with open("results/focal_training_results.json", "w") as f:
         json.dump(results, f, indent=2)
-
-    logger.info("✅ Model saved to {model_path}")
-    logger.info("✅ Results saved to {results_path}")
-
-    logger.info("🎉 Fixed focal loss training completed successfully!")
-    logger.info("📊 Final Results Summary:")
-    logger.info("   • Best F1 Macro: {results['f1_macro']:.4f}")
-    logger.info("   • Best F1 Micro: {results['f1_micro']:.4f}")
-    logger.info("   • Best Threshold: {results['best_threshold']:.2f}")
-    logger.info("   • Precision Macro: {results['precision']:.4f}")
-    logger.info("   • Recall Macro: {results['recall']:.4f}")
+    
+    # Final summary
+    logger.info("🎉 Training completed successfully!")
+    logger.info(f"📊 Final F1 Score: {results['f1']:.4f}")
+    logger.info(f"🎯 Best Threshold: {results['best_threshold']}")
+    logger.info("💾 Results saved to results/focal_training_results.json")
 
 
 if __name__ == "__main__":
