@@ -326,6 +326,7 @@ markers = [
     "e2e: marks end-to-end tests",
     "model: marks tests that load ML models",
     "network: marks tests that require network access",
+    "asyncio: marks tests that use asyncio",
 ]
 
 # Filter warnings

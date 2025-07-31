@@ -1,38 +1,31 @@
-        # Add all changes
-        # Commit changes
-        # Split command for security (avoid shell=True)
-        # Try regular push as fallback
-    # Check current git status
-    # Check if we have uncommitted changes
-    # Check if we need to push
-    # Force push to trigger CI
 #!/usr/bin/env python3
-import logging
-import subprocess
-
-
-
-
 """
 Script to check git status and trigger CI pipeline.
 """
 
+import logging
+import subprocess
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+
 def run_command(cmd: str, description: str) -> tuple[bool, str]:
     """Run a command and return success status and output."""
-    logging.info("🔄 {description}...")
+    logging.info(f"🔄 {description}...")
     try:
         cmd_list = cmd.split()
         result = subprocess.run(cmd_list, capture_output=True, text=True, check=False)
         output = result.stdout.strip()
         if result.returncode == 0:
-            logging.info("✅ {description} - SUCCESS")
+            logging.info(f"✅ {description} - SUCCESS")
             return True, output
         else:
-            logging.info("❌ {description} - FAILED")
-            logging.info("Error: {result.stderr}")
+            logging.info(f"❌ {description} - FAILED")
+            logging.info(f"Error: {result.stderr}")
             return False, result.stderr
     except Exception as e:
-        logging.info("❌ {description} - EXCEPTION: {e}")
+        logging.info(f"❌ {description} - EXCEPTION: {e}")
         return False, str(e)
 
 
@@ -41,24 +34,28 @@ def main():
     logging.info("🚀 Triggering CI Pipeline for SAMO Deep Learning")
     logging.info("=" * 50)
 
+    # Check current git status
     success, status_output = run_command("git status", "Checking git status")
     if not success:
         logging.info("❌ Failed to check git status")
         return
 
-    logging.info("Git Status:\n{status_output}")
+    logging.info(f"Git Status:\n{status_output}")
 
+    # Check if we have uncommitted changes
     if (
         "Changes not staged for commit" in status_output
         or "Changes to be committed" in status_output
     ):
         logging.info("📝 Found uncommitted changes, committing them...")
 
+        # Add all changes
         success, _ = run_command("git add .", "Adding all changes")
         if not success:
             logging.info("❌ Failed to add changes")
             return
 
+        # Commit changes
         success, _ = run_command(
             'git commit -m "Fix CI test failures: BERT mocking and predict_emotions bug"',
             "Committing changes",
@@ -72,9 +69,10 @@ def main():
         logging.info("❌ Failed to check git log")
         return
 
-    logging.info("Recent commits:\n{log_output}")
+    logging.info(f"Recent commits:\n{log_output}")
 
     logging.info("🚀 Force pushing to trigger CI pipeline...")
+    # Force push to trigger CI
     success, push_output = run_command("git push --force-with-lease", "Force pushing to remote")
 
     if success:
@@ -83,9 +81,10 @@ def main():
         logging.info("📊 Check CircleCI dashboard for the new pipeline run.")
     else:
         logging.info("❌ Failed to push changes")
-        logging.info("Push output: {push_output}")
+        logging.info(f"Push output: {push_output}")
 
         logging.info("🔄 Trying regular push as fallback...")
+        # Try regular push as fallback
         success, push_output = run_command("git push", "Regular push")
         if success:
             logging.info("✅ Successfully pushed changes with regular push!")

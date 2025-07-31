@@ -39,14 +39,18 @@
 # Constants
 #!/usr/bin/env python3
 from pathlib import Path
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+import sys
+
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 from torch import nn
 from typing import Optional
 import argparse
 import logging
-import sys
 import time
 import torch
 import torch.nn.functional as F
