@@ -12,7 +12,7 @@
     # Check for potentially harmful content (basic check)
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
-from typing import Optional
+from typing import Optional, Union
 import logging
 import pandas as pd
 
@@ -148,7 +148,7 @@ class DataValidator:
         df: pd.DataFrame,
         required_columns: Optional[list[str]] = None,
         expected_types: Optional[dict[str, type]] = None,
-    ) -> tuple[bool, pd.DataFrame]:
+    ) -> dict[str, Union[bool, pd.DataFrame, dict]]:
         """Perform comprehensive validation on journal entries DataFrame.
 
         Args:
@@ -157,7 +157,7 @@ class DataValidator:
             expected_types: Dictionary mapping column names to expected types
 
         Returns:
-            Tuple of (validation_passed, validated_df)
+            Dictionary with validation results including is_valid, validated_df, and missing_values
 
         """
         if required_columns is None:
@@ -179,7 +179,12 @@ class DataValidator:
                 "Required columns missing: {missing_columns}",
                 extra={"format_args": True},
             )
-            return False, df
+            return {
+                "is_valid": False,
+                "validated_df": df,
+                "missing_values": {},
+                "error": f"Required columns missing: {missing_columns}"
+            }
 
         missing_stats = self.check_missing_values(df, required_columns)
         has_missing_required = any(missing_stats.get(col, 0) > 0 for col in required_columns)
@@ -196,10 +201,15 @@ class DataValidator:
         else:
             logger.warning("Data validation failed")
 
-        return validation_passed, df_with_quality
+        return {
+            "is_valid": validation_passed,
+            "validated_df": df_with_quality,
+            "missing_values": missing_stats,
+            "error": "" if validation_passed else "Validation failed"
+        }
 
 
-def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 10000) -> tuple[bool, str]:
+def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 10000) -> dict[str, Union[bool, str]]:
     """Validate text input for journal entries.
 
     Args:
@@ -208,20 +218,20 @@ def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 
         max_length: Maximum allowed length
 
     Returns:
-        Tuple of (is_valid, error_message)
+        Dictionary with is_valid and error keys
     """
     if not isinstance(input_text, str):
-        return False, "Input must be a string"
+        return {"is_valid": False, "error": "Input must be a string"}
 
     if len(input_text.strip()) < min_length:
-        return False, f"Text must be at least {min_length} characters long"
+        return {"is_valid": False, "error": f"Text must be at least {min_length} characters long"}
 
     if len(input_text) > max_length:
-        return False, f"Text must be no more than {max_length} characters long"
+        return {"is_valid": False, "error": f"Text must be no more than {max_length} characters long"}
 
     harmful_patterns = ["<script>", "javascript:", "data:text/html"]
     for pattern in harmful_patterns:
         if pattern.lower() in input_text.lower():
-            return False, f"Text contains potentially harmful content: {pattern}"
+            return {"is_valid": False, "error": f"Text contains potentially harmful content: {pattern}"}
 
-    return True, ""
+    return {"is_valid": True, "error": ""}
