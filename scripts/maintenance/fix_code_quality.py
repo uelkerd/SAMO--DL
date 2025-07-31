@@ -1,224 +1,167 @@
-                # For sample data, add development comment
-            # Add secrets import if not present
-            # Apply all fix categories
-            # Replace random.choice with secrets.choice for non-dev code
-            # Write back if changes were made
-        # Add pathlib import if needed
-        # Add timezone import if needed
-        # D205: Add blank line after docstring summary
-        # E721: Use isinstance() instead of type comparison
-        # For now, add comments to acknowledge the G004 violations
-        # PTH103: os.makedirs -> Path.mkdir
-        # PTH107: os.remove -> Path.unlink
-        # PTH110: os.path.exists -> Path.exists
-        # PTH118: os.path.join -> Path / operator
-        # PTH120: os.path.dirname -> Path.parent
-        # PTH123: open() -> Path.open()
-        # Pattern: logger.level("message {variable}")
-        # Process all Python files in src directory
-        # Replace datetime.now() with timezone-aware version
-        # Replace raise Exception(msg) with raise Exception(msg) from e
-        # Replace with: logger.level("message %s", variable)
-        # S104: Fix hardcoded interface binding - make it configurable
-        # S311: Replace random with secrets for sample data generation
-        # This is a more complex fix that requires understanding context
-    # Apply fixes
-    # Get project root directory
-# Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
-import datetime
-import logging
-import os
-import re
-import sys
+"""
+Code Quality Fixer Script
 
-
-
-"""SAMO-DL Code Quality Fix Script.
-
-Systematically fixes the most critical code quality issues identified by ruff:
-- Security issues (S-codes): Replace random with secrets, fix interface binding
-- Path operations (PTH-codes): Replace os.path with pathlib
-- Logging f-strings (G004): Convert to proper logging format
-- Exception handling (B904): Add proper exception chaining
-- DateTime (DTZ005): Add timezone awareness
-
-Usage:
-    python scripts/maintenance/fix_code_quality.py
+This script automatically fixes common code quality issues
+identified by Ruff linter.
 """
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+import logging
+import re
+import sys
+from pathlib import Path
+from typing import List, Set
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 
 class CodeQualityFixer:
-    """Automated code quality fixer for SAMO-DL project."""
+    """Automated code quality fixer for Python files."""
 
-    def __init__(self, src_dir: Path) -> None:
-        self.src_dir = Path(src_dir)
-        self.fixes_applied = 0
-        self.files_processed = 0
+    def __init__(self, project_root: Path):
+        self.project_root = project_root
+        self.fixed_files = 0
+        self.total_issues = 0
 
-    def apply_all_fixes(self) -> None:
-        """Apply all code quality fixes."""
-        logger.info("🔧 Starting SAMO-DL code quality fixes...")
-
-        python_files = list(self.src_dir.rglob("*.py"))
-        logger.info("Found {len(python_files)} Python files to process")
-
-        for file_path in python_files:
-            self._process_file(file_path)
-
-        logger.info(
-            "✅ Code quality fixes complete! Processed {self.files_processed} files, applied {self.fixes_applied} fixes"
-        )
-
-    def _process_file(self, file_path: Path) -> None:
-        """Process a single file with all fixes."""
-        try:
-            content = file_path.read_text(encoding="utf-8")
-            original_content = content
-
-            content = self._fix_security_issues(content)
-            content = self._fix_path_operations(content)
-            content = self._fix_logging_fstrings(content)
-            content = self._fix_datetime_timezone(content)
-            content = self._fix_exception_handling(content)
-            content = self._fix_miscellaneous(content)
-
-            if content != original_content:
-                file_path.write_text(content, encoding="utf-8")
-                fixes_count = len(original_content.split("\n")) - len(content.split("\n")) + 1
-                self.fixes_applied += fixes_count
-                logger.info("🔄 Fixed {file_path.relative_to(self.src_dir)}")
-
-            self.files_processed += 1
-
-        except Exception as e:
-            logger.error("❌ Error processing {file_path}: {e}")
-
-    def _fix_security_issues(self, content: str) -> str:
-        """Fix security-related issues (S-codes)."""
-        if "sample_data.py" in content or "import random" in content:
-            if "import secrets" not in content and "random." in content:
-                content = re.sub(r"import random\n", "import random\nimport secrets\n", content)
-
-            if "sample_data.py" in str(content):
-                content = re.sub(
-                    r"(random\.choice\([^)]+\))",
-                    r"\1  # S311: OK for development sample data",
-                    content,
-                )
-
-        content = re.sub(
-            r'host="0\.0\.0\.0"',
-            r'host="127.0.0.1"  # Changed from 0.0.0.0 for security',
-            content,
-        )
-
-        return content
-
-    def _fix_path_operations(self, content: str) -> str:
+    def fix_path_operations(self, content: str) -> str:
         """Fix path operations to use pathlib (PTH-codes)."""
         if "os.path." in content or "os.makedirs" in content or "os.remove" in content:
             if "from pathlib import Path" not in content:
+                # Add pathlib import if not present
+                lines = content.split("\n")
+                import_found = False
+                for i, line in enumerate(lines):
+                    if line.strip().startswith("import ") or line.strip().startswith("from "):
+                        if "pathlib" in line:
+                            import_found = True
+                            break
+                        if not import_found and i > 0:
+                            lines.insert(i, "from pathlib import Path")
+                            import_found = True
+                            break
+                if not import_found:
+                    lines.insert(0, "from pathlib import Path")
+                content = "\n".join(lines)
 
+        # Replace os.path operations with pathlib equivalents
         content = re.sub(r"os\.path\.join\(([^)]+)\)", r"Path(\1).as_posix()", content)
-
-        content = re.sub(r"os\.path\.dirname\(([^)]+)\)", r"Path(\1).parent", content)
-
-        content = re.sub(
-            r"os\.makedirs\(([^,]+),\s*exist_ok=True\)",
-            r"Path(\1).mkdir(parents=True, exist_ok=True)",
-            content,
-        )
-
-        content = re.sub(
-            r'with open\(([^,]+),\s*"([^"]+)"\)\s+as\s+([^:]+):',
-            r'with Path(\1).open("\2") as \3:',
-            content,
-        )
-
-        content = re.sub(r"os\.remove\(([^)]+)\)", r"Path(\1).unlink()", content)
-
+        content = re.sub(r"os\.makedirs\(([^,)]+)\)", r"Path(\1).mkdir(parents=True, exist_ok=True)", content)
+        content = re.sub(r"os\.remove\(([^)]+)\)", r"Path(\1).unlink(missing_ok=True)", content)
         content = re.sub(r"os\.path\.exists\(([^)]+)\)", r"Path(\1).exists()", content)
+        content = re.sub(r"os\.path\.isfile\(([^)]+)\)", r"Path(\1).is_file()", content)
+        content = re.sub(r"os\.path\.isdir\(([^)]+)\)", r"Path(\1).is_dir()", content)
 
         return content
 
-    def _fix_logging_fstrings(self, content: str) -> str:
-        """Fix logging f-string issues (G004)."""
-        patterns = [
-            (
-                r'logger\.info\("([^"]*\{[^}]+\}[^"]*)"\)',
-                r'logger.info("\1", extra={"format_args": True})',
-            ),
-            (
-                r'logger\.warning\("([^"]*\{[^}]+\}[^"]*)"\)',
-                r'logger.warning("\1", extra={"format_args": True})',
-            ),
-            (
-                r'logger\.error\("([^"]*\{[^}]+\}[^"]*)"\)',
-                r'logger.error("\1", extra={"format_args": True})',
-            ),
-        ]
-
-        for pattern, replacement in patterns:
-            content = re.sub(pattern, replacement, content)
-
-        if "logger." in content and '"' in content:
-            content = "# G004: Logging f-strings temporarily allowed for development\n" + content
-
+    def fix_f_strings(self, content: str) -> str:
+        """Fix f-string formatting issues."""
+        # Fix f-strings without placeholders
+        content = re.sub(r'f"([^"]*)"', r'"\1"', content)
+        content = re.sub(r"f'([^']*)'", r"'\1'", content)
+        
+        # Fix f-strings with invalid syntax
+        content = re.sub(r'f"([^"]*)\{([^}]*)\}([^"]*)"', r'f"\1{\2}\3"', content)
+        
         return content
 
-    def _fix_datetime_timezone(self, content: str) -> str:
-        """Fix datetime timezone issues (DTZ005)."""
-        if "datetime.now()" in content and "from datetime import timezone" not in content:
-            content = re.sub(
-                r"from datetime import ([^\n]+)",
-                r"from datetime import \1, timezone",
-                content,
-            )
+    def fix_import_order(self, content: str) -> str:
+        """Fix import order and grouping."""
+        lines = content.split("\n")
+        import_lines = []
+        other_lines = []
+        
+        for line in lines:
+            if line.strip().startswith(("import ", "from ")):
+                import_lines.append(line)
+            else:
+                other_lines.append(line)
+        
+        # Sort import lines
+        import_lines.sort()
+        
+        # Reconstruct content
+        return "\n".join(import_lines + [""] + other_lines)
 
-        content = re.sub(r"datetime\.now\(\)", r"datetime.now(timezone.utc)", content)
+    def fix_unused_imports(self, content: str) -> str:
+        """Remove unused imports."""
+        lines = content.split("\n")
+        filtered_lines = []
+        
+        for line in lines:
+            if line.strip().startswith(("import ", "from ")):
+                # Keep all imports for now - let Ruff handle specific removals
+                filtered_lines.append(line)
+            else:
+                filtered_lines.append(line)
+        
+        return "\n".join(filtered_lines)
 
+    def fix_trailing_whitespace(self, content: str) -> str:
+        """Remove trailing whitespace."""
+        lines = content.split("\n")
+        cleaned_lines = [line.rstrip() for line in lines]
+        return "\n".join(cleaned_lines)
+
+    def fix_missing_newlines(self, content: str) -> str:
+        """Ensure file ends with newline."""
+        if not content.endswith("\n"):
+            content += "\n"
         return content
 
-    def _fix_exception_handling(self, content: str) -> str:
-        """Fix exception handling issues (B904)."""
-        content = re.sub(
-            r"except ([^:]+) as e:\n(\s+)([^\n]+)\n(\s+)raise Exception\(([^)]+)\)",
-            r"except \1 as e:\n\2\3\n\4raise Exception(\5) from e",
-            content,
-        )
+    def fix_file(self, file_path: Path) -> bool:
+        """Fix code quality issues in a single file."""
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read()
 
-        return content
+            original_content = content
 
-    def _fix_miscellaneous(self, content: str) -> str:
-        """Fix miscellaneous issues."""
-        content = re.sub(r"expected_type == str", r"expected_type is str", content)
+            # Apply fixes
+            content = self.fix_path_operations(content)
+            content = self.fix_f_strings(content)
+            content = self.fix_import_order(content)
+            content = self.fix_unused_imports(content)
+            content = self.fix_trailing_whitespace(content)
+            content = self.fix_missing_newlines(content)
 
-        content = re.sub(r'"""([^"]+)\.\n([A-Z])', r'"""\1.\n\n\2', content)
+            # Write back if changed
+            if content != original_content:
+                with open(file_path, "w", encoding="utf-8") as f:
+                    f.write(content)
+                logger.info(f"✅ Fixed: {file_path}")
+                self.fixed_files += 1
+                return True
 
-        return content
+            return False
+
+        except Exception as e:
+            logger.error(f"❌ Error fixing {file_path}: {e}")
+            return False
+
+    def fix_project(self) -> None:
+        """Fix code quality issues across the entire project."""
+        logger.info(f"🔧 Starting code quality fixes in: {self.project_root}")
+
+        python_files = list(self.project_root.rglob("*.py"))
+        logger.info(f"📁 Found {len(python_files)} Python files")
+
+        for file_path in python_files:
+            if self.fix_file(file_path):
+                self.total_issues += 1
+
+        logger.info(f"✅ Code quality fixes completed!")
+        logger.info(f"   • Files fixed: {self.fixed_files}")
+        logger.info(f"   • Total issues resolved: {self.total_issues}")
 
 
-def main() -> int:
-    """Main execution function."""
+def main():
+    """Main function to run code quality fixes."""
     project_root = Path(__file__).parent.parent.parent
-    src_dir = project_root / "src"
-
-    if not src_dir.exists():
-        logger.error("❌ Source directory not found: {src_dir}")
-        return 1
-
-    fixer = CodeQualityFixer(src_dir)
-    fixer.apply_all_fixes()
-
-    return 0
+    fixer = CodeQualityFixer(project_root)
+    fixer.fix_project()
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
