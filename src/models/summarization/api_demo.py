@@ -1,31 +1,4 @@
-        # Calculate metrics
-        # Create detailed responses
-        # Generate batch summaries
-        # Generate summary
-        # Log performance
-    # Add runtime information
-    # Shutdown: Cleanup
-    # Startup: Load model
-    import uvicorn
-# API Endpoints
-# Configure logging
-# Error Handlers
-# G004: Logging f-strings temporarily allowed for development
-# Global model instance
-# Initialize FastAPI with lifecycle management
-# Request/Response Models
-from .t5_summarizer import T5SummarizationModel, create_t5_summarizer
-from contextlib import asynccontextmanager
-from fastapi import BackgroundTasks, FastAPI, HTTPException
-from pydantic import BaseModel, Field, validator
-from typing import Optional
-import logging
-import time
-
-
-
-
-
+#!/usr/bin/env python3
 """FastAPI Endpoints for T5/BART Summarization - SAMO Deep Learning.
 
 This module provides production-ready API endpoints for text summarization
@@ -39,9 +12,23 @@ Key Features:
 - Performance monitoring
 """
 
+import logging
+import time
+from contextlib import asynccontextmanager
+from typing import Optional
+
+import uvicorn
+from fastapi import BackgroundTasks, FastAPI, HTTPException
+from pydantic import BaseModel, Field, validator
+
+from .t5_summarizer import T5SummarizationModel, create_t5_summarizer
+
+# Configure logging
+# G004: Logging f-strings temporarily allowed for development
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Global model instance
 summarization_model: Optional[T5SummarizationModel] = None
 
 
@@ -60,15 +47,13 @@ async def lifespan(app: FastAPI):
             max_target_length=128,
         )
 
-        time.time() - start_time
-        logger.info("✅ Model loaded successfully in {load_time:.2f}s", extra={"format_args": True})
-        logger.info(
-            "Model info: {summarization_model.get_model_info()}", extra={"format_args": True}
-        )
+        load_time = time.time() - start_time
+        logger.info(f"✅ Model loaded successfully in {load_time:.2f}s")
+        logger.info(f"Model info: {summarization_model.get_model_info()}")
 
     except Exception as e:
-        logger.error("❌ Failed to load summarization model: {e}", extra={"format_args": True})
-        raise RuntimeError("Model loading failed: {e}")
+        logger.error(f"❌ Failed to load summarization model: {e}")
+        raise RuntimeError(f"Model loading failed: {e}")
 
     yield  # App runs here
 
@@ -76,6 +61,7 @@ async def lifespan(app: FastAPI):
     summarization_model = None
 
 
+# Initialize FastAPI with lifecycle management
 app = FastAPI(
     title="SAMO Summarization API",
     description="T5/BART-based text summarization for emotional journal analysis",
@@ -114,9 +100,9 @@ class BatchSummarizationRequest(BaseModel):
     def validate_text_lengths(cls, texts):
         for _i, text in enumerate(texts):
             if len(text) < 50:
-                raise ValueError("Text {i + 1} too short (minimum 50 characters)")
+                raise ValueError(f"Text {_i + 1} too short (minimum 50 characters)")
             if len(text) > 2000:
-                raise ValueError("Text {i + 1} too long (maximum 2000 characters)")
+                raise ValueError(f"Text {_i + 1} too long (maximum 2000 characters)")
         return texts
 
 
