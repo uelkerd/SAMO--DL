@@ -83,16 +83,16 @@ class TestBertEmotionClassifier:
         assert torch.all(torch.isfinite(output))
 
     def test_predict_emotions(self):
-        """Test emotion prediction with threshold."""
-        with patch.object(BERTEmotionClassifier, "forward") as mock_forward:
-            mock_logits = torch.tensor([[0.1, 0.8, 0.2, 0.9]])
-            mock_forward.return_value = mock_logits
-
+        """Test emotion prediction functionality."""
+        with patch("transformers.AutoConfig.from_pretrained"), patch(
+            "transformers.AutoModel.from_pretrained"
+        ):
             model = BERTEmotionClassifier(num_emotions=4)
             model.eval()
 
             # Test with threshold
             predictions = model.predict_emotions(
+                texts=["test text"],  # Add required texts parameter
                 input_ids=torch.tensor([[1, 2, 3]]),
                 attention_mask=torch.tensor([[1, 1, 1]]),
                 threshold=0.5,
@@ -195,6 +195,7 @@ class TestBertEmotionClassifier:
             mock_forward.return_value = mock_logits
 
             predictions = model.predict_emotions(
+                texts=["test text"],  # Add required texts parameter
                 input_ids=torch.tensor([[1, 2, 3]]),
                 attention_mask=torch.tensor([[1, 1, 1]]),
                 threshold=0.5,
