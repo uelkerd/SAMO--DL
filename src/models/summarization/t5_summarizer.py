@@ -9,11 +9,19 @@ journal entries and other text content.
 import logging
 import warnings
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import torch
 import torch.nn as nn
-from transformers import AutoTokenizer, T5ForConditionalGeneration
+from torch.utils.data import Dataset
+from transformers import (
+    AutoModelForSeq2SeqLM,
+    AutoTokenizer,
+    BartForConditionalGeneration,
+    BartTokenizer,
+    T5ForConditionalGeneration,
+    T5Tokenizer,
+)
 
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development

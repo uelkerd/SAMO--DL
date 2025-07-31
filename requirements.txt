@@ -29,6 +29,16 @@ pytest-asyncio>=0.21.0,<1.0.0
 black>=23.0.0,<24.0.0
 ruff>=0.1.0,<1.0.0
 
+# Voice processing dependencies
+sentencepiece>=0.1.99
+openai-whisper>=20231117
+pydub>=0.25.1
+jiwer>=3.0.3
+
+# Model optimization and conversion
+onnx>=1.14.0,<2.0.0
+onnxruntime>=1.15.0,<2.0.0
+
 # Utilities
 python-dotenv>=1.0.0,<2.0.0
 accelerate>=0.20.0,<1.0.0

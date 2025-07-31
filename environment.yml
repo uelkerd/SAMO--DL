@@ -37,6 +37,12 @@ dependencies:
   - black>=23.0.0,<24.0.0
   - ruff>=0.1.0,<1.0.0           # Fast Python linter and formatter
   - pytest>=7.0.0,<8.0.0
+  - pytest-cov>=4.0.0,<5.0.0
+  - pytest-asyncio>=0.21.0,<1.0.0
+
+  # Voice processing dependencies
+  - sentencepiece>=0.1.99
+  - pydub>=0.25.1
 
   # API development for potential integration (minimal footprint)
   - fastapi>=0.100.0,<1.0.0
@@ -55,3 +61,5 @@ dependencies:
     - pgvector>=0.2.0,<1.0.0     # PostgreSQL pgvector extension Python client
     - alembic>=1.11.0,<2.0.0     # Database migration tool
     - nodejs>=0.1.1,<1.0.0       # For running Prisma operations
+    - openai-whisper>=20231117   # OpenAI Whisper for speech recognition
+    - jiwer>=3.0.3               # Word Error Rate calculation

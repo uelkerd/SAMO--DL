@@ -1,23 +1,4 @@
-        # Create dummy input tensors and move to device
-        # Forward pass
-        # Initialize model - removed 'device' parameter as it's not in the constructor
-        # Move model to device after initialization
-        # Set device
-        # Test model forward pass with dummy data
-        # Test that outputs are reasonable (not NaN, finite)
-        # Verify output dimensions
-# Add src to path
-# Configure logging
 #!/usr/bin/env python3
-from models.emotion_detection.bert_classifier import BERTEmotionClassifier
-from pathlib import Path
-import logging
-import sys
-import torch
-
-
-
-
 """
 BERT Model Loading Test for CI/CD Pipeline.
 
@@ -25,8 +6,17 @@ This script validates that the BERT emotion detection model
 can be loaded and initialized correctly.
 """
 
+import logging
+import sys
+import torch
+from pathlib import Path
+
+# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -38,33 +28,40 @@ def test_bert_model_loading():
 
         device = torch.device("cpu")  # Use CPU for CI
 
+        # Initialize model - removed 'device' parameter as it's not in the constructor
         model = BERTEmotionClassifier(
             model_name="bert-base-uncased",
             num_emotions=28,
         )
 
+        # Move model to device after initialization
         model.to(device)
 
-        logger.info("✅ Model initialized with {model.count_parameters():,} parameters")
+        logger.info(f"✅ Model initialized with {model.count_parameters():,} parameters")
 
         batch_size = 2
         seq_length = 32
 
+        # Create dummy input tensors and move to device
         input_ids = torch.randint(0, 1000, (batch_size, seq_length)).to(device)
         attention_mask = torch.ones(batch_size, seq_length).to(device)
 
+        # Test model forward pass with dummy data
         model.eval()
         with torch.no_grad():
+            # Forward pass
             outputs = model(input_ids, attention_mask)
 
-        logger.info("✅ Forward pass successful, output shape: {outputs.shape}")
+        logger.info(f"✅ Forward pass successful, output shape: {outputs.shape}")
 
+        # Verify output dimensions
         expected_shape = (batch_size, 28)  # 28 emotions
         if outputs.shape != expected_shape:
-            raise ValueError("Expected output shape {expected_shape}, got {outputs.shape}")
+            raise ValueError(f"Expected output shape {expected_shape}, got {outputs.shape}")
 
         logger.info("✅ Output shape validation passed")
 
+        # Test that outputs are reasonable (not NaN, finite)
         if torch.isnan(outputs).any():
             raise ValueError("Model outputs contain NaN values")
 
@@ -75,8 +72,8 @@ def test_bert_model_loading():
 
         return True
 
-    except Exception:
-        logger.error("❌ BERT model test failed: {e}")
+    except Exception as e:
+        logger.error(f"❌ BERT model test failed: {e}")
         return False
 
 
