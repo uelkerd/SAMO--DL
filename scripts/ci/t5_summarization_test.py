@@ -1,20 +1,4 @@
-        # Initialize model
-        # Initialize model with CPU device for CI
-        # Perform summarization
-        # Test basic model properties
-        # Test text for summarization
-        # Validate summary
-# Add src to path
-# Configure logging
 #!/usr/bin/env python3
-from models.summarization.t5_summarizer import create_t5_summarizer
-from pathlib import Path
-import logging
-import sys
-
-
-
-
 """
 T5 Summarization Model Test for CI/CD Pipeline.
 
@@ -22,8 +6,16 @@ This script validates that the T5 text summarization model
 can be loaded and initialized correctly.
 """
 
+import logging
+import sys
+from pathlib import Path
+
+# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+from models.summarization.t5_summarizer import create_t5_summarizer
+
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -33,6 +25,7 @@ def test_t5_model_loading():
     try:
         logger.info("🤖 Testing T5 summarization model loading...")
 
+        # Initialize model with CPU device for CI
         model = create_t5_summarizer(
             model_name="t5-small",  # Use small model for CI
             device="cpu",
@@ -40,6 +33,7 @@ def test_t5_model_loading():
 
         logger.info("✅ T5 model initialized successfully")
 
+        # Test basic model properties
         assert hasattr(model, "model"), "Model should have 'model' attribute"
         assert hasattr(model, "tokenizer"), "Model should have 'tokenizer' attribute"
         assert hasattr(model, "device"), "Model should have 'device' attribute"
@@ -48,8 +42,8 @@ def test_t5_model_loading():
 
         return True
 
-    except Exception:
-        logger.error("❌ T5 model loading failed: {e}")
+    except Exception as e:
+        logger.error(f"❌ T5 model loading failed: {e}")
         return False
 
 
@@ -60,6 +54,7 @@ def test_t5_summarization():
 
         model = create_t5_summarizer(model_name="t5-small", device="cpu")
 
+        # Test text for summarization
         test_text = """
         The T5 (Text-To-Text Transfer Transformer) model is a transformer-based
         architecture that treats every NLP problem as a text-to-text problem.
@@ -68,14 +63,16 @@ def test_t5_summarization():
         translation, and question answering.
         """
 
+        # Perform summarization
         summary = model.generate_summary(
             text=test_text.strip(),
             max_length=50,
             min_length=10
         )
 
-        logger.info("✅ Summarization successful: {summary[:50]}...")
+        logger.info(f"✅ Summarization successful: {summary[:50]}...")
 
+        # Validate summary
         assert isinstance(summary, str), "Summary should be a string"
         assert len(summary) > 0, "Summary should not be empty"
         assert len(summary) < len(test_text), "Summary should be shorter than input"
@@ -84,8 +81,8 @@ def test_t5_summarization():
 
         return True
 
-    except Exception:
-        logger.error("❌ T5 summarization test failed: {e}")
+    except Exception as e:
+        logger.error(f"❌ T5 summarization test failed: {e}")
         return False
 
 
@@ -101,20 +98,15 @@ def main():
     passed = 0
     total = len(tests)
 
-    for _test_name, test_func in tests:
-        logger.info("\n{'='*40}")
-        logger.info("Running: {test_name}")
-        logger.info("{'='*40}")
-
+    for test_name, test_func in tests:
+        logger.info(f"🧪 Running {test_name}...")
         if test_func():
             passed += 1
-            logger.info("✅ {test_name}: PASSED")
+            logger.info(f"✅ {test_name} passed")
         else:
-            logger.error("❌ {test_name}: FAILED")
+            logger.error(f"❌ {test_name} failed")
 
-    logger.info("\n{'='*40}")
-    logger.info("T5 Tests Results: {passed}/{total} tests passed")
-    logger.info("{'='*40}")
+    logger.info(f"📊 Test Results: {passed}/{total} tests passed")
 
     if passed == total:
         logger.info("🎉 All T5 model tests passed!")
