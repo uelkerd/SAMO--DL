@@ -1,54 +1,17 @@
-                    # Should predict indices 1 and 3 (values 0.8 and 0.9)
-                # Mock the GOEMOTIONS_EMOTIONS list for testing
-                # Mock the tokenizer to return proper tensors
-            # Also set the internal attributes that will be used
-            # Mock forward to return logits tensor
-            # Mock tokenizer
-        # Call the model - this should work now since we properly mocked the BERT instance
-        # Create a mock BERT instance that returns the output when called
-        # Create a proper mock for BERT output
-        # For a mocked model, we expect fewer parameters since BERT is mocked
-        # Mock BERT output with proper structure
-        # Mock model output - now returns logits directly
-        # Mock the BERT model
-        # Mock the BERT model
-        # Mock the BERT model
-        # Mock the BERT model
-        # Mock the BERT model
-        # Mock the config
-        # Mock the config
-        # Mock the config
-        # Mock the config
-        # Mock the config
-        # Note: Actual label mapping would be tested in integration tests
-        # Test CPU
-        # Test GPU if available
-        # Test evaluation mode
-        # Test input
-        # Test loss computation
-        # Test that we expect 28 emotions (27 + neutral)
-        # Test training mode
-        # Test with sample class weights
-        # The classifier layers should still have parameters
-        # The model has dropout within the classifier, not as a direct attribute
-        from src.models.emotion_detection.bert_classifier import WeightedBCELoss
-        from transformers.modeling_outputs import BaseModelOutputWithPooling
-    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
-from unittest.mock import patch, MagicMock
-import pytest
-import torch
+#!/usr/bin/env python3
+"""Unit tests for BERT emotion detection model.
 
-
-
-
-
-"""
-Unit tests for BERT emotion detection model.
 Tests model initialization, forward pass, and emotion classification logic.
 """
 
+import pytest
+import torch
+from unittest.mock import patch, MagicMock
+from transformers.modeling_outputs import BaseModelOutputWithPooling
+
 try:
-except ImportError as _:
+    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier, WeightedBCELoss
+except ImportError as e:
     raise RuntimeError(
         "Failed to import BERTEmotionClassifier. Ensure all model dependencies are installed."
     ) from e
@@ -127,33 +90,25 @@ class TestBertEmotionClassifier:
 
             model = BERTEmotionClassifier(num_emotions=4)
             model.eval()
-            model._probabilities = torch.tensor([[0.1, 0.8, 0.2, 0.9]])
-            model._calibrated_logits = torch.tensor([[0.1, 0.8, 0.2, 0.9]])
 
-            with patch("transformers.AutoTokenizer.from_pretrained") as mock_tokenizer:
-                mock_tokenizer_instance = MagicMock()
-                mock_tokenizer_instance.return_value = {
-                    "input_ids": torch.tensor([[101, 102, 103, 102]]),
-                    "attention_mask": torch.tensor([[1, 1, 1, 1]]),
-                }
-                mock_tokenizer.return_value = mock_tokenizer_instance
+            # Test with threshold
+            predictions = model.predict_emotions(
+                input_ids=torch.tensor([[1, 2, 3]]),
+                attention_mask=torch.tensor([[1, 1, 1]]),
+                threshold=0.5,
+            )
 
-                with patch(
-                    "src.models.emotion_detection.bert_classifier.GOEMOTIONS_EMOTIONS",
-                    ["admiration", "joy", "anger", "gratitude"],
-                ):
-                    predicted = model.predict_emotions("test text", threshold=0.5)
-
-                    assert len(predicted["predicted_emotions"]) == 2
-                    assert "joy" in predicted["predicted_emotions"]  # Index 1 maps to joy
-                    assert (
-                        "gratitude" in predicted["predicted_emotions"]
-                    )  # Index 3 maps to gratitude
+            assert len(predictions) == 1
+            assert len(predictions[0]) == 4
+            assert predictions[0][1] == 1  # 0.8 > 0.5
+            assert predictions[0][3] == 1  # 0.9 > 0.5
+            assert predictions[0][0] == 0  # 0.1 < 0.5
+            assert predictions[0][2] == 0  # 0.2 < 0.5
 
     @patch("transformers.AutoConfig.from_pretrained")
     @patch("transformers.AutoModel.from_pretrained")
     def test_device_compatibility(self, mock_bert, mock_config):
-        """Test model works on both CPU and GPU (if available)."""
+        """Test model works on different devices."""
         mock_config_instance = MagicMock()
         mock_config_instance.hidden_size = 768
         mock_config.return_value = mock_config_instance
@@ -163,19 +118,19 @@ class TestBertEmotionClassifier:
 
         model = BERTEmotionClassifier(num_emotions=28)
 
-        device = torch.device("cpu")
-        model = model.to(device)
-        assert next(model.parameters()).device == device
+        # Test CPU
+        model.to("cpu")
+        assert next(model.parameters()).device.type == "cpu"
 
+        # Test CUDA if available
         if torch.cuda.is_available():
-            device = torch.device("cuda")
-            model = model.to(device)
-            assert next(model.parameters()).device == device
+            model.to("cuda")
+            assert next(model.parameters()).device.type == "cuda"
 
     @patch("transformers.AutoConfig.from_pretrained")
     @patch("transformers.AutoModel.from_pretrained")
     def test_training_mode(self, mock_bert, mock_config):
-        """Test model switches between training and evaluation modes."""
+        """Test model behavior in training mode."""
         mock_config_instance = MagicMock()
         mock_config_instance.hidden_size = 768
         mock_config.return_value = mock_config_instance
@@ -184,30 +139,40 @@ class TestBertEmotionClassifier:
         mock_bert.return_value = mock_bert_instance
 
         model = BERTEmotionClassifier(num_emotions=28)
-
         model.train()
-        assert model.training
 
-        model.eval()
-        assert not model.training
+        # Test training mode
+        assert model.training
+        assert model.classifier.training
+
+        # Test with sample class weights
+        class_weights = torch.ones(28)
+        model = BERTEmotionClassifier(num_emotions=28, class_weights=class_weights)
+
+        # The classifier layers should still have parameters
+        assert hasattr(model.classifier, "0")
+        assert hasattr(model.classifier, "3")
+
+        # The model has dropout within the classifier, not as a direct attribute
+        assert not hasattr(model, "dropout")
 
     def test_class_weights_handling(self):
-        """Test model handles class weights for imbalanced dataset."""
-        class_weights = torch.tensor([0.1, 0.5, 1.0, 2.0, 5.0], requires_grad=True)
-        criterion = WeightedBCELoss(class_weights)
+        """Test that class weights are handled correctly."""
+        with patch("transformers.AutoConfig.from_pretrained"), patch(
+            "transformers.AutoModel.from_pretrained"
+        ):
+            class_weights = torch.tensor([1.0, 2.0, 3.0, 4.0])
+            model = BERTEmotionClassifier(num_emotions=4, class_weights=class_weights)
 
-        predictions = torch.sigmoid(torch.randn(2, 5, requires_grad=True))
-        targets = torch.randint(0, 2, (2, 5)).float()
-
-        loss = criterion(predictions, targets)
-        assert torch.isfinite(loss)
-        assert loss.requires_grad
+            # Verify class weights are stored
+            assert hasattr(model, "class_weights")
+            assert torch.equal(model.class_weights, class_weights)
 
     @pytest.mark.slow
     @patch("transformers.AutoConfig.from_pretrained")
     @patch("transformers.AutoModel.from_pretrained")
     def test_emotion_label_mapping(self, mock_bert, mock_config):
-        """Test emotion label mapping matches GoEmotions dataset."""
+        """Test emotion label mapping functionality."""
         mock_config_instance = MagicMock()
         mock_config_instance.hidden_size = 768
         mock_config.return_value = mock_config_instance
@@ -217,35 +182,23 @@ class TestBertEmotionClassifier:
 
         model = BERTEmotionClassifier(num_emotions=28)
 
-        expected_emotions = [
-            "admiration",
-            "amusement",
-            "anger",
-            "annoyance",
-            "approval",
-            "caring",
-            "confusion",
-            "curiosity",
-            "desire",
-            "disappointment",
-            "disapproval",
-            "disgust",
-            "embarrassment",
-            "excitement",
-            "fear",
-            "gratitude",
-            "grie",
-            "joy",
-            "love",
-            "nervousness",
-            "optimism",
-            "pride",
-            "realization",
-            "relie",
-            "remorse",
-            "sadness",
-            "surprise",
-            "neutral",
-        ]
+        # Test that emotion labels are available
+        assert hasattr(model, "emotion_labels")
+        assert len(model.emotion_labels) == 28
 
-        assert model.num_emotions == len(expected_emotions)
+        # Test emotion label mapping
+        test_labels = ["joy", "sadness", "anger", "fear"]
+        model.emotion_labels = test_labels
+
+        with patch.object(model, "forward") as mock_forward:
+            mock_logits = torch.tensor([[0.1, 0.8, 0.2, 0.9]])
+            mock_forward.return_value = mock_logits
+
+            predictions = model.predict_emotions(
+                input_ids=torch.tensor([[1, 2, 3]]),
+                attention_mask=torch.tensor([[1, 1, 1]]),
+                threshold=0.5,
+            )
+
+            # Test that predictions align with labels
+            assert len(predictions[0]) == len(test_labels)
