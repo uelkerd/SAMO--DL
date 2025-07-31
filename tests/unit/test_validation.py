@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-"""Unit tests for validation module.
-
-Tests data validation, schema validation, and input validation.
+"""
+Unit tests for data validation functionality.
 """
 
 import pandas as pd
-import pytest
 
 from src.data.validation import DataValidator, validate_text_input
 
