@@ -70,6 +70,25 @@ ENTRY_TEMPLATES = [
     "Today's {topic} activities made me feel {emotion}. {additional_sentence}",
 ]
 
+REFLECTION_TEMPLATES = [
+    "It really makes me wonder about what's next.",
+    "I need to spend more time thinking about why I feel this way.",
+    "This whole experience has taught me something important about myself.",
+    "Looking back, I can see a clear pattern emerging here.",
+    "I'm not sure what the right move is, but I know I need to do something.",
+    "It's a powerful reminder of what's truly important to me.",
+]
+
+DETAIL_TEMPLATES = [
+    "The main reason for this is the pressure from the upcoming project deadline.",
+    "It all started after that conversation with my manager earlier this week.",
+    "I've been trying to balance this with all of my other responsibilities, and it's tough.",
+    "The small details of the situation are what seem to be causing the most stress.",
+    "I'm trying to focus on the positive aspects, but it's proving to be difficult.",
+    "The situation with {topic} has been evolving for a few weeks now, and it's coming to a head.",
+]
+
+
 ADDITIONAL_SENTENCES = [
     "I'm hoping things will improve soon.",
     "I'm trying to maintain a positive outlook.",
@@ -121,9 +140,15 @@ def generate_title(topic: str, emotion: str) -> str:
 def generate_content(topic: str, emotion: str) -> str:
     """Generate journal entry content."""
     template = random.choice(ENTRY_TEMPLATES)
-    additional_sentence = random.choice(ADDITIONAL_SENTENCES)
-    return template.format(topic=topic, emotion=emotion, additional_sentence=additional_sentence)
+    base_sentence = random.choice(ADDITIONAL_SENTENCES)
+    content = template.format(topic=topic, emotion=emotion, additional_sentence=base_sentence)
 
+    # Add more complexity with a chance of a second or third sentence
+    if random.random() > 0.4:  # 60% chance of adding more detail
+        content += f" {random.choice(DETAIL_TEMPLATES).format(topic=topic)}"
+    if random.random() > 0.6:  # 40% chance of adding a reflection
+        content += f" {random.choice(REFLECTION_TEMPLATES)}"
+    return content
 
 def generate_entry(user_id: int, created_at: datetime, id_start: int = 1) -> dict[str, Any]:
     """Generate a single journal entry."""
