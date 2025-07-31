@@ -1,22 +1,9 @@
 #!/usr/bin/env python3
 """
-Unified SAMO AI API - Complete Deep Learning Pipeline Integration.
+Unified AI API for SAMO Deep Learning.
 
-This module provides a unified API that combines all SAMO AI capabilities:
-- Voice-to-text transcription (OpenAI Whisper)
-- Emotion detection (BERT + GoEmotions)
-- Text summarization (T5/BART)
-
-This is the single integration point for the Web Dev team to access
-all SAMO AI functionality in one comprehensive API.
-
-Key Features:
-- Complete voice journal processing pipeline
-- Unified endpoints for all AI models
-- Cross-model data flow optimization
-- Production-ready performance monitoring
-- Comprehensive error handling and validation
-- API rate limiting (100 requests/minute per user)
+This module provides a unified FastAPI interface for all AI models
+in the SAMO Deep Learning pipeline.
 """
 
 import logging
@@ -28,7 +15,7 @@ from pathlib import Path
 from typing import Any, AsyncGenerator, Optional
 
 import uvicorn
-from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile, status
+from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field

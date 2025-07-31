@@ -1,41 +1,36 @@
 #!/usr/bin/env python3
-"""Training Pipeline for SAMO Emotion Detection.
+"""
+Training Pipeline for BERT Emotion Detection.
 
-This module implements the complete training pipeline that combines the GoEmotions
-dataset loader with the BERT emotion classifier for end-to-end emotion detection
-model training following the model training playbook strategies.
-
-Key Features:
-- Progressive unfreezing strategy for transfer learning
-- Class-weighted training for imbalanced data
-- Early stopping and model checkpointing
-- Comprehensive logging and debugging
-- Development mode for rapid iteration
+This module provides a comprehensive training pipeline for the BERT-based
+emotion detection model with advanced features like focal loss, temperature
+scaling, and ensemble methods.
 """
 
-import json
 import logging
-import time
+import os
+import warnings
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
-from torch.optim import AdamW
-from torch.utils.data import DataLoader
-from transformers import AutoTokenizer, get_linear_schedule_with_warmup
+from sklearn.metrics import f1_score, precision_recall_fscore_support
+from torch.utils.data import DataLoader, Dataset
+from transformers import (
+    AutoTokenizer,
+    get_linear_schedule_with_warmup,
+)
 
 from .bert_classifier import (
-    BERTEmotionClassifier,
-    WeightedBCELoss,
     create_bert_emotion_classifier,
+    evaluate_emotion_classifier,
 )
 from .dataset_loader import (
-    GOEMOTIONS_EMOTIONS,
     GoEmotionsDataset,
     create_goemotions_datasets,
-    prepare_goemotions_data,
 )
 
 # Configure logging

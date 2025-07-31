@@ -1,39 +1,27 @@
 #!/usr/bin/env python3
-"""Data Pipeline for SAMO Deep Learning.
+"""
+Data Pipeline for SAMO Deep Learning.
 
-This module orchestrates the complete data processing pipeline for journal entries,
-including loading, validation, preprocessing, feature engineering, and embedding generation.
-
-Key Features:
-- Multi-source data loading (database, JSON, CSV)
-- Comprehensive data validation
-- Text preprocessing and feature engineering
-- Multiple embedding methods (TF-IDF, Word2Vec, FastText)
-- Topic extraction and analysis
-- Configurable output and intermediate data saving
+This module provides data processing pipelines for text and audio data,
+including preprocessing, feature extraction, and dataset management.
 """
 
 import datetime
 import logging
-import time
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 
+import numpy as np
 import pandas as pd
+from datasets import Dataset, DatasetDict
 
-from .embeddings import (
-    EmbeddingPipeline,
-    FastTextEmbedder,
-    TfidfEmbedder,
-    Word2VecEmbedder,
-)
+from .database import DatabaseManager
+from .embeddings import EmbeddingGenerator
 from .feature_engineering import FeatureEngineer
-from .loaders import (
-    load_entries_from_csv,
-    load_entries_from_db,
-    load_entries_from_json,
-)
-from .preprocessing import JournalEntryPreprocessor
+from .loaders import DataLoader
+from .models import JournalEntry, ProcessedData
+from .preprocessing import TextPreprocessor
 from .validation import DataValidator
 
 # Configure logging

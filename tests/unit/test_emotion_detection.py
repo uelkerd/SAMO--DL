@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
-"""Unit tests for BERT emotion detection model.
-
-Tests model initialization, forward pass, and emotion classification logic.
+"""
+Unit tests for emotion detection models.
 """
 
 import pytest
 import torch
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 from transformers.modeling_outputs import BaseModelOutputWithPooling
 
 try:
-    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier, WeightedBCELoss
+    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 except ImportError as e:
     raise RuntimeError(
-        "Failed to import BERTEmotionClassifier. Ensure all model dependencies are installed."
-    ) from e
+        f"Failed to import BERTEmotionClassifier: {e}. "
+        "Make sure all dependencies are installed."
+    )
 
 
 class TestBertEmotionClassifier:
