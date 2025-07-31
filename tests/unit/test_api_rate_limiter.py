@@ -310,11 +310,13 @@ class TestRateLimiter:
         async def mock_call_next(request):
             return Response()
 
-        # Exhaust the rate limit
-        for _ in range(DEFAULT_BURST_LIMIT + 1):
+        # Exhaust the rate limit by consuming all tokens
+        for _ in range(DEFAULT_RATE_LIMIT):
             response = await rate_limiter.middleware(mock_request, mock_call_next)
+            assert response.status_code == 200
 
-        # Should return 429
+        # Next request should be rate limited (no tokens left)
+        response = await rate_limiter.middleware(mock_request, mock_call_next)
         assert response.status_code == 429
 
     @pytest.mark.asyncio
