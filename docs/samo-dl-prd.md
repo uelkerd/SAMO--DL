@@ -11,7 +11,7 @@ The SAMO Deep Learning track is responsible for building the core AI intelligenc
 
 ## 🎯 **Current Status: SIGNIFICANTLY AHEAD OF SCHEDULE**
 
-**📊 Overall Progress**: **5 of 7 MVP Requirements Complete (71%)**
+**📊 Overall Progress**: **5 of 8 MVP Requirements Complete (63%)**
 
 - **Infrastructure Transformation**: ✅ Complete (security, code quality, repository cleanup)
 - **Emotion Detection**: 🔄 Training Complete - F1 Optimization Required (13.2% vs >75% target)
@@ -45,6 +45,7 @@ The SAMO Deep Learning track is responsible for building the core AI intelligenc
 | Metric | Target | Current Status | Measurement Method |
 |--------|--------|----------------|-------------------|
 | Emotion Detection Accuracy | >80% F1 Score | 🔄 **13.2% F1 - Optimization in Progress** | GoEmotions validation set |
+| **Domain-Adapted Emotion Detection** | **>70% F1 Score** | 🆕 **NEW METRIC - NOT TESTED** | **Journal entry test set** |
 | Summarization Quality | >4.0/5.0 | ✅ **High quality validated with samples** | Human evaluation panel |
 | Voice Transcription Accuracy | <10% WER | ✅ **Validated with LibriSpeech test set** | LibriSpeech test set |
 | Response Latency | <500ms P95 | ✅ **ONNX optimization ready for target** | Production monitoring |
@@ -204,6 +205,20 @@ The SAMO Deep Learning track is responsible for building the core AI intelligenc
 - **Dependencies**: Security framework definition
 - **Integration**: Web Dev authentication system
 
+#### **REQ-DL-012: Domain-Adapted Emotion Detection** 🆕 **NEW REQUIREMENT**
+
+- **Description**: Emotion detection model optimized for journal entry domain
+- **Priority**: P0 (MVP Critical)
+- **Status**: 🆕 **NEW REQUIREMENT - NOT STARTED**
+- **Acceptance Criteria**:
+  - Achieve minimum 70% F1 score on curated test set of 100+ journal entries
+  - Performance on journal-style text (personal, reflective, longer-form) vs Reddit comments
+  - Domain adaptation testing framework with journal entry validation set
+  - Maintain >75% F1 score on GoEmotions validation set (baseline performance)
+- **Dependencies**: Journal entry test dataset creation, domain adaptation training pipeline
+- **Integration**: Enhanced emotion detection API with domain-aware confidence scoring
+- **🎯 Critical Gap**: Current model trained on GoEmotions (Reddit comments) may not generalize to journal entries
+
 ## Technical Specifications
 
 ### Model Architecture Details
@@ -316,6 +331,10 @@ Response:
   - GPU optimization scripts ready for GCP deployment
   - ONNX Runtime integration prepared
   - Performance benchmarking tools validated
+- **REQ-DL-012**: 🆕 **NEW REQUIREMENT** - Domain-adapted emotion detection
+  - Journal entry test dataset creation needed
+  - Domain adaptation training pipeline implementation
+  - Performance validation on target domain
 - **Deliverables**: 🎯 **ON TRACK** - MVP-ready emotion and summarization models (80% complete)
 
 ### Weeks 5-6: Integration Phase
@@ -386,7 +405,7 @@ Response:
 
 The Deep Learning track will be considered successful when:
 
-1. **MVP Completion**: All P0 requirements (REQ-DL-001 through REQ-DL-004, REQ-DL-008, REQ-DL-010, REQ-DL-011) are delivered and pass acceptance criteria
+1. **MVP Completion**: All P0 requirements (REQ-DL-001 through REQ-DL-004, REQ-DL-008, REQ-DL-010, REQ-DL-011, REQ-DL-012) are delivered and pass acceptance criteria
 2. **Performance Targets**: All success metrics are achieved in production environment
 3. **Integration Success**: Seamless operation with Web Dev backend without requiring Deep Learning team involvement in non-ML issues
 4. **Production Readiness**: Models deployed and serving real user traffic with >99.5% uptime
