@@ -15,6 +15,7 @@ Key Features:
 """
 
 import time
+import threading
 from collections import deque
 from dataclasses import dataclass, field
 from typing import Callable, Optional
@@ -52,6 +53,7 @@ class RateLimitCache:
         self.cache: dict[str, RateLimitEntry] = {}
         self.cleanup_interval = cleanup_interval
         self.last_cleanup = time.time()
+        self._lock = threading.Lock()  # Thread safety lock
 
     def get(self, key: str) -> RateLimitEntry:
         """Get rate limit entry for a client, creating if needed.
@@ -62,15 +64,16 @@ class RateLimitCache:
         Returns:
             Rate limit entry
         """
-        if key not in self.cache:
-            self.cache[key] = RateLimitEntry()
+        with self._lock:
+            if key not in self.cache:
+                self.cache[key] = RateLimitEntry()
 
-        self.cache[key].last_access = time.time()
+            self.cache[key].last_access = time.time()
 
-        if time.time() - self.last_cleanup > self.cleanup_interval:
-            self._cleanup()
+            if time.time() - self.last_cleanup > self.cleanup_interval:
+                self._cleanup()
 
-        return self.cache[key]
+            return self.cache[key]
 
     def _cleanup(self):
         """Remove expired keys."""
