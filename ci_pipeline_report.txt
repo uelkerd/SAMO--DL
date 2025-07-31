@@ -9,7 +9,7 @@
 - Success Rate: 91.7%
 
 🔍 DETAILED RESULTS:
-- environment: {'platform': 'darwin', 'python_version': '3.10.18 | packaged by conda-forge | (main, Jun  4 2025, 14:46:25) [Clang 18.1.8 ]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'samo-dl'}
+- environment: {'platform': 'darwin', 'python_version': '3.11.13 (main, Jun  5 2025, 08:14:07) [Clang 14.0.6 ]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'samo-dl-stable'}
 - dependencies: ✅ PASSED
 - api_health_check: ✅ PASSED
 - bert_model_test: ✅ PASSED
@@ -22,7 +22,7 @@
 - gpu_compatibility: ✅ PASSED
 - performance: ✅ PASSED
 
-⏱️ EXECUTION TIME: 46.8s
+⏱️ EXECUTION TIME: 42.3s
 
 🎯 RECOMMENDATIONS:
 ⚠️ Failed tests: 
