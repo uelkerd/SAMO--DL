@@ -157,7 +157,7 @@ class DataValidator:
             expected_types: Dictionary mapping column names to expected types
 
         Returns:
-            Dictionary with validation results including is_valid, validated_df, and missing_values
+            Dictionary with validation results including is_valid, validated_df, missing_values, data_types, and text_quality
 
         """
         if required_columns is None:
@@ -183,6 +183,8 @@ class DataValidator:
                 "is_valid": False,
                 "validated_df": df,
                 "missing_values": {},
+                "data_types": {},
+                "text_quality": df,
                 "error": f"Required columns missing: {missing_columns}"
             }
 
@@ -205,7 +207,9 @@ class DataValidator:
             "is_valid": validation_passed,
             "validated_df": df_with_quality,
             "missing_values": missing_stats,
-            "error": "" if validation_passed else "Validation failed"
+            "data_types": type_check_results,
+            "text_quality": df_with_quality,
+            "error": None if validation_passed else "Validation failed"
         }
 
 
@@ -220,6 +224,9 @@ def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 
     Returns:
         Dictionary with is_valid and error keys
     """
+    if input_text is None:
+        return {"is_valid": False, "error": "Input cannot be None"}
+
     if not isinstance(input_text, str):
         return {"is_valid": False, "error": "Input must be a string"}
 
@@ -234,4 +241,14 @@ def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 
         if pattern.lower() in input_text.lower():
             return {"is_valid": False, "error": f"Text contains potentially harmful content: {pattern}"}
 
-    return {"is_valid": True, "error": ""}
+    # Check for invalid characters
+    invalid_chars = ['\x00', '\x01', '\x02']
+    for char in invalid_chars:
+        if char in input_text:
+            return {"is_valid": False, "error": "Text contains invalid characters"}
+
+    # Check for whitespace-only text
+    if input_text.strip() == "":
+        return {"is_valid": False, "error": "Text cannot be empty or whitespace only"}
+
+    return {"is_valid": True, "error": None}
