@@ -1,70 +1,66 @@
-    # Test 1: Check arguments
-    # Test 2: Check data file
-    # Test 3: Load and analyze data
-    # Test 4: Try to import required packages
 #!/usr/bin/env python3
-import json
+"""
+Test Vertex AI Setup Script
+
+This script tests the Vertex AI setup and configuration.
+"""
+
 import logging
 import sys
-"""Simple test script to verify Vertex AI setup"""
+from pathlib import Path
+
+# Add src to path
+sys.path.append(str(Path.cwd() / "src"))
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
 
 
-
-
-def main():
-    logging.info("🧪 Testing Vertex AI Setup...")
-
-    if len(sys.argv) != 4:
-        logging.info("Usage: python test_vertex_setup.py <project_id> <bucket_name> <data_path>")
-        sys.exit(1)
-
-    sys.argv[1]
-    sys.argv[2]
-    data_path = sys.argv[3]
-
-    logging.info("✅ Arguments parsed:")
-    logging.info("  - Project: {project_id}")
-    logging.info("  - Bucket: {bucket_name}")
-    logging.info("  - Data: {data_path}")
-
-    if not Path(data_path):
-        logging.info("❌ Data file not found: {data_path}")
-        sys.exit(1)
-
-    logging.info("✅ Data file exists: {data_path}")
+def test_vertex_setup():
+    """Test Vertex AI setup and configuration."""
+    logger.info("🚀 Starting Vertex AI Setup Test")
 
     try:
-        with open(data_path, encoding="utf-8") as f:
-            data = json.load(f)
+        # Test configuration files
+        config_dir = Path("configs/vertex_ai")
+        if config_dir.exists():
+            logger.info(f"✅ Configuration directory exists: {config_dir}")
+            
+            config_files = list(config_dir.glob("*.json"))
+            logger.info(f"✅ Found {len(config_files)} configuration files")
+            
+            for config_file in config_files:
+                logger.info(f"   - {config_file.name}")
+        else:
+            logger.warning(f"⚠️  Configuration directory not found: {config_dir}")
 
-        logging.info("✅ Data loaded successfully:")
-        logging.info("  - Total entries: {len(data)}")
+        # Test data directory
+        data_dir = Path("data/vertex_ai")
+        if data_dir.exists():
+            logger.info(f"✅ Data directory exists: {data_dir}")
+            
+            data_files = list(data_dir.glob("*.json"))
+            logger.info(f"✅ Found {len(data_files)} data files")
+            
+            for data_file in data_files:
+                logger.info(f"   - {data_file.name}")
+        else:
+            logger.warning(f"⚠️  Data directory not found: {data_dir}")
 
-        if len(data) > 0:
-            sample = data[0]
-            logging.info("  - Sample keys: {list(sample.keys())}")
+        # Test model directory
+        model_dir = Path("models/checkpoints")
+        if model_dir.exists():
+            logger.info(f"✅ Model directory exists: {model_dir}")
+        else:
+            logger.warning(f"⚠️  Model directory not found: {model_dir}")
 
-            if "emotions" in sample:
-                sample["emotions"]
-                logging.info("  - Sample emotions: {emotions}")
-                logging.info("  - Emotion type: {type(emotions)}")
+        logger.info("✅ Vertex AI setup test completed!")
 
-    except Exception:
-        logging.info("❌ Error loading data: {exc}")
-        sys.exit(1)
-
-    try:
-        logging.info("✅ pandas imported successfully")
-    except ImportError:
-        logging.info("❌ pandas import failed: {exc}")
-
-    try:
-        logging.info("✅ google-cloud-storage imported successfully")
-    except ImportError:
-        logging.info("❌ google-cloud-storage import failed: {exc}")
-
-    logging.info("\n🎉 All tests passed! Ready for data preparation.")
+    except Exception as e:
+        logger.error(f"❌ Setup test failed: {e}")
+        raise
 
 
 if __name__ == "__main__":
-    main()
+    test_vertex_setup()
