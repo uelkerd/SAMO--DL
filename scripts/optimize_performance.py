@@ -1,45 +1,6 @@
-            # Ensure computation is complete
-            # Inference
-            # Tokenize
-        # Calculate speedup
-        # Inference
-        # Performance recommendations
-        # Prepare inputs
-        # Tokenize
-    # Benchmark ONNX model
-    # Benchmark PyTorch model
-    # Create ONNX Runtime session
-    # Create dummy input
-    # Export to ONNX
-    # Import here to avoid circular imports
-    # Initialize model
-    # Load model
-    # Load model
-    # Performance assessment
-    # Sample texts for benchmarking
-    # Set output path
-    # Verify ONNX model
-    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
-    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
-# Set up logging
 #!/usr/bin/env python3
-from pathlib import Path
-from transformers import AutoTokenizer
-import argparse
-import logging
-import numpy as np
-import onnx
-import onnxruntime as ort
-import statistics
-import time
-import torch
-
-
-
-
-
-
-"""Performance Optimization Script for SAMO Deep Learning.
+"""
+Performance Optimization Script for SAMO Deep Learning.
 
 This script handles GPU setup verification, ONNX model conversion,
 and comprehensive performance benchmarking to meet <500ms P95 targets.
@@ -50,6 +11,21 @@ Usage:
     python scripts/optimize_performance.py --benchmark --target-latency 500
 """
 
+import argparse
+import logging
+import statistics
+import time
+from pathlib import Path
+
+import numpy as np
+import onnx
+import onnxruntime as ort
+import torch
+from transformers import AutoTokenizer
+
+from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+
+# Set up logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
