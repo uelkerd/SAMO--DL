@@ -230,15 +230,15 @@ def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 
     if not isinstance(input_text, str):
         return {"is_valid": False, "error": "Input must be a string"}
 
-    # Check for empty text
-    if len(input_text.strip()) == 0:
-        return {"is_valid": False, "error": "Text cannot be empty"}
+    # Check for empty or whitespace-only text
+    stripped_text = input_text.strip()
+    if len(stripped_text) == 0:
+        if input_text == "":
+            return {"is_valid": False, "error": "Text cannot be empty"}
+        else:
+            return {"is_valid": False, "error": "Text cannot be whitespace only"}
 
-    # Check for whitespace-only text
-    if input_text.strip() == "":
-        return {"is_valid": False, "error": "Text cannot be whitespace only"}
-
-    if len(input_text.strip()) < min_length:
+    if len(stripped_text) < min_length:
         return {"is_valid": False, "error": f"Text is too short, must be at least {min_length} characters long"}
 
     if len(input_text) > max_length:
