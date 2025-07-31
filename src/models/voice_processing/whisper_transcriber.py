@@ -319,15 +319,13 @@ class WhisperTranscriber:
             List of TranscriptionResult objects
         """
         logger.info(
-            "Starting batch transcription of {len(audio_paths)} files...",
-            extra={"format_args": True},
+            f"Starting batch transcription of {len(audio_paths)} files..."
         )
 
         results = []
         for _i, audio_path in enumerate(audio_paths, 1):
             logger.info(
-                "Processing file {i}/{len(audio_paths)}: {Path(audio_path).name}",
-                extra={"format_args": True},
+                f"Processing file {_i}/{len(audio_paths)}: {Path(audio_path).name}"
             )
 
             try:
@@ -336,8 +334,8 @@ class WhisperTranscriber:
                 )
                 results.append(result)
 
-            except Exception:
-                logger.error("Failed to transcribe {audio_path}: {e}", extra={"format_args": True})
+            except Exception as e:
+                logger.error(f"Failed to transcribe {audio_path}: {e}")
                 results.append(
                     TranscriptionResult(
                         text="",
@@ -353,15 +351,14 @@ class WhisperTranscriber:
                     )
                 )
 
-        sum(r.duration for r in results)
-        sum(r.processing_time for r in results)
+        total_duration = sum(r.duration for r in results)
+        total_processing_time = sum(r.processing_time for r in results)
 
         logger.info(
-            "✅ Batch transcription complete: {len(results)} files", extra={"format_args": True}
+            f"✅ Batch transcription complete: {len(results)} files"
         )
         logger.info(
-            "Total audio: {total_duration:.1f}s, Processing: {total_processing_time:.1f}s",
-            extra={"format_args": True},
+            f"Total audio: {total_duration:.1f}s, Processing: {total_processing_time:.1f}s"
         )
 
         return results
