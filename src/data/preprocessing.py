@@ -1,31 +1,25 @@
-            import nltk
-        # Apply lemmatization if enabled
-        # Apply stemming if enabled
-        # Apply text preprocessing to content
-        # Average word length
-        # Character count
-        # Combine title and content for full text analysis
-        # Convert to lowercase if enabled
-        # Extract text features
-        # Handle missing values
-        # Initialize NLP components
-        # Join tokens back into text
-        # Make a copy to avoid modifying the original
-        # Remove punctuation if enabled
-        # Remove stopwords if enabled
-        # Sentence count (approximation)
-        # Tokenize text
-        # Word count
+#!/usr/bin/env python3
+"""Text preprocessing for SAMO Deep Learning.
+
+This module provides comprehensive text preprocessing functionality for journal entries,
+including tokenization, normalization, and feature extraction.
+
+Key Features:
+- Multi-stage text preprocessing pipeline
+- Configurable preprocessing options
+- Feature extraction for text analysis
+- NLTK integration for advanced NLP
+"""
+
+import string
+from typing import Optional
+
+import nltk
+import numpy as np
+import pandas as pd
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer, WordNetLemmatizer
 from nltk.tokenize import word_tokenize
-import numpy as np
-import pandas as pd
-import string
-
-
-
-
 
 
 class TextPreprocessor:
