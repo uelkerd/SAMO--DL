@@ -175,9 +175,9 @@ class RateLimiter(BaseHTTPMiddleware):
         entry.tokens = min(self.rate_limit, entry.tokens + tokens_to_add)
         entry.last_refill = current_time
         
-        # Check if rate limit exceeded
-        if len(entry.requests) >= self.burst_limit or entry.tokens <= 0:
-            # Rate limit exceeded
+        # Check if we have tokens available
+        if entry.tokens <= 0:
+            # Rate limit exceeded - no tokens available
             response = Response(
                 content="Rate limit exceeded",
                 status_code=429,
