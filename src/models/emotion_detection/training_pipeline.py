@@ -29,8 +29,8 @@ from .bert_classifier import (
     evaluate_emotion_classifier,
 )
 from .dataset_loader import (
-    GoEmotionsDataset,
-    create_goemotions_datasets,
+    GoEmotionsDataLoader,
+    create_goemotions_loader,
 )
 
 # Configure logging
@@ -127,7 +127,7 @@ class EmotionDetectionTrainer:
         """
         logger.info("Preparing GoEmotions dataset...")
 
-        self.data_loader = create_goemotions_datasets(
+        self.data_loader = create_goemotions_loader(
             cache_dir=self.cache_dir, model_name=self.model_name
         )
 
