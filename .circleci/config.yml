@@ -60,26 +60,6 @@ commands:
             pip install -e ".[test,dev,prod]"
             echo "✅ All dependencies installed via pyproject.toml"
 
-  setup_conda_env:
-    description: "Set up Conda environment (alternative to pip)"
-    steps:
-      - checkout
-      - run:
-          name: Install Miniconda
-          command: |
-            wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
-            bash ~/miniconda.sh -b -p $HOME/miniconda
-            echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> $BASH_ENV
-            source $BASH_ENV
-            conda --version
-      - run:
-          name: Create and activate conda environment
-          command: |
-            source $BASH_ENV
-            conda env create -f environment.yml
-            echo 'conda activate samo-dl' >> $BASH_ENV
-            echo "✅ Conda environment 'samo-dl' created and activated"
-
   # ENHANCED CACHING STRATEGY
   cache_dependencies:
     description: "Enhanced cache for dependencies, models, and build artifacts"
@@ -112,57 +92,24 @@ commands:
     description: "Pre-download and cache models for faster CI execution"
     steps:
       - run:
-          name: Pre-warm BERT Models
+          name: Pre-warm Models
           command: |
-            echo "🔥 Pre-warming BERT models..."
+            echo "🔥 Pre-warming models..."
             python -c "
-            from transformers import AutoTokenizer, AutoModel
+            from transformers import AutoTokenizer, AutoModel, AutoModelForSeq2SeqLM
             import torch
             
             # Pre-download BERT models
             print('Downloading BERT base...')
-            tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
-            model = AutoModel.from_pretrained('bert-base-uncased')
-            
-            print('Downloading BERT large...')
-            tokenizer_large = AutoTokenizer.from_pretrained('bert-large-uncased')
-            model_large = AutoModel.from_pretrained('bert-large-uncased')
-            
-            print('✅ BERT models pre-warmed')
-            "
-      - run:
-          name: Pre-warm T5 Models
-          command: |
-            echo "🔥 Pre-warming T5 models..."
-            python -c "
-            from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+            AutoTokenizer.from_pretrained('bert-base-uncased')
+            AutoModel.from_pretrained('bert-base-uncased')
             
             # Pre-download T5 models
             print('Downloading T5 small...')
-            tokenizer = AutoTokenizer.from_pretrained('t5-small')
-            model = AutoModelForSeq2SeqLM.from_pretrained('t5-small')
+            AutoTokenizer.from_pretrained('t5-small')
+            AutoModelForSeq2SeqLM.from_pretrained('t5-small')
             
-            print('Downloading T5 base...')
-            tokenizer_base = AutoTokenizer.from_pretrained('t5-base')
-            model_base = AutoModelForSeq2SeqLM.from_pretrained('t5-base')
-            
-            print('✅ T5 models pre-warmed')
-            "
-      - run:
-          name: Pre-warm Whisper Models
-          command: |
-            echo "🔥 Pre-warming Whisper models..."
-            python -c "
-            import whisper
-            
-            # Pre-download Whisper models
-            print('Downloading Whisper base...')
-            model = whisper.load_model('base')
-            
-            print('Downloading Whisper small...')
-            model_small = whisper.load_model('small')
-            
-            print('✅ Whisper models pre-warmed')
+            print('✅ Models pre-warmed')
             "
 
   run_quality_checks:
@@ -455,6 +402,7 @@ workflows:
   samo-ci-cd:
     jobs:
       # STAGE 1: Fast Feedback (<3 minutes) - PARALLEL EXECUTION
+      # --------------------------------------------------------------------------
       - lint-and-format:
           filters:
             branches:
@@ -468,6 +416,7 @@ workflows:
                 - gh-pages
 
       # STAGE 2: Integration & Security (<8 minutes) - PARALLEL EXECUTION
+      # --------------------------------------------------------------------------
       - security-scan-bandit:
           requires:
             - lint-and-format
@@ -501,6 +450,7 @@ workflows:
                 - gh-pages
 
       # STAGE 3: Comprehensive Testing (<15 minutes)
+      # --------------------------------------------------------------------------
       - e2e-tests:
           requires:
             - integration-tests
