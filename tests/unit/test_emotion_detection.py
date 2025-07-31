@@ -86,21 +86,27 @@ class TestBertEmotionClassifier:
         """Test emotion prediction functionality."""
         with patch("transformers.AutoConfig.from_pretrained"), patch(
             "transformers.AutoModel.from_pretrained"
-        ):
+        ), patch("transformers.AutoTokenizer.from_pretrained") as mock_tokenizer:
             model = BERTEmotionClassifier(num_emotions=4)
             model.eval()
 
+            # Mock the tokenizer
+            mock_tokenizer_instance = MagicMock()
+            mock_tokenizer_instance.return_value = {
+                "input_ids": torch.tensor([[1, 2, 3, 0]]),  # [batch, seq_len]
+                "attention_mask": torch.tensor([[1, 1, 1, 0]])  # [batch, seq_len]
+            }
+            mock_tokenizer.return_value = mock_tokenizer_instance
+
             # Mock the BERT model to return proper tensor outputs
             mock_outputs = MagicMock()
-            mock_outputs.last_hidden_state = torch.randn(1, 3, 768)  # [batch, seq_len, hidden_size]
+            mock_outputs.last_hidden_state = torch.randn(1, 4, 768)  # [batch, seq_len, hidden_size]
             mock_outputs.pooler_output = torch.randn(1, 768)  # [batch, hidden_size]
             model.bert.return_value = mock_outputs
 
             # Test with threshold
             predictions = model.predict_emotions(
-                texts=["test text"],  # Add required texts parameter
-                input_ids=torch.tensor([[1, 2, 3]]),
-                attention_mask=torch.tensor([[1, 1, 1]]),
+                texts=["test text"],
                 threshold=0.5,
             )
 
@@ -108,7 +114,7 @@ class TestBertEmotionClassifier:
             assert isinstance(predictions, dict)
             assert "emotions" in predictions
             assert "probabilities" in predictions
-            assert "confidence_scores" in predictions
+            assert "predictions" in predictions
 
     @patch("transformers.AutoConfig.from_pretrained")
     @patch("transformers.AutoModel.from_pretrained")
