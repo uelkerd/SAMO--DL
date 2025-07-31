@@ -223,35 +223,16 @@ jobs:
       - restore_dependencies
       - cache_dependencies
       - run:
-          name: BERT Model Loading Test
+          name: Comprehensive CI Pipeline Test
           command: |
-            echo "🤖 Testing BERT emotion detection model loading..."
-            python scripts/ci/bert_model_test.py
-      - run:
-          name: Model Calibration Test
-          command: |
-            echo "🌡️ Testing model calibration with optimal temperature and threshold..."
-            python scripts/ci/model_calibration_test.py
-      - run:
-          name: Model Compression Test
-          command: |
-            echo "📦 Testing model compression..."
-            python scripts/ci/model_compression_test.py
-      - run:
-          name: ONNX Conversion Test
-          command: |
-            echo "🔄 Testing ONNX conversion..."
-            python scripts/ci/onnx_conversion_test.py
-      - run:
-          name: T5 Summarization Test
-          command: |
-            echo "📝 Testing T5 summarization model..."
-            python scripts/ci/t5_summarization_test.py
-      - run:
-          name: API Health Check
-          command: |
-            echo "🌐 Testing unified AI API endpoints..."
-            python scripts/ci/api_health_check.py
+            echo "🚀 Running comprehensive CI pipeline..."
+            python scripts/ci/run_full_ci_pipeline.py
+      - store_artifacts:
+          path: ci_pipeline_report.txt
+          destination: ci-reports
+      - store_artifacts:
+          path: ci_pipeline.log
+          destination: ci-logs
 
   # STAGE 3: Comprehensive Testing & Performance (<30 minutes)
   # --------------------------------------------------------------------------

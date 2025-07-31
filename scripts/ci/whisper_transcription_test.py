@@ -113,9 +113,9 @@ def test_audio_preprocessor():
             preprocessor = AudioPreprocessor()
             
             # Test audio validation
-            is_valid = preprocessor.validate_audio(test_audio_path)
+            is_valid, error_msg = preprocessor.validate_audio_file(test_audio_path)
             if not is_valid:
-                logger.error("❌ Audio validation failed")
+                logger.error(f"❌ Audio validation failed: {error_msg}")
                 return False
 
             logger.info("✅ AudioPreprocessor test passed")
