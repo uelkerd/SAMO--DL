@@ -90,6 +90,12 @@ class TestBertEmotionClassifier:
             model = BERTEmotionClassifier(num_emotions=4)
             model.eval()
 
+            # Mock the BERT model to return proper tensor outputs
+            mock_outputs = MagicMock()
+            mock_outputs.last_hidden_state = torch.randn(1, 3, 768)  # [batch, seq_len, hidden_size]
+            mock_outputs.pooler_output = torch.randn(1, 768)  # [batch, hidden_size]
+            model.bert_model.return_value = mock_outputs
+
             # Test with threshold
             predictions = model.predict_emotions(
                 texts=["test text"],  # Add required texts parameter
