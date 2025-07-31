@@ -97,6 +97,12 @@ class JournalEntry(Base):
     embeddings = relationship(
         "Embedding", back_populates="journal_entry", cascade="all, delete-orphan"
     )
+    predictions = relationship(
+        "Prediction", back_populates="journal_entry", cascade="all, delete-orphan"
+    )
+    voice_transcriptions = relationship(
+        "VoiceTranscription", back_populates="journal_entry", cascade="all, delete-orphan"
+    )
     tags = relationship("Tag", secondary=journal_entry_tags, back_populates="entries")
 
     def __repr__(self) -> str:
@@ -109,20 +115,20 @@ class Embedding(Base):
     __tablename__ = "embeddings"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    entry_id = Column(
+    journal_entry_id = Column(
         UUID(as_uuid=True),
         ForeignKey("journal_entries.id", ondelete="CASCADE"),
         nullable=False,
     )
-    model_version = Column(String(100), nullable=False)
-    embedding = Column(Vector(768))  # 768 dimensions for BERT-base
+    embedding_vector = Column(Vector(768))  # 768 dimensions for BERT-base
+    model_name = Column(String(100), nullable=False)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
 
     # Relationships
     journal_entry = relationship("JournalEntry", back_populates="embeddings")
 
     def __repr__(self) -> str:
-        return f"<Embedding(id='{self.id}', model_version='{self.model_version}')>"
+        return f"<Embedding(id='{self.id}', journal_entry_id='{self.journal_entry_id}', model_name='{self.model_name}')>"
 
 
 class Prediction(Base):
@@ -131,19 +137,22 @@ class Prediction(Base):
     __tablename__ = "predictions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    journal_entry_id = Column(UUID(as_uuid=True), ForeignKey("journal_entries.id", ondelete="CASCADE"), nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     prediction_type = Column(String(100), nullable=False)
-    prediction_content = Column(JSONB, nullable=False)
+    prediction_value = Column(JSONB, nullable=False)
     confidence_score = Column(Float)
+    model_name = Column(String(100))
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     is_feedback_given = Column(Boolean, default=False)
     feedback_rating = Column(Integer)
 
     # Relationships
     user = relationship("User", back_populates="predictions")
+    journal_entry = relationship("JournalEntry", back_populates="predictions")
 
     def __repr__(self) -> str:
-        return f"<Prediction(id='{self.id}', type='{self.prediction_type}')>"
+        return f"<Prediction(id='{self.id}', prediction_type='{self.prediction_type}', confidence_score={self.confidence_score})>"
 
 
 class VoiceTranscription(Base):
@@ -152,19 +161,22 @@ class VoiceTranscription(Base):
     __tablename__ = "voice_transcriptions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    journal_entry_id = Column(UUID(as_uuid=True), ForeignKey("journal_entries.id", ondelete="CASCADE"), nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     audio_file_path = Column(String(255))
-    transcript_text = Column(Text, nullable=False)
+    transcription_text = Column(Text, nullable=False)
     duration_seconds = Column(Integer)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
-    whisper_model_version = Column(String(100))
+    model_name = Column(String(100))
     confidence_score = Column(Float)
+    processing_time = Column(Float)
 
     # Relationships
     user = relationship("User", back_populates="voice_transcriptions")
+    journal_entry = relationship("JournalEntry", back_populates="voice_transcriptions")
 
     def __repr__(self) -> str:
-        return f"<VoiceTranscription(id='{self.id}', duration='{self.duration_seconds}s')>"
+        return f"<VoiceTranscription(id='{self.id}', transcription_text='{self.transcription_text[:50]}...')>"
 
 
 class Tag(Base):
@@ -174,6 +186,8 @@ class Tag(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(100), unique=True, nullable=False)
+    description = Column(Text)
+    color = Column(String(7))  # Hex color code
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
 
     # Relationships
