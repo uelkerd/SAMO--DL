@@ -1,209 +1,141 @@
-            # Backward pass
-            # Forward pass
-            # Move batch to device
-        # Create aliases
-        # Load bert_classifier module
-        # Load dataset_loader module
-        # Look for src directory in parent directories
-        import importlib.util
-    # Add to Python path
-    # Alternative: Try to import directly from the file paths
-    # Approach 1: Get the script's directory and go up to project root
-    # Approach 2: Try to find the project root by looking for src directory
-    # Create focal loss
-    # Create model
-    # Create optimizer
-    # Get a small batch for testing
-    # Load dataset using existing loader
-    # Setup device
-    # Training loop (simplified for testing)
-    from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-    from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-# Configure logging
-# Multiple approaches to add project root to Python path
-# Now try to import the modules
 #!/usr/bin/env python3
-from pathlib import Path
-from torch import nn
+"""
+Robust Focal Loss Training Script
+
+This script provides a robust implementation of focal loss training
+with comprehensive error handling and validation.
+"""
+
 import logging
 import sys
+from pathlib import Path
+
 import torch
-import torch.nn.functional as F
+from torch import nn
+from transformers import AutoTokenizer
 
+# Add src to path
+sys.path.append(str(Path.cwd() / "src"))
 
+from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
-
-
-"""
-Robust Focal Loss Training for Emotion Detection
-
-This script implements Focal Loss to address class imbalance and improve F1 scores.
-Uses multiple approaches to handle Python path issues.
-
-Usage:
-    python3 focal_loss_training_robust.py
-"""
-
-try:
-    script_dir = Path(__file__).parent.resolve()
-    project_root = script_dir.parent.resolve()
-
-    if not (project_root / "src").exists():
-        current = script_dir
-        while current.parent != current:
-            current = current.parent
-            if (current / "src").exists():
-                project_root = current
-                break
-
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
-
-    print("🔧 Added project root to path: {project_root}")
-    print("📁 Current working directory: {Path.cwd()}")
-    print("📋 Python path: {sys.path[:3]}...")
-
-except Exception as e:
-    print("⚠️  Path setup warning: {e}")
-
-try:
-    print("✅ Successfully imported modules")
-except ImportError as _:
-    print("❌ Import error: {e}")
-    print("🔧 Trying alternative import approach...")
-
-    try:
-        bert_spec = importlib.util.spec_from_file_location(
-            "bert_classifier",
-            project_root / "src" / "models" / "emotion_detection" / "bert_classifier.py",
-        )
-        bert_module = importlib.util.module_from_spec(bert_spec)
-        bert_spec.loader.exec_module(bert_module)
-
-        loader_spec = importlib.util.spec_from_file_location(
-            "dataset_loader",
-            project_root / "src" / "models" / "emotion_detection" / "dataset_loader.py",
-        )
-        loader_module = importlib.util.module_from_spec(loader_spec)
-        loader_spec.loader.exec_module(loader_module)
-
-        create_bert_emotion_classifier = bert_module.create_bert_emotion_classifier
-        GoEmotionsDataLoader = loader_module.GoEmotionsDataLoader
-
-        print("✅ Successfully imported modules using alternative approach")
-
-    except Exception as e2:
-        print("❌ Alternative import also failed: {e2}")
-        print("🔧 Please check the project structure and run from the correct directory")
-        sys.exit(1)
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 
 class FocalLoss(nn.Module):
-    """Focal Loss implementation for multi-label classification."""
+    """Focal Loss for handling class imbalance."""
 
-    def __init__(self, alpha: float = 0.25, gamma: float = 2.0):
+    def __init__(self, alpha=1, gamma=2, reduction="mean"):
         super().__init__()
         self.alpha = alpha
         self.gamma = gamma
+        self.reduction = reduction
 
     def forward(self, inputs, targets):
-        """Compute focal loss."""
-        probs = torch.sigmoid(inputs)
-        pt = probs * targets + (1 - probs) * (1 - targets)
-        focal_weight = (1 - pt) ** self.gamma
-        alpha_weight = self.alpha * targets + (1 - self.alpha) * (1 - targets)
-        bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
-        focal_loss = alpha_weight * focal_weight * bce_loss
-        return focal_loss.mean()
-
-
-def main():
-    """Main training function."""
-    logger.info("🚀 Starting SAMO-DL Focal Loss Training (Robust)")
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info("Device: {device}")
-
-    logger.info("📊 Loading GoEmotions dataset...")
-    try:
-        data_loader = GoEmotionsDataLoader()
-        datasets = data_loader.prepare_datasets()
-
-        train_dataset = datasets["train"]
-        val_dataset = datasets["validation"]
-        test_dataset = datasets["test"]
-        emotion_names = data_loader.emotion_names
-
-        logger.info("✅ Dataset loaded successfully")
-        logger.info("   • Train examples: {len(train_dataset)}")
-        logger.info("   • Validation examples: {len(val_dataset)}")
-        logger.info("   • Test examples: {len(test_dataset)}")
-        logger.info("   • Emotion classes: {len(emotion_names)}")
-
-    except Exception as e:
-        logger.error("❌ Failed to load dataset: {e}")
-        return
-
-    logger.info("🤖 Creating BERT emotion classifier...")
-    try:
-        model, _ = create_bert_emotion_classifier(
-            model_name="bert-base-uncased", class_weights=None, freeze_bert_layers=4
+        """Forward pass of focal loss."""
+        bce_loss = nn.functional.binary_cross_entropy_with_logits(
+            inputs, targets, reduction="none"
         )
-        model = model.to(device)
+        pt = torch.exp(-bce_loss)
+        focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
 
-        param_count = sum(p.numel() for p in model.parameters())
-        trainable_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        if self.reduction == "mean":
+            return focal_loss.mean()
+        elif self.reduction == "sum":
+            return focal_loss.sum()
+        else:
+            return focal_loss
 
-        logger.info("✅ Model created successfully")
-        logger.info("   • Total parameters: {param_count:,}")
-        logger.info("   • Trainable parameters: {trainable_count:,}")
 
-    except Exception as e:
-        logger.error("❌ Failed to create model: {e}")
-        return
+def create_training_data():
+    """Create training data for testing."""
+    logger.info("Creating training data...")
 
-    focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
-    logger.info("✅ Focal Loss created (alpha=0.25, gamma=2.0)")
+    texts = [
+        "I am feeling happy today!",
+        "This makes me sad.",
+        "I'm really angry about this.",
+        "I'm scared of what might happen.",
+        "I feel great about everything!",
+    ]
 
-    optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
-    logger.info("✅ Optimizer created (AdamW, lr=2e-5)")
+    labels = [
+        [1, 0, 0, 0],  # joy
+        [0, 1, 0, 0],  # sadness
+        [0, 0, 1, 0],  # anger
+        [0, 0, 0, 1],  # fear
+        [1, 0, 0, 0],  # joy
+    ]
 
-    logger.info("🚀 Starting training loop...")
-    model.train()
+    return texts, labels
 
-    batch_size = 8
-    train_dataloader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=batch_size, shuffle=True
-    )
 
-    for epoch in range(3):
-        logger.info("📚 Epoch {epoch + 1}/3")
+def robust_focal_training():
+    """Run robust focal loss training with error handling."""
+    logger.info("🚀 Starting Robust Focal Loss Training")
 
-        for _batch_idx, batch in enumerate(train_dataloader):
+    try:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        logger.info(f"Using device: {device}")
+
+        # Create model and tokenizer
+        model, tokenizer = create_bert_emotion_classifier()
+        model.to(device)
+
+        # Create training data
+        texts, labels = create_training_data()
+
+        # Tokenize
+        inputs = tokenizer(
+            texts,
+            padding=True,
+            truncation=True,
+            max_length=128,
+            return_tensors="pt",
+        )
+
+        labels_tensor = torch.tensor(labels, dtype=torch.float32)
+
+        # Create dataloader
+        dataset = torch.utils.data.TensorDataset(
+            inputs["input_ids"], inputs["attention_mask"], labels_tensor
+        )
+        train_dataloader = torch.utils.data.DataLoader(dataset, batch_size=2, shuffle=True)
+
+        # Setup optimizer and loss
+        optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
+        focal_loss = FocalLoss(gamma=2.0)
+
+        # Training loop
+        model.train()
+        for batch_idx, batch in enumerate(train_dataloader):
             if batch_idx >= 5:  # Only do first 5 batches for testing
                 break
 
-            input_ids = batch["input_ids"].to(device)
-            attention_mask = batch["attention_mask"].to(device)
-            labels = batch["labels"].to(device)
-
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-            loss = focal_loss(outputs, labels)
+            input_ids, attention_mask, batch_labels = batch
+            input_ids = input_ids.to(device)
+            attention_mask = attention_mask.to(device)
+            batch_labels = batch_labels.to(device)
 
             optimizer.zero_grad()
+
+            outputs = model(input_ids, attention_mask)
+            loss = focal_loss(outputs, batch_labels)
+
             loss.backward()
             optimizer.step()
 
             if batch_idx % 2 == 0:
-                logger.info("   Batch {batch_idx}: Loss = {loss.item():.4f}")
+                logger.info(f"   Batch {batch_idx}: Loss = {loss.item():.4f}")
 
-    logger.info("✅ Training completed successfully!")
-    logger.info("🎯 Focal Loss training is working correctly")
-    logger.info("📈 Ready for full training with more epochs")
+        logger.info("✅ Robust focal loss training completed!")
+
+    except Exception as e:
+        logger.error(f"❌ Training failed: {e}")
+        raise
 
 
 if __name__ == "__main__":
-    main()
+    robust_focal_training()
