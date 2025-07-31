@@ -1,44 +1,8 @@
-            # Add task prefix for T5 if needed
-            # Decode batch summaries
-            # Generate summaries
-            # Tokenize batch
-            # Try generic seq2seq
-        # Add task prefix for T5
-        # Add task prefix for T5
-        # Decode summary
-        # Generate summary
-        # Initialize tokenizer
-        # Model info
-        # Move to device
-        # Set device
-        # Tokenize input
-        # Tokenize input
-        # Tokenize target
-        # Use config defaults if not specified
-    # Create model
-    # Generate summaries
-    # Model info
-    # Sample journal entries
-    # Test batch processing
-# Configure logging
-# G004: Logging f-strings temporarily allowed for development
-# Suppress tokenizer warnings
-from dataclasses import dataclass
-from journal entries and conversations, providing intelligent summaries
-from torch import nn
-from torch.utils.data import Dataset
-from transformers import (
-from typing import Optional, Any
-import logging
-import time
-import torch
-import warnings
-
-
-
+#!/usr/bin/env python3
 """T5/BART Summarization Model for SAMO Deep Learning.
 
 This module implements T5 and BART models for extracting emotional core
+from journal entries and conversations, providing intelligent summaries
 that preserve emotional context and key insights.
 
 Key Features:
@@ -49,6 +13,16 @@ Key Features:
 - Production-ready with proper error handling and logging
 """
 
+import logging
+import time
+import warnings
+from dataclasses import dataclass
+from typing import Any, Optional
+
+import torch
+import torch.nn as nn
+from torch.utils.data import Dataset
+from transformers import (
     AutoModelForSeq2SeqLM,
     AutoTokenizer,
     BartForConditionalGeneration,
@@ -57,9 +31,12 @@ Key Features:
     T5Tokenizer,
 )
 
+# Configure logging
+# G004: Logging f-strings temporarily allowed for development
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Suppress tokenizer warnings
 warnings.filterwarnings(
     "ignore", category=UserWarning, module="transformers.tokenization_utils_base"
 )
