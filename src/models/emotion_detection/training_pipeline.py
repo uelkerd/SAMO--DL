@@ -1,94 +1,4 @@
-                # Check early stopping
-                # Check for early stopping
-                # Check for extreme values
-                # Check for problematic data
-                # Check for suspicious loss patterns
-                # Check if loss is suspiciously small
-                # Check label distribution per class
-                # Check loss components for first few classes
-                # Check predictions
-                # Combine metrics
-                # Test different loss calculations
-                import torch.nn.functional as F
-            # Backward pass
-            # Check for problematic weights
-            # Compute loss
-            # Forward pass
-            # Gradient clipping
-            # Increase batch size significantly for development
-            # Move batch to device
-            # Sample 10% of validation data
-            # Sample 5% of training data (much smaller for quick iteration)
-            # Save a simplified version without problematic data
-            # Save best model if configured
-            # Train epoch
-            # Update parameters
-            # Validate
-            # Validate during training for early stopping
-            # We need to prepare data to get class weights
-            # Zero gradients
-            # 🔍 DEBUG: Check clipped gradients (first batch only)
-            # 🔍 DEBUG: Check data distribution (first batch only)
-            # 🔍 DEBUG: Check gradients (first batch only)
-            # 🔍 DEBUG: Check loss calculation (first batch only)
-            # 🔍 DEBUG: Check model outputs (first batch only)
-            # 🔍 DEBUG: Enhanced logging for suspicious loss values
-        # Add epoch information
-        # Apply progressive unfreezing if scheduled
-        # Calculate epoch metrics
-        # Calculate total training steps
-        # Calculate validation frequency (every 500 batches or 20% of epoch)
-        # Check for best model
-        # Convert numpy types to native Python types for JSON serialization
-        # Create PyTorch datasets
-        # Create data loader
-        # Create data loaders
-        # Create model and loss function
-        # Create output directory
-        # DEVELOPMENT MODE: Use smaller dataset for faster iteration
-        # Evaluate on validation set with lower threshold
-        # Final evaluation on test set with lower threshold
-        # Initialize components
-        # Initialize learning rate scheduler with warmup
-        # Initialize model first if not already done
-        # Initialize model with class weights
-        # Initialize optimizer
-        # Initialize tokenizer
-        # Load checkpoint
-        # Load model state
-        # Move model to device
-        # Prepare data
-        # Prepare datasets
-        # Prepare final results
-        # Save checkpoint
-        # Save training history with JSON serializable data
-        # Set device
-        # Training loop
-        # Training state
-        # 🔍 DEBUG: Check loss function and class weights
-    # Log development mode status
-    # Prepare data with development mode
-    # Test training pipeline with minimal configuration
-    # Use small batch size and 1 epoch for testing
-# Configure logging
-# G004: Logging f-strings temporarily allowed for development
-from .bert_classifier import (
-from .dataset_loader import (
-from pathlib import Path
-from torch.optim import AdamW
-from torch.utils.data import DataLoader
-from transformers import AutoTokenizer, get_linear_schedule_with_warmup
-from typing import Any, Optional
-import json
-import logging
-import numpy as np
-import time
-import torch
-
-
-
-
-
+#!/usr/bin/env python3
 """Training Pipeline for SAMO Emotion Detection.
 
 This module implements the complete training pipeline that combines the GoEmotions
@@ -98,18 +8,38 @@ model training following the model training playbook strategies.
 Key Features:
 - Progressive unfreezing strategy for transfer learning
 - Class-weighted training for imbalanced data
-- Comprehensive validation with emotion-specific metrics
-- Model checkpointing and early stopping
-- Learning rate scheduling with warmup
+- Early stopping and model checkpointing
+- Comprehensive logging and debugging
+- Development mode for rapid iteration
 """
 
-    EmotionDataset,
+import json
+import logging
+import time
+from pathlib import Path
+from typing import Any, Optional
+
+import numpy as np
+import torch
+import torch.nn.functional as F
+from torch.optim import AdamW
+from torch.utils.data import DataLoader
+from transformers import AutoTokenizer, get_linear_schedule_with_warmup
+
+from .bert_classifier import (
+    BERTEmotionClassifier,
+    WeightedBCELoss,
     create_bert_emotion_classifier,
-    evaluate_emotion_classifier,
 )
-    create_goemotions_loader,
+from .dataset_loader import (
+    GOEMOTIONS_EMOTIONS,
+    GoEmotionsDataset,
+    create_goemotions_datasets,
+    prepare_goemotions_data,
 )
 
+# Configure logging
+# G004: Logging f-strings temporarily allowed for development
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -202,7 +132,7 @@ class EmotionDetectionTrainer:
         """
         logger.info("Preparing GoEmotions dataset...")
 
-        self.data_loader = create_goemotions_loader(
+        self.data_loader = create_goemotions_datasets(
             cache_dir=self.cache_dir, model_name=self.model_name
         )
 
@@ -238,11 +168,11 @@ class EmotionDetectionTrainer:
                 "🔧 DEVELOPMENT MODE: Using {len(train_texts)} training examples, batch_size={self.batch_size} (was {original_batch_size})"
             )
 
-        self.train_dataset = EmotionDataset(
+        self.train_dataset = GoEmotionsDataset(
             train_texts, train_labels, self.tokenizer, self.max_length
         )
-        self.val_dataset = EmotionDataset(val_texts, val_labels, self.tokenizer, self.max_length)
-        self.test_dataset = EmotionDataset(test_texts, test_labels, self.tokenizer, self.max_length)
+        self.val_dataset = GoEmotionsDataset(val_texts, val_labels, self.tokenizer, self.max_length)
+        self.test_dataset = GoEmotionsDataset(test_texts, test_labels, self.tokenizer, self.max_length)
 
         self.train_dataloader = DataLoader(
             self.train_dataset,
