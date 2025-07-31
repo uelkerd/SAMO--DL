@@ -1,29 +1,18 @@
 #!/usr/bin/env python3
-"""BERT Emotion Classifier for SAMO Deep Learning.
+"""
+BERT-based Emotion Classifier for SAMO Deep Learning.
 
-This module implements the BERT-based emotion detection model following the
-training strategies from the model training playbook for 27-category emotion
-classification with multi-label support.
-
-Key Features:
-- BERT-base-uncased foundation with emotional fine-tuning
-- Multi-label classification with sigmoid activation
-- Progressive unfreezing strategy for transfer learning
-- Class-weighted loss for imbalanced data handling
-- Temperature scaling for confidence calibration
+This module provides a BERT-based multi-label emotion classification model
+trained on the GoEmotions dataset for journal entry analysis.
 """
 
 import logging
-import time
 import warnings
 from typing import Optional, Union
 
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from sklearn.metrics import f1_score, precision_recall_fscore_support
-from torch.utils.data import DataLoader, Dataset
 from transformers import AutoConfig, AutoModel, AutoTokenizer
 
 from .dataset_loader import GOEMOTIONS_EMOTIONS
