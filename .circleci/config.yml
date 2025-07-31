@@ -58,7 +58,9 @@ commands:
             python -m pip install --upgrade pip
             # Install project in editable mode with all dependencies
             pip install -e ".[test,dev,prod]"
-            echo "✅ All dependencies installed via pyproject.toml"
+            # Also install from requirements.txt as backup to ensure all dependencies
+            pip install -r requirements.txt
+            echo "✅ All dependencies installed via pyproject.toml and requirements.txt"
 
   # ENHANCED CACHING STRATEGY
   cache_dependencies:
