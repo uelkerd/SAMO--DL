@@ -163,10 +163,24 @@ commands:
             echo "🧪 Running API Rate Limiter Tests..."
             python scripts/run_api_rate_limiter_tests.py
       - run:
-          name: Unit Tests (Parallel)
+          name: Unit Tests (Sequential - Rate Limiter Tests)
           command: |
-            echo "🧪 Running unit tests with parallel execution..."
+            echo "🧪 Running rate limiter tests sequentially..."
+            python -m pytest tests/unit/test_api_rate_limiter.py \
+              --cov=src \
+              --cov-report=xml \
+              --cov-report=html \
+              --cov-fail-under=5 \
+              --junit-xml=test-results/unit/results.xml \
+              -v
+          environment:
+            PYTEST_ADDOPTS: "--tb=short"
+      - run:
+          name: Unit Tests (Parallel - Other Tests)
+          command: |
+            echo "🧪 Running other unit tests with parallel execution..."
             python -m pytest tests/unit/ \
+              --ignore=tests/unit/test_api_rate_limiter.py \
               --cov=src \
               --cov-report=xml \
               --cov-report=html \
