@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Unit tests for API rate limiter."""
+"""
+Unit tests for API rate limiter functionality.
+"""
 
 import time
 from unittest.mock import MagicMock
 
 import pytest
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Response
 
 from src.api_rate_limiter import (
     DEFAULT_BURST_LIMIT,

@@ -13,21 +13,10 @@ Usage:
 
 import argparse
 import logging
-import os
 import statistics
 import sys
 import time
 from pathlib import Path
-
-# Add project root to Python path - more robust for CI environments
-script_dir = Path(__file__).resolve().parent
-project_root = script_dir.parent
-sys.path.insert(0, str(project_root))
-
-# Debug logging for path resolution
-print(f"Script directory: {script_dir}")
-print(f"Project root: {project_root}")
-print(f"Python path: {sys.path[:3]}")  # Show first 3 entries
 
 import numpy as np
 import onnx
@@ -37,8 +26,18 @@ from transformers import AutoTokenizer
 
 from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 
+# Add project root to Python path - more robust for CI environments
+script_dir = Path(__file__).resolve().parent
+project_root = script_dir.parent
+sys.path.insert(0, str(project_root))
+
+# Debugging: Print current working directory and sys.path
+logging.info(f"Current working directory: {Path.cwd()}")
+logging.info(f"sys.path: {sys.path}")
+logging.info(f"Project root added to path: {project_root}")
+
 # Set up logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
