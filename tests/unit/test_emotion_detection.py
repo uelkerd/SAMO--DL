@@ -98,11 +98,9 @@ class TestBertEmotionClassifier:
             }
             mock_tokenizer.return_value = mock_tokenizer_instance
 
-            # Mock the BERT model to return proper tensor outputs
-            mock_outputs = MagicMock()
-            mock_outputs.last_hidden_state = torch.randn(1, 4, 768)  # [batch, seq_len, hidden_size]
-            mock_outputs.pooler_output = torch.randn(1, 768)  # [batch, hidden_size]
-            model.bert.return_value = mock_outputs
+            # Mock the forward method to return proper logits
+            mock_logits = torch.randn(1, 4)  # [batch, num_emotions]
+            model.forward = MagicMock(return_value=mock_logits)
 
             # Test with threshold
             predictions = model.predict_emotions(
