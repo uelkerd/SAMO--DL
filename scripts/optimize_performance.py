@@ -58,14 +58,14 @@ def check_gpu_setup() -> dict[str, any]:
         gpu_info.update(
             {
                 "device_name": device_name,
-                "memory_total": "{memory_total / 1e9:.1f} GB",
-                "memory_free": "{memory_free / 1e9:.1f} GB",
+                "memory_total": f"{memory_total / 1e9:.1f} GB",
+                "memory_free": f"{memory_free / 1e9:.1f} GB",
             }
         )
 
-        logger.info("✅ GPU Available: {device_name}")
-        logger.info("   CUDA Version: {torch.version.cuda}")
-        logger.info("   Memory: {memory_total / 1e9:.1f} GB total")
+        logger.info(f"✅ GPU Available: {device_name}")
+        logger.info(f"   CUDA Version: {torch.version.cuda}")
+        logger.info(f"   Memory: {memory_total / 1e9:.1f} GB total")
 
         if memory_total < 8e9:  # Less than 8GB
             gpu_info["recommendations"].append(
@@ -151,7 +151,7 @@ def convert_to_onnx(
     onnx_model = onnx.load(output_path)
     onnx.checker.check_model(onnx_model)
 
-    logger.info("✅ ONNX model saved to: {output_path}")
+    logger.info(f"✅ ONNX model saved to: {output_path}")
     return output_path
 
 
@@ -206,8 +206,8 @@ def benchmark_model_performance(
 
         if "pytorch" in results:
             speedup = results["pytorch"]["mean_latency"] / results["onnx"]["mean_latency"]
-            results["onnx_speedup"] = "{speedup:.2f}x"
-            logger.info("🚀 ONNX Speedup: {speedup:.2f}x")
+            results["onnx_speedup"] = f"{speedup:.2f}x"
+            logger.info(f"🚀 ONNX Speedup: {speedup:.2f}x")
 
     results["target_latency"] = target_latency
     results["assessment"] = assess_performance(results, target_latency)
@@ -295,10 +295,10 @@ def analyze_latencies(latencies: list[float], model_type: str) -> dict[str, floa
         "std_latency": statistics.stdev(latencies) if len(latencies) > 1 else 0,
     }
 
-    logger.info("{model_type} Performance:")
-    logger.info("  Mean: {stats['mean_latency']:.1f}ms")
-    logger.info("  P95:  {stats['p95_latency']:.1f}ms")
-    logger.info("  P99:  {stats['p99_latency']:.1f}ms")
+    logger.info(f"{model_type} Performance:")
+    logger.info(f"  Mean: {stats['mean_latency']:.1f}ms")
+    logger.info(f"  P95:  {stats['p95_latency']:.1f}ms")
+    logger.info(f"  P99:  {stats['p99_latency']:.1f}ms")
 
     return stats
 
@@ -313,15 +313,15 @@ def assess_performance(results: dict[str, any], target_latency: float) -> dict[s
 
             if p95_latency <= target_latency:
                 assessment[model_type] = (
-                    "✅ MEETS TARGET ({p95_latency:.1f}ms ≤ {target_latency}ms)"
+                    f"✅ MEETS TARGET ({p95_latency:.1f}ms ≤ {target_latency}ms)"
                 )
             elif p95_latency <= target_latency * 1.2:  # Within 20%
                 assessment[model_type] = (
-                    "⚠️  CLOSE TO TARGET ({p95_latency:.1f}ms vs {target_latency}ms)"
+                    f"⚠️  CLOSE TO TARGET ({p95_latency:.1f}ms vs {target_latency}ms)"
                 )
             else:
                 assessment[model_type] = (
-                    "❌ EXCEEDS TARGET ({p95_latency:.1f}ms > {target_latency}ms)"
+                    f"❌ EXCEEDS TARGET ({p95_latency:.1f}ms > {target_latency}ms)"
                 )
 
     return assessment
@@ -350,7 +350,7 @@ def main() -> None:
 
         for key, value in gpu_info.items():
             if key != "recommendations":
-                print("{key}: {value}")
+                print(f"{key}: {value}")
 
         if gpu_info["recommendations"]:
             print("\n💡 Recommendations:")
@@ -359,15 +359,15 @@ def main() -> None:
 
     if args.convert_onnx:
         if not Path(args.model_path).exists():
-            logger.error("Model not found: {args.model_path}")
+            logger.error(f"Model not found: {args.model_path}")
             return
 
         onnx_path = convert_to_onnx(args.model_path, args.onnx_path)
-        print("\n✅ ONNX conversion complete: {onnx_path}")
+        print(f"\n✅ ONNX conversion complete: {onnx_path}")
 
     if args.benchmark:
         if not Path(args.model_path).exists():
-            logger.error("Model not found: {args.model_path}")
+            logger.error(f"Model not found: {args.model_path}")
             return
 
         results = benchmark_model_performance(
@@ -379,12 +379,12 @@ def main() -> None:
         print("=" * 60)
 
         for model_type, assessment in results["assessment"].items():
-            print("\n{model_type.upper()}: {assessment}")
+            print(f"\n{model_type.upper()}: {assessment}")
 
         if "onnx_speedup" in results:
-            print("\n🚀 ONNX Optimization: {results['onnx_speedup']} faster")
+            print(f"\n🚀 ONNX Optimization: {results['onnx_speedup']} faster")
 
-        print("\nTarget: P95 ≤ {args.target_latency}ms")
+        print(f"\nTarget: P95 ≤ {args.target_latency}ms")
 
 
 if __name__ == "__main__":
