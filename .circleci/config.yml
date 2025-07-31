@@ -15,13 +15,13 @@ orbs:
   slack: circleci/slack@4.12.1
 
 # ============================================================================
-# EXECUTORS - Define runtime environments (UPGRADED RESOURCES)
+# EXECUTORS - Define runtime environments (OPTIMIZED)
 # ============================================================================
 executors:
   python-ml:
     docker:
       - image: cimg/python:3.12
-    resource_class: xlarge  # UPGRADED: from large to xlarge for faster execution
+    resource_class: large  # Keep original for compatibility
     working_directory: ~/samo-dl
     environment:
       PYTHONPATH: /home/circleci/samo-dl/src
@@ -32,7 +32,7 @@ executors:
     machine:
       image: ubuntu-2004:2023.07.1
       docker_layer_caching: true
-    resource_class: gpu.nvidia.large  # UPGRADED: from medium to large
+    resource_class: gpu.nvidia.medium  # Keep original for compatibility
     working_directory: ~/samo-dl
     environment:
       PYTHONPATH: /home/circleci/samo-dl/src
@@ -510,7 +510,6 @@ workflows:
 # ✅ Enhanced Caching: Models, dependencies, build artifacts
 # ✅ Parallel Security Scans: Bandit and Safety run independently
 # ✅ Model Pre-warming: Pre-download models in setup
-# ✅ Resource Upgrades: xlarge for ML, large for GPU
 # ✅ Parallel Test Execution: pytest-xdist for faster tests
 # ✅ Optimized Job Dependencies: Minimal blocking
 #
