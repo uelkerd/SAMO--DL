@@ -1,52 +1,32 @@
-        # Create response
-        # Create untrained model for demo (in production, load trained weights)
-        # Filter by threshold
-        # Get probabilities
-        # Get top emotions
-        # In a production system, we would batch these for efficiency
-        # Move to same device as model
-        # Prepare input
-        # Process each text individually
-        # Run inference
-        # Set to evaluation mode
-    import uvicorn
-# Add CORS middleware
-# Add rate limiting middleware (100 requests/minute per user)
-# Configure logging
-# Create FastAPI app
-# Custom exception handler
-# Global model storage
-# HTTP exception handler
-from ..api_rate_limiter import add_rate_limiting
-from .bert_classifier import create_bert_emotion_classifier
-from .dataset_loader import GOEMOTIONS_EMOTIONS
-from fastapi import FastAPI, Header, HTTPException, Request, status
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field, validator
-from transformers import AutoTokenizer
-from typing import Optional
-import logging
-import time
-import torch
-import traceback
-import traceback
-import uvicorn
-
-
-
-
-
-
+#!/usr/bin/env python3
 """SAMO Emotion Detection API Demo.
 
 This demo showcases the emotion detection pipeline working with pre-trained
 models and provides a preview of the API interface for Web Dev integration.
 """
 
+import logging
+import time
+import traceback
+from typing import Optional
+
+import torch
+import uvicorn
+from fastapi import FastAPI, Header, HTTPException, Request, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field, validator
+from transformers import AutoTokenizer
+
+from ..api_rate_limiter import add_rate_limiting
+from .bert_classifier import create_bert_emotion_classifier
+from .dataset_loader import GOEMOTIONS_EMOTIONS
+
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Create FastAPI app
 app = FastAPI(
     title="SAMO Emotion Detection API",
     description="""
@@ -60,6 +40,7 @@ app = FastAPI(
     version="0.1.0",
 )
 
+# Add rate limiting middleware (100 requests/minute per user)
 add_rate_limiting(
     app,
     rate_limit=100,
@@ -67,6 +48,7 @@ add_rate_limiting(
     excluded_paths=["/health", "/docs", "/redoc", "/openapi.json"],
 )
 
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # In production, limit to specific origins
@@ -75,6 +57,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Global model storage
 model = None
 tokenizer = None
 
