@@ -256,6 +256,8 @@ data/interim/*
 !**/*_sample.*
 !**/test_*.csv
 !**/test_*.json
+!**/journal_test_dataset.json
+!**/journal_test_dataset_summary.json
 
 # Embeddings and vectors
 *.vec
