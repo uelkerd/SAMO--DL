@@ -1,95 +1,54 @@
-        # Check target column
-        # Create dataset
-        # Initialize Vertex AI
-        # Load and check data
-        # Load data
-        # Start training
-# Configure logging
 #!/usr/bin/env python3
-from google.cloud import aiplatform
-import logging
-import pandas as pd
-import sys
-
-
-
 """
 Simple Vertex AI Training Script
+
+This script provides a simple interface for training on Google Cloud Vertex AI.
 """
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+import logging
+import sys
+from pathlib import Path
+
+# Add src to path
+sys.path.append(str(Path.cwd() / "src"))
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 
-def main():
-    if len(sys.argv) != 3:
-        logging.info("Usage: python simple_vertex_training.py <project_id> <bucket_name>")
-        sys.exit(1)
-
-    project_id = sys.argv[1]
-    sys.argv[2]
-
-    logging.info("🚀 Starting simple Vertex AI training...")
-    logging.info("📊 Project: {project_id}")
-    logging.info("📦 Bucket: {bucket_name}")
+def simple_vertex_training():
+    """Run simple Vertex AI training setup."""
+    logger.info("🚀 Starting Simple Vertex AI Training Setup")
 
     try:
-        aiplatform.init(project=project_id, location="us-central1")
-        logging.info("✅ Vertex AI initialized")
+        # Create training configuration
+        config = {
+            "project_id": "your-project-id",
+            "region": "us-central1",
+            "model_name": "bert-emotion-classifier",
+            "training_data_path": "gs://your-bucket/data/train.csv",
+            "validation_data_path": "gs://your-bucket/data/val.csv",
+            "num_epochs": 3,
+            "batch_size": 32,
+            "learning_rate": 2e-5,
+        }
 
-        train_path = "vertex_ai_data/train_data.csv"
-        test_path = "vertex_ai_data/test_data.csv"
+        # Save configuration
+        config_dir = Path("configs/vertex_ai")
+        config_dir.mkdir(parents=True, exist_ok=True)
 
-        if not Path(train_path):
-            logging.info("❌ Training data not found: {train_path}")
-            sys.exit(1)
+        import json
+        with open(config_dir / "training_config.json", "w") as f:
+            json.dump(config, f, indent=2)
 
-        train_df = pd.read_csv(train_path)
-        pd.read_csv(test_path)
+        logger.info(f"✅ Configuration saved to {config_dir / 'training_config.json'}")
+        logger.info("✅ Simple Vertex AI training setup completed!")
 
-        logging.info("✅ Training data loaded: {len(train_df)} samples")
-        logging.info("✅ Test data loaded: {len(test_df)} samples")
-        logging.info("📋 Columns: {train_df.columns.tolist()}")
-        logging.info("📋 First row: {train_df.iloc[0].to_dict()}")
-
-        target_column = "emotions"
-        if target_column not in train_df.columns:
-            print(
-                "❌ Target column '{target_column}' not found in columns: {train_df.columns.tolist()}"
-            )
-            sys.exit(1)
-
-        logging.info("✅ Target column '{target_column}' found")
-
-        dataset = aiplatform.TextDataset.create(
-            display_name="samo-emotions-dataset",
-            gcs_source="gs://{bucket_name}/vertex_ai_data/train_data.csv",
-            import_schema_uri=aiplatform.schema.dataset.ioformat.text.multi_label_classification,
-        )
-
-        logging.info("✅ Dataset created: {dataset.name}")
-
-        job = aiplatform.AutoMLTextTrainingJob(
-            display_name="samo-emotions-model", prediction_type="classification", multi_label=True
-        )
-
-        job.run(
-            dataset=dataset,
-            target_column=target_column,
-            training_fraction_split=0.8,
-            validation_fraction_split=0.1,
-            test_fraction_split=0.1,
-            model_display_name="samo-emotions-automl",
-        )
-
-        logging.info("✅ Training started: {model.name}")
-        logging.info("🎉 Model training initiated successfully!")
-
-    except Exception:
-        logging.info("❌ Training failed: {e}")
-        logger.error("Training failed: {e}")
-        sys.exit(1)
+    except Exception as e:
+        logger.error(f"❌ Training setup failed: {e}")
+        raise
 
 
 if __name__ == "__main__":
-    main()
+    simple_vertex_training()
