@@ -88,17 +88,17 @@ class EnvironmentManager:
         """Install dependencies with comprehensive error handling."""
         logger.info("📦 Installing dependencies with compatibility fixes...")
         
-        # Define compatible versions
+        # Define compatible versions - more conservative approach
         dependencies = {
-            'torch': '2.1.0',
-            'torchvision': '0.16.0',
-            'torchaudio': '2.1.0',
-            'transformers': '4.30.0',
-            'datasets': '2.13.0',
+            'torch': '2.0.1',
+            'torchvision': '0.15.2',
+            'torchaudio': '2.0.2',
+            'transformers': '4.28.0',
+            'datasets': '2.12.0',
             'evaluate': '0.4.0',
             'scikit-learn': '1.3.0',
             'pandas': '2.0.3',
-            'numpy': '1.23.5',  # Downgraded for better compatibility
+            'numpy': '1.23.5',  # Conservative version
             'matplotlib': '3.7.2',
             'seaborn': '0.12.2',
             'accelerate': '0.20.3',
