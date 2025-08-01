@@ -447,16 +447,17 @@ class ModelManager:
             logger.error(f"❌ Model initialization failed: {e}")
             return False
 
-class FocalLoss(nn.Module):
+class FocalLoss:
     """Focal Loss for addressing class imbalance in emotion detection."""
     
     def __init__(self, alpha=1, gamma=2, reduction='mean'):
-        super(FocalLoss, self).__init__()
+        import torch.nn as nn
         self.alpha = alpha
         self.gamma = gamma
         self.reduction = reduction
     
-    def forward(self, inputs, targets):
+    def __call__(self, inputs, targets):
+        import torch
         import torch.nn.functional as F
         ce_loss = F.cross_entropy(inputs, targets, reduction='none')
         pt = torch.exp(-ce_loss)
@@ -469,12 +470,10 @@ class FocalLoss(nn.Module):
         else:
             return focal_loss
 
-class DomainAdaptedEmotionClassifier(nn.Module):
+class DomainAdaptedEmotionClassifier:
     """BERT-based emotion classifier with domain adaptation capabilities."""
     
     def __init__(self, model_name="bert-base-uncased", num_labels=None, dropout=0.3):
-        super().__init__()
-        
         # Validate num_labels
         if num_labels is None:
             logger.warning("⚠️ num_labels not provided, using default value of 12")
@@ -485,8 +484,8 @@ class DomainAdaptedEmotionClassifier(nn.Module):
         logger.info(f"🏗️ Initializing DomainAdaptedEmotionClassifier with num_labels = {num_labels}")
         
         try:
-            from transformers import AutoModel
             import torch.nn as nn
+            from transformers import AutoModel
             
             self.bert = AutoModel.from_pretrained(model_name)
             self.dropout = nn.Dropout(dropout)
