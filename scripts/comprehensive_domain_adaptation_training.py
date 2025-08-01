@@ -98,7 +98,7 @@ class EnvironmentManager:
             'evaluate': '0.4.0',
             'scikit-learn': '1.3.0',
             'pandas': '2.0.3',
-            'numpy': '1.24.3',
+            'numpy': '1.23.5',  # Downgraded for better compatibility
             'matplotlib': '3.7.2',
             'seaborn': '0.12.2',
             'accelerate': '0.20.3',
@@ -157,6 +157,18 @@ class EnvironmentManager:
                 logger.error(f"❌ Additional dependencies installation failed: {result.stderr}")
                 return False
             
+            # Step 5: Apply numpy compatibility fix proactively
+            logger.info("🔧 Applying numpy compatibility fix...")
+            try:
+                import numpy as np
+                if not hasattr(np.lib.stride_tricks, 'broadcast_to'):
+                    def broadcast_to(array, shape):
+                        return np.broadcast_arrays(array, np.empty(shape))[0]
+                    np.lib.stride_tricks.broadcast_to = broadcast_to
+                    logger.info("  ✅ Numpy compatibility fix applied proactively")
+            except Exception as e:
+                logger.warning(f"⚠️ Could not apply numpy fix proactively: {e}")
+            
             logger.info("✅ Dependencies installed successfully")
             self.installation_success = True
             return True
@@ -190,14 +202,51 @@ class EnvironmentManager:
             else:
                 logger.warning("⚠️ No GPU available. Training will be slow on CPU.")
             
-            # Test critical imports
-            from transformers import AutoModel, AutoTokenizer
-            logger.info("  ✅ Transformers imports successful")
+            # Test critical imports with numpy compatibility fix
+            try:
+                from transformers import AutoModel, AutoTokenizer
+                logger.info("  ✅ Transformers imports successful")
+            except ImportError as e:
+                if "broadcast_to" in str(e):
+                    logger.warning("⚠️ Numpy compatibility issue detected. Applying workaround...")
+                    # Apply numpy compatibility fix
+                    import numpy as np
+                    if not hasattr(np.lib.stride_tricks, 'broadcast_to'):
+                        # Add broadcast_to to numpy if missing
+                        def broadcast_to(array, shape):
+                            return np.broadcast_arrays(array, np.empty(shape))[0]
+                        np.lib.stride_tricks.broadcast_to = broadcast_to
+                        logger.info("  ✅ Numpy compatibility fix applied")
+                    
+                    # Try imports again
+                    from transformers import AutoModel, AutoTokenizer
+                    logger.info("  ✅ Transformers imports successful after fix")
+                else:
+                    raise e
             
             return True
             
         except Exception as e:
             logger.error(f"  ❌ Installation verification failed: {e}")
+            
+            # Try to fix numpy compatibility issue
+            if "broadcast_to" in str(e):
+                logger.info("🔄 Attempting to fix numpy compatibility issue...")
+                try:
+                    import numpy as np
+                    if not hasattr(np.lib.stride_tricks, 'broadcast_to'):
+                        def broadcast_to(array, shape):
+                            return np.broadcast_arrays(array, np.empty(shape))[0]
+                        np.lib.stride_tricks.broadcast_to = broadcast_to
+                        logger.info("✅ Numpy compatibility fix applied")
+                        
+                        # Try verification again
+                        from transformers import AutoModel, AutoTokenizer
+                        logger.info("✅ Transformers imports successful after fix")
+                        return True
+                except Exception as fix_error:
+                    logger.error(f"❌ Could not fix numpy issue: {fix_error}")
+            
             return False
 
 class RepositoryManager:
