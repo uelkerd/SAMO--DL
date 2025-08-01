@@ -12,28 +12,87 @@ This guide provides comprehensive instructions for leveraging Google Colab's GPU
 # Enable GPU Runtime
 # Runtime → Change runtime type → GPU (T4 or V100)
 
-# Install dependencies
-!pip install torch>=2.1.0 torchvision>=0.16.0 torchaudio>=2.1.0 --index-url https://download.pytorch.org/whl/cu118
-!pip install transformers>=4.30.0 datasets>=2.13.0 evaluate scikit-learn pandas numpy matplotlib seaborn
+# FIXED: Proper dependency installation with version compatibility
+print("📦 Installing dependencies with compatibility fixes...")
+
+# Step 1: Uninstall existing PyTorch to avoid conflicts
+!pip uninstall torch torchvision torchaudio -y
+
+# Step 2: Install PyTorch with compatible CUDA version
+!pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu118
+
+# Step 3: Install Transformers with compatible version
+!pip install transformers==4.30.0 datasets==2.13.0 evaluate scikit-learn pandas numpy matplotlib seaborn
+
+# Step 4: Install additional dependencies
 !pip install accelerate wandb pydub openai-whisper jiwer
 
-# Clone repository
+# Step 5: Clone repository
 !git clone https://github.com/uelkerd/SAMO--DL.git
 %cd SAMO--DL
 
-# Verify GPU availability
+# Step 6: Verify installation
+print("🔍 Verifying installation...")
 import torch
+import transformers
+print(f"PyTorch: {torch.__version__}")
+print(f"Transformers: {transformers.__version__}")
 print(f"CUDA Available: {torch.cuda.is_available()}")
-if torch.cuda.is_available():
-    print(f"GPU: {torch.cuda.get_device_name(0)}")
-    print(f"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
+
+# Step 7: Test critical imports
+try:
+    from transformers import AutoModel, AutoTokenizer
+    print("✅ Transformers imports successful")
+except Exception as e:
+    print(f"❌ Transformers import failed: {e}")
+    print("🔄 Restarting runtime and trying again...")
+    import os
+    os._exit(0)  # Force restart
 ```
 
-### 2. Run Domain Adaptation Notebook
+### 2. Run Fixed Domain Adaptation Notebook
 
 ```python
-# Open the domain adaptation notebook
-%run notebooks/domain_adaptation_gpu_training.ipynb
+# Use the fixed notebook instead of the original
+%run notebooks/domain_adaptation_gpu_training_fixed.ipynb
+```
+
+## 🔧 CRITICAL FIXES APPLIED
+
+### **PyTorch/Transformers Compatibility Issues**
+
+The original notebook had several critical issues that have been fixed:
+
+1. **Version Conflicts**: Fixed PyTorch 2.1.0 + Transformers 4.30.0 compatibility
+2. **Hardcoded num_labels**: Changed from hardcoded `num_labels=12` to dynamic `len(label_encoder.classes_)`
+3. **Missing Error Handling**: Added comprehensive try-catch blocks
+4. **Incomplete Environment Setup**: Added proper version verification and runtime restart
+
+### **Key Changes in Fixed Notebook**
+
+```python
+# FIXED: Dynamic num_labels instead of hardcoded 12
+class DomainAdaptedEmotionClassifier(nn.Module):
+    def __init__(self, model_name="bert-base-uncased", num_labels=None, dropout=0.3):
+        super().__init__()
+        self.bert = AutoModel.from_pretrained(model_name)
+        self.dropout = nn.Dropout(dropout)
+        
+        # FIXED: Use dynamic num_labels instead of hardcoded 12
+        if num_labels is None:
+            num_labels = 12  # Default fallback
+        self.num_labels = num_labels
+        
+        self.classifier = nn.Linear(self.bert.config.hidden_size, num_labels)
+        # ... rest of the model
+
+# FIXED: Use dynamic num_labels from label encoder
+num_labels = len(label_encoder.classes_)
+print(f"📊 Total emotion classes: {num_labels}")
+print(f"📊 Classes: {label_encoder.classes_}")
+
+# Now initialize the model with correct num_labels
+model = DomainAdaptedEmotionClassifier(model_name=model_name, num_labels=num_labels)
 ```
 
 ## 🎯 REQ-DL-012: Domain Adaptation Focus
@@ -62,10 +121,16 @@ The critical insight driving REQ-DL-012:
 class DomainAdaptedEmotionClassifier(nn.Module):
     """BERT-based emotion classifier with domain adaptation capabilities."""
     
-    def __init__(self, model_name="bert-base-uncased", num_labels=12, dropout=0.3):
+    def __init__(self, model_name="bert-base-uncased", num_labels=None, dropout=0.3):
         super().__init__()
         self.bert = AutoModel.from_pretrained(model_name)
         self.dropout = nn.Dropout(dropout)
+        
+        # FIXED: Use dynamic num_labels instead of hardcoded 12
+        if num_labels is None:
+            num_labels = 12  # Default fallback
+        self.num_labels = num_labels
+        
         self.classifier = nn.Linear(self.bert.config.hidden_size, num_labels)
         
         # Domain adaptation layer
@@ -241,6 +306,20 @@ wandb.log({
 
 ### **Common GPU Issues**
 
+#### **ModuleNotFoundError: torch.sparse._triton_ops_meta**
+This is the most common error in Colab. **SOLUTION**:
+
+```python
+# FIXED: Proper dependency installation
+!pip uninstall torch torchvision torchaudio -y
+!pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu118
+!pip install transformers==4.30.0
+
+# Restart runtime after installation
+import os
+os._exit(0)
+```
+
 #### **Out of Memory (OOM)**
 ```python
 # Solution 1: Reduce batch size
@@ -322,6 +401,25 @@ def augment_journal_entry(text):
     augmented = apply_synonym_replacement(text)
     return augmented
 ```
+
+### **Comprehensive Debugging**
+
+Use our debugging script to identify issues:
+
+```python
+# Run the compatibility debug script
+!python scripts/debug_colab_compatibility.py
+```
+
+This script will:
+- Check Python version compatibility
+- Verify GPU availability and CUDA compatibility
+- Test PyTorch installation and basic operations
+- Test Transformers installation and model loading
+- Check Triton compatibility (common source of errors)
+- Test model initialization
+- Check dataset loading capabilities
+- Offer automatic fixes for common issues
 
 ## 📋 Best Practices
 
@@ -412,7 +510,8 @@ def validate_req_dl_012():
 ## 📞 Support & Resources
 
 ### **Key Files**
-- `notebooks/domain_adaptation_gpu_training.ipynb` - Main training notebook
+- `notebooks/domain_adaptation_gpu_training_fixed.ipynb` - **FIXED** training notebook
+- `scripts/debug_colab_compatibility.py` - Compatibility debugging script
 - `data/journal_test_dataset.json` - Journal test dataset
 - `scripts/create_journal_test_dataset.py` - Dataset generation script
 - `docs/samo-dl-prd.md` - Product requirements document
@@ -430,8 +529,8 @@ from google.colab import files
 files.download('best_domain_adapted_model.pth')
 
 # Save notebook to GitHub
-!git add notebooks/domain_adaptation_gpu_training.ipynb
-!git commit -m "feat: Add domain adaptation training results"
+!git add notebooks/domain_adaptation_gpu_training_fixed.ipynb
+!git commit -m "feat: Add fixed domain adaptation training notebook"
 !git push
 ```
 
@@ -441,9 +540,34 @@ files.download('best_domain_adapted_model.pth')
 - [Transformers Documentation](https://huggingface.co/docs/transformers/)
 - [Weights & Biases Guide](https://docs.wandb.ai/)
 
+### **Emergency Fixes**
+
+If you encounter the `torch.sparse._triton_ops_meta` error:
+
+1. **Immediate Fix**:
+   ```python
+   !pip uninstall torch torchvision torchaudio -y
+   !pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu118
+   !pip install transformers==4.30.0
+   import os; os._exit(0)  # Restart runtime
+   ```
+
+2. **Alternative Fix** (if above doesn't work):
+   ```python
+   !pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu118
+   !pip install transformers==4.28.0
+   import os; os._exit(0)  # Restart runtime
+   ```
+
+3. **Nuclear Option** (if all else fails):
+   - Restart Colab runtime completely
+   - Use the fixed notebook from scratch
+   - Run the debug script first
+
 ---
 
 **Last Updated**: July 31, 2025  
-**Version**: 1.0.0  
-**Status**: Ready for Colab Development 🚀  
-**Target**: REQ-DL-012 Domain Adaptation Success ✅ 
+**Version**: 2.0.0  
+**Status**: Fixed and Ready for Colab Development 🚀  
+**Target**: REQ-DL-012 Domain Adaptation Success ✅  
+**Critical Fixes**: PyTorch/Transformers compatibility, dynamic num_labels, comprehensive error handling 
