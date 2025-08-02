@@ -72,7 +72,10 @@ journal_labels = set(journal_df['emotion'].unique())
 common_labels = sorted(list(go_labels.intersection(journal_labels)))
 if not common_labels:
     print("⚠️ No common labels found! Using all labels...")
-    common_labels = sorted(list(go_labels.union(journal_labels)))
+    # FIX: Convert to strings before union to avoid type comparison issues
+    all_go_labels = [str(label) for label in go_labels]
+    all_journal_labels = [str(label) for label in journal_labels]
+    common_labels = sorted(list(set(all_go_labels + all_journal_labels)))
 
 print(f"📊 Using {len(common_labels)} labels: {common_labels}")
 
