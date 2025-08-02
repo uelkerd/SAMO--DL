@@ -64,7 +64,10 @@ journal_labels = set(journal_df['emotion'].unique())
 common_labels = sorted(list(go_labels.intersection(journal_labels)))
 if not common_labels:
     print("⚠️ No common labels found! Using all labels...")
-    common_labels = sorted(list(go_labels.union(journal_labels)))
+    # FIX: Convert to strings before union to avoid type comparison issues
+    all_go_labels = [str(label) for label in go_labels]
+    all_journal_labels = [str(label) for label in journal_labels]
+    common_labels = sorted(list(set(all_go_labels + all_journal_labels)))
 
 print(f"📊 Using {len(common_labels)} labels: {common_labels}")
 
@@ -103,17 +106,9 @@ for _, row in journal_df.iterrows():
 print(f"📊 Filtered GoEmotions: {len(go_texts)} samples")
 print(f"📊 Filtered Journal: {len(journal_texts)} samples")
 
-# Validate label ranges - FIXED: Proper integer handling
-if go_labels:
-    go_label_range = (min(go_labels), max(go_labels))
-else:
-    go_label_range = (0, 0)
-    
-if journal_labels:
-    journal_label_range = (min(journal_labels), max(journal_labels))
-else:
-    journal_label_range = (0, 0)
-    
+# Validate label ranges
+go_label_range = (min(go_labels), max(go_labels)) if go_labels else (0, 0)
+journal_label_range = (min(journal_labels), max(journal_labels)) if journal_labels else (0, 0)
 expected_range = (0, len(label_encoder.classes_) - 1)
 
 print(f"📊 GoEmotions label range: {go_label_range}")
