@@ -103,9 +103,17 @@ for _, row in journal_df.iterrows():
 print(f"📊 Filtered GoEmotions: {len(go_texts)} samples")
 print(f"📊 Filtered Journal: {len(journal_texts)} samples")
 
-# Validate label ranges
-go_label_range = (min(go_labels), max(go_labels)) if go_labels else (0, 0)
-journal_label_range = (min(journal_labels), max(journal_labels)) if journal_labels else (0, 0)
+# Validate label ranges - FIXED: Proper integer handling
+if go_labels:
+    go_label_range = (min(go_labels), max(go_labels))
+else:
+    go_label_range = (0, 0)
+    
+if journal_labels:
+    journal_label_range = (min(journal_labels), max(journal_labels))
+else:
+    journal_label_range = (0, 0)
+    
 expected_range = (0, len(label_encoder.classes_) - 1)
 
 print(f"📊 GoEmotions label range: {go_label_range}")
