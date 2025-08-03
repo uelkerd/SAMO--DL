@@ -1,0 +1,722 @@
+[
+  {
+    "text": "I feel grateful for the lessons learned.",
+    "emotion": "grateful",
+    "sample_id": "grateful_6"
+  },
+  {
+    "text": "I'm hopeful about the new opportunities.",
+    "emotion": "hopeful",
+    "sample_id": "hopeful_7"
+  },
+  {
+    "text": "I feel stressed about the workload.",
+    "emotion": "anxious",
+    "sample_id": "anxious_7"
+  },
+  {
+    "text": "I'm feeling wonderful and optimistic.",
+    "emotion": "happy",
+    "sample_id": "happy_5"
+  },
+  {
+    "text": "I'm frustrated with the repeated failures.",
+    "emotion": "frustrated",
+    "sample_id": "frustrated_4"
+  },
+  {
+    "text": "I'm proud of the skills I've developed.",
+    "emotion": "proud",
+    "sample_id": "proud_9"
+  },
+  {
+    "text": "I'm tired of the constant challenges.",
+    "emotion": "tired",
+    "sample_id": "tired_5"
+  },
+  {
+    "text": "I'm thankful for the second chances.",
+    "emotion": "grateful",
+    "sample_id": "grateful_7"
+  },
+  {
+    "text": "I feel buried under the workload.",
+    "emotion": "overwhelmed",
+    "sample_id": "overwhelmed_12"
+  },
+  {
+    "text": "I feel worried about the future.",
+    "emotion": "anxious",
+    "sample_id": "anxious_9"
+  },
+  {
+    "text": "I'm tired of the uncertainty.",
+    "emotion": "tired",
+    "sample_id": "tired_11"
+  },
+  {
+    "text": "I feel worn out from the pressure.",
+    "emotion": "tired",
+    "sample_id": "tired_8"
+  },
+  {
+    "text": "I'm feeling really happy today! Everything is going well.",
+    "emotion": "happy",
+    "sample_id": "happy_1"
+  },
+  {
+    "text": "I feel blessed and grateful for today.",
+    "emotion": "happy",
+    "sample_id": "happy_11"
+  },
+  {
+    "text": "I feel buried under the pressure.",
+    "emotion": "overwhelmed",
+    "sample_id": "overwhelmed_8"
+  },
+  {
+    "text": "I feel melancholy about the changes.",
+    "emotion": "sad",
+    "sample_id": "sad_10"
+  },
+  {
+    "text": "I'm proud of the work I've done.",
+    "emotion": "proud",
+    "sample_id": "proud_5"
+  },
+  {
+    "text": "I feel blessed for the good things in my life.",
+    "emotion": "grateful",
+    "sample_id": "grateful_4"
+  },
+  {
+    "text": "I'm grateful for the patience of others.",
+    "emotion": "grateful",
+    "sample_id": "grateful_11"
+  },
+  {
+    "text": "I'm content with the balance in my life.",
+    "emotion": "content",
+    "sample_id": "content_11"
+  },
+  {
+    "text": "I feel calm about the future.",
+    "emotion": "calm",
+    "sample_id": "calm_11"
+  },
+  {
+    "text": "I feel uneasy about the changes.",
+    "emotion": "anxious",
+    "sample_id": "anxious_11"
+  },
+  {
+    "text": "I'm overwhelmed by the expectations.",
+    "emotion": "overwhelmed",
+    "sample_id": "overwhelmed_7"
+  },
+  {
+    "text": "I'm hopeful that we'll find solutions.",
+    "emotion": "hopeful",
+    "sample_id": "hopeful_9"
+  },
+  {
+    "text": "I'm anxious about the responsibilities.",
+    "emotion": "anxious",
+    "sample_id": "anxious_12"
+  },
+  {
+    "text": "I feel thankful for the opportunities given to me.",
+    "emotion": "grateful",
+    "sample_id": "grateful_2"
+  },
+  {
+    "text": "I'm content with my progress.",
+    "emotion": "content",
+    "sample_id": "content_3"
+  },
+  {
+    "text": "I'm serene about the present moment.",
+    "emotion": "calm",
+    "sample_id": "calm_12"
+  },
+  {
+    "text": "I'm sad about the broken promises.",
+    "emotion": "sad",
+    "sample_id": "sad_11"
+  },
+  {
+    "text": "I feel nervous about the interview.",
+    "emotion": "anxious",
+    "sample_id": "anxious_3"
+  },
+  {
+    "text": "I feel down about the setbacks.",
+    "emotion": "sad",
+    "sample_id": "sad_12"
+  },
+  {
+    "text": "I'm so frustrated with this project. Nothing is working.",
+    "emotion": "frustrated",
+    "sample_id": "frustrated_1"
+  },
+  {
+    "text": "I'm hopeful about the possibilities ahead.",
+    "emotion": "hopeful",
+    "sample_id": "hopeful_3"
+  },
+  {
+    "text": "I'm calm about the decisions made.",
+    "emotion": "calm",
+    "sample_id": "calm_8"
+  },
+  {
+    "text": "I feel blue about the outcome.",
+    "emotion": "sad",
+    "sample_id": "sad_6"
+  },
+  {
+    "text": "I'm feeling overwhelmed with all these tasks.",
+    "emotion": "overwhelmed",
+    "sample_id": "overwhelmed_1"
+  },
+  {
+    "text": "I'm excited about the growth opportunities.",
+    "emotion": "excited",
+    "sample_id": "excited_11"
+  },
+  {
+    "text": "I'm feeling sad and lonely today.",
+    "emotion": "sad",
+    "sample_id": "sad_1"
+  },
+  {
+    "text": "I feel optimistic about the outcomes.",
+    "emotion": "hopeful",
+    "sample_id": "hopeful_6"
+  },
+  {
+    "text": "I feel thrilled about the new experiences.",
+    "emotion": "excited",
+    "sample_id": "excited_10"
+  },
+  {
+    "text": "I'm annoyed by the constant setbacks.",
+    "emotion": "frustrated",
+    "sample_id": "frustrated_5"
+  },
+  {
+    "text": "I feel satisfied with the current situation.",
+    "emotion": "content",
+    "sample_id": "content_2"
+  },
+  {
+    "text": "I feel peaceful and content.",
+    "emotion": "calm",
+    "sample_id": "calm_5"
+  },
+  {
+    "text": "I feel irritated by the lack of support.",
+    "emotion": "frustrated",
+    "sample_id": "frustrated_9"
+  },
+  {
+    "text": "I feel thankful for the understanding.",
+    "emotion": "grateful",
+    "sample_id": "grateful_10"
+  },
+  {
+    "text": "I'm content with how things are going.",
+    "emotion": "content",
+    "sample_id": "content_1"
+  },
+  {
+    "text": "I'm sad about the missed opportunities.",
+    "emotion": "sad",
+    "sample_id": "sad_7"
+  },
+  {
+    "text": "I'm feeling peaceful and balanced.",
+    "emotion": "calm",
+    "sample_id": "calm_10"
+  },
+  {
+    "text": "I'm concerned about the deadline.",
+    "emotion": "anxious",
+    "sample_id": "anxious_6"
+  },
+  {
+    "text": "I feel swamped with the information.",
+    "emotion": "overwhelmed",
+    "sample_id": "overwhelmed_6"
+  },
+  {
+    "text": "I feel proud of my contributions.",
+    "emotion": "proud",
+    "sample_id": "proud_8"
+  },
+  {
+    "text": "I feel exhausted from the workload.",
+    "emotion": "tired",
+    "sample_id": "tired_6"
+  },
+  {
+    "text": "I feel downhearted about the results.",
+    "emotion": "sad",
+    "sample_id": "sad_8"
+  },
+  {
+    "text": "I'm hopeful about the positive changes.",
+    "emotion": "hopeful",
+    "sample_id": "hopeful_11"
+  },
+  {
+    "text": "I'm feeling cheerful and upbeat.",
+    "emotion": "happy",
+    "sample_id": "happy_9"
+  },
+  {
+    "text": "I feel proud of my resilience.",
+    "emotion": "proud",
+    "sample_id": "proud_10"
+  },
+  {
+    "text": "I'm excited about the new opportunities ahead.",
+    "emotion": "excited",
+    "sample_id": "excited_1"
+  },
+  {
+    "text": "I'm delighted with the outcome.",
+    "emotion": "happy",
+    "sample_id": "happy_8"
+  },
+  {
+    "text": "I feel swamped with the demands.",
+    "emotion": "overwhelmed",
+    "sample_id": "overwhelmed_10"
+  },
+  {
+    "text": "I feel thrilled about the upcoming adventure.",
+    "emotion": "excited",
+    "sample_id": "excited_2"
+  },
+  {
+    "text": "I feel tranquil and centered.",
+    "emotion": "calm",
+    "sample_id": "calm_9"
+  },
+  {
+    "text": "I feel uneasy about the decision.",
+    "emotion": "anxious",
+    "sample_id": "anxious_5"
+  },
+  {
+    "text": "I feel optimistic about the changes.",
+    "emotion": "hopeful",
+    "sample_id": "hopeful_4"
+  },
+  {
+    "text": "I feel enthusiastic about the future.",
+    "emotion": "excited",
+    "sample_id": "excited_4"
+  },
+  {
+    "text": "I'm hopeful that things will get better.",
+    "emotion": "hopeful",
+    "sample_id": "hopeful_1"
+  },
+  {
+    "text": "I'm excited about the potential outcomes.",
+    "emotion": "excited",
+    "sample_id": "excited_9"
+  },
+  {
+    "text": "I feel proud of my achievements.",
+    "emotion": "proud",
+    "sample_id": "proud_2"
+  },
+  {
+    "text": "I feel thrilled about the changes.",
+    "emotion": "excited",
+    "sample_id": "excited_6"
+  },
+  {
+    "text": "I feel satisfied with the results.",
+    "emotion": "content",
+    "sample_id": "content_4"
+  },
+  {
+    "text": "I'm anxious about the unknown outcome.",
+    "emotion": "anxious",
+    "sample_id": "anxious_8"
+  },
+  {
+    "text": "I'm overwhelmed by the uncertainty.",
+    "emotion": "overwhelmed",
+    "sample_id": "overwhelmed_11"
+  },
+  {
+    "text": "I'm frustrated with the unclear instructions.",
+    "emotion": "frustrated",
+    "sample_id": "frustrated_11"
+  },
+  {
+    "text": "I'm saddened by the disappointing news.",
+    "emotion": "sad",
+    "sample_id": "sad_5"
+  },
+  {
+    "text": "I feel tranquil about the situation.",
+    "emotion": "calm",
+    "sample_id": "calm_3"
+  },
+  {
+    "text": "I'm proud of the challenges I've overcome.",
+    "emotion": "proud",
+    "sample_id": "proud_11"
+  },
+  {
+    "text": "I'm worried about the meeting tomorrow.",
+    "emotion": "anxious",
+    "sample_id": "anxious_2"
+  },
+  {
+    "text": "I'm thrilled about the good news I received.",
+    "emotion": "happy",
+    "sample_id": "happy_4"
+  },
+  {
+    "text": "I feel calm and peaceful right now.",
+    "emotion": "calm",
+    "sample_id": "calm_1"
+  },
+  {
+    "text": "I'm getting tired of these problems.",
+    "emotion": "frustrated",
+    "sample_id": "frustrated_7"
+  },
+  {
+    "text": "I'm grateful for the help from my friends.",
+    "emotion": "grateful",
+    "sample_id": "grateful_3"
+  },
+  {
+    "text": "I feel down about the recent events.",
+    "emotion": "sad",
+    "sample_id": "sad_2"
+  },
+  {
+    "text": "I feel enthusiastic about the challenges.",
+    "emotion": "excited",
+    "sample_id": "excited_8"
+  },
+  {
+    "text": "I'm tired and need some rest.",
+    "emotion": "tired",
+    "sample_id": "tired_1"
+  },
+  {
+    "text": "I'm annoyed with the constant delays.",
+    "emotion": "frustrated",
+    "sample_id": "frustrated_10"
+  },
+  {
+    "text": "I feel swamped with the amount of work.",
+    "emotion": "overwhelmed",
+    "sample_id": "overwhelmed_2"
+  },
+  {
+    "text": "I'm overwhelmed by the changes.",
+    "emotion": "overwhelmed",
+    "sample_id": "overwhelmed_9"
+  },
+  {
+    "text": "I'm excited about the learning opportunities.",
+    "emotion": "excited",
+    "sample_id": "excited_7"
+  },
+  {
+    "text": "I feel satisfied with the achievements.",
+    "emotion": "content",
+    "sample_id": "content_10"
+  },
+  {
+    "text": "I feel worn out from the stress.",
+    "emotion": "tired",
+    "sample_id": "tired_4"
+  },
+  {
+    "text": "I'm hopeful that the situation will improve.",
+    "emotion": "hopeful",
+    "sample_id": "hopeful_5"
+  },
+  {
+    "text": "I'm getting really annoyed with these constant issues.",
+    "emotion": "frustrated",
+    "sample_id": "frustrated_2"
+  },
+  {
+    "text": "I'm tired of dealing with these issues.",
+    "emotion": "tired",
+    "sample_id": "tired_3"
+  },
+  {
+    "text": "I feel enthusiastic about the journey ahead.",
+    "emotion": "excited",
+    "sample_id": "excited_12"
+  },
+  {
+    "text": "I'm frustrated with the slow progress.",
+    "emotion": "frustrated",
+    "sample_id": "frustrated_8"
+  },
+  {
+    "text": "I feel melancholy about the situation.",
+    "emotion": "sad",
+    "sample_id": "sad_4"
+  },
+  {
+    "text": "I'm proud of how far I've come.",
+    "emotion": "proud",
+    "sample_id": "proud_3"
+  },
+  {
+    "text": "I'm content with the current state.",
+    "emotion": "content",
+    "sample_id": "content_7"
+  },
+  {
+    "text": "I feel exasperated with this situation.",
+    "emotion": "frustrated",
+    "sample_id": "frustrated_6"
+  },
+  {
+    "text": "I'm content with the direction.",
+    "emotion": "content",
+    "sample_id": "content_9"
+  },
+  {
+    "text": "I'm proud of the impact I've made.",
+    "emotion": "proud",
+    "sample_id": "proud_7"
+  },
+  {
+    "text": "I feel exasperated with these obstacles.",
+    "emotion": "frustrated",
+    "sample_id": "frustrated_12"
+  },
+  {
+    "text": "I'm excited about the new project.",
+    "emotion": "excited",
+    "sample_id": "excited_5"
+  },
+  {
+    "text": "I feel optimistic about the journey ahead.",
+    "emotion": "hopeful",
+    "sample_id": "hopeful_12"
+  },
+  {
+    "text": "I'm grateful for all the support I've received.",
+    "emotion": "grateful",
+    "sample_id": "grateful_1"
+  },
+  {
+    "text": "I'm happy with my progress so far.",
+    "emotion": "happy",
+    "sample_id": "happy_6"
+  },
+  {
+    "text": "I feel proud of my growth.",
+    "emotion": "proud",
+    "sample_id": "proud_6"
+  },
+  {
+    "text": "I feel serene about the outcome.",
+    "emotion": "calm",
+    "sample_id": "calm_7"
+  },
+  {
+    "text": "I feel blessed for the love and support.",
+    "emotion": "grateful",
+    "sample_id": "grateful_12"
+  },
+  {
+    "text": "I'm nervous about the performance review.",
+    "emotion": "anxious",
+    "sample_id": "anxious_10"
+  },
+  {
+    "text": "I'm content with the decisions made.",
+    "emotion": "content",
+    "sample_id": "content_5"
+  },
+  {
+    "text": "I feel optimistic about the future.",
+    "emotion": "hopeful",
+    "sample_id": "hopeful_2"
+  },
+  {
+    "text": "I feel proud of the progress made.",
+    "emotion": "proud",
+    "sample_id": "proud_4"
+  },
+  {
+    "text": "I'm excited about the possibilities.",
+    "emotion": "excited",
+    "sample_id": "excited_3"
+  },
+  {
+    "text": "I'm proud of what I've accomplished so far.",
+    "emotion": "proud",
+    "sample_id": "proud_1"
+  },
+  {
+    "text": "I feel joyful and content right now.",
+    "emotion": "happy",
+    "sample_id": "happy_3"
+  },
+  {
+    "text": "I'm happy about the opportunities ahead.",
+    "emotion": "happy",
+    "sample_id": "happy_10"
+  },
+  {
+    "text": "I'm saddened by the lack of progress.",
+    "emotion": "sad",
+    "sample_id": "sad_9"
+  },
+  {
+    "text": "I feel optimistic about the progress.",
+    "emotion": "hopeful",
+    "sample_id": "hopeful_8"
+  },
+  {
+    "text": "I feel proud of my determination.",
+    "emotion": "proud",
+    "sample_id": "proud_12"
+  },
+  {
+    "text": "I'm thankful for the positive experiences.",
+    "emotion": "grateful",
+    "sample_id": "grateful_5"
+  },
+  {
+    "text": "I'm feeling relaxed and at ease.",
+    "emotion": "calm",
+    "sample_id": "calm_6"
+  },
+  {
+    "text": "I'm anxious about the test results.",
+    "emotion": "anxious",
+    "sample_id": "anxious_4"
+  },
+  {
+    "text": "I feel satisfied with the outcomes.",
+    "emotion": "content",
+    "sample_id": "content_6"
+  },
+  {
+    "text": "I'm overwhelmed by the complexity of this.",
+    "emotion": "overwhelmed",
+    "sample_id": "overwhelmed_5"
+  },
+  {
+    "text": "I feel anxious about the upcoming presentation.",
+    "emotion": "anxious",
+    "sample_id": "anxious_1"
+  },
+  {
+    "text": "I feel great about the positive changes.",
+    "emotion": "happy",
+    "sample_id": "happy_7"
+  },
+  {
+    "text": "I feel optimistic about the results.",
+    "emotion": "hopeful",
+    "sample_id": "hopeful_10"
+  },
+  {
+    "text": "I'm overwhelmed by the responsibilities.",
+    "emotion": "overwhelmed",
+    "sample_id": "overwhelmed_3"
+  },
+  {
+    "text": "I'm calm about the current state of things.",
+    "emotion": "calm",
+    "sample_id": "calm_4"
+  },
+  {
+    "text": "I'm grateful for the kindness shown to me.",
+    "emotion": "grateful",
+    "sample_id": "grateful_9"
+  },
+  {
+    "text": "I feel satisfied with the growth experienced.",
+    "emotion": "content",
+    "sample_id": "content_12"
+  },
+  {
+    "text": "I'm feeling serene and relaxed.",
+    "emotion": "calm",
+    "sample_id": "calm_2"
+  },
+  {
+    "text": "I feel irritated by the lack of progress.",
+    "emotion": "frustrated",
+    "sample_id": "frustrated_3"
+  },
+  {
+    "text": "I feel satisfied with the work done.",
+    "emotion": "content",
+    "sample_id": "content_8"
+  },
+  {
+    "text": "I feel exhausted from the demands.",
+    "emotion": "tired",
+    "sample_id": "tired_10"
+  },
+  {
+    "text": "I feel worn out from the responsibilities.",
+    "emotion": "tired",
+    "sample_id": "tired_12"
+  },
+  {
+    "text": "I'm so happy with how things turned out.",
+    "emotion": "happy",
+    "sample_id": "happy_2"
+  },
+  {
+    "text": "I'm excited and happy about the future.",
+    "emotion": "happy",
+    "sample_id": "happy_12"
+  },
+  {
+    "text": "I feel blessed for the guidance received.",
+    "emotion": "grateful",
+    "sample_id": "grateful_8"
+  },
+  {
+    "text": "I feel exhausted from the long day.",
+    "emotion": "tired",
+    "sample_id": "tired_2"
+  },
+  {
+    "text": "I'm sad about the loss I experienced.",
+    "emotion": "sad",
+    "sample_id": "sad_3"
+  },
+  {
+    "text": "I feel buried under all these deadlines.",
+    "emotion": "overwhelmed",
+    "sample_id": "overwhelmed_4"
+  },
+  {
+    "text": "I'm tired of the ongoing problems.",
+    "emotion": "tired",
+    "sample_id": "tired_9"
+  },
+  {
+    "text": "I'm tired of the repetitive tasks.",
+    "emotion": "tired",
+    "sample_id": "tired_7"
+  }
+]
