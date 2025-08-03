@@ -4,7 +4,7 @@
 
 **SAMO** is an AI-powered, voice-first journaling companion designed to provide real emotional reflection rather than just data collection. As the sole Deep Learning engineer, you're responsible for the core AI intelligence that makes SAMO emotionally aware and contextually responsive.
 
-## Deep Learning Track Scope (Your Exclusive Focus)
+## Deep Learning Track Scope 
 
 ### Core AI Responsibilities
 
@@ -67,7 +67,7 @@
 
 ## Scope Boundaries (Avoiding Scope Creep)
 
-**IN SCOPE (Your Responsibility):**
+**IN SCOPE (DL Responsibility):**
 
 - All AI/ML model development and training
 - Model inference APIs and optimization
@@ -93,5 +93,19 @@
 - **Web Dev**: API specifications for model endpoints, response formats
 - **Data Science**: Labeled datasets, analytical framework alignment
 - **UX**: Model response time requirements, user experience constraints
+
+## Collaboration Model: DL vs. Data Science
+
+To ensure clarity and prevent redundant work, the collaboration between the Deep Learning and Data Science tracks follows a clear, cyclical pattern:
+
+1.  **Data Analysis (Data Science)**: The Data Science track analyzes potential datasets (e.g., user-generated content, new public datasets) to identify statistical properties, biases, and overall suitability. They provide these analytical reports to the DL track.
+
+2.  **Model Training (Deep Learning)**: The Deep Learning track uses the analytical insights to build, train, and optimize AI models. This is the core responsibility of the DL engineer, encompassing all activities in the *Model Training Playbook*.
+
+3.  **Prediction & Performance APIs (Deep Learning)**: The DL track exposes the trained models via secure, performant APIs that produce predictions and performance metrics.
+
+4.  **Insight Generation (Data Science)**: The Data Science track consumes the API outputs to perform aggregate analysis, monitor for model drift, generate business intelligence dashboards, and identify patterns in model performance or user emotional trends.
+
+This process creates a powerful feedback loop where Data Science insights directly inform the next iteration of Deep Learning model development, without overlapping the core responsibilities of model training.
 
 This focused scope ensures you deliver production-ready AI capabilities while avoiding dilution across multiple track responsibilities.
