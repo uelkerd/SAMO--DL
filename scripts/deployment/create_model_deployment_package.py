@@ -145,7 +145,12 @@ class EmotionDetector:
 def main():
     """Example usage"""
     # Initialize detector
-    detector = EmotionDetector()
+    try:
+        detector = EmotionDetector()
+        print("✅ Model loaded successfully!")
+    except Exception:
+        print("❌ Failed to load model")
+        return
     
     # Test examples
     test_texts = [
@@ -191,8 +196,8 @@ def test_model():
     try:
         detector = EmotionDetector()
         print("✅ Model loaded successfully!")
-    except Exception as e:
-        print(f"❌ Failed to load model: {e}")
+    except Exception:
+        print("❌ Failed to load model")
         return
     
     # Test cases
@@ -261,8 +266,8 @@ app = Flask(__name__)
 try:
     detector = EmotionDetector()
     logger.info("✅ Emotion detector initialized successfully!")
-except Exception as e:
-    logger.error(f"❌ Failed to initialize emotion detector: {e}")
+except Exception:
+    logger.exception("❌ Failed to initialize emotion detector")
     detector = None
 
 @app.route('/health', methods=['GET'])
@@ -290,9 +295,14 @@ def predict_emotion():
         result = detector.predict(text)
         return jsonify(result)
     
-    except Exception as e:
-        logger.error(f"Prediction error: {e}")
-        return jsonify({'error': str(e)}), 500
+    except Exception:
+        import uuid
+        request_id = str(uuid.uuid4())
+        logger.exception(f"Prediction error [request_id={request_id}]")
+        return jsonify({
+            'error': 'Prediction processing failed. Please try again later.',
+            'request_id': request_id
+        }), 500
 
 @app.route('/predict_batch', methods=['POST'])
 def predict_batch():
@@ -310,9 +320,14 @@ def predict_batch():
         results = detector.predict_batch(texts)
         return jsonify({'results': results})
     
-    except Exception as e:
-        logger.error(f"Batch prediction error: {e}")
-        return jsonify({'error': str(e)}), 500
+    except Exception:
+        import uuid
+        request_id = str(uuid.uuid4())
+        logger.exception(f"Batch prediction error [request_id={request_id}]")
+        return jsonify({
+            'error': 'Batch prediction processing failed. Please try again later.',
+            'request_id': request_id
+        }), 500
 
 @app.route('/emotions', methods=['GET'])
 def get_emotions():
