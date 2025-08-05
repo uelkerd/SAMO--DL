@@ -50,8 +50,8 @@ class DataValidator:
         return missing_stats
 
     def check_data_types(
-        self, df: pd.DataFrame, expected_types: dict[str, type]
-    ) -> dict[str, bool]:
+        self, df: pd.DataFrame, expected_types: Dict[str, type]
+    ) -> Dict[str, bool]:
         """Check if columns have expected data types.
 
         Args:
