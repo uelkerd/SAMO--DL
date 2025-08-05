@@ -22,12 +22,12 @@ from transformers import (
 )
 from transformers.optimization import AdamW
 
-from .bert_classifier import (
+from src.models.emotion_detection.bert_classifier import (
     create_bert_emotion_classifier,
     evaluate_emotion_classifier,
     EmotionDataset,
 )
-from .dataset_loader import (
+from src.models.emotion_detection.dataset_loader import (
     create_goemotions_loader,
 )
 
@@ -332,9 +332,9 @@ class EmotionDetectionTrainer:
                 if torch.isinf(logits).any():
                     logger.error("❌ CRITICAL: Inf values in logits!")
 
-                logger.info("   Predictions min: {torch.sigmoid(logits).min().item():.6f}")
-                logger.info("   Predictions max: {torch.sigmoid(logits).max().item():.6f}")
-                logger.info("   Predictions mean: {torch.sigmoid(logits).mean().item():.6f}")
+                logger.info(f"   Predictions min: {torch.sigmoid(logits).min().item():.6f}")
+                logger.info(f"   Predictions max: {torch.sigmoid(logits).max().item():.6f}")
+                logger.info(f"   Predictions mean: {torch.sigmoid(logits).mean().item():.6f}")
 
             loss = self.loss_fn(logits, labels)
 
@@ -381,7 +381,7 @@ class EmotionDetectionTrainer:
                     if total_norm < 1e-6:
                         logger.warning("⚠️  WARNING: Very small gradient norm detected!")
 
-            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
+            clip_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
 
             if batch_idx == 0:
                 logger.info("   Gradient norm after clipping: {clip_norm:.6f}")
@@ -393,9 +393,11 @@ class EmotionDetectionTrainer:
 
             if batch_idx < 5 or (batch_idx + 1) % 100 == 0:  # First 5 batches + every 100
                 avg_loss = total_loss / (batch_idx + 1)
+                current_lr = self.scheduler.get_last_lr()[0]
                 logger.info(
-                    "Epoch {epoch}, Batch {batch_idx + 1}/{num_batches}, "
-                    "Loss: {avg_loss:.8f}, LR: {current_lr:.2e}"
+                    f"Epoch {epoch}, Batch {batch_idx + 1}/{num_batches}, "
+                    f"Loss: {avg_loss:.8f}, LR: {current_lr:.2e}"
+                )
                 )
 
                 if avg_loss < 1e-8:
@@ -553,8 +555,8 @@ class EmotionDetectionTrainer:
             with Path(history_path).open("w") as f:
                 json.dump(serializable_history, f, indent=2)
             logger.info("Training history saved to {history_path}")
-        except Exception:
-            logger.error("Failed to save training history: {e}")
+        except Exception as e:
+            logger.error(f"Failed to save training history: {e}")
             simplified_history = []
             for entry in self.training_history:
                 simplified_entry = {}

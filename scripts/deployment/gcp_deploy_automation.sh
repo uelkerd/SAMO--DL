@@ -248,7 +248,7 @@ deploy_model() {
         --region=$REGION \
         --model=$MODEL_ID \
         --display-name=comprehensive-emotion-detection-deployment \
-        --machine-type=n1-standard-2 \
+        --machine-type=e2-standard-2 \
         --min-replica-count=1 \
         --max-replica-count=10 \
         --accelerator=count=0,type=NVIDIA_TESLA_T4 \
