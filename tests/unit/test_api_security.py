@@ -314,6 +314,24 @@ class TestInputSanitizer(unittest.TestCase):
         self.assertIn("[BLOCKED]", str(sanitized_data))
         self.assertGreater(len(warnings), 0)
 
+    def test_deeply_nested_json_sanitization(self):
+        """Test that deeply nested JSON triggers max_depth logic and does not cause stack overflow."""
+        # Construct a deeply nested JSON object
+        max_depth = getattr(self.sanitizer, "max_depth", 10)
+        deep_data = current = {}
+        for i in range(max_depth + 5):
+            current["nested"] = {}
+            current = current["nested"]
+        # Add a malicious value at the deepest level
+        current["payload"] = "<script>alert('deep')</script>"
+
+        sanitized_data, warnings = self.sanitizer.sanitize_json(deep_data)
+        # The sanitizer should block or warn about excessive depth
+        self.assertTrue(
+            any("max depth" in str(w).lower() or "depth" in str(w).lower() for w in warnings) or
+            "[BLOCKED]" in str(sanitized_data)
+        )
+
 class TestSecurityHeaders(unittest.TestCase):
     """Test security headers middleware."""
     
