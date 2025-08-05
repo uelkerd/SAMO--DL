@@ -25,7 +25,7 @@ class PrismaClient:
     """
 
     @staticmethod
-    def execute_prisma_command(script: str) -> dict[str, Any]:
+    def execute_prisma_command(_script: str) -> dict[str, Any]:
         """Execute a Node.js script that uses Prisma client.
 
         Args:

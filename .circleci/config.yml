@@ -43,7 +43,7 @@ executors:
 # ============================================================================
 commands:
   setup_python_env:
-    description: "Set up Python environment with dependencies (OPTIMIZED)"
+    description: "Set up conda environment with dependencies (OPTIMIZED)"
     steps:
       - checkout
       - run:
@@ -53,22 +53,42 @@ commands:
             sudo apt-get install -y portaudio19-dev python3-pyaudio
             echo "✅ System dependencies installed"
       - run:
-          name: Install Python dependencies
+          name: Install Miniconda
           command: |
-            python -m pip install --upgrade pip
-            # Install project in editable mode with all dependencies
+            wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+            bash miniconda.sh -b -p $HOME/miniconda
+            echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> $BASH_ENV
+            source $BASH_ENV
+            conda init bash
+            echo "✅ Miniconda installed"
+      - run:
+          name: Create and activate conda environment
+          command: |
+            source $BASH_ENV
+            conda env create -f environment.yml
+            echo "conda activate samo-dl-stable" >> $BASH_ENV
+            source $BASH_ENV
+            conda activate samo-dl-stable
+            echo "✅ Conda environment 'samo-dl-stable' created and activated"
+      - run:
+          name: Install additional dependencies
+          command: |
+            source $BASH_ENV
+            conda activate samo-dl-stable
+            # Install project in editable mode
             pip install -e ".[test,dev,prod]"
-            # Also install from requirements.txt as backup to ensure all dependencies
-            pip install -r requirements.txt
-            echo "✅ All dependencies installed via pyproject.toml and requirements.txt"
+            # Install additional packages that might not be in environment.yml
+            pip install httpx python-multipart
+            echo "✅ All dependencies installed in conda environment"
 
   # ENHANCED CACHING STRATEGY
   cache_dependencies:
     description: "Enhanced cache for dependencies, models, and build artifacts"
     steps:
       - save_cache:
-          key: deps-v3-{{ .Branch }}-{{ checksum "pyproject.toml" }}-{{ checksum "requirements.txt" }}-{{ checksum "environment.yml" }}
+          key: conda-deps-v3-{{ .Branch }}-{{ checksum "environment.yml" }}-{{ checksum "pyproject.toml" }}
           paths:
+            - ~/miniconda
             - ~/.cache/pip
             - ~/.cache/huggingface
             - ~/.cache/torch
@@ -83,11 +103,10 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - deps-v3-{{ .Branch }}-{{ checksum "pyproject.toml" }}-{{ checksum "requirements.txt" }}-{{ checksum "environment.yml" }}
-            - deps-v3-{{ .Branch }}-{{ checksum "pyproject.toml" }}-{{ checksum "requirements.txt" }}-
-            - deps-v3-{{ .Branch }}-{{ checksum "pyproject.toml" }}-
-            - deps-v3-{{ .Branch }}-
-            - deps-v3-
+            - conda-deps-v3-{{ .Branch }}-{{ checksum "environment.yml" }}-{{ checksum "pyproject.toml" }}
+            - conda-deps-v3-{{ .Branch }}-{{ checksum "environment.yml" }}-
+            - conda-deps-v3-{{ .Branch }}-
+            - conda-deps-v3-
 
   # MODEL PRE-WARMING
   pre_warm_models:
@@ -120,18 +139,24 @@ commands:
       - run:
           name: Ruff Linting
           command: |
+            source $BASH_ENV
+            conda activate samo-dl-stable
             echo "🔍 Running Ruff linter..."
             ruff check src/ tests/ --output-format=github || echo "⚠️ Linting issues found but continuing..."
           ignore_failure: true
       - run:
           name: Ruff Formatting Check
           command: |
+            source $BASH_ENV
+            conda activate samo-dl-stable
             echo "🎨 Checking code formatting..."
             ruff format --check src/ tests/ || echo "⚠️ Formatting issues found but continuing..."
           ignore_failure: true
       - run:
           name: Type Checking (MyPy) - Optional
           command: |
+            source $BASH_ENV
+            conda activate samo-dl-stable
             echo "📝 Running type checking (optional)..."
             python -m mypy src/ --ignore-missing-imports || echo "⚠️ Type checking failed but continuing..."
           no_output_timeout: 10m
@@ -162,6 +187,8 @@ commands:
       - run:
           name: API Rate Limiter Tests
           command: |
+            source $BASH_ENV
+            conda activate samo-dl-stable
             echo "🧪 Running API Rate Limiter Tests..."
             python scripts/testing/run_api_rate_limiter_tests.py
       - run:
