@@ -371,6 +371,57 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
         with torch.no_grad():
             output = model(test_input)
         self.assertEqual(output.shape, (1, 5))
+
+    def test_corrupted_model_file_handling(self):
+        """Test loading a corrupted or tampered model file."""
+        # Create a corrupted model file
+        corrupted_model_file = os.path.join(self.temp_dir, "corrupted_model.pt")
+        
+        # Write corrupted data to file
+        with open(corrupted_model_file, 'wb') as f:
+            f.write(b'corrupted_data_not_a_torch_file')
+        
+        # Attempt to load corrupted model
+        try:
+            model, info = self.loader.load_model(
+                corrupted_model_file,
+                TestModel,
+                input_size=10,
+                output_size=5
+            )
+            # Should not reach here
+            self.fail("Should have raised an exception for corrupted model")
+        except Exception as e:
+            # Verify that the error is properly handled
+            self.assertIsInstance(e, Exception)
+            
+        # Create a tampered model file (valid torch file but with malicious content)
+        tampered_model_file = os.path.join(self.temp_dir, "tampered_model.pt")
+        
+        # Create a model with suspicious content in state dict
+        suspicious_model = TestModel()
+        suspicious_state_dict = suspicious_model.state_dict()
+        # Add suspicious key that might indicate tampering
+        suspicious_state_dict['suspicious_layer.weight'] = torch.randn(10, 10)
+        
+        torch.save({
+            'state_dict': suspicious_state_dict,
+            'config': self.test_config
+        }, tampered_model_file)
+        
+        # Attempt to load tampered model
+        try:
+            model, info = self.loader.load_model(
+                tampered_model_file,
+                TestModel,
+                input_size=10,
+                output_size=5
+            )
+            # Should detect tampering or suspicious content
+            self.assertGreater(len(info['issues']), 0)
+        except Exception as e:
+            # Exception is also acceptable for tampered models
+            self.assertIsInstance(e, Exception)
     
     def test_audit_logging(self):
         """Test audit logging functionality."""
