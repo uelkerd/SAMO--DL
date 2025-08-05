@@ -22,22 +22,26 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-# Global variables for model state
+# Global variables for model state (thread-safe with locks)
+import threading
+
 model = None
 tokenizer = None
 emotion_mapping = None
 model_loading = False
 model_loaded = False
+model_lock = threading.Lock()
 
 # Emotion mapping based on training order
 EMOTION_MAPPING = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
 
 def load_model():
     """Load the emotion detection model"""
-    global model, tokenizer, emotion_mapping, model_loading, model_loaded
+    global model, tokenizer, emotion_mapping, model_loading, model_loaded, model_lock
     
-    if model_loading or model_loaded:
-        return
+    with model_lock:
+        if model_loading or model_loaded:
+            return
     
     model_loading = True
     logger.info("🔄 Starting model loading...")
@@ -74,6 +78,10 @@ def load_model():
         model_loading = False
         logger.error(f"❌ Failed to load model: {e}")
         raise
+    finally:
+        model_loading = False
+
+MAX_INPUT_LENGTH = 512
 
 def predict_emotion(text):
     """Predict emotion for given text"""
@@ -81,9 +89,15 @@ def predict_emotion(text):
     
     if not model_loaded:
         raise RuntimeError("Model not loaded")
-    
+
+    # Input sanitization and length check
+    if not isinstance(text, str):
+        raise ValueError("Input text must be a string.")
+    if len(text) > MAX_INPUT_LENGTH:
+        raise ValueError(f"Input text too long (>{MAX_INPUT_LENGTH} characters).")
+
     # Tokenize
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+    inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=MAX_INPUT_LENGTH, padding=True)
     
     # Predict
     with torch.no_grad():
@@ -132,7 +146,15 @@ def predict():
         if not model_loaded:
             return jsonify({'error': 'Model not loaded'}), 503
         
-        data = request.get_json()
+        # Content-type validation
+        if not request.is_json:
+            return jsonify({'error': 'Content-Type must be application/json'}), 400
+        
+        try:
+            data = request.get_json()
+        except Exception:
+            return jsonify({'error': 'Invalid JSON data'}), 400
+            
         if not data:
             return jsonify({'error': 'No JSON data provided'}), 400
         
@@ -159,7 +181,15 @@ def predict_batch():
         if not model_loaded:
             return jsonify({'error': 'Model not loaded'}), 503
         
-        data = request.get_json()
+        # Content-type validation
+        if not request.is_json:
+            return jsonify({'error': 'Content-Type must be application/json'}), 400
+        
+        try:
+            data = request.get_json()
+        except Exception:
+            return jsonify({'error': 'Invalid JSON data'}), 400
+            
         if not data:
             return jsonify({'error': 'No JSON data provided'}), 400
         
@@ -231,4 +261,36 @@ if __name__ == '__main__':
     
     # Get port from environment (Cloud Run requirement)
     port = int(os.environ.get('PORT', 8080))
-    app.run(host='0.0.0.0', port=port, debug=False) 
+    
+    # Use production WSGI server for better performance and reliability
+    import gunicorn.app.base
+    
+    class StandaloneApplication(gunicorn.app.base.BaseApplication):
+        def __init__(self, app, options=None):
+            self.options = options or {}
+            self.application = app
+            super().__init__()
+        
+        def load_config(self):
+            config = {key: value for key, value in self.options.items()
+                     if key in self.cfg.settings and value is not None}
+            for key, value in config.items():
+                self.cfg.set(key.lower(), value)
+        
+        def load(self):
+            return self.application
+    
+    options = {
+        'bind': f'0.0.0.0:{port}',
+        'workers': 1,  # Single worker for Cloud Run
+        'threads': 8,
+        'timeout': 0,  # No timeout for Cloud Run
+        'keepalive': 5,
+        'max_requests': 1000,
+        'max_requests_jitter': 100,
+        'access_logfile': '-',
+        'error_logfile': '-',
+        'loglevel': 'info'
+    }
+    
+    StandaloneApplication(app, options).run() 
