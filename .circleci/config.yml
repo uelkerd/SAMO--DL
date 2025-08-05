@@ -43,20 +43,22 @@ executors:
 # ============================================================================
 commands:
   # REUSABLE CONDA ENVIRONMENT COMMAND
-  setup_conda_env:
-    description: "Setup conda environment with proper PATH and PYTHONPATH"
+  run_in_conda:
+    description: "Run command in conda environment with proper setup"
     parameters:
+      name:
+        type: string
+        description: "Name of the step"
       command:
         type: string
         description: "Command to run in conda environment"
     steps:
       - run:
-          name: Execute in conda environment
+          name: "<< parameters.name >>"
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
-            export PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src:$PYTHONPATH"
             source ~/.bashrc
-            $HOME/miniconda/bin/conda run -n samo-dl-stable <<< "$<< parameters.command >>"
+            $HOME/miniconda/bin/conda run -n samo-dl-stable bash -c "$<< parameters.command >>"
           shell: /bin/bash
 
   setup_python_env:
@@ -131,13 +133,11 @@ commands:
   pre_warm_models:
     description: "Pre-download and cache models for faster CI execution"
     steps:
-      - run:
-          name: Pre-warm Models
+      - run_in_conda:
+          name: "Pre-warm Models"
           command: |
-            export PATH="$HOME/miniconda/bin:$PATH"
-            source ~/.bashrc
             echo "🔥 Pre-warming models..."
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python -c "
+            python -c "
             from transformers import AutoTokenizer, AutoModel, AutoModelForSeq2SeqLM
             import torch
             
@@ -157,87 +157,65 @@ commands:
   run_quality_checks:
     description: "Run comprehensive code quality checks"
     steps:
-      - run:
-          name: Ruff Linting
+      - run_in_conda:
+          name: "Ruff Linting"
           command: |
-            export PATH="$HOME/miniconda/bin:$PATH"
-            source ~/.bashrc
             echo "🔍 Running Ruff linter..."
-            $HOME/miniconda/bin/conda run -n samo-dl-stable ruff check src/ tests/ --output-format=github || echo "⚠️ Linting issues found but continuing..."
-          ignore_failure: true
-      - run:
-          name: Ruff Formatting Check
+            ruff check src/ tests/ --output-format=github || echo "⚠️ Linting issues found but continuing..."
+      - run_in_conda:
+          name: "Ruff Formatting Check"
           command: |
-            export PATH="$HOME/miniconda/bin:$PATH"
-            source ~/.bashrc
             echo "🎨 Checking code formatting..."
-            $HOME/miniconda/bin/conda run -n samo-dl-stable ruff format --check src/ tests/ || echo "⚠️ Formatting issues found but continuing..."
-          ignore_failure: true
-      - run:
-          name: Type Checking (MyPy) - Optional
+            ruff format --check src/ tests/ || echo "⚠️ Formatting issues found but continuing..."
+      - run_in_conda:
+          name: "Type Checking (MyPy) - Optional"
           command: |
-            export PATH="$HOME/miniconda/bin:$PATH"
-            source ~/.bashrc
             echo "📝 Running type checking (optional)..."
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m mypy src/ --ignore-missing-imports || echo "⚠️ Type checking failed but continuing..."
-          no_output_timeout: 10m
-          ignore_failure: true
+            python -m mypy src/ --ignore-missing-imports || echo "⚠️ Type checking failed but continuing..."
 
   # PARALLEL SECURITY SCANS
   run_security_scan_bandit:
     description: "Run Bandit security scan (parallel)"
     steps:
-      - run:
-          name: Bandit Security Scan
+      - run_in_conda:
+          name: "Bandit Security Scan"
           command: |
-            export PATH="$HOME/miniconda/bin:$PATH"
-            source ~/.bashrc
             echo "🔒 Running Bandit security scan..."
-            $HOME/miniconda/bin/conda run -n samo-dl-stable bandit -r src/ -f json -o bandit-report.json
+            bandit -r src/ -f json -o bandit-report.json
 
   run_security_scan_safety:
     description: "Run Safety dependency check (parallel)"
     steps:
-      - run:
-          name: Safety Check (Dependencies)
+      - run_in_conda:
+          name: "Safety Check (Dependencies)"
           command: |
-            export PATH="$HOME/miniconda/bin:$PATH"
-            source ~/.bashrc
             echo "🛡️ Checking dependency vulnerabilities..."
-            $HOME/miniconda/bin/conda run -n samo-dl-stable safety check --json --output safety-report.json
+            safety check --json --output safety-report.json
 
   run_unit_tests:
     description: "Run unit tests with coverage (OPTIMIZED)"
     steps:
-      - run:
-          name: API Rate Limiter Tests
+      - run_in_conda:
+          name: "API Rate Limiter Tests"
           command: |
-            export PATH="$HOME/miniconda/bin:$PATH"
-            source ~/.bashrc
             echo "🧪 Running API Rate Limiter Tests..."
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python scripts/testing/run_api_rate_limiter_tests.py
-      - run:
-          name: Unit Tests (Sequential - Rate Limiter Tests)
+            python scripts/testing/run_api_rate_limiter_tests.py
+      - run_in_conda:
+          name: "Unit Tests (Sequential - Rate Limiter Tests)"
           command: |
-            export PATH="$HOME/miniconda/bin:$PATH"
-            source ~/.bashrc
             echo "🧪 Running rate limiter tests sequentially..."
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m pytest tests/unit/test_api_rate_limiter.py \
+            python -m pytest tests/unit/test_api_rate_limiter.py \
               --cov=src \
               --cov-report=xml \
               --cov-report=html \
               --cov-fail-under=5 \
               --junit-xml=test-results/unit/results.xml \
               -v
-          environment:
-            PYTEST_ADDOPTS: "--tb=short"
-      - run:
-          name: Unit Tests (Parallel - Other Tests)
+      - run_in_conda:
+          name: "Unit Tests (Parallel - Other Tests)"
           command: |
-            export PATH="$HOME/miniconda/bin:$PATH"
-            source ~/.bashrc
             echo "🧪 Running other unit tests with parallel execution..."
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m pytest tests/unit/ \
+            python -m pytest tests/unit/ \
               --ignore=tests/unit/test_api_rate_limiter.py \
               --cov=src \
               --cov-report=xml \
@@ -246,8 +224,6 @@ commands:
               --junit-xml=test-results/unit/results.xml \
               -v \
               -n auto  # Parallel execution
-          environment:
-            PYTEST_ADDOPTS: "--tb=short"
       - store_test_results:
           path: test-results
       - store_artifacts:
