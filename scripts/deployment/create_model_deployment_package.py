@@ -291,8 +291,13 @@ def predict_emotion():
         return jsonify(result)
     
     except Exception:
-        logger.exception("Prediction error")
-        return jsonify({'error': 'Prediction processing failed. Please try again later.'}), 500
+        import uuid
+        request_id = str(uuid.uuid4())
+        logger.exception(f"Prediction error [request_id={request_id}]")
+        return jsonify({
+            'error': 'Prediction processing failed. Please try again later.',
+            'request_id': request_id
+        }), 500
 
 @app.route('/predict_batch', methods=['POST'])
 def predict_batch():
@@ -311,8 +316,13 @@ def predict_batch():
         return jsonify({'results': results})
     
     except Exception:
-        logger.exception("Batch prediction error")
-        return jsonify({'error': 'Batch prediction processing failed. Please try again later.'}), 500
+        import uuid
+        request_id = str(uuid.uuid4())
+        logger.exception(f"Batch prediction error [request_id={request_id}]")
+        return jsonify({
+            'error': 'Batch prediction processing failed. Please try again later.',
+            'request_id': request_id
+        }), 500
 
 @app.route('/emotions', methods=['GET'])
 def get_emotions():
