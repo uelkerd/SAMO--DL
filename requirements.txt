@@ -55,5 +55,5 @@ google-cloud-aiplatform>=1.30.0,<2.0.0
 openai>=1.99.0,<2.0.0
 
 # Security scanning and monitoring
-bandit>=1.7.0,<2.0.0
-safety>=2.3.0,<3.0.0 
+bandit>=1.7.0,<2.0.0  # Static security analysis
+safety>=2.3.0,<3.0.0  # Dependency vulnerability scanning 
