@@ -193,7 +193,7 @@ class FeatureEngineer:
         for i, comp in enumerate(svd.components_):
             top_word_indices = comp.argsort()[: -n_top_words - 1 : -1]
             top_words = [feature_names[idx] for idx in top_word_indices]
-            topic_words["topic_{i + 1}"] = top_words
+            topic_words[f"topic_{i + 1}"] = top_words
 
         topics_df = pd.DataFrame(topic_words)
 
