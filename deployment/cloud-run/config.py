@@ -4,7 +4,7 @@ Provides environment-specific settings for development, staging, and production
 """
 
 import os
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 
 @dataclass
@@ -43,7 +43,7 @@ class CloudRunConfig:
     
     # Security
     enable_cors: bool = True
-    cors_origins: Optional[list] = None
+    cors_origins: Optional[List[str]] = None
     enable_rate_limiting: bool = True
     enable_input_sanitization: bool = True
 
