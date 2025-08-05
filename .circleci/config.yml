@@ -44,9 +44,9 @@ executors:
 # COMMANDS - Reusable command definitions (SIMPLIFIED)
 # ============================================================================
 commands:
-  # SIMPLIFIED CONDA ENVIRONMENT COMMAND
+  # ULTIMATE CONDA ENVIRONMENT COMMAND - DIRECT PYTHON EXECUTION
   run_in_conda:
-    description: "Run command in conda environment (SIMPLIFIED)"
+    description: "Run command in conda environment (ULTIMATE)"
     parameters:
       step_name:
         type: string
@@ -58,7 +58,7 @@ commands:
       - run:
           name: "<< parameters.step_name >>"
           command: |
-            $HOME/miniconda/bin/conda run -n samo-dl-stable bash -c "<< parameters.command >>"
+            $HOME/miniconda/envs/samo-dl-stable/bin/python -c "<< parameters.command >>"
           shell: /bin/bash  # Explicitly specify bash for consistent behavior
 
   setup_python_env:
