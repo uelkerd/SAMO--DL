@@ -30,6 +30,7 @@ from datetime import datetime
 from collections import defaultdict, deque
 import threading
 from functools import wraps
+import functools
 
 # Import security components
 from api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
@@ -288,6 +289,20 @@ class SecureEmotionDetectionModel:
 logger.info("🔒 Loading secure emotion detection model...")
 secure_model = SecureEmotionDetectionModel()
 
+# Admin API key for sensitive endpoints
+ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY", None)
+
+def require_admin_api_key(f):
+    """Decorator to require admin API key via X-Admin-API-Key header."""
+    @functools.wraps(f)
+    def decorated_function(*args, **kwargs):
+        api_key = request.headers.get("X-Admin-API-Key")
+        if not ADMIN_API_KEY or api_key != ADMIN_API_KEY:
+            logger.warning(f"Unauthorized admin access attempt from {request.remote_addr}")
+            return jsonify({"error": "Unauthorized: admin API key required"}), 401
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route('/health', methods=['GET'])
 @secure_endpoint
 def health_check():
@@ -486,6 +501,7 @@ def get_metrics():
         })
 
 @app.route('/security/blacklist', methods=['POST'])
+@require_admin_api_key
 def add_to_blacklist():
     """Add IP to blacklist (admin endpoint)."""
     try:
@@ -502,6 +518,7 @@ def add_to_blacklist():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/security/whitelist', methods=['POST'])
+@require_admin_api_key
 def add_to_whitelist():
     """Add IP to whitelist (admin endpoint)."""
     try:

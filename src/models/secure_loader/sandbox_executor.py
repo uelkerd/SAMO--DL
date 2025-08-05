@@ -97,28 +97,18 @@ class SandboxExecutor:
         except Exception as e:
             logger.error(f"Failed to set resource limits: {e}")
 
-    def _restrict_imports(self):
-        """Restrict module imports in the sandbox using a safer approach."""
-        # Store original import function
-        self._original_import = __builtins__.__import__
-        
-        def safe_import(name, *args, **kwargs):
-            if name in self.blocked_modules:
-                raise ImportError(f"Import of '{name}' is not allowed in sandbox")
-            return self._original_import(name, *args, **kwargs)
-        
-        # Replace import function
-        __builtins__.__import__ = safe_import
-
-    def _restrict_builtins(self):
-        """Restrict dangerous builtin functions using a safer approach."""
-        # Store original builtins for restoration
-        self._original_builtins = {}
-        
-        for func_name in self.blocked_functions:
-            if hasattr(__builtins__, func_name):
-                self._original_builtins[func_name] = getattr(__builtins__, func_name)
-                delattr(__builtins__, func_name)
+    def _get_safe_builtins(self):
+        """Return a safe builtins dictionary for sandboxed execution."""
+        import builtins as py_builtins
+        allowed_names = [
+            'abs', 'all', 'any', 'bool', 'bytes', 'chr', 'dict', 'divmod', 'enumerate', 'filter',
+            'float', 'format', 'frozenset', 'getattr', 'hasattr', 'hash', 'hex', 'id', 'int',
+            'isinstance', 'issubclass', 'iter', 'len', 'list', 'map', 'max', 'min', 'next', 'object',
+            'oct', 'ord', 'pow', 'range', 'repr', 'reversed', 'round', 'set', 'slice', 'sorted',
+            'str', 'sum', 'tuple', 'zip', 'Exception', 'ValueError', 'TypeError', 'print'
+        ]
+        safe_builtins = {name: getattr(py_builtins, name) for name in allowed_names if hasattr(py_builtins, name)}
+        return {'__builtins__': safe_builtins}
 
     def _timeout_handler(self, signum, frame):
         """Handle timeout signals."""
@@ -126,6 +116,7 @@ class SandboxExecutor:
 
     def _is_main_thread(self) -> bool:
         """Check if current thread is the main thread."""
+        import threading
         return threading.current_thread() is threading.main_thread()
 
     def _set_timeout_safe(self):
@@ -137,49 +128,27 @@ class SandboxExecutor:
 
     @contextmanager
     def sandbox_context(self):
-        """Context manager for sandboxed execution."""
-        # Store original state
+        """Context manager for sandboxed execution (resource limits, signals, network)."""
         original_signal_handlers = {}
-        
         try:
-            # Set resource limits
             self._set_resource_limits()
-            
-            # Restrict imports and builtins
-            self._restrict_imports()
-            self._restrict_builtins()
-            
             # Set up signal handlers for timeout (only in main thread)
             if self._is_main_thread():
                 original_signal_handlers[signal.SIGALRM] = signal.signal(signal.SIGALRM, self._timeout_handler)
                 self._set_timeout_safe()
             else:
                 logger.warning("Signal-based timeout not available in non-main thread")
-            
             # Disable network access if not allowed
             if not self.allow_network:
                 self._disable_network()
-            
             yield
-            
         except Exception as e:
             logger.error(f"Sandbox execution error: {e}")
             raise
         finally:
-            # Restore original state - properly restore builtins
-            if hasattr(self, '_original_import'):
-                __builtins__.__import__ = self._original_import
-            
-            # Restore blocked functions
-            if hasattr(self, '_original_builtins'):
-                for func_name, func in self._original_builtins.items():
-                    setattr(__builtins__, func_name, func)
-            
             # Restore signal handlers
             for sig, handler in original_signal_handlers.items():
                 signal.signal(sig, handler)
-            
-            # Cancel alarm
             signal.alarm(0)
 
     def _disable_network(self):
@@ -197,41 +166,25 @@ class SandboxExecutor:
             pass  # socket module not available
 
     def execute_safely(self, func: Callable, *args, **kwargs) -> Tuple[Any, Dict]:
-        """Execute a function safely in the sandbox.
-        
-        Args:
-            func: Function to execute
-            *args: Function arguments
-            **kwargs: Function keyword arguments
-            
-        Returns:
-            Tuple of (result, execution_info)
-        """
-        start_time = time.time()
-        execution_info = {
-            'start_time': start_time,
-            'end_time': None,
-            'duration': None,
-            'memory_usage': None,
-            'cpu_usage': None,
-            'success': False,
-            'error': None
-        }
-        
-        try:
-            with self.sandbox_context():
-                result = func(*args, **kwargs)
-                execution_info['success'] = True
-                return result, execution_info
-                
-        except Exception as e:
-            sandbox_error = SandboxError("An error occurred during sandboxed execution.", e)
-            execution_info['error'] = sandbox_error.to_dict()
-            logger.error(f"Sandbox execution failed: {sandbox_error}")
-            return None, execution_info
-        finally:
-            execution_info['end_time'] = time.time()
-            execution_info['duration'] = execution_info['end_time'] - start_time
+        """Execute a function safely in the sandbox."""
+        with self.sandbox_context():
+            safe_globals = self._get_safe_builtins()
+            try:
+                # If func is a string, treat as code to exec
+                if isinstance(func, str):
+                    exec(func, safe_globals)
+                    return None, {"status": "exec completed"}
+                # If func is a callable, pass safe_globals if it accepts globals
+                import inspect
+                sig = inspect.signature(func)
+                if 'globals' in sig.parameters:
+                    result = func(*args, globals=safe_globals, **kwargs)
+                else:
+                    result = func(*args, **kwargs)
+                return result, {"status": "success"}
+            except Exception as e:
+                logger.error(f"Sandboxed execution failed: {e}")
+                return None, {"error": str(e)}
 
     def load_model_safely(self, model_path: str, model_class: type, **kwargs) -> Any:
         """Load a model safely in the sandbox.
