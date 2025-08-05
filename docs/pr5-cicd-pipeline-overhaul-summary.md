@@ -4,7 +4,7 @@
 
 **PR #5: CI/CD Pipeline Overhaul** has been successfully implemented, addressing the core CircleCI conda environment activation issues that were blocking the original monster PR #8. This represents the second phase of the systematic breakdown strategy.
 
-**Status**: 🔄 **IN PROGRESS** - Phase 1 Complete  
+**Status**: 🔄 **IN PROGRESS** - Critical Fix Complete, Ready for Testing  
 **Branch**: `cicd-pipeline-overhaul`  
 **Priority**: HIGH - Core infrastructure issue  
 **Dependencies**: PR #4 ✅ Complete (Documentation & Security)
@@ -14,11 +14,34 @@
 ## 🚀 Phase 1: Environment Setup Simplification - COMPLETE ✅
 
 ### 🔧 Gemini Code Assist Fixes Applied
-- **CRITICAL**: Fixed multi-line command handling with `bash -c` wrapper
-- **MEDIUM**: Combined pip install commands for better performance
-- **MEDIUM**: Updated documentation to reflect corrected implementation
+- Fixed CircleCI restricted parameter issue (`name:` → `step_name:`)
+- Fixed multi-line command handling with `bash -c` wrapper
+- Combined pip install commands for better performance
+- Updated documentation to reflect corrected implementation
 
 ### ✅ Issues Addressed
+
+#### 0. **CircleCI Restricted Parameter Error** - FIXED
+**Problem**: Using `name` as parameter in custom command definition
+```yaml
+# Before (caused CI failure):
+run_in_conda:
+  parameters:
+    name:  # ❌ 'name' is a restricted parameter
+      type: string
+  steps:
+    - run:
+        name: "<< parameters.name >>"
+
+# After (fixed):
+run_in_conda:
+  parameters:
+    step_name:  # ✅ Using non-restricted parameter name
+      type: string
+  steps:
+    - run:
+        name: "<< parameters.step_name >>"
+```
 
 #### 1. **Inconsistent Conda Command Usage** - FIXED
 **Problem**: Mix of `conda run` and direct conda commands
