@@ -162,7 +162,7 @@ async def load_model() -> None:
         logger.info("✅ Model loaded successfully!")
 
     except Exception as e:
-        logger.error("Failed to load model: {e}")
+        logger.error(f"Failed to load model: {e}")
         logger.error(traceback.format_exc())
         raise
 
@@ -308,12 +308,11 @@ async def analyze_emotion(
             processing_time_ms=processing_time * 1000,
         )
 
-    except Exception as e:
-        logger.error("Emotion analysis failed: {e}")
-        logger.error(traceback.format_exc())
+    except Exception:
+        logger.exception("Emotion analysis failed")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Emotion analysis failed: {e}",
+            detail="Emotion analysis processing failed. Please try again later.",
         )
 
 
@@ -382,12 +381,11 @@ async def analyze_emotions_batch(
     except HTTPException:
         raise
 
-    except Exception as e:
-        logger.error("Batch emotion analysis failed: {e}")
-        logger.error(traceback.format_exc())
+    except Exception:
+        logger.exception("Batch emotion analysis failed")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Batch analysis failed: {e}",
+            detail="Batch emotion analysis processing failed. Please try again later.",
         )
 
 
