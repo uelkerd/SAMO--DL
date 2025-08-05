@@ -131,10 +131,10 @@ class HealthMonitor:
             
             # Test internal health endpoint
             from secure_api_server import app
-            from fastapi.testclient import TestClient
             
-            client = TestClient(app)
-            response = client.get("/health")
+            # Use Flask test client instead of FastAPI TestClient
+            with app.test_client() as client:
+                response = client.get("/health")
             
             response_time = (time.time() - start_time) * 1000
             
@@ -227,11 +227,13 @@ class HealthMonitor:
     
     def request_started(self):
         """Track request start"""
-        self.active_requests += 1
+        with self.lock:
+            self.active_requests += 1
     
     def request_completed(self):
         """Track request completion"""
-        self.active_requests = max(0, self.active_requests - 1)
+        with self.lock:
+            self.active_requests = max(0, self.active_requests - 1)
 
 # Global health monitor instance
 health_monitor = HealthMonitor()
