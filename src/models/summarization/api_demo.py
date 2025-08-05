@@ -176,8 +176,8 @@ async def summarize_text(request: SummarizeRequest):
         )
 
     except Exception as e:
-        logger.error("Summarization error: {e}", extra={"format_args": True})
-        raise HTTPException(status_code=500, detail="Summarization failed: {e!s}")
+        logger.error(f"Summarization error: {e}")
+        raise HTTPException(status_code=500, detail=f"Summarization failed: {e}")
 
 
 @app.post("/summarize/batch", response_model=BatchSummarizationResponse)
@@ -228,8 +228,8 @@ async def summarize_batch(request: BatchSummarizationRequest):
         )
 
     except Exception as e:
-        logger.error("Batch summarization error: {e}", extra={"format_args": True})
-        raise HTTPException(status_code=500, detail="Batch summarization failed: {e!s}")
+        logger.error(f"Batch summarization error: {e}")
+        raise HTTPException(status_code=500, detail=f"Batch summarization failed: {e}")
 
 
 @app.get("/model/info")
@@ -265,8 +265,8 @@ async def warm_up_model(background_tasks: BackgroundTasks):
         try:
             summarization_model.generate_summary(sample_text)
             logger.info("Model warm-up completed successfully")
-        except Exception:
-            logger.error("Model warm-up failed: {e}", extra={"format_args": True})
+        except Exception as e:
+            logger.error(f"Model warm-up failed: {e}")
 
     background_tasks.add_task(warm_up)
 
