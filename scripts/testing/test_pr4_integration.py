@@ -64,7 +64,7 @@ class PR4IntegrationTester:
             }
         
         try:
-            with open(self.security_config_path, 'r') as f:
+            with open(self.security_config_path, 'r', encoding='utf-8') as f:
                 config = yaml.safe_load(f)
             
             # Check required sections
