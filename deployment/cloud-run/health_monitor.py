@@ -131,9 +131,9 @@ class HealthMonitor:
             
             # Test internal health endpoint
             from secure_api_server import app
-            from fastapi.testclient import TestClient
             
-            client = TestClient(app)
+            
+            client = app.test_client()
             response = client.get("/health")
             
             response_time = (time.time() - start_time) * 1000
