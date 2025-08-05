@@ -30,7 +30,7 @@ from torch import nn
 from transformers import AutoTokenizer
 
 # Add project root to path
-project_root = Path(__file__).parent.parent.resolve()
+project_root = Path(__file__).parent.parent.parent.resolve()
 sys.path.append(str(project_root))
 
 # Configure logging
