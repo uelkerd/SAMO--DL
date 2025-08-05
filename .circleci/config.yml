@@ -88,7 +88,11 @@ commands:
             conda run -n samo-dl-stable pip install httpx python-multipart psycopg2-binary
             
             # Set PYTHONPATH once (simplified)
-            echo "export PYTHONPATH=$CIRCLE_WORKING_DIRECTORY/src" >> $BASH_ENV
+            if [ -n "$BASH_ENV" ]; then
+              echo "export PYTHONPATH=$CIRCLE_WORKING_DIRECTORY/src" >> "$BASH_ENV"
+            else
+              echo "export PYTHONPATH=$CIRCLE_WORKING_DIRECTORY/src" >> ~/.bashrc
+            fi
             
             echo "✅ Conda environment setup complete!"
 
