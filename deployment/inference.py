@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🚀 EMOTION DETECTION INFERENCE SCRIPT
+EMOTION DETECTION INFERENCE SCRIPT
 =====================================
 Standalone script to run emotion detection on text.
 """
@@ -9,95 +9,83 @@ import torch
 import json
 import numpy as np
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from sklearn.preprocessing import LabelEncoder
+import os
+from pathlib import Path
 
 class EmotionDetector:
-    def __init__(self, model_path="./model"):
+    def __init__(self, model_path=None):
         """Initialize the emotion detector"""
+        if model_path is None:
+            # Use the model directory relative to this script
+            model_path = Path(__file__).parent / "model"
+        
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
+        print(f"🔧 Loading model from: {model_path}")
+        
         # Load model and tokenizer
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_path)
+        self.tokenizer = AutoTokenizer.from_pretrained("roberta-base")
+        self.model = AutoModelForSequenceClassification.from_pretrained(str(model_path))
         self.model.to(self.device)
         self.model.eval()
         
-        # Load label encoder
-        with open(f"{model_path}/label_encoder.json", 'r') as f:
-            label_data = json.load(f)
-            self.label_encoder = LabelEncoder()
-            self.label_encoder.classes_ = np.array(label_data['classes'])
+        # Define emotion mapping based on training order
+        self.emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
         
-        print(f"✅ Model loaded successfully!")
-        print(f"🎯 Device: {self.device}")
-        print(f"📊 Emotions: {list(self.label_encoder.classes_)}")
+        print(f"✅ Model loaded successfully on {self.device}")
     
-    def predict(self, text, return_confidence=True):
+    def predict(self, text):
         """Predict emotion for given text"""
-        # Tokenize input
-        inputs = self.tokenizer(
-            text,
-            truncation=True,
-            padding=True,
-            return_tensors='pt'
-        ).to(self.device)
+        # Tokenize
+        inputs = self.tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
         
-        # Get predictions
+        # Predict
         with torch.no_grad():
             outputs = self.model(**inputs)
             probabilities = torch.softmax(outputs.logits, dim=1)
             predicted_class = torch.argmax(probabilities, dim=1).item()
             confidence = probabilities[0][predicted_class].item()
         
-        # Decode prediction
-        predicted_emotion = self.label_encoder.inverse_transform([predicted_class])[0]
+        # Map to emotion name
+        emotion = self.emotion_mapping[predicted_class]
         
-        if return_confidence:
-            return {
-                'text': text,
-                'emotion': predicted_emotion,
-                'confidence': confidence,
-                'probabilities': {
-                    emotion: prob.item() 
-                    for emotion, prob in zip(self.label_encoder.classes_, probabilities[0])
-                }
-            }
-        else:
-            return predicted_emotion
+        return {
+            "emotion": emotion,
+            "confidence": confidence,
+            "text": text
+        }
     
     def predict_batch(self, texts):
         """Predict emotions for multiple texts"""
         results = []
         for text in texts:
-            results.append(self.predict(text))
+            result = self.predict(text)
+            results.append(result)
         return results
 
 def main():
-    """Example usage"""
+    """Main function for command line usage"""
+    import sys
+    
+    if len(sys.argv) < 2:
+        print("Usage: python inference.py 'Your text here'")
+        print("Example: python inference.py 'I am feeling happy today!'")
+        return
+    
+    text = sys.argv[1]
+    
     # Initialize detector
     detector = EmotionDetector()
     
-    # Test examples
-    test_texts = [
-        "I'm feeling really happy today!",
-        "I'm so frustrated with this project.",
-        "I feel anxious about the presentation.",
-        "I'm grateful for all the support.",
-        "I'm feeling overwhelmed with tasks."
-    ]
+    # Make prediction
+    result = detector.predict(text)
     
-    print("🧪 Testing Emotion Detection Model")
-    print("=" * 50)
-    
-    for text in test_texts:
-        result = detector.predict(text)
-        print(f"Text: {text}")
-        print(f"Emotion: {result['emotion']} (confidence: {result['confidence']:.3f})")
-        print(f"Top 3 predictions:")
-        sorted_probs = sorted(result['probabilities'].items(), key=lambda x: x[1], reverse=True)
-        for emotion, prob in sorted_probs[:3]:
-            print(f"  - {emotion}: {prob:.3f}")
-        print()
+    print(f"\n🎯 EMOTION DETECTION RESULT")
+    print(f"=" * 40)
+    print(f"Text: {result['text']}")
+    print(f"Emotion: {result['emotion']}")
+    print(f"Confidence: {result['confidence']:.3f}")
 
 if __name__ == "__main__":
     main()

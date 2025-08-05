@@ -1,388 +1,680 @@
-# SAMO Deep Learning - Deployment & Infrastructure Guide
+# SAMO Emotion Detection - Deployment Guide
 
-## 📋 Overview
+## Overview
 
-This document provides comprehensive instructions for deploying SAMO Deep Learning models to production environments. It covers Docker configurations, environment management, scaling procedures, and infrastructure requirements.
+This guide covers deployment of the SAMO Emotion Detection API for both local development and production environments. The system supports multiple deployment options including local development, Docker containers, and cloud platforms.
 
-## 🚀 Deployment Environments
+## Prerequisites
 
-### Development
+### System Requirements
+
+- **Python**: 3.8+ (3.12 recommended)
+- **Memory**: 4GB RAM minimum (8GB recommended)
+- **Storage**: 2GB free space for model and dependencies
+- **Network**: Internet access for initial setup
+
+### Software Dependencies
+
+- **Python packages**: See `requirements.txt`
+- **Model files**: Pre-trained emotion detection model
+- **Optional**: Docker for containerized deployment
+
+## Local Development Deployment
+
+### Quick Start
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd SAMO--DL
+   ```
+
+2. **Set up Python environment**
+   ```bash
+   # Create virtual environment
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   
+   # Install dependencies
+   pip install -r requirements.txt
+   ```
+
+3. **Verify model files**
+   ```bash
+   ls -la local_deployment/model/
+   # Should show: config.json, pytorch_model.bin, tokenizer files, etc.
+   ```
+
+4. **Start the API server**
+   ```bash
+   cd local_deployment
+   python api_server.py
+   ```
+
+5. **Test the deployment**
+   ```bash
+   # In another terminal
+   python test_api.py
+   ```
+
+### Detailed Local Setup
+
+#### Step 1: Environment Preparation
 
 ```bash
-# Clone the repository
-git clone https://github.com/organization/samo-dl.git
-cd samo-dl
+# Navigate to project directory
+cd /path/to/SAMO--DL
 
-# Set up environment
-conda env create -f environment.yml
-conda activate samo-dl
+# Create and activate virtual environment
+python -m venv .venv
+source .venv/bin/activate
 
-# Set up environment variables
-cp .env.template .env
-# Edit .env with appropriate values
+# Upgrade pip
+pip install --upgrade pip
 
-# Run development server
-python -m src.unified_ai_api
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-### Testing
+#### Step 2: Model Verification
 
 ```bash
-# Set up testing environment
-conda env create -f environment.yml
-conda activate samo-dl
+# Check model directory structure
+ls -la local_deployment/model/
 
-# Set environment to testing
-export SAMO_ENV=testing
-
-# Run tests
-pytest tests/
+# Expected files:
+# - config.json
+# - pytorch_model.bin
+# - tokenizer.json
+# - tokenizer_config.json
+# - vocab.txt
+# - special_tokens_map.json
 ```
 
-### Production
+#### Step 3: Configuration
 
-Production deployment uses Docker containers orchestrated with Kubernetes.
+The API server uses default configuration. For customization, modify `local_deployment/api_server.py`:
 
-## 🐳 Docker Configuration
+```python
+# Rate limiting (requests per minute)
+RATE_LIMIT_MAX_REQUESTS = 100
 
-### Base Docker Image
+# Server port
+app.run(host='0.0.0.0', port=8000, debug=False)
+```
+
+#### Step 4: Start Server
+
+```bash
+cd local_deployment
+python api_server.py
+```
+
+Expected output:
+```
+🔧 Loading emotion detection model...
+Loading model from: /path/to/SAMO--DL/local_deployment/model
+⚠️ CUDA not available, using CPU
+✅ Model loaded successfully
+🌐 Starting enhanced local API server...
+📋 Available endpoints:
+   GET  / - API documentation
+   GET  /health - Health check with metrics
+   GET  /metrics - Detailed server metrics
+   POST /predict - Single prediction
+   POST /predict_batch - Batch prediction
+🚀 Server starting on http://localhost:8000
+🔒 Rate limiting: 100 requests per 60 seconds
+📊 Monitoring: Comprehensive metrics and logging enabled
+```
+
+#### Step 5: Verification
+
+```bash
+# Health check
+curl http://localhost:8000/health
+
+# Test prediction
+curl -X POST http://localhost:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"text": "I am feeling happy today!"}'
+
+# Run comprehensive tests
+python test_api.py
+```
+
+### Troubleshooting Local Deployment
+
+#### Common Issues
+
+**Port 8000 already in use**
+```bash
+# Find process using port 8000
+lsof -i :8000
+
+# Kill the process
+kill -9 <PID>
+
+# Or use a different port
+# Edit api_server.py and change port=8000 to port=8001
+```
+
+**Model loading errors**
+```bash
+# Check model files
+ls -la local_deployment/model/
+
+# Reinstall transformers
+pip install --upgrade transformers torch
+
+# Check Python version
+python --version  # Should be 3.8+
+```
+
+**Memory issues**
+```bash
+# Monitor memory usage
+htop
+
+# Reduce batch size in api_server.py if needed
+# Look for max_length parameter in tokenizer
+```
+
+**Permission errors**
+```bash
+# Fix file permissions
+chmod +x local_deployment/start.sh
+chmod 755 local_deployment/model/
+```
+
+## Docker Deployment
+
+### Build and Run with Docker
+
+1. **Build the image**
+   ```bash
+   cd deployment
+   docker build -t samo-emotion-api .
+   ```
+
+2. **Run the container**
+   ```bash
+   docker run -p 8000:8000 samo-emotion-api
+   ```
+
+3. **Test the deployment**
+   ```bash
+   curl http://localhost:8000/health
+   ```
+
+### Docker Compose
+
+For easier management, use Docker Compose:
+
+```bash
+cd deployment
+docker-compose up -d
+```
+
+The `docker-compose.yml` file includes:
+- API service
+- Volume mounts for logs
+- Port mapping
+- Health checks
+
+### Custom Docker Configuration
+
+Edit `deployment/dockerfile` for custom configurations:
 
 ```dockerfile
-# docker/Dockerfile.prod
-FROM python:3.10-slim
+# Change base image
+FROM python:3.12-slim
 
+# Add custom dependencies
+RUN pip install --no-cache-dir gunicorn
+
+# Change working directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    git \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy requirements
-COPY pyproject.toml .
-
-# Install Python dependencies
-RUN pip install --no-cache-dir .
-
-# Copy application code
+# Copy application files
 COPY . .
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
-ENV SAMO_ENV=production
+# Expose port
+EXPOSE 8000
 
-# Run the application
-CMD ["python", "-m", "src.unified_ai_api"]
+# Use production server
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "api_server:app"]
 ```
 
-### Docker Compose for Local Testing
+## Production Deployment
 
-```yaml
-# docker-compose.yml
-version: '3'
+### GCP/Vertex AI Deployment
 
-services:
-  app:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.prod
-    ports:
-      - "8000:8000"
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - MODEL_PATH=/app/models/checkpoints/
-    volumes:
-      - ./models/checkpoints:/app/models/checkpoints
-    depends_on:
-      - db
+#### Prerequisites
 
-  db:
-    image: postgres:14
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./scripts/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+1. **Google Cloud SDK**
+   ```bash
+   # Install gcloud CLI
+   curl https://sdk.cloud.google.com | bash
+   exec -l $SHELL
+   gcloud init
+   ```
 
-volumes:
-  postgres_data:
+2. **Enable APIs**
+   ```bash
+   gcloud services enable aiplatform.googleapis.com
+   gcloud services enable cloudbuild.googleapis.com
+   ```
+
+3. **Authentication**
+   ```bash
+   gcloud auth login
+   gcloud config set project YOUR_PROJECT_ID
+   ```
+
+#### Deployment Steps
+
+1. **Prepare deployment package**
+   ```bash
+   python scripts/deploy_to_gcp_vertex_ai.py
+   ```
+
+2. **Deploy to Vertex AI**
+   ```bash
+   # The script will handle the deployment
+   # Monitor progress in the output
+   ```
+
+3. **Verify deployment**
+   ```bash
+   # Get endpoint URL from script output
+   curl https://your-endpoint-url/predict \
+     -H "Content-Type: application/json" \
+     -d '{"text": "I am happy"}'
+   ```
+
+### AWS Deployment
+
+#### Using AWS Lambda
+
+1. **Package the application**
+   ```bash
+   # Create deployment package
+   pip install -r requirements.txt -t package/
+   cp -r local_deployment/* package/
+   cd package
+   zip -r ../lambda-deployment.zip .
+   ```
+
+2. **Deploy to Lambda**
+   ```bash
+   aws lambda create-function \
+     --function-name samo-emotion-api \
+     --runtime python3.9 \
+     --handler api_server.app \
+     --zip-file fileb://lambda-deployment.zip \
+     --timeout 30 \
+     --memory-size 1024
+   ```
+
+#### Using AWS ECS
+
+1. **Create ECS task definition**
+   ```json
+   {
+     "family": "samo-emotion-api",
+     "networkMode": "awsvpc",
+     "requiresCompatibilities": ["FARGATE"],
+     "cpu": "1024",
+     "memory": "2048",
+     "containerDefinitions": [
+       {
+         "name": "samo-emotion-api",
+         "image": "your-ecr-repo/samo-emotion-api:latest",
+         "portMappings": [
+           {
+             "containerPort": 8000,
+             "protocol": "tcp"
+           }
+         ]
+       }
+     ]
+   }
+   ```
+
+2. **Deploy to ECS**
+   ```bash
+   aws ecs register-task-definition --cli-input-json file://task-definition.json
+   aws ecs create-service --cluster your-cluster --service-name samo-emotion-api --task-definition samo-emotion-api
+   ```
+
+### Azure Deployment
+
+#### Using Azure Container Instances
+
+1. **Build and push image**
+   ```bash
+   # Build image
+   docker build -t samo-emotion-api .
+   
+   # Tag for Azure
+   docker tag samo-emotion-api your-registry.azurecr.io/samo-emotion-api:latest
+   
+   # Push to Azure Container Registry
+   docker push your-registry.azurecr.io/samo-emotion-api:latest
+   ```
+
+2. **Deploy to ACI**
+   ```bash
+   az container create \
+     --resource-group your-rg \
+     --name samo-emotion-api \
+     --image your-registry.azurecr.io/samo-emotion-api:latest \
+     --ports 8000 \
+     --dns-name-label samo-emotion-api
+   ```
+
+## Monitoring and Logging
+
+### Local Monitoring
+
+1. **View logs**
+   ```bash
+   tail -f local_deployment/api_server.log
+   ```
+
+2. **Check metrics**
+   ```bash
+   curl http://localhost:8000/metrics | python -m json.tool
+   ```
+
+3. **Health monitoring**
+   ```bash
+   curl http://localhost:8000/health
+   ```
+
+### Production Monitoring
+
+#### GCP Monitoring
+
+```bash
+# Enable monitoring
+gcloud services enable monitoring.googleapis.com
+
+# Create monitoring dashboard
+# Use the /metrics endpoint data
 ```
 
-## ☁️ Kubernetes Deployment
+#### AWS CloudWatch
 
-### Namespace Setup
-
-```yaml
-# kubernetes/namespace.yaml
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: samo-dl
+```bash
+# Create CloudWatch dashboard
+aws cloudwatch put-dashboard \
+  --dashboard-name "SAMO-Emotion-API" \
+  --dashboard-body file://dashboard.json
 ```
 
-### Deployment Configuration
+#### Azure Monitor
 
-```yaml
-# kubernetes/deployment.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: samo-dl-api
-  namespace: samo-dl
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: samo-dl-api
-  template:
-    metadata:
-      labels:
-        app: samo-dl-api
-    spec:
-      containers:
-      - name: api
-        image: ${ECR_REPOSITORY_URI}:${IMAGE_TAG}
-        ports:
-        - containerPort: 8000
-        resources:
-          requests:
-            memory: "2Gi"
-            cpu: "1"
-          limits:
-            memory: "4Gi"
-            cpu: "2"
-        env:
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: samo-dl-secrets
-              key: database-url
-        - name: MODEL_PATH
-          value: "/app/models/checkpoints"
-        volumeMounts:
-        - name: model-volume
-          mountPath: /app/models/checkpoints
-      volumes:
-      - name: model-volume
-        persistentVolumeClaim:
-          claimName: model-storage-pvc
+```bash
+# Enable Application Insights
+az monitor app-insights component create \
+  --app samo-emotion-api \
+  --location eastus \
+  --resource-group your-rg
 ```
 
-### Service Configuration
+## Security Considerations
 
-```yaml
-# kubernetes/service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: samo-dl-api
-  namespace: samo-dl
-spec:
-  selector:
-    app: samo-dl-api
-  ports:
-  - port: 80
-    targetPort: 8000
-  type: ClusterIP
+### Authentication
+
+For production deployments, implement authentication:
+
+```python
+# Add to api_server.py
+from functools import wraps
+import os
+
+def require_api_key(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        api_key = request.headers.get('X-API-Key')
+        if api_key != os.getenv('API_KEY'):
+            return jsonify({'error': 'Invalid API key'}), 401
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Apply to endpoints
+@app.route('/predict', methods=['POST'])
+@require_api_key
+@rate_limit
+def predict():
+    # ... existing code
 ```
 
-### Ingress Configuration
+### HTTPS
 
-```yaml
-# kubernetes/ingress.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: samo-dl-api-ingress
-  namespace: samo-dl
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-spec:
-  tls:
-  - hosts:
-    - api.samo.ai
-    secretName: samo-tls-secret
-  rules:
-  - host: api.samo.ai
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: samo-dl-api
-            port:
-              number: 80
-```
+For production, always use HTTPS:
 
-## 🔐 Secrets Management
+```bash
+# Generate SSL certificate
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
 
-### Kubernetes Secrets
-
-```yaml
-# kubernetes/secrets.yaml (Do not commit this file)
-apiVersion: v1
-kind: Secret
-metadata:
-  name: samo-dl-secrets
-  namespace: samo-dl
-type: Opaque
-data:
-  database-url: <base64-encoded-db-url>
-  api-key: <base64-encoded-api-key>
+# Update server configuration
+app.run(host='0.0.0.0', port=8000, ssl_context=('cert.pem', 'key.pem'))
 ```
 
 ### Environment Variables
 
-Production environment variables are managed through Kubernetes secrets and ConfigMaps. For local development, use `.env` files (never commit these to version control).
-
-## 📊 Scaling Strategies
-
-### Horizontal Pod Autoscaler
-
-```yaml
-# kubernetes/hpa.yaml
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: samo-dl-api-hpa
-  namespace: samo-dl
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: samo-dl-api
-  minReplicas: 3
-  maxReplicas: 10
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
-  - type: Resource
-    resource:
-      name: memory
-      target:
-        type: Utilization
-        averageUtilization: 80
-```
-
-### Model Serving Scaling
-
-For high-throughput inference, consider:
-
-1. **Batch Processing**: Group requests for more efficient processing
-2. **Model Quantization**: Use compressed models in production
-3. **GPU Acceleration**: For high-volume production environments
-
-## 🔄 Continuous Deployment
-
-### CI/CD Pipeline
-
-Our CircleCI pipeline automatically deploys to production when changes are merged to the `main` branch:
-
-1. Build and test application
-2. Build Docker image
-3. Push to ECR repository
-4. Update Kubernetes deployment
-
-### Deployment Commands
+Use environment variables for sensitive configuration:
 
 ```bash
-# Deploy manually (if needed)
-kubectl apply -f kubernetes/namespace.yaml
-kubectl apply -f kubernetes/secrets.yaml
-kubectl apply -f kubernetes/deployment.yaml
-kubectl apply -f kubernetes/service.yaml
-kubectl apply -f kubernetes/ingress.yaml
-kubectl apply -f kubernetes/hpa.yaml
-
-# Check deployment status
-kubectl get pods -n samo-dl
-kubectl get services -n samo-dl
-kubectl get ingress -n samo-dl
+# Create .env file
+API_KEY=your-secret-api-key
+MODEL_PATH=/path/to/model
+RATE_LIMIT_MAX_REQUESTS=100
+LOG_LEVEL=INFO
 ```
 
-## 🔍 Health Checks
+## Performance Optimization
 
-### Liveness Probe
+### Model Optimization
 
-```yaml
-# Add to container spec in deployment.yaml
-livenessProbe:
-  httpGet:
-    path: /health
-    port: 8000
-  initialDelaySeconds: 30
-  periodSeconds: 10
+1. **Quantization**
+   ```python
+   # Add to model loading
+   model = torch.quantization.quantize_dynamic(
+       model, {torch.nn.Linear}, dtype=torch.qint8
+   )
+   ```
+
+2. **ONNX Export**
+   ```python
+   import torch.onnx
+   
+   # Export model to ONNX
+   torch.onnx.export(model, dummy_input, "model.onnx")
+   ```
+
+### Server Optimization
+
+1. **Use Gunicorn**
+   ```bash
+   pip install gunicorn
+   gunicorn --workers 4 --bind 0.0.0.0:8000 api_server:app
+   ```
+
+2. **Enable Caching**
+   ```python
+   from flask_caching import Cache
+   
+   cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+   
+   @cache.memoize(timeout=300)
+   def cached_predict(text):
+       return model.predict(text)
+   ```
+
+## Backup and Recovery
+
+### Model Backup
+
+```bash
+# Create backup
+tar -czf model_backup_$(date +%Y%m%d).tar.gz local_deployment/model/
+
+# Restore from backup
+tar -xzf model_backup_20231201.tar.gz -C local_deployment/
 ```
 
-### Readiness Probe
+### Configuration Backup
 
-```yaml
-# Add to container spec in deployment.yaml
-readinessProbe:
-  httpGet:
-    path: /health/ready
-    port: 8000
-  initialDelaySeconds: 5
-  periodSeconds: 5
+```bash
+# Backup configuration
+cp local_deployment/api_server.py local_deployment/api_server.py.backup
+
+# Restore configuration
+cp local_deployment/api_server.py.backup local_deployment/api_server.py
 ```
 
-## 📝 Deployment Checklist
+## Scaling
 
-Before deploying to production:
+### Horizontal Scaling
 
-1. ✅ Run all tests (`pytest tests/`)
-2. ✅ Check security vulnerabilities (`safety check`)
-3. ✅ Verify model performance metrics
-4. ✅ Update database schema if needed
-5. ✅ Validate environment variables
-6. ✅ Test Docker build locally
-7. ✅ Verify API endpoints with Postman/curl
+1. **Load Balancer Configuration**
+   ```nginx
+   upstream samo_api {
+       server 127.0.0.1:8000;
+       server 127.0.0.1:8001;
+       server 127.0.0.1:8002;
+   }
+   
+   server {
+       listen 80;
+       location / {
+           proxy_pass http://samo_api;
+       }
+   }
+   ```
 
-## 🚨 Troubleshooting
+2. **Multiple Instances**
+   ```bash
+   # Start multiple instances
+   python api_server.py --port 8000 &
+   python api_server.py --port 8001 &
+   python api_server.py --port 8002 &
+   ```
+
+### Vertical Scaling
+
+1. **Increase Resources**
+   ```bash
+   # For Docker
+   docker run -p 8000:8000 --memory=4g --cpus=2 samo-emotion-api
+   
+   # For Kubernetes
+   resources:
+     requests:
+       memory: "2Gi"
+       cpu: "1"
+     limits:
+       memory: "4Gi"
+       cpu: "2"
+   ```
+
+## Maintenance
+
+### Regular Tasks
+
+1. **Log Rotation**
+   ```bash
+   # Set up logrotate
+   sudo logrotate /etc/logrotate.d/samo-api
+   ```
+
+2. **Health Checks**
+   ```bash
+   # Create monitoring script
+   #!/bin/bash
+   response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/health)
+   if [ $response -ne 200 ]; then
+       echo "API is down!"
+       # Send alert
+   fi
+   ```
+
+3. **Performance Monitoring**
+   ```bash
+   # Monitor response times
+   curl -s http://localhost:8000/metrics | jq '.server_metrics.average_response_time_ms'
+   ```
+
+### Updates
+
+1. **Model Updates**
+   ```bash
+   # Backup current model
+   cp -r local_deployment/model local_deployment/model_backup_$(date +%Y%m%d)
+   
+   # Deploy new model
+   cp -r new_model/* local_deployment/model/
+   
+   # Restart server
+   pkill -f api_server
+   python api_server.py &
+   ```
+
+2. **Code Updates**
+   ```bash
+   # Pull latest code
+   git pull origin main
+   
+   # Update dependencies
+   pip install -r requirements.txt
+   
+   # Restart server
+   pkill -f api_server
+   python api_server.py &
+   ```
+
+## Support and Troubleshooting
 
 ### Common Issues
 
-1. **Model Loading Errors**
-   - Check model path in environment variables
-   - Verify model file permissions in container
-   - Ensure model format compatibility
+1. **Server won't start**
+   - Check port availability
+   - Verify Python environment
+   - Check model files
 
-2. **Database Connection Issues**
-   - Verify database URL in secrets
-   - Check network policies allow connection
-   - Confirm database service is running
+2. **High response times**
+   - Monitor system resources
+   - Check for memory leaks
+   - Optimize model loading
 
-3. **Memory/CPU Limits**
-   - Adjust resource requests/limits in deployment.yaml
-   - Monitor resource usage with Prometheus
-   - Consider model optimization if hitting limits
+3. **Rate limiting issues**
+   - Adjust rate limit settings
+   - Check client implementation
+   - Monitor request patterns
 
-## 📈 Performance Optimization
+### Getting Help
 
-### Production Optimizations
+1. **Check logs**
+   ```bash
+   tail -f local_deployment/api_server.log
+   ```
 
-1. **Model Serving**
-   - Use ONNX Runtime for inference
-   - Implement request batching
-   - Consider TorchServe for high-volume deployments
+2. **Run diagnostics**
+   ```bash
+   python scripts/diagnose_issues.py
+   ```
 
-2. **Database**
-   - Use connection pooling
-   - Implement query caching
-   - Consider read replicas for high-load scenarios
+3. **Review metrics**
+   ```bash
+   curl http://localhost:8000/metrics
+   ```
 
-3. **API Performance**
-   - Enable response compression
-   - Implement appropriate caching headers
-   - Use async processing for long-running tasks
+## Conclusion
+
+This deployment guide covers the essential steps for deploying the SAMO Emotion Detection API in various environments. The system is designed to be robust, scalable, and production-ready with comprehensive monitoring and error handling.
+
+For additional support or questions, refer to the API documentation and troubleshooting sections.
