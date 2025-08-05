@@ -498,7 +498,7 @@ class TestSAMOBrainIntegration(unittest.TestCase):
         """Test health check endpoint."""
         health = self.client.health_check()
         self.assertEqual(health["status"], "healthy")
-        self.assertTrue("model_loaded" in health)
+        self.assertTrue("model_status" in health)
     
     def test_emotion_analysis(self):
         """Test emotion analysis endpoint."""
