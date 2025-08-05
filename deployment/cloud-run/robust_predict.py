@@ -8,6 +8,8 @@ Robust Flask API optimized for Cloud Run deployment.
 import os
 import time
 import logging
+import uuid
+import threading
 from flask import Flask, request, jsonify
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -23,8 +25,6 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 # Global variables for model state (thread-safe with locks)
-import threading
-
 model = None
 tokenizer = None
 emotion_mapping = None
@@ -34,6 +34,9 @@ model_lock = threading.Lock()
 
 # Emotion mapping based on training order
 EMOTION_MAPPING = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+
+# Constants
+MAX_INPUT_LENGTH = 512
 
 def load_model():
     """Load the emotion detection model"""
@@ -74,14 +77,12 @@ def load_model():
         logger.info(f"✅ Model loaded successfully on {device}")
         logger.info(f"🎯 Supported emotions: {emotion_mapping}")
         
-    except Exception as e:
+    except Exception:
         model_loading = False
-        logger.error(f"❌ Failed to load model: {e}")
-        raise
+        logger.exception("❌ Failed to load model")
+        # Do not re-raise to maintain secure error handling
     finally:
         model_loading = False
-
-MAX_INPUT_LENGTH = 512
 
 def predict_emotion(text):
     """Predict emotion for given text"""
@@ -115,7 +116,6 @@ def predict_emotion(text):
         "text": text
     }
 
-
 def ensure_model_loaded():
     """Ensure model is loaded before processing requests"""
     if not model_loaded and not model_loading:
@@ -124,6 +124,14 @@ def ensure_model_loaded():
     if not model_loaded:
         raise RuntimeError("Model not loaded")
 
+def create_error_response(message, status_code=500):
+    """Create standardized error response with request ID for debugging"""
+    request_id = str(uuid.uuid4())
+    logger.exception(f"{message} [request_id={request_id}]")
+    return jsonify({
+        'error': message,
+        'request_id': request_id
+    }), status_code
 
 @app.route('/', methods=['GET'])
 def root():
@@ -173,8 +181,7 @@ def predict():
         return jsonify(result)
     
     except Exception:
-        logger.exception("Prediction error")
-        return jsonify({'error': 'Prediction processing failed. Please try again later.'}), 500
+        return create_error_response('Prediction processing failed. Please try again later.')
 
 @app.route('/predict_batch', methods=['POST'])
 def predict_batch():
@@ -208,8 +215,7 @@ def predict_batch():
         return jsonify({'results': results})
     
     except Exception:
-        logger.exception("Batch prediction error")
-        return jsonify({'error': 'Batch prediction processing failed. Please try again later.'}), 500
+        return create_error_response('Batch prediction processing failed. Please try again later.')
 
 @app.route('/emotions', methods=['GET'])
 def get_emotions():
