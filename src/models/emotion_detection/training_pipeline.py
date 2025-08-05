@@ -393,9 +393,11 @@ class EmotionDetectionTrainer:
 
             if batch_idx < 5 or (batch_idx + 1) % 100 == 0:  # First 5 batches + every 100
                 avg_loss = total_loss / (batch_idx + 1)
+                current_lr = self.scheduler.get_last_lr()[0]
                 logger.info(
-                    "Epoch {epoch}, Batch {batch_idx + 1}/{num_batches}, "
-                    "Loss: {avg_loss:.8f}, LR: {current_lr:.2e}"
+                    f"Epoch {epoch}, Batch {batch_idx + 1}/{num_batches}, "
+                    f"Loss: {avg_loss:.8f}, LR: {current_lr:.2e}"
+                )
                 )
 
                 if avg_loss < 1e-8:
