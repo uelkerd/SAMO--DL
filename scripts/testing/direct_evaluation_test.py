@@ -15,7 +15,7 @@
     # Unpack batch data
 # Add src to path
 #!/usr/bin/env python3
-from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 from pathlib import Path
 import logging
 import numpy as np

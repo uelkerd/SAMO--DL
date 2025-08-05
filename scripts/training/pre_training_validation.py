@@ -25,9 +25,9 @@
             # Validate first batch
             # Validate labels
             # Validate outputs
-            from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-            from models.emotion_detection.dataset_loader import create_goemotions_loader
-            from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+            from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+            from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+            from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
             from torch.optim import AdamW
             import pandas as pd
             import shutil
@@ -65,7 +65,7 @@ This script performs comprehensive validation BEFORE training starts to prevent
 issues like 0.0000 loss, data problems, model issues, etc.
 """
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
