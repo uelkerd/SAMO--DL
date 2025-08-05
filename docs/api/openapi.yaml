@@ -40,11 +40,11 @@ info:
 
 servers:
   - url: https://api.samo-project.com/v1
-    description: Production server
+    description: Production server (HTTPS required)
   - url: https://staging-api.samo-project.com/v1
-    description: Staging server
-  - url: http://localhost:8080
-    description: Local development server (development use only, do not use in production)
+    description: Staging server (HTTPS required)
+  - url: https://localhost:8080
+    description: Local development server (HTTPS for security)
 
 security:
   - ApiKeyAuth: []
@@ -223,12 +223,11 @@ components:
           type: string
           enum: [healthy, unhealthy]
           example: "healthy"
-        model_loaded:
-          type: boolean
-          example: true
-        model_loading:
-          type: boolean
-          example: false
+        model_status:
+          type: string
+          enum: [loading, loaded, failed, not_initialized]
+          description: Current status of the model
+          example: "loaded"
         port:
           type: string
           example: "8080"
@@ -238,7 +237,7 @@ components:
           example: 1640995200.0
       required:
         - status
-        - model_loaded
+        - model_status
         - timestamp
 
     PredictRequest:
@@ -327,12 +326,11 @@ components:
     ModelStatusResponse:
       type: object
       properties:
-        model_loaded:
-          type: boolean
-          example: true
-        model_loading:
-          type: boolean
-          example: false
+        model_status:
+          type: string
+          enum: [loading, loaded, failed, not_initialized]
+          description: Current status of the model
+          example: "loaded"
         emotions:
           type: array
           items:
@@ -346,8 +344,7 @@ components:
           format: float
           example: 1640995200.0
       required:
-        - model_loaded
-        - model_loading
+        - model_status
         - device
         - timestamp
 

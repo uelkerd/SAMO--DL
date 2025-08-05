@@ -75,9 +75,12 @@ logging:
   # Error logging
   errors:
     enabled: true
-    include_stack_traces: false  # Production security
     log_to_file: true
     log_to_console: false
+    include_stack_traces:
+      production: false   # Production security
+      development: true   # Enable stack traces for debugging
+      testing: true       # Enable stack traces for test runs
 
 # Environment Security
 environment:
@@ -123,7 +126,7 @@ dependencies:
       - "pip-audit"
     auto_fix: false
     fail_on_critical: true
-    fail_on_high: false
+    fail_on_high: true  # Fail on high-severity vulnerabilities for security
     
   # Update policy
   updates:
