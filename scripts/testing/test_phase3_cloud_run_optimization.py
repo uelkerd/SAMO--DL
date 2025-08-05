@@ -328,7 +328,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         # Test monitoring environment variables
         monitoring_vars = [
             'ENABLE_MONITORING=true',
-            'LOG_LEVEL=info'
+            'ENABLE_HEALTH_CHECKS=true'
         ]
         
         for var in monitoring_vars:
