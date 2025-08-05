@@ -1,6 +1,6 @@
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 import logging
 import pandas as pd
 
@@ -20,7 +20,7 @@ class DataValidator:
 
     def check_missing_values(
         self, df: pd.DataFrame, required_columns: Optional[List[str]] = None
-    ) -> dict[str, float]:
+    ) -> Dict[str, float]:
         """Check for missing values in DataFrame.
 
         Args:

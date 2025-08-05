@@ -14,7 +14,7 @@ Key Features:
 import logging
 import re
 from collections import Counter
-from typing import Any, Union
+from typing import Any, Dict, List, Union
 
 import numpy as np
 import torch
@@ -99,7 +99,7 @@ class GoEmotionsPreprocessor:
         
         return text
 
-    def tokenize_batch(self, texts: list[str]) -> dict[str, torch.Tensor]:
+    def tokenize_batch(self, texts: List[str]) -> Dict[str, torch.Tensor]:
         """Tokenize a batch of texts for BERT processing.
 
         Args:
