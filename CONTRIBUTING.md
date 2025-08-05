@@ -422,7 +422,7 @@ Brief description of changes
    api_key = os.getenv('API_KEY')
    
    # ❌ Bad - Hardcoded secrets
-   api_key = "sk-1234567890abcdef"
+   api_key = "your-api-key-here"  # Never commit real API keys
    ```
 
 3. **SQL Injection Prevention**
