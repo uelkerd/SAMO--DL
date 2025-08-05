@@ -17,11 +17,11 @@ import torch
 from torch import nn
 
 # Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from models.emotion_detection.bert_classifier import WeightedBCELoss
-from models.emotion_detection.dataset_loader import create_goemotions_loader
-from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+from src.models.emotion_detection.bert_classifier import WeightedBCELoss
+from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")

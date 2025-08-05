@@ -13,7 +13,7 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from models.summarization.t5_summarizer import create_t5_summarizer
+from src.models.summarization.t5_summarizer import create_t5_summarizer
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

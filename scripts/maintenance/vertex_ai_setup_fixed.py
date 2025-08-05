@@ -42,7 +42,7 @@ This script sets up Vertex AI infrastructure with correct API syntax
 to solve the 0.0000 loss issue and provide managed ML training.
 """
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)

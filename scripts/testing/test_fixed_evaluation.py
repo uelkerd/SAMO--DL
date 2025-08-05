@@ -6,8 +6,8 @@
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
-from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
-from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 from pathlib import Path
 import logging
 import sys
@@ -22,7 +22,7 @@ This script tests the fixed evaluation function to see if we get
 realistic F1 scores now that the fallback bug is fixed.
 """
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

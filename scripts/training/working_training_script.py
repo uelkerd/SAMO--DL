@@ -6,7 +6,7 @@
         # Step 2: Create optimizer with reduced learning rate
         # Step 3: Test forward pass (this worked in validation)
         # Step 4: Simple training loop with dummy data
-        from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
         import traceback
 # Add src to path
 # Configure logging
@@ -25,7 +25,7 @@ import traceback
 Working Training Script based on the successful local validation approach.
 """
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
