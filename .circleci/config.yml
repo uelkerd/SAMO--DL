@@ -53,34 +53,10 @@ commands:
             sudo apt-get install -y portaudio19-dev python3-pyaudio
             echo "✅ System dependencies installed"
       - run:
-          name: Install and setup Miniconda with environment
+          name: Setup conda environment
           command: |
-            # Install Miniconda
-            wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-            bash miniconda.sh -b -p $HOME/miniconda
-            
-            # Add to PATH and initialize
-            export PATH="$HOME/miniconda/bin:$PATH"
-            conda init bash
-            
-            # Source bashrc to load conda
-            source ~/.bashrc
-            
-            # Create environment
-            conda env create -f environment.yml
-            
-            # Activate environment
-            conda activate samo-dl-stable
-            
-            # Install additional dependencies
-            pip install -e ".[test,dev,prod]"
-            pip install httpx python-multipart psycopg2-binary
-            
-            # Persist environment activation for subsequent steps
-            echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> $BASH_ENV
-            echo "conda activate samo-dl-stable" >> $BASH_ENV
-            
-            echo "✅ Conda environment 'samo-dl-stable' created and activated"
+            chmod +x .circleci/setup_conda.sh
+            source .circleci/setup_conda.sh
 
   # ENHANCED CACHING STRATEGY
   cache_dependencies:
@@ -116,8 +92,7 @@ commands:
       - run:
           name: Pre-warm Models
           command: |
-            source $BASH_ENV
-            conda activate samo-dl-stable
+            source .circleci/activate_conda.sh
             echo "🔥 Pre-warming models..."
             python -c "
             from transformers import AutoTokenizer, AutoModel, AutoModelForSeq2SeqLM
@@ -142,24 +117,21 @@ commands:
       - run:
           name: Ruff Linting
           command: |
-            source $BASH_ENV
-            conda activate samo-dl-stable
+            source .circleci/activate_conda.sh
             echo "🔍 Running Ruff linter..."
             ruff check src/ tests/ --output-format=github || echo "⚠️ Linting issues found but continuing..."
           ignore_failure: true
       - run:
           name: Ruff Formatting Check
           command: |
-            source $BASH_ENV
-            conda activate samo-dl-stable
+            source .circleci/activate_conda.sh
             echo "🎨 Checking code formatting..."
             ruff format --check src/ tests/ || echo "⚠️ Formatting issues found but continuing..."
           ignore_failure: true
       - run:
           name: Type Checking (MyPy) - Optional
           command: |
-            source $BASH_ENV
-            conda activate samo-dl-stable
+            source .circleci/activate_conda.sh
             echo "📝 Running type checking (optional)..."
             python -m mypy src/ --ignore-missing-imports || echo "⚠️ Type checking failed but continuing..."
           no_output_timeout: 10m
@@ -172,8 +144,7 @@ commands:
       - run:
           name: Bandit Security Scan
           command: |
-            source $BASH_ENV
-            conda activate samo-dl-stable
+            source .circleci/activate_conda.sh
             echo "🔒 Running Bandit security scan..."
             bandit -r src/ -f json -o bandit-report.json
 
@@ -183,8 +154,7 @@ commands:
       - run:
           name: Safety Check (Dependencies)
           command: |
-            source $BASH_ENV
-            conda activate samo-dl-stable
+            source .circleci/activate_conda.sh
             echo "🛡️ Checking dependency vulnerabilities..."
             safety check --json --output safety-report.json
 
@@ -194,15 +164,13 @@ commands:
       - run:
           name: API Rate Limiter Tests
           command: |
-            source $BASH_ENV
-            conda activate samo-dl-stable
+            source .circleci/activate_conda.sh
             echo "🧪 Running API Rate Limiter Tests..."
             python scripts/testing/run_api_rate_limiter_tests.py
       - run:
           name: Unit Tests (Sequential - Rate Limiter Tests)
           command: |
-            source $BASH_ENV
-            conda activate samo-dl-stable
+            source .circleci/activate_conda.sh
             echo "🧪 Running rate limiter tests sequentially..."
             python -m pytest tests/unit/test_api_rate_limiter.py \
               --cov=src \
@@ -216,8 +184,7 @@ commands:
       - run:
           name: Unit Tests (Sequential - Other Tests)
           command: |
-            source $BASH_ENV
-            conda activate samo-dl-stable
+            source .circleci/activate_conda.sh
             echo "🧪 Running other unit tests sequentially..."
             python -m pytest tests/unit/ \
               --ignore=tests/unit/test_api_rate_limiter.py \
@@ -293,8 +260,7 @@ jobs:
       - run:
           name: Integration Tests
           command: |
-            source $BASH_ENV
-            conda activate samo-dl-stable
+            source .circleci/activate_conda.sh
             echo "🔗 Running integration tests..."
             python -m pytest tests/integration/ \
               --junit-xml=test-results/integration/results.xml \
@@ -313,8 +279,7 @@ jobs:
       - run:
           name: Comprehensive CI Pipeline Test
           command: |
-            source $BASH_ENV
-            conda activate samo-dl-stable
+            source .circleci/activate_conda.sh
             echo "🚀 Running comprehensive CI pipeline..."
             python scripts/ci/run_full_ci_pipeline.py
       - store_artifacts:
@@ -336,8 +301,7 @@ jobs:
       - run:
           name: End-to-End Tests
           command: |
-            source $BASH_ENV
-            conda activate samo-dl-stable
+            source .circleci/activate_conda.sh
             echo "🎯 Running end-to-end tests..."
             python -m pytest tests/e2e/ \
               --junit-xml=test-results/e2e/results.xml \
@@ -357,15 +321,13 @@ jobs:
       - run:
           name: Model Performance Benchmarks
           command: |
-            source $BASH_ENV
-            conda activate samo-dl-stable
+            source .circleci/activate_conda.sh
             echo "⚡ Running performance benchmarks..."
             python scripts/legacy/optimize_performance.py --benchmark
       - run:
           name: API Response Time Tests
           command: |
-            source $BASH_ENV
-            conda activate samo-dl-stable
+            source .circleci/activate_conda.sh
             echo "🚀 Testing API response times..."
             python -c "
             import time
@@ -404,16 +366,14 @@ jobs:
       - run:
           name: GPU Environment Setup
           command: |
-            source $BASH_ENV
-            conda activate samo-dl-stable
+            source .circleci/activate_conda.sh
             echo "🖥️ Setting up GPU environment..."
             nvidia-smi
             python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
       - run:
           name: GPU Training Test
           command: |
-            source $BASH_ENV
-            conda activate samo-dl-stable
+            source .circleci/activate_conda.sh
             echo "🚀 Testing GPU model training..."
             python -c "
             import torch
