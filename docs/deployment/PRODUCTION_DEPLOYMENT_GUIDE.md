@@ -39,7 +39,7 @@ This guide provides comprehensive instructions for deploying the SAMO-DL emotion
 ### Security Configuration
 ```bash
 # Required environment variables
-export DATABASE_URL="postgresql://user:pass@host:port/db"
+export DATABASE_URL="postgresql://USERNAME:PASSWORD@HOSTNAME:PORT/DATABASE"
 export SECRET_KEY="your-secret-key-here"
 export API_KEY="your-api-key-here"
 export ENVIRONMENT="production"
