@@ -6,11 +6,9 @@ This script validates that the security configurations and documentation
 implemented in PR #4 are properly integrated and functional.
 """
 
-import os
 import sys
 import yaml
-import json
-import requests
+import subprocess
 import subprocess
 from pathlib import Path
 from typing import Dict, List, Any
