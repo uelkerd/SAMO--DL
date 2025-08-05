@@ -177,7 +177,8 @@ async def summarize_text(request: SummarizeRequest):
 
     except Exception as e:
         logger.error(f"Summarization error: {e}")
-        raise HTTPException(status_code=500, detail=f"Summarization failed: {e}")
+        logger.error(f"Exception details: {type(e).__name__}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Summarization processing failed. Please try again later.")
 
 
 @app.post("/summarize/batch", response_model=BatchSummarizationResponse)
@@ -229,7 +230,8 @@ async def summarize_batch(request: BatchSummarizationRequest):
 
     except Exception as e:
         logger.error(f"Batch summarization error: {e}")
-        raise HTTPException(status_code=500, detail=f"Batch summarization failed: {e}")
+        logger.error(f"Exception details: {type(e).__name__}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Batch summarization processing failed. Please try again later.")
 
 
 @app.get("/model/info")
