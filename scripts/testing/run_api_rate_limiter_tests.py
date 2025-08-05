@@ -1,11 +1,14 @@
-        # Clean up temporary file
-        # Print results
-        # Run pytest with the temporary configuration
-        # Run the tests
-    # Create a temporary pytest configuration to avoid conflicts with pyproject.toml
-    # Get the path to the test file
-# Add project root to path
 #!/usr/bin/env python3
+"""
+Run API Rate Limiter Tests
+
+This script explicitly runs the API rate limiter tests to ensure they're discovered
+and included in test coverage metrics.
+
+Usage:
+    python scripts/run_api_rate_limiter_tests.py
+"""
+
 from pathlib import Path
 import contextlib
 import logging
@@ -13,6 +16,10 @@ import os
 import pytest
 import sys
 import tempfile
+
+# Add project root to path
+project_root = Path(__file__).parent.parent.resolve()
+sys.path.append(str(project_root))
 
 
 
