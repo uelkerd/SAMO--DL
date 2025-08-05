@@ -27,6 +27,7 @@ executors:
       PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src
       TOKENIZERS_PARALLELISM: "false"  # Avoid HuggingFace tokenizer warnings
       HF_HOME: /home/circleci/.cache/huggingface  # Explicit cache location
+      PATH: $HOME/miniconda/bin:$PATH  # Add conda to PATH for all jobs
 
   python-gpu:
     machine:
@@ -37,6 +38,7 @@ executors:
     environment:
       PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src
       HF_HOME: /home/circleci/.cache/huggingface
+      PATH: $HOME/miniconda/bin:$PATH  # Add conda to PATH for all jobs
 
 # ============================================================================
 # COMMANDS - Reusable command definitions (SIMPLIFIED)
@@ -56,8 +58,8 @@ commands:
       - run:
           name: "<< parameters.name >>"
           command: |
-            export PATH="$HOME/miniconda/bin:$PATH"
             conda run -n samo-dl-stable << parameters.command >>
+          shell: /bin/bash  # Explicitly specify bash for consistent behavior
 
   setup_python_env:
     description: "Set up conda environment with dependencies (SIMPLIFIED)"
@@ -69,6 +71,7 @@ commands:
             sudo apt-get update
             sudo apt-get install -y portaudio19-dev python3-pyaudio
             echo "✅ System dependencies installed"
+          shell: /bin/bash  # Explicitly specify bash for consistent behavior
       - run:
           name: Install and setup Miniconda (SIMPLIFIED)
           command: |
@@ -76,9 +79,6 @@ commands:
             wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
             bash miniconda.sh -b -p $HOME/miniconda
             rm miniconda.sh
-            
-            # Add to PATH
-            export PATH="$HOME/miniconda/bin:$PATH"
             
             # Create environment directly (no init needed)
             conda env create -f environment.yml
@@ -91,6 +91,7 @@ commands:
             echo "export PYTHONPATH=$CIRCLE_WORKING_DIRECTORY/src" >> $BASH_ENV
             
             echo "✅ Conda environment setup complete!"
+          shell: /bin/bash  # Explicitly specify bash for consistent behavior
 
   # ENHANCED CACHING STRATEGY
   cache_dependencies:
@@ -560,16 +561,20 @@ workflows:
 # SIMPLIFICATION SUMMARY
 #
 # 🚀 SIMPLIFICATIONS MADE:
-# ✅ Removed complex shell script patterns (source ~/.bashrc, shell: /bin/bash)
+# ✅ Removed complex shell script patterns (source ~/.bashrc)
 # ✅ Standardized conda usage with conda run -n samo-dl-stable
 # ✅ Simplified environment setup (no conda init bash)
 # ✅ Fixed PYTHONPATH configuration (single, consistent setting)
 # ✅ Removed subshell issues (no bash -c wrapper)
 # ✅ Streamlined command execution patterns
+# ✅ Moved PATH export to executor environment (reduced duplication)
+# ✅ Explicit bash shell specification for consistent behavior
 #
 # 📈 EXPECTED IMPROVEMENTS:
 # - More reliable conda environment activation
 # - Consistent command execution across all steps
 # - Reduced complexity and potential failure points
 # - Better debugging and troubleshooting
+# - Eliminated PATH export duplication
+# - Consistent shell behavior across all executors
 # ============================================================================
