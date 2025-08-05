@@ -176,7 +176,7 @@ async def summarize_text(request: SummarizeRequest):
         )
 
     except Exception as e:
-        logger.error("Summarization error: {e}", extra={"format_args": True})
+        logger.error(f"Summarization error: {e}")
         raise HTTPException(status_code=500, detail="Summarization failed: {e!s}")
 
 
@@ -228,7 +228,7 @@ async def summarize_batch(request: BatchSummarizationRequest):
         )
 
     except Exception as e:
-        logger.error("Batch summarization error: {e}", extra={"format_args": True})
+        logger.error(f"Batch summarization error: {e}")
         raise HTTPException(status_code=500, detail="Batch summarization failed: {e!s}")
 
 

@@ -12,28 +12,35 @@
         # Create model
         # Create tokenized datasets
         # Extract raw data
-        # Extract texts and labels from raw datasets
-        # Focal loss components
-        # Load dataset
-        # Setup optimizer
-        # Training loop
-        from src.models.emotion_detection.bert_classifier import EmotionDataset
-        from transformers import AutoTokenizer
-        import traceback
-    # Setup device
-# Add project root to path
-# Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
+"""
+Focal Loss Training Script for SAMO Emotion Detection
+
+This script implements focal loss training to improve F1 score
 from the current 13.2% to target >50%.
-from torch import nn
+"""
+
+from pathlib import Path
 import logging
 import os
 import sys
 import torch
 import traceback
+from torch import nn
+from transformers import AutoTokenizer
+
+# Add project root to path
+project_root = Path(__file__).parent.parent.parent.resolve()
+sys.path.append(str(project_root))
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
+# Import after path setup
+from src.models.emotion_detection.bert_classifier import EmotionDataset
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
 
 
 

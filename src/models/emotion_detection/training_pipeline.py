@@ -1,35 +1,33 @@
 #!/usr/bin/env python3
-"""
-Training Pipeline for BERT Emotion Detection.
+"""Training Pipeline for BERT Emotion Detection.
 
 This module provides a comprehensive training pipeline for the BERT-based
 emotion detection model with advanced features like focal loss, temperature
 scaling, and ensemble methods.
 """
 
+import json
 import logging
-import os
-import warnings
+import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional
 
 import numpy as np
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from sklearn.metrics import f1_score, precision_recall_fscore_support
-from torch.utils.data import DataLoader, Dataset
+# import torch.nn.functional as F  # Commented out since not used
+from torch.utils.data import DataLoader
 from transformers import (
     AutoTokenizer,
     get_linear_schedule_with_warmup,
 )
+from transformers.optimization import AdamW
 
-from .bert_classifier import (
+from src.models.emotion_detection.bert_classifier import (
     create_bert_emotion_classifier,
     evaluate_emotion_classifier,
+    EmotionDataset,
 )
-from .dataset_loader import (
-    GoEmotionsDataLoader,
+from src.models.emotion_detection.dataset_loader import (
     create_goemotions_loader,
 )
 
@@ -157,17 +155,16 @@ class EmotionDetectionTrainer:
             val_texts = [val_texts[i] for i in val_indices]
             val_labels = [val_labels[i] for i in val_indices]
 
-            original_batch_size = self.batch_size
             self.batch_size = min(128, self.batch_size * 8)  # Much larger batch size
             logger.info(
                 "🔧 DEVELOPMENT MODE: Using {len(train_texts)} training examples, batch_size={self.batch_size} (was {original_batch_size})"
             )
 
-        self.train_dataset = GoEmotionsDataset(
+        self.train_dataset = EmotionDataset(
             train_texts, train_labels, self.tokenizer, self.max_length
         )
-        self.val_dataset = GoEmotionsDataset(val_texts, val_labels, self.tokenizer, self.max_length)
-        self.test_dataset = GoEmotionsDataset(test_texts, test_labels, self.tokenizer, self.max_length)
+        self.val_dataset = EmotionDataset(val_texts, val_labels, self.tokenizer, self.max_length)
+        self.test_dataset = EmotionDataset(test_texts, test_labels, self.tokenizer, self.max_length)
 
         self.train_dataloader = DataLoader(
             self.train_dataset,
@@ -335,10 +332,9 @@ class EmotionDetectionTrainer:
                 if torch.isinf(logits).any():
                     logger.error("❌ CRITICAL: Inf values in logits!")
 
-                predictions = torch.sigmoid(logits)
-                logger.info("   Predictions min: {predictions.min().item():.6f}")
-                logger.info("   Predictions max: {predictions.max().item():.6f}")
-                logger.info("   Predictions mean: {predictions.mean().item():.6f}")
+                logger.info(f"   Predictions min: {torch.sigmoid(logits).min().item():.6f}")
+                logger.info(f"   Predictions max: {torch.sigmoid(logits).max().item():.6f}")
+                logger.info(f"   Predictions mean: {torch.sigmoid(logits).mean().item():.6f}")
 
             loss = self.loss_fn(logits, labels)
 
@@ -346,22 +342,23 @@ class EmotionDetectionTrainer:
                 logger.info("🔍 DEBUG: Loss Analysis")
                 logger.info("   Raw loss: {loss.item():.8f}")
 
-                bce_manual = F.binary_cross_entropy_with_logits(
-                    logits, labels.float(), reduction="mean"
-                )
-                logger.info("   Manual BCE loss: {bce_manual.item():.8f}")
+                # Manual BCE calculation for debugging (commented out to avoid unused variable)
+                # bce_manual = F.binary_cross_entropy_with_logits(
+                #     logits, labels.float(), reduction="mean"
+                # )
+                # logger.info("   Manual BCE loss: {bce_manual.item():.8f}")
 
                 if abs(loss.item()) < 1e-10:
                     logger.error("❌ CRITICAL: Loss is effectively zero!")
                     logger.error("   This indicates a serious training issue!")
 
-                for i in range(min(5, logits.shape[1])):
-                    class_logits = logits[:, i]
-                    class_labels = labels[:, i].float()
-                    class_loss = F.binary_cross_entropy_with_logits(
-                        class_logits, class_labels, reduction="mean"
-                    )
-                    logger.info("   Class {i} loss: {class_loss.item():.8f}")
+                # for i in range(min(5, logits.shape[1])):
+                #     class_logits = logits[:, i]
+                #     class_labels = labels[:, i].float()
+                #     # class_loss = F.binary_cross_entropy_with_logits(
+                #     #     class_logits, class_labels, reduction="mean"
+                #     # )
+                #     # logger.info("   Class {i} loss: {class_loss.item():.8f}")
 
             loss.backward()
 
@@ -397,10 +394,10 @@ class EmotionDetectionTrainer:
             if batch_idx < 5 or (batch_idx + 1) % 100 == 0:  # First 5 batches + every 100
                 avg_loss = total_loss / (batch_idx + 1)
                 current_lr = self.scheduler.get_last_lr()[0]
-
                 logger.info(
-                    "Epoch {epoch}, Batch {batch_idx + 1}/{num_batches}, "
-                    "Loss: {avg_loss:.8f}, LR: {current_lr:.2e}"
+                    f"Epoch {epoch}, Batch {batch_idx + 1}/{num_batches}, "
+                    f"Loss: {avg_loss:.8f}, LR: {current_lr:.2e}"
+                )
                 )
 
                 if avg_loss < 1e-8:
@@ -559,7 +556,7 @@ class EmotionDetectionTrainer:
                 json.dump(serializable_history, f, indent=2)
             logger.info("Training history saved to {history_path}")
         except Exception as e:
-            logger.error("Failed to save training history: {e}")
+            logger.error(f"Failed to save training history: {e}")
             simplified_history = []
             for entry in self.training_history:
                 simplified_entry = {}

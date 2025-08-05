@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Unified AI API for SAMO Deep Learning.
+"""Unified AI API for SAMO Deep Learning.
 
 This module provides a unified FastAPI interface for all AI models
 in the SAMO Deep Learning pipeline.
@@ -12,7 +11,7 @@ import time
 import traceback
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, AsyncGenerator, Optional
+from typing import Any, AsyncGenerator, Dict, List, Optional
 
 import uvicorn
 from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile
@@ -169,7 +168,7 @@ class JournalEntryRequest(BaseModel):
 class EmotionAnalysis(BaseModel):
     """Emotion analysis results."""
 
-    emotions: dict[str, float] = Field(
+    emotions: Dict[str, float] = Field(
         ..., description="Emotion probabilities", example={"joy": 0.75, "gratitude": 0.65}
     )
     primary_emotion: str = Field(..., description="Most confident emotion", example="joy")
@@ -189,7 +188,7 @@ class TextSummary(BaseModel):
         description="Generated summary",
         example="User expressed joy about their recent promotion and gratitude toward their supportive team.",
     )
-    key_emotions: list[str] = Field(
+    key_emotions: List[str] = Field(
         ..., description="Key emotions identified", example=["joy", "gratitude"]
     )
     compression_ratio: float = Field(
@@ -225,19 +224,19 @@ class CompleteJournalAnalysis(BaseModel):
     processing_time_ms: float = Field(
         ..., description="Total processing time in milliseconds", ge=0, example=450.2
     )
-    pipeline_status: dict[str, bool] = Field(
+    pipeline_status: Dict[str, bool] = Field(
         ...,
         description="Status of each AI component",
         example={"emotion_detection": True, "text_summarization": True, "voice_processing": False},
     )
-    insights: dict[str, Any] = Field(
+    insights: Dict[str, Any] = Field(
         ..., description="Additional insights and metadata", example={"word_count": 12, "language": "en"}
     )
 
 
 # Unified API Endpoints
 @app.get("/health", tags=["System"])
-async def health_check() -> dict[str, Any]:
+async def health_check() -> Dict[str, Any]:
     """Health check endpoint."""
     return {
         "status": "healthy",
@@ -449,7 +448,7 @@ async def analyze_voice_journal(
     summary="Get models status",
     description="Get detailed status information about all AI models in the pipeline",
 )
-async def get_models_status() -> dict[str, Any]:
+async def get_models_status() -> Dict[str, Any]:
     """Get detailed status of all AI models."""
     return {
         "emotion_detector": {
@@ -487,7 +486,7 @@ async def get_models_status() -> dict[str, Any]:
     summary="API information",
     description="Get information about the API endpoints and capabilities",
 )
-async def root() -> dict[str, Any]:
+async def root() -> Dict[str, Any]:
     """Root endpoint with API information."""
     return {
         "message": "SAMO AI Unified API is running",

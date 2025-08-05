@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-API Rate Limiter for SAMO Deep Learning.
+"""API Rate Limiter for SAMO Deep Learning.
 
 This module implements rate limiting for the SAMO API endpoints using FastAPI middleware.
 It uses a token bucket algorithm to limit the rate of requests per user based on API keys
@@ -18,7 +17,7 @@ import time
 import threading
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Callable, Optional
+from typing import Callable, List, Optional
 
 from fastapi import FastAPI, Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -96,7 +95,7 @@ class RateLimiter(BaseHTTPMiddleware):
         rate_limit: int = DEFAULT_RATE_LIMIT,
         window_size: int = DEFAULT_WINDOW_SIZE,
         burst_limit: int = DEFAULT_BURST_LIMIT,
-        excluded_paths: Optional[list[str]] = None,
+        excluded_paths: Optional[List[str]] = None,
         get_client_id: Optional[Callable[[Request], str]] = None,
     ):
         """Initialize rate limiter.
@@ -217,7 +216,7 @@ def add_rate_limiting(
     rate_limit: int = DEFAULT_RATE_LIMIT,
     window_size: int = DEFAULT_WINDOW_SIZE,
     burst_limit: int = DEFAULT_BURST_LIMIT,
-    excluded_paths: Optional[list[str]] = None,
+    excluded_paths: Optional[List[str]] = None,
     get_client_id: Optional[Callable[[Request], str]] = None,
 ) -> None:
     """Add rate limiting middleware to FastAPI app.
@@ -230,17 +229,8 @@ def add_rate_limiting(
         excluded_paths: Paths to exclude from rate limiting
         get_client_id: Function to extract client ID from request
     """
-    middleware = RateLimiter(
-        app=app,
-        rate_limit=rate_limit,
-        window_size=window_size,
-        burst_limit=burst_limit,
-        excluded_paths=excluded_paths,
-        get_client_id=get_client_id,
-    )
-    
     # Add middleware to app
-    app.add_middleware(RateLimiter, 
+    app.add_middleware(RateLimiter,
                       rate_limit=rate_limit,
                       window_size=window_size,
                       burst_limit=burst_limit,

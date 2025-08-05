@@ -4,7 +4,6 @@ End-to-end tests for complete user workflows.
 Tests full system integration, data flow, and user scenarios.
 """
 
-import datetime
 import tempfile
 import time
 from pathlib import Path
@@ -59,7 +58,7 @@ class TestCompleteWorkflows:
         assert isinstance(emotions, dict)
         assert len(emotions) > 0
 
-        for emotion, confidence in emotions.items():
+        for _emotion, confidence in emotions.items():
             assert 0.0 <= confidence <= 1.0
 
         summary = data["summary"]

@@ -22,24 +22,34 @@
         # Validation
     # Create focal loss
     # Create model with class weights
-    # Create simple data loaders (we'll implement proper batching later)
-    # Create zero tensor
-    # Load data to get class weights
-    # Load dataset
-    # Set positive labels to 1
-    # Use different learning rates for different layers
-    from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-    from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-    from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-# Add src to path
-# Configure logging
 #!/usr/bin/env python3
+"""
+Fixed Training Script with Optimized Configuration for SAMO Deep Learning.
+
+This script addresses the 0.0000 loss issue with:
+1. Reduced learning rate (2e-6 instead of 2e-5)
+2. Class weights for imbalanced data
+3. Focal loss for multi-label classification
+4. Proper validation and monitoring
+"""
+
 from pathlib import Path
 from typing import Dict, Any, Tuple
 import logging
 import sys
 import torch
 import torch.nn as nn
+
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
+# Import after path setup
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 
 
 

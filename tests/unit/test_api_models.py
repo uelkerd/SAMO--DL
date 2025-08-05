@@ -1,26 +1,9 @@
-        # All successful responses should have these fields
-        # For now, just validate the test structure
-        # TODO: Implement when API models are available
-        # Test invalid extension
-        # Test invalid language codes
-        # Test invalid thresholds
-        # Test maximum length (e.g., 10,000 characters)
-        # Test minimum length
-        # Test reasonable length
-        # Test valid emotion result
-        # Test valid extensions
-        # Test valid language codes
-        # Test validation logic
-        # This test will need actual model import to work
-from datetime import datetime, timezone
-
-
-
-
 """
 Unit tests for API data models and validation.
 Tests Pydantic models, request/response validation, and data transformations.
 """
+
+from datetime import datetime, timezone
 
 class TestAPIModels:
     """Test suite for API data models."""
@@ -144,7 +127,7 @@ class TestAPIModels:
             assert field in mock_response
 
         assert mock_response["status"] in ["success", "error"]
-        assert isinstance(mock_response["processing_time"], int | float)
+        assert isinstance(mock_response["processing_time"], (int, float))
         assert mock_response["processing_time"] >= 0
 
     def test_error_response_format(self):
