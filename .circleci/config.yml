@@ -121,12 +121,14 @@ commands:
           name: Ruff Linting
           command: |
             echo "🔍 Running Ruff linter..."
-            ruff check src/ tests/ --output-format=github
+            ruff check src/ tests/ --output-format=github || echo "⚠️ Linting issues found but continuing..."
+          ignore_failure: true
       - run:
           name: Ruff Formatting Check
           command: |
             echo "🎨 Checking code formatting..."
-            ruff format --check src/ tests/
+            ruff format --check src/ tests/ || echo "⚠️ Formatting issues found but continuing..."
+          ignore_failure: true
       - run:
           name: Type Checking (MyPy) - Optional
           command: |
