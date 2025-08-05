@@ -24,7 +24,7 @@ executors:
     resource_class: large  # Keep original for compatibility
     working_directory: ~/samo-dl
     environment:
-      PYTHONPATH: /home/circleci/samo-dl/src
+      PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src
       TOKENIZERS_PARALLELISM: "false"  # Avoid HuggingFace tokenizer warnings
       HF_HOME: /home/circleci/.cache/huggingface  # Explicit cache location
 
@@ -35,13 +35,30 @@ executors:
     resource_class: gpu.nvidia.medium  # Keep original for compatibility
     working_directory: ~/samo-dl
     environment:
-      PYTHONPATH: /home/circleci/samo-dl/src
+      PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src
       HF_HOME: /home/circleci/.cache/huggingface
 
 # ============================================================================
 # COMMANDS - Reusable command definitions (OPTIMIZED)
 # ============================================================================
 commands:
+  # REUSABLE CONDA ENVIRONMENT COMMAND
+  setup_conda_env:
+    description: "Setup conda environment with proper PATH and PYTHONPATH"
+    parameters:
+      command:
+        type: string
+        description: "Command to run in conda environment"
+    steps:
+      - run:
+          name: Execute in conda environment
+          command: |
+            export PATH="$HOME/miniconda/bin:$PATH"
+            export PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src:$PYTHONPATH"
+            source ~/.bashrc
+            $HOME/miniconda/bin/conda run -n samo-dl-stable <<< "$<< parameters.command >>"
+          shell: /bin/bash
+
   setup_python_env:
     description: "Set up conda environment with dependencies (OPTIMIZED)"
     steps:
@@ -76,9 +93,9 @@ commands:
             $HOME/miniconda/bin/conda run -n samo-dl-stable pip install -e ".[test,dev,prod]"
             $HOME/miniconda/bin/conda run -n samo-dl-stable pip install httpx python-multipart psycopg2-binary
             
-            # Set PYTHONPATH to include src directory
-            export PYTHONPATH="/home/circleci/samo-dl/src:$PYTHONPATH"
-            echo "export PYTHONPATH=/home/circleci/samo-dl/src:\$PYTHONPATH" >> ~/.bashrc
+            # Set PYTHONPATH to include src directory (dynamic path)
+            export PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src:$PYTHONPATH"
+            echo "export PYTHONPATH=$CIRCLE_WORKING_DIRECTORY/src:\$PYTHONPATH" >> ~/.bashrc
             
             echo "✅ Conda environment setup complete!"
           shell: /bin/bash
@@ -340,7 +357,7 @@ jobs:
           name: Model Loading and Validation
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
-            export PYTHONPATH="/home/circleci/samo-dl/src:$PYTHONPATH"
+            export PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src:$PYTHONPATH"
             source ~/.bashrc
             echo "🤖 Testing model loading and basic validation..."
             $HOME/miniconda/bin/conda run -n samo-dl-stable python -c "
@@ -376,7 +393,7 @@ jobs:
           name: Model Performance Benchmarks
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
-            export PYTHONPATH="/home/circleci/samo-dl/src:$PYTHONPATH"
+            export PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src:$PYTHONPATH"
             source ~/.bashrc
             echo "⚡ Running performance benchmarks..."
             $HOME/miniconda/bin/conda run -n samo-dl-stable python scripts/legacy/optimize_performance.py --benchmark
@@ -384,7 +401,7 @@ jobs:
           name: API Response Time Tests
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
-            export PYTHONPATH="/home/circleci/samo-dl/src:$PYTHONPATH"
+            export PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src:$PYTHONPATH"
             source ~/.bashrc
             echo "🚀 Testing API response times..."
             $HOME/miniconda/bin/conda run -n samo-dl-stable python -c "
@@ -425,7 +442,7 @@ jobs:
           name: GPU Environment Setup
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
-            export PYTHONPATH="/home/circleci/samo-dl/src:$PYTHONPATH"
+            export PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src:$PYTHONPATH"
             source ~/.bashrc
             echo "🖥️ Setting up GPU environment..."
             nvidia-smi
@@ -434,7 +451,7 @@ jobs:
           name: GPU Training Test
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
-            export PYTHONPATH="/home/circleci/samo-dl/src:$PYTHONPATH"
+            export PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src:$PYTHONPATH"
             source ~/.bashrc
             echo "🚀 Testing GPU model training..."
             $HOME/miniconda/bin/conda run -n samo-dl-stable python -c "
