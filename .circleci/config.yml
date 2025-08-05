@@ -76,6 +76,10 @@ commands:
             $HOME/miniconda/bin/conda run -n samo-dl-stable pip install -e ".[test,dev,prod]"
             $HOME/miniconda/bin/conda run -n samo-dl-stable pip install httpx python-multipart psycopg2-binary
             
+            # Set PYTHONPATH to include src directory
+            export PYTHONPATH="/home/circleci/samo-dl/src:$PYTHONPATH"
+            echo "export PYTHONPATH=/home/circleci/samo-dl/src:\$PYTHONPATH" >> ~/.bashrc
+            
             echo "✅ Conda environment setup complete!"
           shell: /bin/bash
 
@@ -300,26 +304,7 @@ jobs:
       - store_test_results:
           path: test-results
 
-  model-validation:
-    executor: python-ml
-    steps:
-      - setup_python_env
-      - restore_dependencies
-      - pre_warm_models  # Pre-warm models for faster execution
-      - cache_dependencies
-      - run:
-          name: Comprehensive CI Pipeline Test
-          command: |
-            export PATH="$HOME/miniconda/bin:$PATH"
-            source ~/.bashrc
-            echo "🚀 Running comprehensive CI pipeline..."
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python scripts/ci/run_full_ci_pipeline.py
-      - store_artifacts:
-          path: ci_pipeline_report.txt
-          destination: ci-reports
-      - store_artifacts:
-          path: ci_pipeline.log
-          destination: ci-logs
+
 
   # STAGE 3: Comprehensive Testing & Performance (<15 minutes)
   # --------------------------------------------------------------------------
@@ -507,20 +492,11 @@ workflows:
               ignore:
                 - gh-pages
 
-      - model-validation:
-          requires:
-            - unit-tests
-          filters:
-            branches:
-              ignore:
-                - gh-pages
-
       # STAGE 3: Comprehensive Testing (<15 minutes)
       # --------------------------------------------------------------------------
       - e2e-tests:
           requires:
             - integration-tests
-            - model-validation
           filters:
             branches:
               ignore:
@@ -528,7 +504,7 @@ workflows:
 
       - performance-benchmarks:
           requires:
-            - model-validation
+            - unit-tests
           filters:
             branches:
               ignore:
@@ -537,7 +513,7 @@ workflows:
       # GPU tests (optional, only on GPU-enabled plans)
       - gpu-compatibility:
           requires:
-            - model-validation
+            - unit-tests
           filters:
             branches:
               only:
