@@ -192,7 +192,7 @@ def secure_endpoint(f):
 class SecureEmotionDetectionModel:
     def __init__(self):
         """Initialize the secure emotion detection model."""
-        self.model_path = os.path.join(os.getcwd(), "model")
+        self.model_path = os.path.join(os.path.dirname(__file__), '..', 'model')
         logger.info(f"Loading secure model from: {self.model_path}")
         
         try:
