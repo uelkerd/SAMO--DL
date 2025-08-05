@@ -1,41 +1,5 @@
 steps:
-  # Build the optimized Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/samo-dl:$COMMIT_SHA', '-f', 'deployment/cloud-run/Dockerfile.secure', '.']
-  
-  # Push the image to Container Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/samo-dl:$COMMIT_SHA']
-  
-  # Deploy to Cloud Run with Phase 3 optimizations
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args:
-      - 'run'
-      - 'deploy'
-      - 'samo-dl-api'
-      - '--image=gcr.io/$PROJECT_ID/samo-dl:$COMMIT_SHA'
-      - '--region=us-central1'
-      - '--platform=managed'
-      - '--allow-unauthenticated'
-      - '--port=8080'
-      - '--memory=2Gi'
-      - '--cpu=2'
-      - '--max-instances=10'
-      - '--min-instances=1'
-      - '--concurrency=80'
-      - '--timeout=300'
-      - '--set-env-vars=ENVIRONMENT=production'
-      - '--set-env-vars=LOG_LEVEL=info'
-      - '--set-env-vars=ENABLE_MONITORING=true'
-      - '--set-env-vars=ENABLE_HEALTH_CHECKS=true'
-      - '--set-env-vars=MAX_REQUESTS_PER_MINUTE=1000'
-      - '--set-env-vars=HEALTH_CHECK_INTERVAL=30'
-      - '--set-env-vars=GRACEFUL_SHUTDOWN_TIMEOUT=30'
-
-# Store images in Container Registry
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/71517823771/samo-dl/samo-emotion-api-secure', '-f', 'Dockerfile.secure', '.']
 images:
-  - 'gcr.io/$PROJECT_ID/samo-dl:$COMMIT_SHA'
-
-# Build timeout (5 minutes for ML model loading)
-timeout: '300s'
+  - 'us-central1-docker.pkg.dev/71517823771/samo-dl/samo-emotion-api-secure'
