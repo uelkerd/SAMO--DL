@@ -192,7 +192,20 @@ class PR4IntegrationTester:
                 }
             
             # Check for critical security packages
-            critical_packages = ['cryptography', 'certifi', 'urllib3']
+            # The list of critical security packages is loaded from security.yaml under the 'critical_packages' key.
+            # These packages are considered critical because:
+            #   - cryptography: Provides secure cryptographic primitives for encryption, hashing, etc.
+            #   - certifi: Ensures up-to-date CA certificates for secure HTTPS connections.
+            #   - urllib3: Secure HTTP client with robust TLS/SSL support.
+            try:
+                with open(self.security_config_path, 'r') as secf:
+                    security_config = yaml.safe_load(secf)
+                critical_packages = security_config.get('critical_packages', ['cryptography', 'certifi', 'urllib3'])
+                if 'critical_packages' not in security_config:
+                    print("⚠️ Warning: 'critical_packages' not found in security.yaml, using default list.")
+            except Exception as e:
+                print(f"⚠️ Warning: Could not read security.yaml for critical_packages: {str(e)}. Using default list.")
+                critical_packages = ['cryptography', 'certifi', 'urllib3']
             missing_critical = [pkg for pkg in critical_packages if pkg not in requirements]
             
             if missing_critical:
