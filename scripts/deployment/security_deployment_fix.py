@@ -14,6 +14,7 @@ This script:
 import os
 import sys
 import subprocess
+import shlex
 import json
 import time
 import requests
@@ -49,7 +50,15 @@ class SecurityDeploymentFix:
         
     def run_command(self, command: List[str], check: bool = True) -> subprocess.CompletedProcess:
         """Run shell command with error handling"""
-        self.log(f"Running: {' '.join(command)}")
+        # Sanitize command for security
+        sanitized_command = []
+        for arg in command:
+            if isinstance(arg, str):
+                sanitized_command.append(shlex.quote(arg))
+            else:
+                sanitized_command.append(str(arg))
+        
+        self.log(f"Running: {' '.join(sanitized_command)}")
         try:
             result = subprocess.run(command, capture_output=True, text=True, check=check)
             if result.stdout:

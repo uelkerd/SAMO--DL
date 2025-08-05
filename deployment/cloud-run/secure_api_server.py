@@ -66,21 +66,27 @@ def require_api_key(f):
         return f(*args, **kwargs)
     return decorated_function
 
+import html
+
 def sanitize_input(text: str) -> str:
-    """Sanitize input text"""
+    """
+    Sanitize input text for safe processing.
+
+    - Ensures input is a string.
+    - Escapes HTML special characters to prevent injection if rendered in HTML.
+    - Trims whitespace and limits length.
+    """
     if not isinstance(text, str):
         raise ValueError("Input must be a string")
-    
-    # Remove potentially dangerous characters
-    dangerous_chars = ['<', '>', '"', "'", '&', ';', '|', '`', '$', '(', ')', '{', '}']
-    for char in dangerous_chars:
-        text = text.replace(char, '')
-    
+
+    # Escape HTML special characters (prevents HTML/script injection)
+    sanitized = html.escape(text)
+
     # Limit length
-    if len(text) > MAX_INPUT_LENGTH:
-        text = text[:MAX_INPUT_LENGTH]
-    
-    return text.strip()
+    if len(sanitized) > MAX_INPUT_LENGTH:
+        sanitized = sanitized[:MAX_INPUT_LENGTH]
+
+    return sanitized.strip()
 
 def load_model():
     """Load the emotion detection model"""
@@ -89,8 +95,8 @@ def load_model():
     with model_lock:
         if model_loading or model_loaded:
             return
+        model_loading = True
     
-    model_loading = True
     logger.info("🔄 Starting model loading...")
     
     try:
@@ -115,24 +121,26 @@ def load_model():
         model.eval()
         
         emotion_mapping = EMOTION_MAPPING
-        model_loaded = True
-        model_loading = False
+        
+        with model_lock:
+            model_loaded = True
+            model_loading = False
         
         logger.info(f"✅ Model loaded successfully on {device}")
         logger.info(f"🎯 Supported emotions: {emotion_mapping}")
         
     except Exception:
-        model_loading = False
+        with model_lock:
+            model_loading = False
         logger.exception("❌ Failed to load model")
-    finally:
-        model_loading = False
 
 def predict_emotion(text: str) -> dict:
     """Predict emotion for given text"""
-    global model, tokenizer, emotion_mapping
+    global model, tokenizer, emotion_mapping, model_loaded, model_lock
     
-    if not model_loaded:
-        raise RuntimeError("Model not loaded")
+    with model_lock:
+        if not model_loaded:
+            raise RuntimeError("Model not loaded")
 
     # Sanitize input
     text = sanitize_input(text)
