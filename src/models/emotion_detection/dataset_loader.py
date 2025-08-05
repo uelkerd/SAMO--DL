@@ -172,7 +172,7 @@ class GoEmotionsDataLoader:
             logger.error(f"Failed to load GoEmotions dataset: {e}")
             raise
 
-    def analyze_dataset_statistics(self) -> dict[str, Any]:
+    def analyze_dataset_statistics(self) -> Dict[str, Any]:
         """Analyze dataset statistics for understanding data distribution.
 
         Returns:

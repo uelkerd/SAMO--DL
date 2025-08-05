@@ -1,0 +1,16 @@
+FROM python:3.9-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy minimal test
+COPY minimal_test.py .
+
+# Make executable
+RUN chmod +x minimal_test.py
+
+# Expose port
+EXPOSE 8080
+
+# Start the minimal test
+CMD ["python", "minimal_test.py"] 

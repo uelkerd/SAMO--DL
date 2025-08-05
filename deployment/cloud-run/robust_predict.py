@@ -1,58 +1,77 @@
+#!/usr/bin/env python3
+"""
+Robust Cloud Run Application for SAMO Emotion Detection
+Following Google Cloud Run best practices and troubleshooting recommendations
+"""
+
 import os
-import json
+import sys
+import time
 import logging
-import threading
+import signal
 from flask import Flask, request, jsonify
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import numpy as np
-from sklearn.metrics import classification_report
-import time
 
-# Configure logging for Cloud Run
+# Configure robust logging for Cloud Run
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),  # Cloud Run expects stdout
+        logging.StreamHandler(sys.stderr)   # Also log to stderr
+    ]
 )
 logger = logging.getLogger(__name__)
 
+# Global variables
 app = Flask(__name__)
-
-# Global variables for model
 model = None
 tokenizer = None
 label_mapping = None
-model_loading = False
 model_loaded = False
+model_loading = False
+
+def signal_handler(signum, frame):
+    """Handle shutdown signals gracefully"""
+    logger.info(f"Received signal {signum}, shutting down gracefully...")
+    sys.exit(0)
+
+# Register signal handlers for graceful shutdown
+signal.signal(signal.SIGTERM, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
 
 def load_model():
-    """Load the emotion detection model"""
-    global model, tokenizer, label_mapping, model_loading, model_loaded
+    """Load the emotion detection model with robust error handling"""
+    global model, tokenizer, label_mapping, model_loaded, model_loading
     
     if model_loading:
+        logger.info("Model loading already in progress...")
         return False
     
     model_loading = True
+    logger.info("Starting model loading process...")
     
     try:
+        # Get model path - Cloud Run specific
         model_path = os.path.join(os.getcwd(), 'model')
-        logger.info(f"Loading model from: {model_path}")
+        logger.info(f"Model path: {model_path}")
         
-        # Check if model files exist
+        # Verify model directory exists
         if not os.path.exists(model_path):
-            logger.error(f"Model path does not exist: {model_path}")
+            logger.error(f"Model directory not found: {model_path}")
             return False
         
         # List model files for debugging
         model_files = os.listdir(model_path)
         logger.info(f"Model files found: {model_files}")
         
-        # Load tokenizer
+        # Load tokenizer with timeout
         logger.info("Loading tokenizer...")
         tokenizer = AutoTokenizer.from_pretrained(model_path)
         logger.info("Tokenizer loaded successfully")
         
-        # Load model
+        # Load model with timeout
         logger.info("Loading model...")
         model = AutoModelForSequenceClassification.from_pretrained(
             model_path,
@@ -61,7 +80,7 @@ def load_model():
         )
         logger.info("Model loaded successfully")
         
-        # Load label mapping
+        # Set label mapping
         label_mapping = {
             0: 'anger',
             1: 'disgust', 
@@ -73,6 +92,7 @@ def load_model():
         }
         
         model_loaded = True
+        model_loading = False
         logger.info("Model loading completed successfully")
         return True
         
@@ -81,18 +101,10 @@ def load_model():
         model_loading = False
         return False
 
-def load_model_async():
-    """Load model in background thread"""
-    def _load():
-        load_model()
-    
-    thread = threading.Thread(target=_load)
-    thread.daemon = True
-    thread.start()
-
 def predict_emotion(text):
-    """Predict emotion for given text"""
+    """Predict emotion with robust error handling"""
     if not model_loaded:
+        logger.warning("Model not loaded, cannot make prediction")
         return None
     
     try:
@@ -127,17 +139,36 @@ def predict_emotion(text):
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    """Health check endpoint for Cloud Run"""
+    """Health check endpoint following Cloud Run best practices"""
+    try:
+        return jsonify({
+            'status': 'healthy',
+            'model_loaded': model_loaded,
+            'model_loading': model_loading,
+            'timestamp': time.time(),
+            'port': os.environ.get('PORT', '8080')
+        }), 200
+    except Exception as e:
+        logger.error(f"Health check failed: {str(e)}")
+        return jsonify({'status': 'unhealthy', 'error': str(e)}), 500
+
+@app.route('/', methods=['GET'])
+def root():
+    """Root endpoint with service information"""
     return jsonify({
-        'status': 'healthy',
+        'service': 'SAMO Emotion Detection API',
+        'version': '1.0.0',
+        'status': 'running',
         'model_loaded': model_loaded,
-        'model_loading': model_loading,
-        'timestamp': time.time()
+        'endpoints': {
+            'health': '/health',
+            'predict': '/predict (POST)'
+        }
     })
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    """Main prediction endpoint"""
+    """Main prediction endpoint with robust error handling"""
     try:
         # Check if model is still loading
         if model_loading:
@@ -151,20 +182,17 @@ def predict():
                 'error': 'Model not loaded'
             }), 503
         
-        # Get request data
-        data = request.get_json()
+        # Validate request
+        if not request.is_json:
+            return jsonify({'error': 'Content-Type must be application/json'}), 400
         
+        data = request.get_json()
         if not data or 'text' not in data:
-            return jsonify({
-                'error': 'Missing text field in request body'
-            }), 400
+            return jsonify({'error': 'Missing text field in request body'}), 400
         
         text = data['text']
-        
         if not text or not text.strip():
-            return jsonify({
-                'error': 'Text cannot be empty'
-            }), 400
+            return jsonify({'error': 'Text cannot be empty'}), 400
         
         # Make prediction
         start_time = time.time()
@@ -172,9 +200,7 @@ def predict():
         prediction_time = time.time() - start_time
         
         if result is None:
-            return jsonify({
-                'error': 'Prediction failed'
-            }), 500
+            return jsonify({'error': 'Prediction failed'}), 500
         
         # Add metadata
         result['prediction_time_ms'] = round(prediction_time * 1000, 2)
@@ -186,36 +212,36 @@ def predict():
         
     except Exception as e:
         logger.error(f"Error in predict endpoint: {str(e)}")
-        return jsonify({
-            'error': 'Internal server error'
-        }), 500
+        return jsonify({'error': 'Internal server error'}), 500
 
-@app.route('/', methods=['GET'])
-def root():
-    """Root endpoint with API information"""
-    return jsonify({
-        'service': 'SAMO Emotion Detection API',
-        'version': '1.0.0',
-        'endpoints': {
-            'health': '/health',
-            'predict': '/predict (POST)'
-        },
-        'model_loaded': model_loaded,
-        'model_loading': model_loading
-    })
+def main():
+    """Main application entry point following Cloud Run best practices"""
+    try:
+        # Get port from environment (Cloud Run requirement)
+        port = int(os.environ.get('PORT', 8080))
+        logger.info(f"Starting SAMO Emotion Detection API on port {port}")
+        
+        # Load model in background (non-blocking)
+        import threading
+        def load_model_async():
+            load_model()
+        
+        model_thread = threading.Thread(target=load_model_async)
+        model_thread.daemon = True
+        model_thread.start()
+        
+        # Start Flask app
+        logger.info("Starting Flask application...")
+        app.run(
+            host='0.0.0.0',  # Cloud Run requirement
+            port=port,
+            debug=False,     # Production mode
+            threaded=True    # Enable threading for concurrent requests
+        )
+        
+    except Exception as e:
+        logger.error(f"Failed to start application: {str(e)}")
+        sys.exit(1)
 
 if __name__ == '__main__':
-    # Start model loading in background
-    logger.info("Starting model loading in background...")
-    load_model_async()
-    
-    # Get port from environment (Cloud Run sets PORT)
-    port = int(os.environ.get('PORT', 8080))
-    logger.info(f"Starting server on port {port}")
-    
-    # Start the server immediately (don't wait for model)
-    app.run(
-        host='0.0.0.0',
-        port=port,
-        debug=False
-    ) 
+    main() 
