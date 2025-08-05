@@ -1,0 +1,397 @@
+"""
+Unit tests for Secure Model Loader.
+
+Tests the secure model loading functionality including:
+- Integrity checking
+- Sandboxed execution
+- Model validation
+- Caching
+- Audit logging
+"""
+
+import os
+import tempfile
+import unittest
+from unittest.mock import Mock, patch, MagicMock
+
+import torch
+import torch.nn as nn
+
+from src.models.secure_loader import (
+    SecureModelLoader,
+    IntegrityChecker,
+    SandboxExecutor,
+    ModelValidator
+)
+
+
+class TestModel(nn.Module):
+    """Simple test model for testing."""
+    
+    def __init__(self, input_size=10, output_size=5):
+        super().__init__()
+        self.linear = nn.Linear(input_size, output_size)
+    
+    def forward(self, x):
+        return self.linear(x)
+
+
+class TestIntegrityChecker(unittest.TestCase):
+    """Test integrity checker functionality."""
+    
+    def setUp(self):
+        self.checker = IntegrityChecker()
+        self.temp_dir = tempfile.mkdtemp()
+        self.test_file = os.path.join(self.temp_dir, "test_model.pt")
+        
+        # Create a simple test model
+        model = TestModel()
+        torch.save({
+            'state_dict': model.state_dict(),
+            'config': {'model_name': 'test', 'num_emotions': 5}
+        }, self.test_file)
+    
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.temp_dir)
+    
+    def test_calculate_checksum(self):
+        """Test checksum calculation."""
+        checksum = self.checker.calculate_checksum(self.test_file)
+        self.assertIsInstance(checksum, str)
+        self.assertEqual(len(checksum), 64)  # SHA-256 hex length
+    
+    def test_validate_file_size(self):
+        """Test file size validation."""
+        is_valid = self.checker.validate_file_size(self.test_file)
+        self.assertTrue(is_valid)
+    
+    def test_validate_file_extension(self):
+        """Test file extension validation."""
+        is_valid = self.checker.validate_file_extension(self.test_file)
+        self.assertTrue(is_valid)
+    
+    def test_scan_for_malicious_content(self):
+        """Test malicious content scanning."""
+        is_safe, findings = self.checker.scan_for_malicious_content(self.test_file)
+        self.assertTrue(is_safe)
+        self.assertEqual(len(findings), 0)
+    
+    def test_verify_checksum(self):
+        """Test checksum verification."""
+        checksum = self.checker.calculate_checksum(self.test_file)
+        is_valid = self.checker.verify_checksum(self.test_file, checksum)
+        self.assertTrue(is_valid)
+    
+    def test_validate_model_structure(self):
+        """Test model structure validation."""
+        is_valid = self.checker.validate_model_structure(self.test_file)
+        self.assertTrue(is_valid)
+    
+    def test_comprehensive_validation(self):
+        """Test comprehensive validation."""
+        is_valid, results = self.checker.comprehensive_validation(self.test_file)
+        self.assertTrue(is_valid)
+        self.assertIn('file_path', results)
+        self.assertIn('size_valid', results)
+        self.assertIn('extension_valid', results)
+
+
+class TestSandboxExecutor(unittest.TestCase):
+    """Test sandbox executor functionality."""
+    
+    def setUp(self):
+        self.executor = SandboxExecutor(
+            max_memory_mb=512,
+            max_cpu_time=10,
+            max_wall_time=20
+        )
+    
+    def test_execute_safely(self):
+        """Test safe execution."""
+        def test_func(x, y):
+            return x + y
+        
+        result, info = self.executor.execute_safely(test_func, 2, 3)
+        self.assertEqual(result, 5)
+        self.assertTrue(info['success'])
+        self.assertIn('duration', info)
+    
+    def test_load_model_safely(self):
+        """Test safe model loading."""
+        with tempfile.NamedTemporaryFile(suffix='.pt', delete=False) as f:
+            model = TestModel()
+            torch.save({
+                'state_dict': model.state_dict(),
+                'config': {'model_name': 'test'}
+            }, f.name)
+            
+            try:
+                result, info = self.executor.load_model_safely(f.name, TestModel)
+                self.assertIsInstance(result, TestModel)
+                self.assertTrue(info['success'])
+            finally:
+                os.unlink(f.name)
+    
+    def test_validate_model_safely(self):
+        """Test safe model validation."""
+        with tempfile.NamedTemporaryFile(suffix='.pt', delete=False) as f:
+            model = TestModel()
+            torch.save({
+                'state_dict': model.state_dict(),
+                'config': {'model_name': 'test'}
+            }, f.name)
+            
+            try:
+                is_valid, info = self.executor.validate_model_safely(f.name)
+                self.assertTrue(is_valid)
+            finally:
+                os.unlink(f.name)
+
+
+class TestModelValidator(unittest.TestCase):
+    """Test model validator functionality."""
+    
+    def setUp(self):
+        self.validator = ModelValidator()
+        self.test_model = TestModel()
+        self.test_config = {
+            'model_name': 'test',
+            'num_emotions': 5,
+            'hidden_dropout_prob': 0.1
+        }
+    
+    def test_validate_model_structure(self):
+        """Test model structure validation."""
+        is_valid, info = self.validator.validate_model_structure(self.test_model)
+        self.assertTrue(is_valid)
+        self.assertIn('model_type', info)
+        self.assertIn('parameter_count', info)
+    
+    def test_validate_model_config(self):
+        """Test model configuration validation."""
+        is_valid, info = self.validator.validate_model_config(self.test_config)
+        self.assertTrue(is_valid)
+        self.assertIn('config_keys', info)
+    
+    def test_validate_model_file(self):
+        """Test model file validation."""
+        with tempfile.NamedTemporaryFile(suffix='.pt', delete=False) as f:
+            torch.save({
+                'state_dict': self.test_model.state_dict(),
+                'config': self.test_config
+            }, f.name)
+            
+            try:
+                is_valid, info = self.validator.validate_model_file(f.name)
+                self.assertTrue(is_valid)
+                self.assertIn('file_size_mb', info)
+            finally:
+                os.unlink(f.name)
+    
+    def test_validate_version_compatibility(self):
+        """Test version compatibility validation."""
+        is_valid, info = self.validator.validate_version_compatibility(self.test_config)
+        self.assertTrue(is_valid)
+        self.assertIn('current_versions', info)
+    
+    def test_validate_model_performance(self):
+        """Test model performance validation."""
+        test_input = torch.randn(1, 10)
+        is_valid, info = self.validator.validate_model_performance(self.test_model, test_input)
+        self.assertTrue(is_valid)
+        self.assertIn('forward_pass_time', info)
+        self.assertIn('output_shape', info)
+
+
+class TestSecureModelLoader(unittest.TestCase):
+    """Test secure model loader functionality."""
+    
+    def setUp(self):
+        self.temp_dir = tempfile.mkdtemp()
+        self.loader = SecureModelLoader(
+            enable_sandbox=False,  # Disable for testing
+            enable_caching=True,
+            cache_dir=self.temp_dir
+        )
+        
+        # Create test model file
+        self.test_model = TestModel()
+        self.test_config = {
+            'model_name': 'test',
+            'num_emotions': 5,
+            'hidden_dropout_prob': 0.1
+        }
+        
+        self.model_file = os.path.join(self.temp_dir, "test_model.pt")
+        torch.save({
+            'state_dict': self.test_model.state_dict(),
+            'config': self.test_config
+        }, self.model_file)
+    
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.temp_dir)
+    
+    def test_load_model(self):
+        """Test secure model loading."""
+        model, info = self.loader.load_model(
+            self.model_file,
+            TestModel,
+            input_size=10,
+            output_size=5
+        )
+        
+        self.assertIsInstance(model, TestModel)
+        self.assertIn('loading_time', info)
+        self.assertIn('cache_used', info)
+        self.assertIn('integrity_check', info)
+        self.assertIn('validation', info)
+    
+    def test_validate_model(self):
+        """Test model validation."""
+        is_valid, info = self.loader.validate_model(
+            self.model_file,
+            TestModel,
+            input_size=10,
+            output_size=5
+        )
+        
+        self.assertTrue(is_valid)
+        self.assertIn('integrity_check', info)
+        self.assertIn('validation', info)
+    
+    def test_caching(self):
+        """Test model caching."""
+        # Load model first time
+        model1, info1 = self.loader.load_model(
+            self.model_file,
+            TestModel,
+            input_size=10,
+            output_size=5
+        )
+        self.assertFalse(info1['cache_used'])
+        
+        # Load model second time (should use cache)
+        model2, info2 = self.loader.load_model(
+            self.model_file,
+            TestModel,
+            input_size=10,
+            output_size=5
+        )
+        self.assertTrue(info2['cache_used'])
+    
+    def test_get_cache_info(self):
+        """Test cache information retrieval."""
+        cache_info = self.loader.get_cache_info()
+        self.assertIn('enabled', cache_info)
+        self.assertIn('cache_dir', cache_info)
+        self.assertIn('cache_size_mb', cache_info)
+    
+    def test_clear_cache(self):
+        """Test cache clearing."""
+        # Load model to populate cache
+        self.loader.load_model(
+            self.model_file,
+            TestModel,
+            input_size=10,
+            output_size=5
+        )
+        
+        # Clear cache
+        self.loader.clear_cache()
+        
+        # Check cache is empty
+        cache_info = self.loader.get_cache_info()
+        self.assertEqual(cache_info['cached_models'], 0)
+    
+    def test_cleanup(self):
+        """Test cleanup functionality."""
+        self.loader.cleanup()
+        # No exceptions should be raised
+
+
+class TestSecureModelLoaderIntegration(unittest.TestCase):
+    """Integration tests for secure model loader."""
+    
+    def setUp(self):
+        self.temp_dir = tempfile.mkdtemp()
+        self.loader = SecureModelLoader(
+            enable_sandbox=True,
+            enable_caching=True,
+            cache_dir=self.temp_dir,
+            audit_log_file=os.path.join(self.temp_dir, "audit.log")
+        )
+        
+        # Create test model file
+        self.test_model = TestModel()
+        self.test_config = {
+            'model_name': 'test',
+            'num_emotions': 5,
+            'hidden_dropout_prob': 0.1
+        }
+        
+        self.model_file = os.path.join(self.temp_dir, "test_model.pt")
+        torch.save({
+            'state_dict': self.test_model.state_dict(),
+            'config': self.test_config
+        }, self.model_file)
+    
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.temp_dir)
+    
+    def test_full_secure_loading_workflow(self):
+        """Test complete secure loading workflow."""
+        # Test input for performance validation
+        test_input = torch.randn(1, 10)
+        
+        # Load model with full security
+        model, info = self.loader.load_model(
+            self.model_file,
+            TestModel,
+            test_input=test_input,
+            input_size=10,
+            output_size=5
+        )
+        
+        # Verify model loaded successfully
+        self.assertIsInstance(model, TestModel)
+        self.assertTrue(info['loading_time'] > 0)
+        
+        # Verify security checks were performed
+        self.assertIn('integrity_check', info)
+        self.assertIn('validation', info)
+        self.assertIn('sandbox_execution', info)
+        
+        # Verify no issues
+        self.assertEqual(len(info['issues']), 0)
+        
+        # Test model inference
+        with torch.no_grad():
+            output = model(test_input)
+        self.assertEqual(output.shape, (1, 5))
+    
+    def test_audit_logging(self):
+        """Test audit logging functionality."""
+        # Load model to generate audit events
+        self.loader.load_model(
+            self.model_file,
+            TestModel,
+            input_size=10,
+            output_size=5
+        )
+        
+        # Check audit log file exists
+        audit_log_path = os.path.join(self.temp_dir, "audit.log")
+        self.assertTrue(os.path.exists(audit_log_path))
+        
+        # Check audit log contains entries
+        with open(audit_log_path, 'r') as f:
+            log_content = f.read()
+            self.assertIn('AUDIT:', log_content)
+            self.assertIn('model_loaded', log_content)
+
+
+if __name__ == '__main__':
+    unittest.main() 
