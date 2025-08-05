@@ -145,7 +145,12 @@ class EmotionDetector:
 def main():
     """Example usage"""
     # Initialize detector
-    detector = EmotionDetector()
+    try:
+        detector = EmotionDetector()
+        print("✅ Model loaded successfully!")
+    except Exception:
+        print("❌ Failed to load model")
+        return
     
     # Test examples
     test_texts = [
@@ -191,8 +196,8 @@ def test_model():
     try:
         detector = EmotionDetector()
         print("✅ Model loaded successfully!")
-    except Exception as e:
-        print(f"❌ Failed to load model: {e}")
+    except Exception:
+        print("❌ Failed to load model")
         return
     
     # Test cases
