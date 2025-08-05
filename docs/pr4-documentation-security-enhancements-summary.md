@@ -126,16 +126,16 @@ Success Rate: 100.0%
 
 ### **Immediate Actions**
 1. **Submit PR #4 for review** - All requirements met, ready for merge
-2. **Begin PR #5: Testing & Quality Assurance** - Implement comprehensive test suite
+2. **Begin PR #5: CI/CD Pipeline Overhaul** - Address core CircleCI conda issues
 3. **Update project status** - Mark PR #4 as complete in breakdown strategy
 
 ### **PR #5 Planning**
-- **Comprehensive test suite implementation**
-- **Security configuration integration tests**
-- **API endpoint validation tests**
-- **Performance testing**
-- **Code quality improvements**
-- **CI/CD pipeline enhancements**
+- **Fix CircleCI conda environment activation issues**
+- **Replace `conda activate` with `conda run -n samo-dl-stable`**
+- **Update `.circleci/config.yml` with robust conda handling**
+- **Remove shell script dependencies causing subshell issues**
+- **Implement consistent conda binary path usage**
+- **Add PYTHONPATH exports for module imports**
 
 ## 📈 **Impact Assessment**
 
@@ -168,4 +168,4 @@ PR #4 has successfully implemented comprehensive documentation and security enha
 **PR #4 Team**: SAMO Development Team  
 **Completion Date**: August 5, 2025  
 **Status**: ✅ **COMPLETE & READY FOR SUBMISSION**  
-**Next Phase**: PR #5 - Testing & Quality Assurance 
+**Next Phase**: PR #5 - CI/CD Pipeline Overhaul 
