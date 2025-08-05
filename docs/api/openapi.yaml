@@ -1,0 +1,377 @@
+openapi: 3.1.0
+info:
+  title: SAMO-DL Emotion Detection API
+  description: |
+    # SAMO-DL Emotion Detection API
+    
+    A production-ready API for emotion detection using advanced deep learning models.
+    
+    ## Features
+    - Real-time emotion detection from text
+    - Batch processing capabilities
+    - High accuracy (99.48% F1 Score)
+    - Production-grade security and monitoring
+    
+    ## Supported Emotions
+    - anxious, calm, content, excited, frustrated, grateful
+    - happy, hopeful, overwhelmed, proud, sad, tired
+    
+    ## Authentication
+    This API requires authentication using API keys. Include your API key in the `X-API-Key` header.
+    
+    ## Rate Limiting
+    - 60 requests per minute per API key
+    - 100 requests per hour per user
+    - Batch requests count as individual requests
+    
+    ## Security
+    - All endpoints use HTTPS
+    - Input validation and sanitization
+    - Rate limiting and abuse prevention
+    - Comprehensive logging and monitoring
+  version: 1.0.0
+  contact:
+    name: SAMO-DL Team
+    email: support@samo-project.com
+    url: https://samo-project.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.samo-project.com/v1
+    description: Production server (HTTPS required)
+  - url: https://staging-api.samo-project.com/v1
+    description: Staging server (HTTPS required)
+  - url: https://localhost:8080
+    description: Local development server (HTTPS for security)
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: Check the health status of the API and model
+      tags:
+        - Health
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: API is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /predict:
+    post:
+      summary: Predict Emotion
+      description: Predict emotion from a single text input
+      tags:
+        - Prediction
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PredictRequest'
+            examples:
+              happy_text:
+                summary: Happy text example
+                value:
+                  text: "I'm feeling really happy today! Everything is going well."
+              sad_text:
+                summary: Sad text example
+                value:
+                  text: "I'm feeling sad and lonely today."
+      responses:
+        '200':
+          description: Successful prediction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /predict_batch:
+    post:
+      summary: Batch Predict Emotions
+      description: Predict emotions from multiple text inputs
+      tags:
+        - Prediction
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchPredictRequest'
+            examples:
+              mixed_emotions:
+                summary: Mixed emotions example
+                value:
+                  texts:
+                    - "I'm feeling really happy today!"
+                    - "I'm so frustrated with this project."
+                    - "I feel calm and peaceful right now."
+      responses:
+        '200':
+          description: Successful batch prediction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchPredictResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /emotions:
+    get:
+      summary: Get Supported Emotions
+      description: Get list of all supported emotions
+      tags:
+        - Information
+      responses:
+        '200':
+          description: List of supported emotions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmotionsResponse'
+
+  /model_status:
+    get:
+      summary: Model Status
+      description: Get detailed model status and information
+      tags:
+        - Information
+      responses:
+        '200':
+          description: Model status information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelStatusResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
+
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy]
+          example: "healthy"
+        model_status:
+          type: string
+          enum: [loading, loaded, failed, not_initialized]
+          description: Current status of the model
+          example: "loaded"
+        port:
+          type: string
+          example: "8080"
+        timestamp:
+          type: number
+          format: float
+          example: 1640995200.0
+      required:
+        - status
+        - model_status
+        - timestamp
+
+    PredictRequest:
+      type: object
+      properties:
+        text:
+          type: string
+          description: Text to analyze for emotion
+          minLength: 1
+          maxLength: 1000
+          example: "I'm feeling really happy today!"
+      required:
+        - text
+
+    PredictResponse:
+      type: object
+      properties:
+        emotion:
+          type: string
+          enum: [anxious, calm, content, excited, frustrated, grateful, happy, hopeful, overwhelmed, proud, sad, tired]
+          example: "happy"
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          example: 0.95
+        text:
+          type: string
+          example: "I'm feeling really happy today!"
+        probabilities:
+          type: object
+          additionalProperties:
+            type: number
+            format: float
+          example:
+            happy: 0.95
+            excited: 0.03
+            grateful: 0.02
+      required:
+        - emotion
+        - confidence
+        - text
+
+    BatchPredictRequest:
+      type: object
+      properties:
+        texts:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 1000
+          minItems: 1
+          maxItems: 50
+          example: ["I'm happy!", "I'm sad."]
+      required:
+        - texts
+
+    BatchPredictResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PredictResponse'
+      required:
+        - results
+
+    EmotionsResponse:
+      type: object
+      properties:
+        emotions:
+          type: array
+          items:
+            type: string
+            enum: [anxious, calm, content, excited, frustrated, grateful, happy, hopeful, overwhelmed, proud, sad, tired]
+          example: ["anxious", "calm", "content", "excited", "frustrated", "grateful", "happy", "hopeful", "overwhelmed", "proud", "sad", "tired"]
+        count:
+          type: integer
+          example: 12
+      required:
+        - emotions
+        - count
+
+    ModelStatusResponse:
+      type: object
+      properties:
+        model_status:
+          type: string
+          enum: [loading, loaded, failed, not_initialized]
+          description: Current status of the model
+          example: "loaded"
+        emotions:
+          type: array
+          items:
+            type: string
+          example: ["anxious", "calm", "content", "excited", "frustrated", "grateful", "happy", "hopeful", "overwhelmed", "proud", "sad", "tired"]
+        device:
+          type: string
+          example: "cpu"
+        timestamp:
+          type: number
+          format: float
+          example: 1640995200.0
+      required:
+        - model_status
+        - device
+        - timestamp
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Prediction processing failed. Please try again later."
+        request_id:
+          type: string
+          format: uuid
+          description: Unique request ID for debugging
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        code:
+          type: string
+          description: Error code
+          example: "PREDICTION_ERROR"
+      required:
+        - error
+        - request_id
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Prediction
+    description: Emotion prediction endpoints
+  - name: Information
+    description: Information and status endpoints 

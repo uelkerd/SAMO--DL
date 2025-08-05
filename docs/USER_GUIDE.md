@@ -344,7 +344,7 @@ curl http://localhost:8000/health
 ```json
 {
   "status": "healthy",
-  "model_loaded": true,
+  "model_status": "loaded",
   "model_version": "2.0",
   "uptime_seconds": 1234.5,
   "metrics": {
