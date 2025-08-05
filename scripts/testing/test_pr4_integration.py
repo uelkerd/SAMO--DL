@@ -11,7 +11,7 @@ import yaml
 import subprocess
 import subprocess
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, Any
 
 class PR4IntegrationTester:
     """Integration tester for PR #4 security and documentation enhancements."""
