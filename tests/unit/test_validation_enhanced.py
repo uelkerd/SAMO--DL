@@ -98,6 +98,24 @@ class TestDataValidatorEnhanced:
         assert 'issues' in results
         assert 'cleaned_data' in results
 
+        # Assert the expected value of 'is_valid'
+        assert isinstance(results['is_valid'], bool)
+        # For this test data, it should be valid
+        assert results['is_valid'] is True
+
+        # Assert the structure/type of 'issues'
+        assert isinstance(results['issues'], list)
+        # For valid data, there should be no issues
+        assert len(results['issues']) == 0
+
+        # Assert the structure/type of 'cleaned_data'
+        import pandas as pd
+        assert isinstance(results['cleaned_data'], pd.DataFrame)
+        # Should have the same columns as input
+        assert list(results['cleaned_data'].columns) == list(self.test_df.columns)
+        # Should have the same number of rows
+        assert len(results['cleaned_data']) == len(self.test_df)
+
     def test_validate_journal_entries_with_required_columns(self):
         """Test journal entries validation with required columns."""
         results = self.validator.validate_journal_entries(
