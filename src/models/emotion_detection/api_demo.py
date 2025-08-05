@@ -382,8 +382,8 @@ async def analyze_emotions_batch(
     except HTTPException:
         raise
 
-    except Exception:
-        logger.error("Batch emotion analysis failed: {e}")
+    except Exception as e:
+        logger.error(f"Batch emotion analysis failed: {e}")
         logger.error(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
