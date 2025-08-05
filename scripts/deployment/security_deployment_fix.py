@@ -756,8 +756,8 @@ images:
             for _ in range(105):  # Exceed rate limit
                 response = requests.post(
                     f"{service_url}/predict",
-                    json={{'text': 'test'}},
-                    headers={{'Content-Type': 'application/json'}},
+                    json={'text': 'test'},
+                    headers={'Content-Type': 'application/json'},
                     timeout=5
                 )
                 responses.append(response.status_code)

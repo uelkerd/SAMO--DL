@@ -34,7 +34,9 @@ app = Flask(__name__)
 add_security_headers(app)
 
 # Security configuration
-ADMIN_API_KEY = "samo-admin-key-2024-secure-1754433255"
+ADMIN_API_KEY = os.environ.get('ADMIN_API_KEY')
+if not ADMIN_API_KEY:
+    logger.warning("ADMIN_API_KEY environment variable is not set. API authentication will fail.")
 MAX_INPUT_LENGTH = 512
 RATE_LIMIT_PER_MINUTE = 100
 
