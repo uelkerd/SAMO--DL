@@ -58,7 +58,7 @@ commands:
       - run:
           name: "<< parameters.name >>"
           command: |
-            conda run -n samo-dl-stable << parameters.command >>
+            conda run -n samo-dl-stable bash -c "<< parameters.command >>"
           shell: /bin/bash  # Explicitly specify bash for consistent behavior
 
   setup_python_env:
@@ -84,8 +84,7 @@ commands:
             conda env create -f environment.yml
             
             # Install additional dependencies
-            conda run -n samo-dl-stable pip install -e ".[test,dev,prod]"
-            conda run -n samo-dl-stable pip install httpx python-multipart psycopg2-binary
+            conda run -n samo-dl-stable pip install -e ".[test,dev,prod]" httpx python-multipart psycopg2-binary
             
             # Set PYTHONPATH once (simplified)
             if [ -n "$BASH_ENV" ]; then
