@@ -35,7 +35,7 @@ conda run -n samo-dl-stable pip install -e ".[test,dev,prod]"
 # Before (problematic):
 shell: /bin/bash
 source ~/.bashrc
-$HOME/miniconda/bin/conda run -n samo-dl-stable bash -c "$<< parameters.command >>"
+$HOME/miniconda/bin/conda run -n samo-dl-stable bash -c "<< parameters.command >>"
 
 # After (simplified):
 export PATH="$HOME/miniconda/bin:$PATH"
