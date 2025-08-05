@@ -11,7 +11,12 @@
 
 ---
 
-## 🚀 Phase 1: Environment Setup Simplification - COMPLETE
+## 🚀 Phase 1: Environment Setup Simplification - COMPLETE ✅
+
+### 🔧 Gemini Code Assist Fixes Applied
+- **CRITICAL**: Fixed multi-line command handling with `bash -c` wrapper
+- **MEDIUM**: Combined pip install commands for better performance
+- **MEDIUM**: Updated documentation to reflect corrected implementation
 
 ### ✅ Issues Addressed
 
@@ -24,9 +29,9 @@ $HOME/miniconda/bin/conda env create -f environment.yml
 $HOME/miniconda/bin/conda run -n samo-dl-stable pip install -e ".[test,dev,prod]"
 
 # After (standardized):
-conda run -n samo-dl-stable << parameters.command >>
+conda run -n samo-dl-stable bash -c "<< parameters.command >>"
 conda env create -f environment.yml
-conda run -n samo-dl-stable pip install -e ".[test,dev,prod]"
+conda run -n samo-dl-stable pip install -e ".[test,dev,prod]" httpx python-multipart psycopg2-binary
 ```
 
 #### 2. **Shell Script Dependencies** - FIXED
@@ -38,8 +43,7 @@ source ~/.bashrc
 $HOME/miniconda/bin/conda run -n samo-dl-stable bash -c "<< parameters.command >>"
 
 # After (simplified):
-export PATH="$HOME/miniconda/bin:$PATH"
-conda run -n samo-dl-stable << parameters.command >>
+conda run -n samo-dl-stable bash -c "<< parameters.command >>"
 ```
 
 #### 3. **PYTHONPATH Configuration Issues** - FIXED
@@ -94,8 +98,8 @@ run_in_conda:
     - run:
         name: "<< parameters.name >>"
         command: |
-          export PATH="$HOME/miniconda/bin:$PATH"
-          conda run -n samo-dl-stable << parameters.command >>
+          conda run -n samo-dl-stable bash -c "<< parameters.command >>"
+        shell: /bin/bash  # Explicitly specify bash for consistent behavior
 ```
 
 ### 2. **Streamlined Environment Setup**
