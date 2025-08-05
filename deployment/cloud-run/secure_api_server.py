@@ -34,7 +34,7 @@ app = Flask(__name__)
 add_security_headers(app)
 
 # Security configuration
-ADMIN_API_KEY = "samo-admin-key-2024-secure-1754432743"
+ADMIN_API_KEY = "samo-admin-key-2024-secure-1754433255"
 MAX_INPUT_LENGTH = 512
 RATE_LIMIT_PER_MINUTE = 100
 
