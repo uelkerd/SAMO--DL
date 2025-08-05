@@ -22,7 +22,17 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 # Configuration
-PROJECT_ID = "71517823771"
+def get_project_id():
+    """Get current GCP project ID dynamically"""
+    try:
+        result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], 
+                              capture_output=True, text=True, check=True)
+        return result.stdout.strip()
+    except subprocess.CalledProcessError:
+        # Fallback to environment variable or default
+        return os.environ.get('GOOGLE_CLOUD_PROJECT', 'the-tendril-466607-n8')
+
+PROJECT_ID = get_project_id()
 REGION = "us-central1"
 SERVICE_NAME = "samo-emotion-api-secure"
 MODEL_PATH = "/app/model"
