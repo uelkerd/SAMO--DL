@@ -48,7 +48,7 @@ commands:
   run_in_conda:
     description: "Run command in conda environment (SIMPLIFIED)"
     parameters:
-      name:
+      step_name:
         type: string
         description: "Name of the step"
       command:
@@ -56,7 +56,7 @@ commands:
         description: "Command to run in conda environment"
     steps:
       - run:
-          name: "<< parameters.name >>"
+          name: "<< parameters.step_name >>"
           command: |
             conda run -n samo-dl-stable bash -c "<< parameters.command >>"
           shell: /bin/bash  # Explicitly specify bash for consistent behavior
@@ -128,7 +128,7 @@ commands:
     description: "Pre-download and cache models for faster CI execution"
     steps:
       - run_in_conda:
-          name: "Pre-warm Models"
+          step_name: "Pre-warm Models"
           command: |
             echo "🔥 Pre-warming models..."
             python -c "
@@ -152,17 +152,17 @@ commands:
     description: "Run comprehensive code quality checks"
     steps:
       - run_in_conda:
-          name: "Ruff Linting"
+          step_name: "Ruff Linting"
           command: |
             echo "🔍 Running Ruff linter..."
             ruff check src/ tests/ --output-format=github || echo "⚠️ Linting issues found but continuing..."
       - run_in_conda:
-          name: "Ruff Formatting Check"
+          step_name: "Ruff Formatting Check"
           command: |
             echo "🎨 Checking code formatting..."
             ruff format --check src/ tests/ || echo "⚠️ Formatting issues found but continuing..."
       - run_in_conda:
-          name: "Type Checking (MyPy) - Optional"
+          step_name: "Type Checking (MyPy) - Optional"
           command: |
             echo "📝 Running type checking (optional)..."
             python -m mypy src/ --ignore-missing-imports || echo "⚠️ Type checking failed but continuing..."
@@ -172,7 +172,7 @@ commands:
     description: "Run Bandit security scan (parallel)"
     steps:
       - run_in_conda:
-          name: "Bandit Security Scan"
+          step_name: "Bandit Security Scan"
           command: |
             echo "🔒 Running Bandit security scan..."
             bandit -r src/ -f json -o bandit-report.json
@@ -181,7 +181,7 @@ commands:
     description: "Run Safety dependency check (parallel)"
     steps:
       - run_in_conda:
-          name: "Safety Check (Dependencies)"
+          step_name: "Safety Check (Dependencies)"
           command: |
             echo "🛡️ Checking dependency vulnerabilities..."
             safety check --json --output safety-report.json
@@ -190,12 +190,12 @@ commands:
     description: "Run unit tests with coverage (SIMPLIFIED)"
     steps:
       - run_in_conda:
-          name: "API Rate Limiter Tests"
+          step_name: "API Rate Limiter Tests"
           command: |
             echo "🧪 Running API Rate Limiter Tests..."
             python scripts/testing/run_api_rate_limiter_tests.py
       - run_in_conda:
-          name: "Unit Tests (Sequential - Rate Limiter Tests)"
+          step_name: "Unit Tests (Sequential - Rate Limiter Tests)"
           command: |
             echo "🧪 Running rate limiter tests sequentially..."
             python -m pytest tests/unit/test_api_rate_limiter.py \
@@ -206,7 +206,7 @@ commands:
               --junit-xml=test-results/unit/results.xml \
               -v
       - run_in_conda:
-          name: "Unit Tests (Parallel - Other Tests)"
+          step_name: "Unit Tests (Parallel - Other Tests)"
           command: |
             echo "🧪 Running other unit tests with parallel execution..."
             python -m pytest tests/unit/ \
@@ -280,7 +280,7 @@ jobs:
       - pre_warm_models  # Pre-warm models for faster execution
       - cache_dependencies
       - run_in_conda:
-          name: Integration Tests
+          step_name: Integration Tests
           command: |
             echo "🔗 Running integration tests..."
             python -m pytest tests/integration/ \
@@ -300,7 +300,7 @@ jobs:
       - pre_warm_models  # Pre-warm models for faster execution
       - cache_dependencies
       - run_in_conda:
-          name: End-to-End Tests
+          step_name: End-to-End Tests
           command: |
             echo "🎯 Running end-to-end tests..."
             python -m pytest tests/e2e/ \
@@ -319,7 +319,7 @@ jobs:
       - pre_warm_models  # Pre-warm models for faster execution
       - cache_dependencies
       - run_in_conda:
-          name: Model Loading and Validation
+          step_name: Model Loading and Validation
           command: |
             echo "🤖 Testing model loading and basic validation..."
             python -c "
@@ -352,12 +352,12 @@ jobs:
       - pre_warm_models  # Pre-warm models for faster execution
       - cache_dependencies
       - run_in_conda:
-          name: Model Performance Benchmarks
+          step_name: Model Performance Benchmarks
           command: |
             echo "⚡ Running performance benchmarks..."
             python scripts/legacy/optimize_performance.py --benchmark
       - run_in_conda:
-          name: API Response Time Tests
+          step_name: API Response Time Tests
           command: |
             echo "🚀 Testing API response times..."
             python -c "
@@ -395,13 +395,13 @@ jobs:
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
       - run_in_conda:
-          name: GPU Environment Setup
+          step_name: GPU Environment Setup
           command: |
             echo "🖥️ Setting up GPU environment..."
             nvidia-smi
             python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
       - run_in_conda:
-          name: GPU Training Test
+          step_name: GPU Training Test
           command: |
             echo "🚀 Testing GPU model training..."
             python -c "
