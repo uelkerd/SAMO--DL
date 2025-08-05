@@ -20,7 +20,7 @@
     # Set device
     # Test different temperatures
 #!/usr/bin/env python3
-from models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
 from pathlib import Path
 from torch.utils.data import DataLoader
 import json

@@ -1,6 +1,6 @@
         # Start training
         # Training configuration with debugging
-        from models.emotion_detection.training_pipeline import train_emotion_detection_model
+        from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
         import traceback
 # Add src to path
 # Configure logging
@@ -21,7 +21,7 @@ This script restarts the emotion detection training with comprehensive debugging
 to identify the root cause of the 0.0000 loss issue.
 """
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 logging.basicConfig(
     level=logging.INFO,

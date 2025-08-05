@@ -3,8 +3,8 @@
     # --- Load Model ---
     # --- Report Results ---
 #!/usr/bin/env python3
-from models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
-from models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from pathlib import Path
 from sklearn.metrics import f1_score
 from torch.utils.data import DataLoader

@@ -38,7 +38,7 @@
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
-from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 from pathlib import Path
 from torch import nn
 from transformers import AutoTokenizer
@@ -66,7 +66,7 @@ Target: <500ms response time for 95th percentile requests
 Current: 614ms (from training logs)
 """
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
