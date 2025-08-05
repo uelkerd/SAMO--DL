@@ -161,7 +161,7 @@ commands:
           name: API Rate Limiter Tests
           command: |
             echo "🧪 Running API Rate Limiter Tests..."
-            python scripts/run_api_rate_limiter_tests.py
+            python scripts/testing/run_api_rate_limiter_tests.py
       - run:
           name: Unit Tests (Sequential - Rate Limiter Tests)
           command: |
@@ -313,7 +313,7 @@ jobs:
           name: Model Performance Benchmarks
           command: |
             echo "⚡ Running performance benchmarks..."
-            python scripts/optimize_performance.py --benchmark
+            python scripts/legacy/optimize_performance.py --benchmark
       - run:
           name: API Response Time Tests
           command: |
