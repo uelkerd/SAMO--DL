@@ -28,9 +28,9 @@
     # Load dataset
     # Set positive labels to 1
     # Use different learning rates for different layers
-    from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-    from models.emotion_detection.dataset_loader import create_goemotions_loader
-    from models.emotion_detection.dataset_loader import create_goemotions_loader
+    from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+    from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+    from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
@@ -55,7 +55,7 @@ This script addresses the 0.0000 loss issue with:
 4. Proper validation and monitoring
 """
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)

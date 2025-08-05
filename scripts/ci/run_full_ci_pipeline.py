@@ -205,7 +205,7 @@ class CIPipelineRunner:
             sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
             
             # Test BERT on GPU
-            from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+            from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
             model = BERTEmotionClassifier().to(device)
             
             # Test forward pass
@@ -238,7 +238,7 @@ class CIPipelineRunner:
             from pathlib import Path
             sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
             
-            from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+            from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
             
             model = BERTEmotionClassifier()
             loading_time = time.time() - start_time

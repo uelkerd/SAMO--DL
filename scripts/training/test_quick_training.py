@@ -14,9 +14,9 @@
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
-from models.emotion_detection.bert_classifier import evaluate_emotion_classifier
-from models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from models.emotion_detection.training_pipeline import train_emotion_detection_model
+from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
 from pathlib import Path
 import logging
 import sys
@@ -42,7 +42,7 @@ Expected Results:
 - Proper early stopping
 """
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
