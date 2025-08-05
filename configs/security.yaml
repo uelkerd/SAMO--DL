@@ -8,7 +8,13 @@ api:
     enabled: true
     requests_per_minute: 60
     burst_limit: 10
-    storage_backend: "memory"  # Options: memory, redis
+    storage_backend: "redis"  # Use Redis for production, memory for development
+    redis_config:
+      host: "localhost"
+      port: 6379
+      db: 0
+      password: null  # Set via environment variable in production
+      ssl: false  # Enable in production
     
   # CORS configuration
   cors:
@@ -50,7 +56,7 @@ security_headers:
     X-Frame-Options: "DENY"
     X-XSS-Protection: "1; mode=block"
     Strict-Transport-Security: "max-age=31536000; includeSubDomains"
-    Content-Security-Policy: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+    Content-Security-Policy: "default-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
     Referrer-Policy: "strict-origin-when-cross-origin"
     Permissions-Policy: "geolocation=(), microphone=(), camera=()"
 
