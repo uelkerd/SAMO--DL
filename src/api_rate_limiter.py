@@ -17,7 +17,7 @@ import time
 import threading
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Callable, Optional
+from typing import Callable, List, Optional
 
 from fastapi import FastAPI, Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -95,7 +95,7 @@ class RateLimiter(BaseHTTPMiddleware):
         rate_limit: int = DEFAULT_RATE_LIMIT,
         window_size: int = DEFAULT_WINDOW_SIZE,
         burst_limit: int = DEFAULT_BURST_LIMIT,
-        excluded_paths: Optional[list[str]] = None,
+        excluded_paths: Optional[List[str]] = None,
         get_client_id: Optional[Callable[[Request], str]] = None,
     ):
         """Initialize rate limiter.
@@ -216,7 +216,7 @@ def add_rate_limiting(
     rate_limit: int = DEFAULT_RATE_LIMIT,
     window_size: int = DEFAULT_WINDOW_SIZE,
     burst_limit: int = DEFAULT_BURST_LIMIT,
-    excluded_paths: Optional[list[str]] = None,
+    excluded_paths: Optional[List[str]] = None,
     get_client_id: Optional[Callable[[Request], str]] = None,
 ) -> None:
     """Add rate limiting middleware to FastAPI app.
