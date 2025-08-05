@@ -13,10 +13,10 @@ import torch
 from sklearn.metrics import f1_score, precision_score, recall_score
 
 # Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from transformers import AutoTokenizer
 
 # Configure logging

@@ -54,8 +54,8 @@ def test_whisper_imports():
         logger.info("🔍 Testing Whisper imports...")
 
         # Test imports - just verify they can be imported
-        import models.voice_processing.audio_preprocessor
-        import models.voice_processing.whisper_transcriber
+        import src.models.voice_processing.audio_preprocessor
+        import src.models.voice_processing.whisper_transcriber
         
         # Verify modules exist
         assert hasattr(models.voice_processing, 'audio_preprocessor')
@@ -74,7 +74,7 @@ def test_whisper_instantiation():
     try:
         logger.info("🤖 Testing WhisperTranscriber instantiation...")
 
-        from models.voice_processing.whisper_transcriber import (
+        from src.models.voice_processing.whisper_transcriber import (
             TranscriptionConfig,
             WhisperTranscriber,
         )
@@ -101,7 +101,7 @@ def test_audio_preprocessor():
     try:
         logger.info("🎵 Testing AudioPreprocessor...")
 
-        from models.voice_processing.audio_preprocessor import AudioPreprocessor
+        from src.models.voice_processing.audio_preprocessor import AudioPreprocessor
 
         # Generate test audio
         test_audio_path = generate_test_audio()
@@ -142,7 +142,7 @@ def test_minimal_transcription():
             logger.info("⏭️ Skipping transcription test in CI environment")
             return True
 
-        from models.voice_processing.whisper_transcriber import (
+        from src.models.voice_processing.whisper_transcriber import (
             TranscriptionConfig,
             WhisperTranscriber,
         )

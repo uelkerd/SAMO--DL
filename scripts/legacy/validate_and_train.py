@@ -1,7 +1,7 @@
         # Import the validation module
         # Start training
         # Training configuration optimized for debugging
-        from models.emotion_detection.training_pipeline import train_emotion_detection_model
+        from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
         from pre_training_validation import PreTrainingValidator
         import traceback
     # Ask for user confirmation
@@ -29,7 +29,7 @@ This script runs comprehensive pre-training validation and only starts training
 if all critical checks pass. This prevents wasting 4+ hours on failed training.
 """
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 logging.basicConfig(
     level=logging.INFO,

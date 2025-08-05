@@ -14,7 +14,7 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

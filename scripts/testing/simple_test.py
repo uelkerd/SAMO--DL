@@ -1,7 +1,7 @@
         # Create loader
         # Get first example
         # Try different ways to access
-        from models.emotion_detection.dataset_loader import create_goemotions_loader
+        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
         import traceback
 # Add src to path
 #!/usr/bin/env python3
@@ -18,7 +18,7 @@ import traceback
 Simple test to understand the dataset object type.
 """
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 def main():
     logging.info("🔍 Simple test...")

@@ -26,10 +26,10 @@ from torch.utils.data import DataLoader, TensorDataset
 from transformers import AutoTokenizer, get_linear_schedule_with_warmup
 
 # Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from models.emotion_detection.bert_classifier import BERTEmotionClassifier
-from models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")

@@ -19,10 +19,10 @@
         # Scenario 1: Mixed labels
         # Test different scenarios
         # Test forward pass
-        from models.emotion_detection.bert_classifier import WeightedBCELoss
-        from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-        from models.emotion_detection.dataset_loader import create_goemotions_loader
-        from models.emotion_detection.dataset_loader import create_goemotions_loader
+        from src.models.emotion_detection.bert_classifier import WeightedBCELoss
+        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
         import pandas as pd
         import torch
         import torch
@@ -54,7 +54,7 @@ This script performs targeted validation to identify the root cause of the 0.000
 It can be run locally to diagnose problems before deploying to GCP.
 """
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
