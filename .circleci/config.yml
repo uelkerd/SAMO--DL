@@ -232,11 +232,11 @@ commands:
           environment:
             PYTEST_ADDOPTS: "--tb=short"
       - run:
-          name: Unit Tests (Sequential - Other Tests)
+          name: Unit Tests (Parallel - Other Tests)
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
             source ~/.bashrc
-            echo "🧪 Running other unit tests sequentially..."
+            echo "🧪 Running other unit tests with parallel execution..."
             $HOME/miniconda/bin/conda run -n samo-dl-stable python -m pytest tests/unit/ \
               --ignore=tests/unit/test_api_rate_limiter.py \
               --cov=src \
@@ -244,7 +244,8 @@ commands:
               --cov-report=html \
               --cov-fail-under=5 \
               --junit-xml=test-results/unit/results.xml \
-              -v
+              -v \
+              -n auto  # Parallel execution
           environment:
             PYTEST_ADDOPTS: "--tb=short"
       - store_test_results:
@@ -357,7 +358,6 @@ jobs:
           name: Model Loading and Validation
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
-            export PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src:$PYTHONPATH"
             source ~/.bashrc
             echo "🤖 Testing model loading and basic validation..."
             $HOME/miniconda/bin/conda run -n samo-dl-stable python -c "
@@ -393,7 +393,6 @@ jobs:
           name: Model Performance Benchmarks
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
-            export PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src:$PYTHONPATH"
             source ~/.bashrc
             echo "⚡ Running performance benchmarks..."
             $HOME/miniconda/bin/conda run -n samo-dl-stable python scripts/legacy/optimize_performance.py --benchmark
@@ -401,7 +400,6 @@ jobs:
           name: API Response Time Tests
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
-            export PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src:$PYTHONPATH"
             source ~/.bashrc
             echo "🚀 Testing API response times..."
             $HOME/miniconda/bin/conda run -n samo-dl-stable python -c "
@@ -442,7 +440,6 @@ jobs:
           name: GPU Environment Setup
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
-            export PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src:$PYTHONPATH"
             source ~/.bashrc
             echo "🖥️ Setting up GPU environment..."
             nvidia-smi
@@ -451,7 +448,6 @@ jobs:
           name: GPU Training Test
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
-            export PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src:$PYTHONPATH"
             source ~/.bashrc
             echo "🚀 Testing GPU model training..."
             $HOME/miniconda/bin/conda run -n samo-dl-stable python -c "
