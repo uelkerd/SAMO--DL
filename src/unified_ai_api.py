@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Unified AI API for SAMO Deep Learning.
+"""Unified AI API for SAMO Deep Learning.
 
 This module provides a unified FastAPI interface for all AI models
 in the SAMO Deep Learning pipeline.

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-T5-based Text Summarization for SAMO Deep Learning.
+"""T5-based Text Summarization for SAMO Deep Learning.
 
 This module provides T5-based text summarization capabilities for
 journal entries and other text content.
@@ -9,7 +8,7 @@ journal entries and other text content.
 import logging
 import warnings
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional
 
 import torch
 import torch.nn as nn

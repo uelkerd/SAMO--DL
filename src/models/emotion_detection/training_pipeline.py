@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Training Pipeline for BERT Emotion Detection.
+"""Training Pipeline for BERT Emotion Detection.
 
 This module provides a comprehensive training pipeline for the BERT-based
 emotion detection model with advanced features like focal loss, temperature
@@ -9,18 +8,14 @@ scaling, and ensemble methods.
 
 import json
 import logging
-import os
 import time
-import warnings
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional
 
 import numpy as np
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
-from sklearn.metrics import f1_score, precision_recall_fscore_support
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 from transformers import (
     AutoTokenizer,
     get_linear_schedule_with_warmup,
@@ -33,7 +28,6 @@ from .bert_classifier import (
     EmotionDataset,
 )
 from .dataset_loader import (
-    GoEmotionsDataLoader,
     create_goemotions_loader,
 )
 
@@ -562,7 +556,7 @@ class EmotionDetectionTrainer:
             with Path(history_path).open("w") as f:
                 json.dump(serializable_history, f, indent=2)
             logger.info("Training history saved to {history_path}")
-        except Exception as e:
+        except Exception:
             logger.error("Failed to save training history: {e}")
             simplified_history = []
             for entry in self.training_history:

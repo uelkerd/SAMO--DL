@@ -161,7 +161,7 @@ async def load_model() -> None:
 
         logger.info("✅ Model loaded successfully!")
 
-    except Exception as e:
+    except Exception:
         logger.error("Failed to load model: {e}")
         logger.error(traceback.format_exc())
         raise
@@ -308,7 +308,7 @@ async def analyze_emotion(
             processing_time_ms=processing_time * 1000,
         )
 
-    except Exception as e:
+    except Exception:
         logger.error("Emotion analysis failed: {e}")
         logger.error(traceback.format_exc())
         raise HTTPException(
@@ -382,7 +382,7 @@ async def analyze_emotions_batch(
     except HTTPException:
         raise
 
-    except Exception as e:
+    except Exception:
         logger.error("Batch emotion analysis failed: {e}")
         logger.error(traceback.format_exc())
         raise HTTPException(
