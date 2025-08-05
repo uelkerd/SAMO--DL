@@ -527,7 +527,7 @@ class EmotionDetectionTrainer:
                 self.training_history.append(epoch_metrics)
 
                 if self.should_stop_early():
-                    logger.info("Early stopping at epoch {epoch}", extra={"format_args": True})
+                    logger.info(f"Early stopping at epoch {epoch}")
                     break
             else:
                 self.training_history.append(train_metrics)
@@ -558,8 +558,8 @@ class EmotionDetectionTrainer:
             with Path(history_path).open("w") as f:
                 json.dump(serializable_history, f, indent=2)
             logger.info("Training history saved to {history_path}")
-        except Exception as e:
-            logger.error("Failed to save training history: {e}")
+        except Exception:
+            logger.exception("Failed to save training history")
             simplified_history = []
             for entry in self.training_history:
                 simplified_entry = {}
@@ -588,13 +588,9 @@ class EmotionDetectionTrainer:
         }
 
         logger.info("✅ Training completed!")
-        logger.info("Best validation Macro F1: {self.best_score:.4f}", extra={"format_args": True})
-        logger.info(
-            "Final test Macro F1: {test_metrics['macro_f1']:.4f}", extra={"format_args": True}
-        )
-        logger.info(
-            "Final test Micro F1: {test_metrics['micro_f1']:.4f}", extra={"format_args": True}
-        )
+        logger.info(f"Best validation Macro F1: {self.best_score:.4f}")
+        logger.info(f"Final test Macro F1: {test_metrics['macro_f1']:.4f}")
+        logger.info(f"Final test Micro F1: {test_metrics['micro_f1']:.4f}")
 
         return results
 
