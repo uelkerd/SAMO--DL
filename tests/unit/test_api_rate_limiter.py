@@ -457,8 +457,6 @@ class TestRateLimiter:
         entry = rate_limiter.cache.get("test_client")
         assert len(entry.requests) == 5
 
-        # Simulate time passing to make requests old
-        current_time = time.time()
         # Note: We can't directly modify the deque elements, so we'll test the cleanup logic differently
         # The actual cleanup happens in the dispatch method
 

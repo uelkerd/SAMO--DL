@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-API Rate Limiter for SAMO Deep Learning.
+"""API Rate Limiter for SAMO Deep Learning.
 
 This module implements rate limiting for the SAMO API endpoints using FastAPI middleware.
 It uses a token bucket algorithm to limit the rate of requests per user based on API keys
@@ -230,17 +229,8 @@ def add_rate_limiting(
         excluded_paths: Paths to exclude from rate limiting
         get_client_id: Function to extract client ID from request
     """
-    middleware = RateLimiter(
-        app=app,
-        rate_limit=rate_limit,
-        window_size=window_size,
-        burst_limit=burst_limit,
-        excluded_paths=excluded_paths,
-        get_client_id=get_client_id,
-    )
-    
     # Add middleware to app
-    app.add_middleware(RateLimiter, 
+    app.add_middleware(RateLimiter,
                       rate_limit=rate_limit,
                       window_size=window_size,
                       burst_limit=burst_limit,
