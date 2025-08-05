@@ -58,7 +58,7 @@ commands:
       - run:
           name: "<< parameters.step_name >>"
           command: |
-            conda run -n samo-dl-stable bash -c "<< parameters.command >>"
+            $HOME/miniconda/bin/conda run -n samo-dl-stable bash -c "<< parameters.command >>"
           shell: /bin/bash  # Explicitly specify bash for consistent behavior
 
   setup_python_env:
