@@ -194,6 +194,8 @@ commands:
       - run:
           name: Unit Tests (Sequential - Rate Limiter Tests)
           command: |
+            source $BASH_ENV
+            conda activate samo-dl-stable
             echo "🧪 Running rate limiter tests sequentially..."
             python -m pytest tests/unit/test_api_rate_limiter.py \
               --cov=src \
@@ -205,9 +207,11 @@ commands:
           environment:
             PYTEST_ADDOPTS: "--tb=short"
       - run:
-          name: Unit Tests (Parallel - Other Tests)
+          name: Unit Tests (Sequential - Other Tests)
           command: |
-            echo "🧪 Running other unit tests with parallel execution..."
+            source $BASH_ENV
+            conda activate samo-dl-stable
+            echo "🧪 Running other unit tests sequentially..."
             python -m pytest tests/unit/ \
               --ignore=tests/unit/test_api_rate_limiter.py \
               --cov=src \
@@ -215,8 +219,7 @@ commands:
               --cov-report=html \
               --cov-fail-under=5 \
               --junit-xml=test-results/unit/results.xml \
-              -v \
-              -n auto  # Parallel execution
+              -v
           environment:
             PYTEST_ADDOPTS: "--tb=short"
       - store_test_results:
