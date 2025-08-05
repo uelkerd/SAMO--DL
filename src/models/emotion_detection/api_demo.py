@@ -310,10 +310,11 @@ async def analyze_emotion(
 
     except Exception as e:
         logger.error(f"Emotion analysis failed: {e}")
+        logger.error(f"Exception details: {type(e).__name__}: {str(e)}")
         logger.error(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Emotion analysis failed: {e}",
+            detail="Emotion analysis processing failed. Please try again later.",
         )
 
 
@@ -384,10 +385,11 @@ async def analyze_emotions_batch(
 
     except Exception as e:
         logger.error(f"Batch emotion analysis failed: {e}")
+        logger.error(f"Exception details: {type(e).__name__}: {str(e)}")
         logger.error(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Batch analysis failed: {e}",
+            detail="Batch emotion analysis processing failed. Please try again later.",
         )
 
 
