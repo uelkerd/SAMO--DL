@@ -555,8 +555,8 @@ class EmotionDetectionTrainer:
             with Path(history_path).open("w") as f:
                 json.dump(serializable_history, f, indent=2)
             logger.info("Training history saved to {history_path}")
-        except Exception:
-            logger.error("Failed to save training history: {e}")
+        except Exception as e:
+            logger.error(f"Failed to save training history: {e}")
             simplified_history = []
             for entry in self.training_history:
                 simplified_entry = {}
