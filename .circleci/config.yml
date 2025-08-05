@@ -1,7 +1,7 @@
 version: 2.1
 
 # ============================================================================
-# SAMO Deep Learning - CircleCI Pipeline Configuration (OPTIMIZED)
+# SAMO Deep Learning - CircleCI Pipeline Configuration (SIMPLIFIED)
 #
 # 3-Stage Pipeline Design (following user's CI guidelines):
 # Stage 1 (<3min):  Fast feedback - linting, formatting, unit tests (parallel)
@@ -15,7 +15,7 @@ orbs:
   slack: circleci/slack@4.12.1
 
 # ============================================================================
-# EXECUTORS - Define runtime environments (OPTIMIZED)
+# EXECUTORS - Define runtime environments (SIMPLIFIED)
 # ============================================================================
 executors:
   python-ml:
@@ -39,12 +39,12 @@ executors:
       HF_HOME: /home/circleci/.cache/huggingface
 
 # ============================================================================
-# COMMANDS - Reusable command definitions (OPTIMIZED)
+# COMMANDS - Reusable command definitions (SIMPLIFIED)
 # ============================================================================
 commands:
-  # REUSABLE CONDA ENVIRONMENT COMMAND
+  # SIMPLIFIED CONDA ENVIRONMENT COMMAND
   run_in_conda:
-    description: "Run command in conda environment with proper setup"
+    description: "Run command in conda environment (SIMPLIFIED)"
     parameters:
       name:
         type: string
@@ -57,12 +57,10 @@ commands:
           name: "<< parameters.name >>"
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
-            source ~/.bashrc
-            $HOME/miniconda/bin/conda run -n samo-dl-stable bash -c "$<< parameters.command >>"
-          shell: /bin/bash
+            conda run -n samo-dl-stable << parameters.command >>
 
   setup_python_env:
-    description: "Set up conda environment with dependencies (OPTIMIZED)"
+    description: "Set up conda environment with dependencies (SIMPLIFIED)"
     steps:
       - checkout
       - run:
@@ -72,7 +70,7 @@ commands:
             sudo apt-get install -y portaudio19-dev python3-pyaudio
             echo "✅ System dependencies installed"
       - run:
-          name: Install and setup Miniconda
+          name: Install and setup Miniconda (SIMPLIFIED)
           command: |
             # Install Miniconda
             wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
@@ -82,25 +80,17 @@ commands:
             # Add to PATH
             export PATH="$HOME/miniconda/bin:$PATH"
             
-            # Initialize conda
-            $HOME/miniconda/bin/conda init bash
-            
-            # Source bashrc
-            source ~/.bashrc
-            
-            # Create environment
-            $HOME/miniconda/bin/conda env create -f environment.yml
+            # Create environment directly (no init needed)
+            conda env create -f environment.yml
             
             # Install additional dependencies
-            $HOME/miniconda/bin/conda run -n samo-dl-stable pip install -e ".[test,dev,prod]"
-            $HOME/miniconda/bin/conda run -n samo-dl-stable pip install httpx python-multipart psycopg2-binary
+            conda run -n samo-dl-stable pip install -e ".[test,dev,prod]"
+            conda run -n samo-dl-stable pip install httpx python-multipart psycopg2-binary
             
-            # Set PYTHONPATH to include src directory (dynamic path)
-            export PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src:$PYTHONPATH"
-            echo "export PYTHONPATH=$CIRCLE_WORKING_DIRECTORY/src:\$PYTHONPATH" >> ~/.bashrc
+            # Set PYTHONPATH once (simplified)
+            echo "export PYTHONPATH=$CIRCLE_WORKING_DIRECTORY/src" >> $BASH_ENV
             
             echo "✅ Conda environment setup complete!"
-          shell: /bin/bash
 
   # ENHANCED CACHING STRATEGY
   cache_dependencies:
@@ -129,7 +119,7 @@ commands:
             - conda-deps-v3-{{ .Branch }}-
             - conda-deps-v3-
 
-  # MODEL PRE-WARMING
+  # MODEL PRE-WARMING (SIMPLIFIED)
   pre_warm_models:
     description: "Pre-download and cache models for faster CI execution"
     steps:
@@ -173,7 +163,7 @@ commands:
             echo "📝 Running type checking (optional)..."
             python -m mypy src/ --ignore-missing-imports || echo "⚠️ Type checking failed but continuing..."
 
-  # PARALLEL SECURITY SCANS
+  # PARALLEL SECURITY SCANS (SIMPLIFIED)
   run_security_scan_bandit:
     description: "Run Bandit security scan (parallel)"
     steps:
@@ -193,7 +183,7 @@ commands:
             safety check --json --output safety-report.json
 
   run_unit_tests:
-    description: "Run unit tests with coverage (OPTIMIZED)"
+    description: "Run unit tests with coverage (SIMPLIFIED)"
     steps:
       - run_in_conda:
           name: "API Rate Limiter Tests"
@@ -231,7 +221,7 @@ commands:
           destination: coverage-report
 
 # ============================================================================
-# JOBS - Individual job definitions (OPTIMIZED FOR PARALLEL EXECUTION)
+# JOBS - Individual job definitions (SIMPLIFIED)
 # ============================================================================
 jobs:
   # STAGE 1: Fast Feedback (<3 minutes) - PARALLEL EXECUTION
@@ -285,20 +275,16 @@ jobs:
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
       - cache_dependencies
-      - run:
+      - run_in_conda:
           name: Integration Tests
           command: |
-            export PATH="$HOME/miniconda/bin:$PATH"
-            source ~/.bashrc
             echo "🔗 Running integration tests..."
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m pytest tests/integration/ \
+            python -m pytest tests/integration/ \
               --junit-xml=test-results/integration/results.xml \
               -v --tb=short \
               -n auto  # Parallel execution
       - store_test_results:
           path: test-results
-
-
 
   # STAGE 3: Comprehensive Testing & Performance (<15 minutes)
   # --------------------------------------------------------------------------
@@ -309,13 +295,11 @@ jobs:
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
       - cache_dependencies
-      - run:
+      - run_in_conda:
           name: End-to-End Tests
           command: |
-            export PATH="$HOME/miniconda/bin:$PATH"
-            source ~/.bashrc
             echo "🎯 Running end-to-end tests..."
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m pytest tests/e2e/ \
+            python -m pytest tests/e2e/ \
               --junit-xml=test-results/e2e/results.xml \
               -v --tb=short \
               --timeout=300 \
@@ -330,13 +314,11 @@ jobs:
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
       - cache_dependencies
-      - run:
+      - run_in_conda:
           name: Model Loading and Validation
           command: |
-            export PATH="$HOME/miniconda/bin:$PATH"
-            source ~/.bashrc
             echo "🤖 Testing model loading and basic validation..."
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python -c "
+            python -c "
             # Test BERT emotion classifier loading
             from src.models.emotion_detection.bert_classifier import BertEmotionClassifier
             model = BertEmotionClassifier(num_emotions=28)
@@ -365,20 +347,16 @@ jobs:
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
       - cache_dependencies
-      - run:
+      - run_in_conda:
           name: Model Performance Benchmarks
           command: |
-            export PATH="$HOME/miniconda/bin:$PATH"
-            source ~/.bashrc
             echo "⚡ Running performance benchmarks..."
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python scripts/legacy/optimize_performance.py --benchmark
-      - run:
+            python scripts/legacy/optimize_performance.py --benchmark
+      - run_in_conda:
           name: API Response Time Tests
           command: |
-            export PATH="$HOME/miniconda/bin:$PATH"
-            source ~/.bashrc
             echo "🚀 Testing API response times..."
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python -c "
+            python -c "
             import time
             import json
             from src.unified_ai_api import app
@@ -412,21 +390,17 @@ jobs:
       - setup_python_env
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
-      - run:
+      - run_in_conda:
           name: GPU Environment Setup
           command: |
-            export PATH="$HOME/miniconda/bin:$PATH"
-            source ~/.bashrc
             echo "🖥️ Setting up GPU environment..."
             nvidia-smi
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
-      - run:
+            python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
+      - run_in_conda:
           name: GPU Training Test
           command: |
-            export PATH="$HOME/miniconda/bin:$PATH"
-            source ~/.bashrc
             echo "🚀 Testing GPU model training..."
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python -c "
+            python -c "
             import torch
             from src.models.emotion_detection.bert_classifier import BertEmotionClassifier
 
@@ -473,12 +447,12 @@ jobs:
                   # Add deployment logic here
 
 # ============================================================================
-# WORKFLOWS - Define job execution order and conditions (OPTIMIZED)
+# WORKFLOWS - Define job execution order and conditions (SIMPLIFIED)
 # ============================================================================
 workflows:
   version: 2
 
-  # Main CI/CD Pipeline (OPTIMIZED FOR PARALLEL EXECUTION)
+  # Main CI/CD Pipeline (SIMPLIFIED)
   samo-ci-cd:
     jobs:
       # STAGE 1: Fast Feedback (<3 minutes) - PARALLEL EXECUTION
@@ -583,16 +557,19 @@ workflows:
       - gpu-compatibility
 
 # ============================================================================
-# OPTIMIZATION SUMMARY
+# SIMPLIFICATION SUMMARY
 #
-# 🚀 PERFORMANCE IMPROVEMENTS:
-# ✅ Enhanced Caching: Models, dependencies, build artifacts
-# ✅ Parallel Security Scans: Bandit and Safety run independently
-# ✅ Model Pre-warming: Pre-download models in setup
-# ✅ Parallel Test Execution: pytest-xdist for faster tests
-# ✅ Optimized Job Dependencies: Minimal blocking
+# 🚀 SIMPLIFICATIONS MADE:
+# ✅ Removed complex shell script patterns (source ~/.bashrc, shell: /bin/bash)
+# ✅ Standardized conda usage with conda run -n samo-dl-stable
+# ✅ Simplified environment setup (no conda init bash)
+# ✅ Fixed PYTHONPATH configuration (single, consistent setting)
+# ✅ Removed subshell issues (no bash -c wrapper)
+# ✅ Streamlined command execution patterns
 #
-# 📈 EXPECTED PERFORMANCE GAINS:
-# - Current: ~12 minutes
-# - Optimized: ~6-8 minutes (40-50% faster)
+# 📈 EXPECTED IMPROVEMENTS:
+# - More reliable conda environment activation
+# - Consistent command execution across all steps
+# - Reduced complexity and potential failure points
+# - Better debugging and troubleshooting
 # ============================================================================
