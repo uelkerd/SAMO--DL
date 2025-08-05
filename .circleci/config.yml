@@ -329,6 +329,42 @@ jobs:
       - store_test_results:
           path: test-results
 
+  model-validation:
+    executor: python-ml
+    steps:
+      - setup_python_env
+      - restore_dependencies
+      - pre_warm_models  # Pre-warm models for faster execution
+      - cache_dependencies
+      - run:
+          name: Model Loading and Validation
+          command: |
+            export PATH="$HOME/miniconda/bin:$PATH"
+            export PYTHONPATH="/home/circleci/samo-dl/src:$PYTHONPATH"
+            source ~/.bashrc
+            echo "🤖 Testing model loading and basic validation..."
+            $HOME/miniconda/bin/conda run -n samo-dl-stable python -c "
+            # Test BERT emotion classifier loading
+            from src.models.emotion_detection.bert_classifier import BertEmotionClassifier
+            model = BertEmotionClassifier(num_emotions=28)
+            print('✅ BERT emotion classifier loaded successfully')
+            
+            # Test T5 summarizer loading
+            from src.models.summarization.t5_summarizer import create_t5_summarizer
+            summarizer = create_t5_summarizer()
+            print('✅ T5 summarizer loaded successfully')
+            
+            # Test Whisper transcriber loading
+            from src.models.voice_processing.whisper_transcriber import WhisperTranscriber
+            transcriber = WhisperTranscriber()
+            print('✅ Whisper transcriber loaded successfully')
+            
+            print('🎯 All models loaded and validated successfully!')
+            "
+      - store_artifacts:
+          path: model-validation-results.json
+          destination: model-reports
+
   performance-benchmarks:
     executor: python-ml
     steps:
@@ -340,6 +376,7 @@ jobs:
           name: Model Performance Benchmarks
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
+            export PYTHONPATH="/home/circleci/samo-dl/src:$PYTHONPATH"
             source ~/.bashrc
             echo "⚡ Running performance benchmarks..."
             $HOME/miniconda/bin/conda run -n samo-dl-stable python scripts/legacy/optimize_performance.py --benchmark
@@ -347,6 +384,7 @@ jobs:
           name: API Response Time Tests
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
+            export PYTHONPATH="/home/circleci/samo-dl/src:$PYTHONPATH"
             source ~/.bashrc
             echo "🚀 Testing API response times..."
             $HOME/miniconda/bin/conda run -n samo-dl-stable python -c "
@@ -387,6 +425,7 @@ jobs:
           name: GPU Environment Setup
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
+            export PYTHONPATH="/home/circleci/samo-dl/src:$PYTHONPATH"
             source ~/.bashrc
             echo "🖥️ Setting up GPU environment..."
             nvidia-smi
@@ -395,6 +434,7 @@ jobs:
           name: GPU Training Test
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
+            export PYTHONPATH="/home/circleci/samo-dl/src:$PYTHONPATH"
             source ~/.bashrc
             echo "🚀 Testing GPU model training..."
             $HOME/miniconda/bin/conda run -n samo-dl-stable python -c "
@@ -492,6 +532,14 @@ workflows:
               ignore:
                 - gh-pages
 
+      - model-validation:
+          requires:
+            - unit-tests
+          filters:
+            branches:
+              ignore:
+                - gh-pages
+
       # STAGE 3: Comprehensive Testing (<15 minutes)
       # --------------------------------------------------------------------------
       - e2e-tests:
@@ -504,7 +552,7 @@ workflows:
 
       - performance-benchmarks:
           requires:
-            - unit-tests
+            - model-validation
           filters:
             branches:
               ignore:
@@ -513,7 +561,7 @@ workflows:
       # GPU tests (optional, only on GPU-enabled plans)
       - gpu-compatibility:
           requires:
-            - unit-tests
+            - model-validation
           filters:
             branches:
               only:
