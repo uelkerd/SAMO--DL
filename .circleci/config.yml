@@ -1,7 +1,7 @@
 version: 2.1
 
 # ============================================================================
-# SAMO Deep Learning - CircleCI Pipeline Configuration (SIMPLIFIED)
+# SAMO Deep Learning - CircleCI Pipeline Configuration (SIMPLIFICATION)
 #
 # 3-Stage Pipeline Design (following user's CI guidelines):
 # Stage 1 (<3min):  Fast feedback - linting, formatting, unit tests (parallel)
@@ -88,7 +88,11 @@ commands:
             conda run -n samo-dl-stable pip install httpx python-multipart psycopg2-binary
             
             # Set PYTHONPATH once (simplified)
-            echo "export PYTHONPATH=$CIRCLE_WORKING_DIRECTORY/src" >> $BASH_ENV
+            if [ -n "$BASH_ENV" ]; then
+              echo "export PYTHONPATH=$CIRCLE_WORKING_DIRECTORY/src" >> "$BASH_ENV"
+            else
+              echo "export PYTHONPATH=$CIRCLE_WORKING_DIRECTORY/src" >> ~/.bashrc
+            fi
             
             echo "✅ Conda environment setup complete!"
           shell: /bin/bash  # Explicitly specify bash for consistent behavior
