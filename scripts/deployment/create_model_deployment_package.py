@@ -261,8 +261,8 @@ app = Flask(__name__)
 try:
     detector = EmotionDetector()
     logger.info("✅ Emotion detector initialized successfully!")
-except Exception as e:
-    logger.error(f"❌ Failed to initialize emotion detector: {e}")
+except Exception:
+    logger.exception("❌ Failed to initialize emotion detector")
     detector = None
 
 @app.route('/health', methods=['GET'])
@@ -290,9 +290,9 @@ def predict_emotion():
         result = detector.predict(text)
         return jsonify(result)
     
-    except Exception as e:
-        logger.error(f"Prediction error: {e}")
-        return jsonify({'error': str(e)}), 500
+    except Exception:
+        logger.exception("Prediction error")
+        return jsonify({'error': 'Prediction processing failed. Please try again later.'}), 500
 
 @app.route('/predict_batch', methods=['POST'])
 def predict_batch():
@@ -310,9 +310,9 @@ def predict_batch():
         results = detector.predict_batch(texts)
         return jsonify({'results': results})
     
-    except Exception as e:
-        logger.error(f"Batch prediction error: {e}")
-        return jsonify({'error': str(e)}), 500
+    except Exception:
+        logger.exception("Batch prediction error")
+        return jsonify({'error': 'Batch prediction processing failed. Please try again later.'}), 500
 
 @app.route('/emotions', methods=['GET'])
 def get_emotions():
