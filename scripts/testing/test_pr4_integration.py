@@ -274,7 +274,15 @@ class PR4IntegrationTester:
                 }
             
             # Test safety availability
-            result = subprocess.run(['safety', '--version'], 
+            safety_path = shutil.which('safety')
+            if safety_path is None:
+                return {
+                    "name": "Security Scanning Tools",
+                    "passed": False,
+                    "message": "Safety vulnerability scanner not found in PATH",
+                    "details": "Install safety and ensure it is in a secure location"
+                }
+            result = subprocess.run([safety_path, '--version'],
                                   capture_output=True, text=True, timeout=30)
             if result.returncode != 0:
                 return {
