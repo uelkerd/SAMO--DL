@@ -29,6 +29,11 @@ class RateLimitConfig:
     whitelisted_ips: set = None
     enable_ip_blacklist: bool = True
     blacklisted_ips: set = None
+    # Abuse detection thresholds
+    rapid_fire_threshold: int = 10  # Max requests per second
+    sustained_rate_threshold: int = 200  # Max requests per minute
+    rapid_fire_window: float = 1.0  # Time window for rapid-fire detection (seconds)
+    sustained_rate_window: float = 60.0  # Time window for sustained rate detection (seconds)
 
 class TokenBucketRateLimiter:
     """
@@ -62,7 +67,7 @@ class TokenBucketRateLimiter:
         """Generate a unique client key for rate limiting."""
         # Create a fingerprint based on IP and user agent
         fingerprint = f"{client_ip}:{user_agent}"
-        return hashlib.sha256(fingerprint.encode()).hexdigest()[:16]
+        return hashlib.sha256(fingerprint.encode()).hexdigest()
     
     def _is_ip_allowed(self, client_ip: str) -> bool:
         """Check if IP is allowed based on whitelist/blacklist."""
@@ -109,16 +114,16 @@ class TokenBucketRateLimiter:
         while history and current_time - history[0] > 3600:
             history.popleft()
         
-        # Check for rapid-fire requests (more than 10 requests in 1 second)
-        recent_requests = [req_time for req_time in history if current_time - req_time <= 1.0]
-        if len(recent_requests) > 10:
-            logger.warning(f"Abuse detected: {len(recent_requests)} requests in 1s from {client_ip}")
+        # Check for rapid-fire requests using configurable threshold
+        recent_requests = [req_time for req_time in history if current_time - req_time <= self.config.rapid_fire_window]
+        if len(recent_requests) > self.config.rapid_fire_threshold:
+            logger.warning(f"Abuse detected: {len(recent_requests)} requests in {self.config.rapid_fire_window}s from {client_ip}")
             return True
         
-        # Check for sustained high rate (more than 200 requests in 1 minute)
-        minute_requests = [req_time for req_time in history if current_time - req_time <= 60.0]
-        if len(minute_requests) > 200:
-            logger.warning(f"Abuse detected: {len(minute_requests)} requests in 1min from {client_ip}")
+        # Check for sustained high rate using configurable threshold
+        minute_requests = [req_time for req_time in history if current_time - req_time <= self.config.sustained_rate_window]
+        if len(minute_requests) > self.config.sustained_rate_threshold:
+            logger.warning(f"Abuse detected: {len(minute_requests)} requests in {self.config.sustained_rate_window}s from {client_ip}")
             return True
         
         return False
@@ -241,3 +246,46 @@ class TokenBucketRateLimiter:
         with self.lock:
             self.config.whitelisted_ips.discard(ip)
             logger.info(f"Removed {ip} from whitelist")
+
+
+def add_rate_limiting(app):
+    """Add rate limiting middleware to FastAPI app."""
+    from fastapi import Request, HTTPException
+    from fastapi.responses import JSONResponse
+    
+    # Create rate limiter instance
+    config = RateLimitConfig(
+        requests_per_minute=100,
+        burst_size=10,
+        max_concurrent_requests=5,
+        enable_ip_blacklist=True,
+        enable_ip_whitelist=False
+    )
+    rate_limiter = TokenBucketRateLimiter(config)
+    
+    @app.middleware("http")
+    async def rate_limit_middleware(request: Request, call_next):
+        """Rate limiting middleware."""
+        client_ip = request.client.host if request.client else "unknown"
+        user_agent = request.headers.get("user-agent", "")
+        
+        # Check rate limit
+        allowed, reason, meta = rate_limiter.allow_request(client_ip, user_agent)
+        
+        if not allowed:
+            return JSONResponse(
+                status_code=429,
+                content={
+                    "error": "Rate limit exceeded",
+                    "message": reason,
+                    "retry_after": meta.get("retry_after", 60)
+                }
+            )
+        
+        # Add rate limit headers
+        response = await call_next(request)
+        response.headers["X-RateLimit-Limit"] = str(config.requests_per_minute)
+        response.headers["X-RateLimit-Remaining"] = str(meta.get("tokens_remaining", 0))
+        response.headers["X-RateLimit-Reset"] = str(meta.get("reset_time", 0))
+        
+        return response

@@ -11,12 +11,32 @@ import resource
 import signal
 import sys
 import time
+import multiprocessing
 from contextlib import contextmanager
 from typing import Any, Callable, Dict, Optional, Tuple
 
 import torch
 
 logger = logging.getLogger(__name__)
+
+
+class SandboxError(Exception):
+    """Custom exception for sandbox execution errors."""
+    def __init__(self, message: str, original_exception: Optional[Exception] = None):
+        super().__init__(message)
+        self.original_exception = original_exception
+
+    def __str__(self):
+        return f"SandboxError: {self.args[0]}"
+
+    def __repr__(self):
+        return f"SandboxError({self.args[0]!r}, {self.original_exception!r})"
+
+    def to_dict(self):
+        return {
+            "error": str(self),
+            "exception_type": type(self.original_exception).__name__ if self.original_exception else None
+        }
 
 
 class SandboxExecutor:
@@ -78,33 +98,47 @@ class SandboxExecutor:
             logger.error(f"Failed to set resource limits: {e}")
 
     def _restrict_imports(self):
-        """Restrict module imports in the sandbox."""
-        original_import = __builtins__.__import__
+        """Restrict module imports in the sandbox using a safer approach."""
+        # Store original import function
+        self._original_import = __builtins__.__import__
         
         def safe_import(name, *args, **kwargs):
             if name in self.blocked_modules:
                 raise ImportError(f"Import of '{name}' is not allowed in sandbox")
-            return original_import(name, *args, **kwargs)
+            return self._original_import(name, *args, **kwargs)
         
+        # Replace import function
         __builtins__.__import__ = safe_import
 
     def _restrict_builtins(self):
-        """Restrict dangerous builtin functions."""
-        original_builtins = __builtins__.copy()
+        """Restrict dangerous builtin functions using a safer approach."""
+        # Store original builtins for restoration
+        self._original_builtins = {}
         
         for func_name in self.blocked_functions:
             if hasattr(__builtins__, func_name):
+                self._original_builtins[func_name] = getattr(__builtins__, func_name)
                 delattr(__builtins__, func_name)
 
     def _timeout_handler(self, signum, frame):
         """Handle timeout signals."""
         raise TimeoutError(f"Operation timed out after {self.max_wall_time} seconds")
 
+    def _is_main_thread(self) -> bool:
+        """Check if current thread is the main thread."""
+        return threading.current_thread() is threading.main_thread()
+
+    def _set_timeout_safe(self):
+        """Set timeout using signal.alarm only in main thread."""
+        if self._is_main_thread():
+            signal.alarm(self.max_wall_time)
+        else:
+            logger.warning("Timeout not set: signal.alarm not available in non-main thread")
+
     @contextmanager
     def sandbox_context(self):
         """Context manager for sandboxed execution."""
         # Store original state
-        original_import = __builtins__.__import__
         original_signal_handlers = {}
         
         try:
@@ -115,9 +149,12 @@ class SandboxExecutor:
             self._restrict_imports()
             self._restrict_builtins()
             
-            # Set up signal handlers for timeout
-            original_signal_handlers[signal.SIGALRM] = signal.signal(signal.SIGALRM, self._timeout_handler)
-            signal.alarm(self.max_wall_time)
+            # Set up signal handlers for timeout (only in main thread)
+            if self._is_main_thread():
+                original_signal_handlers[signal.SIGALRM] = signal.signal(signal.SIGALRM, self._timeout_handler)
+                self._set_timeout_safe()
+            else:
+                logger.warning("Signal-based timeout not available in non-main thread")
             
             # Disable network access if not allowed
             if not self.allow_network:
@@ -129,8 +166,14 @@ class SandboxExecutor:
             logger.error(f"Sandbox execution error: {e}")
             raise
         finally:
-            # Restore original state
-            __builtins__.__import__ = original_import
+            # Restore original state - properly restore builtins
+            if hasattr(self, '_original_import'):
+                __builtins__.__import__ = self._original_import
+            
+            # Restore blocked functions
+            if hasattr(self, '_original_builtins'):
+                for func_name, func in self._original_builtins.items():
+                    setattr(__builtins__, func_name, func)
             
             # Restore signal handlers
             for sig, handler in original_signal_handlers.items():
@@ -182,9 +225,10 @@ class SandboxExecutor:
                 return result, execution_info
                 
         except Exception as e:
-            execution_info['error'] = str(e)
-            logger.error(f"Sandbox execution failed: {e}")
-            raise
+            sandbox_error = SandboxError("An error occurred during sandboxed execution.", e)
+            execution_info['error'] = sandbox_error.to_dict()
+            logger.error(f"Sandbox execution failed: {sandbox_error}")
+            return None, execution_info
         finally:
             execution_info['end_time'] = time.time()
             execution_info['duration'] = execution_info['end_time'] - start_time
