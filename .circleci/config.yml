@@ -64,16 +64,16 @@ commands:
             export PATH="$HOME/miniconda/bin:$PATH"
             
             # Initialize conda
-            conda init bash
+            $HOME/miniconda/bin/conda init bash
             
             # Source bashrc
             source ~/.bashrc
             
             # Create environment
-            conda env create -f environment.yml
+            $HOME/miniconda/bin/conda env create -f environment.yml
             
             # Install additional dependencies
-            conda activate samo-dl-stable
+            $HOME/miniconda/bin/conda activate samo-dl-stable
             pip install -e ".[test,dev,prod]"
             pip install httpx python-multipart psycopg2-binary
             
@@ -116,7 +116,7 @@ commands:
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
             source ~/.bashrc
-            conda activate samo-dl-stable
+            $HOME/miniconda/bin/conda activate samo-dl-stable
             echo "🔥 Pre-warming models..."
             python -c "
             from transformers import AutoTokenizer, AutoModel, AutoModelForSeq2SeqLM
@@ -143,7 +143,7 @@ commands:
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
             source ~/.bashrc
-            conda activate samo-dl-stable
+            $HOME/miniconda/bin/conda activate samo-dl-stable
             echo "🔍 Running Ruff linter..."
             ruff check src/ tests/ --output-format=github || echo "⚠️ Linting issues found but continuing..."
           ignore_failure: true
@@ -152,7 +152,7 @@ commands:
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
             source ~/.bashrc
-            conda activate samo-dl-stable
+            $HOME/miniconda/bin/conda activate samo-dl-stable
             echo "🎨 Checking code formatting..."
             ruff format --check src/ tests/ || echo "⚠️ Formatting issues found but continuing..."
           ignore_failure: true
@@ -161,7 +161,7 @@ commands:
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
             source ~/.bashrc
-            conda activate samo-dl-stable
+            $HOME/miniconda/bin/conda activate samo-dl-stable
             echo "📝 Running type checking (optional)..."
             python -m mypy src/ --ignore-missing-imports || echo "⚠️ Type checking failed but continuing..."
           no_output_timeout: 10m
@@ -176,7 +176,7 @@ commands:
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
             source ~/.bashrc
-            conda activate samo-dl-stable
+            $HOME/miniconda/bin/conda activate samo-dl-stable
             echo "🔒 Running Bandit security scan..."
             bandit -r src/ -f json -o bandit-report.json
 
@@ -188,7 +188,7 @@ commands:
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
             source ~/.bashrc
-            conda activate samo-dl-stable
+            $HOME/miniconda/bin/conda activate samo-dl-stable
             echo "🛡️ Checking dependency vulnerabilities..."
             safety check --json --output safety-report.json
 
@@ -200,7 +200,7 @@ commands:
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
             source ~/.bashrc
-            conda activate samo-dl-stable
+            $HOME/miniconda/bin/conda activate samo-dl-stable
             echo "🧪 Running API Rate Limiter Tests..."
             python scripts/testing/run_api_rate_limiter_tests.py
       - run:
@@ -208,7 +208,7 @@ commands:
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
             source ~/.bashrc
-            conda activate samo-dl-stable
+            $HOME/miniconda/bin/conda activate samo-dl-stable
             echo "🧪 Running rate limiter tests sequentially..."
             python -m pytest tests/unit/test_api_rate_limiter.py \
               --cov=src \
@@ -224,7 +224,7 @@ commands:
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
             source ~/.bashrc
-            conda activate samo-dl-stable
+            $HOME/miniconda/bin/conda activate samo-dl-stable
             echo "🧪 Running other unit tests sequentially..."
             python -m pytest tests/unit/ \
               --ignore=tests/unit/test_api_rate_limiter.py \
@@ -302,7 +302,7 @@ jobs:
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
             source ~/.bashrc
-            conda activate samo-dl-stable
+            $HOME/miniconda/bin/conda activate samo-dl-stable
             echo "🔗 Running integration tests..."
             python -m pytest tests/integration/ \
               --junit-xml=test-results/integration/results.xml \
@@ -323,7 +323,7 @@ jobs:
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
             source ~/.bashrc
-            conda activate samo-dl-stable
+            $HOME/miniconda/bin/conda activate samo-dl-stable
             echo "🚀 Running comprehensive CI pipeline..."
             python scripts/ci/run_full_ci_pipeline.py
       - store_artifacts:
@@ -347,7 +347,7 @@ jobs:
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
             source ~/.bashrc
-            conda activate samo-dl-stable
+            $HOME/miniconda/bin/conda activate samo-dl-stable
             echo "🎯 Running end-to-end tests..."
             python -m pytest tests/e2e/ \
               --junit-xml=test-results/e2e/results.xml \
@@ -369,7 +369,7 @@ jobs:
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
             source ~/.bashrc
-            conda activate samo-dl-stable
+            $HOME/miniconda/bin/conda activate samo-dl-stable
             echo "⚡ Running performance benchmarks..."
             python scripts/legacy/optimize_performance.py --benchmark
       - run:
@@ -377,7 +377,7 @@ jobs:
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
             source ~/.bashrc
-            conda activate samo-dl-stable
+            $HOME/miniconda/bin/conda activate samo-dl-stable
             echo "🚀 Testing API response times..."
             python -c "
             import time
@@ -418,7 +418,7 @@ jobs:
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
             source ~/.bashrc
-            conda activate samo-dl-stable
+            $HOME/miniconda/bin/conda activate samo-dl-stable
             echo "🖥️ Setting up GPU environment..."
             nvidia-smi
             python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
@@ -427,7 +427,7 @@ jobs:
           command: |
             export PATH="$HOME/miniconda/bin:$PATH"
             source ~/.bashrc
-            conda activate samo-dl-stable
+            $HOME/miniconda/bin/conda activate samo-dl-stable
             echo "🚀 Testing GPU model training..."
             python -c "
             import torch
