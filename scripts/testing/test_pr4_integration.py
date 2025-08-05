@@ -263,7 +263,15 @@ class PR4IntegrationTester:
         """Test that security scanning tools are available and functional."""
         try:
             # Test bandit availability
-            result = subprocess.run(['bandit', '--version'], 
+            bandit_path = shutil.which('bandit')
+            if not bandit_path:
+                return {
+                    "name": "Security Scanning Tools",
+                    "passed": False,
+                    "message": "Bandit security scanner not found in PATH",
+                    "details": "Install bandit: pip install bandit"
+                }
+            result = subprocess.run([bandit_path, '--version'], 
                                   capture_output=True, text=True, timeout=30)
             if result.returncode != 0:
                 return {
