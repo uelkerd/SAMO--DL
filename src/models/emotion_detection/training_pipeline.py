@@ -22,12 +22,12 @@ from transformers import (
 )
 from transformers.optimization import AdamW
 
-from .bert_classifier import (
+from src.models.emotion_detection.bert_classifier import (
     create_bert_emotion_classifier,
     evaluate_emotion_classifier,
     EmotionDataset,
 )
-from .dataset_loader import (
+from src.models.emotion_detection.dataset_loader import (
     create_goemotions_loader,
 )
 
