@@ -332,9 +332,9 @@ class EmotionDetectionTrainer:
                 if torch.isinf(logits).any():
                     logger.error("❌ CRITICAL: Inf values in logits!")
 
-                logger.info("   Predictions min: {torch.sigmoid(logits).min().item():.6f}")
-                logger.info("   Predictions max: {torch.sigmoid(logits).max().item():.6f}")
-                logger.info("   Predictions mean: {torch.sigmoid(logits).mean().item():.6f}")
+                logger.info(f"   Predictions min: {torch.sigmoid(logits).min().item():.6f}")
+                logger.info(f"   Predictions max: {torch.sigmoid(logits).max().item():.6f}")
+                logger.info(f"   Predictions mean: {torch.sigmoid(logits).mean().item():.6f}")
 
             loss = self.loss_fn(logits, labels)
 
