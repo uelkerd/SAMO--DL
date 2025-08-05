@@ -1,18 +1,6 @@
-            # Check if types match (with some flexibility for numeric types)
-            # Get actual type
-        # Check data types
-        # Check for missing values
-        # Check for required columns
-        # Check text quality
-        # Identify potentially problematic entries
-        # Log summary of issues
-        # Make a copy to avoid modifying the original
-        # Text length
-        # Word count
-    # Check for potentially harmful content (basic check)
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
-from typing import Optional, Union
+from typing import Dict, List, Optional, Union
 import logging
 import pandas as pd
 
@@ -31,8 +19,8 @@ class DataValidator:
         """Initialize data validator."""
 
     def check_missing_values(
-        self, df: pd.DataFrame, required_columns: Optional[list[str]] = None
-    ) -> dict[str, float]:
+        self, df: pd.DataFrame, required_columns: Optional[List[str]] = None
+    ) -> Dict[str, float]:
         """Check for missing values in DataFrame.
 
         Args:
@@ -62,8 +50,8 @@ class DataValidator:
         return missing_stats
 
     def check_data_types(
-        self, df: pd.DataFrame, expected_types: dict[str, type]
-    ) -> dict[str, bool]:
+        self, df: pd.DataFrame, expected_types: Dict[str, type]
+    ) -> Dict[str, bool]:
         """Check if columns have expected data types.
 
         Args:
@@ -146,7 +134,7 @@ class DataValidator:
     def validate_journal_entries(
         self,
         df: pd.DataFrame,
-        required_columns: Optional[list[str]] = None,
+        required_columns: Optional[List[str]] = None,
         expected_types: Optional[dict[str, type]] = None,
     ) -> dict[str, Union[bool, pd.DataFrame, dict]]:
         """Perform comprehensive validation on journal entries DataFrame.
