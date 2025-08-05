@@ -161,8 +161,8 @@ async def load_model() -> None:
 
         logger.info("✅ Model loaded successfully!")
 
-    except Exception:
-        logger.error("Failed to load model: {e}")
+    except Exception as e:
+        logger.error(f"Failed to load model: {e}")
         logger.error(traceback.format_exc())
         raise
 
