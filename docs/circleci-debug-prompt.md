@@ -24,6 +24,9 @@ Pipeline failures after repository reorganization caused cascade of issues:
 - **Import Validation**: Always verify import paths after file reorganization
 - **Syntax Validation**: Jupyter notebook syntax (`!git clone`) is invalid in Python files
 - **Systematic Debugging**: Use CircleCI MCP tools for real-time pipeline monitoring
+- **Environment Management**: Always use project conda environments (`samo-dl-fresh` or `samo-dl-stable`) for testing, not global Python installations
+- **Dependency Isolation**: Conda environments ensure consistent dependencies across development and CI/CD
+- **Python Version Compatibility**: Python 3.8 requires `List[str]` instead of `list[str]` type annotations
 
 ### Success Metrics
 - Pipeline #346 running successfully

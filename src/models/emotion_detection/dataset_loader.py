@@ -314,4 +314,4 @@ def create_goemotions_loader(
 if __name__ == "__main__":
     loader = create_goemotions_loader()
     datasets = loader.prepare_datasets()
-    print(f"Dataset prepared successfully: {len(datasets['train_data'])} training samples")
+    logger.info(f"Dataset prepared successfully: {len(datasets['train_data'])} training samples")

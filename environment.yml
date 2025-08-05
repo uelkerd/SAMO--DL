@@ -1,6 +1,6 @@
 # environment.yml - Optimized for SAMO Deep Learning Track
 # Focus: Minimize conflicts while maintaining compatibility
-name: samo-dl
+name: samo-dl-stable
 channels:
   - pytorch
   - conda-forge

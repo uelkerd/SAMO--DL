@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import Any, Optional
 
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.utils.data import Dataset
 from transformers import (
     AutoModelForSeq2SeqLM,

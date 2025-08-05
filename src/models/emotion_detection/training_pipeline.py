@@ -14,7 +14,7 @@ from typing import Any, Optional
 
 import numpy as np
 import torch
-import torch.nn.functional as F
+# import torch.nn.functional as F  # Commented out since not used
 from torch.utils.data import DataLoader
 from transformers import (
     AutoTokenizer,
@@ -155,7 +155,6 @@ class EmotionDetectionTrainer:
             val_texts = [val_texts[i] for i in val_indices]
             val_labels = [val_labels[i] for i in val_indices]
 
-            original_batch_size = self.batch_size
             self.batch_size = min(128, self.batch_size * 8)  # Much larger batch size
             logger.info(
                 "🔧 DEVELOPMENT MODE: Using {len(train_texts)} training examples, batch_size={self.batch_size} (was {original_batch_size})"
@@ -333,10 +332,9 @@ class EmotionDetectionTrainer:
                 if torch.isinf(logits).any():
                     logger.error("❌ CRITICAL: Inf values in logits!")
 
-                predictions = torch.sigmoid(logits)
-                logger.info("   Predictions min: {predictions.min().item():.6f}")
-                logger.info("   Predictions max: {predictions.max().item():.6f}")
-                logger.info("   Predictions mean: {predictions.mean().item():.6f}")
+                logger.info("   Predictions min: {torch.sigmoid(logits).min().item():.6f}")
+                logger.info("   Predictions max: {torch.sigmoid(logits).max().item():.6f}")
+                logger.info("   Predictions mean: {torch.sigmoid(logits).mean().item():.6f}")
 
             loss = self.loss_fn(logits, labels)
 
@@ -344,22 +342,23 @@ class EmotionDetectionTrainer:
                 logger.info("🔍 DEBUG: Loss Analysis")
                 logger.info("   Raw loss: {loss.item():.8f}")
 
-                bce_manual = F.binary_cross_entropy_with_logits(
-                    logits, labels.float(), reduction="mean"
-                )
-                logger.info("   Manual BCE loss: {bce_manual.item():.8f}")
+                # Manual BCE calculation for debugging (commented out to avoid unused variable)
+                # bce_manual = F.binary_cross_entropy_with_logits(
+                #     logits, labels.float(), reduction="mean"
+                # )
+                # logger.info("   Manual BCE loss: {bce_manual.item():.8f}")
 
                 if abs(loss.item()) < 1e-10:
                     logger.error("❌ CRITICAL: Loss is effectively zero!")
                     logger.error("   This indicates a serious training issue!")
 
-                for i in range(min(5, logits.shape[1])):
-                    class_logits = logits[:, i]
-                    class_labels = labels[:, i].float()
-                    class_loss = F.binary_cross_entropy_with_logits(
-                        class_logits, class_labels, reduction="mean"
-                    )
-                    logger.info("   Class {i} loss: {class_loss.item():.8f}")
+                # for i in range(min(5, logits.shape[1])):
+                #     class_logits = logits[:, i]
+                #     class_labels = labels[:, i].float()
+                #     # class_loss = F.binary_cross_entropy_with_logits(
+                #     #     class_logits, class_labels, reduction="mean"
+                #     # )
+                #     # logger.info("   Class {i} loss: {class_loss.item():.8f}")
 
             loss.backward()
 
@@ -382,7 +381,7 @@ class EmotionDetectionTrainer:
                     if total_norm < 1e-6:
                         logger.warning("⚠️  WARNING: Very small gradient norm detected!")
 
-            clip_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
 
             if batch_idx == 0:
                 logger.info("   Gradient norm after clipping: {clip_norm:.6f}")
@@ -394,8 +393,6 @@ class EmotionDetectionTrainer:
 
             if batch_idx < 5 or (batch_idx + 1) % 100 == 0:  # First 5 batches + every 100
                 avg_loss = total_loss / (batch_idx + 1)
-                current_lr = self.scheduler.get_last_lr()[0]
-
                 logger.info(
                     "Epoch {epoch}, Batch {batch_idx + 1}/{num_batches}, "
                     "Loss: {avg_loss:.8f}, LR: {current_lr:.2e}"
