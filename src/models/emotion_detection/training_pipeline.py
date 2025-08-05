@@ -7,8 +7,10 @@ emotion detection model with advanced features like focal loss, temperature
 scaling, and ensemble methods.
 """
 
+import json
 import logging
 import os
+import time
 import warnings
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -23,10 +25,12 @@ from transformers import (
     AutoTokenizer,
     get_linear_schedule_with_warmup,
 )
+from transformers.optimization import AdamW
 
 from .bert_classifier import (
     create_bert_emotion_classifier,
     evaluate_emotion_classifier,
+    EmotionDataset,
 )
 from .dataset_loader import (
     GoEmotionsDataLoader,
@@ -163,11 +167,11 @@ class EmotionDetectionTrainer:
                 "🔧 DEVELOPMENT MODE: Using {len(train_texts)} training examples, batch_size={self.batch_size} (was {original_batch_size})"
             )
 
-        self.train_dataset = GoEmotionsDataset(
+        self.train_dataset = EmotionDataset(
             train_texts, train_labels, self.tokenizer, self.max_length
         )
-        self.val_dataset = GoEmotionsDataset(val_texts, val_labels, self.tokenizer, self.max_length)
-        self.test_dataset = GoEmotionsDataset(test_texts, test_labels, self.tokenizer, self.max_length)
+        self.val_dataset = EmotionDataset(val_texts, val_labels, self.tokenizer, self.max_length)
+        self.test_dataset = EmotionDataset(test_texts, test_labels, self.tokenizer, self.max_length)
 
         self.train_dataloader = DataLoader(
             self.train_dataset,
