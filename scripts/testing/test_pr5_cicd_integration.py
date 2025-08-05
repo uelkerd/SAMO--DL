@@ -30,28 +30,74 @@ def test_yaml_syntax():
         return False
 
 def test_conda_environment_setup():
-    """Test that conda environment setup works locally."""
+    """Test that conda environment setup works locally and installs packages."""
+    import tempfile
+    import shutil
+
     print("🔍 Testing conda environment setup...")
-    
+
+    env_name = None
     try:
         # Test if conda is available
-        result = subprocess.run(['conda', '--version'], 
-                              capture_output=True, text=True, timeout=10)
+        result = subprocess.run(['conda', '--version'],
+                                capture_output=True, text=True, timeout=10)
         if result.returncode != 0:
             print("❌ Conda not available")
             return False
-        
+
         # Test if environment file exists
         env_path = Path("environment.yml")
         if not env_path.exists():
             print("❌ environment.yml not found")
             return False
-        
-        print("✅ Conda environment setup validation passed")
+
+        # Create a unique environment name
+        env_name = f"test_env_{os.getpid()}"
+
+        # Create the environment
+        print(f"🔧 Creating conda environment '{env_name}' from environment.yml...")
+        create_result = subprocess.run(
+            ['conda', 'env', 'create', '-f', str(env_path), '-n', env_name],
+            capture_output=True, text=True, timeout=300
+        )
+        if create_result.returncode != 0:
+            print(f"❌ Failed to create conda environment:\n{create_result.stderr}")
+            return False
+
+        # Read the environment.yml to get a key package to check
+        with open(env_path, 'r') as f:
+            env_yaml = yaml.safe_load(f)
+        dependencies = env_yaml.get('dependencies', [])
+        # Find a package name (skip pip sublists)
+        key_package = None
+        for dep in dependencies:
+            if isinstance(dep, str):
+                key_package = dep.split('=')[0]
+                break
+        if not key_package:
+            key_package = "python"  # fallback
+
+        # Check that the key package is installed in the new environment
+        print(f"🔍 Verifying package '{key_package}' is installed in '{env_name}'...")
+        list_result = subprocess.run(
+            ['conda', 'run', '-n', env_name, 'python', '-c', f"import {key_package}"],
+            capture_output=True, text=True, timeout=30
+        )
+        if list_result.returncode != 0:
+            print(f"❌ Package '{key_package}' not installed or import failed:\n{list_result.stderr}")
+            return False
+
+        print("✅ Conda environment setup and package installation validation passed")
         return True
     except Exception as e:
         print(f"❌ Conda environment test failed: {e}")
         return False
+    finally:
+        # Clean up: remove the test environment if it was created
+        if env_name:
+            print(f"🧹 Removing test conda environment '{env_name}'...")
+            subprocess.run(['conda', 'env', 'remove', '-n', env_name, '-y'],
+                           capture_output=True, text=True)
 
 def test_critical_fixes():
     """Test that critical CircleCI fixes are applied."""
