@@ -262,8 +262,7 @@ curl https://api.samo-project.com/health
 # Expected response
 {
   "status": "healthy",
-  "model_loaded": true,
-  "model_loading": false,
+  "model_status": "loaded",
   "port": "8080",
   "timestamp": 1640995200.0
 }
