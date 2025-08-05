@@ -1,7 +1,7 @@
 version: 2.1
 
 # ============================================================================
-# SAMO Deep Learning - CircleCI Pipeline Configuration (SIMPLIFIED)
+# SAMO Deep Learning - CircleCI Pipeline Configuration (SIMPLIFICATION)
 #
 # 3-Stage Pipeline Design (following user's CI guidelines):
 # Stage 1 (<3min):  Fast feedback - linting, formatting, unit tests (parallel)
