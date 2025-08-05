@@ -16,6 +16,7 @@ api:
     allowed_origins:
       - "https://samo-project.com"
       - "https://app.samo-project.com"
+      # WARNING: Remove the following localhost origin before deploying to production!
       - "http://localhost:3000"  # Development only
     allowed_methods:
       - "GET"
