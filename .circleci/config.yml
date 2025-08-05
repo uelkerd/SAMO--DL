@@ -44,9 +44,9 @@ executors:
 # COMMANDS - Reusable command definitions (SIMPLIFIED)
 # ============================================================================
 commands:
-  # SIMPLIFIED CONDA ENVIRONMENT COMMAND
+  # ROBUST CONDA ENVIRONMENT COMMAND - BYPASSES SHELL COMPATIBILITY ISSUES
   run_in_conda:
-    description: "Run command in conda environment (SIMPLIFIED)"
+    description: "Run command in conda environment (ROBUST)"
     parameters:
       step_name:
         type: string
@@ -58,7 +58,9 @@ commands:
       - run:
           name: "<< parameters.step_name >>"
           command: |
-            $HOME/miniconda/bin/conda run -n samo-dl-stable bash -c "<< parameters.command >>"
+            source $HOME/miniconda/etc/profile.d/conda.sh
+            conda activate samo-dl-stable
+            << parameters.command >>
           shell: /bin/bash  # Explicitly specify bash for consistent behavior
 
   setup_python_env:
