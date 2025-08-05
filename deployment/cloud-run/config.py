@@ -43,7 +43,7 @@ class CloudRunConfig:
     
     # Security
     enable_cors: bool = True
-    cors_origins: list = None
+    cors_origins: Optional[list] = None
     enable_rate_limiting: bool = True
     enable_input_sanitization: bool = True
 
@@ -169,28 +169,21 @@ class EnvironmentConfig:
             'max_requests_per_minute': self.config.max_requests_per_minute
         }
     
-    def validate_config(self) -> bool:
+    def validate_config(self) -> None:
         """Validate configuration settings"""
-        try:
-            # Validate resource limits
-            assert 512 <= self.config.memory_limit_mb <= 8192, "Memory limit must be between 512MB and 8GB"
-            assert 1 <= self.config.cpu_limit <= 8, "CPU limit must be between 1 and 8"
-            assert 1 <= self.config.max_instances <= 100, "Max instances must be between 1 and 100"
-            assert 0 <= self.config.min_instances <= self.config.max_instances, "Min instances cannot exceed max instances"
-            
-            # Validate timeouts
-            assert 10 <= self.config.timeout_seconds <= 900, "Timeout must be between 10 and 900 seconds"
-            assert 5 <= self.config.health_check_interval_seconds <= 300, "Health check interval must be between 5 and 300 seconds"
-            
-            # Validate utilization targets
-            assert 0.1 <= self.config.target_cpu_utilization <= 0.9, "CPU utilization target must be between 0.1 and 0.9"
-            assert 0.1 <= self.config.target_memory_utilization <= 0.9, "Memory utilization target must be between 0.1 and 0.9"
-            
-            return True
-            
-        except AssertionError as e:
-            print(f"Configuration validation failed: {e}")
-            return False
+        # Validate resource limits
+        assert 512 <= self.config.memory_limit_mb <= 8192, "Memory limit must be between 512MB and 8GB"
+        assert 1 <= self.config.cpu_limit <= 8, "CPU limit must be between 1 and 8"
+        assert 1 <= self.config.max_instances <= 100, "Max instances must be between 1 and 100"
+        assert 0 <= self.config.min_instances <= self.config.max_instances, "Min instances cannot exceed max instances"
+        
+        # Validate timeouts
+        assert 10 <= self.config.timeout_seconds <= 900, "Timeout must be between 10 and 900 seconds"
+        assert 5 <= self.config.health_check_interval_seconds <= 300, "Health check interval must be between 5 and 300 seconds"
+        
+        # Validate utilization targets
+        assert 0.1 <= self.config.target_cpu_utilization <= 0.9, "CPU utilization target must be between 0.1 and 0.9"
+        assert 0.1 <= self.config.target_memory_utilization <= 0.9, "Memory utilization target must be between 0.1 and 0.9"
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert configuration to dictionary"""

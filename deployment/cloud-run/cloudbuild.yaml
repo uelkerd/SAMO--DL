@@ -1,5 +1,32 @@
+timeout: '3600s'
+
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/71517823771/samo-dl/samo-emotion-api-secure', '-f', 'Dockerfile.secure', '.']
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/samo-dl/samo-emotion-api-secure', '-f', 'Dockerfile.secure', '.']
+    timeout: '1800s'
+  
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args:
+      - 'gcloud'
+      - 'run'
+      - 'deploy'
+      - 'samo-emotion-api-secure'
+      - '--image=us-central1-docker.pkg.dev/$PROJECT_ID/samo-dl/samo-emotion-api-secure'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--port=8080'
+      - '--memory=2Gi'
+      - '--cpu=2'
+      - '--max-instances=10'
+      - '--min-instances=1'
+      - '--concurrency=80'
+      - '--timeout=300'
+      - '--set-env-vars=ENVIRONMENT=production,HEALTH_CHECK_INTERVAL=30,GRACEFUL_SHUTDOWN_TIMEOUT=30'
+      - '--set-env-vars=ENABLE_MONITORING=true,ENABLE_HEALTH_CHECKS=true'
+      - '--set-env-vars=MAX_INPUT_LENGTH=512,RATE_LIMIT_PER_MINUTE=100'
+      - '--set-env-vars=LOG_LEVEL=info'
+    timeout: '1800s'
+
 images:
-  - 'us-central1-docker.pkg.dev/71517823771/samo-dl/samo-emotion-api-secure'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/samo-dl/samo-emotion-api-secure'

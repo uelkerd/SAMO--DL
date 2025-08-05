@@ -136,7 +136,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             self.assertEqual(config.environment, 'production', "Should load production environment")
             
             # Test configuration validation
-            self.assertTrue(config.validate_config(), "Production config should be valid")
+            config.validate_config()  # Should not raise exception for valid config
             
             # Test resource limits
             cloud_config = config.config
@@ -149,13 +149,13 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         with patch.dict(os.environ, {'ENVIRONMENT': 'staging'}):
             config = EnvironmentConfig()
             self.assertEqual(config.environment, 'staging', "Should load staging environment")
-            self.assertTrue(config.validate_config(), "Staging config should be valid")
+            config.validate_config()  # Should not raise exception for valid config
         
         # Test development configuration
         with patch.dict(os.environ, {'ENVIRONMENT': 'development'}):
             config = EnvironmentConfig()
             self.assertEqual(config.environment, 'development', "Should load development environment")
-            self.assertTrue(config.validate_config(), "Development config should be valid")
+            config.validate_config()  # Should not raise exception for valid config
         
         # Test edge case: invalid environment
         with patch.dict(os.environ, {'ENVIRONMENT': 'invalid'}):
@@ -381,7 +381,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             'MAX_INSTANCES': ''
         }):
             config = EnvironmentConfig()
-            self.assertTrue(config.validate_config(), "Should handle empty environment variables")
+            config.validate_config()  # Should not raise exception for valid config
         
         print("✅ Configuration edge case tests passed")
     
