@@ -381,7 +381,7 @@ class EmotionDetectionTrainer:
                     if total_norm < 1e-6:
                         logger.warning("⚠️  WARNING: Very small gradient norm detected!")
 
-            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
+            clip_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
 
             if batch_idx == 0:
                 logger.info("   Gradient norm after clipping: {clip_norm:.6f}")
