@@ -53,33 +53,34 @@ commands:
             sudo apt-get install -y portaudio19-dev python3-pyaudio
             echo "✅ System dependencies installed"
       - run:
-          name: Install Miniconda
+          name: Install and setup Miniconda with environment
           command: |
+            # Install Miniconda
             wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
             bash miniconda.sh -b -p $HOME/miniconda
-            echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> $BASH_ENV
-            source $BASH_ENV
+            
+            # Add to PATH and initialize
+            export PATH="$HOME/miniconda/bin:$PATH"
             conda init bash
-            echo "✅ Miniconda installed"
-      - run:
-          name: Create and activate conda environment
-          command: |
-            source $BASH_ENV
+            
+            # Source bashrc to load conda
+            source ~/.bashrc
+            
+            # Create environment
             conda env create -f environment.yml
-            echo "conda activate samo-dl-stable" >> $BASH_ENV
-            source $BASH_ENV
+            
+            # Activate environment
             conda activate samo-dl-stable
-            echo "✅ Conda environment 'samo-dl-stable' created and activated"
-      - run:
-          name: Install additional dependencies
-          command: |
-            source $BASH_ENV
-            conda activate samo-dl-stable
-            # Install project in editable mode
+            
+            # Install additional dependencies
             pip install -e ".[test,dev,prod]"
-            # Install additional packages that might not be in environment.yml
-            pip install httpx python-multipart
-            echo "✅ All dependencies installed in conda environment"
+            pip install httpx python-multipart psycopg2-binary
+            
+            # Persist environment activation for subsequent steps
+            echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> $BASH_ENV
+            echo "conda activate samo-dl-stable" >> $BASH_ENV
+            
+            echo "✅ Conda environment 'samo-dl-stable' created and activated"
 
   # ENHANCED CACHING STRATEGY
   cache_dependencies:
@@ -115,6 +116,8 @@ commands:
       - run:
           name: Pre-warm Models
           command: |
+            source $BASH_ENV
+            conda activate samo-dl-stable
             echo "🔥 Pre-warming models..."
             python -c "
             from transformers import AutoTokenizer, AutoModel, AutoModelForSeq2SeqLM
@@ -169,6 +172,8 @@ commands:
       - run:
           name: Bandit Security Scan
           command: |
+            source $BASH_ENV
+            conda activate samo-dl-stable
             echo "🔒 Running Bandit security scan..."
             bandit -r src/ -f json -o bandit-report.json
 
@@ -178,6 +183,8 @@ commands:
       - run:
           name: Safety Check (Dependencies)
           command: |
+            source $BASH_ENV
+            conda activate samo-dl-stable
             echo "🛡️ Checking dependency vulnerabilities..."
             safety check --json --output safety-report.json
 
@@ -286,6 +293,8 @@ jobs:
       - run:
           name: Integration Tests
           command: |
+            source $BASH_ENV
+            conda activate samo-dl-stable
             echo "🔗 Running integration tests..."
             python -m pytest tests/integration/ \
               --junit-xml=test-results/integration/results.xml \
@@ -304,6 +313,8 @@ jobs:
       - run:
           name: Comprehensive CI Pipeline Test
           command: |
+            source $BASH_ENV
+            conda activate samo-dl-stable
             echo "🚀 Running comprehensive CI pipeline..."
             python scripts/ci/run_full_ci_pipeline.py
       - store_artifacts:
@@ -325,6 +336,8 @@ jobs:
       - run:
           name: End-to-End Tests
           command: |
+            source $BASH_ENV
+            conda activate samo-dl-stable
             echo "🎯 Running end-to-end tests..."
             python -m pytest tests/e2e/ \
               --junit-xml=test-results/e2e/results.xml \
@@ -344,11 +357,15 @@ jobs:
       - run:
           name: Model Performance Benchmarks
           command: |
+            source $BASH_ENV
+            conda activate samo-dl-stable
             echo "⚡ Running performance benchmarks..."
             python scripts/legacy/optimize_performance.py --benchmark
       - run:
           name: API Response Time Tests
           command: |
+            source $BASH_ENV
+            conda activate samo-dl-stable
             echo "🚀 Testing API response times..."
             python -c "
             import time
@@ -387,12 +404,16 @@ jobs:
       - run:
           name: GPU Environment Setup
           command: |
+            source $BASH_ENV
+            conda activate samo-dl-stable
             echo "🖥️ Setting up GPU environment..."
             nvidia-smi
             python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
       - run:
           name: GPU Training Test
           command: |
+            source $BASH_ENV
+            conda activate samo-dl-stable
             echo "🚀 Testing GPU model training..."
             python -c "
             import torch
