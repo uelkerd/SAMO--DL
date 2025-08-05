@@ -12,6 +12,8 @@ from flask import Flask, request, Response, g
 import time
 import hashlib
 import secrets
+import yaml
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +35,10 @@ class SecurityHeadersConfig:
     enable_content_security_policy: bool = True
     enable_request_id: bool = True
     enable_correlation_id: bool = True
+    # Enhanced user agent analysis
+    enable_enhanced_ua_analysis: bool = True
+    ua_suspicious_score_threshold: int = 4  # Score threshold for suspicious UAs
+    ua_blocking_enabled: bool = False  # Whether to block suspicious UAs (vs just log)
 
 class SecurityHeadersMiddleware:
     """
@@ -54,6 +60,14 @@ class SecurityHeadersMiddleware:
     def __init__(self, app: Flask, config: SecurityHeadersConfig):
         self.app = app
         self.config = config
+        # Load CSP from YAML config if available
+        self.csp_policy = None
+        try:
+            with open(os.path.join(os.path.dirname(__file__), '../configs/security.yaml'), 'r') as f:
+                security_config = yaml.safe_load(f)
+                self.csp_policy = security_config.get('security_headers', {}).get('headers', {}).get('Content-Security-Policy')
+        except Exception as e:
+            logger.warning(f"Could not load CSP from config: {e}")
         
         # Register middleware
         app.before_request(self._before_request)
@@ -68,7 +82,7 @@ class SecurityHeadersMiddleware:
         if self.config.enable_request_id:
             g.request_id = hashlib.sha256(
                 f"{time.time()}:{request.remote_addr}:{secrets.token_hex(8)}".encode()
-            ).hexdigest()[:16]
+            ).hexdigest()
         
         # Generate correlation ID
         if self.config.enable_correlation_id:
@@ -139,46 +153,18 @@ class SecurityHeadersMiddleware:
             response.headers['Origin-Agent-Cluster'] = '?1'
     
     def _build_csp_policy(self) -> str:
-        """Build Content Security Policy."""
-        directives = []
-        
-        # Default source
-        directives.append("default-src 'self'")
-        
-        # Script sources
-        directives.append("script-src 'self' 'unsafe-inline' 'unsafe-eval'")
-        
-        # Style sources
-        directives.append("style-src 'self' 'unsafe-inline'")
-        
-        # Image sources
-        directives.append("img-src 'self' data: https:")
-        
-        # Font sources
-        directives.append("font-src 'self' data:")
-        
-        # Connect sources (for API calls)
-        directives.append("connect-src 'self'")
-        
-        # Frame sources
-        directives.append("frame-src 'none'")
-        
-        # Object sources
-        directives.append("object-src 'none'")
-        
-        # Base URI
-        directives.append("base-uri 'self'")
-        
-        # Form action
-        directives.append("form-action 'self'")
-        
-        # Frame ancestors
-        directives.append("frame-ancestors 'none'")
-        
-        # Upgrade insecure requests
-        directives.append("upgrade-insecure-requests")
-        
-        return "; ".join(directives)
+        """Return CSP policy from config, or a secure default if not set."""
+        if self.csp_policy:
+            return self.csp_policy
+        # Secure fallback default
+        return (
+            "default-src 'self'; "
+            "script-src 'self'; "
+            "style-src 'self'; "
+            "object-src 'none'; "
+            "base-uri 'self'; "
+            "form-action 'self'"
+        )
     
     def _build_permissions_policy(self) -> str:
         """Build Permissions Policy."""
@@ -247,8 +233,109 @@ class SecurityHeadersMiddleware:
         
         logger.info(f"Security audit: {security_info}")
     
+    def _analyze_user_agent_enhanced(self, user_agent: str) -> dict:
+        """Enhanced user agent analysis with scoring and detailed categorization."""
+        if not user_agent:
+            return {"score": 0, "category": "empty", "patterns": [], "risk_level": "low"}
+        
+        score = 0
+        patterns = []
+        ua_lower = user_agent.lower()
+        
+        # Legitimate bot whitelist (negative scoring)
+        legitimate_bots = [
+            'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'facebookexternalhit',
+            'twitterbot', 'linkedinbot', 'whatsapp', 'telegrambot', 'discordbot',
+            'slackbot', 'github-camo', 'github-actions', 'vercel', 'netlify',
+            'uptimerobot', 'pingdom', 'statuscake', 'monitor', 'healthcheck'
+        ]
+        
+        # High-risk patterns (score +3 each)
+        high_risk_patterns = [
+            'sqlmap', 'nikto', 'nmap', 'scanner', 'grabber', 'harvester',
+            'exploit', 'vulnerability', 'penetration', 'security', 'audit'
+        ]
+        
+        # Medium-risk patterns (score +2 each)
+        medium_risk_patterns = [
+            'headless', 'phantom', 'selenium', 'webdriver', 'automated',
+            'testing', 'script', 'python-requests', 'curl', 'wget',
+            'httrack', 'scraper', 'crawler', 'spider', 'bot'
+        ]
+        
+        # Low-risk patterns (score +1 each)
+        low_risk_patterns = [
+            'indexer', 'feed', 'rss', 'aggregator', 'monitor', 'checker',
+            'validator', 'linter', 'checker', 'analyzer'
+        ]
+        
+        # Check legitimate bots first (negative scoring)
+        for bot in legitimate_bots:
+            if bot in ua_lower:
+                score -= 2
+                patterns.append(f"legitimate_bot:{bot}")
+                logger.debug(f"Legitimate bot detected: {bot}")
+        
+        # Check high-risk patterns
+        for pattern in high_risk_patterns:
+            if pattern in ua_lower:
+                score += 3
+                patterns.append(f"high_risk:{pattern}")
+                logger.debug(f"High-risk UA pattern detected: {pattern}")
+        
+        # Check medium-risk patterns
+        for pattern in medium_risk_patterns:
+            if pattern in ua_lower:
+                score += 2
+                patterns.append(f"medium_risk:{pattern}")
+                logger.debug(f"Medium-risk UA pattern detected: {pattern}")
+        
+        # Check low-risk patterns
+        for pattern in low_risk_patterns:
+            if pattern in ua_lower:
+                score += 1
+                patterns.append(f"low_risk:{pattern}")
+                logger.debug(f"Low-risk UA pattern detected: {pattern}")
+        
+        # Bonus for suspicious combinations
+        if any(pattern in ua_lower for pattern in ['bot', 'crawler', 'spider']) and any(pattern in ua_lower for pattern in ['python', 'curl', 'wget', 'script']):
+            score += 2
+            patterns.append("suspicious_combination")
+            logger.debug("Suspicious UA combination detected")
+        
+        # Check for missing or generic user agents
+        if user_agent in ['', 'null', 'undefined', 'unknown', 'anonymous']:
+            score += 2
+            patterns.append("missing_generic_ua")
+            logger.debug("Missing or generic user agent detected")
+        
+        # Determine category and risk level
+        if score <= -1:
+            category = "legitimate_bot"
+            risk_level = "very_low"
+        elif score <= 1:
+            category = "normal"
+            risk_level = "low"
+        elif score <= 3:
+            category = "suspicious"
+            risk_level = "medium"
+        elif score <= 6:
+            category = "high_risk"
+            risk_level = "high"
+        else:
+            category = "malicious"
+            risk_level = "very_high"
+        
+        return {
+            "score": max(0, score),  # Don't return negative scores
+            "category": category,
+            "patterns": patterns,
+            "risk_level": risk_level,
+            "user_agent": user_agent[:100]  # Truncate for logging
+        }
+    
     def _detect_suspicious_patterns(self) -> List[str]:
-        """Detect suspicious patterns in request."""
+        """Enhanced suspicious pattern detection with user agent analysis."""
         patterns = []
         
         # Check for suspicious headers
@@ -273,16 +360,20 @@ class SecurityHeadersMiddleware:
             if param in request.args:
                 patterns.append(f"Suspicious query param: {param}")
         
-        # Check for suspicious user agents
-        suspicious_user_agents = [
-            'sqlmap', 'nikto', 'nmap', 'wget', 'curl',
-            'python-requests', 'scanner', 'bot'
-        ]
-        
-        user_agent = request.headers.get('User-Agent', '').lower()
-        for agent in suspicious_user_agents:
-            if agent in user_agent:
-                patterns.append(f"Suspicious user agent: {agent}")
+        # Enhanced user agent analysis
+        if self.config.enable_enhanced_ua_analysis:
+            user_agent = request.headers.get('User-Agent', '')
+            ua_analysis = self._analyze_user_agent_enhanced(user_agent)
+            
+            if ua_analysis["score"] >= self.config.ua_suspicious_score_threshold:
+                patterns.append(f"Suspicious user agent: {ua_analysis['category']} (score: {ua_analysis['score']})")
+                
+                # Log detailed analysis
+                logger.warning(f"User agent analysis: {ua_analysis}")
+                
+                # Optionally block based on configuration
+                if self.config.ua_blocking_enabled and ua_analysis["risk_level"] in ["high", "very_high"]:
+                    patterns.append("BLOCKED: High-risk user agent")
         
         return patterns
     
@@ -325,6 +416,9 @@ class SecurityHeadersMiddleware:
                 "enable_origin_agent_cluster": self.config.enable_origin_agent_cluster,
                 "enable_request_id": self.config.enable_request_id,
                 "enable_correlation_id": self.config.enable_correlation_id,
+                "enable_enhanced_ua_analysis": self.config.enable_enhanced_ua_analysis,
+                "ua_suspicious_score_threshold": self.config.ua_suspicious_score_threshold,
+                "ua_blocking_enabled": self.config.ua_blocking_enabled,
             },
             "csp_nonce": self._csp_nonce
         } 
