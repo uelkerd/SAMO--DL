@@ -38,7 +38,7 @@ Check the health status of the API and get basic metrics.
 ```json
 {
   "status": "healthy",
-  "model_loaded": true,
+  "model_status": "loaded",
   "model_version": "2.0",
   "emotions": ["anxious", "calm", "content", "excited", "frustrated", "grateful", "happy", "hopeful", "overwhelmed", "proud", "sad", "tired"],
   "uptime_seconds": 1234.5,
