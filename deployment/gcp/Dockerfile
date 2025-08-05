@@ -47,7 +47,7 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy model and prediction script
 COPY model/ ./model/
-COPY predict.py .
+COPY ../cloud-run/robust_predict.py ./robust_predict.py
 
 # Create non-root user for security (GCP best practice)
 RUN useradd -m -u 1000 appuser && \
@@ -64,4 +64,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:8080/health || exit 1
 
 # Run the prediction service
-CMD ["python", "predict.py"]
+CMD ["python", "robust_predict.py"]

@@ -115,6 +115,16 @@ def predict_emotion(text):
         "text": text
     }
 
+
+def ensure_model_loaded():
+    """Ensure model is loaded before processing requests"""
+    if not model_loaded and not model_loading:
+        load_model()
+    
+    if not model_loaded:
+        raise RuntimeError("Model not loaded")
+
+
 @app.route('/', methods=['GET'])
 def root():
     """Root endpoint"""
@@ -139,12 +149,8 @@ def health_check():
 def predict():
     """Predict emotion for given text"""
     try:
-        # Load model if not loaded
-        if not model_loaded and not model_loading:
-            load_model()
-        
-        if not model_loaded:
-            return jsonify({'error': 'Model not loaded'}), 503
+        # Ensure model is loaded
+        ensure_model_loaded()
         
         # Content-type validation
         if not request.is_json:
@@ -174,12 +180,8 @@ def predict():
 def predict_batch():
     """Predict emotions for multiple texts"""
     try:
-        # Load model if not loaded
-        if not model_loaded and not model_loading:
-            load_model()
-        
-        if not model_loaded:
-            return jsonify({'error': 'Model not loaded'}), 503
+        # Ensure model is loaded
+        ensure_model_loaded()
         
         # Content-type validation
         if not request.is_json:
