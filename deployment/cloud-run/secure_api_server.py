@@ -89,12 +89,12 @@ def load_model():
     """Load the emotion detection model"""
     global model_loaded, model_loading, tokenizer, model, emotion_mapping
     
-    # Check if already loading or loaded
-    if model_loading or model_loaded:
-        return
+    with model_lock:
+        # Check if already loading or loaded inside the lock to prevent race conditions
+        if model_loading or model_loaded:
+            return
 
     model_loading = True
-    logger.info("🔄 Starting model loading...")
 
     try:
         # Get model path
