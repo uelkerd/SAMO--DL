@@ -37,4 +37,4 @@ images:
 
 substitutions:
   _ADMIN_API_KEY: 'samo-admin-key-2024-secure-$(date +%s)'
-  _TAG_NAME: 'v$(date +%s)'
+  _TAG_NAME: 'v20240806-001'
