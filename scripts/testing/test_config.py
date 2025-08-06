@@ -29,7 +29,7 @@ class TestConfig:
         
         return os.environ.get(
             "API_BASE_URL", 
-            "https://samo-emotion-api-optimized-secure-71517823771.us-central1.run.app"
+            "https://samo-emotion-api-minimal-71517823771.us-central1.run.app"
         ).rstrip('/')
     
     def _get_api_key(self) -> str:
