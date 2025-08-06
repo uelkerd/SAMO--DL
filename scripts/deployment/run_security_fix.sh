@@ -44,7 +44,7 @@ SECURITY_SCRIPT="$SCRIPT_DIR/security_deployment_fix.py"
 
 # Check if we're in the right directory
 if [[ ! -f "$SECURITY_SCRIPT" ]]; then
-    error "Security deployment script not found: $SECURITY_SCRIPT"
+    error "Security deployment script not found: ${SECURITY_SCRIPT}"
     exit 1
 fi
 
@@ -65,9 +65,9 @@ check_current_deployment() {
     # Try different possible service names
     for service_name in "samo-emotion-api" "samo-emotion-api-71517823771" "arch-fixed-test"; do
         if gcloud run services describe "$service_name" --region=us-central1 --format="value(status.url)" 2>/dev/null; then
-            CURRENT_URL=$(gcloud run services describe "$service_name" --region=us-central1 --format="value(status.url)")
-            CURRENT_SERVICE_NAME="$service_name"
-            warning "Current deployment found: $CURRENT_URL (service: $service_name)"
+            CURRENT_URL=$(gcloud run services describe "${service_name}" --region=us-central1 --format="value(status.url)")
+            CURRENT_SERVICE_NAME="${service_name}"
+            warning "Current deployment found: ${CURRENT_URL} (service: ${service_name})"
             return 0
         fi
     done
@@ -82,7 +82,7 @@ test_current_security() {
     
     if check_current_deployment; then
         # Test for security headers
-        if curl -s -I "$CURRENT_URL/health" | grep -q "Content-Security-Policy"; then
+        if curl -s -I "${CURRENT_URL}/health" | grep -q "Content-Security-Policy"; then
             warning "Current deployment has some security headers"
         else
             error "Current deployment MISSING security headers"
@@ -91,10 +91,10 @@ test_current_security() {
         # Test for rate limiting
         responses=()
         for i in {1..105}; do
-            response=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$CURRENT_URL/predict" \
+            response=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${CURRENT_URL}/predict" \
                 -H "Content-Type: application/json" \
                 -d '{"text":"test"}' 2>/dev/null || echo "000")
-            responses+=($response)
+            responses+=("${response}")
         done
         
         if [[ " ${responses[@]} " =~ " 429 " ]]; then
@@ -132,18 +132,18 @@ main() {
     read -p "Do you want to proceed with the security fix? (y/N): " -n 1 -r
     echo
     
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    if [[ ! ${REPLY} =~ ^[Yy]$ ]]; then
         log "Security deployment cancelled by user"
         exit 0
     fi
     
     # Set environment variable for admin API key
     export ADMIN_API_KEY="samo-admin-key-2024-secure-$(date +%s)"
-    log "Generated admin API key: $ADMIN_API_KEY"
+    log "Generated admin API key: ${ADMIN_API_KEY}"
     
     # Run the security deployment script
     log "Starting security deployment fix..."
-    cd "$PROJECT_ROOT"
+    cd "${PROJECT_ROOT}"
     
     if python3 "$SECURITY_SCRIPT"; then
         success "Security deployment completed successfully!"
@@ -157,19 +157,19 @@ main() {
         echo "✅ Input sanitization active"
         echo "✅ Request tracking implemented"
         echo ""
-        echo "🔑 Admin API Key: $ADMIN_API_KEY"
+        echo "🔑 Admin API Key: ${ADMIN_API_KEY}"
         echo "📝 Save this key for admin endpoint access"
         echo ""
         
         # Get new service URL
         NEW_URL=$(gcloud run services describe samo-emotion-api-secure --region=us-central1 --format="value(status.url)" 2>/dev/null || echo "Service not found")
-        if [[ "$NEW_URL" != "Service not found" ]]; then
-            echo "🌐 New Secure Service URL: $NEW_URL"
+            if [[ "${NEW_URL}" != "Service not found" ]]; then
+        echo "🌐 New Secure Service URL: ${NEW_URL}"
             echo ""
             echo "🧪 Testing new deployment..."
             
             # Quick test
-            if curl -s "$NEW_URL/health" | grep -q "healthy"; then
+            if curl -s "${NEW_URL}/health" | grep -q "healthy"; then
                 success "New deployment is healthy and responding"
             else
                 warning "New deployment may have issues - check logs"
@@ -177,10 +177,10 @@ main() {
         fi
         
         # Clean up old deployment if it exists
-        if [[ -n "$CURRENT_SERVICE_NAME" ]]; then
+        if [[ -n "${CURRENT_SERVICE_NAME}" ]]; then
             echo ""
-            echo "🗑️ Cleaning up old deployment: $CURRENT_SERVICE_NAME"
-            gcloud run services delete "$CURRENT_SERVICE_NAME" --region=us-central1 --quiet 2>/dev/null || true
+            echo "🗑️ Cleaning up old deployment: ${CURRENT_SERVICE_NAME}"
+            gcloud run services delete "${CURRENT_SERVICE_NAME}" --region=us-central1 --quiet 2>/dev/null || true
             success "Old deployment cleaned up"
         fi
         

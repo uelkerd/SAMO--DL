@@ -15,7 +15,7 @@ from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_
 # Import shared model utilities
 from model_utils import (
     ensure_model_loaded, predict_emotions, get_model_status,
-    validate_text_input, MAX_TEXT_LENGTH
+    MAX_TEXT_LENGTH
 )
 
 # Configure logging
@@ -48,11 +48,11 @@ def health_check():
         # Check model status using shared utilities
         model_status_info = get_model_status()
         model_status = "ready" if model_status_info.get('model_loaded', False) else "loading"
-        
+
         # System metrics
         cpu_percent = psutil.cpu_percent()
         memory = psutil.virtual_memory()
-        
+
         health_data = {
             'status': 'healthy',
             'model_status': model_status,
@@ -63,10 +63,10 @@ def health_check():
                 'memory_available': memory.available
             }
         }
-        
+
         REQUEST_COUNT.labels(endpoint='/health', status='success').inc()
         return jsonify(health_data), 200
-        
+
     except Exception as e:
         logger.error(f"❌ Health check failed: {e}")
         REQUEST_COUNT.labels(endpoint='/health', status='error').inc()
@@ -77,37 +77,37 @@ def health_check():
 def predict():
     """Predict emotions from text."""
     start_time = time.time()
-    
+
     try:
         # Validate request
         if not request.is_json:
             REQUEST_COUNT.labels(endpoint='/predict', status='error').inc()
             return jsonify({'error': 'Content-Type must be application/json'}), 400
-        
+
         data = request.get_json()
         text = data.get('text', '').strip()
-        
+
         if not text:
             REQUEST_COUNT.labels(endpoint='/predict', status='error').inc()
             return jsonify({'error': 'Text field is required'}), 400
-        
+
         if len(text) > MAX_TEXT_LENGTH:
             REQUEST_COUNT.labels(endpoint='/predict', status='error').inc()
             return jsonify({'error': f'Text too long (max {MAX_TEXT_LENGTH} characters)'}), 400
-        
+
         # Ensure model is loaded
         initialize_model()
-        
+
         # Make prediction using shared utilities
         result = predict_emotions(text)
-        
+
         # Record metrics
         duration = time.time() - start_time
         REQUEST_DURATION.labels(endpoint='/predict').observe(duration)
         REQUEST_COUNT.labels(endpoint='/predict', status='success').inc()
-        
+
         return jsonify(result), 200
-        
+
     except Exception as e:
         logger.error(f"❌ Prediction endpoint error: {e}")
         duration = time.time() - start_time
@@ -127,7 +127,7 @@ def root():
     """Root endpoint with API information."""
     # Get model status from shared utilities
     model_status = get_model_status()
-    
+
     return jsonify({
         'service': 'SAMO Emotion Detection API (Minimal)',
         'version': '2.0.0',
@@ -146,7 +146,7 @@ def root():
 if __name__ == '__main__':
     # Initialize model on startup
     initialize_model()
-    
+
     # Start server
     port = int(os.getenv('PORT', 8080))
     app.run(host='0.0.0.0', port=port, debug=False, threaded=True) 
