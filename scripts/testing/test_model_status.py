@@ -24,11 +24,12 @@ def test_health_endpoint(client):
 
 
 def test_emotions_endpoint(client):
-    """Test the emotions endpoint"""
-    print("\n2. Testing emotions endpoint...")
+    """Test the emotions from main endpoint"""
+    print("\n2. Testing emotions from main endpoint...")
     try:
-        data = client.get("/emotions")
-        print(f"   ✅ Emotions: {data}")
+        data = client.get("/")
+        emotions_count = data.get('emotions_supported', 0)
+        print(f"   ✅ Emotions: {emotions_count} emotions available")
         return True
     except requests.exceptions.RequestException as e:
         print(f"   ❌ Emotions failed: {e}")
@@ -36,18 +37,17 @@ def test_emotions_endpoint(client):
 
 
 def test_model_status_endpoint(client):
-    """Test the model status endpoint"""
-    print("\n3. Testing model status endpoint...")
-    print("   ⚠️  This requires an API key - will likely fail")
+    """Test the model status from main endpoint"""
+    print("\n3. Testing model status from main endpoint...")
     try:
-        data = client.get("/model_status")
-        print(f"   ✅ Model Status: {data}")
+        data = client.get("/")
+        model_type = data.get('model_type', 'Unknown')
+        service = data.get('service', 'Unknown')
+        print(f"   ✅ Model Type: {model_type}")
+        print(f"   ✅ Service: {service}")
         return True
     except requests.exceptions.RequestException as e:
-        if "401" in str(e):
-            print("   🔐 Unauthorized - API key required")
-        else:
-            print(f"   ❌ Model status failed: {e}")
+        print(f"   ❌ Model status failed: {e}")
         return False
 
 
