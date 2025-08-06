@@ -21,7 +21,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from sklearn.metrics import f1_score, precision_score, recall_score
+from sklearn.metrics import f1_score
 from torch.utils.data import DataLoader, TensorDataset
 from transformers import AutoTokenizer, get_linear_schedule_with_warmup
 

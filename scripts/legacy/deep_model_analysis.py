@@ -6,8 +6,6 @@ Analyzes the model's behavior to understand performance discrepancies
 """
 
 import torch
-import json
-import numpy as np
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
 

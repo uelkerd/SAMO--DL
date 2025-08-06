@@ -14,7 +14,6 @@ Returns:
 """
 
 import logging
-import numpy as np
 import sys
 import torch
 from sklearn.metrics import f1_score
