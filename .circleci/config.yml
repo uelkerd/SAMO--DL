@@ -20,7 +20,7 @@ orbs:
 executors:
   python-ml:
     docker:
-      - image: cimg/python:3.12
+      - image: cimg/python:3.10  # Changed from 3.12 to match environment.yml
     resource_class: large  # Keep original for compatibility
     working_directory: ~/samo-dl
     environment:
