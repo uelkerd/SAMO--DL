@@ -4,14 +4,68 @@ set -e
 # Minimal Working Cloud Run Deployment Script
 # Uses known compatible PyTorch/transformers versions
 
-echo "🚀 Starting minimal working Cloud Run deployment..."
+# Default configuration - can be overridden by environment variables or command-line args
+PROJECT_ID="${PROJECT_ID:-the-tendril-466607-n8}"
+REGION="${REGION:-us-central1}"
+SERVICE_NAME="${SERVICE_NAME:-samo-emotion-api-minimal}"
+IMAGE_NAME="${IMAGE_NAME:-samo-emotion-api-minimal}"
+REPOSITORY="${REPOSITORY:-samo-dl}"
+MODEL_PATH="${MODEL_PATH:-models/best_simple_model.pth}"
+DEPLOYMENT_DIR="${DEPLOYMENT_DIR:-deployment/cloud-run}"
 
-# Configuration
-PROJECT_ID="the-tendril-466607-n8"
-REGION="us-central1"
-SERVICE_NAME="samo-emotion-api-minimal"
-IMAGE_NAME="samo-emotion-api-minimal"
-REPOSITORY="samo-dl"
+# Parse command-line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --project-id)
+            PROJECT_ID="$2"
+            shift 2
+            ;;
+        --region)
+            REGION="$2"
+            shift 2
+            ;;
+        --service-name)
+            SERVICE_NAME="$2"
+            shift 2
+            ;;
+        --image-name)
+            IMAGE_NAME="$2"
+            shift 2
+            ;;
+        --repository)
+            REPOSITORY="$2"
+            shift 2
+            ;;
+        --model-path)
+            MODEL_PATH="$2"
+            shift 2
+            ;;
+        --deployment-dir)
+            DEPLOYMENT_DIR="$2"
+            shift 2
+            ;;
+        --help)
+            echo "Usage: $0 [OPTIONS]"
+            echo "Options:"
+            echo "  --project-id PROJECT_ID     GCP Project ID (default: $PROJECT_ID)"
+            echo "  --region REGION             GCP Region (default: $REGION)"
+            echo "  --service-name NAME         Cloud Run service name (default: $SERVICE_NAME)"
+            echo "  --image-name NAME           Docker image name (default: $IMAGE_NAME)"
+            echo "  --repository NAME           Artifact Registry repository (default: $REPOSITORY)"
+            echo "  --model-path PATH           Path to model file (default: $MODEL_PATH)"
+            echo "  --deployment-dir PATH       Deployment directory (default: $DEPLOYMENT_DIR)"
+            echo "  --help                      Show this help message"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use --help for usage information"
+            exit 1
+            ;;
+    esac
+done
+
+echo "🚀 Starting minimal working Cloud Run deployment..."
 
 # Colors for output
 RED='\033[0;31m'
@@ -32,12 +86,25 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# Print configuration
+print_status "Configuration:"
+print_status "  Project ID: $PROJECT_ID"
+print_status "  Region: $REGION"
+print_status "  Service Name: $SERVICE_NAME"
+print_status "  Image Name: $IMAGE_NAME"
+print_status "  Repository: $REPOSITORY"
+print_status "  Model Path: $MODEL_PATH"
+print_status "  Deployment Dir: $DEPLOYMENT_DIR"
+
 # Step 1: Verify model exists
 print_status "Step 1: Verifying model file..."
-cd /Users/minervae/Projects/SAMO--GENERAL/SAMO--DL
 
-if [ ! -f "models/best_simple_model.pth" ]; then
-    print_error "Model file not found: models/best_simple_model.pth"
+# Get the script directory and navigate to project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+if [ ! -f "$PROJECT_ROOT/$MODEL_PATH" ]; then
+    print_error "Model file not found: $PROJECT_ROOT/$MODEL_PATH"
     exit 1
 fi
 
@@ -46,7 +113,7 @@ print_status "✅ Model file verified"
 # Step 2: Build and push Docker image
 print_status "Step 2: Building and pushing Docker image..."
 
-cd deployment/cloud-run
+cd "$PROJECT_ROOT/$DEPLOYMENT_DIR"
 
 # Build image
 print_status "Building Docker image..."
@@ -79,10 +146,10 @@ gcloud run deploy $SERVICE_NAME \
     --platform=managed \
     --allow-unauthenticated \
     --port=8080 \
-    --memory=2Gi \
+    --memory=4Gi \
     --cpu=2 \
     --max-instances=10 \
-    --min-instances=1 \
+    --min-instances=0 \
     --concurrency=80 \
     --timeout=300
 
