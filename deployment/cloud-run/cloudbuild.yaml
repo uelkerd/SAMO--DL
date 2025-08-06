@@ -1,26 +1,19 @@
 timeout: '3600s'
 
 steps:
-  # Build the Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:latest', '-f', 'deployment/cloud-run/Dockerfile.secure', '.']
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:latest', '-t', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:$_TAG_NAME', '-f', 'Dockerfile.secure', '.']
     timeout: '1800s'
     env:
       - 'PROJECT_ID=the-tendril-466607-n8'
   
-  # Push the image to Artifact Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:latest']
-    timeout: '600s'
-  
-  # Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     args:
       - 'gcloud'
       - 'run'
       - 'deploy'
       - 'samo-emotion-api-optimized-secure'
-      - '--image=us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:latest'
+      - '--image=us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:$_TAG_NAME'
       - '--region=us-central1'
       - '--platform=managed'
       - '--allow-unauthenticated'
@@ -38,9 +31,10 @@ steps:
       - '--set-env-vars=ENABLE_SECURITY_HEADERS=true,ENABLE_RATE_LIMITING=true'
     timeout: '600s'
 
-# This ensures the image is available for future builds
 images:
   - 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:latest'
+  - 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:$_TAG_NAME'
 
 substitutions:
   _ADMIN_API_KEY: 'samo-admin-key-2024-secure-$(date +%s)'
+  _TAG_NAME: 'v20240806-001'
