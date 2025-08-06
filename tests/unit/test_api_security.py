@@ -32,7 +32,10 @@ class TestRateLimiter(unittest.TestCase):
             block_duration_seconds=300,
             max_concurrent_requests=3,
             enable_ip_blacklist=True,
-            blacklisted_ips={'192.168.1.100'}
+            blacklisted_ips={'192.168.1.100'},
+            # Disable abuse detection for tests to focus on rate limiting
+            enable_user_agent_analysis=False,
+            enable_request_pattern_analysis=False
         )
         self.rate_limiter = TokenBucketRateLimiter(self.config)
     
@@ -66,18 +69,16 @@ class TestRateLimiter(unittest.TestCase):
         client_ip = "192.168.1.2"
         user_agent = "test-agent"
         
-        # Consume all tokens
+        # Consume all tokens (release each request immediately to avoid concurrent limit)
         for i in range(6):  # burst_size + 1
             allowed, reason, meta = self.rate_limiter.allow_request(client_ip, user_agent)
             if i < 5:
                 self.assertTrue(allowed)
+                # Release immediately to avoid hitting concurrent request limit
+                self.rate_limiter.release_request(client_ip, user_agent)
             else:
                 self.assertFalse(allowed)
                 self.assertEqual(reason, "Rate limit exceeded")
-        
-        # Release all requests
-        for i in range(5):
-            self.rate_limiter.release_request(client_ip, user_agent)
     
     def test_concurrent_request_limit(self):
         """Test concurrent request limiting."""
@@ -134,21 +135,23 @@ class TestRateLimiter(unittest.TestCase):
         client_ip = "192.168.1.5"
         user_agent = "test-agent"
         
-        # Consume all tokens
+        # Consume all tokens and release them immediately
         for i in range(5):
-            self.rate_limiter.allow_request(client_ip, user_agent)
+            allowed, _, _ = self.rate_limiter.allow_request(client_ip, user_agent)
+            self.assertTrue(allowed)
+            self.rate_limiter.release_request(client_ip, user_agent)
         
-        # Check that bucket is empty
+        # Check that bucket is empty (should be 0.0 after consuming all tokens)
         client_key = self.rate_limiter._get_client_key(client_ip, user_agent)
         self.assertLess(self.rate_limiter.buckets[client_key], 1.0)
         
-        # Simulate time passing (1 minute)
-        with patch('time.time') as mock_time:
-            mock_time.return_value = time.time() + 60
-            self.rate_limiter._refill_bucket(client_key)
-            
-            # Bucket should be refilled
-            self.assertGreaterEqual(self.rate_limiter.buckets[client_key], 1.0)
+        # Simulate time passing (1 minute) by directly modifying the last refill time
+        original_last_refill = self.rate_limiter.last_refill[client_key]
+        self.rate_limiter.last_refill[client_key] = original_last_refill - 60  # Go back 60 seconds
+        self.rate_limiter._refill_bucket(client_key)
+        
+        # Bucket should be refilled
+        self.assertGreaterEqual(self.rate_limiter.buckets[client_key], 1.0)
     
     def test_blacklist_management(self):
         """Test blacklist management functions."""
