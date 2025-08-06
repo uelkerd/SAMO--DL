@@ -1,5 +1,5 @@
 # Core ML libraries
-torch>=2.2.2,<2.3.0
+torch>=2.2.2,<2.9.0
 torchvision>=0.17.2,<0.18.0
 torchaudio>=2.2.2,<2.3.0
 transformers>=4.55.0,<5.0.0
