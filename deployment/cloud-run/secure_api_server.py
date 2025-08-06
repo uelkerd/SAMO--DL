@@ -88,7 +88,7 @@ def sanitize_input(text: str) -> str:
 def load_model():
     """Load the emotion detection model"""
     global model_loaded, model_loading, tokenizer, model, emotion_mapping
-    
+
     with model_lock:
         # Check if already loading or loaded inside the lock to prevent race conditions
         if model_loading or model_loaded:
