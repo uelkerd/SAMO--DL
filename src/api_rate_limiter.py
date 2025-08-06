@@ -26,6 +26,7 @@ class RateLimitConfig:
     block_duration_seconds: int = 300  # 5 minutes
     max_concurrent_requests: int = 5
     enable_ip_whitelist: bool = False
+    enable_ip_blacklist: bool = False
     whitelisted_ips: set = None
     blacklisted_ips: set = None
     # Abuse detection thresholds
