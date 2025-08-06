@@ -3,17 +3,10 @@
 Phase 4: Vertex AI Deployment Automation Test Suite
 Comprehensive testing for Phase 4 Vertex AI automation features
 """
-
-import os
 import sys
-import json
-import yaml
-import tempfile
-import subprocess
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 import unittest
-from unittest.mock import patch, MagicMock, mock_open
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'src'))

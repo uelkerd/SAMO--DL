@@ -3,18 +3,11 @@
 Phase 3 Cloud Run Optimization Test Suite - Fixed Version
 Comprehensive testing for Cloud Run optimization components without loops/conditionals
 """
-
-import os
 import sys
 import yaml
-import json
-import time
-import subprocess
-import tempfile
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 import unittest
-from unittest.mock import patch, MagicMock
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'src'))
