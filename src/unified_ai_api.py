@@ -108,8 +108,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Add rate limiting middleware (100 requests/minute per user)
-add_rate_limiting(app)
+# Add rate limiting middleware (1000 requests/minute per user for testing)
+add_rate_limiting(app, requests_per_minute=1000, burst_size=100, max_concurrent_requests=50, 
+                 rapid_fire_threshold=100, sustained_rate_threshold=2000)
 
 
 # Custom exception handler for all exceptions

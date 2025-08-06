@@ -1,0 +1,46 @@
+timeout: '3600s'
+
+steps:
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:latest', '-f', 'deployment/cloud-run/Dockerfile.secure', '.']
+    timeout: '1800s'
+    env:
+      - 'PROJECT_ID=the-tendril-466607-n8'
+  
+  # Push the image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:latest']
+    timeout: '600s'
+  
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args:
+      - 'gcloud'
+      - 'run'
+      - 'deploy'
+      - 'samo-emotion-api-optimized-secure'
+      - '--image=us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:latest'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--port=8080'
+      - '--memory=2Gi'
+      - '--cpu=2'
+      - '--max-instances=10'
+      - '--min-instances=1'
+      - '--concurrency=80'
+      - '--timeout=300'
+      - '--set-env-vars=ENVIRONMENT=production,HEALTH_CHECK_INTERVAL=30,GRACEFUL_SHUTDOWN_TIMEOUT=30'
+      - '--set-env-vars=ENABLE_MONITORING=true,ENABLE_HEALTH_CHECKS=true'
+      - '--set-env-vars=MAX_INPUT_LENGTH=512,RATE_LIMIT_PER_MINUTE=100'
+      - '--set-env-vars=ADMIN_API_KEY=$_ADMIN_API_KEY'
+      - '--set-env-vars=ENABLE_SECURITY_HEADERS=true,ENABLE_RATE_LIMITING=true'
+    timeout: '600s'
+
+# This ensures the image is available for future builds
+images:
+  - 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:latest'
+
+substitutions:
+  _ADMIN_API_KEY: 'samo-admin-key-2024-secure-$(date +%s)'

@@ -8,7 +8,7 @@ trained on the GoEmotions dataset for journal entry analysis.
 
 import logging
 import warnings
-from typing import Optional, Union
+from typing import Optional, Union, List, Dict, Tuple
 
 import numpy as np
 import torch
@@ -189,12 +189,12 @@ class BERTEmotionClassifier(nn.Module):
 
     def predict_emotions(
         self,
-        texts: Union[str, list[str]],
+        texts: Union[str, List[str]],
         threshold: float = 0.5,
         top_k: Optional[int] = None,
         input_ids: Optional[torch.Tensor] = None,
         attention_mask: Optional[torch.Tensor] = None,
-    ) -> Union[dict[str, Union[list[str], torch.Tensor, list[float]]], list[list[int]]]:
+    ) -> Union[Dict[str, Union[List[str], torch.Tensor, List[float]]], List[List[int]]]:
         """Predict emotions for given texts.
 
         Args:
@@ -328,8 +328,8 @@ class EmotionDataset(Dataset):
 
     def __init__(
         self,
-        texts: list[str],
-        labels: list[list[int]],
+        texts: List[str],
+        labels: List[List[int]],
         tokenizer: AutoTokenizer,
         max_length: int = 512,
     ) -> None:
@@ -350,7 +350,7 @@ class EmotionDataset(Dataset):
         """Return dataset length."""
         return len(self.texts)
 
-    def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
+    def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
         """Get item at index.
 
         Args:
@@ -385,7 +385,7 @@ def create_bert_emotion_classifier(
     model_name: str = "bert-base-uncased",
     class_weights: Optional[np.ndarray] = None,
     freeze_bert_layers: int = 6,
-) -> tuple[BERTEmotionClassifier, WeightedBCELoss]:
+) -> Tuple[BERTEmotionClassifier, WeightedBCELoss]:
     """Create BERT emotion classifier with loss function.
 
     Args:
@@ -415,7 +415,7 @@ def evaluate_emotion_classifier(
     dataloader: DataLoader,
     device: torch.device,
     threshold: float = 0.2,  # Lowered from 0.5 to capture more predictions
-) -> dict[str, float]:
+) -> Dict[str, float]:
     """Evaluate emotion classifier performance.
 
     Args:
