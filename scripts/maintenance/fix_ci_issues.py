@@ -6,6 +6,7 @@
     # Summary
 #!/usr/bin/env python3
 from pathlib import Path
+from typing import Tuple
 import logging
 import os
 import subprocess
@@ -19,7 +20,7 @@ import sys
 Script to fix CI issues identified in the SAMO Deep Learning project.
 """
 
-def run_command(cmd: str, description: str) -> tuple[bool, str]:
+def run_command(cmd: str, description: str) -> Tuple[bool, str]:
     """Run a command and return success status and output."""
     logging.info("🔄 {description}...")
     try:

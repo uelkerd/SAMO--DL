@@ -251,9 +251,11 @@ class ModelValidator:
             for package, required_version in self.version_compatibility.items():
                 if package in validation_info['current_versions']:
                     current_version = validation_info['current_versions'][package]
-                    # Simple version check (could be enhanced with proper version parsing)
-                    if package == 'torch' and not current_version.startswith('1.'):
-                        validation_info['compatibility_issues'].append(f"PyTorch version {current_version} may not be compatible")
+                    # Enhanced version check that supports PyTorch 2.x
+                    if package == 'torch':
+                        # Allow PyTorch 1.x and 2.x versions
+                        if not (current_version.startswith('1.') or current_version.startswith('2.')):
+                            validation_info['compatibility_issues'].append(f"PyTorch version {current_version} may not be compatible")
                     elif package == 'transformers' and not current_version.startswith('4.'):
                         validation_info['compatibility_issues'].append(f"Transformers version {current_version} may not be compatible")
             
@@ -372,7 +374,12 @@ class ModelValidator:
             if file_valid:
                 try:
                     model_data = torch.load(model_path, map_location='cpu', weights_only=True)
-                    model = model_class(**model_config)
+                    
+                    # Filter model_config to only include valid constructor parameters
+                    import inspect
+                    constructor_params = inspect.signature(model_class.__init__).parameters
+                    valid_params = {k: v for k, v in model_config.items() if k in constructor_params}
+                    model = model_class(**valid_params)
                     
                     if 'state_dict' in model_data:
                         model.load_state_dict(model_data['state_dict'])
