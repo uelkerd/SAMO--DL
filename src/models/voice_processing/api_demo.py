@@ -348,7 +348,7 @@ async def transcribe_batch(
 
 
 @app.get("/model/info")
-async def get_model_info() -> dict[str, Any]:
+async def get_model_info() -> Dict[str, Any]:
     """Get detailed information about the loaded Whisper model."""
     if whisper_transcriber is None:
         raise HTTPException(
