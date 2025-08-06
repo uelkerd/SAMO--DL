@@ -48,9 +48,7 @@ class CloudRunAPITester:
             
             # Validate expected fields for minimal API
             required_fields = ["status", "service", "version", "emotions_supported"]
-            missing_fields = [field for field in required_fields if field not in data]
-            
-            if missing_fields:
+            if missing_fields := [field for field in required_fields if field not in data]:
                 return {
                     "success": False,
                     "error": f"Missing required fields: {missing_fields}",
@@ -71,6 +69,28 @@ class CloudRunAPITester:
                 "error": f"Health endpoint failed: {str(e)}"
             }
 
+    def _validate_emotion_response(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate emotion detection response structure"""
+        if "primary_emotion" not in data:
+            return {
+                "success": False,
+                "error": "Missing primary_emotion field in emotion detection response",
+                "response": data
+            }
+        
+        # Check if emotions were detected
+        primary_emotion = data.get("primary_emotion", {})
+        emotion = primary_emotion.get("emotion", "")
+        confidence = primary_emotion.get("confidence", 0)
+        
+        return {
+            "success": True,
+            "emotion_detected": bool(emotion),
+            "confidence": confidence,
+            "emotion": emotion,
+            "response_time": 0.0  # Will be measured in performance test
+        }
+
     def test_emotion_detection_endpoint(self) -> Dict[str, Any]:
         """Test the emotion detection endpoint"""
         logger.info("Testing emotion detection endpoint...")
@@ -82,26 +102,7 @@ class CloudRunAPITester:
             data = self.client.post("/predict", payload)
             logger.info(f"Emotion detection response: {data}")
             
-            # Validate response structure for minimal API
-            if "primary_emotion" not in data:
-                return {
-                    "success": False,
-                    "error": "Missing primary_emotion field in emotion detection response",
-                    "response": data
-                }
-            
-            # Check if emotions were detected
-            primary_emotion = data.get("primary_emotion", {})
-            emotion = primary_emotion.get("emotion", "")
-            confidence = primary_emotion.get("confidence", 0)
-            
-            return {
-                "success": True,
-                "emotion_detected": bool(emotion),
-                "confidence": confidence,
-                "emotion": emotion,
-                "response_time": 0.0  # Will be measured in performance test
-            }
+            return self._validate_emotion_response(data)
             
         except requests.exceptions.RequestException as e:
             return {
@@ -213,8 +214,6 @@ class CloudRunAPITester:
         """Test security features like rate limiting and authentication"""
         logger.info("Testing security features...")
         
-        results = {}
-        
         # Test rate limiting by making multiple rapid requests
         logger.info("Testing rate limiting...")
         config = create_test_config()
@@ -255,10 +254,12 @@ class CloudRunAPITester:
         
         # Check if any requests were rate limited (429 status)
         rate_limited = any(r.get("status") == "rate_limited" for r in rapid_requests)
-        results["rate_limiting"] = {
-            "tested": True,
-            "rate_limited": rate_limited,
-            "requests": rapid_requests
+        results = {
+            "rate_limiting": {
+                "tested": True,
+                "rate_limited": rate_limited,
+                "requests": rapid_requests
+            }
         }
         
         # Test security headers
