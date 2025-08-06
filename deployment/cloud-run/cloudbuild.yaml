@@ -2,7 +2,7 @@ timeout: '3600s'
 
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:latest', '-t', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:$TAG_NAME', '-f', 'Dockerfile.secure', '.']
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:latest', '-t', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:$_TAG_NAME', '-f', 'Dockerfile.secure', '.']
     timeout: '1800s'
     env:
       - 'PROJECT_ID=the-tendril-466607-n8'
@@ -13,7 +13,7 @@ steps:
       - 'run'
       - 'deploy'
       - 'samo-emotion-api-optimized-secure'
-      - '--image=us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:$TAG_NAME'
+      - '--image=us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:$_TAG_NAME'
       - '--region=us-central1'
       - '--platform=managed'
       - '--allow-unauthenticated'
@@ -33,8 +33,8 @@ steps:
 
 images:
   - 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:latest'
-  - 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:$TAG_NAME'
+  - 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:$_TAG_NAME'
 
 substitutions:
   _ADMIN_API_KEY: 'samo-admin-key-2024-secure-$(date +%s)'
-  TAG_NAME: 'v$(date +%s)'
+  _TAG_NAME: 'v$(date +%s)'
