@@ -335,6 +335,9 @@ if __name__ == '__main__':
         import gunicorn.app.base
         
         class StandaloneApplication(gunicorn.app.base.BaseApplication):
+            def init(self, parser, opts, args):
+                """Initialize the application (abstract method override)."""
+                pass
             def __init__(self, app, options=None):
                 self.options = options or {}
                 self.application = app
