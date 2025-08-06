@@ -7,7 +7,7 @@ echo "Generating Prisma client..."
 
 # Navigate to project root (assuming this script is in scripts/database)
 PROJECT_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-cd "$PROJECT_ROOT"
+cd "${PROJECT_ROOT}"
 
 # Check for Prisma installation
 if ! command -v npx &> /dev/null; then
