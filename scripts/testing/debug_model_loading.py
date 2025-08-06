@@ -6,7 +6,6 @@ Get detailed information about why the model is not loading properly.
 
 import requests
 import json
-import time
 import os
 import secrets
 import argparse
@@ -23,17 +22,17 @@ def debug_model_loading(base_url=None):
     """Debug the model loading issues"""
     if base_url is None:
         base_url = os.environ.get("API_BASE_URL", "https://samo-emotion-api-optimized-secure-71517823771.us-central1.run.app")
-    
+
     print("🔍 Debugging Model Loading Issues")
     print("=" * 50)
-    
+
     # Generate API key
     api_key = generate_api_key()
     print(f"🔑 Generated API Key: {api_key}")
-    
+
     # Set up headers with API key
     headers = {"X-API-Key": api_key}
-    
+
     # Test model status with API key
     print("\n1. Testing model status with API key...")
     try:
@@ -49,7 +48,7 @@ def debug_model_loading(base_url=None):
             print(f"   Response: {response.text}")
     except requests.exceptions.RequestException as e:
         print(f"   ❌ Model status error: {e}")
-    
+
     # Test security status
     print("\n2. Testing security status...")
     try:
@@ -62,7 +61,7 @@ def debug_model_loading(base_url=None):
             print(f"   Response: {response.text}")
     except requests.exceptions.RequestException as e:
         print(f"   ❌ Security status error: {e}")
-    
+
     # Test prediction with detailed error analysis
     print("\n3. Testing prediction with error analysis...")
     try:
@@ -70,41 +69,41 @@ def debug_model_loading(base_url=None):
         response = requests.post(f"{base_url}/predict", json=payload, headers=headers, timeout=30)
         print(f"   Status Code: {response.status_code}")
         print(f"   Headers: {dict(response.headers)}")
-        
+
         if response.status_code == 200:
             data = response.json()
             print(f"   ✅ Prediction successful: {json.dumps(data, indent=2)}")
         else:
             print("   ❌ Prediction failed")
             print(f"   Response Text: {response.text}")
-            
+
             # Try to parse error response
             try:
                 error_data = response.json()
                 print(f"   Error Data: {json.dumps(error_data, indent=2)}")
             except json.JSONDecodeError:
                 print(f"   Raw Response: {response.text}")
-                
+
     except requests.exceptions.RequestException as e:
         print(f"   ❌ Prediction error: {e}")
-    
+
     # Test batch prediction
     print("\n4. Testing batch prediction...")
     try:
         payload = {"texts": ["I am happy", "I am sad", "I am excited"]}
         response = requests.post(f"{base_url}/predict_batch", json=payload, headers=headers, timeout=30)
         print(f"   Status Code: {response.status_code}")
-        
+
         if response.status_code == 200:
             data = response.json()
             print(f"   ✅ Batch prediction successful: {json.dumps(data, indent=2)}")
         else:
             print("   ❌ Batch prediction failed")
             print(f"   Response: {response.text}")
-            
+
     except requests.exceptions.RequestException as e:
         print(f"   ❌ Batch prediction error: {e}")
-    
+
     # Test with different input formats
     print("\n5. Testing different input formats...")
     test_cases = [
@@ -114,7 +113,7 @@ def debug_model_loading(base_url=None):
         {"text": ""},  # Empty text
         {"invalid": "field"},  # Invalid payload
     ]
-    
+
     for i, test_case in enumerate(test_cases):
         print(f"   Test case {i+1}: {test_case}")
         try:
@@ -130,7 +129,7 @@ def main():
     parser = argparse.ArgumentParser(description="Debug model loading issues")
     parser.add_argument("--base-url", help="Base URL for the API")
     args = parser.parse_args()
-    
+
     debug_model_loading(args.base_url)
 
 if __name__ == "__main__":
