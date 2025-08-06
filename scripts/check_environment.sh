@@ -15,7 +15,7 @@ pip3 --version 2>/dev/null || echo "   ❌ pip3 not found"
 # Check virtual environment
 echo "🔧 Virtual Environment:"
 if [[ "$VIRTUAL_ENV" != "" ]]; then
-    echo "   ✅ Virtual environment active: $VIRTUAL_ENV"
+    echo "   ✅ Virtual environment active: ${VIRTUAL_ENV}"
 else
     echo "   ⚠️  No virtual environment active"
 fi
