@@ -223,8 +223,6 @@ def predict_emotions(text: str) -> Dict[str, any]:
 def initialize_model():
     """Initialize model and vocabulary."""
     global model_session, vocab, model_loading
-    """Initialize model and vocabulary."""
-    global model_session, vocab
     
     with model_lock:
         if model_session is None and not model_loading:
