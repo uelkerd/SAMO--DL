@@ -358,7 +358,7 @@ if __name__ == '__main__':
             'preload_app': True
         }
 
-        StandaloneApplication(app, options).run()
+        StandaloneApplication(flask_app=app, gunicorn_options=options).run()
 
     except ImportError:
         # Development server
