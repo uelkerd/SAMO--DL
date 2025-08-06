@@ -3,15 +3,12 @@
 Simplified ONNX-Based Emotion Detection API Server
 Uses simple string tokenization - no complex dependencies
 """
-
-import json
 import logging
 import os
 import time
 import re
 from typing import Dict, List, Optional, Tuple
 import threading
-from contextlib import contextmanager
 
 import numpy as np
 import onnxruntime as ort
@@ -65,8 +62,7 @@ SIMPLE_VOCAB = {
     'my': 44, 'your': 45, 'his': 46, 'her': 47, 'its': 48, 'our': 49, 'their': 50,
     'me': 51, 'him': 52, 'us': 53, 'them': 54, 'myself': 55, 'yourself': 56, 'himself': 57,
     'herself': 58, 'itself': 59, 'ourselves': 60, 'yourselves': 61, 'themselves': 62,
-    'what': 63, 'which': 64, 'who': 65, 'whom': 66, 'whose': 67, 'where': 68, 'when': 69,
-    'why': 70, 'how': 71, 'all': 72, 'any': 73, 'both': 74, 'each': 75, 'few': 76,
+    'what': 63, 'which': 64, 'who': 65, 'whom': 66, 'whose': 67, 'all': 72, 'any': 73, 'both': 74, 'each': 75, 'few': 76,
     'more': 77, 'most': 78, 'other': 79, 'some': 80, 'such': 81, 'no': 82, 'nor': 83,
     'not': 84, 'only': 85, 'own': 86, 'same': 87, 'so': 88, 'than': 89, 'too': 90,
     'very': 91, 'just': 92, 'now': 93, 'then': 94, 'here': 95, 'there': 96, 'when': 97,
@@ -100,19 +96,19 @@ def simple_tokenize(text: str) -> List[int]:
     # Clean and normalize text
     text = text.lower().strip()
     text = re.sub(r'[^\w\s]', ' ', text)
-    
+
     # Split into words
     words = text.split()
-    
+
     # Convert to token IDs
     tokens = [vocab.get('<CLS>', 2)]  # Start token
-    
+
     for word in words[:MAX_LENGTH-2]:  # Leave room for CLS and SEP
         token_id = vocab.get(word, vocab.get('<UNK>', 1))
         tokens.append(token_id)
-    
+
     tokens.append(vocab.get('<SEP>', 3))  # End token
-    
+
     return tokens
 
 
@@ -120,18 +116,18 @@ def preprocess_text(text: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Preprocess text using simple tokenization."""
     # Tokenize
     tokens = simple_tokenize(text)
-    
+
     # Pad or truncate to MAX_LENGTH
     if len(tokens) < MAX_LENGTH:
         tokens.extend([vocab.get('<PAD>', 0)] * (MAX_LENGTH - len(tokens)))
     else:
         tokens = tokens[:MAX_LENGTH]
-    
+
     # Convert to numpy arrays
     input_ids = np.array(tokens, dtype=np.int64).reshape(1, -1)
     attention_mask = np.ones_like(input_ids, dtype=np.int64)
     token_type_ids = np.zeros_like(input_ids, dtype=np.int64)
-    
+
     return input_ids, attention_mask, token_type_ids
 
 
@@ -139,23 +135,23 @@ def load_onnx_model() -> ort.InferenceSession:
     """Load ONNX model with optimized settings."""
     try:
         start_time = time.time()
-        
+
         # Optimized session options
         session_options = ort.SessionOptions()
         session_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
         session_options.intra_op_num_threads = 1
         session_options.inter_op_num_threads = 1
-        
+
         # Load model
         session = ort.InferenceSession(MODEL_PATH, session_options)
-        
+
         load_time = time.time() - start_time
         MODEL_LOAD_TIME.observe(load_time)
-        
+
         logger.info(f"✅ ONNX model loaded successfully in {load_time:.2f}s")
         logger.info(f"📊 Model input names: {session.get_inputs()}")
         logger.info(f"📊 Model output names: {session.get_outputs()}")
-        
+
         return session
     except Exception as e:
         logger.error(f"❌ Failed to load ONNX model: {e}")
@@ -166,11 +162,11 @@ def postprocess_predictions(logits: np.ndarray) -> List[Dict[str, float]]:
     """Postprocess ONNX model outputs."""
     # Apply temperature scaling
     logits = logits / TEMPERATURE
-    
+
     # Apply softmax
     exp_logits = np.exp(logits - np.max(logits, axis=-1, keepdims=True))
     probabilities = exp_logits / np.sum(exp_logits, axis=-1, keepdims=True)
-    
+
     # Filter by threshold and create results
     results = []
     for i, prob in enumerate(probabilities[0]):
@@ -179,10 +175,10 @@ def postprocess_predictions(logits: np.ndarray) -> List[Dict[str, float]]:
                 'emotion': EMOTION_LABELS[i],
                 'confidence': float(prob)
             })
-    
+
     # Sort by confidence
     results.sort(key=lambda x: x['confidence'], reverse=True)
-    
+
     return results
 
 
@@ -191,30 +187,30 @@ def predict_emotions(text: str) -> Dict[str, any]:
     try:
         # Preprocess
         input_ids, attention_mask, token_type_ids = preprocess_text(text)
-        
+
         # Prepare inputs for ONNX
         onnx_inputs = {
             'input_ids': input_ids,
             'attention_mask': attention_mask,
             'token_type_ids': token_type_ids
         }
-        
+
         # Run inference
         start_time = time.time()
         outputs = model_session.run(None, onnx_inputs)
         inference_time = time.time() - start_time
-        
+
         # Postprocess
         logits = outputs[0]
         emotions = postprocess_predictions(logits)
-        
+
         return {
             'emotions': emotions,
             'inference_time': inference_time,
             'text_length': len(text),
             'model_type': 'onnx_simple'
         }
-        
+
     except Exception as e:
         logger.error(f"❌ Prediction failed: {e}")
         raise
@@ -223,7 +219,7 @@ def predict_emotions(text: str) -> Dict[str, any]:
 def initialize_model():
     """Initialize model and vocabulary."""
     global model_session, vocab, model_loading
-    
+
     with model_lock:
         if model_session is None and not model_loading:
             model_loading = True
@@ -250,11 +246,11 @@ def health_check():
     try:
         # Check model status
         model_status = "ready" if model_session is not None else "loading"
-        
+
         # System metrics
         cpu_percent = psutil.cpu_percent()
         memory = psutil.virtual_memory()
-        
+
         health_data = {
             'status': 'healthy',
             'model_status': model_status,
@@ -265,10 +261,10 @@ def health_check():
                 'memory_available': memory.available
             }
         }
-        
+
         REQUEST_COUNT.labels(endpoint='/health', status='success').inc()
         return jsonify(health_data), 200
-        
+
     except Exception as e:
         logger.error(f"❌ Health check failed: {e}")
         REQUEST_COUNT.labels(endpoint='/health', status='error').inc()
@@ -279,27 +275,27 @@ def health_check():
 def predict():
     """Predict emotions from text."""
     start_time = time.time()
-    
+
     try:
         # Get request data
         data = request.get_json()
         if not data or 'text' not in data:
             return jsonify({'error': 'Missing text field'}), 400
-        
+
         text = data['text'].strip()
         if not text:
             return jsonify({'error': 'Text cannot be empty'}), 400
-        
+
         # Predict emotions
         result = predict_emotions(text)
-        
+
         # Record metrics
         duration = time.time() - start_time
         REQUEST_DURATION.labels(endpoint='/predict').observe(duration)
         REQUEST_COUNT.labels(endpoint='/predict', status='success').inc()
-        
+
         return jsonify(result), 200
-        
+
     except Exception as e:
         logger.error(f"❌ Prediction failed: {e}")
         duration = time.time() - start_time
@@ -333,23 +329,23 @@ if __name__ == '__main__':
     # Production WSGI server
     try:
         import gunicorn.app.base
-        
+
         class StandaloneApplication(gunicorn.app.base.BaseApplication):
             def init(self, parser, opts, args):
                 """Initialize the application (abstract method override)."""
-                pass
+                raise NotImplementedError()
             def __init__(self, app, options=None):
                 self.options = gunicorn_options or {}
                 self.application = flask_app
                 super().__init__()
-            
+
             def load_config(self):
                 for key, value in self.options.items():
                     self.cfg.set(key, value)
-            
+
             def load(self):
                 return self.application
-        
+
         # Production configuration
         options = {
             'bind': '127.0.0.1:8080',
@@ -361,9 +357,9 @@ if __name__ == '__main__':
             'max_requests_jitter': 50,
             'preload_app': True
         }
-        
+
         StandaloneApplication(app, options).run()
-        
+
     except ImportError:
         # Development server
         app.run(host='127.0.0.1', port=8080, debug=False) 
