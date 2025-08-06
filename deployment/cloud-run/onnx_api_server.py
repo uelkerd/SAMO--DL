@@ -334,7 +334,7 @@ if __name__ == '__main__':
             def init(self, parser, opts, args):
                 """Initialize the application (abstract method override)."""
                 raise NotImplementedError()
-            def __init__(self, app, options=None):
+            def __init__(self, flask_app, gunicorn_options=None):
                 self.options = gunicorn_options or {}
                 self.application = flask_app
                 super().__init__()
