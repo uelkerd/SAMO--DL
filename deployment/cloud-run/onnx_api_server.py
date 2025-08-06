@@ -49,9 +49,9 @@ EMOTION_LABELS = (
 # Configuration
 MODEL_PATH = os.getenv('MODEL_PATH', '/app/model/bert_emotion_classifier.onnx')
 VOCAB_PATH = os.getenv('VOCAB_PATH', '/app/model/vocab.txt')
-MAX_LENGTH = int(os.getenv('MAX_LENGTH', '128'))
-TEMPERATURE = float(os.getenv('TEMPERATURE', '1.0'))
-THRESHOLD = float(os.getenv('THRESHOLD', '0.6'))
+MAX_LENGTH = int(os.getenv('MAX_LENGTH', '128') or '128')
+TEMPERATURE = float(os.getenv('TEMPERATURE', '1.0') or '1.0')
+THRESHOLD = float(os.getenv('THRESHOLD', '0.6') or '0.6')
 
 # Simple vocabulary (fallback if no vocab file)
 SIMPLE_VOCAB = {
