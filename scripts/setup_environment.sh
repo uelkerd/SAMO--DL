@@ -59,7 +59,7 @@ check_conda() {
         exit 1
     fi
     
-    print_success "Found conda at: $CONDA_PATH"
+    print_success "Found conda at: ${CONDA_PATH}"
     export PATH="$(dirname "$CONDA_PATH"):$PATH"
 }
 
@@ -123,7 +123,7 @@ test_environment() {
     
     # Test Python version
     python_version=$(python --version 2>&1)
-    print_status "Python version: $python_version"
+    print_status "Python version: ${python_version}"
     
     # Test key imports
     python -c "import torch; print(f'PyTorch version: {torch.__version__}')"

@@ -13,7 +13,7 @@ NC='\033[0m' # No Color
 
 # Project root directory
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$PROJECT_ROOT"
+cd "${PROJECT_ROOT}"
 
 echo -e "${BLUE}🔧 SAMO Deep Learning - Code Quality Tools${NC}"
 echo -e "${BLUE}===========================================${NC}"
@@ -90,7 +90,7 @@ run_full_check() {
 
     echo ""
     echo -e "${BLUE}📊 Summary:${NC}"
-    if $all_passed; then
+    if "${all_passed}"; then
         echo -e "${GREEN}✅ All quality checks passed! Ready for commit.${NC}"
         return 0
     else
@@ -158,7 +158,7 @@ case "${1:-full}" in
         show_help
         ;;
     *)
-        echo -e "${RED}❌ Unknown command: $1${NC}"
+        echo -e "${RED}❌ Unknown command: ${1}${NC}"
         echo ""
         show_help
         exit 1
