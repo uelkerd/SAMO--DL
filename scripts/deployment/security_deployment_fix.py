@@ -15,7 +15,6 @@ import os
 import sys
 import subprocess
 import shlex
-import json
 import time
 import requests
 from pathlib import Path
@@ -52,12 +51,13 @@ class SecurityDeploymentFix:
         self.secure_requirements = self.deployment_dir / "requirements_secure.txt"
         self.secure_dockerfile = self.deployment_dir / "Dockerfile.secure"
         self.secure_api = self.deployment_dir / "secure_api_server.py"
-        
-    def log(self, message: str, level: str = "INFO"):
+
+    @staticmethod
+    def log(message: str, level: str = "INFO"):
         """Log messages with timestamp"""
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
         print(f"[{timestamp}] [{level}] {message}")
-        
+
     def run_command(self, command: List[str], check: bool = True) -> subprocess.CompletedProcess:
         """Run shell command with error handling"""
         # Sanitize command for security
@@ -67,7 +67,7 @@ class SecurityDeploymentFix:
                 sanitized_command.append(shlex.quote(arg))
             else:
                 sanitized_command.append(str(arg))
-        
+
         self.log(f"Running: {' '.join(sanitized_command)}")
         try:
             result = subprocess.run(command, capture_output=True, text=True, check=check)
@@ -79,11 +79,11 @@ class SecurityDeploymentFix:
             if check:
                 raise
             return e
-            
+
     def create_secure_requirements(self):
         """Create secure requirements.txt with latest secure versions"""
         self.log("Creating secure requirements.txt...")
-        
+
         secure_requirements = """# Secure requirements for Cloud Run deployment
 # All versions verified with safety-mcp for security and Python 3.9 compatibility
 
@@ -106,16 +106,16 @@ bcrypt>=4.2.0,<5.0.0
 # Rate limiting and security
 redis>=5.2.0,<6.0.0
 """
-        
+
         with open(self.secure_requirements, 'w') as f:
             f.write(secure_requirements)
-            
+
         self.log("✅ Secure requirements.txt created")
-        
+
     def create_security_headers_module(self):
         """Create security headers module"""
         security_headers_path = self.deployment_dir / "security_headers.py"
-        
+
         security_headers_code = '''#!/usr/bin/env python3
 """
 Security Headers Module for Cloud Run API
@@ -126,7 +126,7 @@ from typing import Dict, Any
 
 def add_security_headers(app: Flask) -> None:
     """Add comprehensive security headers to Flask app"""
-    
+
     @app.after_request
     def add_headers(response):
         # Content Security Policy
@@ -139,7 +139,7 @@ def add_security_headers(app: Flask) -> None:
             "connect-src 'self'; "
             "frame-ancestors 'none';"
         )
-        
+
         # Security headers
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['X-Frame-Options'] = 'DENY'
@@ -147,22 +147,22 @@ def add_security_headers(app: Flask) -> None:
         response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
         response.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()'
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-        
+
         # Remove server information
         response.headers.pop('Server', None)
-        
+
         return response
 '''
-        
+
         with open(security_headers_path, 'w') as f:
             f.write(security_headers_code)
-            
+
         self.log("✅ Security headers module created")
-        
+
     def create_rate_limiter_module(self):
         """Create Flask-compatible rate limiter"""
         rate_limiter_path = self.deployment_dir / "rate_limiter.py"
-        
+
         rate_limiter_code = '''#!/usr/bin/env python3
 """
 Rate Limiter for Flask API
@@ -179,63 +179,63 @@ class RateLimiter:
         self.requests_per_minute = requests_per_minute
         self.requests = defaultdict(lambda: deque(maxlen=requests_per_minute))
         self.lock = threading.Lock()
-        
+
     def is_allowed(self, client_id: str) -> bool:
         """Check if request is allowed"""
         current_time = time.time()
-        
+
         with self.lock:
             # Clean old requests (older than 1 minute)
-            while (self.requests[client_id] and 
+            while (self.requests[client_id] and
                    current_time - self.requests[client_id][0] > 60):
                 self.requests[client_id].popleft()
-            
+
             # Check if under limit
             if len(self.requests[client_id]) < self.requests_per_minute:
                 self.requests[client_id].append(current_time)
                 return True
-                
+
             return False
-            
+
     def get_client_id(self, request) -> str:
         """Get client identifier"""
         # Try API key first
         api_key = request.headers.get('X-API-Key')
         if api_key:
             return f"api_key:{api_key}"
-            
+
         # Fall back to IP address
         return f"ip:{request.remote_addr}"
 
 def rate_limit(requests_per_minute: int = 100):
     """Rate limiting decorator"""
     limiter = RateLimiter(requests_per_minute)
-    
+
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             client_id = limiter.get_client_id(request)
-            
+
             if not limiter.is_allowed(client_id):
                 return jsonify({
                     'error': 'Rate limit exceeded',
                     'message': f'Maximum {requests_per_minute} requests per minute'
                 }), 429
-                
+
             return f(*args, **kwargs)
         return decorated_function
     return decorator
 '''
-        
+
         with open(rate_limiter_path, 'w') as f:
             f.write(rate_limiter_code)
-            
+
         self.log("✅ Rate limiter module created")
-        
+
     def create_secure_api_server(self):
         """Create secure API server with all security features"""
         self.log("Creating secure API server...")
-        
+
         secure_api_code = f'''#!/usr/bin/env python3
 """
 🚀 SECURE EMOTION DETECTION API FOR CLOUD RUN
@@ -581,16 +581,16 @@ initialize_model()
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port={PORT}, debug=False)
 '''
-        
+
         with open(self.secure_api, 'w') as f:
             f.write(secure_api_code)
-            
+
         self.log("✅ Secure API server created")
-        
+
     def create_secure_dockerfile(self):
         """Create secure Dockerfile"""
         self.log("Creating secure Dockerfile...")
-        
+
         dockerfile_content = f'''# Use official Python runtime with explicit platform targeting
 FROM --platform=linux/amd64 python:3.9-slim
 
@@ -653,16 +653,16 @@ CMD exec gunicorn \\
     --log-level info \\
     secure_api_server:app
 '''
-        
+
         with open(self.secure_dockerfile, 'w') as f:
             f.write(dockerfile_content)
-            
+
         self.log("✅ Secure Dockerfile created")
-        
+
     def build_and_deploy(self):
         """Build and deploy secure container to Cloud Run"""
         self.log("Building and deploying secure container...")
-        
+
         # Create a temporary cloudbuild.yaml file
         cloudbuild_path = self.deployment_dir / "cloudbuild.yaml"
         cloudbuild_content = f'''steps:
@@ -671,10 +671,10 @@ CMD exec gunicorn \\
 images:
   - '{ARTIFACT_REGISTRY}/{SERVICE_NAME}'
 '''
-        
+
         with open(cloudbuild_path, 'w') as f:
             f.write(cloudbuild_content)
-        
+
         # Build container
         self.log("Building secure container...")
         build_result = self.run_command([
@@ -682,10 +682,10 @@ images:
             str(self.deployment_dir),
             '--config', str(cloudbuild_path)
         ])
-        
+
         if build_result.returncode != 0:
             raise Exception("Container build failed")
-            
+
         # Deploy to Cloud Run
         self.log("Deploying to Cloud Run...")
         deploy_result = self.run_command([
@@ -700,32 +700,32 @@ images:
             '--max-instances', '10',
             '--timeout', '300'
         ])
-        
+
         if deploy_result.returncode != 0:
             raise Exception("Cloud Run deployment failed")
-            
+
         # Clean up temporary file
         cloudbuild_path.unlink(missing_ok=True)
-            
+
         self.log("✅ Secure deployment completed")
-        
+
     def test_deployment(self):
         """Test the secure deployment"""
         self.log("Testing secure deployment...")
-        
+
         # Get service URL
         url_result = self.run_command([
             'gcloud', 'run', 'services', 'describe', SERVICE_NAME,
             '--region', REGION,
             '--format', 'value(status.url)'
         ])
-        
+
         if url_result.returncode != 0:
             raise Exception("Failed to get service URL")
-            
+
         service_url = url_result.stdout.strip()
         self.log(f"Service URL: {service_url}")
-        
+
         # Test endpoints
         tests = [
             ('GET', '/', 'Root endpoint'),
@@ -733,11 +733,11 @@ images:
             ('GET', '/emotions', 'Emotions list'),
             ('POST', '/predict', 'Prediction endpoint', {{'text': 'I am happy today!'}}),
         ]
-        
+
         for test in tests:
             method, endpoint, description = test[:3]
             data = test[3] if len(test) > 3 else None
-            
+
             try:
                 if method == 'GET':
                     response = requests.get(f"{service_url}{endpoint}", timeout=30)
@@ -748,18 +748,18 @@ images:
                         headers={{'Content-Type': 'application/json'}},
                         timeout=30
                     )
-                
+
                 if response.status_code == 200:
                     self.log(f"✅ {description}: PASS")
                 else:
                     self.log(f"❌ {description}: FAIL (Status: {response.status_code})")
-                    
+
             except Exception as e:
                 self.log(f"❌ {description}: ERROR ({e})")
-                
+
         # Test security features
         self.log("Testing security features...")
-        
+
         # Test rate limiting
         try:
             responses = []
@@ -771,46 +771,46 @@ images:
                     timeout=5
                 )
                 responses.append(response.status_code)
-            
+
             if 429 in responses:
                 self.log("✅ Rate limiting: PASS")
             else:
                 self.log("❌ Rate limiting: FAIL")
-                
+
         except Exception as e:
             self.log(f"❌ Rate limiting test: ERROR ({e})")
-            
+
         # Test security headers
         try:
             response = requests.get(f"{service_url}/health", timeout=10)
             headers = response.headers
-            
+
             security_headers = [
                 'Content-Security-Policy',
                 'X-Content-Type-Options',
                 'X-Frame-Options',
                 'X-XSS-Protection'
             ]
-            
+
             missing_headers = [h for h in security_headers if h not in headers]
-            
+
             if not missing_headers:
                 self.log("✅ Security headers: PASS")
             else:
                 self.log(f"❌ Security headers: FAIL (Missing: {missing_headers})")
-                
+
         except Exception as e:
             self.log(f"❌ Security headers test: ERROR ({e})")
-            
+
         self.log("✅ Security testing completed")
-        
+
     def cleanup_old_deployment(self):
         """Clean up old insecure deployment"""
         self.log("Cleaning up old deployment...")
-        
+
         # Try to delete different possible old service names
         old_services = ['samo-emotion-api', 'samo-emotion-api-71517823771', 'arch-fixed-test']
-        
+
         for service_name in old_services:
             try:
                 self.run_command([
@@ -821,36 +821,36 @@ images:
                 self.log(f"✅ Old deployment '{service_name}' cleaned up")
             except Exception as e:
                 self.log(f"Info: Could not clean up '{service_name}': {e}")
-            
+
     def run(self):
         """Run the complete security deployment fix"""
         try:
             self.log("🚨 STARTING CRITICAL SECURITY DEPLOYMENT FIX")
             self.log("=" * 60)
-            
+
             # Step 1: Create secure files
             self.create_secure_requirements()
             self.create_security_headers_module()
             self.create_rate_limiter_module()
             self.create_secure_api_server()
             self.create_secure_dockerfile()
-            
+
             # Step 2: Build and deploy
             self.build_and_deploy()
-            
+
             # Step 3: Test deployment
             self.test_deployment()
-            
+
             # Step 4: Clean up old deployment
             self.cleanup_old_deployment()
-            
+
             self.log("=" * 60)
             self.log("🎉 CRITICAL SECURITY DEPLOYMENT FIX COMPLETED SUCCESSFULLY")
             self.log("✅ All security vulnerabilities have been fixed")
             self.log("✅ Secure API is now deployed and operational")
             self.log("✅ Rate limiting and security headers are active")
             self.log("✅ Admin endpoints are protected with API key")
-            
+
         except Exception as e:
             self.log(f"❌ SECURITY DEPLOYMENT FAILED: {e}", "ERROR")
             sys.exit(1)

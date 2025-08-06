@@ -17,30 +17,30 @@ class CloudRunConfig:
     min_instances: int = 1
     concurrency: int = 80
     timeout_seconds: int = 300
-    
+
     # Auto-scaling
     target_cpu_utilization: float = 0.7
     target_memory_utilization: float = 0.8
     scale_up_cooldown_seconds: int = 60
     scale_down_cooldown_seconds: int = 300
-    
+
     # Health checks
     health_check_interval_seconds: int = 30
     health_check_timeout_seconds: int = 10
     health_check_retries: int = 3
-    
+
     # Graceful shutdown
     graceful_shutdown_timeout_seconds: int = 30
-    
+
     # Monitoring
     enable_monitoring: bool = True
     enable_metrics: bool = True
     log_level: str = "info"
-    
+
     # Rate limiting
     max_requests_per_minute: int = 1000
     rate_limit_window_seconds: int = 60
-    
+
     # Security
     enable_cors: bool = True
     cors_origins: Optional[List[str]] = None
@@ -49,11 +49,11 @@ class CloudRunConfig:
 
 class EnvironmentConfig:
     """Environment-specific configuration management"""
-    
+
     def __init__(self, environment: str = None):
         self.environment = environment or os.getenv('ENVIRONMENT', 'development')
         self.config = self._load_environment_config()
-    
+
     def _load_environment_config(self) -> CloudRunConfig:
         """Load configuration based on environment"""
         if self.environment == 'production':
@@ -77,8 +77,8 @@ class EnvironmentConfig:
                 enable_rate_limiting=True,
                 enable_input_sanitization=True
             )
-        
-        elif self.environment == 'staging':
+
+        if self.environment == 'staging':
             return CloudRunConfig(
                 memory_limit_mb=1024,
                 cpu_limit=1,
@@ -99,29 +99,27 @@ class EnvironmentConfig:
                 enable_rate_limiting=True,
                 enable_input_sanitization=True
             )
-        
-        else:  # development
-            return CloudRunConfig(
-                memory_limit_mb=512,
-                cpu_limit=1,
-                max_instances=2,
-                min_instances=0,
-                concurrency=20,
-                timeout_seconds=120,
-                target_cpu_utilization=0.5,
-                target_memory_utilization=0.6,
-                health_check_interval_seconds=120,
-                graceful_shutdown_timeout_seconds=10,
-                enable_monitoring=False,
-                enable_metrics=False,
-                log_level='debug',
-                max_requests_per_minute=100,
-                enable_cors=True,
-                cors_origins=['*'],
-                enable_rate_limiting=False,
-                enable_input_sanitization=False
-            )
-    
+        return CloudRunConfig(
+            memory_limit_mb=512,
+            cpu_limit=1,
+            max_instances=2,
+            min_instances=0,
+            concurrency=20,
+            timeout_seconds=120,
+            target_cpu_utilization=0.5,
+            target_memory_utilization=0.6,
+            health_check_interval_seconds=120,
+            graceful_shutdown_timeout_seconds=10,
+            enable_monitoring=False,
+            enable_metrics=False,
+            log_level='debug',
+            max_requests_per_minute=100,
+            enable_cors=True,
+            cors_origins=['*'],
+            enable_rate_limiting=False,
+            enable_input_sanitization=False
+        )
+
     def get_gunicorn_config(self) -> Dict[str, Any]:
         """Get Gunicorn configuration for Cloud Run"""
         return {
@@ -139,7 +137,7 @@ class EnvironmentConfig:
             'worker_class': 'sync',
             'worker_connections': self.config.concurrency
         }
-    
+
     def get_health_check_config(self) -> Dict[str, Any]:
         """Get health check configuration"""
         return {
@@ -148,7 +146,7 @@ class EnvironmentConfig:
             'retries': self.config.health_check_retries,
             'graceful_shutdown_timeout': self.config.graceful_shutdown_timeout_seconds
         }
-    
+
     def get_monitoring_config(self) -> Dict[str, Any]:
         """Get monitoring configuration"""
         return {
@@ -158,7 +156,7 @@ class EnvironmentConfig:
             'target_cpu_utilization': self.config.target_cpu_utilization,
             'target_memory_utilization': self.config.target_memory_utilization
         }
-    
+
     def get_security_config(self) -> Dict[str, Any]:
         """Get security configuration"""
         return {
@@ -168,23 +166,31 @@ class EnvironmentConfig:
             'enable_input_sanitization': self.config.enable_input_sanitization,
             'max_requests_per_minute': self.config.max_requests_per_minute
         }
-    
+
     def validate_config(self) -> None:
         """Validate configuration settings"""
         # Validate resource limits
-        assert 512 <= self.config.memory_limit_mb <= 8192, "Memory limit must be between 512MB and 8GB"
-        assert 1 <= self.config.cpu_limit <= 8, "CPU limit must be between 1 and 8"
-        assert 1 <= self.config.max_instances <= 100, "Max instances must be between 1 and 100"
-        assert 0 <= self.config.min_instances <= self.config.max_instances, "Min instances cannot exceed max instances"
-        
+        if not 512 <= self.config.memory_limit_mb <= 8192:
+            raise AssertionError("Memory limit must be between 512MB and 8GB")
+        if not 1 <= self.config.cpu_limit <= 8:
+            raise AssertionError("CPU limit must be between 1 and 8")
+        if not 1 <= self.config.max_instances <= 100:
+            raise AssertionError("Max instances must be between 1 and 100")
+        if not 0 <= self.config.min_instances <= self.config.max_instances:
+            raise AssertionError("Min instances cannot exceed max instances")
+
         # Validate timeouts
-        assert 10 <= self.config.timeout_seconds <= 900, "Timeout must be between 10 and 900 seconds"
-        assert 5 <= self.config.health_check_interval_seconds <= 300, "Health check interval must be between 5 and 300 seconds"
-        
+        if not 10 <= self.config.timeout_seconds <= 900:
+            raise AssertionError("Timeout must be between 10 and 900 seconds")
+        if not 5 <= self.config.health_check_interval_seconds <= 300:
+            raise AssertionError("Health check interval must be between 5 and 300 seconds")
+
         # Validate utilization targets
-        assert 0.1 <= self.config.target_cpu_utilization <= 0.9, "CPU utilization target must be between 0.1 and 0.9"
-        assert 0.1 <= self.config.target_memory_utilization <= 0.9, "Memory utilization target must be between 0.1 and 0.9"
-    
+        if not 0.1 <= self.config.target_cpu_utilization <= 0.9:
+            raise AssertionError("CPU utilization target must be between 0.1 and 0.9")
+        if not 0.1 <= self.config.target_memory_utilization <= 0.9:
+            raise AssertionError("Memory utilization target must be between 0.1 and 0.9")
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert configuration to dictionary"""
         return {
