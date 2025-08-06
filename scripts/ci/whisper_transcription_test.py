@@ -53,19 +53,14 @@ def test_whisper_imports():
     try:
         logger.info("🔍 Testing Whisper imports...")
 
-        # Test imports - just verify they can be imported
+        # Test imports with fallback mechanism
         try:
-            import models.voice_processing.audio_preprocessor
-            import models.voice_processing.whisper_transcriber
-            models_module = models
+            from models.voice_processing.audio_preprocessor import AudioPreprocessor
+            from models.voice_processing.whisper_transcriber import WhisperTranscriber
         except ImportError:
-            import src.models.voice_processing.audio_preprocessor
-            import src.models.voice_processing.whisper_transcriber
-            models_module = src.models
-        
-        # Verify modules exist
-        assert hasattr(models_module.voice_processing, 'audio_preprocessor')
-        assert hasattr(models_module.voice_processing, 'whisper_transcriber')
+            # Fallback for different import paths
+            from src.models.voice_processing.audio_preprocessor import AudioPreprocessor
+            from src.models.voice_processing.whisper_transcriber import WhisperTranscriber
 
         logger.info("✅ Whisper imports successful")
         return True
@@ -80,10 +75,18 @@ def test_whisper_instantiation():
     try:
         logger.info("🤖 Testing WhisperTranscriber instantiation...")
 
-        from src.models.voice_processing.whisper_transcriber import (
-            TranscriptionConfig,
-            WhisperTranscriber,
-        )
+        # Test imports with fallback mechanism
+        try:
+            from models.voice_processing.whisper_transcriber import (
+                TranscriptionConfig,
+                WhisperTranscriber,
+            )
+        except ImportError:
+            # Fallback for different import paths
+            from src.models.voice_processing.whisper_transcriber import (
+                TranscriptionConfig,
+                WhisperTranscriber,
+            )
 
         config = TranscriptionConfig(model_size="tiny")
         config.device = "cpu"
@@ -107,7 +110,12 @@ def test_audio_preprocessor():
     try:
         logger.info("🎵 Testing AudioPreprocessor...")
 
-        from src.models.voice_processing.audio_preprocessor import AudioPreprocessor
+        # Test imports with fallback mechanism
+        try:
+            from models.voice_processing.audio_preprocessor import AudioPreprocessor
+        except ImportError:
+            # Fallback for different import paths
+            from src.models.voice_processing.audio_preprocessor import AudioPreprocessor
 
         # Generate test audio
         test_audio_path = generate_test_audio()
@@ -148,10 +156,18 @@ def test_minimal_transcription():
             logger.info("⏭️ Skipping transcription test in CI environment")
             return True
 
-        from src.models.voice_processing.whisper_transcriber import (
-            TranscriptionConfig,
-            WhisperTranscriber,
-        )
+        # Test imports with fallback mechanism
+        try:
+            from models.voice_processing.whisper_transcriber import (
+                TranscriptionConfig,
+                WhisperTranscriber,
+            )
+        except ImportError:
+            # Fallback for different import paths
+            from src.models.voice_processing.whisper_transcriber import (
+                TranscriptionConfig,
+                WhisperTranscriber,
+            )
 
         # Generate test audio
         test_audio_path = generate_test_audio()
