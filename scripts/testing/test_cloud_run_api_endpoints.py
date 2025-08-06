@@ -469,7 +469,8 @@ class CloudRunAPITester:
         
         return test_results
 
-    def generate_summary(self, tests: Dict[str, Any]) -> Dict[str, Any]:
+    @staticmethod
+    def generate_summary(tests: Dict[str, Any]) -> Dict[str, Any]:
         """Generate a summary of test results"""
         summary = {
             "overall_success": True,
@@ -559,7 +560,7 @@ def main():
                 status = "✅ PASS" if result["predictions"]["success"] else "❌ FAIL"
                 print(f"{test_name.upper()}: {status}")
                 if not result["predictions"]["success"]:
-                    print(f"  Error: Model loading failed")
+                    print("  Error: Model loading failed")
             elif "valid_input" in result:
                 # Emotion detection has nested structure
                 status = "✅ PASS" if result["valid_input"]["success"] else "❌ FAIL"
