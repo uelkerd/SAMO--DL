@@ -92,15 +92,15 @@ class SecurityDeploymentFix:
             self.deployment_dir / "security_headers.py",
             self.deployment_dir / "rate_limiter.py"
         ]
-        
+
         missing_files = []
         for file_path in required_files:
             if not file_path.exists():
                 missing_files.append(str(file_path))
-        
+
         if missing_files:
             raise FileNotFoundError(f"Missing required static files: {', '.join(missing_files)}")
-        
+
         self.log("✅ All static files verified")
 
     def create_secure_requirements(self):
@@ -230,7 +230,7 @@ images:
         try:
             response = requests.get(f"{service_url}/", timeout=30)
             headers = response.headers
-            
+
             security_headers = [
                 'Content-Security-Policy',
                 'X-Content-Type-Options',
@@ -238,17 +238,17 @@ images:
                 'X-XSS-Protection',
                 'Strict-Transport-Security'
             ]
-            
+
             missing_headers = []
             for header in security_headers:
                 if header not in headers:
                     missing_headers.append(header)
-            
+
             if missing_headers:
                 self.log(f"Missing security headers: {missing_headers}", "WARNING")
             else:
                 self.log("✅ Security headers present")
-                
+
         except Exception as e:
             self.log(f"Security headers test failed: {e}", "ERROR")
             return False
@@ -274,7 +274,7 @@ images:
                     timeout=30
                 )
                 responses.append(response.status_code)
-            
+
             # Should get 429 after rate limit exceeded
             if 429 not in responses:
                 self.log("Rate limiting not working", "ERROR")
@@ -290,7 +290,7 @@ images:
     def cleanup_old_deployment(self):
         """Clean up old deployment artifacts"""
         self.log("Cleaning up old deployment artifacts...")
-        
+
         # Remove temporary cloudbuild.yaml
         cloudbuild_path = self.deployment_dir / "cloudbuild.yaml"
         if cloudbuild_path.exists():
@@ -301,23 +301,23 @@ images:
         """Run the complete security deployment fix"""
         try:
             self.log("🚀 Starting security deployment fix...")
-            
+
             # Create secure requirements
             self.create_secure_requirements()
-            
+
             # Build and deploy
             self.build_and_deploy()
-            
+
             # Test deployment
             if not self.test_deployment():
                 raise RuntimeError("Deployment tests failed")
-            
+
             # Cleanup
             self.cleanup_old_deployment()
-            
+
             self.log("🎉 Security deployment fix completed successfully!")
             return True
-            
+
         except Exception as e:
             self.log(f"❌ Security deployment fix failed: {e}", "ERROR")
             return False
