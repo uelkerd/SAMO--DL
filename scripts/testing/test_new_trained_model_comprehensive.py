@@ -13,7 +13,6 @@ This script comprehensively tests the newly trained model to verify:
 import torch
 import numpy as np
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import json
 import warnings
 warnings.filterwarnings('ignore')
 

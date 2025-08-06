@@ -13,7 +13,6 @@ import logging
 import hashlib
 import ipaddress
 from dataclasses import dataclass
-from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -383,7 +382,7 @@ class TokenBucketRateLimiter:
 def add_rate_limiting(app, requests_per_minute=100, burst_size=10, max_concurrent_requests=5, 
                      rapid_fire_threshold=10, sustained_rate_threshold=200):
     """Add rate limiting middleware to FastAPI app."""
-    from fastapi import Request, HTTPException
+    from fastapi import Request
     from fastapi.responses import JSONResponse
     
     # Create rate limiter instance

@@ -11,7 +11,6 @@ we verify the saved model has the correct configuration before proceeding.
 """
 
 import json
-import os
 
 def create_fixed_notebook():
     """Create a corrected training notebook with proper configuration preservation."""
