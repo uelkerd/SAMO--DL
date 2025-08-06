@@ -25,7 +25,7 @@ def check_model_health():
     except requests.exceptions.RequestException as e:
         print(f"❌ Health check error: {e}")
         return False
-    
+
     # Test emotions endpoint
     try:
         data = client.get("/emotions")
@@ -33,7 +33,7 @@ def check_model_health():
     except requests.exceptions.RequestException as e:
         print(f"❌ Emotions check error: {e}")
         return False
-    
+
     # Test prediction endpoint
     try:
         payload = {"text": "I am happy"}
