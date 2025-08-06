@@ -8,17 +8,13 @@ scaling, and ensemble methods.
 """
 
 import logging
-import os
-import warnings
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
-from sklearn.metrics import f1_score, precision_recall_fscore_support
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 from transformers import (
     AutoTokenizer,
     get_linear_schedule_with_warmup,
@@ -29,7 +25,6 @@ from .bert_classifier import (
     evaluate_emotion_classifier,
 )
 from .dataset_loader import (
-    GoEmotionsDataLoader,
     create_goemotions_loader,
 )
 

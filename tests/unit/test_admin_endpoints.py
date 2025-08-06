@@ -10,7 +10,6 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'deployment'))
 
 import unittest
-from unittest.mock import Mock, patch
 import json
 
 # Import the secure API server with error handling

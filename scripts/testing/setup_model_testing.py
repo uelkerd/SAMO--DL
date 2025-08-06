@@ -6,7 +6,6 @@ Setup script for testing the emotion detection model.
 import os
 import json
 import shutil
-from pathlib import Path
 
 def check_model_files():
     """Check if required model files exist."""

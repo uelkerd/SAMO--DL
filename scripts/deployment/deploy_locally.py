@@ -9,7 +9,6 @@ for testing before cloud deployment.
 
 import os
 import json
-import subprocess
 import sys
 from datetime import datetime
 

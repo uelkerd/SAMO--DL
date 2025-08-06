@@ -8,9 +8,7 @@ logging, and rate limiting features.
 """
 
 import requests
-import json
 import time
-import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import sys
 

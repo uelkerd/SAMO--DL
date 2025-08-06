@@ -8,7 +8,6 @@ training arguments that should work in any transformers version.
 """
 
 import json
-import os
 
 def create_minimal_notebook():
     """Create a minimal working notebook."""

@@ -5,11 +5,8 @@ Debug script to identify and fix CUDA device-side assert errors caused by label 
 
 import json
 import pandas as pd
-import numpy as np
-import torch
 from datasets import load_dataset
 from sklearn.preprocessing import LabelEncoder
-from transformers import AutoTokenizer
 import logging
 
 # Configure logging
