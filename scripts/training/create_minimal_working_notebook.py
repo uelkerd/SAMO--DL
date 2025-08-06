@@ -12,7 +12,7 @@ import os
 
 def create_minimal_notebook():
     """Create a minimal working notebook."""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -363,12 +363,12 @@ def create_minimal_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     # Save the notebook
     output_path = "notebooks/MINIMAL_WORKING_TRAINING_COLAB.ipynb"
     with open(output_path, 'w') as f:
         json.dump(notebook_content, f, indent=2)
-    
+
     print(f"✅ Created minimal working notebook: {output_path}")
     print("📋 Features:")
     print("   ✅ Ultra-minimal training arguments")
@@ -376,7 +376,7 @@ def create_minimal_notebook():
     print("   ✅ Basic training and evaluation")
     print("   ✅ Model saving with verification")
     print("\\n🚀 This should work in ANY transformers version!")
-    
+
     return output_path
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ import random
 
 def create_unique_fallback_dataset():
     """Create a unique fallback dataset with no duplicates"""
-    
+
     # Define unique templates for each emotion with variations
     emotion_templates = {
         'happy': [
@@ -183,10 +183,10 @@ def create_unique_fallback_dataset():
             "I feel satisfied with the growth experienced."
         ]
     }
-    
+
     # Create unique samples
     unique_samples = []
-    
+
     for emotion, templates in emotion_templates.items():
         for i, template in enumerate(templates):
             unique_samples.append({
@@ -194,40 +194,40 @@ def create_unique_fallback_dataset():
                 'emotion': emotion,
                 'sample_id': f"{emotion}_{i+1}"
             })
-    
+
     # Shuffle the samples for better training
     random.shuffle(unique_samples)
-    
+
     print(f"✅ Created {len(unique_samples)} UNIQUE samples")
     print(f"📊 Samples per emotion: {len(unique_samples) // 12}")
-    
+
     # Verify no duplicates
     texts = [sample['text'] for sample in unique_samples]
     unique_texts = set(texts)
     print(f"🔍 Duplicate check: {len(texts)} total, {len(unique_texts)} unique")
-    
+
     if len(texts) != len(unique_texts):
         print("❌ WARNING: DUPLICATES FOUND!")
         return None
-    
+
     print("✅ All samples are unique!")
-    
+
     # Save the dataset
     with open('data/unique_fallback_dataset.json', 'w') as f:
         json.dump(unique_samples, f, indent=2)
-    
+
     print("💾 Saved unique fallback dataset to data/unique_fallback_dataset.json")
-    
+
     # Show emotion distribution
     emotion_counts = {}
     for sample in unique_samples:
         emotion = sample['emotion']
         emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
-    
+
     print("\n📊 Emotion Distribution:")
     for emotion, count in sorted(emotion_counts.items()):
         print(f"  {emotion}: {count} samples")
-    
+
     return unique_samples
 
 if __name__ == "__main__":

@@ -41,42 +41,42 @@ MAX_INPUT_LENGTH = 512
 def load_model():
     """Load the emotion detection model"""
     global model, tokenizer, emotion_mapping, model_loading, model_loaded, model_lock
-    
+
     with model_lock:
         if model_loading or model_loaded:
             return
-    
+
     model_loading = True
     logger.info("🔄 Starting model loading...")
-    
+
     try:
         # Get model path
         model_path = Path("/app/model")
         logger.info(f"📁 Loading model from: {model_path}")
-        
+
         # Check if model files exist
         if not model_path.exists():
             raise FileNotFoundError(f"Model directory not found: {model_path}")
-        
+
         # Load tokenizer and model
         logger.info("📥 Loading tokenizer...")
         tokenizer = AutoTokenizer.from_pretrained("roberta-base")
-        
+
         logger.info("📥 Loading model...")
         model = AutoModelForSequenceClassification.from_pretrained(str(model_path))
-        
+
         # Set device (CPU for Cloud Run)
         device = torch.device('cpu')
         model.to(device)
         model.eval()
-        
+
         emotion_mapping = EMOTION_MAPPING
         model_loaded = True
         model_loading = False
-        
+
         logger.info(f"✅ Model loaded successfully on {device}")
         logger.info(f"🎯 Supported emotions: {emotion_mapping}")
-        
+
     except Exception:
         model_loading = False
         logger.exception("❌ Failed to load model")
@@ -87,7 +87,7 @@ def load_model():
 def predict_emotion(text):
     """Predict emotion for given text"""
     global model, tokenizer, emotion_mapping
-    
+
     if not model_loaded:
         raise RuntimeError("Model not loaded")
 
@@ -99,17 +99,17 @@ def predict_emotion(text):
 
     # Tokenize
     inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=MAX_INPUT_LENGTH, padding=True)
-    
+
     # Predict
     with torch.no_grad():
         outputs = model(**inputs)
         probabilities = torch.softmax(outputs.logits, dim=1)
         predicted_class = torch.argmax(probabilities, dim=1).item()
         confidence = probabilities[0][predicted_class].item()
-    
+
     # Map to emotion name
     emotion = emotion_mapping[predicted_class]
-    
+
     return {
         "emotion": emotion,
         "confidence": confidence,
@@ -120,7 +120,7 @@ def ensure_model_loaded():
     """Ensure model is loaded before processing requests"""
     if not model_loaded and not model_loading:
         load_model()
-    
+
     if not model_loaded:
         raise RuntimeError("Model not loaded")
 
@@ -159,27 +159,27 @@ def predict():
     try:
         # Ensure model is loaded
         ensure_model_loaded()
-        
+
         # Content-type validation
         if not request.is_json:
             return jsonify({'error': 'Content-Type must be application/json'}), 400
-        
+
         try:
             data = request.get_json()
         except Exception:
             return jsonify({'error': 'Invalid JSON data'}), 400
-            
+
         if not data:
             return jsonify({'error': 'No JSON data provided'}), 400
-        
+
         text = data.get('text', '')
         if not text:
             return jsonify({'error': 'No text provided'}), 400
-        
+
         # Make prediction
         result = predict_emotion(text)
         return jsonify(result)
-    
+
     except Exception:
         return create_error_response('Prediction processing failed. Please try again later.')
 
@@ -189,31 +189,31 @@ def predict_batch():
     try:
         # Ensure model is loaded
         ensure_model_loaded()
-        
+
         # Content-type validation
         if not request.is_json:
             return jsonify({'error': 'Content-Type must be application/json'}), 400
-        
+
         try:
             data = request.get_json()
         except Exception:
             return jsonify({'error': 'Invalid JSON data'}), 400
-            
+
         if not data:
             return jsonify({'error': 'No JSON data provided'}), 400
-        
+
         texts = data.get('texts', [])
         if not texts:
             return jsonify({'error': 'No texts provided'}), 400
-        
+
         # Make predictions
         results = []
         for text in texts:
             result = predict_emotion(text)
             results.append(result)
-        
+
         return jsonify({'results': results})
-    
+
     except Exception:
         return create_error_response('Batch prediction processing failed. Please try again later.')
 
@@ -260,34 +260,34 @@ if __name__ == '__main__':
     logger.info("  - GET  /emotions - List emotions")
     logger.info("  - GET  /model_status - Model status")
     logger.info("=" * 50)
-    
+
     # Load model immediately
     try:
         load_model()
     except Exception:
         logger.exception("Failed to load model on startup")
-    
+
     # Get port from environment (Cloud Run requirement)
     port = int(os.environ.get('PORT', 8080))
-    
+
     # Use production WSGI server for better performance and reliability
     import gunicorn.app.base
-    
+
     class StandaloneApplication(gunicorn.app.base.BaseApplication):
         def __init__(self, app, options=None):
             self.options = options or {}
             self.application = app
             super().__init__()
-        
+
         def load_config(self):
             config = {key: value for key, value in self.options.items()
                      if key in self.cfg.settings and value is not None}
             for key, value in config.items():
                 self.cfg.set(key.lower(), value)
-        
+
         def load(self):
             return self.application
-    
+
     options = {
         'bind': f'0.0.0.0:{port}',
         'workers': 1,  # Single worker for Cloud Run
@@ -300,5 +300,5 @@ if __name__ == '__main__':
         'error_logfile': '-',
         'loglevel': 'info'
     }
-    
+
     StandaloneApplication(app, options).run() 

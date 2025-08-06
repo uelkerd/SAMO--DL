@@ -12,7 +12,7 @@ import os
 
 def create_simple_notebook():
     """Create a simplified ultimate notebook."""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -397,12 +397,12 @@ def create_simple_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     # Save the notebook
     output_path = "notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb"
     with open(output_path, 'w') as f:
         json.dump(notebook_content, f, indent=2)
-    
+
     print(f"✅ Created simple ultimate notebook: {output_path}")
     print("📋 Features included:")
     print("   ✅ Configuration preservation")
@@ -411,7 +411,7 @@ def create_simple_notebook():
     print("   ✅ Data augmentation")
     print("   ✅ Simple approach (no datasets library)")
     print("   ✅ Advanced validation (to be added)")
-    
+
     return output_path
 
 if __name__ == "__main__":

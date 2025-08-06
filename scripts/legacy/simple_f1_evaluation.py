@@ -39,14 +39,14 @@ def evaluate_current_f1():
         # Load model
         logger.info("🤖 Loading emotion detection model...")
         model, loss_fn = create_bert_emotion_classifier()
-        
+
         # Check for existing checkpoint
         checkpoint_paths = [
             "models/checkpoints/bert_emotion_classifier_final.pt",
             "test_checkpoints/best_model.pt",
             "test_checkpoints_dev/best_model.pt",
         ]
-        
+
         checkpoint_loaded = False
         for checkpoint_path in checkpoint_paths:
             if Path(checkpoint_path).exists():
@@ -61,7 +61,7 @@ def evaluate_current_f1():
                 except Exception as e:
                     logger.warning(f"⚠️ Failed to load checkpoint {checkpoint_path}: {e}")
                     continue
-        
+
         if not checkpoint_loaded:
             logger.warning("⚠️ No valid checkpoint found, using untrained model")
 
@@ -75,22 +75,22 @@ def evaluate_current_f1():
 
         # Evaluate on test set
         logger.info("🧪 Evaluating on test set...")
-        
+
         test_data = datasets["test_data"]
         all_predictions = []
         all_labels = []
-        
+
         batch_size = 16
         num_classes = 28  # GoEmotions has 28 emotion classes
-        
+
         with torch.no_grad():
             for i in range(0, len(test_data), batch_size):
                 end_idx = min(i + batch_size, len(test_data))
                 batch_data = test_data.select(range(i, end_idx))
-                
+
                 texts = batch_data["text"]
                 labels = batch_data["labels"]
-                
+
                 # Convert labels to one-hot format
                 batch_labels = []
                 for label_list in labels:
@@ -99,7 +99,7 @@ def evaluate_current_f1():
                         if 0 <= label_idx < num_classes:
                             label_vector[label_idx] = 1
                     batch_labels.append(label_vector)
-                
+
                 # Tokenize
                 inputs = tokenizer(
                     texts,
@@ -108,36 +108,36 @@ def evaluate_current_f1():
                     max_length=512,
                     return_tensors="pt"
                 )
-                
+
                 input_ids = inputs["input_ids"].to(device)
                 attention_mask = inputs["attention_mask"].to(device)
-                
+
                 # Get predictions
                 outputs = model(input_ids, attention_mask)
                 predictions = torch.sigmoid(outputs) > 0.5
-                
+
                 all_predictions.extend(predictions.cpu().numpy())
                 all_labels.extend(batch_labels)
-                
+
                 if (i // batch_size + 1) % 10 == 0:
                     logger.info(f"   Processed {end_idx}/{len(test_data)} samples")
 
         # Calculate metrics
         logger.info("📈 Calculating metrics...")
-        
+
         # Convert to numpy arrays
         all_predictions = np.array(all_predictions)
         all_labels = np.array(all_labels)
-        
+
         # Calculate F1 scores
         micro_f1 = f1_score(all_labels, all_predictions, average='micro', zero_division=0)
         macro_f1 = f1_score(all_labels, all_predictions, average='macro', zero_division=0)
         weighted_f1 = f1_score(all_labels, all_predictions, average='weighted', zero_division=0)
-        
+
         # Calculate precision and recall
         micro_precision = precision_score(all_labels, all_predictions, average='micro', zero_division=0)
         micro_recall = recall_score(all_labels, all_predictions, average='micro', zero_division=0)
-        
+
         # Display results
         logger.info("📊 EVALUATION RESULTS:")
         logger.info("=" * 50)
@@ -147,21 +147,21 @@ def evaluate_current_f1():
         logger.info(f"Micro Precision:    {micro_precision:.4f} ({micro_precision*100:.2f}%)")
         logger.info(f"Micro Recall:       {micro_recall:.4f} ({micro_recall*100:.2f}%)")
         logger.info("=" * 50)
-        
+
         # Assessment
         target_f1 = 0.80  # 80% target
         progress = (micro_f1 / target_f1) * 100
-        
+
         logger.info(f"🎯 TARGET F1: {target_f1*100:.0f}%")
         logger.info(f"📊 CURRENT F1: {micro_f1*100:.2f}%")
         logger.info(f"📈 PROGRESS: {progress:.1f}% of target")
-        
+
         if micro_f1 >= target_f1:
             logger.info("🎉 TARGET ACHIEVED!")
         else:
             gap = target_f1 - micro_f1
             logger.info(f"📉 GAP: {gap*100:.2f} percentage points needed")
-            
+
         return {
             "micro_f1": micro_f1,
             "macro_f1": macro_f1,

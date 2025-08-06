@@ -11,11 +11,11 @@ import json
 
 def fix_imports():
     """Add missing imports to the ultimate notebook."""
-    
+
     # Read the existing notebook
     with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'r') as f:
         notebook = json.load(f)
-    
+
     # Find the imports cell and update it
     for cell in notebook['cells']:
         if cell['cell_type'] == 'code' and 'import torch' in ''.join(cell['source']):
@@ -38,11 +38,11 @@ def fix_imports():
                 "print(f'CUDA available: {torch.cuda.is_available()}')"
             ]
             break
-    
+
     # Save the updated notebook
     with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook, f, indent=2)
-    
+
     print('✅ Fixed imports in ultimate notebook!')
     print('📋 Added missing imports:')
     print('   ✅ f1_score, accuracy_score, precision_score, recall_score')
