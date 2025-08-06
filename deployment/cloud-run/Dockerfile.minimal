@@ -1,14 +1,10 @@
 # Minimal Working Deployment Dockerfile
 # Uses known compatible PyTorch/transformers versions
 
-FROM python:3.9-slim
+# Build stage for compiling dependencies
+FROM python:3.9-slim as builder
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PORT=8080
-
-# Install system dependencies
+# Install build dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
@@ -23,9 +19,25 @@ COPY requirements_minimal.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements_minimal.txt
 
+# Runtime stage
+FROM python:3.9-slim
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PORT=8080
+
+# Copy Python packages from builder stage
+COPY --from=builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Set working directory
+WORKDIR /app
+
 # Copy application code
 COPY minimal_api_server.py .
 COPY security_headers.py .
+COPY model_utils.py .
 
 # Create model directory and copy entire model
 RUN mkdir -p /app/model
