@@ -201,8 +201,13 @@ class SandboxExecutor:
             # Use torch.load with weights_only=True for additional safety
             model_data = torch.load(model_path, map_location='cpu', weights_only=True)
             
+            # Filter kwargs to only include valid constructor parameters
+            import inspect
+            constructor_params = inspect.signature(model_class.__init__).parameters
+            valid_params = {k: v for k, v in kwargs.items() if k in constructor_params}
+            
             # Create model instance
-            model = model_class(**kwargs)
+            model = model_class(**valid_params)
             
             # Load state dict if available
             if 'state_dict' in model_data:
@@ -212,7 +217,7 @@ class SandboxExecutor:
         
         result, execution_info = self.execute_safely(load_model)
         logger.info(f"Model loaded safely: {execution_info}")
-        return result
+        return result, execution_info
 
     def validate_model_safely(self, model_path: str) -> Tuple[bool, Dict]:
         """Validate a model safely in the sandbox.

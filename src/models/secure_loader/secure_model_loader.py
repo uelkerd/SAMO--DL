@@ -265,8 +265,10 @@ class SecureModelLoader:
             
             # 2. Model validation
             logger.info(f"Validating model {model_path}")
+            # Filter out non-model-config parameters
+            model_config = {k: v for k, v in kwargs.items() if k not in ['expected_checksum']}
             validation_valid, validation_info = self.model_validator.comprehensive_validation(
-                model_path, model_class, kwargs, test_input
+                model_path, model_class, model_config, test_input
             )
             loading_info['validation'] = validation_info
             
@@ -284,7 +286,12 @@ class SecureModelLoader:
             else:
                 # Load without sandbox (less secure but faster)
                 model_data = torch.load(model_path, map_location='cpu', weights_only=True)
-                model = model_class(**kwargs)
+                
+                # Filter kwargs to only include valid constructor parameters
+                import inspect
+                constructor_params = inspect.signature(model_class.__init__).parameters
+                valid_params = {k: v for k, v in kwargs.items() if k in constructor_params}
+                model = model_class(**valid_params)
                 
                 if 'state_dict' in model_data:
                     model.load_state_dict(model_data['state_dict'])
@@ -324,6 +331,7 @@ class SecureModelLoader:
     def validate_model(self,
                       model_path: str,
                       model_class: Type[nn.Module],
+                      expected_checksum: Optional[str] = None,
                       test_input: Optional[torch.Tensor] = None,
                       **kwargs) -> Tuple[bool, Dict[str, Any]]:
         """Validate model without loading it.
@@ -347,15 +355,18 @@ class SecureModelLoader:
         
         try:
             # Integrity check
-            integrity_valid, integrity_info = self.integrity_checker.comprehensive_validation(model_path)
+            integrity_valid, integrity_info = self.integrity_checker.comprehensive_validation(
+                model_path, expected_checksum
+            )
             validation_info['integrity_check'] = integrity_info
             
             if not integrity_valid:
                 validation_info['issues'].extend(integrity_info['findings'])
             
-            # Model validation
+            # Model validation - filter out non-model-config parameters
+            model_config = {k: v for k, v in kwargs.items() if k not in ['expected_checksum']}
             validation_valid, model_validation_info = self.model_validator.comprehensive_validation(
-                model_path, model_class, kwargs, test_input
+                model_path, model_class, model_config, test_input
             )
             validation_info['validation'] = model_validation_info
             
