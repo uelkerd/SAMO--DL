@@ -27,10 +27,22 @@ class TestConfig:
         if args.base_url:
             return args.base_url.rstrip('/')
         
-        return os.environ.get(
-            "API_BASE_URL", 
-            "https://samo-emotion-api-minimal-71517823771.us-central1.run.app"
-        ).rstrip('/')
+        # Check multiple environment variables for flexibility
+        env_url = (os.environ.get("API_BASE_URL") or 
+                  os.environ.get("CLOUD_RUN_API_URL") or 
+                  os.environ.get("MODEL_API_BASE_URL"))
+        
+        if env_url:
+            return env_url.rstrip('/')
+        
+        # If no URL is provided, raise an error to force explicit configuration
+        raise ValueError(
+            "No API base URL provided. Please set one of:\n"
+            "  - API_BASE_URL environment variable\n"
+            "  - CLOUD_RUN_API_URL environment variable\n"
+            "  - MODEL_API_BASE_URL environment variable\n"
+            "  - --base-url command line argument"
+        )
     
     def _get_api_key(self) -> str:
         """Get API key from environment or generate securely"""
