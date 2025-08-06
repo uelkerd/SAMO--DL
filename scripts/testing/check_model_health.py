@@ -4,84 +4,76 @@ Model Loading Health Check
 Check if the model is loading properly in the container.
 """
 
-import os
-import sys
-import time
 import requests
 import json
+import os
 import argparse
-from config import TestConfig, APIClient
 
-def check_model_health(base_url=None, include_auth=True):
+def check_model_health(base_url=None):
     """Check model health status"""
     if base_url is None:
         base_url = os.environ.get("API_BASE_URL", "https://samo-emotion-api-optimized-secure-71517823771.us-central1.run.app")
     
-    print(f"🔍 Model Health Check for {base_url}")
+    print("🔍 Model Health Check")
     print("=" * 30)
-    
-    # Use centralized API client
-    client = APIClient(base_url, include_auth)
     
     # Test health endpoint
     try:
-        response = client.get("/")
+        response = requests.get(f"{base_url}/", timeout=10)
         if response.status_code == 200:
             data = response.json()
             print(f"✅ Health: {data.get('status')}")
         else:
             print(f"❌ Health failed: {response.status_code}")
             return False
-    except Exception as e:
+    except requests.exceptions.RequestException as e:
         print(f"❌ Health check error: {e}")
         return False
     
     # Test emotions endpoint
     try:
-        response = client.get("/emotions")
+        response = requests.get(f"{base_url}/emotions", timeout=10)
         if response.status_code == 200:
             data = response.json()
             print(f"✅ Emotions: {data.get('count')} emotions available")
         else:
             print(f"❌ Emotions failed: {response.status_code}")
             return False
-    except Exception as e:
+    except requests.exceptions.RequestException as e:
         print(f"❌ Emotions check error: {e}")
         return False
     
-    # Test prediction endpoint - FIXED: Handle None confidence values
+    # Test prediction endpoint
     try:
         payload = {"text": "I am happy"}
-        response = client.post("/predict", payload)
+        response = requests.post(f"{base_url}/predict", json=payload, timeout=30)
         if response.status_code == 200:
             data = response.json()
-            emotion = data.get('emotion', 'unknown')
             confidence = data.get('confidence')
-            
-            # FIXED: Handle None confidence values to prevent TypeError
+            # Handle None confidence values
             if confidence is not None:
                 confidence_str = f"{confidence:.3f}"
             else:
                 confidence_str = "N/A"
-            
-            print(f"✅ Prediction: {emotion} (confidence: {confidence_str})")
-            return True
+            print(f"✅ Prediction: {data.get('emotion')} (confidence: {confidence_str})")
         else:
             print(f"❌ Prediction failed: {response.status_code}")
-            print(f"   Response: {response.text}")
             return False
-    except Exception as e:
-        print(f"❌ Prediction error: {e}")
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Prediction check error: {e}")
         return False
+    
+    print("\n✅ All health checks passed!")
+    return True
 
 def main():
-    """Main function with argument parsing."""
-    config = TestConfig()
-    parser = config.get_parser("Check model health status")
+    """Main function with argument parsing"""
+    parser = argparse.ArgumentParser(description="Check model health status")
+    parser.add_argument("--base-url", help="Base URL for the API")
     args = parser.parse_args()
     
-    success = check_model_health(args.base_url, not args.no_auth)
-    sys.exit(0 if success else 1)
+    success = check_model_health(args.base_url)
+    exit(0 if success else 1)
 
 if __name__ == "__main__":
     main()
