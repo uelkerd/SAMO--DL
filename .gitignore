@@ -210,22 +210,16 @@ temp/
 # ============================================================================
 # MACHINE LEARNING & DATA
 # ============================================================================
-# Model files
-*.pkl
-*.pickle
-*.joblib
-*.h5
-*.hdf5
-*.ckpt
-*.pth
-*.pt
-*.safetensors
+# Model files (should use Git LFS or external storage)
+deployment/cloud-run/model/
+deployment/cloud-run/models/
+models/
 *.bin
-models/checkpoints/
-models/saved_models/
-models/*/checkpoints/
-models/*/saved_models/
-*.onnx
+*.safetensors
+vocab.txt
+merges.txt
+tokenizer.json
+config.json
 
 # Data files
 data/raw/*
