@@ -160,10 +160,13 @@ def root():
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
+    # Use shared model status
+    model_status_info = get_model_status()
+    
     return jsonify({
         'status': 'healthy',
-        'model_loaded': model_loaded,
-        'model_loading': model_loading,
+        'model_loaded': model_status_info.get('model_loaded', False),
+        'model_loading': model_status_info.get('model_loading', False),
         'port': PORT,
         'timestamp': time.time()
     })

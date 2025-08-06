@@ -5,14 +5,9 @@ Uses known working PyTorch/transformers combination
 Matches the actual model architecture: RoBERTa with 12 emotion classes
 """
 
-import json
 import logging
-import os
 import time
-from typing import Dict
-import threading
 
-import torch
 from flask import Flask, request, jsonify
 import psutil
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
@@ -50,8 +45,9 @@ def initialize_model():
 def health_check():
     """Health check endpoint."""
     try:
-        # Check model status
-        model_status = "ready" if model is not None else "loading"
+        # Check model status using shared utilities
+        model_status_info = get_model_status()
+        model_status = "ready" if model_status_info.get('model_loaded', False) else "loading"
         
         # System metrics
         cpu_percent = psutil.cpu_percent()
