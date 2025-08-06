@@ -52,19 +52,19 @@ while [[ $# -gt 0 ]]; do
         --help)
             echo "Usage: $0 [OPTIONS]"
             echo "Options:"
-            echo "  --project-id PROJECT_ID     GCP Project ID (default: $PROJECT_ID)"
-            echo "  --region REGION             GCP Region (default: $REGION)"
-            echo "  --service-name NAME         Cloud Run service name (default: $SERVICE_NAME)"
-            echo "  --image-name NAME           Docker image name (default: $IMAGE_NAME)"
-            echo "  --repository NAME           Artifact Registry repository (default: $REPOSITORY)"
-            echo "  --onnx-model-path PATH      Path to ONNX model file (default: $ONNX_MODEL_PATH)"
-            echo "  --deployment-dir PATH       Deployment directory (default: $DEPLOYMENT_DIR)"
-            echo "  --conversion-script PATH    ONNX conversion script (default: $CONVERSION_SCRIPT)"
+            echo "  --project-id PROJECT_ID     GCP Project ID (default: ${PROJECT_ID})"
+            echo "  --region REGION             GCP Region (default: ${REGION})"
+            echo "  --service-name NAME         Cloud Run service name (default: ${SERVICE_NAME})"
+            echo "  --image-name NAME           Docker image name (default: ${IMAGE_NAME})"
+            echo "  --repository NAME           Artifact Registry repository (default: ${REPOSITORY})"
+            echo "  --onnx-model-path PATH      Path to ONNX model file (default: ${ONNX_MODEL_PATH})"
+            echo "  --deployment-dir PATH       Deployment directory (default: ${DEPLOYMENT_DIR})"
+            echo "  --conversion-script PATH    ONNX conversion script (default: ${CONVERSION_SCRIPT})"
             echo "  --help                      Show this help message"
             exit 0
             ;;
         *)
-            echo "Unknown option: $1"
+            echo "Unknown option: ${1}"
             echo "Use --help for usage information"
             exit 1
             ;;
@@ -94,14 +94,14 @@ print_error() {
 
 # Print configuration
 print_status "Configuration:"
-print_status "  Project ID: $PROJECT_ID"
-print_status "  Region: $REGION"
-print_status "  Service Name: $SERVICE_NAME"
-print_status "  Image Name: $IMAGE_NAME"
-print_status "  Repository: $REPOSITORY"
-print_status "  ONNX Model Path: $ONNX_MODEL_PATH"
-print_status "  Deployment Dir: $DEPLOYMENT_DIR"
-print_status "  Conversion Script: $CONVERSION_SCRIPT"
+print_status "  Project ID: ${PROJECT_ID}"
+print_status "  Region: ${REGION}"
+print_status "  Service Name: ${SERVICE_NAME}"
+print_status "  Image Name: ${IMAGE_NAME}"
+print_status "  Repository: ${REPOSITORY}"
+print_status "  ONNX Model Path: ${ONNX_MODEL_PATH}"
+print_status "  Deployment Dir: ${DEPLOYMENT_DIR}"
+print_status "  Conversion Script: ${CONVERSION_SCRIPT}"
 
 # Get the script directory and navigate to project root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
