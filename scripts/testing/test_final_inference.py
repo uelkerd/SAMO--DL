@@ -6,7 +6,6 @@ Uses public RoBERTa tokenizer to avoid authentication issues
 
 import torch
 import json
-import numpy as np
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
 

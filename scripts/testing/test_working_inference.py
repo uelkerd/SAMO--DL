@@ -6,7 +6,6 @@ Uses public roberta-base tokenizer and maps generic labels to emotions
 
 import torch
 import json
-import numpy as np
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
 

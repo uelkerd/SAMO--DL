@@ -12,7 +12,6 @@ Tests the secure model loading functionality including:
 import os
 import tempfile
 import unittest
-from unittest.mock import Mock, patch, MagicMock
 
 import torch
 import torch.nn as nn

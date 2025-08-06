@@ -19,7 +19,6 @@ Arguments:
 """
 
 import argparse
-import json
 import logging
 import sys
 from pathlib import Path
@@ -29,17 +28,15 @@ import torch
 import torch.nn.functional as F
 from sklearn.metrics import f1_score, precision_recall_fscore_support
 from torch import nn
-from transformers import AutoTokenizer, get_linear_schedule_with_warmup
+from transformers import AutoTokenizer
 
 # Add src to path
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
 from src.models.emotion_detection.bert_classifier import (
     create_bert_emotion_classifier,
-    GOEMOTIONS_EMOTIONS,
-)
+    )
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
