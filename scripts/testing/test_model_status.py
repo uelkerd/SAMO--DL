@@ -67,11 +67,13 @@ def test_prediction_endpoint(client):
 def test_model_status(base_url=None):
     """Test the model status endpoint"""
     config = create_test_config()
+    if base_url:
+        config.base_url = base_url.rstrip('/')
     client = create_api_client()
     
     print("🔍 Testing Model Status")
     print("=" * 40)
-    print(f"Testing URL: {base_url or config.base_url}")
+    print(f"Testing URL: {config.base_url}")
     
     # Run all tests
     health_success = test_health_endpoint(client)
