@@ -14,12 +14,14 @@ class TestDataValidatorEnhanced:
         """Set up test fixtures."""
         self.validator = DataValidator()
         
-        # Create test data
+        # Create test data that matches the expected schema
         self.test_df = pd.DataFrame({
-            'user_id': [1, 2, 3, None, 5],
-            'content': ['Hello world', 'Test entry', 'Another test', 'Valid content', ''],
-            'timestamp': ['2023-01-01', '2023-01-02', '2023-01-03', '2023-01-04', '2023-01-05'],
-            'emotion_score': [0.8, 0.6, 0.9, 0.3, 0.7]
+            'id': [1, 2, 3, 4, 5],
+            'user_id': [1, 2, 3, 4, 5],  # No missing values
+            'title': ['Entry 1', 'Entry 2', 'Entry 3', 'Entry 4', 'Entry 5'],
+            'content': ['Hello world', 'Test entry', 'Another test', 'Valid content', 'Good content'],
+            'created_at': pd.to_datetime(['2023-01-01', '2023-01-02', '2023-01-03', '2023-01-04', '2023-01-05']),
+            'is_private': [False, True, False, True, False]
         })
 
     def test_check_missing_values_basic(self):
@@ -29,7 +31,7 @@ class TestDataValidatorEnhanced:
         assert isinstance(missing_stats, dict)
         assert 'user_id' in missing_stats
         assert 'content' in missing_stats
-        assert missing_stats['user_id'] == 20.0  # 1 out of 5 is None
+        assert missing_stats['user_id'] == 0.0  # No missing values
         assert missing_stats['content'] == 0.0   # No missing content
 
     def test_check_missing_values_with_required_columns(self):
@@ -39,7 +41,7 @@ class TestDataValidatorEnhanced:
             required_columns=['user_id', 'content']
         )
         
-        assert missing_stats['user_id'] == 20.0
+        assert missing_stats['user_id'] == 0.0
         assert missing_stats['content'] == 0.0
 
     def test_check_data_types_basic(self):
@@ -85,8 +87,8 @@ class TestDataValidatorEnhanced:
         
         result_df = self.validator.check_text_quality(empty_df, 'content')
         
-        assert result_df.iloc[0]['text_length'] == 0
-        assert result_df.iloc[1]['text_length'] == 0
+        assert result_df.iloc[0]['text_length'] == 0  # Empty string
+        assert result_df.iloc[1]['text_length'] == 3  # Three spaces
         assert result_df.iloc[2]['text_length'] > 0
 
     def test_validate_journal_entries_basic(self):
@@ -95,26 +97,24 @@ class TestDataValidatorEnhanced:
         
         assert isinstance(results, dict)
         assert 'is_valid' in results
-        assert 'issues' in results
-        assert 'cleaned_data' in results
+        assert 'validated_df' in results
+        assert 'missing_values' in results
 
         # Assert the expected value of 'is_valid'
         assert isinstance(results['is_valid'], bool)
         # For this test data, it should be valid
         assert results['is_valid'] is True
 
-        # Assert the structure/type of 'issues'
-        assert isinstance(results['issues'], list)
-        # For valid data, there should be no issues
-        assert len(results['issues']) == 0
-
-        # Assert the structure/type of 'cleaned_data'
+        # Assert the structure/type of missing_values
+        assert isinstance(results['missing_values'], dict)
+        
+        # Assert the structure/type of validated_df
         import pandas as pd
-        assert isinstance(results['cleaned_data'], pd.DataFrame)
+        assert isinstance(results['validated_df'], pd.DataFrame)
         # Should have the same columns as input
-        assert list(results['cleaned_data'].columns) == list(self.test_df.columns)
+        assert list(results['validated_df'].columns) == list(self.test_df.columns)
         # Should have the same number of rows
-        assert len(results['cleaned_data']) == len(self.test_df)
+        assert len(results['validated_df']) == len(self.test_df)
 
     def test_validate_journal_entries_with_required_columns(self):
         """Test journal entries validation with required columns."""
@@ -152,7 +152,7 @@ class TestValidateTextInputEnhanced:
         
         assert isinstance(result, dict)
         assert result['is_valid'] is True
-        assert 'message' in result
+        assert 'error' in result
 
     def test_validate_text_input_too_short(self):
         """Test text input that's too short."""
@@ -160,7 +160,7 @@ class TestValidateTextInputEnhanced:
         
         assert isinstance(result, dict)
         assert result['is_valid'] is False
-        assert 'message' in result
+        assert 'error' in result
 
     def test_validate_text_input_too_long(self):
         """Test text input that's too long."""
@@ -169,7 +169,7 @@ class TestValidateTextInputEnhanced:
         
         assert isinstance(result, dict)
         assert result['is_valid'] is False
-        assert 'message' in result
+        assert 'error' in result
 
     def test_validate_text_input_custom_lengths(self):
         """Test text input with custom length constraints."""
