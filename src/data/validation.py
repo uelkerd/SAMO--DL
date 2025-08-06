@@ -135,8 +135,8 @@ class DataValidator:
         self,
         df: pd.DataFrame,
         required_columns: Optional[List[str]] = None,
-        expected_types: Optional[dict[str, type]] = None,
-    ) -> dict[str, Union[bool, pd.DataFrame, dict]]:
+        expected_types: Optional[Dict[str, type]] = None,
+    ) -> Dict[str, Union[bool, pd.DataFrame, dict]]:
         """Perform comprehensive validation on journal entries DataFrame.
 
         Args:
@@ -201,7 +201,7 @@ class DataValidator:
         }
 
 
-def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 10000) -> dict[str, Union[bool, str]]:
+def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 10000) -> Dict[str, Union[bool, str]]:
     """Validate text input for journal entries.
 
     Args:

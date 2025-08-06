@@ -77,7 +77,7 @@ class DataPipeline:
         limit: int | None = None,
         extract_topics: bool = True,
         save_intermediates: bool = False,
-    ) -> dict[str, pd.DataFrame]:
+    ) -> Dict[str, pd.DataFrame]:
         """Run the complete data processing pipeline.
 
         Args:

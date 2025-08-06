@@ -1,3 +1,4 @@
+from typing import List
 from torch.utils.data import Dataset
 import logging
 
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 class SummarizationDataset(Dataset):
     """Placeholder dataset class for summarization."""
 
-    def __init__(self, texts: list[str], summaries: list[str]) -> None:
+    def __init__(self, texts: List[str], summaries: List[str]) -> None:
         self.texts = texts
         self.summaries = summaries
 

@@ -150,7 +150,7 @@ def generate_content(topic: str, emotion: str) -> str:
         content += f" {random.choice(REFLECTION_TEMPLATES)}"
     return content
 
-def generate_entry(user_id: int, created_at: datetime, id_start: int = 1) -> dict[str, Any]:
+def generate_entry(user_id: int, created_at: datetime, id_start: int = 1) -> Dict[str, Any]:
     """Generate a single journal entry."""
     topic = random.choice(TOPICS)
     emotion = random.choice(EMOTIONS)
@@ -173,7 +173,7 @@ def generate_entries(
     num_users: int = 5,
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
-) -> list[dict[str, Any]]:
+) -> List[Dict[str, Any]]:
     """Generate a list of synthetic journal entries.
 
     Args:
@@ -212,7 +212,7 @@ def generate_entries(
     return entries
 
 
-def save_entries_to_json(entries: list[dict[str, Any]], output_path: str) -> None:
+def save_entries_to_json(entries: List[Dict[str, Any]], output_path: str) -> None:
     """Save generated entries to a JSON file.
 
     Args:

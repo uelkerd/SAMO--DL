@@ -118,7 +118,7 @@ class AudioPreprocessor:
     @staticmethod
     def preprocess_audio(
         audio_path: Union[str, Path], output_path: Optional[Union[str, Path]] = None
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Preprocess audio for optimal Whisper performance.
 
         Args:
@@ -425,7 +425,7 @@ class WhisperTranscriber:
         else:
             return "poor"
 
-    def get_model_info(self) -> dict[str, any]:
+    def get_model_info(self) -> Dict[str, Any]:
         """Get model information."""
         return {
             "model_size": self.config.model_size,

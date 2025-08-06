@@ -56,8 +56,8 @@ class SummarizationDataset(Dataset):
 
     def __init__(
         self,
-        texts: list[str],
-        summaries: list[str],
+        texts: List[str],
+        summaries: List[str],
         tokenizer,
         max_source_length: int = 512,
         max_target_length: int = 128,
@@ -86,7 +86,7 @@ class SummarizationDataset(Dataset):
     def __len__(self) -> int:
         return len(self.texts)
 
-    def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
+    def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
         """Get a single example."""
         text = self.texts[idx]
         summary = self.summaries[idx]
@@ -170,7 +170,7 @@ class T5SummarizationModel(nn.Module):
         input_ids: torch.Tensor,
         attention_mask: torch.Tensor,
         labels: Optional[torch.Tensor] = None,
-    ) -> dict[str, torch.Tensor]:
+    ) -> Dict[str, torch.Tensor]:
         """Forward pass for training."""
         outputs = self.model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
 
@@ -249,8 +249,8 @@ class T5SummarizationModel(nn.Module):
         return summary.strip()
 
     def generate_batch_summaries(
-        self, texts: list[str], batch_size: int = 4, **generation_kwargs
-    ) -> list[str]:
+        self, texts: List[str], batch_size: int = 4, **generation_kwargs
+    ) -> List[str]:
         """Generate summaries for a batch of texts.
 
         Args:
@@ -309,7 +309,7 @@ class T5SummarizationModel(nn.Module):
         """Count trainable parameters."""
         return sum(p.numel() for p in self.model.parameters() if p.requires_grad)
 
-    def get_model_info(self) -> dict[str, Any]:
+    def get_model_info(self) -> Dict[str, Any]:
         """Get model information."""
         return {
             "model_name": self.model_name,
