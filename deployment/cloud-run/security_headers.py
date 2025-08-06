@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Security Headers Module for Cloud Run API"""
+"""
+Security Headers Module for Cloud Run API
+"""
 
 from flask import Flask
 from typing import Dict, Any
