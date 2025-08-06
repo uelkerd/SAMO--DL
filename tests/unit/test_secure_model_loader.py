@@ -155,9 +155,10 @@ class TestSandboxExecutor(unittest.TestCase):
             }, f.name)
             
             try:
-                result = self.executor.load_model_safely(f.name, TestModel)  # Fixed: returns single object
+                result, info = self.executor.load_model_safely(f.name, TestModel)  # Now returns (model, info)
                 self.assertIsInstance(result, TestModel)
-                # Note: load_model_safely doesn't return info dict, it logs instead
+                self.assertIn('status', info)
+                # Note: load_model_safely now returns both model and info dict
             finally:
                 os.unlink(f.name)
     
@@ -234,7 +235,7 @@ class TestModelValidator(unittest.TestCase):
     
     def test_validate_model_performance(self):
         """Test model performance validation."""
-        test_input = torch.randn(1, 10)
+        test_input = torch.randn(1, 768)  # BERT hidden size
         is_valid, info = self.validator.validate_model_performance(self.test_model, test_input)
         self.assertTrue(is_valid)
         self.assertIn('forward_pass_time', info)
@@ -263,7 +264,8 @@ class TestSecureModelLoader(unittest.TestCase):
         self.model_file = os.path.join(self.temp_dir, "test_model.pt")
         torch.save({
             'state_dict': self.test_model.state_dict(),
-            'config': self.test_config
+            'config': self.test_config,
+            'model_name': 'BERTEmotionClassifier'  # Add model_name at top level
         }, self.model_file)
         
         # Calculate checksum for validation
@@ -280,7 +282,8 @@ class TestSecureModelLoader(unittest.TestCase):
         model, info = self.loader.load_model(
             self.model_file,
             BERTEmotionClassifier,  # Use the correct model class name
-            expected_checksum=self.model_checksum  # Provide checksum
+            expected_checksum=self.model_checksum,  # Provide checksum
+            **self.test_config  # Provide model configuration
         )
         
         self.assertIsInstance(model, BERTEmotionClassifier)
@@ -294,7 +297,8 @@ class TestSecureModelLoader(unittest.TestCase):
         is_valid, info = self.loader.validate_model(
             self.model_file,
             BERTEmotionClassifier,  # Use the correct model class name
-            expected_checksum=self.model_checksum  # Provide checksum
+            expected_checksum=self.model_checksum,  # Provide checksum
+            **self.test_config  # Provide model configuration
         )
         
         self.assertTrue(is_valid)
@@ -307,7 +311,8 @@ class TestSecureModelLoader(unittest.TestCase):
         model1, info1 = self.loader.load_model(
             self.model_file,
             BERTEmotionClassifier,  # Use the correct model class name
-            expected_checksum=self.model_checksum  # Provide checksum
+            expected_checksum=self.model_checksum,  # Provide checksum
+            **self.test_config  # Provide model configuration
         )
         self.assertFalse(info1['cache_used'])
         
@@ -315,7 +320,8 @@ class TestSecureModelLoader(unittest.TestCase):
         model2, info2 = self.loader.load_model(
             self.model_file,
             BERTEmotionClassifier,  # Use the correct model class name
-            expected_checksum=self.model_checksum  # Provide checksum
+            expected_checksum=self.model_checksum,  # Provide checksum
+            **self.test_config  # Provide model configuration
         )
         self.assertTrue(info2['cache_used'])
     
@@ -332,7 +338,8 @@ class TestSecureModelLoader(unittest.TestCase):
         self.loader.load_model(
             self.model_file,
             BERTEmotionClassifier,  # Use the correct model class name
-            expected_checksum=self.model_checksum  # Provide checksum
+            expected_checksum=self.model_checksum,  # Provide checksum
+            **self.test_config  # Provide model configuration
         )
         
         # Clear cache
@@ -357,7 +364,8 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
         self.loader = SecureModelLoader(
             enable_sandbox=True,
             enable_caching=True,
-            cache_dir=self.temp_dir
+            cache_dir=self.temp_dir,
+            audit_log_file=os.path.join(self.temp_dir, "audit.log")
         )
         
         # Create test model file
@@ -393,7 +401,8 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
             self.model_file,
             BERTEmotionClassifier,  # Use proper model class
             expected_checksum=self.model_checksum,  # Provide checksum
-            test_input=test_input
+            test_input=test_input,
+            **self.test_config  # Provide model configuration
         )
         
         # Verify model loaded successfully
@@ -470,7 +479,8 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
         self.loader.load_model(
             self.model_file,
             BERTEmotionClassifier,  # Use proper model class
-            expected_checksum=self.model_checksum  # Provide checksum
+            expected_checksum=self.model_checksum,  # Provide checksum
+            **self.test_config  # Provide model configuration
         )
         
         # Check audit log file exists

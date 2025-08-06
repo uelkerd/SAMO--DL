@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 from pydub import AudioSegment
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, Tuple, List, Dict
 import contextlib
 import logging
 import numpy as np
@@ -68,7 +68,7 @@ class TranscriptionResult:
     confidence: float
     duration: float
     processing_time: float
-    segments: list[dict]
+    segments: List[dict]
     audio_quality: str  # excellent, good, fair, poor
     word_count: int
     speaking_rate: float  # words per minute
@@ -83,7 +83,7 @@ class AudioPreprocessor:
     MAX_DURATION = 300  # 5 minutes maximum
 
     @staticmethod
-    def validate_audio_file(audio_path: str | Path) -> tuple[bool, str]:
+    def validate_audio_file(audio_path: Union[str, Path]) -> Tuple[bool, str]:
         """Validate audio file format and properties.
 
         Args:
@@ -304,10 +304,10 @@ class WhisperTranscriber:
 
     def transcribe_batch(
         self,
-        audio_paths: list[Union[str, Path]],
+        audio_paths: List[Union[str, Path]],
         language: Optional[str] = None,
         initial_prompt: Optional[str] = None,
-    ) -> list[TranscriptionResult]:
+    ) -> List[TranscriptionResult]:
         """Transcribe multiple audio files.
 
         Args:
@@ -363,7 +363,7 @@ class WhisperTranscriber:
 
         return results
 
-    def _calculate_confidence(self, segments: list[dict]) -> float:
+    def _calculate_confidence(self, segments: List[dict]) -> float:
         """Calculate overall confidence from segment data.
 
         Args:
