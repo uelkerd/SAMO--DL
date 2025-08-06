@@ -199,7 +199,7 @@ done
 
 # Test admin endpoint (with API key)
 curl -X GET https://samo-emotion-api-secure-71517823771.us-central1.run.app/security_status \
-  -H "X-API-Key: YOUR_ADMIN_API_KEY"
+  -H "X-API-Key: $ADMIN_API_KEY"
 ```
 
 ## 🚨 **IMMEDIATE ACTION REQUIRED**
