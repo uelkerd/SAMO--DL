@@ -16,10 +16,10 @@ IMAGE_FAMILY="ubuntu-2004-lts"
 DISK_SIZE="200GB"
 
 echo "📋 Deployment Configuration:"
-echo "   • Instance: $INSTANCE_NAME"
-echo "   • Zone: $ZONE"
-echo "   • Machine Type: $MACHINE_TYPE"
-echo "   • Image: $IMAGE_FAMILY"
+echo "   • Instance: ${INSTANCE_NAME}"
+echo "   • Zone: ${ZONE}"
+echo "   • Machine Type: ${MACHINE_TYPE}"
+echo "   • Image: ${IMAGE_FAMILY}"
 echo "   • Purpose: Pre-training validation and debugging"
 echo ""
 
@@ -38,11 +38,11 @@ echo ""
 echo "🔧 Step 2: Creating GCP Instance..."
 echo "   This will take 2-3 minutes..."
 
-gcloud compute instances create $INSTANCE_NAME \
-    --zone=$ZONE \
-    --machine-type=$MACHINE_TYPE \
-    --image-family=$IMAGE_FAMILY \
-    --boot-disk-size=$DISK_SIZE \
+gcloud compute instances create "${INSTANCE_NAME}" \
+    --zone="${ZONE}" \
+    --machine-type="${MACHINE_TYPE}" \
+    --image-family="${IMAGE_FAMILY}" \
+    --boot-disk-size="${DISK_SIZE}" \
     --metadata="install-nvidia-driver=True" \
     --maintenance-policy=TERMINATE \
     --restart-on-failure
@@ -64,7 +64,7 @@ echo ""
 echo "🔧 Step 4: Setting up environment on instance..."
 echo "   This will take 5-10 minutes..."
 
-gcloud compute ssh $INSTANCE_NAME --zone=$ZONE --command="
+gcloud compute ssh "${INSTANCE_NAME}" --zone="${ZONE}" --command="
 echo '🔧 Installing system dependencies...'
 sudo apt-get update
 sudo apt-get install -y python3-pip python3-venv git curl wget
@@ -100,10 +100,10 @@ tar -czf /tmp/samo-dl-project.tar.gz \
     .
 
 # Copy to instance
-gcloud compute scp /tmp/samo-dl-project.tar.gz $INSTANCE_NAME:~/ --zone=$ZONE
+gcloud compute scp /tmp/samo-dl-project.tar.gz "${INSTANCE_NAME}":~/ --zone="${ZONE}"
 
 # Extract on instance
-gcloud compute ssh $INSTANCE_NAME --zone=$ZONE --command="
+gcloud compute ssh "${INSTANCE_NAME}" --zone="${ZONE}" --command="
 cd ~/SAMO--DL
 tar -xzf ~/samo-dl-project.tar.gz
 rm ~/samo-dl-project.tar.gz
@@ -118,7 +118,7 @@ echo ""
 echo "🔍 Step 6: Running Pre-Training Validation..."
 echo "   This will identify the root cause of the 0.0000 loss issue..."
 
-gcloud compute ssh $INSTANCE_NAME --zone=$ZONE --command="
+gcloud compute ssh "${INSTANCE_NAME}" --zone="${ZONE}" --command="
 cd ~/SAMO--DL
 source ~/samo-env/bin/activate
 
@@ -134,7 +134,7 @@ echo "🎯 DEPLOYMENT COMPLETE!"
 echo "======================="
 echo ""
 echo "📋 Next Steps:"
-echo "   1. SSH into instance: gcloud compute ssh $INSTANCE_NAME --zone=$ZONE"
+echo "   1. SSH into instance: gcloud compute ssh ${INSTANCE_NAME} --zone=${ZONE}"
 echo "   2. Activate environment: source ~/samo-env/bin/activate"
 echo "   3. Navigate to project: cd ~/SAMO--DL"
 echo "   4. Run validation again: python scripts/pre_training_validation.py"

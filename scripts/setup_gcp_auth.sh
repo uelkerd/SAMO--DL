@@ -46,8 +46,8 @@ echo "Zone: $(gcloud config get-value compute/zone)"
 echo ""
 echo "🚀 Enabling required APIs..."
 PROJECT_ID=$(gcloud config get-value project)
-gcloud services enable compute.googleapis.com --project=$PROJECT_ID
-gcloud services enable aiplatform.googleapis.com --project=$PROJECT_ID
+gcloud services enable compute.googleapis.com --project="${PROJECT_ID}"
+gcloud services enable aiplatform.googleapis.com --project="${PROJECT_ID}"
 
 echo ""
 echo "✅ GCP Setup Complete!"
