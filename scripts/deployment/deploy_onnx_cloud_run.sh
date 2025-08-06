@@ -4,14 +4,74 @@ set -e
 # ONNX-Based Cloud Run Deployment Script
 # Eliminates PyTorch dependency issues completely
 
-echo "🚀 Starting ONNX-based Cloud Run deployment..."
+# Default configuration - can be overridden by environment variables or command-line args
+PROJECT_ID="${PROJECT_ID:-the-tendril-466607-n8}"
+REGION="${REGION:-us-central1}"
+SERVICE_NAME="${SERVICE_NAME:-samo-emotion-api-onnx}"
+IMAGE_NAME="${IMAGE_NAME:-samo-emotion-api-onnx}"
+REPOSITORY="${REPOSITORY:-samo-dl}"
+ONNX_MODEL_PATH="${ONNX_MODEL_PATH:-deployment/cloud-run/model/bert_emotion_classifier.onnx}"
+DEPLOYMENT_DIR="${DEPLOYMENT_DIR:-deployment/cloud-run}"
+CONVERSION_SCRIPT="${CONVERSION_SCRIPT:-scripts/deployment/convert_model_to_onnx.py}"
 
-# Configuration
-PROJECT_ID="the-tendril-466607-n8"
-REGION="us-central1"
-SERVICE_NAME="samo-emotion-api-onnx"
-IMAGE_NAME="samo-emotion-api-onnx"
-REPOSITORY="samo-dl"
+# Parse command-line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --project-id)
+            PROJECT_ID="$2"
+            shift 2
+            ;;
+        --region)
+            REGION="$2"
+            shift 2
+            ;;
+        --service-name)
+            SERVICE_NAME="$2"
+            shift 2
+            ;;
+        --image-name)
+            IMAGE_NAME="$2"
+            shift 2
+            ;;
+        --repository)
+            REPOSITORY="$2"
+            shift 2
+            ;;
+        --onnx-model-path)
+            ONNX_MODEL_PATH="$2"
+            shift 2
+            ;;
+        --deployment-dir)
+            DEPLOYMENT_DIR="$2"
+            shift 2
+            ;;
+        --conversion-script)
+            CONVERSION_SCRIPT="$2"
+            shift 2
+            ;;
+        --help)
+            echo "Usage: $0 [OPTIONS]"
+            echo "Options:"
+            echo "  --project-id PROJECT_ID     GCP Project ID (default: $PROJECT_ID)"
+            echo "  --region REGION             GCP Region (default: $REGION)"
+            echo "  --service-name NAME         Cloud Run service name (default: $SERVICE_NAME)"
+            echo "  --image-name NAME           Docker image name (default: $IMAGE_NAME)"
+            echo "  --repository NAME           Artifact Registry repository (default: $REPOSITORY)"
+            echo "  --onnx-model-path PATH      Path to ONNX model file (default: $ONNX_MODEL_PATH)"
+            echo "  --deployment-dir PATH       Deployment directory (default: $DEPLOYMENT_DIR)"
+            echo "  --conversion-script PATH    ONNX conversion script (default: $CONVERSION_SCRIPT)"
+            echo "  --help                      Show this help message"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use --help for usage information"
+            exit 1
+            ;;
+    esac
+done
+
+echo "🚀 Starting ONNX-based Cloud Run deployment..."
 
 # Colors for output
 RED='\033[0;31m'
@@ -32,13 +92,28 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# Print configuration
+print_status "Configuration:"
+print_status "  Project ID: $PROJECT_ID"
+print_status "  Region: $REGION"
+print_status "  Service Name: $SERVICE_NAME"
+print_status "  Image Name: $IMAGE_NAME"
+print_status "  Repository: $REPOSITORY"
+print_status "  ONNX Model Path: $ONNX_MODEL_PATH"
+print_status "  Deployment Dir: $DEPLOYMENT_DIR"
+print_status "  Conversion Script: $CONVERSION_SCRIPT"
+
+# Get the script directory and navigate to project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
 # Step 1: Convert model to ONNX
 print_status "Step 1: Converting PyTorch model to ONNX format..."
-cd /Users/minervae/Projects/SAMO--GENERAL/SAMO--DL
 
-if [ ! -f "deployment/cloud-run/model/bert_emotion_classifier.onnx" ]; then
+if [ ! -f "$PROJECT_ROOT/$ONNX_MODEL_PATH" ]; then
     print_status "Converting model to ONNX..."
-    python scripts/deployment/convert_model_to_onnx.py
+    cd "$PROJECT_ROOT"
+    python "$CONVERSION_SCRIPT"
     if [ $? -ne 0 ]; then
         print_error "ONNX conversion failed!"
         exit 1
@@ -50,7 +125,7 @@ fi
 # Step 2: Build and push Docker image
 print_status "Step 2: Building and pushing Docker image..."
 
-cd deployment/cloud-run
+cd "$PROJECT_ROOT/$DEPLOYMENT_DIR"
 
 # Build image
 print_status "Building Docker image..."
@@ -107,7 +182,22 @@ print_status "Step 5: Testing deployment..."
 
 # Wait for service to be ready
 print_status "Waiting for service to be ready..."
-sleep 30
+HEALTH_URL="$SERVICE_URL/health"
+TIMEOUT=60
+INTERVAL=3
+ELAPSED=0
+
+until curl -sf "$HEALTH_URL"; do
+    if [ $ELAPSED -ge $TIMEOUT ]; then
+        print_error "Service did not become healthy within $TIMEOUT seconds."
+        exit 1
+    fi
+    print_status "Waiting for service... ($ELAPSED/$TIMEOUT seconds)"
+    sleep $INTERVAL
+    ELAPSED=$((ELAPSED + INTERVAL))
+done
+
+print_status "Service is healthy!"
 
 # Test health endpoint
 print_status "Testing health endpoint..."
