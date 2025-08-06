@@ -37,14 +37,14 @@ REQUEST_COUNT = Counter('emotion_api_requests_total', 'Total requests', ['endpoi
 REQUEST_DURATION = Histogram('emotion_api_request_duration_seconds', 'Request duration', ['endpoint'])
 MODEL_LOAD_TIME = Histogram('emotion_model_load_time_seconds', 'Model load time')
 
-# Emotion labels
-EMOTION_LABELS = [
+# Emotion labels (immutable tuple)
+EMOTION_LABELS = (
     'admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring',
     'confusion', 'curiosity', 'desire', 'disappointment', 'disapproval',
     'disgust', 'embarrassment', 'excitement', 'fear', 'gratitude', 'grief',
     'joy', 'love', 'nervousness', 'optimism', 'pride', 'realization',
     'relief', 'remorse', 'sadness', 'surprise', 'neutral'
-]
+)
 
 # Configuration
 MODEL_PATH = os.getenv('MODEL_PATH', '/app/model/bert_emotion_classifier.onnx')
@@ -245,19 +245,17 @@ def predict():
         # Make prediction
         result = predict_emotions(text)
         
-        # Record metrics
-        duration = time.time() - start_time
-        REQUEST_DURATION.labels(endpoint='/predict').observe(duration)
         REQUEST_COUNT.labels(endpoint='/predict', status='success').inc()
-        
         return jsonify(result), 200
         
     except Exception as e:
         logger.error(f"❌ Prediction endpoint error: {e}")
-        duration = time.time() - start_time
-        REQUEST_DURATION.labels(endpoint='/predict').observe(duration)
         REQUEST_COUNT.labels(endpoint='/predict', status='error').inc()
         return jsonify({'error': 'Internal server error'}), 500
+    finally:
+        # Always record request duration regardless of success/failure
+        duration = time.time() - start_time
+        REQUEST_DURATION.labels(endpoint='/predict').observe(duration)
 
 
 @app.route('/metrics', methods=['GET'])
