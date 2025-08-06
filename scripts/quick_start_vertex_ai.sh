@@ -42,8 +42,8 @@ print_status "Checking Google Cloud CLI..."
 if ! command -v gcloud &> /dev/null; then
     print_warning "Google Cloud CLI not found. Installing..."
     curl https://sdk.cloud.google.com | bash
-    exec -l "${SHELL}"
     print_success "Google Cloud CLI installed"
+    print_warning "Please restart your terminal or run 'source ~/.bashrc' to use gcloud"
 else
     print_success "Google Cloud CLI found: $(gcloud --version | head -n 1)"
 fi
