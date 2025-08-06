@@ -86,7 +86,7 @@ def test_model_status(base_url=None):
     prediction_success = test_prediction_endpoint(base_url)
     
     # Summary
-    print(f"\n📊 Test Summary:")
+    print("\n📊 Test Summary:")
     print(f"   Health: {'✅' if health_success else '❌'}")
     print(f"   Emotions: {'✅' if emotions_success else '❌'}")
     print(f"   Model Status: {'✅' if model_status_success else '❌'}")

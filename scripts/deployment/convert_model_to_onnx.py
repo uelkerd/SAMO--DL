@@ -3,8 +3,6 @@
 Convert PyTorch Model to ONNX for Deployment
 Quick conversion script to eliminate PyTorch dependencies
 """
-
-import os
 import sys
 import torch
 import logging
@@ -29,18 +27,18 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
             model_path = "models/best_simple_model.pth"
         if onnx_output_path is None:
             onnx_output_path = "deployment/cloud-run/model/bert_emotion_classifier.onnx"
-        
+
         # Create output directory
         output_dir = Path(onnx_output_path).parent
         output_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Load model
         logger.info("🔄 Loading PyTorch model...")
         device = torch.device("cpu")
         checkpoint = torch.load(model_path, map_location=device)
-        
+
         model, _ = create_bert_emotion_classifier()
-        
+
         # Handle different checkpoint formats
         if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
             model.load_state_dict(checkpoint["model_state_dict"])
@@ -49,18 +47,18 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
         else:
             # Direct model state dict
             model.load_state_dict(checkpoint)
-        
+
         model.eval()
-        
+
         # Load tokenizer
         logger.info("🔄 Loading tokenizer...")
         tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
-        
+
         # Save tokenizer
         tokenizer_dir = output_dir / "tokenizer"
         tokenizer.save_pretrained(str(tokenizer_dir))
         logger.info(f"✅ Tokenizer saved to {tokenizer_dir}")
-        
+
         # Create dummy input
         logger.info("🔄 Creating dummy input for ONNX export...")
         dummy_text = "This is a test sentence for ONNX conversion."
@@ -71,14 +69,14 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
             truncation=True,
             max_length=128
         )
-        
+
         # Handle token_type_ids properly - use actual values if available, otherwise zeros
         if "token_type_ids" in inputs:
             token_type_ids = inputs["token_type_ids"]
         else:
             # For models that don't use token_type_ids, create zeros
             token_type_ids = torch.zeros_like(inputs["input_ids"])
-        
+
         # Export to ONNX
         logger.info("🔄 Converting to ONNX format...")
         torch.onnx.export(
@@ -101,9 +99,9 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
                 "logits": {0: "batch_size"},
             },
         )
-        
+
         logger.info(f"✅ ONNX model saved to {onnx_output_path}")
-        
+
         # Verify ONNX model
         try:
             import onnx
@@ -115,7 +113,7 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
         except Exception as e:
             logger.error(f"❌ ONNX model validation failed: {e}")
             return False
-        
+
         # Test ONNX model with ONNX Runtime
         try:
             import onnxruntime as ort
@@ -127,9 +125,9 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
         except Exception as e:
             logger.error(f"❌ ONNX Runtime test failed: {e}")
             return False
-        
+
         return True
-        
+
     except Exception as e:
         logger.error(f"❌ ONNX conversion failed: {e}")
         return False
@@ -156,9 +154,9 @@ def main():
         default="bert-base-uncased",
         help="Tokenizer name to use (default: bert-base-uncased)"
     )
-    
+
     args = parser.parse_args()
-    
+
     if success := convert_model_to_onnx(
         model_path=args.model_path,
         onnx_output_path=args.onnx_output_path,
