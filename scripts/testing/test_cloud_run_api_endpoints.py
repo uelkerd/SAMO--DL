@@ -346,7 +346,8 @@ class CloudRunAPITester:
         
         return test_results
 
-    def generate_summary(self, tests: Dict[str, Any]) -> Dict[str, Any]:
+    @staticmethod
+    def generate_summary(tests: Dict[str, Any]) -> Dict[str, Any]:
         """Generate a summary of test results"""
         summary = {
             "overall_success": True,
