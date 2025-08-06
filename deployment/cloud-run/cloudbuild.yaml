@@ -2,7 +2,7 @@ timeout: '3600s'
 
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:latest', '-t', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:$_TAG_NAME', '-f', 'Dockerfile.secure', '.']
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:latest', '-t', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure:$_TAG_NAME', '-f', 'deployment/cloud-run/Dockerfile.minimal', '.']
     timeout: '1800s'
     env:
       - 'PROJECT_ID=the-tendril-466607-n8'
