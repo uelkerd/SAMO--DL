@@ -9,12 +9,10 @@ import sys
 import yaml
 import json
 import time
-import subprocess
-import tempfile
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'src'))
@@ -128,7 +126,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         
         # Import config
         sys.path.insert(0, str(self.cloud_run_dir))
-        from config import EnvironmentConfig, CloudRunConfig
+        from config import EnvironmentConfig
         
         # Test production configuration
         with patch.dict(os.environ, {'ENVIRONMENT': 'production'}):
@@ -516,7 +514,7 @@ def run_phase3_tests():
         json.dump(test_report, f, indent=2)
     
     print("\n" + "=" * 60)
-    print(f"📊 Phase 3 Test Results:")
+    print("📊 Phase 3 Test Results:")
     print(f"   Total Tests: {test_report['total_tests']}")
     print(f"   Failures: {test_report['failures']}")
     print(f"   Errors: {test_report['errors']}")
@@ -526,9 +524,8 @@ def run_phase3_tests():
     if result.wasSuccessful():
         print("✅ All Phase 3 tests passed!")
         return True
-    else:
-        print("❌ Some Phase 3 tests failed!")
-        return False
+    print("❌ Some Phase 3 tests failed!")
+    return False
 
 if __name__ == '__main__':
     success = run_phase3_tests()

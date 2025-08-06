@@ -10,7 +10,6 @@ import time
 import logging
 import uuid
 import threading
-import hashlib
 import hmac
 from flask import Flask, request, jsonify, g
 import torch
@@ -92,61 +91,59 @@ def sanitize_input(text: str) -> str:
 
 def load_model():
     """Load the emotion detection model"""
-    global model, tokenizer, emotion_mapping, model_loading, model_loaded, model_lock
-    
+
     with model_lock:
         if model_loading or model_loaded:
             return
         model_loading = True
-    
+
     logger.info("🔄 Starting model loading...")
-    
+
     try:
         # Get model path
         model_path = Path("/app/model")
-        logger.info(f"📁 Loading model from: {model_path}")
-        
+        logger.info(f"Loading model from: {model_path}")
+
         # Check if model files exist
         if not model_path.exists():
             raise FileNotFoundError(f"Model directory not found: {model_path}")
         
         # Load tokenizer and model from local path
-        logger.info("📥 Loading tokenizer...")
+        logger.info("Loading tokenizer...")
         tokenizer = AutoTokenizer.from_pretrained(str(model_path))
         
-        logger.info("📥 Loading model...")
+        logger.info("Loading model...")
         model = AutoModelForSequenceClassification.from_pretrained(str(model_path))
-        
+
         # Set device (CPU for Cloud Run)
         device = torch.device('cpu')
         model.to(device)
         model.eval()
-        
+
         emotion_mapping = EMOTION_MAPPING
-        
+
         with model_lock:
             model_loaded = True
             model_loading = False
-        
-        logger.info(f"✅ Model loaded successfully on {device}")
-        logger.info(f"🎯 Supported emotions: {emotion_mapping}")
-        
+
+        logger.info(f"Model loaded successfully on {device}")
+        logger.info(f"Supported emotions: {emotion_mapping}")
+
     except Exception:
         with model_lock:
             model_loading = False
-        logger.exception("❌ Failed to load model")
+        logger.exception("Failed to load model")
 
 def predict_emotion(text: str) -> dict:
     """Predict emotion for given text"""
-    global model, tokenizer, emotion_mapping, model_loaded, model_lock
-    
+
     with model_lock:
         if not model_loaded:
             raise RuntimeError("Model not loaded")
 
     # Sanitize input
     text = sanitize_input(text)
-    
+
     if not text:
         raise ValueError("Input text cannot be empty")
 
@@ -158,14 +155,14 @@ def predict_emotion(text: str) -> dict:
         max_length=512,
         return_tensors="pt"
     )
-    
+
     # Predict
     with torch.no_grad():
         outputs = model(**inputs)
         probabilities = torch.softmax(outputs.logits, dim=1)
         predicted_class = torch.argmax(probabilities, dim=1).item()
         confidence = probabilities[0][predicted_class].item()
-    
+
     return {
         'text': text,
         'emotion': emotion_mapping[predicted_class],
@@ -177,7 +174,7 @@ def ensure_model_loaded():
     """Ensure model is loaded before processing requests"""
     if not model_loaded and not model_loading:
         load_model()
-    
+
     if not model_loaded:
         raise RuntimeError("Model failed to load")
 
@@ -195,7 +192,7 @@ def before_request():
     """Add request ID and timing to all requests"""
     g.request_id = str(uuid.uuid4())
     g.start_time = time.time()
-    
+
     # Log request
     logger.info(f"Request {g.request_id}: {request.method} {request.path} from {request.remote_addr}")
 
@@ -205,10 +202,10 @@ def after_request(response):
     if hasattr(g, 'start_time'):
         duration = time.time() - g.start_time
         response.headers['X-Request-Duration'] = str(duration)
-    
+
     if hasattr(g, 'request_id'):
         response.headers['X-Request-ID'] = g.request_id
-    
+
     return response
 
 @app.route('/', methods=['GET'])
@@ -241,27 +238,27 @@ def predict():
     try:
         # Ensure model is loaded
         ensure_model_loaded()
-        
+
         # Content-type validation
         if not request.is_json:
             return create_error_response('Content-Type must be application/json', 400)
-        
+
         try:
             data = request.get_json()
         except Exception:
             return create_error_response('Invalid JSON data', 400)
-            
+
         if not data:
             return create_error_response('No JSON data provided', 400)
-        
+
         text = data.get('text', '')
         if not text:
             return create_error_response('No text provided', 400)
-        
+
         # Make prediction
         result = predict_emotion(text)
         return jsonify(result)
-    
+
     except Exception as e:
         logger.exception(f"Prediction error: {e}")
         return create_error_response('Prediction processing failed. Please try again later.')
@@ -273,35 +270,35 @@ def predict_batch():
     try:
         # Ensure model is loaded
         ensure_model_loaded()
-        
+
         # Content-type validation
         if not request.is_json:
             return create_error_response('Content-Type must be application/json', 400)
-        
+
         try:
             data = request.get_json()
         except Exception:
             return create_error_response('Invalid JSON data', 400)
-            
+
         if not data:
             return create_error_response('No JSON data provided', 400)
-        
+
         texts = data.get('texts', [])
         if not texts:
             return create_error_response('No texts provided', 400)
-        
+
         # Limit batch size for security
         if len(texts) > 10:
             return create_error_response('Batch size too large (max 10)', 400)
-        
+
         # Make predictions
         results = []
         for text in texts:
             result = predict_emotion(text)
             results.append(result)
-        
+
         return jsonify({'results': results})
-    
+
     except Exception as e:
         logger.exception(f"Batch prediction error: {e}")
         return create_error_response('Batch prediction processing failed. Please try again later.')
