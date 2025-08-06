@@ -78,17 +78,17 @@ def load_vocab() -> Dict[str, int]:
     """Load vocabulary from file or use simple fallback."""
     try:
         if os.path.exists(VOCAB_PATH):
-            vocab = {}
+            vocab_dict = {}
             with open(VOCAB_PATH, 'r', encoding='utf-8') as f:
                 for i, line in enumerate(f):
                     word = line.strip()
                     if word:
-                        vocab[word] = i
+                        vocab_dict[word] = i
             logger.info(f"✅ Vocabulary loaded from file: {len(vocab)} words")
         else:
-            vocab = SIMPLE_VOCAB.copy()
+            vocab_dict = SIMPLE_VOCAB.copy()()
             logger.info(f"✅ Using simple vocabulary: {len(vocab)} words")
-        return vocab
+        return vocab_dict
     except Exception as e:
         logger.error(f"❌ Failed to load vocabulary: {e}")
         logger.info("✅ Using fallback simple vocabulary")
@@ -339,8 +339,8 @@ if __name__ == '__main__':
                 """Initialize the application (abstract method override)."""
                 pass
             def __init__(self, app, options=None):
-                self.options = options or {}
-                self.application = app
+                self.options = gunicorn_options or {}
+                self.application = flask_app
                 super().__init__()
             
             def load_config(self):
