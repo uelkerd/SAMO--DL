@@ -89,9 +89,9 @@ def load_model():
     """Load the emotion detection model"""
     global model_loaded, model_loading, tokenizer, model, emotion_mapping
     
-    with model_lock:
-        if model_loading or model_loaded:
-            return
+    # Check if already loading or loaded
+    if model_loading or model_loaded:
+        return
 
     model_loading = True
     logger.info("🔄 Starting model loading...")
