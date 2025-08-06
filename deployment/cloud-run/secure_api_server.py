@@ -87,6 +87,8 @@ def sanitize_input(text: str) -> str:
 
 def load_model():
     """Load the emotion detection model"""
+    global model_loaded, model_loading, tokenizer, model, emotion_mapping
+    
     with model_lock:
         if model_loading or model_loaded:
             return
@@ -103,9 +105,9 @@ def load_model():
         if not model_path.exists():
             raise FileNotFoundError(f"Model directory not found: {model_path}")
 
-        # Load tokenizer and model
+        # Load tokenizer and model from the same local path
         logger.info("📥 Loading tokenizer...")
-        tokenizer = AutoTokenizer.from_pretrained("roberta-base")
+        tokenizer = AutoTokenizer.from_pretrained(str(model_path))
 
         logger.info("📥 Loading model...")
         model = AutoModelForSequenceClassification.from_pretrained(str(model_path))
