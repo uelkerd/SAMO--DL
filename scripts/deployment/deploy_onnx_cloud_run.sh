@@ -180,7 +180,7 @@ print_status "Service URL: $SERVICE_URL"
 # Step 5: Test the deployment
 print_status "Step 5: Testing deployment..."
 
-# Wait for service to be ready
+# Wait for service to be ready with intelligent polling
 print_status "Waiting for service to be ready..."
 HEALTH_URL="$SERVICE_URL/health"
 TIMEOUT=60
