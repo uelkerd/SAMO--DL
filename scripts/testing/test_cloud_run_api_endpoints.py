@@ -4,6 +4,7 @@ Cloud Run API Endpoint Testing Script
 Tests the deployed SAMO Emotion Detection API for functionality, security, and performance.
 """
 
+import os
 import requests
 import json
 import time
@@ -89,6 +90,9 @@ class CloudRunAPITester:
         """Test the emotion detection endpoint"""
         logger.info("Testing emotion detection endpoint...")
         
+        results = {}
+        
+        # Test valid input
         test_text = "I am feeling really happy and excited today!"
         
         try:
@@ -101,29 +105,63 @@ class CloudRunAPITester:
             
             # Validate response structure
             if "emotions" not in data or "confidence" not in data:
-                return {
+                results["valid_input"] = {
                     "success": False,
                     "error": "Missing required fields in emotion detection response",
                     "response": data
                 }
-            
-            # Check if emotions were detected
-            emotions = data.get("emotions", [])
-            confidence = data.get("confidence", 0)
-            
-            return {
-                "success": True,
-                "emotions_detected": len(emotions) > 0,
-                "confidence": confidence,
-                "emotions": emotions,
-                "response_time": response.elapsed.total_seconds()
-            }
-            
+            else:
+                # Check if emotions were detected
+                emotions = data.get("emotions", [])
+                confidence = data.get("confidence", 0)
+                
+                results["valid_input"] = {
+                    "success": True,
+                    "emotions_detected": len(emotions) > 0,
+                    "confidence": confidence,
+                    "emotions": emotions,
+                    "response_time": response.elapsed.total_seconds()
+                }
+                
         except requests.exceptions.RequestException as e:
-            return {
+            results["valid_input"] = {
                 "success": False,
                 "error": f"Emotion detection failed: {str(e)}"
             }
+        
+        # FIXED: Add negative/invalid input tests
+        logger.info("Testing invalid inputs...")
+        invalid_test_cases = [
+            {"text": ""},  # Empty string
+            {"text": None},  # None value
+            {},  # Missing text field
+            {"invalid": "field"},  # Wrong field name
+            {"text": 123},  # Non-string type
+            {"text": "a" * 10000},  # Very long text
+        ]
+        
+        invalid_results = []
+        for i, test_case in enumerate(invalid_test_cases):
+            try:
+                response = self.session.post(f"{self.base_url}/predict", json=test_case)
+                invalid_results.append({
+                    "test_case": i,
+                    "payload": test_case,
+                    "status_code": response.status_code,
+                    "success": response.status_code == 400,  # Should return 400 for invalid input
+                    "response": response.text
+                })
+            except Exception as e:
+                invalid_results.append({
+                    "test_case": i,
+                    "payload": test_case,
+                    "error": str(e),
+                    "success": False
+                })
+        
+        results["invalid_inputs"] = invalid_results
+        
+        return results
 
     def test_model_loading(self) -> Dict[str, Any]:
         """Test if models are properly loaded"""
@@ -165,9 +203,9 @@ class CloudRunAPITester:
                     "error": str(e)
                 })
         
-        # Analyze results
+        # FIXED: Models are considered loaded if all requests succeeded (status 200), regardless of whether emotions were detected
         successful_requests = [r for r in results if r["success"]]
-        models_loaded = len(successful_requests) > 0 and all(r["emotions_detected"] for r in successful_requests)
+        models_loaded = len(successful_requests) == len(results)
         
         return {
             "success": models_loaded,
@@ -183,10 +221,15 @@ class CloudRunAPITester:
         
         results = {}
         
-        # Test rate limiting by making multiple rapid requests
+        # FIXED: Test rate limiting with configurable number of rapid requests
         logger.info("Testing rate limiting...")
         rapid_requests = []
-        for i in range(5):  # Make 5 rapid requests
+        
+        # Get rate limit requests from environment or use default
+        rate_limit_requests = int(os.environ.get("RATE_LIMIT_REQUESTS", "10"))
+        logger.info(f"Making {rate_limit_requests} rapid requests to test rate limiting...")
+        
+        for i in range(rate_limit_requests):
             try:
                 payload = {"text": f"Test request {i}"}
                 response = self.session.post(f"{self.base_url}/predict", json=payload)

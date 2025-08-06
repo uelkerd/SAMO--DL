@@ -1,34 +1,32 @@
 #!/usr/bin/env python3
 """
 Debug Model Loading Issues
-Get detailed information about why the model is not loading properly.
+Comprehensive debugging script for Cloud Run deployment model loading problems.
 """
 
+import os
+import sys
+import time
 import requests
 import json
-import time
-import os
+import argparse
+from config import TestConfig, APIClient
 
-def generate_api_key():
-    """Generate an API key similar to the deployment"""
-    timestamp = int(time.time())
-    return f"samo-admin-key-2024-secure-{timestamp}"
-
-def debug_model_loading():
+def debug_model_loading(base_url=None, include_auth=True):
     """Debug the model loading issues"""
-    base_url = "https://samo-emotion-api-optimized-secure-71517823771.us-central1.run.app"
+    if base_url is None:
+        base_url = os.environ.get("API_BASE_URL", "https://samo-emotion-api-optimized-secure-71517823771.us-central1.run.app")
     
-    print("🔍 Debugging Model Loading Issues")
+    print(f"🔍 Debugging model loading at: {base_url}")
     print("=" * 50)
     
-    # Generate API key
-    api_key = generate_api_key()
-    print(f"🔑 Generated API Key: {api_key}")
+    # Use centralized API client
+    client = APIClient(base_url, include_auth)
     
     # Test model status with API key
     print("\n1. Testing model status with API key...")
     try:
-        headers = {"X-API-Key": api_key}
+        headers = {"X-API-Key": client.headers["X-API-Key"]}
         response = requests.get(f"{base_url}/model_status", headers=headers)
         if response.status_code == 200:
             data = response.json()
@@ -45,7 +43,7 @@ def debug_model_loading():
     # Test security status
     print("\n2. Testing security status...")
     try:
-        headers = {"X-API-Key": api_key}
+        headers = {"X-API-Key": client.headers["X-API-Key"]}
         response = requests.get(f"{base_url}/security_status", headers=headers)
         if response.status_code == 200:
             data = response.json()
@@ -56,11 +54,11 @@ def debug_model_loading():
     except Exception as e:
         print(f"   ❌ Security status error: {e}")
     
-    # Test prediction with detailed error analysis
+    # Test prediction with detailed error analysis - FIXED: Added API key
     print("\n3. Testing prediction with error analysis...")
     try:
         payload = {"text": "I am happy"}
-        response = requests.post(f"{base_url}/predict", json=payload)
+        response = client.post("/predict", payload)
         print(f"   Status Code: {response.status_code}")
         print(f"   Headers: {dict(response.headers)}")
         
@@ -81,11 +79,11 @@ def debug_model_loading():
     except Exception as e:
         print(f"   ❌ Prediction error: {e}")
     
-    # Test batch prediction
+    # Test batch prediction - FIXED: Added API key
     print("\n4. Testing batch prediction...")
     try:
         payload = {"texts": ["I am happy", "I am sad", "I am excited"]}
-        response = requests.post(f"{base_url}/predict_batch", json=payload)
+        response = client.post("/predict_batch", payload)
         print(f"   Status Code: {response.status_code}")
         
         if response.status_code == 200:
@@ -98,7 +96,7 @@ def debug_model_loading():
     except Exception as e:
         print(f"   ❌ Batch prediction error: {e}")
     
-    # Test with different input formats
+    # Test with different input formats - FIXED: Added API key
     print("\n5. Testing different input formats...")
     test_cases = [
         {"text": "I am happy"},
@@ -111,12 +109,20 @@ def debug_model_loading():
     for i, test_case in enumerate(test_cases):
         print(f"   Test case {i+1}: {test_case}")
         try:
-            response = requests.post(f"{base_url}/predict", json=test_case)
+            response = client.post("/predict", test_case)
             print(f"     Status: {response.status_code}")
             if response.status_code != 200:
                 print(f"     Error: {response.text}")
         except Exception as e:
             print(f"     Exception: {e}")
 
+def main():
+    """Main function with argument parsing."""
+    config = TestConfig()
+    parser = config.get_parser("Debug model loading issues")
+    args = parser.parse_args()
+    
+    debug_model_loading(args.base_url, not args.no_auth)
+
 if __name__ == "__main__":
-    debug_model_loading() 
+    main() 
