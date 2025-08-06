@@ -6,7 +6,9 @@ steps:
     timeout: '1800s'
     env:
       - 'PROJECT_ID=the-tendril-466607-n8'
-  
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-optimized-secure']
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     args:
       - 'gcloud'
