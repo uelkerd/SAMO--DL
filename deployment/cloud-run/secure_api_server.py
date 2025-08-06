@@ -11,11 +11,7 @@ import logging
 import uuid
 import threading
 import hmac
-import signal
 from flask import Flask, request, jsonify, g
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from pathlib import Path
 
 # Import security modules
 from security_headers import add_security_headers
@@ -24,7 +20,7 @@ from rate_limiter import rate_limit
 # Import shared model utilities
 from model_utils import (
     ensure_model_loaded, predict_emotions, get_model_status,
-    validate_text_input, MAX_TEXT_LENGTH
+    validate_text_input, 
 )
 
 # Configure logging for Cloud Run
@@ -104,10 +100,10 @@ def predict_emotion(text: str) -> dict:
     """Predict emotion for given text using shared utilities"""
     # Use shared prediction function
     result = predict_emotions(text)
-    
+
     # Add request ID for tracking
     result['request_id'] = str(uuid.uuid4())
-    
+
     return result
 
 def check_model_loaded():
@@ -162,7 +158,7 @@ def health_check():
     """Health check endpoint"""
     # Use shared model status
     model_status_info = get_model_status()
-    
+
     return jsonify({
         'status': 'healthy',
         'model_loaded': model_status_info.get('model_loaded', False),
@@ -192,7 +188,7 @@ def predict():
             return create_error_response('No JSON data provided', 400)
 
         text = data.get('text', '')
-        
+
         # Use shared validation
         is_valid, error_message = validate_text_input(text)
         if not is_valid:

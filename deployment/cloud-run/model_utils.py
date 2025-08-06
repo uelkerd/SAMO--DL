@@ -41,56 +41,56 @@ EMOTION_LABELS = [
 def ensure_model_loaded() -> bool:
     """
     Thread-safe model loading with proper error handling.
-    
+
     Returns:
         bool: True if model is loaded successfully, False otherwise
     """
     global model, tokenizer, model_loaded, model_loading
-    
+
     with model_lock:
         if model_loaded:
             return True
-        
+
         if model_loading:
             # Wait for another thread to finish loading
             while model_loading:
                 time.sleep(0.1)
             return model_loaded
-        
+
         model_loading = True
-    
+
     try:
         logger.info("🔄 Loading DistilRoBERTa model and tokenizer...")
-        
+
         # Load tokenizer
         tokenizer = AutoTokenizer.from_pretrained('distilroberta-base')
-        
+
         # Load model
         model = AutoModelForSequenceClassification.from_pretrained(
             'distilroberta-base',
             num_labels=len(EMOTION_LABELS)
         )
-        
+
         # Load trained weights if available
         if Path(MODEL_PATH).exists():
             logger.info(f"📁 Loading trained weights from {MODEL_PATH}")
             model.load_state_dict(torch.load(MODEL_PATH, map_location='cpu'))
         else:
             logger.warning(f"⚠️ No trained weights found at {MODEL_PATH}, using base model")
-        
+
         model.eval()
-        
+
         with model_lock:
             model_loaded = True
             model_loading = False
-        
+
         logger.info("✅ Model loaded successfully!")
         return True
-        
+
     except Exception as e:
         with model_lock:
             model_loading = False
-        
+
         # Log error without exposing sensitive path information
         logger.exception(f"❌ Failed to load model: {str(e)}")
         logger.error("Model loading failed - check model configuration")
@@ -100,10 +100,10 @@ def ensure_model_loaded() -> bool:
 def predict_emotions(text: str) -> Dict[str, Any]:
     """
     Predict emotions for given text.
-    
+
     Args:
         text (str): Input text to analyze
-        
+
     Returns:
         Dict[str, Any]: Prediction results with emotions and confidence scores
     """
@@ -113,7 +113,7 @@ def predict_emotions(text: str) -> Dict[str, Any]:
             'emotions': [],
             'confidence': 0.0
         }
-    
+
     try:
         # Validate input
         if not text or not text.strip():
@@ -122,14 +122,14 @@ def predict_emotions(text: str) -> Dict[str, Any]:
                 'emotions': [],
                 'confidence': 0.0
             }
-        
+
         if len(text) > MAX_TEXT_LENGTH:
             return {
                 'error': f'Text too long (max {MAX_TEXT_LENGTH} characters)',
                 'emotions': [],
                 'confidence': 0.0
             }
-        
+
         # Tokenize input
         inputs = tokenizer(
             text,
@@ -138,32 +138,32 @@ def predict_emotions(text: str) -> Dict[str, Any]:
             max_length=MAX_LENGTH,
             return_tensors='pt'
         )
-        
+
         # Get predictions
         with torch.no_grad():
             outputs = model(**inputs)
             probabilities = torch.softmax(outputs.logits, dim=1)
-        
+
         # Get top emotions
         top_probs, top_indices = torch.topk(probabilities[0], k=3)
-        
+
         emotions = []
         for prob, idx in zip(top_probs, top_indices):
             emotions.append({
                 'emotion': EMOTION_LABELS[idx.item()],
                 'confidence': prob.item()
             })
-        
+
         # Calculate overall confidence
         overall_confidence = top_probs[0].item()
-        
+
         return {
             'text': text,
             'emotions': emotions,
             'confidence': overall_confidence,
             'timestamp': time.time()
         }
-        
+
     except Exception as e:
         logger.exception(f"❌ Prediction failed: {str(e)}")
         return {
@@ -176,7 +176,7 @@ def predict_emotions(text: str) -> Dict[str, Any]:
 def get_model_status() -> Dict[str, Any]:
     """
     Get current model status.
-    
+
     Returns:
         Dict[str, Any]: Model status information
     """
@@ -194,17 +194,17 @@ def get_model_status() -> Dict[str, Any]:
 def validate_text_input(text: str) -> Tuple[bool, str]:
     """
     Validate text input for prediction.
-    
+
     Args:
         text (str): Text to validate
-        
+
     Returns:
         Tuple[bool, str]: (is_valid, error_message)
     """
     if not text or not text.strip():
         return False, 'Text field is required'
-    
+
     if len(text) > MAX_TEXT_LENGTH:
         return False, f'Text too long (max {MAX_TEXT_LENGTH} characters)'
-    
+
     return True, '' 
