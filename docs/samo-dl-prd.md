@@ -289,13 +289,13 @@ Request:
 Response:
 {
   "primary_emotion": {
-    "confidence": 0.10405202955007553,
-    "emotion": "proud"
+    "confidence": 0.85405202955007553,
+    "emotion": "overwhelmed"
   },
   "all_emotions": [
     {
-      "confidence": 0.10405202955007553,
-      "emotion": "proud"
+      "confidence": 0.85405202955007553,
+      "emotion": "overwhelmed"
     },
     {
       "confidence": 0.09543425589799881,
