@@ -364,7 +364,7 @@ cleanup() {
 
     read -p "Delete the training instance? (y/N): " -n 1 -r
     echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
+            if [[ ${REPLY} =~ ^[Yy]$ ]]; then
         gcloud compute instances delete ${INSTANCE_NAME} --zone=${ZONE} --quiet
         echo -e "${GREEN}✅ Instance deleted${NC}"
     else
