@@ -8,9 +8,7 @@ and compares it with the fallback model to verify the improvements.
 """
 
 import os
-import sys
 import torch
-import numpy as np
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import json
 from datetime import datetime

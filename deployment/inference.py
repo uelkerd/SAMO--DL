@@ -6,10 +6,7 @@ Standalone script to run emotion detection on text.
 """
 
 import torch
-import json
-import numpy as np
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import os
 from pathlib import Path
 
 class EmotionDetector:
