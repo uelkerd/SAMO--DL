@@ -5,12 +5,13 @@ Script to check git status and trigger CI pipeline.
 
 import logging
 import subprocess
+from typing import Tuple
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def run_command(cmd: str, description: str) -> tuple[bool, str]:
+def run_command(cmd: str, description: str) -> Tuple[bool, str]:
     """Run a command and return success status and output."""
     logging.info(f"🔄 {description}...")
     try:

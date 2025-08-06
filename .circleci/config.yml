@@ -20,7 +20,7 @@ orbs:
 executors:
   python-ml:
     docker:
-      - image: cimg/python:3.12
+      - image: cimg/python:3.10  # Changed from 3.12 to match environment.yml
     resource_class: large  # Keep original for compatibility
     working_directory: ~/samo-dl
     environment:
@@ -44,9 +44,9 @@ executors:
 # COMMANDS - Reusable command definitions (SIMPLIFIED)
 # ============================================================================
 commands:
-  # ULTIMATE CONDA ENVIRONMENT COMMAND - DIRECT PYTHON EXECUTION
+  # CONDA ENVIRONMENT COMMAND - DIRECT PYTHON EXECUTION
   run_in_conda:
-    description: "Run command in conda environment (ULTIMATE)"
+    description: "Run command in conda environment"
     parameters:
       step_name:
         type: string
@@ -59,7 +59,7 @@ commands:
           name: "<< parameters.step_name >>"
           command: |
             $HOME/miniconda/envs/samo-dl-stable/bin/python -c "<< parameters.command >>"
-          shell: /bin/bash  # Explicitly specify bash for consistent behavior
+          shell: /bin/bash
 
   setup_python_env:
     description: "Set up conda environment with dependencies (SIMPLIFIED)"
@@ -70,7 +70,7 @@ commands:
           command: |
             sudo apt-get update
             sudo apt-get install -y portaudio19-dev python3-pyaudio
-            echo "✅ System dependencies installed"
+            echo "System dependencies installed successfully"
           shell: /bin/bash  # Explicitly specify bash for consistent behavior
       - run:
           name: Install and setup Miniconda (SIMPLIFIED)
@@ -93,7 +93,7 @@ commands:
               echo "export PYTHONPATH=$CIRCLE_WORKING_DIRECTORY/src" >> ~/.bashrc
             fi
             
-            echo "✅ Conda environment setup complete!"
+            echo "Conda environment setup complete!"
           shell: /bin/bash  # Explicitly specify bash for consistent behavior
 
   # ENHANCED CACHING STRATEGY
@@ -127,89 +127,73 @@ commands:
   pre_warm_models:
     description: "Pre-download and cache models for faster CI execution"
     steps:
-      - run_in_conda:
-          step_name: "Pre-warm Models"
+      - run:
+          name: "Pre-warm Models"
           command: |
-            echo "🔥 Pre-warming models..."
-            python -c "
-            from transformers import AutoTokenizer, AutoModel, AutoModelForSeq2SeqLM
-            import torch
-            
-            # Pre-download BERT models
-            print('Downloading BERT base...')
-            AutoTokenizer.from_pretrained('bert-base-uncased')
-            AutoModel.from_pretrained('bert-base-uncased')
-            
-            # Pre-download T5 models
-            print('Downloading T5 small...')
-            AutoTokenizer.from_pretrained('t5-small')
-            AutoModelForSeq2SeqLM.from_pretrained('t5-small')
-            
-            print('✅ Models pre-warmed')
-            "
+            $HOME/miniconda/envs/samo-dl-stable/bin/python scripts/ci/pre_warm_models.py
+          shell: /bin/bash
 
   run_quality_checks:
     description: "Run comprehensive code quality checks"
     steps:
-      - run_in_conda:
-          step_name: "Ruff Linting"
+      - run:
+          name: "Ruff Linting"
           command: |
-            echo "🔍 Running Ruff linter..."
-            ruff check src/ tests/ --output-format=github || echo "⚠️ Linting issues found but continuing..."
-      - run_in_conda:
-          step_name: "Ruff Formatting Check"
+            $HOME/miniconda/envs/samo-dl-stable/bin/python -m ruff check src/ tests/ --output-format=github || echo "Linting issues found but continuing..."
+          shell: /bin/bash
+      - run:
+          name: "Ruff Formatting Check"
           command: |
-            echo "🎨 Checking code formatting..."
-            ruff format --check src/ tests/ || echo "⚠️ Formatting issues found but continuing..."
-      - run_in_conda:
-          step_name: "Type Checking (MyPy) - Optional"
+            $HOME/miniconda/envs/samo-dl-stable/bin/python -m ruff format --check src/ tests/ || echo "Formatting issues found but continuing..."
+          shell: /bin/bash
+      - run:
+          name: "Type Checking (MyPy) - Optional"
           command: |
-            echo "📝 Running type checking (optional)..."
-            python -m mypy src/ --ignore-missing-imports || echo "⚠️ Type checking failed but continuing..."
+            $HOME/miniconda/envs/samo-dl-stable/bin/python -m mypy src/ --ignore-missing-imports || echo "Type checking failed but continuing..."
+          shell: /bin/bash
 
   # PARALLEL SECURITY SCANS (SIMPLIFIED)
   run_security_scan_bandit:
     description: "Run Bandit security scan (parallel)"
     steps:
-      - run_in_conda:
-          step_name: "Bandit Security Scan"
+      - run:
+          name: "Bandit Security Scan"
           command: |
-            echo "🔒 Running Bandit security scan..."
-            bandit -r src/ -f json -o bandit-report.json
+            $HOME/miniconda/envs/samo-dl-stable/bin/python -m bandit -r src/ -f json -o bandit-report.json
+          shell: /bin/bash
 
   run_security_scan_safety:
     description: "Run Safety dependency check (parallel)"
     steps:
-      - run_in_conda:
-          step_name: "Safety Check (Dependencies)"
+      - run:
+          name: "Safety Check (Dependencies)"
           command: |
-            echo "🛡️ Checking dependency vulnerabilities..."
-            safety check --json --output safety-report.json
+            $HOME/miniconda/envs/samo-dl-stable/bin/python -m safety check --json --output safety-report.json
+          shell: /bin/bash
 
   run_unit_tests:
     description: "Run unit tests with coverage (SIMPLIFIED)"
     steps:
-      - run_in_conda:
-          step_name: "API Rate Limiter Tests"
+      - run:
+          name: "API Rate Limiter Tests"
           command: |
-            echo "🧪 Running API Rate Limiter Tests..."
-            python scripts/testing/run_api_rate_limiter_tests.py
-      - run_in_conda:
-          step_name: "Unit Tests (Sequential - Rate Limiter Tests)"
+            $HOME/miniconda/envs/samo-dl-stable/bin/python scripts/testing/run_api_rate_limiter_tests.py
+          shell: /bin/bash
+      - run:
+          name: "Unit Tests (Sequential - Rate Limiter Tests)"
           command: |
-            echo "🧪 Running rate limiter tests sequentially..."
-            python -m pytest tests/unit/test_api_rate_limiter.py \
+            $HOME/miniconda/envs/samo-dl-stable/bin/python -m pytest tests/unit/test_api_rate_limiter.py \
               --cov=src \
               --cov-report=xml \
               --cov-report=html \
               --cov-fail-under=5 \
               --junit-xml=test-results/unit/results.xml \
               -v
-      - run_in_conda:
-          step_name: "Unit Tests (Parallel - Other Tests)"
+          shell: /bin/bash
+      - run:
+          name: "Unit Tests (Parallel - Other Tests)"
           command: |
-            echo "🧪 Running other unit tests with parallel execution..."
-            python -m pytest tests/unit/ \
+            $HOME/miniconda/envs/samo-dl-stable/bin/python -m pytest tests/unit/ \
               --ignore=tests/unit/test_api_rate_limiter.py \
               --cov=src \
               --cov-report=xml \
@@ -217,7 +201,8 @@ commands:
               --cov-fail-under=5 \
               --junit-xml=test-results/unit/results.xml \
               -v \
-              -n auto  # Parallel execution
+              -n auto
+          shell: /bin/bash
       - store_test_results:
           path: test-results
       - store_artifacts:
@@ -326,19 +311,19 @@ jobs:
             # Test BERT emotion classifier loading
             from src.models.emotion_detection.bert_classifier import BertEmotionClassifier
             model = BertEmotionClassifier(num_emotions=28)
-            print('✅ BERT emotion classifier loaded successfully')
+            print('BERT emotion classifier loaded successfully')
             
             # Test T5 summarizer loading
             from src.models.summarization.t5_summarizer import create_t5_summarizer
             summarizer = create_t5_summarizer()
-            print('✅ T5 summarizer loaded successfully')
+            print('T5 summarizer loaded successfully')
             
             # Test Whisper transcriber loading
             from src.models.voice_processing.whisper_transcriber import WhisperTranscriber
             transcriber = WhisperTranscriber()
-            print('✅ Whisper transcriber loaded successfully')
+            print('Whisper transcriber loaded successfully')
             
-            print('🎯 All models loaded and validated successfully!')
+            print('All models loaded and validated successfully!')
             "
       - store_artifacts:
           path: model-validation-results.json
@@ -382,7 +367,7 @@ jobs:
 
             assert response.status_code == 200, f'API returned {response.status_code}: {response.text}'
             assert duration < 2.0, f'API response too slow: {duration:.2f}s'
-            print(f'✅ Emotion detection: {duration:.2f}s (<500ms target in production)')
+            print(f'Emotion detection: {duration:.2f}s (<500ms target in production)')
             "
       - store_artifacts:
           path: performance-results.json
@@ -397,7 +382,7 @@ jobs:
       - run_in_conda:
           step_name: GPU Environment Setup
           command: |
-            echo "🖥️ Setting up GPU environment..."
+            echo "Setting up GPU environment..."
             nvidia-smi
             python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
       - run_in_conda:
@@ -415,7 +400,7 @@ jobs:
             dummy_input = torch.randn(2, 512, device=device).long()
             output = model(dummy_input)
 
-            print(f'✅ GPU forward pass successful on {device}')
+            print(f'GPU forward pass successful on {device}')
             print(f'Output shape: {output.shape}')
             "
 
@@ -435,10 +420,10 @@ jobs:
       - run:
           name: Test Docker Image
           command: |
-            echo "🧪 Testing Docker image..."
+            echo "Testing Docker image..."
             docker run --rm samo-dl:${CIRCLE_SHA1} python -c "
             from src.unified_ai_api import app
-            print('✅ Docker image working correctly')
+            print('Docker image working correctly')
             "
       - when:
           condition:
