@@ -42,7 +42,7 @@ print_status "Checking Google Cloud CLI..."
 if ! command -v gcloud &> /dev/null; then
     print_warning "Google Cloud CLI not found. Installing..."
     curl https://sdk.cloud.google.com | bash
-    exec -l $SHELL
+    exec -l "${SHELL}"
     print_success "Google Cloud CLI installed"
 else
     print_success "Google Cloud CLI found: $(gcloud --version | head -n 1)"
@@ -66,9 +66,9 @@ if [ -z "$PROJECT_ID" ]; then
     print_warning "No project ID set. Please enter your GCP project ID:"
     read -p "Project ID: " PROJECT_ID
     gcloud config set project "$PROJECT_ID"
-    print_success "Project ID set to: $PROJECT_ID"
+    print_success "Project ID set to: ${PROJECT_ID}"
 else
-    print_success "Using project ID: $PROJECT_ID"
+    print_success "Using project ID: ${PROJECT_ID}"
 fi
 
 # Step 4: Enable required APIs
@@ -85,7 +85,7 @@ print_success "Vertex AI dependencies installed"
 
 # Step 6: Set environment variables
 print_status "Setting environment variables..."
-export GOOGLE_CLOUD_PROJECT="$PROJECT_ID"
+export GOOGLE_CLOUD_PROJECT="${PROJECT_ID}"
 export VERTEX_AI_REGION="us-central1"
 print_success "Environment variables set"
 

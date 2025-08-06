@@ -16,7 +16,7 @@ conda deactivate || echo "No active environment to deactivate."
 echo "🔥 Removing old environment '$ENV_NAME' if it exists..."
 conda env remove -n "$ENV_NAME" || echo "Environment '$ENV_NAME' not found, creating new."
 
-echo "🐍 Creating fresh Conda environment '$ENV_NAME' with Python $PYTHON_VERSION..."
+echo "🐍 Creating fresh Conda environment '${ENV_NAME}' with Python ${PYTHON_VERSION}..."
 conda create -n "$ENV_NAME" python="$PYTHON_VERSION" -y
 
 echo "✅ Activating new environment..."
@@ -26,5 +26,5 @@ conda activate "$ENV_NAME"
 echo "📦 Installing all project dependencies from requirements.txt..."
 pip install -r requirements.txt
 
-echo "🎉 Environment rebuild complete! You are now in the '$ENV_NAME' environment."
-echo "👉 To activate in a new terminal, run: conda activate $ENV_NAME"
+echo "🎉 Environment rebuild complete! You are now in the '${ENV_NAME}' environment."
+echo "👉 To activate in a new terminal, run: conda activate ${ENV_NAME}"
