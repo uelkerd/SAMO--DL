@@ -207,7 +207,7 @@ Your model is already deployed and operational at:
 - [Project Completion Summary](docs/PROJECT_COMPLETION_SUMMARY.md)
 
 ### **Code Repository**
-- [GitHub Repository](https://github.com/your-username/SAMO--DL)
+- [GitHub Repository](https://github.com/uelkerd/SAMO--DL)
 - [Live API](https://samo-emotion-api-minimal-71517823771.us-central1.run.app)
 
 ### **Model Training**
