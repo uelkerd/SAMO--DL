@@ -110,9 +110,9 @@ def load_model():
         if not model_path.exists():
             raise FileNotFoundError(f"Model directory not found: {model_path}")
         
-        # Load tokenizer and model
+        # Load tokenizer and model from local path
         logger.info("📥 Loading tokenizer...")
-        tokenizer = AutoTokenizer.from_pretrained("roberta-base")
+        tokenizer = AutoTokenizer.from_pretrained(str(model_path))
         
         logger.info("📥 Loading model...")
         model = AutoModelForSequenceClassification.from_pretrained(str(model_path))

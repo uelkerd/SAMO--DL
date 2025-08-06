@@ -684,7 +684,7 @@ images:
         ])
         
         if build_result.returncode != 0:
-            raise Exception("Container build failed")
+            raise RuntimeError("Container build failed")
             
         # Deploy to Cloud Run
         self.log("Deploying to Cloud Run...")
@@ -702,7 +702,7 @@ images:
         ])
         
         if deploy_result.returncode != 0:
-            raise Exception("Cloud Run deployment failed")
+            raise RuntimeError("Cloud Run deployment failed")
             
         # Clean up temporary file
         cloudbuild_path.unlink(missing_ok=True)
@@ -721,7 +721,7 @@ images:
         ])
         
         if url_result.returncode != 0:
-            raise Exception("Failed to get service URL")
+            raise RuntimeError("Failed to get service URL")
             
         service_url = url_result.stdout.strip()
         self.log(f"Service URL: {service_url}")
