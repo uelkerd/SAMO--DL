@@ -5,100 +5,99 @@ Get detailed information about model loading status and any errors.
 """
 
 import requests
-import os
 import argparse
+from test_config import create_api_client, create_test_config
 
-def test_health_endpoint(base_url):
-    """Test health endpoint"""
+
+def test_health_endpoint(client):
+    """Test the health endpoint"""
     print("1. Testing health endpoint...")
     try:
-        response = requests.get(f"{base_url}/", timeout=10)
-        response.raise_for_status()
-        data = response.json()
+        data = client.get("/")
         print(f"   ✅ Health: {data.get('status')}")
         print(f"   📊 Version: {data.get('version')}")
         print(f"   🔒 Security: {data.get('security')}")
         return True
     except requests.exceptions.RequestException as e:
-        print(f"   ❌ Health error: {e}")
+        print(f"   ❌ Health failed: {e}")
         return False
 
-def test_emotions_endpoint(base_url):
-    """Test emotions endpoint"""
+
+def test_emotions_endpoint(client):
+    """Test the emotions endpoint"""
     print("\n2. Testing emotions endpoint...")
     try:
-        response = requests.get(f"{base_url}/emotions", timeout=10)
-        response.raise_for_status()
-        data = response.json()
+        data = client.get("/emotions")
         print(f"   ✅ Emotions: {data}")
         return True
     except requests.exceptions.RequestException as e:
-        print(f"   ❌ Emotions error: {e}")
+        print(f"   ❌ Emotions failed: {e}")
         return False
 
-def test_model_status_endpoint(base_url):
-    """Test model status endpoint"""
+
+def test_model_status_endpoint(client):
+    """Test the model status endpoint"""
     print("\n3. Testing model status endpoint...")
     print("   ⚠️  This requires an API key - will likely fail")
     try:
-        response = requests.get(f"{base_url}/model_status", timeout=10)
-        response.raise_for_status()
-        data = response.json()
+        data = client.get("/model_status")
         print(f"   ✅ Model Status: {data}")
         return True
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 401:
+    except requests.exceptions.RequestException as e:
+        if "401" in str(e):
             print("   🔐 Unauthorized - API key required")
         else:
-            print(f"   ❌ Model status failed: {e.response.status_code}")
-            print(f"   Response: {e.response.text}")
-        return False
-    except requests.exceptions.RequestException as e:
-        print(f"   ❌ Model status error: {e}")
+            print(f"   ❌ Model status failed: {e}")
         return False
 
-def test_prediction_endpoint(base_url):
-    """Test prediction endpoint"""
+
+def test_prediction_endpoint(client):
+    """Test the prediction endpoint"""
     print("\n4. Testing prediction endpoint...")
     try:
         payload = {"text": "I am happy"}
-        response = requests.post(f"{base_url}/predict", json=payload, timeout=30)
-        response.raise_for_status()
-        data = response.json()
+        data = client.post("/predict", payload)
         print(f"   ✅ Prediction successful: {data}")
         return True
     except requests.exceptions.RequestException as e:
-        print(f"   ❌ Prediction error: {e}")
+        print(f"   ❌ Prediction failed: {e}")
         return False
+
 
 def test_model_status(base_url=None):
     """Test the model status endpoint"""
-    if base_url is None:
-        base_url = os.environ.get("API_BASE_URL", "https://samo-emotion-api-optimized-secure-71517823771.us-central1.run.app")
+    config = create_test_config()
+    client = create_api_client()
     
     print("🔍 Testing Model Status")
     print("=" * 40)
+    print(f"Testing URL: {base_url or config.base_url}")
     
     # Run all tests
-    health_success = test_health_endpoint(base_url)
-    emotions_success = test_emotions_endpoint(base_url)
-    model_status_success = test_model_status_endpoint(base_url)
-    prediction_success = test_prediction_endpoint(base_url)
+    health_success = test_health_endpoint(client)
+    emotions_success = test_emotions_endpoint(client)
+    model_status_success = test_model_status_endpoint(client)
+    prediction_success = test_prediction_endpoint(client)
     
     # Summary
-    print(f"\n📊 Test Summary:")
+    print("\n📊 Test Summary:")
     print(f"   Health: {'✅' if health_success else '❌'}")
     print(f"   Emotions: {'✅' if emotions_success else '❌'}")
     print(f"   Model Status: {'✅' if model_status_success else '❌'}")
     print(f"   Prediction: {'✅' if prediction_success else '❌'}")
+    
+    return health_success and emotions_success and prediction_success
+
 
 def main():
-    """Main function with argument parsing"""
-    parser = argparse.ArgumentParser(description="Test model status endpoint")
-    parser.add_argument("--base-url", help="Base URL for the API")
+    """Main function with CLI argument support"""
+    parser = argparse.ArgumentParser(description="Test Model Status Endpoint")
+    parser.add_argument("--base-url", help="API base URL")
     args = parser.parse_args()
     
-    test_model_status(args.base_url)
+    success = test_model_status(args.base_url)
+    exit(0 if success else 1)
+
 
 if __name__ == "__main__":
     main() 
