@@ -131,8 +131,8 @@ Platform: linux/amd64
 ```json
 {
   "primary_emotion": {
-    "confidence": 0.10606992989778519,
-    "emotion": "proud"
+    "confidence": 0.15606992989778519,
+    "emotion": "overwhelmed"
   },
   "inference_time": 0.09104156494140625,
   "model_type": "roberta_single_label"
