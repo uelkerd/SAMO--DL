@@ -32,7 +32,7 @@ def debug_dataset_structure():
         datasets = data_loader.prepare_datasets()
 
         logger.info("📋 Dataset keys:")
-        for key in datasets.keys():
+        for key in datasets:
             logger.info(f"   - {key}")
 
         # Check test data structure
