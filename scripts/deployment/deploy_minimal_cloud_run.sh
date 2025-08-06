@@ -168,9 +168,24 @@ print_status "Service URL: $SERVICE_URL"
 # Step 5: Test the deployment
 print_status "Step 5: Testing deployment..."
 
-# Wait for service to be ready
+# Wait for service to be ready with intelligent polling
 print_status "Waiting for service to be ready..."
-sleep 60
+HEALTH_URL="$SERVICE_URL/health"
+TIMEOUT=60
+INTERVAL=3
+ELAPSED=0
+
+until curl -sf "$HEALTH_URL"; do
+    if [ $ELAPSED -ge $TIMEOUT ]; then
+        print_error "Service did not become healthy within $TIMEOUT seconds."
+        exit 1
+    fi
+    print_status "Waiting for service... ($ELAPSED/$TIMEOUT seconds)"
+    sleep $INTERVAL
+    ELAPSED=$((ELAPSED + INTERVAL))
+done
+
+print_status "Service is healthy!"
 
 # Test health endpoint
 print_status "Testing health endpoint..."

@@ -92,7 +92,11 @@ def check_cloud_run_config():
     print("   - Max instances: 10")
     
     # Check if we need to increase memory
-    model_size_mb = (Path("deployment/cloud-run/model/model.safetensors").stat().st_size / (1024 * 1024))
+    model_file_path = Path("deployment/cloud-run/model/model.safetensors")
+    if not model_file_path.exists():
+        print("❌ Error: model.safetensors file not found")
+        return False
+    model_size_mb = (model_file_path.stat().st_size / (1024 * 1024))
     print(f"   - Model size: {model_size_mb:.1f}MB")
     
     if model_size_mb > 300:
@@ -275,7 +279,7 @@ def main():
     optimize_model_loading()
     
     # Update configuration
-    if not update_cloud_run_config():
+    if not check_cloud_run_config():
         print("❌ Configuration update failed")
         sys.exit(1)
     
