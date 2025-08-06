@@ -91,14 +91,18 @@ class CloudRunAPITester:
             "response_time": 0.0  # Will be measured in performance test
         }
 
+    def _create_test_payload(self, text: str = None) -> Dict[str, str]:
+        """Create a test payload for emotion detection"""
+        if text is None:
+            text = "I am feeling really happy and excited today!"
+        return {"text": text}
+
     def test_emotion_detection_endpoint(self) -> Dict[str, Any]:
         """Test the emotion detection endpoint"""
         logger.info("Testing emotion detection endpoint...")
         
-        test_text = "I am feeling really happy and excited today!"
-        
         try:
-            payload = {"text": test_text}
+            payload = self._create_test_payload()
             data = self.client.post("/predict", payload)
             logger.info(f"Emotion detection response: {data}")
             
@@ -254,13 +258,6 @@ class CloudRunAPITester:
         
         # Check if any requests were rate limited (429 status)
         rate_limited = any(r.get("status") == "rate_limited" for r in rapid_requests)
-        results = {
-            "rate_limiting": {
-                "tested": True,
-                "rate_limited": rate_limited,
-                "requests": rapid_requests
-            }
-        }
         
         # Test security headers
         logger.info("Testing security headers...")
@@ -268,13 +265,13 @@ class CloudRunAPITester:
             data = self.client.get("/")
             # Note: We can't easily check headers with our client abstraction
             # This would need to be done with raw requests if needed
-            results["security_headers"] = {
+            security_headers = {
                 "tested": True,
                 "note": "Headers checked via raw requests if needed"
             }
             
         except Exception as e:
-            results["security_headers"] = {"error": str(e)}
+            security_headers = {"error": str(e)}
         
         # For minimal API, consider security test successful if rate limiting works or if no rate limiting is implemented
         # (since our minimal API doesn't have advanced security features)
@@ -282,8 +279,8 @@ class CloudRunAPITester:
         
         return {
             "success": success,
-            "rate_limiting_tested": results.get("rate_limiting", {}).get("tested", False),
-            "security_headers_tested": results.get("security_headers", {}).get("tested", False),
+            "rate_limiting_tested": True,
+            "security_headers_tested": security_headers.get("tested", False),
             "note": "Minimal API - basic security features only"
         }
 
