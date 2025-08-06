@@ -234,9 +234,9 @@ def predict():
             REQUEST_COUNT.labels(endpoint='/predict', status='error').inc()
             return jsonify({'error': 'Text field is required'}), 400
         
-        if len(text) > 1000:
+        if len(text) > MAX_LENGTH:
             REQUEST_COUNT.labels(endpoint='/predict', status='error').inc()
-            return jsonify({'error': 'Text too long (max 1000 characters)'}), 400
+            return jsonify({'error': f'Text too long (max {MAX_LENGTH} characters)'}), 400
         
         # Ensure model is loaded
         if model_session is None:
@@ -287,6 +287,48 @@ if __name__ == '__main__':
     # Initialize model on startup
     initialize_model()
     
-    # Start server
-    port = int(os.getenv('PORT', 8080))
-    app.run(host='0.0.0.0', port=port, debug=False) 
+    # Check if running in production mode
+    if os.getenv('FLASK_ENV') == 'production' or os.getenv('ENVIRONMENT') == 'production':
+        # Production mode - use Gunicorn
+        try:
+            import gunicorn.app.base
+            
+            class StandaloneApplication(gunicorn.app.base.BaseApplication):
+                def __init__(self, app, options=None):
+                    self.options = options or {}
+                    self.application = app
+                    super().__init__()
+                
+                def load_config(self):
+                    config = {key: value for key, value in self.options.items()
+                             if key in self.cfg.settings and value is not None}
+                    for key, value in config.items():
+                        self.cfg.set(key.lower(), value)
+                
+                def load(self):
+                    return self.application
+            
+            # Gunicorn configuration
+            options = {
+                'bind': f"0.0.0.0:{os.getenv('PORT', 8080)}",
+                'workers': int(os.getenv('GUNICORN_WORKERS', 1)),
+                'worker_class': 'sync',
+                'worker_connections': 1000,
+                'max_requests': 1000,
+                'max_requests_jitter': 50,
+                'timeout': 30,
+                'keepalive': 2,
+                'preload_app': True,
+                'access_log_format': '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s'
+            }
+            
+            StandaloneApplication(app, options).run()
+            
+        except ImportError:
+            logger.warning("Gunicorn not available, falling back to Flask development server")
+            port = int(os.getenv('PORT', 8080))
+            app.run(host='0.0.0.0', port=port, debug=False)
+    else:
+        # Development mode - use Flask development server
+        port = int(os.getenv('PORT', 8080))
+        app.run(host='0.0.0.0', port=port, debug=False) 
