@@ -60,7 +60,12 @@ class TestTokenBucketRateLimiter:
 
     def test_allow_request_rate_limit_exceeded(self):
         """Test that allow_request returns False when rate limit exceeded."""
-        config = RateLimitConfig(requests_per_minute=1, burst_size=1)
+        config = RateLimitConfig(
+            requests_per_minute=1, 
+            burst_size=1,
+            enable_user_agent_analysis=False,  # Disable abuse detection for testing
+            enable_request_pattern_analysis=False
+        )
         rate_limiter = TokenBucketRateLimiter(config)
 
         # First request should be allowed

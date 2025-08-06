@@ -144,7 +144,7 @@ class TestAPIModels:
             assert field in mock_response
 
         assert mock_response["status"] in ["success", "error"]
-        assert isinstance(mock_response["processing_time"], int | float)
+        assert isinstance(mock_response["processing_time"], (int, float))
         assert mock_response["processing_time"] >= 0
 
     def test_error_response_format(self):
