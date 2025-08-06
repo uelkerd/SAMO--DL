@@ -36,7 +36,7 @@ class HealthMonitor:
         self.is_shutting_down = False
         self.active_requests = 0
         self.health_metrics: Dict[str, HealthMetrics] = {}
-        self.shutdown_timeout = int(os.getenv('GRACEFUL_SHUTDOWN_TIMEOUT', '30'))
+        self.shutdown_timeout = int(os.getenv('GRACEFUL_SHUTDOWN_TIMEOUT', '30') or '30')
 
         # Register graceful shutdown handlers
         signal.signal(signal.SIGTERM, self._graceful_shutdown)
