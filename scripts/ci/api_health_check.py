@@ -14,7 +14,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 # Test imports
-from api_rate_limiter import RateLimitCache
+from api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
 from pydantic import BaseModel, ValidationError, Field
 
 # Configure logging
@@ -53,9 +53,9 @@ def test_api_models():
         test_request = TestRequest(text="I feel happy and excited today!")
         logger.info(f"✅ Test request created: {test_request.text[:30]}...")
 
-        cache = RateLimitCache()
-        cache.get("test_client")
-        logger.info("✅ Rate limiter cache created successfully")
+        config = RateLimitConfig(requests_per_minute=60, burst_size=10)
+        rate_limiter = TokenBucketRateLimiter(config)
+        logger.info("✅ Rate limiter created successfully")
 
         return True
 
