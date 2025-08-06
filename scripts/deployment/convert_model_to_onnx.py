@@ -90,7 +90,7 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
             ),
             onnx_output_path,
             export_params=True,
-            opset_version=11,
+            opset_version=14,
             do_constant_folding=True,
             input_names=["input_ids", "attention_mask", "token_type_ids"],
             output_names=["logits"],
@@ -122,7 +122,8 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
             session = ort.InferenceSession(onnx_output_path)
             logger.info("✅ ONNX Runtime test successful")
         except ImportError:
-            logger.warning("⚠️ ONNX Runtime not available for testing")
+            logger.error("❌ ONNX Runtime is required for ONNX model validation. Please install it with 'pip install onnxruntime'.")
+            return False
         except Exception as e:
             logger.error(f"❌ ONNX Runtime test failed: {e}")
             return False
@@ -158,13 +159,11 @@ def main():
     
     args = parser.parse_args()
     
-    success = convert_model_to_onnx(
+    if success := convert_model_to_onnx(
         model_path=args.model_path,
         onnx_output_path=args.onnx_output_path,
         tokenizer_name=args.tokenizer_name
-    )
-    
-    if success:
+    ):
         logger.info("🎉 ONNX conversion completed successfully!")
         sys.exit(0)
     else:

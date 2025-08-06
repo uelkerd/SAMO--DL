@@ -51,8 +51,7 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
         tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
         
         # Save tokenizer files
-        tokenizer_dir = output_dir / "tokenizer"
-        tokenizer.save_pretrained(str(tokenizer_dir))
+        tokenizer.save_pretrained(str(output_dir))
         logger.info("✅ Tokenizer saved")
         
         # Create dummy input
@@ -98,16 +97,14 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
         
         logger.info(f"✅ ONNX model saved to {onnx_output_path}")
         
-        # Test ONNX model
+        # Test ONNX model with ONNX Runtime
         try:
             import onnxruntime as ort
+            session = ort.InferenceSession(onnx_output_path)
+            logger.info("✅ ONNX model test successful")
         except ImportError:
             logger.error("❌ ONNX Runtime is required for ONNX model validation. Please install it with 'pip install onnxruntime'.")
             return False
-        
-        try:
-            session = ort.InferenceSession(onnx_output_path)
-            logger.info("✅ ONNX model test successful")
         except Exception as e:
             logger.error(f"❌ ONNX model validation failed: {e}")
             return False
@@ -121,7 +118,7 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
 
 def main():
     """Main function with command-line argument parsing."""
-    parser = argparse.ArgumentParser(description="Convert PyTorch model to ONNX format")
+    parser = argparse.ArgumentParser(description="Convert PyTorch model to ONNX format (simple version)")
     parser.add_argument(
         "--model-path",
         type=str,
@@ -143,17 +140,15 @@ def main():
     
     args = parser.parse_args()
     
-    success = convert_model_to_onnx(
+    if success := convert_model_to_onnx(
         model_path=args.model_path,
         onnx_output_path=args.onnx_output_path,
         tokenizer_name=args.tokenizer_name
-    )
-    
-    if success:
-        logger.info("🎉 ONNX conversion completed successfully!")
+    ):
+        logger.info("🎉 Simple ONNX conversion completed successfully!")
         sys.exit(0)
     else:
-        logger.error("💥 ONNX conversion failed!")
+        logger.error("💥 Simple ONNX conversion failed!")
         sys.exit(1)
 
 
