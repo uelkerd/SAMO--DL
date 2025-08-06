@@ -29,7 +29,6 @@ model_lock = threading.Lock()
 # Configuration
 MODEL_PATH = os.getenv('MODEL_PATH', '/app/model/best_simple_model.pth')
 MAX_LENGTH = int(os.getenv('MAX_LENGTH', '128'))
-TEMPERATURE = float(os.getenv('TEMPERATURE', '1.0'))
 MAX_TEXT_LENGTH = int(os.getenv('MAX_TEXT_LENGTH', '1000'))
 
 # Emotion labels (12 classes for DistilRoBERTa model)
@@ -186,7 +185,6 @@ def get_model_status() -> Dict[str, Any]:
         'model_loading': model_loading,
         'model_path': MODEL_PATH,
         'max_length': MAX_LENGTH,
-        'temperature': TEMPERATURE,
         'max_text_length': MAX_TEXT_LENGTH,
         'emotion_labels': EMOTION_LABELS,
         'timestamp': time.time()
