@@ -123,6 +123,16 @@ import requests
 import json
 import argparse
 
+def get_base_url():
+    \"\"\"Get base URL from env, CLI, or default\"\"\"
+    # Priority: command-line argument, environment variable, default
+    if len(sys.argv) > 1 and sys.argv[1]:
+        return sys.argv[1]
+    env_url = os.environ.get("MODEL_API_BASE_URL")
+    if env_url:
+        return env_url
+    return "https://samo-emotion-api-optimized-secure-71517823771.us-central1.run.app"
+
 def check_model_health(base_url):
     \"\"\"Check model health status\"\"\"
     print("🔍 Model Health Check")

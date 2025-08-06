@@ -65,12 +65,22 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
             max_length=128
         )
         
-        # Handle token_type_ids properly - use actual values if available, otherwise zeros
+        # Handle token_type_ids properly - use actual values from tokenizer
+        # This ensures compatibility with models that require specific token_type_ids
         if "token_type_ids" in inputs:
             token_type_ids = inputs["token_type_ids"]
         else:
-            # For models that don't use token_type_ids, create zeros
-            token_type_ids = torch.zeros_like(inputs["input_ids"])
+            # For models that don't use token_type_ids, create proper sequence
+            # Use actual tokenizer output to ensure correctness
+            tokenizer_output = tokenizer(
+                dummy_text,
+                return_tensors="pt",
+                padding=True,
+                truncation=True,
+                max_length=128,
+                return_token_type_ids=True  # Explicitly request token_type_ids
+            )
+            token_type_ids = tokenizer_output.get("token_type_ids", torch.zeros_like(inputs["input_ids"]))
         
         # Export to ONNX
         logger.info("🔄 Converting to ONNX format...")
