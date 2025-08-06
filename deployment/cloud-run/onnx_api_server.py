@@ -82,8 +82,8 @@ def load_vocab() -> Dict[str, int]:
                         vocab_dict[word] = i
             logger.info(f"✅ Vocabulary loaded from file: {len(vocab)} words")
         else:
-            vocab_dict = SIMPLE_VOCAB.copy()()
-            logger.info(f"✅ Using simple vocabulary: {len(vocab)} words")
+            vocab_dict = SIMPLE_VOCAB.copy()
+            logger.info(f"✅ Using simple vocabulary: {len(vocab_dict)} words")
         return vocab_dict
     except Exception as e:
         logger.error(f"❌ Failed to load vocabulary: {e}")
