@@ -21,6 +21,12 @@ from pathlib import Path
 from security_headers import add_security_headers
 from rate_limiter import rate_limit
 
+# Import shared model utilities
+from model_utils import (
+    ensure_model_loaded, predict_emotions, get_model_status,
+    validate_text_input, MAX_TEXT_LENGTH
+)
+
 # Configure logging for Cloud Run
 logging.basicConfig(
     level=logging.INFO,
@@ -87,108 +93,27 @@ def sanitize_input(text: str) -> str:
     return text.strip()
 
 def load_model():
-    """Load the emotion detection model"""
-    global model_loaded, model_loading, tokenizer, model, emotion_mapping
-
-    with model_lock:
-        # Check if already loading or loaded inside the lock to prevent race conditions
-        if model_loading or model_loaded:
-            return
-        
-        # Set loading flag inside the lock to prevent race conditions
-        model_loading = True
-
-    try:
-        # Get model path
-        model_path = Path(MODEL_PATH)
-        logger.info(f"📁 Loading model from: {model_path}")
-
-        # Check if model files exist
-        if not model_path.exists():
-            raise FileNotFoundError(f"Model directory not found: {model_path}")
-
-        # Load tokenizer and model from the same local path
-        logger.info("📥 Loading tokenizer...")
-        tokenizer = AutoTokenizer.from_pretrained(str(model_path))
-
-        logger.info("📥 Loading model (this may take a few minutes)...")
-        # Add timeout for model loading (5 minutes)
-        model = AutoModelForSequenceClassification.from_pretrained(
-            str(model_path),
-            torch_dtype=torch.float32,  # Use float32 for better compatibility
-            low_cpu_mem_usage=True      # Reduce memory usage during loading
-        )
-
-        # Set device (CPU for Cloud Run)
-        device = torch.device('cpu')
-        model.to(device)
-        model.eval()
-
-        emotion_mapping = EMOTION_MAPPING
-        
-        with model_lock:
-            model_loaded = True
-            model_loading = False
-
-        logger.info(f"✅ Model loaded successfully on {device}")
-        logger.info(f"🎯 Supported emotions: {emotion_mapping}")
-
-    except Exception as e:
-        with model_lock:
-            model_loading = False
-        logger.exception(f"❌ Failed to load model: {str(e)}")
-        logger.error(f"Model path: {MODEL_PATH}")
-        logger.error(f"Current working directory: {os.getcwd()}")
-        logger.error(f"Model path exists: {Path(MODEL_PATH).exists()}")
-        if Path(MODEL_PATH).exists():
-            logger.error(f"Model path contents: {list(Path(MODEL_PATH).iterdir())}")
-    finally:
-        with model_lock:
-            model_loading = False
+    """Load the emotion detection model using shared utilities"""
+    # Use the shared model loading function
+    success = ensure_model_loaded()
+    if not success:
+        logger.error("❌ Model loading failed")
+        raise RuntimeError("Model loading failed - check logs for details")
 
 def predict_emotion(text: str) -> dict:
-    """Predict emotion for given text"""
-    if not model_loaded:
-        raise RuntimeError("Model not loaded")
+    """Predict emotion for given text using shared utilities"""
+    # Use shared prediction function
+    result = predict_emotions(text)
+    
+    # Add request ID for tracking
+    result['request_id'] = str(uuid.uuid4())
+    
+    return result
 
-    # Sanitize input
-    text = sanitize_input(text)
-
-    if not text:
-        raise ValueError("Input text cannot be empty")
-
-    # Tokenize
-    inputs = tokenizer(
-        text,
-        truncation=True,
-        padding=True,
-        max_length=512,
-        return_tensors="pt"
-    )
-
-    # Predict
-    with torch.no_grad():
-        outputs = model(**inputs)
-        probabilities = torch.softmax(outputs.logits, dim=1)
-        predicted_class = torch.argmax(probabilities, dim=1).item()
-        confidence = probabilities[0][predicted_class].item()
-
-    return {
-        'text': text,
-        'emotion': emotion_mapping[predicted_class],
-        'confidence': confidence,
-        'request_id': str(uuid.uuid4())
-    }
-
-def ensure_model_loaded():
+def check_model_loaded():
     """Ensure model is loaded before processing requests"""
-    if not model_loaded and not model_loading:
-        logger.info("🔄 Model not loaded, attempting to load...")
-        load_model()
-
-    if not model_loaded:
-        logger.error("❌ Model failed to load after attempt")
-        raise RuntimeError("Model failed to load - please check logs for details")
+    # Use shared model loading function
+    return ensure_model_loaded()
 
 def create_error_response(message: str, status_code: int = 500) -> tuple:
     """Create standardized error response"""
@@ -249,7 +174,7 @@ def predict():
     """Predict emotion for given text"""
     try:
         # Ensure model is loaded
-        ensure_model_loaded()
+        check_model_loaded()
 
         # Content-type validation
         if not request.is_json:
@@ -264,8 +189,11 @@ def predict():
             return create_error_response('No JSON data provided', 400)
 
         text = data.get('text', '')
-        if not text:
-            return create_error_response('No text provided', 400)
+        
+        # Use shared validation
+        is_valid, error_message = validate_text_input(text)
+        if not is_valid:
+            return create_error_response(error_message, 400)
 
         # Make prediction
         result = predict_emotion(text)
@@ -281,7 +209,7 @@ def predict_batch():
     """Predict emotions for multiple texts"""
     try:
         # Ensure model is loaded
-        ensure_model_loaded()
+        check_model_loaded()
 
         # Content-type validation
         if not request.is_json:
@@ -327,13 +255,10 @@ def get_emotions():
 @require_api_key
 def model_status():
     """Get detailed model status (admin only)"""
-    return jsonify({
-        'model_loaded': model_loaded,
-        'model_loading': model_loading,
-        'emotions': EMOTION_MAPPING if model_loaded else [],
-        'device': 'cpu',
-        'timestamp': time.time()
-    })
+    # Use shared model status function
+    status = get_model_status()
+    status['device'] = 'cpu'
+    return jsonify(status)
 
 @app.route('/security_status', methods=['GET'])
 @require_api_key
