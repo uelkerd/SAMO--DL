@@ -26,10 +26,11 @@ def check_model_health():
         print(f"❌ Health check error: {e}")
         return False
 
-    # Test emotions endpoint
+    # Test emotions from main endpoint
     try:
-        data = client.get("/emotions")
-        print(f"✅ Emotions: {data.get('count')} emotions available")
+        data = client.get("/")
+        emotions_count = data.get('emotions_supported', 0)
+        print(f"✅ Emotions: {emotions_count} emotions available")
     except requests.exceptions.RequestException as e:
         print(f"❌ Emotions check error: {e}")
         return False
@@ -40,13 +41,15 @@ def check_model_health():
         data = client.post("/predict", payload)
         
         # Handle confidence formatting with null checks
-        confidence = data.get('confidence')
+        primary_emotion = data.get('primary_emotion', {})
+        emotion = primary_emotion.get('emotion', 'Unknown')
+        confidence = primary_emotion.get('confidence')
         if confidence is not None:
             confidence_str = f"{confidence:.3f}"
         else:
             confidence_str = "N/A"
         
-        print(f"✅ Prediction: {data.get('emotion')} (confidence: {confidence_str})")
+        print(f"✅ Prediction: {emotion} (confidence: {confidence_str})")
         return True
         
     except requests.exceptions.RequestException as e:
