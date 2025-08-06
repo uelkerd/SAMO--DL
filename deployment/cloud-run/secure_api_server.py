@@ -11,6 +11,7 @@ import logging
 import uuid
 import threading
 import hmac
+import signal
 from flask import Flask, request, jsonify, g
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -87,12 +88,15 @@ def sanitize_input(text: str) -> str:
 
 def load_model():
     """Load the emotion detection model"""
+    global model_loaded, model_loading, tokenizer, model, emotion_mapping
+
     with model_lock:
+        # Check if already loading or loaded inside the lock to prevent race conditions
         if model_loading or model_loaded:
             return
-
-    model_loading = True
-    logger.info("🔄 Starting model loading...")
+        
+        # Set loading flag inside the lock to prevent race conditions
+        model_loading = True
 
     try:
         # Get model path
@@ -103,12 +107,17 @@ def load_model():
         if not model_path.exists():
             raise FileNotFoundError(f"Model directory not found: {model_path}")
 
-        # Load tokenizer and model
+        # Load tokenizer and model from the same local path
         logger.info("📥 Loading tokenizer...")
-        tokenizer = AutoTokenizer.from_pretrained("roberta-base")
+        tokenizer = AutoTokenizer.from_pretrained(str(model_path))
 
-        logger.info("📥 Loading model...")
-        model = AutoModelForSequenceClassification.from_pretrained(str(model_path))
+        logger.info("📥 Loading model (this may take a few minutes)...")
+        # Add timeout for model loading (5 minutes)
+        model = AutoModelForSequenceClassification.from_pretrained(
+            str(model_path),
+            torch_dtype=torch.float32,  # Use float32 for better compatibility
+            low_cpu_mem_usage=True      # Reduce memory usage during loading
+        )
 
         # Set device (CPU for Cloud Run)
         device = torch.device('cpu')
@@ -116,17 +125,26 @@ def load_model():
         model.eval()
 
         emotion_mapping = EMOTION_MAPPING
-        model_loaded = True
-        model_loading = False
+        
+        with model_lock:
+            model_loaded = True
+            model_loading = False
 
         logger.info(f"✅ Model loaded successfully on {device}")
         logger.info(f"🎯 Supported emotions: {emotion_mapping}")
 
-    except Exception:
-        model_loading = False
-        logger.exception("❌ Failed to load model")
+    except Exception as e:
+        with model_lock:
+            model_loading = False
+        logger.exception(f"❌ Failed to load model: {str(e)}")
+        logger.error(f"Model path: {MODEL_PATH}")
+        logger.error(f"Current working directory: {os.getcwd()}")
+        logger.error(f"Model path exists: {Path(MODEL_PATH).exists()}")
+        if Path(MODEL_PATH).exists():
+            logger.error(f"Model path contents: {list(Path(MODEL_PATH).iterdir())}")
     finally:
-        model_loading = False
+        with model_lock:
+            model_loading = False
 
 def predict_emotion(text: str) -> dict:
     """Predict emotion for given text"""
@@ -165,10 +183,12 @@ def predict_emotion(text: str) -> dict:
 def ensure_model_loaded():
     """Ensure model is loaded before processing requests"""
     if not model_loaded and not model_loading:
+        logger.info("🔄 Model not loaded, attempting to load...")
         load_model()
 
     if not model_loaded:
-        raise RuntimeError("Model failed to load")
+        logger.error("❌ Model failed to load after attempt")
+        raise RuntimeError("Model failed to load - please check logs for details")
 
 def create_error_response(message: str, status_code: int = 500) -> tuple:
     """Create standardized error response"""
