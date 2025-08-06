@@ -102,7 +102,13 @@ def cpu_device():
 @pytest.fixture
 def api_client():
     """Provide FastAPI test client."""
-    return TestClient(app)
+    client = TestClient(app)
+    
+    # Reset rate limiter state before each test
+    if hasattr(app.state, 'rate_limiter'):
+        app.state.rate_limiter.reset_state()
+    
+    return client
 
 
 def pytest_configure(config):

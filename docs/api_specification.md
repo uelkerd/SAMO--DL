@@ -24,7 +24,7 @@ curl -X POST "https://api.samo.ai/v1/emotions/analyze" \
 ```bash
 curl -X POST "https://api.samo.ai/v1/emotions/analyze" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE" \
   -d '{"text": "I feel so happy about this achievement!"}'
 ```
 
