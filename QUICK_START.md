@@ -54,7 +54,7 @@ print(f"Confidence: {result['primary_emotion']['confidence']:.3f}")
 
 ### **Supported Emotions**
 1. **anxious** - Worry, nervousness, concern
-2. **calm** - Peaceful, relaxed, tranquil  
+2. **calm** - Peaceful, relaxed, tranquil
 3. **content** - Satisfied, pleased, fulfilled
 4. **excited** - Enthusiastic, thrilled, eager
 5. **frustrated** - Annoyed, irritated, exasperated
@@ -72,7 +72,7 @@ print(f"Confidence: {result['primary_emotion']['confidence']:.3f}")
 
 ### **1. Clone Repository**
 ```bash
-git clone https://github.com/your-username/SAMO--DL.git
+git clone https://github.com/uelkerd/SAMO--DL.git
 cd SAMO--DL
 ```
 
