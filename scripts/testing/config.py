@@ -21,18 +21,26 @@ class TestConfig:
 
     @staticmethod
     def _get_base_url() -> str:
-        """Get base URL with priority: CLI args > env vars > default."""
+        """Get base URL with priority: CLI args > env vars > explicit configuration."""
         # Check command line arguments first
         if len(os.sys.argv) > 1 and os.sys.argv[1].startswith('http'):
             return os.sys.argv[1]
 
-        # Check environment variables
-        env_url = os.environ.get("API_BASE_URL") or os.environ.get("MODEL_API_BASE_URL")
+        # Check multiple environment variables for flexibility
+        env_url = (os.environ.get("API_BASE_URL") or 
+                  os.environ.get("CLOUD_RUN_API_URL") or 
+                  os.environ.get("MODEL_API_BASE_URL"))
         if env_url:
             return env_url
 
-        # Default URL - use the same as test_config.py for consistency
-        return "https://samo-emotion-api-minimal-71517823771.us-central1.run.app"
+        # If no URL is provided, raise an error to force explicit configuration
+        raise ValueError(
+            "No API base URL provided. Please set one of:\n"
+            "  - API_BASE_URL environment variable\n"
+            "  - CLOUD_RUN_API_URL environment variable\n"
+            "  - MODEL_API_BASE_URL environment variable\n"
+            "  - Command line argument (first positional argument)"
+        )
 
     @staticmethod
     def _get_api_key() -> str:
