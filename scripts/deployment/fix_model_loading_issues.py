@@ -6,7 +6,6 @@ Comprehensive fix for Cloud Run deployment model loading problems.
 
 import os
 import sys
-import subprocess
 import time
 from pathlib import Path
 
@@ -74,8 +73,8 @@ def optimize_model_loading():
     print("   - low_cpu_mem_usage=True for memory efficiency")
     print("   - Better logging during loading process")
 
-def update_cloud_run_config():
-    """Update Cloud Run configuration for better model loading"""
+def check_cloud_run_config():
+    """Check Cloud Run configuration for better model loading"""
     print("\n🔧 Updating Cloud Run Configuration")
     print("=" * 40)
     
@@ -118,17 +117,17 @@ import sys
 import time
 import requests
 import json
+import argparse
 
-def check_model_health():
+def check_model_health(base_url):
     \"\"\"Check model health status\"\"\"
-    base_url = "https://samo-emotion-api-optimized-secure-71517823771.us-central1.run.app"
-    
     print("🔍 Model Health Check")
     print("=" * 30)
+    print(f"Checking service at: {base_url}")
     
     # Test health endpoint
     try:
-        response = requests.get(f"{base_url}/", timeout=10)
+        response = requests.get(f"{base_url}/health", timeout=10)
         if response.status_code == 200:
             data = response.json()
             print(f"✅ Health: {data.get('status')}")
@@ -139,26 +138,13 @@ def check_model_health():
         print(f"❌ Health check error: {e}")
         return False
     
-    # Test emotions endpoint
-    try:
-        response = requests.get(f"{base_url}/emotions", timeout=10)
-        if response.status_code == 200:
-            data = response.json()
-            print(f"✅ Emotions: {data.get('count')} emotions available")
-        else:
-            print(f"❌ Emotions failed: {response.status_code}")
-            return False
-    except Exception as e:
-        print(f"❌ Emotions check error: {e}")
-        return False
-    
     # Test prediction endpoint
     try:
         payload = {"text": "I am happy"}
         response = requests.post(f"{base_url}/predict", json=payload, timeout=30)
         if response.status_code == 200:
             data = response.json()
-            print(f"✅ Prediction: {data.get('emotion')} (confidence: {data.get('confidence'):.3f})")
+            print(f"✅ Prediction: {data.get('primary_emotion', {}).get('emotion')} (confidence: {data.get('primary_emotion', {}).get('confidence', 0):.3f})")
             return True
         else:
             print(f"❌ Prediction failed: {response.status_code}")
@@ -169,7 +155,13 @@ def check_model_health():
         return False
 
 if __name__ == "__main__":
-    success = check_model_health()
+    parser = argparse.ArgumentParser(description="Check model health status")
+    parser.add_argument("--base-url", 
+                       default="https://samo-emotion-api-minimal-71517823771.us-central1.run.app",
+                       help="Base URL of the service to check")
+    args = parser.parse_args()
+    
+    success = check_model_health(args.base_url)
     sys.exit(0 if success else 1)
 """
     
