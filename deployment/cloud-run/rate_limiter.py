@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Rate Limiter for Flask API"""
+"""
+Rate Limiter for Flask API
+"""
 
 import time
 import threading
 from collections import defaultdict, deque
-from flask import request, jsonify
+from flask import Flask, request, jsonify, g
 from functools import wraps
 
 class RateLimiter:
@@ -19,7 +21,7 @@ class RateLimiter:
 
         with self.lock:
             # Clean old requests (older than 1 minute)
-            while (self.requests[client_id] and 
+            while (self.requests[client_id] and
                    current_time - self.requests[client_id][0] > 60):
                 self.requests[client_id].popleft()
 
@@ -30,8 +32,7 @@ class RateLimiter:
 
             return False
 
-    @staticmethod
-    def get_client_id(request) -> str:
+    def get_client_id(self, request) -> str:
         """Get client identifier"""
         # Try API key first
         api_key = request.headers.get('X-API-Key')
@@ -49,13 +50,13 @@ def rate_limit(requests_per_minute: int = 100):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             client_id = limiter.get_client_id(request)
-
+            
             if not limiter.is_allowed(client_id):
                 return jsonify({
                     'error': 'Rate limit exceeded',
-                    'message': f'Maximum {requests_per_minute} requests per minute'
+                    'retry_after': 60
                 }), 429
-
+            
             return f(*args, **kwargs)
         return decorated_function
     return decorator

@@ -20,16 +20,16 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean
 
 # Copy secure requirements first for better caching
-COPY deployment/cloud-run/requirements_secure.txt .
+COPY requirements_secure.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements_secure.txt
 
 # Copy application code
-COPY deployment/cloud-run/secure_api_server.py .
-COPY deployment/cloud-run/security_headers.py .
-COPY deployment/cloud-run/rate_limiter.py .
-COPY deployment/cloud-run/model/ ./model/
+COPY secure_api_server.py .
+COPY security_headers.py .
+COPY rate_limiter.py .
+COPY model/ ./model/
 
 # Create non-root user for security (Cloud Run best practice)
 RUN useradd -m -u 1000 appuser && \
