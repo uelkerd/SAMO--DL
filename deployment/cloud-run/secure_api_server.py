@@ -87,7 +87,6 @@ def sanitize_input(text: str) -> str:
 
 def load_model():
     """Load the emotion detection model"""
-
     with model_lock:
         if model_loading or model_loaded:
             return
@@ -131,7 +130,6 @@ def load_model():
 
 def predict_emotion(text: str) -> dict:
     """Predict emotion for given text"""
-
     if not model_loaded:
         raise RuntimeError("Model not loaded")
 
