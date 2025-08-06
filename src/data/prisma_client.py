@@ -25,7 +25,7 @@ class PrismaClient:
     """
 
     @staticmethod
-    def execute_prisma_command(script: str) -> dict[str, Any]:
+    def execute_prisma_command(script: str) -> Dict[str, Any]:
         """Execute a Node.js script that uses Prisma client.
 
         Args:
@@ -79,7 +79,7 @@ main();
 
     def create_user(
         self, email: str, password_hash: str, consent_version: Optional[str] = None
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Create a new user.
 
         Args:
@@ -106,7 +106,7 @@ main();
 
     def create_journal_entry(
         self, user_id: str, title: str, content: str, is_private: bool = True
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Create a new journal entry.
 
         Args:
@@ -137,7 +137,7 @@ main();
 
         return self.execute_prisma_command(script)
 
-    def get_user_by_email(self, email: str) -> Optional[dict[str, Any]]:
+    def get_user_by_email(self, email: str) -> Optional[Dict[str, Any]]:
         """Get a user by email.
 
         Args:
@@ -156,7 +156,7 @@ main();
         result = self.execute_prisma_command(script)
         return result if result else None
 
-    def get_journal_entries_by_user(self, user_id: str, limit: int = 10) -> list[dict[str, Any]]:
+    def get_journal_entries_by_user(self, user_id: str, limit: int = 10) -> List[Dict[str, Any]]:
         """Get journal entries for a specific user.
 
         Args:

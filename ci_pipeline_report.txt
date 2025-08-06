@@ -4,26 +4,26 @@
 
 📊 SUMMARY:
 - Total Tests: 12
-- Passed: 11
-- Failed: 1
-- Success Rate: 91.7%
+- Passed: 8
+- Failed: 4
+- Success Rate: 66.7%
 
 🔍 DETAILED RESULTS:
-- environment: {'platform': 'darwin', 'python_version': '3.11.13 (main, Jun  5 2025, 08:14:07) [Clang 14.0.6 ]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'samo-dl-stable'}
+- environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
 - dependencies: ✅ PASSED
 - api_health_check: ✅ PASSED
 - bert_model_test: ✅ PASSED
 - t5_summarization_test: ✅ PASSED
-- whisper_transcription_test: ✅ PASSED
+- whisper_transcription_test: ❌ FAILED
 - model_calibration_test: ✅ PASSED
 - onnx_conversion_test: ✅ PASSED
-- unit_tests: ✅ PASSED
-- e2e_tests: ✅ PASSED
+- unit_tests: ❌ FAILED
+- e2e_tests: ❌ FAILED
 - gpu_compatibility: ✅ PASSED
 - performance: ✅ PASSED
 
-⏱️ EXECUTION TIME: 42.3s
+⏱️ EXECUTION TIME: 45.6s
 
 🎯 RECOMMENDATIONS:
-⚠️ Failed tests: 
+⚠️ Failed tests: whisper_transcription_test, unit_tests, e2e_tests
 🔧 Please fix the failed tests before deployment.

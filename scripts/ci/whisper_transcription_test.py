@@ -54,12 +54,18 @@ def test_whisper_imports():
         logger.info("🔍 Testing Whisper imports...")
 
         # Test imports - just verify they can be imported
-        import src.models.voice_processing.audio_preprocessor
-        import src.models.voice_processing.whisper_transcriber
+        try:
+            import models.voice_processing.audio_preprocessor
+            import models.voice_processing.whisper_transcriber
+            models_module = models
+        except ImportError:
+            import src.models.voice_processing.audio_preprocessor
+            import src.models.voice_processing.whisper_transcriber
+            models_module = src.models
         
         # Verify modules exist
-        assert hasattr(models.voice_processing, 'audio_preprocessor')
-        assert hasattr(models.voice_processing, 'whisper_transcriber')
+        assert hasattr(models_module.voice_processing, 'audio_preprocessor')
+        assert hasattr(models_module.voice_processing, 'whisper_transcriber')
 
         logger.info("✅ Whisper imports successful")
         return True
