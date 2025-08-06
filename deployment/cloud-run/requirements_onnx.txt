@@ -1,0 +1,32 @@
+# ONNX-Based Deployment Requirements - Zero PyTorch Dependencies
+# All versions verified for security and Python 3.9 compatibility
+
+# Web framework
+flask==3.1.1
+
+# ONNX Runtime - replaces PyTorch completely
+onnxruntime==1.18.0
+
+# Tokenizer only - no full transformers
+tokenizers==0.19.1
+
+# Core ML libraries
+numpy==1.26.0
+scikit-learn==1.5.0
+
+# WSGI server
+gunicorn==23.0.0
+
+# Security libraries
+cryptography==42.0.0
+bcrypt==4.2.0
+
+# Rate limiting
+redis==5.2.0
+
+# Monitoring
+psutil==5.9.6
+prometheus-client==0.19.0
+
+# HTTP requests
+requests==2.31.0 
