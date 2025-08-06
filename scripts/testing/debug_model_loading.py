@@ -39,7 +39,7 @@ def debug_model_loading():
         print(f"   ✅ Security Status: {json.dumps(data, indent=2)}")
     except requests.exceptions.RequestException as e:
         print(f"   ❌ Security status error: {e}")
-    
+
     # Test prediction with detailed error analysis
     print("\n3. Testing prediction with error analysis...")
     try:
@@ -71,7 +71,7 @@ def debug_model_loading():
         {"text": ""},  # Empty text
         {"invalid": "field"},  # Invalid payload
     ]
-    
+
     for i, test_case in enumerate(test_cases):
         print(f"   Test case {i+1}: {test_case}")
         try:
@@ -84,4 +84,4 @@ def debug_model_loading():
 
 
 if __name__ == "__main__":
-    debug_model_loading() 
+    debug_model_loading()
