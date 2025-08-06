@@ -116,7 +116,7 @@ class EmotionDetectionTrainer:
 
         logger.info("Initialized EmotionDetectionTrainer")
 
-    def prepare_data(self, dev_mode: bool = False) -> dict[str, Any]:
+    def prepare_data(self, dev_mode: bool = False) -> Dict[str, Any]:
         """Prepare GoEmotions dataset for training.
 
         Args:
@@ -267,7 +267,7 @@ class EmotionDetectionTrainer:
 
         logger.info("✅ Model loaded successfully")
 
-    def train_epoch(self, epoch: int) -> dict[str, float]:
+    def train_epoch(self, epoch: int) -> Dict[str, float]:
         """Train model for one epoch.
 
         Args:
@@ -436,7 +436,7 @@ class EmotionDetectionTrainer:
 
         return metrics
 
-    def validate(self, epoch: int) -> dict[str, float]:
+    def validate(self, epoch: int) -> Dict[str, float]:
         """Validate model performance.
 
         Args:
@@ -473,7 +473,7 @@ class EmotionDetectionTrainer:
         """Check if training should stop early."""
         return self.patience_counter >= self.early_stopping_patience
 
-    def save_checkpoint(self, epoch: int, metrics: dict[str, float], is_best: bool = False) -> None:
+    def save_checkpoint(self, epoch: int, metrics: Dict[str, float], is_best: bool = False) -> None:
         """Save model checkpoint.
 
         Args:
@@ -504,7 +504,7 @@ class EmotionDetectionTrainer:
         torch.save(checkpoint, checkpoint_path)
         logger.info("Checkpoint saved: {checkpoint_path}")
 
-    def train(self) -> dict[str, Any]:
+    def train(self) -> Dict[str, Any]:
         """Complete training pipeline.
 
         Returns:
@@ -605,7 +605,7 @@ def train_emotion_detection_model(
     device: Optional[str] = None,
     dev_mode: bool = True,  # Enable development mode by default
     debug_mode: bool = True,  # Enable debugging by default
-) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
     """Convenient function to train emotion detection model with default settings.
 
     Args:

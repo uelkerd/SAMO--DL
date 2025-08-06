@@ -75,9 +75,17 @@ class DataValidator:
 
             actual_type = df[column].dtype
 
-            if (expected_type in (int, float) and pd.api.types.is_numeric_dtype(actual_type)) or (
-                expected_type is str and pd.api.types.is_string_dtype(actual_type)
-            ):
+            # Handle numeric types
+            if expected_type in (int, float) and pd.api.types.is_numeric_dtype(actual_type):
+                type_check_results[column] = True
+            # Handle string types
+            elif expected_type is str and pd.api.types.is_string_dtype(actual_type):
+                type_check_results[column] = True
+            # Handle datetime types
+            elif expected_type is pd.Timestamp and pd.api.types.is_datetime64_any_dtype(actual_type):
+                type_check_results[column] = True
+            # Handle boolean types
+            elif expected_type is bool and pd.api.types.is_bool_dtype(actual_type):
                 type_check_results[column] = True
             else:
                 is_match = actual_type == expected_type
@@ -135,8 +143,8 @@ class DataValidator:
         self,
         df: pd.DataFrame,
         required_columns: Optional[List[str]] = None,
-        expected_types: Optional[dict[str, type]] = None,
-    ) -> dict[str, Union[bool, pd.DataFrame, dict]]:
+        expected_types: Optional[Dict[str, type]] = None,
+    ) -> Dict[str, Union[bool, pd.DataFrame, dict]]:
         """Perform comprehensive validation on journal entries DataFrame.
 
         Args:
@@ -201,7 +209,7 @@ class DataValidator:
         }
 
 
-def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 10000) -> dict[str, Union[bool, str]]:
+def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 10000) -> Dict[str, Union[bool, str]]:
     """Validate text input for journal entries.
 
     Args:
