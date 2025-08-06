@@ -10,6 +10,7 @@ import time
 import logging
 import uuid
 import threading
+import hashlib
 import hmac
 from flask import Flask, request, jsonify, g
 import torch
@@ -32,12 +33,14 @@ app = Flask(__name__)
 # Add security headers
 add_security_headers(app)
 
-# Security configuration
-ADMIN_API_KEY = os.environ.get('ADMIN_API_KEY')
+# Security configuration from environment variables
+ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY")
 if not ADMIN_API_KEY:
-    logger.warning("ADMIN_API_KEY environment variable is not set. API authentication will fail.")
-MAX_INPUT_LENGTH = 512
-RATE_LIMIT_PER_MINUTE = 100
+    raise ValueError("ADMIN_API_KEY environment variable must be set")
+MAX_INPUT_LENGTH = int(os.environ.get("MAX_INPUT_LENGTH", "512"))
+RATE_LIMIT_PER_MINUTE = int(os.environ.get("RATE_LIMIT_PER_MINUTE", "100"))
+MODEL_PATH = os.environ.get("MODEL_PATH", "/app/model")
+PORT = int(os.environ.get("PORT", "8080"))
 
 # Global variables for model state (thread-safe with locks)
 model = None
@@ -67,83 +70,77 @@ def require_api_key(f):
         return f(*args, **kwargs)
     return decorated_function
 
-import html
-
 def sanitize_input(text: str) -> str:
-    """
-    Sanitize input text for safe processing.
-
-    - Ensures input is a string.
-    - Escapes HTML special characters to prevent injection if rendered in HTML.
-    - Trims whitespace and limits length.
-    """
+    """Sanitize input text"""
     if not isinstance(text, str):
         raise ValueError("Input must be a string")
-
-    # Escape HTML special characters (prevents HTML/script injection)
-    sanitized = html.escape(text)
-
+    
+    # Remove potentially dangerous characters
+    dangerous_chars = ['<', '>', '"', "'", '&', ';', '|', '`', '$', '(', ')', '{{', '}}']
+    for char in dangerous_chars:
+        text = text.replace(char, '')
+    
     # Limit length
-    if len(sanitized) > MAX_INPUT_LENGTH:
-        sanitized = sanitized[:MAX_INPUT_LENGTH]
-
-    return sanitized.strip()
+    if len(text) > MAX_INPUT_LENGTH:
+        text = text[:MAX_INPUT_LENGTH]
+    
+    return text.strip()
 
 def load_model():
     """Load the emotion detection model"""
-
+    global model, tokenizer, emotion_mapping, model_loading, model_loaded, model_lock
+    
     with model_lock:
         if model_loading or model_loaded:
             return
-        model_loading = True
-
+    
+    model_loading = True
     logger.info("🔄 Starting model loading...")
-
+    
     try:
         # Get model path
-        model_path = Path("/app/model")
-        logger.info(f"Loading model from: {model_path}")
-
+        model_path = Path(MODEL_PATH)
+        logger.info(f"📁 Loading model from: {model_path}")
+        
         # Check if model files exist
         if not model_path.exists():
             raise FileNotFoundError(f"Model directory not found: {model_path}")
         
-        # Load tokenizer and model from local path
-        logger.info("Loading tokenizer...")
-        tokenizer = AutoTokenizer.from_pretrained(str(model_path))
+        # Load tokenizer and model
+        logger.info("📥 Loading tokenizer...")
+        tokenizer = AutoTokenizer.from_pretrained("roberta-base")
         
-        logger.info("Loading model...")
+        logger.info("📥 Loading model...")
         model = AutoModelForSequenceClassification.from_pretrained(str(model_path))
-
+        
         # Set device (CPU for Cloud Run)
         device = torch.device('cpu')
         model.to(device)
         model.eval()
-
+        
         emotion_mapping = EMOTION_MAPPING
-
-        with model_lock:
-            model_loaded = True
-            model_loading = False
-
-        logger.info(f"Model loaded successfully on {device}")
-        logger.info(f"Supported emotions: {emotion_mapping}")
-
+        model_loaded = True
+        model_loading = False
+        
+        logger.info(f"✅ Model loaded successfully on {device}")
+        logger.info(f"🎯 Supported emotions: {emotion_mapping}")
+        
     except Exception:
-        with model_lock:
-            model_loading = False
-        logger.exception("Failed to load model")
+        model_loading = False
+        logger.exception("❌ Failed to load model")
+    finally:
+        model_loading = False
 
 def predict_emotion(text: str) -> dict:
     """Predict emotion for given text"""
-
-    with model_lock:
-        if not model_loaded:
-            raise RuntimeError("Model not loaded")
+    global model, tokenizer, emotion_mapping
+    
+    if not model_loaded:
+        raise RuntimeError("Model not loaded")
 
     # Sanitize input
     text = sanitize_input(text)
-
+    
     if not text:
         raise ValueError("Input text cannot be empty")
 
@@ -155,14 +152,14 @@ def predict_emotion(text: str) -> dict:
         max_length=512,
         return_tensors="pt"
     )
-
+    
     # Predict
     with torch.no_grad():
         outputs = model(**inputs)
         probabilities = torch.softmax(outputs.logits, dim=1)
         predicted_class = torch.argmax(probabilities, dim=1).item()
         confidence = probabilities[0][predicted_class].item()
-
+    
     return {
         'text': text,
         'emotion': emotion_mapping[predicted_class],
@@ -174,7 +171,7 @@ def ensure_model_loaded():
     """Ensure model is loaded before processing requests"""
     if not model_loaded and not model_loading:
         load_model()
-
+    
     if not model_loaded:
         raise RuntimeError("Model failed to load")
 
@@ -192,7 +189,7 @@ def before_request():
     """Add request ID and timing to all requests"""
     g.request_id = str(uuid.uuid4())
     g.start_time = time.time()
-
+    
     # Log request
     logger.info(f"Request {g.request_id}: {request.method} {request.path} from {request.remote_addr}")
 
@@ -202,10 +199,10 @@ def after_request(response):
     if hasattr(g, 'start_time'):
         duration = time.time() - g.start_time
         response.headers['X-Request-Duration'] = str(duration)
-
+    
     if hasattr(g, 'request_id'):
         response.headers['X-Request-ID'] = g.request_id
-
+    
     return response
 
 @app.route('/', methods=['GET'])
@@ -227,7 +224,7 @@ def health_check():
         'status': 'healthy',
         'model_loaded': model_loaded,
         'model_loading': model_loading,
-        'port': os.environ.get('PORT', '8080'),
+        'port': PORT,
         'timestamp': time.time()
     })
 
@@ -238,27 +235,27 @@ def predict():
     try:
         # Ensure model is loaded
         ensure_model_loaded()
-
+        
         # Content-type validation
         if not request.is_json:
             return create_error_response('Content-Type must be application/json', 400)
-
+        
         try:
             data = request.get_json()
         except Exception:
             return create_error_response('Invalid JSON data', 400)
-
+            
         if not data:
             return create_error_response('No JSON data provided', 400)
-
+        
         text = data.get('text', '')
         if not text:
             return create_error_response('No text provided', 400)
-
+        
         # Make prediction
         result = predict_emotion(text)
         return jsonify(result)
-
+    
     except Exception as e:
         logger.exception(f"Prediction error: {e}")
         return create_error_response('Prediction processing failed. Please try again later.')
@@ -270,35 +267,35 @@ def predict_batch():
     try:
         # Ensure model is loaded
         ensure_model_loaded()
-
+        
         # Content-type validation
         if not request.is_json:
             return create_error_response('Content-Type must be application/json', 400)
-
+        
         try:
             data = request.get_json()
         except Exception:
             return create_error_response('Invalid JSON data', 400)
-
+            
         if not data:
             return create_error_response('No JSON data provided', 400)
-
+        
         texts = data.get('texts', [])
         if not texts:
             return create_error_response('No texts provided', 400)
-
+        
         # Limit batch size for security
         if len(texts) > 10:
             return create_error_response('Batch size too large (max 10)', 400)
-
+        
         # Make predictions
         results = []
         for text in texts:
             result = predict_emotion(text)
             results.append(result)
-
+        
         return jsonify({'results': results})
-
+    
     except Exception as e:
         logger.exception(f"Batch prediction error: {e}")
         return create_error_response('Batch prediction processing failed. Please try again later.')
@@ -348,4 +345,4 @@ def initialize_model():
 initialize_model()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=False)
+    app.run(host='0.0.0.0', port=PORT, debug=False)
