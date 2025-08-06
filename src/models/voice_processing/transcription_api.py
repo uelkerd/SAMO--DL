@@ -14,7 +14,7 @@
 from .audio_preprocessor import AudioPreprocessor
 from .whisper_transcriber import create_whisper_transcriber
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Union, List
 import jiwer
 import logging
 import time
@@ -134,10 +134,10 @@ class TranscriptionAPI:
 
     def transcribe_batch(
         self,
-        audio_paths: list[Union[str, Path]],
+        audio_paths: List[Union[str, Path]],
         language: Optional[str] = None,
         initial_prompt: Optional[str] = None,
-    ) -> list[dict]:
+    ) -> List[dict]:
         """Transcribe multiple audio files.
 
         Args:
