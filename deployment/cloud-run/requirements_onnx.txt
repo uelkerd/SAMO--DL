@@ -1,17 +1,15 @@
-# ONNX-Based Deployment Requirements - Zero PyTorch Dependencies
-# All versions verified for security and Python 3.9 compatibility
+# Simplified ONNX-Based Deployment Requirements
+# Zero complex dependencies - uses simple string tokenization
+# Compatible with Python 3.8+
 
 # Web framework
-flask==3.1.1
+flask==2.3.3
 
 # ONNX Runtime - replaces PyTorch completely
 onnxruntime==1.18.0
 
-# Tokenizer only - no full transformers
-tokenizers==0.19.1
-
 # Core ML libraries
-numpy==1.26.0
+numpy==1.24.4
 
 # WSGI server
 gunicorn==23.0.0
