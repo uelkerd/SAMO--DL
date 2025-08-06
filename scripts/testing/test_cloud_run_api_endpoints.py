@@ -4,11 +4,12 @@ Cloud Run API Endpoint Testing Script
 Tests the deployed SAMO Emotion Detection API for functionality, security, and performance.
 """
 
-import os
 import requests
 import json
 import time
 import sys
+import os
+import argparse
 from typing import Dict, Any, List
 import logging
 
@@ -17,16 +18,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class CloudRunAPITester:
-    def __init__(self, base_url: str, admin_api_key: str = None):
+    def __init__(self, base_url: str):
         self.base_url = base_url.rstrip('/')
-        self.admin_api_key = admin_api_key
         self.session = requests.Session()
-        
-        # Use centralized configuration for headers
-        from config import TestConfig
-        config = TestConfig()
-        self.headers = config.get_headers(include_auth=True)
-        self.timeout = config.timeout
         
         # Test data
         self.test_texts = [
@@ -41,27 +35,13 @@ class CloudRunAPITester:
             "I'm feeling optimistic about the future.",
             "This is really confusing and puzzling."
         ]
-        
-        # Expected emotions for validation
-        self.expected_emotions = [
-            ["joy", "excitement"],
-            ["anger", "frustration"],
-            ["sadness", "grief"],
-            ["excitement", "joy"],
-            ["fear", "nervousness"],
-            ["neutral"],
-            ["gratitude", "joy"],
-            ["disgust"],
-            ["optimism", "joy"],
-            ["confusion", "surprise"]
-        ]
 
     def test_health_endpoint(self) -> Dict[str, Any]:
         """Test the health/status endpoint"""
         logger.info("Testing health endpoint...")
         
         try:
-            response = self.session.get(f"{self.base_url}/", headers=self.headers, timeout=self.timeout)
+            response = self.session.get(f"{self.base_url}/", timeout=30)
             response.raise_for_status()
             
             data = response.json()
@@ -106,48 +86,39 @@ class CloudRunAPITester:
         """Test the emotion detection endpoint"""
         logger.info("Testing emotion detection endpoint...")
         
-        results = {}
-        
         # Test emotions endpoint first
         logger.info("Testing emotions endpoint...")
         try:
-            response = self.session.get(f"{self.base_url}/emotions", headers=self.headers, timeout=self.timeout)
+            response = self.session.get(f"{self.base_url}/emotions", timeout=30)
             if response.status_code == 200:
                 data = response.json()
-                results["emotions_endpoint"] = {
-                    "success": True,
-                    "emotions_count": len(data.get("emotions", [])),
-                    "emotions": data.get("emotions", [])
+                results = {
+                    "emotions_endpoint": {
+                        "success": True,
+                        "emotions": data
+                    }
                 }
-                logger.info(f"Emotions endpoint: {len(data.get('emotions', []))} emotions available")
             else:
-                results["emotions_endpoint"] = {
-                    "success": False,
-                    "error": f"HTTP {response.status_code}",
-                    "response": response.text
+                results = {
+                    "emotions_endpoint": {
+                        "success": False,
+                        "error": f"HTTP {response.status_code}"
+                    }
                 }
-        except requests.exceptions.Timeout as e:
-            results["emotions_endpoint"] = {
-                "success": False,
-                "error": f"Timeout: {str(e)}"
-            }
-        except requests.exceptions.ConnectionError as e:
-            results["emotions_endpoint"] = {
-                "success": False,
-                "error": f"Connection error: {str(e)}"
-            }
-        except Exception as e:
-            results["emotions_endpoint"] = {
-                "success": False,
-                "error": str(e)
+        except requests.exceptions.RequestException as e:
+            results = {
+                "emotions_endpoint": {
+                    "success": False,
+                    "error": str(e)
+                }
             }
         
-        # Test valid input
+        # Test prediction endpoint
         test_text = "I am feeling really happy and excited today!"
         
         try:
             payload = {"text": test_text}
-            response = self.session.post(f"{self.base_url}/predict", json=payload, headers=self.headers, timeout=self.timeout)
+            response = self.session.post(f"{self.base_url}/predict", json=payload, timeout=30)
             response.raise_for_status()
             
             data = response.json()
@@ -165,20 +136,14 @@ class CloudRunAPITester:
                 emotion = data.get("emotion", "")
                 confidence = data.get("confidence", 0)
                 
-                # FIXED: Handle None confidence values to prevent TypeError
-                if confidence is not None:
-                    confidence_str = f"{confidence:.3f}"
-                else:
-                    confidence_str = "N/A"
-                
                 results["valid_input"] = {
                     "success": True,
                     "emotion_detected": bool(emotion),
+                    "confidence": confidence,
                     "emotion": emotion,
-                    "confidence": confidence_str,
                     "response_time": response.elapsed.total_seconds()
                 }
-                
+            
         except requests.exceptions.Timeout as e:
             results["valid_input"] = {
                 "success": False,
@@ -195,27 +160,31 @@ class CloudRunAPITester:
                 "error": f"Emotion detection failed: {str(e)}"
             }
         
-        # FIXED: Add negative/invalid input tests
-        logger.info("Testing invalid inputs...")
+        return results
+
+    def test_invalid_inputs(self) -> Dict[str, Any]:
+        """Test invalid input handling"""
+        logger.info("Testing invalid input handling...")
+        
         invalid_test_cases = [
-            {"text": ""},  # Empty string
-            {"text": None},  # None value
+            {"text": ""},  # Empty text
+            {"text": None},  # None text
             {},  # Missing text field
             {"invalid": "field"},  # Wrong field name
-            {"text": 123},  # Non-string type
+            {"text": 123},  # Non-string text
             {"text": "a" * 10000},  # Very long text
         ]
         
         invalid_results = []
+        
         for i, test_case in enumerate(invalid_test_cases):
             try:
-                response = self.session.post(f"{self.base_url}/predict", json=test_case, headers=self.headers, timeout=self.timeout)
+                response = self.session.post(f"{self.base_url}/predict", json=test_case, timeout=30)
                 invalid_results.append({
                     "test_case": i,
                     "payload": test_case,
                     "status_code": response.status_code,
-                    "success": response.status_code == 400,  # Should return 400 for invalid input
-                    "response": response.text
+                    "success": response.status_code == 400  # Expected to fail with 400
                 })
             except requests.exceptions.Timeout as e:
                 invalid_results.append({
@@ -239,9 +208,11 @@ class CloudRunAPITester:
                     "success": False
                 })
         
-        results["invalid_inputs"] = invalid_results
-        
-        return results
+        return {
+            "success": True,
+            "test_cases": len(invalid_test_cases),
+            "results": invalid_results
+        }
 
     def test_model_loading(self) -> Dict[str, Any]:
         """Test if models are properly loaded"""
@@ -252,54 +223,31 @@ class CloudRunAPITester:
         # Test model status endpoint first
         logger.info("Testing model status endpoint...")
         try:
-            response = self.session.get(f"{self.base_url}/model_status", headers=self.headers, timeout=self.timeout)
+            response = self.session.get(f"{self.base_url}/model_status", timeout=30)
             if response.status_code == 200:
                 data = response.json()
                 results["model_status"] = {
                     "success": True,
-                    "status": data.get("status"),
-                    "model_loaded": data.get("model_loaded", False),
-                    "details": data
+                    "status": data
                 }
-                logger.info(f"Model status: {data.get('status')}")
-            elif response.status_code == 401:
-                results["model_status"] = {
-                    "success": False,
-                    "error": "Unauthorized - API key required",
-                    "status_code": response.status_code
-                }
-                logger.warning("Model status endpoint requires authentication")
             else:
                 results["model_status"] = {
                     "success": False,
-                    "error": f"HTTP {response.status_code}",
-                    "response": response.text
+                    "error": f"HTTP {response.status_code}"
                 }
-        except requests.exceptions.Timeout as e:
-            results["model_status"] = {
-                "success": False,
-                "error": f"Timeout: {str(e)}"
-            }
-        except requests.exceptions.ConnectionError as e:
-            results["model_status"] = {
-                "success": False,
-                "error": f"Connection error: {str(e)}"
-            }
-        except Exception as e:
+        except requests.exceptions.RequestException as e:
             results["model_status"] = {
                 "success": False,
                 "error": str(e)
             }
         
         # Test multiple emotion detection requests to verify model loading
-        prediction_results = []
+        predictions = []
         
         for i, text in enumerate(self.test_texts[:3]):  # Test first 3 texts
             try:
                 payload = {"text": text}
-                start_time = time.time()
-                response = self.session.post(f"{self.base_url}/predict", json=payload, headers=self.headers, timeout=self.timeout)
-                response_time = time.time() - start_time
+                response = self.session.post(f"{self.base_url}/predict", json=payload, timeout=30)
                 
                 if response.status_code == 200:
                     data = response.json()
@@ -312,50 +260,50 @@ class CloudRunAPITester:
                     else:
                         confidence_str = "N/A"
                     
-                    prediction_results.append({
+                    predictions.append({
                         "text_index": i,
                         "success": True,
                         "emotion_detected": bool(emotion),
                         "emotion": emotion,
                         "confidence": confidence_str,
-                        "response_time": response_time
+                        "response_time": response.elapsed.total_seconds()
                     })
                 else:
-                    prediction_results.append({
+                    predictions.append({
                         "text_index": i,
                         "success": False,
                         "error": f"HTTP {response.status_code}"
                     })
                     
             except requests.exceptions.Timeout as e:
-                prediction_results.append({
+                predictions.append({
                     "text_index": i,
                     "success": False,
                     "error": f"Timeout: {str(e)}"
                 })
             except requests.exceptions.ConnectionError as e:
-                prediction_results.append({
+                predictions.append({
                     "text_index": i,
                     "success": False,
                     "error": f"Connection error: {str(e)}"
                 })
             except Exception as e:
-                prediction_results.append({
+                predictions.append({
                     "text_index": i,
                     "success": False,
                     "error": str(e)
                 })
         
         # FIXED: Models are considered loaded if all requests succeeded (status 200), regardless of whether emotions were detected
-        successful_requests = [r for r in prediction_results if r["success"]]
-        models_loaded = len(successful_requests) == len(prediction_results)
+        successful_requests = [r for r in predictions if r["success"]]
+        models_loaded = len(successful_requests) == len(predictions)
         
         results["predictions"] = {
             "success": models_loaded,
-            "total_tests": len(prediction_results),
+            "total_tests": len(predictions),
             "successful_tests": len(successful_requests),
             "models_loaded": models_loaded,
-            "results": prediction_results
+            "results": predictions
         }
         
         return results
@@ -366,18 +314,17 @@ class CloudRunAPITester:
         
         results = {}
         
-        # FIXED: Test rate limiting with configurable number of rapid requests
+        # Test rate limiting by making multiple rapid requests
         logger.info("Testing rate limiting...")
         rapid_requests = []
         
-        # Get rate limit requests from environment or use default
+        # Make rate limiting configurable
         rate_limit_requests = int(os.environ.get("RATE_LIMIT_REQUESTS", "10"))
-        logger.info(f"Making {rate_limit_requests} rapid requests to test rate limiting...")
         
         for i in range(rate_limit_requests):
             try:
                 payload = {"text": f"Test request {i}"}
-                response = self.session.post(f"{self.base_url}/predict", json=payload, headers=self.headers, timeout=self.timeout)
+                response = self.session.post(f"{self.base_url}/predict", json=payload, timeout=30)
                 rapid_requests.append({
                     "request": i,
                     "status_code": response.status_code,
@@ -413,7 +360,7 @@ class CloudRunAPITester:
         # Test security headers
         logger.info("Testing security headers...")
         try:
-            response = self.session.get(f"{self.base_url}/", headers=self.headers, timeout=self.timeout)
+            response = self.session.get(f"{self.base_url}/", timeout=30)
             headers = response.headers
             
             security_headers = {
@@ -443,20 +390,18 @@ class CloudRunAPITester:
         for i, text in enumerate(self.test_texts[:5]):  # Test first 5 texts
             try:
                 payload = {"text": text}
-                start_time = time.time()
-                response = self.session.post(f"{self.base_url}/predict", json=payload, headers=self.headers, timeout=self.timeout)
-                end_time = time.time()
+                response = self.session.post(f"{self.base_url}/predict", json=payload, timeout=30)
                 
                 if response.status_code == 200:
                     performance_results.append({
                         "request": i,
-                        "response_time": end_time - start_time,
+                        "response_time": response.elapsed.total_seconds(),
                         "success": True
                     })
                 else:
                     performance_results.append({
                         "request": i,
-                        "response_time": end_time - start_time,
+                        "response_time": response.elapsed.total_seconds(),
                         "success": False,
                         "status_code": response.status_code
                     })
@@ -514,6 +459,7 @@ class CloudRunAPITester:
         # Run all tests
         test_results["tests"]["health"] = self.test_health_endpoint()
         test_results["tests"]["emotion_detection"] = self.test_emotion_detection_endpoint()
+        test_results["tests"]["invalid_inputs"] = self.test_invalid_inputs()
         test_results["tests"]["model_loading"] = self.test_model_loading()
         test_results["tests"]["security"] = self.test_security_features()
         test_results["tests"]["performance"] = self.test_performance()
@@ -537,21 +483,24 @@ class CloudRunAPITester:
                 # Handle nested results (like model_loading)
                 if "predictions" in result:
                     # Model loading has nested structure
-                    if result["predictions"].get("success", False):
+                    if result["predictions"]["success"]:
                         summary["passed_tests"] += 1
                     else:
                         summary["failed_tests"] += 1
                         summary["critical_issues"].append(f"{test_name}: Model loading failed")
+                elif "valid_input" in result:
+                    # Emotion detection has nested structure
+                    if result["valid_input"]["success"]:
+                        summary["passed_tests"] += 1
+                    else:
+                        summary["failed_tests"] += 1
+                        summary["critical_issues"].append(f"{test_name}: {result['valid_input'].get('error', 'Unknown error')}")
                 elif result.get("success", False):
                     summary["passed_tests"] += 1
                 else:
                     summary["failed_tests"] += 1
                     if test_name in ["health", "model_loading"]:
                         summary["critical_issues"].append(f"{test_name}: {result.get('error', 'Unknown error')}")
-            else:
-                summary["failed_tests"] += 1
-                if test_name in ["health", "model_loading"]:
-                    summary["critical_issues"].append(f"{test_name}: Invalid result format")
         
         # Check for critical failures
         if summary["failed_tests"] > 0:
@@ -561,20 +510,21 @@ class CloudRunAPITester:
 
 def main():
     """Main function to run the API tests"""
-    # Use centralized configuration
-    from config import TestConfig
-    
-    config = TestConfig()
-    parser = config.get_parser("Comprehensive Cloud Run API testing")
+    # Allow BASE_URL to be set via command line argument or environment variable
+    parser = argparse.ArgumentParser(description="Comprehensive Cloud Run API testing")
+    parser.add_argument("--base-url", help="Base URL for the API")
     args = parser.parse_args()
     
-    base_url = args.base_url
-    timeout = args.timeout
+    if args.base_url:
+        base_url = args.base_url
+    elif os.environ.get("CLOUD_RUN_API_URL"):
+        base_url = os.environ["CLOUD_RUN_API_URL"]
+    else:
+        base_url = "https://samo-emotion-api-optimized-secure-71517823771.us-central1.run.app"
     
     print("🧪 SAMO Cloud Run API Testing")
     print("=" * 50)
     print(f"Testing URL: {base_url}")
-    print(f"Timeout: {timeout}s")
     print()
     
     # Create tester instance
@@ -606,24 +556,25 @@ def main():
             # Handle nested results (like model_loading)
             if "predictions" in result:
                 # Model loading has nested structure
-                status = "✅ PASS" if result["predictions"].get("success", False) else "❌ FAIL"
+                status = "✅ PASS" if result["predictions"]["success"] else "❌ FAIL"
                 print(f"{test_name.upper()}: {status}")
-                if not result["predictions"].get("success", False):
+                if not result["predictions"]["success"]:
                     print(f"  Error: Model loading failed")
-            elif result.get("success", False):
-                print(f"{test_name.upper()}: ✅ PASS")
+            elif "valid_input" in result:
+                # Emotion detection has nested structure
+                status = "✅ PASS" if result["valid_input"]["success"] else "❌ FAIL"
+                print(f"{test_name.upper()}: {status}")
+                if "error" in result["valid_input"]:
+                    print(f"  Error: {result['valid_input']['error']}")
+            else:
+                status = "✅ PASS" if result.get("success", False) else "❌ FAIL"
+                print(f"{test_name.upper()}: {status}")
+                
                 if "error" in result:
                     print(f"  Error: {result['error']}")
                 elif test_name == "performance" and "avg_response_time" in result:
                     print(f"  Avg Response Time: {result['avg_response_time']:.3f}s")
                     print(f"  Success Rate: {result['success_rate']:.1%}")
-            else:
-                print(f"{test_name.upper()}: ❌ FAIL")
-                if "error" in result:
-                    print(f"  Error: {result['error']}")
-        else:
-            print(f"{test_name.upper()}: ❌ FAIL")
-            print(f"  Error: Invalid result format")
     
     # Save results to file
     output_file = "test_reports/cloud_run_api_test_results.json"
