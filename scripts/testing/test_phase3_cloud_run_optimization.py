@@ -66,8 +66,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         
         # Validate required fields
         required_fields = ['steps', 'images', 'timeout']
-        for field in required_fields:
-            self.assertIn(field, config, f"Missing required field: {field}")
+        self._assert_all_fields_present(config, required_fields)
         
         # Validate steps structure
         steps = config['steps']
@@ -75,9 +74,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         self.assertGreater(len(steps), 0, "Should have at least one step")
         
         # Validate each step has required fields
-        for i, step in enumerate(steps):
-            self.assertIn('name', step, f"Step {i} missing 'name' field")
-            self.assertIn('args', step, f"Step {i} missing 'args' field")
+        self._assert_all_steps_valid(steps)
         
         # Validate timeout format
         timeout = config['timeout']
@@ -85,6 +82,22 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         self.assertTrue(timeout.endswith('s'), "Timeout should end with 's'")
         
         print("✅ Cloud Build YAML structure validation passed")
+    
+    def _assert_all_fields_present(self, config, required_fields):
+        """Helper method to check all required fields are present"""
+        missing_fields = [field for field in required_fields if field not in config]
+        if missing_fields:
+            self.fail(f"Missing required fields: {', '.join(missing_fields)}")
+    
+    def _assert_all_steps_valid(self, steps):
+        """Helper method to validate all steps"""
+        invalid_steps = []
+        for i, step in enumerate(steps):
+            if 'name' not in step or 'args' not in step:
+                invalid_steps.append(f"Step {i}")
+        
+        if invalid_steps:
+            self.fail(f"Invalid steps: {', '.join(invalid_steps)}")
     
     def test_02_health_monitor_functionality(self):
         """Test health monitor functionality and metrics collection"""
@@ -97,8 +110,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         except ImportError as e:
             if 'psutil' in str(e):
                 self.skipTest("psutil not available in test environment")
-            else:
-                raise
+            raise
         
         # Test health monitor initialization
         monitor = HealthMonitor()
@@ -129,9 +141,14 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
     def _test_required_metrics(self, metrics):
         """Helper method to test required metrics"""
         required_metrics = ['memory_usage_mb', 'cpu_usage_percent', 'memory_percent', 'uptime_seconds']
-        for metric in required_metrics:
-            self.assertIn(metric, metrics, f"Missing metric: {metric}")
-            self.assertIsInstance(metrics[metric], (int, float), f"Metric {metric} should be numeric")
+        missing_metrics = [metric for metric in required_metrics if metric not in metrics]
+        if missing_metrics:
+            self.fail(f"Missing metrics: {', '.join(missing_metrics)}")
+        
+        # Check all metrics are numeric
+        non_numeric_metrics = [metric for metric in required_metrics if not isinstance(metrics[metric], (int, float))]
+        if non_numeric_metrics:
+            self.fail(f"Non-numeric metrics: {', '.join(non_numeric_metrics)}")
 
     def _test_multiple_requests(self, monitor):
         """Helper method to test multiple requests"""
@@ -220,8 +237,9 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             'PIP_DISABLE_PIP_VERSION_CHECK=1'  # Disable pip version check
         ]
         
-        for feature in security_features:
-            self.assertIn(feature, content, f"Missing security feature: {feature}")
+        missing_features = [feature for feature in security_features if feature not in content]
+        if missing_features:
+            self.fail(f"Missing security features: {', '.join(missing_features)}")
 
     def _test_cloud_run_features(self, content):
         """Helper method to test Cloud Run features"""
@@ -233,8 +251,9 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             '--keep-alive 5'  # Keep-alive optimization
         ]
         
-        for feature in cloud_run_features:
-            self.assertIn(feature, content, f"Missing Cloud Run feature: {feature}")
+        missing_features = [feature for feature in cloud_run_features if feature not in content]
+        if missing_features:
+            self.fail(f"Missing Cloud Run features: {', '.join(missing_features)}")
 
     def _test_optimization_features(self, content):
         """Helper method to test optimization features"""
@@ -245,8 +264,9 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             '--error-logfile -'  # Error logging
         ]
         
-        for feature in optimization_features:
-            self.assertIn(feature, content, f"Missing optimization feature: {feature}")
+        missing_features = [feature for feature in optimization_features if feature not in content]
+        if missing_features:
+            self.fail(f"Missing optimization features: {', '.join(missing_features)}")
     
     def test_05_requirements_security(self):
         """Test requirements.txt security and version pinning"""
@@ -267,15 +287,21 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             'prometheus-client=='  # Metrics
         ]
         
-        for dep in required_deps:
-            self.assertIn(dep, content, f"Missing required dependency: {dep}")
+        missing_deps = [dep for dep in required_deps if dep not in content]
+        if missing_deps:
+            self.fail(f"Missing required dependencies: {', '.join(missing_deps)}")
         
         # Test version pinning (dependencies should have == for exact versions)
         lines = content.split('\n')
+        unpinned_deps = []
         for line in lines:
             line = line.strip()
-            if line and not line.startswith('#') and '==' not in line and '>=' not in line and '<=' not in line:
-                self.fail(f"Dependency {line} should be version-pinned with == for exact version")
+            if (line and not line.startswith('#') and 
+                '==' not in line and '>=' not in line and '<=' not in line):
+                unpinned_deps.append(line)
+        
+        if unpinned_deps:
+            self.fail(f"Unpinned dependencies: {', '.join(unpinned_deps)}")
         
         print("✅ Requirements security tests passed")
     
@@ -288,12 +314,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             config = yaml.safe_load(f)
         
         # Find Cloud Run deployment step
-        deploy_step = None
-        for step in config['steps']:
-            if 'gcr.io/google.com/cloudsdktool/cloud-sdk' in step.get('name', ''):
-                deploy_step = step
-                break
-        
+        deploy_step = self._find_deploy_step(config)
         self.assertIsNotNone(deploy_step, "Should have Cloud Run deployment step")
         
         # Get args from the step
@@ -308,8 +329,9 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             '--concurrency=80'
         ]
         
-        for param in scaling_params:
-            self.assertIn(param, args, f"Missing auto-scaling parameter: {param}")
+        missing_params = [param for param in scaling_params if param not in args]
+        if missing_params:
+            self.fail(f"Missing auto-scaling parameters: {', '.join(missing_params)}")
         
         # Test resource allocation (Cloud Build format: --param=value)
         resource_params = [
@@ -317,10 +339,18 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             '--cpu=2'
         ]
         
-        for param in resource_params:
-            self.assertIn(param, args, f"Missing resource parameter: {param}")
+        missing_resource_params = [param for param in resource_params if param not in args]
+        if missing_resource_params:
+            self.fail(f"Missing resource parameters: {', '.join(missing_resource_params)}")
         
         print("✅ Auto-scaling configuration tests passed")
+    
+    def _find_deploy_step(self, config):
+        """Helper method to find deployment step"""
+        for step in config['steps']:
+            if 'gcr.io/google.com/cloudsdktool/cloud-sdk' in step.get('name', ''):
+                return step
+        return None
     
     def test_07_health_check_integration(self):
         """Test health check integration and monitoring"""
@@ -332,12 +362,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             config = yaml.safe_load(f)
         
         # Check for health check environment variables
-        deploy_step = None
-        for step in config['steps']:
-            if 'gcr.io/google.com/cloudsdktool/cloud-sdk' in step.get('name', ''):
-                deploy_step = step
-                break
-        
+        deploy_step = self._find_deploy_step(config)
         self.assertIsNotNone(deploy_step, "Should have deployment step")
         
         args = deploy_step['args']
@@ -414,8 +439,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         except ImportError as e:
             if 'psutil' in str(e):
                 self.skipTest("psutil not available in test environment")
-            else:
-                raise
+            raise
         
         monitor = HealthMonitor()
         
@@ -427,16 +451,22 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             'system', 'models', 'api', 'requests'
         ]
         
-        for metric in required_metrics:
-            self.assertIn(metric, metrics, f"Missing performance metric: {metric}")
+        missing_metrics = [metric for metric in required_metrics if metric not in metrics]
+        if missing_metrics:
+            self.fail(f"Missing performance metrics: {', '.join(missing_metrics)}")
         
         # Test system metrics structure
         system_metrics = metrics['system']
         system_required = ['memory_usage_mb', 'cpu_usage_percent', 'memory_percent']
         
-        for metric in system_required:
-            self.assertIn(metric, system_metrics, f"Missing system metric: {metric}")
-            self.assertIsInstance(system_metrics[metric], (int, float), f"System metric {metric} should be numeric")
+        missing_system_metrics = [metric for metric in system_required if metric not in system_metrics]
+        if missing_system_metrics:
+            self.fail(f"Missing system metrics: {', '.join(missing_system_metrics)}")
+        
+        # Check all system metrics are numeric
+        non_numeric_system_metrics = [metric for metric in system_required if not isinstance(system_metrics[metric], (int, float))]
+        if non_numeric_system_metrics:
+            self.fail(f"Non-numeric system metrics: {', '.join(non_numeric_system_metrics)}")
         
         # Test request metrics
         request_metrics = metrics['requests']
@@ -480,16 +510,22 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         # Validate required top-level keys
         if filename == 'cloudbuild.yaml':
             required_keys = ['steps', 'images']
-            for key in required_keys:
-                self.assertIn(key, config, f"{filename} missing required key: {key}")
+            missing_keys = [key for key in required_keys if key not in config]
+            if missing_keys:
+                self.fail(f"{filename} missing required keys: {', '.join(missing_keys)}")
         
         # Validate nested structures
         if 'steps' in config:
             self.assertIsInstance(config['steps'], list, "Steps should be a list")
+            invalid_steps = []
             for i, step in enumerate(config['steps']):
-                self.assertIsInstance(step, dict, f"Step {i} should be a dictionary")
-                self.assertIn('name', step, f"Step {i} missing 'name' field")
-                self.assertIn('args', step, f"Step {i} missing 'args' field")
+                if not isinstance(step, dict):
+                    invalid_steps.append(f"Step {i} should be a dictionary")
+                elif 'name' not in step or 'args' not in step:
+                    invalid_steps.append(f"Step {i} missing required fields")
+            
+            if invalid_steps:
+                self.fail(f"Invalid steps: {', '.join(invalid_steps)}")
 
 def run_phase3_tests():
     """Run all Phase 3 Cloud Run optimization tests"""
