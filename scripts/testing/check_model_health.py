@@ -9,9 +9,11 @@ import json
 from test_config import create_api_client, create_test_config
 
 
-def check_model_health():
+def check_model_health(base_url=None):
     """Check model health status"""
     config = create_test_config()
+    if base_url:
+        config.base_url = base_url.rstrip('/')
     client = create_api_client()
     
     print("🔍 Model Health Check")
@@ -61,5 +63,11 @@ def check_model_health():
 
 
 if __name__ == "__main__":
-    success = check_model_health()
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Check Model Health")
+    parser.add_argument("--base-url", help="API base URL")
+    args = parser.parse_args()
+    
+    success = check_model_health(args.base_url)
     exit(0 if success else 1)

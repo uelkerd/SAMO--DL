@@ -31,8 +31,8 @@ class TestConfig:
         if env_url:
             return env_url
 
-        # Default URL
-        return "https://samo-emotion-api-optimized-secure-71517823771.us-central1.run.app"
+        # Default URL - use the same as test_config.py for consistency
+        return "https://samo-emotion-api-minimal-71517823771.us-central1.run.app"
 
     @staticmethod
     def _get_api_key() -> str:
