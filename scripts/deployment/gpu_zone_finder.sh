@@ -79,7 +79,7 @@ test_zone_gpu() {
 # Quick availability check for top zones
 echo -e "${YELLOW}🚀 Quick Check - Top 3 Zones:${NC}"
 for zone in "us-west1-b" "us-central1-b" "europe-west1-b"; do
-    if test_zone_gpu "$zone" "nvidia-tesla-t4" "n1-standard-4"; then
+    if test_zone_gpu "${zone}" "nvidia-tesla-t4" "n1-standard-4"; then
         echo -e "${GREEN}✅ Found available zone: ${zone}${NC}"
         echo -e "${YELLOW}Copy and run the command above!${NC}"
         exit 0
@@ -93,7 +93,7 @@ echo -e "${YELLOW}🔄 Extended Search (checking more zones)...${NC}"
 for zone in "${ZONES[@]}"; do
     for gpu in "${GPU_TYPES[@]}"; do
         for machine in "${MACHINE_TYPES[@]}"; do
-            if test_zone_gpu "$zone" "$gpu" "$machine"; then
+            if test_zone_gpu "${zone}" "${gpu}" "${machine}"; then
                 echo -e "${GREEN}✅ Success! Use the command above.${NC}"
                 exit 0
             fi
