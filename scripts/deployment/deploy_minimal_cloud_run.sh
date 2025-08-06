@@ -47,13 +47,13 @@ while [[ $# -gt 0 ]]; do
         --help)
             echo "Usage: $0 [OPTIONS]"
             echo "Options:"
-            echo "  --project-id PROJECT_ID     GCP Project ID (default: $PROJECT_ID)"
-            echo "  --region REGION             GCP Region (default: $REGION)"
-            echo "  --service-name NAME         Cloud Run service name (default: $SERVICE_NAME)"
-            echo "  --image-name NAME           Docker image name (default: $IMAGE_NAME)"
-            echo "  --repository NAME           Artifact Registry repository (default: $REPOSITORY)"
-            echo "  --model-path PATH           Path to model file (default: $MODEL_PATH)"
-            echo "  --deployment-dir PATH       Deployment directory (default: $DEPLOYMENT_DIR)"
+            echo "  --project-id PROJECT_ID     GCP Project ID (default: ${PROJECT_ID})"
+            echo "  --region REGION             GCP Region (default: ${REGION})"
+            echo "  --service-name NAME         Cloud Run service name (default: ${SERVICE_NAME})"
+            echo "  --image-name NAME           Docker image name (default: ${IMAGE_NAME})"
+            echo "  --repository NAME           Artifact Registry repository (default: ${REPOSITORY})"
+            echo "  --model-path PATH           Path to model file (default: ${MODEL_PATH})"
+            echo "  --deployment-dir PATH       Deployment directory (default: ${DEPLOYMENT_DIR})"
             echo "  --help                      Show this help message"
             exit 0
             ;;
@@ -88,13 +88,13 @@ print_error() {
 
 # Print configuration
 print_status "Configuration:"
-print_status "  Project ID: $PROJECT_ID"
-print_status "  Region: $REGION"
-print_status "  Service Name: $SERVICE_NAME"
-print_status "  Image Name: $IMAGE_NAME"
-print_status "  Repository: $REPOSITORY"
-print_status "  Model Path: $MODEL_PATH"
-print_status "  Deployment Dir: $DEPLOYMENT_DIR"
+print_status "  Project ID: ${PROJECT_ID}"
+print_status "  Region: ${REGION}"
+print_status "  Service Name: ${SERVICE_NAME}"
+print_status "  Image Name: ${IMAGE_NAME}"
+print_status "  Repository: ${REPOSITORY}"
+print_status "  Model Path: ${MODEL_PATH}"
+print_status "  Deployment Dir: ${DEPLOYMENT_DIR}"
 
 # Step 1: Verify model exists
 print_status "Step 1: Verifying model file..."
@@ -104,7 +104,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 if [ ! -f "$PROJECT_ROOT/$MODEL_PATH" ]; then
-    print_error "Model file not found: $PROJECT_ROOT/$MODEL_PATH"
+    print_error "Model file not found: ${PROJECT_ROOT}/${MODEL_PATH}"
     exit 1
 fi
 
@@ -113,11 +113,11 @@ print_status "✅ Model file verified"
 # Step 2: Build and push Docker image
 print_status "Step 2: Building and pushing Docker image..."
 
-cd "$PROJECT_ROOT/$DEPLOYMENT_DIR"
+cd "${PROJECT_ROOT}/${DEPLOYMENT_DIR}"
 
 # Build image
 print_status "Building Docker image..."
-docker build -f Dockerfile.minimal -t gcr.io/$PROJECT_ID/$IMAGE_NAME:latest .
+docker build -f Dockerfile.minimal -t "gcr.io/${PROJECT_ID}/${IMAGE_NAME}:latest" .
 
 if [ $? -ne 0 ]; then
     print_error "Docker build failed!"
@@ -126,11 +126,11 @@ fi
 
 # Tag for Artifact Registry
 print_status "Tagging image for Artifact Registry..."
-docker tag gcr.io/$PROJECT_ID/$IMAGE_NAME:latest $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:latest
+docker tag "gcr.io/${PROJECT_ID}/${IMAGE_NAME}:latest" "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest"
 
 # Push to Artifact Registry
 print_status "Pushing image to Artifact Registry..."
-docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:latest
+docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest"
 
 if [ $? -ne 0 ]; then
     print_error "Docker push failed!"
@@ -140,9 +140,9 @@ fi
 # Step 3: Deploy to Cloud Run
 print_status "Step 3: Deploying to Cloud Run..."
 
-gcloud run deploy $SERVICE_NAME \
-    --image=$REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:latest \
-    --region=$REGION \
+gcloud run deploy "${SERVICE_NAME}" \
+    --image="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest" \
+    --region="${REGION}" \
     --platform=managed \
     --allow-unauthenticated \
     --port=8080 \
@@ -160,28 +160,28 @@ fi
 
 # Step 4: Get service URL
 print_status "Step 4: Getting service URL..."
-SERVICE_URL=$(gcloud run services describe $SERVICE_NAME --region=$REGION --format="value(status.url)")
+SERVICE_URL=$(gcloud run services describe "${SERVICE_NAME}" --region="${REGION}" --format="value(status.url)")
 
 print_status "Service deployed successfully!"
-print_status "Service URL: $SERVICE_URL"
+print_status "Service URL: ${SERVICE_URL}"
 
 # Step 5: Test the deployment
 print_status "Step 5: Testing deployment..."
 
 # Wait for service to be ready with intelligent polling
 print_status "Waiting for service to be ready..."
-HEALTH_URL="$SERVICE_URL/health"
+HEALTH_URL="${SERVICE_URL}/health"
 TIMEOUT=60
 INTERVAL=3
 ELAPSED=0
 
 until curl -sf "$HEALTH_URL"; do
-    if [ $ELAPSED -ge $TIMEOUT ]; then
-        print_error "Service did not become healthy within $TIMEOUT seconds."
+    if [ ${ELAPSED} -ge ${TIMEOUT} ]; then
+        print_error "Service did not become healthy within ${TIMEOUT} seconds."
         exit 1
     fi
-    print_status "Waiting for service... ($ELAPSED/$TIMEOUT seconds)"
-    sleep $INTERVAL
+    print_status "Waiting for service... (${ELAPSED}/${TIMEOUT} seconds)"
+    sleep ${INTERVAL}
     ELAPSED=$((ELAPSED + INTERVAL))
 done
 
@@ -204,15 +204,15 @@ curl -X POST "$SERVICE_URL/predict" \
 }
 
 print_status "✅ Minimal deployment completed successfully!"
-print_status "🎯 Service is operational at: $SERVICE_URL"
-print_status "📊 Health endpoint: $SERVICE_URL/health"
-print_status "🔮 Prediction endpoint: $SERVICE_URL/predict"
-print_status "📈 Metrics endpoint: $SERVICE_URL/metrics"
+print_status "🎯 Service is operational at: ${SERVICE_URL}"
+print_status "📊 Health endpoint: ${SERVICE_URL}/health"
+print_status "🔮 Prediction endpoint: ${SERVICE_URL}/predict"
+print_status "📈 Metrics endpoint: ${SERVICE_URL}/metrics"
 
 echo ""
 print_status "Deployment Summary:"
-echo "  - Service: $SERVICE_NAME"
-echo "  - Region: $REGION"
-echo "  - Image: $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:latest"
+echo "  - Service: ${SERVICE_NAME}"
+echo "  - Region: ${REGION}"
+echo "  - Image: ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest"
 echo "  - Model Type: PyTorch (known compatible versions)"
 echo "  - Status: ✅ OPERATIONAL" 
