@@ -608,6 +608,8 @@ class EmotionAwareUI {
     this.isAnalyzing = false;
     this.debounceTimer = null;
     this.debounceDelay = 300; // milliseconds, adjust as needed
+    this.analysisQueue = []; // Queue to prevent race conditions
+    this.isProcessingQueue = false;
   }
 
   // This method analyzes user input and updates the UI
@@ -619,33 +621,85 @@ class EmotionAwareUI {
     if (this.debounceTimer) {
       clearTimeout(this.debounceTimer);
     }
-    this.debounceTimer = setTimeout(async () => {
-      if (this.isAnalyzing) return;
-      this.isAnalyzing = true;
-      this.showLoadingIndicator(); // Show user that analysis is happening
-      
-      try {
-        const emotions = await analyzeEmotion(text);
-        
-        if (emotions && emotions.length > 0) {
-          this.currentEmotion = emotions[0].emotion;
-          this.emotionHistory.push({
-            emotion: this.currentEmotion,
-            confidence: emotions[0].confidence,
-            timestamp: new Date(),
-            text: text
-          });
-          
-          this.adaptUI(); // Change the UI based on emotion
-        }
-      } catch (error) {
-        console.error('Emotion analysis failed:', error);
-        this.showError('Unable to analyze emotion at this time');
-      } finally {
-        this.isAnalyzing = false;
-        this.hideLoadingIndicator();
-      }
+    
+    this.debounceTimer = setTimeout(() => {
+      this.queueAnalysis(text);
     }, this.debounceDelay);
+  }
+
+  // Queue analysis to prevent race conditions
+  async queueAnalysis(text) {
+    // Add to queue
+    this.analysisQueue.push(text);
+    
+    // Process queue if not already processing
+    if (!this.isProcessingQueue) {
+      this.processQueue();
+    }
+  }
+
+  // Process the analysis queue sequentially
+  async processQueue() {
+    if (this.isProcessingQueue || this.analysisQueue.length === 0) {
+      return;
+    }
+
+    this.isProcessingQueue = true;
+    
+    while (this.analysisQueue.length > 0) {
+      const text = this.analysisQueue.shift(); // Get next item from queue
+      
+      if (this.isAnalyzing) {
+        // If already analyzing, wait for it to complete
+        await this.waitForAnalysisComplete();
+      }
+      
+      await this.performAnalysis(text);
+    }
+    
+    this.isProcessingQueue = false;
+  }
+
+  // Wait for current analysis to complete
+  async waitForAnalysisComplete() {
+    return new Promise((resolve) => {
+      const checkComplete = () => {
+        if (!this.isAnalyzing) {
+          resolve();
+        } else {
+          setTimeout(checkComplete, 50); // Check every 50ms
+        }
+      };
+      checkComplete();
+    });
+  }
+
+  // Perform the actual emotion analysis
+  async performAnalysis(text) {
+    this.isAnalyzing = true;
+    this.showLoadingIndicator(); // Show user that analysis is happening
+    
+    try {
+      const emotions = await analyzeEmotion(text);
+      
+      if (emotions && emotions.length > 0) {
+        this.currentEmotion = emotions[0].emotion;
+        this.emotionHistory.push({
+          emotion: this.currentEmotion,
+          confidence: emotions[0].confidence,
+          timestamp: new Date(),
+          text: text
+        });
+        
+        this.adaptUI(); // Change the UI based on emotion
+      }
+    } catch (error) {
+      console.error('Emotion analysis failed:', error);
+      this.showError('Unable to analyze emotion at this time');
+    } finally {
+      this.isAnalyzing = false;
+      this.hideLoadingIndicator();
+    }
   }
 
   // This method changes your app's appearance based on emotion
