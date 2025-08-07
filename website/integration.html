@@ -578,6 +578,11 @@ async function analyzeEmotion(text) {
       body: JSON.stringify({ text: text })
     });
     
+    if (!response.ok) {
+      console.error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
     const result = await response.json();
     return result; // Returns emotions like: [{emotion: "joy", confidence: 0.95}]
   } catch (error) {
@@ -607,6 +612,9 @@ class EmotionAwareUI {
 
   // This method analyzes user input and updates the UI
   async analyzeUserInput(text) {
+    // Validate input
+    if (!text || text.trim() === '') return;
+    
     // Debounce: clear any pending analysis and schedule a new one
     if (this.debounceTimer) {
       clearTimeout(this.debounceTimer);
@@ -955,10 +963,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
                     </div>
-    
-    const scheme = colorSchemes[this.currentEmotion] || colorSchemes.joy;
-    document.documentElement.style.setProperty('--primary-color', scheme.primary);
-    document.documentElement.style.setProperty('--secondary-color', scheme.secondary);
   }
 
   updateContent() {
@@ -1166,7 +1170,7 @@ class EmotionDataCollector:
             response = self.session.post(
                 f"{self.api_url}/predict",
                 json={"text": text},
-                timeout=30  # Wait up to 30 seconds for response
+                timeout=30  # Timeout after 30 seconds
             )
             response.raise_for_status()  # Raise error if request failed
             
@@ -1188,7 +1192,7 @@ class EmotionDataCollector:
             
         except Exception as e:
             self.stats['failed_requests'] += 1
-            self.logger.error(f"Error analyzing text: {e}")
+            self.logger.error(f"Error analyzing text: {type(e).__name__} - {e}")
             
             return {
                 'text': text,
@@ -1503,7 +1507,7 @@ class EmotionModelMonitor:
                 response = self.session.post(
                     f"{self.api_url}/predict",
                     json={"text": text},
-                    timeout=10
+                    timeout=10  # Timeout after 10 seconds
                 )
                 response.raise_for_status()
                 
@@ -1516,7 +1520,7 @@ class EmotionModelMonitor:
                     results['confidence_scores'].append(emotions[0].get('confidence', 0))
                 
             except Exception as e:
-                results['errors'].append(str(e))
+                results['errors'].append(f'{type(e).__name__}: {e}')
         
         # Calculate metrics
         results['avg_response_time'] = np.mean(results['response_times']) if results['response_times'] else 0
