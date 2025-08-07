@@ -32,6 +32,7 @@ class TokenPayload(BaseModel):
     permissions: List[str] = Field(default_factory=list, description="User permissions")
     exp: Optional[int] = Field(None, description="Expiration timestamp")
     iat: Optional[int] = Field(None, description="Issued at timestamp")
+    type: Optional[str] = Field(None, description="Token type, e.g., 'refresh'")
 
 class TokenResponse(BaseModel):
     """Token response structure"""
