@@ -19,7 +19,9 @@
   - Quoted variables in command substitution: `$(numfmt --to=iec "$size")`
   - Replaced for loops with while loops using process substitution
   - Enhanced robustness for filenames with spaces and special characters
-- **Impact**: Improved security, reduced risk of command injection
+  - Improved portability: replaced `stat` with `wc -c` for cross-platform compatibility
+  - Removed redundancy: setup script no longer recreates existing utility scripts
+- **Impact**: Improved security, reduced risk of command injection, better portability
 
 ### 🛡️ **New Features & Safeguards**
 
