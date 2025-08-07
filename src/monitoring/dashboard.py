@@ -180,7 +180,7 @@ class MonitoringDashboard:
         
         # Calculate requests per minute
         one_minute_ago = current_time - 60
-        recent_requests = sum(1 for t in self.request_times if t > one_minute_ago)
+        recent_requests = sum(bool(t > one_minute_ago) for t in self.request_times)
         self.api_metrics.requests_per_minute = recent_requests
         
         # Calculate average response time
@@ -208,9 +208,7 @@ class MonitoringDashboard:
         self._update_api_metrics()
         
         # Prepare model metrics
-        model_metrics_dict = {}
-        for model_name, metrics in self.model_metrics.items():
-            model_metrics_dict[model_name] = asdict(metrics)
+        model_metrics_dict = {model_name: asdict(metrics) for model_name, metrics in self.model_metrics.items()}
         
         # Calculate trends
         trends = self._calculate_trends()
@@ -269,24 +267,17 @@ class MonitoringDashboard:
         
         current_metrics = self.system_metrics_history[-1]
         
-        # Check critical thresholds
-        if current_metrics.cpu_percent > CRITICAL_CPU_THRESHOLD:
-            return "critical"
-        elif current_metrics.memory_percent > CRITICAL_MEMORY_THRESHOLD:
-            return "critical"
-        elif current_metrics.disk_percent > CRITICAL_DISK_THRESHOLD:
+        # Check critical thresholds first
+        if (current_metrics.cpu_percent > CRITICAL_CPU_THRESHOLD or 
+            current_metrics.memory_percent > CRITICAL_MEMORY_THRESHOLD or 
+            current_metrics.disk_percent > CRITICAL_DISK_THRESHOLD):
             return "critical"
         
         # Check warning thresholds
-        if current_metrics.cpu_percent > WARNING_CPU_THRESHOLD:
-            return "warning"
-        elif current_metrics.memory_percent > WARNING_MEMORY_THRESHOLD:
-            return "warning"
-        elif current_metrics.disk_percent > WARNING_DISK_THRESHOLD:
-            return "warning"
-        
-        # Check error rate
-        if self.api_metrics.error_rate > CRITICAL_ERROR_RATE_THRESHOLD:
+        if (current_metrics.cpu_percent > WARNING_CPU_THRESHOLD or 
+            current_metrics.memory_percent > WARNING_MEMORY_THRESHOLD or 
+            current_metrics.disk_percent > WARNING_DISK_THRESHOLD or
+            self.api_metrics.error_rate > CRITICAL_ERROR_RATE_THRESHOLD):
             return "warning"
         
         return "healthy"
