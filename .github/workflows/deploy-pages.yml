@@ -26,10 +26,22 @@ jobs:
         # Create a completely clean directory with only website files
         mkdir -p website-deploy
         
-        # Copy only essential website files
-        cp *.html website-deploy/ 2>/dev/null || true
+        # Copy website files from the website/ directory (primary source)
+        if [ -d "website" ]; then
+          cp -r website/* website-deploy/ 2>/dev/null || true
+          echo "Copied files from website/ directory"
+        fi
+        
+        # Copy essential files from root if they don't exist in website/
+        if [ ! -f "website-deploy/index.html" ]; then
+          cp index.html website-deploy/ 2>/dev/null || true
+        fi
+        if [ ! -f "website-deploy/README.md" ]; then
+          cp README.md website-deploy/ 2>/dev/null || true
+        fi
+        
+        # Copy .nojekyll file
         cp .nojekyll website-deploy/ 2>/dev/null || true
-        cp README.md website-deploy/ 2>/dev/null || true
         
         # Remove any problematic directories that might have been copied
         rm -rf website-deploy/data/
