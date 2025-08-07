@@ -28,11 +28,19 @@ if DATABASE_URL:
     DB_NAME = parsed.path.lstrip("/")
 else:
     # Fall back to individual environment variables
-    DB_USER = os.environ.get("DB_USER", "samouser")
-    DB_PASSWORD = os.environ.get("DB_PASSWORD", "samopassword")
+    DB_USER = os.environ.get("DB_USER")
+    DB_PASSWORD = os.environ.get("DB_PASSWORD")
     DB_HOST = os.environ.get("DB_HOST", "localhost")
     DB_PORT = os.environ.get("DB_PORT", "5432")
-    DB_NAME = os.environ.get("DB_NAME", "samodb")
+    DB_NAME = os.environ.get("DB_NAME")
+
+# Validate required environment variables
+if not DB_USER:
+    raise ValueError("DB_USER environment variable is required")
+if not DB_PASSWORD:
+    raise ValueError("DB_PASSWORD environment variable is required")
+if not DB_NAME:
+    raise ValueError("DB_NAME environment variable is required")
 
 
 def check_pgvector():

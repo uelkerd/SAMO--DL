@@ -8,9 +8,15 @@ echo "Setting up PostgreSQL database for SAMO-DL..."
 # Database configuration - these would typically come from environment variables
 DB_NAME=${DB_NAME:-"samodb"}
 DB_USER=${DB_USER:-"samouser"}
-DB_PASSWORD=${DB_PASSWORD:-"samopassword"} # In production, use a secure password
 DB_HOST=${DB_HOST:-"localhost"}
 DB_PORT=${DB_PORT:-"5432"}
+
+# Validate required environment variables
+if [ -z "$DB_PASSWORD" ]; then
+    echo "Error: DB_PASSWORD environment variable is required"
+    echo "Please set DB_PASSWORD before running this script"
+    exit 1
+fi
 
 # Connect to the postgres database first (which always exists)
 if psql -d postgres -lqt | cut -d \| -f 1 | grep -qw "${DB_NAME}"; then
