@@ -19,7 +19,7 @@ from typing import Any, AsyncGenerator, Optional, Dict, List
 from datetime import datetime
 
 import uvicorn
-from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile, Depends, status, WebSocket
+from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile, Depends, status, WebSocket, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -919,8 +919,30 @@ async def summarize_text(
 
 # Real-time Processing Endpoints
 @app.websocket("/ws/realtime")
-async def websocket_realtime_processing(websocket: WebSocket):
+async def websocket_realtime_processing(websocket: WebSocket, token: str = Query(None)):
     """WebSocket endpoint for real-time voice processing."""
+    # Validate authentication token
+    if not token:
+        await websocket.close(code=4001, reason="Authentication token required")
+        return
+    
+    try:
+        # Verify JWT token
+        jwt_manager = JWTManager()
+        payload = jwt_manager.verify_token(token)
+        if not payload:
+            await websocket.close(code=4001, reason="Invalid authentication token")
+            return
+        
+        # Check if user has real-time processing permission
+        if "realtime_processing" not in payload.permissions:
+            await websocket.close(code=4003, reason="Insufficient permissions")
+            return
+            
+    except Exception as e:
+        await websocket.close(code=4001, reason=f"Authentication failed: {str(e)}")
+        return
+    
     await websocket.accept()
     
     # Authenticate WebSocket connection

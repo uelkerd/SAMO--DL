@@ -649,11 +649,6 @@ class TestMonitoringDashboard:
         assert "timestamp" in data
         assert "system" in data
         assert "models" in data
-        
-        data = response.json()
-        assert "timestamp" in data
-        assert "system" in data
-        assert "models" in data
         assert "api" in data
     
     def test_detailed_health_check(self):
