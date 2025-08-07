@@ -93,6 +93,35 @@
             align-items: flex-start;
             margin-bottom: 30px;
         }
+        
+        /* Table of Contents Styling */
+        .toc-nav .card {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+        }
+        
+        .toc-nav .card-header {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .toc-nav .card-body ul li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .toc-nav .card-body ul li:last-child {
+            border-bottom: none;
+        }
+        
+        .toc-nav .card-body ul li a {
+            color: #374151;
+            transition: color 0.2s ease;
+        }
+        
+        .toc-nav .card-body ul li a:hover {
+            color: #6366f1;
+        }
     </style>
 </head>
 <body>
@@ -467,8 +496,25 @@ export default EmotionAnalyzer;</code></pre>
                         UX Integration Guide - Making Your App Emotionally Intelligent
                     </h2>
                     
-                    <div class="alert alert-info">
-                        <h5><i class="fas fa-info-circle me-2"></i>What This Guide Does</h5>
+                    <!-- Table of Contents -->
+                    <nav class="mb-4 toc-nav" aria-label="UX Integration Guide navigation">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Quick Navigation</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled mb-0">
+                                    <li><a href="#step-1-title" class="text-decoration-none">1. Set Up Your API Connection</a></li>
+                                    <li><a href="#step-2-title" class="text-decoration-none">2. Create Your Emotion-Aware UI Class</a></li>
+                                    <li><a href="#step-3-title" class="text-decoration-none">3. Add CSS Styles for Different Emotions</a></li>
+                                    <li><a href="#step-4-title" class="text-decoration-none">4. Connect Everything Together</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </nav>
+                    
+                    <div class="alert alert-info" role="alert" aria-labelledby="ux-guide-info">
+                        <h5 id="ux-guide-info"><i class="fas fa-info-circle me-2" aria-hidden="true"></i>What This Guide Does</h5>
                         <p class="mb-0">This guide shows UX designers and product managers how to make your app respond to user emotions in real-time. Think of it like giving your app emotional intelligence - it can sense how users feel and adapt accordingly.</p>
                     </div>
 
@@ -514,10 +560,10 @@ export default EmotionAnalyzer;</code></pre>
                         Step-by-Step Implementation Guide
                     </h4>
                     
-                    <div class="integration-step">
-                        <div class="step-number">1</div>
+                    <div class="integration-step" role="region" aria-labelledby="step-1-title">
+                        <div class="step-number" aria-hidden="true">1</div>
                         <div>
-                            <h5 class="fw-bold">Set Up Your API Connection</h5>
+                            <h5 class="fw-bold" id="step-1-title">Set Up Your API Connection</h5>
                             <p>First, you need to connect your app to our emotion detection API. This is like giving your app the ability to "read" emotions from text.</p>
                             <div class="code-example">
                                 <pre><code class="language-javascript">// Step 1: Set up your API connection
@@ -543,10 +589,10 @@ async function analyzeEmotion(text) {
                         </div>
                     </div>
 
-                    <div class="integration-step">
-                        <div class="step-number">2</div>
+                    <div class="integration-step" role="region" aria-labelledby="step-2-title">
+                        <div class="step-number" aria-hidden="true">2</div>
                         <div>
-                            <h5 class="fw-bold">Create Your Emotion-Aware UI Class</h5>
+                            <h5 class="fw-bold" id="step-2-title">Create Your Emotion-Aware UI Class</h5>
                             <p>This class manages how your app responds to different emotions. Think of it as the "brain" that decides what to change based on user emotions.</p>
                             <div class="code-example">
                                 <pre><code class="language-javascript">// Step 2: Create your emotion-aware UI manager
@@ -555,36 +601,43 @@ class EmotionAwareUI {
     this.currentEmotion = null;
     this.emotionHistory = [];
     this.isAnalyzing = false;
+    this.debounceTimer = null;
+    this.debounceDelay = 300; // milliseconds, adjust as needed
   }
 
   // This method analyzes user input and updates the UI
   async analyzeUserInput(text) {
-    if (this.isAnalyzing) return; // Prevent multiple requests
-    
-    this.isAnalyzing = true;
-    this.showLoadingIndicator(); // Show user that analysis is happening
-    
-    try {
-      const emotions = await analyzeEmotion(text);
-      
-      if (emotions && emotions.length > 0) {
-        this.currentEmotion = emotions[0].emotion;
-        this.emotionHistory.push({
-          emotion: this.currentEmotion,
-          confidence: emotions[0].confidence,
-          timestamp: new Date(),
-          text: text
-        });
-        
-        this.adaptUI(); // Change the UI based on emotion
-      }
-    } catch (error) {
-      console.error('Emotion analysis failed:', error);
-      this.showError('Unable to analyze emotion at this time');
-    } finally {
-      this.isAnalyzing = false;
-      this.hideLoadingIndicator();
+    // Debounce: clear any pending analysis and schedule a new one
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
     }
+    this.debounceTimer = setTimeout(async () => {
+      if (this.isAnalyzing) return;
+      this.isAnalyzing = true;
+      this.showLoadingIndicator(); // Show user that analysis is happening
+      
+      try {
+        const emotions = await analyzeEmotion(text);
+        
+        if (emotions && emotions.length > 0) {
+          this.currentEmotion = emotions[0].emotion;
+          this.emotionHistory.push({
+            emotion: this.currentEmotion,
+            confidence: emotions[0].confidence,
+            timestamp: new Date(),
+            text: text
+          });
+          
+          this.adaptUI(); // Change the UI based on emotion
+        }
+      } catch (error) {
+        console.error('Emotion analysis failed:', error);
+        this.showError('Unable to analyze emotion at this time');
+      } finally {
+        this.isAnalyzing = false;
+        this.hideLoadingIndicator();
+      }
+    }, this.debounceDelay);
   }
 
   // This method changes your app's appearance based on emotion
@@ -611,10 +664,11 @@ class EmotionAwareUI {
       anger: { primary: '#ef4444', secondary: '#f87171', background: '#fef2f2' },
       fear: { primary: '#f59e0b', secondary: '#fbbf24', background: '#fffbeb' },
       surprise: { primary: '#8b5cf6', secondary: '#a78bfa', background: '#f5f3ff' },
-      disgust: { primary: '#059669', secondary: '#34d399', background: '#ecfdf5' }
+      disgust: { primary: '#059669', secondary: '#34d399', background: '#ecfdf5' },
+      neutral: { primary: '#6b7280', secondary: '#d1d5db', background: '#f3f4f6' } // Added neutral color scheme
     };
     
-    const colors = colorSchemes[this.currentEmotion] || colorSchemes.joy;
+    const colors = colorSchemes[this.currentEmotion] || colorSchemes.neutral;
     
     // Apply colors to your app
     document.documentElement.style.setProperty('--primary-color', colors.primary);
@@ -632,10 +686,15 @@ class EmotionAwareUI {
       surprise: "Wow! We're excited about this too! 🎉",
       disgust: "We appreciate your feedback. Let's improve this together. 📈"
     };
-    
+    const fallbackMessage = "Thank you for sharing your feelings with us! We're here to help.";
+
     const messageElement = document.getElementById('emotion-message');
-    if (messageElement && emotionMessages[this.currentEmotion]) {
-      messageElement.textContent = emotionMessages[this.currentEmotion];
+    if (messageElement) {
+      if (emotionMessages[this.currentEmotion]) {
+        messageElement.textContent = emotionMessages[this.currentEmotion];
+      } else {
+        messageElement.textContent = fallbackMessage;
+      }
       messageElement.style.display = 'block';
     }
   }
@@ -681,10 +740,10 @@ class EmotionAwareUI {
                         </div>
                     </div>
 
-                    <div class="integration-step">
-                        <div class="step-number">3</div>
+                    <div class="integration-step" role="region" aria-labelledby="step-3-title">
+                        <div class="step-number" aria-hidden="true">3</div>
                         <div>
-                            <h5 class="fw-bold">Add CSS Styles for Different Emotions</h5>
+                            <h5 class="fw-bold" id="step-3-title">Add CSS Styles for Different Emotions</h5>
                             <p>Create visual styles that change based on the detected emotion. This makes your app feel more responsive and personalized.</p>
                             <div class="code-example">
                                 <pre><code class="language-css">/* Step 3: Add emotion-based CSS styles */
@@ -783,10 +842,10 @@ class EmotionAwareUI {
                         </div>
                     </div>
 
-                    <div class="integration-step">
-                        <div class="step-number">4</div>
+                    <div class="integration-step" role="region" aria-labelledby="step-4-title">
+                        <div class="step-number" aria-hidden="true">4</div>
                         <div>
-                            <h5 class="fw-bold">Connect Everything Together</h5>
+                            <h5 class="fw-bold" id="step-4-title">Connect Everything Together</h5>
                             <p>Now connect your emotion analysis to user interactions. This is where the magic happens!</p>
                             <div class="code-example">
                                 <pre><code class="language-javascript">// Step 4: Connect everything together
@@ -975,8 +1034,25 @@ document.getElementById('user-input').addEventListener('input', (e) => {
                         Data Science Integration Guide - Turn Emotions Into Insights
                     </h2>
                     
-                    <div class="alert alert-info">
-                        <h5><i class="fas fa-info-circle me-2"></i>What This Guide Does</h5>
+                    <!-- Table of Contents -->
+                    <nav class="mb-4 toc-nav" aria-label="Data Science Integration Guide navigation">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Quick Navigation</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled mb-0">
+                                    <li><a href="#ds-step-1-title" class="text-decoration-none">1. Set Up Your Data Collection System</a></li>
+                                    <li><a href="#ds-step-2-title" class="text-decoration-none">2. Create Your Data Analysis Toolkit</a></li>
+                                    <li><a href="#ds-step-3-title" class="text-decoration-none">3. Set Up Model Monitoring</a></li>
+                                    <li><a href="#ds-step-4-title" class="text-decoration-none">4. Put It All Together</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </nav>
+                    
+                    <div class="alert alert-info" role="alert" aria-labelledby="ds-guide-info">
+                        <h5 id="ds-guide-info"><i class="fas fa-info-circle me-2" aria-hidden="true"></i>What This Guide Does</h5>
                         <p class="mb-0">This guide shows data scientists and analysts how to collect, analyze, and derive insights from emotion data. Think of it as a complete toolkit for understanding user emotions at scale and using that data to improve your products.</p>
                     </div>
 
@@ -1039,10 +1115,10 @@ document.getElementById('user-input').addEventListener('input', (e) => {
                         Step-by-Step Implementation Guide
                     </h4>
                     
-                    <div class="integration-step">
-                        <div class="step-number">1</div>
+                    <div class="integration-step" role="region" aria-labelledby="ds-step-1-title">
+                        <div class="step-number" aria-hidden="true">1</div>
                         <div>
-                            <h5 class="fw-bold">Set Up Your Data Collection System</h5>
+                            <h5 class="fw-bold" id="ds-step-1-title">Set Up Your Data Collection System</h5>
                             <p>Create a robust system to collect emotion data from your API. This is the foundation for all your analysis.</p>
                             <div class="code-example">
                                 <pre><code class="language-python"># Step 1: Set up your data collection system
@@ -1052,6 +1128,7 @@ import numpy as np
 from datetime import datetime
 import logging
 import json
+import time
 from typing import List, Dict, Optional
 
 class EmotionDataCollector:
@@ -1123,31 +1200,63 @@ class EmotionDataCollector:
                 'emotion_count': 0
             }
     
-    def analyze_batch(self, texts: List[str]) -> pd.DataFrame:
+    def analyze_batch(self, texts: List[str], max_retries: int = 3) -> pd.DataFrame:
         """
-        Analyze multiple texts at once and return a pandas DataFrame.
+        Analyze multiple texts at once using the batch endpoint.
         This is much more efficient than analyzing one text at a time.
         """
-        results = []
-        
         self.logger.info(f"Starting batch analysis of {len(texts)} texts...")
         
-        for i, text in enumerate(texts):
-            # Show progress every 100 texts
-            if (i + 1) % 100 == 0:
-                self.logger.info(f"Processed {i + 1}/{len(texts)} texts...")
-            
-            result = self.analyze_single_text(text)
-            if result:
-                results.append(result)
-        
-        # Convert to DataFrame for easy analysis
-        df = pd.DataFrame(results)
-        
-        self.logger.info(f"Batch analysis complete! Processed {len(results)} texts.")
-        self.logger.info(f"Success rate: {self.stats['successful_requests']}/{self.stats['total_requests']}")
-        
-        return df
+        for attempt in range(max_retries):
+            try:
+                self.stats['total_requests'] += 1
+                response = self.session.post(
+                    f"{self.api_url}/predict_batch",  # Use the batch endpoint
+                    json={"texts": texts},
+                    timeout=60  # Longer timeout for batch requests
+                )
+                response.raise_for_status()
+                results = response.json()  # Assuming it returns a list of results for each text
+
+                # Process results into a DataFrame
+                processed_results = []
+                for i, text in enumerate(texts):
+                    emotions = results[i] if i < len(results) else []
+                    processed_results.append({
+                        'text': text,
+                        'emotions': emotions,
+                        'timestamp': datetime.now().isoformat(),
+                        'status': 'success',
+                        'text_length': len(text),
+                        'emotion_count': len(emotions) if emotions else 0
+                    })
+                
+                df = pd.DataFrame(processed_results)
+                self.stats['successful_requests'] += 1
+                self.stats['total_texts_processed'] += len(texts)
+                self.logger.info(f"Batch analysis complete! Processed {len(texts)} texts.")
+                return df
+
+            except Exception as e:
+                self.logger.warning(f"Batch analysis attempt {attempt+1} failed: {e}")
+                if attempt < max_retries - 1:
+                    wait_time = 2 ** attempt  # Exponential backoff
+                    self.logger.info(f"Retrying batch analysis in {wait_time}s...")
+                    time.sleep(wait_time)
+                else:
+                    self.stats['failed_requests'] += 1
+                    self.logger.error(f"Batch analysis failed after {max_retries} attempts: {e}")
+                    # Create error entries for all texts in the batch
+                    error_results = [{
+                        'text': text, 
+                        'emotions': [], 
+                        'timestamp': datetime.now().isoformat(),
+                        'status': 'error', 
+                        'error': str(e), 
+                        'text_length': len(text), 
+                        'emotion_count': 0
+                    } for text in texts]
+                    return pd.DataFrame(error_results)
     
     def save_to_csv(self, df: pd.DataFrame, filename: str):
         """Save your emotion data to a CSV file for later analysis."""
@@ -1161,10 +1270,10 @@ class EmotionDataCollector:
                         </div>
                     </div>
 
-                    <div class="integration-step">
-                        <div class="step-number">2</div>
+                    <div class="integration-step" role="region" aria-labelledby="ds-step-2-title">
+                        <div class="step-number" aria-hidden="true">2</div>
                         <div>
-                            <h5 class="fw-bold">Create Your Data Analysis Toolkit</h5>
+                            <h5 class="fw-bold" id="ds-step-2-title">Create Your Data Analysis Toolkit</h5>
                             <p>Build tools to analyze the emotion data you've collected. This helps you understand patterns and trends.</p>
                             <div class="code-example">
                                 <pre><code class="language-python"># Step 2: Create your data analysis toolkit
@@ -1286,9 +1395,9 @@ class EmotionAnalyzer:
         See how emotions change over time.
         This helps you spot trends and seasonal patterns.
         """
-        # Convert timestamp to datetime
-        self.data['timestamp'] = pd.to_datetime(self.data['timestamp'])
-        self.data['date'] = self.data['timestamp'].dt.date
+        # Convert timestamp to datetime safely
+        self.data['timestamp_parsed'] = pd.to_datetime(self.data['timestamp'], errors='coerce')
+        self.data['date'] = self.data['timestamp_parsed'].dt.date
         
         # Count emotions by date
         daily_emotions = []
@@ -1332,10 +1441,10 @@ class EmotionAnalyzer:
                         </div>
                     </div>
 
-                    <div class="integration-step">
-                        <div class="step-number">3</div>
+                    <div class="integration-step" role="region" aria-labelledby="ds-step-3-title">
+                        <div class="step-number" aria-hidden="true">3</div>
                         <div>
-                            <h5 class="fw-bold">Set Up Model Monitoring</h5>
+                            <h5 class="fw-bold" id="ds-step-3-title">Set Up Model Monitoring</h5>
                             <p>Create a system to monitor your emotion detection model's performance and catch issues early.</p>
                             <div class="code-example">
                                 <pre><code class="language-python"># Step 3: Set up model monitoring
@@ -1516,10 +1625,10 @@ class EmotionModelMonitor:
                         </div>
                     </div>
 
-                    <div class="integration-step">
-                        <div class="step-number">4</div>
+                    <div class="integration-step" role="region" aria-labelledby="ds-step-4-title">
+                        <div class="step-number" aria-hidden="true">4</div>
                         <div>
-                            <h5 class="fw-bold">Put It All Together</h5>
+                            <h5 class="fw-bold" id="ds-step-4-title">Put It All Together</h5>
                             <p>Now combine everything into a complete data science workflow that you can run regularly.</p>
                             <div class="code-example">
                                 <pre><code class="language-python"># Step 4: Put it all together - Complete workflow
