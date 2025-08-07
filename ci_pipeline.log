@@ -1,0 +1,2078 @@
+2025-07-31 22:47:28,089 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-07-31 22:47:28,089 - INFO - ============================================================
+2025-07-31 22:47:28,089 - INFO - 🔍 Detecting environment...
+2025-07-31 22:47:30,724 - INFO - 💻 Running in local environment
+2025-07-31 22:47:30,724 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.10.18 | packaged by conda-forge | (main, Jun  4 2025, 14:46:25) [Clang 18.1.8 ]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'samo-dl'}
+2025-07-31 22:47:30,724 - INFO - 📦 Validating dependencies...
+2025-07-31 22:47:30,724 - INFO - ✅ torch available
+2025-07-31 22:47:31,528 - INFO - ✅ transformers available
+2025-07-31 22:47:31,759 - INFO - ✅ fastapi available
+2025-07-31 22:47:31,759 - INFO - ✅ pydantic available
+2025-07-31 22:47:32,571 - INFO - PyTorch version 2.1.2 available.
+2025-07-31 22:47:32,854 - INFO - ✅ datasets available
+2025-07-31 22:47:32,873 - INFO - ✅ tokenizers available
+2025-07-31 22:47:32,873 - INFO - ✅ numpy available
+2025-07-31 22:47:32,873 - INFO - ✅ pandas available
+2025-07-31 22:47:32,873 - INFO - ✅ All dependencies validated
+2025-07-31 22:47:32,873 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-07-31 22:47:33,197 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-07-31 22:47:33,197 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-07-31 22:47:39,583 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-07-31 22:47:39,583 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-07-31 22:47:47,223 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-07-31 22:47:47,224 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-07-31 22:47:51,516 - INFO - ✅ scripts/ci/whisper_transcription_test.py PASSED
+2025-07-31 22:47:51,517 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-07-31 22:47:58,167 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-07-31 22:47:58,167 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-07-31 22:47:59,239 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-07-31 22:47:59,239 - INFO - 🧪 Running unit tests...
+2025-07-31 22:48:07,232 - INFO - ✅ Unit tests PASSED
+2025-07-31 22:48:07,233 - INFO - 🎯 Running E2E tests...
+2025-07-31 22:48:11,650 - INFO - ✅ E2E tests PASSED
+2025-07-31 22:48:11,650 - INFO - 🖥️ Testing GPU compatibility...
+2025-07-31 22:48:11,650 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-07-31 22:48:11,650 - INFO - ⚡ Running performance benchmarks...
+2025-07-31 22:48:11,651 - ERROR - ❌ Performance benchmark failed: No module named 'src'
+2025-07-31 22:48:11,651 - INFO - 📊 Generating CI Report
+2025-07-31 22:48:11,651 - INFO - ============================================================
+2025-07-31 22:48:11,651 - ERROR - ❌ CI Pipeline failed!
+2025-07-31 22:48:34,088 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-07-31 22:48:34,089 - INFO - ============================================================
+2025-07-31 22:48:34,089 - INFO - 🔍 Detecting environment...
+2025-07-31 22:48:36,463 - INFO - 💻 Running in local environment
+2025-07-31 22:48:36,463 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.10.18 | packaged by conda-forge | (main, Jun  4 2025, 14:46:25) [Clang 18.1.8 ]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'samo-dl'}
+2025-07-31 22:48:36,463 - INFO - 📦 Validating dependencies...
+2025-07-31 22:48:36,463 - INFO - ✅ torch available
+2025-07-31 22:48:37,153 - INFO - ✅ transformers available
+2025-07-31 22:48:37,424 - INFO - ✅ fastapi available
+2025-07-31 22:48:37,424 - INFO - ✅ pydantic available
+2025-07-31 22:48:38,166 - INFO - PyTorch version 2.1.2 available.
+2025-07-31 22:48:38,423 - INFO - ✅ datasets available
+2025-07-31 22:48:38,443 - INFO - ✅ tokenizers available
+2025-07-31 22:48:38,443 - INFO - ✅ numpy available
+2025-07-31 22:48:38,443 - INFO - ✅ pandas available
+2025-07-31 22:48:38,443 - INFO - ✅ All dependencies validated
+2025-07-31 22:48:38,443 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-07-31 22:48:38,769 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-07-31 22:48:38,770 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-07-31 22:48:45,354 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-07-31 22:48:45,355 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-07-31 22:48:53,110 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-07-31 22:48:53,111 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-07-31 22:48:57,639 - INFO - ✅ scripts/ci/whisper_transcription_test.py PASSED
+2025-07-31 22:48:57,640 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-07-31 22:49:03,886 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-07-31 22:49:03,887 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-07-31 22:49:04,952 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-07-31 22:49:04,952 - INFO - 🧪 Running unit tests...
+2025-07-31 22:49:12,972 - INFO - ✅ Unit tests PASSED
+2025-07-31 22:49:12,973 - INFO - 🎯 Running E2E tests...
+2025-07-31 22:49:17,376 - INFO - ✅ E2E tests PASSED
+2025-07-31 22:49:17,376 - INFO - 🖥️ Testing GPU compatibility...
+2025-07-31 22:49:17,376 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-07-31 22:49:17,376 - INFO - ⚡ Running performance benchmarks...
+2025-07-31 22:49:17,402 - ERROR - ❌ Performance benchmark failed: attempted relative import with no known parent package
+2025-07-31 22:49:17,402 - INFO - 📊 Generating CI Report
+2025-07-31 22:49:17,402 - INFO - ============================================================
+2025-07-31 22:49:17,403 - ERROR - ❌ CI Pipeline failed!
+2025-07-31 22:49:38,619 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-07-31 22:49:38,620 - INFO - ============================================================
+2025-07-31 22:49:38,620 - INFO - 🔍 Detecting environment...
+2025-07-31 22:49:40,981 - INFO - 💻 Running in local environment
+2025-07-31 22:49:40,981 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.10.18 | packaged by conda-forge | (main, Jun  4 2025, 14:46:25) [Clang 18.1.8 ]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'samo-dl'}
+2025-07-31 22:49:40,981 - INFO - 📦 Validating dependencies...
+2025-07-31 22:49:40,981 - INFO - ✅ torch available
+2025-07-31 22:49:41,676 - INFO - ✅ transformers available
+2025-07-31 22:49:41,879 - INFO - ✅ fastapi available
+2025-07-31 22:49:41,879 - INFO - ✅ pydantic available
+2025-07-31 22:49:42,637 - INFO - PyTorch version 2.1.2 available.
+2025-07-31 22:49:42,886 - INFO - ✅ datasets available
+2025-07-31 22:49:42,905 - INFO - ✅ tokenizers available
+2025-07-31 22:49:42,906 - INFO - ✅ numpy available
+2025-07-31 22:49:42,906 - INFO - ✅ pandas available
+2025-07-31 22:49:42,906 - INFO - ✅ All dependencies validated
+2025-07-31 22:49:42,906 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-07-31 22:49:43,232 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-07-31 22:49:43,233 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-07-31 22:49:49,591 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-07-31 22:49:49,592 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-07-31 22:49:57,793 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-07-31 22:49:57,794 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-07-31 22:50:02,237 - INFO - ✅ scripts/ci/whisper_transcription_test.py PASSED
+2025-07-31 22:50:02,238 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-07-31 22:50:08,761 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-07-31 22:50:08,762 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-07-31 22:50:09,834 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-07-31 22:50:09,834 - INFO - 🧪 Running unit tests...
+2025-07-31 22:50:17,772 - INFO - ✅ Unit tests PASSED
+2025-07-31 22:50:17,773 - INFO - 🎯 Running E2E tests...
+2025-07-31 22:50:22,296 - INFO - ✅ E2E tests PASSED
+2025-07-31 22:50:22,297 - INFO - 🖥️ Testing GPU compatibility...
+2025-07-31 22:50:22,297 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-07-31 22:50:22,297 - INFO - ⚡ Running performance benchmarks...
+2025-07-31 22:50:25,432 - INFO - ✅ Model loading time: 2.40s
+2025-07-31 22:50:25,432 - INFO - ✅ Inference time: 0.74s
+2025-07-31 22:50:25,432 - INFO - ✅ Performance benchmarks passed
+2025-07-31 22:50:25,444 - INFO - 📊 Generating CI Report
+2025-07-31 22:50:25,444 - INFO - ============================================================
+2025-07-31 22:50:25,444 - INFO - 🎉 CI Pipeline completed successfully!
+2025-07-31 23:34:18,556 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-07-31 23:34:18,556 - INFO - ============================================================
+2025-07-31 23:34:18,556 - INFO - 🔍 Detecting environment...
+2025-07-31 23:34:19,370 - INFO - 💻 Running in local environment
+2025-07-31 23:34:19,370 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.11.13 (main, Jun  5 2025, 08:14:07) [Clang 14.0.6 ]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'samo-dl-stable'}
+2025-07-31 23:34:19,370 - INFO - 📦 Validating dependencies...
+2025-07-31 23:34:19,370 - INFO - ✅ torch available
+2025-07-31 23:34:19,984 - INFO - ✅ transformers available
+2025-07-31 23:34:19,984 - ERROR - ❌ fastapi missing
+2025-07-31 23:34:19,984 - ERROR - ❌ pydantic missing
+2025-07-31 23:34:19,984 - ERROR - ❌ datasets missing
+2025-07-31 23:34:19,997 - INFO - ✅ tokenizers available
+2025-07-31 23:34:19,997 - INFO - ✅ numpy available
+2025-07-31 23:34:19,998 - ERROR - ❌ pandas missing
+2025-07-31 23:34:19,998 - ERROR - ❌ Missing packages: ['fastapi', 'pydantic', 'datasets', 'pandas']
+2025-07-31 23:34:19,998 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-07-31 23:34:20,077 - ERROR - ❌ scripts/ci/api_health_check.py FAILED
+2025-07-31 23:34:20,077 - ERROR - Error output: Traceback (most recent call last):
+  File "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/scripts/ci/api_health_check.py", line 17, in <module>
+    from api_rate_limiter import RateLimitCache
+  File "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/src/api_rate_limiter.py", line 22, in <module>
+    from fastapi import FastAPI, Request, Response
+ModuleNotFoundError: No module named 'fastapi'
+
+2025-07-31 23:34:20,077 - ERROR - ❌ api_health_check failed, but continuing...
+2025-07-31 23:34:20,077 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-07-31 23:34:22,746 - ERROR - ❌ scripts/ci/bert_model_test.py FAILED
+2025-07-31 23:34:22,746 - ERROR - Error output: Traceback (most recent call last):
+  File "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/scripts/ci/bert_model_test.py", line 17, in <module>
+    from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+  File "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/src/models/emotion_detection/bert_classifier.py", line 20, in <module>
+    from .dataset_loader import GOEMOTIONS_EMOTIONS
+  File "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/src/models/emotion_detection/dataset_loader.py", line 21, in <module>
+    from datasets import load_dataset
+ModuleNotFoundError: No module named 'datasets'
+
+2025-07-31 23:34:22,746 - ERROR - ❌ bert_model_test failed, but continuing...
+2025-07-31 23:34:22,746 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-07-31 23:34:25,781 - ERROR - ❌ scripts/ci/t5_summarization_test.py FAILED
+2025-07-31 23:34:25,781 - ERROR - Error output: INFO:__main__:🚀 Starting T5 Model Tests...
+INFO:__main__:🧪 Running T5 Model Loading...
+INFO:__main__:🤖 Testing T5 summarization model loading...
+INFO:models.summarization.t5_summarizer:Initializing {self.model_name} summarization model...
+ERROR:__main__:❌ T5 model loading failed: 
+T5Tokenizer requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+
+ERROR:__main__:❌ T5 Model Loading failed
+INFO:__main__:🧪 Running T5 Summarization...
+INFO:__main__:📝 Testing T5 summarization functionality...
+INFO:models.summarization.t5_summarizer:Initializing {self.model_name} summarization model...
+ERROR:__main__:❌ T5 summarization test failed: 
+T5Tokenizer requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+
+ERROR:__main__:❌ T5 Summarization failed
+INFO:__main__:📊 Test Results: 0/2 tests passed
+ERROR:__main__:💥 Some T5 model tests failed!
+
+2025-07-31 23:34:25,781 - ERROR - ❌ t5_summarization_test failed, but continuing...
+2025-07-31 23:34:25,782 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-07-31 23:34:28,774 - INFO - ✅ scripts/ci/whisper_transcription_test.py PASSED
+2025-07-31 23:34:28,774 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-07-31 23:34:33,293 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-07-31 23:34:33,293 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-07-31 23:34:33,438 - ERROR - ❌ scripts/ci/onnx_conversion_test.py FAILED
+2025-07-31 23:34:33,439 - ERROR - Error output: Traceback (most recent call last):
+  File "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/scripts/ci/onnx_conversion_test.py", line 16, in <module>
+    from onnx import helper
+ModuleNotFoundError: No module named 'onnx'
+
+2025-07-31 23:34:33,439 - ERROR - ❌ onnx_conversion_test failed, but continuing...
+2025-07-31 23:34:33,439 - INFO - 🧪 Running unit tests...
+2025-07-31 23:34:33,489 - ERROR - ❌ Unit tests FAILED
+2025-07-31 23:34:33,489 - ERROR - Error output: /Users/minervae/miniconda3/envs/samo-dl-stable/bin/python: No module named pytest
+
+2025-07-31 23:34:33,489 - INFO - 🎯 Running E2E tests...
+2025-07-31 23:34:33,538 - ERROR - ❌ E2E tests FAILED
+2025-07-31 23:34:33,538 - ERROR - Error output: /Users/minervae/miniconda3/envs/samo-dl-stable/bin/python: No module named pytest
+
+2025-07-31 23:34:33,538 - INFO - 🖥️ Testing GPU compatibility...
+2025-07-31 23:34:33,538 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-07-31 23:34:33,538 - INFO - ⚡ Running performance benchmarks...
+2025-07-31 23:34:34,449 - ERROR - ❌ Performance benchmark failed: No module named 'datasets'
+2025-07-31 23:34:34,449 - INFO - 📊 Generating CI Report
+2025-07-31 23:34:34,450 - INFO - ============================================================
+2025-07-31 23:34:34,450 - ERROR - ❌ CI Pipeline failed!
+2025-07-31 23:34:53,969 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-07-31 23:34:53,970 - INFO - ============================================================
+2025-07-31 23:34:53,970 - INFO - 🔍 Detecting environment...
+2025-07-31 23:34:55,631 - INFO - 💻 Running in local environment
+2025-07-31 23:34:55,631 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.11.13 (main, Jun  5 2025, 08:14:07) [Clang 14.0.6 ]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'samo-dl-stable'}
+2025-07-31 23:34:55,631 - INFO - 📦 Validating dependencies...
+2025-07-31 23:34:55,631 - INFO - ✅ torch available
+2025-07-31 23:34:56,267 - INFO - ✅ transformers available
+2025-07-31 23:34:57,319 - INFO - ✅ fastapi available
+2025-07-31 23:34:57,319 - INFO - ✅ pydantic available
+2025-07-31 23:35:19,239 - INFO - ✅ datasets available
+2025-07-31 23:35:19,255 - INFO - ✅ tokenizers available
+2025-07-31 23:35:19,255 - INFO - ✅ numpy available
+2025-07-31 23:35:19,255 - INFO - ✅ pandas available
+2025-07-31 23:35:19,255 - INFO - ✅ All dependencies validated
+2025-07-31 23:35:19,255 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-07-31 23:35:19,577 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-07-31 23:35:19,578 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-07-31 23:35:28,238 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-07-31 23:35:28,239 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-07-31 23:35:36,598 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-07-31 23:35:36,599 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-07-31 23:35:40,913 - INFO - ✅ scripts/ci/whisper_transcription_test.py PASSED
+2025-07-31 23:35:40,913 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-07-31 23:35:46,724 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-07-31 23:35:46,725 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-07-31 23:35:46,967 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-07-31 23:35:46,967 - INFO - 🧪 Running unit tests...
+2025-07-31 23:35:48,555 - ERROR - ❌ Unit tests FAILED
+2025-07-31 23:35:48,555 - ERROR - Error output: ImportError while loading conftest '/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/tests/conftest.py'.
+tests/conftest.py:4: in <module>
+    from fastapi.testclient import TestClient
+../../../miniconda3/envs/samo-dl-stable/lib/python3.11/site-packages/fastapi/testclient.py:1: in <module>
+    from starlette.testclient import TestClient as TestClient  # noqa
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../miniconda3/envs/samo-dl-stable/lib/python3.11/site-packages/starlette/testclient.py:46: in <module>
+    raise RuntimeError(
+E   RuntimeError: The starlette.testclient module requires the httpx package to be installed.
+E   You can install this with:
+E       $ pip install httpx
+
+2025-07-31 23:35:48,555 - INFO - 🎯 Running E2E tests...
+2025-07-31 23:35:49,110 - ERROR - ❌ E2E tests FAILED
+2025-07-31 23:35:49,110 - ERROR - Error output: ImportError while loading conftest '/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/tests/conftest.py'.
+tests/conftest.py:4: in <module>
+    from fastapi.testclient import TestClient
+../../../miniconda3/envs/samo-dl-stable/lib/python3.11/site-packages/fastapi/testclient.py:1: in <module>
+    from starlette.testclient import TestClient as TestClient  # noqa
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../miniconda3/envs/samo-dl-stable/lib/python3.11/site-packages/starlette/testclient.py:46: in <module>
+    raise RuntimeError(
+E   RuntimeError: The starlette.testclient module requires the httpx package to be installed.
+E   You can install this with:
+E       $ pip install httpx
+
+2025-07-31 23:35:49,110 - INFO - 🖥️ Testing GPU compatibility...
+2025-07-31 23:35:49,110 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-07-31 23:35:49,110 - INFO - ⚡ Running performance benchmarks...
+2025-07-31 23:35:52,291 - INFO - ✅ Model loading time: 2.72s
+2025-07-31 23:35:52,291 - INFO - ✅ Inference time: 0.46s
+2025-07-31 23:35:52,291 - INFO - ✅ Performance benchmarks passed
+2025-07-31 23:35:52,303 - INFO - 📊 Generating CI Report
+2025-07-31 23:35:52,303 - INFO - ============================================================
+2025-07-31 23:35:52,303 - ERROR - ❌ CI Pipeline failed!
+2025-07-31 23:36:01,132 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-07-31 23:36:01,133 - INFO - ============================================================
+2025-07-31 23:36:01,133 - INFO - 🔍 Detecting environment...
+2025-07-31 23:36:01,959 - INFO - 💻 Running in local environment
+2025-07-31 23:36:01,959 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.11.13 (main, Jun  5 2025, 08:14:07) [Clang 14.0.6 ]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'samo-dl-stable'}
+2025-07-31 23:36:01,959 - INFO - 📦 Validating dependencies...
+2025-07-31 23:36:01,959 - INFO - ✅ torch available
+2025-07-31 23:36:02,376 - INFO - ✅ transformers available
+2025-07-31 23:36:02,525 - INFO - ✅ fastapi available
+2025-07-31 23:36:02,525 - INFO - ✅ pydantic available
+2025-07-31 23:36:03,272 - INFO - ✅ datasets available
+2025-07-31 23:36:03,289 - INFO - ✅ tokenizers available
+2025-07-31 23:36:03,289 - INFO - ✅ numpy available
+2025-07-31 23:36:03,289 - INFO - ✅ pandas available
+2025-07-31 23:36:03,289 - INFO - ✅ All dependencies validated
+2025-07-31 23:36:03,289 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-07-31 23:36:03,580 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-07-31 23:36:03,580 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-07-31 23:36:09,256 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-07-31 23:36:09,257 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-07-31 23:36:16,123 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-07-31 23:36:16,124 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-07-31 23:36:19,273 - INFO - ✅ scripts/ci/whisper_transcription_test.py PASSED
+2025-07-31 23:36:19,273 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-07-31 23:36:24,185 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-07-31 23:36:24,185 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-07-31 23:36:24,512 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-07-31 23:36:24,512 - INFO - 🧪 Running unit tests...
+2025-07-31 23:36:25,122 - ERROR - ❌ Unit tests FAILED
+2025-07-31 23:36:25,122 - ERROR - Error output: ImportError while loading conftest '/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/tests/conftest.py'.
+tests/conftest.py:6: in <module>
+    from src.unified_ai_api import app
+src/unified_ai_api.py:17: in <module>
+    import uvicorn
+E   ModuleNotFoundError: No module named 'uvicorn'
+
+2025-07-31 23:36:25,122 - INFO - 🎯 Running E2E tests...
+2025-07-31 23:36:25,738 - ERROR - ❌ E2E tests FAILED
+2025-07-31 23:36:25,739 - ERROR - Error output: ImportError while loading conftest '/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/tests/conftest.py'.
+tests/conftest.py:6: in <module>
+    from src.unified_ai_api import app
+src/unified_ai_api.py:17: in <module>
+    import uvicorn
+E   ModuleNotFoundError: No module named 'uvicorn'
+
+2025-07-31 23:36:25,739 - INFO - 🖥️ Testing GPU compatibility...
+2025-07-31 23:36:25,739 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-07-31 23:36:25,739 - INFO - ⚡ Running performance benchmarks...
+2025-07-31 23:36:28,639 - INFO - ✅ Model loading time: 2.45s
+2025-07-31 23:36:28,639 - INFO - ✅ Inference time: 0.45s
+2025-07-31 23:36:28,639 - INFO - ✅ Performance benchmarks passed
+2025-07-31 23:36:28,651 - INFO - 📊 Generating CI Report
+2025-07-31 23:36:28,651 - INFO - ============================================================
+2025-07-31 23:36:28,652 - ERROR - ❌ CI Pipeline failed!
+2025-07-31 23:36:36,752 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-07-31 23:36:36,752 - INFO - ============================================================
+2025-07-31 23:36:36,752 - INFO - 🔍 Detecting environment...
+2025-07-31 23:36:37,576 - INFO - 💻 Running in local environment
+2025-07-31 23:36:37,576 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.11.13 (main, Jun  5 2025, 08:14:07) [Clang 14.0.6 ]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'samo-dl-stable'}
+2025-07-31 23:36:37,576 - INFO - 📦 Validating dependencies...
+2025-07-31 23:36:37,577 - INFO - ✅ torch available
+2025-07-31 23:36:38,163 - INFO - ✅ transformers available
+2025-07-31 23:36:38,311 - INFO - ✅ fastapi available
+2025-07-31 23:36:38,312 - INFO - ✅ pydantic available
+2025-07-31 23:36:38,985 - INFO - ✅ datasets available
+2025-07-31 23:36:38,994 - INFO - ✅ tokenizers available
+2025-07-31 23:36:38,994 - INFO - ✅ numpy available
+2025-07-31 23:36:38,994 - INFO - ✅ pandas available
+2025-07-31 23:36:38,994 - INFO - ✅ All dependencies validated
+2025-07-31 23:36:38,994 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-07-31 23:36:39,269 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-07-31 23:36:39,270 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-07-31 23:36:44,539 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-07-31 23:36:44,540 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-07-31 23:36:51,235 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-07-31 23:36:51,236 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-07-31 23:36:54,374 - INFO - ✅ scripts/ci/whisper_transcription_test.py PASSED
+2025-07-31 23:36:54,374 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-07-31 23:36:59,934 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-07-31 23:36:59,936 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-07-31 23:37:00,190 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-07-31 23:37:00,191 - INFO - 🧪 Running unit tests...
+2025-07-31 23:37:00,994 - ERROR - ❌ Unit tests FAILED
+2025-07-31 23:37:00,995 - ERROR - Error output: ERROR:fastapi:Form data requires "python-multipart" to be installed. 
+You can install "python-multipart" with: 
+
+pip install python-multipart
+
+ImportError while loading conftest '/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/tests/conftest.py'.
+tests/conftest.py:6: in <module>
+    from src.unified_ai_api import app
+src/unified_ai_api.py:356: in <module>
+    @app.post(
+../../../miniconda3/envs/samo-dl-stable/lib/python3.11/site-packages/fastapi/routing.py:995: in decorator
+    self.add_api_route(
+../../../miniconda3/envs/samo-dl-stable/lib/python3.11/site-packages/fastapi/routing.py:934: in add_api_route
+    route = route_class(
+../../../miniconda3/envs/samo-dl-stable/lib/python3.11/site-packages/fastapi/routing.py:555: in __init__
+    self.dependant = get_dependant(path=self.path_format, call=self.endpoint)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../miniconda3/envs/samo-dl-stable/lib/python3.11/site-packages/fastapi/dependencies/utils.py:285: in get_dependant
+    param_details = analyze_param(
+../../../miniconda3/envs/samo-dl-stable/lib/python3.11/site-packages/fastapi/dependencies/utils.py:482: in analyze_param
+    ensure_multipart_is_installed()
+../../../miniconda3/envs/samo-dl-stable/lib/python3.11/site-packages/fastapi/dependencies/utils.py:115: in ensure_multipart_is_installed
+    raise RuntimeError(multipart_not_installed_error) from None
+E   RuntimeError: Form data requires "python-multipart" to be installed.
+E   You can install "python-multipart" with:
+E
+E   pip install python-multipart
+
+2025-07-31 23:37:00,995 - INFO - 🎯 Running E2E tests...
+2025-07-31 23:37:01,716 - ERROR - ❌ E2E tests FAILED
+2025-07-31 23:37:01,716 - ERROR - Error output: ERROR:fastapi:Form data requires "python-multipart" to be installed. 
+You can install "python-multipart" with: 
+
+pip install python-multipart
+
+ImportError while loading conftest '/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/tests/conftest.py'.
+tests/conftest.py:6: in <module>
+    from src.unified_ai_api import app
+src/unified_ai_api.py:356: in <module>
+    @app.post(
+../../../miniconda3/envs/samo-dl-stable/lib/python3.11/site-packages/fastapi/routing.py:995: in decorator
+    self.add_api_route(
+../../../miniconda3/envs/samo-dl-stable/lib/python3.11/site-packages/fastapi/routing.py:934: in add_api_route
+    route = route_class(
+../../../miniconda3/envs/samo-dl-stable/lib/python3.11/site-packages/fastapi/routing.py:555: in __init__
+    self.dependant = get_dependant(path=self.path_format, call=self.endpoint)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../miniconda3/envs/samo-dl-stable/lib/python3.11/site-packages/fastapi/dependencies/utils.py:285: in get_dependant
+    param_details = analyze_param(
+../../../miniconda3/envs/samo-dl-stable/lib/python3.11/site-packages/fastapi/dependencies/utils.py:482: in analyze_param
+    ensure_multipart_is_installed()
+../../../miniconda3/envs/samo-dl-stable/lib/python3.11/site-packages/fastapi/dependencies/utils.py:115: in ensure_multipart_is_installed
+    raise RuntimeError(multipart_not_installed_error) from None
+E   RuntimeError: Form data requires "python-multipart" to be installed.
+E   You can install "python-multipart" with:
+E
+E   pip install python-multipart
+
+2025-07-31 23:37:01,716 - INFO - 🖥️ Testing GPU compatibility...
+2025-07-31 23:37:01,717 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-07-31 23:37:01,717 - INFO - ⚡ Running performance benchmarks...
+2025-07-31 23:37:04,673 - INFO - ✅ Model loading time: 2.51s
+2025-07-31 23:37:04,674 - INFO - ✅ Inference time: 0.45s
+2025-07-31 23:37:04,674 - INFO - ✅ Performance benchmarks passed
+2025-07-31 23:37:04,685 - INFO - 📊 Generating CI Report
+2025-07-31 23:37:04,685 - INFO - ============================================================
+2025-07-31 23:37:04,685 - ERROR - ❌ CI Pipeline failed!
+2025-07-31 23:37:13,055 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-07-31 23:37:13,055 - INFO - ============================================================
+2025-07-31 23:37:13,055 - INFO - 🔍 Detecting environment...
+2025-07-31 23:37:13,872 - INFO - 💻 Running in local environment
+2025-07-31 23:37:13,872 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.11.13 (main, Jun  5 2025, 08:14:07) [Clang 14.0.6 ]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'samo-dl-stable'}
+2025-07-31 23:37:13,872 - INFO - 📦 Validating dependencies...
+2025-07-31 23:37:13,872 - INFO - ✅ torch available
+2025-07-31 23:37:14,417 - INFO - ✅ transformers available
+2025-07-31 23:37:14,565 - INFO - ✅ fastapi available
+2025-07-31 23:37:14,565 - INFO - ✅ pydantic available
+2025-07-31 23:37:15,233 - INFO - ✅ datasets available
+2025-07-31 23:37:15,242 - INFO - ✅ tokenizers available
+2025-07-31 23:37:15,242 - INFO - ✅ numpy available
+2025-07-31 23:37:15,242 - INFO - ✅ pandas available
+2025-07-31 23:37:15,242 - INFO - ✅ All dependencies validated
+2025-07-31 23:37:15,242 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-07-31 23:37:15,524 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-07-31 23:37:15,524 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-07-31 23:37:20,812 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-07-31 23:37:20,813 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-07-31 23:37:27,903 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-07-31 23:37:27,903 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-07-31 23:37:31,016 - INFO - ✅ scripts/ci/whisper_transcription_test.py PASSED
+2025-07-31 23:37:31,016 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-07-31 23:37:36,164 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-07-31 23:37:36,164 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-07-31 23:37:36,409 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-07-31 23:37:36,409 - INFO - 🧪 Running unit tests...
+2025-07-31 23:37:41,620 - ERROR - ❌ Unit tests FAILED
+2025-07-31 23:37:41,621 - ERROR - Error output: 
+2025-07-31 23:37:41,621 - INFO - 🎯 Running E2E tests...
+2025-07-31 23:37:45,098 - INFO - ✅ E2E tests PASSED
+2025-07-31 23:37:45,098 - INFO - 🖥️ Testing GPU compatibility...
+2025-07-31 23:37:45,099 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-07-31 23:37:45,099 - INFO - ⚡ Running performance benchmarks...
+2025-07-31 23:37:48,063 - INFO - ✅ Model loading time: 2.52s
+2025-07-31 23:37:48,064 - INFO - ✅ Inference time: 0.44s
+2025-07-31 23:37:48,064 - INFO - ✅ Performance benchmarks passed
+2025-07-31 23:37:48,075 - INFO - 📊 Generating CI Report
+2025-07-31 23:37:48,075 - INFO - ============================================================
+2025-07-31 23:37:48,075 - ERROR - ❌ CI Pipeline failed!
+2025-07-31 23:38:24,065 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-07-31 23:38:24,066 - INFO - ============================================================
+2025-07-31 23:38:24,066 - INFO - 🔍 Detecting environment...
+2025-07-31 23:38:24,950 - INFO - 💻 Running in local environment
+2025-07-31 23:38:24,951 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.11.13 (main, Jun  5 2025, 08:14:07) [Clang 14.0.6 ]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'samo-dl-stable'}
+2025-07-31 23:38:24,951 - INFO - 📦 Validating dependencies...
+2025-07-31 23:38:24,951 - INFO - ✅ torch available
+2025-07-31 23:38:25,489 - INFO - ✅ transformers available
+2025-07-31 23:38:25,679 - INFO - ✅ fastapi available
+2025-07-31 23:38:25,679 - INFO - ✅ pydantic available
+2025-07-31 23:38:26,499 - INFO - ✅ datasets available
+2025-07-31 23:38:26,508 - INFO - ✅ tokenizers available
+2025-07-31 23:38:26,508 - INFO - ✅ numpy available
+2025-07-31 23:38:26,508 - INFO - ✅ pandas available
+2025-07-31 23:38:26,508 - INFO - ✅ All dependencies validated
+2025-07-31 23:38:26,509 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-07-31 23:38:26,794 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-07-31 23:38:26,794 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-07-31 23:38:32,046 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-07-31 23:38:32,047 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-07-31 23:38:39,128 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-07-31 23:38:39,129 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-07-31 23:38:42,280 - INFO - ✅ scripts/ci/whisper_transcription_test.py PASSED
+2025-07-31 23:38:42,281 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-07-31 23:38:47,110 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-07-31 23:38:47,110 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-07-31 23:38:47,354 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-07-31 23:38:47,354 - INFO - 🧪 Running unit tests...
+2025-07-31 23:38:53,943 - INFO - ✅ Unit tests PASSED
+2025-07-31 23:38:53,943 - INFO - 🎯 Running E2E tests...
+2025-07-31 23:38:57,743 - INFO - ✅ E2E tests PASSED
+2025-07-31 23:38:57,743 - INFO - 🖥️ Testing GPU compatibility...
+2025-07-31 23:38:57,744 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-07-31 23:38:57,744 - INFO - ⚡ Running performance benchmarks...
+2025-07-31 23:39:01,433 - INFO - ✅ Model loading time: 2.69s
+2025-07-31 23:39:01,434 - INFO - ✅ Inference time: 1.00s
+2025-07-31 23:39:01,434 - INFO - ✅ Performance benchmarks passed
+2025-07-31 23:39:01,445 - INFO - 📊 Generating CI Report
+2025-07-31 23:39:01,445 - INFO - ============================================================
+2025-07-31 23:39:01,445 - INFO - 🎉 CI Pipeline completed successfully!
+2025-07-31 23:41:20,257 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-07-31 23:41:20,257 - INFO - ============================================================
+2025-07-31 23:41:20,257 - INFO - 🔍 Detecting environment...
+2025-07-31 23:41:22,056 - INFO - 💻 Running in local environment
+2025-07-31 23:41:22,057 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.11.13 (main, Jun  5 2025, 08:14:07) [Clang 14.0.6 ]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'samo-dl-stable'}
+2025-07-31 23:41:22,057 - INFO - 📦 Validating dependencies...
+2025-07-31 23:41:22,057 - INFO - ✅ torch available
+2025-07-31 23:41:22,748 - INFO - ✅ transformers available
+2025-07-31 23:41:22,924 - INFO - ✅ fastapi available
+2025-07-31 23:41:22,924 - INFO - ✅ pydantic available
+2025-07-31 23:41:23,820 - INFO - ✅ datasets available
+2025-07-31 23:41:23,837 - INFO - ✅ tokenizers available
+2025-07-31 23:41:23,837 - INFO - ✅ numpy available
+2025-07-31 23:41:23,837 - INFO - ✅ pandas available
+2025-07-31 23:41:23,837 - INFO - ✅ All dependencies validated
+2025-07-31 23:41:23,837 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-07-31 23:41:24,139 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-07-31 23:41:24,139 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-07-31 23:41:30,741 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-07-31 23:41:30,742 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-07-31 23:41:38,068 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-07-31 23:41:38,069 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-07-31 23:41:41,464 - INFO - ✅ scripts/ci/whisper_transcription_test.py PASSED
+2025-07-31 23:41:41,464 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-07-31 23:41:47,167 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-07-31 23:41:47,168 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-07-31 23:41:47,437 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-07-31 23:41:47,437 - INFO - 🧪 Running unit tests...
+2025-07-31 23:41:54,872 - INFO - ✅ Unit tests PASSED
+2025-07-31 23:41:54,872 - INFO - 🎯 Running E2E tests...
+2025-07-31 23:41:58,662 - INFO - ✅ E2E tests PASSED
+2025-07-31 23:41:58,662 - INFO - 🖥️ Testing GPU compatibility...
+2025-07-31 23:41:58,662 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-07-31 23:41:58,662 - INFO - ⚡ Running performance benchmarks...
+2025-07-31 23:42:02,501 - INFO - ✅ Model loading time: 2.86s
+2025-07-31 23:42:02,501 - INFO - ✅ Inference time: 0.98s
+2025-07-31 23:42:02,501 - INFO - ✅ Performance benchmarks passed
+2025-07-31 23:42:02,513 - INFO - 📊 Generating CI Report
+2025-07-31 23:42:02,513 - INFO - ============================================================
+2025-07-31 23:42:02,514 - INFO - 🎉 CI Pipeline completed successfully!
+2025-07-31 23:48:27,513 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-07-31 23:48:27,513 - INFO - ============================================================
+2025-07-31 23:48:27,513 - INFO - 🔍 Detecting environment...
+2025-07-31 23:48:28,290 - INFO - 💻 Running in local environment
+2025-07-31 23:48:28,290 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.11.13 (main, Jun  5 2025, 08:14:07) [Clang 14.0.6 ]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-07-31 23:48:28,290 - INFO - 📦 Validating dependencies...
+2025-07-31 23:48:28,291 - INFO - ✅ torch available
+2025-07-31 23:48:28,968 - INFO - ✅ transformers available
+2025-07-31 23:48:29,142 - INFO - ✅ fastapi available
+2025-07-31 23:48:29,142 - INFO - ✅ pydantic available
+2025-07-31 23:48:29,893 - INFO - ⏹️ CI Pipeline interrupted by user
+2025-07-31 23:48:30,876 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-07-31 23:48:30,876 - INFO - ============================================================
+2025-07-31 23:48:30,876 - INFO - 🔍 Detecting environment...
+2025-07-31 23:48:31,631 - INFO - 💻 Running in local environment
+2025-07-31 23:48:31,631 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.11.13 (main, Jun  5 2025, 08:14:07) [Clang 14.0.6 ]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-07-31 23:48:31,631 - INFO - 📦 Validating dependencies...
+2025-07-31 23:48:31,631 - INFO - ✅ torch available
+2025-07-31 23:48:32,021 - INFO - ✅ transformers available
+2025-07-31 23:48:32,154 - INFO - ✅ fastapi available
+2025-07-31 23:48:32,154 - INFO - ✅ pydantic available
+2025-07-31 23:48:32,856 - INFO - ✅ datasets available
+2025-07-31 23:48:32,872 - INFO - ✅ tokenizers available
+2025-07-31 23:48:32,872 - INFO - ✅ numpy available
+2025-07-31 23:48:32,872 - INFO - ✅ pandas available
+2025-07-31 23:48:32,872 - INFO - ✅ All dependencies validated
+2025-07-31 23:48:32,872 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-07-31 23:48:33,170 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-07-31 23:48:33,171 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-07-31 23:48:33,525 - INFO - ⏹️ CI Pipeline interrupted by user
+2025-08-01 01:26:07,872 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-01 01:26:07,872 - INFO - ============================================================
+2025-08-01 01:26:07,872 - INFO - 🔍 Detecting environment...
+2025-08-01 01:26:09,620 - INFO - 💻 Running in local environment
+2025-08-01 01:26:09,620 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.11.13 (main, Jun  5 2025, 08:14:07) [Clang 14.0.6 ]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'samo-dl-stable'}
+2025-08-01 01:26:09,620 - INFO - 📦 Validating dependencies...
+2025-08-01 01:26:09,620 - INFO - ✅ torch available
+2025-08-01 01:26:10,284 - INFO - ✅ transformers available
+2025-08-01 01:26:10,460 - INFO - ✅ fastapi available
+2025-08-01 01:26:10,460 - INFO - ✅ pydantic available
+2025-08-01 01:26:11,604 - INFO - ✅ datasets available
+2025-08-01 01:26:11,621 - INFO - ✅ tokenizers available
+2025-08-01 01:26:11,621 - INFO - ✅ numpy available
+2025-08-01 01:26:11,621 - INFO - ✅ pandas available
+2025-08-01 01:26:11,621 - INFO - ✅ All dependencies validated
+2025-08-01 01:26:11,621 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-01 01:26:11,905 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-08-01 01:26:11,906 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-01 01:26:17,529 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-08-01 01:26:17,529 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-01 01:26:24,202 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-08-01 01:26:24,203 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-01 01:26:27,618 - INFO - ✅ scripts/ci/whisper_transcription_test.py PASSED
+2025-08-01 01:26:27,618 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-01 01:26:32,407 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-08-01 01:26:32,408 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-01 01:26:32,659 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-08-01 01:26:32,660 - INFO - 🧪 Running unit tests...
+2025-08-01 01:26:39,497 - INFO - ✅ Unit tests PASSED
+2025-08-01 01:26:39,498 - INFO - 🎯 Running E2E tests...
+2025-08-01 01:26:42,659 - INFO - ✅ E2E tests PASSED
+2025-08-01 01:26:42,660 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-01 01:26:42,660 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-08-01 01:26:42,660 - INFO - ⚡ Running performance benchmarks...
+2025-08-01 01:26:45,735 - INFO - ✅ Model loading time: 2.56s
+2025-08-01 01:26:45,735 - INFO - ✅ Inference time: 0.51s
+2025-08-01 01:26:45,736 - INFO - ✅ Performance benchmarks passed
+2025-08-01 01:26:45,747 - INFO - 📊 Generating CI Report
+2025-08-01 01:26:45,747 - INFO - ============================================================
+2025-08-01 01:26:45,747 - ERROR - 💥 CI Pipeline crashed: [Errno 5] Input/output error
+2025-08-06 07:35:29,935 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-06 07:35:29,939 - INFO - ============================================================
+2025-08-06 07:35:29,939 - INFO - 🔍 Detecting environment...
+2025-08-06 07:35:34,187 - INFO - 💻 Running in local environment
+2025-08-06 07:35:34,188 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-08-06 07:35:34,188 - INFO - 📦 Validating dependencies...
+2025-08-06 07:35:34,188 - INFO - ✅ torch available
+2025-08-06 07:35:34,833 - INFO - ✅ transformers available
+2025-08-06 07:35:35,308 - INFO - ✅ fastapi available
+2025-08-06 07:35:35,308 - INFO - ✅ pydantic available
+2025-08-06 07:35:36,217 - INFO - PyTorch version 2.2.2 available.
+2025-08-06 07:35:37,182 - INFO - ✅ datasets available
+2025-08-06 07:35:37,200 - INFO - ✅ tokenizers available
+2025-08-06 07:35:37,200 - INFO - ✅ numpy available
+2025-08-06 07:35:37,200 - INFO - ✅ pandas available
+2025-08-06 07:35:37,200 - INFO - ✅ All dependencies validated
+2025-08-06 07:35:37,200 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-06 07:35:37,340 - ERROR - ❌ scripts/ci/api_health_check.py FAILED
+2025-08-06 07:35:37,340 - ERROR - Error output: Traceback (most recent call last):
+  File "scripts/ci/api_health_check.py", line 17, in <module>
+    from api_rate_limiter import RateLimitCache
+ImportError: cannot import name 'RateLimitCache' from 'api_rate_limiter' (src/api_rate_limiter.py)
+
+2025-08-06 07:35:37,340 - ERROR - ❌ api_health_check failed, but continuing...
+2025-08-06 07:35:37,340 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-06 07:35:38,683 - ERROR - ❌ scripts/ci/bert_model_test.py FAILED
+2025-08-06 07:35:38,683 - ERROR - Error output: Traceback (most recent call last):
+  File "scripts/ci/bert_model_test.py", line 17, in <module>
+    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+ModuleNotFoundError: No module named 'src'
+
+2025-08-06 07:35:38,683 - ERROR - ❌ bert_model_test failed, but continuing...
+2025-08-06 07:35:38,683 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-06 07:35:38,787 - ERROR - ❌ scripts/ci/t5_summarization_test.py FAILED
+2025-08-06 07:35:38,787 - ERROR - Error output: Traceback (most recent call last):
+  File "scripts/ci/t5_summarization_test.py", line 16, in <module>
+    from src.models.summarization.t5_summarizer import create_t5_summarizer
+ModuleNotFoundError: No module named 'src'
+
+2025-08-06 07:35:38,787 - ERROR - ❌ t5_summarization_test failed, but continuing...
+2025-08-06 07:35:38,787 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-06 07:35:39,905 - ERROR - ❌ scripts/ci/whisper_transcription_test.py FAILED
+2025-08-06 07:35:39,905 - ERROR - Error output: INFO:__main__:🚀 Starting Whisper Transcription Tests...
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Imports
+INFO:__main__:==================================================
+INFO:__main__:🔍 Testing Whisper imports...
+ERROR:__main__:❌ Whisper import test failed: No module named 'src'
+ERROR:__main__:❌ Whisper Imports: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Instantiation
+INFO:__main__:==================================================
+INFO:__main__:🤖 Testing WhisperTranscriber instantiation...
+ERROR:__main__:❌ WhisperTranscriber instantiation failed: No module named 'src'
+ERROR:__main__:❌ Whisper Instantiation: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Audio Preprocessor
+INFO:__main__:==================================================
+INFO:__main__:🎵 Testing AudioPreprocessor...
+ERROR:__main__:❌ AudioPreprocessor test failed: No module named 'src'
+ERROR:__main__:❌ Audio Preprocessor: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Minimal Transcription
+INFO:__main__:==================================================
+INFO:__main__:🎤 Testing minimal transcription...
+ERROR:__main__:❌ Transcription test failed: No module named 'src'
+ERROR:__main__:❌ Minimal Transcription: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Whisper Transcription Tests Results: 0/4 tests passed
+INFO:__main__:==================================================
+ERROR:__main__:💥 Some Whisper transcription tests failed!
+
+2025-08-06 07:35:39,906 - ERROR - ❌ whisper_transcription_test failed, but continuing...
+2025-08-06 07:35:39,906 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-06 07:35:45,297 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-08-06 07:35:45,297 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-06 07:35:45,525 - ERROR - ❌ scripts/ci/onnx_conversion_test.py FAILED
+2025-08-06 07:35:45,525 - ERROR - Error output: Traceback (most recent call last):
+  File "scripts/ci/onnx_conversion_test.py", line 16, in <module>
+    from onnx import helper
+ModuleNotFoundError: No module named 'onnx'
+
+2025-08-06 07:35:45,525 - ERROR - ❌ onnx_conversion_test failed, but continuing...
+2025-08-06 07:35:45,525 - INFO - 🧪 Running unit tests...
+2025-08-06 07:35:46,686 - ERROR - ❌ Unit tests FAILED
+2025-08-06 07:35:46,686 - ERROR - Error output: ImportError while loading conftest '/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/tests/conftest.py'.
+tests/conftest.py:6: in <module>
+    from src.unified_ai_api import app
+src/unified_ai_api.py:112: in <module>
+    add_rate_limiting(app)
+src/api_rate_limiter.py:374: in add_rate_limiting
+    config = RateLimitConfig(
+E   TypeError: __init__() got an unexpected keyword argument 'enable_ip_blacklist'
+
+2025-08-06 07:35:46,686 - INFO - 🎯 Running E2E tests...
+2025-08-06 07:35:47,408 - ERROR - ❌ E2E tests FAILED
+2025-08-06 07:35:47,408 - ERROR - Error output: ImportError while loading conftest '/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/tests/conftest.py'.
+tests/conftest.py:6: in <module>
+    from src.unified_ai_api import app
+src/unified_ai_api.py:112: in <module>
+    add_rate_limiting(app)
+src/api_rate_limiter.py:374: in add_rate_limiting
+    config = RateLimitConfig(
+E   TypeError: __init__() got an unexpected keyword argument 'enable_ip_blacklist'
+
+2025-08-06 07:35:47,408 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-06 07:35:47,408 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-08-06 07:35:47,408 - INFO - ⚡ Running performance benchmarks...
+2025-08-06 07:35:47,409 - ERROR - ❌ Performance benchmark failed: No module named 'src'
+2025-08-06 07:35:47,409 - INFO - 📊 Generating CI Report
+2025-08-06 07:35:47,409 - INFO - ============================================================
+2025-08-06 07:35:47,410 - ERROR - ❌ CI Pipeline failed!
+2025-08-06 07:37:19,120 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-06 07:37:19,120 - INFO - ============================================================
+2025-08-06 07:37:19,120 - INFO - 🔍 Detecting environment...
+2025-08-06 07:37:20,782 - INFO - 💻 Running in local environment
+2025-08-06 07:37:20,782 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-08-06 07:37:20,782 - INFO - 📦 Validating dependencies...
+2025-08-06 07:37:20,782 - INFO - ✅ torch available
+2025-08-06 07:37:20,981 - INFO - ✅ transformers available
+2025-08-06 07:37:21,274 - INFO - ✅ fastapi available
+2025-08-06 07:37:21,274 - INFO - ✅ pydantic available
+2025-08-06 07:37:21,816 - INFO - PyTorch version 2.2.2 available.
+2025-08-06 07:37:22,054 - INFO - ✅ datasets available
+2025-08-06 07:37:22,068 - INFO - ✅ tokenizers available
+2025-08-06 07:37:22,068 - INFO - ✅ numpy available
+2025-08-06 07:37:22,068 - INFO - ✅ pandas available
+2025-08-06 07:37:22,068 - INFO - ✅ All dependencies validated
+2025-08-06 07:37:22,069 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-06 07:37:22,306 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-08-06 07:37:22,306 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-06 07:37:24,397 - ERROR - ❌ scripts/ci/bert_model_test.py FAILED
+2025-08-06 07:37:24,397 - ERROR - Error output: Traceback (most recent call last):
+  File "scripts/ci/bert_model_test.py", line 19, in <module>
+    from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+  File "src/models/emotion_detection/bert_classifier.py", line 30, in <module>
+    class BERTEmotionClassifier(nn.Module):
+  File "src/models/emotion_detection/bert_classifier.py", line 192, in BERTEmotionClassifier
+    texts: Union[str, list[str]],
+TypeError: 'type' object is not subscriptable
+
+2025-08-06 07:37:24,397 - ERROR - ❌ bert_model_test failed, but continuing...
+2025-08-06 07:37:24,397 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-06 07:37:25,494 - ERROR - ❌ scripts/ci/t5_summarization_test.py FAILED
+2025-08-06 07:37:25,494 - ERROR - Error output: Traceback (most recent call last):
+  File "scripts/ci/t5_summarization_test.py", line 18, in <module>
+    from models.summarization.t5_summarizer import create_t5_summarizer
+  File "src/models/summarization/__init__.py", line 19, in <module>
+    from .dataset_loader import SummarizationDataset, create_summarization_loader
+  File "src/models/summarization/dataset_loader.py", line 17, in <module>
+    class SummarizationDataset(Dataset):
+  File "src/models/summarization/dataset_loader.py", line 20, in SummarizationDataset
+    def __init__(self, texts: list[str], summaries: list[str]) -> None:
+TypeError: 'type' object is not subscriptable
+
+2025-08-06 07:37:25,494 - ERROR - ❌ t5_summarization_test failed, but continuing...
+2025-08-06 07:37:25,495 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-06 07:37:25,871 - ERROR - ❌ scripts/ci/whisper_transcription_test.py FAILED
+2025-08-06 07:37:25,871 - ERROR - Error output: INFO:__main__:🚀 Starting Whisper Transcription Tests...
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Imports
+INFO:__main__:==================================================
+INFO:__main__:🔍 Testing Whisper imports...
+ERROR:__main__:❌ Whisper import test failed: No module named 'src'
+ERROR:__main__:❌ Whisper Imports: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Instantiation
+INFO:__main__:==================================================
+INFO:__main__:🤖 Testing WhisperTranscriber instantiation...
+ERROR:__main__:❌ WhisperTranscriber instantiation failed: No module named 'src'
+ERROR:__main__:❌ Whisper Instantiation: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Audio Preprocessor
+INFO:__main__:==================================================
+INFO:__main__:🎵 Testing AudioPreprocessor...
+ERROR:__main__:❌ AudioPreprocessor test failed: No module named 'src'
+ERROR:__main__:❌ Audio Preprocessor: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Minimal Transcription
+INFO:__main__:==================================================
+INFO:__main__:🎤 Testing minimal transcription...
+ERROR:__main__:❌ Transcription test failed: No module named 'src'
+ERROR:__main__:❌ Minimal Transcription: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Whisper Transcription Tests Results: 0/4 tests passed
+INFO:__main__:==================================================
+ERROR:__main__:💥 Some Whisper transcription tests failed!
+
+2025-08-06 07:37:25,871 - ERROR - ❌ whisper_transcription_test failed, but continuing...
+2025-08-06 07:37:25,871 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-06 07:37:30,536 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-08-06 07:37:30,537 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-06 07:37:30,772 - ERROR - ❌ scripts/ci/onnx_conversion_test.py FAILED
+2025-08-06 07:37:30,772 - ERROR - Error output: Traceback (most recent call last):
+  File "scripts/ci/onnx_conversion_test.py", line 17, in <module>
+    from onnx import helper
+ModuleNotFoundError: No module named 'onnx'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "scripts/ci/onnx_conversion_test.py", line 19, in <module>
+    logger.warning("ONNX not available, skipping ONNX conversion test")
+NameError: name 'logger' is not defined
+
+2025-08-06 07:37:30,772 - ERROR - ❌ onnx_conversion_test failed, but continuing...
+2025-08-06 07:37:30,772 - INFO - 🧪 Running unit tests...
+2025-08-06 07:37:36,652 - ERROR - ❌ Unit tests FAILED
+2025-08-06 07:37:36,652 - ERROR - Error output: 
+2025-08-06 07:37:36,652 - INFO - 🎯 Running E2E tests...
+2025-08-06 07:37:40,590 - ERROR - ❌ E2E tests FAILED
+2025-08-06 07:37:40,590 - ERROR - Error output: 
+2025-08-06 07:37:40,590 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-06 07:37:40,590 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-08-06 07:37:40,590 - INFO - ⚡ Running performance benchmarks...
+2025-08-06 07:37:40,670 - ERROR - ❌ Performance benchmark failed: 'type' object is not subscriptable
+2025-08-06 07:37:40,670 - INFO - 📊 Generating CI Report
+2025-08-06 07:37:40,670 - INFO - ============================================================
+2025-08-06 07:37:40,670 - ERROR - ❌ CI Pipeline failed!
+2025-08-06 07:38:15,119 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-06 07:38:15,119 - INFO - ============================================================
+2025-08-06 07:38:15,119 - INFO - 🔍 Detecting environment...
+2025-08-06 07:38:16,778 - INFO - 💻 Running in local environment
+2025-08-06 07:38:16,778 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-08-06 07:38:16,778 - INFO - 📦 Validating dependencies...
+2025-08-06 07:38:16,778 - INFO - ✅ torch available
+2025-08-06 07:38:16,967 - INFO - ✅ transformers available
+2025-08-06 07:38:17,259 - INFO - ✅ fastapi available
+2025-08-06 07:38:17,259 - INFO - ✅ pydantic available
+2025-08-06 07:38:17,794 - INFO - PyTorch version 2.2.2 available.
+2025-08-06 07:38:18,010 - INFO - ✅ datasets available
+2025-08-06 07:38:18,024 - INFO - ✅ tokenizers available
+2025-08-06 07:38:18,024 - INFO - ✅ numpy available
+2025-08-06 07:38:18,024 - INFO - ✅ pandas available
+2025-08-06 07:38:18,024 - INFO - ✅ All dependencies validated
+2025-08-06 07:38:18,024 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-06 07:38:18,268 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-08-06 07:38:18,268 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-06 07:38:20,326 - ERROR - ❌ scripts/ci/bert_model_test.py FAILED
+2025-08-06 07:38:20,326 - ERROR - Error output: Traceback (most recent call last):
+  File "scripts/ci/bert_model_test.py", line 19, in <module>
+    from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+  File "src/models/emotion_detection/bert_classifier.py", line 30, in <module>
+    class BERTEmotionClassifier(nn.Module):
+  File "src/models/emotion_detection/bert_classifier.py", line 192, in BERTEmotionClassifier
+    texts: Union[str, List[str]],
+NameError: name 'List' is not defined
+
+2025-08-06 07:38:20,326 - ERROR - ❌ bert_model_test failed, but continuing...
+2025-08-06 07:38:20,326 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-06 07:38:21,398 - ERROR - ❌ scripts/ci/t5_summarization_test.py FAILED
+2025-08-06 07:38:21,398 - ERROR - Error output: Traceback (most recent call last):
+  File "scripts/ci/t5_summarization_test.py", line 18, in <module>
+    from models.summarization.t5_summarizer import create_t5_summarizer
+  File "src/models/summarization/__init__.py", line 19, in <module>
+    from .dataset_loader import SummarizationDataset, create_summarization_loader
+  File "src/models/summarization/dataset_loader.py", line 17, in <module>
+    class SummarizationDataset(Dataset):
+  File "src/models/summarization/dataset_loader.py", line 20, in SummarizationDataset
+    def __init__(self, texts: List[str], summaries: List[str]) -> None:
+NameError: name 'List' is not defined
+
+2025-08-06 07:38:21,399 - ERROR - ❌ t5_summarization_test failed, but continuing...
+2025-08-06 07:38:21,399 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-06 07:38:21,763 - ERROR - ❌ scripts/ci/whisper_transcription_test.py FAILED
+2025-08-06 07:38:21,763 - ERROR - Error output: INFO:__main__:🚀 Starting Whisper Transcription Tests...
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Imports
+INFO:__main__:==================================================
+INFO:__main__:🔍 Testing Whisper imports...
+ERROR:__main__:❌ Whisper import test failed: No module named 'src'
+ERROR:__main__:❌ Whisper Imports: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Instantiation
+INFO:__main__:==================================================
+INFO:__main__:🤖 Testing WhisperTranscriber instantiation...
+ERROR:__main__:❌ WhisperTranscriber instantiation failed: No module named 'src'
+ERROR:__main__:❌ Whisper Instantiation: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Audio Preprocessor
+INFO:__main__:==================================================
+INFO:__main__:🎵 Testing AudioPreprocessor...
+ERROR:__main__:❌ AudioPreprocessor test failed: No module named 'src'
+ERROR:__main__:❌ Audio Preprocessor: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Minimal Transcription
+INFO:__main__:==================================================
+INFO:__main__:🎤 Testing minimal transcription...
+ERROR:__main__:❌ Transcription test failed: No module named 'src'
+ERROR:__main__:❌ Minimal Transcription: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Whisper Transcription Tests Results: 0/4 tests passed
+INFO:__main__:==================================================
+ERROR:__main__:💥 Some Whisper transcription tests failed!
+
+2025-08-06 07:38:21,764 - ERROR - ❌ whisper_transcription_test failed, but continuing...
+2025-08-06 07:38:21,764 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-06 07:38:25,363 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-08-06 07:38:25,364 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-06 07:38:25,602 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-08-06 07:38:25,603 - INFO - 🧪 Running unit tests...
+2025-08-06 07:38:31,769 - ERROR - ❌ Unit tests FAILED
+2025-08-06 07:38:31,770 - ERROR - Error output: 
+2025-08-06 07:38:31,770 - INFO - 🎯 Running E2E tests...
+2025-08-06 07:38:35,389 - ERROR - ❌ E2E tests FAILED
+2025-08-06 07:38:35,389 - ERROR - Error output: 
+2025-08-06 07:38:35,389 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-06 07:38:35,389 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-08-06 07:38:35,389 - INFO - ⚡ Running performance benchmarks...
+2025-08-06 07:38:35,470 - ERROR - ❌ Performance benchmark failed: name 'List' is not defined
+2025-08-06 07:38:35,470 - INFO - 📊 Generating CI Report
+2025-08-06 07:38:35,470 - INFO - ============================================================
+2025-08-06 07:38:35,470 - ERROR - ❌ CI Pipeline failed!
+2025-08-06 07:39:05,449 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-06 07:39:05,449 - INFO - ============================================================
+2025-08-06 07:39:05,449 - INFO - 🔍 Detecting environment...
+2025-08-06 07:39:07,147 - INFO - 💻 Running in local environment
+2025-08-06 07:39:07,147 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-08-06 07:39:07,147 - INFO - 📦 Validating dependencies...
+2025-08-06 07:39:07,147 - INFO - ✅ torch available
+2025-08-06 07:39:07,341 - INFO - ✅ transformers available
+2025-08-06 07:39:07,641 - INFO - ✅ fastapi available
+2025-08-06 07:39:07,641 - INFO - ✅ pydantic available
+2025-08-06 07:39:08,185 - INFO - PyTorch version 2.2.2 available.
+2025-08-06 07:39:08,414 - INFO - ✅ datasets available
+2025-08-06 07:39:08,430 - INFO - ✅ tokenizers available
+2025-08-06 07:39:08,430 - INFO - ✅ numpy available
+2025-08-06 07:39:08,430 - INFO - ✅ pandas available
+2025-08-06 07:39:08,430 - INFO - ✅ All dependencies validated
+2025-08-06 07:39:08,430 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-06 07:39:08,667 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-08-06 07:39:08,668 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-06 07:39:10,770 - ERROR - ❌ scripts/ci/bert_model_test.py FAILED
+2025-08-06 07:39:10,770 - ERROR - Error output: Traceback (most recent call last):
+  File "scripts/ci/bert_model_test.py", line 19, in <module>
+    from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+  File "src/models/emotion_detection/bert_classifier.py", line 30, in <module>
+    class BERTEmotionClassifier(nn.Module):
+  File "src/models/emotion_detection/bert_classifier.py", line 197, in BERTEmotionClassifier
+    ) -> Union[dict[str, Union[list[str], torch.Tensor, list[float]]], list[list[int]]]:
+TypeError: 'type' object is not subscriptable
+
+2025-08-06 07:39:10,770 - ERROR - ❌ bert_model_test failed, but continuing...
+2025-08-06 07:39:10,770 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-06 07:39:12,458 - ERROR - ❌ scripts/ci/t5_summarization_test.py FAILED
+2025-08-06 07:39:12,459 - ERROR - Error output: Traceback (most recent call last):
+  File "scripts/ci/t5_summarization_test.py", line 18, in <module>
+    from models.summarization.t5_summarizer import create_t5_summarizer
+  File "src/models/summarization/__init__.py", line 20, in <module>
+    from .t5_summarizer import T5SummarizationModel, create_t5_summarizer
+  File "src/models/summarization/t5_summarizer.py", line 54, in <module>
+    class SummarizationDataset(Dataset):
+  File "src/models/summarization/t5_summarizer.py", line 59, in SummarizationDataset
+    texts: list[str],
+TypeError: 'type' object is not subscriptable
+
+2025-08-06 07:39:12,459 - ERROR - ❌ t5_summarization_test failed, but continuing...
+2025-08-06 07:39:12,459 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-06 07:39:12,780 - ERROR - ❌ scripts/ci/whisper_transcription_test.py FAILED
+2025-08-06 07:39:12,780 - ERROR - Error output: INFO:__main__:🚀 Starting Whisper Transcription Tests...
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Imports
+INFO:__main__:==================================================
+INFO:__main__:🔍 Testing Whisper imports...
+ERROR:__main__:❌ Whisper import test failed: No module named 'src'
+ERROR:__main__:❌ Whisper Imports: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Instantiation
+INFO:__main__:==================================================
+INFO:__main__:🤖 Testing WhisperTranscriber instantiation...
+ERROR:__main__:❌ WhisperTranscriber instantiation failed: No module named 'src'
+ERROR:__main__:❌ Whisper Instantiation: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Audio Preprocessor
+INFO:__main__:==================================================
+INFO:__main__:🎵 Testing AudioPreprocessor...
+ERROR:__main__:❌ AudioPreprocessor test failed: No module named 'src'
+ERROR:__main__:❌ Audio Preprocessor: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Minimal Transcription
+INFO:__main__:==================================================
+INFO:__main__:🎤 Testing minimal transcription...
+ERROR:__main__:❌ Transcription test failed: No module named 'src'
+ERROR:__main__:❌ Minimal Transcription: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Whisper Transcription Tests Results: 0/4 tests passed
+INFO:__main__:==================================================
+ERROR:__main__:💥 Some Whisper transcription tests failed!
+
+2025-08-06 07:39:12,780 - ERROR - ❌ whisper_transcription_test failed, but continuing...
+2025-08-06 07:39:12,780 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-06 07:39:16,941 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-08-06 07:39:16,941 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-06 07:39:17,173 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-08-06 07:39:17,173 - INFO - 🧪 Running unit tests...
+2025-08-06 07:39:22,715 - ERROR - ❌ Unit tests FAILED
+2025-08-06 07:39:22,715 - ERROR - Error output: 
+2025-08-06 07:39:22,715 - INFO - 🎯 Running E2E tests...
+2025-08-06 07:39:26,311 - ERROR - ❌ E2E tests FAILED
+2025-08-06 07:39:26,311 - ERROR - Error output: 
+2025-08-06 07:39:26,311 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-06 07:39:26,311 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-08-06 07:39:26,311 - INFO - ⚡ Running performance benchmarks...
+2025-08-06 07:39:26,389 - ERROR - ❌ Performance benchmark failed: 'type' object is not subscriptable
+2025-08-06 07:39:26,389 - INFO - 📊 Generating CI Report
+2025-08-06 07:39:26,389 - INFO - ============================================================
+2025-08-06 07:39:26,390 - ERROR - ❌ CI Pipeline failed!
+2025-08-06 07:40:43,956 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-06 07:40:43,956 - INFO - ============================================================
+2025-08-06 07:40:43,956 - INFO - 🔍 Detecting environment...
+2025-08-06 07:40:45,587 - INFO - 💻 Running in local environment
+2025-08-06 07:40:45,587 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-08-06 07:40:45,587 - INFO - 📦 Validating dependencies...
+2025-08-06 07:40:45,588 - INFO - ✅ torch available
+2025-08-06 07:40:45,785 - INFO - ✅ transformers available
+2025-08-06 07:40:46,083 - INFO - ✅ fastapi available
+2025-08-06 07:40:46,083 - INFO - ✅ pydantic available
+2025-08-06 07:40:46,625 - INFO - PyTorch version 2.2.2 available.
+2025-08-06 07:40:46,851 - INFO - ✅ datasets available
+2025-08-06 07:40:46,867 - INFO - ✅ tokenizers available
+2025-08-06 07:40:46,867 - INFO - ✅ numpy available
+2025-08-06 07:40:46,867 - INFO - ✅ pandas available
+2025-08-06 07:40:46,867 - INFO - ✅ All dependencies validated
+2025-08-06 07:40:46,867 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-06 07:40:47,109 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-08-06 07:40:47,110 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-06 07:40:49,215 - ERROR - ❌ scripts/ci/bert_model_test.py FAILED
+2025-08-06 07:40:49,215 - ERROR - Error output: Traceback (most recent call last):
+  File "scripts/ci/bert_model_test.py", line 19, in <module>
+    from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+  File "src/models/emotion_detection/bert_classifier.py", line 30, in <module>
+    class BERTEmotionClassifier(nn.Module):
+  File "src/models/emotion_detection/bert_classifier.py", line 197, in BERTEmotionClassifier
+    ) -> Union[Dict[str, Union[List[str], torch.Tensor, List[float]]], List[List[int]]]:
+NameError: name 'Dict' is not defined
+
+2025-08-06 07:40:49,215 - ERROR - ❌ bert_model_test failed, but continuing...
+2025-08-06 07:40:49,215 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-06 07:40:51,118 - ERROR - ❌ scripts/ci/t5_summarization_test.py FAILED
+2025-08-06 07:40:51,119 - ERROR - Error output: INFO:__main__:🚀 Starting T5 Model Tests...
+INFO:__main__:🧪 Running T5 Model Loading...
+INFO:__main__:🤖 Testing T5 summarization model loading...
+INFO:models.summarization.t5_summarizer:Initializing {self.model_name} summarization model...
+ERROR:__main__:❌ T5 model loading failed: 
+T5Tokenizer requires the SentencePiece library but it was not found in your environment. Checkout the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+
+ERROR:__main__:❌ T5 Model Loading failed
+INFO:__main__:🧪 Running T5 Summarization...
+INFO:__main__:📝 Testing T5 summarization functionality...
+INFO:models.summarization.t5_summarizer:Initializing {self.model_name} summarization model...
+ERROR:__main__:❌ T5 summarization test failed: 
+T5Tokenizer requires the SentencePiece library but it was not found in your environment. Checkout the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+
+ERROR:__main__:❌ T5 Summarization failed
+INFO:__main__:📊 Test Results: 0/2 tests passed
+ERROR:__main__:💥 Some T5 model tests failed!
+
+2025-08-06 07:40:51,119 - ERROR - ❌ t5_summarization_test failed, but continuing...
+2025-08-06 07:40:51,119 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-06 07:40:51,444 - ERROR - ❌ scripts/ci/whisper_transcription_test.py FAILED
+2025-08-06 07:40:51,444 - ERROR - Error output: INFO:__main__:🚀 Starting Whisper Transcription Tests...
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Imports
+INFO:__main__:==================================================
+INFO:__main__:🔍 Testing Whisper imports...
+ERROR:__main__:❌ Whisper import test failed: No module named 'src'
+ERROR:__main__:❌ Whisper Imports: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Instantiation
+INFO:__main__:==================================================
+INFO:__main__:🤖 Testing WhisperTranscriber instantiation...
+ERROR:__main__:❌ WhisperTranscriber instantiation failed: No module named 'src'
+ERROR:__main__:❌ Whisper Instantiation: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Audio Preprocessor
+INFO:__main__:==================================================
+INFO:__main__:🎵 Testing AudioPreprocessor...
+ERROR:__main__:❌ AudioPreprocessor test failed: No module named 'src'
+ERROR:__main__:❌ Audio Preprocessor: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Minimal Transcription
+INFO:__main__:==================================================
+INFO:__main__:🎤 Testing minimal transcription...
+ERROR:__main__:❌ Transcription test failed: No module named 'src'
+ERROR:__main__:❌ Minimal Transcription: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Whisper Transcription Tests Results: 0/4 tests passed
+INFO:__main__:==================================================
+ERROR:__main__:💥 Some Whisper transcription tests failed!
+
+2025-08-06 07:40:51,444 - ERROR - ❌ whisper_transcription_test failed, but continuing...
+2025-08-06 07:40:51,444 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-06 07:40:55,301 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-08-06 07:40:55,302 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-06 07:40:55,531 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-08-06 07:40:55,531 - INFO - 🧪 Running unit tests...
+2025-08-06 07:41:00,816 - ERROR - ❌ Unit tests FAILED
+2025-08-06 07:41:00,817 - ERROR - Error output: 
+2025-08-06 07:41:00,817 - INFO - 🎯 Running E2E tests...
+2025-08-06 07:41:04,407 - ERROR - ❌ E2E tests FAILED
+2025-08-06 07:41:04,407 - ERROR - Error output: 
+2025-08-06 07:41:04,408 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-06 07:41:04,408 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-08-06 07:41:04,408 - INFO - ⚡ Running performance benchmarks...
+2025-08-06 07:41:04,487 - ERROR - ❌ Performance benchmark failed: name 'Dict' is not defined
+2025-08-06 07:41:04,487 - INFO - 📊 Generating CI Report
+2025-08-06 07:41:04,487 - INFO - ============================================================
+2025-08-06 07:41:04,487 - ERROR - ❌ CI Pipeline failed!
+2025-08-06 07:41:20,010 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-06 07:41:20,011 - INFO - ============================================================
+2025-08-06 07:41:20,011 - INFO - 🔍 Detecting environment...
+2025-08-06 07:41:21,700 - INFO - 💻 Running in local environment
+2025-08-06 07:41:21,700 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-08-06 07:41:21,700 - INFO - 📦 Validating dependencies...
+2025-08-06 07:41:21,700 - INFO - ✅ torch available
+2025-08-06 07:41:21,909 - INFO - ✅ transformers available
+2025-08-06 07:41:22,216 - INFO - ✅ fastapi available
+2025-08-06 07:41:22,216 - INFO - ✅ pydantic available
+2025-08-06 07:41:22,755 - INFO - PyTorch version 2.2.2 available.
+2025-08-06 07:41:23,024 - INFO - ✅ datasets available
+2025-08-06 07:41:23,039 - INFO - ✅ tokenizers available
+2025-08-06 07:41:23,039 - INFO - ✅ numpy available
+2025-08-06 07:41:23,039 - INFO - ✅ pandas available
+2025-08-06 07:41:23,039 - INFO - ✅ All dependencies validated
+2025-08-06 07:41:23,039 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-06 07:41:23,282 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-08-06 07:41:23,282 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-06 07:41:25,501 - ERROR - ❌ scripts/ci/bert_model_test.py FAILED
+2025-08-06 07:41:25,501 - ERROR - Error output: Traceback (most recent call last):
+  File "scripts/ci/bert_model_test.py", line 19, in <module>
+    from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+  File "src/models/emotion_detection/bert_classifier.py", line 388, in <module>
+    ) -> tuple[BERTEmotionClassifier, WeightedBCELoss]:
+TypeError: 'type' object is not subscriptable
+
+2025-08-06 07:41:25,501 - ERROR - ❌ bert_model_test failed, but continuing...
+2025-08-06 07:41:25,501 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-06 07:41:27,214 - ERROR - ❌ scripts/ci/t5_summarization_test.py FAILED
+2025-08-06 07:41:27,214 - ERROR - Error output: INFO:__main__:🚀 Starting T5 Model Tests...
+INFO:__main__:🧪 Running T5 Model Loading...
+INFO:__main__:🤖 Testing T5 summarization model loading...
+INFO:models.summarization.t5_summarizer:Initializing {self.model_name} summarization model...
+ERROR:__main__:❌ T5 model loading failed: 
+T5Tokenizer requires the SentencePiece library but it was not found in your environment. Checkout the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+
+ERROR:__main__:❌ T5 Model Loading failed
+INFO:__main__:🧪 Running T5 Summarization...
+INFO:__main__:📝 Testing T5 summarization functionality...
+INFO:models.summarization.t5_summarizer:Initializing {self.model_name} summarization model...
+ERROR:__main__:❌ T5 summarization test failed: 
+T5Tokenizer requires the SentencePiece library but it was not found in your environment. Checkout the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+
+ERROR:__main__:❌ T5 Summarization failed
+INFO:__main__:📊 Test Results: 0/2 tests passed
+ERROR:__main__:💥 Some T5 model tests failed!
+
+2025-08-06 07:41:27,214 - ERROR - ❌ t5_summarization_test failed, but continuing...
+2025-08-06 07:41:27,214 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-06 07:41:27,540 - ERROR - ❌ scripts/ci/whisper_transcription_test.py FAILED
+2025-08-06 07:41:27,540 - ERROR - Error output: INFO:__main__:🚀 Starting Whisper Transcription Tests...
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Imports
+INFO:__main__:==================================================
+INFO:__main__:🔍 Testing Whisper imports...
+ERROR:__main__:❌ Whisper import test failed: No module named 'src'
+ERROR:__main__:❌ Whisper Imports: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Instantiation
+INFO:__main__:==================================================
+INFO:__main__:🤖 Testing WhisperTranscriber instantiation...
+ERROR:__main__:❌ WhisperTranscriber instantiation failed: No module named 'src'
+ERROR:__main__:❌ Whisper Instantiation: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Audio Preprocessor
+INFO:__main__:==================================================
+INFO:__main__:🎵 Testing AudioPreprocessor...
+ERROR:__main__:❌ AudioPreprocessor test failed: No module named 'src'
+ERROR:__main__:❌ Audio Preprocessor: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Minimal Transcription
+INFO:__main__:==================================================
+INFO:__main__:🎤 Testing minimal transcription...
+ERROR:__main__:❌ Transcription test failed: No module named 'src'
+ERROR:__main__:❌ Minimal Transcription: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Whisper Transcription Tests Results: 0/4 tests passed
+INFO:__main__:==================================================
+ERROR:__main__:💥 Some Whisper transcription tests failed!
+
+2025-08-06 07:41:27,540 - ERROR - ❌ whisper_transcription_test failed, but continuing...
+2025-08-06 07:41:27,540 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-06 07:41:31,957 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-08-06 07:41:31,958 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-06 07:41:32,217 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-08-06 07:41:32,217 - INFO - 🧪 Running unit tests...
+2025-08-06 07:41:38,461 - ERROR - ❌ Unit tests FAILED
+2025-08-06 07:41:38,461 - ERROR - Error output: 
+2025-08-06 07:41:38,461 - INFO - 🎯 Running E2E tests...
+2025-08-06 07:41:42,614 - ERROR - ❌ E2E tests FAILED
+2025-08-06 07:41:42,615 - ERROR - Error output: 
+2025-08-06 07:41:42,615 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-06 07:41:42,615 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-08-06 07:41:42,615 - INFO - ⚡ Running performance benchmarks...
+2025-08-06 07:41:42,704 - ERROR - ❌ Performance benchmark failed: 'type' object is not subscriptable
+2025-08-06 07:41:42,704 - INFO - 📊 Generating CI Report
+2025-08-06 07:41:42,704 - INFO - ============================================================
+2025-08-06 07:41:42,705 - ERROR - ❌ CI Pipeline failed!
+2025-08-06 07:42:02,240 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-06 07:42:02,240 - INFO - ============================================================
+2025-08-06 07:42:02,240 - INFO - 🔍 Detecting environment...
+2025-08-06 07:42:03,968 - INFO - 💻 Running in local environment
+2025-08-06 07:42:03,968 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-08-06 07:42:03,968 - INFO - 📦 Validating dependencies...
+2025-08-06 07:42:03,968 - INFO - ✅ torch available
+2025-08-06 07:42:04,167 - INFO - ✅ transformers available
+2025-08-06 07:42:04,464 - INFO - ✅ fastapi available
+2025-08-06 07:42:04,464 - INFO - ✅ pydantic available
+2025-08-06 07:42:05,012 - INFO - PyTorch version 2.2.2 available.
+2025-08-06 07:42:05,241 - INFO - ✅ datasets available
+2025-08-06 07:42:05,257 - INFO - ✅ tokenizers available
+2025-08-06 07:42:05,257 - INFO - ✅ numpy available
+2025-08-06 07:42:05,257 - INFO - ✅ pandas available
+2025-08-06 07:42:05,257 - INFO - ✅ All dependencies validated
+2025-08-06 07:42:05,257 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-06 07:42:05,501 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-08-06 07:42:05,501 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-06 07:42:07,601 - ERROR - ❌ scripts/ci/bert_model_test.py FAILED
+2025-08-06 07:42:07,601 - ERROR - Error output: Traceback (most recent call last):
+  File "scripts/ci/bert_model_test.py", line 19, in <module>
+    from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+  File "src/models/emotion_detection/bert_classifier.py", line 418, in <module>
+    ) -> dict[str, float]:
+TypeError: 'type' object is not subscriptable
+
+2025-08-06 07:42:07,601 - ERROR - ❌ bert_model_test failed, but continuing...
+2025-08-06 07:42:07,601 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-06 07:42:09,311 - ERROR - ❌ scripts/ci/t5_summarization_test.py FAILED
+2025-08-06 07:42:09,312 - ERROR - Error output: INFO:__main__:🚀 Starting T5 Model Tests...
+INFO:__main__:🧪 Running T5 Model Loading...
+INFO:__main__:🤖 Testing T5 summarization model loading...
+INFO:models.summarization.t5_summarizer:Initializing {self.model_name} summarization model...
+ERROR:__main__:❌ T5 model loading failed: 
+T5Tokenizer requires the SentencePiece library but it was not found in your environment. Checkout the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+
+ERROR:__main__:❌ T5 Model Loading failed
+INFO:__main__:🧪 Running T5 Summarization...
+INFO:__main__:📝 Testing T5 summarization functionality...
+INFO:models.summarization.t5_summarizer:Initializing {self.model_name} summarization model...
+ERROR:__main__:❌ T5 summarization test failed: 
+T5Tokenizer requires the SentencePiece library but it was not found in your environment. Checkout the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+
+ERROR:__main__:❌ T5 Summarization failed
+INFO:__main__:📊 Test Results: 0/2 tests passed
+ERROR:__main__:💥 Some T5 model tests failed!
+
+2025-08-06 07:42:09,312 - ERROR - ❌ t5_summarization_test failed, but continuing...
+2025-08-06 07:42:09,312 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-06 07:42:09,659 - ERROR - ❌ scripts/ci/whisper_transcription_test.py FAILED
+2025-08-06 07:42:09,660 - ERROR - Error output: INFO:__main__:🚀 Starting Whisper Transcription Tests...
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Imports
+INFO:__main__:==================================================
+INFO:__main__:🔍 Testing Whisper imports...
+ERROR:__main__:❌ Whisper import test failed: No module named 'src'
+ERROR:__main__:❌ Whisper Imports: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Instantiation
+INFO:__main__:==================================================
+INFO:__main__:🤖 Testing WhisperTranscriber instantiation...
+ERROR:__main__:❌ WhisperTranscriber instantiation failed: No module named 'src'
+ERROR:__main__:❌ Whisper Instantiation: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Audio Preprocessor
+INFO:__main__:==================================================
+INFO:__main__:🎵 Testing AudioPreprocessor...
+ERROR:__main__:❌ AudioPreprocessor test failed: No module named 'src'
+ERROR:__main__:❌ Audio Preprocessor: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Minimal Transcription
+INFO:__main__:==================================================
+INFO:__main__:🎤 Testing minimal transcription...
+ERROR:__main__:❌ Transcription test failed: No module named 'src'
+ERROR:__main__:❌ Minimal Transcription: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Whisper Transcription Tests Results: 0/4 tests passed
+INFO:__main__:==================================================
+ERROR:__main__:💥 Some Whisper transcription tests failed!
+
+2025-08-06 07:42:09,660 - ERROR - ❌ whisper_transcription_test failed, but continuing...
+2025-08-06 07:42:09,660 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-06 07:42:13,582 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-08-06 07:42:13,582 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-06 07:42:13,827 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-08-06 07:42:13,828 - INFO - 🧪 Running unit tests...
+2025-08-06 07:42:19,289 - ERROR - ❌ Unit tests FAILED
+2025-08-06 07:42:19,289 - ERROR - Error output: 
+2025-08-06 07:42:19,289 - INFO - 🎯 Running E2E tests...
+2025-08-06 07:42:22,966 - ERROR - ❌ E2E tests FAILED
+2025-08-06 07:42:22,966 - ERROR - Error output: 
+2025-08-06 07:42:22,966 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-06 07:42:22,966 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-08-06 07:42:22,966 - INFO - ⚡ Running performance benchmarks...
+2025-08-06 07:42:23,046 - ERROR - ❌ Performance benchmark failed: 'type' object is not subscriptable
+2025-08-06 07:42:23,046 - INFO - 📊 Generating CI Report
+2025-08-06 07:42:23,046 - INFO - ============================================================
+2025-08-06 07:42:23,046 - ERROR - ❌ CI Pipeline failed!
+2025-08-06 07:42:37,909 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-06 07:42:37,910 - INFO - ============================================================
+2025-08-06 07:42:37,910 - INFO - 🔍 Detecting environment...
+2025-08-06 07:42:39,770 - INFO - 💻 Running in local environment
+2025-08-06 07:42:39,771 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-08-06 07:42:39,771 - INFO - 📦 Validating dependencies...
+2025-08-06 07:42:39,771 - INFO - ✅ torch available
+2025-08-06 07:42:40,008 - INFO - ✅ transformers available
+2025-08-06 07:42:40,307 - INFO - ✅ fastapi available
+2025-08-06 07:42:40,307 - INFO - ✅ pydantic available
+2025-08-06 07:42:40,840 - INFO - PyTorch version 2.2.2 available.
+2025-08-06 07:42:41,053 - INFO - ✅ datasets available
+2025-08-06 07:42:41,069 - INFO - ✅ tokenizers available
+2025-08-06 07:42:41,069 - INFO - ✅ numpy available
+2025-08-06 07:42:41,069 - INFO - ✅ pandas available
+2025-08-06 07:42:41,069 - INFO - ✅ All dependencies validated
+2025-08-06 07:42:41,069 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-06 07:42:41,307 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-08-06 07:42:41,307 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-06 07:42:45,974 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-08-06 07:42:45,975 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-06 07:42:47,492 - ERROR - ❌ scripts/ci/t5_summarization_test.py FAILED
+2025-08-06 07:42:47,492 - ERROR - Error output: INFO:__main__:🚀 Starting T5 Model Tests...
+INFO:__main__:🧪 Running T5 Model Loading...
+INFO:__main__:🤖 Testing T5 summarization model loading...
+INFO:models.summarization.t5_summarizer:Initializing {self.model_name} summarization model...
+ERROR:__main__:❌ T5 model loading failed: 
+T5Tokenizer requires the SentencePiece library but it was not found in your environment. Checkout the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+
+ERROR:__main__:❌ T5 Model Loading failed
+INFO:__main__:🧪 Running T5 Summarization...
+INFO:__main__:📝 Testing T5 summarization functionality...
+INFO:models.summarization.t5_summarizer:Initializing {self.model_name} summarization model...
+ERROR:__main__:❌ T5 summarization test failed: 
+T5Tokenizer requires the SentencePiece library but it was not found in your environment. Checkout the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+
+ERROR:__main__:❌ T5 Summarization failed
+INFO:__main__:📊 Test Results: 0/2 tests passed
+ERROR:__main__:💥 Some T5 model tests failed!
+
+2025-08-06 07:42:47,492 - ERROR - ❌ t5_summarization_test failed, but continuing...
+2025-08-06 07:42:47,492 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-06 07:42:47,811 - ERROR - ❌ scripts/ci/whisper_transcription_test.py FAILED
+2025-08-06 07:42:47,811 - ERROR - Error output: INFO:__main__:🚀 Starting Whisper Transcription Tests...
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Imports
+INFO:__main__:==================================================
+INFO:__main__:🔍 Testing Whisper imports...
+ERROR:__main__:❌ Whisper import test failed: No module named 'src'
+ERROR:__main__:❌ Whisper Imports: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Instantiation
+INFO:__main__:==================================================
+INFO:__main__:🤖 Testing WhisperTranscriber instantiation...
+ERROR:__main__:❌ WhisperTranscriber instantiation failed: No module named 'src'
+ERROR:__main__:❌ Whisper Instantiation: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Audio Preprocessor
+INFO:__main__:==================================================
+INFO:__main__:🎵 Testing AudioPreprocessor...
+ERROR:__main__:❌ AudioPreprocessor test failed: No module named 'src'
+ERROR:__main__:❌ Audio Preprocessor: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Minimal Transcription
+INFO:__main__:==================================================
+INFO:__main__:🎤 Testing minimal transcription...
+ERROR:__main__:❌ Transcription test failed: No module named 'src'
+ERROR:__main__:❌ Minimal Transcription: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Whisper Transcription Tests Results: 0/4 tests passed
+INFO:__main__:==================================================
+ERROR:__main__:💥 Some Whisper transcription tests failed!
+
+2025-08-06 07:42:47,812 - ERROR - ❌ whisper_transcription_test failed, but continuing...
+2025-08-06 07:42:47,812 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-06 07:42:50,856 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-08-06 07:42:50,856 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-06 07:42:51,084 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-08-06 07:42:51,084 - INFO - 🧪 Running unit tests...
+2025-08-06 07:42:56,598 - ERROR - ❌ Unit tests FAILED
+2025-08-06 07:42:56,599 - ERROR - Error output: 
+2025-08-06 07:42:56,599 - INFO - 🎯 Running E2E tests...
+2025-08-06 07:43:00,162 - ERROR - ❌ E2E tests FAILED
+2025-08-06 07:43:00,163 - ERROR - Error output: 
+2025-08-06 07:43:00,163 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-06 07:43:00,163 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-08-06 07:43:00,163 - INFO - ⚡ Running performance benchmarks...
+2025-08-06 07:43:03,140 - INFO - ✅ Model loading time: 0.64s
+2025-08-06 07:43:03,141 - INFO - ✅ Inference time: 2.34s
+2025-08-06 07:43:03,141 - ERROR - ❌ Performance too slow - loading: 0.64s, inference: 2.34s
+2025-08-06 07:43:03,152 - INFO - 📊 Generating CI Report
+2025-08-06 07:43:03,152 - INFO - ============================================================
+2025-08-06 07:43:03,153 - ERROR - ❌ CI Pipeline failed!
+2025-08-06 07:43:44,852 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-06 07:43:44,852 - INFO - ============================================================
+2025-08-06 07:43:44,852 - INFO - 🔍 Detecting environment...
+2025-08-06 07:43:46,485 - INFO - 💻 Running in local environment
+2025-08-06 07:43:46,485 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-08-06 07:43:46,485 - INFO - 📦 Validating dependencies...
+2025-08-06 07:43:46,485 - INFO - ✅ torch available
+2025-08-06 07:43:46,684 - INFO - ✅ transformers available
+2025-08-06 07:43:46,985 - INFO - ✅ fastapi available
+2025-08-06 07:43:46,985 - INFO - ✅ pydantic available
+2025-08-06 07:43:47,511 - INFO - PyTorch version 2.2.2 available.
+2025-08-06 07:43:47,729 - INFO - ✅ datasets available
+2025-08-06 07:43:47,745 - INFO - ✅ tokenizers available
+2025-08-06 07:43:47,745 - INFO - ✅ numpy available
+2025-08-06 07:43:47,745 - INFO - ✅ pandas available
+2025-08-06 07:43:47,745 - INFO - ✅ All dependencies validated
+2025-08-06 07:43:47,745 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-06 07:43:47,976 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-08-06 07:43:47,977 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-06 07:43:52,329 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-08-06 07:43:52,329 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-06 07:43:54,183 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-08-06 07:43:54,183 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-06 07:43:54,504 - ERROR - ❌ scripts/ci/whisper_transcription_test.py FAILED
+2025-08-06 07:43:54,504 - ERROR - Error output: INFO:__main__:🚀 Starting Whisper Transcription Tests...
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Imports
+INFO:__main__:==================================================
+INFO:__main__:🔍 Testing Whisper imports...
+ERROR:__main__:❌ Whisper import test failed: No module named 'src'
+ERROR:__main__:❌ Whisper Imports: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Instantiation
+INFO:__main__:==================================================
+INFO:__main__:🤖 Testing WhisperTranscriber instantiation...
+ERROR:__main__:❌ WhisperTranscriber instantiation failed: No module named 'src'
+ERROR:__main__:❌ Whisper Instantiation: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Audio Preprocessor
+INFO:__main__:==================================================
+INFO:__main__:🎵 Testing AudioPreprocessor...
+ERROR:__main__:❌ AudioPreprocessor test failed: No module named 'src'
+ERROR:__main__:❌ Audio Preprocessor: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Minimal Transcription
+INFO:__main__:==================================================
+INFO:__main__:🎤 Testing minimal transcription...
+ERROR:__main__:❌ Transcription test failed: No module named 'src'
+ERROR:__main__:❌ Minimal Transcription: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Whisper Transcription Tests Results: 0/4 tests passed
+INFO:__main__:==================================================
+ERROR:__main__:💥 Some Whisper transcription tests failed!
+
+2025-08-06 07:43:54,504 - ERROR - ❌ whisper_transcription_test failed, but continuing...
+2025-08-06 07:43:54,504 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-06 07:43:57,497 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-08-06 07:43:57,497 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-06 07:43:57,722 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-08-06 07:43:57,722 - INFO - 🧪 Running unit tests...
+2025-08-06 07:44:03,224 - ERROR - ❌ Unit tests FAILED
+2025-08-06 07:44:03,225 - ERROR - Error output: 
+2025-08-06 07:44:03,226 - INFO - 🎯 Running E2E tests...
+2025-08-06 07:44:06,833 - ERROR - ❌ E2E tests FAILED
+2025-08-06 07:44:06,834 - ERROR - Error output: 
+2025-08-06 07:44:06,834 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-06 07:44:06,834 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-08-06 07:44:06,834 - INFO - ⚡ Running performance benchmarks...
+2025-08-06 07:44:09,780 - INFO - ✅ Model loading time: 0.60s
+2025-08-06 07:44:09,780 - INFO - ✅ Inference time: 2.34s
+2025-08-06 07:44:09,780 - INFO - ✅ Performance benchmarks passed
+2025-08-06 07:44:09,792 - INFO - 📊 Generating CI Report
+2025-08-06 07:44:09,792 - INFO - ============================================================
+2025-08-06 07:44:09,792 - ERROR - ❌ CI Pipeline failed!
+2025-08-06 07:47:00,144 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-06 07:47:00,145 - INFO - ============================================================
+2025-08-06 07:47:00,145 - INFO - 🔍 Detecting environment...
+2025-08-06 07:47:00,968 - INFO - 💻 Running in local environment
+2025-08-06 07:47:00,968 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-08-06 07:47:00,968 - INFO - 📦 Validating dependencies...
+2025-08-06 07:47:00,968 - INFO - ✅ torch available
+2025-08-06 07:47:01,163 - INFO - ✅ transformers available
+2025-08-06 07:47:01,435 - INFO - ✅ fastapi available
+2025-08-06 07:47:01,435 - INFO - ✅ pydantic available
+2025-08-06 07:47:01,991 - INFO - PyTorch version 2.2.2 available.
+2025-08-06 07:47:02,221 - INFO - ✅ datasets available
+2025-08-06 07:47:02,236 - INFO - ✅ tokenizers available
+2025-08-06 07:47:02,236 - INFO - ✅ numpy available
+2025-08-06 07:47:02,236 - INFO - ✅ pandas available
+2025-08-06 07:47:02,236 - INFO - ✅ All dependencies validated
+2025-08-06 07:47:02,236 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-06 07:47:02,467 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-08-06 07:47:02,468 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-06 07:47:07,804 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-08-06 07:47:07,804 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-06 07:47:09,300 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-08-06 07:47:09,301 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-06 07:47:09,620 - ERROR - ❌ scripts/ci/whisper_transcription_test.py FAILED
+2025-08-06 07:47:09,621 - ERROR - Error output: INFO:__main__:🚀 Starting Whisper Transcription Tests...
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Imports
+INFO:__main__:==================================================
+INFO:__main__:🔍 Testing Whisper imports...
+ERROR:__main__:❌ Whisper import test failed: No module named 'src'
+ERROR:__main__:❌ Whisper Imports: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Instantiation
+INFO:__main__:==================================================
+INFO:__main__:🤖 Testing WhisperTranscriber instantiation...
+ERROR:__main__:❌ WhisperTranscriber instantiation failed: No module named 'src'
+ERROR:__main__:❌ Whisper Instantiation: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Audio Preprocessor
+INFO:__main__:==================================================
+INFO:__main__:🎵 Testing AudioPreprocessor...
+ERROR:__main__:❌ AudioPreprocessor test failed: No module named 'src'
+ERROR:__main__:❌ Audio Preprocessor: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Minimal Transcription
+INFO:__main__:==================================================
+INFO:__main__:🎤 Testing minimal transcription...
+ERROR:__main__:❌ Transcription test failed: No module named 'src'
+ERROR:__main__:❌ Minimal Transcription: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Whisper Transcription Tests Results: 0/4 tests passed
+INFO:__main__:==================================================
+ERROR:__main__:💥 Some Whisper transcription tests failed!
+
+2025-08-06 07:47:09,621 - ERROR - ❌ whisper_transcription_test failed, but continuing...
+2025-08-06 07:47:09,621 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-06 07:47:12,664 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-08-06 07:47:12,664 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-06 07:47:12,896 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-08-06 07:47:12,896 - INFO - 🧪 Running unit tests...
+2025-08-06 07:47:18,192 - ERROR - ❌ Unit tests FAILED
+2025-08-06 07:47:18,193 - ERROR - Error output: 
+2025-08-06 07:47:18,193 - INFO - 🎯 Running E2E tests...
+2025-08-06 07:47:21,783 - ERROR - ❌ E2E tests FAILED
+2025-08-06 07:47:21,783 - ERROR - Error output: 
+2025-08-06 07:47:21,783 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-06 07:47:21,783 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-08-06 07:47:21,783 - INFO - ⚡ Running performance benchmarks...
+2025-08-06 07:47:24,721 - INFO - ✅ Model loading time: 0.63s
+2025-08-06 07:47:24,721 - INFO - ✅ Inference time: 2.31s
+2025-08-06 07:47:24,721 - INFO - ✅ Performance benchmarks passed
+2025-08-06 07:47:24,733 - INFO - 📊 Generating CI Report
+2025-08-06 07:47:24,733 - INFO - ============================================================
+2025-08-06 07:47:24,733 - ERROR - ❌ CI Pipeline failed!
+2025-08-06 08:34:30,545 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-06 08:34:30,546 - INFO - ============================================================
+2025-08-06 08:34:30,546 - INFO - 🔍 Detecting environment...
+2025-08-06 08:34:42,394 - INFO - 💻 Running in local environment
+2025-08-06 08:34:42,395 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-08-06 08:34:42,395 - INFO - 📦 Validating dependencies...
+2025-08-06 08:34:42,395 - INFO - ✅ torch available
+2025-08-06 08:34:43,179 - INFO - ✅ transformers available
+2025-08-06 08:34:43,705 - INFO - ✅ fastapi available
+2025-08-06 08:34:43,705 - INFO - ✅ pydantic available
+2025-08-06 08:34:45,521 - INFO - PyTorch version 2.2.2 available.
+2025-08-06 08:34:46,459 - INFO - ✅ datasets available
+2025-08-06 08:34:46,548 - INFO - ✅ tokenizers available
+2025-08-06 08:34:46,549 - INFO - ✅ numpy available
+2025-08-06 08:34:46,549 - INFO - ✅ pandas available
+2025-08-06 08:34:46,549 - INFO - ✅ All dependencies validated
+2025-08-06 08:34:46,549 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-06 08:34:46,787 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-08-06 08:34:46,788 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-06 08:34:54,379 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-08-06 08:34:54,379 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-06 08:34:56,059 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-08-06 08:34:56,059 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-06 08:34:56,408 - ERROR - ❌ scripts/ci/whisper_transcription_test.py FAILED
+2025-08-06 08:34:56,408 - ERROR - Error output: INFO:__main__:🚀 Starting Whisper Transcription Tests...
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Imports
+INFO:__main__:==================================================
+INFO:__main__:🔍 Testing Whisper imports...
+ERROR:__main__:❌ Whisper import test failed: No module named 'src'
+ERROR:__main__:❌ Whisper Imports: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Instantiation
+INFO:__main__:==================================================
+INFO:__main__:🤖 Testing WhisperTranscriber instantiation...
+ERROR:__main__:❌ WhisperTranscriber instantiation failed: No module named 'src'
+ERROR:__main__:❌ Whisper Instantiation: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Audio Preprocessor
+INFO:__main__:==================================================
+INFO:__main__:🎵 Testing AudioPreprocessor...
+ERROR:__main__:❌ AudioPreprocessor test failed: No module named 'src'
+ERROR:__main__:❌ Audio Preprocessor: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Minimal Transcription
+INFO:__main__:==================================================
+INFO:__main__:🎤 Testing minimal transcription...
+ERROR:__main__:❌ Transcription test failed: No module named 'src'
+ERROR:__main__:❌ Minimal Transcription: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Whisper Transcription Tests Results: 0/4 tests passed
+INFO:__main__:==================================================
+ERROR:__main__:💥 Some Whisper transcription tests failed!
+
+2025-08-06 08:34:56,409 - ERROR - ❌ whisper_transcription_test failed, but continuing...
+2025-08-06 08:34:56,409 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-06 08:35:00,171 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-08-06 08:35:00,171 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-06 08:35:00,403 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-08-06 08:35:00,403 - INFO - 🧪 Running unit tests...
+2025-08-06 08:35:09,548 - ERROR - ❌ Unit tests FAILED
+2025-08-06 08:35:09,549 - ERROR - Error output: 
+2025-08-06 08:35:09,549 - INFO - 🎯 Running E2E tests...
+2025-08-06 08:35:13,177 - ERROR - ❌ E2E tests FAILED
+2025-08-06 08:35:13,177 - ERROR - Error output: 
+2025-08-06 08:35:13,177 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-06 08:35:13,177 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-08-06 08:35:13,177 - INFO - ⚡ Running performance benchmarks...
+2025-08-06 08:35:16,124 - INFO - ✅ Model loading time: 0.62s
+2025-08-06 08:35:16,124 - INFO - ✅ Inference time: 2.32s
+2025-08-06 08:35:16,124 - INFO - ✅ Performance benchmarks passed
+2025-08-06 08:35:16,135 - INFO - 📊 Generating CI Report
+2025-08-06 08:35:16,135 - INFO - ============================================================
+2025-08-06 08:35:16,136 - ERROR - ❌ CI Pipeline failed!
+2025-08-06 10:05:37,253 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-06 10:05:37,253 - INFO - ============================================================
+2025-08-06 10:05:37,253 - INFO - 🔍 Detecting environment...
+2025-08-06 10:05:38,875 - INFO - 💻 Running in local environment
+2025-08-06 10:05:38,875 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-08-06 10:05:38,875 - INFO - 📦 Validating dependencies...
+2025-08-06 10:05:38,875 - INFO - ✅ torch available
+2025-08-06 10:05:39,075 - INFO - ✅ transformers available
+2025-08-06 10:05:39,382 - INFO - ✅ fastapi available
+2025-08-06 10:05:39,382 - INFO - ✅ pydantic available
+2025-08-06 10:05:39,938 - INFO - PyTorch version 2.2.2 available.
+2025-08-06 10:05:40,198 - INFO - ✅ datasets available
+2025-08-06 10:05:40,216 - INFO - ✅ tokenizers available
+2025-08-06 10:05:40,216 - INFO - ✅ numpy available
+2025-08-06 10:05:40,216 - INFO - ✅ pandas available
+2025-08-06 10:05:40,216 - INFO - ✅ All dependencies validated
+2025-08-06 10:05:40,216 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-06 10:05:40,455 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-08-06 10:05:40,456 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-06 10:05:44,912 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-08-06 10:05:44,913 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-06 10:05:46,453 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-08-06 10:05:46,453 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-06 10:05:47,625 - ERROR - ❌ scripts/ci/whisper_transcription_test.py FAILED
+2025-08-06 10:05:47,626 - ERROR - Error output: INFO:__main__:🚀 Starting Whisper Transcription Tests...
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Imports
+INFO:__main__:==================================================
+INFO:__main__:🔍 Testing Whisper imports...
+ERROR:__main__:❌ Whisper import test failed: No module named 'src'
+ERROR:__main__:❌ Whisper Imports: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Instantiation
+INFO:__main__:==================================================
+INFO:__main__:🤖 Testing WhisperTranscriber instantiation...
+ERROR:__main__:❌ WhisperTranscriber instantiation failed: No module named 'src'
+ERROR:__main__:❌ Whisper Instantiation: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Audio Preprocessor
+INFO:__main__:==================================================
+INFO:__main__:🎵 Testing AudioPreprocessor...
+ERROR:__main__:❌ AudioPreprocessor test failed: No module named 'src'
+ERROR:__main__:❌ Audio Preprocessor: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Minimal Transcription
+INFO:__main__:==================================================
+INFO:__main__:🎤 Testing minimal transcription...
+ERROR:__main__:❌ Transcription test failed: No module named 'src'
+ERROR:__main__:❌ Minimal Transcription: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Whisper Transcription Tests Results: 0/4 tests passed
+INFO:__main__:==================================================
+ERROR:__main__:💥 Some Whisper transcription tests failed!
+
+2025-08-06 10:05:47,626 - ERROR - ❌ whisper_transcription_test failed, but continuing...
+2025-08-06 10:05:47,626 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-06 10:05:50,680 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-08-06 10:05:50,681 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-06 10:05:50,912 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-08-06 10:05:50,912 - INFO - 🧪 Running unit tests...
+2025-08-06 10:05:59,956 - INFO - ✅ Unit tests PASSED
+2025-08-06 10:05:59,957 - INFO - 🎯 Running E2E tests...
+2025-08-06 10:06:03,680 - ERROR - ❌ E2E tests FAILED
+2025-08-06 10:06:03,680 - ERROR - Error output: 
+2025-08-06 10:06:03,680 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-06 10:06:03,680 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-08-06 10:06:03,680 - INFO - ⚡ Running performance benchmarks...
+2025-08-06 10:06:07,198 - INFO - ✅ Model loading time: 0.74s
+2025-08-06 10:06:07,199 - INFO - ✅ Inference time: 2.78s
+2025-08-06 10:06:07,199 - INFO - ✅ Performance benchmarks passed
+2025-08-06 10:06:07,213 - INFO - 📊 Generating CI Report
+2025-08-06 10:06:07,213 - INFO - ============================================================
+2025-08-06 10:06:07,213 - ERROR - ❌ CI Pipeline failed!
+2025-08-06 10:08:44,987 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-06 10:08:44,987 - INFO - ============================================================
+2025-08-06 10:08:44,987 - INFO - 🔍 Detecting environment...
+2025-08-06 10:08:45,798 - INFO - 💻 Running in local environment
+2025-08-06 10:08:45,798 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-08-06 10:08:45,798 - INFO - 📦 Validating dependencies...
+2025-08-06 10:08:45,798 - INFO - ✅ torch available
+2025-08-06 10:08:45,981 - INFO - ✅ transformers available
+2025-08-06 10:08:46,284 - INFO - ✅ fastapi available
+2025-08-06 10:08:46,284 - INFO - ✅ pydantic available
+2025-08-06 10:08:46,823 - INFO - PyTorch version 2.2.2 available.
+2025-08-06 10:08:47,040 - INFO - ✅ datasets available
+2025-08-06 10:08:47,054 - INFO - ✅ tokenizers available
+2025-08-06 10:08:47,055 - INFO - ✅ numpy available
+2025-08-06 10:08:47,055 - INFO - ✅ pandas available
+2025-08-06 10:08:47,055 - INFO - ✅ All dependencies validated
+2025-08-06 10:08:47,055 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-06 10:08:47,288 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-08-06 10:08:47,288 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-06 10:08:51,590 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-08-06 10:08:51,591 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-06 10:08:53,113 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-08-06 10:08:53,113 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-06 10:08:54,540 - ERROR - ❌ scripts/ci/whisper_transcription_test.py FAILED
+2025-08-06 10:08:54,540 - ERROR - Error output: INFO:__main__:🚀 Starting Whisper Transcription Tests...
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Imports
+INFO:__main__:==================================================
+INFO:__main__:🔍 Testing Whisper imports...
+ERROR:__main__:❌ Whisper import test failed: unsupported operand type(s) for |: 'type' and 'type'
+ERROR:__main__:❌ Whisper Imports: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Instantiation
+INFO:__main__:==================================================
+INFO:__main__:🤖 Testing WhisperTranscriber instantiation...
+ERROR:__main__:❌ WhisperTranscriber instantiation failed: unsupported operand type(s) for |: 'type' and 'type'
+ERROR:__main__:❌ Whisper Instantiation: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Audio Preprocessor
+INFO:__main__:==================================================
+INFO:__main__:🎵 Testing AudioPreprocessor...
+INFO:__main__:✅ Generated test audio: /var/folders/xd/br2hc8gx6bl8bkt69rr5s5lm0000gn/T/tmpsy_bniqx.wav
+INFO:__main__:✅ AudioPreprocessor test passed
+INFO:__main__:✅ Audio Preprocessor: PASSED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Minimal Transcription
+INFO:__main__:==================================================
+INFO:__main__:🎤 Testing minimal transcription...
+ERROR:__main__:❌ Transcription test failed: unsupported operand type(s) for |: 'type' and 'type'
+ERROR:__main__:❌ Minimal Transcription: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Whisper Transcription Tests Results: 1/4 tests passed
+INFO:__main__:==================================================
+ERROR:__main__:💥 Some Whisper transcription tests failed!
+
+2025-08-06 10:08:54,540 - ERROR - ❌ whisper_transcription_test failed, but continuing...
+2025-08-06 10:08:54,541 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-06 10:08:57,513 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-08-06 10:08:57,514 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-06 10:08:57,704 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-08-06 10:08:57,705 - INFO - 🧪 Running unit tests...
+2025-08-06 10:09:07,452 - INFO - ✅ Unit tests PASSED
+2025-08-06 10:09:07,453 - INFO - 🎯 Running E2E tests...
+2025-08-06 10:09:11,598 - ERROR - ❌ E2E tests FAILED
+2025-08-06 10:09:11,598 - ERROR - Error output: 
+2025-08-06 10:09:11,598 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-06 10:09:11,598 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-08-06 10:09:11,598 - INFO - ⚡ Running performance benchmarks...
+2025-08-06 10:09:15,176 - INFO - ✅ Model loading time: 0.74s
+2025-08-06 10:09:15,176 - INFO - ✅ Inference time: 2.84s
+2025-08-06 10:09:15,176 - INFO - ✅ Performance benchmarks passed
+2025-08-06 10:09:15,187 - INFO - 📊 Generating CI Report
+2025-08-06 10:09:15,188 - INFO - ============================================================
+2025-08-06 10:09:15,188 - ERROR - ❌ CI Pipeline failed!
+2025-08-06 10:11:10,734 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-06 10:11:10,735 - INFO - ============================================================
+2025-08-06 10:11:10,735 - INFO - 🔍 Detecting environment...
+2025-08-06 10:11:12,440 - INFO - 💻 Running in local environment
+2025-08-06 10:11:12,440 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-08-06 10:11:12,440 - INFO - 📦 Validating dependencies...
+2025-08-06 10:11:12,440 - INFO - ✅ torch available
+2025-08-06 10:11:12,647 - INFO - ✅ transformers available
+2025-08-06 10:11:12,970 - INFO - ✅ fastapi available
+2025-08-06 10:11:12,970 - INFO - ✅ pydantic available
+2025-08-06 10:11:13,618 - INFO - PyTorch version 2.2.2 available.
+2025-08-06 10:11:13,870 - INFO - ✅ datasets available
+2025-08-06 10:11:13,884 - INFO - ✅ tokenizers available
+2025-08-06 10:11:13,884 - INFO - ✅ numpy available
+2025-08-06 10:11:13,884 - INFO - ✅ pandas available
+2025-08-06 10:11:13,884 - INFO - ✅ All dependencies validated
+2025-08-06 10:11:13,884 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-06 10:11:14,137 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-08-06 10:11:14,137 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-06 10:11:18,621 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-08-06 10:11:18,621 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-06 10:11:20,155 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-08-06 10:11:20,155 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-06 10:11:25,222 - ERROR - ❌ scripts/ci/whisper_transcription_test.py FAILED
+2025-08-06 10:11:25,223 - ERROR - Error output: INFO:__main__:🚀 Starting Whisper Transcription Tests...
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Imports
+INFO:__main__:==================================================
+INFO:__main__:🔍 Testing Whisper imports...
+ERROR:__main__:❌ Whisper import test failed: No module named 'src'
+ERROR:__main__:❌ Whisper Imports: FAILED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Whisper Instantiation
+INFO:__main__:==================================================
+INFO:__main__:🤖 Testing WhisperTranscriber instantiation...
+INFO:models.voice_processing.whisper_transcriber:Initializing Whisper {self.config.model_size} model...
+INFO:models.voice_processing.whisper_transcriber:Device: {self.device}
+INFO:models.voice_processing.whisper_transcriber:✅ Whisper {self.config.model_size} model loaded successfully
+INFO:__main__:✅ WhisperTranscriber instantiated successfully
+INFO:__main__:✅ Whisper Instantiation: PASSED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Audio Preprocessor
+INFO:__main__:==================================================
+INFO:__main__:🎵 Testing AudioPreprocessor...
+INFO:__main__:✅ Generated test audio: /var/folders/xd/br2hc8gx6bl8bkt69rr5s5lm0000gn/T/tmpz6_1sxbg.wav
+INFO:__main__:✅ AudioPreprocessor test passed
+INFO:__main__:✅ Audio Preprocessor: PASSED
+INFO:__main__:
+==================================================
+INFO:__main__:Running: Minimal Transcription
+INFO:__main__:==================================================
+INFO:__main__:🎤 Testing minimal transcription...
+INFO:__main__:✅ Generated test audio: /var/folders/xd/br2hc8gx6bl8bkt69rr5s5lm0000gn/T/tmpaccnu0sz.wav
+INFO:models.voice_processing.whisper_transcriber:Initializing Whisper {self.config.model_size} model...
+INFO:models.voice_processing.whisper_transcriber:Device: {self.device}
+INFO:models.voice_processing.whisper_transcriber:✅ Whisper {self.config.model_size} model loaded successfully
+INFO:models.voice_processing.whisper_transcriber:Starting transcription: {audio_path}
+INFO:models.voice_processing.whisper_transcriber:Preprocessing audio: {audio_path}
+INFO:models.voice_processing.whisper_transcriber:Audio preprocessed: {output_path}
+INFO:models.voice_processing.whisper_transcriber:✅ Transcription complete: {word_count} words, {confidence:.2f} confidence
+INFO:models.voice_processing.whisper_transcriber:Processing time: {processing_time:.2f}s, Quality: {audio_quality}
+INFO:__main__:✅ Transcription successful: See you next time!...
+INFO:__main__:✅ Minimal Transcription: PASSED
+INFO:__main__:
+==================================================
+INFO:__main__:Whisper Transcription Tests Results: 3/4 tests passed
+INFO:__main__:==================================================
+ERROR:__main__:💥 Some Whisper transcription tests failed!
+
+2025-08-06 10:11:25,223 - ERROR - ❌ whisper_transcription_test failed, but continuing...
+2025-08-06 10:11:25,223 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-06 10:11:28,374 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-08-06 10:11:28,374 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-06 10:11:28,564 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-08-06 10:11:28,564 - INFO - 🧪 Running unit tests...
+2025-08-06 10:11:36,970 - INFO - ✅ Unit tests PASSED
+2025-08-06 10:11:36,971 - INFO - 🎯 Running E2E tests...
+2025-08-06 10:11:41,311 - ERROR - ❌ E2E tests FAILED
+2025-08-06 10:11:41,311 - ERROR - Error output: 
+2025-08-06 10:11:41,311 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-06 10:11:41,312 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-08-06 10:11:41,312 - INFO - ⚡ Running performance benchmarks...
+2025-08-06 10:11:44,923 - INFO - ✅ Model loading time: 0.77s
+2025-08-06 10:11:44,923 - INFO - ✅ Inference time: 2.84s
+2025-08-06 10:11:44,923 - INFO - ✅ Performance benchmarks passed
+2025-08-06 10:11:44,934 - INFO - 📊 Generating CI Report
+2025-08-06 10:11:44,934 - INFO - ============================================================
+2025-08-06 10:11:44,935 - ERROR - ❌ CI Pipeline failed!
+2025-08-06 10:13:13,595 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-06 10:13:13,595 - INFO - ============================================================
+2025-08-06 10:13:13,595 - INFO - 🔍 Detecting environment...
+2025-08-06 10:13:14,663 - INFO - 💻 Running in local environment
+2025-08-06 10:13:14,663 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-08-06 10:13:14,663 - INFO - 📦 Validating dependencies...
+2025-08-06 10:13:14,663 - INFO - ✅ torch available
+2025-08-06 10:13:14,843 - INFO - ✅ transformers available
+2025-08-06 10:13:15,127 - INFO - ✅ fastapi available
+2025-08-06 10:13:15,127 - INFO - ✅ pydantic available
+2025-08-06 10:13:15,683 - INFO - PyTorch version 2.2.2 available.
+2025-08-06 10:13:15,893 - INFO - ✅ datasets available
+2025-08-06 10:13:15,909 - INFO - ✅ tokenizers available
+2025-08-06 10:13:15,909 - INFO - ✅ numpy available
+2025-08-06 10:13:15,909 - INFO - ✅ pandas available
+2025-08-06 10:13:15,909 - INFO - ✅ All dependencies validated
+2025-08-06 10:13:15,909 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-06 10:13:16,150 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-08-06 10:13:16,151 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-06 10:13:20,479 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-08-06 10:13:20,479 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-06 10:13:21,975 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-08-06 10:13:21,975 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-06 10:13:26,502 - INFO - ✅ scripts/ci/whisper_transcription_test.py PASSED
+2025-08-06 10:13:26,503 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-06 10:13:29,620 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-08-06 10:13:29,620 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-06 10:13:29,798 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-08-06 10:13:29,798 - INFO - 🧪 Running unit tests...
+2025-08-06 10:13:38,217 - ERROR - ❌ Unit tests FAILED
+2025-08-06 10:13:38,218 - ERROR - Error output: 
+2025-08-06 10:13:38,218 - INFO - 🎯 Running E2E tests...
+2025-08-06 10:13:42,587 - INFO - ✅ E2E tests PASSED
+2025-08-06 10:13:42,587 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-06 10:13:42,587 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-08-06 10:13:42,587 - INFO - ⚡ Running performance benchmarks...
+2025-08-06 10:13:47,147 - INFO - ✅ Model loading time: 0.84s
+2025-08-06 10:13:47,147 - INFO - ✅ Inference time: 3.72s
+2025-08-06 10:13:47,147 - ERROR - ❌ Performance too slow - loading: 0.84s, inference: 3.72s
+2025-08-06 10:13:47,160 - INFO - 📊 Generating CI Report
+2025-08-06 10:13:47,160 - INFO - ============================================================
+2025-08-06 10:13:47,160 - ERROR - ❌ CI Pipeline failed!
+2025-08-06 10:14:41,392 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-06 10:14:41,392 - INFO - ============================================================
+2025-08-06 10:14:41,392 - INFO - 🔍 Detecting environment...
+2025-08-06 10:14:42,961 - INFO - 💻 Running in local environment
+2025-08-06 10:14:42,961 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-08-06 10:14:42,961 - INFO - 📦 Validating dependencies...
+2025-08-06 10:14:42,961 - INFO - ✅ torch available
+2025-08-06 10:14:43,145 - INFO - ✅ transformers available
+2025-08-06 10:14:43,445 - INFO - ✅ fastapi available
+2025-08-06 10:14:43,445 - INFO - ✅ pydantic available
+2025-08-06 10:14:43,998 - INFO - PyTorch version 2.2.2 available.
+2025-08-06 10:14:44,215 - INFO - ✅ datasets available
+2025-08-06 10:14:44,228 - INFO - ✅ tokenizers available
+2025-08-06 10:14:44,229 - INFO - ✅ numpy available
+2025-08-06 10:14:44,229 - INFO - ✅ pandas available
+2025-08-06 10:14:44,229 - INFO - ✅ All dependencies validated
+2025-08-06 10:14:44,229 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-06 10:14:44,460 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-08-06 10:14:44,461 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-06 10:14:48,741 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-08-06 10:14:48,741 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-06 10:14:50,701 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-08-06 10:14:50,701 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-06 10:14:55,100 - INFO - ✅ scripts/ci/whisper_transcription_test.py PASSED
+2025-08-06 10:14:55,101 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-06 10:14:58,226 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-08-06 10:14:58,226 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-06 10:14:58,413 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-08-06 10:14:58,414 - INFO - 🧪 Running unit tests...
+2025-08-06 10:15:06,605 - ERROR - ❌ Unit tests FAILED
+2025-08-06 10:15:06,606 - ERROR - Error output: 
+2025-08-06 10:15:06,606 - INFO - 🎯 Running E2E tests...
+2025-08-06 10:15:10,910 - INFO - ✅ E2E tests PASSED
+2025-08-06 10:15:10,910 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-06 10:15:10,910 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-08-06 10:15:10,910 - INFO - ⚡ Running performance benchmarks...
+2025-08-06 10:15:14,695 - INFO - ✅ Model loading time: 0.70s
+2025-08-06 10:15:14,695 - INFO - ✅ Inference time: 3.08s
+2025-08-06 10:15:14,695 - INFO - ✅ Performance benchmarks passed
+2025-08-06 10:15:14,708 - INFO - 📊 Generating CI Report
+2025-08-06 10:15:14,708 - INFO - ============================================================
+2025-08-06 10:15:14,708 - ERROR - ❌ CI Pipeline failed!
+2025-08-06 10:15:55,028 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-06 10:15:55,028 - INFO - ============================================================
+2025-08-06 10:15:55,028 - INFO - 🔍 Detecting environment...
+2025-08-06 10:15:56,732 - INFO - 💻 Running in local environment
+2025-08-06 10:15:56,732 - INFO - 📊 Environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
+2025-08-06 10:15:56,732 - INFO - 📦 Validating dependencies...
+2025-08-06 10:15:56,732 - INFO - ✅ torch available
+2025-08-06 10:15:56,927 - INFO - ✅ transformers available
+2025-08-06 10:15:57,226 - INFO - ✅ fastapi available
+2025-08-06 10:15:57,226 - INFO - ✅ pydantic available
+2025-08-06 10:15:57,795 - INFO - PyTorch version 2.2.2 available.
+2025-08-06 10:15:58,042 - INFO - ✅ datasets available
+2025-08-06 10:15:58,058 - INFO - ✅ tokenizers available
+2025-08-06 10:15:58,058 - INFO - ✅ numpy available
+2025-08-06 10:15:58,058 - INFO - ✅ pandas available
+2025-08-06 10:15:58,058 - INFO - ✅ All dependencies validated
+2025-08-06 10:15:58,059 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-06 10:15:58,300 - INFO - ✅ scripts/ci/api_health_check.py PASSED
+2025-08-06 10:15:58,300 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-06 10:16:03,478 - INFO - ✅ scripts/ci/bert_model_test.py PASSED
+2025-08-06 10:16:03,479 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-06 10:16:05,007 - INFO - ✅ scripts/ci/t5_summarization_test.py PASSED
+2025-08-06 10:16:05,008 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-06 10:16:10,102 - INFO - ✅ scripts/ci/whisper_transcription_test.py PASSED
+2025-08-06 10:16:10,103 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-06 10:16:13,822 - INFO - ✅ scripts/ci/model_calibration_test.py PASSED
+2025-08-06 10:16:13,822 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-06 10:16:14,018 - INFO - ✅ scripts/ci/onnx_conversion_test.py PASSED
+2025-08-06 10:16:14,018 - INFO - 🧪 Running unit tests...
+2025-08-06 10:16:22,559 - INFO - ✅ Unit tests PASSED
+2025-08-06 10:16:22,559 - INFO - 🎯 Running E2E tests...
+2025-08-06 10:16:26,662 - INFO - ✅ E2E tests PASSED
+2025-08-06 10:16:26,662 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-06 10:16:26,663 - INFO - ℹ️ No GPU available, skipping GPU tests
+2025-08-06 10:16:26,663 - INFO - ⚡ Running performance benchmarks...
+2025-08-06 10:16:29,562 - INFO - ✅ Model loading time: 0.61s
+2025-08-06 10:16:29,563 - INFO - ✅ Inference time: 2.29s
+2025-08-06 10:16:29,563 - INFO - ✅ Performance benchmarks passed
+2025-08-06 10:16:29,574 - INFO - 📊 Generating CI Report
+2025-08-06 10:16:29,574 - INFO - ============================================================
+2025-08-06 10:16:29,575 - INFO - 🎉 CI Pipeline completed successfully!

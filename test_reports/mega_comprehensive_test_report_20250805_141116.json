@@ -1,0 +1,1138 @@
+{
+  "timestamp": "2025-08-05T14:11:16.275983",
+  "model_path": "deployment/models/default",
+  "overall_metrics": {
+    "total_tests": 110,
+    "total_correct": 100,
+    "overall_accuracy": 90.9090909090909,
+    "overall_confidence": 0.8545222661670362
+  },
+  "test_results": {
+    "basic_tests": {
+      "accuracy": 100.0,
+      "avg_confidence": 0.9651100262999535,
+      "total_tests": 24,
+      "correct": 24
+    },
+    "edge_cases": {
+      "accuracy": 81.57894736842105,
+      "avg_confidence": 0.8324985755117316,
+      "total_tests": 38,
+      "correct": 31,
+      "details": [
+        {
+          "text": "Happy",
+          "expected": "happy",
+          "predicted": "happy",
+          "confidence": 0.9504770040512085,
+          "correct": true
+        },
+        {
+          "text": "Sad",
+          "expected": "sad",
+          "predicted": "sad",
+          "confidence": 0.9609490036964417,
+          "correct": true
+        },
+        {
+          "text": "Excited!",
+          "expected": "excited",
+          "predicted": "excited",
+          "confidence": 0.9509053230285645,
+          "correct": true
+        },
+        {
+          "text": "Anxious?",
+          "expected": "anxious",
+          "predicted": "anxious",
+          "confidence": 0.8939435482025146,
+          "correct": true
+        },
+        {
+          "text": "I am feeling incredibly happy and joyful and ecstatic and delighted and pleased and satisfied and content and cheerful and glad and thrilled and overjoyed and elated and jubilant and euphoric and blissful and radiant and beaming and glowing and sparkling and wonderful",
+          "expected": "happy",
+          "predicted": "happy",
+          "confidence": 0.9101273417472839,
+          "correct": true
+        },
+        {
+          "text": "I am happy but also a bit sad",
+          "expected": "happy",
+          "predicted": "sad",
+          "confidence": 0.9527303576469421,
+          "correct": false
+        },
+        {
+          "text": "I feel excited yet anxious",
+          "expected": "excited",
+          "predicted": "excited",
+          "confidence": 0.6877263188362122,
+          "correct": true
+        },
+        {
+          "text": "I am grateful but tired",
+          "expected": "grateful",
+          "predicted": "grateful",
+          "confidence": 0.9517306089401245,
+          "correct": true
+        },
+        {
+          "text": "I feel okay",
+          "expected": "content",
+          "predicted": "calm",
+          "confidence": 0.39607471227645874,
+          "correct": false
+        },
+        {
+          "text": "I am fine",
+          "expected": "content",
+          "predicted": "content",
+          "confidence": 0.5261369347572327,
+          "correct": true
+        },
+        {
+          "text": "Not bad",
+          "expected": "content",
+          "predicted": "tired",
+          "confidence": 0.2656501531600952,
+          "correct": false
+        },
+        {
+          "text": "I am EXTREMELY happy",
+          "expected": "happy",
+          "predicted": "happy",
+          "confidence": 0.950722873210907,
+          "correct": true
+        },
+        {
+          "text": "I feel SO sad",
+          "expected": "sad",
+          "predicted": "sad",
+          "confidence": 0.9659598469734192,
+          "correct": true
+        },
+        {
+          "text": "I am REALLY excited",
+          "expected": "excited",
+          "predicted": "excited",
+          "confidence": 0.9686520099639893,
+          "correct": true
+        },
+        {
+          "text": "I feel VERY anxious",
+          "expected": "anxious",
+          "predicted": "anxious",
+          "confidence": 0.9623619318008423,
+          "correct": true
+        },
+        {
+          "text": "I am not happy",
+          "expected": "sad",
+          "predicted": "happy",
+          "confidence": 0.705993115901947,
+          "correct": false
+        },
+        {
+          "text": "I don't feel excited",
+          "expected": "content",
+          "predicted": "excited",
+          "confidence": 0.9659335017204285,
+          "correct": false
+        },
+        {
+          "text": "I am not calm",
+          "expected": "anxious",
+          "predicted": "calm",
+          "confidence": 0.9711002707481384,
+          "correct": false
+        },
+        {
+          "text": "Am I happy?",
+          "expected": "happy",
+          "predicted": "happy",
+          "confidence": 0.9561367034912109,
+          "correct": true
+        },
+        {
+          "text": "Why am I sad?",
+          "expected": "sad",
+          "predicted": "sad",
+          "confidence": 0.9654638171195984,
+          "correct": true
+        },
+        {
+          "text": "Should I be excited?",
+          "expected": "excited",
+          "predicted": "excited",
+          "confidence": 0.9631640315055847,
+          "correct": true
+        },
+        {
+          "text": "I am happy \ud83d\ude0a",
+          "expected": "happy",
+          "predicted": "happy",
+          "confidence": 0.9650838375091553,
+          "correct": true
+        },
+        {
+          "text": "I feel sad :(",
+          "expected": "sad",
+          "predicted": "sad",
+          "confidence": 0.9639256000518799,
+          "correct": true
+        },
+        {
+          "text": "I am excited!!!",
+          "expected": "excited",
+          "predicted": "excited",
+          "confidence": 0.966547966003418,
+          "correct": true
+        },
+        {
+          "text": "I feel anxious...",
+          "expected": "anxious",
+          "predicted": "anxious",
+          "confidence": 0.9614508748054504,
+          "correct": true
+        },
+        {
+          "text": "I AM HAPPY",
+          "expected": "happy",
+          "predicted": "happy",
+          "confidence": 0.7684227824211121,
+          "correct": true
+        },
+        {
+          "text": "i am sad",
+          "expected": "sad",
+          "predicted": "sad",
+          "confidence": 0.9600865244865417,
+          "correct": true
+        },
+        {
+          "text": "I Am Excited",
+          "expected": "excited",
+          "predicted": "excited",
+          "confidence": 0.849238395690918,
+          "correct": true
+        },
+        {
+          "text": "i FEEL anxious",
+          "expected": "anxious",
+          "predicted": "anxious",
+          "confidence": 0.9595140218734741,
+          "correct": true
+        },
+        {
+          "text": "Happy happy happy",
+          "expected": "happy",
+          "predicted": "happy",
+          "confidence": 0.9616332054138184,
+          "correct": true
+        },
+        {
+          "text": "Sad sad sad sad",
+          "expected": "sad",
+          "predicted": "sad",
+          "confidence": 0.9631173014640808,
+          "correct": true
+        },
+        {
+          "text": "Excited excited",
+          "expected": "excited",
+          "predicted": "excited",
+          "confidence": 0.9642265439033508,
+          "correct": true
+        },
+        {
+          "text": "I am happy 123",
+          "expected": "happy",
+          "predicted": "happy",
+          "confidence": 0.9659668803215027,
+          "correct": true
+        },
+        {
+          "text": "I feel sad @#$%",
+          "expected": "sad",
+          "predicted": "sad",
+          "confidence": 0.9621286392211914,
+          "correct": true
+        },
+        {
+          "text": "I am excited (really!)",
+          "expected": "excited",
+          "predicted": "excited",
+          "confidence": 0.9677582383155823,
+          "correct": true
+        },
+        {
+          "text": "",
+          "expected": "content",
+          "predicted": "content",
+          "confidence": 0.134222149848938,
+          "correct": true
+        },
+        {
+          "text": " ",
+          "expected": "content",
+          "predicted": "anxious",
+          "confidence": 0.30101892352104187,
+          "correct": false
+        },
+        {
+          "text": "...",
+          "expected": "content",
+          "predicted": "content",
+          "confidence": 0.1986645758152008,
+          "correct": true
+        }
+      ]
+    },
+    "stress_tests": {
+      "success_rate": 100.0,
+      "avg_confidence": 0.61187993735075,
+      "total_tests": 38,
+      "successful": 38,
+      "details": [
+        {
+          "text": "a in or at an on the on but but at",
+          "predicted": "sad",
+          "confidence": 0.22357280552387238,
+          "success": true
+        },
+        {
+          "text": "in on by but with for an in",
+          "predicted": "overwhelmed",
+          "confidence": 0.2701086699962616,
+          "success": true
+        },
+        {
+          "text": "the for or but for at at or",
+          "predicted": "content",
+          "confidence": 0.27769771218299866,
+          "success": true
+        },
+        {
+          "text": "and an for but the the an at an or to",
+          "predicted": "content",
+          "confidence": 0.28261682391166687,
+          "success": true
+        },
+        {
+          "text": "at at but in an to with on",
+          "predicted": "sad",
+          "confidence": 0.2347419261932373,
+          "success": true
+        },
+        {
+          "text": "for or an and at or of",
+          "predicted": "frustrated",
+          "confidence": 0.307704895734787,
+          "success": true
+        },
+        {
+          "text": "a but by at to by or",
+          "predicted": "content",
+          "confidence": 0.28792235255241394,
+          "success": true
+        },
+        {
+          "text": "of an by by to in",
+          "predicted": "excited",
+          "confidence": 0.22349154949188232,
+          "success": true
+        },
+        {
+          "text": "to an the but at",
+          "predicted": "sad",
+          "confidence": 0.2627421021461487,
+          "success": true
+        },
+        {
+          "text": "of in at of an but to to but to but",
+          "predicted": "sad",
+          "confidence": 0.33852601051330566,
+          "success": true
+        },
+        {
+          "text": "but or by the at at at in and in or in an with and",
+          "predicted": "tired",
+          "confidence": 0.2836225926876068,
+          "success": true
+        },
+        {
+          "text": "with with an with but with of of",
+          "predicted": "sad",
+          "confidence": 0.21538954973220825,
+          "success": true
+        },
+        {
+          "text": "and at by at by the for but at in",
+          "predicted": "sad",
+          "confidence": 0.30627116560935974,
+          "success": true
+        },
+        {
+          "text": "a a but for an by for",
+          "predicted": "sad",
+          "confidence": 0.674695611000061,
+          "success": true
+        },
+        {
+          "text": "in for and the in with",
+          "predicted": "excited",
+          "confidence": 0.23263154923915863,
+          "success": true
+        },
+        {
+          "text": "an and of in an the but by on a a of or the on",
+          "predicted": "sad",
+          "confidence": 0.21832354366779327,
+          "success": true
+        },
+        {
+          "text": "on and of by a an but and",
+          "predicted": "sad",
+          "confidence": 0.4603438675403595,
+          "success": true
+        },
+        {
+          "text": "for on an for the in with of",
+          "predicted": "excited",
+          "confidence": 0.4976101219654083,
+          "success": true
+        },
+        {
+          "text": "and for a for on and the by on of in",
+          "predicted": "content",
+          "confidence": 0.26354458928108215,
+          "success": true
+        },
+        {
+          "text": "to to the for or",
+          "predicted": "content",
+          "confidence": 0.2536943554878235,
+          "success": true
+        },
+        {
+          "text": "I am feeling very very very very very very very ve...",
+          "predicted": "happy",
+          "confidence": 0.9518353939056396,
+          "success": true
+        },
+        {
+          "text": "I am feeling very very very very very very very ve...",
+          "predicted": "happy",
+          "confidence": 0.9535519480705261,
+          "success": true
+        },
+        {
+          "text": "I am feeling very very very very very very very ve...",
+          "predicted": "happy",
+          "confidence": 0.9568279385566711,
+          "success": true
+        },
+        {
+          "text": "I am feeling very very very very very very very ve...",
+          "predicted": "happy",
+          "confidence": 0.9484394192695618,
+          "success": true
+        },
+        {
+          "text": "I am feeling very very very very very very very ve...",
+          "predicted": "happy",
+          "confidence": 0.9540799856185913,
+          "success": true
+        },
+        {
+          "text": "I am feeling very very very very very very very ve...",
+          "predicted": "happy",
+          "confidence": 0.9520618915557861,
+          "success": true
+        },
+        {
+          "text": "I am feeling very very very very very very very ve...",
+          "predicted": "happy",
+          "confidence": 0.9434505105018616,
+          "success": true
+        },
+        {
+          "text": "I am feeling very very very very very very very ve...",
+          "predicted": "happy",
+          "confidence": 0.9462486505508423,
+          "success": true
+        },
+        {
+          "text": "I am feeling very very very very very very very ve...",
+          "predicted": "happy",
+          "confidence": 0.9363054633140564,
+          "success": true
+        },
+        {
+          "text": "I am feeling very very very very very very very ve...",
+          "predicted": "happy",
+          "confidence": 0.9389193654060364,
+          "success": true
+        },
+        {
+          "text": "I am happy @#$%^&*()",
+          "predicted": "happy",
+          "confidence": 0.9575467109680176,
+          "success": true
+        },
+        {
+          "text": "I feel sad !@#$%^&*()_+",
+          "predicted": "sad",
+          "confidence": 0.9563234448432922,
+          "success": true
+        },
+        {
+          "text": "I am excited 1234567890",
+          "predicted": "excited",
+          "confidence": 0.9666303992271423,
+          "success": true
+        },
+        {
+          "text": "I feel anxious ~`!@#$%^&*()_+-={}[]|\\:;\"'<>?,./",
+          "predicted": "anxious",
+          "confidence": 0.9522111415863037,
+          "success": true
+        },
+        {
+          "text": "I am calm \u2460\u2461\u2462\u2463\u2464\u2465\u2466\u2467\u2468\u2469",
+          "predicted": "calm",
+          "confidence": 0.9678093791007996,
+          "success": true
+        },
+        {
+          "text": "I feel content \u03b1\u03b2\u03b3\u03b4\u03b5\u03b6\u03b7\u03b8\u03b9\u03ba\u03bb\u03bc\u03bd\u03be\u03bf\u03c0\u03c1\u03c3\u03c4\u03c5\u03c6\u03c7\u03c8\u03c9",
+          "predicted": "content",
+          "confidence": 0.9401918649673462,
+          "success": true
+        },
+        {
+          "text": "I am proud \ud83c\udf89\ud83c\udf8a\ud83c\udf88\ud83c\udf82\ud83c\udf81",
+          "predicted": "proud",
+          "confidence": 0.9609826803207397,
+          "success": true
+        },
+        {
+          "text": "I feel tired \ud83d\udca4\ud83d\ude34\ud83d\udecf\ufe0f",
+          "predicted": "tired",
+          "confidence": 0.9527696371078491,
+          "success": true
+        }
+      ]
+    },
+    "bias_analysis": {
+      "emotion_accuracies": {
+        "anxious": 100.0,
+        "calm": 100.0,
+        "content": 100.0,
+        "excited": 100.0,
+        "frustrated": 100.0,
+        "grateful": 100.0,
+        "happy": 100.0,
+        "hopeful": 100.0,
+        "overwhelmed": 100.0,
+        "proud": 100.0,
+        "sad": 100.0,
+        "tired": 100.0
+      },
+      "emotion_confidences": {
+        "anxious": 0.9620784401893616,
+        "calm": 0.9725396037101746,
+        "content": 0.9510423839092255,
+        "excited": 0.9688523828983306,
+        "frustrated": 0.9638088881969452,
+        "grateful": 0.9702032208442688,
+        "happy": 0.9668184697628022,
+        "hopeful": 0.9674711585044861,
+        "overwhelmed": 0.967500376701355,
+        "proud": 0.969205641746521,
+        "sad": 0.9661061525344848,
+        "tired": 0.963433563709259
+      },
+      "emotion_predictions": {
+        "anxious": {
+          "anxious": 10
+        },
+        "calm": {
+          "calm": 10
+        },
+        "content": {
+          "content": 10
+        },
+        "excited": {
+          "excited": 10
+        },
+        "frustrated": {
+          "frustrated": 10
+        },
+        "grateful": {
+          "grateful": 10
+        },
+        "happy": {
+          "happy": 10
+        },
+        "hopeful": {
+          "hopeful": 10
+        },
+        "overwhelmed": {
+          "overwhelmed": 10
+        },
+        "proud": {
+          "proud": 10
+        },
+        "sad": {
+          "sad": 10
+        },
+        "tired": {
+          "tired": 10
+        }
+      },
+      "most_accurate": [
+        "anxious",
+        100.0
+      ],
+      "least_accurate": [
+        "anxious",
+        100.0
+      ],
+      "most_confident": [
+        "calm",
+        0.9725396037101746
+      ],
+      "least_confident": [
+        "content",
+        0.9510423839092255
+      ],
+      "overall_accuracy": 100.0,
+      "overall_confidence": 0.9657550235589345
+    },
+    "robustness_tests": {
+      "success_rate": 100.0,
+      "avg_confidence": 0.9647665570179621,
+      "total_tests": 60,
+      "successful": 60,
+      "details": [
+        {
+          "base_text": "I am happy today",
+          "max_length": 10,
+          "predicted": "happy",
+          "confidence": 0.962620735168457,
+          "success": true
+        },
+        {
+          "base_text": "I am happy today",
+          "max_length": 20,
+          "predicted": "happy",
+          "confidence": 0.962620735168457,
+          "success": true
+        },
+        {
+          "base_text": "I am happy today",
+          "max_length": 50,
+          "predicted": "happy",
+          "confidence": 0.962620735168457,
+          "success": true
+        },
+        {
+          "base_text": "I am happy today",
+          "max_length": 100,
+          "predicted": "happy",
+          "confidence": 0.962620735168457,
+          "success": true
+        },
+        {
+          "base_text": "I am happy today",
+          "max_length": 200,
+          "predicted": "happy",
+          "confidence": 0.962620735168457,
+          "success": true
+        },
+        {
+          "base_text": "I feel sad about the news",
+          "max_length": 10,
+          "predicted": "sad",
+          "confidence": 0.9652220606803894,
+          "success": true
+        },
+        {
+          "base_text": "I feel sad about the news",
+          "max_length": 20,
+          "predicted": "sad",
+          "confidence": 0.9652220606803894,
+          "success": true
+        },
+        {
+          "base_text": "I feel sad about the news",
+          "max_length": 50,
+          "predicted": "sad",
+          "confidence": 0.9652220606803894,
+          "success": true
+        },
+        {
+          "base_text": "I feel sad about the news",
+          "max_length": 100,
+          "predicted": "sad",
+          "confidence": 0.9652220606803894,
+          "success": true
+        },
+        {
+          "base_text": "I feel sad about the news",
+          "max_length": 200,
+          "predicted": "sad",
+          "confidence": 0.9652220606803894,
+          "success": true
+        },
+        {
+          "base_text": "I am excited for the party",
+          "max_length": 10,
+          "predicted": "excited",
+          "confidence": 0.9684572219848633,
+          "success": true
+        },
+        {
+          "base_text": "I am excited for the party",
+          "max_length": 20,
+          "predicted": "excited",
+          "confidence": 0.9684572219848633,
+          "success": true
+        },
+        {
+          "base_text": "I am excited for the party",
+          "max_length": 50,
+          "predicted": "excited",
+          "confidence": 0.9684572219848633,
+          "success": true
+        },
+        {
+          "base_text": "I am excited for the party",
+          "max_length": 100,
+          "predicted": "excited",
+          "confidence": 0.9684572219848633,
+          "success": true
+        },
+        {
+          "base_text": "I am excited for the party",
+          "max_length": 200,
+          "predicted": "excited",
+          "confidence": 0.9684572219848633,
+          "success": true
+        },
+        {
+          "base_text": "I feel anxious about the test",
+          "max_length": 10,
+          "predicted": "anxious",
+          "confidence": 0.961293637752533,
+          "success": true
+        },
+        {
+          "base_text": "I feel anxious about the test",
+          "max_length": 20,
+          "predicted": "anxious",
+          "confidence": 0.961293637752533,
+          "success": true
+        },
+        {
+          "base_text": "I feel anxious about the test",
+          "max_length": 50,
+          "predicted": "anxious",
+          "confidence": 0.961293637752533,
+          "success": true
+        },
+        {
+          "base_text": "I feel anxious about the test",
+          "max_length": 100,
+          "predicted": "anxious",
+          "confidence": 0.961293637752533,
+          "success": true
+        },
+        {
+          "base_text": "I feel anxious about the test",
+          "max_length": 200,
+          "predicted": "anxious",
+          "confidence": 0.961293637752533,
+          "success": true
+        },
+        {
+          "base_text": "I am calm and relaxed",
+          "max_length": 10,
+          "predicted": "calm",
+          "confidence": 0.9704052209854126,
+          "success": true
+        },
+        {
+          "base_text": "I am calm and relaxed",
+          "max_length": 20,
+          "predicted": "calm",
+          "confidence": 0.9704052209854126,
+          "success": true
+        },
+        {
+          "base_text": "I am calm and relaxed",
+          "max_length": 50,
+          "predicted": "calm",
+          "confidence": 0.9704052209854126,
+          "success": true
+        },
+        {
+          "base_text": "I am calm and relaxed",
+          "max_length": 100,
+          "predicted": "calm",
+          "confidence": 0.9704052209854126,
+          "success": true
+        },
+        {
+          "base_text": "I am calm and relaxed",
+          "max_length": 200,
+          "predicted": "calm",
+          "confidence": 0.9704052209854126,
+          "success": true
+        },
+        {
+          "base_text": "I feel content with life",
+          "max_length": 10,
+          "predicted": "content",
+          "confidence": 0.9576919674873352,
+          "success": true
+        },
+        {
+          "base_text": "I feel content with life",
+          "max_length": 20,
+          "predicted": "content",
+          "confidence": 0.9576919674873352,
+          "success": true
+        },
+        {
+          "base_text": "I feel content with life",
+          "max_length": 50,
+          "predicted": "content",
+          "confidence": 0.9576919674873352,
+          "success": true
+        },
+        {
+          "base_text": "I feel content with life",
+          "max_length": 100,
+          "predicted": "content",
+          "confidence": 0.9576919674873352,
+          "success": true
+        },
+        {
+          "base_text": "I feel content with life",
+          "max_length": 200,
+          "predicted": "content",
+          "confidence": 0.9576919674873352,
+          "success": true
+        },
+        {
+          "base_text": "I am frustrated with work",
+          "max_length": 10,
+          "predicted": "frustrated",
+          "confidence": 0.9637005925178528,
+          "success": true
+        },
+        {
+          "base_text": "I am frustrated with work",
+          "max_length": 20,
+          "predicted": "frustrated",
+          "confidence": 0.9637005925178528,
+          "success": true
+        },
+        {
+          "base_text": "I am frustrated with work",
+          "max_length": 50,
+          "predicted": "frustrated",
+          "confidence": 0.9637005925178528,
+          "success": true
+        },
+        {
+          "base_text": "I am frustrated with work",
+          "max_length": 100,
+          "predicted": "frustrated",
+          "confidence": 0.9637005925178528,
+          "success": true
+        },
+        {
+          "base_text": "I am frustrated with work",
+          "max_length": 200,
+          "predicted": "frustrated",
+          "confidence": 0.9637005925178528,
+          "success": true
+        },
+        {
+          "base_text": "I feel grateful for friends",
+          "max_length": 10,
+          "predicted": "grateful",
+          "confidence": 0.9697195887565613,
+          "success": true
+        },
+        {
+          "base_text": "I feel grateful for friends",
+          "max_length": 20,
+          "predicted": "grateful",
+          "confidence": 0.9697195887565613,
+          "success": true
+        },
+        {
+          "base_text": "I feel grateful for friends",
+          "max_length": 50,
+          "predicted": "grateful",
+          "confidence": 0.9697195887565613,
+          "success": true
+        },
+        {
+          "base_text": "I feel grateful for friends",
+          "max_length": 100,
+          "predicted": "grateful",
+          "confidence": 0.9697195887565613,
+          "success": true
+        },
+        {
+          "base_text": "I feel grateful for friends",
+          "max_length": 200,
+          "predicted": "grateful",
+          "confidence": 0.9697195887565613,
+          "success": true
+        },
+        {
+          "base_text": "I am hopeful for the future",
+          "max_length": 10,
+          "predicted": "hopeful",
+          "confidence": 0.9605164527893066,
+          "success": true
+        },
+        {
+          "base_text": "I am hopeful for the future",
+          "max_length": 20,
+          "predicted": "hopeful",
+          "confidence": 0.9605164527893066,
+          "success": true
+        },
+        {
+          "base_text": "I am hopeful for the future",
+          "max_length": 50,
+          "predicted": "hopeful",
+          "confidence": 0.9605164527893066,
+          "success": true
+        },
+        {
+          "base_text": "I am hopeful for the future",
+          "max_length": 100,
+          "predicted": "hopeful",
+          "confidence": 0.9605164527893066,
+          "success": true
+        },
+        {
+          "base_text": "I am hopeful for the future",
+          "max_length": 200,
+          "predicted": "hopeful",
+          "confidence": 0.9605164527893066,
+          "success": true
+        },
+        {
+          "base_text": "I feel overwhelmed by tasks",
+          "max_length": 10,
+          "predicted": "overwhelmed",
+          "confidence": 0.9674697518348694,
+          "success": true
+        },
+        {
+          "base_text": "I feel overwhelmed by tasks",
+          "max_length": 20,
+          "predicted": "overwhelmed",
+          "confidence": 0.9674697518348694,
+          "success": true
+        },
+        {
+          "base_text": "I feel overwhelmed by tasks",
+          "max_length": 50,
+          "predicted": "overwhelmed",
+          "confidence": 0.9674697518348694,
+          "success": true
+        },
+        {
+          "base_text": "I feel overwhelmed by tasks",
+          "max_length": 100,
+          "predicted": "overwhelmed",
+          "confidence": 0.9674697518348694,
+          "success": true
+        },
+        {
+          "base_text": "I feel overwhelmed by tasks",
+          "max_length": 200,
+          "predicted": "overwhelmed",
+          "confidence": 0.9674697518348694,
+          "success": true
+        },
+        {
+          "base_text": "I am proud of my work",
+          "max_length": 10,
+          "predicted": "proud",
+          "confidence": 0.967073380947113,
+          "success": true
+        },
+        {
+          "base_text": "I am proud of my work",
+          "max_length": 20,
+          "predicted": "proud",
+          "confidence": 0.967073380947113,
+          "success": true
+        },
+        {
+          "base_text": "I am proud of my work",
+          "max_length": 50,
+          "predicted": "proud",
+          "confidence": 0.967073380947113,
+          "success": true
+        },
+        {
+          "base_text": "I am proud of my work",
+          "max_length": 100,
+          "predicted": "proud",
+          "confidence": 0.967073380947113,
+          "success": true
+        },
+        {
+          "base_text": "I am proud of my work",
+          "max_length": 200,
+          "predicted": "proud",
+          "confidence": 0.967073380947113,
+          "success": true
+        },
+        {
+          "base_text": "I feel tired after exercise",
+          "max_length": 10,
+          "predicted": "tired",
+          "confidence": 0.963028073310852,
+          "success": true
+        },
+        {
+          "base_text": "I feel tired after exercise",
+          "max_length": 20,
+          "predicted": "tired",
+          "confidence": 0.963028073310852,
+          "success": true
+        },
+        {
+          "base_text": "I feel tired after exercise",
+          "max_length": 50,
+          "predicted": "tired",
+          "confidence": 0.963028073310852,
+          "success": true
+        },
+        {
+          "base_text": "I feel tired after exercise",
+          "max_length": 100,
+          "predicted": "tired",
+          "confidence": 0.963028073310852,
+          "success": true
+        },
+        {
+          "base_text": "I feel tired after exercise",
+          "max_length": 200,
+          "predicted": "tired",
+          "confidence": 0.963028073310852,
+          "success": true
+        }
+      ]
+    },
+    "real_world_scenarios": {
+      "accuracy": 93.75,
+      "avg_confidence": 0.8983562346547842,
+      "total_tests": 48,
+      "correct": 45,
+      "emotion_performance": {
+        "excited": {
+          "accuracy": 75.0,
+          "avg_confidence": 0.8070689737796783,
+          "total_cases": 4,
+          "correct": 3
+        },
+        "sad": {
+          "accuracy": 100.0,
+          "avg_confidence": 0.8282531350851059,
+          "total_cases": 4,
+          "correct": 4
+        },
+        "grateful": {
+          "accuracy": 75.0,
+          "avg_confidence": 0.7507545426487923,
+          "total_cases": 4,
+          "correct": 3
+        },
+        "overwhelmed": {
+          "accuracy": 100.0,
+          "avg_confidence": 0.9672350734472275,
+          "total_cases": 4,
+          "correct": 4
+        },
+        "proud": {
+          "accuracy": 100.0,
+          "avg_confidence": 0.9608772993087769,
+          "total_cases": 4,
+          "correct": 4
+        },
+        "tired": {
+          "accuracy": 100.0,
+          "avg_confidence": 0.9598142355680466,
+          "total_cases": 4,
+          "correct": 4
+        },
+        "anxious": {
+          "accuracy": 100.0,
+          "avg_confidence": 0.9511821568012238,
+          "total_cases": 4,
+          "correct": 4
+        },
+        "calm": {
+          "accuracy": 100.0,
+          "avg_confidence": 0.9713931977748871,
+          "total_cases": 4,
+          "correct": 4
+        },
+        "content": {
+          "accuracy": 100.0,
+          "avg_confidence": 0.9422330558300018,
+          "total_cases": 4,
+          "correct": 4
+        },
+        "frustrated": {
+          "accuracy": 100.0,
+          "avg_confidence": 0.7532508820295334,
+          "total_cases": 4,
+          "correct": 4
+        },
+        "hopeful": {
+          "accuracy": 75.0,
+          "avg_confidence": 0.9310300201177597,
+          "total_cases": 4,
+          "correct": 3
+        },
+        "happy": {
+          "accuracy": 100.0,
+          "avg_confidence": 0.9571822434663773,
+          "total_cases": 4,
+          "correct": 4
+        }
+      }
+    },
+    "performance_metrics": {},
+    "confidence_analysis": {
+      "mean": 0.8394305879419501,
+      "median": 0.9522304832935333,
+      "std": 0.22810190406825198,
+      "min": 0.134222149848938,
+      "max": 0.9711002707481384,
+      "high_confidence": 35,
+      "medium_confidence": 4,
+      "low_confidence": 5,
+      "total": 44
+    },
+    "error_analysis": {}
+  },
+  "summary": {
+    "model_status": "EXCELLENT",
+    "confidence_status": "HIGH",
+    "deployment_ready": 

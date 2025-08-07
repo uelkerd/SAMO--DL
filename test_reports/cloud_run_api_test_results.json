@@ -1,0 +1,155 @@
+{
+  "timestamp": 1754510968.196291,
+  "base_url": "https://samo-emotion-api-minimal-71517823771.us-central1.run.app",
+  "tests": {
+    "health": {
+      "success": true,
+      "status": "operational",
+      "version": "2.0.0",
+      "service": "SAMO Emotion Detection API (Minimal)",
+      "emotions_supported": 12
+    },
+    "emotion_detection": {
+      "success": true,
+      "emotion_detected": true,
+      "confidence": 0.09808599203824997,
+      "emotion": "content",
+      "response_time": 0.0
+    },
+    "model_loading": {
+      "success": true,
+      "total_tests": 3,
+      "successful_tests": 3,
+      "models_loaded": true,
+      "results": [
+        {
+          "text_index": 0,
+          "success": true,
+          "emotion_detected": true,
+          "confidence": 0.09770803153514862,
+          "response_time": 0.0
+        },
+        {
+          "text_index": 1,
+          "success": true,
+          "emotion_detected": true,
+          "confidence": 0.10018418729305267,
+          "response_time": 0.0
+        },
+        {
+          "text_index": 2,
+          "success": true,
+          "emotion_detected": true,
+          "confidence": 0.10049691796302795,
+          "response_time": 0.0
+        }
+      ]
+    },
+    "invalid_inputs": {
+      "success": true,
+      "total_tests": 6,
+      "expected_failures": 6,
+      "unexpected_successes": 0,
+      "results": [
+        {
+          "test_case": 0,
+          "input": {
+            "text": ""
+          },
+          "success": false,
+          "expected": true,
+          "error": "POST /predict failed: 400 Client Error: Bad Request for url: https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict"
+        },
+        {
+          "test_case": 1,
+          "input": {
+            "invalid": "field"
+          },
+          "success": false,
+          "expected": true,
+          "error": "POST /predict failed: 400 Client Error: Bad Request for url: https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict"
+        },
+        {
+          "test_case": 2,
+          "input": {
+            "text": null
+          },
+          "success": false,
+          "expected": true,
+          "error": "POST /predict failed: 500 Server Error: Internal Server Error for url: https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict"
+        },
+        {
+          "test_case": 3,
+          "input": {
+            "text": 123
+          },
+          "success": false,
+          "expected": true,
+          "error": "POST /predict failed: 500 Server Error: Internal Server Error for url: https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict"
+        },
+        {
+          "test_case": 4,
+          "input": {},
+          "success": false,
+          "expected": true,
+          "error": "POST /predict failed: 400 Client Error: Bad Request for url: https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict"
+        },
+        {
+          "test_case": 5,
+          "input": null,
+          "success": false,
+          "expected": true,
+          "error": "POST /predict failed: 400 Client Error: Bad Request for url: https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict"
+        }
+      ]
+    },
+    "security": {
+      "success": true,
+      "rate_limiting_tested": true,
+      "security_headers_tested": true,
+      "note": "Minimal API - basic security features only"
+    },
+    "performance": {
+      "success": true,
+      "total_requests": 5,
+      "successful_requests": 5,
+      "success_rate": 1.0,
+      "avg_response_time": 0.2531596660614014,
+      "max_response_time": 0.2640562057495117,
+      "min_response_time": 0.23598074913024902,
+      "results": [
+        {
+          "request": 0,
+          "response_time": 0.2640562057495117,
+          "success": true
+        },
+        {
+          "request": 1,
+          "response_time": 0.25713324546813965,
+          "success": true
+        },
+        {
+          "request": 2,
+          "response_time": 0.23598074913024902,
+          "success": true
+        },
+        {
+          "request": 3,
+          "response_time": 0.26277899742126465,
+          "success": true
+        },
+        {
+          "request": 4,
+          "response_time": 0.2458491325378418,
+          "success": true
+        }
+      ]
+    }
+  },
+  "summary": {
+    "overall_success": true,
+    "passed_tests": 6,
+    "failed_tests": 0,
+    "critical_issues": []
+  }
+}
