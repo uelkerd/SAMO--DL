@@ -20,6 +20,16 @@ from collections import defaultdict, deque
 
 import psutil
 
+# Monitoring thresholds constants
+CRITICAL_CPU_THRESHOLD = 90
+CRITICAL_MEMORY_THRESHOLD = 90
+CRITICAL_DISK_THRESHOLD = 95
+WARNING_CPU_THRESHOLD = 80
+WARNING_MEMORY_THRESHOLD = 80
+WARNING_DISK_THRESHOLD = 85
+CRITICAL_ERROR_RATE_THRESHOLD = 0.1  # 10%
+MODEL_ERROR_COUNT_THRESHOLD = 10
+
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -260,23 +270,23 @@ class MonitoringDashboard:
         current_metrics = self.system_metrics_history[-1]
         
         # Check critical thresholds
-        if current_metrics.cpu_percent > 90:
+        if current_metrics.cpu_percent > CRITICAL_CPU_THRESHOLD:
             return "critical"
-        elif current_metrics.memory_percent > 90:
+        elif current_metrics.memory_percent > CRITICAL_MEMORY_THRESHOLD:
             return "critical"
-        elif current_metrics.disk_percent > 95:
+        elif current_metrics.disk_percent > CRITICAL_DISK_THRESHOLD:
             return "critical"
         
         # Check warning thresholds
-        if current_metrics.cpu_percent > 80:
+        if current_metrics.cpu_percent > WARNING_CPU_THRESHOLD:
             return "warning"
-        elif current_metrics.memory_percent > 80:
+        elif current_metrics.memory_percent > WARNING_MEMORY_THRESHOLD:
             return "warning"
-        elif current_metrics.disk_percent > 85:
+        elif current_metrics.disk_percent > WARNING_DISK_THRESHOLD:
             return "warning"
         
         # Check error rate
-        if self.api_metrics.error_rate > 0.1:  # 10% error rate
+        if self.api_metrics.error_rate > CRITICAL_ERROR_RATE_THRESHOLD:
             return "warning"
         
         return "healthy"
@@ -291,21 +301,21 @@ class MonitoringDashboard:
         current_metrics = self.system_metrics_history[-1]
         
         # System alerts
-        if current_metrics.cpu_percent > 90:
+        if current_metrics.cpu_percent > CRITICAL_CPU_THRESHOLD:
             alerts.append({
                 "level": "critical",
                 "message": f"High CPU usage: {current_metrics.cpu_percent:.1f}%",
                 "timestamp": current_metrics.timestamp
             })
         
-        if current_metrics.memory_percent > 90:
+        if current_metrics.memory_percent > CRITICAL_MEMORY_THRESHOLD:
             alerts.append({
                 "level": "critical",
                 "message": f"High memory usage: {current_metrics.memory_percent:.1f}%",
                 "timestamp": current_metrics.timestamp
             })
         
-        if current_metrics.disk_percent > 95:
+        if current_metrics.disk_percent > CRITICAL_DISK_THRESHOLD:
             alerts.append({
                 "level": "critical",
                 "message": f"Low disk space: {100 - current_metrics.disk_percent:.1f}% free",
@@ -313,7 +323,7 @@ class MonitoringDashboard:
             })
         
         # API alerts
-        if self.api_metrics.error_rate > 0.1:
+        if self.api_metrics.error_rate > CRITICAL_ERROR_RATE_THRESHOLD:
             alerts.append({
                 "level": "warning",
                 "message": f"High error rate: {self.api_metrics.error_rate:.1%}",
@@ -322,7 +332,7 @@ class MonitoringDashboard:
         
         # Model alerts
         for model_name, metrics in self.model_metrics.items():
-            if metrics.error_count > 10:
+            if metrics.error_count > MODEL_ERROR_COUNT_THRESHOLD:
                 alerts.append({
                     "level": "warning",
                     "message": f"High error count for {model_name}: {metrics.error_count} errors",
