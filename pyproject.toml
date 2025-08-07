@@ -31,7 +31,7 @@ dependencies = [
     "datasets>=2.14.0",
     "accelerate>=0.20.0",
     "onnx>=1.14.0",
-    "onnxruntime>=1.22.1",
+    "onnxruntime>=1.22.1,<2.0.0",
     "sentencepiece>=0.1.99",
 
     # Deep Learning Frameworks
@@ -58,7 +58,7 @@ dependencies = [
     "fastapi>=0.100.0",
     "uvicorn[standard]>=0.23.0",
     "python-multipart>=0.0.6",
-    "pydantic>=2.11.7",
+    "pydantic>=2.11.7,<3.0.0",
 
     # Database & Storage
     "sqlalchemy>=2.0.0",
@@ -67,7 +67,7 @@ dependencies = [
     "redis>=4.6.0",
 
     # Utilities
-    "python-dotenv>=1.1.1",
+    "python-dotenv>=1.1.1,<2.0.0",
     "pyyaml>=6.0",
     "requests>=2.31.0",
     "click>=8.1.0",
@@ -80,8 +80,8 @@ dependencies = [
 [project.optional-dependencies]
 # Test Dependencies
 test = [
-    "pytest>=8.4.1",
-    "pytest-cov>=6.2.1",
+    "pytest>=8.4.1,<9.0.0",
+    "pytest-cov>=6.2.1,<7.0.0",
     "pytest-xdist>=3.3.0",
     "pytest-mock>=3.11.0",
     "pytest-asyncio>=0.21.0",
