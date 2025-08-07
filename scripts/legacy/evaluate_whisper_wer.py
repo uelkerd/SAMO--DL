@@ -9,7 +9,6 @@ and evaluates the Word Error Rate (WER) of the Whisper transcription model.
 import argparse
 import json
 import logging
-import os
 import sys
 import tempfile
 import time
@@ -19,7 +18,6 @@ from typing import Optional
 import jiwer
 import pandas as pd
 import soundfile as sf
-import torch
 import tqdm
 from datasets import load_dataset
 

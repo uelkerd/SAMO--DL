@@ -9,8 +9,6 @@ Alternative approach to get CMU-MOSEI data using Hugging Face datasets.
 import json
 import numpy as np
 from collections import defaultdict
-import requests
-import os
 
 def download_cmu_mosei_sample():
     """Download a sample of CMU-MOSEI data from Hugging Face"""

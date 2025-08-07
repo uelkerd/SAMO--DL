@@ -12,9 +12,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'mode
 import unittest
 import threading
 import time
-from unittest.mock import Mock, patch, MagicMock
 
-from sandbox_executor import SandboxExecutor, SandboxError
+from sandbox_executor import SandboxExecutor
 
 class TestSandboxExecutor(unittest.TestCase):
     """Test sandbox executor functionality."""
