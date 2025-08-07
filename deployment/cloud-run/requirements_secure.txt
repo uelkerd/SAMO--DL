@@ -23,4 +23,4 @@ psutil>=5.9.0,<6.0.0
 prometheus-client>=0.19.0,<1.0.0
 
 # Security and validation
-cryptography>=41.0.0,<42.0.0
+cryptography>=41.0.0,<46.0.0
