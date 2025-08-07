@@ -6,6 +6,7 @@ This module provides a unified FastAPI interface for all AI models
 in the SAMO Deep Learning pipeline.
 """
 
+import asyncio
 import json
 import logging
 import tempfile
@@ -457,12 +458,22 @@ async def refresh_token(request: RefreshTokenRequest) -> TokenResponse:
     summary="Logout user",
     description="Logout user and blacklist tokens",
 )
-async def logout_user(current_user: TokenPayload = Depends(get_current_user)) -> Dict[str, str]:
+async def logout_user(
+    request: Request,
+    current_user: TokenPayload = Depends(get_current_user)
+) -> Dict[str, str]:
     """Logout user and blacklist tokens."""
     try:
-        # In a real application, you would blacklist the current token
-        # For now, we'll just return success
-        logger.info(f"User logged out: {current_user.username}")
+        # Get the raw token from the Authorization header
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+            # Blacklist the token
+            jwt_manager.blacklist_token(token)
+            logger.info(f"User logged out and token blacklisted: {current_user.username}")
+        else:
+            logger.warning("No valid Authorization header found during logout")
+        
         return {"message": "Successfully logged out"}
         
     except Exception as exc:
@@ -885,8 +896,8 @@ async def summarize_text(
                     emotional_tone = "positive"
                 elif primary_emotion in ["sadness", "anger", "fear"]:
                     emotional_tone = "negative"
-            except:
-                pass
+            except Exception as exc:
+                logger.warning(f"Could not determine emotional tone from summary: {exc}")
         
         processing_time = (time.time() - start_time) * 1000
         
@@ -1021,9 +1032,9 @@ async def get_performance_metrics(
         # Get system metrics
         import psutil
         
-        cpu_percent = psutil.cpu_percent(interval=1)
-        memory = psutil.virtual_memory()
-        disk = psutil.disk_usage('/')
+        cpu_percent = await asyncio.to_thread(psutil.cpu_percent, interval=1)
+        memory = await asyncio.to_thread(psutil.virtual_memory)
+        disk = await asyncio.to_thread(psutil.disk_usage, '/')
         
         # Model performance metrics
         model_metrics = {
@@ -1074,7 +1085,9 @@ async def get_performance_metrics(
     summary="Detailed health check",
     description="Comprehensive health check with model diagnostics",
 )
-async def detailed_health_check() -> Dict[str, Any]:
+async def detailed_health_check(
+    current_user: TokenPayload = Depends(require_permission("monitoring"))
+) -> Dict[str, Any]:
     """Comprehensive health check with detailed diagnostics."""
     health_status = "healthy"
     issues = []
@@ -1120,8 +1133,8 @@ async def detailed_health_check() -> Dict[str, Any]:
     # Check system resources
     try:
         import psutil
-        cpu_percent = psutil.cpu_percent(interval=1)
-        memory = psutil.virtual_memory()
+        cpu_percent = await asyncio.to_thread(psutil.cpu_percent, interval=1)
+        memory = await asyncio.to_thread(psutil.virtual_memory)
         
         if cpu_percent > 90:
             health_status = "degraded"
