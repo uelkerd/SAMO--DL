@@ -9,6 +9,7 @@ This module provides comprehensive JWT token management including:
 - User permission management
 """
 
+import logging
 import os
 import time
 from datetime import datetime, timedelta
@@ -17,6 +18,9 @@ from typing_extensions import TypedDict
 
 import jwt
 from pydantic import BaseModel, Field
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Configuration
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
