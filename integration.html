@@ -1094,9 +1094,18 @@ app.post('/analyze-emotions', async (req, res) => {
         res.json(response.data);
     } catch (error) {
         console.error('API Error:', error.message);
-        res.status(500).json({ 
-            error: 'Failed to analyze emotions'
-        });
+        if (error.response) {
+            // Downstream API responded with an error. Propagate it.
+            return res.status(error.response.status).json(error.response.data);
+        } else if (error.request) {
+            // No response received from downstream API.
+            return res.status(504).json({ error: 'Gateway Timeout: No response from emotion API' });
+        } else {
+            // Error setting up the request.
+            res.status(500).json({ 
+                error: 'Failed to analyze emotions'
+            });
+        }
     }
 });
 
