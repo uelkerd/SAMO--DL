@@ -4,12 +4,7 @@ TEST NEW TRAINED MODEL
 ======================
 Tests the newly trained model from Colab with proper verification
 """
-
-import sys
-import os
-import json
 import torch
-import numpy as np
 from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 

@@ -5,8 +5,6 @@ Text Preprocessing Module for SAMO Deep Learning.
 This module provides comprehensive text preprocessing functionality
 for journal entries and other text data.
 """
-
-import re
 import string
 from typing import List
 

@@ -11,17 +11,8 @@ import logging
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
-
-import numpy as np
 import pandas as pd
-from datasets import Dataset, DatasetDict
-
-from .database import DatabaseManager
-from .embeddings import EmbeddingGenerator
 from .feature_engineering import FeatureEngineer
-from .loaders import DataLoader
-from .models import JournalEntry, ProcessedData
-from .preprocessing import TextPreprocessor
 from .validation import DataValidator
 
 # Configure logging
