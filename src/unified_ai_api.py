@@ -803,7 +803,7 @@ async def batch_transcribe_voice(
                 
                 try:
                     if voice_transcriber is None:
-                        raise Exception("Voice transcription service unavailable")
+                        raise HTTPException(status_code=503, detail="Voice transcription service unavailable")
                     
                     transcription_result = voice_transcriber.transcribe(temp_file_path, language=language)
                     
