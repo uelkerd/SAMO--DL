@@ -15,6 +15,7 @@
     
     <style>
         :root {
+            /* Color variables */
             --primary-color: #6366f1;
             --secondary-color: #8b5cf6;
             --success-color: #10b981;
@@ -22,6 +23,27 @@
             --danger-color: #ef4444;
             --dark-color: #1f2937;
             --light-color: #f9fafb;
+            
+            /* Spacing variables */
+            --hero-padding-desktop: 60px;
+            --hero-padding-mobile: 40px;
+            --container-padding-desktop: 30px;
+            --container-padding-mobile: 20px;
+            --card-padding: 15px;
+            --section-margin: 30px;
+            --section-margin-mobile: 20px;
+            
+            /* Chart dimensions */
+            --chart-height-desktop: 250px;
+            --chart-height-mobile: 200px;
+            --icon-size: 50px;
+            --icon-size-mobile: 40px;
+            
+            /* Border radius */
+            --border-radius-sm: 8px;
+            --border-radius-md: 12px;
+            --border-radius-lg: 16px;
+            --border-radius-xl: 20px;
         }
 
         body {
@@ -34,7 +56,7 @@
         .hero-section {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            padding: 60px 0;
+            padding: var(--hero-padding-desktop) 0;
             position: relative;
             overflow: hidden;
         }
@@ -57,17 +79,17 @@
 
         .demo-container {
             background: white;
-            border-radius: 20px;
+            border-radius: var(--border-radius-xl);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            margin: -30px 0 30px 0;
+            padding: var(--container-padding-desktop);
+            margin: calc(-1 * var(--container-padding-desktop)) 0 var(--section-margin) 0;
             position: relative;
             z-index: 10;
         }
 
         .emotion-card {
             background: white;
-            border-radius: 12px;
+            border-radius: var(--border-radius-md);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
             border: 2px solid transparent;
@@ -102,7 +124,7 @@
         .stats-card {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            border-radius: 16px;
+            border-radius: var(--border-radius-lg);
             padding: 20px;
             text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -133,18 +155,12 @@
 
         .result-section.show {
             display: block;
-            animation: fadeInUp 0.6s ease;
+            animation: fadeIn 0.5s ease-in;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .pulse {
@@ -176,16 +192,16 @@
         /* Mobile optimizations */
         @media (max-width: 768px) {
             .hero-section {
-                padding: 40px 0;
+                padding: var(--hero-padding-mobile) 0;
             }
             
             .demo-container {
-                padding: 20px;
-                margin: -20px 0 20px 0;
+                padding: var(--container-padding-mobile);
+                margin: calc(-1 * var(--container-padding-mobile)) 0 var(--section-margin-mobile) 0;
             }
             
             .chart-container {
-                height: 200px;
+                height: var(--chart-height-mobile);
             }
             
             .stats-card {
@@ -196,21 +212,27 @@
 
         /* Compact layout for better UX */
         .compact-section {
-            margin-bottom: 30px;
+            margin-bottom: var(--section-margin);
         }
         
         .compact-card {
-            padding: 15px;
+            padding: var(--card-padding);
         }
         
         .compact-chart {
-            height: 200px;
+            height: var(--chart-height-desktop);
+        }
+        
+        @media (max-width: 768px) {
+            .compact-chart {
+                height: var(--chart-height-mobile);
+            }
         }
     </style>
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand fw-bold" href="index.html">
                 <i class="fas fa-brain text-primary me-2"></i>
@@ -225,13 +247,10 @@
                         <a class="nav-link" href="index.html">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="demo.html">Live Demo</a>
+                        <a class="nav-link active" href="demo.html">Demo</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="integration.html">Integration</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-primary ms-2" href="#demo">Try Now</a>
                     </li>
                 </ul>
             </div>
@@ -408,7 +427,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="card border-0 shadow-sm h-100 compact-card">
                         <div class="card-body text-center">
-                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2 feature-icon">
                                 <i class="fas fa-rocket"></i>
                             </div>
                             <h6 class="card-title fw-bold">Lightning Fast</h6>
@@ -421,7 +440,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="card border-0 shadow-sm h-100 compact-card">
                         <div class="card-body text-center">
-                            <div class="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                            <div class="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex align-items-center justify-content-center mb-2 feature-icon">
                                 <i class="fas fa-chart-line"></i>
                             </div>
                             <h6 class="card-title fw-bold">High Accuracy</h6>
@@ -434,7 +453,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="card border-0 shadow-sm h-100 compact-card">
                         <div class="card-body text-center">
-                            <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                            <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-2 feature-icon">
                                 <i class="fas fa-shield-alt"></i>
                             </div>
                             <h6 class="card-title fw-bold">Production Ready</h6>
@@ -449,66 +468,66 @@
     </section>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer bg-dark text-light py-4">
         <div class="container">
             <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <h5 class="fw-bold mb-3">
+                <div class="col-lg-4 mb-3">
+                    <h6 class="fw-bold mb-2">
                         <i class="fas fa-brain text-primary me-2"></i>
                         SAMO-DL
-                    </h5>
-                    <p class="text-muted">
+                    </h6>
+                    <p class="text-muted small">
                         Production-ready emotion detection API with enterprise-grade reliability.
                     </p>
                 </div>
-                <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="fw-bold mb-3">Product</h6>
+                <div class="col-lg-2 col-md-6 mb-3">
+                    <h6 class="fw-bold mb-2">Product</h6>
                     <ul class="list-unstyled">
-                        <li><a href="index.html" class="text-muted text-decoration-none">Home</a></li>
-                        <li><a href="demo.html" class="text-muted text-decoration-none">Demo</a></li>
-                        <li><a href="integration.html" class="text-muted text-decoration-none">Integration</a></li>
+                        <li><a href="index.html" class="text-muted text-decoration-none small">Home</a></li>
+                        <li><a href="demo.html" class="text-muted text-decoration-none small">Demo</a></li>
+                        <li><a href="integration.html" class="text-muted text-decoration-none small">Integration</a></li>
                     </ul>
                 </div>
-                <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="fw-bold mb-3">Resources</h6>
+                <div class="col-lg-2 col-md-6 mb-3">
+                    <h6 class="fw-bold mb-2">Resources</h6>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-muted text-decoration-none">API Docs</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Examples</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Support</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none small">API Docs</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none small">Examples</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none small">Support</a></li>
                     </ul>
                 </div>
-                <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="fw-bold mb-3">Company</h6>
+                <div class="col-lg-2 col-md-6 mb-3">
+                    <h6 class="fw-bold mb-2">Company</h6>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-muted text-decoration-none">About</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Blog</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Contact</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none small">About</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none small">Blog</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none small">Contact</a></li>
                     </ul>
                 </div>
-                <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="fw-bold mb-3">Connect</h6>
+                <div class="col-lg-2 col-md-6 mb-3">
+                    <h6 class="fw-bold mb-2">Connect</h6>
                     <div class="d-flex gap-2">
                         <a href="https://github.com/uelkerd/SAMO--DL" class="text-muted text-decoration-none">
-                            <i class="fab fa-github fa-lg"></i>
+                            <i class="fab fa-github"></i>
                         </a>
                         <a href="#" class="text-muted text-decoration-none">
-                            <i class="fab fa-twitter fa-lg"></i>
+                            <i class="fab fa-twitter"></i>
                         </a>
                         <a href="#" class="text-muted text-decoration-none">
-                            <i class="fab fa-linkedin fa-lg"></i>
+                            <i class="fab fa-linkedin"></i>
                         </a>
                     </div>
                 </div>
             </div>
-            <hr class="my-4">
+            <hr class="my-3">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <p class="text-muted mb-0">
+                    <p class="text-muted mb-0 small">
                         © 2024 SAMO-DL. All rights reserved.
                     </p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <p class="text-muted mb-0">
+                    <p class="text-muted mb-0 small">
                         Powered by <i class="fas fa-cloud text-primary"></i> Google Cloud Run
                     </p>
                 </div>
@@ -520,6 +539,13 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
+        // Configuration
+        const CONFIG = {
+            USE_REAL_API: false, // Set to true in development to use real API
+            API_ENDPOINT: 'https://your-api-endpoint.com/analyze', // Replace with actual endpoint
+            DEMO_MODE: true // Always true for demo page
+        };
+
         let confidenceChart = null;
         
         const sampleTexts = [
@@ -538,39 +564,54 @@
             }
 
             // Show loading
-            document.getElementById('loadingSection').style.display = 'block';
+            document.getElementById('loadingSection').classList.add('show');
             document.getElementById('resultSection').classList.remove('show');
 
             try {
                 const startTime = Date.now();
-                
-                // Simulate API call (replace with actual API endpoint)
-                const response = await fetch('https://your-api-endpoint.com/analyze', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ text: text })
-                });
+                let emotions, responseTime;
 
-                const responseTime = Date.now() - startTime;
-                
-                // For demo purposes, use mock data
-                const mockEmotions = generateMockEmotions(text);
-                
-                displayResults(mockEmotions, responseTime);
-                updateCharts(mockEmotions);
-                updateAPIInfo(responseTime, mockEmotions);
+                if (CONFIG.USE_REAL_API && !CONFIG.DEMO_MODE) {
+                    // Real API call (only in development)
+                    const response = await fetch(CONFIG.API_ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ text: text })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API request failed with status ${response.status}`);
+                    }
+
+                    responseTime = Date.now() - startTime;
+                    const data = await response.json();
+                    emotions = data.emotions;
+                } else {
+                    // Demo mode - use mock data
+                    responseTime = Date.now() - startTime;
+                    emotions = generateMockEmotions(text);
+                }
+
+                displayResults(emotions, responseTime);
+                updateCharts(emotions);
+                updateAPIInfo(responseTime, emotions);
                 
             } catch (error) {
-                console.error('Error:', error);
-                // Use mock data for demo
+                console.error('API call failed. Falling back to mock data. Error details:', error);
+                
+                if (CONFIG.USE_REAL_API) {
+                    alert('There was a problem analyzing emotions with the API. Showing mock results instead.');
+                }
+                
+                // Always use mock data on error
                 const mockEmotions = generateMockEmotions(text);
                 displayResults(mockEmotions, 45);
                 updateCharts(mockEmotions);
                 updateAPIInfo(45, mockEmotions);
             } finally {
-                document.getElementById('loadingSection').style.display = 'none';
+                document.getElementById('loadingSection').classList.remove('show');
             }
         }
 
@@ -579,21 +620,49 @@
             document.getElementById('demoText').value = randomText;
         }
 
-        function generateMockEmotions(text) {
+        function generateMockEmotions(inputText) {
             const emotions = [];
-            const emotionTypes = ['joy', 'sadness', 'anger', 'love', 'fear', 'surprise', 'gratitude', 'pride', 'optimism', 'curiosity', 'neutral'];
             
-            // Generate 3-5 emotions based on text content
-            const numEmotions = Math.floor(Math.random() * 3) + 3;
-            
-            for (let i = 0; i < numEmotions; i++) {
-                const emotion = emotionTypes[Math.floor(Math.random() * emotionTypes.length)];
-                const confidence = Math.random() * 0.8 + 0.2; // Between 0.2 and 1.0
-                emotions.push({ emotion, confidence });
+            // Deterministically generate emotions based on text content
+            const keywordEmotionMap = [
+                { keywords: ['happy', 'joy', 'delighted', 'pleased', 'excited', 'thrilled', 'elated'], emotion: 'joy' },
+                { keywords: ['sad', 'unhappy', 'down', 'depressed', 'gloomy', 'melancholy', 'sorrow'], emotion: 'sadness' },
+                { keywords: ['angry', 'mad', 'furious', 'irritated', 'annoyed', 'frustrated'], emotion: 'anger' },
+                { keywords: ['love', 'adore', 'passion', 'affection', 'romantic', 'cherish'], emotion: 'love' },
+                { keywords: ['afraid', 'scared', 'fearful', 'terrified', 'anxious', 'worried', 'nervous'], emotion: 'fear' },
+                { keywords: ['surprised', 'amazed', 'astonished', 'shocked', 'stunned'], emotion: 'surprise' },
+                { keywords: ['grateful', 'thankful', 'appreciate', 'blessed', 'thank you'], emotion: 'gratitude' },
+                { keywords: ['proud', 'accomplished', 'achievement', 'success', 'victory'], emotion: 'pride' },
+                { keywords: ['optimistic', 'hopeful', 'positive', 'bright', 'promising'], emotion: 'optimism' },
+                { keywords: ['curious', 'interested', 'wonder', 'explore', 'discover'], emotion: 'curiosity' }
+            ];
+
+            const textLower = inputText.toLowerCase();
+            let detectedEmotions = [];
+
+            keywordEmotionMap.forEach(mapping => {
+                for (const keyword of mapping.keywords) {
+                    if (textLower.includes(keyword)) {
+                        detectedEmotions.push(mapping.emotion);
+                        break;
+                    }
+                }
+            });
+
+            // Remove duplicates and limit to 5
+            detectedEmotions = [...new Set(detectedEmotions)].slice(0, 5);
+
+            if (detectedEmotions.length === 0) {
+                emotions.push({ emotion: 'neutral', confidence: 0.9 });
+            } else {
+                detectedEmotions.forEach((emotion, idx) => {
+                    // Assign higher confidence to the first detected emotion
+                    const confidence = 0.9 - idx * 0.15;
+                    emotions.push({ emotion, confidence: Math.max(confidence, 0.2) });
+                });
             }
-            
-            // Sort by confidence and limit to top 5
-            return emotions.sort((a, b) => b.confidence - a.confidence).slice(0, 5);
+
+            return emotions;
         }
 
         function displayResults(emotions, responseTime) {
