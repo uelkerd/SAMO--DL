@@ -18,26 +18,26 @@ echo "🔍 Running pre-commit checks..."
 
 # Check for large files
 large_files_found=false
-for file in $(git diff --cached --name-only); do
+while IFS= read -r file; do
     if [ -f "$file" ]; then
         # Get file size (works on both macOS and Linux)
         size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null)
         
         if [ "$size" -gt "$MAX_SIZE" ]; then
-            echo -e "${RED}❌ ERROR: $file is larger than 1MB ($(numfmt --to=iec $size))${NC}"
+            echo -e "${RED}❌ ERROR: $file is larger than 1MB ($(numfmt --to=iec "$size"))${NC}"
             echo "   This file should not be committed to version control."
             echo "   Consider adding it to .gitignore if it's a model artifact or data file."
             large_files_found=true
         elif [ "$size" -gt "$LARGE_FILE_WARNING_SIZE" ]; then
-            echo -e "${YELLOW}⚠️  WARNING: $file is larger than 512KB ($(numfmt --to=iec $size))${NC}"
+            echo -e "${YELLOW}⚠️  WARNING: $file is larger than 512KB ($(numfmt --to=iec "$size"))${NC}"
             echo "   Consider if this file should be in version control."
         fi
     fi
-done
+done < <(git diff --cached --name-only)
 
 # Check for model artifacts and other problematic files
 model_artifacts_found=false
-for file in $(git diff --cached --name-only); do
+while IFS= read -r file; do
     case "$file" in
         *.pt|*.pth|*.bin|*.safetensors|*.onnx|*.arrow|merges.txt|*.pkl|*.pickle|*.h5|*.hdf5)
             echo -e "${RED}❌ ERROR: $file is a model artifact and should not be committed${NC}"
@@ -50,15 +50,15 @@ for file in $(git diff --cached --name-only); do
             echo "   Consider if this should be in version control."
             ;;
     esac
-done
+done < <(git diff --cached --name-only)
 
 # Check for files in model directories
-for file in $(git diff --cached --name-only); do
+while IFS= read -r file; do
     if [[ "$file" == models/* ]] || [[ "$file" == deployment/model*/* ]]; then
         echo -e "${YELLOW}⚠️  WARNING: $file is in a model directory${NC}"
         echo "   Ensure this is not a large model file that should be excluded."
     fi
-done
+done < <(git diff --cached --name-only)
 
 # Summary
 if [ "$large_files_found" = true ] || [ "$model_artifacts_found" = true ]; then
