@@ -24,12 +24,14 @@ while IFS= read -r file; do
         size=$(wc -c < "$file" | tr -d '[:space:]')
         
         if [ "$size" -gt "$MAX_SIZE" ]; then
-            echo -e "${RED}❌ ERROR: $file is larger than 1MB ($(numfmt --to=iec "$size"))${NC}"
+            human_size=$(command -v numfmt >/dev/null && numfmt --to=iec "$size" || echo "${size}B")
+            echo -e "${RED}❌ ERROR: $file is larger than 1MB ($human_size)${NC}"
             echo "   This file should not be committed to version control."
             echo "   Consider adding it to .gitignore if it's a model artifact or data file."
             large_files_found=true
         elif [ "$size" -gt "$LARGE_FILE_WARNING_SIZE" ]; then
-            echo -e "${YELLOW}⚠️  WARNING: $file is larger than 512KB ($(numfmt --to=iec "$size"))${NC}"
+            human_size=$(command -v numfmt >/dev/null && numfmt --to=iec "$size" || echo "${size}B")
+            echo -e "${YELLOW}⚠️  WARNING: $file is larger than 512KB ($human_size)${NC}"
             echo "   Consider if this file should be in version control."
         fi
     fi
