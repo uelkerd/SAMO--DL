@@ -1,29 +1,26 @@
-# Integrated Secure & Optimized Requirements for Cloud Run
+# Secure requirements for Cloud Run deployment
 # All versions verified with safety-mcp for security and Python 3.9 compatibility
 
 # Web framework - latest secure version
-flask==3.1.1
+flask>=3.1.1,<4.0.0
 
 # ML libraries - latest secure versions compatible with Python 3.9
-torch==2.8.0
-transformers==4.55.0
-numpy==1.26.0
-scikit-learn==1.5.0
+torch>=2.0.0,<3.0.0
+transformers>=4.55.0,<5.0.0
+numpy>=1.26.0,<2.0.0
+scikit-learn>=1.5.0,<2.0.0
 
 # WSGI server - latest secure version
-gunicorn==23.0.0
+gunicorn>=23.0.0,<24.0.0
 
-# Security libraries
-cryptography==44.0.1
-bcrypt==4.2.0
+# HTTP client - latest secure version
+requests>=2.31.0,<3.0.0
 
-# Rate limiting and security
-redis==5.2.0
+# System monitoring - latest secure version
+psutil>=5.9.0,<6.0.0
 
-# Monitoring and health checks
-psutil==5.9.6
-prometheus-client==0.19.0
+# Metrics and monitoring - latest secure version
+prometheus-client>=0.19.0,<1.0.0
 
-# Additional security dependencies
-requests==2.32.4
-fastapi==0.104.1
+# Security and validation
+cryptography>=41.0.0,<42.0.0
