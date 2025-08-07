@@ -1,30 +1,3 @@
-<<<<<<< HEAD
-# Model files and checkpoints
-models/
-deployment/model/
-deployment/models/
-test_checkpoints/
-test_checkpoints_dev/
-*.pt
-*.pth
-*.bin
-*.safetensors
-*.onnx
-
-# Data files
-data/cache/
-data/processed/
-data/raw/
-*.json
-*.csv
-*.parquet
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-=======
 # SAMO Deep Learning Project .gitignore
 
 # ============================================================================
@@ -52,7 +25,6 @@ __pycache__/
 *.so
 
 # Distribution / packaging
->>>>>>> 4c01f2e9d9e8fafb2f22ea9c4d4b83200f9f03ef
 .Python
 build/
 develop-eggs/
@@ -66,13 +38,6 @@ parts/
 sdist/
 var/
 wheels/
-<<<<<<< HEAD
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual environments
-=======
 pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
@@ -136,26 +101,6 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-# Environments
->>>>>>> 4c01f2e9d9e8fafb2f22ea9c4d4b83200f9f03ef
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-<<<<<<< HEAD
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-=======
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -212,10 +157,6 @@ bower_components
 # Compiled binary addons
 build/Release
 
-# Dependency directories
-node_modules/
-jspm_packages/
-
 # TypeScript cache
 *.tsbuildinfo
 
@@ -254,9 +195,9 @@ tmp/
 temp/
 
 # ============================================================================
-# MACHINE LEARNING & DATA
+# MACHINE LEARNING & DATA (CRITICAL FOR REPOSITORY BLOAT PREVENTION)
 # ============================================================================
-# Model files
+# Model files and checkpoints (NEVER commit these)
 *.pkl
 *.pickle
 *.joblib
@@ -267,11 +208,20 @@ temp/
 *.pt
 *.safetensors
 *.bin
+*.onnx
+*.arrow
+merges.txt
+
+# Model directories
+models/
+deployment/model/
+deployment/models/
+test_checkpoints/
+test_checkpoints_dev/
 models/checkpoints/
 models/saved_models/
 models/*/checkpoints/
 models/*/saved_models/
-*.onnx
 
 # Data files
 data/raw/*
@@ -291,7 +241,6 @@ data/interim/*
 *.jsonl
 *.parquet
 *.feather
-*.arrow
 *.hdf
 *.h5
 
@@ -374,7 +323,6 @@ pids
 # OS & SYSTEM FILES
 # ============================================================================
 # macOS
->>>>>>> 4c01f2e9d9e8fafb2f22ea9c4d4b83200f9f03ef
 .DS_Store
 .DS_Store?
 ._*
@@ -383,28 +331,6 @@ pids
 ehthumbs.db
 Thumbs.db
 
-<<<<<<< HEAD
-# Logs
-logs/
-*.log
-
-# Coverage reports
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-*.cover
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# Temporary files
-*.tmp
-*.temp 
-=======
 # Windows
 Thumbs.db
 ehthumbs.db
@@ -529,4 +455,3 @@ docs/_build/
 docs/build/
 site/
 .cursor/
->>>>>>> 4c01f2e9d9e8fafb2f22ea9c4d4b83200f9f03ef
