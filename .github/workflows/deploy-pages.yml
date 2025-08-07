@@ -2,11 +2,13 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, website-integration-guides-improvement ]
     paths:
       - '*.html'
+      - 'website/**'
       - '.nojekyll'
       - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -21,6 +23,15 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       
+    - name: Debug - Check current directory structure
+      run: |
+        echo "=== Current Directory Structure ==="
+        ls -la
+        echo "=== Website Directory Contents ==="
+        ls -la website/ || echo "Website directory not found"
+        echo "=== Root HTML Files ==="
+        ls -la *.html 2>/dev/null || echo "No HTML files in root"
+        
     - name: Create clean website directory
       run: |
         # Create a completely clean directory with only website files
@@ -30,6 +41,9 @@ jobs:
         if [ -d "website" ]; then
           cp -r website/* website-deploy/ 2>/dev/null || true
           echo "Copied files from website/ directory"
+        else
+          echo "ERROR: website/ directory not found!"
+          exit 1
         fi
         
         # Copy essential files from root if they don't exist in website/
@@ -62,8 +76,10 @@ jobs:
         find website-deploy -name "*.bin" -delete 2>/dev/null || true
         find website-deploy -name "*.onnx" -delete 2>/dev/null || true
         
-        echo "Clean website directory created"
+        echo "=== Clean website directory created ==="
         ls -la website-deploy/
+        echo "=== HTML files in website-deploy ==="
+        ls -la website-deploy/*.html 2>/dev/null || echo "No HTML files found"
         
     - name: Setup Pages
       uses: actions/configure-pages@v4
