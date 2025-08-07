@@ -6,6 +6,7 @@ This module provides a unified FastAPI interface for all AI models
 in the SAMO Deep Learning pipeline.
 """
 
+import json
 import logging
 import tempfile
 import time
@@ -405,6 +406,10 @@ async def login_user(login_data: UserLogin) -> TokenResponse:
             detail="Login failed"
         )
 
+class RefreshTokenRequest(BaseModel):
+    """Refresh token request model."""
+    refresh_token: str = Field(..., description="Refresh token")
+
 @app.post(
     "/auth/refresh",
     response_model=TokenResponse,
@@ -412,11 +417,11 @@ async def login_user(login_data: UserLogin) -> TokenResponse:
     summary="Refresh access token",
     description="Refresh access token using refresh token",
 )
-async def refresh_token(refresh_token: str) -> TokenResponse:
+async def refresh_token(request: RefreshTokenRequest) -> TokenResponse:
     """Refresh access token using refresh token."""
     try:
         # Verify refresh token
-        payload = jwt_manager.verify_token(refresh_token)
+        payload = jwt_manager.verify_token(request.refresh_token)
         if not payload or payload.get("type") != "refresh":
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -610,6 +615,7 @@ async def analyze_voice_journal(
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
                     content = await audio_file.read()
                     temp_file.write(content)
+                    temp_file.flush()  # Ensure data is written to disk
                     temp_file_path = temp_file.name
 
                 try:
@@ -694,13 +700,16 @@ async def transcribe_voice(
             raise HTTPException(status_code=400, detail="Audio file required")
         
         # Check file size (max 50MB)
-        if audio_file.size and audio_file.size > 50 * 1024 * 1024:
+        content = await audio_file.read()
+        if len(content) > 50 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="File too large (max 50MB)")
+        # Reset file position for later processing
+        await audio_file.seek(0)
         
         # Save uploaded file temporarily
         with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
-            content = await audio_file.read()
             temp_file.write(content)
+            temp_file.flush()  # Ensure data is written to disk
             temp_file_path = temp_file.name
         
         try:
@@ -778,6 +787,7 @@ async def batch_transcribe_voice(
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
                     content = await audio_file.read()
                     temp_file.write(content)
+                    temp_file.flush()  # Ensure data is written to disk
                     temp_file_path = temp_file.name
                 
                 try:
@@ -902,10 +912,51 @@ async def websocket_realtime_processing(websocket: WebSocket):
     """WebSocket endpoint for real-time voice processing."""
     await websocket.accept()
     
+    # Authenticate WebSocket connection
+    try:
+        # Get token from query parameters or initial message
+        token = websocket.query_params.get("token")
+        if not token:
+            # Try to get token from initial message
+            initial_message = await websocket.receive_text()
+            try:
+                message_data = json.loads(initial_message)
+                token = message_data.get("token")
+            except (json.JSONDecodeError, KeyError):
+                await websocket.send_json({
+                    "type": "error",
+                    "message": "Authentication token required"
+                })
+                await websocket.close()
+                return
+        
+        # Verify token
+        payload = jwt_manager.verify_token(token)
+        if not payload:
+            await websocket.send_json({
+                "type": "error",
+                "message": "Invalid authentication token"
+            })
+            await websocket.close()
+            return
+        
+        logger.info(f"WebSocket authenticated for user: {payload.username}")
+        
+    except Exception as exc:
+        await websocket.send_json({
+            "type": "error",
+            "message": "Authentication failed"
+        })
+        await websocket.close()
+        return
+    
     try:
         while True:
-            # Receive audio data
-            data = await websocket.receive_bytes()
+            # Receive audio data or control messages
+            try:
+                data = await websocket.receive_bytes()
+            except WebSocketDisconnect:
+                break
             
             # Process audio in real-time
             if voice_transcriber:
@@ -913,6 +964,7 @@ async def websocket_realtime_processing(websocket: WebSocket):
                     # Save received audio data
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
                         temp_file.write(data)
+                        temp_file.flush()  # Ensure data is written to disk
                         temp_file_path = temp_file.name
                     
                     try:
