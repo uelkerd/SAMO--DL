@@ -8,7 +8,6 @@ features from the original working notebook while fixing the technical issues.
 """
 
 import json
-import os
 
 def create_comprehensive_notebook():
     """Create a comprehensive notebook with all advanced features."""

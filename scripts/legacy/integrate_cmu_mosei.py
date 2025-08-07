@@ -8,10 +8,8 @@ Target: Use 23,500+ high-quality samples to achieve 75-85% F1 score.
 """
 
 import sys
-import os
 import json
 import numpy as np
-import pandas as pd
 from collections import defaultdict
 
 # Add CMU-MultimodalDataSDK to path

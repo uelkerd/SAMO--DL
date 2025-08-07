@@ -8,7 +8,6 @@ file paths and handles all edge cases for reliable training.
 """
 
 import json
-import os
 
 def create_bulletproof_colab_notebook():
     """Create the bulletproof Colab notebook content"""

@@ -5,8 +5,6 @@ Tests the downloaded model files directly without API server
 """
 
 import sys
-import os
-import json
 from pathlib import Path
 
 # Add the deployment directory to the path

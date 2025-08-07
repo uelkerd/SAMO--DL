@@ -7,10 +7,8 @@ This script runs a Flask server for the emotion detection model on Vertex AI.
 """
 
 import os
-import json
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import numpy as np
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)

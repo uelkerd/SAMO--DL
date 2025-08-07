@@ -9,7 +9,6 @@ Target: Achieve 70% F1 score on journal entries through domain adaptation from G
 """
 
 import os
-import sys
 import json
 import warnings
 import subprocess

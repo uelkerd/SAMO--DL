@@ -12,7 +12,7 @@ import yaml
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import unittest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import patch
 
 from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
 

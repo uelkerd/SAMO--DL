@@ -23,7 +23,6 @@ if not install_dependencies():
     sys.exit(1)
 
 from datasets import load_dataset
-import json
 
 def debug_go_emotions():
     """Debug the actual GoEmotions dataset structure."""

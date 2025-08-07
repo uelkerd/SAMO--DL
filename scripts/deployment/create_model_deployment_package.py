@@ -5,8 +5,6 @@
 Create a complete deployment package for the trained emotion model.
 This includes model files, inference scripts, and documentation.
 """
-
-import json
 import os
 
 def create_model_deployment_package():
