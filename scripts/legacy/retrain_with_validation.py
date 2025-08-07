@@ -10,19 +10,19 @@ from pathlib import Path
 
 def create_improved_training_plan():
     """Create an improved training plan with proper validation"""
-    
+
     print("🔄 IMPROVED TRAINING PLAN")
     print("=" * 50)
     print("🎯 Goal: Retrain model to achieve reliable 75-85% F1 score")
     print("=" * 50)
-    
+
     print(f"\n❌ CURRENT ISSUES IDENTIFIED:")
     print("-" * 40)
     print("1. Model bias towards 'grateful' and 'happy' emotions")
     print("2. Poor generalization (58.3% accuracy on basic tests)")
     print("3. Overfitting to specific training patterns")
     print("4. Label mapping inconsistencies")
-    
+
     print(f"\n✅ IMPROVED TRAINING STRATEGY:")
     print("-" * 40)
     print("1. Use balanced dataset with equal emotion distribution")
@@ -30,7 +30,7 @@ def create_improved_training_plan():
     print("3. Add regularization to prevent overfitting")
     print("4. Use early stopping based on validation performance")
     print("5. Test on diverse, realistic examples")
-    
+
     print(f"\n📊 VALIDATION REQUIREMENTS:")
     print("-" * 40)
     print("✅ Basic functionality test: >80% accuracy")
@@ -38,7 +38,7 @@ def create_improved_training_plan():
     print("✅ Edge case handling: >70% success rate")
     print("✅ No emotion bias: <30% predictions for any single emotion")
     print("✅ Consistent predictions: 100% consistency for same input")
-    
+
     print(f"\n🚀 RECOMMENDED ACTIONS:")
     print("-" * 40)
     print("1. Create balanced training dataset")
@@ -46,15 +46,15 @@ def create_improved_training_plan():
     print("3. Use regularization techniques")
     print("4. Test extensively before deployment")
     print("5. Monitor for bias and overfitting")
-    
+
     # Create improved training notebook
     create_improved_notebook()
-    
+
     return True
 
 def create_improved_notebook():
     """Create an improved training notebook"""
-    
+
     notebook_content = '''{
  "cells": [
   {
@@ -384,12 +384,12 @@ def create_improved_notebook():
  "nbformat": 4,
  "nbformat_minor": 4
 }'''
-    
+
     # Save the notebook
     notebook_path = Path(__file__).parent.parent / 'notebooks' / 'IMPROVED_TRAINING_WITH_VALIDATION.ipynb'
     with open(notebook_path, 'w') as f:
         f.write(notebook_content)
-    
+
     print(f"✅ Created improved training notebook: {notebook_path}")
     print(f"📋 Instructions:")
     print(f"   1. Download the notebook file")

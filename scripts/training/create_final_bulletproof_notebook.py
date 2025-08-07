@@ -8,7 +8,7 @@ import os
 
 def create_final_bulletproof_notebook():
     """Create a Colab notebook that handles all dependency and path issues"""
-    
+
     notebook = {
         "cells": [
             {
@@ -713,12 +713,12 @@ def create_final_bulletproof_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     # Save notebook
     output_path = 'notebooks/expanded_dataset_training_final.ipynb'
     with open(output_path, 'w') as f:
         json.dump(notebook, f, indent=2)
-    
+
     print(f"✅ Created final bulletproof notebook: {output_path}")
     print("🔧 All issues fixed:")
     print("   - Fixed NumPy installation command (removed extra quotes)")

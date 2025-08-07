@@ -28,16 +28,16 @@ import json
 def debug_go_emotions():
     """Debug the actual GoEmotions dataset structure."""
     print("🔍 Debugging GoEmotions dataset structure...")
-    
+
     # Load the dataset
     go_emotions = load_dataset("go_emotions", "simplified")
-    
+
     print(f"\n📊 Dataset structure:")
     print(f"Keys: {list(go_emotions.keys())}")
     print(f"Train size: {len(go_emotions['train'])}")
     print(f"Validation size: {len(go_emotions['validation'])}")
     print(f"Test size: {len(go_emotions['test'])}")
-    
+
     # Check first few examples
     print(f"\n📊 First 5 examples:")
     for i in range(min(5, len(go_emotions['train']))):
@@ -47,58 +47,58 @@ def debug_go_emotions():
         print(f"  Labels: {example['labels']}")
         print(f"  Label types: {[type(label) for label in example['labels']]}")
         print()
-    
+
     # Check if there's a label mapping
     print(f"\n🔍 Checking for label mapping...")
-    
+
     # Try to get the dataset info
     try:
         dataset_info = go_emotions['train'].info
         print(f"Dataset info: {dataset_info}")
     except:
         print("No dataset info available")
-    
+
     # Check if there are features
     try:
         features = go_emotions['train'].features
         print(f"Features: {features}")
     except:
         print("No features available")
-    
+
     # Look for label names in the dataset
     print(f"\n🔍 Looking for label names...")
-    
+
     # Check if there's a label_names field
     if hasattr(go_emotions, 'label_names'):
         print(f"Label names: {go_emotions.label_names}")
     else:
         print("No label_names attribute")
-    
+
     # Check if there's a features attribute with label names
     if hasattr(go_emotions['train'], 'features'):
         features = go_emotions['train'].features
         print(f"Features: {features}")
         if 'labels' in features:
             print(f"Labels feature: {features['labels']}")
-    
+
     # Try to get the original dataset
     print(f"\n🔍 Trying original dataset...")
     try:
         original_go_emotions = load_dataset("go_emotions")
         print(f"Original dataset keys: {list(original_go_emotions.keys())}")
-        
+
         if 'train' in original_go_emotions:
             print(f"Original train size: {len(original_go_emotions['train'])}")
             example = original_go_emotions['train'][0]
             print(f"Original example: {example}")
     except Exception as e:
         print(f"Could not load original dataset: {e}")
-    
+
     # Check the dataset card
     print(f"\n🔍 Checking dataset documentation...")
     print("GoEmotions dataset should have emotion names like:")
     print("['admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring', 'confusion', 'curiosity', 'desire', 'disappointment', 'disapproval', 'disgust', 'embarrassment', 'excitement', 'fear', 'gratitude', 'grief', 'joy', 'love', 'nervousness', 'optimism', 'pride', 'realization', 'relief', 'remorse', 'sadness', 'surprise', 'neutral']")
-    
+
     return go_emotions
 
 if __name__ == "__main__":

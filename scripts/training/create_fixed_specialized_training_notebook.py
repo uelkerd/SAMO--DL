@@ -15,7 +15,7 @@ import os
 
 def create_fixed_notebook():
     """Create a corrected training notebook with proper configuration preservation."""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -664,12 +664,12 @@ def create_fixed_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     # Save the notebook
     output_path = "notebooks/FIXED_SPECIALIZED_TRAINING_CONFIG_PRESERVATION.ipynb"
     with open(output_path, 'w') as f:
         json.dump(notebook_content, f, indent=2)
-    
+
     print(f"✅ Created fixed training notebook: {output_path}")
     print("\n🔧 Key fixes implemented:")
     print("1. ✅ Explicit emotion label mapping before training")
@@ -677,7 +677,7 @@ def create_fixed_notebook():
     print("3. ✅ Configuration re-setting before saving")
     print("4. ✅ Saved configuration verification")
     print("5. ✅ Comprehensive error checking")
-    
+
     return output_path
 
 if __name__ == "__main__":

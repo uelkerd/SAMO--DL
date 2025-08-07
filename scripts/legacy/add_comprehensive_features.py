@@ -11,11 +11,11 @@ import json
 
 def add_comprehensive_features():
     """Add all advanced features to the comprehensive notebook."""
-    
+
     # Read the existing notebook
     with open('notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb', 'r') as f:
         notebook = json.load(f)
-    
+
     # Add all the advanced features as new cells
     advanced_cells = [
         {
@@ -535,14 +535,14 @@ def add_comprehensive_features():
             ]
         }
     ]
-    
+
     # Add all the advanced cells to the notebook
     notebook['cells'].extend(advanced_cells)
-    
+
     # Save the updated notebook
     with open('notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook, f, indent=2)
-    
+
     print('✅ Added all comprehensive features!')
     print('📋 Advanced features added:')
     print('   ✅ Model setup with architecture fixes')

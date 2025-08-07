@@ -8,7 +8,7 @@ import os
 
 def create_colab_notebook():
     """Create the domain adaptation GPU training notebook."""
-    
+
     notebook = {
         "cells": [
             {
@@ -658,12 +658,12 @@ def create_colab_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     # Write the notebook to file
     notebook_path = "notebooks/domain_adaptation_gpu_training.ipynb"
     with open(notebook_path, 'w') as f:
         json.dump(notebook, f, indent=1)
-    
+
     print(f"✅ Created Colab notebook: {notebook_path}")
     print("📋 Notebook includes:")
     print("  - GPU environment setup")

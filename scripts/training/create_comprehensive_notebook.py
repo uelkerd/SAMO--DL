@@ -12,7 +12,7 @@ import os
 
 def create_comprehensive_notebook():
     """Create a comprehensive notebook with all advanced features."""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -583,12 +583,12 @@ def create_comprehensive_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     # Save the notebook
     output_path = "notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb"
     with open(output_path, 'w') as f:
         json.dump(notebook_content, f, indent=2)
-    
+
     print(f"✅ Created comprehensive notebook: {output_path}")
     print("📋 Features included:")
     print("   ✅ Comprehensive dataset (240 base + augmentation)")
@@ -597,7 +597,7 @@ def create_comprehensive_notebook():
     print("   ✅ Model architecture fixes")
     print("   ✅ All advanced features (to be added)")
     print("\\n🚀 This will be a full-featured notebook!")
-    
+
     return output_path
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@ import json
 
 def create_fixed_bulletproof_notebook():
     """Create the fixed bulletproof notebook content"""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -450,10 +450,10 @@ def create_fixed_bulletproof_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     with open('notebooks/FIXED_BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook_content, f, indent=2)
-    
+
     print("✅ Fixed bulletproof notebook created: notebooks/FIXED_BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb")
     print("📋 Instructions:")
     print("  1. Download the notebook file")
