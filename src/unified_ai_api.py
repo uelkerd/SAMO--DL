@@ -423,7 +423,7 @@ async def refresh_token(request: RefreshTokenRequest) -> TokenResponse:
     try:
         # Verify refresh token
         payload = jwt_manager.verify_token(request.refresh_token)
-        if not payload or payload.get("type") != "refresh":
+        if not payload or payload.type != "refresh":
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid refresh token"
@@ -927,8 +927,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
         return
     
     try:
-        # Verify JWT token
-        jwt_manager = JWTManager()
+        # Verify JWT token using the global jwt_manager instance
         payload = jwt_manager.verify_token(token)
         if not payload:
             await websocket.close(code=4001, reason="Invalid authentication token")
@@ -963,7 +962,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                 await websocket.close()
                 return
         
-        # Verify token
+        # Verify token using the global jwt_manager instance
         payload = jwt_manager.verify_token(token)
         if not payload:
             await websocket.send_json({
