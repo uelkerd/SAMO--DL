@@ -699,30 +699,53 @@ I feel a bit sad about the changes."></textarea>
 
         function displayEmotionResults(result) {
             const container = document.getElementById('emotion-results');
+            container.innerHTML = ''; // Clear previous results
             
             if (Array.isArray(result) && result.length > 0) {
-                let html = '<h5 class="fw-bold mb-3">Detected Emotions:</h5>';
+                const title = document.createElement('h5');
+                title.className = 'fw-bold mb-3';
+                title.textContent = 'Detected Emotions:';
+                container.appendChild(title);
                 
                 result.forEach(emotion => {
                     const confidence = (emotion.confidence * 100).toFixed(1);
                     const color = getEmotionColor(emotion.emotion);
                     
-                    html += `
-                        <div class="result-card">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-bold text-capitalize">${emotion.emotion}</span>
-                                <span class="badge bg-${color}">${confidence}%</span>
-                            </div>
-                            <div class="progress" style="height: 8px;">
-                                <div class="progress-bar bg-${color}" style="width: ${confidence}%"></div>
-                            </div>
-                        </div>
-                    `;
+                    const resultCard = document.createElement('div');
+                    resultCard.className = 'result-card';
+                    
+                    const headerDiv = document.createElement('div');
+                    headerDiv.className = 'd-flex justify-content-between align-items-center mb-2';
+                    
+                    const emotionSpan = document.createElement('span');
+                    emotionSpan.className = 'fw-bold text-capitalize';
+                    emotionSpan.textContent = emotion.emotion; // textContent automatically escapes HTML
+                    headerDiv.appendChild(emotionSpan);
+                    
+                    const badgeSpan = document.createElement('span');
+                    badgeSpan.className = `badge bg-${color}`;
+                    badgeSpan.textContent = `${confidence}%`;
+                    headerDiv.appendChild(badgeSpan);
+                    
+                    resultCard.appendChild(headerDiv);
+                    
+                    const progressDiv = document.createElement('div');
+                    progressDiv.className = 'progress';
+                    progressDiv.style.height = '8px';
+                    
+                    const progressBar = document.createElement('div');
+                    progressBar.className = `progress-bar bg-${color}`;
+                    progressBar.style.width = `${confidence}%`;
+                    progressDiv.appendChild(progressBar);
+                    
+                    resultCard.appendChild(progressDiv);
+                    container.appendChild(resultCard);
                 });
-                
-                container.innerHTML = html;
             } else {
-                container.innerHTML = '<div class="alert alert-warning">No emotions detected.</div>';
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-warning';
+                alertDiv.textContent = 'No emotions detected.';
+                container.appendChild(alertDiv);
             }
         }
 
@@ -853,26 +876,43 @@ I feel a bit sad about the changes."></textarea>
 
         function displayBatchResults(texts, results) {
             const container = document.getElementById('batch-results');
-            let html = '<h5 class="fw-bold mb-3">Batch Processing Results:</h5>';
+            container.innerHTML = ''; // Clear previous results
+
+            const title = document.createElement('h5');
+            title.className = 'fw-bold mb-3';
+            title.textContent = 'Batch Processing Results:';
+            container.appendChild(title);
             
             texts.forEach((text, index) => {
                 const result = results[index] || [];
-                html += `
-                    <div class="batch-item">
-                        <p class="fw-bold mb-2">Text ${index + 1}:</p>
-                        <p class="text-muted mb-2">"${text}"</p>
-                        <div class="d-flex flex-wrap gap-2">
-                            ${result.map(emotion => 
-                                `<span class="badge bg-${getEmotionColor(emotion.emotion)}">
-                                    ${emotion.emotion} (${(emotion.confidence * 100).toFixed(1)}%)
-                                </span>`
-                            ).join('')}
-                        </div>
-                    </div>
-                `;
+                
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'batch-item';
+
+                const textTitle = document.createElement('p');
+                textTitle.className = 'fw-bold mb-2';
+                textTitle.textContent = `Text ${index + 1}:`;
+                itemDiv.appendChild(textTitle);
+
+                const textContent = document.createElement('p');
+                textContent.className = 'text-muted mb-2';
+                textContent.textContent = `"${text}"`; // textContent automatically escapes HTML
+                itemDiv.appendChild(textContent);
+
+                const badgesDiv = document.createElement('div');
+                badgesDiv.className = 'd-flex flex-wrap gap-2';
+                
+                // Create badges safely
+                result.forEach(emotion => {
+                    const badge = document.createElement('span');
+                    badge.className = `badge bg-${getEmotionColor(emotion.emotion)}`;
+                    badge.textContent = `${emotion.emotion} (${(emotion.confidence * 100).toFixed(1)}%)`;
+                    badgesDiv.appendChild(badge);
+                });
+                
+                itemDiv.appendChild(badgesDiv);
+                container.appendChild(itemDiv);
             });
-            
-            container.innerHTML = html;
         }
 
         // Text Summarization
@@ -891,16 +931,32 @@ I feel a bit sad about the changes."></textarea>
                 
                 const summary = "The author had an incredibly positive day filled with gratitude, productivity, and meaningful connections. They felt refreshed, accomplished, and excited about future opportunities.";
                 
-                document.getElementById('summary-result').innerHTML = `
-                    <p class="fw-bold">Summary:</p>
-                    <p>${summary}</p>
-                    <div class="mt-3">
-                        <small class="text-muted">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Original: ${text.split(' ').length} words | Summary: ${summary.split(' ').length} words
-                        </small>
-                    </div>
-                `;
+                const summaryContainer = document.getElementById('summary-result');
+                summaryContainer.innerHTML = ''; // Clear previous results
+                
+                const summaryTitle = document.createElement('p');
+                summaryTitle.className = 'fw-bold';
+                summaryTitle.textContent = 'Summary:';
+                summaryContainer.appendChild(summaryTitle);
+                
+                const summaryText = document.createElement('p');
+                summaryText.textContent = summary; // textContent automatically escapes HTML
+                summaryContainer.appendChild(summaryText);
+                
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'mt-3';
+                
+                const infoText = document.createElement('small');
+                infoText.className = 'text-muted';
+                
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-info-circle me-1';
+                infoText.appendChild(icon);
+                
+                const infoContent = document.createTextNode(`Original: ${text.split(' ').length} words | Summary: ${summary.split(' ').length} words`);
+                infoText.appendChild(infoContent);
+                infoDiv.appendChild(infoText);
+                summaryContainer.appendChild(infoDiv);
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('summary-result').innerHTML = 
