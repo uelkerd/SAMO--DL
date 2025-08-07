@@ -40,7 +40,8 @@ echo ""
 echo "📊 Repository size after commit:"
 git count-objects -vH | grep -E "(size|pack)"
 echo ""
-echo "💡 To check for large files: git ls-files | xargs wc -l | sort -nr | head -10"
+echo "💡 To check for large files by line count: git ls-files | xargs wc -l | sort -nr | head -10"
+echo "💡 To check for large files by size: git ls-files -z | xargs -0 du -h | sort -hr | head -10"
 EOF
 
 chmod +x .git/hooks/post-commit
