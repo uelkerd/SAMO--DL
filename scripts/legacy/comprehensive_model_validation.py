@@ -11,7 +11,6 @@ import numpy as np
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
 import time
-import random
 
 def comprehensive_validation():
     """Comprehensive validation of the emotion detection model"""

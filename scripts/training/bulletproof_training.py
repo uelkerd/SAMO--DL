@@ -3,15 +3,11 @@
 Bulletproof training script for REQ-DL-012 that handles notebook state corruption.
 This script can be run in a fresh kernel and will validate everything step by step.
 """
-
-import os
 import sys
 import json
 import pickle
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import numpy as np
 import pandas as pd
 from datasets import load_dataset
 from torch.utils.data import Dataset, DataLoader
