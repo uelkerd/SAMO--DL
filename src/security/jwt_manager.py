@@ -46,7 +46,7 @@ class JWTManager:
     def __init__(self, secret_key: str = SECRET_KEY, algorithm: str = ALGORITHM):
         self.secret_key = secret_key
         self.algorithm = algorithm
-        self.blacklisted_tokens: set = set()
+        self.blacklisted_tokens: dict = {}  # Changed to dict: {token: exp_datetime}
     
     def create_access_token(self, user_data: Dict[str, Any]) -> str:
         """Create a new access token"""
@@ -93,14 +93,19 @@ class JWTManager:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
             return TokenPayload(**payload)
         except jwt.ExpiredSignatureError:
+            logger.warning(f"Token expired: {token[:10]}...")
             return None
-        except jwt.InvalidTokenError:
+        except jwt.InvalidTokenError as e:
+            logger.warning(f"Invalid token: {str(e)}")
+            return None
+        except Exception as e:
+            logger.error(f"Token verification error: {str(e)}")
             return None
     
     def refresh_access_token(self, refresh_token: str) -> Optional[str]:
         """Refresh an access token using a valid refresh token"""
         payload = self.verify_token(refresh_token)
-        if not payload or payload.get("type") != "refresh":
+        if not payload or getattr(payload, "type", None) != "refresh":
             return None
         
         user_data = {
@@ -115,7 +120,8 @@ class JWTManager:
         """Add a token to the blacklist"""
         try:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
-            self.blacklisted_tokens.add(token)
+            exp_datetime = datetime.fromtimestamp(payload["exp"]) if payload.get("exp") else None
+            self.blacklisted_tokens[token] = exp_datetime
             return True
         except jwt.InvalidTokenError:
             return False
@@ -140,15 +146,13 @@ class JWTManager:
         current_time = datetime.utcnow()
         
         tokens_to_remove = set()
-        for token in self.blacklisted_tokens:
-            try:
-                payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
-                if payload.get("exp") and datetime.fromtimestamp(payload["exp"]) < current_time:
-                    tokens_to_remove.add(token)
-            except jwt.InvalidTokenError:
+        # self.blacklisted_tokens is now a dict: {token: exp_datetime}
+        for token, exp_datetime in self.blacklisted_tokens.items():
+            if exp_datetime and exp_datetime < current_time:
                 tokens_to_remove.add(token)
         
-        self.blacklisted_tokens -= tokens_to_remove
+        for token in tokens_to_remove:
+            self.blacklisted_tokens.pop(token, None)
         return initial_count - len(self.blacklisted_tokens)
 
 # Global JWT manager instance

@@ -87,6 +87,7 @@ class MonitoringDashboard:
         # Request tracking
         self.request_times = deque(maxlen=history_size)
         self.error_log = deque(maxlen=history_size)
+        self.total_errors = 0  # Track total errors for accurate error rate
         
         # Performance tracking
         self.response_times = deque(maxlen=history_size)
@@ -97,7 +98,7 @@ class MonitoringDashboard:
         """Update and store current system metrics."""
         try:
             # CPU and memory
-            cpu_percent = psutil.cpu_percent(interval=1)
+            cpu_percent = psutil.cpu_percent(interval=None)
             memory = psutil.virtual_memory()
             disk = psutil.disk_usage('/')
             
@@ -158,6 +159,7 @@ class MonitoringDashboard:
                 "timestamp": time.time(),
                 "error": "API request failed"
             })
+            self.total_errors += 1
         
         # Update metrics
         self._update_api_metrics()
@@ -177,7 +179,7 @@ class MonitoringDashboard:
         
         # Calculate error rate
         if self.api_metrics.total_requests > 0:
-            self.api_metrics.error_rate = len(self.error_log) / self.api_metrics.total_requests
+            self.api_metrics.error_rate = self.total_errors / self.api_metrics.total_requests
         
         # Update uptime
         self.api_metrics.uptime_seconds = current_time - self.start_time
