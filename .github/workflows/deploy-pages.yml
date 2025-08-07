@@ -1,0 +1,67 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '*.html'
+      - '.nojekyll'
+      - '.github/workflows/deploy-pages.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    permissions:
+      pages: write
+      id-token: write
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Create clean website directory
+      run: |
+        # Create a completely clean directory with only website files
+        mkdir -p website-deploy
+        
+        # Copy only essential website files
+        cp *.html website-deploy/ 2>/dev/null || true
+        cp .nojekyll website-deploy/ 2>/dev/null || true
+        cp README.md website-deploy/ 2>/dev/null || true
+        
+        # Remove any problematic directories that might have been copied
+        rm -rf website-deploy/data/
+        rm -rf website-deploy/models/
+        rm -rf website-deploy/deployment/
+        rm -rf website-deploy/test_checkpoints/
+        rm -rf website-deploy/__pycache__/
+        rm -rf website-deploy/*/__pycache__/
+        
+        # Remove any lock files
+        find website-deploy -name "*.lock" -delete 2>/dev/null || true
+        find website-deploy -name "*.incomplete_info.lock" -delete 2>/dev/null || true
+        
+        # Remove large files
+        find website-deploy -name "*.pt" -delete 2>/dev/null || true
+        find website-deploy -name "*.pth" -delete 2>/dev/null || true
+        find website-deploy -name "*.safetensors" -delete 2>/dev/null || true
+        find website-deploy -name "*.bin" -delete 2>/dev/null || true
+        find website-deploy -name "*.onnx" -delete 2>/dev/null || true
+        
+        echo "Clean website directory created"
+        ls -la website-deploy/
+        
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+      
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: 'website-deploy'
+        retention-days: 1
+        
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4 
