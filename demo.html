@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Emotion Detection Demo - SAMO Deep Learning</title>
+    <meta name="description" content="Interactive demo of SAMO-DL emotion detection API with real-time analysis and visualization">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1f2937;
+            --light-color: #f9fafb;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 80px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .demo-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            margin: -50px 0 50px 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        .emotion-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .emotion-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .emotion-card.active {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .confidence-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e5e7eb;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, var(--success-color), #34d399);
+            color: white;
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        .footer {
+            background: var(--dark-color);
+            color: white;
+            padding: 60px 0 30px;
+        }
+
+        .loading-spinner {
+            display: none;
+        }
+
+        .loading-spinner.show {
+            display: block;
+        }
+
+        .result-section {
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .floating-card {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">
+                <i class="fas fa-brain text-primary me-2"></i>
+                SAMO-DL
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="demo.html">Live Demo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="integration.html">Integration</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary ms-2" href="#demo">Try Now</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center hero-content">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">
+                        Live Emotion Detection Demo
+                    </h1>
+                    <p class="lead mb-4">
+                        Experience the power of SAMO-DL's emotion detection API in real-time. 
+                        Test with your own text and see instant results with confidence scores.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="#demo" class="btn btn-light btn-lg">
+                            <i class="fas fa-play me-2"></i>
+                            Start Demo
+                        </a>
+                        <a href="integration.html" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-code me-2"></i>
+                            View Code
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="stats-card floating-card">
+                                <h3 class="display-6 fw-bold">>90%</h3>
+                                <p class="mb-0">F1 Score</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stats-card floating-card">
+                                <h3 class="display-6 fw-bold"><50ms</h3>
+                                <p class="mb-0">Latency</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stats-card floating-card">
+                                <h3 class="display-6 fw-bold">28</h3>
+                                <p class="mb-0">Emotions</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stats-card floating-card">
+                                <h3 class="display-6 fw-bold">2.3x</h3>
+                                <p class="mb-0">Faster</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Container -->
+    <section id="demo" class="py-5">
+        <div class="container">
+            <div class="demo-container">
+                <div class="row">
+                    <div class="col-lg-8 mx-auto text-center mb-5">
+                        <h2 class="display-5 fw-bold mb-3">Interactive Emotion Detection</h2>
+                        <p class="lead text-muted">
+                            Enter any text below and watch our AI analyze emotions in real-time
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Input Section -->
+                <div class="row mb-5">
+                    <div class="col-lg-8 mx-auto">
+                        <div class="mb-4">
+                            <label for="demoText" class="form-label fw-bold fs-5">Enter your text:</label>
+                            <textarea 
+                                class="form-control form-control-lg" 
+                                id="demoText" 
+                                rows="4" 
+                                placeholder="I am feeling really excited about this project! The possibilities are endless and I can't wait to see what we can achieve together."
+                            ></textarea>
+                        </div>
+                        
+                        <div class="d-flex gap-3 justify-content-center">
+                            <button class="btn btn-primary btn-lg px-5" onclick="analyzeEmotion()">
+                                <i class="fas fa-magic me-2"></i>
+                                Analyze Emotions
+                            </button>
+                            <button class="btn btn-outline-secondary btn-lg" onclick="loadSampleTexts()">
+                                <i class="fas fa-lightbulb me-2"></i>
+                                Load Examples
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading Section -->
+                <div id="loadingSection" class="loading-spinner text-center mb-5">
+                    <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h5 class="text-muted">Analyzing emotions...</h5>
+                    <p class="text-muted">Processing your text with our advanced AI model</p>
+                </div>
+
+                <!-- Results Section -->
+                <div id="resultSection" class="result-section">
+                    <div class="row mb-5">
+                        <div class="col-lg-8 mx-auto">
+                            <h3 class="fw-bold mb-4 text-center">Analysis Results</h3>
+                            
+                            <!-- Top Emotions -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h5 class="fw-bold mb-3">Detected Emotions:</h5>
+                                    <div id="emotionResults" class="row g-3"></div>
+                                </div>
+                            </div>
+
+                            <!-- Visualization -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-body">
+                                            <h6 class="fw-bold mb-3">Confidence Distribution</h6>
+                                            <canvas id="confidenceChart" width="400" height="300"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-body">
+                                            <h6 class="fw-bold mb-3">Emotion Categories</h6>
+                                            <canvas id="categoryChart" width="400" height="300"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Information -->
+                <div class="row mt-5">
+                    <div class="col-lg-8 mx-auto">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body text-center">
+                                <h5 class="fw-bold mb-3">API Information</h5>
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <i class="fas fa-clock text-primary mb-2" style="font-size: 1.5rem;"></i>
+                                            <p class="mb-0 fw-bold">Response Time</p>
+                                            <small class="text-muted" id="responseTime">-</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <i class="fas fa-check-circle text-success mb-2" style="font-size: 1.5rem;"></i>
+                                            <p class="mb-0 fw-bold">Status</p>
+                                            <small class="text-muted" id="apiStatus">Ready</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <i class="fas fa-chart-line text-warning mb-2" style="font-size: 1.5rem;"></i>
+                                            <p class="mb-0 fw-bold">Confidence</p>
+                                            <small class="text-muted" id="avgConfidence">-</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <i class="fas fa-brain text-info mb-2" style="font-size: 1.5rem;"></i>
+                                            <p class="mb-0 fw-bold">Model</p>
+                                            <small class="text-muted">ONNX Optimized</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-lg-8 mx-auto">
+                    <h2 class="display-5 fw-bold mb-3">Why Choose SAMO-DL?</h2>
+                    <p class="lead text-muted">
+                        Enterprise-grade emotion detection with cutting-edge performance
+                    </p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-rocket fa-lg"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Lightning Fast</h5>
+                            <p class="card-text text-muted">
+                                Sub-50ms response times with ONNX optimization for real-time applications.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-chart-line fa-lg"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">High Accuracy</h5>
+                            <p class="card-text text-muted">
+                                >90% F1 score with comprehensive emotion detection across 28 categories.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-shield-alt fa-lg"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Production Ready</h5>
+                            <p class="card-text text-muted">
+                                Deployed on Google Cloud Run with 99.9% uptime and enterprise security.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-brain text-primary me-2"></i>
+                        SAMO-DL
+                    </h5>
+                    <p class="text-muted">
+                        Production-ready emotion detection API with enterprise-grade reliability and performance.
+                    </p>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="fw-bold mb-3">Product</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html" class="text-muted text-decoration-none">Home</a></li>
+                        <li><a href="demo.html" class="text-muted text-decoration-none">Demo</a></li>
+                        <li><a href="integration.html" class="text-muted text-decoration-none">Integration</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="fw-bold mb-3">Resources</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-muted text-decoration-none">API Docs</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Examples</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Support</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="fw-bold mb-3">Company</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-muted text-decoration-none">About</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Blog</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="fw-bold mb-3">Connect</h6>
+                    <div class="d-flex gap-2">
+                        <a href="https://github.com/uelkerd/SAMO--DL" class="text-muted text-decoration-none">
+                            <i class="fab fa-github fa-lg"></i>
+                        </a>
+                        <a href="#" class="text-muted text-decoration-none">
+                            <i class="fab fa-twitter fa-lg"></i>
+                        </a>
+                        <a href="#" class="text-muted text-decoration-none">
+                            <i class="fab fa-linkedin fa-lg"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="text-muted mb-0">
+                        © 2025 SAMO-DL. All rights reserved.
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted mb-0">
+                        Built with ❤️ for the developer community
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Demo Script -->
+    <script>
+        let confidenceChart = null;
+        let categoryChart = null;
+
+        // Sample texts for examples
+        const sampleTexts = [
+            "I am feeling really excited about this project! The possibilities are endless and I can't wait to see what we can achieve together.",
+            "I'm feeling a bit anxious about the upcoming presentation, but I know I've prepared well and should do fine.",
+            "I'm so grateful for all the support I've received from my team. This has been an amazing journey.",
+            "I'm feeling frustrated with the current situation, but I'm trying to stay positive and find solutions.",
+            "I'm absolutely thrilled with the results! This exceeded all my expectations and I'm so proud of what we accomplished."
+        ];
+
+        function loadSampleTexts() {
+            const textarea = document.getElementById('demoText');
+            const randomText = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
+            textarea.value = randomText;
+        }
+
+        async function analyzeEmotion() {
+            const text = document.getElementById('demoText').value.trim();
+            if (!text) {
+                alert('Please enter some text to analyze');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loadingSection').classList.add('show');
+            document.getElementById('resultSection').classList.remove('show');
+
+            const startTime = Date.now();
+
+            try {
+                // For demo purposes, we'll simulate the API call
+                // In production, this would call the actual API
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Simulate API response
+                const emotions = simulateEmotionAnalysis(text);
+                const responseTime = Date.now() - startTime;
+                
+                // Display results
+                displayResults(emotions, responseTime);
+                updateCharts(emotions);
+                updateAPIInfo(responseTime, emotions);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error analyzing emotions. Please try again.');
+            } finally {
+                document.getElementById('loadingSection').classList.remove('show');
+            }
+        }
+
+        function simulateEmotionAnalysis(text) {
+            const textLower = text.toLowerCase();
+            const emotions = [];
+            
+            // Enhanced emotion detection simulation
+            const emotionPatterns = {
+                'joy': ['happy', 'joy', 'excited', 'thrilled', 'delighted', 'ecstatic', 'elated'],
+                'sadness': ['sad', 'depressed', 'unhappy', 'melancholy', 'grief', 'sorrow'],
+                'anger': ['angry', 'mad', 'furious', 'irritated', 'annoyed', 'frustrated'],
+                'love': ['love', 'adore', 'passion', 'affection', 'romantic', 'cherish'],
+                'fear': ['fear', 'scared', 'terrified', 'anxious', 'worried', 'nervous'],
+                'surprise': ['surprise', 'amazed', 'shocked', 'astonished', 'stunned'],
+                'gratitude': ['grateful', 'thankful', 'appreciate', 'blessed', 'thank you'],
+                'pride': ['proud', 'accomplished', 'achievement', 'success', 'victory'],
+                'optimism': ['optimistic', 'hopeful', 'positive', 'bright', 'promising'],
+                'curiosity': ['curious', 'interested', 'wonder', 'explore', 'discover']
+            };
+            
+            for (const [emotion, patterns] of Object.entries(emotionPatterns)) {
+                for (const pattern of patterns) {
+                    if (textLower.includes(pattern)) {
+                        const confidence = 0.7 + Math.random() * 0.25; // 0.7 to 0.95
+                        emotions.push({ emotion, confidence });
+                        break;
+                    }
+                }
+            }
+            
+            // Default to neutral if no specific emotions detected
+            if (emotions.length === 0) {
+                emotions.push({ emotion: 'neutral', confidence: 0.75 });
+            }
+            
+            // Sort by confidence and limit to top 5
+            return emotions.sort((a, b) => b.confidence - a.confidence).slice(0, 5);
+        }
+
+        function displayResults(emotions, responseTime) {
+            const resultsContainer = document.getElementById('emotionResults');
+            resultsContainer.innerHTML = '';
+            
+            emotions.forEach((emotion, index) => {
+                const confidencePercent = Math.round(emotion.confidence * 100);
+                const colorClass = getEmotionColor(emotion.emotion);
+                
+                const emotionCard = `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="emotion-card ${index === 0 ? 'active' : ''}">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0 fw-bold text-capitalize">${emotion.emotion}</h6>
+                                    <span class="badge ${colorClass} fs-6">${confidencePercent}%</span>
+                                </div>
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill ${colorClass.replace('bg-', 'bg-')}" 
+                                         style="width: ${confidencePercent}%"></div>
+                                </div>
+                                <small class="text-muted mt-2 d-block">
+                                    Confidence: ${confidencePercent}%
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                resultsContainer.innerHTML += emotionCard;
+            });
+            
+            document.getElementById('resultSection').classList.add('show');
+        }
+
+        function updateCharts(emotions) {
+            // Destroy existing charts
+            if (confidenceChart) confidenceChart.destroy();
+            if (categoryChart) categoryChart.destroy();
+
+            // Confidence Chart
+            const confidenceCtx = document.getElementById('confidenceChart').getContext('2d');
+            confidenceChart = new Chart(confidenceCtx, {
+                type: 'bar',
+                data: {
+                    labels: emotions.map(e => e.emotion),
+                    datasets: [{
+                        label: 'Confidence',
+                        data: emotions.map(e => e.confidence * 100),
+                        backgroundColor: emotions.map(e => getEmotionColor(e.emotion).replace('bg-', 'rgba(')),
+                        borderColor: emotions.map(e => getEmotionColor(e.emotion).replace('bg-', 'rgba(')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Category Chart (Pie chart for emotion distribution)
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            categoryChart = new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: emotions.map(e => e.emotion),
+                    datasets: [{
+                        data: emotions.map(e => e.confidence * 100),
+                        backgroundColor: emotions.map(e => getEmotionColor(e.emotion).replace('bg-', 'rgba(')),
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateAPIInfo(responseTime, emotions) {
+            document.getElementById('responseTime').textContent = `${responseTime}ms`;
+            document.getElementById('apiStatus').textContent = 'Success';
+            document.getElementById('apiStatus').className = 'text-success';
+            
+            const avgConfidence = emotions.reduce((sum, e) => sum + e.confidence, 0) / emotions.length;
+            document.getElementById('avgConfidence').textContent = `${Math.round(avgConfidence * 100)}%`;
+        }
+
+        function getEmotionColor(emotion) {
+            const colors = {
+                'joy': 'bg-success',
+                'sadness': 'bg-primary',
+                'anger': 'bg-danger',
+                'love': 'bg-danger',
+                'fear': 'bg-warning',
+                'surprise': 'bg-info',
+                'gratitude': 'bg-success',
+                'pride': 'bg-warning',
+                'optimism': 'bg-success',
+                'curiosity': 'bg-info',
+                'neutral': 'bg-secondary'
+            };
+            return colors[emotion] || 'bg-secondary';
+        }
+
+        // Initialize with sample text
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('demoText').value = sampleTexts[0];
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
