@@ -81,6 +81,22 @@ jobs:
         echo "=== HTML files in website-deploy ==="
         ls -la website-deploy/*.html 2>/dev/null || echo "No HTML files found"
         
+        # Validate that we have the required files
+        if [ ! -f "website-deploy/index.html" ]; then
+          echo "ERROR: index.html not found in website-deploy!"
+          exit 1
+        fi
+        
+        echo "✅ Deployment files ready"
+        
+    - name: Check GitHub Pages settings
+      run: |
+        echo "=== GitHub Pages Configuration ==="
+        echo "Branch: ${{ github.ref }}"
+        echo "Event: ${{ github.event_name }}"
+        echo "Actor: ${{ github.actor }}"
+        echo "Repository: ${{ github.repository }}"
+        
     - name: Setup Pages
       uses: actions/configure-pages@v4
       
