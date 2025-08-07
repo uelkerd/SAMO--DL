@@ -45,63 +45,19 @@ EOF
 
 chmod +x .git/hooks/post-commit
 
-# Create a repository health check script
-cat > scripts/check-repo-health.sh << 'EOF'
-#!/bin/bash
-# Repository health check script
+# Check if health check script exists
+if [ -f "scripts/check-repo-health.sh" ]; then
+    echo -e "${GREEN}✅ Repository health check script found${NC}"
+else
+    echo -e "${YELLOW}⚠️  Repository health check script not found at scripts/check-repo-health.sh${NC}"
+fi
 
-echo "🔍 Repository Health Check"
-echo "=========================="
-
-echo ""
-echo "📊 Repository Size:"
-git count-objects -vH
-
-echo ""
-echo "📁 Largest Files:"
-git ls-files | xargs wc -l 2>/dev/null | sort -nr | head -10
-
-echo ""
-echo "🔍 Potential Model Artifacts:"
-find . -name "*.pt" -o -name "*.pth" -o -name "*.bin" -o -name "*.safetensors" -o -name "*.onnx" -o -name "*.arrow" -o -name "merges.txt" 2>/dev/null | head -10
-
-echo ""
-echo "📈 Recent Commits:"
-git log --oneline -5
-
-echo ""
-echo "🌿 Current Branch:"
-git branch --show-current
-EOF
-
-chmod +x scripts/check-repo-health.sh
-
-echo -e "${GREEN}✅ Repository health check script created${NC}"
-
-# Create a branch cleanup script
-cat > scripts/cleanup-branches.sh << 'EOF'
-#!/bin/bash
-# Branch cleanup script
-
-echo "🧹 Branch Cleanup"
-echo "================="
-
-echo ""
-echo "📋 Local branches:"
-git branch
-
-echo ""
-echo "🗑️  To clean up merged branches:"
-echo "git branch --merged | grep -v '\\*\\|main\\|master' | xargs -n 1 git branch -d"
-
-echo ""
-echo "🔍 To check for large files in recent commits:"
-echo "git log --name-only --pretty=format: | sort | uniq | xargs wc -l 2>/dev/null | sort -nr | head -10"
-EOF
-
-chmod +x scripts/cleanup-branches.sh
-
-echo -e "${GREEN}✅ Branch cleanup script created${NC}"
+# Check if branch cleanup script exists
+if [ -f "scripts/cleanup-branches.sh" ]; then
+    echo -e "${GREEN}✅ Branch cleanup script found${NC}"
+else
+    echo -e "${YELLOW}⚠️  Branch cleanup script not found at scripts/cleanup-branches.sh${NC}"
+fi
 
 echo ""
 echo -e "${GREEN}🎉 Pre-commit setup complete!${NC}"

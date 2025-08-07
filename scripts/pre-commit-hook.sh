@@ -20,8 +20,8 @@ echo "🔍 Running pre-commit checks..."
 large_files_found=false
 while IFS= read -r file; do
     if [ -f "$file" ]; then
-        # Get file size (works on both macOS and Linux)
-        size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null)
+        # Get file size (portable method)
+        size=$(wc -c < "$file" | tr -d '[:space:]')
         
         if [ "$size" -gt "$MAX_SIZE" ]; then
             echo -e "${RED}❌ ERROR: $file is larger than 1MB ($(numfmt --to=iec "$size"))${NC}"
