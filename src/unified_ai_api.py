@@ -6,21 +6,28 @@ This module provides a unified FastAPI interface for all AI models
 in the SAMO Deep Learning pipeline.
 """
 
+import asyncio
+import json
 import logging
 import tempfile
 import time
 import traceback
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, AsyncGenerator, Optional, Dict, List
+from datetime import datetime
 
 import uvicorn
-from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile
+from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile, Depends, status, WebSocket, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.websockets import WebSocketDisconnect
 from pydantic import BaseModel, Field
 
 from .api_rate_limiter import add_rate_limiting
+from .security.jwt_manager import JWTManager, TokenResponse, TokenPayload
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -30,6 +37,60 @@ logger = logging.getLogger(__name__)
 emotion_detector = None
 text_summarizer = None
 voice_transcriber = None
+
+# Application startup time
+app_start_time = time.time()
+
+# JWT Authentication
+jwt_manager = JWTManager()
+security = HTTPBearer()
+
+# Authentication models
+class UserLogin(BaseModel):
+    """User login request model."""
+    username: str = Field(..., description="Username", example="user@example.com")
+    password: str = Field(..., description="Password", min_length=6, example="password123")
+
+class UserRegister(BaseModel):
+    """User registration request model."""
+    username: str = Field(..., description="Username", example="user@example.com")
+    email: str = Field(..., description="Email address", example="user@example.com")
+    password: str = Field(..., description="Password", min_length=6, example="password123")
+    full_name: str = Field(..., description="Full name", example="John Doe")
+
+class UserProfile(BaseModel):
+    """User profile response model."""
+    user_id: str = Field(..., description="User ID")
+    username: str = Field(..., description="Username")
+    email: str = Field(..., description="Email address")
+    full_name: str = Field(..., description="Full name")
+    permissions: List[str] = Field(default_factory=list, description="User permissions")
+    created_at: str = Field(..., description="Account creation date")
+
+# Authentication dependency
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> TokenPayload:
+    """Get current authenticated user from JWT token."""
+    token = credentials.credentials
+    payload = jwt_manager.verify_token(token)
+    if not payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return payload
+
+# Permission dependency
+def require_permission(permission: str):
+    """Require specific permission for endpoint access."""
+    async def permission_checker(current_user: TokenPayload = Depends(get_current_user)):
+        if permission not in current_user.permissions:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Permission '{permission}' required"
+            )
+        return current_user
+    return permission_checker
 
 
 @asynccontextmanager
@@ -259,6 +320,187 @@ async def health_check() -> Dict[str, Any]:
         },
     }
 
+# Authentication Endpoints
+@app.post(
+    "/auth/register",
+    response_model=TokenResponse,
+    tags=["Authentication"],
+    summary="Register new user",
+    description="Register a new user account and receive authentication tokens",
+)
+async def register_user(user_data: UserRegister) -> TokenResponse:
+    """Register a new user account."""
+    try:
+        # In a real application, you would:
+        # 1. Check if user already exists
+        # 2. Hash the password
+        # 3. Store user in database
+        # 4. Generate user ID
+        
+        # For demo purposes, we'll create a simple user
+        user_id = f"user_{int(time.time())}"
+        
+        # Create user data for token
+        token_user_data = {
+            "user_id": user_id,
+            "username": user_data.username,
+            "email": user_data.email,
+            "permissions": ["read", "write"]  # Default permissions
+        }
+        
+        # Generate tokens
+        token_response = jwt_manager.create_token_pair(token_user_data)
+        
+        logger.info(f"New user registered: {user_data.username}")
+        return token_response
+        
+    except Exception as exc:
+        logger.error(f"Registration failed: {exc}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Registration failed"
+        )
+
+@app.post(
+    "/auth/login",
+    response_model=TokenResponse,
+    tags=["Authentication"],
+    summary="User login",
+    description="Authenticate user and receive access tokens",
+)
+async def login_user(login_data: UserLogin) -> TokenResponse:
+    """Authenticate user and provide access tokens."""
+    try:
+        # In a real application, you would:
+        # 1. Verify username/password against database
+        # 2. Check if account is active
+        # 3. Retrieve user permissions
+        
+        # For demo purposes, we'll accept any valid email/password
+        if not login_data.username or not login_data.password:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Username and password required"
+            )
+        
+        # Create user data for token
+        user_id = f"user_{hash(login_data.username) % 10000}"
+        token_user_data = {
+            "user_id": str(user_id),
+            "username": login_data.username,
+            "email": login_data.username if "@" in login_data.username else f"{login_data.username}@example.com",
+            "permissions": ["read", "write", "admin"]  # Demo permissions
+        }
+        
+        # Generate tokens
+        token_response = jwt_manager.create_token_pair(token_user_data)
+        
+        logger.info(f"User logged in: {login_data.username}")
+        return token_response
+        
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error(f"Login failed: {exc}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Login failed"
+        )
+
+class RefreshTokenRequest(BaseModel):
+    """Refresh token request model."""
+    refresh_token: str = Field(..., description="Refresh token")
+
+@app.post(
+    "/auth/refresh",
+    response_model=TokenResponse,
+    tags=["Authentication"],
+    summary="Refresh access token",
+    description="Refresh access token using refresh token",
+)
+async def refresh_token(request: RefreshTokenRequest) -> TokenResponse:
+    """Refresh access token using refresh token."""
+    try:
+        # Verify refresh token
+        payload = jwt_manager.verify_token(request.refresh_token)
+        if not payload or payload.type != "refresh":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid refresh token"
+            )
+        
+        # Create new user data
+        user_data = {
+            "user_id": payload.user_id,
+            "username": payload.username,
+            "email": payload.email,
+            "permissions": payload.permissions
+        }
+        
+        # Generate new token pair
+        token_response = jwt_manager.create_token_pair(user_data)
+        
+        logger.info(f"Token refreshed for user: {payload.username}")
+        return token_response
+        
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error(f"Token refresh failed: {exc}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Token refresh failed"
+        )
+
+@app.post(
+    "/auth/logout",
+    tags=["Authentication"],
+    summary="Logout user",
+    description="Logout user and blacklist tokens",
+)
+async def logout_user(
+    request: Request,
+    current_user: TokenPayload = Depends(get_current_user)
+) -> Dict[str, str]:
+    """Logout user and blacklist tokens."""
+    try:
+        # Get the raw token from the Authorization header
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+            # Blacklist the token
+            jwt_manager.blacklist_token(token)
+            logger.info(f"User logged out and token blacklisted: {current_user.username}")
+        else:
+            logger.warning("No valid Authorization header found during logout")
+        
+        return {"message": "Successfully logged out"}
+        
+    except Exception as exc:
+        logger.error(f"Logout failed: {exc}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Logout failed"
+        )
+
+@app.get(
+    "/auth/profile",
+    response_model=UserProfile,
+    tags=["Authentication"],
+    summary="Get user profile",
+    description="Get current user profile information",
+)
+async def get_user_profile(current_user: TokenPayload = Depends(get_current_user)) -> UserProfile:
+    """Get current user profile."""
+    return UserProfile(
+        user_id=current_user.user_id,
+        username=current_user.username,
+        email=current_user.email,
+        full_name=current_user.username,  # In real app, get from database
+        permissions=current_user.permissions,
+        created_at=datetime.utcnow().isoformat()  # In real app, get from database
+    )
+
 
 @app.post(
     "/analyze/journal",
@@ -384,6 +626,7 @@ async def analyze_voice_journal(
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
                     content = await audio_file.read()
                     temp_file.write(content)
+                    temp_file.flush()  # Ensure data is written to disk
                     temp_file_path = temp_file.name
 
                 try:
@@ -442,6 +685,504 @@ async def analyze_voice_journal(
     except Exception as exc:
         logger.error(f"❌ Error in voice journal analysis: {exc}")
         raise HTTPException(status_code=500, detail="Voice analysis failed")
+
+
+# Enhanced Voice Transcription Endpoints
+@app.post(
+    "/transcribe/voice",
+    response_model=VoiceTranscription,
+    tags=["Voice Processing"],
+    summary="Transcribe voice to text",
+    description="Enhanced voice transcription with detailed analysis",
+)
+async def transcribe_voice(
+    audio_file: UploadFile = File(..., description="Audio file to transcribe"),
+    language: Optional[str] = Form(None, description="Language code (auto-detect if not provided)"),
+    model_size: str = Form("base", description="Whisper model size (tiny, base, small, medium, large)"),
+    timestamp: bool = Form(False, description="Include word-level timestamps"),
+    current_user: TokenPayload = Depends(get_current_user),
+) -> VoiceTranscription:
+    """Enhanced voice transcription with detailed analysis."""
+    start_time = time.time()
+    
+    try:
+        # Validate file
+        if not audio_file.filename:
+            raise HTTPException(status_code=400, detail="Audio file required")
+        
+        # Check file size (max 50MB)
+        content = await audio_file.read()
+        if len(content) > 50 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="File too large (max 50MB)")
+        # Reset file position for later processing
+        await audio_file.seek(0)
+        
+        # Save uploaded file temporarily
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
+            temp_file.write(content)
+            temp_file.flush()  # Ensure data is written to disk
+            temp_file_path = temp_file.name
+        
+        try:
+            # Transcribe audio
+            if voice_transcriber is None:
+                raise HTTPException(status_code=503, detail="Voice transcription service unavailable")
+            
+            # Enhanced transcription with additional parameters
+            transcription_result = voice_transcriber.transcribe(
+                temp_file_path,
+                language=language,
+                model_size=model_size,
+                timestamp=timestamp
+            )
+            
+            # Calculate additional metrics
+            duration = transcription_result.get("duration", 0)
+            word_count = len(transcription_result.get("text", "").split())
+            speaking_rate = (word_count / duration * 60) if duration > 0 else 0
+            
+            # Audio quality assessment
+            audio_quality = "excellent"
+            if duration < 1:
+                audio_quality = "poor"
+            elif duration < 5:
+                audio_quality = "fair"
+            elif duration < 15:
+                audio_quality = "good"
+            
+            processing_time = (time.time() - start_time) * 1000
+            
+            return VoiceTranscription(
+                text=transcription_result.get("text", ""),
+                language=transcription_result.get("language", "unknown"),
+                confidence=transcription_result.get("confidence", 0.0),
+                duration=duration,
+                word_count=word_count,
+                speaking_rate=speaking_rate,
+                audio_quality=audio_quality
+            )
+            
+        finally:
+            # Cleanup temporary file
+            if os.path.exists(temp_file_path):
+                os.unlink(temp_file_path)
+                
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error(f"Voice transcription failed: {exc}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Voice transcription failed"
+        )
+
+@app.post(
+    "/transcribe/batch",
+    tags=["Voice Processing"],
+    summary="Batch voice transcription",
+    description="Process multiple audio files for transcription",
+)
+async def batch_transcribe_voice(
+    audio_files: List[UploadFile] = File(..., description="Multiple audio files to transcribe"),
+    language: Optional[str] = Form(None, description="Language code for all files"),
+    current_user: TokenPayload = Depends(require_permission("batch_processing")),
+) -> Dict[str, Any]:
+    """Batch process multiple audio files for transcription."""
+    start_time = time.time()
+    results = []
+    
+    try:
+        for i, audio_file in enumerate(audio_files):
+            try:
+                # Process each file individually
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
+                    content = await audio_file.read()
+                    temp_file.write(content)
+                    temp_file.flush()  # Ensure data is written to disk
+                    temp_file_path = temp_file.name
+                
+                try:
+                    if voice_transcriber is None:
+                        raise HTTPException(status_code=503, detail="Voice transcription service unavailable")
+                    
+                    transcription_result = voice_transcriber.transcribe(temp_file_path, language=language)
+                    
+                    results.append({
+                        "file_index": i,
+                        "filename": audio_file.filename,
+                        "success": True,
+                        "transcription": transcription_result.get("text", ""),
+                        "language": transcription_result.get("language", "unknown"),
+                        "confidence": transcription_result.get("confidence", 0.0),
+                        "duration": transcription_result.get("duration", 0)
+                    })
+                    
+                finally:
+                    if os.path.exists(temp_file_path):
+                        os.unlink(temp_file_path)
+                        
+            except Exception as exc:
+                results.append({
+                    "file_index": i,
+                    "filename": audio_file.filename,
+                    "success": False,
+                    "error": str(exc)
+                })
+        
+        processing_time = (time.time() - start_time) * 1000
+        
+        return {
+            "total_files": len(audio_files),
+            "successful_transcriptions": len([r for r in results if r["success"]]),
+            "failed_transcriptions": len([r for r in results if not r["success"]]),
+            "processing_time_ms": processing_time,
+            "results": results
+        }
+        
+    except Exception as exc:
+        logger.error(f"Batch transcription failed: {exc}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Batch transcription failed"
+        )
+
+# Enhanced Text Summarization Endpoints
+@app.post(
+    "/summarize/text",
+    response_model=TextSummary,
+    tags=["Text Processing"],
+    summary="Enhanced text summarization",
+    description="Advanced text summarization with multiple models and options",
+)
+async def summarize_text(
+    text: str = Form(..., description="Text to summarize", min_length=10),
+    model: str = Form("t5-small", description="Summarization model (t5-small, t5-base, t5-large)"),
+    max_length: int = Form(150, description="Maximum summary length", ge=10, le=500),
+    min_length: int = Form(30, description="Minimum summary length", ge=5, le=200),
+    do_sample: bool = Form(True, description="Use sampling for generation"),
+    current_user: TokenPayload = Depends(get_current_user),
+) -> TextSummary:
+    """Enhanced text summarization with multiple model options."""
+    start_time = time.time()
+    
+    try:
+        if not text.strip():
+            raise HTTPException(status_code=400, detail="Text cannot be empty")
+        
+        if text_summarizer is None:
+            raise HTTPException(status_code=503, detail="Text summarization service unavailable")
+        
+        # Enhanced summarization with parameters
+        summary_result = text_summarizer.summarize(
+            text,
+            model_name=model,
+            max_length=max_length,
+            min_length=min_length,
+            do_sample=do_sample
+        )
+        
+        # Calculate metrics
+        original_length = len(text.split())
+        summary_length = len(summary_result.get("summary", "").split())
+        compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
+        
+        # Determine emotional tone from summary
+        emotional_tone = "neutral"
+        if emotion_detector and summary_result.get("summary"):
+            try:
+                emotion_result = emotion_detector.predict(summary_result["summary"])
+                primary_emotion = emotion_result.get("primary_emotion", "neutral")
+                if primary_emotion in ["joy", "gratitude", "excitement"]:
+                    emotional_tone = "positive"
+                elif primary_emotion in ["sadness", "anger", "fear"]:
+                    emotional_tone = "negative"
+            except Exception as exc:
+                logger.warning(f"Could not determine emotional tone from summary: {exc}")
+        
+        processing_time = (time.time() - start_time) * 1000
+        
+        return TextSummary(
+            summary=summary_result.get("summary", ""),
+            key_emotions=summary_result.get("key_emotions", []),
+            compression_ratio=compression_ratio,
+            emotional_tone=emotional_tone
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error(f"Text summarization failed: {exc}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Text summarization failed"
+        )
+
+# Real-time Processing Endpoints
+@app.websocket("/ws/realtime")
+async def websocket_realtime_processing(websocket: WebSocket, token: str = Query(None)):
+    """WebSocket endpoint for real-time voice processing."""
+    # Validate authentication token
+    if not token:
+        await websocket.close(code=4001, reason="Authentication token required")
+        return
+    
+    try:
+        # Verify JWT token using the global jwt_manager instance
+        payload = jwt_manager.verify_token(token)
+        if not payload:
+            await websocket.close(code=4001, reason="Invalid authentication token")
+            return
+        
+        # Check if user has real-time processing permission
+        if "realtime_processing" not in payload.permissions:
+            await websocket.close(code=4003, reason="Insufficient permissions")
+            return
+            
+    except Exception as e:
+        await websocket.close(code=4001, reason=f"Authentication failed: {str(e)}")
+        return
+    
+    await websocket.accept()
+    
+    # Authenticate WebSocket connection
+    try:
+        # Get token from query parameters or initial message
+        token = websocket.query_params.get("token")
+        if not token:
+            # Try to get token from initial message
+            initial_message = await websocket.receive_text()
+            try:
+                message_data = json.loads(initial_message)
+                token = message_data.get("token")
+            except (json.JSONDecodeError, KeyError):
+                await websocket.send_json({
+                    "type": "error",
+                    "message": "Authentication token required"
+                })
+                await websocket.close()
+                return
+        
+        # Verify token using the global jwt_manager instance
+        payload = jwt_manager.verify_token(token)
+        if not payload:
+            await websocket.send_json({
+                "type": "error",
+                "message": "Invalid authentication token"
+            })
+            await websocket.close()
+            return
+        
+        logger.info(f"WebSocket authenticated for user: {payload.username}")
+        
+    except Exception as exc:
+        await websocket.send_json({
+            "type": "error",
+            "message": "Authentication failed"
+        })
+        await websocket.close()
+        return
+    
+    try:
+        while True:
+            # Receive audio data or control messages
+            try:
+                data = await websocket.receive_bytes()
+            except WebSocketDisconnect:
+                break
+            
+            # Process audio in real-time
+            if voice_transcriber:
+                try:
+                    # Save received audio data
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
+                        temp_file.write(data)
+                        temp_file.flush()  # Ensure data is written to disk
+                        temp_file_path = temp_file.name
+                    
+                    try:
+                        # Transcribe
+                        result = voice_transcriber.transcribe(temp_file_path)
+                        
+                        # Send result back
+                        await websocket.send_json({
+                            "type": "transcription",
+                            "text": result.get("text", ""),
+                            "confidence": result.get("confidence", 0.0),
+                            "language": result.get("language", "unknown")
+                        })
+                        
+                    finally:
+                        if os.path.exists(temp_file_path):
+                            os.unlink(temp_file_path)
+                            
+                except Exception as exc:
+                    await websocket.send_json({
+                        "type": "error",
+                        "message": str(exc)
+                    })
+            else:
+                await websocket.send_json({
+                    "type": "error",
+                    "message": "Voice transcription service unavailable"
+                })
+                
+    except WebSocketDisconnect:
+        logger.info("WebSocket client disconnected")
+    except Exception as exc:
+        logger.error(f"WebSocket error: {exc}")
+        try:
+            await websocket.send_json({
+                "type": "error",
+                "message": "Internal server error"
+            })
+        except:
+            pass
+
+# Monitoring and Analytics Endpoints
+@app.get(
+    "/monitoring/performance",
+    tags=["Monitoring"],
+    summary="Performance monitoring",
+    description="Get detailed performance metrics and analytics",
+)
+async def get_performance_metrics(
+    current_user: TokenPayload = Depends(require_permission("monitoring")),
+) -> Dict[str, Any]:
+    """Get comprehensive performance metrics."""
+    try:
+        # Get system metrics
+        import psutil
+        
+        cpu_percent = await asyncio.to_thread(psutil.cpu_percent, interval=1)
+        memory = await asyncio.to_thread(psutil.virtual_memory)
+        disk = await asyncio.to_thread(psutil.disk_usage, '/')
+        
+        # Model performance metrics
+        model_metrics = {
+            "emotion_detection": {
+                "loaded": emotion_detector is not None,
+                "last_used": time.time() if emotion_detector else None,
+                "total_requests": 0  # In real app, track from database
+            },
+            "text_summarization": {
+                "loaded": text_summarizer is not None,
+                "last_used": time.time() if text_summarizer else None,
+                "total_requests": 0
+            },
+            "voice_processing": {
+                "loaded": voice_transcriber is not None,
+                "last_used": time.time() if voice_transcriber else None,
+                "total_requests": 0
+            }
+        }
+        
+        return {
+            "timestamp": time.time(),
+            "system": {
+                "cpu_percent": cpu_percent,
+                "memory_percent": memory.percent,
+                "memory_available_gb": memory.available / (1024**3),
+                "disk_percent": disk.percent,
+                "disk_free_gb": disk.free / (1024**3)
+            },
+            "models": model_metrics,
+            "api": {
+                "uptime_seconds": time.time() - app_start_time,
+                "active_connections": 0,  # In real app, track WebSocket connections
+                "total_requests": 0  # In real app, track from database
+            }
+        }
+        
+    except Exception as exc:
+        logger.error(f"Failed to get performance metrics: {exc}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to get performance metrics"
+        )
+
+@app.get(
+    "/monitoring/health/detailed",
+    tags=["Monitoring"],
+    summary="Detailed health check",
+    description="Comprehensive health check with model diagnostics",
+)
+async def detailed_health_check(
+    current_user: TokenPayload = Depends(require_permission("monitoring"))
+) -> Dict[str, Any]:
+    """Comprehensive health check with detailed diagnostics."""
+    health_status = "healthy"
+    issues = []
+    
+    # Check models
+    model_checks = {}
+    
+    if emotion_detector is None:
+        health_status = "degraded"
+        issues.append("Emotion detection model not loaded")
+        model_checks["emotion_detection"] = {"status": "unavailable", "error": "Model not loaded"}
+    else:
+        try:
+            # Test emotion detection
+            test_result = emotion_detector.predict("I am happy today")
+            model_checks["emotion_detection"] = {"status": "healthy", "test_passed": True}
+        except Exception as exc:
+            health_status = "degraded"
+            issues.append(f"Emotion detection model error: {exc}")
+            model_checks["emotion_detection"] = {"status": "error", "error": str(exc)}
+    
+    if text_summarizer is None:
+        health_status = "degraded"
+        issues.append("Text summarization model not loaded")
+        model_checks["text_summarization"] = {"status": "unavailable", "error": "Model not loaded"}
+    else:
+        try:
+            # Test text summarization
+            test_result = text_summarizer.summarize("This is a test text for summarization.")
+            model_checks["text_summarization"] = {"status": "healthy", "test_passed": True}
+        except Exception as exc:
+            health_status = "degraded"
+            issues.append(f"Text summarization model error: {exc}")
+            model_checks["text_summarization"] = {"status": "error", "error": str(exc)}
+    
+    if voice_transcriber is None:
+        health_status = "degraded"
+        issues.append("Voice processing model not loaded")
+        model_checks["voice_processing"] = {"status": "unavailable", "error": "Model not loaded"}
+    else:
+        model_checks["voice_processing"] = {"status": "healthy", "test_passed": True}
+    
+    # Check system resources
+    try:
+        import psutil
+        cpu_percent = await asyncio.to_thread(psutil.cpu_percent, interval=1)
+        memory = await asyncio.to_thread(psutil.virtual_memory)
+        
+        if cpu_percent > 90:
+            health_status = "degraded"
+            issues.append(f"High CPU usage: {cpu_percent}%")
+        
+        if memory.percent > 90:
+            health_status = "degraded"
+            issues.append(f"High memory usage: {memory.percent}%")
+            
+        system_checks = {
+            "cpu_percent": cpu_percent,
+            "memory_percent": memory.percent,
+            "status": "healthy" if cpu_percent < 90 and memory.percent < 90 else "warning"
+        }
+    except Exception as exc:
+        system_checks = {"status": "error", "error": str(exc)}
+        health_status = "degraded"
+        issues.append(f"System check failed: {exc}")
+    
+    return {
+        "status": health_status,
+        "timestamp": time.time(),
+        "issues": issues,
+        "models": model_checks,
+        "system": system_checks,
+        "version": "1.0.0"
+    }
 
 
 @app.get(
