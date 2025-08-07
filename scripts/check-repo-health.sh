@@ -9,8 +9,12 @@ echo "📊 Repository Size:"
 git count-objects -vH
 
 echo ""
-echo "📁 Largest Files:"
+echo "📁 Largest Files (by line count):"
 git ls-files | xargs wc -l 2>/dev/null | sort -nr | head -10
+
+echo ""
+echo "📁 Largest Files (by size):"
+git ls-files -z | xargs -0 du -h 2>/dev/null | sort -hr | head -10
 
 echo ""
 echo "🔍 Potential Model Artifacts:"
