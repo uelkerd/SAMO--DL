@@ -15,3 +15,6 @@ echo "git branch --merged | grep -v '\\*\\|main\\|master' | xargs -n 1 git branc
 echo ""
 echo "🔍 To check for large files in recent commits:"
 echo "git log --name-only --pretty=format: | sort | uniq | xargs wc -l 2>/dev/null | sort -nr | head -10"
+echo ""
+echo "🔍 To check for large files by size:"
+echo "git ls-files -z | xargs -0 du -h 2>/dev/null | sort -hr | head -10"
