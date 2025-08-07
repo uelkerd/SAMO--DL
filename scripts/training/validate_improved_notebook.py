@@ -5,7 +5,6 @@ Tests the notebook structure, content, and ensures it's ready for Colab executio
 """
 
 import json
-import re
 
 def validate_notebook():
     """Validate the improved notebook for Colab execution."""

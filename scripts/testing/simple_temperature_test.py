@@ -10,8 +10,6 @@ import sys
 from pathlib import Path
 
 import torch
-from torch import nn
-from transformers import AutoTokenizer
 
 # Add src to path
 sys.path.append(str(Path.cwd() / "src"))

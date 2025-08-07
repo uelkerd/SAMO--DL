@@ -6,7 +6,6 @@ Handles missing tokenizer and generic labels
 
 import torch
 import json
-import numpy as np
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
 

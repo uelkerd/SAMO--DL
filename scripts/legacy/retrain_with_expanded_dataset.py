@@ -11,8 +11,6 @@ from transformers import AutoModel, AutoTokenizer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, accuracy_score
-import numpy as np
-import random
 
 def load_expanded_dataset():
     """Load the expanded journal dataset."""

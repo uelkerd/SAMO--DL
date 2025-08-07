@@ -8,7 +8,6 @@ avoids the datasets library issues by using a more direct approach.
 """
 
 import json
-import os
 
 def create_simple_notebook():
     """Create a simplified ultimate notebook."""
