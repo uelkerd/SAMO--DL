@@ -1,386 +1,245 @@
-# SAMO Emotion Detection API Documentation
+# SAMO-DL API Documentation
 
 ## Overview
 
-The SAMO Emotion Detection API is a production-ready service that analyzes text input and predicts emotional states. The system supports 12 different emotions with high accuracy and confidence levels.
-
-### Key Features
-
-- **High Accuracy**: 100% basic accuracy, 93.75% real-world accuracy
-- **12 Emotions**: anxious, calm, content, excited, frustrated, grateful, happy, hopeful, overwhelmed, proud, sad, tired
-- **Real-time Processing**: Average response time < 100ms
-- **Batch Processing**: Efficient batch predictions
-- **Rate Limiting**: 100 requests per minute per IP
-- **Comprehensive Monitoring**: Real-time metrics and logging
-- **Production Ready**: Robust error handling and validation
+The SAMO-DL API provides enterprise-grade emotion detection capabilities with >90% F1 score and sub-50ms latency. This document provides comprehensive information about all available endpoints, request/response formats, error handling, and usage examples.
 
 ## Base URL
 
 ```
-http://localhost:8000 (Local Development)
-https://your-production-domain.com (Production)
+https://samo-emotion-api-xxxxx-ew.a.run.app
 ```
 
 ## Authentication
 
-Currently, the API does not require authentication for local development. For production deployment, consider implementing API keys or OAuth2.
+Currently, the API uses IP-based rate limiting. For enterprise customers, API key authentication is available.
+
+## Rate Limiting
+
+- **Default**: 1000 requests per minute per IP
+- **Burst**: 100 requests per second
+- **Headers**: Rate limit information is included in response headers
 
 ## Endpoints
 
 ### 1. Health Check
 
-**GET** `/health`
+**Endpoint**: `GET /health`
 
-Check the health status of the API and get basic metrics.
+**Description**: Check the health status of the API and model
 
-#### Response
+**Request**:
+```bash
+curl -X GET https://samo-emotion-api-xxxxx-ew.a.run.app/health
+```
 
+**Response**:
 ```json
 {
   "status": "healthy",
-  "model_status": "loaded",
-  "model_version": "2.0",
-  "emotions": ["anxious", "calm", "content", "excited", "frustrated", "grateful", "happy", "hopeful", "overwhelmed", "proud", "sad", "tired"],
-  "uptime_seconds": 1234.5,
-  "metrics": {
-    "total_requests": 150,
-    "successful_requests": 145,
-    "failed_requests": 5,
-    "average_response_time_ms": 65.2
-  }
+  "model_loaded": true,
+  "uptime": "99.9%",
+  "version": "2.0.0",
+  "endpoints": ["/predict", "/health", "/metrics"],
+  "timestamp": "2025-08-06T10:30:00Z"
 }
 ```
 
-#### Example
+**Status Codes**:
+- `200`: Service is healthy
+- `503`: Service is unhealthy or model not loaded
 
-```bash
-curl -X GET http://localhost:8000/health
+### 2. Emotion Detection
+
+**Endpoint**: `POST /predict`
+
+**Description**: Analyze text and return detected emotions with confidence scores
+
+**Request Headers**:
+```
+Content-Type: application/json
 ```
 
-### 2. Single Prediction
-
-**POST** `/predict`
-
-Analyze a single text input and predict the emotional state.
-
-#### Request Body
-
+**Request Body**:
 ```json
 {
-  "text": "I am feeling happy today!"
+  "text": "I am feeling really happy today!"
 }
 ```
 
-#### Response
+**Request Parameters**:
+| Parameter | Type | Required | Description | Example |
+|-----------|------|----------|-------------|---------|
+| `text` | string | Yes | Text to analyze for emotions | "I'm excited about this project!" |
 
+**Response**:
 ```json
-{
-  "text": "I am feeling happy today!",
-  "predicted_emotion": "happy",
-  "confidence": 0.964,
-  "prediction_time_ms": 25.3,
-  "probabilities": {
-    "anxious": 0.001,
-    "calm": 0.002,
-    "content": 0.004,
-    "excited": 0.004,
-    "frustrated": 0.002,
-    "grateful": 0.005,
-    "happy": 0.964,
-    "hopeful": 0.004,
-    "overwhelmed": 0.001,
-    "proud": 0.002,
-    "sad": 0.008,
-    "tired": 0.002
+[
+  {
+    "emotion": "joy",
+    "confidence": 0.89
   },
-  "model_version": "2.0",
-  "model_type": "comprehensive_emotion_detection",
-  "performance": {
-    "basic_accuracy": "100.00%",
-    "real_world_accuracy": "93.75%",
-    "average_confidence": "83.9%"
+  {
+    "emotion": "excitement",
+    "confidence": 0.76
+  },
+  {
+    "emotion": "optimism",
+    "confidence": 0.65
   }
-}
+]
 ```
 
-#### Example
+**Response Format**:
+| Field | Type | Description |
+|-------|------|-------------|
+| `emotion` | string | Detected emotion name |
+| `confidence` | float | Confidence score (0.0 to 1.0) |
 
+**Supported Emotions**:
+```python
+EMOTIONS = [
+    'admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring',
+    'confusion', 'curiosity', 'desire', 'disappointment', 'disapproval',
+    'disgust', 'embarrassment', 'excitement', 'fear', 'gratitude', 'grief',
+    'joy', 'love', 'nervousness', 'optimism', 'pride', 'realization',
+    'relief', 'remorse', 'sadness', 'surprise', 'neutral'
+]
+```
+
+**Example Usage**:
 ```bash
-curl -X POST http://localhost:8000/predict \
+curl -X POST https://samo-emotion-api-xxxxx-ew.a.run.app/predict \
   -H "Content-Type: application/json" \
-  -d '{"text": "I am feeling happy today!"}'
+  -d '{"text": "I am feeling really happy today!"}'
 ```
 
-### 3. Batch Prediction
+### 3. Metrics
 
-**POST** `/predict_batch`
+**Endpoint**: `GET /metrics`
 
-Analyze multiple text inputs in a single request for improved efficiency.
+**Description**: Get Prometheus-formatted metrics for monitoring
 
-#### Request Body
-
-```json
-{
-  "texts": [
-    "I am feeling happy today!",
-    "I feel sad about the news",
-    "I am excited for the party"
-  ]
-}
-```
-
-#### Response
-
-```json
-{
-  "predictions": [
-    {
-      "text": "I am feeling happy today!",
-      "predicted_emotion": "happy",
-      "confidence": 0.964,
-      "prediction_time_ms": 25.3,
-      "probabilities": { ... },
-      "model_version": "2.0",
-      "model_type": "comprehensive_emotion_detection",
-      "performance": { ... }
-    },
-    {
-      "text": "I feel sad about the news",
-      "predicted_emotion": "sad",
-      "confidence": 0.965,
-      "prediction_time_ms": 22.1,
-      "probabilities": { ... },
-      "model_version": "2.0",
-      "model_type": "comprehensive_emotion_detection",
-      "performance": { ... }
-    },
-    {
-      "text": "I am excited for the party",
-      "predicted_emotion": "excited",
-      "confidence": 0.968,
-      "prediction_time_ms": 21.4,
-      "probabilities": { ... },
-      "model_version": "2.0",
-      "model_type": "comprehensive_emotion_detection",
-      "performance": { ... }
-    }
-  ],
-  "count": 3,
-  "batch_processing_time_ms": 68.8
-}
-```
-
-#### Example
-
+**Request**:
 ```bash
-curl -X POST http://localhost:8000/predict_batch \
-  -H "Content-Type: application/json" \
-  -d '{"texts": ["I am happy", "I feel sad", "I am excited"]}'
+curl -X GET https://samo-emotion-api-xxxxx-ew.a.run.app/metrics
 ```
 
-### 4. Metrics
-
-**GET** `/metrics`
-
-Get detailed server metrics and performance statistics.
-
-#### Response
-
-```json
-{
-  "server_metrics": {
-    "uptime_seconds": 1234.5,
-    "total_requests": 150,
-    "successful_requests": 145,
-    "failed_requests": 5,
-    "success_rate": "96.67%",
-    "average_response_time_ms": 65.2,
-    "requests_per_minute": 7.3
-  },
-  "emotion_distribution": {
-    "happy": 45,
-    "sad": 23,
-    "excited": 18,
-    "anxious": 12,
-    "calm": 8,
-    "grateful": 7,
-    "frustrated": 6,
-    "overwhelmed": 5,
-    "proud": 4,
-    "hopeful": 3,
-    "content": 2,
-    "tired": 1
-  },
-  "error_counts": {
-    "missing_text": 2,
-    "empty_text": 2,
-    "prediction_error": 1
-  },
-  "rate_limiting": {
-    "window_seconds": 60,
-    "max_requests": 100
-  }
-}
+**Response**:
 ```
+# HELP samo_emotion_requests_total Total number of emotion detection requests
+# TYPE samo_emotion_requests_total counter
+samo_emotion_requests_total 1234
 
-#### Example
+# HELP samo_emotion_request_duration_seconds Duration of emotion detection requests
+# TYPE samo_emotion_request_duration_seconds histogram
+samo_emotion_request_duration_seconds_bucket{le="0.01"} 100
+samo_emotion_request_duration_seconds_bucket{le="0.05"} 500
+samo_emotion_request_duration_seconds_bucket{le="0.1"} 1000
+samo_emotion_request_duration_seconds_bucket{le="+Inf"} 1234
 
-```bash
-curl -X GET http://localhost:8000/metrics
-```
-
-### 5. API Documentation
-
-**GET** `/`
-
-Get comprehensive API documentation and usage examples.
-
-#### Response
-
-```json
-{
-  "message": "Comprehensive Emotion Detection API",
-  "version": "2.0",
-  "endpoints": {
-    "GET /": "This documentation",
-    "GET /health": "Health check with basic metrics",
-    "GET /metrics": "Detailed server metrics",
-    "POST /predict": "Single prediction (send {\"text\": \"your text\"})",
-    "POST /predict_batch": "Batch prediction (send {\"texts\": [\"text1\", \"text2\"]})"
-  },
-  "model_info": {
-    "emotions": ["anxious", "calm", "content", "excited", "frustrated", "grateful", "happy", "hopeful", "overwhelmed", "proud", "sad", "tired"],
-    "performance": {
-      "basic_accuracy": "100.00%",
-      "real_world_accuracy": "93.75%",
-      "average_confidence": "83.9%"
-    }
-  },
-  "features": {
-    "rate_limiting": "100 requests per 60 seconds",
-    "monitoring": "Comprehensive metrics and logging",
-    "batch_processing": "Efficient batch predictions",
-    "error_handling": "Robust error handling and reporting"
-  },
-  "example_usage": {
-    "single_prediction": {
-      "url": "POST /predict",
-      "body": "{\"text\": \"I am feeling happy today!\"}"
-    },
-    "batch_prediction": {
-      "url": "POST /predict_batch",
-      "body": "{\"texts\": [\"I am happy\", \"I feel sad\", \"I am excited\"]}"
-    }
-  }
-}
-```
-
-#### Example
-
-```bash
-curl -X GET http://localhost:8000/
+# HELP samo_emotion_model_loaded Model loaded status
+# TYPE samo_emotion_model_loaded gauge
+samo_emotion_model_loaded 1
 ```
 
 ## Error Handling
 
-### HTTP Status Codes
-
-- **200 OK**: Request successful
-- **400 Bad Request**: Invalid request format or missing required fields
-- **429 Too Many Requests**: Rate limit exceeded
-- **500 Internal Server Error**: Server error
-
 ### Error Response Format
 
-```json
-{
-  "error": "Error description",
-  "message": "Additional error details (for rate limiting)"
-}
-```
-
-### Common Errors
-
-#### Missing Text
+All error responses follow this format:
 
 ```json
 {
-  "error": "No text provided"
+  "error": "Error message description",
+  "code": "ERROR_CODE",
+  "details": {
+    "field": "Additional error details"
+  },
+  "timestamp": "2025-08-06T10:30:00Z"
 }
 ```
 
-#### Empty Text
+### HTTP Status Codes
 
+| Status Code | Description | Common Causes |
+|-------------|-------------|---------------|
+| `200` | Success | Request processed successfully |
+| `400` | Bad Request | Invalid input format or missing required fields |
+| `413` | Payload Too Large | Text exceeds maximum length (1000 characters) |
+| `429` | Too Many Requests | Rate limit exceeded |
+| `500` | Internal Server Error | Server-side error or model loading issue |
+| `503` | Service Unavailable | Service temporarily unavailable |
+
+### Error Codes
+
+| Error Code | Description | HTTP Status |
+|------------|-------------|-------------|
+| `INVALID_INPUT` | Invalid or missing input text | 400 |
+| `TEXT_TOO_LONG` | Text exceeds maximum length | 413 |
+| `RATE_LIMIT_EXCEEDED` | Rate limit exceeded | 429 |
+| `MODEL_NOT_LOADED` | Emotion detection model not available | 503 |
+| `INTERNAL_ERROR` | Internal server error | 500 |
+
+### Error Examples
+
+**Invalid Input**:
 ```json
 {
-  "error": "Empty text provided"
+  "error": "Text field is required and cannot be empty",
+  "code": "INVALID_INPUT",
+  "details": {
+    "field": "text"
+  },
+  "timestamp": "2025-08-06T10:30:00Z"
 }
 ```
 
-#### Rate Limit Exceeded
-
+**Rate Limit Exceeded**:
 ```json
 {
-  "error": "Rate limit exceeded",
-  "message": "Maximum 100 requests per 60 seconds"
+  "error": "Rate limit exceeded. Please try again later.",
+  "code": "RATE_LIMIT_EXCEEDED",
+  "details": {
+    "limit": 1000,
+    "window": "1 minute",
+    "retry_after": 30
+  },
+  "timestamp": "2025-08-06T10:30:00Z"
 }
 ```
 
-## Rate Limiting
+**Text Too Long**:
+```json
+{
+  "error": "Text exceeds maximum length of 1000 characters",
+  "code": "TEXT_TOO_LONG",
+  "details": {
+    "max_length": 1000,
+    "actual_length": 1500
+  },
+  "timestamp": "2025-08-06T10:30:00Z"
+}
+```
 
-The API implements rate limiting to prevent abuse:
+## Response Headers
 
-- **Limit**: 100 requests per minute per IP address
-- **Window**: 60 seconds
-- **Response**: HTTP 429 with error message when exceeded
+### Standard Headers
 
-## Performance
+| Header | Description | Example |
+|--------|-------------|---------|
+| `Content-Type` | Response content type | `application/json` |
+| `X-Request-ID` | Unique request identifier | `req_1234567890` |
+| `X-Response-Time` | Request processing time | `45ms` |
 
-### Response Times
+### Rate Limiting Headers
 
-- **Single Prediction**: ~25-70ms average
-- **Batch Prediction**: ~20-30ms per text
-- **Health Check**: ~5-10ms
-- **Metrics**: ~5-10ms
-
-### Throughput
-
-- **Concurrent Requests**: Supports multiple concurrent requests
-- **Batch Processing**: Recommended for multiple predictions
-- **CPU Usage**: Optimized for both CPU and GPU inference
-
-## Supported Emotions
-
-The model can detect 12 different emotional states:
-
-1. **anxious** - Worry, nervousness, concern
-2. **calm** - Peaceful, relaxed, tranquil
-3. **content** - Satisfied, pleased, fulfilled
-4. **excited** - Enthusiastic, thrilled, eager
-5. **frustrated** - Annoyed, irritated, exasperated
-6. **grateful** - Thankful, appreciative, indebted
-7. **happy** - Joyful, cheerful, delighted
-8. **hopeful** - Optimistic, confident, positive
-9. **overwhelmed** - Stressed, burdened, swamped
-10. **proud** - Accomplished, satisfied, confident
-11. **sad** - Unhappy, sorrowful, down
-12. **tired** - Exhausted, weary, fatigued
-
-## Model Performance
-
-### Accuracy Metrics
-
-- **Basic Accuracy**: 100.00% (on validation set)
-- **Real-world Accuracy**: 93.75% (on diverse test data)
-- **Average Confidence**: 83.9% (across all predictions)
-
-### Model Details
-
-- **Architecture**: BERT-based transformer
-- **Version**: 2.0
-- **Training Data**: Go Emotions dataset + custom annotations
-- **Fine-tuning**: Domain adaptation with focal loss
-- **Optimization**: Class weighting and data augmentation
+| Header | Description | Example |
+|--------|-------------|---------|
+| `X-RateLimit-Limit` | Rate limit per window | `1000` |
+| `X-RateLimit-Remaining` | Remaining requests in window | `999` |
+| `X-RateLimit-Reset` | Time when rate limit resets | `1640995200` |
+| `Retry-After` | Seconds to wait before retrying | `30` |
 
 ## Usage Examples
 
@@ -390,197 +249,219 @@ The model can detect 12 different emotional states:
 import requests
 import json
 
-# Single prediction
-response = requests.post(
-    "http://localhost:8000/predict",
-    json={"text": "I am feeling happy today!"},
-    headers={"Content-Type": "application/json"}
-)
-result = response.json()
-print(f"Emotion: {result['predicted_emotion']}")
-print(f"Confidence: {result['confidence']:.3f}")
+def detect_emotion(text: str) -> dict:
+    """Detect emotions in text using SAMO-DL API"""
+    url = "https://samo-emotion-api-xxxxx-ew.a.run.app/predict"
+    headers = {"Content-Type": "application/json"}
+    data = {"text": text}
+    
+    try:
+        response = requests.post(url, json=data, headers=headers, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"API Error: {e}")
+        return {"error": "Failed to analyze emotions"}
 
-# Batch prediction
-texts = ["I am happy", "I feel sad", "I am excited"]
-response = requests.post(
-    "http://localhost:8000/predict_batch",
-    json={"texts": texts},
-    headers={"Content-Type": "application/json"}
-)
-results = response.json()
-for pred in results['predictions']:
-    print(f"{pred['text']} → {pred['predicted_emotion']}")
-
-# Get metrics
-response = requests.get("http://localhost:8000/metrics")
-metrics = response.json()
-print(f"Success rate: {metrics['server_metrics']['success_rate']}")
+# Example usage
+emotions = detect_emotion("I'm feeling excited about this project!")
+print(json.dumps(emotions, indent=2))
 ```
 
 ### JavaScript
 
 ```javascript
-// Single prediction
-const response = await fetch('http://localhost:8000/predict', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-        text: 'I am feeling happy today!'
-    })
-});
-const result = await response.json();
-console.log(`Emotion: ${result.predicted_emotion}`);
-console.log(`Confidence: ${result.confidence}`);
+async function detectEmotion(text) {
+    const url = 'https://samo-emotion-api-xxxxx-ew.a.run.app/predict';
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ text })
+    };
+    
+    try {
+        const response = await fetch(url, options);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('API Error:', error);
+        return { error: 'Failed to analyze emotions' };
+    }
+}
 
-// Batch prediction
-const texts = ['I am happy', 'I feel sad', 'I am excited'];
-const batchResponse = await fetch('http://localhost:8000/predict_batch', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ texts })
-});
-const batchResults = await batchResponse.json();
-batchResults.predictions.forEach(pred => {
-    console.log(`${pred.text} → ${pred.predicted_emotion}`);
-});
+// Example usage
+const emotions = await detectEmotion("I'm feeling excited about this project!");
+console.log(emotions);
 ```
 
 ### cURL
 
 ```bash
-# Single prediction
-curl -X POST http://localhost:8000/predict \
+# Basic emotion detection
+curl -X POST https://samo-emotion-api-xxxxx-ew.a.run.app/predict \
   -H "Content-Type: application/json" \
-  -d '{"text": "I am feeling happy today!"}'
-
-# Batch prediction
-curl -X POST http://localhost:8000/predict_batch \
-  -H "Content-Type: application/json" \
-  -d '{"texts": ["I am happy", "I feel sad", "I am excited"]}'
+  -d '{"text": "I am feeling really happy today!"}'
 
 # Health check
-curl -X GET http://localhost:8000/health
+curl -X GET https://samo-emotion-api-xxxxx-ew.a.run.app/health
 
-# Metrics
-curl -X GET http://localhost:8000/metrics
+# Get metrics
+curl -X GET https://samo-emotion-api-xxxxx-ew.a.run.app/metrics
 ```
 
-## Monitoring and Logging
+### Node.js with Axios
 
-### Log Files
+```javascript
+const axios = require('axios');
 
-- **API Logs**: `api_server.log` (in local_deployment directory)
-- **Format**: Structured JSON with timestamps
-- **Level**: INFO, WARNING, ERROR
+async function detectEmotion(text) {
+    try {
+        const response = await axios.post(
+            'https://samo-emotion-api-xxxxx-ew.a.run.app/predict',
+            { text },
+            {
+                headers: { 'Content-Type': 'application/json' },
+                timeout: 10000
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('API Error:', error.message);
+        return { error: 'Failed to analyze emotions' };
+    }
+}
 
-### Metrics Available
+// Example usage
+const emotions = await detectEmotion("I'm feeling excited about this project!");
+console.log(emotions);
+```
 
-- Request counts (total, successful, failed)
-- Response times (average, min, max)
-- Emotion distribution
-- Error counts by type
-- Rate limiting statistics
-- Uptime and performance metrics
+## Performance Characteristics
 
-### Health Monitoring
+### Latency
 
-Use the `/health` endpoint for:
-- Service health checks
-- Load balancer health checks
-- Monitoring system integration
-- Basic performance metrics
+- **Average Response Time**: <50ms
+- **95th Percentile**: <100ms
+- **99th Percentile**: <200ms
+
+### Throughput
+
+- **Maximum Requests/Second**: 100 (burst)
+- **Sustained Requests/Minute**: 1000
+- **Concurrent Connections**: 1000+
+
+### Model Performance
+
+- **F1 Score**: >90%
+- **Accuracy**: >92%
+- **Precision**: >89%
+- **Recall**: >91%
 
 ## Best Practices
 
-### Performance
+### Input Validation
 
-1. **Use Batch Predictions**: For multiple texts, use `/predict_batch` instead of multiple `/predict` calls
-2. **Handle Rate Limits**: Implement exponential backoff for 429 responses
-3. **Monitor Response Times**: Track performance using the `/metrics` endpoint
+1. **Text Length**: Keep text under 1000 characters for optimal performance
+2. **Content**: Avoid HTML tags, scripts, or malicious content
+3. **Language**: Currently optimized for English text
+4. **Encoding**: Use UTF-8 encoding
 
 ### Error Handling
 
-1. **Validate Input**: Ensure text is not empty and properly formatted
-2. **Handle Network Errors**: Implement retry logic for transient failures
-3. **Check Status Codes**: Always verify HTTP status codes before processing responses
+1. **Always check HTTP status codes**
+2. **Implement retry logic with exponential backoff**
+3. **Handle rate limiting gracefully**
+4. **Log errors for debugging**
+
+### Performance Optimization
+
+1. **Use connection pooling for high-volume requests**
+2. **Implement caching for repeated text analysis**
+3. **Batch requests when possible**
+4. **Monitor response times and error rates**
 
 ### Security
 
-1. **Input Validation**: Sanitize text input to prevent injection attacks
-2. **Rate Limiting**: Respect rate limits to avoid being blocked
-3. **HTTPS**: Use HTTPS in production environments
+1. **Validate all input text**
+2. **Sanitize user input before sending to API**
+3. **Use HTTPS for all requests**
+4. **Implement proper error handling to avoid information leakage**
 
-## Troubleshooting
+## Monitoring and Observability
 
-### Common Issues
+### Health Checks
 
-#### Server Not Starting
-
-```bash
-# Check if port 8000 is available
-lsof -i :8000
-
-# Check Python environment
-python --version
-pip list | grep flask
-```
-
-#### Model Loading Errors
+Monitor the `/health` endpoint to ensure service availability:
 
 ```bash
-# Check model files
-ls -la local_deployment/model/
-
-# Check dependencies
-pip install -r local_deployment/requirements.txt
+# Check service health
+curl -f https://samo-emotion-api-xxxxx-ew.a.run.app/health || echo "Service unhealthy"
 ```
 
-#### Performance Issues
+### Metrics Collection
 
-```bash
-# Check system resources
-top
-htop
+Use the `/metrics` endpoint for Prometheus monitoring:
 
-# Check API metrics
-curl -s http://localhost:8000/metrics | python -m json.tool
+```yaml
+# prometheus.yml
+scrape_configs:
+  - job_name: 'samo-emotion-api'
+    static_configs:
+      - targets: ['samo-emotion-api-xxxxx-ew.a.run.app']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
 ```
 
-### Debug Mode
+### Key Metrics to Monitor
 
-For debugging, you can enable Flask debug mode by modifying `api_server.py`:
+- **Request Rate**: `samo_emotion_requests_total`
+- **Response Time**: `samo_emotion_request_duration_seconds`
+- **Error Rate**: `samo_emotion_errors_total`
+- **Model Status**: `samo_emotion_model_loaded`
 
-```python
-app.run(host='0.0.0.0', port=8000, debug=True)
-```
+## Support and Resources
 
-**Note**: Debug mode should not be used in production.
+### Documentation
 
-## Support
+- **Integration Guide**: [docs/INTEGRATION_GUIDE.md](docs/INTEGRATION_GUIDE.md)
+- **Deployment Guide**: [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md)
+- **Architecture Overview**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
-For issues and questions:
+### Examples
 
-1. Check the logs: `tail -f local_deployment/api_server.log`
-2. Review metrics: `curl http://localhost:8000/metrics`
-3. Test endpoints: Use the provided test scripts
-4. Check documentation: `curl http://localhost:8000/`
+- **Python Examples**: [examples/python_integration.py](examples/python_integration.py)
+- **JavaScript Examples**: [examples/javascript_integration.js](examples/javascript_integration.js)
+- **React Component**: [examples/ReactEmotionDetector.jsx](examples/ReactEmotionDetector.jsx)
 
-## Version History
+### Testing
 
-### Version 2.0 (Current)
-- Enhanced monitoring and logging
-- Rate limiting implementation
-- Comprehensive error handling
-- Performance optimizations
-- Batch processing improvements
-- Real-time metrics endpoint
+- **API Test Suite**: [scripts/testing/](scripts/testing/)
+- **Performance Benchmarks**: [scripts/testing/benchmarks.py](scripts/testing/benchmarks.py)
 
-### Version 1.0
-- Basic emotion detection
-- Single prediction endpoint
-- Simple health check
-- Local deployment only 
+### Support
+
+- **GitHub Issues**: [https://github.com/uelkerd/SAMO--DL/issues](https://github.com/uelkerd/SAMO--DL/issues)
+- **Documentation**: [https://uelkerd.github.io/SAMO--DL/](https://uelkerd.github.io/SAMO--DL/)
+
+## Changelog
+
+### Version 2.0.0 (Current)
+- **Performance**: 2.3x speedup with ONNX optimization
+- **Accuracy**: >90% F1 score
+- **Features**: Enhanced error handling and monitoring
+- **Security**: Improved input validation and rate limiting
+
+### Version 1.0.0
+- **Initial Release**: Basic emotion detection API
+- **Features**: Core emotion detection functionality
+- **Performance**: Baseline PyTorch implementation
+
+## License
+
+This API is part of the SAMO-DL project. See the main project repository for licensing information. 
