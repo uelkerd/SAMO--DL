@@ -20,12 +20,12 @@ alembic>=1.16.4,<2.0.0
 # API development
 fastapi>=0.100.0,<1.0.0
 uvicorn>=0.20.0,<1.0.0
-pydantic>=2.0.0,<3.0.0
+pydantic>=2.11.7,<3.0.0
 flask>=3.1.1,<4.0.0
 gunicorn>=21.0.0,<24.0.0
 
 # Security and monitoring
-cryptography>=45.0.5,<46.0.0
+cryptography>=45.0.6,<46.0.0
 certifi>=2025.8.3,<2026.0.0
 urllib3>=2.5.0,<3.0.0
 requests>=2.31.0,<3.0.0
@@ -46,13 +46,13 @@ jiwer>=3.0.3
 
 # Model optimization and conversion
 onnx>=1.14.0,<2.0.0
-onnxruntime>=1.15.0,<2.0.0
+onnxruntime>=1.22.1,<2.0.0
 
 # Utilities
 accelerate>=1.9.0,<2.0.0
 google-cloud-storage>=3.2.0,<4.0.0
-google-cloud-aiplatform>=1.30.0,<2.0.0
-openai>=1.99.0,<2.0.0
+google-cloud-aiplatform>=1.107.0,<2.0.0
+openai>=1.99.1,<2.0.0
 
 # Security scanning and monitoring
 bandit>=1.7.0,<2.0.0  # Static security analysis
