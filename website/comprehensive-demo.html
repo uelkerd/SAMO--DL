@@ -320,27 +320,27 @@
         <div class="demo-container">
             <!-- Feature Tabs -->
             <div class="text-center mb-4">
-                <button class="demo-tab active" onclick="showFeature('emotion')">
+                <button class="demo-tab active" onclick="showFeature('emotion', event)">
                     <i class="fas fa-heart me-2"></i>
                     Emotion Detection
                 </button>
-                <button class="demo-tab" onclick="showFeature('voice')">
+                <button class="demo-tab" onclick="showFeature('voice', event)">
                     <i class="fas fa-microphone me-2"></i>
                     Voice Transcription
                 </button>
-                <button class="demo-tab" onclick="showFeature('batch')">
+                <button class="demo-tab" onclick="showFeature('batch', event)">
                     <i class="fas fa-layer-group me-2"></i>
                     Batch Processing
                 </button>
-                <button class="demo-tab" onclick="showFeature('summarization')">
+                <button class="demo-tab" onclick="showFeature('summarization', event)">
                     <i class="fas fa-compress-alt me-2"></i>
                     Text Summarization
                 </button>
-                <button class="demo-tab" onclick="showFeature('monitoring')">
+                <button class="demo-tab" onclick="showFeature('monitoring', event)">
                     <i class="fas fa-chart-line me-2"></i>
                     Real-time Monitoring
                 </button>
-                <button class="demo-tab" onclick="showFeature('security')">
+                <button class="demo-tab" onclick="showFeature('security', event)">
                     <i class="fas fa-shield-alt me-2"></i>
                     Security Features
                 </button>
@@ -651,7 +651,7 @@ I feel a bit sad about the changes."></textarea>
         let audioChunks = [];
 
         // Feature switching
-        function showFeature(feature) {
+        function showFeature(feature, event) {
             // Hide all demos
             document.querySelectorAll('.feature-demo').forEach(demo => {
                 demo.style.display = 'none';
@@ -697,15 +697,15 @@ I feel a bit sad about the changes."></textarea>
             }
         }
 
-        function displayEmotionResults(result) {
-            const container = document.getElementById('emotion-results');
-            container.innerHTML = ''; // Clear previous results
+        function displayEmotionResults(result, container = null) {
+            const targetContainer = container || document.getElementById('emotion-results');
+            targetContainer.innerHTML = ''; // Clear previous results
             
             if (Array.isArray(result) && result.length > 0) {
                 const title = document.createElement('h5');
                 title.className = 'fw-bold mb-3';
                 title.textContent = 'Detected Emotions:';
-                container.appendChild(title);
+                targetContainer.appendChild(title);
                 
                 result.forEach(emotion => {
                     const confidence = (emotion.confidence * 100).toFixed(1);
@@ -739,13 +739,13 @@ I feel a bit sad about the changes."></textarea>
                     progressDiv.appendChild(progressBar);
                     
                     resultCard.appendChild(progressDiv);
-                    container.appendChild(resultCard);
+                    targetContainer.appendChild(resultCard);
                 });
             } else {
                 const alertDiv = document.createElement('div');
                 alertDiv.className = 'alert alert-warning';
                 alertDiv.textContent = 'No emotions detected.';
-                container.appendChild(alertDiv);
+                targetContainer.appendChild(alertDiv);
             }
         }
 
@@ -827,10 +827,9 @@ I feel a bit sad about the changes."></textarea>
                     { emotion: 'excitement', confidence: 0.85 },
                     { emotion: 'joy', confidence: 0.72 }
                 ];
-                displayEmotionResults(emotionResult);
-                document.getElementById('voice-emotion-results').innerHTML = 
-                    '<h6 class="fw-bold">Emotions in Speech:</h6>' + 
-                    document.getElementById('emotion-results').innerHTML;
+                const voiceEmotionContainer = document.getElementById('voice-emotion-results');
+                voiceEmotionContainer.innerHTML = '<h6 class="fw-bold">Emotions in Speech:</h6>';
+                displayEmotionResults(emotionResult, voiceEmotionContainer);
                 
             } catch (error) {
                 console.error('Error processing audio:', error);

@@ -963,65 +963,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
                     </div>
-  }
-
-  updateContent() {
-    const contentAdaptations = {
-      joy: {
-        greeting: "Great to see you're happy! 😊",
-        suggestions: ["Share your joy", "Celebrate this moment"]
-      },
-      sadness: {
-        greeting: "I understand you're feeling down. 💙",
-        suggestions: ["Take a break", "Talk to someone"]
-      },
-      anger: {
-        greeting: "I sense you're frustrated. 🔥",
-        suggestions: ["Take deep breaths", "Step back for a moment"]
-      },
-      fear: {
-        greeting: "It's okay to feel anxious. 🤗",
-        suggestions: ["Breathe slowly", "You're safe here"]
-      }
-    };
-    
-    const adaptation = contentAdaptations[this.currentEmotion] || contentAdaptations.joy;
-    
-    // Update UI elements
-    const greetingElement = document.getElementById('greeting');
-    if (greetingElement) {
-      greetingElement.textContent = adaptation.greeting;
-    }
-  }
-
-  updateInteractions() {
-    // Adjust interaction patterns based on emotion
-    const interactionPatterns = {
-      joy: { animationSpeed: 'fast', soundEnabled: true },
-      sadness: { animationSpeed: 'slow', soundEnabled: false },
-      anger: { animationSpeed: 'fast', soundEnabled: false },
-      fear: { animationSpeed: 'slow', soundEnabled: true }
-    };
-    
-    const pattern = interactionPatterns[this.currentEmotion] || interactionPatterns.joy;
-    
-    // Apply interaction changes
-    document.body.style.setProperty('--animation-speed', pattern.animationSpeed);
-    if (window.soundManager) {
-      window.soundManager.enabled = pattern.soundEnabled;
-    }
-  }
-}
-
-// Usage
-const emotionUI = new EmotionAwareUI();
-
-// Analyze user input and adapt UI
-document.getElementById('user-input').addEventListener('input', (e) => {
-  if (e.target.value.length > 10) {
-    emotionUI.analyzeUserInput(e.target.value);
-  }
-});</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
                     </div>
                 </div>
             </div>
@@ -1792,101 +1737,10 @@ if __name__ == "__main__":
                             </div>
                         </div>
                     </div>
-    
-    def extract_emotion_features(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Extract emotion features from API responses"""
-        features = []
-        
-        for _, row in df.iterrows():
-            if row['status'] == 'success' and row['emotions']:
-                # Get top emotion
-                top_emotion = max(row['emotions'], key=lambda x: x['confidence'])
-                
-                # Create feature vector
-                emotion_features = {
-                    'text': row['text'],
-                    'primary_emotion': top_emotion['emotion'],
-                    'primary_confidence': top_emotion['confidence'],
-                    'emotion_count': len(row['emotions']),
-                    'timestamp': row['timestamp']
-                }
-                
-                # Add individual emotion confidences
-                for emotion in row['emotions']:
-                    emotion_features[f"conf_{emotion['emotion']}"] = emotion['confidence']
-                
-                features.append(emotion_features)
-        
-        return pd.DataFrame(features)
-    
-    def calculate_metrics(self, df: pd.DataFrame) -> dict:
-        """Calculate performance and quality metrics"""
-        metrics = {
-            'total_requests': len(df),
-            'successful_requests': len(df[df['status'] == 'success']),
-            'error_rate': len(df[df['status'] == 'error']) / len(df),
-            'avg_confidence': df[df['status'] == 'success']['primary_confidence'].mean(),
-            'emotion_distribution': df[df['status'] == 'success']['primary_emotion'].value_counts().to_dict()
-        }
-        
-        return metrics
-
-class ModelMonitor:
-    def __init__(self):
-        self.performance_history = []
-    
-    def track_performance(self, metrics: dict):
-        """Track model performance over time"""
-        metrics['timestamp'] = datetime.now()
-        self.performance_history.append(metrics)
-    
-    def detect_drift(self, window_size: int = 100) -> dict:
-        """Detect performance drift"""
-        if len(self.performance_history) < window_size:
-            return {'drift_detected': False, 'reason': 'Insufficient data'}
-        
-        recent_metrics = self.performance_history[-window_size:]
-        historical_metrics = self.performance_history[:-window_size]
-        
-        # Calculate drift indicators
-        recent_avg_conf = np.mean([m['avg_confidence'] for m in recent_metrics])
-        historical_avg_conf = np.mean([m['avg_confidence'] for m in historical_metrics])
-        
-        confidence_drift = abs(recent_avg_conf - historical_avg_conf) / historical_avg_conf
-        
-        drift_detected = confidence_drift > 0.1  # 10% threshold
-        
-        return {
-            'drift_detected': drift_detected,
-            'confidence_drift': confidence_drift,
-            'recent_avg_confidence': recent_avg_conf,
-            'historical_avg_confidence': historical_avg_conf
-        }
-    
-    def generate_report(self) -> str:
-        """Generate performance report"""
-        if not self.performance_history:
-            return "No performance data available"
-        
-        latest = self.performance_history[-1]
-        drift = self.detect_drift()
-        
-        report = f"""
-        SAMO-DL Performance Report
-        ==========================
-        
-        Latest Metrics:
-        - Total Requests: {latest['total_requests']}
-        - Success Rate: {(1 - latest['error_rate']) * 100:.2f}%
-        - Average Confidence: {latest['avg_confidence']:.3f}
-        
-        Drift Analysis:
-        - Drift Detected: {drift['drift_detected']}
-        - Confidence Drift: {drift['confidence_drift']:.3f}
-        
-        Top Emotions:
-        {chr(10).join([f"- {emotion}: {count}" for emotion, count in list(latest['emotion_distribution'].items())[:5]])}
-        """
+                </div>
+            </div>
+        </div>
+    </section>
         
         return report
 
