@@ -548,99 +548,100 @@
 
         let confidenceChart = null;
         
-        // Sample texts for examples
-        const sampleTexts = [
-            // Positive Emotions
-            "I am feeling really excited about this project! The possibilities are endless and I can't wait to see what we can achieve together.",
-            "I'm absolutely thrilled with the results! This exceeded all my expectations and I'm so proud of what we accomplished.",
-            "I'm so grateful for all the support I've received from my team. This has been an amazing journey.",
-            "I'm feeling incredibly optimistic about the future. Everything seems to be falling into place perfectly.",
-            "I'm delighted to announce that we've successfully completed the milestone ahead of schedule!",
-            
-            // Negative Emotions
-            "I'm feeling a bit anxious about the upcoming presentation, but I know I've prepared well and should do fine.",
-            "I'm feeling frustrated with the current situation, but I'm trying to stay positive and find solutions.",
-            "I'm really disappointed with how things turned out. I had such high hopes for this project.",
-            "I'm terrified about the upcoming surgery. I've never been this scared in my life.",
-            "I'm furious about the way they handled this situation. It's completely unacceptable!",
-            
-            // Mixed Emotions
-            "I'm nervous but also excited about starting my new job. It's a big change but I think it's the right move.",
-            "I'm sad to leave my old team but happy to start this new adventure. It's bittersweet.",
-            "I'm worried about the deadline but confident in our team's ability to deliver quality work.",
-            "I'm surprised by the unexpected news but grateful for the opportunity it presents.",
-            "I'm angry about the mistake but relieved that we caught it before it caused more problems.",
-            
-            // Professional Context
-            "The quarterly results exceeded our targets by 15%. The team's hard work has truly paid off.",
-            "We need to address the customer complaints immediately. This is affecting our reputation.",
-            "The new product launch was a huge success! Sales are through the roof.",
-            "I'm concerned about the budget overruns. We need to find ways to cut costs.",
-            "The client is very satisfied with our work. They want to extend the contract.",
-            
-            // Personal Context
-            "My grandmother passed away last week. I'm heartbroken but grateful for all the memories we shared.",
-            "I just got engaged! I'm overjoyed and can't wait to start planning our wedding.",
-            "My car broke down on the way to an important meeting. I'm so frustrated right now.",
-            "I won the lottery! I'm still in shock and don't know what to do with all this money.",
-            "My best friend is moving to another country. I'm happy for her new opportunity but sad to see her go.",
-            
-            // Creative/Artistic Context
-            "The painting turned out exactly as I envisioned. I'm so proud of this masterpiece.",
-            "The concert was absolutely magical. The music moved me to tears.",
-            "I'm stuck on this creative project. Nothing I try seems to work.",
-            "The audience's reaction to my performance was incredible. I felt so alive on stage.",
-            "I'm inspired by the beautiful sunset. Nature has such a calming effect on me.",
-            
-            // Technology/Development Context
-            "The code review was brutal but fair. I learned so much from the feedback.",
-            "The deployment failed again. I'm getting tired of these production issues.",
-            "The new feature is working perfectly! Users are loving the improved interface.",
-            "I'm confused by this bug. It makes no sense why it's happening.",
-            "The system is down and customers are complaining. This is a critical situation.",
-            
-            // Social/Relationship Context
-            "My partner surprised me with a romantic dinner. I feel so loved and appreciated.",
-            "We had a huge argument last night. I'm still upset about what was said.",
-            "My child took their first steps today! I'm overwhelmed with joy and pride.",
-            "I'm lonely since my roommate moved out. The apartment feels so empty.",
-            "The party was amazing! I met so many interesting people and had great conversations.",
-            
-            // Health/Wellness Context
-            "I just completed my first marathon! I'm exhausted but incredibly proud.",
-            "The doctor's diagnosis was a relief. It's treatable and I'll be fine.",
-            "I'm worried about my health. These symptoms are concerning.",
-            "The meditation session was so peaceful. I feel completely relaxed now.",
-            "I'm frustrated with my slow recovery. I just want to get back to normal.",
-            
-            // Academic/Educational Context
-            "I aced the final exam! All those late nights studying were worth it.",
-            "I'm struggling with this math problem. It's so complex and confusing.",
-            "The professor's feedback was encouraging. I'm motivated to improve.",
-            "I'm nervous about presenting my research to the committee.",
-            "Graduation day was emotional. I'm proud of my achievements but sad to leave.",
-            
-            // Travel/Adventure Context
-            "The trip was incredible! I saw so many beautiful places and met amazing people.",
-            "I'm scared about traveling alone for the first time.",
-            "The flight was delayed for hours. I'm so annoyed with the airline.",
-            "The hiking trail was breathtaking. I felt so connected to nature.",
-            "I'm excited about my upcoming vacation. I really need this break.",
-            
-            // Business/Financial Context
-            "The investment paid off better than expected. I'm thrilled with the returns.",
-            "I'm stressed about the upcoming merger. So many people's jobs are at stake.",
-            "The startup pitch went perfectly. Investors were very interested.",
-            "I'm worried about the market volatility. My portfolio has taken a hit.",
-            "The promotion came as a complete surprise. I'm honored and excited.",
-            
-            // Environmental/Nature Context
-            "The storm was terrifying. I've never seen weather like that before.",
-            "The sunset was absolutely stunning. I felt so peaceful watching it.",
-            "I'm concerned about climate change. We need to take action now.",
-            "The forest fire was devastating. So much wildlife was lost.",
-            "The spring flowers are blooming beautifully. Nature is so rejuvenating."
-        ];
+        // Sample texts organized by categories for better maintainability
+        const sampleTexts = {
+            "Positive Emotions": [
+                "I am feeling really excited about this project! The possibilities are endless and I can't wait to see what we can achieve together.",
+                "I'm absolutely thrilled with the results! This exceeded all my expectations and I'm so proud of what we accomplished.",
+                "I'm so grateful for all the support I've received from my team. This has been an amazing journey.",
+                "I'm feeling incredibly optimistic about the future. Everything seems to be falling into place perfectly.",
+                "I'm delighted to announce that we've successfully completed the milestone ahead of schedule!"
+            ],
+            "Negative Emotions": [
+                "I'm feeling a bit anxious about the upcoming presentation, but I know I've prepared well and should do fine.",
+                "I'm feeling frustrated with the current situation, but I'm trying to stay positive and find solutions.",
+                "I'm really disappointed with how things turned out. I had such high hopes for this project.",
+                "I'm terrified about the upcoming surgery. I've never been this scared in my life.",
+                "I'm furious about the way they handled this situation. It's completely unacceptable!"
+            ],
+            "Mixed Emotions": [
+                "I'm nervous but also excited about starting my new job. It's a big change but I think it's the right move.",
+                "I'm sad to leave my old team but happy to start this new adventure. It's bittersweet.",
+                "I'm worried about the deadline but confident in our team's ability to deliver quality work.",
+                "I'm surprised by the unexpected news but grateful for the opportunity it presents.",
+                "I'm angry about the mistake but relieved that we caught it before it caused more problems."
+            ],
+            "Professional Context": [
+                "The quarterly results exceeded our targets by 15%. The team's hard work has truly paid off.",
+                "We need to address the customer complaints immediately. This is affecting our reputation.",
+                "The new product launch was a huge success! Sales are through the roof.",
+                "I'm concerned about the budget overruns. We need to find ways to cut costs.",
+                "The client is very satisfied with our work. They want to extend the contract."
+            ],
+            "Personal Context": [
+                "My grandmother passed away last week. I'm heartbroken but grateful for all the memories we shared.",
+                "I just got engaged! I'm overjoyed and can't wait to start planning our wedding.",
+                "My car broke down on the way to an important meeting. I'm so frustrated right now.",
+                "I won the lottery! I'm still in shock and don't know what to do with all this money.",
+                "My best friend is moving to another country. I'm happy for her new opportunity but sad to see her go."
+            ],
+            "Creative/Artistic Context": [
+                "The painting turned out exactly as I envisioned. I'm so proud of this masterpiece.",
+                "The concert was absolutely magical. The music moved me to tears.",
+                "I'm stuck on this creative project. Nothing I try seems to work.",
+                "The audience's reaction to my performance was incredible. I felt so alive on stage.",
+                "I'm inspired by the beautiful sunset. Nature has such a calming effect on me."
+            ],
+            "Technology/Development Context": [
+                "The code review was brutal but fair. I learned so much from the feedback.",
+                "The deployment failed again. I'm getting tired of these production issues.",
+                "The new feature is working perfectly! Users are loving the improved interface.",
+                "I'm confused by this bug. It makes no sense why it's happening.",
+                "The system is down and customers are complaining. This is a critical situation."
+            ],
+            "Social/Relationship Context": [
+                "My partner surprised me with a romantic dinner. I feel so loved and appreciated.",
+                "We had a huge argument last night. I'm still upset about what was said.",
+                "My child took their first steps today! I'm overwhelmed with joy and pride.",
+                "I'm lonely since my roommate moved out. The apartment feels so empty.",
+                "The party was amazing! I met so many interesting people and had great conversations."
+            ],
+            "Health/Wellness Context": [
+                "I just completed my first marathon! I'm exhausted but incredibly proud.",
+                "The doctor's diagnosis was a relief. It's treatable and I'll be fine.",
+                "I'm worried about my health. These symptoms are concerning.",
+                "The meditation session was so peaceful. I feel completely relaxed now.",
+                "I'm frustrated with my slow recovery. I just want to get back to normal."
+            ],
+            "Academic/Educational Context": [
+                "I aced the final exam! All those late nights studying were worth it.",
+                "I'm struggling with this math problem. It's so complex and confusing.",
+                "The professor's feedback was encouraging. I'm motivated to improve.",
+                "I'm nervous about presenting my research to the committee.",
+                "Graduation day was emotional. I'm proud of my achievements but sad to leave."
+            ],
+            "Travel/Adventure Context": [
+                "The trip was incredible! I saw so many beautiful places and met amazing people.",
+                "I'm scared about traveling alone for the first time.",
+                "The flight was delayed for hours. I'm so annoyed with the airline.",
+                "The hiking trail was breathtaking. I felt so connected to nature.",
+                "I'm excited about my upcoming vacation. I really need this break."
+            ],
+            "Business/Financial Context": [
+                "The investment paid off better than expected. I'm thrilled with the returns.",
+                "I'm stressed about the upcoming merger. So many people's jobs are at stake.",
+                "The startup pitch went perfectly. Investors were very interested.",
+                "I'm worried about the market volatility. My portfolio has taken a hit.",
+                "The promotion came as a complete surprise. I'm honored and excited."
+            ],
+            "Environmental/Nature Context": [
+                "The storm was terrifying. I've never seen weather like that before.",
+                "The sunset was absolutely stunning. I felt so peaceful watching it.",
+                "I'm concerned about climate change. We need to take action now.",
+                "The forest fire was devastating. So much wildlife was lost.",
+                "The spring flowers are blooming beautifully. Nature is so rejuvenating."
+            ]
+        };
 
         async function analyzeEmotion() {
             const text = document.getElementById('demoText').value.trim();
@@ -702,7 +703,14 @@
         }
 
         function loadSampleTexts() {
-            const randomText = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
+            // Get all categories and randomly select one
+            const categories = Object.keys(sampleTexts);
+            const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+            
+            // Get texts from the selected category and randomly select one
+            const categoryTexts = sampleTexts[randomCategory];
+            const randomText = categoryTexts[Math.floor(Math.random() * categoryTexts.length)];
+            
             document.getElementById('demoText').value = randomText;
         }
 
