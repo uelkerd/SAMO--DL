@@ -2,11 +2,6 @@
 """
 Unit tests for API rate limiter functionality.
 """
-
-import time
-from unittest.mock import MagicMock
-
-import pytest
 from fastapi import FastAPI
 
 from src.api_rate_limiter import (

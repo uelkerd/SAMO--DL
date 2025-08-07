@@ -8,8 +8,6 @@ This includes model files, tokenizer, and label encoder.
 
 import os
 import json
-import torch
-import numpy as np
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from sklearn.preprocessing import LabelEncoder
 

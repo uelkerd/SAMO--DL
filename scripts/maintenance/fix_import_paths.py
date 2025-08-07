@@ -3,11 +3,8 @@
 Fix import paths after repository reorganization.
 This script updates common import path issues in moved scripts.
 """
-
-import os
 import re
 import glob
-from pathlib import Path
 
 def fix_import_paths_in_file(file_path):
     """Fix import paths in a single file."""

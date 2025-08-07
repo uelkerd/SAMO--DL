@@ -4,8 +4,6 @@ RETRAIN WITH VALIDATION SCRIPT
 ===============================
 Helps retrain the model with proper validation to ensure reliability
 """
-
-import json
 from pathlib import Path
 
 def create_improved_training_plan():

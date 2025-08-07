@@ -11,7 +11,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import unittest
 import time
-from unittest.mock import Mock, patch, MagicMock
 
 from api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
 from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig

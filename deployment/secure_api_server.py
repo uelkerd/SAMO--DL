@@ -22,10 +22,8 @@ from flask import Flask, request, jsonify, g
 import werkzeug
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import numpy as np
 import logging
 import time
-import json
 from datetime import datetime
 from collections import defaultdict, deque
 import threading
