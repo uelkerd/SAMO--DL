@@ -593,7 +593,8 @@ class SAMO_API_Client:
             return {"error": str(e)}
 
 # Example usage
-emotions = detect_emotion("I'm excited!")
+client = SAMO_API_Client()
+emotions = client.analyze_emotion("I'm excited!")
 # Returns: [{"emotion": "excitement", "confidence": 0.92}]</code></pre>
                         </div>
                     </div>
