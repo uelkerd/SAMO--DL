@@ -11,11 +11,11 @@ import json
 
 def fix_model_architecture():
     """Fix the model architecture mismatch in the minimal notebook."""
-    
+
     # Read the existing notebook
     with open('notebooks/MINIMAL_WORKING_TRAINING_COLAB.ipynb', 'r') as f:
         notebook = json.load(f)
-    
+
     # Find and replace the model setup cell
     for cell in notebook['cells']:
         if cell['cell_type'] == 'code' and 'model_name =' in ''.join(cell['source']):
@@ -65,11 +65,11 @@ def fix_model_architecture():
                 "    print('⚠️ CUDA not available, model will run on CPU')"
             ]
             break
-    
+
     # Save the updated notebook
     with open('notebooks/MINIMAL_WORKING_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook, f, indent=2)
-    
+
     print('✅ Fixed model architecture mismatch!')
     print('📋 Changes made:')
     print('   ✅ Properly reconfigured classifier layer for 12 emotions')
