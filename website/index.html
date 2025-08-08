@@ -304,7 +304,7 @@
                     <div class="card feature-card h-100 border-success">
                         <div class="card-body text-center p-4">
                             <div class="feature-icon bg-danger bg-opacity-10 text-danger mx-auto">
-                                <i class="fas fa-chart-dashboard"></i>
+                                <i class="fas fa-chart-bar"></i>
                             </div>
                             <h5 class="card-title fw-bold">Comprehensive Monitoring</h5>
                             <p class="card-text text-muted">
@@ -560,7 +560,8 @@
 from typing import BinaryIO, IO
 
 class SAMO_API_Client:
-    def __init__(self, base_url="https://samo-emotion-api-minimal-71517823771.us-central1.run.app"):
+    def __init__(self, base_url="https://api.example.com"):
+        # Replace 'https://api.example.com' with your actual deployment URL
         self.base_url = base_url
         self.session = requests.Session()
 
@@ -699,7 +700,7 @@ const analyzeUserFeedback = async (feedback) => {
                                 <div class="badge bg-success me-2">LIVE</div>
                                 <h6 class="mb-0 fw-bold">Base URL</h6>
                             </div>
-                            <code class="text-success">https://samo-emotion-api-minimal-71517823771.us-central1.run.app</code>
+                            <code class="text-success"><span id="api-base-url"></span></code>
                         </div>
                     </div>
                 </div>
@@ -907,6 +908,13 @@ const analyzeUserFeedback = async (feedback) => {
     
     <!-- Demo Script -->
     <script>
+        // Configure API Base URL for display (replace with your actual deployment URL)
+        const API_BASE_URL = 'https://api.example.com';
+        document.addEventListener('DOMContentLoaded', () => {
+            const el = document.getElementById('api-base-url');
+            if (el) el.textContent = API_BASE_URL;
+        });
+
         async function analyzeEmotion() {
             const text = document.getElementById('demoText').value.trim();
             if (!text) {
