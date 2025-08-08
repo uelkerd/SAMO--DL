@@ -122,8 +122,10 @@ def test_model_compression():
         compression_ratio = original_size / compressed_size
         logger.info("Compression ratio: {compression_ratio:.2f}x")
 
-        assert compressed_size < original_size, "Model should be smaller after compression"
-        assert compression_ratio > 1.0, "Compression ratio should be greater than 1"
+        if compressed_size >= original_size:
+            raise AssertionError("Model should be smaller after compression")
+        if compression_ratio <= 1.0:
+            raise AssertionError("Compression ratio should be greater than 1")
 
         with tempfile.NamedTemporaryFile(suffix=".pt", delete=True) as temp_file:
             torch.save(quantized_model.state_dict(), temp_file.name)
