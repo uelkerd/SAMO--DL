@@ -557,6 +557,7 @@
                         </h5>
                         <div class="code-block">
 <pre><code>import requests
+from typing import BinaryIO, IO
 
 class SAMO_API_Client:
     def __init__(self, base_url="https://samo-emotion-api-minimal-71517823771.us-central1.run.app"):
@@ -564,22 +565,32 @@ class SAMO_API_Client:
         self.session = requests.Session()
 
     def analyze_emotion(self, text: str) -> dict:
-        response = self.session.post(
-            f"{self.base_url}/predict",
-            json={"text": text},
-            headers={"Content-Type": "application/json"},
-            timeout=10
-        )
-        return response.json()
+        try:
+            response = self.session.post(
+                f"{self.base_url}/predict",
+                json={"text": text},
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            return {"error": str(e)}
 
-    def transcribe_voice(self, audio_file) -> dict:
+    def transcribe_voice(self, audio_file: BinaryIO | IO[bytes]) -> dict:
+        if not hasattr(audio_file, "read"):
+            return {"error": "audio_file must be a binary file-like object (supports .read())"}
         files = {"audio_file": audio_file}
-        response = self.session.post(
-            f"{self.base_url}/transcribe/voice",
-            files=files,
-            timeout=30
-        )
-        return response.json()
+        try:
+            response = self.session.post(
+                f"{self.base_url}/transcribe/voice",
+                files=files,
+                timeout=30
+            )
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            return {"error": str(e)}
 
 # Example usage
 emotions = detect_emotion("I'm excited!")
@@ -699,8 +710,14 @@ const analyzeUserFeedback = async (feedback) => {
                                 <li><code>POST /auth/register</code> - User registration</li>
                                 <li><code>POST /auth/login</code> - User login</li>
                                 <li><code>POST /auth/refresh</code> - Token refresh</li>
-                                <li><code>POST /auth/logout</code> - User logout</li>
-                                <li><code>GET /auth/profile</code> - User profile</li>
+                                <li>
+                                    <code>POST /auth/logout</code> - User logout
+                                    <span class="badge bg-warning text-dark ms-2">Requires Auth</span>
+                                </li>
+                                <li>
+                                    <code>GET /auth/profile</code> - User profile
+                                    <span class="badge bg-warning text-dark ms-2">Requires Auth</span>
+                                </li>
                             </ul>
                         </div>
                     </div>
