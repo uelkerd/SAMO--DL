@@ -56,17 +56,17 @@ SAMO--DL/
 
 ```
 docs/
-├── 📄 samo-dl-prd.md                    # Main Product Requirements Document
-├── 📄 project_summary.md                # High-level project overview
-├── 📄 tech-architecture.md              # Technical architecture
-├── 📄 api_specification.md              # API documentation
-├── 📄 deployment_guide.md               # Deployment instructions
-├── 📄 testing_strategy.md               # Testing documentation
-├── 📄 model-training-playbook.md        # Model training guide
-├── 📄 monitoring_playbook.md            # Monitoring setup
+├── 📄 SAMO-DL-PRD.md                    # Main Product Requirements Document
+├── 📄 PROJECT_SUMMARY.md                # High-level project overview
+├── 📄 TECH-ARCHITECTURE.md              # Technical architecture
+├── 📄 API_SPECIFICATION.md              # API documentation
+├── 📄 DEPLOYMENT_GUIDE.md               # Deployment instructions
+├── 📄 TESTING_STRATEGY.md               # Testing documentation
+├── 📄 MODEL-TRAINING-PLAYBOOK.md        # Model training guide
+├── 📄 MONITORING_PLAYBOOK.md            # Monitoring setup
 ├── 📄 environment-setup.md              # Environment configuration
 ├── 📄 security-setup.md                 # Security configuration
-├── 📄 code_standards.md                 # Coding standards
+├── 📄 CODE_STANDARDS.md                 # Coding standards
 ├── 📄 data-documentation-schema-registry.md # Data schema
 ├── 📄 experimentation_log.md            # Experiment tracking
 ├── 📄 circleci-guide.md                 # CI/CD guide

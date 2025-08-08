@@ -514,7 +514,7 @@ def validate_req_dl_012():
 - `scripts/debug_colab_compatibility.py` - Compatibility debugging script
 - `data/journal_test_dataset.json` - Journal test dataset
 - `scripts/create_journal_test_dataset.py` - Dataset generation script
-- `docs/samo-dl-prd.md` - Product requirements document
+- `docs/SAMO-DL-PRD.md` - Product requirements document
 
 ### **Useful Commands**
 ```bash

@@ -121,7 +121,7 @@ Examples:
 | Configuration files | `lowercase_with_underscores.yaml` | `development.yaml`, `model_config.yaml` |
 | Jupyter notebooks | `CamelCase.ipynb` or `descriptive_name.ipynb` | `DataExploration.ipynb`, `model_training_experiments.ipynb` |
 | Test files | `test_*.py` | `test_bert_classifier.py`, `test_data_loader.py` |
-| Documentation | `lowercase_with_underscores.md` | `api_specification.md`, `model_training_playbook.md` |
+| Documentation | `UPPERCASE_WITH_UNDERSCORES.md` | `API_SPECIFICATION.md`, `MODEL-TRAINING-PLAYBOOK.md` |
 
 ## 📏 Code Formatting
 

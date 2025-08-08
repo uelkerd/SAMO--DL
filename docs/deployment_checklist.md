@@ -14,7 +14,7 @@
 - [x] **Create threshold optimization script** (`scripts/threshold_optimization.py`)
 - [x] **Create quick validation script** (`scripts/quick_focal_test.py`)
 - [x] **Fix training pipeline** (disabled dev_mode for full dataset)
-- [x] **Create comprehensive deployment guide** (`docs/gcp_deployment_guide.md`)
+- [x] **Create comprehensive deployment guide** (`docs/GCP_DEPLOYMENT_GUIDE.md`)
 - [x] **Create F1 improvement strategy** (`docs/f1_improvement_strategy.md`)
 
 **Status**: ✅ **READY** - All scripts created and validated
