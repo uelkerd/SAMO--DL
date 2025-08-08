@@ -100,7 +100,7 @@ def test_file_structure():
         "src/models/emotion_detection/training_pipeline.py",
         "scripts/focal_loss_training.py",
         "scripts/threshold_optimization.py",
-        "docs/gcp_deployment_guide.md",
+"docs/GCP_DEPLOYMENT_GUIDE.md",
     ]
 
     missing_files = []
@@ -180,7 +180,7 @@ def main():
     if passed >= 3:
         logger.info("✅ Ready for GCP deployment!")
         logger.info("🚀 Core components are working correctly.")
-        logger.info("📋 Next: Follow docs/gcp_deployment_guide.md")
+logger.info("📋 Next: Follow docs/GCP_DEPLOYMENT_GUIDE.md")
         return True
     else:
         logger.info("⚠️ Some validations failed.")

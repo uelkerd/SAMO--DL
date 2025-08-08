@@ -28,7 +28,7 @@
 **Files**:
 - `docs/PROJECT_COMPLETION_SUMMARY.md` (449 lines)
 - `docs/NEXT_STEPS_IMPLEMENTATION_SUMMARY.md` (433 lines)
-- `docs/samo-dl-prd.md` (241 lines)
+- `docs/SAMO-DL-PRD.md` (241 lines)
 - `QUICK_START.md` (335 lines)
 - `docs/cloud-run-deployment-success-summary.md` (205 lines)
 
