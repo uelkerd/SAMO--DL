@@ -130,8 +130,8 @@ python scripts/debug_dataset_structure.py
 
 ### **Documentation**
 - `docs/environment-setup.md` - Environment setup guide
-- `docs/deployment_guide.md` - Deployment instructions
-- `docs/tech-architecture.md` - Technical architecture
+- `docs/DEPLOYMENT_GUIDE.md` - Deployment instructions
+- `docs/TECH-ARCHITECTURE.md` - Technical architecture
 
 ### **Scripts**
 - `scripts/check_environment.sh` - Environment validation

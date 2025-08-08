@@ -15,8 +15,9 @@ import traceback
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, AsyncGenerator, Optional, Dict, List
+from typing import Any, AsyncGenerator, Optional, Dict, List, Set
 from datetime import datetime
+from collections import defaultdict
 
 import uvicorn
 from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile, Depends, status, WebSocket, Query
@@ -44,6 +45,115 @@ app_start_time = time.time()
 # JWT Authentication
 jwt_manager = JWTManager()
 security = HTTPBearer()
+
+# Enhanced WebSocket Connection Management
+class WebSocketConnectionManager:
+    """Enhanced WebSocket connection manager with pooling and heartbeat."""
+    
+    def __init__(self):
+        self.active_connections: Dict[str, Set[WebSocket]] = defaultdict(set)
+        self.connection_metadata: Dict[WebSocket, Dict[str, Any]] = {}
+        self.heartbeat_interval = 30  # seconds
+        self.max_connections_per_user = 5
+        self.connection_timeout = 300  # 5 minutes
+        
+    async def connect(self, websocket: WebSocket, user_id: str, token: str):
+        """Connect a new WebSocket with enhanced management."""
+        # Check connection limits
+        if len(self.active_connections[user_id]) >= self.max_connections_per_user:
+            await websocket.close(code=4008, reason="Maximum connections reached")
+            return False
+            
+        await websocket.accept()
+        self.active_connections[user_id].add(websocket)
+        
+        # Store connection metadata
+        self.connection_metadata[websocket] = {
+            "user_id": user_id,
+            "token": token,
+            "connected_at": time.time(),
+            "last_heartbeat": time.time(),
+            "message_count": 0,
+            "bytes_processed": 0
+        }
+        
+        logger.info(f"WebSocket connected for user {user_id}. Total connections: {len(self.active_connections[user_id])}")
+        return True
+        
+    async def disconnect(self, websocket: WebSocket):
+        """Disconnect WebSocket and cleanup."""
+        user_id = None
+        if websocket in self.connection_metadata:
+            user_id = self.connection_metadata[websocket]["user_id"]
+            del self.connection_metadata[websocket]
+            
+        if user_id and websocket in self.active_connections[user_id]:
+            self.active_connections[user_id].remove(websocket)
+            if not self.active_connections[user_id]:
+                del self.active_connections[user_id]
+                
+        logger.info(f"WebSocket disconnected for user {user_id}")
+        
+    async def send_personal_message(self, message: Dict[str, Any], websocket: WebSocket):
+        """Send message to specific WebSocket with error handling."""
+        try:
+            await websocket.send_json(message)
+            if websocket in self.connection_metadata:
+                self.connection_metadata[websocket]["message_count"] += 1
+        except Exception as e:
+            logger.error(f"Failed to send message to WebSocket: {e}")
+            await self.disconnect(websocket)
+            
+    async def broadcast_to_user(self, message: Dict[str, Any], user_id: str):
+        """Broadcast message to all connections of a specific user."""
+        disconnected = set()
+        for websocket in self.active_connections[user_id]:
+            try:
+                await websocket.send_json(message)
+                if websocket in self.connection_metadata:
+                    self.connection_metadata[websocket]["message_count"] += 1
+            except Exception as e:
+                logger.error(f"Failed to broadcast to WebSocket: {e}")
+                disconnected.add(websocket)
+                
+        # Cleanup disconnected connections
+        for websocket in disconnected:
+            await self.disconnect(websocket)
+            
+    async def update_heartbeat(self, websocket: WebSocket):
+        """Update heartbeat timestamp for connection."""
+        if websocket in self.connection_metadata:
+            self.connection_metadata[websocket]["last_heartbeat"] = time.time()
+            
+    async def cleanup_stale_connections(self):
+        """Cleanup stale connections based on timeout."""
+        current_time = time.time()
+        stale_connections = []
+        
+        for websocket, metadata in self.connection_metadata.items():
+            if current_time - metadata["last_heartbeat"] > self.connection_timeout:
+                stale_connections.append(websocket)
+                
+        for websocket in stale_connections:
+            logger.warning(f"Cleaning up stale WebSocket connection for user {self.connection_metadata[websocket]['user_id']}")
+            await self.disconnect(websocket)
+            
+    def get_connection_stats(self) -> Dict[str, Any]:
+        """Get connection statistics."""
+        total_connections = sum(len(connections) for connections in self.active_connections.values())
+        total_users = len(self.active_connections)
+        
+        return {
+            "total_connections": total_connections,
+            "total_users": total_users,
+            "connections_per_user": {user_id: len(connections) for user_id, connections in self.active_connections.items()},
+            "connection_metadata": {
+                str(ws): metadata for ws, metadata in self.connection_metadata.items()
+            }
+        }
+
+# Global WebSocket manager
+websocket_manager = WebSocketConnectionManager()
 
 # Authentication models
 class UserLogin(BaseModel):

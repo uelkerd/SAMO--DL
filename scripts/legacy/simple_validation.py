@@ -135,7 +135,7 @@ def validate_gcp_readiness():
         logger.warning("   ⚠️ gcloud CLI: Not available (will need to install)")
         gcp_ready = False
 
-    if Path("docs/gcp_deployment_guide.md").exists():
+if Path("docs/GCP_DEPLOYMENT_GUIDE.md").exists():
         logger.info("   ✅ GCP Deployment Guide: Available")
         guide_ready = True
     else:

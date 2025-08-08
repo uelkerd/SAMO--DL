@@ -202,7 +202,7 @@ Your model is already deployed and operational at:
 
 ### **Documentation**
 - [API Documentation](docs/API_DOCUMENTATION.md)
-- [Deployment Guide](docs/deployment_guide.md)
+- [Deployment Guide](docs/DEPLOYMENT_GUIDE.md)
 - [User Guide](docs/USER_GUIDE.md)
 - [Project Completion Summary](docs/PROJECT_COMPLETION_SUMMARY.md)
 

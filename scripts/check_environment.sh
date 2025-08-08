@@ -30,7 +30,7 @@ python3 -c "import numpy; print(f'   ✅ NumPy: {numpy.__version__}')" 2>/dev/nu
 echo "📁 Project Structure:"
 [ -f "src/models/emotion_detection/bert_classifier.py" ] && echo "   ✅ BERT classifier exists" || echo "   ❌ BERT classifier missing"
 [ -f "scripts/focal_loss_training.py" ] && echo "   ✅ Focal loss script exists" || echo "   ❌ Focal loss script missing"
-[ -f "docs/gcp_deployment_guide.md" ] && echo "   ✅ GCP guide exists" || echo "   ❌ GCP guide missing"
+[ -f "docs/GCP_DEPLOYMENT_GUIDE.md" ] && echo "   ✅ GCP guide exists" || echo "   ❌ GCP guide missing"
 
 # Check git status
 echo "📝 Git Status:"
@@ -51,7 +51,7 @@ if [ -f "src/models/emotion_detection/bert_classifier.py" ] && [ -f "scripts/foc
     echo "🚀 Ready for GCP deployment!"
     echo ""
     echo "📋 Next Steps:"
-    echo "   1. Follow docs/gcp_deployment_guide.md"
+echo "   1. Follow docs/GCP_DEPLOYMENT_GUIDE.md"
     echo "   2. Set up GCP project and GPU instance"
     echo "   3. Run focal loss training on GCP"
     echo ""
