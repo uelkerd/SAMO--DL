@@ -121,10 +121,14 @@ def test_model_performance_monitoring():
         logger.info("Recall: {metrics['recall']:.4f}")
         logger.info("F1 Score: {metrics['f1_score']:.4f}")
 
-        assert 0 <= metrics['accuracy'] <= 1, "Accuracy should be between 0 and 1"
-        assert 0 <= metrics['precision'] <= 1, "Precision should be between 0 and 1"
-        assert 0 <= metrics['recall'] <= 1, "Recall should be between 0 and 1"
-        assert 0 <= metrics['f1_score'] <= 1, "F1 score should be between 0 and 1"
+        if not 0 <= metrics['accuracy'] <= 1:
+            raise AssertionError("Accuracy should be between 0 and 1")
+        if not 0 <= metrics['precision'] <= 1:
+            raise AssertionError("Precision should be between 0 and 1")
+        if not 0 <= metrics['recall'] <= 1:
+            raise AssertionError("Recall should be between 0 and 1")
+        if not 0 <= metrics['f1_score'] <= 1:
+            raise AssertionError("F1 score should be between 0 and 1")
 
         logger.info("✅ Model performance monitoring test passed")
         return True
@@ -162,8 +166,10 @@ def test_model_drift_detection():
         logger.info("Accuracy drift: {accuracy_drift:.4f}")
         logger.info("F1 score drift: {f1_drift:.4f}")
 
-        assert accuracy_drift >= 0, "Drift should be non-negative"
-        assert f1_drift >= 0, "Drift should be non-negative"
+        if accuracy_drift < 0:
+            raise AssertionError("Drift should be non-negative")
+        if f1_drift < 0:
+            raise AssertionError("Drift should be non-negative")
 
         logger.info("✅ Model drift detection test passed")
         return True
@@ -196,10 +202,14 @@ def test_monitoring_logging():
 
         logger.info("Monitoring log entry: {log_entry}")
 
-        assert 'timestamp' in log_entry, "Log entry should have timestamp"
-        assert 'model_version' in log_entry, "Log entry should have model version"
-        assert 'metrics' in log_entry, "Log entry should have metrics"
-        assert 'status' in log_entry, "Log entry should have status"
+        if 'timestamp' not in log_entry:
+            raise AssertionError("Log entry should have timestamp")
+        if 'model_version' not in log_entry:
+            raise AssertionError("Log entry should have model version")
+        if 'metrics' not in log_entry:
+            raise AssertionError("Log entry should have metrics")
+        if 'status' not in log_entry:
+            raise AssertionError("Log entry should have status")
 
         logger.info("✅ Monitoring logging test passed")
         return True
