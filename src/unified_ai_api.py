@@ -49,24 +49,24 @@ security = HTTPBearer()
 # Enhanced WebSocket Connection Management
 class WebSocketConnectionManager:
     """Enhanced WebSocket connection manager with pooling and heartbeat."""
-    
+
     def __init__(self):
         self.active_connections: Dict[str, Set[WebSocket]] = defaultdict(set)
         self.connection_metadata: Dict[WebSocket, Dict[str, Any]] = {}
         self.heartbeat_interval = 30  # seconds
         self.max_connections_per_user = 5
         self.connection_timeout = 300  # 5 minutes
-        
+
     async def connect(self, websocket: WebSocket, user_id: str, token: str):
         """Connect a new WebSocket with enhanced management."""
         # Check connection limits
         if len(self.active_connections[user_id]) >= self.max_connections_per_user:
             await websocket.close(code=4008, reason="Maximum connections reached")
             return False
-            
+
         await websocket.accept()
         self.active_connections[user_id].add(websocket)
-        
+
         # Store connection metadata
         self.connection_metadata[websocket] = {
             "user_id": user_id,
@@ -76,24 +76,24 @@ class WebSocketConnectionManager:
             "message_count": 0,
             "bytes_processed": 0
         }
-        
+
         logger.info(f"WebSocket connected for user {user_id}. Total connections: {len(self.active_connections[user_id])}")
         return True
-        
+
     async def disconnect(self, websocket: WebSocket):
         """Disconnect WebSocket and cleanup."""
         user_id = None
         if websocket in self.connection_metadata:
             user_id = self.connection_metadata[websocket]["user_id"]
             del self.connection_metadata[websocket]
-            
+
         if user_id and websocket in self.active_connections[user_id]:
             self.active_connections[user_id].remove(websocket)
             if not self.active_connections[user_id]:
                 del self.active_connections[user_id]
-                
+
         logger.info(f"WebSocket disconnected for user {user_id}")
-        
+
     async def send_personal_message(self, message: Dict[str, Any], websocket: WebSocket):
         """Send message to specific WebSocket with error handling."""
         try:
@@ -103,7 +103,7 @@ class WebSocketConnectionManager:
         except Exception as e:
             logger.error(f"Failed to send message to WebSocket: {e}")
             await self.disconnect(websocket)
-            
+
     async def broadcast_to_user(self, message: Dict[str, Any], user_id: str):
         """Broadcast message to all connections of a specific user."""
         disconnected = set()
@@ -115,34 +115,34 @@ class WebSocketConnectionManager:
             except Exception as e:
                 logger.error(f"Failed to broadcast to WebSocket: {e}")
                 disconnected.add(websocket)
-                
+
         # Cleanup disconnected connections
         for websocket in disconnected:
             await self.disconnect(websocket)
-            
+
     async def update_heartbeat(self, websocket: WebSocket):
         """Update heartbeat timestamp for connection."""
         if websocket in self.connection_metadata:
             self.connection_metadata[websocket]["last_heartbeat"] = time.time()
-            
+
     async def cleanup_stale_connections(self):
         """Cleanup stale connections based on timeout."""
         current_time = time.time()
         stale_connections = []
-        
+
         for websocket, metadata in self.connection_metadata.items():
             if current_time - metadata["last_heartbeat"] > self.connection_timeout:
                 stale_connections.append(websocket)
-                
+
         for websocket in stale_connections:
             logger.warning(f"Cleaning up stale WebSocket connection for user {self.connection_metadata[websocket]['user_id']}")
             await self.disconnect(websocket)
-            
+
     def get_connection_stats(self) -> Dict[str, Any]:
         """Get connection statistics."""
         total_connections = sum(len(connections) for connections in self.active_connections.values())
         total_users = len(self.active_connections)
-        
+
         return {
             "total_connections": total_connections,
             "total_users": total_users,
@@ -446,10 +446,10 @@ async def register_user(user_data: UserRegister) -> TokenResponse:
         # 2. Hash the password
         # 3. Store user in database
         # 4. Generate user ID
-        
+
         # For demo purposes, we'll create a simple user
         user_id = f"user_{int(time.time())}"
-        
+
         # Create user data for token
         token_user_data = {
             "user_id": user_id,
@@ -457,13 +457,13 @@ async def register_user(user_data: UserRegister) -> TokenResponse:
             "email": user_data.email,
             "permissions": ["read", "write"]  # Default permissions
         }
-        
+
         # Generate tokens
         token_response = jwt_manager.create_token_pair(token_user_data)
-        
+
         logger.info(f"New user registered: {user_data.username}")
         return token_response
-        
+
     except Exception as exc:
         logger.error(f"Registration failed: {exc}")
         raise HTTPException(
@@ -485,14 +485,14 @@ async def login_user(login_data: UserLogin) -> TokenResponse:
         # 1. Verify username/password against database
         # 2. Check if account is active
         # 3. Retrieve user permissions
-        
+
         # For demo purposes, we'll accept any valid email/password
         if not login_data.username or not login_data.password:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Username and password required"
             )
-        
+
         # Create user data for token
         user_id = f"user_{hash(login_data.username) % 10000}"
         token_user_data = {
@@ -501,13 +501,13 @@ async def login_user(login_data: UserLogin) -> TokenResponse:
             "email": login_data.username if "@" in login_data.username else f"{login_data.username}@example.com",
             "permissions": ["read", "write", "admin"]  # Demo permissions
         }
-        
+
         # Generate tokens
         token_response = jwt_manager.create_token_pair(token_user_data)
-        
+
         logger.info(f"User logged in: {login_data.username}")
         return token_response
-        
+
     except HTTPException:
         raise
     except Exception as exc:
@@ -538,7 +538,7 @@ async def refresh_token(request: RefreshTokenRequest) -> TokenResponse:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid refresh token"
             )
-        
+
         # Create new user data
         user_data = {
             "user_id": payload.user_id,
@@ -546,13 +546,13 @@ async def refresh_token(request: RefreshTokenRequest) -> TokenResponse:
             "email": payload.email,
             "permissions": payload.permissions
         }
-        
+
         # Generate new token pair
         token_response = jwt_manager.create_token_pair(user_data)
-        
+
         logger.info(f"Token refreshed for user: {payload.username}")
         return token_response
-        
+
     except HTTPException:
         raise
     except Exception as exc:
@@ -583,9 +583,9 @@ async def logout_user(
             logger.info(f"User logged out and token blacklisted: {current_user.username}")
         else:
             logger.warning("No valid Authorization header found during logout")
-        
+
         return {"message": "Successfully logged out"}
-        
+
     except Exception as exc:
         logger.error(f"Logout failed: {exc}")
         raise HTTPException(
@@ -814,30 +814,30 @@ async def transcribe_voice(
 ) -> VoiceTranscription:
     """Enhanced voice transcription with detailed analysis."""
     start_time = time.time()
-    
+
     try:
         # Validate file
         if not audio_file.filename:
             raise HTTPException(status_code=400, detail="Audio file required")
-        
+
         # Check file size (max 50MB)
         content = await audio_file.read()
         if len(content) > 50 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="File too large (max 50MB)")
         # Reset file position for later processing
         await audio_file.seek(0)
-        
+
         # Save uploaded file temporarily
         with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
             temp_file.write(content)
             temp_file.flush()  # Ensure data is written to disk
             temp_file_path = temp_file.name
-        
+
         try:
             # Transcribe audio
             if voice_transcriber is None:
                 raise HTTPException(status_code=503, detail="Voice transcription service unavailable")
-            
+
             # Enhanced transcription with additional parameters
             transcription_result = voice_transcriber.transcribe(
                 temp_file_path,
@@ -845,12 +845,12 @@ async def transcribe_voice(
                 model_size=model_size,
                 timestamp=timestamp
             )
-            
+
             # Calculate additional metrics
             duration = transcription_result.get("duration", 0)
             word_count = len(transcription_result.get("text", "").split())
             speaking_rate = (word_count / duration * 60) if duration > 0 else 0
-            
+
             # Audio quality assessment
             audio_quality = "excellent"
             if duration < 1:
@@ -859,9 +859,9 @@ async def transcribe_voice(
                 audio_quality = "fair"
             elif duration < 15:
                 audio_quality = "good"
-            
+
             processing_time = (time.time() - start_time) * 1000
-            
+
             return VoiceTranscription(
                 text=transcription_result.get("text", ""),
                 language=transcription_result.get("language", "unknown"),
@@ -871,12 +871,12 @@ async def transcribe_voice(
                 speaking_rate=speaking_rate,
                 audio_quality=audio_quality
             )
-            
+
         finally:
             # Cleanup temporary file
             if os.path.exists(temp_file_path):
                 os.unlink(temp_file_path)
-                
+
     except HTTPException:
         raise
     except Exception as exc:
@@ -900,7 +900,7 @@ async def batch_transcribe_voice(
     """Batch process multiple audio files for transcription."""
     start_time = time.time()
     results = []
-    
+
     try:
         for i, audio_file in enumerate(audio_files):
             try:
@@ -910,13 +910,13 @@ async def batch_transcribe_voice(
                     temp_file.write(content)
                     temp_file.flush()  # Ensure data is written to disk
                     temp_file_path = temp_file.name
-                
+
                 try:
                     if voice_transcriber is None:
                         raise HTTPException(status_code=503, detail="Voice transcription service unavailable")
-                    
+
                     transcription_result = voice_transcriber.transcribe(temp_file_path, language=language)
-                    
+
                     results.append({
                         "file_index": i,
                         "filename": audio_file.filename,
@@ -926,11 +926,11 @@ async def batch_transcribe_voice(
                         "confidence": transcription_result.get("confidence", 0.0),
                         "duration": transcription_result.get("duration", 0)
                     })
-                    
+
                 finally:
                     if os.path.exists(temp_file_path):
                         os.unlink(temp_file_path)
-                        
+
             except Exception as exc:
                 results.append({
                     "file_index": i,
@@ -938,9 +938,9 @@ async def batch_transcribe_voice(
                     "success": False,
                     "error": str(exc)
                 })
-        
+
         processing_time = (time.time() - start_time) * 1000
-        
+
         return {
             "total_files": len(audio_files),
             "successful_transcriptions": len([r for r in results if r["success"]]),
@@ -948,7 +948,7 @@ async def batch_transcribe_voice(
             "processing_time_ms": processing_time,
             "results": results
         }
-        
+
     except Exception as exc:
         logger.error(f"Batch transcription failed: {exc}")
         raise HTTPException(
@@ -974,14 +974,14 @@ async def summarize_text(
 ) -> TextSummary:
     """Enhanced text summarization with multiple model options."""
     start_time = time.time()
-    
+
     try:
         if not text.strip():
             raise HTTPException(status_code=400, detail="Text cannot be empty")
-        
+
         if text_summarizer is None:
             raise HTTPException(status_code=503, detail="Text summarization service unavailable")
-        
+
         # Enhanced summarization with parameters
         summary_result = text_summarizer.summarize(
             text,
@@ -990,12 +990,12 @@ async def summarize_text(
             min_length=min_length,
             do_sample=do_sample
         )
-        
+
         # Calculate metrics
         original_length = len(text.split())
         summary_length = len(summary_result.get("summary", "").split())
         compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
-        
+
         # Determine emotional tone from summary
         emotional_tone = "neutral"
         if emotion_detector and summary_result.get("summary"):
@@ -1008,16 +1008,16 @@ async def summarize_text(
                     emotional_tone = "negative"
             except Exception as exc:
                 logger.warning(f"Could not determine emotional tone from summary: {exc}")
-        
+
         processing_time = (time.time() - start_time) * 1000
-        
+
         return TextSummary(
             summary=summary_result.get("summary", ""),
             key_emotions=summary_result.get("key_emotions", []),
             compression_ratio=compression_ratio,
             emotional_tone=emotional_tone
         )
-        
+
     except HTTPException:
         raise
     except Exception as exc:
@@ -1035,25 +1035,25 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
     if not token:
         await websocket.close(code=4001, reason="Authentication token required")
         return
-    
+
     try:
         # Verify JWT token using the global jwt_manager instance
         payload = jwt_manager.verify_token(token)
         if not payload:
             await websocket.close(code=4001, reason="Invalid authentication token")
             return
-        
+
         # Check if user has real-time processing permission
         if "realtime_processing" not in payload.permissions:
             await websocket.close(code=4003, reason="Insufficient permissions")
             return
-            
+
     except Exception as e:
         await websocket.close(code=4001, reason=f"Authentication failed: {str(e)}")
         return
-    
+
     await websocket.accept()
-    
+
     # Authenticate WebSocket connection
     try:
         # Get token from query parameters or initial message
@@ -1071,7 +1071,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                 })
                 await websocket.close()
                 return
-        
+
         # Verify token using the global jwt_manager instance
         payload = jwt_manager.verify_token(token)
         if not payload:
@@ -1081,9 +1081,9 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
             })
             await websocket.close()
             return
-        
+
         logger.info(f"WebSocket authenticated for user: {payload.username}")
-        
+
     except Exception as exc:
         await websocket.send_json({
             "type": "error",
@@ -1091,7 +1091,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
         })
         await websocket.close()
         return
-    
+
     try:
         while True:
             # Receive audio data or control messages
@@ -1099,7 +1099,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                 data = await websocket.receive_bytes()
             except WebSocketDisconnect:
                 break
-            
+
             # Process audio in real-time
             if voice_transcriber:
                 try:
@@ -1108,11 +1108,11 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                         temp_file.write(data)
                         temp_file.flush()  # Ensure data is written to disk
                         temp_file_path = temp_file.name
-                    
+
                     try:
                         # Transcribe
                         result = voice_transcriber.transcribe(temp_file_path)
-                        
+
                         # Send result back
                         await websocket.send_json({
                             "type": "transcription",
@@ -1120,11 +1120,11 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                             "confidence": result.get("confidence", 0.0),
                             "language": result.get("language", "unknown")
                         })
-                        
+
                     finally:
                         if os.path.exists(temp_file_path):
                             os.unlink(temp_file_path)
-                            
+
                 except Exception as exc:
                     await websocket.send_json({
                         "type": "error",
@@ -1135,7 +1135,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                     "type": "error",
                     "message": "Voice transcription service unavailable"
                 })
-                
+
     except WebSocketDisconnect:
         logger.info("WebSocket client disconnected")
     except Exception as exc:
@@ -1162,11 +1162,11 @@ async def get_performance_metrics(
     try:
         # Get system metrics
         import psutil
-        
+
         cpu_percent = await asyncio.to_thread(psutil.cpu_percent, interval=1)
         memory = await asyncio.to_thread(psutil.virtual_memory)
         disk = await asyncio.to_thread(psutil.disk_usage, '/')
-        
+
         # Model performance metrics
         model_metrics = {
             "emotion_detection": {
@@ -1185,7 +1185,7 @@ async def get_performance_metrics(
                 "total_requests": 0
             }
         }
-        
+
         return {
             "timestamp": time.time(),
             "system": {
@@ -1202,7 +1202,7 @@ async def get_performance_metrics(
                 "total_requests": 0  # In real app, track from database
             }
         }
-        
+
     except Exception as exc:
         logger.error(f"Failed to get performance metrics: {exc}")
         raise HTTPException(
@@ -1222,10 +1222,10 @@ async def detailed_health_check(
     """Comprehensive health check with detailed diagnostics."""
     health_status = "healthy"
     issues = []
-    
+
     # Check models
     model_checks = {}
-    
+
     if emotion_detector is None:
         health_status = "degraded"
         issues.append("Emotion detection model not loaded")
@@ -1239,7 +1239,7 @@ async def detailed_health_check(
             health_status = "degraded"
             issues.append(f"Emotion detection model error: {exc}")
             model_checks["emotion_detection"] = {"status": "error", "error": str(exc)}
-    
+
     if text_summarizer is None:
         health_status = "degraded"
         issues.append("Text summarization model not loaded")
@@ -1253,28 +1253,28 @@ async def detailed_health_check(
             health_status = "degraded"
             issues.append(f"Text summarization model error: {exc}")
             model_checks["text_summarization"] = {"status": "error", "error": str(exc)}
-    
+
     if voice_transcriber is None:
         health_status = "degraded"
         issues.append("Voice processing model not loaded")
         model_checks["voice_processing"] = {"status": "unavailable", "error": "Model not loaded"}
     else:
         model_checks["voice_processing"] = {"status": "healthy", "test_passed": True}
-    
+
     # Check system resources
     try:
         import psutil
         cpu_percent = await asyncio.to_thread(psutil.cpu_percent, interval=1)
         memory = await asyncio.to_thread(psutil.virtual_memory)
-        
+
         if cpu_percent > 90:
             health_status = "degraded"
             issues.append(f"High CPU usage: {cpu_percent}%")
-        
+
         if memory.percent > 90:
             health_status = "degraded"
             issues.append(f"High memory usage: {memory.percent}%")
-            
+
         system_checks = {
             "cpu_percent": cpu_percent,
             "memory_percent": memory.percent,
@@ -1284,7 +1284,7 @@ async def detailed_health_check(
         system_checks = {"status": "error", "error": str(exc)}
         health_status = "degraded"
         issues.append(f"System check failed: {exc}")
-    
+
     return {
         "status": health_status,
         "timestamp": time.time(),

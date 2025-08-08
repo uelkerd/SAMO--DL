@@ -10,7 +10,7 @@ import json
 
 def create_model_ensemble_notebook():
     """Create the model ensemble notebook content"""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -656,10 +656,10 @@ def create_model_ensemble_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     with open('notebooks/MODEL_ENSEMBLE_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook_content, f, indent=2)
-    
+
     print("✅ Model ensemble notebook created: notebooks/MODEL_ENSEMBLE_TRAINING_COLAB.ipynb")
     print("📋 Instructions:")
     print("  1. Download the notebook file")

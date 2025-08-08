@@ -10,7 +10,7 @@ import json
 
 def create_fixed_colab_notebook():
     """Create the fixed Colab notebook content"""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -439,11 +439,11 @@ def create_fixed_colab_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     # Write notebook to file
     with open('notebooks/FIXED_COMBINED_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook_content, f, indent=2)
-    
+
     print("✅ Fixed notebook created: notebooks/FIXED_COMBINED_TRAINING_COLAB.ipynb")
     print("📋 Instructions:")
     print("  1. Download the notebook file")

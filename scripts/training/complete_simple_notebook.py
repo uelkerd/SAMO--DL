@@ -11,11 +11,11 @@ import json
 
 def complete_simple_notebook():
     """Add all missing components to the simple notebook."""
-    
+
     # Read the existing notebook
     with open('notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'r') as f:
         notebook = json.load(f)
-    
+
     # Add all the missing cells
     new_cells = [
         {
@@ -465,14 +465,14 @@ def complete_simple_notebook():
             ]
         }
     ]
-    
+
     # Add all new cells
     notebook['cells'].extend(new_cells)
-    
+
     # Save the completed notebook
     with open('notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook, f, indent=2)
-    
+
     print('✅ Completed simple notebook with ALL components!')
     print('📋 Added components:')
     print('   ✅ Focal Loss implementation')

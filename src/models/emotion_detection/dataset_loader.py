@@ -92,11 +92,11 @@ class GoEmotionsPreprocessor:
 
         # Remove excessive whitespace while preserving structure
         text = re.sub(r'\s+', ' ', text.strip())
-        
+
         # The dataset is already split by HuggingFace
         # Tokenize with BERT tokenizer
         # Use the same logic as analyze_dataset_statistics
-        
+
         return text
 
     def tokenize_batch(self, texts: List[str]) -> Dict[str, torch.Tensor]:
@@ -110,7 +110,7 @@ class GoEmotionsPreprocessor:
         """
         # Clean texts first
         cleaned_texts = [self.clean_text(text) for text in texts]
-        
+
         # Tokenize with BERT tokenizer
         encoded = self.tokenizer(
             cleaned_texts,
@@ -119,7 +119,7 @@ class GoEmotionsPreprocessor:
             max_length=self.max_length,
             return_tensors="pt",
         )
-        
+
         return encoded
 
 
@@ -151,7 +151,7 @@ class GoEmotionsDataLoader:
         self.test_size = test_size
         self.val_size = val_size
         self.random_state = random_state
-        
+
         self.preprocessor = GoEmotionsPreprocessor(model_name, max_length)
         self.dataset = None
         self.train_dataset = None
@@ -182,11 +182,11 @@ class GoEmotionsDataLoader:
             self.download_dataset()
 
         stats = {}
-        
+
         # Basic statistics
         stats["total_samples"] = len(self.dataset["train"])
         stats["num_emotions"] = len(GOEMOTIONS_EMOTIONS)
-        
+
         # Emotion distribution
         emotion_counts = Counter()
         for example in self.dataset["train"]:
@@ -194,17 +194,17 @@ class GoEmotionsDataLoader:
             for label in labels:
                 if 0 <= label < len(GOEMOTIONS_EMOTIONS):
                     emotion_counts[label] += 1
-        
+
         stats["emotion_distribution"] = dict(emotion_counts)
         stats["most_common_emotions"] = emotion_counts.most_common(10)
         stats["least_common_emotions"] = emotion_counts.most_common()[:-11:-1]
-        
+
         # Text length statistics
         text_lengths = [len(example["text"]) for example in self.dataset["train"]]
         stats["avg_text_length"] = np.mean(text_lengths)
         stats["max_text_length"] = np.max(text_lengths)
         stats["min_text_length"] = np.min(text_lengths)
-        
+
         logger.info(f"Dataset statistics: {stats}")
         return stats
 
@@ -228,10 +228,10 @@ class GoEmotionsDataLoader:
         # Compute inverse frequency weights
         total_samples = len(self.dataset["train"])
         class_weights = total_samples / (len(GOEMOTIONS_EMOTIONS) * emotion_counts)
-        
+
         # Handle zero counts
         class_weights[emotion_counts == 0] = 1.0
-        
+
         logger.info(f"Computed class weights: min={class_weights.min():.3f}, max={class_weights.max():.3f}")
         return class_weights
 
@@ -249,19 +249,19 @@ class GoEmotionsDataLoader:
             test_size=self.test_size + self.val_size,
             seed=self.random_state,
         )
-        
+
         # Split validation from test
         val_test = train_val_test["test"].train_test_split(
             test_size=self.val_size / (self.test_size + self.val_size),
             seed=self.random_state,
         )
-        
+
         train_data = train_val_test["train"]
         val_data = val_test["train"]
         test_data = val_test["test"]
-        
+
         logger.info(f"Created splits - Train: {len(train_data)}, Val: {len(val_data)}, Test: {len(test_data)}")
-        
+
         return train_data, val_data, test_data
 
     def prepare_datasets(self, force_download: bool = False) -> dict:
@@ -278,13 +278,13 @@ class GoEmotionsDataLoader:
 
         # Create splits
         train_data, val_data, test_data = self.create_train_val_test_splits()
-        
+
         # Compute class weights
         class_weights = self.compute_class_weights()
-        
+
         # Analyze statistics
         stats = self.analyze_dataset_statistics()
-        
+
         return {
             "train_data": train_data,
             "val_data": val_data,

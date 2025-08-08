@@ -142,7 +142,7 @@ def evaluate_wer(api: TranscriptionAPI, samples: list[dict], model_size: str) ->
     if results:
         avg_wer = sum(r["wer"] for r in results) / len(results)
         avg_time = total_time / len(results)
-        
+
         return {
             "model_size": model_size,
             "num_samples": len(results),

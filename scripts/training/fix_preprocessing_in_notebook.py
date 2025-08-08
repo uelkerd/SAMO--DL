@@ -11,11 +11,11 @@ import json
 
 def fix_preprocessing():
     """Fix the preprocessing function in the ultimate notebook."""
-    
+
     # Read the existing notebook
     with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'r') as f:
         notebook = json.load(f)
-    
+
     # Find and replace the preprocessing cell
     for i, cell in enumerate(notebook['cells']):
         if cell['cell_type'] == 'code' and 'def preprocess_function' in ''.join(cell['source']):
@@ -67,7 +67,7 @@ def fix_preprocessing():
                 "print('✅ Data structure verified!')"
             ]
             break
-    
+
     # Also add a data collator cell after the training arguments
     data_collator_cell = {
         "cell_type": "markdown",
@@ -76,7 +76,7 @@ def fix_preprocessing():
             "## 🔧 DATA COLLATOR"
         ]
     }
-    
+
     data_collator_code = {
         "cell_type": "code",
         "execution_count": None,
@@ -95,7 +95,7 @@ def fix_preprocessing():
             "print('✅ Data collator configured')"
         ]
     }
-    
+
     # Find the training arguments cell and add the data collator after it
     for i, cell in enumerate(notebook['cells']):
         if cell['cell_type'] == 'code' and 'TrainingArguments(' in ''.join(cell['source']):
@@ -103,7 +103,7 @@ def fix_preprocessing():
             notebook['cells'].insert(i + 2, data_collator_cell)
             notebook['cells'].insert(i + 3, data_collator_code)
             break
-    
+
     # Update the trainer initialization to include the data collator
     for cell in notebook['cells']:
         if cell['cell_type'] == 'code' and 'WeightedLossTrainer(' in ''.join(cell['source']):
@@ -126,11 +126,11 @@ def fix_preprocessing():
                 "print('✅ Trainer initialized with focal loss and class weighting')"
             ]
             break
-    
+
     # Save the updated notebook
     with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook, f, indent=2)
-    
+
     print('✅ Fixed preprocessing in ultimate notebook!')
     print('📋 Changes made:')
     print('   ✅ Updated preprocessing function with proper tokenization')
