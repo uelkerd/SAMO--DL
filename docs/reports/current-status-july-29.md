@@ -94,7 +94,7 @@ SAMO--DL/
 │   └── docker-compose.yml                # Docker orchestration
 └── 📚 docs/
 ├── SAMO-DL-PRD.md                    # Updated PRD (production-ready)
-    ├── API_DOCUMENTATION.md              # Complete API documentation
+├── api/API_DOCUMENTATION.md              # Complete API documentation
 ├── DEPLOYMENT_GUIDE.md               # Deployment instructions
     ├── USER_GUIDE.md                     # User guide with examples
     ├── PROJECT_COMPLETION_SUMMARY.md     # Project completion summary
