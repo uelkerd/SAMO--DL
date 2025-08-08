@@ -429,8 +429,8 @@ scrape_configs:
 
 ### Documentation
 
-- **Integration Guide**: [docs/INTEGRATION_GUIDE.md](docs/INTEGRATION_GUIDE.md)
-- **Deployment Guide**: [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md)
+- **Integration Guide**: [docs/guides/INTEGRATION_GUIDE.md](docs/guides/INTEGRATION_GUIDE.md)
+- **Deployment Guide**: [docs/DEPLOYMENT_GUIDE.md](../DEPLOYMENT_GUIDE.md)
 - **Architecture Overview**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 ### Examples

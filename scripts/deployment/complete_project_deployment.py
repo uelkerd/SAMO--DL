@@ -128,7 +128,7 @@ def create_final_documentation():
             "deployment/api_server.py (REST API)",
             "deployment/test_examples.py (testing script)",
             "deployment/deploy.sh (deployment script)",
-            "docs/PROJECT_COMPLETION_SUMMARY.md (project summary)"
+            "docs/reports/PROJECT_COMPLETION_SUMMARY.md (project summary)"
         ],
         "next_steps": [
             "cd deployment",
@@ -144,7 +144,7 @@ def create_final_documentation():
     print("✅ Final documentation created!")
     print("📁 Files created:")
     print("  - deployment/project_summary.json")
-    print("  - docs/PROJECT_COMPLETION_SUMMARY.md")
+    print("  - docs/reports/PROJECT_COMPLETION_SUMMARY.md")
     
     return True
 

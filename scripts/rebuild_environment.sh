@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # 🚀 SAMO Deep Learning - Environment Rebuild Script
-# This script automates the steps from docs/environment-crisis-resolution.md
+# This script automates the steps from docs/summaries/environment-crisis-resolution.md
 # to create a fresh, stable Conda environment.
 #
 
