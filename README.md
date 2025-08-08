@@ -129,7 +129,7 @@ SAMO--DL/
 ├── notebooks/
 │   └── training/                       # Model training notebooks
 ├── docs/
-│   ├── API_DOCUMENTATION.md            # Complete API docs
+│   ├── api/API_DOCUMENTATION.md        # Complete API docs
 │   ├── INTEGRATION_GUIDE.md            # Team integration guide
 │   ├── DEPLOYMENT_GUIDE.md             # Production deployment
 │   └── ARCHITECTURE.md                 # System architecture
@@ -303,7 +303,7 @@ Visit `/health` for real-time system status:
 ## Support & Resources
 
 ### Documentation
-- [API Documentation](docs/API_DOCUMENTATION.md)
+- [API Documentation](docs/api/API_DOCUMENTATION.md)
 - [Integration Guide](docs/INTEGRATION_GUIDE.md)
 - [Deployment Guide](docs/DEPLOYMENT_GUIDE.md)
 - [Architecture Overview](docs/ARCHITECTURE.md)

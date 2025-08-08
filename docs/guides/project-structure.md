@@ -59,7 +59,7 @@ docs/
 ├── 📄 SAMO-DL-PRD.md                    # Main Product Requirements Document
 ├── 📄 PROJECT_SUMMARY.md                # High-level project overview
 ├── 📄 TECH-ARCHITECTURE.md              # Technical architecture
-├── 📄 API_SPECIFICATION.md              # API documentation
+├── 📄 api/API_SPECIFICATION.md          # API documentation
 ├── 📄 DEPLOYMENT_GUIDE.md               # Deployment instructions
 ├── 📄 TESTING_STRATEGY.md               # Testing documentation
 ├── 📄 MODEL-TRAINING-PLAYBOOK.md        # Model training guide
