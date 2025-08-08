@@ -304,7 +304,7 @@ Visit `/health` for real-time system status:
 
 ### Documentation
 - [API Documentation](docs/api/API_DOCUMENTATION.md)
-- [Integration Guide](docs/INTEGRATION_GUIDE.md)
+- [Integration Guide](docs/guides/INTEGRATION_GUIDE.md)
 - [Deployment Guide](docs/DEPLOYMENT_GUIDE.md)
 - [Architecture Overview](docs/ARCHITECTURE.md)
 

@@ -204,7 +204,7 @@ Your model is already deployed and operational at:
 - [API Documentation](docs/api/API_DOCUMENTATION.md)
 - [Deployment Guide](docs/DEPLOYMENT_GUIDE.md)
 - [User Guide](docs/USER_GUIDE.md)
-- [Project Completion Summary](docs/PROJECT_COMPLETION_SUMMARY.md)
+- [Project Completion Summary](docs/reports/PROJECT_COMPLETION_SUMMARY.md)
 
 ### **Code Repository**
 - [GitHub Repository](https://github.com/uelkerd/SAMO--DL)

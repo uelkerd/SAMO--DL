@@ -156,7 +156,7 @@ python --version  # Python 3.8.6rc1 (consistent with conda environment)
    - Documented the floating-point precision fix
    - Documented the defaultdict initialization fix
 
-5. **`docs/environment-consistency-fix.md`**
+5. **`docs/summaries/environment-consistency-fix.md`**
    - This document summarizing all environment consistency fixes
 
 ---
