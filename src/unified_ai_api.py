@@ -884,8 +884,14 @@ async def transcribe_voice(
                     logger.info("Lazy-loading Whisper transcriber: base")
                     globals()["voice_transcriber"] = _wcreate("base")
                 except Exception as exc:
-                    logger.warning(f"Voice transcriber lazy-load failed: {exc}")
-                    raise HTTPException(status_code=503, detail="Voice transcription service unavailable")
+                    logger.warning(
+                        "Voice transcriber lazy-load failed: %s",
+                        exc,
+                    )
+                    raise HTTPException(
+                        status_code=503,
+                        detail="Voice transcription service unavailable",
+                    )
             
             # Enhanced transcription
             # Note: model selection is configured at startup; per-request model_size/timestamp
@@ -896,10 +902,26 @@ async def transcribe_voice(
             )
 
             # Normalize result to attributes
-            text_val = getattr(transcription_result, "text", "") if transcription_result else ""
-            lang_val = getattr(transcription_result, "language", "unknown") if transcription_result else "unknown"
-            conf_val = getattr(transcription_result, "confidence", 0.0) if transcription_result else 0.0
-            duration = getattr(transcription_result, "duration", 0.0) if transcription_result else 0.0
+            text_val = (
+                getattr(transcription_result, "text", "")
+                if transcription_result
+                else ""
+            )
+            lang_val = (
+                getattr(transcription_result, "language", "unknown")
+                if transcription_result
+                else "unknown"
+            )
+            conf_val = (
+                getattr(transcription_result, "confidence", 0.0)
+                if transcription_result
+                else 0.0
+            )
+            duration = (
+                getattr(transcription_result, "duration", 0.0)
+                if transcription_result
+                else 0.0
+            )
             word_count = getattr(transcription_result, "word_count", None)
             if word_count is None:
                 word_count = len((text_val or "").split())
@@ -1038,18 +1060,29 @@ async def summarize_text(
         
         if text_summarizer is None:
             try:
-                from src.models.summarization.t5_summarizer import create_t5_summarizer as _create
+                from src.models.summarization.t5_summarizer import (
+                    create_t5_summarizer as _create,
+                )
                 logger.info("Lazy-loading summarizer model: t5-small")
                 globals()["text_summarizer"] = _create("t5-small")
             except Exception as exc:
-                logger.warning(f"Summarizer lazy-load failed: {exc}")
-                raise HTTPException(status_code=503, detail="Text summarization service unavailable")
+                logger.warning("Summarizer lazy-load failed: %s", exc)
+                raise HTTPException(
+                    status_code=503,
+                    detail="Text summarization service unavailable",
+                )
 
         # Request-scoped model override to avoid global mutation in production
         summarizer_instance = text_summarizer
-        if hasattr(text_summarizer, "model_name") and text_summarizer.model_name != model:
+        if (
+            hasattr(text_summarizer, "model_name")
+            and text_summarizer.model_name != model
+        ):
             logger.info(
-                "Requested summarizer model '%s' differs from default '%s'; using request-scoped instance",
+                (
+                    "Requested summarizer model '%s' differs from default '%s'; "
+                    "using request-scoped instance"
+                ),
                 model,
                 getattr(text_summarizer, "model_name", "unknown"),
             )
@@ -1060,7 +1093,10 @@ async def summarize_text(
                 summarizer_instance = _create(model)
             except Exception as exc:
                 logger.warning(
-                    "Model override to %s failed; continuing with default summarizer: %s",
+                    (
+                        "Model override to %s failed; continuing with default "
+                        "summarizer: %s"
+                    ),
                     model,
                     exc,
                 )
