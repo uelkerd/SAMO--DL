@@ -26,9 +26,7 @@ gcloud run deploy "${SERVICE}" \
   --platform managed \
   --image "${IMAGE_REPO}:${TAG}" \
   --allow-unauthenticated \
-  --port 8080 \
-  --set-env-vars PYTHONUNBUFFERED=1 \
-  --set-env-vars UVICORN_CMD="uvicorn src.unified_ai_api:app --host 0.0.0.0 --port 8080"
+  --port 8080
 
 echo "Deployment triggered. Service URL:"
 gcloud run services describe "${SERVICE}" --project "${PROJECT_ID}" --region "${REGION}" --platform managed --format='value(status.url)'

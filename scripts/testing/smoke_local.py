@@ -112,6 +112,19 @@ def run_smoke(base_url: str):
     access_token = None
     refresh_token = None
 
+    def login_and_get_access_token() -> Optional[str]:
+        try:
+            r = session.post(
+                url("/auth/login"),
+                json={"username": "tester@example.com", "password": "secret123"},
+                timeout=10,
+            )
+            if r.headers.get("content-type", "").startswith("application/json"):
+                return r.json().get("access_token")
+        except Exception:
+            pass
+        return None
+
     # Phase 2: Auth lifecycle
     try:
         r = session.post(
@@ -176,16 +189,7 @@ def run_smoke(base_url: str):
     # Phase 4: Summarize text (auth required)
     # Ensure we have a valid token for protected endpoints
     if not access_token:
-        try:
-            r = session.post(
-                url("/auth/login"),
-                json={"username": "tester@example.com", "password": "secret123"},
-                timeout=10,
-            )
-            data = r.json() if r.headers.get("content-type", "").startswith("application/json") else {}
-            access_token = data.get("access_token")
-        except Exception:
-            access_token = None
+        access_token = login_and_get_access_token()
 
     if access_token:
         try:
@@ -210,16 +214,7 @@ def run_smoke(base_url: str):
 
     # Phase 5: Transcribe voice (auth required)
     if not access_token:
-        try:
-            r = session.post(
-                url("/auth/login"),
-                json={"username": "tester@example.com", "password": "secret123"},
-                timeout=10,
-            )
-            data = r.json() if r.headers.get("content-type", "").startswith("application/json") else {}
-            access_token = data.get("access_token")
-        except Exception:
-            access_token = None
+        access_token = login_and_get_access_token()
 
     if access_token:
         try:
