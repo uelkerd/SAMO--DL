@@ -32,4 +32,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
 # Unified API entrypoint
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
-CMD ["bash", "-lc", "exec uvicorn src.unified_ai_api:app --host 0.0.0.0 --port ${PORT}"]
+CMD ["sh", "-c", "exec uvicorn src.unified_ai_api:app --host 0.0.0.0 --port ${PORT}"]
