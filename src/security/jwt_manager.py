@@ -78,16 +78,19 @@ class JWTManager:
         }
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
     
-    def create_token_pair(self, user_data: Dict[str, Any]) -> TokenResponse:
-        """Create both access and refresh tokens"""
+    def create_token_pair(self, user_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Create both access and refresh tokens and return as a plain dict.
+
+        Some tests expect a dict-like response that supports 'in' membership checks.
+        """
         access_token = self.create_access_token(user_data)
         refresh_token = self.create_refresh_token(user_data)
-        
-        return TokenResponse(
-            access_token=access_token,
-            refresh_token=refresh_token,
-            expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60
-        )
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+            "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        }
     
     def verify_token(self, token: str) -> Optional[TokenPayload]:
         """Verify and decode a token"""

@@ -9,6 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 import os
+from pathlib import Path
 
 
 
@@ -21,23 +22,27 @@ DB_HOST = os.environ.get("DB_HOST", "localhost")
 DB_PORT = os.environ.get("DB_PORT", "5432")
 DB_NAME = os.environ.get("DB_NAME")
 
-# Validate required environment variables
-if not DB_USER:
-    raise ValueError("DB_USER environment variable is required")
-if not DB_PASSWORD:
-    raise ValueError("DB_PASSWORD environment variable is required")
-if not DB_NAME:
-    raise ValueError("DB_NAME environment variable is required")
+# If PostgreSQL env vars are not provided, fall back to a local SQLite database for tests/dev
+if DB_USER and DB_PASSWORD and DB_NAME:
+    DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+else:
+    default_sqlite_path = Path(os.environ.get("SQLITE_PATH", "./samo_local.db")).expanduser().resolve()
+    DATABASE_URL = f"sqlite:///{default_sqlite_path}"
 
-DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-
-engine = create_engine(
-    DATABASE_URL,
-    pool_pre_ping=True,  # Check connection before using
-    pool_size=5,  # Default pool size
-    max_overflow=10,  # Allow up to 10 additional connections
-    pool_recycle=3600,  # Recycle connections after 1 hour
-)
+if DATABASE_URL.startswith("sqlite"):
+    # SQLite engine options; most pooling params are not applicable
+    engine = create_engine(
+        DATABASE_URL,
+        connect_args={"check_same_thread": False},
+    )
+else:
+    engine = create_engine(
+        DATABASE_URL,
+        pool_pre_ping=True,  # Check connection before using
+        pool_size=5,  # Default pool size
+        max_overflow=10,  # Allow up to 10 additional connections
+        pool_recycle=3600,  # Recycle connections after 1 hour
+    )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
