@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     with tempfile.NamedTemporaryFile(mode='w', suffix='.ini', delete=False) as f:
         f.write("""[pytest]
-addopts = --cov=src.api_rate_limiter --cov-report=term-missing --cov-fail-under=5 -v --tb=short
+addopts = --cov=src.api_rate_limiter --cov-report=term-missing --cov-fail-under=45 -v --tb=short
 """)
         temp_config = f.name
 
