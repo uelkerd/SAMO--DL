@@ -385,7 +385,9 @@ def _write_temp_wav(content: bytes) -> str:
         return temp_file.name
 
 
-def _normalize_transcription_dict(d: Dict[str, Any]) -> Tuple[str, str, float, float, int, float, str]:
+def _normalize_transcription_dict(
+    d: Dict[str, Any],
+) -> Tuple[str, str, float, float, int, float, str]:
     """Normalize transcription attributes from a dict payload."""
     text_val = d.get("text", "")
     lang_val = d.get("language", "unknown")
@@ -415,7 +417,9 @@ def _infer_quality_from_duration(duration: float) -> str:
     return "excellent"
 
 
-def _normalize_transcription_obj(obj: Any) -> Tuple[str, str, float, float, int, float, str]:
+def _normalize_transcription_obj(
+    obj: Any,
+) -> Tuple[str, str, float, float, int, float, str]:
     text_val = getattr(obj, "text", "")
     lang_val = getattr(obj, "language", "unknown")
     conf_val = float(getattr(obj, "confidence", 0.0) or 0.0)
@@ -440,7 +444,9 @@ def _normalize_transcription_obj(obj: Any) -> Tuple[str, str, float, float, int,
     )
 
 
-def _normalize_transcription_attrs(result: Any) -> Tuple[str, str, float, float, int, float, str]:
+def _normalize_transcription_attrs(
+    result: Any,
+) -> Tuple[str, str, float, float, int, float, str]:
     """Extract common attributes from a transcription result object or dict."""
     if isinstance(result, dict):
         return _normalize_transcription_dict(result)
