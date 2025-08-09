@@ -23,6 +23,7 @@ from typing import Dict, Optional
 
 import numpy as np
 import requests
+import asyncio  # ensure available for ws async path
 
 # WebSocket client: prefer websocket-client if available; fallback to websockets (async)
 try:
@@ -31,11 +32,12 @@ try:
 except Exception:
     websocket = None  # type: ignore
     WEBSOCKET_BACKEND = "websockets"
-    try:
-        import asyncio
-        import websockets  # type: ignore
-    except Exception:
-        websockets = None  # type: ignore
+
+# websockets backend is optional; ensure symbol exists for checks
+try:
+    import websockets  # type: ignore
+except Exception:
+    websockets = None  # type: ignore
 
 try:
     import jwt  # PyJWT
