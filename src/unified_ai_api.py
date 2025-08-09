@@ -213,7 +213,7 @@ def require_permission(permission: str):
 
 
 @asynccontextmanager
-async def lifespan(app_ctx: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     """Manage all AI models lifecycle - load on startup, cleanup on shutdown."""
     global emotion_detector, text_summarizer, voice_transcriber
 
