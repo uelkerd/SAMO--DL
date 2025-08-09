@@ -73,8 +73,6 @@ commands:
           shell: /bin/bash
           command: |
             set -euxo pipefail
-            # Ensure system binaries like `tee` are available regardless of base env
-            export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
             {
               echo "SHELL=${SHELL}"
               echo "PATH=${PATH}"
@@ -97,7 +95,6 @@ commands:
           shell: /bin/bash
           command: |
             set -euxo pipefail
-            export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
             cat > doctor_jwt.py << 'PY'
             import sys
             try:
