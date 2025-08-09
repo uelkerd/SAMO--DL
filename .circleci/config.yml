@@ -95,16 +95,16 @@ commands:
           shell: /bin/bash
           command: |
             set -euxo pipefail
-            cat > doctor_jwt.py << 'PY'
-            import sys
-            try:
-                import jwt
-                ver = getattr(jwt, "__version__", "n/a")
-            except Exception as exc:  # noqa: BLE001
-                ver = f"import failed: {exc}"
-            print("python:", sys.executable)
-            print("jwt:", ver)
-            PY
+            printf '%s\n' \
+              'import sys' \
+              'try:' \
+              '    import jwt' \
+              '    ver = getattr(jwt, "__version__", "n/a")' \
+              'except Exception as exc:  # noqa: BLE001' \
+              '    ver = f"import failed: {exc}"' \
+              'print("python:", sys.executable)' \
+              'print("jwt:", ver)' \
+              > doctor_jwt.py
             "$HOME/miniconda/bin/conda" run -n samo-dl-stable python doctor_jwt.py > doctor.python_jwt.txt || true
             cat doctor.python_jwt.txt || true
       - store_artifacts:
