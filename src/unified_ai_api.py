@@ -294,6 +294,10 @@ add_rate_limiting(app, requests_per_minute=1000, burst_size=100, max_concurrent_
 
 @app.middleware("http")
 async def metrics_middleware(request: Request, call_next):
+    """Collect per-request Prometheus metrics (count and latency).
+
+    Records labels for endpoint path, method, and response status.
+    """
     endpoint = request.url.path
     method = request.method
     start = time.time()
@@ -309,6 +313,7 @@ async def metrics_middleware(request: Request, call_next):
 
 @app.get("/metrics", include_in_schema=False)
 async def metrics() -> Response:
+    """Expose Prometheus metrics in text format at /metrics."""
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 

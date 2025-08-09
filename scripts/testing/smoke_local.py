@@ -47,6 +47,7 @@ except ImportError as import_err:
 
 
 def tiny_tone_wav_bytes(duration_s: float = 0.3, sample_rate: int = 16000, freq_hz: int = 440) -> bytes:
+    """Generate a tiny in-memory WAV tone for voice endpoint tests."""
     t = np.linspace(0, duration_s, int(sample_rate * duration_s), endpoint=False)
     audio = (0.2 * np.sin(2 * np.pi * freq_hz * t)).astype(np.float32)
     # Convert to 16-bit PCM
@@ -61,6 +62,7 @@ def tiny_tone_wav_bytes(duration_s: float = 0.3, sample_rate: int = 16000, freq_
 
 
 def mint_elevated_dev_token(secret: str, minutes: int = 5) -> str:
+    """Mint a short-lived elevated JWT for endpoints needing extra permissions."""
     now = datetime.utcnow()
     payload = {
         "user_id": "user_test_elevated",
@@ -81,21 +83,25 @@ def mint_elevated_dev_token(secret: str, minutes: int = 5) -> str:
 
 
 def p(endpoint: str, status: Optional[int], msg: str):
+    """Print a minimal one-line result for each endpoint call."""
     print(f"{endpoint} -> {status} {msg}")
 
 
 def run_smoke(base_url: str, pause_ms: int = 200):
+    """Run the sequential smoke test against the provided base URL."""
     headers = {"User-Agent": "testclient", "Accept": "application/json"}
     session = requests.Session()
     session.headers.update(headers)
 
     def url(path: str) -> str:
+        """Build a full URL from base and relative path."""
         return base_url.rstrip("/") + path
 
     # Discover server secret for local signing (use default if env not set)
     jwt_secret = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
 
     def pause():
+        """Sleep briefly between requests to reduce rate-limit noise."""
         if pause_ms and pause_ms > 0:
             time.sleep(pause_ms / 1000.0)
 
@@ -118,6 +124,7 @@ def run_smoke(base_url: str, pause_ms: int = 200):
     refresh_token = None
 
     def login_and_get_access_token() -> Optional[str]:
+        """Attempt login and return an access token; return None on failure."""
         try:
             r = session.post(
                 url("/auth/login"),
@@ -341,6 +348,7 @@ def run_smoke(base_url: str, pause_ms: int = 200):
             p("WS /ws/realtime", None, f"error: {exc}")
     elif ws_url and WEBSOCKET_BACKEND == "websockets" and websockets is not None:
         async def ws_run():
+            """Connect to WS endpoint, send a small WAV, and print a brief result."""
             try:
                 async with websockets.connect(ws_url, extra_headers={"User-Agent": "testclient"}) as ws:
                     await ws.send(wav1)
@@ -366,6 +374,7 @@ def run_smoke(base_url: str, pause_ms: int = 200):
 
 
 def main():
+    """CLI entrypoint: parse args and run smoke tests."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--base-url",
