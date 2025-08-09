@@ -78,8 +78,8 @@ commands:
               echo "PATH=${PATH}"
               uname -a || true
               whoami || true
-              pwd
-              ls -la
+              pwd || true
+              ls -la || true
             } > doctor.env.txt
 
             df -h > doctor.df.txt || true
