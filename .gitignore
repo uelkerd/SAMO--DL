@@ -453,3 +453,10 @@ docs/_build/
 docs/build/
 site/
 .cursor/
+
+# ----------------------------------------------------------------------------
+# OVERRIDES: ensure source model code is included in builds
+# The pattern 'models/' above ignores any directory named 'models' anywhere.
+# We need the Python code under src/models for API runtime.
+!src/models/
+!src/models/**
