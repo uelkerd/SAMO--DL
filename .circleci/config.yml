@@ -143,8 +143,14 @@ commands:
             # Ensure a downloader exists (attempt install if missing)
             if ! command -v wget >/dev/null 2>&1 && ! command -v curl >/dev/null 2>&1; then
               if command -v apt-get >/dev/null 2>&1; then
-                sudo apt-get update
-                sudo apt-get install -y curl wget ca-certificates || true
+                if command -v sudo >/dev/null 2>&1; then sudo apt-get update; else apt-get update; fi
+                if command -v sudo >/dev/null 2>&1; then sudo apt-get install -y curl wget ca-certificates || true; else apt-get install -y curl wget ca-certificates || true; fi
+              elif command -v yum >/dev/null 2>&1; then
+                if command -v sudo >/dev/null 2>&1; then sudo yum install -y curl wget ca-certificates || true; else yum install -y curl wget ca-certificates || true; fi
+              elif command -v dnf >/dev/null 2>&1; then
+                if command -v sudo >/dev/null 2>&1; then sudo dnf install -y curl wget ca-certificates || true; else dnf install -y curl wget ca-certificates || true; fi
+              elif command -v apk >/dev/null 2>&1; then
+                if command -v sudo >/dev/null 2>&1; then sudo apk add --no-cache curl wget ca-certificates || true; else apk add --no-cache curl wget ca-certificates || true; fi
               fi
             fi
             # Install Miniconda (wget/curl/python fallback)
@@ -153,8 +159,11 @@ commands:
             elif command -v curl >/dev/null 2>&1; then
               curl -L https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o miniconda.sh
             else
-              echo "Error: Neither wget, curl, nor python3 is available to download Miniconda." >&2
-              exit 1
+              # Final guard after attempted installs
+              if ! command -v wget >/dev/null 2>&1 && ! command -v curl >/dev/null 2>&1; then
+                echo "Error: Neither wget nor curl is available to download Miniconda." >&2
+                exit 1
+              fi
             fi
             bash miniconda.sh -b -p "$HOME/miniconda"
             rm -f miniconda.sh
