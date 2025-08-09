@@ -642,8 +642,8 @@ I feel a bit sad about the changes."></textarea>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // API Configuration
-        const API_BASE_URL = 'https://samo-emotion-api-xxxxx-ew.a.run.app';
+        // API Configuration (Unified API)
+        const API_BASE_URL = 'https://samo-unified-api-frrnetyhfa-uc.a.run.app';
         
         // Demo state
         let isRecording = false;
@@ -669,7 +669,11 @@ I feel a bit sad about the changes."></textarea>
             event.target.classList.add('active');
         }
 
-        // Emotion Detection
+        // Emotion Detection (Unified API -> /analyze/journal)
+        function _emotionsDictToArray(emotions) {
+            return Object.entries(emotions || {}).map(([emotion, confidence]) => ({ emotion, confidence }));
+        }
+
         async function analyzeEmotion() {
             const text = document.getElementById('emotion-text').value.trim();
             if (!text) {
@@ -680,14 +684,17 @@ I feel a bit sad about the changes."></textarea>
             showLoading('emotion');
             
             try {
-                const response = await fetch(`${API_BASE_URL}/predict`, {
+                const response = await fetch(`${API_BASE_URL}/analyze/journal`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text })
+                    body: JSON.stringify({ text, generate_summary: false })
                 });
 
-                const result = await response.json();
-                displayEmotionResults(result);
+                const unified = await response.json();
+                const adapted = _emotionsDictToArray(
+                    unified?.emotion_analysis?.emotions || {}
+                );
+                displayEmotionResults(adapted);
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('emotion-results').innerHTML = 
