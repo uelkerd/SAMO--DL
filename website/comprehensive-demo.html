@@ -41,7 +41,8 @@
             --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
-        * {
+        /* Removed universal transition for better performance */
+        .card, .btn, .nav-link, .badge, .form-control, .form-select {
             transition: var(--transition-smooth);
         }
 
@@ -164,6 +165,16 @@
             color: #e2e8f0;
         }
 
+        /* Emotional context styling */
+        .emotional-context-card {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .emotional-context-card .badge {
+            background: var(--primary-gradient);
+        }
+
         .loading-spinner {
             display: none;
             text-align: center;
@@ -233,8 +244,8 @@
             border-bottom: 1px solid var(--glass-border);
         }
 
-        .navbar-brand, .nav-link {
-            color: #e2e8f0 !important;
+        .navbar-brand, .navbar .nav-link {
+            color: #e2e8f0;
         }
 
         .footer {
@@ -1358,17 +1369,30 @@ I feel a bit sad about the changes."></textarea>
             showLoading('summary');
             
             try {
-                // Call the actual summarization API
-                const response = await fetch(`${API_BASE_URL}/analyze/journal`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        text: text, 
-                        generate_summary: true,
-                        summary_model: 't5-small'
-                    }),
-                    timeout: 30000  // 30 second timeout for summarization
-                });
+                // Call the actual summarization API with proper timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+                let response;
+                try {
+                    response = await fetch(`${API_BASE_URL}/analyze/journal`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            text: text, 
+                            generate_summary: true,
+                            summary_model: 't5-small'
+                        }),
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                } catch (error) {
+                    clearTimeout(timeoutId);
+                    if (error.name === 'AbortError') {
+                        throw new Error('Summary request timed out. Please try with shorter text or try again later.');
+                    }
+                    throw error;
+                }
 
                 if (!response.ok) {
                     const errorText = await response.text();
@@ -1400,9 +1424,7 @@ I feel a bit sad about the changes."></textarea>
                 // Add emotional context if available
                 if (data.emotion_analysis && data.emotion_analysis.emotions) {
                     const emotionDiv = document.createElement('div');
-                    emotionDiv.className = 'mt-3 p-3 rounded';
-                    emotionDiv.style.background = 'rgba(139, 92, 246, 0.1)';
-                    emotionDiv.style.border = '1px solid rgba(139, 92, 246, 0.2)';
+                    emotionDiv.className = 'mt-3 p-3 rounded emotional-context-card';
                     
                     const emotionTitle = document.createElement('h6');
                     emotionTitle.className = 'fw-bold mb-2';
@@ -1413,7 +1435,6 @@ I feel a bit sad about the changes."></textarea>
                     emotions.slice(0, 3).forEach(emotion => {
                         const badge = document.createElement('span');
                         badge.className = 'badge me-2 mb-1';
-                        badge.style.background = 'var(--primary-gradient)';
                         badge.textContent = `${emotion.emotion} (${(emotion.confidence * 100).toFixed(1)}%)`;
                         emotionDiv.appendChild(badge);
                     });
@@ -1566,7 +1587,9 @@ I feel a bit sad about the changes."></textarea>
                 console.error('Error creating performance chart:', error);
                 // Fallback: show text-based metrics if chart fails
                 const chartContainer = chartCanvas.parentElement;
-                chartContainer.innerHTML = '<div class="alert alert-info">Chart visualization temporarily unavailable</div>';
+                if (chartContainer) {
+                    chartContainer.innerHTML = '<div class="alert alert-info">Chart visualization temporarily unavailable</div>';
+                }
             }
         }
 

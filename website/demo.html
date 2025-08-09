@@ -37,7 +37,8 @@
             --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
-        * {
+        /* Removed universal transition for better performance */
+        .card, .btn, .nav-link, .badge, .form-control, .form-select {
             transition: var(--transition-smooth);
         }
 
@@ -159,8 +160,8 @@
             border-bottom: 1px solid var(--glass-border);
         }
 
-        .navbar-brand, .nav-link {
-            color: #e2e8f0 !important;
+        .navbar-brand, .navbar .nav-link {
+            color: #e2e8f0;
         }
 
         .footer {
