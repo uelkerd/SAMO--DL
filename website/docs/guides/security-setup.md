@@ -44,12 +44,14 @@ Create a `.env` file (NEVER commit this!) with:
 DATABASE_URL="postgresql://samo_secure_1753200376:SECURE_PASSWORD_HERE@localhost:5432/samodb?schema=public"
 
 # AI/ML Configuration
-OPENAI_API_KEY=your_openai_key_here
-HF_TOKEN=your_huggingface_token_here
+# SECURITY NOTE: Obtain from respective service providers
+OPENAI_API_KEY=REPLACE_WITH_OPENAI_API_KEY_FROM_PLATFORM
+HF_TOKEN=REPLACE_WITH_HUGGINGFACE_TOKEN_FROM_ACCOUNT
 MODEL_SERVER_PORT=8000
 
 # Security
-JWT_SECRET=your_jwt_secret_here
+# SECURITY NOTE: Generate a secure random string (minimum 32 characters)
+JWT_SECRET=REPLACE_WITH_SECURE_RANDOM_JWT_SECRET_STRING
 LOG_LEVEL=info
 ```
 

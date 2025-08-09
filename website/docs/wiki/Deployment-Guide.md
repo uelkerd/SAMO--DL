@@ -97,7 +97,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://user:password@db:5432/samobrain
       - REDIS_URL=redis://redis:6379/0
-      - JWT_SECRET_KEY=your-secret-key
+      - JWT_SECRET_KEY=REPLACE_WITH_ACTUAL_JWT_SECRET
     depends_on:
       - db
       - redis
@@ -164,8 +164,9 @@ REDIS_URL=redis://localhost:6379/0
 REDIS_POOL_SIZE=10
 
 # Security
-JWT_SECRET_KEY=your-super-secret-jwt-key-here
-API_KEY_SALT=your-api-key-salt-here
+# SECURITY NOTE: Generate secure values - never use placeholder values in production
+JWT_SECRET_KEY=REPLACE_WITH_SECURE_JWT_SECRET_MINIMUM_32_CHARS
+API_KEY_SALT=REPLACE_WITH_SECURE_RANDOM_SALT_FOR_API_KEYS
 
 # Model Configuration
 MODEL_PATH=/app/models/emotion_detection

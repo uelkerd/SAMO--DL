@@ -470,7 +470,8 @@ Use environment variables for sensitive configuration:
 
 ```bash
 # Create .env file
-API_KEY=your-secret-api-key
+# SECURITY NOTE: Replace with actual secure API key
+API_KEY=REPLACE_WITH_SECURE_API_KEY
 MODEL_PATH=/path/to/model
 RATE_LIMIT_MAX_REQUESTS=100
 LOG_LEVEL=INFO
