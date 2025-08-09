@@ -23,13 +23,15 @@ RUN pip install --no-cache-dir -r requirements.txt
 # App code
 COPY src/ ./src/
 
+# Create and switch to non-root user before healthcheck
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
+
 EXPOSE 8080
 
-# Healthcheck
+# Healthcheck (runs as non-root user)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
   CMD curl -fsS http://localhost:8080/health || exit 1
 
 # Unified API entrypoint
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
-USER appuser
 CMD ["sh", "-c", "exec uvicorn src.unified_ai_api:app --host 0.0.0.0 --port ${PORT}"]
