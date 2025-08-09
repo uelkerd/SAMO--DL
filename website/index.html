@@ -609,19 +609,19 @@ emotions = client.analyze_emotion("I'm excited!")
                         <div class="code-block">
 <pre><code>async function analyzeEmotion(text) {
   const response = await fetch(
-    'https://samo-emotion-api-xxxxx-ew.a.run.app/predict',
+    'https://samo-unified-api-frrnetyhfa-uc.a.run.app/analyze/journal',
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ text, generate_summary: false })
     }
   );
   return await response.json();
 }
 
 // Example usage
-const emotions = await analyzeEmotion("This is amazing!");
-console.log(emotions); // [{emotion: "joy", confidence: 0.89}]</code></pre>
+const analysis = await analyzeEmotion("This is amazing!");
+console.log(analysis.emotion_analysis?.emotions);</code></pre>
                         </div>
                     </div>
                 </div>
@@ -638,13 +638,13 @@ import requests
 def analyze_dataset(texts: list) -> pd.DataFrame:
     results = []
     for text in texts:
-        emotions = requests.post(
-            "https://samo-emotion-api-xxxxx-ew.a.run.app/predict",
-            json={"text": text}
+        analysis = requests.post(
+            "https://samo-unified-api-frrnetyhfa-uc.a.run.app/analyze/journal",
+            json={"text": text, "generate_summary": False}
         ).json()
         results.append({
             'text': text,
-            'emotions': emotions
+            'emotions': analysis.get('emotion_analysis', {}).get('emotions', {})
         })
     return pd.DataFrame(results)</code></pre>
                         </div>
@@ -661,15 +661,15 @@ def analyze_dataset(texts: list) -> pd.DataFrame:
 const analyzeUserFeedback = async (feedback) => {
   try {
     const response = await fetch(
-      'https://samo-emotion-api-xxxxx-ew.a.run.app/predict',
+      'https://samo-unified-api-frrnetyhfa-uc.a.run.app/analyze/journal',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: feedback })
+        body: JSON.stringify({ text: feedback, generate_summary: false })
       }
     );
-    const emotions = await response.json();
-    return emotions;
+    const analysis = await response.json();
+    return analysis;
   } catch (error) {
     console.error('Error:', error);
   }
