@@ -3,27 +3,27 @@
 ============================================================
 
 📊 SUMMARY:
-- Total Tests: 12
-- Passed: 11
-- Failed: 1
-- Success Rate: 91.7%
+- Total Tests: 11
+- Passed: 0
+- Failed: 11
+- Success Rate: 0.0%
 
 🔍 DETAILED RESULTS:
-- environment: {'platform': 'darwin', 'python_version': '3.8.6rc1 (v3.8.6rc1:08bd63da6e, Sep  7 2020, 16:14:12) \n[Clang 6.0 (clang-600.0.57)]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'base'}
-- dependencies: ✅ PASSED
-- api_health_check: ✅ PASSED
-- bert_model_test: ✅ PASSED
-- t5_summarization_test: ✅ PASSED
-- whisper_transcription_test: ✅ PASSED
-- model_calibration_test: ✅ PASSED
-- onnx_conversion_test: ✅ PASSED
-- unit_tests: ✅ PASSED
-- e2e_tests: ✅ PASSED
-- gpu_compatibility: ✅ PASSED
-- performance: ✅ PASSED
+- environment: {'platform': 'linux', 'python_version': '3.13.3 (main, Apr  8 2025, 19:55:40) [GCC 14.2.0]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'unknown'}
+- dependencies: ❌ FAILED
+- api_health_check: ❌ FAILED
+- bert_model_test: ❌ FAILED
+- t5_summarization_test: ❌ FAILED
+- whisper_transcription_test: ❌ FAILED
+- model_calibration_test: ❌ FAILED
+- onnx_conversion_test: ❌ FAILED
+- unit_tests: ❌ FAILED
+- e2e_tests: ❌ FAILED
+- gpu_compatibility: ❌ FAILED
+- performance: ❌ FAILED
 
-⏱️ EXECUTION TIME: 34.5s
+⏱️ EXECUTION TIME: 0.2s
 
 🎯 RECOMMENDATIONS:
-⚠️ Failed tests: 
+⚠️ Failed tests: dependencies, api_health_check, bert_model_test, t5_summarization_test, whisper_transcription_test, model_calibration_test, onnx_conversion_test, unit_tests, e2e_tests, gpu_compatibility, performance
 🔧 Please fix the failed tests before deployment.

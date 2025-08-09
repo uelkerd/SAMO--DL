@@ -316,8 +316,13 @@ class CIPipelineRunner:
         logger.info("📊 Generating CI Report")
         logger.info("=" * 60)
         
-        total_tests = len(self.results)
-        passed_tests = sum(1 for result in self.results.values() if isinstance(result, bool) and result)
+        # Only count boolean results as actual tests
+        test_results = {name: result for name, result in self.results.items() 
+                       if isinstance(result, bool)}
+        
+        total_tests = len(test_results)
+        passed_tests = sum(1 for result in test_results.values() if result)
+        failed_tests = total_tests - passed_tests
         
         report = f"""
 🎯 COMPREHENSIVE CI PIPELINE REPORT
@@ -326,7 +331,7 @@ class CIPipelineRunner:
 📊 SUMMARY:
 - Total Tests: {total_tests}
 - Passed: {passed_tests}
-- Failed: {total_tests - passed_tests}
+- Failed: {failed_tests}
 - Success Rate: {(passed_tests/total_tests)*100:.1f}%
 
 🔍 DETAILED RESULTS:
@@ -345,12 +350,12 @@ class CIPipelineRunner:
 🎯 RECOMMENDATIONS:
 """
         
-        if passed_tests == total_tests:
+        if failed_tests == 0:
             report += "🎉 All tests passed! Pipeline is ready for deployment.\n"
         else:
-            failed_tests = [name for name, result in self.results.items() 
-                          if isinstance(result, bool) and not result]
-            report += f"⚠️ Failed tests: {', '.join(failed_tests)}\n"
+            failed_test_names = [name for name, result in test_results.items() 
+                               if not result]
+            report += f"⚠️ Failed tests: {', '.join(failed_test_names)}\n"
             report += "🔧 Please fix the failed tests before deployment.\n"
         
         return report
@@ -371,8 +376,10 @@ def main():
             f.write(report)
         
         # Exit with appropriate code
-        total_tests = len([r for r in results.values() if isinstance(r, bool)])
-        passed_tests = sum(1 for r in results.values() if isinstance(r, bool) and r)
+        test_results = {name: result for name, result in results.items() 
+                       if isinstance(result, bool)}
+        total_tests = len(test_results)
+        passed_tests = sum(1 for result in test_results.values() if result)
         
         if passed_tests == total_tests:
             logger.info("🎉 CI Pipeline completed successfully!")
