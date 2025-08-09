@@ -46,7 +46,9 @@ except ImportError as import_err:
     raise
 
 
-def tiny_tone_wav_bytes(duration_s: float = 0.3, sample_rate: int = 16000, freq_hz: int = 440) -> bytes:
+def tiny_tone_wav_bytes(
+    duration_s: float = 0.3, sample_rate: int = 16000, freq_hz: int = 440
+) -> bytes:
     """Generate a tiny in-memory WAV tone for voice endpoint tests."""
     t = np.linspace(0, duration_s, int(sample_rate * duration_s), endpoint=False)
     audio = (0.2 * np.sin(2 * np.pi * freq_hz * t)).astype(np.float32)
@@ -181,7 +183,9 @@ def run_smoke(base_url: str, pause_ms: int = 200):
                     )
                     new = (
                         r.json()
-                        if r.headers.get("content-type", "").startswith("application/json")
+                        if r.headers.get("content-type", "").startswith(
+                            "application/json"
+                        )
                         else {}
                     )
                     access_token = new.get("access_token", access_token)
@@ -261,7 +265,10 @@ def run_smoke(base_url: str, pause_ms: int = 200):
         try:
             r = session.post(
                 url("/analyze/journal"),
-                json={"text": "A tiny note for quick smoke.", "generate_summary": False},
+                json={
+                    "text": "A tiny note for quick smoke.",
+                    "generate_summary": False,
+                },
                 timeout=20,
             )
             msg = "ok"
