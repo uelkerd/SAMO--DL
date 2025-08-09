@@ -5,8 +5,8 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PORT=8080 \
     HF_HOME=/var/tmp/hf-cache \
-    TRANSFORMERS_CACHE=/var/tmp/hf-cache \
-    XDG_CACHE_HOME=/var/tmp/hf-cache
+    XDG_CACHE_HOME=/var/tmp/hf-cache \
+    PIP_ROOT_USER_ACTION=ignore
 
 # System deps needed for audio and builds
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -20,7 +20,8 @@ WORKDIR /app
 
 # Install Python deps (minimal unified runtime)
 COPY deployment/cloud-run/requirements_unified.txt ./requirements_unified.txt
-RUN pip install --no-cache-dir -r requirements_unified.txt
+RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
+ && pip install --no-cache-dir -r requirements_unified.txt
 
 # Pre-bundle models to reduce cold-start; combine to minimize layers (DOK-W1001)
 RUN python -c "from transformers import AutoTokenizer, T5ForConditionalGeneration; AutoTokenizer.from_pretrained('t5-small'); T5ForConditionalGeneration.from_pretrained('t5-small'); print('Pre-bundled t5-small into cache')" \
