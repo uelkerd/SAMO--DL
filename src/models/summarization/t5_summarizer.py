@@ -206,9 +206,12 @@ class T5SummarizationModel(nn.Module):
         Returns:
             Generated summary text
         """
+        # Treat API max/min as new token targets for speed and stability on CPU
         max_length = max_length or self.config.max_target_length
         min_length = min_length or self.config.min_target_length
-        num_beams = num_beams or self.config.num_beams
+        # Reduce beams for larger models to avoid long runtimes on CPU
+        default_beams = 2 if ("base" in self.model_name.lower() or "large" in self.model_name.lower()) else self.config.num_beams
+        num_beams = num_beams or default_beams
         length_penalty = length_penalty or self.config.length_penalty
         early_stopping = (
             early_stopping if early_stopping is not None else self.config.early_stopping
@@ -221,7 +224,7 @@ class T5SummarizationModel(nn.Module):
         inputs = self.tokenizer(
             text,
             max_length=self.config.max_source_length,
-            padding="max_length",
+            padding=False,
             truncation=True,
             return_tensors="pt",
         ).to(self.device)
@@ -231,8 +234,8 @@ class T5SummarizationModel(nn.Module):
             summary_ids = self.model.generate(
                 input_ids=inputs["input_ids"],
                 attention_mask=inputs["attention_mask"],
-                max_length=max_length,
-                min_length=min_length,
+                max_new_tokens=max_length,
+                min_new_tokens=min_length,
                 num_beams=num_beams,
                 length_penalty=length_penalty,
                 early_stopping=early_stopping,
@@ -282,9 +285,9 @@ class T5SummarizationModel(nn.Module):
                 summary_ids = self.model.generate(
                     input_ids=inputs["input_ids"],
                     attention_mask=inputs["attention_mask"],
-                    max_length=generation_kwargs.get("max_length", self.config.max_target_length),
-                    min_length=generation_kwargs.get("min_length", self.config.min_target_length),
-                    num_beams=generation_kwargs.get("num_beams", self.config.num_beams),
+                    max_new_tokens=generation_kwargs.get("max_length", self.config.max_target_length),
+                    min_new_tokens=generation_kwargs.get("min_length", self.config.min_target_length),
+                    num_beams=generation_kwargs.get("num_beams", default_beams),
                     length_penalty=generation_kwargs.get(
                         "length_penalty", self.config.length_penalty
                     ),
