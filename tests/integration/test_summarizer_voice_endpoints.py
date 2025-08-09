@@ -64,10 +64,6 @@ def test_summarize_returns_503_when_model_unavailable(monkeypatch, client: TestC
         del api.__dict__["create_t5_summarizer"]
     monkeypatch.setenv("TOKENIZERS_PARALLELISM", "false")
 
-    def _import_create():
-        from src.models.summarization import t5_summarizer as mod  # noqa: F401
-        return fail_create
-
     def _mock_import(name: str, *args, **kwargs):  # type: ignore
         if name == "src.models.summarization.t5_summarizer":
             class M:
@@ -95,7 +91,8 @@ def test_summarize_returns_200_when_lazy_load_succeeds(monkeypatch, client: Test
     class FakeSummarizer:
         model_name = "t5-small"
 
-        def generate_summary(self, text: str, max_length: int, min_length: int) -> str:
+        @staticmethod
+        def generate_summary(text: str, max_length: int, min_length: int) -> str:
             return "fake summary"
 
     def _mock_import(name: str, *args, **kwargs):  # type: ignore
@@ -148,7 +145,8 @@ def test_voice_returns_200_when_lazy_load_succeeds(monkeypatch, client: TestClie
     api.voice_transcriber = None
 
     class FakeTranscriber:
-        def transcribe(self, path: str, language=None):
+        @staticmethod
+        def transcribe(path: str, language=None):
             return {
                 "text": "hello",
                 "language": "en",
