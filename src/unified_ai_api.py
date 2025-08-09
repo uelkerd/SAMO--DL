@@ -826,7 +826,8 @@ async def get_user_profile(current_user: TokenPayload = Depends(get_current_user
         email=current_user.email,
         full_name=current_user.username,  # In real app, get from database
         permissions=current_user.permissions,
-        created_at=datetime.now(tz=timezone.utc).isoformat()  # In real app, get from database
+        # In real app, get from database
+        created_at=datetime.now(tz=timezone.utc).isoformat()
     )
 
 
