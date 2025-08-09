@@ -106,7 +106,8 @@ def run_smoke(base_url: str):
             p(ep, r.status_code, brief)
         except Exception as e:
             p(ep, None, f"error: {e}")
-        time.sleep(0.3)
+        # brief pacing to avoid rate-limit noise
+        time.sleep(0.2)
 
     access_token = None
     refresh_token = None
@@ -124,7 +125,7 @@ def run_smoke(base_url: str):
         p("/auth/login", r.status_code, "token" if access_token else r.text[:60])
     except Exception as e:
         p("/auth/login", None, f"error: {e}")
-    time.sleep(0.3)
+    time.sleep(0.2)
 
     if access_token:
         try:
@@ -137,7 +138,7 @@ def run_smoke(base_url: str):
             p("/auth/profile", r.status_code, msg)
         except Exception as e:
             p("/auth/profile", None, f"error: {e}")
-        time.sleep(0.3)
+        time.sleep(0.2)
 
         if refresh_token:
             try:
@@ -147,7 +148,7 @@ def run_smoke(base_url: str):
                 p("/auth/refresh", r.status_code, "refreshed" if new.get("access_token") else r.text[:60])
             except Exception as e:
                 p("/auth/refresh", None, f"error: {e}")
-            time.sleep(0.3)
+            time.sleep(0.2)
 
         try:
             r = session.post(url("/auth/logout"), headers={"Authorization": f"Bearer {access_token}"}, timeout=10)
@@ -156,7 +157,7 @@ def run_smoke(base_url: str):
             p("/auth/logout", None, f"error: {e}")
         # Clear token so we don't reuse a blacklisted token
         access_token = None
-        time.sleep(0.3)
+        time.sleep(0.2)
 
     # Phase 3: Analyze journal (public)
     try:
@@ -170,7 +171,7 @@ def run_smoke(base_url: str):
         p("/analyze/journal", r.status_code, msg)
     except Exception as e:
         p("/analyze/journal", None, f"error: {e}")
-    time.sleep(0.3)
+    time.sleep(0.2)
 
     # Phase 4: Summarize text (auth required)
     # Ensure we have a valid token for protected endpoints
@@ -201,7 +202,7 @@ def run_smoke(base_url: str):
                 p("/summarize/text", r.status_code, msg)
         except Exception as e:
             p("/summarize/text", None, f"error: {e}")
-        time.sleep(0.3)
+        time.sleep(0.2)
 
     # Prepare tiny wavs
     wav1 = tiny_tone_wav_bytes()
@@ -235,7 +236,7 @@ def run_smoke(base_url: str):
             p("/transcribe/voice", r.status_code, msg)
         except Exception as e:
             p("/transcribe/voice", None, f"error: {e}")
-        time.sleep(0.3)
+        time.sleep(0.2)
 
     # Elevated token for batch + monitoring + WS
     elevated = mint_elevated_dev_token(jwt_secret)
