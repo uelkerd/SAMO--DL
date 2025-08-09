@@ -105,20 +105,20 @@ def run_smoke(base_url: str, pause_ms: int = 200):
         if pause_ms and pause_ms > 0:
             time.sleep(pause_ms / 1000.0)
 
-    # Phase 1: Basic GETs
-    for ep in ["/", "/health", "/models/status"]:
-        try:
-            r = session.get(url(ep), timeout=10)
-            brief = ""
+    def phase_basic_gets():
+        for ep in ["/", "/health", "/models/status"]:
             try:
-                data = r.json()
-                brief = data.get("status") or data.get("message") or "ok"
-            except Exception:
-                brief = r.text[:60]
-            p(ep, r.status_code, brief)
-        except Exception as e:
-            p(ep, None, f"error: {e}")
-        pause()
+                r = session.get(url(ep), timeout=10)
+                brief = ""
+                try:
+                    data = r.json()
+                    brief = data.get("status") or data.get("message") or "ok"
+                except Exception:
+                    brief = r.text[:60]
+                p(ep, r.status_code, brief)
+            except Exception as e:
+                p(ep, None, f"error: {e}")
+            pause()
 
     access_token = None
     refresh_token = None
@@ -137,27 +137,73 @@ def run_smoke(base_url: str, pause_ms: int = 200):
             pass
         return None
 
-    # Phase 2: Auth lifecycle
-    try:
-        r = session.post(
-            url("/auth/login"),
-            json={
-                "username": "tester@example.com",
-                "password": "secret123",
-            },
-            timeout=10,
-        )
-        data = (
-            r.json()
-            if r.headers.get("content-type", "").startswith("application/json")
-            else {}
-        )
-        access_token = data.get("access_token")
-        refresh_token = data.get("refresh_token")
-        p("/auth/login", r.status_code, "token" if access_token else r.text[:60])
-    except Exception as exc:
-        p("/auth/login", None, f"error: {exc}")
-    pause()
+    def phase_auth_login_refresh_logout():
+        nonlocal access_token, refresh_token
+        try:
+            r = session.post(
+                url("/auth/login"),
+                json={"username": "tester@example.com", "password": "secret123"},
+                timeout=10,
+            )
+            data = (
+                r.json()
+                if r.headers.get("content-type", "").startswith("application/json")
+                else {}
+            )
+            access_token = data.get("access_token")
+            refresh_token = data.get("refresh_token")
+            p("/auth/login", r.status_code, "token" if access_token else r.text[:60])
+        except Exception as exc:
+            p("/auth/login", None, f"error: {exc}")
+        pause()
+        if access_token:
+            try:
+                r = session.get(
+                    url("/auth/profile"),
+                    headers={"Authorization": f"Bearer {access_token}"},
+                    timeout=10,
+                )
+                msg = "ok"
+                try:
+                    msg = r.json().get("username", "ok")
+                except Exception:
+                    pass
+                p("/auth/profile", r.status_code, msg)
+            except Exception as exc:
+                p("/auth/profile", None, f"error: {exc}")
+            pause()
+            if refresh_token:
+                try:
+                    r = session.post(
+                        url("/auth/refresh"),
+                        json={"refresh_token": refresh_token},
+                        timeout=10,
+                    )
+                    new = (
+                        r.json()
+                        if r.headers.get("content-type", "").startswith("application/json")
+                        else {}
+                    )
+                    access_token = new.get("access_token", access_token)
+                    p(
+                        "/auth/refresh",
+                        r.status_code,
+                        "refreshed" if new.get("access_token") else r.text[:60],
+                    )
+                except Exception as exc:
+                    p("/auth/refresh", None, f"error: {exc}")
+                pause()
+            try:
+                r = session.post(
+                    url("/auth/logout"),
+                    headers={"Authorization": f"Bearer {access_token}"},
+                    timeout=10,
+                )
+                p("/auth/logout", r.status_code, "logged out")
+            except Exception as exc:
+                p("/auth/logout", None, f"error: {exc}")
+            access_token = None
+            pause()
 
     if access_token:
         try:
@@ -211,26 +257,23 @@ def run_smoke(base_url: str, pause_ms: int = 200):
         access_token = None
         pause()
 
-    # Phase 3: Analyze journal (public)
-    try:
-        r = session.post(
-            url("/analyze/journal"),
-            json={
-                "text": "A tiny note for quick smoke.",
-                "generate_summary": False,
-            },
-            timeout=20,
-        )
-        msg = "ok"
+    def phase_analyze_journal():
         try:
-            d = r.json()
-            msg = d.get("emotion_analysis", {}).get("primary_emotion", "ok")
-        except Exception:
-            msg = r.text[:60]
-        p("/analyze/journal", r.status_code, msg)
-    except Exception as exc:
-        p("/analyze/journal", None, f"error: {exc}")
-    pause()
+            r = session.post(
+                url("/analyze/journal"),
+                json={"text": "A tiny note for quick smoke.", "generate_summary": False},
+                timeout=20,
+            )
+            msg = "ok"
+            try:
+                d = r.json()
+                msg = d.get("emotion_analysis", {}).get("primary_emotion", "ok")
+            except Exception:
+                msg = r.text[:60]
+            p("/analyze/journal", r.status_code, msg)
+        except Exception as exc:
+            p("/analyze/journal", None, f"error: {exc}")
+        pause()
 
     # Phase 4: Summarize text (auth required)
     # Ensure we have a valid token for protected endpoints
@@ -298,7 +341,27 @@ def run_smoke(base_url: str, pause_ms: int = 200):
     # Elevated token for batch + monitoring + WS
     elevated = mint_elevated_dev_token(jwt_secret)
 
-    # Phase 6: Batch transcribe (elevated)
+    def phase_batch_transcribe():
+        try:
+            files = [
+                ("audio_files", ("a.wav", wav1, "audio/wav")),
+                ("audio_files", ("b.wav", wav2, "audio/wav")),
+            ]
+            r = session.post(
+                url("/transcribe/batch"),
+                headers={"Authorization": f"Bearer {elevated}"},
+                files=files,
+                timeout=45,
+            )
+            msg = "ok"
+            try:
+                msg = f"ok:{r.json().get('successful_transcriptions', 0)}"
+            except Exception:
+                msg = r.text[:60]
+            p("/transcribe/batch", r.status_code, msg)
+        except Exception as exc:
+            p("/transcribe/batch", None, f"error: {exc}")
+        pause()
     try:
         files = [
             ("audio_files", ("a.wav", wav1, "audio/wav")),
@@ -320,23 +383,23 @@ def run_smoke(base_url: str, pause_ms: int = 200):
         p("/transcribe/batch", None, f"error: {exc}")
     pause()
 
-    # Phase 7: Monitoring endpoints (elevated)
-    for ep in ["/monitoring/performance", "/monitoring/health/detailed"]:
-        try:
-            r = session.get(
-                url(ep),
-                headers={"Authorization": f"Bearer {elevated}"},
-                timeout=15,
-            )
-            brief = "ok"
+    def phase_monitoring():
+        for ep in ["/monitoring/performance", "/monitoring/health/detailed"]:
             try:
-                brief = r.json().get("status", "ok")
-            except Exception:
-                brief = r.text[:60]
-            p(ep, r.status_code, brief)
-        except Exception as exc:
-            p(ep, None, f"error: {exc}")
-        pause()
+                r = session.get(
+                    url(ep),
+                    headers={"Authorization": f"Bearer {elevated}"},
+                    timeout=15,
+                )
+                brief = "ok"
+                try:
+                    brief = r.json().get("status", "ok")
+                except Exception:
+                    brief = r.text[:60]
+                p(ep, r.status_code, brief)
+            except Exception as exc:
+                p(ep, None, f"error: {exc}")
+            pause()
 
     # Phase 8: WebSocket realtime (elevated)
     if base_url.startswith("https://"):
@@ -396,6 +459,13 @@ def run_smoke(base_url: str, pause_ms: int = 200):
             else "skipped: no websocket client available"
         )
         p("WS /ws/realtime", None, reason)
+
+    # Execute phases
+    phase_basic_gets()
+    phase_auth_login_refresh_logout()
+    phase_analyze_journal()
+    phase_batch_transcribe()
+    phase_monitoring()
 
 
 def main():

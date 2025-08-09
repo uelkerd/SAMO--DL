@@ -386,47 +386,50 @@ def _write_temp_wav(content: bytes) -> str:
         return temp_file.name
 
 
-def _normalize_transcription_attrs(result: Any) -> Tuple[str, str, float, float, int, float, str]:
-    """Extract common attributes from a transcription result object or dict."""
-    if isinstance(result, dict):
-        text_val = result.get("text", "")
-        lang_val = result.get("language", "unknown")
-        conf_val = float(result.get("confidence", 0.0) or 0.0)
-        duration = float(result.get("duration", 0.0) or 0.0)
-        word_count = int(result.get("word_count", 0) or 0)
-        speaking_rate = float(result.get("speaking_rate", 0.0) or 0.0)
-        audio_quality = result.get("audio_quality", "unknown")
-        return (
-            text_val,
-            lang_val,
-            conf_val,
-            duration,
-            word_count,
-            speaking_rate,
-            audio_quality,
-        )
+def _normalize_transcription_dict(d: Dict[str, Any]) -> Tuple[str, str, float, float, int, float, str]:
+    """Normalize transcription attributes from a dict payload."""
+    text_val = d.get("text", "")
+    lang_val = d.get("language", "unknown")
+    conf_val = float(d.get("confidence", 0.0) or 0.0)
+    duration = float(d.get("duration", 0.0) or 0.0)
+    word_count = int(d.get("word_count", 0) or 0)
+    speaking_rate = float(d.get("speaking_rate", 0.0) or 0.0)
+    audio_quality = d.get("audio_quality", "unknown")
+    return (
+        text_val,
+        lang_val,
+        conf_val,
+        duration,
+        word_count,
+        speaking_rate,
+        audio_quality,
+    )
 
-    # Object-like
-    text_val = getattr(result, "text", "")
-    lang_val = getattr(result, "language", "unknown")
-    conf_val = float(getattr(result, "confidence", 0.0) or 0.0)
-    duration = float(getattr(result, "duration", 0.0) or 0.0)
-    word_count = getattr(result, "word_count", None)
+
+def _infer_quality_from_duration(duration: float) -> str:
+    if duration < 1:
+        return "poor"
+    if duration < 5:
+        return "fair"
+    if duration < 15:
+        return "good"
+    return "excellent"
+
+
+def _normalize_transcription_obj(obj: Any) -> Tuple[str, str, float, float, int, float, str]:
+    text_val = getattr(obj, "text", "")
+    lang_val = getattr(obj, "language", "unknown")
+    conf_val = float(getattr(obj, "confidence", 0.0) or 0.0)
+    duration = float(getattr(obj, "duration", 0.0) or 0.0)
+    word_count = getattr(obj, "word_count", None)
     if word_count is None:
         word_count = len((text_val or "").split())
-    speaking_rate = getattr(result, "speaking_rate", None)
+    speaking_rate = getattr(obj, "speaking_rate", None)
     if speaking_rate is None:
         speaking_rate = (word_count / duration * 60) if duration > 0 else 0.0
-    audio_quality = getattr(result, "audio_quality", None)
+    audio_quality = getattr(obj, "audio_quality", None)
     if audio_quality is None:
-        if duration < 1:
-            audio_quality = "poor"
-        elif duration < 5:
-            audio_quality = "fair"
-        elif duration < 15:
-            audio_quality = "good"
-        else:
-            audio_quality = "excellent"
+        audio_quality = _infer_quality_from_duration(duration)
     return (
         text_val,
         lang_val,
@@ -436,6 +439,13 @@ def _normalize_transcription_attrs(result: Any) -> Tuple[str, str, float, float,
         float(speaking_rate),
         audio_quality,
     )
+
+
+def _normalize_transcription_attrs(result: Any) -> Tuple[str, str, float, float, int, float, str]:
+    """Extract common attributes from a transcription result object or dict."""
+    if isinstance(result, dict):
+        return _normalize_transcription_dict(result)
+    return _normalize_transcription_obj(result)
 
 
 def _ensure_summarizer_loaded() -> None:
