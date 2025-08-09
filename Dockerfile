@@ -24,8 +24,19 @@ RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
  && pip install --no-cache-dir -r requirements_unified.txt
 
 # Pre-bundle models to reduce cold-start; combine to minimize layers (DOK-W1001)
-RUN python -c "from transformers import AutoTokenizer, T5ForConditionalGeneration; AutoTokenizer.from_pretrained('t5-small'); T5ForConditionalGeneration.from_pretrained('t5-small'); print('Pre-bundled t5-small into cache')" \
- && python -c "import whisper; whisper.load_model('small'); print('Pre-bundled whisper-small into cache')"
+RUN python - <<'PY'
+from transformers import AutoTokenizer, T5ForConditionalGeneration
+AutoTokenizer.from_pretrained('t5-small')
+T5ForConditionalGeneration.from_pretrained('t5-small')
+AutoTokenizer.from_pretrained('t5-base')
+T5ForConditionalGeneration.from_pretrained('t5-base')
+print('Pre-bundled t5-small and t5-base into cache')
+PY
+RUN python - <<'PY'
+import whisper
+whisper.load_model('small')
+print('Pre-bundled whisper-small into cache')
+PY
 
 # Copy source
 COPY src/ ./src/
