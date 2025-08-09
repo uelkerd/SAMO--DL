@@ -46,7 +46,23 @@ class CIPipelineRunner:
             "scripts/ci/model_calibration_test.py",
             "scripts/ci/onnx_conversion_test.py",
         ]
+    
+    def _get_test_stats(self) -> tuple[dict, int, int]:
+        """Calculate statistics on test results.
         
+        Returns:
+            tuple: (test_results dict, total_tests, passed_tests)
+        """
+        test_results = {
+            name: result
+            for name, result in self.results.items()
+            if isinstance(result, bool)
+        }
+        total_tests = len(test_results)
+        # Booleans can be summed directly (True=1, False=0)
+        passed_tests = sum(test_results.values())
+        return test_results, total_tests, passed_tests
+    
     def detect_environment(self) -> Dict[str, str]:
         """Detect the current environment (local vs Colab)."""
         logger.info("🔍 Detecting environment...")
@@ -317,12 +333,7 @@ class CIPipelineRunner:
         logger.info("=" * 60)
         
         # Only count boolean results as actual tests
-        test_results = {name: result for name, result in self.results.items() 
-                       if isinstance(result, bool)}
-        
-        total_tests = len(test_results)
-        passed_tests = sum(1 for result in test_results.values() if result)
-        failed_tests = total_tests - passed_tests
+        test_results, total_tests, passed_tests = self._get_test_stats()
         
         report = f"""
 🎯 COMPREHENSIVE CI PIPELINE REPORT
@@ -331,7 +342,7 @@ class CIPipelineRunner:
 📊 SUMMARY:
 - Total Tests: {total_tests}
 - Passed: {passed_tests}
-- Failed: {failed_tests}
+- Failed: {total_tests - passed_tests}
 - Success Rate: {(passed_tests/total_tests)*100:.1f}%
 
 🔍 DETAILED RESULTS:
@@ -350,7 +361,7 @@ class CIPipelineRunner:
 🎯 RECOMMENDATIONS:
 """
         
-        if failed_tests == 0:
+        if passed_tests == total_tests:
             report += "🎉 All tests passed! Pipeline is ready for deployment.\n"
         else:
             failed_test_names = [name for name, result in test_results.items() 
@@ -376,10 +387,7 @@ def main():
             f.write(report)
         
         # Exit with appropriate code
-        test_results = {name: result for name, result in results.items() 
-                       if isinstance(result, bool)}
-        total_tests = len(test_results)
-        passed_tests = sum(1 for result in test_results.values() if result)
+        test_results, total_tests, passed_tests = runner._get_test_stats()
         
         if passed_tests == total_tests:
             logger.info("🎉 CI Pipeline completed successfully!")
