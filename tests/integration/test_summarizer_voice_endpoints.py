@@ -71,6 +71,7 @@ def test_summarize_returns_503_when_model_unavailable(monkeypatch, client: TestC
         if name == "src.models.summarization.t5_summarizer":
             class M:
                 """Module shim exposing a summarizer factory for tests."""
+
                 @staticmethod
                 def create_t5_summarizer(model: str):
                     """Proxy to the failing creator to simulate error paths."""
@@ -95,6 +96,7 @@ def test_summarize_returns_200_when_lazy_load_succeeds(monkeypatch, client: Test
 
     class FakeSummarizer:
         """Minimal fake summarizer used to test success paths."""
+
         model_name = "t5-small"
 
         @staticmethod
@@ -107,6 +109,7 @@ def test_summarize_returns_200_when_lazy_load_succeeds(monkeypatch, client: Test
         if name == "src.models.summarization.t5_summarizer":
             class M:
                 """Module shim exposing a summarizer factory for tests."""
+
                 @staticmethod
                 def create_t5_summarizer(model: str):
                     """Create and return FakeSummarizer for tests."""
@@ -136,6 +139,7 @@ def test_voice_returns_503_when_transcriber_unavailable(monkeypatch, client: Tes
         if name == "src.models.voice_processing.whisper_transcriber":
             class M:
                 """Module shim exposing a Whisper transcriber factory for tests."""
+
                 @staticmethod
                 def create_whisper_transcriber(model: str):
                     """Raise to simulate Whisper transcriber load failure."""
@@ -159,6 +163,7 @@ def test_voice_returns_200_when_lazy_load_succeeds(monkeypatch, client: TestClie
 
     class FakeTranscriber:
         """Minimal fake transcriber used to test success paths."""
+
         @staticmethod
         def transcribe(path: str, language=None):
             """Return a minimal fake transcription payload for tests."""
@@ -177,6 +182,7 @@ def test_voice_returns_200_when_lazy_load_succeeds(monkeypatch, client: TestClie
         if name == "src.models.voice_processing.whisper_transcriber":
             class M:
                 """Module shim exposing a Whisper transcriber factory for tests."""
+
                 @staticmethod
                 def create_whisper_transcriber(model: str):
                     """Create and return FakeTranscriber for tests."""
