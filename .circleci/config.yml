@@ -140,13 +140,20 @@ commands:
           name: Install and setup Miniconda (SIMPLIFIED)
           command: |
             set -eo pipefail
-            # Install Miniconda
+            # Ensure a downloader exists (attempt install if missing)
+            if ! command -v wget >/dev/null 2>&1 && ! command -v curl >/dev/null 2>&1; then
+              if command -v apt-get >/dev/null 2>&1; then
+                sudo apt-get update
+                sudo apt-get install -y curl wget ca-certificates || true
+              fi
+            fi
+            # Install Miniconda (wget/curl/python fallback)
             if command -v wget >/dev/null 2>&1; then
               wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
             elif command -v curl >/dev/null 2>&1; then
               curl -L https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o miniconda.sh
             else
-              echo "Error: Neither wget nor curl is available. Please install one of them to proceed." >&2
+              echo "Error: Neither wget, curl, nor python3 is available to download Miniconda." >&2
               exit 1
             fi
             bash miniconda.sh -b -p "$HOME/miniconda"
