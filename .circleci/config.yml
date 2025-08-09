@@ -33,6 +33,12 @@ executors:
       TOKENIZERS_PARALLELISM: "false"  # Avoid HuggingFace tokenizer warnings
       HF_HOME: /home/circleci/.cache/huggingface  # Explicit cache location
       PATH: /usr/local/bin:/usr/bin:/bin:$HOME/miniconda/bin:$PATH  # Ensure system bins + conda
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+      DB_USER: "dummy"
+      DB_PASSWORD: "dummy"
+      DB_NAME: "test"
+      DATABASE_URL: "sqlite:///test.db"
 
   python-gpu:
     machine:
@@ -64,6 +70,12 @@ commands:
           shell: /bin/bash
           command: |
             set -euxo pipefail
+            # Ensure any env exported into $BASH_ENV is available here too
+            if [ -n "${BASH_ENV:-}" ] && [ -f "$BASH_ENV" ]; then
+              set +u
+              source "$BASH_ENV"
+              set -u
+            fi
             "$HOME/miniconda/bin/conda" run -n samo-dl-stable bash -lc "<< parameters.cmd >>"
   doctor_step:
     description: "Early diagnostics and environment checks (store artifacts on failure)"
