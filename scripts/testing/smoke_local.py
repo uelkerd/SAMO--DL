@@ -221,7 +221,6 @@ def run_smoke(base_url: str, pause_ms: int = 200):
                 "model": "t5-small",
                 "max_length": 40,
                 "min_length": 5,
-                "do_sample": True,
             }
             r = session.post(
                 url("/summarize/text"),
