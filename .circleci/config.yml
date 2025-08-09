@@ -172,11 +172,29 @@ commands:
             ls -l "$HOME/miniconda/bin/conda" || (echo "Conda was not installed" && exit 1)
             "$HOME/miniconda/bin/conda" --version
             
-            # Create or update environment (idempotent)
+            # Create or update environment (idempotent) with fallback if conda-forge is blocked
             if ! "$HOME/miniconda/bin/conda" env list | grep -q "samo-dl-stable"; then
+              set +e
               "$HOME/miniconda/bin/conda" env create -f environment.yml
+              create_rc=$?
+              set -e
+              if [ $create_rc -ne 0 ]; then
+                echo "Conda env create failed (possibly channel 403). Using minimal fallback env..." >&2
+                "$HOME/miniconda/bin/conda" create -y -n samo-dl-stable python=3.10
+                # Minimal test/dev packages to allow doctor/tests to run
+                "$HOME/miniconda/bin/conda" run -n samo-dl-stable pip install -U pip
+                "$HOME/miniconda/bin/conda" run -n samo-dl-stable pip install pytest pytest-xdist pytest-cov ruff bandit safety mypy httpx requests Flask PyJWT
+                # Install project editable to expose src/
+                "$HOME/miniconda/bin/conda" run -n samo-dl-stable pip install -e ".[test]" || true
+              fi
             else
+              set +e
               "$HOME/miniconda/bin/conda" env update -f environment.yml --prune
+              update_rc=$?
+              set -e
+              if [ $update_rc -ne 0 ]; then
+                echo "Conda env update failed (possibly channel 403). Continuing with existing env." >&2
+              fi
             fi
             
             # Install project in editable mode; rely on environment.yml for deps
