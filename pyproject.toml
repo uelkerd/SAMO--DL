@@ -316,7 +316,7 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",
-    "--cov-fail-under=45",  # Raised threshold; current suite hovers ~50%
+    "--cov-fail-under=50",  # Raised threshold to 50%
     "--tb=short",
 ]
 
