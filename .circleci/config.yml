@@ -50,6 +50,21 @@ executors:
 # COMMANDS - Reusable command definitions (SIMPLIFIED)
 # ============================================================================
 commands:
+  # Generic executor for running any shell command inside the conda env
+  conda_exec:
+    description: "Run an arbitrary shell command inside samo-dl-stable conda env"
+    parameters:
+      step_name:
+        type: string
+      cmd:
+        type: string
+    steps:
+      - run:
+          name: "<< parameters.step_name >>"
+          shell: /bin/bash
+          command: |
+            set -euxo pipefail
+            "$HOME/miniconda/bin/conda" run -n samo-dl-stable bash -lc "<< parameters.cmd >>"
   doctor_step:
     description: "Early diagnostics and environment checks (store artifacts on failure)"
     steps:
@@ -128,8 +143,11 @@ commands:
             # Install Miniconda
             if command -v wget >/dev/null 2>&1; then
               wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-            else
+            elif command -v curl >/dev/null 2>&1; then
               curl -L https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o miniconda.sh
+            else
+              echo "Error: Neither wget nor curl is available. Please install one of them to proceed." >&2
+              exit 1
             fi
             bash miniconda.sh -b -p "$HOME/miniconda"
             rm -f miniconda.sh
@@ -147,6 +165,9 @@ commands:
             
             # Install additional dependencies (explicitly include PyJWT)
             "$HOME/miniconda/bin/conda" run -n samo-dl-stable pip install -e ".[test,dev,prod]" PyJWT httpx python-multipart psycopg2-binary
+
+            # Post-update package dump for verification
+            "$HOME/miniconda/bin/conda" list | tee conda.post_update.list.txt || true
             
             # Set PYTHONPATH once (simplified)
             if [ -n "$BASH_ENV" ]; then
@@ -184,87 +205,59 @@ commands:
             - conda-deps-v4-{{ .Branch }}-{{ checksum "environment.yml" }}-
             - conda-deps-v4-{{ .Branch }}-
             - conda-deps-v4-
+            - conda-deps-v3-{{ .Branch }}-{{ checksum "environment.yml" }}-{{ checksum "pyproject.toml" }}
+            - conda-deps-v3-{{ .Branch }}-{{ checksum "environment.yml" }}-
+            - conda-deps-v3-{{ .Branch }}-
+            - conda-deps-v3-
 
   # MODEL PRE-WARMING (SIMPLIFIED)
   pre_warm_models:
     description: "Pre-download and cache models for faster CI execution"
     steps:
-      - run:
-          name: "Pre-warm Models"
-          command: |
-            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python scripts/ci/pre_warm_models.py
-          shell: /bin/bash
+      - conda_exec:
+          step_name: "Pre-warm Models"
+          cmd: "python scripts/ci/pre_warm_models.py"
 
   run_quality_checks:
     description: "Run comprehensive code quality checks"
     steps:
-      - run:
-          name: "Ruff Linting"
-          command: |
-            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python -m ruff check src/ tests/ --output-format=github || echo "Linting issues found but continuing..."
-          shell: /bin/bash
-      - run:
-          name: "Ruff Formatting Check"
-          command: |
-            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python -m ruff format --check src/ tests/ || echo "Formatting issues found but continuing..."
-          shell: /bin/bash
-      - run:
-          name: "Type Checking (MyPy) - Optional"
-          command: |
-            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python -m mypy src/ --ignore-missing-imports || echo "Type checking failed but continuing..."
-          shell: /bin/bash
+      - conda_exec:
+          step_name: "Ruff Linting"
+          cmd: "python -m ruff check src/ tests/ --output-format=github || echo 'Linting issues found but continuing...'"
+      - conda_exec:
+          step_name: "Ruff Formatting Check"
+          cmd: "python -m ruff format --check src/ tests/ || echo 'Formatting issues found but continuing...'"
+      - conda_exec:
+          step_name: "Type Checking (MyPy) - Optional"
+          cmd: "python -m mypy src/ --ignore-missing-imports || echo 'Type checking failed but continuing...'"
 
   # PARALLEL SECURITY SCANS (SIMPLIFIED)
   run_security_scan_bandit:
     description: "Run Bandit security scan (parallel)"
     steps:
-      - run:
-          name: "Bandit Security Scan"
-          command: |
-            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python -m bandit -r src/ -f json -o bandit-report.json
-          shell: /bin/bash
+      - conda_exec:
+          step_name: "Bandit Security Scan"
+          cmd: "python -m bandit -r src/ -f json -o bandit-report.json"
 
   run_security_scan_safety:
     description: "Run Safety dependency check (parallel)"
     steps:
-      - run:
-          name: "Safety Check (Dependencies)"
-          command: |
-            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python -m safety check --json --output safety-report.json
-          shell: /bin/bash
+      - conda_exec:
+          step_name: "Safety Check (Dependencies)"
+          cmd: "python -m safety check --json --output safety-report.json"
 
   run_unit_tests:
     description: "Run unit tests with coverage (SIMPLIFIED)"
     steps:
-      - run:
-          name: "API Rate Limiter Tests"
-          command: |
-            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python scripts/testing/run_api_rate_limiter_tests.py
-          shell: /bin/bash
-      - run:
-          name: "Unit Tests (Sequential - Rate Limiter Tests)"
-          command: |
-            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python -m pytest tests/unit/test_api_rate_limiter.py \
-              --cov=src \
-              --cov-report=xml \
-              --cov-report=html \
-              --cov-fail-under=5 \
-              --junit-xml=test-results/unit/results.xml \
-              -v
-          shell: /bin/bash
-      - run:
-          name: "Unit Tests (Parallel - Other Tests)"
-          command: |
-            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python -m pytest tests/unit/ \
-              --ignore=tests/unit/test_api_rate_limiter.py \
-              --cov=src \
-              --cov-report=xml \
-              --cov-report=html \
-              --cov-fail-under=5 \
-              --junit-xml=test-results/unit/results.xml \
-              -v \
-              -n auto
-          shell: /bin/bash
+      - conda_exec:
+          step_name: "API Rate Limiter Tests"
+          cmd: "python scripts/testing/run_api_rate_limiter_tests.py"
+      - conda_exec:
+          step_name: "Unit Tests (Sequential - Rate Limiter Tests)"
+          cmd: "python -m pytest tests/unit/test_api_rate_limiter.py --cov=src --cov-report=xml --cov-report=html --cov-fail-under=5 --junit-xml=test-results/unit/results.xml -v"
+      - conda_exec:
+          step_name: "Unit Tests (Parallel - Other Tests)"
+          cmd: "python -m pytest tests/unit/ --ignore=tests/unit/test_api_rate_limiter.py --cov=src --cov-report=xml --cov-report=html --cov-fail-under=5 --junit-xml=test-results/unit/results.xml -v -n auto"
       - store_test_results:
           path: test-results
       - store_artifacts:
