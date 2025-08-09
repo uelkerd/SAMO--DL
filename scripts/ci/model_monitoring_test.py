@@ -29,7 +29,7 @@ from torch import nn
 import logging
 import sys
 import torch
-from .validation_utils import validate_metric_ranges, validate_required_keys
+from .validation_utils import validate_metric_ranges, validate_required_keys, ensure
 
 
 
@@ -160,10 +160,8 @@ def test_model_drift_detection():
         logger.info("Accuracy drift: {accuracy_drift:.4f}")
         logger.info("F1 score drift: {f1_drift:.4f}")
 
-        if accuracy_drift < 0:
-            raise AssertionError("Drift should be non-negative")
-        if f1_drift < 0:
-            raise AssertionError("Drift should be non-negative")
+        ensure(accuracy_drift >= 0, "Drift should be non-negative")
+        ensure(f1_drift >= 0, "Drift should be non-negative")
 
         logger.info("✅ Model drift detection test passed")
         return True
