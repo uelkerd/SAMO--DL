@@ -12,11 +12,8 @@ numpy==1.26.4
 # NLP/ML for summarizer and emotion model
 transformers==4.55.0
 sentencepiece==0.1.99
-# Use CPU-only PyTorch wheels to avoid CUDA deps on Cloud Run
-# See: https://pytorch.org/get-started/locally/
-torch==2.2.2+cpu
-# Source for CPU wheels
--f https://download.pytorch.org/whl/cpu
+# Torch runtime
+torch==2.2.2
 
 # Whisper transcription
 openai-whisper==20250625
