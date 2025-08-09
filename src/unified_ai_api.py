@@ -22,10 +22,11 @@ from collections import defaultdict
 import uvicorn
 from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile, Depends, status, WebSocket, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.websockets import WebSocketDisconnect
 from pydantic import BaseModel, Field
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
 from .api_rate_limiter import add_rate_limiting
 from .security.jwt_manager import JWTManager, TokenResponse, TokenPayload
@@ -38,6 +39,14 @@ logger = logging.getLogger(__name__)
 emotion_detector = None
 text_summarizer = None
 voice_transcriber = None
+
+# Metrics
+REQUEST_COUNT = Counter(
+    "samo_requests_total", "Total HTTP requests", ["endpoint", "method", "status"]
+)
+REQUEST_LATENCY = Histogram(
+    "samo_request_latency_seconds", "Request latency (s)", ["endpoint", "method"]
+)
 
 # Application startup time
 app_start_time = time.time()
@@ -282,6 +291,26 @@ app.add_middleware(
 # Add rate limiting middleware (1000 requests/minute per user for testing)
 add_rate_limiting(app, requests_per_minute=1000, burst_size=100, max_concurrent_requests=50, 
                  rapid_fire_threshold=100, sustained_rate_threshold=2000)
+
+@app.middleware("http")
+async def metrics_middleware(request: Request, call_next):
+    endpoint = request.url.path
+    method = request.method
+    start = time.time()
+    try:
+        response = await call_next(request)
+        status = str(response.status_code)
+        return response
+    finally:
+        duration = time.time() - start
+        REQUEST_LATENCY.labels(endpoint=endpoint, method=method).observe(duration)
+        # status may not exist if exception; default 500
+        status = locals().get("status", "500")
+        REQUEST_COUNT.labels(endpoint=endpoint, method=method, status=status).inc()
+
+@app.get("/metrics", include_in_schema=False)
+async def metrics() -> Response:
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 def _tx_to_dict(result: Any) -> Dict[str, Any]:
@@ -847,9 +876,17 @@ async def transcribe_voice(
             temp_file_path = temp_file.name
         
         try:
-            # Transcribe audio
+            # Transcribe audio; lazy-load transcriber if missing
             if voice_transcriber is None:
-                raise HTTPException(status_code=503, detail="Voice transcription service unavailable")
+                try:
+                    from src.models.voice_processing.whisper_transcriber import (
+                        create_whisper_transcriber as _wcreate,
+                    )
+                    logger.info("Lazy-loading Whisper transcriber: base")
+                    globals()["voice_transcriber"] = _wcreate("base")
+                except Exception as exc:
+                    logger.warning(f"Voice transcriber lazy-load failed: {exc}")
+                    raise HTTPException(status_code=503, detail="Voice transcription service unavailable")
             
             # Enhanced transcription
             # Note: model selection is configured at startup; per-request model_size/timestamp
@@ -1001,7 +1038,13 @@ async def summarize_text(
             raise HTTPException(status_code=400, detail="Text cannot be empty")
         
         if text_summarizer is None:
-            raise HTTPException(status_code=503, detail="Text summarization service unavailable")
+            try:
+                from src.models.summarization.t5_summarizer import create_t5_summarizer as _create
+                logger.info("Lazy-loading summarizer model: t5-small")
+                globals()["text_summarizer"] = _create("t5-small")
+            except Exception as exc:
+                logger.warning(f"Summarizer lazy-load failed: {exc}")
+                raise HTTPException(status_code=503, detail="Text summarization service unavailable")
 
         # Request-scoped model override to avoid global mutation in production
         summarizer_instance = text_summarizer
