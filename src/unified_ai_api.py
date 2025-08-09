@@ -855,7 +855,7 @@ class ChatResponse(BaseModel):
     """Chat response payload."""
     reply: str
     summary: Optional[str] = None
-    meta: dict[str, Any] = {}
+    meta: dict[str, Any] = Field(default_factory=dict)
 
 
 @app.post(
@@ -913,7 +913,14 @@ async def chat_websocket(websocket: WebSocket, token: str = Query(None)) -> None
             await websocket.close(code=4001)
             return
 
-    payload = jwt_manager.verify_token(token)
+    try:
+        payload = jwt_manager.verify_token(token)
+    except Exception:
+        await websocket.accept()
+        await websocket.send_json({"error": "Token verification failed"})
+        await websocket.close(code=4001)
+        return
+
     if not payload:
         await websocket.accept()
         await websocket.send_json({"error": "Invalid token"})
