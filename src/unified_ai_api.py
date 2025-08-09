@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Unified AI API for SAMO Deep Learning.
+"""Unified AI API for SAMO Deep Learning.
 
 This module provides a unified FastAPI interface for all AI models
 in the SAMO Deep Learning pipeline.
@@ -60,8 +59,8 @@ class WebSocketConnectionManager:
     """Enhanced WebSocket connection manager with pooling and heartbeat."""
     
     def __init__(self):
-        self.active_connections: Dict[str, Set[WebSocket]] = defaultdict(set)
-        self.connection_metadata: Dict[WebSocket, Dict[str, Any]] = {}
+        self.active_connections: dict[str, set[WebSocket]] = defaultdict(set)
+        self.connection_metadata: dict[WebSocket, dict[str, Any]] = {}
         self.heartbeat_interval = 30  # seconds
         self.max_connections_per_user = 5
         self.connection_timeout = 300  # 5 minutes
@@ -103,7 +102,7 @@ class WebSocketConnectionManager:
                 
         logger.info(f"WebSocket disconnected for user {user_id}")
         
-    async def send_personal_message(self, message: Dict[str, Any], websocket: WebSocket):
+    async def send_personal_message(self, message: dict[str, Any], websocket: WebSocket):
         """Send message to specific WebSocket with error handling."""
         try:
             await websocket.send_json(message)
@@ -113,7 +112,7 @@ class WebSocketConnectionManager:
             logger.error(f"Failed to send message to WebSocket: {e}")
             await self.disconnect(websocket)
             
-    async def broadcast_to_user(self, message: Dict[str, Any], user_id: str):
+    async def broadcast_to_user(self, message: dict[str, Any], user_id: str):
         """Broadcast message to all connections of a specific user."""
         disconnected = set()
         for websocket in self.active_connections[user_id]:
@@ -147,7 +146,7 @@ class WebSocketConnectionManager:
             logger.warning(f"Cleaning up stale WebSocket connection for user {self.connection_metadata[websocket]['user_id']}")
             await self.disconnect(websocket)
             
-    def get_connection_stats(self) -> Dict[str, Any]:
+    def get_connection_stats(self) -> dict[str, Any]:
         """Get connection statistics."""
         total_connections = sum(len(connections) for connections in self.active_connections.values())
         total_users = len(self.active_connections)
@@ -183,7 +182,7 @@ class UserProfile(BaseModel):
     username: str = Field(..., description="Username")
     email: str = Field(..., description="Email address")
     full_name: str = Field(..., description="Full name")
-    permissions: List[str] = Field(default_factory=list, description="User permissions")
+    permissions: list[str] = Field(default_factory=list, description="User permissions")
     created_at: str = Field(..., description="Account creation date")
 
 # Authentication dependency
@@ -289,7 +288,7 @@ app.add_middleware(
 )
 
 # Add rate limiting middleware (1000 requests/minute per user for testing)
-add_rate_limiting(app, requests_per_minute=1000, burst_size=100, max_concurrent_requests=50, 
+add_rate_limiting(app, requests_per_minute=1000, burst_size=100, max_concurrent_requests=50,
                  rapid_fire_threshold=100, sustained_rate_threshold=2000)
 
 
@@ -319,7 +318,7 @@ async def metrics() -> Response:
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
-def _tx_to_dict(result: Any) -> Dict[str, Any]:
+def _tx_to_dict(result: Any) -> dict[str, Any]:
     """Normalize transcription result (dataclass or dict) to a plain dict."""
     if isinstance(result, dict):
         return result
@@ -389,8 +388,8 @@ def _write_temp_wav(content: bytes) -> str:
 
 
 def _normalize_transcription_dict(
-    d: Dict[str, Any],
-) -> Tuple[str, str, float, float, int, float, str]:
+    d: dict[str, Any],
+) -> tuple[str, str, float, float, int, float, str]:
     """Normalize transcription attributes from a dict payload."""
     text_val = d.get("text", "")
     lang_val = d.get("language", "unknown")
@@ -423,7 +422,7 @@ def _infer_quality_from_duration(duration: float) -> str:
 
 def _normalize_transcription_obj(
     obj: Any,
-) -> Tuple[str, str, float, float, int, float, str]:
+) -> tuple[str, str, float, float, int, float, str]:
     """Normalize attributes from an object-like transcription result."""
     text_val = getattr(obj, "text", "")
     lang_val = getattr(obj, "language", "unknown")
@@ -451,7 +450,7 @@ def _normalize_transcription_obj(
 
 def _normalize_transcription_attrs(
     result: Any,
-) -> Tuple[str, str, float, float, int, float, str]:
+) -> tuple[str, str, float, float, int, float, str]:
     """Extract common attributes from a transcription result object or dict."""
     if isinstance(result, dict):
         return _normalize_transcription_dict(result)
@@ -510,7 +509,7 @@ def _get_request_scoped_summarizer(model: str):
     return text_summarizer
 
 
-def _derive_emotion(summary_text: str) -> Tuple[str, List[str]]:
+def _derive_emotion(summary_text: str) -> tuple[str, list[str]]:
     """Infer emotional tone and key emotions from summary text."""
     if not summary_text or not emotion_detector:
         return "neutral", []
@@ -628,7 +627,7 @@ class CompleteJournalAnalysis(BaseModel):
 
 # Unified API Endpoints
 @app.get("/health", tags=["System"])
-async def health_check() -> Dict[str, Any]:
+async def health_check() -> dict[str, Any]:
     """Health check endpoint."""
     return {
         "status": "healthy",
@@ -827,7 +826,7 @@ async def get_user_profile(current_user: TokenPayload = Depends(get_current_user
         email=current_user.email,
         full_name=current_user.username,  # In real app, get from database
         permissions=current_user.permissions,
-        created_at=datetime.utcnow().isoformat()  # In real app, get from database
+        created_at=datetime.now(tz=timezone.utc).isoformat()  # In real app, get from database
     )
 
 
@@ -1105,10 +1104,10 @@ async def transcribe_voice(
     description="Process multiple audio files for transcription",
 )
 async def batch_transcribe_voice(
-    audio_files: List[UploadFile] = File(..., description="Multiple audio files to transcribe"),
+    audio_files: list[UploadFile] = File(..., description="Multiple audio files to transcribe"),
     language: Optional[str] = Form(None, description="Language code for all files"),
     current_user: TokenPayload = Depends(require_permission("batch_processing")),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Batch process multiple audio files for transcription."""
     start_time = time.time()
     results = []
@@ -1360,7 +1359,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
 )
 async def get_performance_metrics(
     current_user: TokenPayload = Depends(require_permission("monitoring")),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get comprehensive performance metrics."""
     try:
         # Get system metrics
@@ -1421,7 +1420,7 @@ async def get_performance_metrics(
 )
 async def detailed_health_check(
     current_user: TokenPayload = Depends(require_permission("monitoring"))
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Comprehensive health check with detailed diagnostics."""
     health_status = "healthy"
     issues = []
@@ -1504,7 +1503,7 @@ async def detailed_health_check(
     summary="Get models status",
     description="Get detailed status information about all AI models in the pipeline",
 )
-async def get_models_status() -> Dict[str, Any]:
+async def get_models_status() -> dict[str, Any]:
     """Get detailed status of all AI models."""
     return {
         "emotion_detector": {
@@ -1542,7 +1541,7 @@ async def get_models_status() -> Dict[str, Any]:
     summary="API information",
     description="Get information about the API endpoints and capabilities",
 )
-async def root() -> Dict[str, Any]:
+async def root() -> dict[str, Any]:
     """Root endpoint with API information."""
     return {
         "message": "SAMO AI Unified API is running",
