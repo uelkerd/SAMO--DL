@@ -362,8 +362,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 
 # ===== Helpers to reduce endpoint complexity =====
 def _ensure_voice_transcriber_loaded() -> None:
-    """Ensure global voice_transcriber is available or raise 503."""
-    global voice_transcriber
+    """Ensure voice_transcriber is available or raise 503 (avoid global statement)."""
     if voice_transcriber is not None:
         return
     try:
@@ -371,7 +370,7 @@ def _ensure_voice_transcriber_loaded() -> None:
             create_whisper_transcriber as _wcreate,
         )
         logger.info("Lazy-loading Whisper transcriber: small")
-        voice_transcriber = _wcreate("small")
+        globals()["voice_transcriber"] = _wcreate("small")
     except Exception as exc:  # pragma: no cover - defensive
         logger.warning("Voice transcriber lazy-load failed: %s", exc)
         raise HTTPException(
@@ -440,8 +439,7 @@ def _normalize_transcription_attrs(result: Any) -> Tuple[str, str, float, float,
 
 
 def _ensure_summarizer_loaded() -> None:
-    """Ensure global text_summarizer is available or raise 503."""
-    global text_summarizer
+    """Ensure text_summarizer is available or raise 503 (avoid global statement)."""
     if text_summarizer is not None:
         return
     try:
@@ -449,7 +447,7 @@ def _ensure_summarizer_loaded() -> None:
             create_t5_summarizer as _create,
         )
         logger.info("Lazy-loading summarizer model: t5-small")
-        text_summarizer = _create("t5-small")
+        globals()["text_summarizer"] = _create("t5-small")
     except Exception as exc:  # pragma: no cover - defensive
         logger.warning("Summarizer lazy-load failed: %s", exc)
         raise HTTPException(
