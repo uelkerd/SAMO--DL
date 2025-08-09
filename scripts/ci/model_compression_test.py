@@ -32,6 +32,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+from .validation_utils import ensure
 
 
 class SimpleBERTClassifier(nn.Module):
@@ -122,10 +123,8 @@ def test_model_compression():
         compression_ratio = original_size / compressed_size
         logger.info("Compression ratio: {compression_ratio:.2f}x")
 
-        if compressed_size >= original_size:
-            raise AssertionError("Model should be smaller after compression")
-        if compression_ratio <= 1.0:
-            raise AssertionError("Compression ratio should be greater than 1")
+        ensure(compressed_size < original_size, "Model should be smaller after compression")
+        ensure(compression_ratio > 1.0, "Compression ratio should be greater than 1")
 
         with tempfile.NamedTemporaryFile(suffix=".pt", delete=True) as temp_file:
             torch.save(quantized_model.state_dict(), temp_file.name)
