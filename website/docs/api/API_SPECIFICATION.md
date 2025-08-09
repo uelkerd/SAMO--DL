@@ -503,7 +503,8 @@ curl -X POST "https://api.samo.ai/v1/webhooks" \
 from samo_client import SamoAI
 
 # Initialize client
-samo = SamoAI(api_key="your_api_key_here")
+# SECURITY NOTE: Replace with your actual API key from the dashboard
+samo = SamoAI(api_key="REPLACE_WITH_YOUR_ACTUAL_API_KEY")
 
 # Analyze emotions
 emotions = samo.emotions.analyze(

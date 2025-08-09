@@ -26,10 +26,12 @@ DATABASE_URL="postgresql://samo_secure_1753200376:GET_PASSWORD_FROM_TERMINAL@loc
 # AI/ML CONFIGURATION
 # ============================================================================
 # OpenAI API (for Whisper and other models)
-OPENAI_API_KEY=your_openai_api_key_here
+# SECURITY NOTE: Get from https://platform.openai.com/api-keys
+OPENAI_API_KEY=REPLACE_WITH_OPENAI_API_KEY
 
 # Hugging Face Token (for downloading BERT, T5 models)
-HF_TOKEN=your_huggingface_token_here
+# SECURITY NOTE: Get from https://huggingface.co/settings/tokens
+HF_TOKEN=REPLACE_WITH_HUGGINGFACE_ACCESS_TOKEN
 
 # Model server configuration
 MODEL_SERVER_HOST=localhost
@@ -46,7 +48,8 @@ DEBUG=false
 # ============================================================================
 # SECURITY
 # ============================================================================
-JWT_SECRET=generate_a_secure_random_string_here
+# SECURITY NOTE: Generate using: python -c "import secrets; print(secrets.token_urlsafe(32))"
+JWT_SECRET=REPLACE_WITH_SECURE_RANDOM_STRING_MIN_32_CHARS
 RATE_LIMIT_REQUESTS_PER_MINUTE=100
 
 # ============================================================================
