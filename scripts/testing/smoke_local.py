@@ -434,7 +434,7 @@ def run_smoke(base_url: str, pause_ms: int = 200):
     # Run phases
     phase_basic_gets(session, url, pause)
 
-    access_token, refresh_token = phase_auth_login_refresh_logout(session, url, pause)
+    access_token, _ = phase_auth_login_refresh_logout(session, url, pause)
 
     phase_analyze_journal(session, url, pause)
 
