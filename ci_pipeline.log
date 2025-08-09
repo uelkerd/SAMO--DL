@@ -2168,3 +2168,95 @@ ModuleNotFoundError: No module named 'numpy'
 2025-08-09 22:42:37,749 - INFO - 📊 Generating CI Report
 2025-08-09 22:42:37,749 - INFO - ============================================================
 2025-08-09 22:42:37,749 - ERROR - ❌ CI Pipeline failed!
+2025-08-09 22:47:39,247 - INFO - 🚀 Starting Comprehensive CI Pipeline
+2025-08-09 22:47:39,247 - INFO - ============================================================
+2025-08-09 22:47:39,247 - INFO - 🔍 Detecting environment...
+2025-08-09 22:47:39,248 - WARNING - ⚠️ PyTorch not available for GPU detection
+2025-08-09 22:47:39,248 - INFO - 💻 Running in local environment
+2025-08-09 22:47:39,248 - INFO - 📊 Environment: {'platform': 'linux', 'python_version': '3.13.3 (main, Apr  8 2025, 19:55:40) [GCC 14.2.0]', 'is_colab': False, 'gpu_available': False, 'conda_env': 'unknown'}
+2025-08-09 22:47:39,248 - INFO - 📦 Validating dependencies...
+2025-08-09 22:47:39,248 - ERROR - ❌ torch missing
+2025-08-09 22:47:39,248 - ERROR - ❌ transformers missing
+2025-08-09 22:47:39,248 - ERROR - ❌ fastapi missing
+2025-08-09 22:47:39,248 - ERROR - ❌ pydantic missing
+2025-08-09 22:47:39,248 - ERROR - ❌ datasets missing
+2025-08-09 22:47:39,248 - ERROR - ❌ tokenizers missing
+2025-08-09 22:47:39,248 - ERROR - ❌ numpy missing
+2025-08-09 22:47:39,248 - ERROR - ❌ pandas missing
+2025-08-09 22:47:39,248 - ERROR - ❌ Missing packages: ['torch', 'transformers', 'fastapi', 'pydantic', 'datasets', 'tokenizers', 'numpy', 'pandas']
+2025-08-09 22:47:39,248 - INFO - 🚀 Running scripts/ci/api_health_check.py...
+2025-08-09 22:47:39,286 - ERROR - ❌ scripts/ci/api_health_check.py FAILED
+2025-08-09 22:47:39,286 - ERROR - Error output: Traceback (most recent call last):
+  File "/workspace/scripts/ci/api_health_check.py", line 18, in <module>
+    from pydantic import BaseModel, ValidationError, Field
+ModuleNotFoundError: No module named 'pydantic'
+
+2025-08-09 22:47:39,286 - ERROR - ❌ api_health_check failed, but continuing...
+2025-08-09 22:47:39,286 - INFO - 🚀 Running scripts/ci/bert_model_test.py...
+2025-08-09 22:47:39,309 - ERROR - ❌ scripts/ci/bert_model_test.py FAILED
+2025-08-09 22:47:39,309 - ERROR - Error output: Traceback (most recent call last):
+  File "/workspace/scripts/ci/bert_model_test.py", line 11, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
+
+2025-08-09 22:47:39,309 - ERROR - ❌ bert_model_test failed, but continuing...
+2025-08-09 22:47:39,309 - INFO - 🚀 Running scripts/ci/t5_summarization_test.py...
+2025-08-09 22:47:39,343 - ERROR - ❌ scripts/ci/t5_summarization_test.py FAILED
+2025-08-09 22:47:39,343 - ERROR - Error output: Traceback (most recent call last):
+  File "/workspace/scripts/ci/t5_summarization_test.py", line 18, in <module>
+    from models.summarization.t5_summarizer import create_t5_summarizer
+  File "/workspace/src/models/summarization/__init__.py", line 19, in <module>
+    from .dataset_loader import SummarizationDataset, create_summarization_loader
+  File "/workspace/src/models/summarization/dataset_loader.py", line 2, in <module>
+    from torch.utils.data import Dataset
+ModuleNotFoundError: No module named 'torch'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/scripts/ci/t5_summarization_test.py", line 21, in <module>
+    from src.models.summarization.t5_summarizer import create_t5_summarizer
+ModuleNotFoundError: No module named 'src'
+
+2025-08-09 22:47:39,343 - ERROR - ❌ t5_summarization_test failed, but continuing...
+2025-08-09 22:47:39,343 - INFO - 🚀 Running scripts/ci/whisper_transcription_test.py...
+2025-08-09 22:47:39,365 - ERROR - ❌ scripts/ci/whisper_transcription_test.py FAILED
+2025-08-09 22:47:39,366 - ERROR - Error output: Traceback (most recent call last):
+  File "/workspace/scripts/ci/whisper_transcription_test.py", line 11, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+
+2025-08-09 22:47:39,366 - ERROR - ❌ whisper_transcription_test failed, but continuing...
+2025-08-09 22:47:39,366 - INFO - 🚀 Running scripts/ci/model_calibration_test.py...
+2025-08-09 22:47:39,392 - ERROR - ❌ scripts/ci/model_calibration_test.py FAILED
+2025-08-09 22:47:39,392 - ERROR - Error output: Traceback (most recent call last):
+  File "/workspace/scripts/ci/model_calibration_test.py", line 18, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
+
+2025-08-09 22:47:39,392 - ERROR - ❌ model_calibration_test failed, but continuing...
+2025-08-09 22:47:39,392 - INFO - 🚀 Running scripts/ci/onnx_conversion_test.py...
+2025-08-09 22:47:39,420 - ERROR - ❌ scripts/ci/onnx_conversion_test.py FAILED
+2025-08-09 22:47:39,420 - ERROR - Error output: Traceback (most recent call last):
+  File "/workspace/scripts/ci/onnx_conversion_test.py", line 10, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+
+2025-08-09 22:47:39,420 - ERROR - ❌ onnx_conversion_test failed, but continuing...
+2025-08-09 22:47:39,420 - INFO - 🧪 Running unit tests...
+2025-08-09 22:47:39,429 - ERROR - ❌ Unit tests FAILED
+2025-08-09 22:47:39,429 - ERROR - Return code: 1
+2025-08-09 22:47:39,429 - ERROR - Error output: /usr/bin/python3: No module named pytest
+
+2025-08-09 22:47:39,429 - ERROR - Standard output: 
+2025-08-09 22:47:39,429 - INFO - 🎯 Running E2E tests...
+2025-08-09 22:47:39,438 - ERROR - ❌ E2E tests FAILED
+2025-08-09 22:47:39,438 - ERROR - Error output: /usr/bin/python3: No module named pytest
+
+2025-08-09 22:47:39,438 - INFO - 🖥️ Testing GPU compatibility...
+2025-08-09 22:47:39,438 - ERROR - ❌ GPU compatibility test failed: No module named 'torch'
+2025-08-09 22:47:39,438 - INFO - ⚡ Running performance benchmarks...
+2025-08-09 22:47:39,438 - ERROR - ❌ Performance benchmark failed: No module named 'torch'
+2025-08-09 22:47:39,438 - INFO - 📊 Generating CI Report
+2025-08-09 22:47:39,438 - INFO - ============================================================
+2025-08-09 22:47:39,438 - ERROR - ❌ CI Pipeline failed!
