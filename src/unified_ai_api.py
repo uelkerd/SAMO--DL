@@ -473,7 +473,11 @@ def _ensure_summarizer_loaded() -> None:
 
 
 def _get_request_scoped_summarizer(model: str):
-    """Return a summarizer instance for requested model without mutating global."""
+    """Return summarizer for requested model.
+
+    If the requested model differs, attempt to create a request-scoped instance.
+    On failure, raise HTTPException(400/503) instead of silently falling back.
+    """
     if hasattr(text_summarizer, "model_name") and text_summarizer.model_name != model:
         try:
             from src.models.summarization.t5_summarizer import (
@@ -488,15 +492,10 @@ def _get_request_scoped_summarizer(model: str):
                 getattr(text_summarizer, "model_name", "unknown"),
             )
             return _create(model)
-        except Exception as exc:  # pragma: no cover - non-fatal path
-            logger.warning(
-                (
-                    "Model override to %s failed; continuing with default "
-                    "summarizer: %s"
-                ),
-                model,
-                exc,
-            )
+        except ValueError as exc:  # invalid model name/config
+            raise HTTPException(status_code=400, detail=f"Invalid summarizer model: {model}") from exc
+        except Exception as exc:  # transient/unavailable
+            raise HTTPException(status_code=503, detail=f"Requested summarizer model '{model}' unavailable") from exc
     return text_summarizer
 
 

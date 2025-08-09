@@ -419,58 +419,6 @@ def run_smoke(base_url: str, pause_ms: int = 200):
 
     access_token, refresh_token = phase_auth_login_refresh_logout(session, url, pause)
 
-    if access_token:
-        try:
-            r = session.get(
-                url("/auth/profile"),
-                headers={"Authorization": f"Bearer {access_token}"},
-                timeout=10,
-            )
-            msg = "ok"
-            try:
-                msg = r.json().get("username", "ok")
-            except Exception:
-                pass
-            p("/auth/profile", r.status_code, msg)
-        except Exception as exc:
-            p("/auth/profile", None, f"error: {exc}")
-        pause()
-
-        if refresh_token:
-            try:
-                r = session.post(
-                    url("/auth/refresh"),
-                    json={"refresh_token": refresh_token},
-                    timeout=10,
-                )
-                new = (
-                    r.json()
-                    if r.headers.get("content-type", "").startswith("application/json")
-                    else {}
-                )
-                access_token = new.get("access_token", access_token)
-                p(
-                    "/auth/refresh",
-                    r.status_code,
-                    "refreshed" if new.get("access_token") else r.text[:60],
-                )
-            except Exception as exc:
-                p("/auth/refresh", None, f"error: {exc}")
-            pause()
-
-        try:
-            r = session.post(
-                url("/auth/logout"),
-                headers={"Authorization": f"Bearer {access_token}"},
-                timeout=10,
-            )
-            p("/auth/logout", r.status_code, "logged out")
-        except Exception as exc:
-            p("/auth/logout", None, f"error: {exc}")
-        # Clear token so we don't reuse a blacklisted token
-        access_token = None
-        pause()
-
     phase_analyze_journal(session, url, pause)
 
     # Phase 4: Summarize text (auth required)
