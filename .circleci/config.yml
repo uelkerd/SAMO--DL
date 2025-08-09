@@ -148,8 +148,6 @@ commands:
           name: Install and setup Miniconda (SIMPLIFIED)
           command: |
             set -euxo pipefail
-            # Ensure common bin paths are present
-            export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
             # Download Miniconda installer (prefer wget/curl; fallback to python3 urllib)
             MINIFORGE_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
 
@@ -162,7 +160,7 @@ commands:
             elif command -v python >/dev/null 2>&1; then
               python -c "import ssl,urllib.request;u='https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh';c=ssl.create_default_context();r=urllib.request.urlopen(u,context=c);open('miniconda.sh','wb').write(r.read());print('Downloaded Miniconda via python urllib')"
             else
-              echo "Error: no wget, curl, or python available to download Miniconda." >&2
+              echo "Error: no wget, curl, python3, or python available to download Miniconda." >&2
               exit 1
             fi
 
