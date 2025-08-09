@@ -1034,8 +1034,9 @@ async def transcribe_voice(
             _ensure_voice_transcriber_loaded()
             
             # Enhanced transcription
-            # Note: model selection is configured at startup; per-request model_size/timestamp
-            # are not supported by the underlying transcriber interface.
+            # Note: model selection is configured at startup; per-request
+            # model_size/timestamp are not supported by the underlying
+            # transcriber interface.
             transcription_result = voice_transcriber.transcribe(
                 temp_file_path,
                 language=language
