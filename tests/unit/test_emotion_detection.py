@@ -57,9 +57,14 @@ class TestBertEmotionClassifier:
         assert total_params > 10_000  # At least the classifier parameters
         assert total_params < 1_000_000  # But less than a full BERT model
 
+    @patch("transformers.AutoConfig.from_pretrained")
     @patch("transformers.AutoModel.from_pretrained")
-    def test_forward_pass(self, mock_bert):
+    def test_forward_pass(self, mock_bert, mock_config):
         """Test forward pass through the model."""
+        # Provide a minimal config so model init doesn't hit network
+        mock_config_instance = MagicMock()
+        mock_config_instance.hidden_size = 768
+        mock_config.return_value = mock_config_instance
         mock_bert_output = BaseModelOutputWithPooling(
             last_hidden_state=torch.randn(2, 10, 768),
             pooler_output=torch.randn(2, 768),  # This is what we actually use
