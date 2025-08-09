@@ -41,7 +41,7 @@ except Exception:
 
 try:
     import jwt  # PyJWT
-except Exception as e:
+except ImportError as import_err:
     print("PyJWT is required to mint a local elevated token; install PyJWT.")
     raise
 
@@ -89,8 +89,8 @@ def run_smoke(base_url: str):
     session = requests.Session()
     session.headers.update(headers)
 
-    def url(p: str) -> str:
-        return base_url.rstrip("/") + p
+    def url(path: str) -> str:
+        return base_url.rstrip("/") + path
 
     # Discover server secret for local signing (use default if env not set)
     jwt_secret = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
@@ -138,8 +138,8 @@ def run_smoke(base_url: str):
         access_token = data.get("access_token")
         refresh_token = data.get("refresh_token")
         p("/auth/login", r.status_code, "token" if access_token else r.text[:60])
-    except Exception as e:
-        p("/auth/login", None, f"error: {e}")
+        except Exception as exc:
+            p("/auth/login", None, f"error: {exc}")
     time.sleep(0.2)
 
     if access_token:
@@ -151,8 +151,8 @@ def run_smoke(base_url: str):
             except Exception:
                 pass
             p("/auth/profile", r.status_code, msg)
-        except Exception as e:
-            p("/auth/profile", None, f"error: {e}")
+        except Exception as exc:
+            p("/auth/profile", None, f"error: {exc}")
         time.sleep(0.2)
 
         if refresh_token:
@@ -161,15 +161,15 @@ def run_smoke(base_url: str):
                 new = r.json() if r.headers.get("content-type", "").startswith("application/json") else {}
                 access_token = new.get("access_token", access_token)
                 p("/auth/refresh", r.status_code, "refreshed" if new.get("access_token") else r.text[:60])
-            except Exception as e:
-                p("/auth/refresh", None, f"error: {e}")
+            except Exception as exc:
+                p("/auth/refresh", None, f"error: {exc}")
             time.sleep(0.2)
 
         try:
             r = session.post(url("/auth/logout"), headers={"Authorization": f"Bearer {access_token}"}, timeout=10)
             p("/auth/logout", r.status_code, "logged out")
-        except Exception as e:
-            p("/auth/logout", None, f"error: {e}")
+        except Exception as exc:
+            p("/auth/logout", None, f"error: {exc}")
         # Clear token so we don't reuse a blacklisted token
         access_token = None
         time.sleep(0.2)
@@ -184,8 +184,8 @@ def run_smoke(base_url: str):
         except Exception:
             msg = r.text[:60]
         p("/analyze/journal", r.status_code, msg)
-    except Exception as e:
-        p("/analyze/journal", None, f"error: {e}")
+    except Exception as exc:
+        p("/analyze/journal", None, f"error: {exc}")
     time.sleep(0.2)
 
     # Phase 4: Summarize text (auth required)
@@ -206,8 +206,8 @@ def run_smoke(base_url: str):
                 except Exception:
                     msg = r.text[:60]
                 p("/summarize/text", r.status_code, msg)
-        except Exception as e:
-            p("/summarize/text", None, f"error: {e}")
+        except Exception as exc:
+            p("/summarize/text", None, f"error: {exc}")
         time.sleep(0.2)
 
     # Prepare tiny wavs
@@ -231,8 +231,8 @@ def run_smoke(base_url: str):
             except Exception:
                 msg = r.text[:60]
             p("/transcribe/voice", r.status_code, msg)
-        except Exception as e:
-            p("/transcribe/voice", None, f"error: {e}")
+        except Exception as exc:
+            p("/transcribe/voice", None, f"error: {exc}")
         time.sleep(0.2)
 
     # Elevated token for batch + monitoring + WS
@@ -251,8 +251,8 @@ def run_smoke(base_url: str):
         except Exception:
             msg = r.text[:60]
         p("/transcribe/batch", r.status_code, msg)
-    except Exception as e:
-        p("/transcribe/batch", None, f"error: {e}")
+    except Exception as exc:
+        p("/transcribe/batch", None, f"error: {exc}")
     time.sleep(0.3)
 
     # Phase 7: Monitoring endpoints (elevated)
@@ -265,8 +265,8 @@ def run_smoke(base_url: str):
             except Exception:
                 brief = r.text[:60]
             p(ep, r.status_code, brief)
-        except Exception as e:
-            p(ep, None, f"error: {e}")
+        except Exception as exc:
+            p(ep, None, f"error: {exc}")
         time.sleep(0.3)
 
     # Phase 8: WebSocket realtime (elevated)
@@ -287,8 +287,8 @@ def run_smoke(base_url: str):
             except Exception:
                 msg = str(raw)[:40]
             p("WS /ws/realtime", 101, msg)
-        except Exception as e:
-            p("WS /ws/realtime", None, f"error: {e}")
+        except Exception as exc:
+            p("WS /ws/realtime", None, f"error: {exc}")
     elif WEBSOCKET_BACKEND == "websockets" and websockets is not None:
         async def ws_run():
             try:
@@ -302,8 +302,8 @@ def run_smoke(base_url: str):
                     except Exception:
                         msg = str(raw)[:40]
                     p("WS /ws/realtime", 101, msg)
-            except Exception as e:
-                p("WS /ws/realtime", None, f"error: {e}")
+            except Exception as exc:
+                p("WS /ws/realtime", None, f"error: {exc}")
 
         asyncio.run(ws_run())
     else:
