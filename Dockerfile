@@ -15,9 +15,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Install Python deps
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python deps (minimal unified runtime)
+COPY deployment/cloud-run/requirements_unified.txt ./requirements_unified.txt
+RUN pip install --no-cache-dir -r requirements_unified.txt
 
 # Copy source
 COPY src/ ./src/
