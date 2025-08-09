@@ -32,7 +32,6 @@ executors:
       PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src
       TOKENIZERS_PARALLELISM: "false"  # Avoid HuggingFace tokenizer warnings
       HF_HOME: /home/circleci/.cache/huggingface  # Explicit cache location
-      PATH: /usr/local/bin:/usr/bin:/bin:$HOME/miniconda/bin:$PATH  # Ensure system bins + conda
       DB_USER: "dummy"
       DB_PASSWORD: "dummy"
       DB_NAME: "test"
@@ -48,7 +47,6 @@ executors:
     environment:
       PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src
       HF_HOME: /home/circleci/.cache/huggingface
-      PATH: $HOME/miniconda/bin:$PATH  # Add conda to PATH for all jobs
 
 # ============================================================================
 # COMMANDS - Reusable command definitions (SIMPLIFIED)
@@ -215,6 +213,11 @@ commands:
             ls -l "$HOME/miniconda/bin/conda" || (echo "Conda was not installed" && exit 1)
             "$HOME/miniconda/bin/conda" --version
 
+            # Ensure PATH is correctly propagated via CircleCI BASH_ENV (allows $PATH expansion)
+            echo 'export PATH="$HOME/miniconda/bin:/usr/local/bin:/usr/bin:/bin:$PATH"' >> "$BASH_ENV"
+            # Also export HF_HOME here for consistency across shells
+            echo 'export HF_HOME="/home/circleci/.cache/huggingface"' >> "$BASH_ENV"
+
             # Create or update environment (idempotent) with fallback if conda-forge is blocked
             if ! "$HOME/miniconda/bin/conda" env list | grep -q "samo-dl-stable"; then
               set +e
@@ -226,7 +229,19 @@ commands:
                 "$HOME/miniconda/bin/conda" create -y -n samo-dl-stable python=3.10
                 # Minimal test/dev packages to allow doctor/tests to run
                 "$HOME/miniconda/bin/conda" run -n samo-dl-stable pip install -U pip
-                "$HOME/miniconda/bin/conda" run -n samo-dl-stable pip install pytest pytest-xdist pytest-cov ruff bandit safety mypy httpx requests Flask PyJWT
+                # Pin fallback tooling to ensure reproducibility (mirrors versions in environment.yml / repo constraints)
+                "$HOME/miniconda/bin/conda" run -n samo-dl-stable pip install \
+                  pytest==8.3.2 \
+                  pytest-xdist==3.6.1 \
+                  'pytest-cov>=6.2.1,<7.0.0' \
+                  ruff==0.6.9 \
+                  bandit==1.7.9 \
+                  safety==3.2.3 \
+                  mypy==1.10.0 \
+                  httpx==0.27.2 \
+                  requests==2.32.4 \
+                  Flask==3.0.3 \
+                  PyJWT==2.8.0
                 # Install project editable to expose src/
                 "$HOME/miniconda/bin/conda" run -n samo-dl-stable pip install -e ".[test]" || true
               fi
