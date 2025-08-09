@@ -147,7 +147,11 @@ def run_smoke(base_url: str, pause_ms: int = 200):
 
     if access_token:
         try:
-            r = session.get(url("/auth/profile"), headers={"Authorization": f"Bearer {access_token}"}, timeout=10)
+            r = session.get(
+                url("/auth/profile"),
+                headers={"Authorization": f"Bearer {access_token}"},
+                timeout=10,
+            )
             msg = "ok"
             try:
                 msg = r.json().get("username", "ok")
@@ -179,7 +183,14 @@ def run_smoke(base_url: str, pause_ms: int = 200):
 
     # Phase 3: Analyze journal (public)
     try:
-        r = session.post(url("/analyze/journal"), json={"text": "A tiny note for quick smoke.", "generate_summary": False}, timeout=20)
+        r = session.post(
+            url("/analyze/journal"),
+            json={
+                "text": "A tiny note for quick smoke.",
+                "generate_summary": False,
+            },
+            timeout=20,
+        )
         msg = "ok"
         try:
             d = r.json()
@@ -198,8 +209,19 @@ def run_smoke(base_url: str, pause_ms: int = 200):
 
     if access_token:
         try:
-            form = {"text": "This is a very small text that should summarize okay.", "model": "t5-small", "max_length": 40, "min_length": 5, "do_sample": True}
-            r = session.post(url("/summarize/text"), headers={"Authorization": f"Bearer {access_token}"}, data=form, timeout=20)
+            form = {
+                "text": "This is a very small text that should summarize okay.",
+                "model": "t5-small",
+                "max_length": 40,
+                "min_length": 5,
+                "do_sample": True,
+            }
+            r = session.post(
+                url("/summarize/text"),
+                headers={"Authorization": f"Bearer {access_token}"},
+                data=form,
+                timeout=20,
+            )
             if r.status_code == 503:
                 p("/summarize/text", r.status_code, "service unavailable")
             else:
@@ -224,7 +246,13 @@ def run_smoke(base_url: str, pause_ms: int = 200):
     if access_token:
         try:
             files = {"audio_file": ("tiny.wav", wav1, "audio/wav")}
-            r = session.post(url("/transcribe/voice"), headers={"Authorization": f"Bearer {access_token}"}, files=files, data={"language": "en"}, timeout=30)
+            r = session.post(
+                url("/transcribe/voice"),
+                headers={"Authorization": f"Bearer {access_token}"},
+                files=files,
+                data={"language": "en"},
+                timeout=30,
+            )
             msg = "ok"
             try:
                 if r.status_code == 503:
@@ -247,7 +275,12 @@ def run_smoke(base_url: str, pause_ms: int = 200):
             ("audio_files", ("a.wav", wav1, "audio/wav")),
             ("audio_files", ("b.wav", wav2, "audio/wav")),
         ]
-        r = session.post(url("/transcribe/batch"), headers={"Authorization": f"Bearer {elevated}"}, files=files, timeout=45)
+        r = session.post(
+            url("/transcribe/batch"),
+            headers={"Authorization": f"Bearer {elevated}"},
+            files=files,
+            timeout=45,
+        )
         msg = "ok"
         try:
             msg = f"ok:{r.json().get('successful_transcriptions', 0)}"
@@ -261,7 +294,11 @@ def run_smoke(base_url: str, pause_ms: int = 200):
     # Phase 7: Monitoring endpoints (elevated)
     for ep in ["/monitoring/performance", "/monitoring/health/detailed"]:
         try:
-            r = session.get(url(ep), headers={"Authorization": f"Bearer {elevated}"}, timeout=15)
+            r = session.get(
+                url(ep),
+                headers={"Authorization": f"Bearer {elevated}"},
+                timeout=15,
+            )
             brief = "ok"
             try:
                 brief = r.json().get("status", "ok")
@@ -274,13 +311,20 @@ def run_smoke(base_url: str, pause_ms: int = 200):
 
     # Phase 8: WebSocket realtime (elevated)
     if base_url.startswith("https://"):
-        ws_url = url("/ws/realtime").replace("https://", "wss://") + f"?token={elevated}"
+        ws_url = (
+            url("/ws/realtime").replace("https://", "wss://")
+            + f"?token={elevated}"
+        )
     else:
         ws_url = None
     if ws_url and websocket is not None and WEBSOCKET_BACKEND == "websocket-client":
         try:
             # websocket-client is synchronous
-            ws = websocket.create_connection(ws_url, timeout=10, header=["User-Agent: testclient"])  # type: ignore
+            ws = websocket.create_connection(  # type: ignore
+                ws_url,
+                timeout=10,
+                header=["User-Agent: testclient"],
+            )
             # Send small wav chunk
             ws.send_binary(wav1)
             # Expect a JSON message
@@ -313,14 +357,27 @@ def run_smoke(base_url: str, pause_ms: int = 200):
 
         asyncio.run(ws_run())
     else:
-        reason = "skipped: base_url is not https" if not ws_url else "skipped: no websocket client available"
+        reason = (
+            "skipped: base_url is not https"
+            if not ws_url
+            else "skipped: no websocket client available"
+        )
         p("WS /ws/realtime", None, reason)
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--base-url", dest="base_url", default=os.getenv("BASE_URL", "http://127.0.0.1:8000"))
-    parser.add_argument("--pause-ms", dest="pause_ms", type=int, default=int(os.getenv("SMOKE_PAUSE_MS", "200")))
+    parser.add_argument(
+        "--base-url",
+        dest="base_url",
+        default=os.getenv("BASE_URL", "http://127.0.0.1:8000"),
+    )
+    parser.add_argument(
+        "--pause-ms",
+        dest="pause_ms",
+        type=int,
+        default=int(os.getenv("SMOKE_PAUSE_MS", "200")),
+    )
     args = parser.parse_args()
 
     run_smoke(args.base_url, pause_ms=args.pause_ms)
