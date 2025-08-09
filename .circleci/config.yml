@@ -185,7 +185,10 @@ commands:
             # CI test env vars to avoid DB failures
             echo "export DB_USER=dummy" >> "$BASH_ENV"
             echo "export DB_PASSWORD=dummy" >> "$BASH_ENV"
+            echo "export DB_NAME=test" >> "$BASH_ENV"
             echo "export DATABASE_URL=sqlite:///test.db" >> "$BASH_ENV"
+            echo "export HF_HUB_OFFLINE=1" >> "$BASH_ENV"
+            echo "export TRANSFORMERS_OFFLINE=1" >> "$BASH_ENV"
 
             # Post-update package dump for verification
             "$HOME/miniconda/bin/conda" list | tee conda.post_update.list.txt || true
@@ -278,10 +281,10 @@ commands:
           cmd: "python -m pytest tests/unit/test_api_rate_limiter.py --junit-xml=test-results/unit/rate_limiter.xml -v"
       - conda_exec:
           step_name: "Unit Tests (Parallel - Other Tests)"
-          cmd: "python -m pytest tests/unit/ --ignore=tests/unit/test_api_rate_limiter.py -o addopts=\"\" -k 'not sandbox_executor' --junit-xml=test-results/unit/results_other.xml -v -n 2"
+          cmd: "python -m pytest tests/unit/ --ignore=tests/unit/test_api_rate_limiter.py -o addopts=\"\" -k 'not sandbox_executor and not admin_endpoints and not database' --junit-xml=test-results/unit/results_other.xml -v -n 2"
       - conda_exec:
           step_name: "Unit Tests Coverage (Serial)"
-          cmd: "rm -f .coverage* || true && python -m pytest tests/unit/ --ignore=tests/unit/test_api_rate_limiter.py -o addopts=\"\" --cov=src --cov-report=xml --cov-report=html --cov-fail-under=5 -k 'not sandbox_executor' -q -n 0 && python -m pytest tests/unit/test_sandbox_executor.py -q -n 0"
+          cmd: "rm -f .coverage* || true && python -m pytest tests/unit/ --ignore=tests/unit/test_api_rate_limiter.py -o addopts=\"\" --cov=src --cov-report=xml --cov-report=html --cov-fail-under=5 -k 'not sandbox_executor and not admin_endpoints and not database' -q -n 0 && python -m pytest tests/unit/test_sandbox_executor.py -q -n 0 && python -m pytest tests/unit/test_admin_endpoints.py -q -n 0 && python -m pytest tests/unit/test_database.py -q -n 0"
       - store_test_results:
           path: test-results
       - store_artifacts:
