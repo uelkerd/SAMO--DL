@@ -280,6 +280,16 @@ class T5SummarizationModel(nn.Module):
                 return_tensors="pt",
             ).to(self.device)
 
+            # Reduce beams for larger models to avoid long runtimes on CPU
+            default_beams = (
+                2
+                if (
+                    "base" in self.model_name.lower()
+                    or "large" in self.model_name.lower()
+                )
+                else self.config.num_beams
+            )
+
             self.model.eval()
             with torch.no_grad():
                 summary_ids = self.model.generate(
