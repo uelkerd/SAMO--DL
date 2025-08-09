@@ -59,8 +59,9 @@ ENABLE_METRICS=True
 METRICS_PORT=9090
 
 # Security Configuration
-SECRET_KEY=your-secret-key-here
-API_KEY=your-api-key-here
+# SECURITY NOTE: Replace with actual secure values - never commit real secrets
+SECRET_KEY=REPLACE_WITH_SECURE_SECRET_KEY_FOR_PRODUCTION
+API_KEY=REPLACE_WITH_ACTUAL_API_KEY_FOR_PRODUCTION
 ```
 
 ### **4. Verify Installation**
