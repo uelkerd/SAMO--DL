@@ -19,7 +19,7 @@ import os
 import time
 import wave
 from datetime import datetime, timedelta
-from typing import Dict, Optional
+from typing import Dict, Optional, Callable, Tuple
 
 import numpy as np
 import requests
@@ -89,7 +89,7 @@ def p(endpoint: str, status: Optional[int], msg: str):
     print(f"{endpoint} -> {status} {msg}")
 
 
-def phase_basic_gets(session: requests.Session, url: callable, pause: callable) -> None:
+def phase_basic_gets(session: requests.Session, url: Callable[[str], str], pause: Callable[[], None]) -> None:
     """Check basic unauthenticated endpoints return 200 and brief status."""
     for ep in ["/", "/health", "/models/status"]:
         try:
@@ -106,7 +106,7 @@ def phase_basic_gets(session: requests.Session, url: callable, pause: callable) 
         pause()
 
 
-def login_and_get_access_token(session: requests.Session, url: callable) -> Optional[str]:
+def login_and_get_access_token(session: requests.Session, url: Callable[[str], str]) -> Optional[str]:
     """Attempt login and return an access token; return None on failure."""
     try:
         r = session.post(
@@ -122,8 +122,8 @@ def login_and_get_access_token(session: requests.Session, url: callable) -> Opti
 
 
 def phase_auth_login_refresh_logout(
-    session: requests.Session, url: callable, pause: callable
-) -> tuple[Optional[str], Optional[str]]:
+    session: requests.Session, url: Callable[[str], str], pause: Callable[[], None]
+) -> Tuple[Optional[str], Optional[str]]:
     """Exercise login, profile, refresh, and logout flow sequentially."""
     access_token: Optional[str] = None
     refresh_token: Optional[str] = None
@@ -197,7 +197,7 @@ def phase_auth_login_refresh_logout(
     return access_token, refresh_token
 
 
-def phase_analyze_journal(session: requests.Session, url: callable, pause: callable) -> None:
+def phase_analyze_journal(session: requests.Session, url: Callable[[str], str], pause: Callable[[], None]) -> None:
     """POST a small journal entry and report primary emotion."""
     try:
         r = session.post(
@@ -221,7 +221,10 @@ def phase_analyze_journal(session: requests.Session, url: callable, pause: calla
 
 
 def phase_summarize_text(
-    session: requests.Session, url: callable, pause: callable, access_token: Optional[str]
+    session: requests.Session,
+    url: Callable[[str], str],
+    pause: Callable[[], None],
+    access_token: Optional[str],
 ) -> None:
     """POST summarization; if service unavailable, report it."""
     if not access_token:
@@ -256,8 +259,8 @@ def phase_summarize_text(
 
 def phase_transcribe_voice(
     session: requests.Session,
-    url: callable,
-    pause: callable,
+    url: Callable[[str], str],
+    pause: Callable[[], None],
     access_token: Optional[str],
     wav1: bytes,
 ) -> None:
@@ -290,8 +293,8 @@ def phase_transcribe_voice(
 
 def phase_batch_transcribe(
     session: requests.Session,
-    url: callable,
-    pause: callable,
+    url: Callable[[str], str],
+    pause: Callable[[], None],
     elevated: str,
     wav1: bytes,
     wav2: bytes,
@@ -320,7 +323,10 @@ def phase_batch_transcribe(
 
 
 def phase_monitoring(
-    session: requests.Session, url: callable, pause: callable, elevated: str
+    session: requests.Session,
+    url: Callable[[str], str],
+    pause: Callable[[], None],
+    elevated: str,
 ) -> None:
     """Fetch monitoring endpoints and print their status fields."""
     for ep in ["/monitoring/performance", "/monitoring/health/detailed"]:
@@ -341,7 +347,7 @@ def phase_monitoring(
         pause()
 
 
-def phase_websocket(base_url: str, url: callable, elevated: str, wav1: bytes) -> None:
+def phase_websocket(base_url: str, url: Callable[[str], str], elevated: str, wav1: bytes) -> None:
     """Attempt a minimal WS exchange if HTTPS → WSS; otherwise print skipped."""
     if base_url.startswith("https://"):
         ws_url = url("/ws/realtime").replace("https://", "wss://") + f"?token={elevated}"
