@@ -32,14 +32,16 @@ PY
 # Copy source
 COPY src/ ./src/
 
-# Healthcheck
+# Switch to non-root user before runtime directives
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
+
+# Healthcheck (runs as non-root user)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
   CMD curl -fsS http://localhost:8080/health || exit 1
 
 EXPOSE 8080
 
 # Unified API entrypoint
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
-USER appuser
 CMD ["sh", "-c", "exec uvicorn src.unified_ai_api:app --host 0.0.0.0 --port ${PORT}"]
 
