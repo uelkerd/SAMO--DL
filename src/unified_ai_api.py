@@ -213,7 +213,7 @@ def require_permission(permission: str):
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(app_ctx: FastAPI) -> AsyncGenerator[None, None]:
     """Manage all AI models lifecycle - load on startup, cleanup on shutdown."""
     global emotion_detector, text_summarizer, voice_transcriber
 
@@ -297,16 +297,15 @@ async def metrics_middleware(request: Request, call_next):
     endpoint = request.url.path
     method = request.method
     start = time.time()
+    resp_status = "500"
     try:
         response = await call_next(request)
-        status = str(response.status_code)
+        resp_status = str(response.status_code)
         return response
     finally:
         duration = time.time() - start
         REQUEST_LATENCY.labels(endpoint=endpoint, method=method).observe(duration)
-        # status may not exist if exception; default 500
-        status = locals().get("status", "500")
-        REQUEST_COUNT.labels(endpoint=endpoint, method=method, status=status).inc()
+        REQUEST_COUNT.labels(endpoint=endpoint, method=method, status=resp_status).inc()
 
 @app.get("/metrics", include_in_schema=False)
 async def metrics() -> Response:
