@@ -141,10 +141,17 @@ def run_smoke(base_url: str, pause_ms: int = 200):
     try:
         r = session.post(
             url("/auth/login"),
-            json={"username": "tester@example.com", "password": "secret123"},
+            json={
+                "username": "tester@example.com",
+                "password": "secret123",
+            },
             timeout=10,
         )
-        data = r.json() if r.headers.get("content-type", "").startswith("application/json") else {}
+        data = (
+            r.json()
+            if r.headers.get("content-type", "").startswith("application/json")
+            else {}
+        )
         access_token = data.get("access_token")
         refresh_token = data.get("refresh_token")
         p("/auth/login", r.status_code, "token" if access_token else r.text[:60])
@@ -171,16 +178,32 @@ def run_smoke(base_url: str, pause_ms: int = 200):
 
         if refresh_token:
             try:
-                r = session.post(url("/auth/refresh"), json={"refresh_token": refresh_token}, timeout=10)
-                new = r.json() if r.headers.get("content-type", "").startswith("application/json") else {}
+                r = session.post(
+                    url("/auth/refresh"),
+                    json={"refresh_token": refresh_token},
+                    timeout=10,
+                )
+                new = (
+                    r.json()
+                    if r.headers.get("content-type", "").startswith("application/json")
+                    else {}
+                )
                 access_token = new.get("access_token", access_token)
-                p("/auth/refresh", r.status_code, "refreshed" if new.get("access_token") else r.text[:60])
+                p(
+                    "/auth/refresh",
+                    r.status_code,
+                    "refreshed" if new.get("access_token") else r.text[:60],
+                )
             except Exception as exc:
                 p("/auth/refresh", None, f"error: {exc}")
             pause()
 
         try:
-            r = session.post(url("/auth/logout"), headers={"Authorization": f"Bearer {access_token}"}, timeout=10)
+            r = session.post(
+                url("/auth/logout"),
+                headers={"Authorization": f"Bearer {access_token}"},
+                timeout=10,
+            )
             p("/auth/logout", r.status_code, "logged out")
         except Exception as exc:
             p("/auth/logout", None, f"error: {exc}")
@@ -349,7 +372,10 @@ def run_smoke(base_url: str, pause_ms: int = 200):
         async def ws_run():
             """Connect to WS endpoint, send a small WAV, and print a brief result."""
             try:
-                async with websockets.connect(ws_url, extra_headers={"User-Agent": "testclient"}) as ws:
+                async with websockets.connect(
+                    ws_url,
+                    extra_headers={"User-Agent": "testclient"},
+                ) as ws:
                     await ws.send(wav1)
                     raw = await ws.recv()
                     msg = "ok"
