@@ -649,6 +649,15 @@ workflows:
     jobs:
       - bootstrap-doctor
 
+  # Branch-gated quick bootstrap workflow (enables push-triggered bootstrap via branch name)
+  bootstrap-only-push:
+    jobs:
+      - bootstrap-doctor:
+          filters:
+            branches:
+              only:
+                - /^bootstrap-only\/.*/
+
 # ============================================================================
 # SIMPLIFICATION SUMMARY
 #
