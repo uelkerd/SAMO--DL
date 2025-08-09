@@ -88,7 +88,23 @@ commands:
             "$HOME/miniconda/bin/conda" info --envs | tee doctor.conda.info.txt || true
             "$HOME/miniconda/bin/conda" list | head -n 200 | tee doctor.conda.list.txt || true
 
-            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python -c "import sys;\ntry:\n import jwt; ver=getattr(jwt,'__version__','n/a')\nexcept Exception as exc:\n ver=f'import failed: {exc}'\nprint('python:', sys.executable); print('jwt:', ver)" | tee doctor.python_jwt.txt
+      - run:
+          name: Doctor - Python/JWT
+          shell: /bin/bash
+          command: |
+            set -euxo pipefail
+            export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+            cat > doctor_jwt.py << 'PY'
+            import sys
+            try:
+                import jwt
+                ver = getattr(jwt, "__version__", "n/a")
+            except Exception as exc:  # noqa: BLE001
+                ver = f"import failed: {exc}"
+            print("python:", sys.executable)
+            print("jwt:", ver)
+            PY
+            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python doctor_jwt.py | tee doctor.python_jwt.txt || true
       - store_artifacts:
           path: doctor.env.txt
       - store_artifacts:
