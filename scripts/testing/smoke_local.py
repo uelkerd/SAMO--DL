@@ -13,11 +13,9 @@ Notes:
 """
 
 import argparse
-import base64
 import io
 import json
 import os
-import sys
 import time
 import wave
 from datetime import datetime, timedelta
