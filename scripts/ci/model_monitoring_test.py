@@ -29,6 +29,7 @@ from torch import nn
 import logging
 import sys
 import torch
+from .validation_utils import validate_metric_ranges, validate_required_keys
 
 
 
@@ -121,14 +122,7 @@ def test_model_performance_monitoring():
         logger.info("Recall: {metrics['recall']:.4f}")
         logger.info("F1 Score: {metrics['f1_score']:.4f}")
 
-        if not 0 <= metrics['accuracy'] <= 1:
-            raise AssertionError("Accuracy should be between 0 and 1")
-        if not 0 <= metrics['precision'] <= 1:
-            raise AssertionError("Precision should be between 0 and 1")
-        if not 0 <= metrics['recall'] <= 1:
-            raise AssertionError("Recall should be between 0 and 1")
-        if not 0 <= metrics['f1_score'] <= 1:
-            raise AssertionError("F1 score should be between 0 and 1")
+        validate_metric_ranges(metrics, ["accuracy", "precision", "recall", "f1_score"])
 
         logger.info("✅ Model performance monitoring test passed")
         return True
@@ -202,14 +196,7 @@ def test_monitoring_logging():
 
         logger.info("Monitoring log entry: {log_entry}")
 
-        if 'timestamp' not in log_entry:
-            raise AssertionError("Log entry should have timestamp")
-        if 'model_version' not in log_entry:
-            raise AssertionError("Log entry should have model version")
-        if 'metrics' not in log_entry:
-            raise AssertionError("Log entry should have metrics")
-        if 'status' not in log_entry:
-            raise AssertionError("Log entry should have status")
+        validate_required_keys(log_entry, ["timestamp", "model_version", "metrics", "status"], label="Log entry")
 
         logger.info("✅ Monitoring logging test passed")
         return True

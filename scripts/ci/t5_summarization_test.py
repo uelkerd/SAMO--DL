@@ -24,6 +24,7 @@ except ImportError:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+from .validation_utils import validate_hasattrs
 
 def test_t5_model_loading():
     """Test T5 model initialization."""
@@ -39,12 +40,7 @@ def test_t5_model_loading():
         logger.info("✅ T5 model initialized successfully")
 
         # Test basic model properties
-        if not hasattr(model, "model"):
-            raise AssertionError("Model should have 'model' attribute")
-        if not hasattr(model, "tokenizer"):
-            raise AssertionError("Model should have 'tokenizer' attribute")
-        if not hasattr(model, "device"):
-            raise AssertionError("Model should have 'device' attribute")
+        validate_hasattrs(model, ["model", "tokenizer", "device"], label="T5 model")
 
         logger.info("✅ Model attributes validation passed")
 
