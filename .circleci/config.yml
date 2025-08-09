@@ -33,8 +33,6 @@ executors:
       TOKENIZERS_PARALLELISM: "false"  # Avoid HuggingFace tokenizer warnings
       HF_HOME: /home/circleci/.cache/huggingface  # Explicit cache location
       PATH: /usr/local/bin:/usr/bin:/bin:$HOME/miniconda/bin:$PATH  # Ensure system bins + conda
-      HF_HUB_OFFLINE: "1"
-      TRANSFORMERS_OFFLINE: "1"
       DB_USER: "dummy"
       DB_PASSWORD: "dummy"
       DB_NAME: "test"
@@ -176,6 +174,28 @@ commands:
               exit 1
             fi
 
+            # Verify SHA256 checksum to prevent supply chain attacks
+            # Fetch expected checksum from the official checksums list
+            set +e
+            if command -v curl >/dev/null 2>&1; then
+              curl -sSfL https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh.sha256 > miniconda.sha256
+            elif command -v wget >/dev/null 2>&1; then
+              wget -qO miniconda.sha256 https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh.sha256
+            else
+              echo "Warning: neither curl nor wget available to fetch checksum; aborting for safety." >&2
+              exit 1
+            fi
+            set -e
+            # Compute actual checksum and compare
+            ACTUAL_SUM=$(sha256sum miniconda.sh | awk '{print $1}')
+            EXPECTED_SUM=$(awk '{print $1}' miniconda.sha256)
+            if [ "$ACTUAL_SUM" != "$EXPECTED_SUM" ]; then
+              echo "Checksum verification failed! Expected $EXPECTED_SUM, got $ACTUAL_SUM" >&2
+              rm -f miniconda.sh miniconda.sha256
+              exit 1
+            fi
+            rm -f miniconda.sha256
+
             chmod +x miniconda.sh
             bash miniconda.sh -b -p "$HOME/miniconda"
             rm -f miniconda.sh
@@ -183,7 +203,7 @@ commands:
             # Verify conda binary exists
             ls -l "$HOME/miniconda/bin/conda" || (echo "Conda was not installed" && exit 1)
             "$HOME/miniconda/bin/conda" --version
-            
+
             # Create or update environment (idempotent) with fallback if conda-forge is blocked
             if ! "$HOME/miniconda/bin/conda" env list | grep -q "samo-dl-stable"; then
               set +e
@@ -208,7 +228,7 @@ commands:
                 echo "Conda env update failed (possibly channel 403). Continuing with existing env." >&2
               fi
             fi
-            
+
             # Install project in editable mode; rely on environment.yml for deps
             "$HOME/miniconda/bin/conda" run -n samo-dl-stable pip install -e ".[test,dev,prod]"
 
@@ -217,19 +237,18 @@ commands:
             echo "export DB_PASSWORD=dummy" >> "$BASH_ENV"
             echo "export DB_NAME=test" >> "$BASH_ENV"
             echo "export DATABASE_URL=sqlite:///test.db" >> "$BASH_ENV"
-            echo "export HF_HUB_OFFLINE=1" >> "$BASH_ENV"
-            echo "export TRANSFORMERS_OFFLINE=1" >> "$BASH_ENV"
+            # Do not force offline globally; per-job steps will control this as needed
 
             # Post-update package dump for verification
             "$HOME/miniconda/bin/conda" list | tee conda.post_update.list.txt || true
-            
+
             # Set PYTHONPATH once (simplified)
             if [ -n "$BASH_ENV" ]; then
               echo "export PYTHONPATH=$CIRCLE_WORKING_DIRECTORY/src" >> "$BASH_ENV"
             else
               echo "export PYTHONPATH=$CIRCLE_WORKING_DIRECTORY/src" >> ~/.bashrc
             fi
-            
+
             echo "Conda environment setup complete!"
           shell: /bin/bash  # Explicitly specify bash for consistent behavior
 
@@ -268,6 +287,14 @@ commands:
   pre_warm_models:
     description: "Pre-download and cache models for faster CI execution"
     steps:
+      - run:
+          name: Enable online mode for model pre-warming
+          shell: /bin/bash
+          command: |
+            set -euxo pipefail
+            echo "export HF_HUB_OFFLINE=0" >> "$BASH_ENV"
+            echo "export TRANSFORMERS_OFFLINE=0" >> "$BASH_ENV"
+            if [ -f "$BASH_ENV" ]; then source "$BASH_ENV"; fi
       - conda_exec:
           step_name: "Pre-warm Models"
           cmd: "python scripts/ci/pre_warm_models.py"
@@ -314,7 +341,7 @@ commands:
           cmd: "python -m pytest tests/unit/ --ignore=tests/unit/test_api_rate_limiter.py -o addopts=\"\" -k 'not sandbox_executor and not admin_endpoints and not database' --junit-xml=test-results/unit/results_other.xml -v -n 2"
       - conda_exec:
           step_name: "Unit Tests Coverage (Serial)"
-          cmd: "rm -f .coverage* || true && python -m pytest tests/unit/ --ignore=tests/unit/test_api_rate_limiter.py -o addopts=\"\" --cov=src --cov-report=xml --cov-report=html --cov-fail-under=5 -k 'not sandbox_executor and not admin_endpoints and not database' -q -n 0 && python -m pytest tests/unit/test_sandbox_executor.py -q -n 0 && python -m pytest tests/unit/test_admin_endpoints.py -q -n 0 && python -m pytest tests/unit/test_database.py -q -n 0"
+          cmd: "rm -f .coverage* || true && python -m pytest tests/unit/ --ignore=tests/unit/test_api_rate_limiter.py -o addopts=\"\" --cov=src --cov-report=xml --cov-report=html --cov-fail-under=45 -k 'not sandbox_executor and not admin_endpoints and not database' -q -n 0 && python -m pytest tests/unit/test_sandbox_executor.py -q -n 0 && python -m pytest tests/unit/test_admin_endpoints.py -q -n 0 && python -m pytest tests/unit/test_database.py -q -n 0"
       - store_test_results:
           path: test-results
       - store_artifacts:
@@ -422,6 +449,14 @@ jobs:
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
       - cache_dependencies
+      - run:
+          name: Ensure online mode for model validation
+          shell: /bin/bash
+          command: |
+            set -euxo pipefail
+            echo "export HF_HUB_OFFLINE=0" >> "$BASH_ENV"
+            echo "export TRANSFORMERS_OFFLINE=0" >> "$BASH_ENV"
+            if [ -f "$BASH_ENV" ]; then source "$BASH_ENV"; fi
       - run_in_conda:
           step_name: Model Loading and Validation
           command: |
@@ -431,17 +466,17 @@ jobs:
             from src.models.emotion_detection.bert_classifier import BertEmotionClassifier
             model = BertEmotionClassifier(num_emotions=28)
             print('BERT emotion classifier loaded successfully')
-            
+
             # Test T5 summarizer loading
             from src.models.summarization.t5_summarizer import create_t5_summarizer
             summarizer = create_t5_summarizer()
             print('T5 summarizer loaded successfully')
-            
+
             # Test Whisper transcriber loading
             from src.models.voice_processing.whisper_transcriber import WhisperTranscriber
             transcriber = WhisperTranscriber()
             print('Whisper transcriber loaded successfully')
-            
+
             print('All models loaded and validated successfully!')
             "
       - store_artifacts:
@@ -476,7 +511,7 @@ jobs:
             # Test emotion detection speed
             start = time.time()
             response = client.post(
-                '/analyze/journal', 
+                '/analyze/journal',
                 json={
                     'text': 'I feel happy and excited today!',
                     'generate_summary': True,
