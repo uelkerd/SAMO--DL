@@ -273,10 +273,10 @@ commands:
           cmd: "python -m pytest tests/unit/test_api_rate_limiter.py --junit-xml=test-results/unit/rate_limiter.xml -v"
       - conda_exec:
           step_name: "Unit Tests (Parallel - Other Tests)"
-          cmd: "python -m pytest tests/unit/ --ignore=tests/unit/test_api_rate_limiter.py --junit-xml=test-results/unit/results_other.xml -v -n 2"
+          cmd: "python -m pytest tests/unit/ --ignore=tests/unit/test_api_rate_limiter.py -o addopts=\"\" --junit-xml=test-results/unit/results_other.xml -v -n 2"
       - conda_exec:
           step_name: "Unit Tests Coverage (Serial)"
-          cmd: "rm -f .coverage* || true && python -m pytest tests/unit/ --ignore=tests/unit/test_api_rate_limiter.py --cov=src --cov-report=xml --cov-report=html --cov-fail-under=5 -q -n 0"
+          cmd: "rm -f .coverage* || true && python -m pytest tests/unit/ --ignore=tests/unit/test_api_rate_limiter.py -o addopts=\"\" --cov=src --cov-report=xml --cov-report=html --cov-fail-under=5 -q -n 0"
       - store_test_results:
           path: test-results
       - store_artifacts:
