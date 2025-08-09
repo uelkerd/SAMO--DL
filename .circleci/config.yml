@@ -175,10 +175,9 @@ commands:
             fi
 
             # Verify SHA256 checksum to prevent supply chain attacks
-            # Resolve final URL to extract the release tag and use sha256sum.txt
-            FINAL_URL=$(curl -sIL -o /dev/null -w '%{url_effective}' "$MINIFORGE_URL")
-            BASENAME=$(basename "$FINAL_URL")
-            TAG=$(echo "$FINAL_URL" | sed -n 's#.*/releases/download/\([^/]*\)/.*#\1#p')
+            # Use GitHub API to get the latest tag and verify against sha256sum.txt
+            BASENAME=$(basename "$MINIFORGE_URL")
+            TAG=$(curl -sSfL https://api.github.com/repos/conda-forge/miniforge/releases/latest | grep -m1 '"tag_name"' | sed -E 's/.*"tag_name"\s*:\s*"([^"]+)".*/\1/')
             CHECKSUM_URL="https://github.com/conda-forge/miniforge/releases/download/$TAG/sha256sum.txt"
             echo "Resolved installer: $BASENAME"
             echo "Checksum URL: $CHECKSUM_URL"
