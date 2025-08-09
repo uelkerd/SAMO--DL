@@ -2,7 +2,6 @@ import io
 import numpy as np
 import pytest
 from fastapi.testclient import TestClient
-from typing import Callable
 
 from src.unified_ai_api import app, get_current_user
 from src.security.jwt_manager import TokenPayload
@@ -49,7 +48,7 @@ def tiny_tone_wav_bytes(duration_s: float = 0.3, sample_rate: int = 16000, freq_
         return buf.getvalue()
 
 
-def test_summarize_returns_503_when_model_unavailable(monkeypatch, client: TestClient):
+def test_summarize_returns_503_when_model_unavailable(monkeypatch, client: TestClient, tmp_path):
     """Force summarizer lazy-load to fail and expect 503."""
     # Ensure global is None
     api.text_summarizer = None
@@ -59,8 +58,9 @@ def test_summarize_returns_503_when_model_unavailable(monkeypatch, client: TestC
         """Raise to simulate summarizer model load failure."""
         raise RuntimeError("simulated load failure")
 
-    monkeypatch.setenv("HF_HOME", "/tmp/hf-cache-test")
-    monkeypatch.setenv("TRANSFORMERS_CACHE", "/tmp/hf-cache-test")
+    cache_dir = tmp_path / "hf-cache-test"
+    monkeypatch.setenv("HF_HOME", str(cache_dir))
+    monkeypatch.setenv("TRANSFORMERS_CACHE", str(cache_dir))
     # ensure accidental attribute is absent
     if "create_t5_summarizer" in api.__dict__:
         del api.__dict__["create_t5_summarizer"]
@@ -100,7 +100,7 @@ def test_summarize_returns_200_when_lazy_load_succeeds(monkeypatch, client: Test
         model_name = "t5-small"
 
         @staticmethod
-        def generate_summary(text: str, max_length: int, min_length: int) -> str:
+        def generate_summary(_text: str, _max_length: int, _min_length: int) -> str:
             """Return a constant summary string for tests."""
             return "fake summary"
 
@@ -111,7 +111,7 @@ def test_summarize_returns_200_when_lazy_load_succeeds(monkeypatch, client: Test
                 """Module shim exposing a summarizer factory for tests."""
 
                 @staticmethod
-                def create_t5_summarizer(model: str):
+                def create_t5_summarizer(_model: str):
                     """Create and return FakeSummarizer for tests."""
                     return FakeSummarizer()
             return M
@@ -141,7 +141,7 @@ def test_voice_returns_503_when_transcriber_unavailable(monkeypatch, client: Tes
                 """Module shim exposing a Whisper transcriber factory for tests."""
 
                 @staticmethod
-                def create_whisper_transcriber(model: str):
+                def create_whisper_transcriber(_model: str):
                     """Raise to simulate Whisper transcriber load failure."""
                     raise RuntimeError("simulated whisper load failure")
             return M
@@ -165,7 +165,7 @@ def test_voice_returns_200_when_lazy_load_succeeds(monkeypatch, client: TestClie
         """Minimal fake transcriber used to test success paths."""
 
         @staticmethod
-        def transcribe(path: str, language=None):
+        def transcribe(_path: str, _language=None):
             """Return a minimal fake transcription payload for tests."""
             return {
                 "text": "hello",
@@ -184,7 +184,7 @@ def test_voice_returns_200_when_lazy_load_succeeds(monkeypatch, client: TestClie
                 """Module shim exposing a Whisper transcriber factory for tests."""
 
                 @staticmethod
-                def create_whisper_transcriber(model: str):
+                def create_whisper_transcriber(_model: str):
                     """Create and return FakeTranscriber for tests."""
                     return FakeTranscriber()
             return M
