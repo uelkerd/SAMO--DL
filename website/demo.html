@@ -790,6 +790,15 @@
             
             if (!confidenceCanvas || !categoryCanvas) {
                 console.warn('Chart canvases not found');
+                // Display error message to user
+                const chartContainer = document.querySelector('.chart-container') || document.querySelector('.result-card') || document.body;
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-warning mt-3';
+                errorDiv.style.background = 'rgba(251, 191, 36, 0.1)';
+                errorDiv.style.border = '1px solid rgba(251, 191, 36, 0.3)';
+                errorDiv.style.color = '#f59e0b';
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Chart visualization temporarily unavailable. Please refresh the page.';
+                chartContainer.appendChild(errorDiv);
                 return;
             }
 
@@ -803,8 +812,37 @@
                         datasets: [{
                             label: 'Confidence',
                             data: emotions.map(e => e.confidence * 100),
-                            backgroundColor: emotions.map(() => 'rgba(139, 92, 246, 0.8)'),
-                            borderColor: emotions.map(() => 'rgba(139, 92, 246, 1)'),
+                            backgroundColor: emotions.map((e, i) => {
+                                // Define distinct colors for each emotion
+                                const emotionColors = [
+                                    'rgba(139, 92, 246, 0.8)',   // purple
+                                    'rgba(34, 197, 94, 0.8)',    // green
+                                    'rgba(239, 68, 68, 0.8)',    // red
+                                    'rgba(253, 224, 71, 0.8)',   // yellow
+                                    'rgba(59, 130, 246, 0.8)',   // blue
+                                    'rgba(16, 185, 129, 0.8)',   // teal
+                                    'rgba(251, 191, 36, 0.8)',   // amber
+                                    'rgba(244, 63, 94, 0.8)',    // pink
+                                    'rgba(99, 102, 241, 0.8)',   // indigo
+                                    'rgba(52, 211, 153, 0.8)'    // emerald
+                                ];
+                                return emotionColors[i % emotionColors.length];
+                            }),
+                            borderColor: emotions.map((e, i) => {
+                                const emotionBorderColors = [
+                                    'rgba(139, 92, 246, 1)',
+                                    'rgba(34, 197, 94, 1)',
+                                    'rgba(239, 68, 68, 1)',
+                                    'rgba(253, 224, 71, 1)',
+                                    'rgba(59, 130, 246, 1)',
+                                    'rgba(16, 185, 129, 1)',
+                                    'rgba(251, 191, 36, 1)',
+                                    'rgba(244, 63, 94, 1)',
+                                    'rgba(99, 102, 241, 1)',
+                                    'rgba(52, 211, 153, 1)'
+                                ];
+                                return emotionBorderColors[i % emotionBorderColors.length];
+                            }),
                             borderWidth: 2,
                             borderRadius: 8,
                             borderSkipped: false,
