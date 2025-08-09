@@ -902,32 +902,34 @@ async def chat_websocket(websocket: WebSocket, token: str = Query(None)) -> None
     - Then sends {"text":"...", "summarize":bool, "model":"t5-small|t5-base"}.
     - Server responds with {"reply":"...", "summary":"..."}.
     """
-    # Authenticate
-    if not token:
-        await websocket.accept()
+    # Authenticate (accept once, then validate)
+    await websocket.accept()
+    auth_token = token
+    if not auth_token:
         try:
             initial = await websocket.receive_text()
-            token = json.loads(initial).get("token")
-        except Exception:
+            auth_token = json.loads(initial).get("token")
+        except (json.JSONDecodeError, AttributeError, WebSocketDisconnect):
             await websocket.send_json({"error": "Authentication token required"})
             await websocket.close(code=4001)
             return
 
+    if not auth_token:
+        await websocket.send_json({"error": "Authentication token required"})
+        await websocket.close(code=4001)
+        return
+
     try:
-        payload = jwt_manager.verify_token(token)
+        payload = jwt_manager.verify_token(auth_token)
     except Exception:
-        await websocket.accept()
         await websocket.send_json({"error": "Token verification failed"})
         await websocket.close(code=4001)
         return
 
     if not payload:
-        await websocket.accept()
         await websocket.send_json({"error": "Invalid token"})
         await websocket.close(code=4001)
         return
-
-    await websocket.accept()
     try:
         while True:
             raw = await websocket.receive_text()
@@ -953,6 +955,10 @@ async def chat_websocket(websocket: WebSocket, token: str = Query(None)) -> None
                 except HTTPException as exc:
                     response["summary_error"] = exc.detail
                 except Exception as exc:  # pragma: no cover
+                    logger.error(
+                        f"Error during websocket summary generation: {exc}",
+                        exc_info=True,
+                    )
                     response["summary_error"] = str(exc)
 
             await websocket.send_json(response)
@@ -1693,3 +1699,4 @@ async def root() -> dict[str, Any]:
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
