@@ -81,10 +81,12 @@ def test_t5_summarization():
         logger.info(f"✅ Summarization successful: {summary[:50]}...")
 
         # Validate summary
-        assert isinstance(summary, str), "Summary should be a string"
+        if not isinstance(summary, str):
+            raise AssertionError("Summary should be a string")
         if len(summary) <= 0:
             raise AssertionError("Summary should not be empty")
-        assert len(summary) < len(test_text), "Summary should be shorter than input"
+        if len(summary) >= len(test_text):
+            raise AssertionError("Summary should be shorter than input")
 
         logger.info("✅ Summary validation passed")
 
