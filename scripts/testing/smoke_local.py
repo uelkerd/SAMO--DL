@@ -141,8 +141,8 @@ def run_smoke(base_url: str, pause_ms: int = 200):
         access_token = data.get("access_token")
         refresh_token = data.get("refresh_token")
         p("/auth/login", r.status_code, "token" if access_token else r.text[:60])
-        except Exception as exc:
-            p("/auth/login", None, f"error: {exc}")
+    except Exception as exc:
+        p("/auth/login", None, f"error: {exc}")
     pause()
 
     if access_token:
@@ -256,7 +256,7 @@ def run_smoke(base_url: str, pause_ms: int = 200):
         p("/transcribe/batch", r.status_code, msg)
     except Exception as exc:
         p("/transcribe/batch", None, f"error: {exc}")
-    time.sleep(0.3)
+    pause()
 
     # Phase 7: Monitoring endpoints (elevated)
     for ep in ["/monitoring/performance", "/monitoring/health/detailed"]:
@@ -270,7 +270,7 @@ def run_smoke(base_url: str, pause_ms: int = 200):
             p(ep, r.status_code, brief)
         except Exception as exc:
             p(ep, None, f"error: {exc}")
-        time.sleep(0.3)
+        pause()
 
     # Phase 8: WebSocket realtime (elevated)
     if base_url.startswith("https://"):
