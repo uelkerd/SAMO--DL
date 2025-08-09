@@ -838,12 +838,12 @@ async def transcribe_voice(
             if voice_transcriber is None:
                 raise HTTPException(status_code=503, detail="Voice transcription service unavailable")
             
-            # Enhanced transcription with additional parameters
+            # Enhanced transcription
+            # Note: model selection is configured at startup; per-request model_size/timestamp
+            # are not supported by the underlying transcriber interface.
             transcription_result = voice_transcriber.transcribe(
                 temp_file_path,
-                language=language,
-                model_size=model_size,
-                timestamp=timestamp
+                language=language
             )
             
             # Calculate additional metrics
