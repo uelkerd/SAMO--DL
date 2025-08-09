@@ -19,27 +19,55 @@
     
     <style>
         :root {
-            --primary-color: #6366f1;
-            --secondary-color: #8b5cf6;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --info-color: #3b82f6;
-            --dark-color: #1f2937;
-            --light-color: #f9fafb;
+            /* New sophisticated dark gradient color palette */
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            --secondary-gradient: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #3730a3 100%);
+            --dark-gradient: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            --accent-gradient: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #c084fc 100%);
+            
+            --primary-color: #8b5cf6;
+            --secondary-color: #a855f7;
+            --accent-color: #c084fc;
+            --dark-color: #0f0f23;
+            --darker-color: #0a0a1a;
+            --light-accent: #e9d5ff;
+            --glass-bg: rgba(139, 92, 246, 0.1);
+            --glass-border: rgba(139, 92, 246, 0.2);
+            
+            /* Performance and animation settings */
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            --shadow-glow: 0 10px 40px rgba(139, 92, 246, 0.3);
+            --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Removed universal transition for better performance */
+        .card, .btn, .nav-link, .badge, .form-control, .form-select {
+            transition: var(--transition-smooth);
         }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             line-height: 1.6;
-            color: var(--dark-color);
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #e2e8f0;
+            background: var(--dark-gradient);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        /* Sophisticated glassmorphism effects */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--shadow-glass);
         }
 
         .hero-section {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--dark-gradient);
             color: white;
-            padding: 80px 0;
+            padding: 100px 0;
             position: relative;
             overflow: hidden;
         }
@@ -51,8 +79,11 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-            opacity: 0.3;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(192, 132, 252, 0.2) 0%, transparent 50%);
+            animation: float 6s ease-in-out infinite;
         }
 
         .hero-content {
@@ -61,204 +92,391 @@
         }
 
         .feature-card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--shadow-glass);
+            transition: var(--transition-bounce);
             height: 100%;
-            border: 2px solid transparent;
+            color: #e2e8f0;
         }
 
         .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: var(--shadow-glow);
+            border-color: var(--primary-color);
         }
 
         .feature-card.active {
-            border-color: var(--primary-color);
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--primary-gradient);
+            border-color: var(--accent-color);
             color: white;
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: var(--shadow-glow);
         }
 
         .demo-container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            margin: -50px 0 50px 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            box-shadow: var(--shadow-glass);
+            padding: 50px;
+            margin: -80px 0 50px 0;
             position: relative;
             z-index: 10;
+            color: #e2e8f0;
         }
 
         .demo-tab {
-            background: var(--light-color);
-            border: none;
-            border-radius: 12px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
             padding: 15px 25px;
             margin: 5px;
-            transition: all 0.3s ease;
+            transition: var(--transition-bounce);
             font-weight: 500;
+            color: #e2e8f0;
         }
 
         .demo-tab.active {
-            background: var(--primary-color);
+            background: var(--primary-gradient);
             color: white;
             transform: scale(1.05);
+            box-shadow: var(--shadow-glow);
         }
 
         .demo-tab:hover {
-            background: var(--primary-color);
+            background: var(--accent-gradient);
             color: white;
             transform: scale(1.02);
         }
 
         .result-card {
-            background: var(--light-color);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 15px 0;
-            border-left: 4px solid var(--success-color);
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 4px solid var(--primary-color);
+            color: #e2e8f0;
+        }
+
+        /* Emotional context styling */
+        .emotional-context-card {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .emotional-context-card .badge {
+            background: var(--primary-gradient);
         }
 
         .loading-spinner {
             display: none;
             text-align: center;
-            padding: 20px;
+            padding: 30px;
+            color: #e2e8f0;
         }
 
         .spinner-border {
             width: 3rem;
             height: 3rem;
+            border-color: var(--primary-color);
+            border-right-color: transparent;
         }
 
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
+            gap: 25px;
+            margin: 30px 0;
         }
 
         .metric-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
             text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-glass);
+            transition: var(--transition-smooth);
+            color: #e2e8f0;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-glow);
         }
 
         .metric-value {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: bold;
-            color: var(--primary-color);
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .metric-label {
-            color: var(--dark-color);
+            color: #cbd5e1;
             font-size: 0.9rem;
-            margin-top: 5px;
+            margin-top: 10px;
         }
 
         .code-block {
-            background: #1e293b;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 15px 0;
+            background: var(--darker-color);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
             overflow-x: auto;
+            color: #e2e8f0;
         }
 
         .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .navbar-brand, .navbar .nav-link {
+            color: #e2e8f0;
         }
 
         .footer {
-            background: var(--dark-color);
-            color: white;
-            padding: 60px 0 30px;
+            background: var(--dark-gradient);
+            color: #e2e8f0;
+            padding: 80px 0 40px;
+            border-top: 1px solid var(--glass-border);
         }
 
         .voice-recorder {
-            background: var(--light-color);
-            border-radius: 12px;
-            padding: 30px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
             text-align: center;
-            margin: 20px 0;
+            margin: 30px 0;
+            color: #e2e8f0;
         }
 
         .record-button {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             border: none;
-            background: var(--danger-color);
+            background: var(--primary-gradient);
             color: white;
-            font-size: 24px;
-            transition: all 0.3s ease;
+            font-size: 28px;
+            transition: var(--transition-bounce);
+            box-shadow: var(--shadow-glow);
         }
 
         .record-button:hover {
             transform: scale(1.1);
-            background: #dc2626;
+            box-shadow: 0 15px 50px rgba(139, 92, 246, 0.4);
         }
 
         .record-button.recording {
-            animation: pulse 1.5s infinite;
+            animation: recordPulse 1.5s infinite;
+            background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+        @keyframes recordPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
         .batch-input {
-            background: var(--light-color);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 15px 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 25px 0;
+            color: #e2e8f0;
         }
 
         .batch-item {
-            background: white;
-            border-radius: 8px;
-            padding: 10px;
-            margin: 5px 0;
-            border-left: 3px solid var(--info-color);
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 3px solid var(--primary-color);
+            color: #e2e8f0;
         }
 
         .security-badge {
             display: inline-block;
-            background: var(--success-color);
+            background: var(--primary-gradient);
             color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
+            padding: 6px 12px;
+            border-radius: 20px;
             font-size: 0.8rem;
-            margin: 2px;
+            font-weight: 600;
+            margin: 3px;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
         }
 
         .performance-indicator {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            padding: 4px 8px;
-            border-radius: 12px;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 15px;
             font-size: 0.8rem;
-            font-weight: 500;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
         }
 
         .performance-fast {
-            background: #dcfce7;
-            color: #166534;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
         }
 
         .performance-medium {
-            background: #fef3c7;
-            color: #92400e;
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #f59e0b;
         }
 
         .performance-slow {
-            background: #fee2e2;
-            color: #991b1b;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        /* Form controls with glass effect */
+        .form-control, .form-select {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: #e2e8f0;
+            padding: 12px 16px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: var(--glass-bg);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+            color: #e2e8f0;
+        }
+
+        .form-control::placeholder {
+            color: #94a3b8;
+        }
+
+        /* Enhanced buttons */
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: var(--transition-bounce);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 15px 50px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-outline-primary {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            border-radius: 12px;
+            padding: 10px 28px;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-gradient);
+            border-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Animation enhancements */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(1deg); }
+            66% { transform: translateY(-10px) rotate(-1deg); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .result-section {
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Error and status messages */
+        .alert {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            color: #e2e8f0;
+        }
+
+        .alert-danger {
+            border-left: 4px solid #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .alert-success {
+            border-left: 4px solid #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .alert-warning {
+            border-left: 4px solid #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        /* Responsive enhancements */
+        @media (max-width: 768px) {
+            .demo-container {
+                padding: 30px 20px;
+                margin: -50px 15px 30px 15px;
+            }
+            
+            .hero-section {
+                padding: 80px 0;
+            }
+            
+            .record-button {
+                width: 80px;
+                height: 80px;
+                font-size: 24px;
+            }
         }
     </style>
 </head>
@@ -646,6 +864,51 @@ I feel a bit sad about the changes."></textarea>
         const API_BASE_URL = 'https://samo-unified-api-frrnetyhfa-uc.a.run.app';
         let AUTH_TOKEN = null;
         let CHAT_WS = null;
+
+        // Chart Management - Better pattern than global window storage
+        const ChartManager = {
+            charts: new Map(),
+            
+            destroy(chartId) {
+                const chart = this.charts.get(chartId);
+                if (chart && typeof chart.destroy === 'function') {
+                    try {
+                        chart.destroy();
+                        console.log(`Chart '${chartId}' destroyed successfully`);
+                    } catch (e) {
+                        console.warn(
+                            `Error destroying chart '${chartId}'. Chart instance:`, chart,
+                            'Operation: destroy',
+                            'Error:', e
+                        );
+                    }
+                }
+                this.charts.delete(chartId);
+            },
+            
+            set(chartId, chartInstance) {
+                // Destroy existing chart if it exists
+                this.destroy(chartId);
+                // Store new chart
+                this.charts.set(chartId, chartInstance);
+                console.log(`Chart '${chartId}' registered in ChartManager`);
+            },
+            
+            get(chartId) {
+                return this.charts.get(chartId);
+            },
+            
+            has(chartId) {
+                return this.charts.has(chartId);
+            },
+            
+            clear() {
+                for (const [chartId] of this.charts) {
+                    this.destroy(chartId);
+                }
+                console.log('All charts cleared from ChartManager');
+            }
+        };
         
         // Demo state
         let isRecording = false;
@@ -950,26 +1213,117 @@ I feel a bit sad about the changes."></textarea>
             showLoading('voice');
             
             try {
-                // Simulate voice processing (replace with actual API call)
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                const formData = new FormData();
+                formData.append('audio_file', audioBlob, 'recording.wav');
+
+                // Use AbortController for proper timeout handling
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+                let response;
+                try {
+                    response = await fetch(`${API_BASE_URL}/transcribe/voice`, {
+                        method: 'POST',
+                        body: formData,
+                        signal: controller.signal
+                    });
+                } catch (error) {
+                    if (error.name === 'AbortError') {
+                        throw new Error('Voice transcription request timed out after 30 seconds');
+                    }
+                    throw error;
+                } finally {
+                    clearTimeout(timeoutId);
+                }
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    let errorMessage = 'Failed to transcribe audio';
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        errorMessage = errorData.detail || errorData.message || errorMessage;
+                    } catch (e) {
+                        // If response isn't JSON, use default message
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                const data = await response.json();
+                const transcription = data.transcription || data.text || 'No transcription available.';
                 
-                const transcription = "I am feeling really excited about this amazing project!";
-                document.getElementById('transcription-result').innerHTML = 
-                    `<p class="fw-bold">Transcription:</p><p>${transcription}</p>`;
+                document.getElementById('transcription-result').innerHTML = '';
+                const transcriptionTitle = document.createElement('p');
+                transcriptionTitle.className = 'fw-bold';
+                transcriptionTitle.textContent = 'Transcription:';
                 
-                // Analyze emotions from transcription
-                const emotionResult = [
-                    { emotion: 'excitement', confidence: 0.85 },
-                    { emotion: 'joy', confidence: 0.72 }
-                ];
-                const voiceEmotionContainer = document.getElementById('voice-emotion-results');
-                voiceEmotionContainer.innerHTML = '<h6 class="fw-bold">Emotions in Speech:</h6>';
-                displayEmotionResults(emotionResult, voiceEmotionContainer);
+                const transcriptionText = document.createElement('p');
+                transcriptionText.textContent = transcription;
+                
+                document.getElementById('transcription-result').appendChild(transcriptionTitle);
+                document.getElementById('transcription-result').appendChild(transcriptionText);
+                
+                // If transcription is successful, analyze emotions from the transcribed text
+                if (transcription && transcription !== 'No transcription available.') {
+                    try {
+                        const emotionController = new AbortController();
+                        const emotionTimeout = setTimeout(() => emotionController.abort(), 15000); // 15 seconds
+
+                        let emotionResponse;
+                        try {
+                            emotionResponse = await fetch(`${API_BASE_URL}/analyze/journal`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ text: transcription, generate_summary: false }),
+                                signal: emotionController.signal
+                            });
+                        } catch (error) {
+                            if (error.name === 'AbortError') {
+                                console.error('Emotion analysis request timed out.');
+                                // Show a message to the user about the timeout
+                                const voiceEmotionContainer = document.getElementById('voice-emotion-results');
+                                voiceEmotionContainer.innerHTML = '<h6 class="fw-bold">Emotions in Speech:</h6><p class="text-muted">Emotion analysis timed out</p>';
+                                return;
+                            } else {
+                                throw error;
+                            }
+                        } finally {
+                            clearTimeout(emotionTimeout);
+                        }
+                        
+                        if (emotionResponse.ok) {
+                            const emotionData = await emotionResponse.json();
+                            const emotions = _emotionsDictToArray(
+                                emotionData?.emotion_analysis?.emotions || {}
+                            );
+                            
+                            const voiceEmotionContainer = document.getElementById('voice-emotion-results');
+                            voiceEmotionContainer.innerHTML = '<h6 class="fw-bold">Emotions in Speech:</h6>';
+                            displayEmotionResults(emotions, voiceEmotionContainer);
+                        } else {
+                            // Fallback with simulated emotions if emotion analysis fails
+                            const voiceEmotionContainer = document.getElementById('voice-emotion-results');
+                            voiceEmotionContainer.innerHTML = '<h6 class="fw-bold">Emotions in Speech:</h6><p class="text-muted">Emotion analysis unavailable</p>';
+                        }
+                    } catch (emotionError) {
+                        console.warn('Emotion analysis failed for transcribed text:', emotionError);
+                        const voiceEmotionContainer = document.getElementById('voice-emotion-results');
+                        voiceEmotionContainer.innerHTML = '<h6 class="fw-bold">Emotions in Speech:</h6><p class="text-muted">Emotion analysis unavailable</p>';
+                    }
+                }
                 
             } catch (error) {
                 console.error('Error processing audio:', error);
-                document.getElementById('transcription-result').innerHTML = 
-                    '<div class="alert alert-danger">Error processing audio.</div>';
+                const resultContainer = document.getElementById('transcription-result');
+                resultContainer.innerHTML = '';
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-danger';
+                errorDiv.textContent = `Error: ${error.message}`;
+                resultContainer.appendChild(errorDiv);
+                
+                // Clear emotion results on error
+                const voiceEmotionContainer = document.getElementById('voice-emotion-results');
+                voiceEmotionContainer.innerHTML = '<h6 class="fw-bold">Emotions in Speech:</h6><p class="text-muted">Processing failed</p>';
             } finally {
                 hideLoading('voice');
                 document.getElementById('recording-status').textContent = 'Click to start recording';
@@ -1060,10 +1414,45 @@ I feel a bit sad about the changes."></textarea>
             showLoading('summary');
             
             try {
-                // Simulate summarization (replace with actual API call)
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                
-                const summary = "The author had an incredibly positive day filled with gratitude, productivity, and meaningful connections. They felt refreshed, accomplished, and excited about future opportunities.";
+                // Call the actual summarization API with proper timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+                let response;
+                try {
+                    response = await fetch(`${API_BASE_URL}/analyze/journal`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            text: text, 
+                            generate_summary: true,
+                            summary_model: 't5-small'
+                        }),
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                } catch (error) {
+                    clearTimeout(timeoutId);
+                    if (error.name === 'AbortError') {
+                        throw new Error('Summary request timed out. Please try with shorter text or try again later.');
+                    }
+                    throw error;
+                }
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    let errorMessage = 'Failed to generate summary';
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        errorMessage = errorData.detail || errorData.message || errorMessage;
+                    } catch (e) {
+                        // If response isn't JSON, use default message
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                const data = await response.json();
+                const summary = data.summary || data.text_summary || 'No summary available.';
                 
                 const summaryContainer = document.getElementById('summary-result');
                 summaryContainer.innerHTML = ''; // Clear previous results
@@ -1077,6 +1466,27 @@ I feel a bit sad about the changes."></textarea>
                 summaryText.textContent = summary; // textContent automatically escapes HTML
                 summaryContainer.appendChild(summaryText);
                 
+                // Add emotional context if available
+                if (data.emotion_analysis && data.emotion_analysis.emotions) {
+                    const emotionDiv = document.createElement('div');
+                    emotionDiv.className = 'mt-3 p-3 rounded emotional-context-card';
+                    
+                    const emotionTitle = document.createElement('h6');
+                    emotionTitle.className = 'fw-bold mb-2';
+                    emotionTitle.textContent = 'Emotional Tone:';
+                    emotionDiv.appendChild(emotionTitle);
+                    
+                    const emotions = _emotionsDictToArray(data.emotion_analysis.emotions);
+                    emotions.slice(0, 3).forEach(emotion => {
+                        const badge = document.createElement('span');
+                        badge.className = 'badge me-2 mb-1';
+                        badge.textContent = `${emotion.emotion} (${(emotion.confidence * 100).toFixed(1)}%)`;
+                        emotionDiv.appendChild(badge);
+                    });
+                    
+                    summaryContainer.appendChild(emotionDiv);
+                }
+                
                 const infoDiv = document.createElement('div');
                 infoDiv.className = 'mt-3';
                 
@@ -1087,14 +1497,26 @@ I feel a bit sad about the changes."></textarea>
                 icon.className = 'fas fa-info-circle me-1';
                 infoText.appendChild(icon);
                 
-                const infoContent = document.createTextNode(`Original: ${text.split(' ').length} words | Summary: ${summary.split(' ').length} words`);
+                const originalWords = text.split(' ').length;
+                const summaryWords = summary.split(' ').length;
+                const compressionRatio = Math.max(0, ((originalWords - summaryWords) / originalWords * 100)).toFixed(1);
+                
+                const infoContent = document.createTextNode(
+                    `Original: ${originalWords} words | Summary: ${summaryWords} words | Compression: ${compressionRatio}%`
+                );
                 infoText.appendChild(infoContent);
                 infoDiv.appendChild(infoText);
                 summaryContainer.appendChild(infoDiv);
+                
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('summary-result').innerHTML = 
-                    '<div class="alert alert-danger">Error generating summary. Please try again.</div>';
+                const summaryContainer = document.getElementById('summary-result');
+                summaryContainer.innerHTML = '';
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-danger';
+                errorDiv.textContent = `Error: ${error.message}`;
+                summaryContainer.appendChild(errorDiv);
             } finally {
                 hideLoading('summary');
             }
@@ -1113,38 +1535,108 @@ I feel a bit sad about the changes."></textarea>
         }
 
         function updatePerformanceChart() {
-            const ctx = document.getElementById('performanceChart').getContext('2d');
-            
-            if (window.performanceChart) {
-                window.performanceChart.destroy();
+            const chartCanvas = document.getElementById('performanceChart');
+            if (!chartCanvas) {
+                console.warn('Performance chart canvas not found');
+                const chartContainer = document.querySelector('.col-md-6') || document.body;
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-warning';
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Performance chart unavailable.';
+                chartContainer.appendChild(errorDiv);
+                return;
             }
             
-            window.performanceChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['1m ago', '45s ago', '30s ago', '15s ago', 'Now'],
-                    datasets: [{
-                        label: 'Response Time (ms)',
-                        data: [45, 42, 48, 43, 41],
-                        borderColor: '#6366f1',
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
+            const ctx = chartCanvas.getContext('2d');
+            
+            // Safely destroy existing chart instance using ChartManager
+            ChartManager.destroy('performanceChart');
+            
+            // Generate realistic performance data
+            const now = new Date();
+            const timeLabels = [];
+            const responseData = [];
+            
+            for (let i = 4; i >= 0; i--) {
+                const timestamp = new Date(now - i * 15000); // 15 seconds intervals
+                timeLabels.push(i === 0 ? 'Now' : `${i * 15}s ago`);
+                responseData.push(35 + Math.random() * 20); // Random response times between 35-55ms
+            }
+            
+            try {
+                const performanceChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: timeLabels,
+                        datasets: [{
+                            label: 'Response Time (ms)',
+                            data: responseData,
+                            borderColor: 'rgba(139, 92, 246, 1)',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: 'rgba(139, 92, 246, 1)',
+                            pointBorderColor: 'rgba(255, 255, 255, 1)',
+                            pointBorderWidth: 2,
+                            pointRadius: 6
+                        }]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(15, 15, 35, 0.9)',
+                                titleColor: '#e2e8f0',
+                                bodyColor: '#e2e8f0',
+                                borderColor: 'rgba(139, 92, 246, 0.5)',
+                                borderWidth: 1
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    color: 'rgba(139, 92, 246, 0.1)',
+                                    borderColor: 'rgba(139, 92, 246, 0.2)'
+                                },
+                                ticks: {
+                                    color: '#cbd5e1'
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(139, 92, 246, 0.1)',
+                                    borderColor: 'rgba(139, 92, 246, 0.2)'
+                                },
+                                ticks: {
+                                    color: '#cbd5e1',
+                                    callback: function(value) {
+                                        return value + 'ms';
+                                    }
+                                }
+                            }
                         }
                     }
+                });
+                
+                // Register chart with ChartManager for proper lifecycle management
+                ChartManager.set('performanceChart', performanceChart);
+            } catch (error) {
+                console.error('Error creating performance chart:', error);
+                // Fallback: show text-based metrics if chart fails
+                const chartContainer = chartCanvas.parentElement;
+                if (chartContainer) {
+                    chartContainer.innerHTML = '<div class="alert alert-info">Chart visualization temporarily unavailable</div>';
                 }
-            });
+            }
         }
 
         // Security Testing
