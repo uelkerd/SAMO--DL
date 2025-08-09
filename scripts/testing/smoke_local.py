@@ -18,8 +18,9 @@ import json
 import os
 import time
 import wave
-from datetime import datetime, timedelta
-from typing import Dict, Optional, Callable, Tuple
+from contextlib import suppress
+from datetime import datetime, timedelta, timezone
+from typing import Optional, Callable
 
 import numpy as np
 import requests
@@ -41,7 +42,7 @@ except Exception:
 
 try:
     import jwt  # PyJWT
-except ImportError as import_err:
+except ImportError:
     print("PyJWT is required to mint a local elevated token; install PyJWT.")
     raise
 
@@ -65,7 +66,7 @@ def tiny_tone_wav_bytes(
 
 def mint_elevated_dev_token(secret: str, minutes: int = 5) -> str:
     """Mint a short-lived elevated JWT for endpoints needing extra permissions."""
-    now = datetime.utcnow()
+    now = datetime.now(tz=timezone.utc)
     payload = {
         "user_id": "user_test_elevated",
         "username": "dev",
@@ -123,13 +124,13 @@ def login_and_get_access_token(
         if r.headers.get("content-type", "").startswith("application/json"):
             return r.json().get("access_token")
     except Exception:
-        pass
+        return None
     return None
 
 
 def phase_auth_login_refresh_logout(
     session: requests.Session, url: Callable[[str], str], pause: Callable[[], None]
-) -> Tuple[Optional[str], Optional[str]]:
+) -> tuple[Optional[str], Optional[str]]:
     """Exercise login, profile, refresh, and logout flow sequentially."""
     access_token: Optional[str] = None
     refresh_token: Optional[str] = None
@@ -158,10 +159,8 @@ def phase_auth_login_refresh_logout(
                 timeout=10,
             )
             msg = "ok"
-            try:
+            with suppress(Exception):
                 msg = r.json().get("username", "ok")
-            except Exception:
-                pass
             p("/auth/profile", r.status_code, msg)
         except Exception as exc:
             p("/auth/profile", None, f"error: {exc}")
