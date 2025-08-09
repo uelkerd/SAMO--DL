@@ -158,29 +158,25 @@ commands:
           name: Install and setup Miniconda (SIMPLIFIED)
           command: |
             set -euxo pipefail
-            # Download Miniconda installer (prefer wget/curl; fallback to python3 urllib)
-            MINIFORGE_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+            # Download Miniforge (Conda-Forge) installer with stable checksum endpoint
+            MINIFORGE_URL="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh"
 
             if command -v wget >/dev/null 2>&1; then
               wget -O miniconda.sh "$MINIFORGE_URL"
             elif command -v curl >/dev/null 2>&1; then
               curl -L -o miniconda.sh "$MINIFORGE_URL"
             elif command -v python3 >/dev/null 2>&1; then
-              python3 -c "import ssl,urllib.request;u='https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh';c=ssl.create_default_context();r=urllib.request.urlopen(u,context=c);open('miniconda.sh','wb').write(r.read());print('Downloaded Miniconda via python3 urllib')"
+              python3 -c "import ssl,urllib.request;u='https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh';c=ssl.create_default_context();r=urllib.request.urlopen(u,context=c);open('miniconda.sh','wb').write(r.read());print('Downloaded Miniforge via python3 urllib')"
             elif command -v python >/dev/null 2>&1; then
-              python -c "import ssl,urllib.request;u='https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh';c=ssl.create_default_context();r=urllib.request.urlopen(u,context=c);open('miniconda.sh','wb').write(r.read());print('Downloaded Miniconda via python urllib')"
+              python -c "import ssl,urllib.request;u='https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh';c=ssl.create_default_context();r=urllib.request.urlopen(u,context=c);open('miniconda.sh','wb').write(r.read());print('Downloaded Miniforge via python urllib')"
             else
               echo "Error: no wget, curl, python3, or python available to download Miniconda." >&2
               exit 1
             fi
 
             # Verify SHA256 checksum to prevent supply chain attacks
-            # Resolve the final versioned URL (since 
-            # Miniconda3-latest-*.sha256 may not exist)
-            FINAL_URL=$(curl -sIL -o /dev/null -w '%{url_effective}' "$MINIFORGE_URL")
-            BASENAME=$(basename "$FINAL_URL")
-            CHECKSUM_URL="https://repo.anaconda.com/miniconda/${BASENAME}.sha256"
-            echo "Resolved installer: $BASENAME"
+            # For Miniforge, checksum is available at the same path with .sha256 suffix
+            CHECKSUM_URL="${MINIFORGE_URL}.sha256"
             echo "Checksum URL: $CHECKSUM_URL"
             if command -v curl >/dev/null 2>&1; then
               curl -sSfL "$CHECKSUM_URL" -o miniconda.sha256
