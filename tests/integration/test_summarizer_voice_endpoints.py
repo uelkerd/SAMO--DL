@@ -25,6 +25,7 @@ def auth_override():
 
 @pytest.fixture
 def client() -> TestClient:
+    """Pytest TestClient fixture for the unified API app."""
     return TestClient(app)
 
 
@@ -55,6 +56,7 @@ def test_summarize_returns_503_when_model_unavailable(monkeypatch, client: TestC
 
     # Patch creator to raise
     def fail_create(_model: str):
+        """Raise to simulate summarizer model load failure."""
         raise RuntimeError("simulated load failure")
 
     monkeypatch.setenv("HF_HOME", "/tmp/hf-cache-test")
@@ -65,10 +67,12 @@ def test_summarize_returns_503_when_model_unavailable(monkeypatch, client: TestC
     monkeypatch.setenv("TOKENIZERS_PARALLELISM", "false")
 
     def _mock_import(name: str, *args, **kwargs):  # type: ignore
+        """Mock import hook to replace t5 summarizer creator for testing."""
         if name == "src.models.summarization.t5_summarizer":
             class M:
                 @staticmethod
                 def create_t5_summarizer(model: str):
+                    """Proxy to the failing creator to simulate error paths."""
                     return fail_create(model)
             return M
         return orig_import(name, *args, **kwargs)
@@ -93,13 +97,16 @@ def test_summarize_returns_200_when_lazy_load_succeeds(monkeypatch, client: Test
 
         @staticmethod
         def generate_summary(text: str, max_length: int, min_length: int) -> str:
+            """Return a constant summary string for tests."""
             return "fake summary"
 
     def _mock_import(name: str, *args, **kwargs):  # type: ignore
+        """Mock import hook to return a FakeSummarizer creator."""
         if name == "src.models.summarization.t5_summarizer":
             class M:
                 @staticmethod
                 def create_t5_summarizer(model: str):
+                    """Create and return FakeSummarizer for tests."""
                     return FakeSummarizer()
             return M
         return orig_import(name, *args, **kwargs)
@@ -122,10 +129,12 @@ def test_voice_returns_503_when_transcriber_unavailable(monkeypatch, client: Tes
     api.voice_transcriber = None
 
     def _mock_import(name: str, *args, **kwargs):  # type: ignore
+        """Mock import hook to raise when creating Whisper transcriber."""
         if name == "src.models.voice_processing.whisper_transcriber":
             class M:
                 @staticmethod
                 def create_whisper_transcriber(model: str):
+                    """Raise to simulate Whisper transcriber load failure."""
                     raise RuntimeError("simulated whisper load failure")
             return M
         return orig_import(name, *args, **kwargs)
@@ -147,6 +156,7 @@ def test_voice_returns_200_when_lazy_load_succeeds(monkeypatch, client: TestClie
     class FakeTranscriber:
         @staticmethod
         def transcribe(path: str, language=None):
+            """Return a minimal fake transcription payload for tests."""
             return {
                 "text": "hello",
                 "language": "en",
@@ -158,10 +168,12 @@ def test_voice_returns_200_when_lazy_load_succeeds(monkeypatch, client: TestClie
             }
 
     def _mock_import(name: str, *args, **kwargs):  # type: ignore
+        """Mock import hook to return a FakeTranscriber creator."""
         if name == "src.models.voice_processing.whisper_transcriber":
             class M:
                 @staticmethod
                 def create_whisper_transcriber(model: str):
+                    """Create and return FakeTranscriber for tests."""
                     return FakeTranscriber()
             return M
         return orig_import(name, *args, **kwargs)

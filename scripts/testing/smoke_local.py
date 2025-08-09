@@ -386,6 +386,7 @@ def phase_websocket(
             p("WS /ws/realtime", None, f"error: {exc}")
     elif ws_url and WEBSOCKET_BACKEND == "websockets" and websockets is not None:
         async def ws_run():
+            """Minimal WS flow using websockets client for smoke tests."""
             try:
                 async with websockets.connect(
                     ws_url, extra_headers={"User-Agent": "testclient"}
