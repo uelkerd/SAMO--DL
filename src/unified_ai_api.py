@@ -1002,26 +1002,34 @@ async def summarize_text(
         
         if text_summarizer is None:
             raise HTTPException(status_code=503, detail="Text summarization service unavailable")
-        
-        # Enhanced summarization with parameters
-        summary_result = text_summarizer.summarize(
+
+        # Optionally handle requested model name; if different, attempt lazy swap
+        try:
+            if hasattr(text_summarizer, "model_name") and text_summarizer.model_name != model:
+                from src.models.summarization.t5_summarizer import create_t5_summarizer as _create
+                logger.info(f"Switching summarizer model from {text_summarizer.model_name} to {model}")
+                # Global swap; acceptable for dev/smoke contexts
+                globals()["text_summarizer"] = _create(model)
+        except Exception as exc:
+            logger.warning(f"Model switch to {model} failed, continuing with existing summarizer: {exc}")
+
+        # Generate summary
+        summary_text = text_summarizer.generate_summary(
             text,
-            model_name=model,
             max_length=max_length,
             min_length=min_length,
-            do_sample=do_sample
         )
-        
+
         # Calculate metrics
         original_length = len(text.split())
-        summary_length = len(summary_result.get("summary", "").split())
+        summary_length = len((summary_text or "").split())
         compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
-        
+
         # Determine emotional tone from summary
         emotional_tone = "neutral"
-        if emotion_detector and summary_result.get("summary"):
+        if emotion_detector and summary_text:
             try:
-                emotion_result = emotion_detector.predict(summary_result["summary"])
+                emotion_result = emotion_detector.predict(summary_text)
                 primary_emotion = emotion_result.get("primary_emotion", "neutral")
                 if primary_emotion in ["joy", "gratitude", "excitement"]:
                     emotional_tone = "positive"
@@ -1029,12 +1037,12 @@ async def summarize_text(
                     emotional_tone = "negative"
             except Exception as exc:
                 logger.warning(f"Could not determine emotional tone from summary: {exc}")
-        
+
         processing_time = (time.time() - start_time) * 1000
-        
+
         return TextSummary(
-            summary=summary_result.get("summary", ""),
-            key_emotions=summary_result.get("key_emotions", []),
+            summary=summary_text or "",
+            key_emotions=[],
             compression_ratio=compression_ratio,
             emotional_tone=emotional_tone
         )
