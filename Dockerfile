@@ -5,7 +5,8 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PORT=8080 \
     HF_HOME=/var/tmp/hf-cache \
-    TRANSFORMERS_CACHE=/var/tmp/hf-cache
+    TRANSFORMERS_CACHE=/var/tmp/hf-cache \
+    XDG_CACHE_HOME=/var/tmp/hf-cache
 
 # System deps needed for audio and builds
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -24,11 +25,14 @@ RUN pip install --no-cache-dir -r requirements_unified.txt
 # Pre-bundle T5-small into HF cache to avoid cold-start
 RUN python -c "from transformers import AutoTokenizer, T5ForConditionalGeneration; AutoTokenizer.from_pretrained('t5-small'); T5ForConditionalGeneration.from_pretrained('t5-small'); print('Pre-bundled t5-small into cache')"
 
+# Pre-bundle Whisper small model to reduce voice cold-start
+RUN python -c "import whisper; whisper.load_model('small'); print('Pre-bundled whisper-small into cache')"
+
 # Copy source
 COPY src/ ./src/
 
 # Switch to non-root user before runtime directives
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+RUN useradd -m -u 1000 appuser && mkdir -p /var/tmp/hf-cache && chown -R appuser:appuser /app /var/tmp/hf-cache
 USER appuser
 
 # Healthcheck (runs as non-root user)
