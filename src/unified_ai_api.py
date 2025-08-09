@@ -408,6 +408,7 @@ def _normalize_transcription_dict(
 
 
 def _infer_quality_from_duration(duration: float) -> str:
+    """Heuristic mapping from audio duration to a coarse quality label."""
     if duration < 1:
         return "poor"
     if duration < 5:
@@ -420,6 +421,7 @@ def _infer_quality_from_duration(duration: float) -> str:
 def _normalize_transcription_obj(
     obj: Any,
 ) -> Tuple[str, str, float, float, int, float, str]:
+    """Normalize attributes from an object-like transcription result."""
     text_val = getattr(obj, "text", "")
     lang_val = getattr(obj, "language", "unknown")
     conf_val = float(getattr(obj, "confidence", 0.0) or 0.0)

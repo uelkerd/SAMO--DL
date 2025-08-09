@@ -108,6 +108,7 @@ def run_smoke(base_url: str, pause_ms: int = 200):
             time.sleep(pause_ms / 1000.0)
 
     def phase_basic_gets():
+        """Check basic unauthenticated endpoints return 200 and brief status."""
         for ep in ["/", "/health", "/models/status"]:
             try:
                 r = session.get(url(ep), timeout=10)
@@ -140,6 +141,7 @@ def run_smoke(base_url: str, pause_ms: int = 200):
         return None
 
     def phase_auth_login_refresh_logout():
+        """Exercise login, profile, refresh, and logout flow sequentially."""
         nonlocal access_token, refresh_token
         try:
             r = session.post(
@@ -262,6 +264,7 @@ def run_smoke(base_url: str, pause_ms: int = 200):
         pause()
 
     def phase_analyze_journal():
+        """POST a small journal entry and report primary emotion."""
         try:
             r = session.post(
                 url("/analyze/journal"),
@@ -349,6 +352,7 @@ def run_smoke(base_url: str, pause_ms: int = 200):
     elevated = mint_elevated_dev_token(jwt_secret)
 
     def phase_batch_transcribe():
+        """Call batch transcription with two tiny WAVs and report successes."""
         try:
             files = [
                 ("audio_files", ("a.wav", wav1, "audio/wav")),
@@ -391,6 +395,7 @@ def run_smoke(base_url: str, pause_ms: int = 200):
     pause()
 
     def phase_monitoring():
+        """Fetch monitoring endpoints and print their status fields."""
         for ep in ["/monitoring/performance", "/monitoring/health/detailed"]:
             try:
                 r = session.get(
