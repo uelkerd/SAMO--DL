@@ -175,20 +175,29 @@ commands:
             fi
 
             # Verify SHA256 checksum to prevent supply chain attacks
-            # Fetch expected checksum from the official checksums list
-            set +e
+            # Resolve the final versioned URL (since 
+            # Miniconda3-latest-*.sha256 may not exist)
+            FINAL_URL=$(curl -sIL -o /dev/null -w '%{url_effective}' "$MINIFORGE_URL")
+            BASENAME=$(basename "$FINAL_URL")
+            CHECKSUM_URL="https://repo.anaconda.com/miniconda/${BASENAME}.sha256"
+            echo "Resolved installer: $BASENAME"
+            echo "Checksum URL: $CHECKSUM_URL"
             if command -v curl >/dev/null 2>&1; then
-              curl -sSfL https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh.sha256 > miniconda.sha256
+              curl -sSfL "$CHECKSUM_URL" -o miniconda.sha256
             elif command -v wget >/dev/null 2>&1; then
-              wget -qO miniconda.sha256 https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh.sha256
+              wget -qO miniconda.sha256 "$CHECKSUM_URL"
             else
               echo "Warning: neither curl nor wget available to fetch checksum; aborting for safety." >&2
               exit 1
             fi
-            set -e
             # Compute actual checksum and compare
             ACTUAL_SUM=$(sha256sum miniconda.sh | awk '{print $1}')
-            EXPECTED_SUM=$(awk '{print $1}' miniconda.sha256)
+            EXPECTED_SUM=$(awk '{print $1}') < miniconda.sha256
+            if [ -z "$EXPECTED_SUM" ]; then
+              echo "Checksum file empty or unavailable. Aborting to be safe." >&2
+              rm -f miniconda.sh miniconda.sha256
+              exit 1
+            fi
             if [ "$ACTUAL_SUM" != "$EXPECTED_SUM" ]; then
               echo "Checksum verification failed! Expected $EXPECTED_SUM, got $ACTUAL_SUM" >&2
               rm -f miniconda.sh miniconda.sha256
