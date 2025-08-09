@@ -642,8 +642,43 @@
     
     <!-- Demo Script -->
     <script>
-        let confidenceChart = null;
-        let categoryChart = null;
+        // Chart Management - Better pattern than global variables
+        const ChartManager = {
+            charts: new Map(),
+            
+            destroy(chartId) {
+                const chart = this.charts.get(chartId);
+                if (chart && typeof chart.destroy === 'function') {
+                    try {
+                        chart.destroy();
+                        console.log(`Chart '${chartId}' destroyed successfully`);
+                    } catch (e) {
+                        console.warn(
+                            `Error destroying chart '${chartId}'. Chart instance:`, chart,
+                            'Operation: destroy',
+                            'Error:', e
+                        );
+                    }
+                }
+                this.charts.delete(chartId);
+            },
+            
+            set(chartId, chartInstance) {
+                // Destroy existing chart if it exists
+                this.destroy(chartId);
+                // Store new chart
+                this.charts.set(chartId, chartInstance);
+                console.log(`Chart '${chartId}' registered in ChartManager`);
+            },
+            
+            get(chartId) {
+                return this.charts.get(chartId);
+            },
+            
+            has(chartId) {
+                return this.charts.has(chartId);
+            }
+        };
 
         // Sample texts for examples
         const sampleTexts = [
@@ -765,24 +800,9 @@
         }
 
         function updateCharts(emotions) {
-            // Safely destroy existing charts
-            if (confidenceChart && typeof confidenceChart.destroy === 'function') {
-                try {
-                    confidenceChart.destroy();
-                } catch (e) {
-                    console.warn('Error destroying confidence chart:', e);
-                }
-                confidenceChart = null;
-            }
-            
-            if (categoryChart && typeof categoryChart.destroy === 'function') {
-                try {
-                    categoryChart.destroy();
-                } catch (e) {
-                    console.warn('Error destroying category chart:', e);
-                }
-                categoryChart = null;
-            }
+            // Safely destroy existing charts using ChartManager
+            ChartManager.destroy('confidenceChart');
+            ChartManager.destroy('categoryChart');
 
             // Check if chart containers exist
             const confidenceCanvas = document.getElementById('confidenceChart');
@@ -805,7 +825,7 @@
             try {
                 // Confidence Chart
                 const confidenceCtx = confidenceCanvas.getContext('2d');
-                confidenceChart = new Chart(confidenceCtx, {
+                const confidenceChart = new Chart(confidenceCtx, {
                     type: 'bar',
                     data: {
                         labels: emotions.map(e => e.emotion),
@@ -890,6 +910,9 @@
                         }
                     }
                 });
+                
+                // Register confidence chart with ChartManager
+                ChartManager.set('confidenceChart', confidenceChart);
             } catch (error) {
                 console.error('Error creating confidence chart:', error);
             }
@@ -906,7 +929,7 @@
                     'rgba(221, 214, 254, 0.8)'
                 ];
                 
-                categoryChart = new Chart(categoryCtx, {
+                const categoryChart = new Chart(categoryCtx, {
                     type: 'doughnut',
                     data: {
                         labels: emotions.map(e => e.emotion),
@@ -949,6 +972,9 @@
                         }
                     }
                 });
+                
+                // Register category chart with ChartManager
+                ChartManager.set('categoryChart', categoryChart);
             } catch (error) {
                 console.error('Error creating category chart:', error);
             }

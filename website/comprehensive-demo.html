@@ -864,6 +864,51 @@ I feel a bit sad about the changes."></textarea>
         const API_BASE_URL = 'https://samo-unified-api-frrnetyhfa-uc.a.run.app';
         let AUTH_TOKEN = null;
         let CHAT_WS = null;
+
+        // Chart Management - Better pattern than global window storage
+        const ChartManager = {
+            charts: new Map(),
+            
+            destroy(chartId) {
+                const chart = this.charts.get(chartId);
+                if (chart && typeof chart.destroy === 'function') {
+                    try {
+                        chart.destroy();
+                        console.log(`Chart '${chartId}' destroyed successfully`);
+                    } catch (e) {
+                        console.warn(
+                            `Error destroying chart '${chartId}'. Chart instance:`, chart,
+                            'Operation: destroy',
+                            'Error:', e
+                        );
+                    }
+                }
+                this.charts.delete(chartId);
+            },
+            
+            set(chartId, chartInstance) {
+                // Destroy existing chart if it exists
+                this.destroy(chartId);
+                // Store new chart
+                this.charts.set(chartId, chartInstance);
+                console.log(`Chart '${chartId}' registered in ChartManager`);
+            },
+            
+            get(chartId) {
+                return this.charts.get(chartId);
+            },
+            
+            has(chartId) {
+                return this.charts.has(chartId);
+            },
+            
+            clear() {
+                for (const [chartId] of this.charts) {
+                    this.destroy(chartId);
+                }
+                console.log('All charts cleared from ChartManager');
+            }
+        };
         
         // Demo state
         let isRecording = false;
@@ -1503,15 +1548,8 @@ I feel a bit sad about the changes."></textarea>
             
             const ctx = chartCanvas.getContext('2d');
             
-            // Safely destroy existing chart instance
-            if (window.performanceChart && typeof window.performanceChart.destroy === 'function') {
-                try {
-                    window.performanceChart.destroy();
-                } catch (e) {
-                    console.warn('Error destroying performance chart:', e);
-                }
-                window.performanceChart = null;
-            }
+            // Safely destroy existing chart instance using ChartManager
+            ChartManager.destroy('performanceChart');
             
             // Generate realistic performance data
             const now = new Date();
@@ -1525,7 +1563,7 @@ I feel a bit sad about the changes."></textarea>
             }
             
             try {
-                window.performanceChart = new Chart(ctx, {
+                const performanceChart = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: timeLabels,
@@ -1588,6 +1626,9 @@ I feel a bit sad about the changes."></textarea>
                         }
                     }
                 });
+                
+                // Register chart with ChartManager for proper lifecycle management
+                ChartManager.set('performanceChart', performanceChart);
             } catch (error) {
                 console.error('Error creating performance chart:', error);
                 // Fallback: show text-based metrics if chart fails
