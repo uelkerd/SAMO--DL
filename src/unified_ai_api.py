@@ -331,6 +331,7 @@ def _tx_to_dict(result: Any) -> Dict[str, Any]:
         "segments": getattr(result, "segments", []),
         "no_speech_prob": getattr(result, "no_speech_probability", 0.0),
     }
+
 # Custom exception handler for all exceptions
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
