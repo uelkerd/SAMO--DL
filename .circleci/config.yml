@@ -83,8 +83,8 @@ commands:
             # Create environment directly (no init needed)
             conda env create -f environment.yml
             
-            # Install additional dependencies
-            conda run -n samo-dl-stable pip install -e ".[test,dev,prod]" httpx python-multipart psycopg2-binary
+            # Install additional dependencies (explicitly include PyJWT)
+            conda run -n samo-dl-stable pip install -e ".[test,dev,prod]" PyJWT httpx python-multipart psycopg2-binary
             
             # Set PYTHONPATH once (simplified)
             if [ -n "$BASH_ENV" ]; then
@@ -101,7 +101,7 @@ commands:
     description: "Enhanced cache for dependencies, models, and build artifacts"
     steps:
       - save_cache:
-          key: conda-deps-v3-{{ .Branch }}-{{ checksum "environment.yml" }}-{{ checksum "pyproject.toml" }}
+          key: conda-deps-v4-{{ .Branch }}-{{ checksum "environment.yml" }}-{{ checksum "pyproject.toml" }}
           paths:
             - ~/miniconda
             - ~/.cache/pip
@@ -118,10 +118,10 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - conda-deps-v3-{{ .Branch }}-{{ checksum "environment.yml" }}-{{ checksum "pyproject.toml" }}
-            - conda-deps-v3-{{ .Branch }}-{{ checksum "environment.yml" }}-
-            - conda-deps-v3-{{ .Branch }}-
-            - conda-deps-v3-
+            - conda-deps-v4-{{ .Branch }}-{{ checksum "environment.yml" }}-{{ checksum "pyproject.toml" }}
+            - conda-deps-v4-{{ .Branch }}-{{ checksum "environment.yml" }}-
+            - conda-deps-v4-{{ .Branch }}-
+            - conda-deps-v4-
 
   # MODEL PRE-WARMING (SIMPLIFIED)
   pre_warm_models:
