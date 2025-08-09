@@ -59,7 +59,9 @@ def test_summarize_returns_503_when_model_unavailable(monkeypatch, client: TestC
 
     monkeypatch.setenv("HF_HOME", "/tmp/hf-cache-test")
     monkeypatch.setenv("TRANSFORMERS_CACHE", "/tmp/hf-cache-test")
-    monkeypatch.setitem(api.__dict__, "create_t5_summarizer", None, raising=False)  # safety
+    # ensure accidental attribute is absent
+    if "create_t5_summarizer" in api.__dict__:
+        del api.__dict__["create_t5_summarizer"]
     monkeypatch.setenv("TOKENIZERS_PARALLELISM", "false")
 
     def _import_create():
