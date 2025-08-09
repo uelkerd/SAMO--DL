@@ -163,8 +163,8 @@ commands:
               "$HOME/miniconda/bin/conda" env update -f environment.yml --prune
             fi
             
-            # Install additional dependencies (explicitly include PyJWT)
-            "$HOME/miniconda/bin/conda" run -n samo-dl-stable pip install -e ".[test,dev,prod]" PyJWT httpx python-multipart psycopg2-binary
+            # Install project in editable mode; rely on environment.yml for deps
+            "$HOME/miniconda/bin/conda" run -n samo-dl-stable pip install -e ".[test,dev,prod]"
 
             # Post-update package dump for verification
             "$HOME/miniconda/bin/conda" list | tee conda.post_update.list.txt || true
