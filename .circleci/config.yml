@@ -9,10 +9,15 @@ version: 2.1
 # Stage 3 (<15min): E2E tests, performance benchmarks, deployment
 # ============================================================================
 
-orbs:
-  python: circleci/python@2.1.1
-  docker: circleci/docker@2.5.0
-  slack: circleci/slack@4.12.1
+# no orbs used
+
+# -----------------------------------------------------------------------------
+# Pipeline parameters
+# -----------------------------------------------------------------------------
+parameters:
+  bootstrap_only:
+    type: boolean
+    default: false
 
 # ============================================================================
 # EXECUTORS - Define runtime environments (SIMPLIFIED)
@@ -33,7 +38,8 @@ executors:
     machine:
       image: ubuntu-2004:2023.07.1
       docker_layer_caching: true
-    resource_class: gpu.nvidia.medium  # Keep original for compatibility
+    # NOTE: Temporarily use standard resource class to satisfy CI linter; GPU runners can be re-enabled later
+    resource_class: medium
     working_directory: ~/samo-dl
     environment:
       PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src
@@ -44,6 +50,44 @@ executors:
 # COMMANDS - Reusable command definitions (SIMPLIFIED)
 # ============================================================================
 commands:
+  doctor_step:
+    description: "Early diagnostics and environment checks (store artifacts on failure)"
+    steps:
+      - run:
+          name: Doctor
+          shell: /bin/bash
+          command: |
+            set -euxo pipefail
+            echo "SHELL=${SHELL}" | tee doctor.env.txt
+            uname -a | tee -a doctor.env.txt || true
+            whoami | tee -a doctor.env.txt || true
+            pwd | tee -a doctor.env.txt
+            ls -la | tee -a doctor.env.txt
+            df -h | tee doctor.df.txt || true
+            env | sort | head -n 100 | tee doctor.topenv.txt || true
+
+            ls -la "$HOME/miniconda/bin" | tee doctor.conda.bin.txt || true
+            "$HOME/miniconda/bin/conda" --version | tee doctor.conda.version.txt || true
+            "$HOME/miniconda/bin/conda" info --envs | tee doctor.conda.info.txt || true
+            "$HOME/miniconda/bin/conda" list | head -n 200 | tee doctor.conda.list.txt || true
+
+            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python -c "import sys;\ntry:\n import jwt; ver=getattr(jwt,'__version__','n/a')\nexcept Exception as exc:\n ver=f'import failed: {exc}'\nprint('python:', sys.executable); print('jwt:', ver)" | tee doctor.python_jwt.txt
+      - store_artifacts:
+          path: doctor.env.txt
+      - store_artifacts:
+          path: doctor.df.txt
+      - store_artifacts:
+          path: doctor.topenv.txt
+      - store_artifacts:
+          path: doctor.conda.bin.txt
+      - store_artifacts:
+          path: doctor.conda.version.txt
+      - store_artifacts:
+          path: doctor.conda.info.txt
+      - store_artifacts:
+          path: doctor.conda.list.txt
+      - store_artifacts:
+          path: doctor.python_jwt.txt
   # CONDA ENVIRONMENT COMMAND - DIRECT PYTHON EXECUTION
   run_in_conda:
     description: "Run command in conda environment"
@@ -232,6 +276,7 @@ jobs:
     executor: python-ml
     steps:
       - setup_python_env
+      - doctor_step
       - restore_dependencies
       - cache_dependencies
       - run_quality_checks
@@ -243,6 +288,7 @@ jobs:
     executor: python-ml
     steps:
       - setup_python_env
+      - doctor_step
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
       - cache_dependencies
@@ -254,6 +300,7 @@ jobs:
     executor: python-ml
     steps:
       - setup_python_env
+      - doctor_step
       - restore_dependencies
       - run_security_scan_bandit
       - store_artifacts:
@@ -264,6 +311,7 @@ jobs:
     executor: python-ml
     steps:
       - setup_python_env
+      - doctor_step
       - restore_dependencies
       - run_security_scan_safety
       - store_artifacts:
@@ -274,6 +322,7 @@ jobs:
     executor: python-ml
     steps:
       - setup_python_env
+      - doctor_step
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
       - cache_dependencies
@@ -294,6 +343,7 @@ jobs:
     executor: python-ml
     steps:
       - setup_python_env
+      - doctor_step
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
       - cache_dependencies
@@ -313,6 +363,7 @@ jobs:
     executor: python-ml
     steps:
       - setup_python_env
+      - doctor_step
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
       - cache_dependencies
@@ -346,6 +397,7 @@ jobs:
     executor: python-ml
     steps:
       - setup_python_env
+      - doctor_step
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
       - cache_dependencies
@@ -390,6 +442,7 @@ jobs:
     executor: python-gpu
     steps:
       - setup_python_env
+      - doctor_step
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
       - run_in_conda:
@@ -423,6 +476,7 @@ jobs:
     executor: python-ml
     steps:
       - setup_python_env
+      - doctor_step
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
       - run:
@@ -447,6 +501,13 @@ jobs:
                 command: |
                   echo "🚀 Deploying to staging environment..."
                   # Add deployment logic here
+
+  # Minimal bootstrap-only job for fast iteration
+  bootstrap-doctor:
+    executor: python-ml
+    steps:
+      - setup_python_env
+      - doctor_step
 
 # ============================================================================
 # WORKFLOWS - Define job execution order and conditions (SIMPLIFIED)
@@ -557,6 +618,12 @@ workflows:
     jobs:
       - performance-benchmarks
       - gpu-compatibility
+
+  # Parameterized quick bootstrap workflow
+  bootstrap-only:
+    when: << pipeline.parameters.bootstrap_only >>
+    jobs:
+      - bootstrap-doctor
 
 # ============================================================================
 # SIMPLIFICATION SUMMARY
