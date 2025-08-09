@@ -377,7 +377,7 @@ def main():
     runner = CIPipelineRunner()
     
     try:
-        results = runner.run_full_pipeline()
+        _ = runner.run_full_pipeline()
         report = runner.generate_report()
         
         print(report)
@@ -387,7 +387,7 @@ def main():
             f.write(report)
         
         # Exit with appropriate code
-        test_results, total_tests, passed_tests = runner._get_test_stats()
+        _, total_tests, passed_tests = runner._get_test_stats()
         
         if passed_tests == total_tests:
             logger.info("🎉 CI Pipeline completed successfully!")
