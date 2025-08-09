@@ -1493,6 +1493,11 @@ I feel a bit sad about the changes."></textarea>
             const chartCanvas = document.getElementById('performanceChart');
             if (!chartCanvas) {
                 console.warn('Performance chart canvas not found');
+                const chartContainer = document.querySelector('.col-md-6') || document.body;
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-warning';
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Performance chart unavailable.';
+                chartContainer.appendChild(errorDiv);
                 return;
             }
             
