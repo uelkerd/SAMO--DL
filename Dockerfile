@@ -21,6 +21,14 @@ WORKDIR /app
 COPY deployment/cloud-run/requirements_unified.txt ./requirements_unified.txt
 RUN pip install --no-cache-dir -r requirements_unified.txt
 
+# Pre-bundle T5-small into HF cache to avoid cold-start
+RUN python - << 'PY'
+from transformers import AutoTokenizer, T5ForConditionalGeneration
+AutoTokenizer.from_pretrained('t5-small')
+T5ForConditionalGeneration.from_pretrained('t5-small')
+print('Pre-bundled t5-small into cache')
+PY
+
 # Copy source
 COPY src/ ./src/
 
