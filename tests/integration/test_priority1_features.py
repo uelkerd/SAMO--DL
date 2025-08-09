@@ -512,8 +512,7 @@ class TestEnhancedTextSummarization:
             "text": "This is a longer text that needs to be summarized. It contains multiple sentences and should be processed by the T5 model to generate a concise summary.",
             "model": "t5-small",
             "max_length": 150,
-            "min_length": 30,
-            "do_sample": True
+            "min_length": 30
         }
         response = client.post("/summarize/text", data=data, headers=headers)
         
