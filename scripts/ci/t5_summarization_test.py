@@ -24,6 +24,7 @@ except ImportError:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+from .validation_utils import validate_hasattrs, ensure
 
 def test_t5_model_loading():
     """Test T5 model initialization."""
@@ -39,9 +40,7 @@ def test_t5_model_loading():
         logger.info("✅ T5 model initialized successfully")
 
         # Test basic model properties
-        assert hasattr(model, "model"), "Model should have 'model' attribute"
-        assert hasattr(model, "tokenizer"), "Model should have 'tokenizer' attribute"
-        assert hasattr(model, "device"), "Model should have 'device' attribute"
+        validate_hasattrs(model, ["model", "tokenizer", "device"], label="T5 model")
 
         logger.info("✅ Model attributes validation passed")
 
@@ -82,9 +81,9 @@ def test_t5_summarization():
         logger.info(f"✅ Summarization successful: {summary[:50]}...")
 
         # Validate summary
-        assert isinstance(summary, str), "Summary should be a string"
-        assert len(summary) > 0, "Summary should not be empty"
-        assert len(summary) < len(test_text), "Summary should be shorter than input"
+        ensure(isinstance(summary, str), "Summary should be a string")
+        ensure(len(summary) > 0, "Summary should not be empty")
+        ensure(len(summary) < len(test_text), "Summary should be shorter than input")
 
         logger.info("✅ Summary validation passed")
 

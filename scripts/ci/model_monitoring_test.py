@@ -29,6 +29,7 @@ from torch import nn
 import logging
 import sys
 import torch
+from .validation_utils import validate_metric_ranges, validate_required_keys, ensure
 
 
 
@@ -121,10 +122,7 @@ def test_model_performance_monitoring():
         logger.info("Recall: {metrics['recall']:.4f}")
         logger.info("F1 Score: {metrics['f1_score']:.4f}")
 
-        assert 0 <= metrics['accuracy'] <= 1, "Accuracy should be between 0 and 1"
-        assert 0 <= metrics['precision'] <= 1, "Precision should be between 0 and 1"
-        assert 0 <= metrics['recall'] <= 1, "Recall should be between 0 and 1"
-        assert 0 <= metrics['f1_score'] <= 1, "F1 score should be between 0 and 1"
+        validate_metric_ranges(metrics, ["accuracy", "precision", "recall", "f1_score"])
 
         logger.info("✅ Model performance monitoring test passed")
         return True
@@ -162,8 +160,8 @@ def test_model_drift_detection():
         logger.info("Accuracy drift: {accuracy_drift:.4f}")
         logger.info("F1 score drift: {f1_drift:.4f}")
 
-        assert accuracy_drift >= 0, "Drift should be non-negative"
-        assert f1_drift >= 0, "Drift should be non-negative"
+        ensure(accuracy_drift >= 0, "Drift should be non-negative")
+        ensure(f1_drift >= 0, "Drift should be non-negative")
 
         logger.info("✅ Model drift detection test passed")
         return True
@@ -196,10 +194,7 @@ def test_monitoring_logging():
 
         logger.info("Monitoring log entry: {log_entry}")
 
-        assert 'timestamp' in log_entry, "Log entry should have timestamp"
-        assert 'model_version' in log_entry, "Log entry should have model version"
-        assert 'metrics' in log_entry, "Log entry should have metrics"
-        assert 'status' in log_entry, "Log entry should have status"
+        validate_required_keys(log_entry, ["timestamp", "model_version", "metrics", "status"], label="Log entry")
 
         logger.info("✅ Monitoring logging test passed")
         return True
