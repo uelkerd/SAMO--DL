@@ -496,9 +496,17 @@ def _get_request_scoped_summarizer(model: str):
             )
             return _create(model)
         except ValueError as exc:  # invalid model name/config
-            raise HTTPException(status_code=400, detail=f"Invalid summarizer model: {model}") from exc
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid summarizer model: {model}",
+            ) from exc
         except Exception as exc:  # transient/unavailable
-            raise HTTPException(status_code=503, detail=f"Requested summarizer model '{model}' unavailable") from exc
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    f"Requested summarizer model '{model}' unavailable"
+                ),
+            ) from exc
     return text_summarizer
 
 

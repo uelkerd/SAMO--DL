@@ -89,7 +89,11 @@ def p(endpoint: str, status: Optional[int], msg: str):
     print(f"{endpoint} -> {status} {msg}")
 
 
-def phase_basic_gets(session: requests.Session, url: Callable[[str], str], pause: Callable[[], None]) -> None:
+def phase_basic_gets(
+    session: requests.Session,
+    url: Callable[[str], str],
+    pause: Callable[[], None],
+) -> None:
     """Check basic unauthenticated endpoints return 200 and brief status."""
     for ep in ["/", "/health", "/models/status"]:
         try:
