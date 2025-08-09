@@ -872,7 +872,7 @@ I feel a bit sad about the changes."></textarea>
                     try {
                         const data = JSON.parse(evt.data);
                         appendChatMessage('bot', data.reply || JSON.stringify(data), data.summary || null);
-                    } catch {}
+                    } catch (e) { console.error("Error processing WebSocket message:", e); }
                 };
                 CHAT_WS.onerror = () => { out.textContent = 'WS error'; };
                 CHAT_WS.onclose = () => { out.textContent = 'WS disconnected.'; };
@@ -1204,8 +1204,8 @@ I feel a bit sad about the changes."></textarea>
                             <h5 class="fw-bold mb-3">Chat Demo</h5>
                             <div class="d-flex align-items-center gap-2 mb-3">
                                 <span id="chat-auth-status" class="badge bg-warning text-dark">AUTH REQ</span>
-                                <input id="chat-username" class="form-control form-control-sm" placeholder="email" style="max-width:220px" value="tester@example.com" />
-                                <input id="chat-password" class="form-control form-control-sm" placeholder="password" type="password" style="max-width:180px" value="secret123" />
+                                <input id="chat-username" class="form-control form-control-sm" placeholder="email" style="max-width:220px" />
+                                <input id="chat-password" class="form-control form-control-sm" placeholder="password" type="password" style="max-width:180px" />
                                 <button class="btn btn-sm btn-outline-primary" onclick="chatLogin()">Login</button>
                                 <button class="btn btn-sm btn-outline-success" onclick="connectChatWs()">Connect WS</button>
                                 <button class="btn btn-sm btn-outline-secondary" onclick="disconnectChatWs()">Disconnect</button>
