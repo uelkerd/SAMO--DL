@@ -3,7 +3,9 @@ FROM python:3.11-slim
 # Environment
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PORT=8080
+    PORT=8080 \
+    HF_HOME=/var/tmp/hf-cache \
+    TRANSFORMERS_CACHE=/var/tmp/hf-cache
 
 # System deps needed for audio and builds
 RUN apt-get update && apt-get install -y --no-install-recommends \
