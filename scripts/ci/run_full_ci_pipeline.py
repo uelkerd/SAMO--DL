@@ -46,7 +46,7 @@ class CIPipelineRunner:
             "scripts/ci/model_calibration_test.py",
             "scripts/ci/onnx_conversion_test.py",
         ]
-    
+
     def _get_test_stats(self) -> tuple[dict, int, int]:
         """Calculate statistics on test results.
         
@@ -62,7 +62,7 @@ class CIPipelineRunner:
         # Booleans can be summed directly (True=1, False=0)
         passed_tests = sum(test_results.values())
         return test_results, total_tests, passed_tests
-    
+
     def detect_environment(self) -> Dict[str, str]:
         """Detect the current environment (local vs Colab)."""
         logger.info("🔍 Detecting environment...")
