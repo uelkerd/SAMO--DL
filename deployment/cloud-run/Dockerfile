@@ -5,7 +5,8 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PORT=8080 \
     HF_HOME=/var/tmp/hf-cache \
-    TRANSFORMERS_CACHE=/var/tmp/hf-cache
+    XDG_CACHE_HOME=/var/tmp/hf-cache \
+    PIP_ROOT_USER_ACTION=ignore
 
 # System deps (ffmpeg for pydub/whisper; build tools for some wheels)
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -18,7 +19,8 @@ WORKDIR /app
 
 # Python deps
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
+ && pip install --no-cache-dir -r requirements.txt
 
 # App code
 COPY src/ ./src/
