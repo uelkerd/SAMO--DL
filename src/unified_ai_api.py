@@ -869,7 +869,7 @@ async def transcribe_voice(
                 word_count = len((text_val or "").split())
             speaking_rate = getattr(transcription_result, "speaking_rate", None)
             if speaking_rate is None:
-            speaking_rate = (word_count / duration * 60) if duration > 0 else 0.0
+                speaking_rate = (word_count / duration * 60) if duration > 0 else 0.0
             audio_quality = getattr(transcription_result, "audio_quality", None)
             if audio_quality is None:
                 if duration < 1:
