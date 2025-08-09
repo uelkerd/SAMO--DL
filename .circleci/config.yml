@@ -75,18 +75,22 @@ commands:
             set -euxo pipefail
             # Ensure system binaries like `tee` are available regardless of base env
             export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
-            echo "SHELL=${SHELL}" | tee doctor.env.txt
-            uname -a | tee -a doctor.env.txt || true
-            whoami | tee -a doctor.env.txt || true
-            pwd | tee -a doctor.env.txt
-            ls -la | tee -a doctor.env.txt
-            df -h | tee doctor.df.txt || true
-            env | sort | head -n 100 | tee doctor.topenv.txt || true
+            {
+              echo "SHELL=${SHELL}"
+              echo "PATH=${PATH}"
+              uname -a || true
+              whoami || true
+              pwd
+              ls -la
+            } > doctor.env.txt
 
-            ls -la "$HOME/miniconda/bin" | tee doctor.conda.bin.txt || true
-            "$HOME/miniconda/bin/conda" --version | tee doctor.conda.version.txt || true
-            "$HOME/miniconda/bin/conda" info --envs | tee doctor.conda.info.txt || true
-            "$HOME/miniconda/bin/conda" list | head -n 200 | tee doctor.conda.list.txt || true
+            df -h > doctor.df.txt || true
+            env | sort | head -n 100 > doctor.topenv.txt || true
+
+            ls -la "$HOME/miniconda/bin" > doctor.conda.bin.txt || true
+            "$HOME/miniconda/bin/conda" --version > doctor.conda.version.txt || true
+            "$HOME/miniconda/bin/conda" info --envs > doctor.conda.info.txt || true
+            "$HOME/miniconda/bin/conda" list | head -n 200 > doctor.conda.list.txt || true
 
       - run:
           name: Doctor - Python/JWT
@@ -104,7 +108,8 @@ commands:
             print("python:", sys.executable)
             print("jwt:", ver)
             PY
-            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python doctor_jwt.py | tee doctor.python_jwt.txt || true
+            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python doctor_jwt.py > doctor.python_jwt.txt || true
+            cat doctor.python_jwt.txt || true
       - store_artifacts:
           path: doctor.env.txt
       - store_artifacts:
