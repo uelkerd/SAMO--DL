@@ -49,3 +49,12 @@ def validate_hasattrs(instance: Any, attrs: Iterable[str], label: str = "object"
         if not hasattr(instance, attr):
             raise AttributeError(f"{label} should have '{attr}' attribute")
 
+
+def ensure(condition: bool, message: str) -> None:
+    """Fail the test with AssertionError if condition is False.
+
+    Keeps test bodies declarative by avoiding explicit if blocks.
+    """
+    if not condition:
+        raise AssertionError(message)
+

@@ -24,7 +24,7 @@ except ImportError:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-from .validation_utils import validate_hasattrs
+from .validation_utils import validate_hasattrs, ensure
 
 def test_t5_model_loading():
     """Test T5 model initialization."""
@@ -81,12 +81,9 @@ def test_t5_summarization():
         logger.info(f"✅ Summarization successful: {summary[:50]}...")
 
         # Validate summary
-        if not isinstance(summary, str):
-            raise AssertionError("Summary should be a string")
-        if len(summary) <= 0:
-            raise AssertionError("Summary should not be empty")
-        if len(summary) >= len(test_text):
-            raise AssertionError("Summary should be shorter than input")
+        ensure(isinstance(summary, str), "Summary should be a string")
+        ensure(len(summary) > 0, "Summary should not be empty")
+        ensure(len(summary) < len(test_text), "Summary should be shorter than input")
 
         logger.info("✅ Summary validation passed")
 
