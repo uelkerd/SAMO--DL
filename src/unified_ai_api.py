@@ -19,7 +19,19 @@ from datetime import datetime, timezone
 from collections import defaultdict
 
 import uvicorn
-from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile, Depends, status, WebSocket, Query
+from fastapi import (
+    FastAPI,
+    File,
+    Form,
+    Header,
+    HTTPException,
+    Request,
+    UploadFile,
+    Depends,
+    status,
+    WebSocket,
+    Query,
+)
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -831,6 +843,114 @@ async def get_user_profile(current_user: TokenPayload = Depends(get_current_user
     )
 
 
+# Simple Chat Contracts (minimal)
+class ChatMessage(BaseModel):
+    """Single chat message from the user."""
+    text: str = Field(..., min_length=1, description="User message text")
+    summarize: bool = Field(False, description="Summarize response using T5")
+    model: str = Field("t5-small", description="Summarizer model if summarize=true")
+
+
+class ChatResponse(BaseModel):
+    """Chat response payload."""
+    reply: str
+    summary: Optional[str] = None
+    meta: dict[str, Any] = {}
+
+
+@app.post(
+    "/chat",
+    response_model=ChatResponse,
+    tags=["Chat"],
+    summary="Minimal chat over HTTP",
+    description="Echo-style chat that optionally summarizes the reply via T5.",
+)
+async def chat_http(
+    message: ChatMessage,
+    current_user: TokenPayload = Depends(get_current_user),
+) -> ChatResponse:
+    """Minimal chat endpoint built on existing components.
+
+    - Produces a simple echo-style reply.
+    - If summarize=true, uses request-scoped summarizer to summarize the reply.
+    """
+    reply = f"You said: {message.text.strip()}"
+
+    summary_text: Optional[str] = None
+    if message.summarize:
+        if text_summarizer is None:
+            _ensure_summarizer_loaded()
+        summarizer_instance = _get_request_scoped_summarizer(message.model)
+        summary_text = summarizer_instance.generate_summary(reply, max_length=80, min_length=20)
+
+    return ChatResponse(
+        reply=reply,
+        summary=summary_text,
+        meta={
+            "model": message.model if message.summarize else None,
+            "user": current_user.username,
+        },
+    )
+
+
+@app.websocket("/ws/chat")
+async def chat_websocket(websocket: WebSocket, token: str = Query(None)) -> None:
+    """Minimal WebSocket chat.
+
+    Protocol:
+    - Client connects with ?token=JWT or sends {"token":"..."} as first message.
+    - Then sends {"text":"...", "summarize":bool, "model":"t5-small|t5-base"}.
+    - Server responds with {"reply":"...", "summary":"..."}.
+    """
+    # Authenticate
+    if not token:
+        await websocket.accept()
+        try:
+            initial = await websocket.receive_text()
+            token = json.loads(initial).get("token")
+        except Exception:
+            await websocket.send_json({"error": "Authentication token required"})
+            await websocket.close(code=4001)
+            return
+
+    payload = jwt_manager.verify_token(token)
+    if not payload:
+        await websocket.accept()
+        await websocket.send_json({"error": "Invalid token"})
+        await websocket.close(code=4001)
+        return
+
+    await websocket.accept()
+    try:
+        while True:
+            raw = await websocket.receive_text()
+            try:
+                data = json.loads(raw)
+            except json.JSONDecodeError:
+                await websocket.send_json({"error": "Invalid JSON"})
+                continue
+
+            text = (data.get("text") or "").strip()
+            summarize_flag = bool(data.get("summarize", False))
+            model = data.get("model", "t5-small")
+            reply = f"You said: {text}"
+
+            response: dict[str, Any] = {"reply": reply}
+            if summarize_flag and text:
+                try:
+                    if text_summarizer is None:
+                        _ensure_summarizer_loaded()
+                    summarizer_instance = _get_request_scoped_summarizer(model)
+                    summary_text = summarizer_instance.generate_summary(reply, max_length=80, min_length=20)
+                    response["summary"] = summary_text
+                except HTTPException as exc:
+                    response["summary_error"] = exc.detail
+                except Exception as exc:  # pragma: no cover
+                    response["summary_error"] = str(exc)
+
+            await websocket.send_json(response)
+    except WebSocketDisconnect:
+        return
 @app.post(
     "/analyze/journal",
     response_model=CompleteJournalAnalysis,
