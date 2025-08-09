@@ -1003,18 +1003,28 @@ async def summarize_text(
         if text_summarizer is None:
             raise HTTPException(status_code=503, detail="Text summarization service unavailable")
 
-        # Optionally handle requested model name; if different, attempt lazy swap
-        try:
-            if hasattr(text_summarizer, "model_name") and text_summarizer.model_name != model:
-                from src.models.summarization.t5_summarizer import create_t5_summarizer as _create
-                logger.info(f"Switching summarizer model from {text_summarizer.model_name} to {model}")
-                # Global swap; acceptable for dev/smoke contexts
-                globals()["text_summarizer"] = _create(model)
-        except Exception as exc:
-            logger.warning(f"Model switch to {model} failed, continuing with existing summarizer: {exc}")
+        # Request-scoped model override to avoid global mutation in production
+        summarizer_instance = text_summarizer
+        if hasattr(text_summarizer, "model_name") and text_summarizer.model_name != model:
+            logger.info(
+                "Requested summarizer model '%s' differs from default '%s'; using request-scoped instance",
+                model,
+                getattr(text_summarizer, "model_name", "unknown"),
+            )
+            try:
+                from src.models.summarization.t5_summarizer import (
+                    create_t5_summarizer as _create,
+                )
+                summarizer_instance = _create(model)
+            except Exception as exc:
+                logger.warning(
+                    "Model override to %s failed; continuing with default summarizer: %s",
+                    model,
+                    exc,
+                )
 
         # Generate summary
-        summary_text = text_summarizer.generate_summary(
+        summary_text = summarizer_instance.generate_summary(
             text,
             max_length=max_length,
             min_length=min_length,
