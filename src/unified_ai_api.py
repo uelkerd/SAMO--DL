@@ -284,6 +284,19 @@ add_rate_limiting(app, requests_per_minute=1000, burst_size=100, max_concurrent_
                  rapid_fire_threshold=100, sustained_rate_threshold=2000)
 
 
+def _tx_to_dict(result: Any) -> Dict[str, Any]:
+    """Normalize transcription result (dataclass or dict) to a plain dict."""
+    if isinstance(result, dict):
+        return result
+    return {
+        "text": getattr(result, "text", ""),
+        "language": getattr(result, "language", "unknown"),
+        "confidence": getattr(result, "confidence", 0.0),
+        "duration": getattr(result, "duration", 0.0),
+        "segments": getattr(result, "segments", []),
+        "no_speech_prob": getattr(result, "no_speech_probability", 0.0),
+    }
+
 # Custom exception handler for all exceptions
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
@@ -845,27 +858,35 @@ async def transcribe_voice(
                 temp_file_path,
                 language=language
             )
-            
-            # Calculate additional metrics
-            duration = transcription_result.get("duration", 0)
-            word_count = len(transcription_result.get("text", "").split())
-            speaking_rate = (word_count / duration * 60) if duration > 0 else 0
-            
-            # Audio quality assessment
-            audio_quality = "excellent"
-            if duration < 1:
-                audio_quality = "poor"
-            elif duration < 5:
-                audio_quality = "fair"
-            elif duration < 15:
-                audio_quality = "good"
-            
+
+            # Normalize result to attributes
+            text_val = getattr(transcription_result, "text", "") if transcription_result else ""
+            lang_val = getattr(transcription_result, "language", "unknown") if transcription_result else "unknown"
+            conf_val = getattr(transcription_result, "confidence", 0.0) if transcription_result else 0.0
+            duration = getattr(transcription_result, "duration", 0.0) if transcription_result else 0.0
+            word_count = getattr(transcription_result, "word_count", None)
+            if word_count is None:
+                word_count = len((text_val or "").split())
+            speaking_rate = getattr(transcription_result, "speaking_rate", None)
+            if speaking_rate is None:
+                speaking_rate = (word_count / duration * 60) if duration and duration > 0 else 0.0
+            audio_quality = getattr(transcription_result, "audio_quality", None)
+            if audio_quality is None:
+                if duration < 1:
+                    audio_quality = "poor"
+                elif duration < 5:
+                    audio_quality = "fair"
+                elif duration < 15:
+                    audio_quality = "good"
+                else:
+                    audio_quality = "excellent"
+
             processing_time = (time.time() - start_time) * 1000
-            
+
             return VoiceTranscription(
-                text=transcription_result.get("text", ""),
-                language=transcription_result.get("language", "unknown"),
-                confidence=transcription_result.get("confidence", 0.0),
+                text=text_val,
+                language=lang_val,
+                confidence=conf_val,
                 duration=duration,
                 word_count=word_count,
                 speaking_rate=speaking_rate,
