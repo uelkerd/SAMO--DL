@@ -895,7 +895,7 @@ async def analyze_journal_entry(
     except HTTPException:
         raise
     except Exception as exc:
-        logger.error(f"❌ Error in journal analysis: {exc}")
+        logger.error("❌ Error in journal analysis: %s", exc)
         raise HTTPException(status_code=500, detail="Analysis failed")
 
 
@@ -1065,7 +1065,7 @@ async def transcribe_voice(
     except HTTPException:
         raise
     except Exception as exc:
-        logger.error(f"Voice transcription failed: {exc}")
+        logger.error("Voice transcription failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Voice transcription failed"
