@@ -80,11 +80,15 @@ commands:
             bash miniconda.sh -b -p $HOME/miniconda
             rm miniconda.sh
             
-            # Create environment directly (no init needed)
-            conda env create -f environment.yml
+            # Create or update environment (idempotent)
+            if ! $HOME/miniconda/bin/conda env list | grep -q "samo-dl-stable"; then
+              $HOME/miniconda/bin/conda env create -f environment.yml
+            else
+              $HOME/miniconda/bin/conda env update -f environment.yml --prune
+            fi
             
             # Install additional dependencies (explicitly include PyJWT)
-            conda run -n samo-dl-stable pip install -e ".[test,dev,prod]" PyJWT httpx python-multipart psycopg2-binary
+            $HOME/miniconda/bin/conda run -n samo-dl-stable pip install -e ".[test,dev,prod]" PyJWT httpx python-multipart psycopg2-binary
             
             # Set PYTHONPATH once (simplified)
             if [ -n "$BASH_ENV" ]; then
@@ -130,7 +134,7 @@ commands:
       - run:
           name: "Pre-warm Models"
           command: |
-            $HOME/miniconda/envs/samo-dl-stable/bin/python scripts/ci/pre_warm_models.py
+            $HOME/miniconda/bin/conda run -n samo-dl-stable python scripts/ci/pre_warm_models.py
           shell: /bin/bash
 
   run_quality_checks:
@@ -139,17 +143,17 @@ commands:
       - run:
           name: "Ruff Linting"
           command: |
-            $HOME/miniconda/envs/samo-dl-stable/bin/python -m ruff check src/ tests/ --output-format=github || echo "Linting issues found but continuing..."
+            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m ruff check src/ tests/ --output-format=github || echo "Linting issues found but continuing..."
           shell: /bin/bash
       - run:
           name: "Ruff Formatting Check"
           command: |
-            $HOME/miniconda/envs/samo-dl-stable/bin/python -m ruff format --check src/ tests/ || echo "Formatting issues found but continuing..."
+            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m ruff format --check src/ tests/ || echo "Formatting issues found but continuing..."
           shell: /bin/bash
       - run:
           name: "Type Checking (MyPy) - Optional"
           command: |
-            $HOME/miniconda/envs/samo-dl-stable/bin/python -m mypy src/ --ignore-missing-imports || echo "Type checking failed but continuing..."
+            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m mypy src/ --ignore-missing-imports || echo "Type checking failed but continuing..."
           shell: /bin/bash
 
   # PARALLEL SECURITY SCANS (SIMPLIFIED)
@@ -159,7 +163,7 @@ commands:
       - run:
           name: "Bandit Security Scan"
           command: |
-            $HOME/miniconda/envs/samo-dl-stable/bin/python -m bandit -r src/ -f json -o bandit-report.json
+            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m bandit -r src/ -f json -o bandit-report.json
           shell: /bin/bash
 
   run_security_scan_safety:
@@ -168,7 +172,7 @@ commands:
       - run:
           name: "Safety Check (Dependencies)"
           command: |
-            $HOME/miniconda/envs/samo-dl-stable/bin/python -m safety check --json --output safety-report.json
+            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m safety check --json --output safety-report.json
           shell: /bin/bash
 
   run_unit_tests:
@@ -177,12 +181,12 @@ commands:
       - run:
           name: "API Rate Limiter Tests"
           command: |
-            $HOME/miniconda/envs/samo-dl-stable/bin/python scripts/testing/run_api_rate_limiter_tests.py
+            $HOME/miniconda/bin/conda run -n samo-dl-stable python scripts/testing/run_api_rate_limiter_tests.py
           shell: /bin/bash
       - run:
           name: "Unit Tests (Sequential - Rate Limiter Tests)"
           command: |
-            $HOME/miniconda/envs/samo-dl-stable/bin/python -m pytest tests/unit/test_api_rate_limiter.py \
+            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m pytest tests/unit/test_api_rate_limiter.py \
               --cov=src \
               --cov-report=xml \
               --cov-report=html \
@@ -193,7 +197,7 @@ commands:
       - run:
           name: "Unit Tests (Parallel - Other Tests)"
           command: |
-            $HOME/miniconda/envs/samo-dl-stable/bin/python -m pytest tests/unit/ \
+            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m pytest tests/unit/ \
               --ignore=tests/unit/test_api_rate_limiter.py \
               --cov=src \
               --cov-report=xml \
