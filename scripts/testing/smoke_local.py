@@ -106,7 +106,9 @@ def phase_basic_gets(session: requests.Session, url: Callable[[str], str], pause
         pause()
 
 
-def login_and_get_access_token(session: requests.Session, url: Callable[[str], str]) -> Optional[str]:
+def login_and_get_access_token(
+    session: requests.Session, url: Callable[[str], str]
+) -> Optional[str]:
     """Attempt login and return an access token; return None on failure."""
     try:
         r = session.post(
@@ -197,7 +199,11 @@ def phase_auth_login_refresh_logout(
     return access_token, refresh_token
 
 
-def phase_analyze_journal(session: requests.Session, url: Callable[[str], str], pause: Callable[[], None]) -> None:
+def phase_analyze_journal(
+    session: requests.Session,
+    url: Callable[[str], str],
+    pause: Callable[[], None],
+) -> None:
     """POST a small journal entry and report primary emotion."""
     try:
         r = session.post(
@@ -347,10 +353,18 @@ def phase_monitoring(
         pause()
 
 
-def phase_websocket(base_url: str, url: Callable[[str], str], elevated: str, wav1: bytes) -> None:
+def phase_websocket(
+    base_url: str,
+    url: Callable[[str], str],
+    elevated: str,
+    wav1: bytes,
+) -> None:
     """Attempt a minimal WS exchange if HTTPS → WSS; otherwise print skipped."""
     if base_url.startswith("https://"):
-        ws_url = url("/ws/realtime").replace("https://", "wss://") + f"?token={elevated}"
+        ws_url = (
+            url("/ws/realtime").replace("https://", "wss://")
+            + f"?token={elevated}"
+        )
     else:
         ws_url = None
     if ws_url and websocket is not None and WEBSOCKET_BACKEND == "websocket-client":
@@ -391,7 +405,9 @@ def phase_websocket(base_url: str, url: Callable[[str], str], elevated: str, wav
         asyncio.run(ws_run())
     else:
         reason = (
-            "skipped: base_url is not https" if not ws_url else "skipped: no websocket client available"
+            "skipped: base_url is not https"
+            if not ws_url
+            else "skipped: no websocket client available"
         )
         p("WS /ws/realtime", None, reason)
 
