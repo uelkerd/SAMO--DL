@@ -822,14 +822,12 @@ API_KEY_BACKUP_COUNT=3
 API_KEY_LENGTH=32
 
 # JWT Configuration
-# SECURITY NOTE: Replace with actual secure values in production
-JWT_SECRET_KEY=REPLACE_WITH_SECURE_JWT_SECRET_32_CHARS_MIN
+JWT_SECRET_KEY=your-super-secret-jwt-key-here
 JWT_ALGORITHM=HS256
 JWT_EXPIRY_HOURS=24
 
 # Encryption Configuration
-# SECURITY NOTE: Generate using: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
-ENCRYPTION_KEY=REPLACE_WITH_FERNET_KEY_FROM_CRYPTOGRAPHY_LIB
+ENCRYPTION_KEY=your-encryption-key-here
 ENCRYPTION_ALGORITHM=Fernet
 
 # Monitoring Configuration
