@@ -359,6 +359,153 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     )
 
 
+# ===== Helpers to reduce endpoint complexity =====
+def _ensure_voice_transcriber_loaded() -> None:
+    """Ensure global voice_transcriber is available or raise 503."""
+    global voice_transcriber
+    if voice_transcriber is not None:
+        return
+    try:
+        from src.models.voice_processing.whisper_transcriber import (
+            create_whisper_transcriber as _wcreate,
+        )
+        logger.info("Lazy-loading Whisper transcriber: base")
+        voice_transcriber = _wcreate("base")
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.warning("Voice transcriber lazy-load failed: %s", exc)
+        raise HTTPException(
+            status_code=503, detail="Voice transcription service unavailable"
+        )
+
+
+def _write_temp_wav(content: bytes) -> str:
+    """Persist uploaded audio bytes to a temporary WAV file and return its path."""
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
+        temp_file.write(content)
+        temp_file.flush()
+        return temp_file.name
+
+
+def _normalize_transcription_attrs(result: Any) -> Tuple[str, str, float, float, int, float, str]:
+    """Extract common attributes from a transcription result object or dict."""
+    if isinstance(result, dict):
+        text_val = result.get("text", "")
+        lang_val = result.get("language", "unknown")
+        conf_val = float(result.get("confidence", 0.0) or 0.0)
+        duration = float(result.get("duration", 0.0) or 0.0)
+        word_count = int(result.get("word_count", 0) or 0)
+        speaking_rate = float(result.get("speaking_rate", 0.0) or 0.0)
+        audio_quality = result.get("audio_quality", "unknown")
+        return (
+            text_val,
+            lang_val,
+            conf_val,
+            duration,
+            word_count,
+            speaking_rate,
+            audio_quality,
+        )
+
+    # Object-like
+    text_val = getattr(result, "text", "")
+    lang_val = getattr(result, "language", "unknown")
+    conf_val = float(getattr(result, "confidence", 0.0) or 0.0)
+    duration = float(getattr(result, "duration", 0.0) or 0.0)
+    word_count = getattr(result, "word_count", None)
+    if word_count is None:
+        word_count = len((text_val or "").split())
+    speaking_rate = getattr(result, "speaking_rate", None)
+    if speaking_rate is None:
+        speaking_rate = (word_count / duration * 60) if duration > 0 else 0.0
+    audio_quality = getattr(result, "audio_quality", None)
+    if audio_quality is None:
+        if duration < 1:
+            audio_quality = "poor"
+        elif duration < 5:
+            audio_quality = "fair"
+        elif duration < 15:
+            audio_quality = "good"
+        else:
+            audio_quality = "excellent"
+    return (
+        text_val,
+        lang_val,
+        conf_val,
+        duration,
+        int(word_count),
+        float(speaking_rate),
+        audio_quality,
+    )
+
+
+def _ensure_summarizer_loaded() -> None:
+    """Ensure global text_summarizer is available or raise 503."""
+    global text_summarizer
+    if text_summarizer is not None:
+        return
+    try:
+        from src.models.summarization.t5_summarizer import (
+            create_t5_summarizer as _create,
+        )
+        logger.info("Lazy-loading summarizer model: t5-small")
+        text_summarizer = _create("t5-small")
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.warning("Summarizer lazy-load failed: %s", exc)
+        raise HTTPException(
+            status_code=503, detail="Text summarization service unavailable"
+        )
+
+
+def _get_request_scoped_summarizer(model: str):
+    """Return a summarizer instance for requested model without mutating global."""
+    if hasattr(text_summarizer, "model_name") and text_summarizer.model_name != model:
+        try:
+            from src.models.summarization.t5_summarizer import (
+                create_t5_summarizer as _create,
+            )
+            logger.info(
+                (
+                    "Requested summarizer model '%s' differs from default '%s'; "
+                    "using request-scoped instance"
+                ),
+                model,
+                getattr(text_summarizer, "model_name", "unknown"),
+            )
+            return _create(model)
+        except Exception as exc:  # pragma: no cover - non-fatal path
+            logger.warning(
+                (
+                    "Model override to %s failed; continuing with default "
+                    "summarizer: %s"
+                ),
+                model,
+                exc,
+            )
+    return text_summarizer
+
+
+def _derive_emotion(summary_text: str) -> Tuple[str, List[str]]:
+    """Infer emotional tone and key emotions from summary text."""
+    if not summary_text or not emotion_detector:
+        return "neutral", []
+    try:
+        emotion_result = emotion_detector.predict(summary_text)
+        primary = emotion_result.get("primary_emotion", "neutral")
+        keys = emotion_result.get("key_emotions")
+        if not isinstance(keys, list):
+            keys = [primary]
+        if primary in ["joy", "gratitude", "excitement"]:
+            tone = "positive"
+        elif primary in ["sadness", "anger", "fear"]:
+            tone = "negative"
+        else:
+            tone = "neutral"
+        return tone, keys
+    except Exception as exc:  # pragma: no cover - best-effort
+        logger.warning("Could not determine emotional tone from summary: %s", exc)
+        return "neutral", []
+
+
 # Request Models
 class JournalEntryRequest(BaseModel):
     """Request model for journal entry analysis."""
@@ -874,29 +1021,11 @@ async def transcribe_voice(
         await audio_file.seek(0)
         
         # Save uploaded file temporarily
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
-            temp_file.write(content)
-            temp_file.flush()  # Ensure data is written to disk
-            temp_file_path = temp_file.name
+        temp_file_path = _write_temp_wav(content)
         
         try:
-            # Transcribe audio; lazy-load transcriber if missing
-            if voice_transcriber is None:
-                try:
-                    from src.models.voice_processing.whisper_transcriber import (
-                        create_whisper_transcriber as _wcreate,
-                    )
-                    logger.info("Lazy-loading Whisper transcriber: base")
-                    globals()["voice_transcriber"] = _wcreate("base")
-                except Exception as exc:
-                    logger.warning(
-                        "Voice transcriber lazy-load failed: %s",
-                        exc,
-                    )
-                    raise HTTPException(
-                        status_code=503,
-                        detail="Voice transcription service unavailable",
-                    )
+            # Transcribe audio; ensure transcriber is available
+            _ensure_voice_transcriber_loaded()
             
             # Enhanced transcription
             # Note: model selection is configured at startup; per-request model_size/timestamp
@@ -906,43 +1035,15 @@ async def transcribe_voice(
                 language=language
             )
 
-            # Normalize result to attributes
-            text_val = (
-                getattr(transcription_result, "text", "")
-                if transcription_result
-                else ""
-            )
-            lang_val = (
-                getattr(transcription_result, "language", "unknown")
-                if transcription_result
-                else "unknown"
-            )
-            conf_val = (
-                getattr(transcription_result, "confidence", 0.0)
-                if transcription_result
-                else 0.0
-            )
-            duration = (
-                getattr(transcription_result, "duration", 0.0)
-                if transcription_result
-                else 0.0
-            )
-            word_count = getattr(transcription_result, "word_count", None)
-            if word_count is None:
-                word_count = len((text_val or "").split())
-            speaking_rate = getattr(transcription_result, "speaking_rate", None)
-            if speaking_rate is None:
-                speaking_rate = (word_count / duration * 60) if duration > 0 else 0.0
-            audio_quality = getattr(transcription_result, "audio_quality", None)
-            if audio_quality is None:
-                if duration < 1:
-                    audio_quality = "poor"
-                elif duration < 5:
-                    audio_quality = "fair"
-                elif duration < 15:
-                    audio_quality = "good"
-                else:
-                    audio_quality = "excellent"
+            (
+                text_val,
+                lang_val,
+                conf_val,
+                duration,
+                word_count,
+                speaking_rate,
+                audio_quality,
+            ) = _normalize_transcription_attrs(transcription_result)
 
             processing_time = (time.time() - start_time) * 1000
 
@@ -1064,47 +1165,10 @@ async def summarize_text(
             raise HTTPException(status_code=400, detail="Text cannot be empty")
         
         if text_summarizer is None:
-            try:
-                from src.models.summarization.t5_summarizer import (
-                    create_t5_summarizer as _create,
-                )
-                logger.info("Lazy-loading summarizer model: t5-small")
-                globals()["text_summarizer"] = _create("t5-small")
-            except Exception as exc:
-                logger.warning("Summarizer lazy-load failed: %s", exc)
-                raise HTTPException(
-                    status_code=503,
-                    detail="Text summarization service unavailable",
-                )
+            _ensure_summarizer_loaded()
 
         # Request-scoped model override to avoid global mutation in production
-        summarizer_instance = text_summarizer
-        if (
-            hasattr(text_summarizer, "model_name")
-            and text_summarizer.model_name != model
-        ):
-            logger.info(
-                (
-                    "Requested summarizer model '%s' differs from default '%s'; "
-                    "using request-scoped instance"
-                ),
-                model,
-                getattr(text_summarizer, "model_name", "unknown"),
-            )
-            try:
-                from src.models.summarization.t5_summarizer import (
-                    create_t5_summarizer as _create,
-                )
-                summarizer_instance = _create(model)
-            except Exception as exc:
-                logger.warning(
-                    (
-                        "Model override to %s failed; continuing with default "
-                        "summarizer: %s"
-                    ),
-                    model,
-                    exc,
-                )
+        summarizer_instance = _get_request_scoped_summarizer(model)
 
         # Generate summary
         summary_text = summarizer_instance.generate_summary(
@@ -1119,24 +1183,7 @@ async def summarize_text(
         compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
 
         # Determine emotional tone and key emotions from summary
-        emotional_tone = "neutral"
-        key_emotions: List[str] = []
-        if emotion_detector and summary_text:
-            try:
-                emotion_result = emotion_detector.predict(summary_text)
-                primary_emotion = emotion_result.get("primary_emotion", "neutral")
-                # populate key_emotions if available
-                ke = emotion_result.get("key_emotions")
-                if isinstance(ke, list):
-                    key_emotions = ke
-                else:
-                    key_emotions = [primary_emotion]
-                if primary_emotion in ["joy", "gratitude", "excitement"]:
-                    emotional_tone = "positive"
-                elif primary_emotion in ["sadness", "anger", "fear"]:
-                    emotional_tone = "negative"
-            except Exception as exc:
-                logger.warning(f"Could not determine emotional tone from summary: {exc}")
+        emotional_tone, key_emotions = _derive_emotion(summary_text or "")
 
         processing_time = (time.time() - start_time) * 1000
 
