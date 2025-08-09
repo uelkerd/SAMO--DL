@@ -79,7 +79,13 @@ steps:
   - run:
       name: Doctor
       command: |
-        bash -c 'set -euxo pipefail; echo "SHELL=$SHELL"; uname -a; whoami; pwd; ls -la; df -h || true'
+        set -euxo pipefail
+        echo "SHELL=$SHELL"
+        uname -a || true
+        whoami || true
+        pwd
+        ls -la
+        df -h || true
         ls -la "$HOME/miniconda/bin" || true
         "$HOME/miniconda/bin/conda" --version || true
         "$HOME/miniconda/bin/conda" info --envs || true | tee doctor.conda.info.txt
