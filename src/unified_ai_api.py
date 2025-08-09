@@ -313,8 +313,6 @@ async def metrics_middleware(request: Request, call_next):
         REQUEST_LATENCY.labels(endpoint=endpoint, method=method).observe(duration)
         REQUEST_COUNT.labels(endpoint=endpoint, method=method, status=resp_status).inc()
 
-
-
 @app.get("/metrics", include_in_schema=False)
 async def metrics() -> Response:
     """Expose Prometheus metrics in text format at /metrics."""
@@ -333,7 +331,6 @@ def _tx_to_dict(result: Any) -> Dict[str, Any]:
         "segments": getattr(result, "segments", []),
         "no_speech_prob": getattr(result, "no_speech_probability", 0.0),
     }
-
 # Custom exception handler for all exceptions
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
