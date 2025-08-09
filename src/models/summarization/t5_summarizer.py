@@ -210,7 +210,14 @@ class T5SummarizationModel(nn.Module):
         max_length = max_length or self.config.max_target_length
         min_length = min_length or self.config.min_target_length
         # Reduce beams for larger models to avoid long runtimes on CPU
-        default_beams = 2 if ("base" in self.model_name.lower() or "large" in self.model_name.lower()) else self.config.num_beams
+        default_beams = (
+            2
+            if (
+                "base" in self.model_name.lower()
+                or "large" in self.model_name.lower()
+            )
+            else self.config.num_beams
+        )
         num_beams = num_beams or default_beams
         length_penalty = length_penalty or self.config.length_penalty
         early_stopping = (
@@ -295,9 +302,15 @@ class T5SummarizationModel(nn.Module):
                 summary_ids = self.model.generate(
                     input_ids=inputs["input_ids"],
                     attention_mask=inputs["attention_mask"],
-                    max_new_tokens=generation_kwargs.get("max_length", self.config.max_target_length),
-                    min_new_tokens=generation_kwargs.get("min_length", self.config.min_target_length),
-                    num_beams=generation_kwargs.get("num_beams", default_beams),
+                    max_new_tokens=generation_kwargs.get(
+                        "max_length", self.config.max_target_length
+                    ),
+                    min_new_tokens=generation_kwargs.get(
+                        "min_length", self.config.min_target_length
+                    ),
+                    num_beams=generation_kwargs.get(
+                        "num_beams", default_beams
+                    ),
                     length_penalty=generation_kwargs.get(
                         "length_penalty", self.config.length_penalty
                     ),
