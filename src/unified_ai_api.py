@@ -869,7 +869,7 @@ async def transcribe_voice(
                 word_count = len((text_val or "").split())
             speaking_rate = getattr(transcription_result, "speaking_rate", None)
             if speaking_rate is None:
-                speaking_rate = (word_count / duration * 60) if duration and duration > 0 else 0.0
+            speaking_rate = (word_count / duration * 60) if duration > 0 else 0.0
             audio_quality = getattr(transcription_result, "audio_quality", None)
             if audio_quality is None:
                 if duration < 1:
@@ -990,7 +990,7 @@ async def summarize_text(
     model: str = Form("t5-small", description="Summarization model (t5-small, t5-base, t5-large)"),
     max_length: int = Form(150, description="Maximum summary length", ge=10, le=500),
     min_length: int = Form(30, description="Minimum summary length", ge=5, le=200),
-    do_sample: bool = Form(True, description="Use sampling for generation"),
+    # Removed do_sample to keep API contract accurate; summarizer uses beam search
     current_user: TokenPayload = Depends(get_current_user),
 ) -> TextSummary:
     """Enhanced text summarization with multiple model options."""
@@ -1035,12 +1035,19 @@ async def summarize_text(
         summary_length = len((summary_text or "").split())
         compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
 
-        # Determine emotional tone from summary
+        # Determine emotional tone and key emotions from summary
         emotional_tone = "neutral"
+        key_emotions: List[str] = []
         if emotion_detector and summary_text:
             try:
                 emotion_result = emotion_detector.predict(summary_text)
                 primary_emotion = emotion_result.get("primary_emotion", "neutral")
+                # populate key_emotions if available
+                ke = emotion_result.get("key_emotions")
+                if isinstance(ke, list):
+                    key_emotions = ke
+                else:
+                    key_emotions = [primary_emotion]
                 if primary_emotion in ["joy", "gratitude", "excitement"]:
                     emotional_tone = "positive"
                 elif primary_emotion in ["sadness", "anger", "fear"]:
@@ -1052,7 +1059,7 @@ async def summarize_text(
 
         return TextSummary(
             summary=summary_text or "",
-            key_emotions=[],
+            key_emotions=key_emotions,
             compression_ratio=compression_ratio,
             emotional_tone=emotional_tone
         )
