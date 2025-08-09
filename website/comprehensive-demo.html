@@ -644,6 +644,8 @@ I feel a bit sad about the changes."></textarea>
     <script>
         // API Configuration (Unified API)
         const API_BASE_URL = 'https://samo-unified-api-frrnetyhfa-uc.a.run.app';
+        let AUTH_TOKEN = null;
+        let CHAT_WS = null;
         
         // Demo state
         let isRecording = false;
@@ -768,6 +770,132 @@ I feel a bit sad about the changes."></textarea>
                 'disgust': 'secondary'
             };
             return colors[emotion] || 'primary';
+        }
+
+        // Minimal Chat Demo (Auth + HTTP + WS)
+        document.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem('samo_auth_token');
+            if (saved) {
+                AUTH_TOKEN = saved;
+                setAuthStatus(true);
+            }
+        });
+
+        function setAuthStatus(ok) {
+            const badge = document.getElementById('chat-auth-status');
+            if (!badge) return;
+            badge.textContent = ok ? 'AUTH OK' : 'AUTH REQ';
+            badge.className = `badge ${ok ? 'bg-success' : 'bg-warning text-dark'}`;
+        }
+
+        async function chatLogin() {
+            const u = document.getElementById('chat-username').value.trim();
+            const p = document.getElementById('chat-password').value;
+            const out = document.getElementById('chat-output');
+            out.textContent = 'Logging in...';
+            try {
+                const resp = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+                const data = await resp.json();
+                if (!resp.ok || !data.access_token) throw new Error(data.detail || 'Login failed');
+                AUTH_TOKEN = data.access_token;
+                localStorage.setItem('samo_auth_token', AUTH_TOKEN);
+                setAuthStatus(true);
+                out.textContent = 'Login successful.';
+            } catch (e) {
+                out.textContent = 'Login error: ' + e.message;
+                setAuthStatus(false);
+            }
+        }
+
+        function appendChatMessage(sender, text, summary = null) {
+            const list = document.getElementById('chat-messages');
+            const item = document.createElement('div');
+            item.className = 'p-2 mb-2 rounded ' + (sender === 'you' ? 'bg-primary bg-opacity-10' : 'bg-dark bg-opacity-10');
+            const who = document.createElement('div');
+            who.className = 'small text-muted mb-1';
+            who.textContent = sender;
+            const body = document.createElement('div');
+            body.textContent = text || '';
+            item.appendChild(who);
+            item.appendChild(body);
+            if (summary) {
+                const sum = document.createElement('div');
+                sum.className = 'mt-1 text-secondary';
+                sum.textContent = 'summary: ' + summary;
+                item.appendChild(sum);
+            }
+            list.appendChild(item);
+            list.scrollTop = list.scrollHeight;
+        }
+
+        async function sendChatHttp() {
+            const input = document.getElementById('chat-input');
+            const out = document.getElementById('chat-output');
+            const text = input.value.trim();
+            if (!text) return;
+            if (!AUTH_TOKEN) { out.textContent = 'Please login first.'; return; }
+            appendChatMessage('you', text);
+            out.textContent = '...';
+            try {
+                const resp = await fetch(`${API_BASE_URL}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${AUTH_TOKEN}` },
+                    body: JSON.stringify({ text, summarize: true, model: 't5-small' })
+                });
+                const data = await resp.json();
+                out.textContent = '';
+                appendChatMessage('bot', data.reply || JSON.stringify(data), data.summary || null);
+            } catch (e) {
+                out.textContent = 'Error sending message';
+            }
+        }
+
+        function buildWsUrl(path) {
+            if (!API_BASE_URL.startsWith('https://')) return null;
+            return API_BASE_URL.replace('https://', 'wss://') + path;
+        }
+
+        async function connectChatWs() {
+            const out = document.getElementById('chat-output');
+            if (!AUTH_TOKEN) { out.textContent = 'Please login first.'; return; }
+            const url = buildWsUrl(`/ws/chat?token=${encodeURIComponent(AUTH_TOKEN)}`);
+            if (!url) { out.textContent = 'WS requires https base URL.'; return; }
+            out.textContent = 'Connecting WS...';
+            try {
+                CHAT_WS = new WebSocket(url);
+                CHAT_WS.onopen = () => { out.textContent = 'WS connected.'; };
+                CHAT_WS.onmessage = (evt) => {
+                    try {
+                        const data = JSON.parse(evt.data);
+                        appendChatMessage('bot', data.reply || JSON.stringify(data), data.summary || null);
+                    } catch (e) { console.error("Error processing WebSocket message:", e); }
+                };
+                CHAT_WS.onerror = () => { out.textContent = 'WS error'; };
+                CHAT_WS.onclose = () => { out.textContent = 'WS disconnected.'; };
+            } catch (e) {
+                out.textContent = 'WS connect failed';
+            }
+        }
+
+        function disconnectChatWs() {
+            if (CHAT_WS) {
+                try { CHAT_WS.close(); } catch {}
+                CHAT_WS = null;
+            }
+        }
+
+        function sendChatWs() {
+            const input = document.getElementById('chat-input');
+            const out = document.getElementById('chat-output');
+            const text = input.value.trim();
+            if (!text) return;
+            if (!CHAT_WS || CHAT_WS.readyState !== 1) { out.textContent = 'WS not connected'; return; }
+            appendChatMessage('you', text);
+            CHAT_WS.send(JSON.stringify({ text, summarize: true, model: 't5-small' }));
         }
 
         // Voice Recording
@@ -1065,5 +1193,35 @@ I feel a bit sad about the changes."></textarea>
             refreshMetrics();
         });
     </script>
+
+    <!-- Simple Chat UI -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="fw-bold mb-3">Chat Demo</h5>
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <span id="chat-auth-status" class="badge bg-warning text-dark">AUTH REQ</span>
+                                <input id="chat-username" class="form-control form-control-sm" placeholder="email" style="max-width:220px" />
+                                <input id="chat-password" class="form-control form-control-sm" placeholder="password" type="password" style="max-width:180px" />
+                                <button class="btn btn-sm btn-outline-primary" onclick="chatLogin()">Login</button>
+                                <button class="btn btn-sm btn-outline-success" onclick="connectChatWs()">Connect WS</button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="disconnectChatWs()">Disconnect</button>
+                            </div>
+                            <div id="chat-messages" class="mb-3" style="height:220px; overflow:auto; background:#0b1324; color:#e2e8f0; border-radius:8px; padding:10px;"></div>
+                            <div class="input-group mb-3">
+                                <input id="chat-input" class="form-control" placeholder="Type a message..." />
+                                <button class="btn btn-primary" onclick="sendChatHttp()">Send HTTP</button>
+                                <button class="btn btn-outline-primary" onclick="sendChatWs()">Send WS</button>
+                            </div>
+                            <pre id="chat-output" class="code-block" style="min-height:80px"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 </body>
 </html> 
