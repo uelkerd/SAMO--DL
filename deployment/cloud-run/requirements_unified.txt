@@ -6,6 +6,9 @@ requests==2.32.4
 psutil==5.9.8
 python-multipart==0.0.9
 
+# Ensure compatibility for build-time model pre-bundling
+numpy==1.26.4
+
 # NLP/ML for summarizer and emotion model
 transformers==4.55.0
 sentencepiece==0.1.99
