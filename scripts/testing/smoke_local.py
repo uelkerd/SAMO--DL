@@ -308,11 +308,7 @@ def run_smoke(base_url: str):
             except Exception as e:
                 p("WS /ws/realtime", None, f"error: {e}")
 
-        try:
-            asyncio.get_event_loop()
-        except Exception:
-            asyncio.set_event_loop(asyncio.new_event_loop())
-        asyncio.get_event_loop().run_until_complete(ws_run())
+        asyncio.run(ws_run())
     else:
         p("WS /ws/realtime", None, "skipped: no websocket client available")
 
