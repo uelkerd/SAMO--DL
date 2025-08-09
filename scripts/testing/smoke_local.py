@@ -84,7 +84,7 @@ def p(endpoint: str, status: Optional[int], msg: str):
     print(f"{endpoint} -> {status} {msg}")
 
 
-def run_smoke(base_url: str):
+def run_smoke(base_url: str, pause_ms: int = 200):
     headers = {"User-Agent": "testclient", "Accept": "application/json"}
     session = requests.Session()
     session.headers.update(headers)
@@ -94,6 +94,10 @@ def run_smoke(base_url: str):
 
     # Discover server secret for local signing (use default if env not set)
     jwt_secret = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
+
+    def pause():
+        if pause_ms and pause_ms > 0:
+            time.sleep(pause_ms / 1000.0)
 
     # Phase 1: Basic GETs
     for ep in ["/", "/health", "/models/status"]:
@@ -108,8 +112,7 @@ def run_smoke(base_url: str):
             p(ep, r.status_code, brief)
         except Exception as e:
             p(ep, None, f"error: {e}")
-        # brief pacing to avoid rate-limit noise
-        time.sleep(0.2)
+        pause()
 
     access_token = None
     refresh_token = None
@@ -140,7 +143,7 @@ def run_smoke(base_url: str):
         p("/auth/login", r.status_code, "token" if access_token else r.text[:60])
         except Exception as exc:
             p("/auth/login", None, f"error: {exc}")
-    time.sleep(0.2)
+    pause()
 
     if access_token:
         try:
@@ -153,7 +156,7 @@ def run_smoke(base_url: str):
             p("/auth/profile", r.status_code, msg)
         except Exception as exc:
             p("/auth/profile", None, f"error: {exc}")
-        time.sleep(0.2)
+        pause()
 
         if refresh_token:
             try:
@@ -163,7 +166,7 @@ def run_smoke(base_url: str):
                 p("/auth/refresh", r.status_code, "refreshed" if new.get("access_token") else r.text[:60])
             except Exception as exc:
                 p("/auth/refresh", None, f"error: {exc}")
-            time.sleep(0.2)
+            pause()
 
         try:
             r = session.post(url("/auth/logout"), headers={"Authorization": f"Bearer {access_token}"}, timeout=10)
@@ -172,7 +175,7 @@ def run_smoke(base_url: str):
             p("/auth/logout", None, f"error: {exc}")
         # Clear token so we don't reuse a blacklisted token
         access_token = None
-        time.sleep(0.2)
+        pause()
 
     # Phase 3: Analyze journal (public)
     try:
@@ -186,7 +189,7 @@ def run_smoke(base_url: str):
         p("/analyze/journal", r.status_code, msg)
     except Exception as exc:
         p("/analyze/journal", None, f"error: {exc}")
-    time.sleep(0.2)
+    pause()
 
     # Phase 4: Summarize text (auth required)
     # Ensure we have a valid token for protected endpoints
@@ -208,7 +211,7 @@ def run_smoke(base_url: str):
                 p("/summarize/text", r.status_code, msg)
         except Exception as exc:
             p("/summarize/text", None, f"error: {exc}")
-        time.sleep(0.2)
+        pause()
 
     # Prepare tiny wavs
     wav1 = tiny_tone_wav_bytes()
@@ -233,7 +236,7 @@ def run_smoke(base_url: str):
             p("/transcribe/voice", r.status_code, msg)
         except Exception as exc:
             p("/transcribe/voice", None, f"error: {exc}")
-        time.sleep(0.2)
+        pause()
 
     # Elevated token for batch + monitoring + WS
     elevated = mint_elevated_dev_token(jwt_secret)
@@ -270,8 +273,11 @@ def run_smoke(base_url: str):
         time.sleep(0.3)
 
     # Phase 8: WebSocket realtime (elevated)
-    ws_url = url("/ws/realtime").replace("http://", "ws://").replace("https://", "wss://") + f"?token={elevated}"
-    if websocket is not None and WEBSOCKET_BACKEND == "websocket-client":
+    if base_url.startswith("https://"):
+        ws_url = url("/ws/realtime").replace("https://", "wss://") + f"?token={elevated}"
+    else:
+        ws_url = None
+    if ws_url and websocket is not None and WEBSOCKET_BACKEND == "websocket-client":
         try:
             # websocket-client is synchronous
             ws = websocket.create_connection(ws_url, timeout=10, header=["User-Agent: testclient"])  # type: ignore
@@ -289,7 +295,7 @@ def run_smoke(base_url: str):
             p("WS /ws/realtime", 101, msg)
         except Exception as exc:
             p("WS /ws/realtime", None, f"error: {exc}")
-    elif WEBSOCKET_BACKEND == "websockets" and websockets is not None:
+    elif ws_url and WEBSOCKET_BACKEND == "websockets" and websockets is not None:
         async def ws_run():
             try:
                 async with websockets.connect(ws_url, extra_headers={"User-Agent": "testclient"}) as ws:
@@ -307,15 +313,17 @@ def run_smoke(base_url: str):
 
         asyncio.run(ws_run())
     else:
-        p("WS /ws/realtime", None, "skipped: no websocket client available")
+        reason = "skipped: base_url is not https" if not ws_url else "skipped: no websocket client available"
+        p("WS /ws/realtime", None, reason)
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--base-url", dest="base_url", default=os.getenv("BASE_URL", "http://127.0.0.1:8000"))
+    parser.add_argument("--pause-ms", dest="pause_ms", type=int, default=int(os.getenv("SMOKE_PAUSE_MS", "200")))
     args = parser.parse_args()
 
-    run_smoke(args.base_url)
+    run_smoke(args.base_url, pause_ms=args.pause_ms)
 
 
 if __name__ == "__main__":
