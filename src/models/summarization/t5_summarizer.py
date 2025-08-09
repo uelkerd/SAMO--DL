@@ -92,7 +92,7 @@ class SummarizationDataset(Dataset):
         summary = self.summaries[idx]
 
         if "t5" in self.tokenizer.name_or_path.lower():
-            text = "summarize: {text}"
+            text = f"summarize: {text}"
 
         source_encoding = self.tokenizer(
             text,
@@ -216,7 +216,7 @@ class T5SummarizationModel(nn.Module):
         no_repeat_ngram_size = no_repeat_ngram_size or self.config.no_repeat_ngram_size
 
         if "t5" in self.model_name.lower():
-            text = "summarize: {text}"
+            text = f"summarize: {text}"
 
         inputs = self.tokenizer(
             text,
@@ -267,7 +267,7 @@ class T5SummarizationModel(nn.Module):
             batch_texts = texts[i : i + batch_size]
 
             if "t5" in self.model_name.lower():
-                batch_texts = ["summarize: {text}" for text in batch_texts]
+                batch_texts = [f"summarize: {text}" for text in batch_texts]
 
             inputs = self.tokenizer(
                 batch_texts,
