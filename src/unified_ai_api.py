@@ -375,8 +375,8 @@ def _ensure_voice_transcriber_loaded() -> None:
         from src.models.voice_processing.whisper_transcriber import (
             create_whisper_transcriber as _wcreate,
         )
-        logger.info("Lazy-loading Whisper transcriber: base")
-        voice_transcriber = _wcreate("base")
+        logger.info("Lazy-loading Whisper transcriber: small")
+        voice_transcriber = _wcreate("small")
     except Exception as exc:  # pragma: no cover - defensive
         logger.warning("Voice transcriber lazy-load failed: %s", exc)
         raise HTTPException(
