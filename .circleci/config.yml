@@ -32,7 +32,7 @@ executors:
       PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src
       TOKENIZERS_PARALLELISM: "false"  # Avoid HuggingFace tokenizer warnings
       HF_HOME: /home/circleci/.cache/huggingface  # Explicit cache location
-      PATH: $HOME/miniconda/bin:$PATH  # Add conda to PATH for all jobs
+      PATH: /usr/local/bin:/usr/bin:/bin:$HOME/miniconda/bin:$PATH  # Ensure system bins + conda
 
   python-gpu:
     machine:
@@ -73,6 +73,8 @@ commands:
           shell: /bin/bash
           command: |
             set -euxo pipefail
+            # Ensure system binaries like `tee` are available regardless of base env
+            export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
             echo "SHELL=${SHELL}" | tee doctor.env.txt
             uname -a | tee -a doctor.env.txt || true
             whoami | tee -a doctor.env.txt || true
@@ -125,18 +127,6 @@ commands:
     steps:
       - checkout
       - run:
-          name: Install system dependencies
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y \
-              curl \
-              wget \
-              ca-certificates \
-              portaudio19-dev \
-              python3-pyaudio
-            echo "System dependencies installed successfully"
-          shell: /bin/bash  # Explicitly specify bash for consistent behavior
-      - run:
           name: Install and setup Miniconda (SIMPLIFIED)
           command: |
             set -euxo pipefail
@@ -154,24 +144,8 @@ commands:
             elif command -v python >/dev/null 2>&1; then
               python -c "import ssl,urllib.request;u='https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh';c=ssl.create_default_context();r=urllib.request.urlopen(u,context=c);open('miniconda.sh','wb').write(r.read());print('Downloaded Miniconda via python urllib')"
             else
-              # Last resort: try to install curl if we have privileges, then retry
-              if command -v sudo >/dev/null 2>&1; then
-                if command -v apt-get >/dev/null 2>&1; then sudo apt-get update && sudo apt-get install -y curl || true; fi
-                if command -v yum >/dev/null 2>&1; then sudo yum install -y curl || true; fi
-                if command -v dnf >/dev/null 2>&1; then sudo dnf install -y curl || true; fi
-                if command -v apk >/dev/null 2>&1; then sudo apk add --no-cache curl || true; fi
-              elif [ "$(id -u)" -eq 0 ]; then
-                if command -v apt-get >/dev/null 2>&1; then apt-get update && apt-get install -y curl || true; fi
-                if command -v yum >/dev/null 2>&1; then yum install -y curl || true; fi
-                if command -v dnf >/dev/null 2>&1; then dnf install -y curl || true; fi
-                if command -v apk >/dev/null 2>&1; then apk add --no-cache curl || true; fi
-              fi
-              if command -v curl >/dev/null 2>&1; then
-                curl -L -o miniconda.sh "$MINIFORGE_URL"
-              else
-                echo "Error: no wget, curl, or python available to download Miniconda." >&2
-                exit 1
-              fi
+              echo "Error: no wget, curl, or python available to download Miniconda." >&2
+              exit 1
             fi
 
             chmod +x miniconda.sh
