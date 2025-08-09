@@ -39,12 +39,11 @@ This guide provides comprehensive instructions for deploying the SAMO-DL emotion
 ### Security Configuration
 ```bash
 # Required environment variables
-# SECURITY NOTE: Replace ALL placeholder values with actual secure credentials
 export DATABASE_URL="postgresql://USERNAME:PASSWORD@HOSTNAME:PORT/DATABASE"
-export SECRET_KEY="REPLACE_WITH_SECURE_SECRET_KEY"
-export API_KEY="REPLACE_WITH_SECURE_API_KEY"
+export SECRET_KEY="your-secret-key-here"
+export API_KEY="your-api-key-here"
 export ENVIRONMENT="production"
-export OPENAI_API_KEY="REPLACE_WITH_OPENAI_API_KEY"
+export OPENAI_API_KEY="your-openai-key"
 export GOOGLE_CLOUD_CREDENTIALS="path/to/credentials.json"
 ```
 
