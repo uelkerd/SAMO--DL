@@ -75,20 +75,29 @@ commands:
       - run:
           name: Install and setup Miniconda (SIMPLIFIED)
           command: |
+            set -eo pipefail
             # Install Miniconda
-            wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-            bash miniconda.sh -b -p $HOME/miniconda
-            rm miniconda.sh
+            if command -v wget >/dev/null 2>&1; then
+              wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+            else
+              curl -L https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o miniconda.sh
+            fi
+            bash miniconda.sh -b -p "$HOME/miniconda"
+            rm -f miniconda.sh
+
+            # Verify conda binary exists
+            ls -l "$HOME/miniconda/bin/conda" || (echo "Conda was not installed" && exit 1)
+            "$HOME/miniconda/bin/conda" --version
             
             # Create or update environment (idempotent)
-            if ! $HOME/miniconda/bin/conda env list | grep -q "samo-dl-stable"; then
-              $HOME/miniconda/bin/conda env create -f environment.yml
+            if ! "$HOME/miniconda/bin/conda" env list | grep -q "samo-dl-stable"; then
+              "$HOME/miniconda/bin/conda" env create -f environment.yml
             else
-              $HOME/miniconda/bin/conda env update -f environment.yml --prune
+              "$HOME/miniconda/bin/conda" env update -f environment.yml --prune
             fi
             
             # Install additional dependencies (explicitly include PyJWT)
-            $HOME/miniconda/bin/conda run -n samo-dl-stable pip install -e ".[test,dev,prod]" PyJWT httpx python-multipart psycopg2-binary
+            "$HOME/miniconda/bin/conda" run -n samo-dl-stable pip install -e ".[test,dev,prod]" PyJWT httpx python-multipart psycopg2-binary
             
             # Set PYTHONPATH once (simplified)
             if [ -n "$BASH_ENV" ]; then
@@ -134,7 +143,7 @@ commands:
       - run:
           name: "Pre-warm Models"
           command: |
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python scripts/ci/pre_warm_models.py
+            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python scripts/ci/pre_warm_models.py
           shell: /bin/bash
 
   run_quality_checks:
@@ -143,17 +152,17 @@ commands:
       - run:
           name: "Ruff Linting"
           command: |
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m ruff check src/ tests/ --output-format=github || echo "Linting issues found but continuing..."
+            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python -m ruff check src/ tests/ --output-format=github || echo "Linting issues found but continuing..."
           shell: /bin/bash
       - run:
           name: "Ruff Formatting Check"
           command: |
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m ruff format --check src/ tests/ || echo "Formatting issues found but continuing..."
+            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python -m ruff format --check src/ tests/ || echo "Formatting issues found but continuing..."
           shell: /bin/bash
       - run:
           name: "Type Checking (MyPy) - Optional"
           command: |
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m mypy src/ --ignore-missing-imports || echo "Type checking failed but continuing..."
+            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python -m mypy src/ --ignore-missing-imports || echo "Type checking failed but continuing..."
           shell: /bin/bash
 
   # PARALLEL SECURITY SCANS (SIMPLIFIED)
@@ -163,7 +172,7 @@ commands:
       - run:
           name: "Bandit Security Scan"
           command: |
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m bandit -r src/ -f json -o bandit-report.json
+            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python -m bandit -r src/ -f json -o bandit-report.json
           shell: /bin/bash
 
   run_security_scan_safety:
@@ -172,7 +181,7 @@ commands:
       - run:
           name: "Safety Check (Dependencies)"
           command: |
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m safety check --json --output safety-report.json
+            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python -m safety check --json --output safety-report.json
           shell: /bin/bash
 
   run_unit_tests:
@@ -181,12 +190,12 @@ commands:
       - run:
           name: "API Rate Limiter Tests"
           command: |
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python scripts/testing/run_api_rate_limiter_tests.py
+            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python scripts/testing/run_api_rate_limiter_tests.py
           shell: /bin/bash
       - run:
           name: "Unit Tests (Sequential - Rate Limiter Tests)"
           command: |
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m pytest tests/unit/test_api_rate_limiter.py \
+            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python -m pytest tests/unit/test_api_rate_limiter.py \
               --cov=src \
               --cov-report=xml \
               --cov-report=html \
@@ -197,7 +206,7 @@ commands:
       - run:
           name: "Unit Tests (Parallel - Other Tests)"
           command: |
-            $HOME/miniconda/bin/conda run -n samo-dl-stable python -m pytest tests/unit/ \
+            "$HOME/miniconda/bin/conda" run -n samo-dl-stable python -m pytest tests/unit/ \
               --ignore=tests/unit/test_api_rate_limiter.py \
               --cov=src \
               --cov-report=xml \
