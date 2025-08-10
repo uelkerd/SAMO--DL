@@ -68,7 +68,7 @@ dev = [
     "black>=23.7.0",
     "mypy>=1.5.0",
     "bandit[toml]>=1.7.5",
-    "safety>=2.3.0",
+    # safety removed - kept optional in CI to avoid resolver backtracking
     "pre-commit>=3.3.0",
     "jupyterlab>=4.0.0",
     "ipykernel>=6.25.0",
@@ -113,10 +113,8 @@ ml = [
     "jiwer>=3.0.0",
 ]
 
-# All dependencies for development
-all = [
-    "samo-dl[test,dev,prod,ml]"
-]
+# Note: Install multiple extras directly using: pip install .[test,dev,prod,ml]
+# Removed 'all' extra to avoid self-referential dependency issues
 
 [project.urls]
 "Homepage" = "https://github.com/samo-ai/samo-dl"
