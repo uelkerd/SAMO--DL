@@ -180,66 +180,8 @@ commands:
           name: Install and setup Miniconda (SIMPLIFIED)
           command: |
             set -euxo pipefail
-            # Parameterize OS/ARCH for Miniforge installer
-            OS_NAME="Linux"
-            ARCH_NAME="x86_64"
-            MINIFORGE_URL="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-${OS_NAME}-${ARCH_NAME}.sh"
-
-            if command -v wget >/dev/null 2>&1; then
-              wget -O miniconda.sh "$MINIFORGE_URL"
-            elif command -v curl >/dev/null 2>&1; then
-              curl -L -o miniconda.sh "$MINIFORGE_URL"
-            elif command -v python3 >/dev/null 2>&1; then
-              python3 -c "import ssl,urllib.request;u='https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh';c=ssl.create_default_context();r=urllib.request.urlopen(u,context=c);open('miniconda.sh','wb').write(r.read());print('Downloaded Miniforge via python3 urllib')"
-            elif command -v python >/dev/null 2>&1; then
-              python -c "import ssl,urllib.request;u='https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh';c=ssl.create_default_context();r=urllib.request.urlopen(u,context=c);open('miniconda.sh','wb').write(r.read());print('Downloaded Miniforge via python urllib')"
-            else
-              echo "Error: no wget, curl, python3, or python available to download Miniconda." >&2
-              exit 1
-            fi
-
-            # Verify SHA256 checksum to prevent supply chain attacks
-            # Use GitHub API to get the latest tag and verify against individual checksum file
-            INSTALLER_BASENAME=$(basename "$MINIFORGE_URL")
-            # Avoid SIGPIPE from curl | grep by writing to a temp file
-            curl -sSfL https://api.github.com/repos/conda-forge/miniforge/releases/latest -o latest_release.json
-            if command -v jq >/dev/null 2>&1; then
-              TAG=$(jq -r .tag_name latest_release.json)
-            else
-              TAG=$(sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"[:space:]]*\)".*/\1/p' latest_release.json | head -n1)
-            fi
-            rm -f latest_release.json
-            # Build checksum filename dynamically from installer basename (robust across variants/architectures)
-            CHECKSUM_FILENAME=$(echo "$INSTALLER_BASENAME" | sed -E "s/^([^-]+)-(.*)$/\1-$TAG-\2.sha256/")
-            CHECKSUM_URL="https://github.com/conda-forge/miniforge/releases/download/$TAG/$CHECKSUM_FILENAME"
-            echo "Resolved installer: $INSTALLER_BASENAME"
-            echo "Checksum URL: $CHECKSUM_URL"
-            if command -v curl >/dev/null 2>&1; then
-              curl -sSfL "$CHECKSUM_URL" -o miniconda.sha256sum
-            elif command -v wget >/dev/null 2>&1; then
-              wget -qO miniconda.sha256sum "$CHECKSUM_URL"
-            else
-              echo "Warning: neither curl nor wget available to fetch checksum; aborting for safety." >&2
-              exit 1
-            fi
-            # Compute actual checksum and compare to the expected checksum
-            ACTUAL_SUM=$(sha256sum miniconda.sh | awk '{print $1}')
-            EXPECTED_SUM=$(awk '{print $1}' < miniconda.sha256sum)
-            if [ -z "$EXPECTED_SUM" ]; then
-              echo "Checksum file empty or unavailable. Aborting to be safe." >&2
-              rm -f miniconda.sh miniconda.sha256sum
-              exit 1
-            fi
-            if [ "$ACTUAL_SUM" != "$EXPECTED_SUM" ]; then
-              echo "Checksum verification failed! Expected $EXPECTED_SUM, got $ACTUAL_SUM" >&2
-              rm -f miniconda.sh miniconda.sha256sum
-              exit 1
-            fi
-            rm -f miniconda.sha256sum
-
-            chmod +x miniconda.sh
-            bash miniconda.sh -b -p "$HOME/miniconda"
-            rm -f miniconda.sh
+            # Use shared, cross-platform installer with checksum verification
+            bash scripts/deployment/install_miniforge.sh --prefix "$HOME/miniconda"
 
             # Verify conda binary exists
             ls -l "$HOME/miniconda/bin/conda" || (echo "Conda was not installed" && exit 1)
