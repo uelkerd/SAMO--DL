@@ -30,35 +30,34 @@ DB_NAME = os.environ.get("DB_NAME")
 
 if _env_database_url:
     DATABASE_URL = _env_database_url
-else:
+elif DB_USER and DB_PASSWORD and DB_NAME:
     # Safely build Postgres URL if all parts are provided
-    if DB_USER and DB_PASSWORD and DB_NAME:
-        safe_user = quote_plus(DB_USER)
-        safe_password = quote_plus(DB_PASSWORD)
-        safe_host = DB_HOST
-        safe_port = DB_PORT
-        safe_db = DB_NAME
-        DATABASE_URL = f"postgresql://{safe_user}:{safe_password}@{safe_host}:{safe_port}/{safe_db}"
-    else:
-        # Fall back to SQLite only when explicitly allowed or in CI/TEST
-        allow_sqlite = (
-            is_truthy(os.environ.get("ALLOW_SQLITE_FALLBACK"))
-            or is_truthy(os.environ.get("TESTING"))
-            or is_truthy(os.environ.get("CI"))
+    safe_user = quote_plus(DB_USER)
+    safe_password = quote_plus(DB_PASSWORD)
+    safe_host = DB_HOST
+    safe_port = DB_PORT
+    safe_db = DB_NAME
+    DATABASE_URL = f"postgresql://{safe_user}:{safe_password}@{safe_host}:{safe_port}/{safe_db}"
+else:
+    # Fall back to SQLite only when explicitly allowed or in CI/TEST
+    allow_sqlite = (
+        is_truthy(os.environ.get("ALLOW_SQLITE_FALLBACK"))
+        or is_truthy(os.environ.get("TESTING"))
+        or is_truthy(os.environ.get("CI"))
+    )
+    if not allow_sqlite:
+        raise RuntimeError(
+            "SQLite fallback is disabled. Set DATABASE_URL or all Postgres env vars, "
+            "or explicitly allow SQLite fallback via ALLOW_SQLITE_FALLBACK=1 in dev/test."
         )
-        if not allow_sqlite:
-            raise RuntimeError(
-                "SQLite fallback is disabled. Set DATABASE_URL or all Postgres env vars, "
-                "or explicitly allow SQLite fallback via ALLOW_SQLITE_FALLBACK=1 in dev/test."
-            )
-        default_sqlite_path = Path(os.environ.get("SQLITE_PATH", "./samo_local.db")).expanduser().resolve()
-        # Ensure directory for SQLite exists before engine creation
-        sqlite_dir = default_sqlite_path.parent
-        try:
-            sqlite_dir.mkdir(parents=True, exist_ok=True)
-        except Exception as exc:
-            raise RuntimeError(f"Failed to create SQLite directory '{sqlite_dir}': {exc}")
-        DATABASE_URL = f"sqlite:///{default_sqlite_path}"
+    default_sqlite_path = Path(os.environ.get("SQLITE_PATH", "./samo_local.db")).expanduser().resolve()
+    # Ensure directory for SQLite exists before engine creation
+    sqlite_dir = default_sqlite_path.parent
+    try:
+        sqlite_dir.mkdir(parents=True, exist_ok=True)
+    except Exception as exc:
+        raise RuntimeError(f"Failed to create SQLite directory '{sqlite_dir}': {exc}")
+    DATABASE_URL = f"sqlite:///{default_sqlite_path}"
 
 if DATABASE_URL.startswith("sqlite"):
     # SQLite engine options; most pooling params are not applicable
