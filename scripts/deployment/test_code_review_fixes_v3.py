@@ -18,8 +18,6 @@ import json
 import tempfile
 import ast
 import re
-from unittest.mock import patch, MagicMock
-from pathlib import Path
 
 def test_regex_based_model_replacement():
     """Test that the model replacement now uses robust regex patterns."""
@@ -60,7 +58,7 @@ def test_regex_based_model_replacement():
             expected = model_replacement
         
         if expected in result:
-            print(f"    ✅ Regex replacement successful")
+            print("    ✅ Regex replacement successful")
             successes += 1
         else:
             print(f"    ❌ Regex replacement failed: {result}")
@@ -96,9 +94,8 @@ def test_config_file_creation():
             if loaded_config["model_repository"] == "test-user/test-model":
                 print("  ✅ Config file creation successful")
                 return True
-            else:
-                print("  ❌ Config file content incorrect")
-                return False
+            print("  ❌ Config file content incorrect")
+            return False
         else:
             print("  ❌ Config file not created")
             return False
@@ -116,7 +113,7 @@ def test_dataparallel_checkpoint_handling():
     }
     
     # Simulate the cleaning logic from our fix
-    if any(key.startswith('module.') for key in dataparallel_state_dict.keys()):
+    if any(key.startswith('module.') for key in dataparallel_state_dict):
         print("  🔧 Detected DataParallel checkpoint - testing key cleaning...")
         clean_state_dict = {}
         for key, value in dataparallel_state_dict.items():
@@ -133,9 +130,8 @@ def test_dataparallel_checkpoint_handling():
         if set(clean_state_dict.keys()) == expected_keys:
             print(f"  ✅ DataParallel key cleaning successful: {len(clean_state_dict)} keys cleaned")
             return True
-        else:
-            print(f"  ❌ Key cleaning failed. Got: {set(clean_state_dict.keys())}")
-            return False
+        print(f"  ❌ Key cleaning failed. Got: {set(clean_state_dict.keys())}")
+        return False
     else:
         print("  ❌ DataParallel detection failed")
         return False
@@ -175,7 +171,7 @@ def test_non_contiguous_id2label_handling():
             
         except (ValueError, TypeError):
             # Fallback to alphabetical sorting
-            print(f"    🔄 Falling back to alphabetical sorting...")
+            print("    🔄 Falling back to alphabetical sorting...")
             sorted_keys = sorted(id2label.keys())
             sorted_labels = [id2label[key] for key in sorted_keys]
             print(f"    ✅ Alphabetical sorting successful: {sorted_labels}")
@@ -333,9 +329,8 @@ def test_pii_exposure_prevention():
     if len(pii_exposures) == 0 and redacted_logging >= 2:
         print("  ✅ PII exposure prevention successful")
         return True
-    else:
-        print("  ⚠️  PII exposure issues may remain")
-        return False
+    print("  ⚠️  PII exposure issues may remain")
+    return False
 
 def test_syntax_validation():
     """Test that all modified files still have valid syntax."""
@@ -352,7 +347,7 @@ def test_syntax_validation():
         print(f"  Checking {file_path}...")
         
         if not os.path.exists(file_path):
-            print(f"    ❌ File not found")
+            print("    ❌ File not found")
             continue
         
         try:
@@ -360,7 +355,7 @@ def test_syntax_validation():
                 content = f.read()
             
             ast.parse(content)
-            print(f"    ✅ Valid Python syntax")
+            print("    ✅ Valid Python syntax")
             valid_files += 1
             
         except SyntaxError as e:
@@ -407,7 +402,7 @@ def main():
             results.append((test_name, False))
         print()  # Add spacing between tests
     
-    print(f"🎯 CODE REVIEW FIXES V3 VALIDATION SUMMARY")
+    print("🎯 CODE REVIEW FIXES V3 VALIDATION SUMMARY")
     print("=" * 60)
     
     passed = sum(1 for _, result in results if result)
@@ -432,9 +427,8 @@ def main():
         print("  ✅ All syntax remains valid and functional")
         print("\n🛡️ Security, robustness, and maintainability significantly enhanced!")
         return True
-    else:
-        print(f"\n⚠️ {total - passed} test(s) failed - review implementation")
-        return False
+    print(f"\n⚠️ {total - passed} test(s) failed - review implementation")
+    return False
 
 if __name__ == "__main__":
     success = main()
