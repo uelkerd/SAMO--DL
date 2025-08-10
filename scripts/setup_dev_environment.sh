@@ -49,7 +49,7 @@ else:
     assert response.status_code == 200, f'Health check failed: {response.status_code}'
     print('✅ API health check passed!')
     data = response.json()
-    print(f"Models status: {data.get('models', {})}")
+    print(f'Models status: {data.get("models", {})}')
 PY
 
 echo ""
