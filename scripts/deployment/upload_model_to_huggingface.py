@@ -35,9 +35,44 @@ def find_best_trained_model() -> Optional[str]:
     print("🔍 SEARCHING FOR TRAINED MODELS")
     print("=" * 40)
     
+    # Ensure primary model directory exists
+    primary_model_dir = "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models"
+    if not os.path.exists(primary_model_dir):
+        print(f"📁 Creating model directory: {primary_model_dir}")
+        try:
+            os.makedirs(primary_model_dir, exist_ok=True)
+            print(f"✅ Created directory: {primary_model_dir}")
+        except Exception as e:
+            print(f"⚠️ Could not create directory: {e}")
+    
+    print(f"🎯 PRIMARY SEARCH LOCATION: {primary_model_dir}")
+    print("🔄 Also checking fallback locations...")
+    
     # Priority order of model locations
     model_search_paths = [
-        # From Colab downloads (most likely location)
+        # PRIMARY: User's specified model directory (absolute path)
+        "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/best_domain_adapted_model.pth",
+        "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/comprehensive_emotion_model_final",
+        "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/emotion_model_ensemble_final",
+        "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/emotion_model_specialized_final",
+        "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/emotion_model_fixed_bulletproof_final",
+        "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/domain_adapted_model",
+        "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/emotion_model",
+        "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/best_simple_model.pth",
+        "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/best_focal_model.pth",
+        
+        # LOCAL: Relative path (in case absolute path doesn't work)
+        "./deployment/models/best_domain_adapted_model.pth",
+        "./deployment/models/comprehensive_emotion_model_final",
+        "./deployment/models/emotion_model_ensemble_final",
+        "./deployment/models/emotion_model_specialized_final",
+        "./deployment/models/emotion_model_fixed_bulletproof_final",
+        "./deployment/models/domain_adapted_model",
+        "./deployment/models/emotion_model",
+        "./deployment/models/best_simple_model.pth",
+        "./deployment/models/best_focal_model.pth",
+        
+        # FALLBACK: Common locations (from Colab downloads)
         os.path.expanduser("~/Downloads/best_domain_adapted_model.pth"),
         os.path.expanduser("~/Downloads/comprehensive_emotion_model_final"),
         os.path.expanduser("~/Desktop/best_domain_adapted_model.pth"),
@@ -48,7 +83,7 @@ def find_best_trained_model() -> Optional[str]:
         "./models/checkpoints/simple_working_model.pt",
         "./models/checkpoints/minimal_working_model.pt",
         
-        # From notebook exports
+        # From notebook exports (relative to project root)
         "./emotion_model_ensemble_final",
         "./emotion_model_specialized_final",
         "./emotion_model_fixed_bulletproof_final",
@@ -56,7 +91,7 @@ def find_best_trained_model() -> Optional[str]:
         "./domain_adapted_model",
         "./emotion_model",
         
-        # Individual files
+        # Individual files (project root)
         "./best_domain_adapted_model.pth",
         "./best_simple_model.pth",
         "./best_focal_model.pth",
@@ -86,8 +121,12 @@ def find_best_trained_model() -> Optional[str]:
         print("❌ No trained models found!")
         print("\n📋 To use this script, you need to:")
         print("  1. Download your trained model from Colab")
-        print("  2. Place it in Downloads/ or Desktop/")
+        print(f"  2. Place it in: {primary_model_dir}")
         print("  3. Run this script again")
+        print("\n📂 Expected model files:")
+        print("   - best_domain_adapted_model.pth")
+        print("   - comprehensive_emotion_model_final/ (directory)")
+        print("   - emotion_model_ensemble_final/ (directory)")
         return None
     
     print(f"\n📊 Found {len(found_models)} model(s)")

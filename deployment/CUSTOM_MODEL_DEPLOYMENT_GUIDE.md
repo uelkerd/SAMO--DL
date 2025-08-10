@@ -20,10 +20,9 @@ We've created a comprehensive solution to upload your custom models to HuggingFa
    - `comprehensive_emotion_model_final/` (directory)
    - Any other `.pth` files
 
-2. Place them in one of these locations:
-   - `~/Downloads/`
-   - `~/Desktop/`
-   - Project root directory
+2. Place them in your designated model directory:
+   - **PRIMARY LOCATION**: `/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/`
+   - **Fallback locations**: `~/Downloads/`, `~/Desktop/`, or project root directory
 
 ### Model files we're looking for:
 - `best_domain_adapted_model.pth` ✅ (most likely)
@@ -149,7 +148,7 @@ Deployment → your-username/samo-dl-emotion-model → Custom trained model → 
 ```bash
 ❌ No trained models found!
 ```
-**Solution**: Download your model from Colab and place in `~/Downloads/`
+**Solution**: Download your model from Colab and place in `/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/`
 
 ### Authentication Failed
 ```bash

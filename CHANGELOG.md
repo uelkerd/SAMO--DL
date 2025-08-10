@@ -287,6 +287,8 @@ All notable changes to this project will be documented in this file.
 - **Custom Model Deployment Solution** - Complete pipeline to upload custom-trained models to HuggingFace Hub for production deployment
   - Created `scripts/deployment/upload_model_to_huggingface.py` - Comprehensive script to find, prepare, and upload custom trained models
   - Added `deployment/CUSTOM_MODEL_DEPLOYMENT_GUIDE.md` - Complete guide for deploying custom models
+  - Configured primary model search location: `/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/`
+  - Added `deployment/models/` directory for organized model storage
   - Automated model format conversion (PyTorch .pth to HuggingFace format)
   - Automatic deployment configuration updates
   - Model card generation with proper metadata and usage examples
