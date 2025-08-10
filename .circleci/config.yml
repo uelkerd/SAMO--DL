@@ -28,10 +28,21 @@ jobs:
             echo "Working directory: $(pwd)"
             echo "PYTHONPATH: $PYTHONPATH"
       - run:
+          name: Upgrade pip for faster resolver
+          command: |
+            python3 -m pip install --upgrade pip
+      - run:
           name: Install Core Dev Dependencies (light)
           command: |
             python3 -m pip install -r requirements-api.txt
             python3 -m pip install -r requirements-dev.txt
+            # Sanity check to fail fast if imports break
+            python3 - <<'PY'
+import importlib
+for pkg in ["fastapi", "uvicorn", "pydantic", "requests"]:
+    assert importlib.util.find_spec(pkg), f"Missing {pkg}"
+print("✅ core imports OK")
+PY
       - run:
           name: Test Basic API Import
           command: |
@@ -53,6 +64,7 @@ jobs:
       - run:
           name: Install Linting Tools
           command: |
+            python3 -m pip install --upgrade pip
             python3 -m pip install --user ruff==0.6.9
       - run:
           name: Run Linting (Non-blocking)
@@ -69,8 +81,15 @@ jobs:
       - run:
           name: Install Test Dependencies
           command: |
+            python3 -m pip install --upgrade pip
             python3 -m pip install -r requirements-api.txt
             python3 -m pip install -r requirements-dev.txt
+            python3 - <<'PY'
+import importlib
+for pkg in ["pytest", "ruff"]:
+    assert importlib.util.find_spec(pkg), f"Missing {pkg}"
+print("✅ test deps imports OK")
+PY
       - run:
           name: Run Basic Tests
           command: |
