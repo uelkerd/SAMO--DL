@@ -2,7 +2,6 @@
 """Extra unit tests for JWTManager to increase coverage."""
 
 from datetime import datetime, timedelta
-import json
 
 from src.security.jwt_manager import JWTManager
 

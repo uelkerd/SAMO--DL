@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 """Test permission override path guarded by PYTEST_CURRENT_TEST."""
-
-import os
 from fastapi.testclient import TestClient
 
 from src.unified_ai_api import app
