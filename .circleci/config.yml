@@ -156,8 +156,10 @@ commands:
           name: Install and setup Miniconda (SIMPLIFIED)
           command: |
             set -euxo pipefail
-            # Download Miniforge (Conda-Forge) installer with stable checksum endpoint
-            MINIFORGE_URL="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh"
+            # Parameterize OS/ARCH for Miniforge installer
+            OS_NAME="Linux"
+            ARCH_NAME="x86_64"
+            MINIFORGE_URL="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-${OS_NAME}-${ARCH_NAME}.sh"
 
             if command -v wget >/dev/null 2>&1; then
               wget -O miniconda.sh "$MINIFORGE_URL"
@@ -173,13 +175,19 @@ commands:
             fi
 
             # Verify SHA256 checksum to prevent supply chain attacks
-            # Use GitHub API to get the latest tag and verify against sha256sum.txt
-            BASENAME=$(basename "$MINIFORGE_URL")
+            # Use GitHub API to get the latest tag and verify against individual checksum file
+            INSTALLER_BASENAME=$(basename "$MINIFORGE_URL")
             # Avoid SIGPIPE from curl | grep by writing to a temp file
             curl -sSfL https://api.github.com/repos/conda-forge/miniforge/releases/latest -o latest_release.json
-            TAG=$(sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' latest_release.json | head -n1)
+            if command -v jq >/dev/null 2>&1; then
+              TAG=$(jq -r .tag_name latest_release.json)
+            else
+              TAG=$(sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"[:space:]]*\)".*/\1/p' latest_release.json | head -n1)
+            fi
             rm -f latest_release.json
-            CHECKSUM_URL="https://github.com/conda-forge/miniforge/releases/download/$TAG/sha256sum.txt"
+            # Build checksum filename dynamically from installer basename (robust across variants/architectures)
+            CHECKSUM_FILENAME=$(echo "$INSTALLER_BASENAME" | sed -E "s/^([^-]+)-(.*)$/\1-$TAG-\2.sha256/")
+            CHECKSUM_URL="https://github.com/conda-forge/miniforge/releases/download/$TAG/$CHECKSUM_FILENAME"
             echo "Resolved installer: $BASENAME"
             echo "Checksum URL: $CHECKSUM_URL"
             if command -v curl >/dev/null 2>&1; then
@@ -190,9 +198,9 @@ commands:
               echo "Warning: neither curl nor wget available to fetch checksum; aborting for safety." >&2
               exit 1
             fi
-            # Compute actual checksum and compare to the line matching the installer filename
+            # Compute actual checksum and compare to the expected checksum
             ACTUAL_SUM=$(sha256sum miniconda.sh | awk '{print $1}')
-            EXPECTED_SUM=$(grep "  $BASENAME$" miniconda.sha256sum | awk '{print $1}')
+            EXPECTED_SUM=$(awk '{print $1}' < miniconda.sha256sum)
             if [ -z "$EXPECTED_SUM" ]; then
               echo "Checksum file empty or unavailable. Aborting to be safe." >&2
               rm -f miniconda.sh miniconda.sha256sum
