@@ -1323,7 +1323,7 @@ async def transcribe_voice(
 async def batch_transcribe_voice(
     audio_files: list[UploadFile] = File(..., description="Multiple audio files to transcribe"),
     language: Optional[str] = Form(None, description="Language code for all files"),
-    request: Request = None,
+    request: Request,
     current_user: TokenPayload = Depends(get_current_user),
 ) -> dict[str, Any]:
     """Batch process multiple audio files for transcription."""
@@ -1333,8 +1333,7 @@ async def batch_transcribe_voice(
     try:
         # Enforce permission when processing a single file via this endpoint; allow multi-file batches
         if len(audio_files) <= 1:
-            # Also honor test-injected header override
-            injected = request.headers.get("X-User-Permissions") if isinstance(current_user, TokenPayload) else None
+            injected = request.headers.get("X-User-Permissions")
             has_injected = False
             if injected:
                 injected_perms = {p.strip() for p in injected.split(",") if p.strip()}
