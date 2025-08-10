@@ -2,7 +2,7 @@
 # SAMO Deep Learning - Development Environment Setup
 # Simple, working development environment setup
 
-set -e
+set -euo pipefail
 
 echo "🚀 Setting up SAMO Development Environment..."
 
