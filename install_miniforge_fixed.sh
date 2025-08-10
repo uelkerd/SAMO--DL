@@ -22,11 +22,17 @@ fi
 # Get the installer basename and latest release info
 BASENAME=$(basename "$MINIFORGE_URL")
 curl -sSfL https://api.github.com/repos/conda-forge/miniforge/releases/latest -o latest_release.json
-TAG=$(sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' latest_release.json | head -n1)
+if command -v jq >/dev/null 2>&1; then
+    TAG=$(jq -r .tag_name latest_release.json)
+else
+    TAG=$(sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"[:space:]]*\)".*/\1/p' latest_release.json | head -n1)
+fi
 rm -f latest_release.json
 
-# FIXED: Use the individual checksum file for the specific installer
-CHECKSUM_URL="https://github.com/conda-forge/miniforge/releases/download/$TAG/Miniforge3-$TAG-Linux-x86_64.sh.sha256"
+# FIXED: Use the individual checksum file for the specific installer (dynamic)
+INSTALLER_BASENAME=$(basename "$MINIFORGE_URL")
+CHECKSUM_FILENAME=$(echo "$INSTALLER_BASENAME" | sed -E "s/^([^-]+)-(.*)$/\1-$TAG-\2.sha256/")
+CHECKSUM_URL="https://github.com/conda-forge/miniforge/releases/download/$TAG/$CHECKSUM_FILENAME"
 
 echo "Resolved installer: $BASENAME"
 echo "Checksum URL: $CHECKSUM_URL"
