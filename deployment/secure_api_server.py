@@ -448,7 +448,8 @@ def predict():
         anomalies = input_sanitizer.detect_anomalies(data)
         if anomalies:
             logger.warning(f"Security anomalies detected: {anomalies}")
-            metrics['security_violations'] += 1
+            with metrics_lock:
+                metrics['security_violations'] += 1
         
         # Make secure prediction
         model_instance = get_secure_model()
@@ -513,7 +514,8 @@ def predict_batch():
         anomalies = input_sanitizer.detect_anomalies(data)
         if anomalies:
             logger.warning(f"Security anomalies detected in batch: {anomalies}")
-            metrics['security_violations'] += 1
+            with metrics_lock:
+                metrics['security_violations'] += 1
         
         # Make secure batch predictions
         results = []

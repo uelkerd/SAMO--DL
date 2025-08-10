@@ -14,7 +14,7 @@ import os
 import time
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Union, Any
-from typing_extensions import TypedDict
+from typing import TypedDict
 
 import jwt
 from pydantic import BaseModel, Field

@@ -1,465 +1,354 @@
-# SAMO Deep Learning Project .gitignore
 
-# ============================================================================
-# ENVIRONMENT & SECRETS
-# ============================================================================
-.env
-.env.local
-.env.development
-.env.test
-.env.production
-.env.*.local
-*.env
-secrets/
-config/secrets/
-
-# ============================================================================
-# PYTHON
-# ============================================================================
-# Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-
-# Virtual environments
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-.venv/
-conda-env/
-.conda/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-*/.ipynb_checkpoints/*
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-.python-version
-
-# pipenv
-Pipfile.lock
-
-# PEP 582
 __pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# ============================================================================
-# NODE.JS
-# ============================================================================
-# Dependency directories
-node_modules/
-jspm_packages/
-
-# npm
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-*.lcov
-
-# nyc test coverage
-.nyc_output
-
-# Grunt intermediate storage
-.grunt
-
-# Bower dependency directory
-bower_components
-
-# node-waf configuration
-.lock-wscript
-
-# Compiled binary addons
-build/Release
-
-# TypeScript cache
-*.tsbuildinfo
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# parcel-bundler cache
-.cache
-.parcel-cache
-
-# Next.js build output
-.next
-
-# Nuxt.js build / generate output
-.nuxt
-dist
-
-# Storybook build outputs
-.out
-.storybook-out
-
-# Temporary folders
-tmp/
-temp/
-
-# ============================================================================
-# MACHINE LEARNING & DATA (CRITICAL FOR REPOSITORY BLOAT PREVENTION)
-# ============================================================================
-# Model files and checkpoints (NEVER commit these)
-*.pkl
-*.pickle
-*.joblib
-*.h5
-*.hdf5
-*.ckpt
-*.pth
-*.pt
-*.safetensors
-*.bin
-*.onnx
-*.arrow
-merges.txt
-
-# Model directories
-models/
-deployment/model/
-deployment/models/
-test_checkpoints/
-test_checkpoints_dev/
-models/checkpoints/
-models/saved_models/
-models/*/checkpoints/
-models/*/saved_models/
-
-# Data files
-data/raw/*
-!data/raw/.gitkeep
-!data/raw/sample_*
-data/processed/*
-!data/processed/.gitkeep
-data/external/*
-!data/external/.gitkeep
-data/interim/*
-!data/interim/.gitkeep
-
-# Large dataset files
-*.csv
-*.tsv
-*.json
-*.jsonl
-*.parquet
-*.feather
-*.hdf
-*.h5
-
-# Allow small sample files
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!**/*_sample.*
+!**/journal_test_dataset_summary.json
+!**/journal_test_dataset.json
 !**/sample_*.csv
 !**/sample_*.json
+!**/sample_*.mp3
 !**/sample_*.tsv
-!**/*_sample.*
+!**/sample_*.wav
 !**/test_*.csv
 !**/test_*.json
-!**/journal_test_dataset.json
-!**/journal_test_dataset_summary.json
-
-# Embeddings and vectors
-*.vec
-*.txt.gz
-embeddings/
-vectors/
-
-# Training outputs
-runs/
-logs/
-outputs/
-results/
-experiments/
-wandb/
-tensorboard/
-mlruns/
-
-# ============================================================================
-# DATABASE
-# ============================================================================
-# PostgreSQL
-*.sql.backup
-*.dump
-*.dmp
-pg_data/
-postgres_data/
-pgdata/
-
-# SQLite
-*.db
-*.sqlite
-*.sqlite3
-
-# Database logs
-*.log
-
-# Prisma
-.prisma/
-prisma/migrations/*/migration.sql
-
-# ============================================================================
-# DOCKER
-# ============================================================================
-# Docker
-.dockerignore
-Dockerfile.local
-docker-compose.override.yml
-docker-compose.local.yml
+!**/test_*.wav
+!data/external/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+!data/raw/.gitkeep
+!data/raw/sample_*
+!src/models/
+!src/models/**
+._*
+.\#*
+.cache
+.conda/
+.coverage
+.coverage.*
+.cursor/
+.directory
+.dmypy.json
 .docker/
-
-# ============================================================================
-# LOGS & MONITORING
-# ============================================================================
-# Log files
-*.log
-logs/
-.logs/
-log/
-*.log.*
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# ============================================================================
-# OS & SYSTEM FILES
-# ============================================================================
-# macOS
+.dockerignore
 .DS_Store
 .DS_Store?
-._*
+.eggs/
+.embeddings_cache/
+.env
+.env.*.local
+.env.development
+.env.local
+.env.production
+.env.test
+.eslintcache
+.flake8
+.fuse_hidden*
+.grunt
+.hypothesis/
+.idea/
+.installed.cfg
+.ipynb_checkpoints
+.lock-wscript
+.logs/
+.mlflow/
+.model_cache/
+.mypy_cache/
+.next
+.nfs*
+.node_repl_history
+.nox/
+.npm
+.nuxt
+.nyc_output
+.out
+.parcel-cache
+.prisma/
+.pylintrc.local
+.pyre/
+.pytest_cache/
+.Python
+.python-version
+.ropeproject
 .Spotlight-V100
+.spyderproject
+.spyproject
+.storybook-out
+.tox/
+.Trash-*
 .Trashes
-ehthumbs.db
-Thumbs.db
-
-# Windows
-Desktop.ini
-$RECYCLE.BIN/
+.venv/
+.vimrc.local
+.vscode/
+.yarn-integrity
+*.aac
+*.arrow
+*.backup
+*.bak
+*.bin
 *.cab
+*.ckpt
+*.code-workspace
+*.cover
+*.csv
+*.db
+*.dmp
+*.dump
+*.egg
+*.egg-info/
+*.elc
+*.env
+*.feather
+*.flac
+*.h5
+*.hdf
+*.hdf5
+*.iml
+*.ipr
+*.iws
+*.joblib
+*.json
+*.jsonl
+*.lcov
+*.lnk
+*.log
+*.log.*
+*.m4a
+*.manifest
+*.mp3
 *.msi
 *.msm
 *.msp
-*.lnk
-
-# Linux
-*~
-.fuse_hidden*
-.directory
-.Trash-*
-.nfs*
-
-# ============================================================================
-# IDE & EDITORS
-# ============================================================================
-# VSCode
-.vscode/
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-*.code-workspace
-
-# PyCharm
-.idea/
-*.iws
-*.iml
-*.ipr
-
-# Sublime Text
-*.sublime-workspace
-*.sublime-project
-
-# Vim
-*.swp
-*.swo
-*~
-.vimrc.local
-
-# Emacs
-*~
-\#*\#
-/.emacs.desktop
-/.emacs.desktop.lock
-*.elc
-auto-save-list
-tramp
-.\#*
-
-# ============================================================================
-# DEVELOPMENT & TESTING
-# ============================================================================
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-test_output/
-test_results/
-
-# Linting
-.flake8
-.pylintrc.local
-
-# Configuration overrides
-config/local.*
-config/development.*
-config/test.*
-
-# Backup files
-*.backup
-*.bak
-*.tmp
-*.temp
-
-docs/.code-review.md
-
-# ============================================================================
-# PROJECT SPECIFIC
-# ============================================================================
-# Audio files (for voice processing)
-*.wav
-*.mp3
-*.m4a
-*.flac
-*.aac
 *.ogg
-!**/sample_*.wav
-!**/sample_*.mp3
-!**/test_*.wav
-
-# Temporary model outputs
-temp_models/
-temp_outputs/
-temp_data/
-
-# API keys and credentials
-credentials/
-keys/
-certificates/
-
-# Performance profiling
+*.onnx
+*.parquet
+*.pickle
+*.pid
+*.pid.lock
+*.pkl
 *.prof
 *.profile
-
-# Cached embeddings
-.embeddings_cache/
-.model_cache/
-
-# Experiment tracking
-experiments/
-tracking/
-.mlflow/
-
-# Generated documentation
-docs/_build/
-docs/build/
-site/
-.cursor/
-
-# CI generated reports (should not be committed)
-ci_pipeline_report.txt
-
+*.pt
+*.pth
+*.py,cover
+*.py[cod]
+*.safetensors
+*.sage.py
+*.seed
+*.so
+*.spec
+*.sql.backup
+*.sqlite
+*.sqlite3
+*.sublime-project
+*.sublime-workspace
+*.swo
+*.swp
+*.temp
+*.tgz
+*.tmp
+*.tsbuildinfo
+*.tsv
+*.txt.gz
+*.vec
+*.wav
+*/.ipynb_checkpoints/*
+*~
+*$py.class
+/.emacs.desktop
+/.emacs.desktop.lock
+/site
+\#*\#
 # ----------------------------------------------------------------------------
+# ============================================================================
+# Allow small sample files
+# API keys and credentials
+# Audio files (for voice processing)
+# Backup files
+# Bower dependency directory
+# Byte-compiled / optimized / DLL files
+# C extensions
+# Cached embeddings
+# Celery stuff
+# CI generated reports (should not be committed)
+# Compiled binary addons
+# Configuration overrides
+# Coverage directory used by tools like istanbul
+# Data files
+# DATABASE
+# Database logs
+# Dependency directories
+# DEVELOPMENT & TESTING
+# Distribution / packaging
+# Docker
+# DOCKER
+# Emacs
+# Embeddings and vectors
+# ENVIRONMENT & SECRETS
+# Experiment tracking
+# Generated documentation
+# Grunt intermediate storage
+# IDE & EDITORS
+# Installer logs
+# IPython
+# Jupyter Notebook
+# Large dataset files
+# Linting
+# Linux
+# Log files
+# LOGS & MONITORING
+# MACHINE LEARNING & DATA (CRITICAL FOR REPOSITORY BLOAT PREVENTION)
+# macOS
+# mkdocs documentation
+# Model directories
+# Model files and checkpoints (NEVER commit these)
+# mypy
+# Next.js build output
+# node-waf configuration
+# NODE.JS
+# npm
+# Nuxt.js build / generate output
+# nyc test coverage
+# Optional eslint cache
+# Optional npm cache directory
+# Optional REPL history
+# OS & SYSTEM FILES
+# Output of 'npm pack'
 # OVERRIDES: ensure source model code is included in builds
+# parcel-bundler cache
+# PEP 582
+# Performance profiling
+# pipenv
+# PostgreSQL
+# Prisma
+# PROJECT SPECIFIC
+# PyCharm
+# pyenv
+# PyInstaller
+# Pyre type checker
+# PYTHON
+# Rope project settings
+# Runtime data
+# SageMath parsed files
+# SAMO Deep Learning Project .gitignore
+# Spyder project settings
+# SQLite
+# Storybook build outputs
+# Sublime Text
+# Temporary folders
+# Temporary model outputs
+# Testing
 # The pattern 'models/' above ignores any directory named 'models' anywhere.
+# Training outputs
+# TypeScript cache
+# Unit test / coverage reports
+# Vim
+# Virtual environments
+# VSCode
 # We need the Python code under src/models for API runtime.
-!src/models/
-!src/models/**
+# Windows
+# Yarn Integrity file
+$RECYCLE.BIN/
+auto-save-list
+bower_components
+build/
+build/Release
+celerybeat-schedule
+celerybeat.pid
+certificates/
+ci_pipeline_report.txt
+conda-env/
+config/development.*
+config/local.*
+config/secrets/
+config/test.*
+coverage.xml
+coverage/
+credentials/
+data/external/*
+data/interim/*
+data/processed/*
+data/raw/*
+deployment/model/
+deployment/models/
+Desktop.ini
+develop-eggs/
+dist
+dist/
+dmypy.json
+docker-compose.local.yml
+docker-compose.override.yml
+Dockerfile.local
+docs/_build/
+docs/.code-review.md
+docs/build/
+downloads/
+eggs/
+ehthumbs.db
+embeddings/
+env.bak/
+env/
+ENV/
+experiments/
+htmlcov/
+ipython_config.py
+jspm_packages/
+keys/
+lerna-debug.log*
+lib/
+lib64/
+log/
+logs/
+MANIFEST
+merges.txt
+mlruns/
+models/
+models/*/checkpoints/
+models/*/saved_models/
+models/checkpoints/
+models/saved_models/
+node_modules/
+nosetests.xml
+npm-debug.log*
+outputs/
+parts/
+pg_data/
+pgdata/
+pids
+pip-delete-this-directory.txt
+pip-log.txt
+pip-wheel-metadata/
+Pipfile.lock
+postgres_data/
+prisma/migrations/*/migration.sql
+profile_default/
+results/
+runs/
+sdist/
+secrets/
+share/python-wheels/
+site/
+temp_data/
+temp_models/
+temp_outputs/
+temp/
+tensorboard/
+test_checkpoints_dev/
+test_checkpoints/
+test_output/
+test_results/
+Thumbs.db
+tmp/
+tracking/
+tramp
+var/
+vectors/
+venv.bak/
+venv/
+wandb/
+wheels/
+yarn-debug.log*
+yarn-error.log*
