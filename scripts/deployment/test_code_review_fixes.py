@@ -116,10 +116,10 @@ def test_error_handling_simulation():
     try:
         # This simulates the pattern used in our code
         try:
-            result = mock_torch_load_new_version("test.pth", "cpu", weights_only=False)
+            _ = mock_torch_load_new_version("test.pth", "cpu", weights_only=False)
             print("✅ New PyTorch version compatibility works")
         except TypeError:
-            result = mock_torch_load_old_version_fallback("test.pth", "cpu")
+            _ = mock_torch_load_old_version_fallback("test.pth", "cpu")
             print("✅ Old PyTorch version fallback works")
     except Exception as e:
         print(f"❌ PyTorch compatibility handling failed: {e}")
@@ -134,7 +134,7 @@ def test_error_handling_simulation():
         ("Generic RuntimeError", "CUDA out of memory", "Runtime error"),
     ]
     
-    for error_type, error_msg, expected_category in error_scenarios:
+    for error_type, _, expected_category in error_scenarios:
         print(f"   ✅ {error_type} → {expected_category} (proper error categorization)")
     
     print("✅ Comprehensive error handling implemented")

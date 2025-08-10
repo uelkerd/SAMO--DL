@@ -221,7 +221,7 @@ def find_best_trained_model() -> Optional[str]:
                     # Calculate recursive directory size including all nested files
                     def calculate_directory_size(directory):
                         total_size = 0
-                        for dirpath, dirnames, filenames in os.walk(directory):
+                        for dirpath, _, filenames in os.walk(directory):
                             for filename in filenames:
                                 filepath = os.path.join(dirpath, filename)
                                 try:

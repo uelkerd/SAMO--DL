@@ -164,7 +164,7 @@ def test_model_validation_components():
         # Calculate directory size recursively
         def calculate_directory_size(directory):
             total_size = 0
-            for dirpath, dirnames, filenames in os.walk(directory):
+            for dirpath, _, filenames in os.walk(directory):
                 for filename in filenames:
                     filepath = os.path.join(dirpath, filename)
                     try:
