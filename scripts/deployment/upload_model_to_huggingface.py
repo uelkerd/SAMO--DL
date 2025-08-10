@@ -10,7 +10,9 @@ import os
 import sys
 import json
 import shutil
-from typing import Optional
+import time
+import logging
+from typing import Optional, Any
 
 # Use built-in generics for Python 3.9+ (PEP 585)
 if sys.version_info >= (3, 9):
@@ -470,7 +472,7 @@ def load_emotion_labels_from_model(model_path: str) -> list[str]:
 
     return default_labels
 
-def prepare_model_for_upload(model_path: str, temp_dir: str) -> dict[str, any]:
+def prepare_model_for_upload(model_path: str, temp_dir: str) -> dict[str, Any]:
     """Prepare model for HuggingFace Hub upload."""
     print(f"\n🔧 PREPARING MODEL: {model_path}")
     print("=" * 40)
@@ -771,7 +773,14 @@ numpy>=1.21.0
     if missing_files:
         print(f"\n⚠️  WARNING: Missing critical files: {missing_files}")
         print("This may cause serverless API loading failures.")
-        print("Continuing anyway, but consider regenerating the model with proper tokenizer files.")
+        allow_missing = os.getenv('ALLOW_UPLOAD_WITH_MISSING_FILES', '').strip().lower() in ('1', 'true', 'yes')
+        if not allow_missing:
+            raise RuntimeError(
+                "Missing required files for HuggingFace model upload. "
+                "Set ALLOW_UPLOAD_WITH_MISSING_FILES=true to override at your own risk."
+            )
+        else:
+            print("⚠️  Proceeding despite missing files due to ALLOW_UPLOAD_WITH_MISSING_FILES override.")
 
     # Validate config.json has proper labels
     config_path = os.path.join(temp_dir, 'config.json')
@@ -793,7 +802,7 @@ numpy>=1.21.0
         'validation_warnings': missing_files
     }
 
-def update_deployment_config(repo_name: str, model_info: dict[str, any]):
+def update_deployment_config(repo_name: str, model_info: dict[str, Any]):
     """Update deployment configurations to use the new model."""
     print("\n🔧 UPDATING DEPLOYMENT CONFIGURATIONS")
     print("=" * 40)
@@ -949,6 +958,12 @@ def setup_git_lfs():
     print("\n🔧 SETTING UP GIT LFS FOR LARGE MODEL FILES")
     print("=" * 40)
 
+    # Check if git is installed
+    if shutil.which('git') is None:
+        print("❌ Git is not installed. Please install Git to enable Git LFS.")
+        print("   Large model files will be uploaded directly")
+        return False
+
     try:
         # Check if git lfs is available
         import subprocess
@@ -1012,9 +1027,9 @@ def choose_repository_privacy() -> bool:
 
     # Check if in non-interactive environment
     if not sys.stdin.isatty():
-        print("📊 Non-interactive environment detected - defaulting to PUBLIC repository")
-        print("   Set HF_REPO_PRIVATE=true for private repositories in CI/CD")
-        return False  # Default to public in non-interactive environments
+        print("🔒 Non-interactive environment detected - defaulting to PRIVATE repository")
+        print("   Set HF_REPO_PRIVATE=false to make repository public explicitly in CI/CD")
+        return True  # Default to private in non-interactive environments
 
     # Interactive mode - ask user
     print("\n🔒 REPOSITORY PRIVACY SELECTION")
@@ -1047,7 +1062,7 @@ def choose_repository_privacy() -> bool:
             return True  # Private
         print("Please enter 'y' for yes or 'n' for no (or press Enter for no)")
 
-def upload_to_huggingface(temp_dir: str, model_info: dict[str, any]) -> str:
+def upload_to_huggingface(temp_dir: str, model_info: dict[str, Any]) -> Optional[str]:
     """Upload model to HuggingFace Hub."""
     print("\n🚀 UPLOADING TO HUGGINGFACE HUB")
     print("=" * 40)
@@ -1063,13 +1078,17 @@ def upload_to_huggingface(temp_dir: str, model_info: dict[str, any]) -> str:
         print(f"     (and {num_labels - 6} more...)")
     print(f"   • Architecture: {model_info.get('model_type', 'Transformer-based')}")
 
-    # Show validation warnings if any
+    # Show validation warnings and optionally block upload
+    allow_missing = os.getenv('ALLOW_UPLOAD_WITH_MISSING_FILES', '').strip().lower() in ('1', 'true', 'yes')
     if validation_warnings:
         print(f"   ⚠️  Validation warnings: {len(validation_warnings)} issue(s) detected")
         for warning in validation_warnings[:3]:  # Show first 3 warnings
             print(f"      • {warning}")
         if len(validation_warnings) > 3:
             print(f"      • (and {len(validation_warnings) - 3} more...)")
+        if not allow_missing:
+            print("❌ Aborting upload due to missing critical files. Set ALLOW_UPLOAD_WITH_MISSING_FILES=true to override.")
+            return None
     else:
         print("   ✅ Model validation: All essential files present")
 
@@ -1088,54 +1107,64 @@ def upload_to_huggingface(temp_dir: str, model_info: dict[str, any]) -> str:
     # Choose privacy based on content sensitivity
     is_private = choose_repository_privacy()
 
-    try:
-        # Create repository with appropriate privacy setting
-        create_repo(
-            repo_name, 
-            exist_ok=True,
-            private=is_private,
-            repo_type="model"
-        )
-        privacy_status = "private" if is_private else "public"
-        print(f"✅ Repository created/confirmed ({privacy_status})")
+    # Create detailed commit message using model information
+    commit_message = f"Upload custom emotion detection model - {num_labels} classes"
+    if emotion_labels:
+        labels_preview = ', '.join(emotion_labels[:4])
+        if len(emotion_labels) > 4:
+            labels_preview += f" (and {len(emotion_labels) - 4} more)"
+        commit_message += f": {labels_preview}"
 
-        # Create detailed commit message using model information
-        commit_message = f"Upload custom emotion detection model - {num_labels} classes"
-        if emotion_labels:
-            # Include emotion labels in commit for better versioning
-            labels_preview = ', '.join(emotion_labels[:4])
-            if len(emotion_labels) > 4:
-                labels_preview += f" (and {len(emotion_labels) - 4} more)"
-            commit_message += f": {labels_preview}"
+    max_retries = 5
+    backoff_factor = 2
+    initial_delay = 2  # seconds
 
-        # Upload all files
-        api.upload_folder(
-            folder_path=temp_dir,
-            repo_id=repo_name,
-            repo_type="model",
-            commit_message=commit_message
-        )
-        print("✅ Model uploaded successfully!")
+    for attempt in range(1, max_retries + 1):
+        try:
+            # Create repository with appropriate privacy setting
+            create_repo(
+                repo_name,
+                exist_ok=True,
+                private=is_private,
+                repo_type="model"
+            )
+            privacy_status = "private" if is_private else "public"
+            if attempt == 1:
+                print(f"✅ Repository created/confirmed ({privacy_status})")
 
-        model_url = f"https://huggingface.co/{repo_name}"
-        print(f"🔗 Model URL: {model_url}")
+            # Upload all files
+            api.upload_folder(
+                folder_path=temp_dir,
+                repo_id=repo_name,
+                repo_type="model",
+                commit_message=commit_message
+            )
+            print("✅ Model uploaded successfully!")
 
-        # Print deployment options
-        print("\n🎯 DEPLOYMENT OPTIONS:")
-        print(f"  🆓 Serverless API: https://api-inference.huggingface.co/models/{repo_name}")
-        print("  🚀 Inference Endpoints: https://ui.endpoints.huggingface.co/ (create endpoint)")
-        print(f"  🏠 Self-hosted: AutoModelForSequenceClassification.from_pretrained('{repo_name}')")
+            model_url = f"https://huggingface.co/{repo_name}"
+            print(f"🔗 Model URL: {model_url}")
 
-        return repo_name
+            # Print deployment options
+            print("\n🎯 DEPLOYMENT OPTIONS:")
+            print(f"  🆓 Serverless API: https://api-inference.huggingface.co/models/{repo_name}")
+            print("  🚀 Inference Endpoints: https://ui.endpoints.huggingface.co/ (create endpoint)")
+            print(f"  🏠 Self-hosted: AutoModelForSequenceClassification.from_pretrained('{repo_name}')")
 
-    except Exception as e:
-        print(f"❌ Upload failed: {e}")
-        print("\n🔍 Common issues:")
-        print("  - Check your HF token has write permissions")
-        print("  - Ensure you haven't exceeded storage quotas")
-        print("  - Large files need Git LFS (we tried to set this up)")
-        print("  - Check network connection and HF Hub status")
-        return None
+            return repo_name
+
+        except Exception as e:
+            print(f"Upload attempt {attempt} failed: {e}")
+            if attempt == max_retries:
+                print("❌ Maximum upload attempts reached. Exiting.")
+                print("\n🔍 Common issues:")
+                print("  - Check your HF token has write permissions")
+                print("  - Ensure you haven't exceeded storage quotas")
+                print("  - Large files need Git LFS (we tried to set this up)")
+                print("  - Check network connection and HF Hub status")
+                return None
+            sleep_time = initial_delay * (backoff_factor ** (attempt - 1))
+            print(f"Retrying in {sleep_time} seconds...")
+            time.sleep(sleep_time)
 
 def main():
     """Main function."""
@@ -1164,8 +1193,11 @@ def main():
 
     # Cleanup
     if os.path.exists(temp_dir):
-        shutil.rmtree(temp_dir)
-        print("🧹 Cleaned up temporary files")
+        try:
+            shutil.rmtree(temp_dir)
+            print("🧹 Cleaned up temporary files")
+        except Exception as e:
+            logging.error(f"Failed to remove temporary directory {temp_dir}: {e}")
 
     print("\n🎉 SUCCESS! Your custom model is now ready for deployment!")
     print(f"🔗 Model: https://huggingface.co/{repo_name}")
