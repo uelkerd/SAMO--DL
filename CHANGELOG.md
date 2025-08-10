@@ -288,8 +288,9 @@ All notable changes to this project will be documented in this file.
   - Created `scripts/deployment/upload_model_to_huggingface.py` - Comprehensive script to find, prepare, and upload custom trained models
   - Added `deployment/CUSTOM_MODEL_DEPLOYMENT_GUIDE.md` - Complete guide for deploying custom models with multiple deployment strategies
   - Added `deployment/flexible_api_server.py` - Flexible API server supporting serverless, endpoints, and self-hosted deployments
-  - Configured primary model search location: `/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/`
+  - **Portable Configuration**: Environment variable support (`SAMO_DL_BASE_DIR` or `MODEL_BASE_DIR`) with automatic project root detection
   - Added `deployment/models/` directory with README for organized model storage
+  - Created `.env.model_config.example` template for easy environment configuration
   - **HuggingFace Deployment Strategies**:
     - 🆓 Serverless Inference API (free tier with rate limits)
     - 🚀 Inference Endpoints (paid, production-grade with consistent latency)

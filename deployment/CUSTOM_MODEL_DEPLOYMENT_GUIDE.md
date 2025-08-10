@@ -14,15 +14,30 @@ We've created a comprehensive solution to upload your custom models to HuggingFa
 
 ## Step 1: Prepare Your Model
 
+### Configure Model Directory (Optional)
+
+You can customize where the script looks for models by setting an environment variable:
+
+```bash
+# Option 1: Set base directory (script will add /deployment/models)
+export SAMO_DL_BASE_DIR="/path/to/your/project" 
+
+# Option 2: Alternative environment variable name
+export MODEL_BASE_DIR="/path/to/your/project"
+
+# If not set, the script will auto-detect the project root
+```
+
 ### If you have a trained model from Colab:
 1. Download your trained model files from Colab:
    - `best_domain_adapted_model.pth`
    - `comprehensive_emotion_model_final/` (directory)
    - Any other `.pth` files
 
-2. Place them in your designated model directory:
-   - **PRIMARY LOCATION**: `/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/`
-   - **Fallback locations**: `~/Downloads/`, `~/Desktop/`, or project root directory
+2. Place them in your model directory:
+   - **AUTO-DETECTED**: Script will find your `PROJECT_ROOT/deployment/models/` automatically
+   - **CUSTOM**: Set `SAMO_DL_BASE_DIR` environment variable to override location  
+   - **FALLBACK**: `~/Downloads/`, `~/Desktop/`, `~/Documents/`, or project root directory
 
 ### Model files we're looking for:
 - `best_domain_adapted_model.pth` ✅ (most likely)
@@ -322,7 +337,10 @@ Your API → HF Hub → your-username/samo-dl-emotion-model → Accurate results
 ```bash
 ❌ No trained models found!
 ```
-**Solution**: Download your model from Colab and place in `/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/`
+**Solutions**:
+1. Download your model from Colab and place in `PROJECT_ROOT/deployment/models/`
+2. Set custom location: `export SAMO_DL_BASE_DIR="/your/project/path"`
+3. Check the script output for the detected search location
 
 ### Authentication Failed
 ```bash

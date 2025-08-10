@@ -29,7 +29,7 @@ deployment/models/
 ## How to use:
 
 1. **Download** your trained model from Google Colab
-2. **Place** it in this directory (`/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/`)
+2. **Place** it in this directory (auto-detected by script, or set `SAMO_DL_BASE_DIR` env var)
 3. **Run** the upload script:
    ```bash
    python scripts/deployment/upload_model_to_huggingface.py

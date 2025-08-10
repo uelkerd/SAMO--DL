@@ -30,13 +30,71 @@ def print_banner():
     print("  4. Update deployment configurations")
     print()
 
+def get_model_base_directory() -> str:
+    """Get the base directory for model storage with environment variable override."""
+    
+    # Priority order for determining base directory:
+    # 1. Environment variable (most flexible)
+    # 2. Auto-detect project root
+    # 3. Current working directory fallback
+    
+    # Option 1: Check for environment variable override
+    env_base_dir = os.getenv('SAMO_DL_BASE_DIR') or os.getenv('MODEL_BASE_DIR')
+    if env_base_dir:
+        base_dir = os.path.expanduser(env_base_dir)
+        if os.path.exists(base_dir):
+            return os.path.join(base_dir, "deployment", "models")
+        else:
+            print(f"⚠️ Environment base directory doesn't exist: {base_dir}")
+    
+    # Option 2: Auto-detect project root (look for specific files that indicate SAMO-DL root)
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Walk up the directory tree to find project root
+    search_dir = current_dir
+    max_levels = 5  # Prevent infinite loops
+    
+    for _ in range(max_levels):
+        # Check for project indicators
+        indicators = [
+            'deployment',
+            'src', 
+            'notebooks',
+            'pyproject.toml',
+            'CHANGELOG.md'
+        ]
+        
+        if all(os.path.exists(os.path.join(search_dir, indicator)) for indicator in indicators[:2]):
+            # Found project root
+            return os.path.join(search_dir, "deployment", "models")
+        
+        parent_dir = os.path.dirname(search_dir)
+        if parent_dir == search_dir:  # Reached filesystem root
+            break
+        search_dir = parent_dir
+    
+    # Option 3: Fallback to current working directory
+    cwd_models_dir = os.path.join(os.getcwd(), "deployment", "models")
+    return cwd_models_dir
+
 def find_best_trained_model() -> Optional[str]:
     """Find the best trained model from common locations."""
     print("🔍 SEARCHING FOR TRAINED MODELS")
     print("=" * 40)
     
+    # Get configurable base directory
+    primary_model_dir = get_model_base_directory()
+    
+    # Display configuration info
+    env_override = os.getenv('SAMO_DL_BASE_DIR') or os.getenv('MODEL_BASE_DIR')
+    if env_override:
+        print(f"🔧 Using environment override: {env_override}")
+    else:
+        print(f"🔍 Auto-detected project location")
+    
+    print(f"🎯 PRIMARY SEARCH LOCATION: {primary_model_dir}")
+    
     # Ensure primary model directory exists
-    primary_model_dir = "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models"
     if not os.path.exists(primary_model_dir):
         print(f"📁 Creating model directory: {primary_model_dir}")
         try:
@@ -45,57 +103,61 @@ def find_best_trained_model() -> Optional[str]:
         except Exception as e:
             print(f"⚠️ Could not create directory: {e}")
     
-    print(f"🎯 PRIMARY SEARCH LOCATION: {primary_model_dir}")
     print("🔄 Also checking fallback locations...")
     
-    # Priority order of model locations
-    model_search_paths = [
-        # PRIMARY: User's specified model directory (absolute path)
-        "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/best_domain_adapted_model.pth",
-        "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/comprehensive_emotion_model_final",
-        "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/emotion_model_ensemble_final",
-        "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/emotion_model_specialized_final",
-        "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/emotion_model_fixed_bulletproof_final",
-        "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/domain_adapted_model",
-        "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/emotion_model",
-        "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/best_simple_model.pth",
-        "/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/best_focal_model.pth",
-        
-        # LOCAL: Relative path (in case absolute path doesn't work)
-        "./deployment/models/best_domain_adapted_model.pth",
-        "./deployment/models/comprehensive_emotion_model_final",
-        "./deployment/models/emotion_model_ensemble_final",
-        "./deployment/models/emotion_model_specialized_final",
-        "./deployment/models/emotion_model_fixed_bulletproof_final",
-        "./deployment/models/domain_adapted_model",
-        "./deployment/models/emotion_model",
-        "./deployment/models/best_simple_model.pth",
-        "./deployment/models/best_focal_model.pth",
-        
-        # FALLBACK: Common locations (from Colab downloads)
-        os.path.expanduser("~/Downloads/best_domain_adapted_model.pth"),
-        os.path.expanduser("~/Downloads/comprehensive_emotion_model_final"),
-        os.path.expanduser("~/Desktop/best_domain_adapted_model.pth"),
-        os.path.expanduser("~/Desktop/comprehensive_emotion_model_final"),
-        
-        # From local training scripts
-        "./models/checkpoints/focal_loss_best_model.pt",
-        "./models/checkpoints/simple_working_model.pt",
-        "./models/checkpoints/minimal_working_model.pt",
-        
-        # From notebook exports (relative to project root)
-        "./emotion_model_ensemble_final",
-        "./emotion_model_specialized_final",
-        "./emotion_model_fixed_bulletproof_final",
-        "./comprehensive_emotion_model_final",
-        "./domain_adapted_model",
-        "./emotion_model",
-        
-        # Individual files (project root)
-        "./best_domain_adapted_model.pth",
-        "./best_simple_model.pth",
-        "./best_focal_model.pth",
+    # Model file patterns to search for
+    model_patterns = [
+        "best_domain_adapted_model.pth",
+        "comprehensive_emotion_model_final",
+        "emotion_model_ensemble_final", 
+        "emotion_model_specialized_final",
+        "emotion_model_fixed_bulletproof_final",
+        "domain_adapted_model",
+        "emotion_model",
+        "best_simple_model.pth",
+        "best_focal_model.pth",
     ]
+    
+    # Priority order of model locations (now dynamically constructed)
+    model_search_paths = []
+    
+    # PRIMARY: Configured model directory
+    for pattern in model_patterns:
+        model_search_paths.append(os.path.join(primary_model_dir, pattern))
+    
+    # FALLBACK 1: Common download locations
+    common_download_locations = [
+        os.path.expanduser("~/Downloads"),
+        os.path.expanduser("~/Desktop"),
+        os.path.expanduser("~/Documents"),
+    ]
+    
+    for download_dir in common_download_locations:
+        for pattern in model_patterns:
+            model_search_paths.append(os.path.join(download_dir, pattern))
+    
+    # FALLBACK 2: Relative paths from current directory  
+    relative_locations = [
+        "./deployment/models",
+        "./models/checkpoints", 
+        "./",  # Project root
+    ]
+    
+    for rel_dir in relative_locations:
+        for pattern in model_patterns:
+            model_search_paths.append(os.path.join(rel_dir, pattern))
+    
+    # FALLBACK 3: Additional specific training checkpoint locations
+    checkpoint_patterns = [
+        "focal_loss_best_model.pt",
+        "simple_working_model.pt", 
+        "minimal_working_model.pt",
+    ]
+    
+    for pattern in checkpoint_patterns:
+        model_search_paths.append(os.path.join("./models/checkpoints", pattern))
+        # Also check in primary model directory
+        model_search_paths.append(os.path.join(primary_model_dir, pattern))
     
     found_models = []
     
