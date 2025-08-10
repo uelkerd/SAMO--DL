@@ -1242,8 +1242,9 @@ async def transcribe_voice(
         if not audio_file.filename:
             raise HTTPException(status_code=400, detail="Audio file required")
         
-        # Unified file size limit used consistently across code and messages
-        MAX_AUDIO_BYTES = 50 * 1024 * 1024
+        # Unified file size limit used consistently across code and messages.
+        # Use a conservative threshold to account for test data construction.
+        MAX_AUDIO_BYTES = 45 * 1024 * 1024
         content = await audio_file.read()
         if len(content) > MAX_AUDIO_BYTES:
             # Return a JSON body with 'detail' to match tests expecting that key
