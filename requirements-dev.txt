@@ -1,2 +1,6 @@
 pytest==8.4.1
 ruff==0.6.9
+# Dev-only tools
+bandit==1.7.9
+# Keep safety optional in CI to avoid long resolver backtracking; install locally when needed
+# safety==2.3.5
