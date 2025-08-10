@@ -1384,8 +1384,7 @@ async def transcribe_voice(
             
         finally:
             # Cleanup temporary file
-            if os.path.exists(temp_file_path):
-                os.unlink(temp_file_path)
+            Path(temp_file_path).unlink(missing_ok=True)
                 
     except Exception as exc:
         if isinstance(exc, HTTPException):
@@ -1446,8 +1445,7 @@ async def batch_transcribe_voice(
                     })
                     
                 finally:
-                    if os.path.exists(temp_file_path):
-                        os.unlink(temp_file_path)
+                    Path(temp_file_path).unlink(missing_ok=True)
                         
             except Exception as exc:
                 results.append({
@@ -1644,8 +1642,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                         })
                         
                     finally:
-                        if os.path.exists(temp_file_path):
-                            os.unlink(temp_file_path)
+                        Path(temp_file_path).unlink(missing_ok=True)
                             
                 except Exception as exc:
                     await websocket.send_json({
