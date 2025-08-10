@@ -82,6 +82,7 @@ class FlexibleEmotionDetector:
             total=3,
             backoff_factor=1,
             status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods={"POST", "GET", "PUT", "PATCH"}  # Enable retries for these HTTP methods
         )
         adapter = HTTPAdapter(max_retries=retry_strategy)
         self.session.mount("http://", adapter)

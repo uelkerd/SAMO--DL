@@ -23,19 +23,20 @@ def test_portability_fix():
     try:
         from upload_model_to_huggingface import get_model_base_directory
         
-        # Test environment variable override
-        test_path = "/tmp/test_project"
-        with mock.patch.dict(os.environ, {'SAMO_DL_BASE_DIR': test_path}):
-            result = get_model_base_directory()
-            expected = os.path.join(test_path, "deployment", "models")
-            
-            if result == expected:
-                print("✅ Environment variable override works correctly")
-                print(f"   Input: SAMO_DL_BASE_DIR={test_path}")
-                print(f"   Output: {result}")
-            else:
-                print(f"❌ Environment variable override failed: {result} != {expected}")
-                return False
+        # Test environment variable override using TemporaryDirectory
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as test_path:
+            with mock.patch.dict(os.environ, {'SAMO_DL_BASE_DIR': test_path}):
+                result = get_model_base_directory()
+                expected = os.path.join(test_path, "deployment", "models")
+                
+                if result == expected:
+                    print("✅ Environment variable override works correctly")
+                    print(f"   Input: SAMO_DL_BASE_DIR={test_path}")
+                    print(f"   Output: {result}")
+                else:
+                    print(f"❌ Environment variable override failed: {result} != {expected}")
+                    return False
                 
         print("✅ No hardcoded absolute paths - uses configurable environment variables")
         return True

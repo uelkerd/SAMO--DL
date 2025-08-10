@@ -34,27 +34,44 @@ def test_path_detection():
     print(f"  Detected path: {detected_path}")
     print(f"  Path exists: {os.path.exists(os.path.dirname(detected_path))}")
     
-    # Test 2: With SAMO_DL_BASE_DIR set
+    # Test 2: With SAMO_DL_BASE_DIR set using TemporaryDirectory
     print("\n🔧 Test 2: With SAMO_DL_BASE_DIR environment variable")
-    os.environ['SAMO_DL_BASE_DIR'] = "/tmp/test_project"
+    from tempfile import TemporaryDirectory
+    with TemporaryDirectory() as temp_base_dir:
+        os.environ['SAMO_DL_BASE_DIR'] = temp_base_dir
+        
+        detected_path = get_model_base_directory()
+        expected_path = os.path.join(temp_base_dir, "deployment", "models")
+        
+        print(f"  Environment var: {os.getenv('SAMO_DL_BASE_DIR')}")
+        print(f"  Detected path: {detected_path}")
+        print(f"  Expected: {expected_path}")
+        print(f"  Match: {detected_path == expected_path}")
+        
+        # Clean up environment variable
+        if 'SAMO_DL_BASE_DIR' in os.environ:
+            del os.environ['SAMO_DL_BASE_DIR']
     
-    detected_path = get_model_base_directory()
-    print(f"  Environment var: {os.getenv('SAMO_DL_BASE_DIR')}")
-    print(f"  Detected path: {detected_path}")
-    print("  Expected: /tmp/test_project/deployment/models")
-    print(f"  Match: {detected_path == '/tmp/test_project/deployment/models'}")
-    
-    # Test 3: With MODEL_BASE_DIR set  
+    # Test 3: With MODEL_BASE_DIR set using TemporaryDirectory
     print("\n🔧 Test 3: With MODEL_BASE_DIR environment variable")
     if 'SAMO_DL_BASE_DIR' in os.environ:
         del os.environ['SAMO_DL_BASE_DIR']
-    os.environ['MODEL_BASE_DIR'] = "/home/user/projects/emotion-model"
     
-    detected_path = get_model_base_directory()
-    print(f"  Environment var: {os.getenv('MODEL_BASE_DIR')}")
-    print(f"  Detected path: {detected_path}")
-    print("  Expected: /home/user/projects/emotion-model/deployment/models")
-    print(f"  Match: {detected_path == '/home/user/projects/emotion-model/deployment/models'}")
+    from tempfile import TemporaryDirectory
+    with TemporaryDirectory() as temp_dir:
+        os.environ['MODEL_BASE_DIR'] = temp_dir
+        
+        detected_path = get_model_base_directory()
+        expected_path = os.path.join(temp_dir, "deployment", "models")
+        
+        print(f"  Environment var: {os.getenv('MODEL_BASE_DIR')}")
+        print(f"  Detected path: {detected_path}")
+        print(f"  Expected: {expected_path}")
+        print(f"  Match: {detected_path == expected_path}")
+        
+        # Clean up environment variable
+        if 'MODEL_BASE_DIR' in os.environ:
+            del os.environ['MODEL_BASE_DIR']
     
     # Test 4: With expanduser (~) path
     print("\n🏠 Test 4: With home directory path expansion")

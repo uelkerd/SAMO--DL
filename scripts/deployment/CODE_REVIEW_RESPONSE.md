@@ -365,6 +365,64 @@ $ python3 scripts/deployment/validate_code_review_fixes.py
 
 ---
 
+## 📦 Additional Environment Variables
+
+### **HF_REPO_PRIVATE** - Repository Privacy Configuration
+
+**Purpose:** Control repository privacy without interactive prompts
+
+**Accepted Values:**
+- `"true"` - Create private repository
+- `"false"` - Create public repository
+- Not set - Interactive prompt (or public default in non-interactive environments)
+
+**Usage Examples:**
+```bash
+# Force private repository
+export HF_REPO_PRIVATE=true
+python3 scripts/deployment/upload_model_to_huggingface.py
+
+# Force public repository
+export HF_REPO_PRIVATE=false
+python3 scripts/deployment/upload_model_to_huggingface.py
+
+# CI/CD usage - automatic public default
+# (No environment variable set in non-interactive environment)
+```
+
+**Behavior:**
+- **Interactive environment**: Prompts user if HF_REPO_PRIVATE not set
+- **Non-interactive environment**: Defaults to public (`false`) if HF_REPO_PRIVATE not set
+- **Invalid value**: Shows error message and continues with interactive prompt
+
+### **BASE_MODEL_NAME** - Configurable Base Model
+
+**Purpose:** Configure the base model used for fine-tuning
+
+**Default Value:** `"distilroberta-base"`
+
+**Usage Examples:**
+```bash
+# Use different base model
+export BASE_MODEL_NAME=roberta-base
+python3 scripts/deployment/upload_model_to_huggingface.py
+
+# Use BERT base model  
+export BASE_MODEL_NAME=bert-base-uncased
+python3 scripts/deployment/upload_model_to_huggingface.py
+
+# Default (if not set)
+# Uses distilroberta-base
+```
+
+**Behavior:**
+- Affects model loading in `prepare_model_for_upload()`
+- Updates deployment configuration replacements dynamically
+- Supports any HuggingFace model identifier
+- Used for both tokenizer and model initialization
+
+---
+
 ## 🎉 Conclusion
 
 **ALL CODE REVIEW COMMENTS SUCCESSFULLY ADDRESSED** ✅

@@ -27,6 +27,19 @@ from huggingface_hub import HfApi, login, create_repo
 from sklearn.preprocessing import LabelEncoder
 import pickle
 
+def get_base_model_name() -> str:
+    """Get the base model name with configurable support."""
+    # Check environment variable first
+    base_model = os.getenv('BASE_MODEL_NAME')
+    if base_model:
+        print(f"📦 Using BASE_MODEL_NAME from environment: {base_model}")
+        return base_model
+    
+    # Default fallback
+    default_model = "distilroberta-base"
+    print(f"📦 Using default base model: {default_model}")
+    return default_model
+
 def print_banner():
     """Print banner"""
     print("🚀 UPLOAD CUSTOM MODEL TO HUGGINGFACE HUB")
@@ -526,8 +539,8 @@ def prepare_model_for_upload(model_path: str, temp_dir: str) -> dict[str, any]:
             print("  💡 Check file permissions and disk space")
             raise ValueError(f"Cannot load checkpoint from {model_path}: {e}")
         
-        # Determine base model (make educated guess)
-        base_model_name = "distilroberta-base"  # Most commonly used in your training
+        # Determine base model (configurable)
+        base_model_name = get_base_model_name()
         
         print(f"  📦 Using base model: {base_model_name}")
         
@@ -802,11 +815,13 @@ def update_deployment_config(repo_name: str, model_info: dict[str, any]):
             content = f.read()
         
         # Update model loading to use HuggingFace model
+        # Get current base model to replace it dynamically
+        current_base_model = get_base_model_name()
         updated_content = content.replace(
-            "AutoTokenizer.from_pretrained('distilroberta-base')",
+            f"AutoTokenizer.from_pretrained('{current_base_model}')",
             f"AutoTokenizer.from_pretrained('{repo_name}')"
         ).replace(
-            "AutoModelForSequenceClassification.from_pretrained(\n            'distilroberta-base',",
+            f"AutoModelForSequenceClassification.from_pretrained(\n            '{current_base_model}',",
             f"AutoModelForSequenceClassification.from_pretrained(\n            '{repo_name}',"
         )
         
@@ -994,6 +1009,26 @@ def setup_git_lfs():
 
 def choose_repository_privacy() -> bool:
     """Ask user about repository privacy based on data sensitivity."""
+    
+    # First, check for HF_REPO_PRIVATE environment variable
+    hf_repo_private = os.environ.get("HF_REPO_PRIVATE")
+    if hf_repo_private:
+        if hf_repo_private.lower() == "true":
+            print("🔒 Using PRIVATE repository (HF_REPO_PRIVATE=true)")
+            return True
+        elif hf_repo_private.lower() == "false":
+            print("📊 Using PUBLIC repository (HF_REPO_PRIVATE=false)")
+            return False
+        else:
+            print(f"⚠️ Invalid HF_REPO_PRIVATE value: {hf_repo_private}. Must be 'true' or 'false'.")
+    
+    # Check if in non-interactive environment
+    if not sys.stdin.isatty():
+        print("📊 Non-interactive environment detected - defaulting to PUBLIC repository")
+        print("   Set HF_REPO_PRIVATE=true for private repositories in CI/CD")
+        return False  # Default to public in non-interactive environments
+    
+    # Interactive mode - ask user
     print(f"\n🔒 REPOSITORY PRIVACY SELECTION")
     print("=" * 40)
     print("Consider the sensitivity of your journal content:")
@@ -1010,6 +1045,8 @@ def choose_repository_privacy() -> bool:
     print("  ✅ Good for sensitive/health content")
     print("  ✅ Requires HF token for access")
     print("  💰 Free tier with storage/bandwidth quotas")
+    print()
+    print("💡 Tip: Set HF_REPO_PRIVATE=true/false to skip this prompt in automation")
     print()
     
     while True:
