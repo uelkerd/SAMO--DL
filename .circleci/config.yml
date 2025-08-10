@@ -44,7 +44,15 @@ jobs:
               -r requirements-api.txt \
               -r requirements-dev.txt
             # Sanity check to fail fast if imports break
-            python3 -c "import importlib,sys; pkgs=['fastapi','uvicorn','pydantic','requests']; missing=[p for p in pkgs if not importlib.util.find_spec(p)]; print('✅ core imports OK' if not missing else f'❌ Missing: {missing}'); sys.exit(1 if missing else 0)"
+            python3 -c "
+import sys
+try:
+    import fastapi, uvicorn, pydantic, requests
+    print('✅ core imports OK')
+except ImportError as e:
+    print(f'❌ Import failed: {e}')
+    sys.exit(1)
+"
       - run:
           name: Test Basic API Import
           command: |
@@ -93,7 +101,15 @@ jobs:
               --constraint constraints.txt \
               -r requirements-api.txt \
               -r requirements-dev.txt
-            python3 -c "import importlib,sys; pkgs=['pytest','ruff']; missing=[p for p in pkgs if not importlib.util.find_spec(p)]; print('✅ test deps imports OK' if not missing else f'❌ Missing: {missing}'); sys.exit(1 if missing else 0)"
+            python3 -c "
+import sys
+try:
+    import pytest, ruff
+    print('✅ test deps imports OK')
+except ImportError as e:
+    print(f'❌ Import failed: {e}')
+    sys.exit(1)
+"
       - run:
           name: Run Basic Tests
           command: |
