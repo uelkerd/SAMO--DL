@@ -155,79 +155,7 @@ class TestEnhancedVoiceTranscription:
             "duration": 10.5
         }
     
-    def test_voice_transcription_missing_file(self, mock_transcriber):
-        """Test voice transcription with missing file."""
-        # Login to get token
-        login_data = {
-            "username": "testuser@example.com",
-            "password": "testpassword123"
-        }
-        login_response = client.post("/auth/login", json=login_data)
-        access_token = login_response.json()["access_token"]
-        
-        # Test with no file
-        headers = {"Authorization": f"Bearer {access_token}"}
-        response = client.post("/transcribe/voice", headers=headers)
-        assert response.status_code == 422  # Validation error
-    
-    def test_voice_transcription_invalid_format(self, mock_transcriber):
-        """Test voice transcription with invalid file format."""
-        # Mock transcription to fail
-        mock_transcriber.return_value.transcribe.side_effect = Exception("Invalid audio format")
-        
-        # Login to get token
-        login_data = {
-            "username": "testuser@example.com",
-            "password": "testpassword123"
-        }
-        login_response = client.post("/auth/login", json=login_data)
-        access_token = login_response.json()["access_token"]
-        
-        # Test with invalid file
-        headers = {"Authorization": f"Bearer {access_token}"}
-        files = {"audio_file": ("test.txt", b"not audio data", "text/plain")}
-        response = client.post("/transcribe/voice", files=files, headers=headers)
-        assert response.status_code == 500  # Internal server error
-        
-        # Create test audio file
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
-            temp_file.write(b"fake audio data")
-            temp_file_path = temp_file.name
-        
-        try:
-            # Login to get token
-            login_data = {
-                "username": "testuser@example.com",
-                "password": "testpassword123"
-            }
-            login_response = client.post("/auth/login", json=login_data)
-            access_token = login_response.json()["access_token"]
-            
-            # Test transcription endpoint
-            headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
-            with open(temp_file_path, "rb") as audio_file:
-                files = {"audio_file": ("test.wav", audio_file, "audio/wav")}
-                data = {
-                    "language": "en",
-                    "model_size": "base",
-                    "timestamp": False
-                }
-                response = client.post("/transcribe/voice", files=files, data=data, headers=headers)
-            
-            assert response.status_code == 200
-            
-            data = response.json()
-            assert "text" in data
-            assert "language" in data
-            assert "confidence" in data
-            assert "duration" in data
-            assert "word_count" in data
-            assert "speaking_rate" in data
-            assert "audio_quality" in data
-            
-        finally:
-            if os.path.exists(temp_file_path):
-                os.unlink(temp_file_path)
+    # Removed duplicate early definitions; see patched versions below
     
     @patch('src.unified_ai_api.voice_transcriber')
     def test_voice_transcription_missing_file(self, mock_transcriber):
@@ -290,64 +218,7 @@ class TestEnhancedVoiceTranscription:
             "duration": 8.0
         }
     
-    def test_batch_transcription_partial_failures(self, mock_transcriber):
-        """Test batch transcription with partial failures."""
-        # Mock transcription to fail for some files
-        def mock_transcribe_side_effect(file_path, language=None):
-            if "fail" in file_path:
-                raise RuntimeError("Transcription failed")
-            return {
-                "text": "Successful transcription",
-                "language": "en",
-                "confidence": 0.92,
-                "duration": 8.0
-            }
-        
-        mock_transcriber.return_value.transcribe.side_effect = mock_transcribe_side_effect
-        
-        # Login to get token
-        login_data = {
-            "username": "testuser@example.com",
-            "password": "testpassword123"
-        }
-        login_response = client.post("/auth/login", json=login_data)
-        access_token = login_response.json()["access_token"]
-        
-        # Create test files (one will fail)
-        temp_files = []
-        try:
-            # Create files with different names
-            for _ in range(2):
-                temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-                temp_file.write(b"fake audio data")
-                temp_file.close()
-                temp_files.append(temp_file.name)
-            
-            # Rename one file to trigger failure
-            os.rename(temp_files[1], temp_files[1].replace(".wav", "_fail.wav"))
-            temp_files[1] = temp_files[1].replace(".wav", "_fail.wav")
-            
-            # Test batch transcription
-            headers = {"Authorization": f"Bearer {access_token}"}
-            files = []
-            for i, temp_file_path in enumerate(temp_files):
-                with open(temp_file_path, "rb") as audio_file:
-                    files.append(("audio_files", (f"test{i}.wav", audio_file, "audio/wav")))
-            
-            data = {"language": "en"}
-            response = client.post("/transcribe/batch", files=files, data=data, headers=headers)
-            
-            # Should return 200 but with partial failures
-            assert response.status_code == 200
-            data = response.json()
-            assert "results" in data
-            assert len(data["results"]) == 2
-            
-        finally:
-            # Cleanup
-            for temp_file_path in temp_files:
-                if os.path.exists(temp_file_path):
-                    os.unlink(temp_file_path)
+    # Removed duplicate early definition; deterministic version retained below
         
         # Create test audio files
         temp_files = []
@@ -565,79 +436,7 @@ class TestEnhancedTextSummarization:
             "compression_ratio": 0.75
         }
     
-    def test_text_summarization_empty_input(self, mock_summarizer):
-        """Test summarization endpoint with empty input."""
-        # Login to get token
-        login_data = {
-            "username": "testuser@example.com",
-            "password": "testpassword123"
-        }
-        login_response = client.post("/auth/login", json=login_data)
-        access_token = login_response.json()["access_token"]
-        
-        # Test with empty text
-        headers = {"Authorization": f"Bearer {access_token}"}
-        data = {"text": "", "model": "t5-base"}
-        response = client.post("/summarize/text", data=data, headers=headers)
-        assert response.status_code == 422  # Validation error
-    
-    def test_text_summarization_too_short_input(self, mock_summarizer):
-        """Test summarization endpoint with too-short input."""
-        # Login to get token
-        login_data = {
-            "username": "testuser@example.com",
-            "password": "testpassword123"
-        }
-        login_response = client.post("/auth/login", json=login_data)
-        access_token = login_response.json()["access_token"]
-        
-        # Test with too short text
-        headers = {"Authorization": f"Bearer {access_token}"}
-        data = {"text": "Hi.", "model": "t5-base"}
-        response = client.post("/summarize/text", data=data, headers=headers)
-        assert response.status_code == 422  # Validation error
-    
-    def test_text_summarization_unsupported_model(self, mock_summarizer):
-        """Test summarization endpoint with unsupported model name."""
-        # Login to get token
-        login_data = {
-            "username": "testuser@example.com",
-            "password": "testpassword123"
-        }
-        login_response = client.post("/auth/login", json=login_data)
-        access_token = login_response.json()["access_token"]
-        
-        # Test with unsupported model
-        headers = {"Authorization": f"Bearer {access_token}"}
-        data = {"text": "This is a valid input text for summarization.", "model": "nonexistent-model"}
-        response = client.post("/summarize/text", data=data, headers=headers)
-        assert response.status_code == 422  # Validation error
-        
-        # Login to get token
-        login_data = {
-            "username": "testuser@example.com",
-            "password": "testpassword123"
-        }
-        login_response = client.post("/auth/login", json=login_data)
-        access_token = login_response.json()["access_token"]
-        
-        # Test summarization endpoint
-        headers = {"Authorization": f"Bearer {access_token}"}
-        data = {
-            "text": "This is a longer text that needs to be summarized. It contains multiple sentences and should be processed by the T5 model to generate a concise summary.",
-            "model": "t5-small",
-            "max_length": 150,
-            "min_length": 30
-        }
-        response = client.post("/summarize/text", data=data, headers=headers)
-        
-        assert response.status_code == 200
-        
-        data = response.json()
-        assert "summary" in data
-        assert "key_emotions" in data
-        assert "compression_ratio" in data
-        assert "emotional_tone" in data
+    # Removed duplicate early summarization tests; consolidated versions follow
     
     @patch('src.unified_ai_api.text_summarizer')
     def test_text_summarization_empty_input(self, mock_summarizer):
