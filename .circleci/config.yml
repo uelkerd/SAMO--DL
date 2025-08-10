@@ -156,8 +156,10 @@ commands:
           name: Install and setup Miniconda (SIMPLIFIED)
           command: |
             set -euxo pipefail
-            # Download Miniforge (Conda-Forge) installer with stable checksum endpoint
-            MINIFORGE_URL="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh"
+            # Parameterize OS/ARCH for Miniforge installer
+            OS_NAME="Linux"
+            ARCH_NAME="x86_64"
+            MINIFORGE_URL="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-${OS_NAME}-${ARCH_NAME}.sh"
 
             if command -v wget >/dev/null 2>&1; then
               wget -O miniconda.sh "$MINIFORGE_URL"
@@ -180,7 +182,7 @@ commands:
             TAG=$(sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' latest_release.json | head -n1)
             rm -f latest_release.json
             # Use the individual checksum file for the specific installer
-            CHECKSUM_URL="https://github.com/conda-forge/miniforge/releases/download/$TAG/Miniforge3-$TAG-Linux-x86_64.sh.sha256"
+            CHECKSUM_URL="https://github.com/conda-forge/miniforge/releases/download/$TAG/Miniforge3-$TAG-${OS_NAME}-${ARCH_NAME}.sh.sha256"
             echo "Resolved installer: $BASENAME"
             echo "Checksum URL: $CHECKSUM_URL"
             if command -v curl >/dev/null 2>&1; then
@@ -193,7 +195,7 @@ commands:
             fi
             # Compute actual checksum and compare to the expected checksum
             ACTUAL_SUM=$(sha256sum miniconda.sh | awk '{print $1}')
-            EXPECTED_SUM=$(cat miniconda.sha256sum | awk '{print $1}')
+            EXPECTED_SUM=$(awk '{print $1}' < miniconda.sha256sum)
             if [ -z "$EXPECTED_SUM" ]; then
               echo "Checksum file empty or unavailable. Aborting to be safe." >&2
               rm -f miniconda.sh miniconda.sha256sum
