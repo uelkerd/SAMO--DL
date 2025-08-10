@@ -502,10 +502,35 @@ if __name__ == '__main__':
     else:
         print("❌ Detector initialization failed - check your configuration")
 
-    print("\n🚀 Server starting on http://localhost:5000")
+    # Configure server binding with security considerations
+    host = os.getenv('FLASK_HOST', '127.0.0.1')  # Default to localhost for security
+    port = int(os.getenv('FLASK_PORT', '5000'))
+    debug = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    
+    # Security warning for production binding
+    if host == '0.0.0.0':
+        print("\n⚠️  SECURITY WARNING: Binding to all interfaces (0.0.0.0)")
+        print("   This exposes the service to external networks!")
+        print("   Only use this in production with proper security measures.")
+        print("   For development, use FLASK_HOST=127.0.0.1 (default)")
+    
+    server_url = f"http://{host if host != '0.0.0.0' else 'localhost'}:{port}"
+    print(f"\n🚀 Server starting on {server_url}")
+    
     print("📝 Example test:")
-    print("   curl -X POST http://localhost:5000/predict \\")
+    print(f"   curl -X POST {server_url}/predict \\")
     print("        -H 'Content-Type: application/json' \\")
     print("        -d '{\"text\": \"I am feeling really happy today!\"}'")
+    
+    print(f"\n🔧 Configuration:")
+    print(f"   Host: {host} ({'SECURE - localhost only' if host == '127.0.0.1' else 'EXPOSED - all interfaces' if host == '0.0.0.0' else 'CUSTOM'})")
+    print(f"   Port: {port}")
+    print(f"   Debug: {debug}")
+    
+    if host != '127.0.0.1' and host != 'localhost':
+        print(f"\n💡 Security Tips:")
+        print(f"   • Use FLASK_HOST=127.0.0.1 for development (secure)")
+        print(f"   • Use FLASK_HOST=0.0.0.0 only in production with firewall/proxy")
+        print(f"   • Never expose debug=True to external networks")
 
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host=host, port=port, debug=debug)
