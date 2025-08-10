@@ -286,12 +286,21 @@ All notable changes to this project will be documented in this file.
 ### Added
 - **Custom Model Deployment Solution** - Complete pipeline to upload custom-trained models to HuggingFace Hub for production deployment
   - Created `scripts/deployment/upload_model_to_huggingface.py` - Comprehensive script to find, prepare, and upload custom trained models
-  - Added `deployment/CUSTOM_MODEL_DEPLOYMENT_GUIDE.md` - Complete guide for deploying custom models
+  - Added `deployment/CUSTOM_MODEL_DEPLOYMENT_GUIDE.md` - Complete guide for deploying custom models with multiple deployment strategies
+  - Added `deployment/flexible_api_server.py` - Flexible API server supporting serverless, endpoints, and self-hosted deployments
   - Configured primary model search location: `/Users/minervae/Projects/SAMO--GENERAL/SAMO--DL/deployment/models/`
-  - Added `deployment/models/` directory for organized model storage
-  - Automated model format conversion (PyTorch .pth to HuggingFace format)
-  - Automatic deployment configuration updates
-  - Model card generation with proper metadata and usage examples
+  - Added `deployment/models/` directory with README for organized model storage
+  - **HuggingFace Deployment Strategies**:
+    - 🆓 Serverless Inference API (free tier with rate limits)
+    - 🚀 Inference Endpoints (paid, production-grade with consistent latency)
+    - 🏠 Self-hosted (maximum control with local transformers)
+  - **Automated Features**:
+    - Model format conversion (PyTorch .pth to HuggingFace format)
+    - Git LFS setup for large model files
+    - Environment configuration templates (.env.serverless, .env.endpoints, .env.selfhosted)
+    - Deployment configuration updates
+    - Model card generation with proper metadata and usage examples
+    - Cold start handling and retry logic for API calls
 
 ### Fixed
 - **Model-as-a-Service Configuration Issue** - Resolved deployment using untrained base models instead of custom trained models
@@ -307,7 +316,12 @@ All notable changes to this project will be documented in this file.
 - **Model Architecture**: DistilRoBERTa/BERT fine-tuned on custom journal entries
 - **Emotion Classes**: 12 specialized emotions (anxious, calm, content, excited, frustrated, grateful, happy, hopeful, overwhelmed, proud, sad, tired)
 - **Performance**: Expected ~85% accuracy vs ~60% with base models
-- **Deployment**: Now uses HuggingFace Hub as model repository for production systems
+- **Deployment Options**:
+  - Serverless API: Free tier, 30s timeout, automatic retry and cold start handling
+  - Inference Endpoints: Paid service, 10s timeout, no cold starts, consistent latency
+  - Self-hosted: Local transformers, full control, configurable device (CPU/GPU)
+- **Storage**: Uses HuggingFace Hub as model repository with Git LFS for large files
+- **Cost Structure**: Public repos free, private repos with quotas, bandwidth tracking
 
 ---
 

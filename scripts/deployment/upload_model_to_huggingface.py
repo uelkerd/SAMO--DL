@@ -339,42 +339,6 @@ numpy>=1.21.0
         'num_labels': len(emotion_labels)
     }
 
-def upload_to_huggingface(temp_dir: str, model_info: Dict[str, Any]) -> str:
-    """Upload model to HuggingFace Hub."""
-    print(f"\n🚀 UPLOADING TO HUGGINGFACE HUB")
-    print("=" * 40)
-    
-    # Get user info
-    api = HfApi()
-    user_info = api.whoami()
-    username = user_info['name']
-    
-    # Create repository name
-    repo_name = f"{username}/samo-dl-emotion-model"
-    print(f"📦 Repository: {repo_name}")
-    
-    try:
-        # Create repository
-        create_repo(repo_name, exist_ok=True)
-        print("✅ Repository created/confirmed")
-        
-        # Upload all files
-        api.upload_folder(
-            folder_path=temp_dir,
-            repo_id=repo_name,
-            repo_type="model"
-        )
-        print("✅ Model uploaded successfully!")
-        
-        model_url = f"https://huggingface.co/{repo_name}"
-        print(f"🔗 Model URL: {model_url}")
-        
-        return repo_name
-        
-    except Exception as e:
-        print(f"❌ Upload failed: {e}")
-        return None
-
 def update_deployment_config(repo_name: str, model_info: Dict[str, Any]):
     """Update deployment configurations to use the new model."""
     print(f"\n🔧 UPDATING DEPLOYMENT CONFIGURATIONS")
@@ -410,17 +374,224 @@ def update_deployment_config(repo_name: str, model_info: Dict[str, Any]):
         "num_labels": model_info['num_labels'],
         "id2label": model_info['id2label'],
         "label2id": model_info['label2id'],
-        "deployment_ready": True
+        "deployment_ready": True,
+        "deployment_options": {
+            "serverless_api": {
+                "url": f"https://api-inference.huggingface.co/models/{repo_name}",
+                "cost": "free",
+                "best_for": "development_testing",
+                "cold_starts": True,
+                "rate_limits": True
+            },
+            "inference_endpoints": {
+                "setup_url": "https://ui.endpoints.huggingface.co/",
+                "cost": "paid_per_usage",
+                "best_for": "production",
+                "cold_starts": False,
+                "consistent_latency": True
+            },
+            "self_hosted": {
+                "model_loading": f"AutoModelForSequenceClassification.from_pretrained('{repo_name}')",
+                "cost": "infrastructure_costs",
+                "best_for": "maximum_control",
+                "requires": ["transformers", "torch"]
+            }
+        }
     }
     
     with open(config_path, 'w') as f:
         json.dump(config, f, indent=2)
     
     print(f"✅ Created {config_path}")
+    
+    # Create environment template files for different deployment strategies
+    create_environment_templates(repo_name)
+    
     print("\n📋 Next steps:")
-    print("  1. Test the deployment locally")
-    print("  2. Update environment variables if needed")
-    print("  3. Deploy to production")
+    print("  1. Choose your deployment strategy:")
+    print("     - Serverless API (free, for development)")
+    print("     - Inference Endpoints (paid, for production)")  
+    print("     - Self-hosted (your infrastructure)")
+    print("  2. Test locally with the new model")
+    print("  3. Deploy to your chosen environment")
+    print("  4. Monitor usage and performance")
+
+def create_environment_templates(repo_name: str):
+    """Create environment configuration templates for different deployment strategies."""
+    
+    # Serverless API template
+    serverless_env = f"""# HuggingFace Serverless API Configuration
+# Best for: Development, testing, light usage
+# Cost: Free with rate limits
+
+HF_TOKEN=your_hf_token_here
+MODEL_NAME={repo_name}
+DEPLOYMENT_TYPE=serverless
+API_URL=https://api-inference.huggingface.co/models/{repo_name}
+
+# Optional settings
+MAX_RETRIES=3
+TIMEOUT_SECONDS=30
+RATE_LIMIT_PAUSE=1
+"""
+    
+    with open(".env.serverless.template", 'w') as f:
+        f.write(serverless_env)
+    print("✅ Created .env.serverless.template")
+    
+    # Inference Endpoints template  
+    endpoints_env = f"""# HuggingFace Inference Endpoints Configuration
+# Best for: Production, consistent latency, high throughput
+# Cost: Paid per resource usage
+
+HF_TOKEN=your_hf_token_here
+MODEL_NAME={repo_name}
+DEPLOYMENT_TYPE=endpoint
+INFERENCE_ENDPOINT_URL=https://your-endpoint-id.us-east-1.aws.endpoints.huggingface.cloud
+
+# Setup your endpoint at: https://ui.endpoints.huggingface.co/
+# Choose instance type: CPU (cost-effective) or GPU (faster)
+
+# Optional settings
+MAX_RETRIES=3
+TIMEOUT_SECONDS=10
+"""
+    
+    with open(".env.endpoints.template", 'w') as f:
+        f.write(endpoints_env)
+    print("✅ Created .env.endpoints.template")
+    
+    # Self-hosted template
+    selfhosted_env = f"""# Self-Hosted Configuration  
+# Best for: Maximum control, custom requirements, data privacy
+# Cost: Your infrastructure costs
+
+MODEL_NAME={repo_name}
+DEPLOYMENT_TYPE=local
+DEVICE=cpu  # or 'cuda' if you have GPU
+
+# Model loading will be done locally using transformers library
+# Requires: pip install transformers torch
+
+# Optional optimization settings
+TORCH_NUM_THREADS=4
+MODEL_CACHE_DIR=./model_cache
+BATCH_SIZE=1
+MAX_LENGTH=128
+"""
+    
+    with open(".env.selfhosted.template", 'w') as f:
+        f.write(selfhosted_env)
+    print("✅ Created .env.selfhosted.template")
+
+def setup_git_lfs():
+    """Set up Git LFS for large model files."""
+    print("\n🔧 SETTING UP GIT LFS FOR LARGE MODEL FILES")
+    print("=" * 40)
+    
+    try:
+        # Check if git lfs is available
+        import subprocess
+        result = subprocess.run(['git', 'lfs', 'version'], capture_output=True, text=True)
+        if result.returncode != 0:
+            print("⚠️ Git LFS not available. Large model files will use regular git.")
+            print("   Install with: git lfs install")
+            return False
+            
+        # Track large model files
+        lfs_patterns = [
+            "*.bin",
+            "*.safetensors", 
+            "*.onnx",
+            "*.pkl",
+            "*.pth",
+            "*.pt",
+            "*.h5"
+        ]
+        
+        for pattern in lfs_patterns:
+            subprocess.run(['git', 'lfs', 'track', pattern], capture_output=True, text=True)
+            print(f"✅ Tracking {pattern} with Git LFS")
+        
+        # Update .gitattributes if it exists
+        gitattributes_path = ".gitattributes"
+        if os.path.exists(gitattributes_path):
+            with open(gitattributes_path, 'r') as f:
+                content = f.read()
+            
+            # Add LFS tracking if not already present
+            for pattern in lfs_patterns:
+                lfs_line = f"{pattern} filter=lfs diff=lfs merge=lfs -text"
+                if lfs_line not in content:
+                    content += f"\n{lfs_line}"
+            
+            with open(gitattributes_path, 'w') as f:
+                f.write(content)
+            
+            print("✅ Updated .gitattributes for Git LFS")
+        
+        return True
+        
+    except Exception as e:
+        print(f"⚠️ Git LFS setup failed: {e}")
+        print("   Large model files will be uploaded directly")
+        return False
+
+def upload_to_huggingface(temp_dir: str, model_info: Dict[str, Any]) -> str:
+    """Upload model to HuggingFace Hub."""
+    print(f"\n🚀 UPLOADING TO HUGGINGFACE HUB")
+    print("=" * 40)
+    
+    # Set up Git LFS before upload
+    setup_git_lfs()
+    
+    # Get user info
+    api = HfApi()
+    user_info = api.whoami()
+    username = user_info['name']
+    
+    # Create repository name
+    repo_name = f"{username}/samo-dl-emotion-model"
+    print(f"📦 Repository: {repo_name}")
+    
+    try:
+        # Create repository (public by default for free hosting)
+        create_repo(
+            repo_name, 
+            exist_ok=True,
+            private=False,  # Public repos are free
+            repo_type="model"
+        )
+        print("✅ Repository created/confirmed (public)")
+        
+        # Upload all files
+        api.upload_folder(
+            folder_path=temp_dir,
+            repo_id=repo_name,
+            repo_type="model",
+            commit_message="Upload custom emotion detection model"
+        )
+        print("✅ Model uploaded successfully!")
+        
+        model_url = f"https://huggingface.co/{repo_name}"
+        print(f"🔗 Model URL: {model_url}")
+        
+        # Print deployment options
+        print(f"\n🎯 DEPLOYMENT OPTIONS:")
+        print(f"  🆓 Serverless API: https://api-inference.huggingface.co/models/{repo_name}")
+        print(f"  🚀 Inference Endpoints: https://ui.endpoints.huggingface.co/ (create endpoint)")
+        print(f"  🏠 Self-hosted: AutoModelForSequenceClassification.from_pretrained('{repo_name}')")
+        
+        return repo_name
+        
+    except Exception as e:
+        print(f"❌ Upload failed: {e}")
+        print("\n🔍 Common issues:")
+        print("  - Check your HF token has write permissions")
+        print("  - Ensure you haven't exceeded storage quotas")
+        print("  - Large files need Git LFS (we tried to set this up)")
+        print("  - Check network connection and HF Hub status")
+        return None
 
 def main():
     """Main function."""
@@ -454,9 +625,49 @@ def main():
     
     print("\n🎉 SUCCESS! Your custom model is now ready for deployment!")
     print(f"🔗 Model: https://huggingface.co/{repo_name}")
-    print("\n📋 To use in deployment:")
-    print(f"   MODEL_NAME={repo_name}")
-    print("   Update your environment variables and redeploy")
+    
+    print("\n📋 DEPLOYMENT STRATEGIES:")
+    print("┌─────────────────────────────────────────────────────────────────────┐")
+    print("│ 🆓 SERVERLESS API (Recommended for Development)                    │")
+    print("│   • Cost: Free with rate limits                                    │")
+    print("│   • Setup: Use .env.serverless.template                            │")
+    print("│   • Test: curl with HF_TOKEN authorization                         │")
+    print("└─────────────────────────────────────────────────────────────────────┘")
+    
+    print("┌─────────────────────────────────────────────────────────────────────┐")
+    print("│ 🚀 INFERENCE ENDPOINTS (Recommended for Production)                │")
+    print("│   • Cost: Paid per usage (~$0.06-1.20/hour)                       │")
+    print("│   • Setup: https://ui.endpoints.huggingface.co/                    │")
+    print("│   • Benefits: No cold starts, consistent latency                   │")
+    print("└─────────────────────────────────────────────────────────────────────┘")
+    
+    print("┌─────────────────────────────────────────────────────────────────────┐")
+    print("│ 🏠 SELF-HOSTED (Maximum Control)                                   │")
+    print("│   • Cost: Your infrastructure                                      │")
+    print("│   • Setup: Use .env.selfhosted.template                            │")
+    print("│   • Benefits: Complete control, data privacy                       │")
+    print("└─────────────────────────────────────────────────────────────────────┘")
+    
+    print("\n🚀 QUICK TEST (Serverless API):")
+    print(f"   export HF_TOKEN='your_token_here'")
+    print(f"   curl -X POST \\")
+    print(f"     -H \"Authorization: Bearer $HF_TOKEN\" \\")
+    print(f"     -H \"Content-Type: application/json\" \\")
+    print(f"     -d '{{\"inputs\": \"I am feeling really happy today!\"}}' \\")
+    print(f"     https://api-inference.huggingface.co/models/{repo_name}")
+    
+    print("\n📁 FILES CREATED:")
+    print("   • deployment/custom_model_config.json (model metadata)")
+    print("   • .env.serverless.template (for serverless API)")
+    print("   • .env.endpoints.template (for inference endpoints)")
+    print("   • .env.selfhosted.template (for self-hosting)")
+    
+    print("\n📖 NEXT STEPS:")
+    print("   1. Choose deployment strategy (start with serverless for free)")
+    print("   2. Copy appropriate .env template to .env")
+    print("   3. Set your HF_TOKEN in the environment")
+    print("   4. Test your model with the quick test above")
+    print("   5. Integrate into your application")
     
     return True
 
