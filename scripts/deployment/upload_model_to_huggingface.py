@@ -86,11 +86,21 @@ def get_model_base_directory() -> str:
     return cwd_models_dir
 
 def find_best_trained_model() -> Optional[str]:
-    """Find the best trained model from common locations."""
+    """
+    Find the best trained model from common locations.
+    
+    Uses configurable paths for portability across different systems:
+    - Environment variables: SAMO_DL_BASE_DIR or MODEL_BASE_DIR  
+    - Auto-detection: Searches for project root markers
+    - Fallback: Current working directory + deployment/models
+    
+    Returns:
+        Path to the best model found, or None if no models found
+    """
     print("🔍 SEARCHING FOR TRAINED MODELS")
     print("=" * 40)
     
-    # Get configurable base directory
+    # Get configurable base directory (no hardcoded paths!)
     primary_model_dir = get_model_base_directory()
     
     # Display configuration info
@@ -256,33 +266,80 @@ def find_best_trained_model() -> Optional[str]:
     
     return best_model[0]
 
+def is_interactive_environment():
+    """Check if running in an interactive environment."""
+    # Check common non-interactive environment indicators
+    non_interactive_indicators = [
+        os.getenv('CI'),  # GitHub Actions, GitLab CI, etc.
+        os.getenv('DOCKER_CONTAINER'),  # Docker containers
+        os.getenv('KUBERNETES_SERVICE_HOST'),  # Kubernetes pods
+        os.getenv('JENKINS_URL'),  # Jenkins CI
+        not sys.stdin.isatty(),  # No TTY (non-interactive shell)
+    ]
+    
+    return not any(non_interactive_indicators)
+
 def setup_huggingface_auth():
-    """Setup HuggingFace authentication."""
+    """Setup HuggingFace authentication with non-interactive environment support."""
     print("\n🔐 HUGGINGFACE AUTHENTICATION")
     print("=" * 40)
     
-    hf_token = os.getenv('HUGGINGFACE_TOKEN')
+    hf_token = os.getenv('HUGGINGFACE_TOKEN') or os.getenv('HF_TOKEN')
     if not hf_token:
-        print("❌ HUGGINGFACE_TOKEN environment variable not set")
+        print("❌ HuggingFace token not found in environment variables")
+        print("   Checked: HUGGINGFACE_TOKEN, HF_TOKEN")
         print("\n📋 To authenticate:")
         print("  1. Go to https://huggingface.co/settings/tokens")
         print("  2. Create a new token with 'write' permissions")
         print("  3. Set it as environment variable:")
         print("     export HUGGINGFACE_TOKEN='your_token_here'")
-        print("  4. Or run: huggingface-cli login")
+        print("     # OR")
+        print("     export HF_TOKEN='your_token_here'")
         
-        # Try interactive login
+        # Check if we're in an interactive environment
+        if is_interactive_environment():
+            print("  4. Or try interactive login now...")
+            
+            # Try interactive login with user consent
+            response = input("\n🤔 Attempt interactive login? (y/N): ").strip().lower()
+            if response in ['y', 'yes']:
+                try:
+                    print("📝 Opening browser for HuggingFace authentication...")
+                    login()
+                    print("✅ Successfully logged in via interactive login!")
+                    return True
+                except Exception as e:
+                    print(f"❌ Interactive login failed: {e}")
+                    print("💡 Please set HUGGINGFACE_TOKEN environment variable instead")
+                    return False
+            else:
+                print("ℹ️ Skipping interactive login")
+                return False
+        else:
+            # Non-interactive environment
+            print("\n⚠️ NON-INTERACTIVE ENVIRONMENT DETECTED")
+            print("   Interactive login is not available in:")
+            print("   - CI/CD pipelines (GitHub Actions, GitLab CI, etc.)")
+            print("   - Docker containers")
+            print("   - Kubernetes pods") 
+            print("   - Headless servers")
+            print("   - Scripts without TTY")
+            print("\n✅ SOLUTION: Set HUGGINGFACE_TOKEN environment variable")
+            print("   Example for CI/CD:")
+            print("   - Add HUGGINGFACE_TOKEN to your repository secrets")
+            print("   - Use: secrets.HUGGINGFACE_TOKEN in workflow")
+            return False
+            
+    else:
         try:
-            login()
-            print("✅ Successfully logged in via interactive login!")
+            login(token=hf_token)
+            print("✅ Successfully authenticated with token!")
             return True
         except Exception as e:
-            print(f"❌ Interactive login failed: {e}")
+            print(f"❌ Token authentication failed: {e}")
+            print("💡 Please check if your token has 'write' permissions")
+            print("💡 Generate a new token at: https://huggingface.co/settings/tokens")
             return False
-    else:
-        login(token=hf_token)
-        print("✅ Successfully authenticated with token!")
-        return True
 
 def load_emotion_labels_from_model(model_path: str) -> list[str]:
     """
@@ -318,7 +375,14 @@ def load_emotion_labels_from_model(model_path: str) -> list[str]:
     # Method 2: Load from PyTorch checkpoint
     elif model_path.endswith('.pth') and os.path.exists(model_path):
         try:
-            checkpoint = torch.load(model_path, map_location='cpu', weights_only=False)
+            # Try to load checkpoint with PyTorch version compatibility
+            try:
+                # For PyTorch >= 1.13.0 (weights_only parameter available)
+                checkpoint = torch.load(model_path, map_location='cpu', weights_only=False)
+            except TypeError:
+                # For older PyTorch versions (< 1.13.0)
+                checkpoint = torch.load(model_path, map_location='cpu')
+                print("  ℹ️ Using legacy PyTorch.load (consider upgrading PyTorch for security)")
             
             # Try to find label mappings in various checkpoint keys
             label_keys = ['id2label', 'label2id', 'labels', 'emotion_labels', 'class_names']
@@ -447,8 +511,20 @@ def prepare_model_for_upload(model_path: str, temp_dir: str) -> dict[str, any]:
         # Individual .pth file - need to reconstruct HuggingFace model
         print("🔄 Converting .pth file to HuggingFace format...")
         
-        # Load the state dict
-        checkpoint = torch.load(model_path, map_location='cpu')
+        # Load the state dict with error handling and PyTorch compatibility
+        try:
+            # Try newer PyTorch version first
+            try:
+                checkpoint = torch.load(model_path, map_location='cpu', weights_only=False)
+            except TypeError:
+                # Fallback for older PyTorch versions
+                checkpoint = torch.load(model_path, map_location='cpu')
+                print("  ℹ️ Using legacy PyTorch.load (consider upgrading PyTorch)")
+        except Exception as e:
+            print(f"  ❌ Failed to load checkpoint: {e}")
+            print("  💡 Please verify the checkpoint file is not corrupted")
+            print("  💡 Check file permissions and disk space")
+            raise ValueError(f"Cannot load checkpoint from {model_path}: {e}")
         
         # Determine base model (make educated guess)
         base_model_name = "distilroberta-base"  # Most commonly used in your training
@@ -464,13 +540,33 @@ def prepare_model_for_upload(model_path: str, temp_dir: str) -> dict[str, any]:
             label2id=label2id
         )
         
-        # Load trained weights
-        if 'model_state_dict' in checkpoint:
-            model.load_state_dict(checkpoint['model_state_dict'])
-            print("  ✅ Loaded model_state_dict")
-        else:
-            model.load_state_dict(checkpoint)
-            print("  ✅ Loaded state_dict directly")
+        # Load trained weights with error handling
+        try:
+            if 'model_state_dict' in checkpoint:
+                model.load_state_dict(checkpoint['model_state_dict'])
+                print("  ✅ Loaded model_state_dict")
+            else:
+                model.load_state_dict(checkpoint)
+                print("  ✅ Loaded state_dict directly")
+        except RuntimeError as e:
+            if "size mismatch" in str(e):
+                print(f"  ❌ Model architecture mismatch: {e}")
+                print("  💡 This usually means:")
+                print("     - The checkpoint was trained with different number of classes")
+                print("     - The model architecture doesn't match the checkpoint")
+                print("     - Try checking the model's config.json for num_labels")
+                raise ValueError(f"Architecture mismatch when loading checkpoint: {e}")
+            else:
+                print(f"  ❌ Failed to load state dict: {e}")
+                raise
+        except KeyError as e:
+            print(f"  ❌ Missing key in state dict: {e}")
+            print("  💡 This might indicate an incompatible checkpoint format")
+            raise ValueError(f"Incompatible checkpoint format: {e}")
+        except Exception as e:
+            print(f"  ❌ Unexpected error loading state dict: {e}")
+            print("  💡 Please verify the checkpoint file is not corrupted")
+            raise ValueError(f"Failed to load model weights: {e}")
         
         # Save in HuggingFace format with safetensors (recommended)
         model.save_pretrained(temp_dir, safe_serialization=True)
