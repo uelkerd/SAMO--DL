@@ -1,10 +1,7 @@
 
 __pycache__/
 __pypackages__/
-!.vscode/extensions.json
-!.vscode/launch.json
-!.vscode/settings.json
-!.vscode/tasks.json
+## VSCode re-includes will be moved below after the .vscode ignore to ensure they take effect
 !**/*_sample.*
 !**/journal_test_dataset_summary.json
 !**/journal_test_dataset.json
@@ -83,6 +80,10 @@ __pypackages__/
 .venv/
 .vimrc.local
 .vscode/
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
 .yarn-integrity
 *.aac
 *.arrow
