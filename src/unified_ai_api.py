@@ -220,8 +220,11 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 def require_permission(permission: str):
     """Require specific permission for endpoint access."""
     async def permission_checker(request: Request, current_user: TokenPayload = Depends(get_current_user)):
-        # Allow tests to inject permissions via header only during pytest runs
-        if "PYTEST_CURRENT_TEST" in os.environ:
+        # Allow tests to inject permissions via header only during pytest runs and explicit toggle
+        if (
+            "PYTEST_CURRENT_TEST" in os.environ
+            and os.environ.get("ENABLE_TEST_PERMISSION_INJECTION", "false").lower() == "true"
+        ):
             injected = request.headers.get("X-User-Permissions")
             if injected:
                 injected_perms = {p.strip() for p in injected.split(",") if p.strip()}
@@ -1361,7 +1364,12 @@ async def batch_transcribe_voice(
     
     try:
         # Enforce permission always; allow pytest header override for tests only
-        injected = request.headers.get("X-User-Permissions") if os.environ.get("PYTEST_CURRENT_TEST") else None
+        injected = None
+        if (
+            os.environ.get("PYTEST_CURRENT_TEST")
+            and os.environ.get("ENABLE_TEST_PERMISSION_INJECTION", "false").lower() == "true"
+        ):
+            injected = request.headers.get("X-User-Permissions")
         has_injected = False
         if injected:
             injected_perms = {p.strip() for p in injected.split(",") if p.strip()}
