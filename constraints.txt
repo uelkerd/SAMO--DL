@@ -1,0 +1,47 @@
+############################################
+# Constraints File for CI Performance     #
+# Pins transitive dependencies to known   #
+# working versions to speed up resolution #
+############################################
+
+# Core problematic packages - pin to exact versions
+psycopg2-binary==2.9.9
+pgvector==0.3.6
+prometheus-client==0.21.0
+
+# Google Cloud packages - often cause conflicts
+google-auth==2.35.0
+google-cloud-core==2.4.1
+google-cloud-storage==2.17.0
+google-api-core==2.21.0
+googleapis-common-protos==1.65.0
+
+# Common transitive dependencies that cause backtracking
+certifi==2025.8.3
+urllib3==2.2.3
+requests==2.32.3
+charset-normalizer==3.4.0
+idna==3.10
+
+# FastAPI ecosystem
+starlette==0.41.3
+anyio==4.6.2.post1
+sniffio==1.3.1
+typing-extensions==4.12.2
+
+# Database related
+sqlalchemy==2.0.36
+greenlet==3.1.1
+
+# Testing/dev tools
+pytest==8.4.1
+coverage==7.6.9
+ruff==0.8.4
+
+# Other common packages
+pydantic==2.11.7
+pydantic-core==2.33.2
+click==8.1.8
+rich==13.9.4
+pyyaml==6.0.2
+python-dotenv==1.0.1
