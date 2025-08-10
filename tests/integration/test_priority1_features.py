@@ -317,7 +317,7 @@ class TestEnhancedVoiceTranscription:
         temp_files = []
         try:
             # Create files with different names
-            for i in range(2):
+            for _ in range(2):
                 temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
                 temp_file.write(b"fake audio data")
                 temp_file.close()
@@ -352,7 +352,7 @@ class TestEnhancedVoiceTranscription:
         # Create test audio files
         temp_files = []
         try:
-            for i in range(2):
+            for _ in range(2):
                 temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
                 temp_file.write(b"fake audio data")
                 temp_file.close()
@@ -423,7 +423,7 @@ class TestEnhancedVoiceTranscription:
         temp_files = []
         try:
             # Permission injection enabled globally by reset_state fixture
-            for i in range(2):
+            for _ in range(2):
                 temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
                 temp_file.write(b"fake audio data")
                 temp_file.close()
@@ -479,7 +479,7 @@ class TestEnhancedVoiceTranscription:
         # Prepare files
         temp_files = []
         try:
-            for i in range(2):
+            for _ in range(2):
                 tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
                 tmp.write(b"fake audio data")
                 tmp.close()
@@ -520,7 +520,7 @@ class TestEnhancedVoiceTranscription:
 
         temp_files = []
         try:
-            for i in range(3):
+            for _ in range(3):
                 tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
                 tmp.write(b"fake audio data")
                 tmp.close()
