@@ -1353,9 +1353,9 @@ async def transcribe_voice(
     description="Process multiple audio files for transcription",
 )
 async def batch_transcribe_voice(
+    request: Request,
     audio_files: list[UploadFile] = File(..., description="Multiple audio files to transcribe"),
     language: Optional[str] = Form(None, description="Language code for all files"),
-    request: Request,
     current_user: TokenPayload = Depends(get_current_user),
 ) -> dict[str, Any]:
     """Batch process multiple audio files for transcription."""
