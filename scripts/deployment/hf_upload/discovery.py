@@ -59,7 +59,7 @@ def _calculate_directory_size(directory: str) -> int:
             filepath = os.path.join(dirpath, filename)
             try:
                 total_size += os.path.getsize(filepath)
-            except (OSError, FileNotFoundError):
+            except OSError:
                 pass
     return total_size
 
