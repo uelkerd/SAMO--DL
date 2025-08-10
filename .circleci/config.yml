@@ -41,8 +41,9 @@ jobs:
           command: |
             export PATH="$HOME/.local/bin:$PATH"
             python3 -c "
-            import sys
-            sys.path.insert(0, '/home/circleci/samo-dl/src')
+            import sys, os
+            cwork = os.environ.get('CIRCLE_WORKING_DIRECTORY', '/home/circleci/samo-dl')
+            sys.path.insert(0, f'{cwork}/src')
             from src.unified_ai_api import app
             print('✅ API imports successfully!')
             "
@@ -51,8 +52,9 @@ jobs:
           command: |
             export PATH="$HOME/.local/bin:$PATH"
             python3 -c "
-            import sys
-            sys.path.insert(0, '/home/circleci/samo-dl/src')
+            import sys, os
+            cwork = os.environ.get('CIRCLE_WORKING_DIRECTORY', '/home/circleci/samo-dl')
+            sys.path.insert(0, f'{cwork}/src')
             from src.unified_ai_api import app
             from fastapi.testclient import TestClient
             client = TestClient(app)
