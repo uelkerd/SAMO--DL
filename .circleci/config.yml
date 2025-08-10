@@ -341,7 +341,27 @@ commands:
           cmd: "python -m pytest tests/unit/ --ignore=tests/unit/test_api_rate_limiter.py -o addopts=\"\" -k 'not sandbox_executor and not admin_endpoints and not database' --junit-xml=test-results/unit/results_other.xml -v -n 2"
       - conda_exec:
           step_name: "Unit Tests Coverage (Serial)"
-          cmd: "rm -f .coverage* || true && python -m pytest tests/unit/ --ignore=tests/unit/test_api_rate_limiter.py -o addopts=\"\" --cov=src --cov-report=xml --cov-report=html --cov-fail-under=50 -k 'not sandbox_executor and not admin_endpoints and not database' -q -n 0 && python -m pytest tests/unit/test_sandbox_executor.py -q -n 0 && python -m pytest tests/unit/test_admin_endpoints.py -q -n 0 && python -m pytest tests/unit/test_database.py -q -n 0"
+          cmd: |
+            set -euxo pipefail
+            # Clean any prior coverage fragments
+            rm -f .coverage* || true
+            # Collect coverage data across unit test subsets without generating reports yet
+            python -m pytest tests/unit/ \
+              --ignore=tests/unit/test_api_rate_limiter.py \
+              -o addopts="" \
+              --cov=src --cov-append --cov-report= \
+              -k 'not sandbox_executor and not admin_endpoints and not database' \
+              -q -n 0
+            python -m pytest tests/unit/test_sandbox_executor.py -q -n 0 --cov=src --cov-append --cov-report=
+            python -m pytest tests/unit/test_admin_endpoints.py -q -n 0 --cov=src --cov-append --cov-report=
+            python -m pytest tests/unit/test_database.py -q -n 0 --cov=src --cov-append --cov-report=
+            # Merge parallel coverage fragments before producing any reports
+            python -m coverage combine
+            # Generate reports after combine
+            python -m coverage xml
+            python -m coverage html
+            # Enforce threshold
+            python -m coverage report --fail-under=50
       - store_test_results:
           path: test-results
       - store_artifacts:
