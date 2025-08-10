@@ -1,0 +1,24 @@
+############################################
+# Heavy ML dependencies (install on demand) #
+############################################
+
+torch==2.8.0
+torchvision==0.23.0
+torchaudio==2.8.0
+transformers>=4.55.0,<5.0.0
+datasets>=4.0.0,<5.0.0
+tokenizers>=0.21.4,<1.0.0
+
+# Voice processing
+sentencepiece>=0.1.99
+openai-whisper>=20231117
+pydub>=0.25.1
+jiwer>=3.0.3
+
+# Model optimization and conversion
+onnx>=1.14.0,<2.0.0
+onnxruntime>=1.22.1,<2.0.0
+
+# Utilities
+accelerate>=1.9.0,<2.0.0
+
