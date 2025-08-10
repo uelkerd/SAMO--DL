@@ -10,11 +10,15 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 import os
 from pathlib import Path
+from urllib.parse import quote_plus
 
 
 
 """Database connection utilities for the SAMO-DL application."""
 
+
+# Respect DATABASE_URL if provided explicitly (preferred)
+_env_database_url = os.environ.get("DATABASE_URL")
 
 DB_USER = os.environ.get("DB_USER")
 DB_PASSWORD = os.environ.get("DB_PASSWORD")
@@ -22,12 +26,31 @@ DB_HOST = os.environ.get("DB_HOST", "localhost")
 DB_PORT = os.environ.get("DB_PORT", "5432")
 DB_NAME = os.environ.get("DB_NAME")
 
-# If PostgreSQL env vars are not provided, fall back to a local SQLite database for tests/dev
-if DB_USER and DB_PASSWORD and DB_NAME:
-    DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+if _env_database_url:
+    DATABASE_URL = _env_database_url
 else:
-    default_sqlite_path = Path(os.environ.get("SQLITE_PATH", "./samo_local.db")).expanduser().resolve()
-    DATABASE_URL = f"sqlite:///{default_sqlite_path}"
+    # Safely build Postgres URL if all parts are provided
+    if DB_USER and DB_PASSWORD and DB_NAME:
+        safe_user = quote_plus(DB_USER)
+        safe_password = quote_plus(DB_PASSWORD)
+        safe_host = DB_HOST
+        safe_port = DB_PORT
+        safe_db = DB_NAME
+        DATABASE_URL = f"postgresql://{safe_user}:{safe_password}@{safe_host}:{safe_port}/{safe_db}"
+    else:
+        # Fall back to SQLite only when explicitly allowed or in CI/TEST
+        allow_sqlite = (
+            os.environ.get("ALLOW_SQLITE_FALLBACK") in {"1", "true", "True"}
+            or os.environ.get("TESTING")
+            or os.environ.get("CI")
+        )
+        if not allow_sqlite:
+            raise RuntimeError(
+                "SQLite fallback is disabled. Set DATABASE_URL or all Postgres env vars, "
+                "or explicitly allow SQLite fallback via ALLOW_SQLITE_FALLBACK=1 in dev/test."
+            )
+        default_sqlite_path = Path(os.environ.get("SQLITE_PATH", "./samo_local.db")).expanduser().resolve()
+        DATABASE_URL = f"sqlite:///{default_sqlite_path}"
 
 if DATABASE_URL.startswith("sqlite"):
     # SQLite engine options; most pooling params are not applicable

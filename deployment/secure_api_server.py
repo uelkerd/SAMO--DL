@@ -221,12 +221,12 @@ class SecureEmotionDetectionModel:
             return
 
         # If directory exists but lacks required files, also stub to avoid HF hub lookups
-        required_any = [
+        required_all = [
             self.model_path / 'config.json',
             self.model_path / 'tokenizer.json',
             self.model_path / 'tokenizer_config.json',
         ]
-        if not any(p.exists() for p in required_any):
+        if not all(p.exists() for p in required_all):
             logger.warning(
                 "Secure model directory lacks expected files. Running in stub mode."
             )
@@ -329,6 +329,7 @@ class SecureEmotionDetectionModel:
 # Lazy secure model initialization to avoid side effects during import/collection
 logger.info("🔒 Secure model will be lazily initialized")
 secure_model = None  # type: ignore[assignment]
+secure_model_lock = threading.Lock()
 
 def get_secure_model():
     global secure_model
@@ -342,10 +343,14 @@ def get_secure_model():
                 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
             ]
             loaded = False
-        secure_model = _Stub()  # type: ignore[assignment]
+        with secure_model_lock:
+            if secure_model is None:
+                secure_model = _Stub()  # type: ignore[assignment]
         return secure_model
     # Eager load only when first needed outside CI/TEST
-    secure_model = SecureEmotionDetectionModel()
+    with secure_model_lock:
+        if secure_model is None:
+            secure_model = SecureEmotionDetectionModel()
     return secure_model
 
 # Read admin API key per-request to reflect environment changes during tests
