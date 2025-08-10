@@ -12,30 +12,21 @@ python3 --version || { echo "❌ Python3 not found"; exit 1; }
 
 # Install core API dependencies
 echo "✅ Installing core dependencies..."
-pip3 install --user \
-    fastapi==0.116.1 \
-    uvicorn==0.35.0 \
-    pydantic==2.11.7 \
-    PyJWT==2.8.0 \
-    requests==2.32.4 \
-    psutil==5.9.8 \
-    python-multipart==0.0.9 \
-    websockets==12.0 \
-    prometheus-client==0.20.0 \
-    httpx==0.27.2 \
-    pytest==8.3.2 \
-    ruff==0.6.9
+pip3 install --user -r requirements.txt || {
+  echo "⚠️ requirements.txt not found, installing minimal dev tools";
+  pip3 install --user pytest ruff;
+}
 
-# Add local bin to PATH
+# Add local bin to PATH (idempotent)
 echo "✅ Setting up PATH..."
 export PATH="$HOME/.local/bin:$PATH"
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+grep -qF 'export PATH="$HOME/.local/bin:$PATH"' ~/.bashrc || echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 
-# Set PYTHONPATH
+# Set PYTHONPATH (idempotent)
 echo "✅ Setting up PYTHONPATH..."
 WORKSPACE_PATH=$(pwd)
 export PYTHONPATH="$WORKSPACE_PATH/src:$PYTHONPATH"
-echo "export PYTHONPATH=\"$WORKSPACE_PATH/src:\$PYTHONPATH\"" >> ~/.bashrc
+grep -qF "export PYTHONPATH=\"$WORKSPACE_PATH/src:\$PYTHONPATH\"" ~/.bashrc || echo "export PYTHONPATH=\"$WORKSPACE_PATH/src:\$PYTHONPATH\"" >> ~/.bashrc
 
 # Test API import
 echo "✅ Testing API import..."
