@@ -131,7 +131,7 @@ The SAMO Deep Learning track is responsible for building the core AI intelligenc
 - **Acceptance Criteria**:
   - Detect emotional trends over 7-day and 30-day periods
   - Identify significant emotional state changes
-  - Generate trend summaries with statistical confidence-
+  - Generate trend summaries with statistical confidence
   - Support for missing data handling
 - **Dependencies**: Historical emotion data accumulation
 - **Integration**: Data Science analytics pipeline

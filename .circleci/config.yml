@@ -188,7 +188,7 @@ commands:
             # Build checksum filename dynamically from installer basename (robust across variants/architectures)
             CHECKSUM_FILENAME=$(echo "$INSTALLER_BASENAME" | sed -E "s/^([^-]+)-(.*)$/\1-$TAG-\2.sha256/")
             CHECKSUM_URL="https://github.com/conda-forge/miniforge/releases/download/$TAG/$CHECKSUM_FILENAME"
-            echo "Resolved installer: $BASENAME"
+            echo "Resolved installer: $INSTALLER_BASENAME"
             echo "Checksum URL: $CHECKSUM_URL"
             if command -v curl >/dev/null 2>&1; then
               curl -sSfL "$CHECKSUM_URL" -o miniconda.sha256sum
