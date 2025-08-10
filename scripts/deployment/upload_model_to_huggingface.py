@@ -11,7 +11,15 @@ import sys
 import json
 import shutil
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional
+import sys
+
+# Use built-in generics for Python 3.9+ (PEP 585)
+if sys.version_info >= (3, 9):
+    # Modern typing: use built-in dict, list instead of typing.Dict, typing.List
+    pass  # Use dict[str, Any] directly
+else:
+    from typing import Dict, List
 
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, AutoConfig
@@ -176,15 +184,52 @@ def find_best_trained_model() -> Optional[str]:
                                os.path.exists(os.path.join(path, "vocab.txt")) or
                                os.path.exists(os.path.join(path, "vocab.json")))
                 
-                if has_config:
+                # Check for model weight files (essential for a complete model)
+                weight_files = [
+                    os.path.join(path, f) for f in [
+                        "pytorch_model.bin", "model.safetensors", "pytorch_model.safetensors",
+                        "model.bin", "tf_model.h5", "flax_model.msgpack"
+                    ] if os.path.exists(os.path.join(path, f))
+                ]
+                has_weights = len(weight_files) > 0
+                
+                # Only accept as valid HF model if has config, tokenizer, AND weights
+                if has_config and has_tokenizer and has_weights:
+                    # Calculate recursive directory size including all nested files
+                    def calculate_directory_size(directory):
+                        total_size = 0
+                        for dirpath, dirnames, filenames in os.walk(directory):
+                            for filename in filenames:
+                                filepath = os.path.join(dirpath, filename)
+                                try:
+                                    total_size += os.path.getsize(filepath)
+                                except (OSError, FileNotFoundError):
+                                    # Skip files that can't be accessed
+                                    pass
+                        return total_size
+                    
+                    size = calculate_directory_size(path)
+                    found_models.append((path, size, "huggingface_dir"))
+                    
+                    # Enhanced logging with component status
+                    weight_info = f"weights: {len(weight_files)} file(s)"
+                    print(f"✅ Found complete HF model: {path} ({size:,} bytes)")
+                    print(f"   • Config: ✅ • Tokenizer: ✅ • {weight_info}")
+                
+                elif has_config:
+                    # Incomplete model directory - log what's missing
                     size = sum(os.path.getsize(os.path.join(path, f)) 
                              for f in os.listdir(path) 
                              if os.path.isfile(os.path.join(path, f)))
-                    found_models.append((path, size, "huggingface_dir"))
                     
-                    # Enhanced logging with tokenizer status
-                    tokenizer_status = "✅ with tokenizer" if has_tokenizer else "⚠️ missing tokenizer files"
-                    print(f"✅ Found HF model directory: {path} ({size:,} bytes) {tokenizer_status}")
+                    missing_components = []
+                    if not has_tokenizer:
+                        missing_components.append("tokenizer")
+                    if not has_weights:
+                        missing_components.append("model weights")
+                    
+                    print(f"⚠️ Incomplete HF model: {path} ({size:,} bytes)")
+                    print(f"   Missing: {', '.join(missing_components)}")
             else:
                 # Individual model file
                 size = os.path.getsize(path)
@@ -239,18 +284,132 @@ def setup_huggingface_auth():
         print("✅ Successfully authenticated with token!")
         return True
 
-def prepare_model_for_upload(model_path: str, temp_dir: str) -> Dict[str, Any]:
+def load_emotion_labels_from_model(model_path: str) -> list[str]:
+    """
+    Dynamically load emotion labels from model config, checkpoint, or fallback sources.
+    
+    Priority order:
+    1. HuggingFace model directory config.json (id2label)
+    2. PyTorch checkpoint state_dict (label mappings)
+    3. External JSON/CSV file
+    4. Environment variable EMOTION_LABELS
+    5. Safe default fallback
+    """
+    
+    # Method 1: Load from HuggingFace model directory config.json
+    if os.path.isdir(model_path):
+        config_path = os.path.join(model_path, "config.json")
+        if os.path.exists(config_path):
+            try:
+                with open(config_path, 'r') as f:
+                    config = json.load(f)
+                
+                if 'id2label' in config:
+                    # Convert id2label dict to sorted list
+                    id2label = config['id2label']
+                    # Ensure keys are integers for proper sorting
+                    sorted_labels = [id2label[str(i)] for i in range(len(id2label))]
+                    print(f"✅ Loaded {len(sorted_labels)} labels from HF config.json")
+                    return sorted_labels
+                    
+            except Exception as e:
+                print(f"⚠️ Could not load labels from config.json: {e}")
+    
+    # Method 2: Load from PyTorch checkpoint
+    elif model_path.endswith('.pth') and os.path.exists(model_path):
+        try:
+            checkpoint = torch.load(model_path, map_location='cpu', weights_only=False)
+            
+            # Try to find label mappings in various checkpoint keys
+            label_keys = ['id2label', 'label2id', 'labels', 'emotion_labels', 'class_names']
+            
+            for key in label_keys:
+                if key in checkpoint:
+                    labels_data = checkpoint[key]
+                    
+                    if key == 'id2label' and isinstance(labels_data, dict):
+                        sorted_labels = [labels_data[str(i)] for i in range(len(labels_data))]
+                        print(f"✅ Loaded {len(sorted_labels)} labels from checkpoint['{key}']")
+                        return sorted_labels
+                    
+                    elif key == 'label2id' and isinstance(labels_data, dict):
+                        # Convert label2id to id2label format
+                        id2label = {v: k for k, v in labels_data.items()}
+                        sorted_labels = [id2label[i] for i in range(len(id2label))]
+                        print(f"✅ Loaded {len(sorted_labels)} labels from checkpoint['{key}']")
+                        return sorted_labels
+                    
+                    elif isinstance(labels_data, (list, tuple)):
+                        print(f"✅ Loaded {len(labels_data)} labels from checkpoint['{key}']")
+                        return list(labels_data)
+                        
+        except Exception as e:
+            print(f"⚠️ Could not load labels from checkpoint: {e}")
+    
+    # Method 3: Load from external JSON file (same directory as model)
+    model_dir = os.path.dirname(model_path) if os.path.isfile(model_path) else model_path
+    labels_file_paths = [
+        os.path.join(model_dir, "emotion_labels.json"),
+        os.path.join(model_dir, "labels.json"),
+        os.path.join(model_dir, "class_names.json"),
+        "emotion_labels.json",  # Current directory
+        "labels.json"
+    ]
+    
+    for labels_file in labels_file_paths:
+        if os.path.exists(labels_file):
+            try:
+                with open(labels_file, 'r') as f:
+                    labels_data = json.load(f)
+                
+                if isinstance(labels_data, list):
+                    print(f"✅ Loaded {len(labels_data)} labels from {labels_file}")
+                    return labels_data
+                elif isinstance(labels_data, dict) and 'labels' in labels_data:
+                    labels = labels_data['labels']
+                    print(f"✅ Loaded {len(labels)} labels from {labels_file}")
+                    return labels
+                    
+            except Exception as e:
+                print(f"⚠️ Could not load labels from {labels_file}: {e}")
+    
+    # Method 4: Load from environment variable
+    env_labels = os.getenv('EMOTION_LABELS')
+    if env_labels:
+        try:
+            # Try JSON format first
+            labels = json.loads(env_labels)
+            if isinstance(labels, list):
+                print(f"✅ Loaded {len(labels)} labels from EMOTION_LABELS environment variable")
+                return labels
+        except json.JSONDecodeError:
+            # Try comma-separated format
+            labels = [label.strip() for label in env_labels.split(',') if label.strip()]
+            if labels:
+                print(f"✅ Loaded {len(labels)} labels from EMOTION_LABELS environment variable")
+                return labels
+    
+    # Method 5: Safe default fallback (common emotion categories)
+    default_labels = [
+        'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+        'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
+    ]
+    
+    print(f"⚠️ Using default emotion labels ({len(default_labels)} classes)")
+    print("   Consider creating emotion_labels.json or setting EMOTION_LABELS environment variable")
+    print("   for better label consistency with your trained model.")
+    
+    return default_labels
+
+def prepare_model_for_upload(model_path: str, temp_dir: str) -> dict[str, any]:
     """Prepare model for HuggingFace Hub upload."""
     print(f"\n🔧 PREPARING MODEL: {model_path}")
     print("=" * 40)
     
     os.makedirs(temp_dir, exist_ok=True)
     
-    # Define emotion labels (based on your training)
-    emotion_labels = [
-        'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
-        'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
-    ]
+    # Load emotion labels dynamically (avoid hardcoding to match actual model)
+    emotion_labels = load_emotion_labels_from_model(model_path)
     
     # Create label mappings
     id2label = {i: label for i, label in enumerate(emotion_labels)}
@@ -534,7 +693,7 @@ numpy>=1.21.0
         'validation_warnings': missing_files
     }
 
-def update_deployment_config(repo_name: str, model_info: Dict[str, Any]):
+def update_deployment_config(repo_name: str, model_info: dict[str, any]):
     """Update deployment configurations to use the new model."""
     print(f"\n🔧 UPDATING DEPLOYMENT CONFIGURATIONS")
     print("=" * 40)
@@ -562,6 +721,11 @@ def update_deployment_config(repo_name: str, model_info: Dict[str, Any]):
     
     # Create a new deployment config file
     config_path = "deployment/custom_model_config.json"
+    
+    # Ensure the deployment directory exists
+    config_dir = os.path.dirname(config_path)
+    os.makedirs(config_dir, exist_ok=True)
+    
     config = {
         "model_name": repo_name,
         "model_type": "custom_trained",
@@ -763,7 +927,7 @@ def choose_repository_privacy() -> bool:
         else:
             print("Please enter 'y' for yes or 'n' for no (or press Enter for no)")
 
-def upload_to_huggingface(temp_dir: str, model_info: Dict[str, Any]) -> str:
+def upload_to_huggingface(temp_dir: str, model_info: dict[str, any]) -> str:
     """Upload model to HuggingFace Hub."""
     print(f"\n🚀 UPLOADING TO HUGGINGFACE HUB")
     print("=" * 40)
