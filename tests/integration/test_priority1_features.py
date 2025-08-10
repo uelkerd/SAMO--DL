@@ -433,17 +433,21 @@ class TestEnhancedVoiceTranscription:
             # Test batch transcription endpoint
             headers = {"Authorization": f"Bearer {access_token}"}
             files = []
-            from contextlib import ExitStack
-            stack = ExitStack()
+            opened_files = []
             try:
                 for i, temp_file_path in enumerate(temp_files):
-                    audio_file = stack.enter_context(open(temp_file_path, "rb"))
-                    audio_file.seek(0)
-                    files.append(("audio_files", (f"file{i+1}.wav", audio_file, "audio/wav")))
+                    f = open(temp_file_path, "rb")
+                    opened_files.append(f)
+                    f.seek(0)
+                    files.append(("audio_files", (f"file{i+1}.wav", f, "audio/wav")))
                 data = {"language": "en"}
                 response = client.post("/transcribe/batch", files=files, data=data, headers=headers)
             finally:
-                stack.close()
+                for f in opened_files:
+                    try:
+                        f.close()
+                    except Exception:
+                        pass
             
             assert response.status_code == 200
             data = response.json()
@@ -474,15 +478,19 @@ class TestEnhancedVoiceTranscription:
             headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
 
             files = []
-            from contextlib import ExitStack
-            stack = ExitStack()
+            opened_files = []
             try:
                 for i, temp_file_path in enumerate(temp_files):
-                    audio_file = stack.enter_context(open(temp_file_path, "rb"))
-                    files.append(("audio_files", (f"f{i}.wav", audio_file, "audio/wav")))
+                    f = open(temp_file_path, "rb")
+                    opened_files.append(f)
+                    files.append(("audio_files", (f"f{i}.wav", f, "audio/wav")))
                 response = client.post("/transcribe/batch", files=files, headers=headers)
             finally:
-                stack.close()
+                for f in opened_files:
+                    try:
+                        f.close()
+                    except Exception:
+                        pass
 
             assert response.status_code == 200
             data = response.json()
@@ -515,15 +523,19 @@ class TestEnhancedVoiceTranscription:
             headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
 
             files = []
-            from contextlib import ExitStack
-            stack = ExitStack()
+            opened_files = []
             try:
                 for i, temp_file_path in enumerate(temp_files):
-                    audio_file = stack.enter_context(open(temp_file_path, "rb"))
-                    files.append(("audio_files", (f"f{i}.wav", audio_file, "audio/wav")))
+                    f = open(temp_file_path, "rb")
+                    opened_files.append(f)
+                    files.append(("audio_files", (f"f{i}.wav", f, "audio/wav")))
                 response = client.post("/transcribe/batch", files=files, headers=headers)
             finally:
-                stack.close()
+                for f in opened_files:
+                    try:
+                        f.close()
+                    except Exception:
+                        pass
 
             assert response.status_code == 200
             data = response.json()
