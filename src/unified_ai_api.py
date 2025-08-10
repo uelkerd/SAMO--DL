@@ -49,20 +49,22 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Defensive client compatibility shim for tests: handle closed file objects in httpx multipart
-try:  # pragma: no cover - safety shim only used in tests
-    import httpx  # type: ignore
-    from httpx import _utils as _httpx_utils  # type: ignore
+# Guard this shim so it never applies in production
+if os.getenv("UNIT_TEST") or os.getenv("TESTING") or os.getenv("CI"):
+    try:  # pragma: no cover - safety shim only used in tests
+        import httpx  # type: ignore
+        from httpx import _utils as _httpx_utils  # type: ignore
 
-    _orig_peek = getattr(_httpx_utils, "peek_filelike_length", None)
-    if callable(_orig_peek):
-        def _safe_peek_filelike_length(stream):
-            try:
-                return _orig_peek(stream)
-            except Exception:
-                return None
-        _httpx_utils.peek_filelike_length = _safe_peek_filelike_length  # type: ignore
-except Exception:
-    pass
+        _orig_peek = getattr(_httpx_utils, "peek_filelike_length", None)
+        if callable(_orig_peek):
+            def _safe_peek_filelike_length(stream):
+                try:
+                    return _orig_peek(stream)
+                except Exception:
+                    return None
+            _httpx_utils.peek_filelike_length = _safe_peek_filelike_length  # type: ignore
+    except Exception:
+        pass
 
 # Global AI models (loaded on startup)
 emotion_detector = None
@@ -234,11 +236,12 @@ def require_permission(permission: str):
     """Require specific permission for endpoint access."""
     async def permission_checker(request: Request, current_user: TokenPayload = Depends(get_current_user)):
         # Allow tests to inject permissions via header without altering tokens
-        injected = request.headers.get("X-User-Permissions")
-        if injected:
-            injected_perms = {p.strip() for p in injected.split(",") if p.strip()}
-            if permission in injected_perms:
-                return current_user
+        if os.getenv("TESTING") or os.getenv("CI") or os.getenv("UNIT_TEST"):
+            injected = request.headers.get("X-User-Permissions")
+            if injected:
+                injected_perms = {p.strip() for p in injected.split(",") if p.strip()}
+                if permission in injected_perms:
+                    return current_user
         if permission not in current_user.permissions:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -1185,17 +1188,26 @@ async def analyze_voice_journal(
         # Cross-model insights
         processing_time = (time.time() - start_time) * 1000
 
-        # Normalize transcription dict to include required optional fields for schema
+        # Normalize transcription dict to include required optional fields for schema using helper
         normalized_tx = None
         if transcription_results:
+            (
+                _text,
+                _lang,
+                _conf,
+                _duration,
+                _word_count,
+                _speaking_rate,
+                _audio_quality,
+            ) = _normalize_transcription_attrs(transcription_results)
             normalized_tx = {
-                "text": transcription_results.get("text", ""),
-                "language": transcription_results.get("language", "unknown"),
-                "confidence": float(transcription_results.get("confidence", 0.0)),
-                "duration": float(transcription_results.get("duration", 0.0)),
-                "word_count": int(transcription_results.get("word_count", 0)),
-                "speaking_rate": float(transcription_results.get("speaking_rate", 0.0)),
-                "audio_quality": transcription_results.get("audio_quality", "unknown"),
+                "text": _text,
+                "language": _lang,
+                "confidence": float(_conf),
+                "duration": float(_duration),
+                "word_count": int(_word_count),
+                "speaking_rate": float(_speaking_rate),
+                "audio_quality": _audio_quality,
             }
 
         return CompleteJournalAnalysis(
@@ -1245,14 +1257,12 @@ async def transcribe_voice(
         if not audio_file.filename:
             raise HTTPException(status_code=400, detail="Audio file required")
         
-        # Check file size (treat >45MB as too large to align with tests)
+        # Unified file size limit used consistently across code and messages
+        MAX_AUDIO_BYTES = 50 * 1024 * 1024
         content = await audio_file.read()
-        if len(content) > 45 * 1024 * 1024:
+        if len(content) > MAX_AUDIO_BYTES:
             # Return a JSON body with 'detail' to match tests expecting that key
-            raise HTTPException(status_code=400, detail="File too large (max 50MB)")
-        # Reject only truly empty content early; allow invalid formats to surface as 500
-        if not content or len(content) == 0:
-            raise HTTPException(status_code=400, detail="Invalid or empty audio file")
+            raise HTTPException(status_code=400, detail=f"File too large (max {MAX_AUDIO_BYTES // (1024*1024)}MB)")
         # Reset file position for later processing
         await audio_file.seek(0)
         
@@ -1263,21 +1273,24 @@ async def transcribe_voice(
             # Transcribe audio; ensure transcriber is available
             _ensure_voice_transcriber_loaded()
             
-            # Enhanced transcription
-            # Note: model selection is configured at startup; per-request
-            # model_size/timestamp are not supported by the underlying
-            # transcriber interface.
-            try:
-                transcription_result = voice_transcriber.transcribe(
-                    temp_file_path,
-                    language=language
-                )
-            except TypeError:
-                # Fallback for simplified fake transcribers without kwargs or with different signature
+            # Enhanced transcription: introspect signature once and adapt call
+            sig = inspect.signature(voice_transcriber.transcribe)
+            accepted = sig.parameters
+            candidate_args = {
+                "audio_path": temp_file_path,
+                "path": temp_file_path,
+                "file_path": temp_file_path,
+                "language": language,
+            }
+            kwargs = {k: v for k, v in candidate_args.items() if k in accepted and v is not None}
+            if not any(k in accepted for k in ("audio_path", "path", "file_path")):
+                # Try positional fallback if no filename-like kw is accepted
                 try:
-                    transcription_result = voice_transcriber.transcribe(temp_file_path)
+                    transcription_result = voice_transcriber.transcribe(temp_file_path, **{k: v for k, v in kwargs.items() if k not in {"audio_path", "path", "file_path"}})
                 except TypeError:
-                    transcription_result = voice_transcriber.transcribe()
+                    transcription_result = voice_transcriber.transcribe(**kwargs)
+            else:
+                transcription_result = voice_transcriber.transcribe(**kwargs)
 
             (
                 text_val,

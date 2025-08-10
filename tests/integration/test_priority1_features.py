@@ -420,13 +420,17 @@ class TestEnhancedVoiceTranscription:
             # Test batch transcription endpoint
             headers = {"Authorization": f"Bearer {access_token}"}
             files = []
-            for i, temp_file_path in enumerate(temp_files):
-                # Open each file without context manager so httpx can compute length later
-                audio_file = open(temp_file_path, "rb")
-                files.append(("audio_files", (f"file{i+1}.wav", audio_file, "audio/wav")))
-            
-            data = {"language": "en"}
-            response = client.post("/transcribe/batch", files=files, data=data, headers=headers)
+            from contextlib import ExitStack
+            stack = ExitStack()
+            try:
+                for i, temp_file_path in enumerate(temp_files):
+                    audio_file = stack.enter_context(open(temp_file_path, "rb"))
+                    audio_file.seek(0)
+                    files.append(("audio_files", (f"file{i+1}.wav", audio_file, "audio/wav")))
+                data = {"language": "en"}
+                response = client.post("/transcribe/batch", files=files, data=data, headers=headers)
+            finally:
+                stack.close()
             
             assert response.status_code == 200
             data = response.json()
