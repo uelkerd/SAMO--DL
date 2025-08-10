@@ -389,7 +389,7 @@ def require_admin_api_key(f):
         expected_key = get_admin_api_key()
         if not expected_key or api_key != expected_key:
             logger.warning(f"Unauthorized admin access attempt from {request.remote_addr}")
-            return jsonify({"error": "Unauthorized: admin API key required"}), 401
+            return jsonify({"error": "Unauthorized: admin API key required"}), 403
         return f(*args, **kwargs)
     return decorated_function
 
