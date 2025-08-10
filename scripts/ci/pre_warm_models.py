@@ -16,16 +16,20 @@ def pre_warm_models():
     try:
         import os
         # Respect offline mode in CI to avoid failing when network is
-        # unavailable
+        # unavailable. Accept common truthy values case-insensitively.
+        def _is_truthy(value: str | None) -> bool:
+            if value is None:
+                return False
+            return value.strip().lower() in {"1", "true", "yes"}
+
         offline = (
-            os.getenv("HF_HUB_OFFLINE") == "1"
-            or os.getenv("TRANSFORMERS_OFFLINE") == "1"
+            _is_truthy(os.getenv("HF_HUB_OFFLINE"))
+            or _is_truthy(os.getenv("TRANSFORMERS_OFFLINE"))
         )
         if offline:
             print("Offline mode detected. Skipping pre-warm.")
             return True
         from transformers import AutoTokenizer, AutoModel, AutoModelForSeq2SeqLM
-        import torch
 
         # Pre-download BERT models
         print("Downloading BERT base...")

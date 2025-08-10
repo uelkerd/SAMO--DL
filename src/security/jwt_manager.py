@@ -45,6 +45,13 @@ class TokenResponse(BaseModel):
     token_type: str = Field(default="bearer", description="Token type")
     expires_in: int = Field(..., description="Access token expiration in seconds")
 
+# Precise return type for token pair
+class TokenPair(TypedDict):
+    access_token: str
+    refresh_token: str
+    token_type: str
+    expires_in: int
+
 class JWTManager:
     """Comprehensive JWT token management system"""
     
@@ -78,11 +85,8 @@ class JWTManager:
         }
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
     
-    def create_token_pair(self, user_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Create both access and refresh tokens and return as a plain dict.
-
-        Some tests expect a dict-like response that supports 'in' membership checks.
-        """
+    def create_token_pair(self, user_data: Dict[str, Any]) -> TokenPair:
+        """Create both access and refresh tokens and return as a plain dict."""
         access_token = self.create_access_token(user_data)
         refresh_token = self.create_refresh_token(user_data)
         return {
