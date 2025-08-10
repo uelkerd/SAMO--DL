@@ -18,11 +18,12 @@ def test_create_token_pair_structure():
         }
     )
     # Ensure keys and types look correct
-    assert set(token_pair.keys()) == {"access_token", "refresh_token", "token_type", "expires_in"}
-    assert isinstance(token_pair["access_token"], str)
-    assert isinstance(token_pair["refresh_token"], str)
-    assert token_pair["token_type"] == "bearer"
-    assert isinstance(token_pair["expires_in"], int)
+    token_pair_dict = token_pair.dict() if hasattr(token_pair, "dict") else dict(token_pair)
+    assert set(token_pair_dict.keys()) == {"access_token", "refresh_token", "token_type", "expires_in"}
+    assert isinstance(token_pair.access_token, str)
+    assert isinstance(token_pair.refresh_token, str)
+    assert token_pair.token_type == "bearer"
+    assert isinstance(token_pair.expires_in, int)
 
 
 def test_verify_invalid_token_returns_none():
