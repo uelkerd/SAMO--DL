@@ -1,4 +1,7 @@
-"""String utility helpers for common patterns."""
+"""Environment-related utilities.
+
+Single canonical implementation of truthy parsing for environment flags.
+"""
 
 from typing import Optional
 
