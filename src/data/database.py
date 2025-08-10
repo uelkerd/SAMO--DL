@@ -12,6 +12,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 import os
 from pathlib import Path
 from urllib.parse import quote_plus
+from src.utils.strings import is_truthy
 
 
 
@@ -40,15 +41,10 @@ else:
         DATABASE_URL = f"postgresql://{safe_user}:{safe_password}@{safe_host}:{safe_port}/{safe_db}"
     else:
         # Fall back to SQLite only when explicitly allowed or in CI/TEST
-        def _is_truthy(value: str | None) -> bool:
-            if value is None:
-                return False
-            return value in {"1", "true", "True"}
-
         allow_sqlite = (
-            _is_truthy(os.environ.get("ALLOW_SQLITE_FALLBACK"))
-            or _is_truthy(os.environ.get("TESTING"))
-            or _is_truthy(os.environ.get("CI"))
+            is_truthy(os.environ.get("ALLOW_SQLITE_FALLBACK"))
+            or is_truthy(os.environ.get("TESTING"))
+            or is_truthy(os.environ.get("CI"))
         )
         if not allow_sqlite:
             raise RuntimeError(
