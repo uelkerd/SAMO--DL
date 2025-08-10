@@ -40,16 +40,16 @@ jobs:
           name: Test API Health Check
           command: |
             export PATH="$HOME/.local/bin:$PATH"
-            python3 - <<-'PY'
-	try:
-	    from fastapi.testclient import TestClient
-	    from src.unified_ai_api import app
-	    client = TestClient(app)
-	    resp = client.get('/health')
-	    assert resp.status_code == 200, f"Health check failed: {resp.status_code}"
-	    print('✅ API health check passed!')
-	except ModuleNotFoundError:
-	    print('⚠️ FastAPI not installed; skipping health check.')
+            python3 - <<'PY'
+try:
+    from fastapi.testclient import TestClient
+    from src.unified_ai_api import app
+    client = TestClient(app)
+    resp = client.get('/health')
+    assert resp.status_code == 200, f"Health check failed: {resp.status_code}"
+    print('✅ API health check passed!')
+except ModuleNotFoundError:
+    print('⚠️ FastAPI not installed; skipping health check.')
 PY
 
   # Basic linting (optional - won't fail build)
