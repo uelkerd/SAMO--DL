@@ -22,14 +22,14 @@ echo "✅ Setting up PATH..."
 export PATH="$HOME/.local/bin:$PATH"
 # Ensure bashrc exists to avoid grep failures under set -e
 [ -f ~/.bashrc ] || touch ~/.bashrc
-grep -qF "export PATH=\"$HOME/.local/bin:$PATH\"" ~/.bashrc || echo "export PATH=\"$HOME/.local/bin:$PATH\"" >> ~/.bashrc
+grep -qF 'export PATH="$HOME/.local/bin:$PATH"' ~/.bashrc || echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 
 # Set PYTHONPATH (idempotent)
 echo "✅ Setting up PYTHONPATH..."
 WORKSPACE_PATH=$(pwd)
-export PYTHONPATH="$WORKSPACE_PATH/src:$PYTHONPATH"
-# Write the expanded workspace path; keep $PYTHONPATH literal for shells
-grep -qF "export PYTHONPATH=\"$WORKSPACE_PATH/src:\$PYTHONPATH\"" ~/.bashrc || echo "export PYTHONPATH=\"$WORKSPACE_PATH/src:\$PYTHONPATH\"" >> ~/.bashrc
+export PYTHONPATH="$WORKSPACE_PATH/src:${PYTHONPATH:-}"
+# Write the expanded workspace path; keep ${PYTHONPATH:-} literal for shells
+grep -qF "export PYTHONPATH=\"$WORKSPACE_PATH/src:\${PYTHONPATH:-}\"" ~/.bashrc || echo "export PYTHONPATH=\"$WORKSPACE_PATH/src:\${PYTHONPATH:-}\"" >> ~/.bashrc
 
 # Combined API import and health check (skips gracefully if FastAPI missing)
 python3 - <<'PY'
