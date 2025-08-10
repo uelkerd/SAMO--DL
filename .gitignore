@@ -280,6 +280,7 @@ data/raw/*
 !data/raw/sample_*
 deployment/model/
 deployment/models/
+!deployment/models/README.md
 Desktop.ini
 develop-eggs/
 dist
