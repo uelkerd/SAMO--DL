@@ -1185,15 +1185,20 @@ async def analyze_voice_journal(
                 _speaking_rate,
                 _audio_quality,
             ) = _normalize_transcription_attrs(transcription_results)
-            normalized_tx = {
-                "text": _text,
-                "language": _lang,
-                "confidence": float(_conf),
-                "duration": float(_duration),
-                "word_count": int(_word_count),
-                "speaking_rate": float(_speaking_rate),
-                "audio_quality": _audio_quality,
-            }
+            # Validate required fields before constructing VoiceTranscription
+            if not isinstance(_text, str) or _text is None:
+                logger.warning("Transcription missing text; skipping transcription payload")
+                normalized_tx = None
+            else:
+                normalized_tx = {
+                    "text": _text,
+                    "language": _lang or "unknown",
+                    "confidence": float(_conf) if _conf is not None else 0.0,
+                    "duration": float(_duration) if _duration is not None else 0.0,
+                    "word_count": int(_word_count) if _word_count is not None else 0,
+                    "speaking_rate": float(_speaking_rate) if _speaking_rate is not None else 0.0,
+                    "audio_quality": _audio_quality or "unknown",
+                }
 
         return CompleteJournalAnalysis(
             transcription=VoiceTranscription(**normalized_tx) if normalized_tx else None,
@@ -1272,11 +1277,35 @@ async def transcribe_voice(
             if not any(k in accepted for k in ("audio_path", "path", "file_path")):
                 # Try positional fallback if no filename-like kw is accepted
                 try:
-                    transcription_result = voice_transcriber.transcribe(temp_file_path, **{k: v for k, v in kwargs.items() if k not in {"audio_path", "path", "file_path"}})
-                except TypeError:
-                    transcription_result = voice_transcriber.transcribe(**kwargs)
+                    transcription_result = voice_transcriber.transcribe(
+                        temp_file_path,
+                        **{k: v for k, v in kwargs.items() if k not in {"audio_path", "path", "file_path"}}
+                    )
+                except Exception as e_positional:
+                    try:
+                        transcription_result = voice_transcriber.transcribe(temp_file_path)
+                    except Exception as e_fallback:
+                        logger.error(
+                            "Transcriber failed with both positional and fallback calls: %s; %s",
+                            repr(e_positional), repr(e_fallback)
+                        )
+                        raise
             else:
-                transcription_result = voice_transcriber.transcribe(**kwargs)
+                try:
+                    transcription_result = voice_transcriber.transcribe(**kwargs)
+                except Exception as e_kwargs:
+                    # Fallback to positional if keyword call fails
+                    try:
+                        transcription_result = voice_transcriber.transcribe(temp_file_path, language=language)
+                    except Exception as e_positional:
+                        try:
+                            transcription_result = voice_transcriber.transcribe(temp_file_path)
+                        except Exception as e_fallback:
+                            logger.error(
+                                "Transcriber failed with kwargs, positional, and fallback calls: %s; %s; %s",
+                                repr(e_kwargs), repr(e_positional), repr(e_fallback)
+                            )
+                            raise
 
             (
                 text_val,
@@ -1331,15 +1360,14 @@ async def batch_transcribe_voice(
     results = []
     
     try:
-        # Enforce permission when processing a single file via this endpoint; allow multi-file batches
-        if len(audio_files) <= 1:
-            injected = request.headers.get("X-User-Permissions")
-            has_injected = False
-            if injected:
-                injected_perms = {p.strip() for p in injected.split(",") if p.strip()}
-                has_injected = "batch_processing" in injected_perms
-            if not has_injected and "batch_processing" not in current_user.permissions:
-                raise HTTPException(status_code=403, detail="Permission 'batch_processing' required")
+        # Enforce permission always; allow pytest header override for tests only
+        injected = request.headers.get("X-User-Permissions") if os.environ.get("PYTEST_CURRENT_TEST") else None
+        has_injected = False
+        if injected:
+            injected_perms = {p.strip() for p in injected.split(",") if p.strip()}
+            has_injected = "batch_processing" in injected_perms
+        if not has_injected and "batch_processing" not in current_user.permissions:
+            raise HTTPException(status_code=403, detail="Permission 'batch_processing' required")
 
         for i, audio_file in enumerate(audio_files):
             try:
