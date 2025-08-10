@@ -81,17 +81,17 @@ def test_unused_variables_fixed():
             print(f"   {status} {check_name}")
     
     # Summary
-    print(f"\n📊 SUMMARY:")
+    print("\n📊 SUMMARY:")
     print(f"   Fixes validated: {len(fixes_validated)}")
     print(f"   Issues remaining: {len(issues_found)}")
     
     if fixes_validated:
-        print(f"\n✅ FIXES VALIDATED:")
+        print("\n✅ FIXES VALIDATED:")
         for fix in fixes_validated:
             print(f"   • {fix}")
     
     if issues_found:
-        print(f"\n❌ ISSUES REMAINING:")
+        print("\n❌ ISSUES REMAINING:")
         for issue in issues_found:
             print(f"   • {issue}")
         return False
@@ -115,7 +115,7 @@ def test_syntax_validation():
         print(f"\n🔍 Validating syntax: {file_path}...")
         
         if not os.path.exists(file_path):
-            print(f"   ❌ File not found")
+            print("   ❌ File not found")
             all_valid = False
             continue
         
@@ -125,7 +125,7 @@ def test_syntax_validation():
             
             # Parse the file to check syntax
             ast.parse(content)
-            print(f"   ✅ Valid Python syntax")
+            print("   ✅ Valid Python syntax")
             
         except SyntaxError as e:
             print(f"   ❌ Syntax error: {e}")
@@ -177,9 +177,8 @@ def test_functional_patterns():
         if file_count == 2 and total_size > 0:
             print("   ✅ Directory traversal functional")
             return True
-        else:
-            print("   ❌ Directory traversal failed")
-            return False
+        print("   ❌ Directory traversal failed")
+        return False
 
 def test_underscore_convention():
     """Test that underscore convention is properly used."""
@@ -243,7 +242,7 @@ def main():
             print(f"❌ {test_name} failed with exception: {e}")
             results.append((test_name, False))
     
-    print(f"\n🎯 PYL-W0612 FIX VALIDATION SUMMARY")
+    print("\n🎯 PYL-W0612 FIX VALIDATION SUMMARY")
     print("=" * 60)
     
     passed = sum(1 for _, result in results if result)
@@ -265,9 +264,8 @@ def main():
         print("  ✅ Functionality preserved")
         print("\n🐍 Python best practices: Underscore convention for unused variables")
         return True
-    else:
-        print(f"\n⚠️ {total - passed} test(s) failed - review implementation")
-        return False
+    print(f"\n⚠️ {total - passed} test(s) failed - review implementation")
+    return False
 
 if __name__ == "__main__":
     success = main()
