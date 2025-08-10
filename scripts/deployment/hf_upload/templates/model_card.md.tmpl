@@ -1,0 +1,74 @@
+---
+language: en
+pipeline_tag: text-classification
+library_name: transformers
+tags:
+- emotion-detection
+- text-classification
+- psychology
+- journal-analysis
+- mental-health
+license: apache-2.0
+datasets:
+- custom-journal-entries
+metrics:
+- f1
+- accuracy
+labels:
+$labels_json
+---
+
+# SAMO-DL Custom Emotion Detection Model
+
+This model is a fine-tuned version of a transformer model for emotion detection, specifically trained on journal entries and personal text data.
+
+## Model Details
+
+- Model Type: Emotion Classification
+- Language: English
+- Training Data: Custom journal entries + domain adaptation
+- Labels: $num_labels emotion categories
+- Architecture: Transformer-based (DistilRoBERTa/BERT)
+
+## Emotions Detected
+
+$labels_joined
+
+## Usage
+
+### Direct Transformers Usage (Local/Self-hosted)
+
+```python
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import torch
+
+tokenizer = AutoTokenizer.from_pretrained("$repo_id")
+model = AutoModelForSequenceClassification.from_pretrained("$repo_id")
+
+text = "I felt calm after writing it all down."
+inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
+
+with torch.no_grad():
+    outputs = model(**inputs)
+    predictions = torch.nn.functional.softmax(outputs.logits, dim=-1)
+    predicted_class = torch.argmax(predictions, dim=-1)
+
+emotion = model.config.id2label[predicted_class.item()]
+confidence = predictions[0][predicted_class].item()
+
+print(f"Emotion: {emotion} ({confidence:.3f})")
+```
+
+### HuggingFace Serverless API
+
+```python
+import requests
+import os
+
+url = "https://api-inference.huggingface.co/models/$repo_id"
+headers = {"Authorization": f"Bearer {os.environ['HF_TOKEN']}"}
+payload = {"inputs": "I am frustrated but hopeful."}
+
+response = requests.post(url, headers=headers, json=payload)
+print(response.json())
+```
