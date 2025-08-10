@@ -14,7 +14,7 @@ executors:
     resource_class: medium
     working_directory: ~/samo-dl
     environment:
-      PYTHONPATH: /home/circleci/samo-dl/src
+      PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src
 
 # ============================================================================
 # JOBS - Simple, reliable jobs that actually work
