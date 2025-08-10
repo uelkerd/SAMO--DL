@@ -1202,6 +1202,9 @@ async def analyze_voice_journal(
                     "speaking_rate": float(_speaking_rate) if _speaking_rate is not None else 0.0,
                     "audio_quality": _audio_quality or "unknown",
                 }
+                # Pre-compute commonly used insight fields to avoid recomputation downstream
+                normalized_tx["insight_duration"] = normalized_tx["duration"]
+                normalized_tx["insight_quality"] = normalized_tx["audio_quality"]
 
         return CompleteJournalAnalysis(
             transcription=VoiceTranscription(**normalized_tx) if normalized_tx else None,
@@ -1215,8 +1218,9 @@ async def analyze_voice_journal(
             },
             insights={
                 **text_analysis.insights,
-                "audio_duration": transcription_results.get("duration", 0) if transcription_results else 0,
-                "audio_quality": transcription_results.get("audio_quality", "unknown") if transcription_results else "unknown",
+                # Use pre-computed insight values from normalized_tx when available
+                "audio_duration": (normalized_tx.get("insight_duration") if normalized_tx else 0),
+                "audio_quality": (normalized_tx.get("insight_quality") if normalized_tx else "unknown"),
             },
         )
 
