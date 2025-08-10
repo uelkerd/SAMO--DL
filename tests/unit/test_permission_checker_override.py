@@ -28,3 +28,27 @@ def test_permission_override_header_active_under_pytest(monkeypatch):
     resp = client.post("/transcribe/batch", files=files, headers=headers)
     assert resp.status_code in (200, 400)
 
+
+def test_permission_override_header_inactive_without_pytest(monkeypatch):
+    # Ensure pytest indicator is not set
+    monkeypatch.delenv("PYTEST_CURRENT_TEST", raising=False)
+    monkeypatch.setenv("ENABLE_TEST_PERMISSION_INJECTION", "false")
+
+    client = TestClient(app)
+
+    # login to get token
+    login_data = {"username": "testuser@example.com", "password": "testpassword123"}
+    login_resp = client.post("/auth/login", json=login_data)
+    assert login_resp.status_code == 200
+    access = login_resp.json().get("access_token")
+    assert access and isinstance(access, str)
+
+    # Provide override header but since not under pytest toggle, it should be ignored
+    headers = {
+        "Authorization": f"Bearer {access}",
+        "X-User-Permissions": "batch_processing",
+    }
+    files = [("audio_files", ("t.wav", b"fake", "audio/wav"))]
+    resp = client.post("/transcribe/batch", files=files, headers=headers)
+    # Should be forbidden without real permission
+    assert resp.status_code == 403
