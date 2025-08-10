@@ -40,7 +40,6 @@ jobs:
               --no-compile \
               --disable-pip-version-check \
               --timeout 300 \
-              --constraint constraints.txt \
               -r requirements-api.txt \
               -r requirements-dev.txt
             # Sanity check to fail fast if imports break
@@ -90,7 +89,6 @@ jobs:
               --no-compile \
               --disable-pip-version-check \
               --timeout 300 \
-              --constraint constraints.txt \
               -r requirements-api.txt \
               -r requirements-dev.txt
             python3 -c "import sys; import pytest, ruff; print('✅ test deps imports OK')" || echo "❌ Import failed"
