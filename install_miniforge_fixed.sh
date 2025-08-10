@@ -34,7 +34,7 @@ INSTALLER_BASENAME=$(basename "$MINIFORGE_URL")
 CHECKSUM_FILENAME=$(echo "$INSTALLER_BASENAME" | sed -E "s/^([^-]+)-(.*)$/\1-$TAG-\2.sha256/")
 CHECKSUM_URL="https://github.com/conda-forge/miniforge/releases/download/$TAG/$CHECKSUM_FILENAME"
 
-echo "Resolved installer: $BASENAME"
+echo "Resolved installer: $INSTALLER_BASENAME"
 echo "Checksum URL: $CHECKSUM_URL"
 
 # Download the checksum file
