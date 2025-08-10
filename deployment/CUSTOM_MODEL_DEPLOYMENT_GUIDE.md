@@ -127,7 +127,20 @@ def predict_with_hf_api(text: str) -> dict:
 ```python
 def predict_with_inference_endpoint(text: str) -> dict:
     """Use HuggingFace Inference Endpoint"""
-    ENDPOINT_URL = "https://your-endpoint-id.us-east-1.aws.endpoints.huggingface.cloud"
+4. Get your dedicated endpoint URL (visible in the HuggingFace Endpoints UI after creation).
+   - The endpoint URL will look like: `https://<your-endpoint-id>.<region>.aws.endpoints.huggingface.cloud`
+   - **Note:** Replace `<your-endpoint-id>` with the actual ID shown in the Endpoints UI, and `<region>` with the region you selected (e.g., `us-east-1`, `eu-west-1`, etc.).
+   - For more details, see [HuggingFace Inference Endpoints documentation](https://huggingface.co/docs/inference-endpoints).
+
+#### Integration:
+```python
+def predict_with_inference_endpoint(text: str) -> dict:
+    """
+    Use HuggingFace Inference Endpoint.
+    Replace <your-endpoint-id> and <region> in ENDPOINT_URL with values from the Endpoints UI.
+    Example: https://abc123.us-east-1.aws.endpoints.huggingface.cloud
+    """
+    ENDPOINT_URL = "https://<your-endpoint-id>.<region>.aws.endpoints.huggingface.cloud"
     headers = {"Authorization": f"Bearer {os.getenv('HF_TOKEN')}"}
     
     response = requests.post(ENDPOINT_URL, headers=headers, json={"inputs": text})
