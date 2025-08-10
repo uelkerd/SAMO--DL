@@ -471,7 +471,6 @@ class TestEnhancedVoiceTranscription:
             assert len(data["results"]) == 2
 
         finally:
-            import os
             for temp_file_path in temp_files:
                 if os.path.exists(temp_file_path):
                     os.unlink(temp_file_path)
