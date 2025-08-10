@@ -13,7 +13,7 @@ import logging
 import os
 import time
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Union, Any
+from typing import List, Optional, Union, Any
 from typing import TypedDict
 
 import jwt
@@ -60,7 +60,7 @@ class JWTManager:
         self.algorithm = algorithm
         self.blacklisted_tokens: dict = {}  # Changed to dict: {token: exp_datetime}
     
-    def create_access_token(self, user_data: Dict[str, Any]) -> str:
+    def create_access_token(self, user_data: dict[str, Any]) -> str:
         """Create a new access token"""
         payload = {
             "user_id": user_data["user_id"],
@@ -72,7 +72,7 @@ class JWTManager:
         }
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
     
-    def create_refresh_token(self, user_data: Dict[str, Any]) -> str:
+    def create_refresh_token(self, user_data: dict[str, Any]) -> str:
         """Create a new refresh token"""
         payload = {
             "user_id": user_data["user_id"],
@@ -85,7 +85,7 @@ class JWTManager:
         }
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
     
-    def create_token_pair(self, user_data: Dict[str, Any]) -> TokenPair:
+    def create_token_pair(self, user_data: dict[str, Any]) -> TokenPair:
         """Create both access and refresh tokens and return as a plain dict."""
         access_token = self.create_access_token(user_data)
         refresh_token = self.create_refresh_token(user_data)
