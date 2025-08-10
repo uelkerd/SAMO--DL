@@ -87,9 +87,13 @@ main() {
     exit 1
   fi
 
-  # Verify checksum
+  # Verify checksum (support macOS shasum fallback)
   local ACTUAL EXPECTED
-  ACTUAL=$(sha256sum "${workdir}/miniforge.sh" | awk '{print $1}')
+  if command -v sha256sum >/dev/null 2>&1; then
+    ACTUAL=$(sha256sum "${workdir}/miniforge.sh" | awk '{print $1}')
+  else
+    ACTUAL=$(shasum -a 256 "${workdir}/miniforge.sh" | awk '{print $1}')
+  fi
   EXPECTED=$(awk '{print $1}' < "${workdir}/miniforge.sha256")
 
   echo "Actual checksum:   ${ACTUAL}"
