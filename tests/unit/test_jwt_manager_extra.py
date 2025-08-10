@@ -45,11 +45,10 @@ def test_blacklist_and_cleanup_flow(monkeypatch):
     assert mgr.blacklist_token(token) is True
     assert mgr.is_token_blacklisted(token) is True
 
-    # Determine the stored expiration timestamp via decoding to avoid touching internals
-    # Use public verification API to access payload without touching internals
-    payload = mgr.verify_token(token)
-    # verify_token may return a Pydantic model
-    exp_ts = getattr(payload, "exp", None)
+    # Determine the stored expiration timestamp by decoding without verifying
+    import jwt
+    payload = jwt.decode(token, options={"verify_signature": False, "verify_exp": False})
+    exp_ts = payload.get("exp")
 
     # Monkeypatch datetime.utcnow to simulate time past expiration for cleanup logic
     class _FakeDateTime(datetime):
@@ -81,12 +80,11 @@ def test_refresh_access_token_success_and_failure():
     new_access = mgr.refresh_access_token(refresh)
     assert isinstance(new_access, str) and len(new_access) > 10
 
-    # Expired refresh token should fail
+    # Expired refresh token should fail (re-sign with manager's secret to keep signature valid)
     import jwt
-    decoded = jwt.decode(refresh, options={"verify_signature": False, "verify_exp": False})
-    decoded["exp"] = int(time.time()) - 10
-    # Re-sign with a different secret to avoid touching internals while ensuring verification fails
-    expired_refresh = jwt.encode(decoded, "different-secret", algorithm="HS256")
+    payload = jwt.decode(refresh, options={"verify_signature": False, "verify_exp": False})
+    payload["exp"] = int(time.time()) - 10
+    expired_refresh = jwt.encode(payload, mgr.secret_key, algorithm=mgr.algorithm)
     assert mgr.refresh_access_token(expired_refresh) is None
 
 
