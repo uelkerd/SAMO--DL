@@ -284,7 +284,7 @@ class TestEnhancedVoiceTranscription:
         # Mock transcription to fail for some files
         def mock_transcribe_side_effect(file_path, language=None):
             if "fail" in file_path:
-                raise Exception("Transcription failed")
+                raise RuntimeError("Transcription failed")
             return {
                 "text": "Successful transcription",
                 "language": "en",
@@ -409,7 +409,7 @@ class TestEnhancedVoiceTranscription:
                     "confidence": 0.95,
                     "duration": 10.0
                 }
-            raise Exception("Transcription failed")
+            raise RuntimeError("Transcription failed")
         
         mock_transcriber.transcribe.side_effect = mock_transcribe_side_effect
         
@@ -463,7 +463,7 @@ class TestEnhancedVoiceTranscription:
     @patch('src.unified_ai_api.voice_transcriber')
     def test_batch_transcription_all_failures(self, mock_transcriber):
         """Test batch transcription where all transcriptions fail."""
-        mock_transcriber.transcribe.side_effect = Exception("Transcription failed")
+        mock_transcriber.transcribe.side_effect = RuntimeError("Transcription failed")
 
         # Prepare files
         temp_files = []
