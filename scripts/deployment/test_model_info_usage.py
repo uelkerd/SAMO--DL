@@ -7,7 +7,6 @@ Verify that the model_info parameter is being used properly in upload functions.
 
 import os
 import sys
-from unittest.mock import patch, MagicMock
 
 # Add the upload script to path to import functions
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -15,7 +14,6 @@ sys.path.append(script_dir)
 
 def test_model_info_usage():
     """Test that model_info parameter is used in upload_to_huggingface function."""
-    
     print("🧪 TESTING MODEL_INFO PARAMETER USAGE")
     print("=" * 50)
     
