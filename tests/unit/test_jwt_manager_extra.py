@@ -2,6 +2,7 @@
 """Extra unit tests for JWTManager to increase coverage."""
 
 from datetime import datetime, timedelta
+import time
 
 from src.security.jwt_manager import JWTManager
 
@@ -79,6 +80,13 @@ def test_refresh_access_token_success_and_failure():
     new_access = mgr.refresh_access_token(refresh)
     assert isinstance(new_access, str) and len(new_access) > 10
 
+    # Expired refresh token should fail
+    import jwt
+    payload = jwt.decode(refresh, mgr.secret_key, algorithms=[mgr.algorithm])
+    payload["exp"] = int(time.time()) - 10
+    expired_refresh = jwt.encode(payload, mgr.secret_key, algorithm=mgr.algorithm)
+    assert mgr.refresh_access_token(expired_refresh) is None
+
 
 def test_permissions_helpers():
     mgr = JWTManager()
@@ -93,4 +101,7 @@ def test_permissions_helpers():
     assert mgr.has_permission(token, "beta") is False
     perms = mgr.get_user_permissions(token)
     assert "alpha" in perms and "beta" not in perms
+
+    # Malformed token handling
+    assert mgr.get_user_permissions("not.a.jwt") == []
 
