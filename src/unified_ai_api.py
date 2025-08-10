@@ -114,6 +114,28 @@ def normalize_emotion_results(raw: Any) -> dict:
             "emotional_intensity": "neutral",
         }
 
+# ------------------------------
+# Helpers: test-only permission injection
+# ------------------------------
+def _has_injected_permission(request: Request, permission: str) -> bool:
+    """Check for test-only injected permissions via headers when enabled.
+
+    Active only when both PYTEST_CURRENT_TEST is set and ENABLE_TEST_PERMISSION_INJECTION is "true".
+    """
+    try:
+        if (
+            os.environ.get("PYTEST_CURRENT_TEST")
+            and os.environ.get("ENABLE_TEST_PERMISSION_INJECTION", "false").lower() == "true"
+        ):
+            header_val = request.headers.get("X-User-Permissions")
+            if header_val:
+                perms = {p.strip() for p in header_val.split(",") if p.strip()}
+                return permission in perms
+    except Exception:
+        # Defensive: never fail permission checks due to header parsing issues
+        return False
+    return False
+
 # Application startup time
 app_start_time = time.time()
 
@@ -270,15 +292,8 @@ def require_permission(permission: str):
     """Require specific permission for endpoint access."""
     async def permission_checker(request: Request, current_user: TokenPayload = Depends(get_current_user)):
         # Allow tests to inject permissions via header only during pytest runs and explicit toggle
-        if (
-            os.environ.get("PYTEST_CURRENT_TEST")
-            and os.environ.get("ENABLE_TEST_PERMISSION_INJECTION", "false").lower() == "true"
-        ):
-            injected = request.headers.get("X-User-Permissions")
-            if injected:
-                injected_perms = {p.strip() for p in injected.split(",") if p.strip()}
-                if permission in injected_perms:
-                    return current_user
+        if _has_injected_permission(request, permission):
+            return current_user
         if permission not in current_user.permissions:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -793,11 +808,29 @@ async def login_user(login_data: UserLogin) -> TokenResponse:
         
         # Create user data for token
         user_id = f"user_{hash(login_data.username) % 10000}"
+        # Establish baseline permissions for all authenticated users
+        base_permissions = ["read", "write"]
+        # Assign admin only if explicitly allowed by environment or a simple role check
+        is_admin_user = False
+        # Allow enabling an admin account via env for demos/tests only
+        allowed_admin = os.getenv("ADMIN_USERNAME", "").strip()
+        if allowed_admin and login_data.username == allowed_admin:
+            is_admin_user = True
+        # Also support a comma-separated list of admin users
+        if not is_admin_user:
+            admin_list = {u.strip() for u in os.getenv("ADMIN_USERS", "").split(",") if u.strip()}
+            if login_data.username in admin_list:
+                is_admin_user = True
+
+        permissions = list(base_permissions)
+        if is_admin_user:
+            permissions.append("admin")
+
         token_user_data = {
             "user_id": str(user_id),
             "username": login_data.username,
             "email": login_data.username if "@" in login_data.username else f"{login_data.username}@example.com",
-            "permissions": ["read", "write", "admin"]
+            "permissions": permissions,
         }
         
         # Generate tokens
@@ -1381,17 +1414,7 @@ async def batch_transcribe_voice(
     
     try:
         # Enforce permission always; allow pytest header override for tests only
-        injected = None
-        if (
-            os.environ.get("PYTEST_CURRENT_TEST")
-            and os.environ.get("ENABLE_TEST_PERMISSION_INJECTION", "false").lower() == "true"
-        ):
-            injected = request.headers.get("X-User-Permissions")
-        has_injected = False
-        if injected:
-            injected_perms = {p.strip() for p in injected.split(",") if p.strip()}
-            has_injected = "batch_processing" in injected_perms
-        if not has_injected and "batch_processing" not in current_user.permissions:
+        if not _has_injected_permission(request, "batch_processing") and "batch_processing" not in current_user.permissions:
             raise HTTPException(status_code=403, detail="Permission 'batch_processing' required")
 
         for i, audio_file in enumerate(audio_files):
@@ -1482,18 +1505,19 @@ async def summarize_text(
         summarizer_instance = _get_request_scoped_summarizer(model)
 
         # Generate summary. Some tests inject fakes with simplified signatures; support both.
-        try:
-            summary_text = summarizer_instance.generate_summary(
-                text,
-                max_length=max_length,
-                min_length=min_length,
-            )
-        except TypeError:
-            # Support fakes that use positional args or altered names
+        summary_text = None
+        for call in (
+            lambda: summarizer_instance.generate_summary(
+                text, max_length=max_length, min_length=min_length
+            ),
+            lambda: summarizer_instance.generate_summary(text, max_length, min_length),
+            lambda: summarizer_instance.generate_summary(text),
+        ):
             try:
-                summary_text = summarizer_instance.generate_summary(text, max_length, min_length)
+                summary_text = call()
+                break
             except TypeError:
-                summary_text = summarizer_instance.generate_summary(text)
+                continue
 
         # Calculate metrics
         original_length = len(text.split())
