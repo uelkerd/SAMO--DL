@@ -43,7 +43,7 @@ fi
 
 # Verify checksum
 ACTUAL_SUM=$(sha256sum miniconda.sh | awk '{print $1}')
-EXPECTED_SUM=$(cat miniconda.sha256sum | awk '{print $1}')
+EXPECTED_SUM=$(awk '{print $1}' < miniconda.sha256sum)
 
 echo "Actual checksum:   $ACTUAL_SUM"
 echo "Expected checksum: $EXPECTED_SUM"
