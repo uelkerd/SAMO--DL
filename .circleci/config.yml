@@ -190,10 +190,7 @@ commands:
             ls -l "$HOME/miniconda/bin/conda" || (echo "Conda was not installed" && exit 1)
             "$HOME/miniconda/bin/conda" --version
 
-            # Ensure PATH is correctly propagated via CircleCI BASH_ENV (allows $PATH expansion)
-            echo 'export PATH="$HOME/miniconda/bin:/usr/local/bin:/usr/bin:/bin:$PATH"' >> "$BASH_ENV"
-            # Also export HF_HOME here for consistency across shells
-            echo 'export HF_HOME="/home/circleci/.cache/huggingface"' >> "$BASH_ENV"
+            # PATH/HF_HOME are defined in export_common_env; avoid duplicate exports here
 
             # Create or update environment (idempotent) with fallback if conda-forge is blocked
             if ! "$HOME/miniconda/bin/conda" env list | grep -q "samo-dl-stable"; then
