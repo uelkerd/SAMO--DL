@@ -1387,9 +1387,10 @@ async def transcribe_voice(
             if os.path.exists(temp_file_path):
                 os.unlink(temp_file_path)
                 
-    except HTTPException:
-        raise
     except Exception as exc:
+        if isinstance(exc, HTTPException):
+            # Preserve FastAPI HTTPException semantics
+            raise
         logger.error("Voice transcription failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -1518,6 +1519,9 @@ async def summarize_text(
                 break
             except TypeError:
                 continue
+        if summary_text is None:
+            logger.error("Summarizer invocation failed for all supported signatures")
+            raise HTTPException(status_code=500, detail="Text summarization failed")
 
         # Calculate metrics
         original_length = len(text.split())
