@@ -411,7 +411,8 @@ Your API → HF Hub → your-username/samo-dl-emotion-model → Accurate results
 1. ✅ Upload your model using the script
 2. ✅ Start with Serverless Inference API (free)
 3. ✅ Test locally to ensure it works
-4. ✅ Deploy to your production environment
+Your custom model will provide much better accuracy for your specific use case! 🎉
+
 5. ✅ Monitor usage and performance
 6. ✅ Upgrade to Inference Endpoints when ready
 
