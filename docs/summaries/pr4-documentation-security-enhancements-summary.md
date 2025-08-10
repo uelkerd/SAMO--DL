@@ -21,7 +21,7 @@ PR #4 successfully implemented comprehensive documentation and security enhancem
   - `torch`: 2.2.2 (latest)
   - `transformers`: 4.55.0 (latest)
   - `cryptography`: 45.0.5 (latest)
-  - `certifi`: 2025.8.3 (latest)
+  - `certifi`: 2025.7.14 (latest stable)
   - `urllib3`: 2.5.0 (latest)
 
 ### **2. Enterprise Security Configuration**
