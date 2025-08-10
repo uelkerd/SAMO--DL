@@ -17,7 +17,7 @@ google-api-core==2.21.0
 googleapis-common-protos==1.65.0
 
 # Common transitive dependencies that cause backtracking
-certifi==2025.8.3
+certifi>=2025.7.14,<2026.0.0
 urllib3==2.2.3
 requests==2.32.3
 charset-normalizer==3.4.0
