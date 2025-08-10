@@ -35,17 +35,7 @@ jobs:
       - run:
           name: "Install Core Dependencies"
           command: |
-            pip3 install --user \
-              fastapi==0.116.1 \
-              uvicorn==0.35.0 \
-              pydantic==2.11.7 \
-              PyJWT==2.8.0 \
-              requests==2.32.4 \
-              psutil==5.9.8 \
-              python-multipart==0.0.9 \
-              websockets==12.0 \
-              prometheus-client==0.20.0 \
-              httpx==0.27.2
+            pip3 install --user -r requirements.txt
       - run:
           name: "Test Basic API Import"
           command: |
@@ -95,18 +85,7 @@ jobs:
       - run:
           name: "Install Test Dependencies"  
           command: |
-            pip3 install --user \
-              fastapi==0.116.1 \
-              uvicorn==0.35.0 \
-              pydantic==2.11.7 \
-              PyJWT==2.8.0 \
-              requests==2.32.4 \
-              psutil==5.9.8 \
-              python-multipart==0.0.9 \
-              websockets==12.0 \
-              prometheus-client==0.20.0 \
-              httpx==0.27.2 \
-              pytest==8.3.2
+            pip3 install --user -r requirements-dev.txt
       - run:
           name: "Run Basic Tests"
           command: |
