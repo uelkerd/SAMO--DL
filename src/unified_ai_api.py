@@ -1023,12 +1023,12 @@ async def chat_websocket(websocket: WebSocket, token: str = Query(None)) -> None
                     response["summary"] = summary_text
                 except HTTPException as exc:
                     response["summary_error"] = exc.detail
-                except Exception as exc:  # pragma: no cover
+    except Exception as exc:  # pragma: no cover
                     logger.error(
                         f"Error during websocket summary generation: {exc}",
                         exc_info=True,
                     )
-                    response["summary_error"] = str(exc)
+        response["summary_error"] = str(exc)
 
             await websocket.send_json(response)
     except WebSocketDisconnect:
@@ -1119,7 +1119,7 @@ async def analyze_journal_entry(
         raise
     except Exception as exc:
         logger.error("❌ Error in journal analysis: %s", exc)
-        raise HTTPException(status_code=500, detail="Analysis failed")
+        raise HTTPException(status_code=500, detail="Analysis failed") from exc
 
 
 @app.post(
@@ -1241,7 +1241,7 @@ async def analyze_voice_journal(
         raise
     except Exception as exc:
         logger.error(f"❌ Error in voice journal analysis: {exc}")
-        raise HTTPException(status_code=500, detail="Voice analysis failed")
+        raise HTTPException(status_code=500, detail="Voice analysis failed") from exc
 
 
 # Enhanced Voice Transcription Endpoints
@@ -1361,7 +1361,7 @@ async def transcribe_voice(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Voice transcription failed"
-        )
+        ) from exc
 
 @app.post(
     "/transcribe/batch",
@@ -1450,7 +1450,7 @@ async def batch_transcribe_voice(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Batch transcription failed"
-        )
+        ) from exc
 
 # Enhanced Text Summarization Endpoints
 @app.post(
@@ -1519,7 +1519,7 @@ async def summarize_text(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Text summarization failed"
-        )
+        ) from exc
 
 # Real-time Processing Endpoints
 @app.websocket("/ws/realtime")
