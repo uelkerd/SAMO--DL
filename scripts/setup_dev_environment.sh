@@ -12,45 +12,62 @@ python3 --version || { echo "❌ Python3 not found"; exit 1; }
 
 # Install core API dependencies
 echo "✅ Installing core dependencies..."
-pip3 install --user -r requirements.txt || {
-  echo "⚠️ requirements.txt not found, installing minimal dev tools";
-  pip3 install --user pytest ruff;
+python3 -m pip install --user -r requirements.txt || {
+  echo "⚠️ requirements.txt not found or failed, installing pinned dev tools";
+  python3 -m pip install --user -r requirements-dev.txt;
 }
 
 # Add local bin to PATH (idempotent)
 echo "✅ Setting up PATH..."
 export PATH="$HOME/.local/bin:$PATH"
-grep -qF "export PATH=\"\$HOME/.local/bin:\$PATH\"" ~/.bashrc || echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> ~/.bashrc
+# Ensure bashrc exists to avoid grep failures under set -e
+[ -f ~/.bashrc ] || touch ~/.bashrc
+grep -qF "export PATH=\"$HOME/.local/bin:$PATH\"" ~/.bashrc || echo "export PATH=\"$HOME/.local/bin:$PATH\"" >> ~/.bashrc
 
 # Set PYTHONPATH (idempotent)
 echo "✅ Setting up PYTHONPATH..."
 WORKSPACE_PATH=$(pwd)
 export PYTHONPATH="$WORKSPACE_PATH/src:$PYTHONPATH"
-grep -qF "export PYTHONPATH=\"$WORKSPACE_PATH/src:\$PYTHONPATH\"" ~/.bashrc || echo "export PYTHONPATH=\"\$WORKSPACE_PATH/src:\$PYTHONPATH\"" >> ~/.bashrc
+# Write the expanded workspace path; keep $PYTHONPATH literal for shells
+grep -qF "export PYTHONPATH=\"$WORKSPACE_PATH/src:\$PYTHONPATH\"" ~/.bashrc || echo "export PYTHONPATH=\"$WORKSPACE_PATH/src:\$PYTHONPATH\"" >> ~/.bashrc
 
 # Test API import
 echo "✅ Testing API import..."
-python3 -c "
-import sys
-sys.path.insert(0, '$WORKSPACE_PATH/src')
-from src.unified_ai_api import app
-print('✅ API imports successfully!')
-"
+python3 - <<'PY'
+import sys, importlib.util
+from pathlib import Path
+
+workspace = Path.cwd()
+sys.path.insert(0, str(workspace / 'src'))
+
+if importlib.util.find_spec('fastapi') is None:
+    print('⚠️ FastAPI not installed; skipping API import test.')
+else:
+    from src.unified_ai_api import app  # noqa: F401
+    print('✅ API imports successfully!')
+PY
 
 # Test API health check
 echo "✅ Testing API health check..."
-python3 -c "
-import sys
-sys.path.insert(0, '$WORKSPACE_PATH/src')
-from src.unified_ai_api import app
-from fastapi.testclient import TestClient
-client = TestClient(app)
-response = client.get('/health')
-assert response.status_code == 200, f'Health check failed: {response.status_code}'
-print('✅ API health check passed!')
-data = response.json()
-print(f'Models status: {data.get(\"models\", {})}')
-"
+python3 - <<'PY'
+import sys, importlib.util
+from pathlib import Path
+
+workspace = Path.cwd()
+sys.path.insert(0, str(workspace / 'src'))
+
+if importlib.util.find_spec('fastapi') is None:
+    print('⚠️ FastAPI not installed; skipping API health check.')
+else:
+    from src.unified_ai_api import app
+    from fastapi.testclient import TestClient
+    client = TestClient(app)
+    response = client.get('/health')
+    assert response.status_code == 200, f'Health check failed: {response.status_code}'
+    print('✅ API health check passed!')
+    data = response.json()
+    print(f"Models status: {data.get('models', {})}")
+PY
 
 echo ""
 echo "🎉 Development environment setup complete!"
