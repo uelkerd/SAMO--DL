@@ -14,8 +14,17 @@ def pre_warm_models():
     print("Pre-warming models for CI pipeline...")
 
     try:
+        import os
+        from src.common.env import is_truthy
+        # Respect offline mode in CI to avoid failing when network is unavailable.
+        offline = (
+            is_truthy(os.getenv("HF_HUB_OFFLINE"))
+            or is_truthy(os.getenv("TRANSFORMERS_OFFLINE"))
+        )
+        if offline:
+            print("Offline mode detected. Skipping pre-warm.")
+            return True
         from transformers import AutoTokenizer, AutoModel, AutoModelForSeq2SeqLM
-        import torch
 
         # Pre-download BERT models
         print("Downloading BERT base...")

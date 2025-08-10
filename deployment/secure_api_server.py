@@ -20,9 +20,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from flask import Flask, request, jsonify, g
 import werkzeug
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import logging
+from pathlib import Path
 import time
 from datetime import datetime
 from collections import defaultdict, deque
@@ -190,32 +189,93 @@ def secure_endpoint(f):
 class SecureEmotionDetectionModel:
     def __init__(self):
         """Initialize the secure emotion detection model."""
-        self.model_path = os.path.join(os.path.dirname(__file__), '..', 'model')
+        # Resolve model directory (allow override via env var for tests/dev)
+        default_model_dir = Path(__file__).resolve().parent.parent / 'model'
+        env_model_dir = os.environ.get("SECURE_MODEL_DIR")
+        self.model_path = Path(env_model_dir).expanduser().resolve() if env_model_dir else default_model_dir
         logger.info(f"Loading secure model from: {self.model_path}")
-        
+
+        # Default emotions list available even if model isn't loaded
+        self.emotions = [
+            'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+            'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
+        ]
+        self.loaded = False
+
+        # In CI/TESTING, or when model directory is missing/invalid, run in stub mode
+        if os.environ.get("TESTING") or os.environ.get("CI"):
+            logger.warning("TEST/CI environment detected. Running secure model in stub mode.")
+            self.tokenizer = None
+            self.model = None
+            self.loaded = False
+            return
+
+        # If the local model directory is missing, skip heavy loading to keep imports working
+        if not self.model_path.exists() or not self.model_path.is_dir():
+            logger.warning(
+                "Secure model directory not found. Running in stub mode (no HF model will be loaded)."
+            )
+            self.tokenizer = None
+            self.model = None
+            self.loaded = False
+            return
+
+        # If directory exists but lacks required files, also stub to avoid HF hub lookups
+        required_all = [
+            self.model_path / 'config.json',
+            self.model_path / 'tokenizer.json',
+            self.model_path / 'tokenizer_config.json',
+        ]
+        if not all(p.exists() for p in required_all):
+            logger.warning(
+                "Secure model directory lacks expected files. Running in stub mode."
+            )
+            self.tokenizer = None
+            self.model = None
+            self.loaded = False
+            return
+
         try:
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
-            self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path)
-            
+            # Lazy import heavy deps only when not in stub mode and path checks passed
+            from transformers import AutoTokenizer, AutoModelForSequenceClassification  # type: ignore
+            import torch  # type: ignore
+
+            self.tokenizer = AutoTokenizer.from_pretrained(str(self.model_path), local_files_only=True)
+            self.model = AutoModelForSequenceClassification.from_pretrained(str(self.model_path), local_files_only=True)
+
             # Move to GPU if available
-            if torch.cuda.is_available():
-                self.model = self.model.to('cuda')
-                logger.info("✅ Model moved to GPU")
-            else:
-                logger.info("⚠️ CUDA not available, using CPU")
-            
-            self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+            try:
+                if torch.cuda.is_available():
+                    self.model = self.model.to('cuda')
+                    logger.info("✅ Model moved to GPU")
+                else:
+                    logger.info("⚠️ CUDA not available, using CPU")
+            except Exception:
+                # If torch is absent at runtime, remain on CPU
+                logger.info("⚠️ Torch not available, using CPU")
+
+            self.loaded = True
             logger.info("✅ Secure model loaded successfully")
-            
+
         except Exception as e:
-            logger.error(f"❌ Failed to load secure model: {str(e)}")
-            raise
+            logger.error(f"❌ Failed to load secure model: {str(e)}. Falling back to stub mode.")
+            self.tokenizer = None
+            self.model = None
+            self.loaded = False
         
     def predict(self, text, confidence_threshold=None):
         """Make a secure prediction."""
         start_time = time.time()
         
         try:
+            if not getattr(self, 'loaded', False):
+                raise RuntimeError("SecureEmotionDetectionModel is not loaded; prediction unavailable.")
+            # Ensure torch is available within function scope for linter/runtime
+            try:
+                import torch  # type: ignore
+            except Exception as e:  # pragma: no cover
+                logger.error("Torch import failed during prediction: %s", e)
+                raise
             # Sanitize input text
             sanitized_text, warnings = input_sanitizer.sanitize_text(text, "emotion")
             if warnings:
@@ -238,14 +298,12 @@ class SecureEmotionDetectionModel:
                 if confidence_threshold and confidence < confidence_threshold:
                     predicted_emotion = "uncertain"
                     confidence = 0.0
+                elif predicted_label in self.model.config.id2label:
+                    predicted_emotion = self.model.config.id2label[predicted_label]
+                elif str(predicted_label) in self.model.config.id2label:
+                    predicted_emotion = self.model.config.id2label[str(predicted_label)]
                 else:
-                    # Get predicted emotion
-                    if predicted_label in self.model.config.id2label:
-                        predicted_emotion = self.model.config.id2label[predicted_label]
-                    elif str(predicted_label) in self.model.config.id2label:
-                        predicted_emotion = self.model.config.id2label[str(predicted_label)]
-                    else:
-                        predicted_emotion = f"unknown_{predicted_label}"
+                    predicted_emotion = f"unknown_{predicted_label}"
                 
                 # Get all probabilities
                 all_probs = probabilities[0].cpu().numpy()
@@ -254,7 +312,7 @@ class SecureEmotionDetectionModel:
             logger.info(f"Secure prediction completed in {prediction_time:.3f}s: '{sanitized_text[:50]}...' → {predicted_emotion} (conf: {confidence:.3f})")
             
             # Create secure response
-            response = {
+            return {
                 'text': sanitized_text,
                 'predicted_emotion': predicted_emotion,
                 'confidence': float(confidence),
@@ -276,28 +334,62 @@ class SecureEmotionDetectionModel:
                 }
             }
             
-            return response
-            
         except Exception as e:
             prediction_time = time.time() - start_time
             logger.error(f"Secure prediction failed after {prediction_time:.3f}s: {str(e)}")
             raise
 
-# Initialize secure model
-logger.info("🔒 Loading secure emotion detection model...")
-secure_model = SecureEmotionDetectionModel()
+# Secure model factory for explicit creation and testability
+logger.info("🔒 Secure model will be created via factory function")
 
-# Admin API key for sensitive endpoints
-ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY", None)
+def create_secure_model():
+    """Factory function to create a SecureEmotionDetectionModel or a stub in CI/TEST.
+
+    This avoids implicit global state and makes the creation path explicit and mockable in tests.
+    """
+    if os.environ.get("TESTING") or os.environ.get("CI"):
+        class _Stub:
+            emotions = [
+                'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+                'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
+            ]
+            loaded = False
+        return _Stub()
+    return SecureEmotionDetectionModel()
+
+@functools.lru_cache(maxsize=1)
+def get_secure_model():
+    """Return a cached secure model instance created via the factory.
+
+    Using an LRU cache (size=1) avoids global mutable state and ensures a single
+    instance per process. Tests can clear the cache with get_secure_model.cache_clear().
+    """
+    return create_secure_model()
+
+# Read admin API key per-request to reflect environment changes during tests
+def get_admin_api_key() -> str | None:
+    """Fetch the admin API key from the environment on each call.
+
+    This function intentionally does not cache the key to support dynamic
+    updates (e.g., during tests or runtime reconfiguration). Be aware this
+    per-request read may introduce race conditions if the environment variable
+    changes mid-request; callers should treat the value as ephemeral per call.
+    """
+    return os.environ.get("ADMIN_API_KEY")
 
 def require_admin_api_key(f):
-    """Decorator to require admin API key via X-Admin-API-Key header."""
+    """Decorator to require admin API key via X-Admin-API-Key header.
+
+    Reads the expected key via ``get_admin_api_key()`` for each request and
+    does not cache it. See ``get_admin_api_key`` for concurrency considerations.
+    """
     @functools.wraps(f)
     def decorated_function(*args, **kwargs):
         api_key = request.headers.get("X-Admin-API-Key")
-        if not ADMIN_API_KEY or api_key != ADMIN_API_KEY:
+        expected_key = get_admin_api_key()
+        if not expected_key or api_key != expected_key:
             logger.warning(f"Unauthorized admin access attempt from {request.remote_addr}")
-            return jsonify({"error": "Unauthorized: admin API key required"}), 401
+            return jsonify({"error": "Unauthorized: admin API key required"}), 403
         return f(*args, **kwargs)
     return decorated_function
 
@@ -308,11 +400,12 @@ def health_check():
     start_time = time.time()
     
     try:
+        mdl = get_secure_model()
         response = {
             'status': 'healthy',
-            'model_loaded': True,
+            'model_loaded': getattr(mdl, 'loaded', False),
             'model_version': '2.0',
-            'emotions': secure_model.emotions,
+            'emotions': getattr(mdl, 'emotions', []),
             'uptime_seconds': (datetime.now() - metrics['start_time']).total_seconds(),
             'security': {
                 'rate_limiting': rate_limiter.get_stats(),
@@ -374,10 +467,14 @@ def predict():
         anomalies = input_sanitizer.detect_anomalies(data)
         if anomalies:
             logger.warning(f"Security anomalies detected: {anomalies}")
-            metrics['security_violations'] += 1
+            with metrics_lock:
+                metrics['security_violations'] += 1
         
         # Make secure prediction
-        result = secure_model.predict(
+        model_instance = get_secure_model()
+        if not getattr(model_instance, 'loaded', False):
+            return jsonify({'error': 'Secure model not loaded'}), 503
+        result = model_instance.predict(
             sanitized_data['text'],
             confidence_threshold=sanitized_data.get('confidence_threshold')
         )
@@ -436,13 +533,17 @@ def predict_batch():
         anomalies = input_sanitizer.detect_anomalies(data)
         if anomalies:
             logger.warning(f"Security anomalies detected in batch: {anomalies}")
-            metrics['security_violations'] += 1
+            with metrics_lock:
+                metrics['security_violations'] += 1
         
         # Make secure batch predictions
         results = []
+        model_instance = get_secure_model()
+        if not getattr(model_instance, 'loaded', False):
+            return jsonify({'error': 'Secure model not loaded'}), 503
         for text in sanitized_data['texts']:
             if text.strip():
-                result = secure_model.predict(
+                result = model_instance.predict(
                     text,
                     confidence_threshold=sanitized_data.get('confidence_threshold')
                 )
@@ -560,7 +661,7 @@ def home():
                 'POST /security/whitelist': 'Add IP to whitelist (admin)'
             },
             'model_info': {
-                'emotions': secure_model.emotions,
+                'emotions': getattr(get_secure_model(), 'emotions', []),
                 'performance': {
                     'basic_accuracy': '100.00%',
                     'real_world_accuracy': '93.75%',

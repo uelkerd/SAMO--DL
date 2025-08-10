@@ -20,6 +20,13 @@ import subprocess
 from pathlib import Path
 from typing import Dict, List, Tuple
 
+# Use shared truthy parsing
+try:
+    from src.common.env import is_truthy
+except Exception:  # Fallback to local helper if import path not available
+    def is_truthy(value: str | None) -> bool:
+        return bool(value) and value.strip().lower() in {"1", "true", "yes"}
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -46,7 +53,23 @@ class CIPipelineRunner:
             "scripts/ci/model_calibration_test.py",
             "scripts/ci/onnx_conversion_test.py",
         ]
+
+    def _get_test_stats(self) -> tuple[dict, int, int]:
+        """Calculate statistics on test results.
         
+        Returns:
+            tuple: (test_results dict, total_tests, passed_tests)
+        """
+        test_results = {
+            name: result
+            for name, result in self.results.items()
+            if isinstance(result, bool)
+        }
+        total_tests = len(test_results)
+        # Booleans can be summed directly (True=1, False=0)
+        passed_tests = sum(test_results.values())
+        return test_results, total_tests, passed_tests
+
     def detect_environment(self) -> Dict[str, str]:
         """Detect the current environment (local vs Colab)."""
         logger.info("🔍 Detecting environment...")
@@ -316,9 +339,13 @@ class CIPipelineRunner:
         logger.info("📊 Generating CI Report")
         logger.info("=" * 60)
         
-        total_tests = len(self.results)
-        passed_tests = sum(1 for result in self.results.values() if isinstance(result, bool) and result)
+        # Only count boolean results as actual tests
+        test_results, total_tests, passed_tests = self._get_test_stats()
         
+        # Guard against division by zero when no boolean tests were collected
+        safe_total = total_tests if total_tests > 0 else 1
+        success_rate = (passed_tests / safe_total) * 100.0
+
         report = f"""
 🎯 COMPREHENSIVE CI PIPELINE REPORT
 {'=' * 60}
@@ -327,7 +354,7 @@ class CIPipelineRunner:
 - Total Tests: {total_tests}
 - Passed: {passed_tests}
 - Failed: {total_tests - passed_tests}
-- Success Rate: {(passed_tests/total_tests)*100:.1f}%
+- Success Rate: {success_rate:.1f}%
 
 🔍 DETAILED RESULTS:
 """
@@ -348,12 +375,19 @@ class CIPipelineRunner:
         if passed_tests == total_tests:
             report += "🎉 All tests passed! Pipeline is ready for deployment.\n"
         else:
-            failed_tests = [name for name, result in self.results.items() 
-                          if isinstance(result, bool) and not result]
-            report += f"⚠️ Failed tests: {', '.join(failed_tests)}\n"
+            failed_test_names = [name for name, result in test_results.items() 
+                               if not result]
+            report += f"⚠️ Failed tests: {', '.join(failed_test_names)}\n"
             report += "🔧 Please fix the failed tests before deployment.\n"
         
         return report
+
+
+def write_ci_report_if_needed(report: str) -> None:
+    """Write the CI report artifact only when running in CI environment."""
+    if is_truthy(os.environ.get("CI")):
+        with open("ci_pipeline_report.txt", "w") as f:
+            f.write(report)
 
 
 def main():
@@ -361,18 +395,15 @@ def main():
     runner = CIPipelineRunner()
     
     try:
-        results = runner.run_full_pipeline()
+        _ = runner.run_full_pipeline()
         report = runner.generate_report()
         
         print(report)
-        
-        # Write report to file
-        with open("ci_pipeline_report.txt", "w") as f:
-            f.write(report)
+        # Only write report to file in CI so it can be uploaded as an artifact
+        write_ci_report_if_needed(report)
         
         # Exit with appropriate code
-        total_tests = len([r for r in results.values() if isinstance(r, bool)])
-        passed_tests = sum(1 for r in results.values() if isinstance(r, bool) and r)
+        _, total_tests, passed_tests = runner._get_test_stats()
         
         if passed_tests == total_tests:
             logger.info("🎉 CI Pipeline completed successfully!")
