@@ -73,14 +73,25 @@ def test_path_detection():
     
     # Test 4: With expanduser (~) path
     print("\n🏠 Test 4: With home directory path expansion")
-    os.environ['SAMO_DL_BASE_DIR'] = "~/Projects/SAMO-DL"
     
-    detected_path = get_model_base_directory()
-    expected_path = os.path.expanduser("~/Projects/SAMO-DL/deployment/models")
-    print(f"  Environment var: {os.getenv('SAMO_DL_BASE_DIR')}")
-    print(f"  Detected path: {detected_path}")  
-    print(f"  Expected: {expected_path}")
-    print(f"  Match: {detected_path == expected_path}")
+    # Create a temporary directory under the expanded home path to ensure it exists
+    with tempfile.TemporaryDirectory() as temp_base:
+        # Set up the directory structure
+        test_projects_dir = os.path.join(temp_base, "Projects", "SAMO-DL")
+        os.makedirs(test_projects_dir, exist_ok=True)
+        
+        # Set the environment variable with tilde form
+        tilde_path = f"~{temp_base.replace(os.path.expanduser('~'), '')}/Projects/SAMO-DL"
+        os.environ['SAMO_DL_BASE_DIR'] = tilde_path
+        
+        detected_path = get_model_base_directory()
+        expected_path = os.path.join(test_projects_dir, "deployment", "models")
+        
+        print(f"  Environment var: {os.getenv('SAMO_DL_BASE_DIR')}")
+        print(f"  Detected path: {detected_path}")  
+        print(f"  Expected: {expected_path}")
+        print(f"  Match: {detected_path == expected_path}")
+        print(f"  Directory exists: {os.path.exists(os.path.dirname(detected_path))}")
     
     # Restore original environment
     if original_base_dir:

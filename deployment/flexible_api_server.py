@@ -139,10 +139,11 @@ class FlexibleEmotionDetector:
                 return self._predict_local(text)
 
         except Exception as e:
-            logger.error(f"❌ Prediction failed: {e}")
+            # Log error with redacted text for debugging (avoid PII exposure in logs)
+            text_preview = f"{text[:20]}..." if len(text) > 20 else text
+            logger.error(f"❌ Prediction failed: {e} (input preview: {text_preview})")
             return {
                 "error": str(e),
-                "text": text,
                 "deployment_type": self.deployment_type.value
             }
 
@@ -196,20 +197,17 @@ class FlexibleEmotionDetector:
             return {
                 "error": "Unexpected response format",
                 "raw_response": result,
-                "text": text,
                 "deployment_type": "serverless"
             }
         except requests.exceptions.Timeout:
             return {
                 "error": "Request timeout (model may be cold starting)",
                 "suggestion": "Try again in a few seconds",
-                "text": text,
                 "deployment_type": "serverless"
             }
         except requests.exceptions.RequestException as e:
             return {
                 "error": f"API request failed: {e}",
-                "text": text,
                 "deployment_type": "serverless"
             }
 
@@ -246,13 +244,17 @@ class FlexibleEmotionDetector:
             return {
                 "error": "Unexpected response format",
                 "raw_response": result,
-                "text": text,
+                "deployment_type": "endpoint"
+            }
+        except requests.exceptions.Timeout:
+            return {
+                "error": "Request timeout (endpoint may be starting up)",
+                "suggestion": "Try again in a few seconds",
                 "deployment_type": "endpoint"
             }
         except requests.exceptions.RequestException as e:
             return {
                 "error": f"Endpoint request failed: {e}",
-                "text": text,
                 "deployment_type": "endpoint"
             }
 
@@ -317,9 +319,11 @@ class FlexibleEmotionDetector:
             }
 
         except Exception as e:
+            # Log error with redacted text for debugging (avoid PII exposure)
+            text_preview = f"{text[:20]}..." if len(text) > 20 else text
+            logger.error(f"❌ Local prediction failed: {e} (input preview: {text_preview})")
             return {
                 "error": f"Local prediction failed: {e}",
-                "text": text,
                 "deployment_type": "local"
             }
 
