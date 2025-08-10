@@ -269,7 +269,7 @@ export HF_TOKEN='your_token_here'
 ```
 
 ### Performance 🚀
-```bash
+from urllib3.util.retry import Retry
 # For large models, ensure Git LFS is set up
 git lfs track "*.bin"
 git lfs track "*.safetensors"
