@@ -167,12 +167,24 @@ def find_best_trained_model() -> Optional[str]:
                 # Check if it's a complete HuggingFace model directory
                 config_file = os.path.join(path, "config.json")
                 tokenizer_file = os.path.join(path, "tokenizer.json")
-                if os.path.exists(config_file):
+                tokenizer_config_file = os.path.join(path, "tokenizer_config.json")
+                
+                # Check for essential files (config.json is required, tokenizer files are highly recommended)
+                has_config = os.path.exists(config_file)
+                has_tokenizer = (os.path.exists(tokenizer_file) or 
+                               os.path.exists(tokenizer_config_file) or
+                               os.path.exists(os.path.join(path, "vocab.txt")) or
+                               os.path.exists(os.path.join(path, "vocab.json")))
+                
+                if has_config:
                     size = sum(os.path.getsize(os.path.join(path, f)) 
                              for f in os.listdir(path) 
                              if os.path.isfile(os.path.join(path, f)))
                     found_models.append((path, size, "huggingface_dir"))
-                    print(f"✅ Found HF model directory: {path} ({size:,} bytes)")
+                    
+                    # Enhanced logging with tokenizer status
+                    tokenizer_status = "✅ with tokenizer" if has_tokenizer else "⚠️ missing tokenizer files"
+                    print(f"✅ Found HF model directory: {path} ({size:,} bytes) {tokenizer_status}")
             else:
                 # Individual model file
                 size = os.path.getsize(path)
