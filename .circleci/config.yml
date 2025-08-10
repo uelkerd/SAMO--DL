@@ -102,8 +102,6 @@ jobs:
             echo "✅ Test framework ready"
 
 workflows:
-  version: 2
-
   simple-ci:
     jobs:
       - basic-setup
