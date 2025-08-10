@@ -60,13 +60,17 @@ main() {
   read -r OS_NAME ARCH_NAME < <(detect_os_arch)
 
   local BASENAME="Miniforge3-${OS_NAME}-${ARCH_NAME}.sh"
-  local LATEST_URL="https://github.com/conda-forge/miniforge/releases/latest/download/${BASENAME}"
+  local LATEST_BASE="https://github.com/conda-forge/miniforge/releases/latest/download"
+  local LATEST_URL="${LATEST_BASE}/${BASENAME}"
 
   echo "Resolved installer: ${BASENAME}"
 
-  # Use 'latest/download' endpoint for both installer and checksum (avoid API and tag parsing)
-  local CHECKSUM_URL="https://github.com/conda-forge/miniforge/releases/latest/download/${BASENAME}.sha256"
-  echo "Checksum URL: ${CHECKSUM_URL}"
+  # Determine checksum source with fallbacks
+  # 1) Per-file checksum ("<asset>.sha256")
+  # 2) Release checksum bundle ("SHA256SUMS" or "sha256sum.txt")
+  local CHECKSUM_URL1="${LATEST_BASE}/${BASENAME}.sha256"
+  local CHECKSUM_URL2="${LATEST_BASE}/SHA256SUMS"
+  local CHECKSUM_URL3="${LATEST_BASE}/sha256sum.txt"
 
   # Download installer and checksum (support GitHub token to reduce rate limits)
   local AUTH_HEADER=""
@@ -74,25 +78,42 @@ main() {
     AUTH_HEADER="Authorization: Bearer ${GITHUB_TOKEN}"
   fi
 
-  if command -v curl >/dev/null 2>&1; then
-    if [[ -n "${AUTH_HEADER}" ]]; then
-      curl -sSfL -H "${AUTH_HEADER}" "$LATEST_URL" -o "${workdir}/miniforge.sh"
-      curl -sSfL -H "${AUTH_HEADER}" "$CHECKSUM_URL" -o "${workdir}/miniforge.sha256"
+  # Downloader helpers
+  download() {
+    local url="$1" out="$2"
+    if command -v curl >/dev/null 2>&1; then
+      if [[ -n "${AUTH_HEADER}" ]]; then
+        curl -sSfL -H "${AUTH_HEADER}" "$url" -o "$out"
+      else
+        curl -sSfL "$url" -o "$out"
+      fi
+    elif command -v wget >/dev/null 2>&1; then
+      if [[ -n "${AUTH_HEADER}" ]]; then
+        wget --header="${AUTH_HEADER}" -qO "$out" "$url"
+      else
+        wget -qO "$out" "$url"
+      fi
     else
-      curl -sSfL "$LATEST_URL" -o "${workdir}/miniforge.sh"
-      curl -sSfL "$CHECKSUM_URL" -o "${workdir}/miniforge.sha256"
+      return 127
     fi
-  elif command -v wget >/dev/null 2>&1; then
-    if [[ -n "${AUTH_HEADER}" ]]; then
-      wget --header="${AUTH_HEADER}" -qO "${workdir}/miniforge.sh" "$LATEST_URL"
-      wget --header="${AUTH_HEADER}" -qO "${workdir}/miniforge.sha256" "$CHECKSUM_URL"
-    else
-      wget -qO "${workdir}/miniforge.sh" "$LATEST_URL"
-      wget -qO "${workdir}/miniforge.sha256" "$CHECKSUM_URL"
-    fi
+  }
+
+  # Download installer
+  download "$LATEST_URL" "${workdir}/miniforge.sh" || { echo "Failed to download installer $LATEST_URL" >&2; exit 1; }
+
+  # Try per-file checksum first
+  if download "$CHECKSUM_URL1" "${workdir}/miniforge.sha256"; then
+    CHECKSUM_MODE="single"
   else
-    echo "Error: neither curl nor wget available to download Miniforge." >&2
-    exit 1
+    # Try checksum bundle files
+    if download "$CHECKSUM_URL2" "${workdir}/miniforge.SHA256SUMS"; then
+      CHECKSUM_MODE="bundle2"
+    elif download "$CHECKSUM_URL3" "${workdir}/miniforge.sha256sum.txt"; then
+      CHECKSUM_MODE="bundle3"
+    else
+      echo "Failed to retrieve checksum from any known source: ${CHECKSUM_URL1} or ${CHECKSUM_URL2} or ${CHECKSUM_URL3}" >&2
+      exit 1
+    fi
   fi
 
   # Verify checksum (support macOS shasum fallback)
@@ -102,7 +123,23 @@ main() {
   else
     ACTUAL=$(shasum -a 256 "${workdir}/miniforge.sh" | awk '{print $1}')
   fi
-  EXPECTED=$(awk '{print $1}' < "${workdir}/miniforge.sha256")
+  local EXPECTED
+  case "${CHECKSUM_MODE}" in
+    single)
+      EXPECTED=$(awk '{print $1}' < "${workdir}/miniforge.sha256")
+      ;;
+    bundle2)
+      # SHA256SUMS format: "<hash>  <filename>"
+      EXPECTED=$(grep -E "\s${BASENAME}$" "${workdir}/miniforge.SHA256SUMS" | awk '{print $1}' | head -n1)
+      ;;
+    bundle3)
+      # sha256sum.txt format is the same
+      EXPECTED=$(grep -E "\s${BASENAME}$" "${workdir}/miniforge.sha256sum.txt" | awk '{print $1}' | head -n1)
+      ;;
+    *)
+      EXPECTED=""
+      ;;
+  esac
 
   echo "Actual checksum:   ${ACTUAL}"
   echo "Expected checksum: ${EXPECTED}"
