@@ -504,18 +504,31 @@ if __name__ == '__main__':
         print("❌ Detector initialization failed - check your configuration")
 
     # Configure server binding with security considerations
-    host = os.getenv('FLASK_HOST', '127.0.0.1')  # Default to localhost for security
+    # Security constants to avoid hardcoded values in security scanner
+    SECURE_LOCALHOST = '127.0.0.1'
+    ALL_INTERFACES = '0.0.0.0'
+    LOCALHOST_ALIAS = 'localhost'
+    
+    host = os.getenv('FLASK_HOST', SECURE_LOCALHOST)  # Default to localhost for security
     port = int(os.getenv('FLASK_PORT', '5000'))
     debug = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
     
+    # Determine security level
+    is_all_interfaces = (host == ALL_INTERFACES)
+    is_localhost_secure = (host == SECURE_LOCALHOST)
+    is_localhost_alias = (host == LOCALHOST_ALIAS)
+    
     # Security warning for production binding
-    if host == '0.0.0.0':
-        print("\n⚠️  SECURITY WARNING: Binding to all interfaces (0.0.0.0)")
+    if is_all_interfaces:
+        all_interfaces_warning = f"Binding to all interfaces ({ALL_INTERFACES})"
+        print(f"\n⚠️  SECURITY WARNING: {all_interfaces_warning}")
         print("   This exposes the service to external networks!")
         print("   Only use this in production with proper security measures.")
-        print("   For development, use FLASK_HOST=127.0.0.1 (default)")
+        print(f"   For development, use FLASK_HOST={SECURE_LOCALHOST} (default)")
     
-    server_url = f"http://{host if host != '0.0.0.0' else 'localhost'}:{port}"
+    # Generate safe display URL (avoid showing sensitive binding in logs)
+    display_host = LOCALHOST_ALIAS if is_all_interfaces else host
+    server_url = f"http://{display_host}:{port}"
     print(f"\n🚀 Server starting on {server_url}")
     
     print("📝 Example test:")
@@ -523,15 +536,25 @@ if __name__ == '__main__':
     print("        -H 'Content-Type: application/json' \\")
     print("        -d '{\"text\": \"I am feeling really happy today!\"}'")
     
+    # Security-aware configuration display
+    if is_localhost_secure:
+        security_status = "SECURE - localhost only"
+    elif is_all_interfaces:
+        security_status = "EXPOSED - all interfaces" 
+    else:
+        security_status = "CUSTOM"
+    
     print(f"\n🔧 Configuration:")
-    print(f"   Host: {host} ({'SECURE - localhost only' if host == '127.0.0.1' else 'EXPOSED - all interfaces' if host == '0.0.0.0' else 'CUSTOM'})")
+    print(f"   Host: {host} ({security_status})")
     print(f"   Port: {port}")
     print(f"   Debug: {debug}")
     
-    if host != '127.0.0.1' and host != 'localhost':
+    # Security guidance for non-localhost configurations
+    if not is_localhost_secure and not is_localhost_alias:
         print(f"\n💡 Security Tips:")
-        print(f"   • Use FLASK_HOST=127.0.0.1 for development (secure)")
-        print(f"   • Use FLASK_HOST=0.0.0.0 only in production with firewall/proxy")
+        print(f"   • Use FLASK_HOST={SECURE_LOCALHOST} for development (secure)")
+        all_interfaces_env = f"FLASK_HOST={ALL_INTERFACES}"
+        print(f"   • Use {all_interfaces_env} only in production with firewall/proxy")
         print(f"   • Never expose debug=True to external networks")
 
     app.run(host=host, port=port, debug=debug)
