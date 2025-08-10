@@ -6,6 +6,7 @@
 # Create the database URL
 # Get database connection details from environment variables
 from sqlalchemy import create_engine
+from sqlalchemy.pool import NullPool
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 import os
@@ -68,6 +69,7 @@ if DATABASE_URL.startswith("sqlite"):
     engine = create_engine(
         DATABASE_URL,
         connect_args={"check_same_thread": False},
+        poolclass=NullPool,
     )
 else:
     engine = create_engine(
