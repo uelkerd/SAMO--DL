@@ -376,6 +376,18 @@ class TestEnhancedVoiceTranscription:
             assert "failed_transcriptions" in data
             assert "processing_time_ms" in data
             assert "results" in data
+
+            # Negative cases: missing and incorrect permissions
+            missing_headers = {"Authorization": f"Bearer {access_token}"}
+            response_missing = client.post("/transcribe/batch", files=files, data=data, headers=missing_headers)
+            assert response_missing.status_code == 403
+
+            wrong_headers = {
+                "Authorization": f"Bearer {access_token}",
+                "X-User-Permissions": "wrong_permission"
+            }
+            response_wrong = client.post("/transcribe/batch", files=files, data=data, headers=wrong_headers)
+            assert response_wrong.status_code == 403
             
         finally:
             import os
@@ -440,6 +452,89 @@ class TestEnhancedVoiceTranscription:
             assert data["successful_transcriptions"] == 1
             assert data["failed_transcriptions"] == 1
             assert len(data["results"]) == 2
+
+    @patch('src.unified_ai_api.voice_transcriber')
+    def test_batch_transcription_all_failures(self, mock_transcriber):
+        """Test batch transcription where all transcriptions fail."""
+        mock_transcriber.transcribe.side_effect = Exception("Transcription failed")
+
+        # Prepare files
+        temp_files = []
+        try:
+            for i in range(2):
+                tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+                tmp.write(b"fake audio data")
+                tmp.close()
+                temp_files.append(tmp.name)
+
+            # Login and headers with permission override for tests
+            login_data = {"username": "testuser@example.com", "password": "testpassword123"}
+            login_response = client.post("/auth/login", json=login_data)
+            access_token = login_response.json()["access_token"]
+            headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
+
+            files = []
+            from contextlib import ExitStack
+            stack = ExitStack()
+            try:
+                for i, temp_file_path in enumerate(temp_files):
+                    audio_file = stack.enter_context(open(temp_file_path, "rb"))
+                    files.append(("audio_files", (f"f{i}.wav", audio_file, "audio/wav")))
+                response = client.post("/transcribe/batch", files=files, headers=headers)
+            finally:
+                stack.close()
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["successful_transcriptions"] == 0
+            assert data["failed_transcriptions"] == len(temp_files)
+
+        finally:
+            for temp_file_path in temp_files:
+                if os.path.exists(temp_file_path):
+                    os.unlink(temp_file_path)
+
+    @patch('src.unified_ai_api.voice_transcriber')
+    def test_batch_transcription_all_success(self, mock_transcriber):
+        """Test batch transcription where all transcriptions succeed."""
+        def ok_side_effect(file_path, language=None):
+            return {"text": "ok", "language": "en", "confidence": 0.9, "duration": 1.0}
+        mock_transcriber.transcribe.side_effect = ok_side_effect
+
+        temp_files = []
+        try:
+            for i in range(3):
+                tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+                tmp.write(b"fake audio data")
+                tmp.close()
+                temp_files.append(tmp.name)
+
+            login_data = {"username": "testuser@example.com", "password": "testpassword123"}
+            login_response = client.post("/auth/login", json=login_data)
+            access_token = login_response.json()["access_token"]
+            headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
+
+            files = []
+            from contextlib import ExitStack
+            stack = ExitStack()
+            try:
+                for i, temp_file_path in enumerate(temp_files):
+                    audio_file = stack.enter_context(open(temp_file_path, "rb"))
+                    files.append(("audio_files", (f"f{i}.wav", audio_file, "audio/wav")))
+                response = client.post("/transcribe/batch", files=files, headers=headers)
+            finally:
+                stack.close()
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["successful_transcriptions"] == len(temp_files)
+            assert data["failed_transcriptions"] == 0
+            assert len(data["results"]) == len(temp_files)
+
+        finally:
+            for temp_file_path in temp_files:
+                if os.path.exists(temp_file_path):
+                    os.unlink(temp_file_path)
             
         finally:
             import os
