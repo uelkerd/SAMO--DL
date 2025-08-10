@@ -54,13 +54,13 @@ def setup_git_lfs() -> bool:
         logging.warning("Git not installed. Skipping Git LFS setup")
         return False
     try:
-        result = subprocess.run(['git', 'lfs', 'version'], capture_output=True, text=True)
+        result = subprocess.run(['git', 'lfs', 'version'], capture_output=True, text=True, check=True)
         if result.returncode != 0:
             logging.warning("Git LFS not available. Install with: git lfs install")
             return False
         lfs_patterns = ["*.bin", "*.safetensors", "*.onnx", "*.pkl", "*.pth", "*.pt", "*.h5"]
         for pattern in lfs_patterns:
-            subprocess.run(['git', 'lfs', 'track', pattern], capture_output=True, text=True)
+            subprocess.run(['git', 'lfs', 'track', pattern], capture_output=True, text=True, check=True)
         # Update .gitattributes if exists
         gitattributes_path = ".gitattributes"
         if os.path.exists(gitattributes_path):
