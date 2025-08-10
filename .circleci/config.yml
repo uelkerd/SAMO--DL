@@ -401,6 +401,14 @@ jobs:
       - pre_warm_models  # Pre-warm models for faster execution
       - cache_dependencies
       - run_unit_tests
+      - run:
+          name: Ensure pipeline report exists
+          command: |
+            set -euxo pipefail
+            test -f ci_pipeline_report.txt || echo "No pipeline report generated in this job" > ci_pipeline_report.txt
+      - store_artifacts:
+          path: ci_pipeline_report.txt
+          destination: pipeline-reports
 
   # STAGE 2: Integration & Security (<8 minutes) - PARALLEL EXECUTION
   # --------------------------------------------------------------------------

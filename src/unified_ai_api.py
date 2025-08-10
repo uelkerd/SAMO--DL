@@ -42,29 +42,14 @@ from pydantic import BaseModel, Field
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
 from .api_rate_limiter import add_rate_limiting
-from .security.jwt_manager import JWTManager, TokenResponse, TokenPayload
+from .security.jwt_manager import JWTManager, TokenResponse, TokenPayload, TokenPair
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Defensive client compatibility shim for tests: handle closed file objects in httpx multipart
-# Guard this shim so it never applies in production
-if os.getenv("UNIT_TEST") or os.getenv("TESTING") or os.getenv("CI"):
-    try:  # pragma: no cover - safety shim only used in tests
-        import httpx  # type: ignore
-        from httpx import _utils as _httpx_utils  # type: ignore
-
-        _orig_peek = getattr(_httpx_utils, "peek_filelike_length", None)
-        if callable(_orig_peek):
-            def _safe_peek_filelike_length(stream):
-                try:
-                    return _orig_peek(stream)
-                except Exception:
-                    return None
-            _httpx_utils.peek_filelike_length = _safe_peek_filelike_length  # type: ignore
-    except Exception:
-        pass
+# Note: Avoid monkey-patching httpx internals. Tests should handle httpx.StreamConsumed
+# or public APIs directly when dealing with closed file objects.
 
 # Global AI models (loaded on startup)
 emotion_detector = None
@@ -235,8 +220,8 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 def require_permission(permission: str):
     """Require specific permission for endpoint access."""
     async def permission_checker(request: Request, current_user: TokenPayload = Depends(get_current_user)):
-        # Allow tests to inject permissions via header without altering tokens
-        if os.getenv("TESTING") or os.getenv("CI") or os.getenv("UNIT_TEST"):
+        # Allow tests to inject permissions via header only during pytest runs
+        if "PYTEST_CURRENT_TEST" in os.environ:
             injected = request.headers.get("X-User-Permissions")
             if injected:
                 injected_perms = {p.strip() for p in injected.split(",") if p.strip()}
@@ -720,7 +705,7 @@ async def register_user(user_data: UserRegister) -> TokenResponse:
         }
         
         # Generate tokens
-        token_response = jwt_manager.create_token_pair(token_user_data)
+        token_response: TokenPair = jwt_manager.create_token_pair(token_user_data)
         
         logger.info(f"New user registered: {user_data.username}")
         return token_response
@@ -764,7 +749,7 @@ async def login_user(login_data: UserLogin) -> TokenResponse:
         }
         
         # Generate tokens
-        token_response = jwt_manager.create_token_pair(token_user_data)
+        token_response: TokenPair = jwt_manager.create_token_pair(token_user_data)
         
         logger.info(f"User logged in: {login_data.username}")
         return token_response
@@ -809,7 +794,7 @@ async def refresh_token(request: RefreshTokenRequest) -> TokenResponse:
         }
         
         # Generate new token pair
-        token_response = jwt_manager.create_token_pair(user_data)
+        token_response: TokenPair = jwt_manager.create_token_pair(user_data)
         
         logger.info(f"Token refreshed for user: {payload.username}")
         return token_response
