@@ -1,6 +1,6 @@
-pytest==8.4.1
-ruff==0.6.9
-# Dev-only tools
-bandit==1.7.9
+# Development dependencies - aligned with pyproject.toml dev extras
+pytest>=8.4.1,<9.0.0
+ruff>=0.0.280
+bandit[toml]>=1.7.5
 # Keep safety optional in CI to avoid long resolver backtracking; install locally when needed
-# safety==2.3.5
+# safety>=2.3.0
