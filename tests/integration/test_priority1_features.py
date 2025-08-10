@@ -432,20 +432,23 @@ class TestEnhancedVoiceTranscription:
             
             # Test batch transcription endpoint
             headers = {"Authorization": f"Bearer {access_token}"}
-            files = []
-            opened_files = []
+            def to_uploads(paths, name_prefix: str):
+                return [
+                    (
+                        "audio_files",
+                        (f"{name_prefix}{i+1}.wav", open(p, "rb"), "audio/wav"),
+                    )
+                    for i, p in enumerate(paths)
+                ]
+
+            data = {"language": "en"}
+            files = to_uploads(temp_files, "file")
             try:
-                for i, temp_file_path in enumerate(temp_files):
-                    f = open(temp_file_path, "rb")
-                    opened_files.append(f)
-                    f.seek(0)
-                    files.append(("audio_files", (f"file{i+1}.wav", f, "audio/wav")))
-                data = {"language": "en"}
                 response = client.post("/transcribe/batch", files=files, data=data, headers=headers)
             finally:
-                for f in opened_files:
+                for _, (_, fh, _) in files:
                     try:
-                        f.close()
+                        fh.close()
                     except Exception:
                         pass
             
@@ -477,18 +480,13 @@ class TestEnhancedVoiceTranscription:
             access_token = login_response.json()["access_token"]
             headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
 
-            files = []
-            opened_files = []
+            files = to_uploads(temp_files, "f")
             try:
-                for i, temp_file_path in enumerate(temp_files):
-                    f = open(temp_file_path, "rb")
-                    opened_files.append(f)
-                    files.append(("audio_files", (f"f{i}.wav", f, "audio/wav")))
                 response = client.post("/transcribe/batch", files=files, headers=headers)
             finally:
-                for f in opened_files:
+                for _, (_, fh, _) in files:
                     try:
-                        f.close()
+                        fh.close()
                     except Exception:
                         pass
 
@@ -522,18 +520,13 @@ class TestEnhancedVoiceTranscription:
             access_token = login_response.json()["access_token"]
             headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
 
-            files = []
-            opened_files = []
+            files = to_uploads(temp_files, "f")
             try:
-                for i, temp_file_path in enumerate(temp_files):
-                    f = open(temp_file_path, "rb")
-                    opened_files.append(f)
-                    files.append(("audio_files", (f"f{i}.wav", f, "audio/wav")))
                 response = client.post("/transcribe/batch", files=files, headers=headers)
             finally:
-                for f in opened_files:
+                for _, (_, fh, _) in files:
                     try:
-                        f.close()
+                        fh.close()
                     except Exception:
                         pass
 
