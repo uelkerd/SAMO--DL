@@ -63,25 +63,32 @@ main() {
 
   echo "Resolved installer: ${BASENAME}"
 
-  # Fetch latest tag for checksum URL
-  curl -sSfL https://api.github.com/repos/conda-forge/miniforge/releases/latest -o "${workdir}/latest_release.json"
-  local TAG
-  TAG=$(sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "${workdir}/latest_release.json" | head -n1)
-  if [[ -z "${TAG}" ]]; then
-    echo "Failed to resolve latest tag from GitHub API" >&2
-    exit 1
-  fi
-
-  local CHECKSUM_URL="https://github.com/conda-forge/miniforge/releases/download/${TAG}/Miniforge3-${TAG}-${OS_NAME}-${ARCH_NAME}.sh.sha256"
+  # Use 'latest/download' endpoint for both installer and checksum (avoid API and tag parsing)
+  local CHECKSUM_URL="https://github.com/conda-forge/miniforge/releases/latest/download/${BASENAME}.sha256"
   echo "Checksum URL: ${CHECKSUM_URL}"
 
-  # Download installer and checksum
+  # Download installer and checksum (support GitHub token to reduce rate limits)
+  local AUTH_HEADER=""
+  if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+    AUTH_HEADER="Authorization: Bearer ${GITHUB_TOKEN}"
+  fi
+
   if command -v curl >/dev/null 2>&1; then
-    curl -sSfL "$LATEST_URL" -o "${workdir}/miniforge.sh"
-    curl -sSfL "$CHECKSUM_URL" -o "${workdir}/miniforge.sha256"
+    if [[ -n "${AUTH_HEADER}" ]]; then
+      curl -sSfL -H "${AUTH_HEADER}" "$LATEST_URL" -o "${workdir}/miniforge.sh"
+      curl -sSfL -H "${AUTH_HEADER}" "$CHECKSUM_URL" -o "${workdir}/miniforge.sha256"
+    else
+      curl -sSfL "$LATEST_URL" -o "${workdir}/miniforge.sh"
+      curl -sSfL "$CHECKSUM_URL" -o "${workdir}/miniforge.sha256"
+    fi
   elif command -v wget >/dev/null 2>&1; then
-    wget -qO "${workdir}/miniforge.sh" "$LATEST_URL"
-    wget -qO "${workdir}/miniforge.sha256" "$CHECKSUM_URL"
+    if [[ -n "${AUTH_HEADER}" ]]; then
+      wget --header="${AUTH_HEADER}" -qO "${workdir}/miniforge.sh" "$LATEST_URL"
+      wget --header="${AUTH_HEADER}" -qO "${workdir}/miniforge.sha256" "$CHECKSUM_URL"
+    else
+      wget -qO "${workdir}/miniforge.sh" "$LATEST_URL"
+      wget -qO "${workdir}/miniforge.sha256" "$CHECKSUM_URL"
+    fi
   else
     echo "Error: neither curl nor wget available to download Miniforge." >&2
     exit 1
