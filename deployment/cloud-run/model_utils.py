@@ -7,6 +7,7 @@ and error handling to eliminate code duplication between API servers.
 
 import logging
 import os
+import json
 import threading
 import time
 from pathlib import Path
@@ -38,6 +39,35 @@ EMOTION_LABELS = [
 ]
 
 
+def _load_repo_id_from_config() -> Optional[str]:
+    cfg_path = Path('deployment/custom_model_config.json')
+    if cfg_path.exists():
+        try:
+            with open(cfg_path, 'r') as f:
+                cfg = json.load(f)
+            repo_id = cfg.get('model_name') or cfg.get('repo_id')
+            if repo_id:
+                return repo_id
+        except Exception as e:
+            logger.warning("Failed to read %s: %s", cfg_path, e)
+    return None
+
+
+def _resolve_model_repo_id() -> str:
+    # Priority: config file -> BASE_MODEL_NAME env -> distilroberta-base
+    repo_id = _load_repo_id_from_config()
+    if repo_id:
+        logger.info("Using model from config: %s", repo_id)
+        return repo_id
+    env_model = os.getenv('BASE_MODEL_NAME')
+    if env_model:
+        logger.info("Using model from BASE_MODEL_NAME env: %s", env_model)
+        return env_model
+    default_model = 'distilroberta-base'
+    logger.info("Using default base model: %s", default_model)
+    return default_model
+
+
 def ensure_model_loaded() -> bool:
     """
     Thread-safe model loading with proper error handling.
@@ -60,27 +90,32 @@ def ensure_model_loaded() -> bool:
         model_loading = True
 
     try:
-        logger.info("🔄 Loading DistilRoBERTa model and tokenizer...")
+        repo_id = _resolve_model_repo_id()
+        logger.info("🔄 Loading model and tokenizer: %s", repo_id)
 
         # Load tokenizer
-        tokenizer = AutoTokenizer.from_pretrained('distilroberta-base')
+        tokenizer_local = AutoTokenizer.from_pretrained(repo_id)
 
         # Load model
-        model = AutoModelForSequenceClassification.from_pretrained(
-            'distilroberta-base',
+        model_local = AutoModelForSequenceClassification.from_pretrained(
+            repo_id,
             num_labels=len(EMOTION_LABELS)
         )
 
         # Load trained weights if available
         if Path(MODEL_PATH).exists():
             logger.info(f"📁 Loading trained weights from {MODEL_PATH}")
-            model.load_state_dict(torch.load(MODEL_PATH, map_location='cpu'))
+            model_local.load_state_dict(torch.load(MODEL_PATH, map_location='cpu'))
         else:
-            logger.warning(f"⚠️ No trained weights found at {MODEL_PATH}, using base model")
+            logger.warning(f"⚠️ No trained weights found at {MODEL_PATH}, using base/pretrained weights")
 
-        model.eval()
+        model_local.eval()
 
         with model_lock:
+            # Assign only after successful load to avoid races
+            global model, tokenizer
+            model = model_local
+            tokenizer = tokenizer_local
             model_loaded = True
             model_loading = False
 
@@ -91,7 +126,6 @@ def ensure_model_loaded() -> bool:
         with model_lock:
             model_loading = False
 
-        # Log error without exposing sensitive path information
         logger.exception(f"❌ Failed to load model: {str(e)}")
         logger.error("Model loading failed - check model configuration")
         return False
@@ -147,7 +181,7 @@ def predict_emotions(text: str) -> Dict[str, Any]:
         # Get top emotions
         top_probs, top_indices = torch.topk(probabilities[0], k=3)
 
-        emotions = []
+        emotions: List[Dict[str, Any]] = []
         for prob, idx in zip(top_probs, top_indices):
             emotions.append({
                 'emotion': EMOTION_LABELS[idx.item()],
@@ -201,10 +235,8 @@ def validate_text_input(text: str) -> Tuple[bool, str]:
     Returns:
         Tuple[bool, str]: (is_valid, error_message)
     """
-    if not text or not text.strip():
-        return False, 'Text field is required'
-
+    if not text or not isinstance(text, str):
+        return False, 'Text must be a non-empty string'
     if len(text) > MAX_TEXT_LENGTH:
         return False, f'Text too long (max {MAX_TEXT_LENGTH} characters)'
-
     return True, '' 
