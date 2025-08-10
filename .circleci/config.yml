@@ -91,7 +91,10 @@ commands:
             } > doctor.env.txt
 
             df -h > doctor.df.txt || true
-            env | sort | head -n 100 > doctor.topenv.txt || true
+            # Redact sensitive environment variables before storing
+            env | sort \
+              | awk -F= 'BEGIN{IGNORECASE=1} $1 ~ /(TOKEN|KEY|SECRET|PASSWORD|PASS|CREDENTIAL|AWS|GCP|GOOGLE|AZURE)/ {print $1"=***REDACTED***"; next} {print $0}' \
+              | head -n 100 > doctor.topenv.txt || true
 
             ls -la "$HOME/miniconda/bin" > doctor.conda.bin.txt || true
             "$HOME/miniconda/bin/conda" --version > doctor.conda.version.txt || true
