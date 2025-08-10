@@ -15,7 +15,7 @@ def pre_warm_models():
 
     try:
         import os
-        from src.utils.strings import is_truthy
+        from src.common.env import is_truthy
         # Respect offline mode in CI to avoid failing when network is unavailable.
         offline = (
             is_truthy(os.getenv("HF_HUB_OFFLINE"))
