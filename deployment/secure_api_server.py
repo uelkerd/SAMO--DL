@@ -286,14 +286,12 @@ class SecureEmotionDetectionModel:
                 if confidence_threshold and confidence < confidence_threshold:
                     predicted_emotion = "uncertain"
                     confidence = 0.0
+                elif predicted_label in self.model.config.id2label:
+                    predicted_emotion = self.model.config.id2label[predicted_label]
+                elif str(predicted_label) in self.model.config.id2label:
+                    predicted_emotion = self.model.config.id2label[str(predicted_label)]
                 else:
-                    # Get predicted emotion
-                    if predicted_label in self.model.config.id2label:
-                        predicted_emotion = self.model.config.id2label[predicted_label]
-                    elif str(predicted_label) in self.model.config.id2label:
-                        predicted_emotion = self.model.config.id2label[str(predicted_label)]
-                    else:
-                        predicted_emotion = f"unknown_{predicted_label}"
+                    predicted_emotion = f"unknown_{predicted_label}"
                 
                 # Get all probabilities
                 all_probs = probabilities[0].cpu().numpy()
@@ -302,7 +300,7 @@ class SecureEmotionDetectionModel:
             logger.info(f"Secure prediction completed in {prediction_time:.3f}s: '{sanitized_text[:50]}...' → {predicted_emotion} (conf: {confidence:.3f})")
             
             # Create secure response
-            response = {
+            return {
                 'text': sanitized_text,
                 'predicted_emotion': predicted_emotion,
                 'confidence': float(confidence),
@@ -323,8 +321,6 @@ class SecureEmotionDetectionModel:
                     'correlation_id': getattr(g, 'correlation_id', None)
                 }
             }
-            
-            return response
             
         except Exception as e:
             prediction_time = time.time() - start_time
