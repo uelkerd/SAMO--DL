@@ -768,6 +768,27 @@ def upload_to_huggingface(temp_dir: str, model_info: Dict[str, Any]) -> str:
     print(f"\n🚀 UPLOADING TO HUGGINGFACE HUB")
     print("=" * 40)
     
+    # Extract information from model_info for better upload experience
+    emotion_labels = model_info.get('emotion_labels', [])
+    num_labels = len(emotion_labels)
+    validation_warnings = model_info.get('validation_warnings', [])
+    
+    print(f"📊 Model Details:")
+    print(f"   • {num_labels} emotion classes: {', '.join(emotion_labels[:6])}")
+    if num_labels > 6:
+        print(f"     (and {num_labels - 6} more...)")
+    print(f"   • Architecture: {model_info.get('model_type', 'Transformer-based')}")
+    
+    # Show validation warnings if any
+    if validation_warnings:
+        print(f"   ⚠️  Validation warnings: {len(validation_warnings)} issue(s) detected")
+        for warning in validation_warnings[:3]:  # Show first 3 warnings
+            print(f"      • {warning}")
+        if len(validation_warnings) > 3:
+            print(f"      • (and {len(validation_warnings) - 3} more...)")
+    else:
+        print(f"   ✅ Model validation: All essential files present")
+    
     # Set up Git LFS before upload
     setup_git_lfs()
     
@@ -794,12 +815,21 @@ def upload_to_huggingface(temp_dir: str, model_info: Dict[str, Any]) -> str:
         privacy_status = "private" if is_private else "public"
         print(f"✅ Repository created/confirmed ({privacy_status})")
         
+        # Create detailed commit message using model information
+        commit_message = f"Upload custom emotion detection model - {num_labels} classes"
+        if emotion_labels:
+            # Include emotion labels in commit for better versioning
+            labels_preview = ', '.join(emotion_labels[:4])
+            if len(emotion_labels) > 4:
+                labels_preview += f" (and {len(emotion_labels) - 4} more)"
+            commit_message += f": {labels_preview}"
+        
         # Upload all files
         api.upload_folder(
             folder_path=temp_dir,
             repo_id=repo_name,
             repo_type="model",
-            commit_message="Upload custom emotion detection model"
+            commit_message=commit_message
         )
         print("✅ Model uploaded successfully!")
         
