@@ -42,7 +42,7 @@ from pydantic import BaseModel, Field
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
 from .api_rate_limiter import add_rate_limiting
-from .security.jwt_manager import JWTManager, TokenPayload, TokenPair
+from .security.jwt_manager import JWTManager, TokenPayload, TokenResponse
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -731,12 +731,12 @@ async def health_check() -> dict[str, Any]:
 # Authentication Endpoints
 @app.post(
     "/auth/register",
-    response_model=TokenPair,
+    response_model=TokenResponse,
     tags=["Authentication"],
     summary="Register new user",
     description="Register a new user account and receive authentication tokens",
 )
-async def register_user(user_data: UserRegister) -> TokenPair:
+async def register_user(user_data: UserRegister) -> TokenResponse:
     """Register a new user account."""
     try:
         # In a real application, you would:
@@ -757,7 +757,7 @@ async def register_user(user_data: UserRegister) -> TokenPair:
         }
         
         # Generate tokens
-        token_response: TokenPair = jwt_manager.create_token_pair(token_user_data)
+        token_response: TokenResponse = jwt_manager.create_token_pair(token_user_data)
         
         logger.info(f"New user registered: {user_data.username}")
         return token_response
@@ -771,12 +771,12 @@ async def register_user(user_data: UserRegister) -> TokenPair:
 
 @app.post(
     "/auth/login",
-    response_model=TokenPair,
+    response_model=TokenResponse,
     tags=["Authentication"],
     summary="User login",
     description="Authenticate user and receive access tokens",
 )
-async def login_user(login_data: UserLogin) -> TokenPair:
+async def login_user(login_data: UserLogin) -> TokenResponse:
     """Authenticate user and provide access tokens."""
     try:
         # In a real application, you would:
@@ -801,7 +801,7 @@ async def login_user(login_data: UserLogin) -> TokenPair:
         }
         
         # Generate tokens
-        token_response: TokenPair = jwt_manager.create_token_pair(token_user_data)
+        token_response: TokenResponse = jwt_manager.create_token_pair(token_user_data)
         
         logger.info(f"User logged in: {login_data.username}")
         return token_response
@@ -821,12 +821,12 @@ class RefreshTokenRequest(BaseModel):
 
 @app.post(
     "/auth/refresh",
-    response_model=TokenPair,
+    response_model=TokenResponse,
     tags=["Authentication"],
     summary="Refresh access token",
     description="Refresh access token using refresh token",
 )
-async def refresh_token(request: RefreshTokenRequest) -> TokenPair:
+async def refresh_token(request: RefreshTokenRequest) -> TokenResponse:
     """Refresh access token using refresh token."""
     try:
         # Verify refresh token
@@ -846,7 +846,7 @@ async def refresh_token(request: RefreshTokenRequest) -> TokenPair:
         }
         
         # Generate new token pair
-        token_response: TokenPair = jwt_manager.create_token_pair(user_data)
+        token_response: TokenResponse = jwt_manager.create_token_pair(user_data)
         
         logger.info(f"Token refreshed for user: {payload.username}")
         return token_response
@@ -1022,12 +1022,12 @@ async def chat_websocket(websocket: WebSocket, token: str = Query(None)) -> None
                     response["summary"] = summary_text
                 except HTTPException as exc:
                     response["summary_error"] = exc.detail
-    except Exception as exc:  # pragma: no cover
+                except Exception as exc:  # pragma: no cover
                     logger.error(
                         f"Error during websocket summary generation: {exc}",
                         exc_info=True,
                     )
-        response["summary_error"] = str(exc)
+                    response["summary_error"] = str(exc)
 
             await websocket.send_json(response)
     except WebSocketDisconnect:
