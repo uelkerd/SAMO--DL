@@ -18,8 +18,6 @@ __pypackages__/
 !data/processed/.gitkeep
 !data/raw/.gitkeep
 !data/raw/sample_*
-!src/models/
-!src/models/**
 ._*
 .\#*
 .cache
@@ -307,6 +305,8 @@ MANIFEST
 merges.txt
 mlruns/
 models/
+!src/models/
+!src/models/**
 models/*/checkpoints/
 models/*/saved_models/
 models/checkpoints/
