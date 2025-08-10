@@ -331,16 +331,14 @@ class SecureEmotionDetectionModel:
             logger.error(f"Secure prediction failed after {prediction_time:.3f}s: {str(e)}")
             raise
 
-# Lazy secure model initialization to avoid side effects during import/collection
-logger.info("🔒 Secure model will be lazily initialized")
-secure_model = None  # type: ignore[assignment]
-secure_model_lock = threading.Lock()
+# Secure model factory for explicit creation and testability
+logger.info("🔒 Secure model will be created via factory function")
 
-def get_secure_model():
-    global secure_model
-    if secure_model is not None:
-        return secure_model
-    # In CI/TESTING, return a light stub to avoid heavy HF loads
+def create_secure_model():
+    """Factory function to create a SecureEmotionDetectionModel or a stub in CI/TEST.
+
+    This avoids implicit global state and makes the creation path explicit and mockable in tests.
+    """
     if os.environ.get("TESTING") or os.environ.get("CI"):
         class _Stub:
             emotions = [
@@ -348,15 +346,17 @@ def get_secure_model():
                 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
             ]
             loaded = False
-        with secure_model_lock:
-            if secure_model is None:
-                secure_model = _Stub()  # type: ignore[assignment]
-        return secure_model
-    # Eager load only when first needed outside CI/TEST
-    with secure_model_lock:
-        if secure_model is None:
-            secure_model = SecureEmotionDetectionModel()
-    return secure_model
+        return _Stub()
+    return SecureEmotionDetectionModel()
+
+@functools.lru_cache(maxsize=1)
+def get_secure_model():
+    """Return a cached secure model instance created via the factory.
+
+    Using an LRU cache (size=1) avoids global mutable state and ensures a single
+    instance per process. Tests can clear the cache with get_secure_model.cache_clear().
+    """
+    return create_secure_model()
 
 # Read admin API key per-request to reflect environment changes during tests
 def get_admin_api_key() -> str | None:
