@@ -148,6 +148,30 @@ commands:
             $HOME/miniconda/envs/samo-dl-stable/bin/python -c "<< parameters.command >>"
           shell: /bin/bash
 
+  export_common_env:
+    description: "Export common environment variables and source BASH_ENV"
+    steps:
+      - run:
+          name: Export common env vars
+          shell: /bin/bash
+          command: |
+            set -euxo pipefail
+            # Ensure BASH_ENV exists
+            : "${BASH_ENV:=$HOME/.bash_env}"
+            touch "$BASH_ENV"
+            # Common env for PATH and cache dirs
+            echo 'export PATH="$HOME/miniconda/bin:/usr/local/bin:/usr/bin:/bin:$PATH"' >> "$BASH_ENV"
+            echo 'export HF_HOME="/home/circleci/.cache/huggingface"' >> "$BASH_ENV"
+            # Test DB defaults to avoid surprises in CI
+            echo 'export DB_USER=dummy' >> "$BASH_ENV"
+            echo 'export DB_PASSWORD=dummy' >> "$BASH_ENV"
+            echo 'export DB_NAME=test' >> "$BASH_ENV"
+            echo 'export DATABASE_URL=sqlite:///test.db' >> "$BASH_ENV"
+            # Project PYTHONPATH
+            echo "export PYTHONPATH=$CIRCLE_WORKING_DIRECTORY/src" >> "$BASH_ENV"
+            # Load into current shell
+            if [ -f "$BASH_ENV" ]; then source "$BASH_ENV"; fi
+
   setup_python_env:
     description: "Set up conda environment with dependencies (SIMPLIFIED)"
     steps:
@@ -392,6 +416,7 @@ jobs:
     executor: python-ml
     steps:
       - setup_python_env
+      - export_common_env
       - doctor_step
       - restore_dependencies
       - cache_dependencies
@@ -404,6 +429,7 @@ jobs:
     executor: python-ml
     steps:
       - setup_python_env
+      - export_common_env
       - doctor_step
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
@@ -424,6 +450,7 @@ jobs:
     executor: python-ml
     steps:
       - setup_python_env
+      - export_common_env
       - doctor_step
       - restore_dependencies
       - run_security_scan_bandit
@@ -435,6 +462,7 @@ jobs:
     executor: python-ml
     steps:
       - setup_python_env
+      - export_common_env
       - doctor_step
       - restore_dependencies
       - run_security_scan_safety
@@ -446,6 +474,7 @@ jobs:
     executor: python-ml
     steps:
       - setup_python_env
+      - export_common_env
       - doctor_step
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
@@ -467,6 +496,7 @@ jobs:
     executor: python-ml
     steps:
       - setup_python_env
+      - export_common_env
       - doctor_step
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
@@ -487,6 +517,7 @@ jobs:
     executor: python-ml
     steps:
       - setup_python_env
+      - export_common_env
       - doctor_step
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
@@ -529,6 +560,7 @@ jobs:
     executor: python-ml
     steps:
       - setup_python_env
+      - export_common_env
       - doctor_step
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
@@ -574,6 +606,7 @@ jobs:
     executor: python-gpu
     steps:
       - setup_python_env
+      - export_common_env
       - doctor_step
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
@@ -608,6 +641,7 @@ jobs:
     executor: python-ml
     steps:
       - setup_python_env
+      - export_common_env
       - doctor_step
       - restore_dependencies
       - pre_warm_models  # Pre-warm models for faster execution
