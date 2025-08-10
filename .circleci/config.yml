@@ -38,8 +38,8 @@ jobs:
             export PATH="$HOME/.local/bin:$PATH"
             python3 - <<'PY'
 import os, sys
-cwork = os.environ.get('CIRCLE_WORKING_DIRECTORY', '/home/circleci/samo-dl')
-sys.path.insert(0, f"{cwork}/src")
+cwork = os.environ.get('CIRCLE_WORKING_DIRECTORY', os.getcwd())
+sys.path.insert(0, os.path.join(cwork, "src"))
 from src.unified_ai_api import app  # noqa: F401
 print('✅ API imports successfully!')
 PY
@@ -52,8 +52,8 @@ import os, sys
 try:
     import fastapi  # noqa: F401
     from fastapi.testclient import TestClient
-    cwork = os.environ.get('CIRCLE_WORKING_DIRECTORY', '/home/circleci/samo-dl')
-    sys.path.insert(0, f"{cwork}/src")
+    cwork = os.environ.get('CIRCLE_WORKING_DIRECTORY', os.getcwd())
+    sys.path.insert(0, os.path.join(cwork, "src"))
     from src.unified_ai_api import app
     client = TestClient(app)
     resp = client.get('/health')
