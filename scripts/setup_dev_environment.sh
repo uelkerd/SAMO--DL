@@ -22,6 +22,7 @@ echo "✅ Setting up PATH..."
 export PATH="$HOME/.local/bin:$PATH"
 # Ensure bashrc exists to avoid grep failures under set -e
 [ -f ~/.bashrc ] || touch ~/.bashrc
+# shellcheck disable=SC2016  # Intentionally write literal $HOME/$PATH for expansion at shell load
 grep -qF 'export PATH="$HOME/.local/bin:$PATH"' ~/.bashrc || echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 
 # Set PYTHONPATH (idempotent)
