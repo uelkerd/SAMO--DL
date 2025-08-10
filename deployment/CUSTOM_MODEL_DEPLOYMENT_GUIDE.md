@@ -146,7 +146,8 @@ def predict_with_inference_endpoint(text: str) -> dict:
     response = requests.post(ENDPOINT_URL, headers=headers, json={"inputs": text})
     return response.json()
 ```
-
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import torch
 **Pros**: ✅ No cold starts, ✅ Predictable latency, ✅ Scalable, ✅ VPC options
 **Cons**: ❌ Paid service, ❌ More complex setup
 
