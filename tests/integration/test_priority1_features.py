@@ -226,7 +226,6 @@ class TestEnhancedVoiceTranscription:
             assert "audio_quality" in data
             
         finally:
-            import os
             if os.path.exists(temp_file_path):
                 os.unlink(temp_file_path)
     
@@ -277,7 +276,6 @@ class TestEnhancedVoiceTranscription:
             assert response.status_code == 500  # Internal server error
             
         finally:
-            import os
             if os.path.exists(temp_file_path):
                 os.unlink(temp_file_path)
     
@@ -403,7 +401,6 @@ class TestEnhancedVoiceTranscription:
             assert response_wrong.status_code == 403
             
         finally:
-            import os
             for temp_file_path in temp_files:
                 if os.path.exists(temp_file_path):
                     os.unlink(temp_file_path)
@@ -551,7 +548,6 @@ class TestEnhancedVoiceTranscription:
             assert len(data["results"]) == len(temp_files)
 
         finally:
-            import os
             for temp_file_path in temp_files:
                 if os.path.exists(temp_file_path):
                     os.unlink(temp_file_path)
@@ -845,7 +841,6 @@ class TestCompleteWorkflow:
             assert data["pipeline_status"]["text_summarization"] is True
             
         finally:
-            import os
             if os.path.exists(temp_file_path):
                 os.unlink(temp_file_path)
     
