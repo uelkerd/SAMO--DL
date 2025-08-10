@@ -50,7 +50,7 @@ onnxruntime>=1.22.1,<2.0.0
 
 # Utilities
 accelerate>=1.9.0,<2.0.0
-google-cloud-storage>=3.2.0,<4.0.0
+google-cloud-storage>=1.32.0,<3.0.0
 google-cloud-aiplatform>=1.107.0,<2.0.0
 openai>=1.99.1,<2.0.0
 
