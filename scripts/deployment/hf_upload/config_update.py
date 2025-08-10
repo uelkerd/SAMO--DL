@@ -4,8 +4,6 @@ import logging
 from typing import Any, Dict
 from string import Template
 
-from .discovery import get_base_model_name
-
 
 def _read(path: str) -> str:
     with open(path, 'r') as f:
@@ -19,27 +17,9 @@ def _write(path: str, content: str) -> None:
 
 
 def update_deployment_config(repo_id: str, model_info: Dict[str, Any], templates_dir: str) -> None:
-    logging.info("Updating deployment configurations")
+    logging.info("Writing deployment configuration files (config-driven)")
 
-    # Update model_utils.py by replacing base model with repo_id (best-effort)
-    model_utils_path = "deployment/cloud-run/model_utils.py"
-    if os.path.exists(model_utils_path):
-        try:
-            content = _read(model_utils_path)
-            current_base_model = get_base_model_name(None)
-            updated = content.replace(
-                f"AutoTokenizer.from_pretrained('{current_base_model}')",
-                f"AutoTokenizer.from_pretrained('{repo_id}')",
-            ).replace(
-                f"AutoModelForSequenceClassification.from_pretrained(\n            '{current_base_model}',",
-                f"AutoModelForSequenceClassification.from_pretrained(\n            '{repo_id}',",
-            )
-            _write(model_utils_path, updated)
-            logging.info("Updated %s", model_utils_path)
-        except Exception as e:
-            logging.warning("Could not update %s: %s", model_utils_path, e)
-
-    # Create custom model config JSON
+    # Create custom model config JSON (single source of truth)
     cfg = {
         "model_name": repo_id,
         "model_type": "custom_trained",
