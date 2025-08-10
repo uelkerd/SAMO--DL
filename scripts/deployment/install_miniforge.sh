@@ -130,11 +130,11 @@ main() {
       ;;
     bundle2)
       # SHA256SUMS format: "<hash>  <filename>"
-      EXPECTED=$(grep -E "\s${BASENAME}$" "${workdir}/miniforge.SHA256SUMS" | awk '{print $1}' | head -n1)
+      EXPECTED=$(grep -E "[[:space:]]+${BASENAME}$" "${workdir}/miniforge.SHA256SUMS" | awk '{print $1}' | head -n1)
       ;;
     bundle3)
       # sha256sum.txt format is the same
-      EXPECTED=$(grep -E "\s${BASENAME}$" "${workdir}/miniforge.sha256sum.txt" | awk '{print $1}' | head -n1)
+      EXPECTED=$(grep -E "[[:space:]]+${BASENAME}$" "${workdir}/miniforge.sha256sum.txt" | awk '{print $1}' | head -n1)
       ;;
     *)
       EXPECTED=""

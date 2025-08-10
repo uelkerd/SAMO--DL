@@ -27,14 +27,30 @@ from src.monitoring.dashboard import MonitoringDashboard
 client = TestClient(app, headers={"User-Agent": "pytest-testclient"})
 
 
-def to_uploads(paths, name_prefix: str):
-    return [
-        (
-            "audio_files",
-            (f"{name_prefix}{i+1}.wav", open(p, "rb"), "audio/wav"),
-        )
-        for i, p in enumerate(paths)
-    ]
+class to_uploads:
+    def __init__(self, paths, name_prefix: str):
+        self.paths = list(paths)
+        self.name_prefix = name_prefix
+        self._opened = []
+
+    def __enter__(self):
+        self._opened = [open(p, "rb") for p in self.paths]
+        files = [
+            (
+                "audio_files",
+                (f"{self.name_prefix}{i+1}.wav", fh, "audio/wav"),
+            )
+            for i, fh in enumerate(self._opened)
+        ]
+        return files
+
+    def __exit__(self, exc_type, exc, tb):
+        for fh in self._opened:
+            try:
+                fh.close()
+            except Exception:
+                pass
+        self._opened = []
 
 @pytest.fixture(autouse=True)
 def reset_state():
@@ -310,25 +326,9 @@ class TestEnhancedVoiceTranscription:
             
             # Test batch transcription endpoint
             headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
-            def to_uploads(paths, name_prefix: str):
-                return [
-                    (
-                        "audio_files",
-                        (f"{name_prefix}{i+1}.wav", open(p, "rb"), "audio/wav"),
-                    )
-                    for i, p in enumerate(paths)
-                ]
-
             data = {"language": "en"}
-            files = to_uploads(temp_files, "file")
-            try:
+            with to_uploads(temp_files, "file") as files:
                 response = client.post("/transcribe/batch", files=files, data=data, headers=headers)
-            finally:
-                for _, (_, fh, _) in files:
-                    try:
-                        fh.close()
-                    except Exception:
-                        pass
             
             assert response.status_code == 200
             data = response.json()
@@ -362,15 +362,8 @@ class TestEnhancedVoiceTranscription:
             access_token = login_response.json()["access_token"]
             headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
 
-            files = to_uploads(temp_files, "f")
-            try:
+            with to_uploads(temp_files, "f") as files:
                 response = client.post("/transcribe/batch", files=files, headers=headers)
-            finally:
-                for _, (_, fh, _) in files:
-                    try:
-                        fh.close()
-                    except Exception:
-                        pass
 
             assert response.status_code == 200
             data = response.json()
@@ -402,15 +395,8 @@ class TestEnhancedVoiceTranscription:
             access_token = login_response.json()["access_token"]
             headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
 
-            files = to_uploads(temp_files, "f")
-            try:
+            with to_uploads(temp_files, "f") as files:
                 response = client.post("/transcribe/batch", files=files, headers=headers)
-            finally:
-                for _, (_, fh, _) in files:
-                    try:
-                        fh.close()
-                    except Exception:
-                        pass
 
             assert response.status_code == 200
             data = response.json()
