@@ -9,7 +9,7 @@ import os
 import sys
 import json
 import tempfile
-from unittest.mock import patch, mock_open
+from unittest.mock import patch
 
 # Add the upload script to path to import functions
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -204,7 +204,7 @@ def main():
             print(f"❌ Test failed with exception: {e}")
             results.append(False)
     
-    print(f"\n🎯 SUMMARY")
+    print("\n🎯 SUMMARY")
     print("=" * 60)
     passed = sum(results)
     total = len(results)
@@ -214,9 +214,8 @@ def main():
     if passed == total:
         print("🎉 All improvements working correctly!")
         return True
-    else:
-        print("⚠️ Some tests failed - review implementation")
-        return False
+    print("⚠️ Some tests failed - review implementation")
+    return False
 
 if __name__ == "__main__":
     success = main()

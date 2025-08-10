@@ -16,7 +16,6 @@ from upload_model_to_huggingface import get_model_base_directory
 
 def test_path_detection():
     """Test the model path detection under different scenarios."""
-    
     print("🧪 TESTING MODEL PATH DETECTION")
     print("=" * 50)
     
@@ -42,7 +41,7 @@ def test_path_detection():
     detected_path = get_model_base_directory()
     print(f"  Environment var: {os.getenv('SAMO_DL_BASE_DIR')}")
     print(f"  Detected path: {detected_path}")
-    print(f"  Expected: /tmp/test_project/deployment/models")
+    print("  Expected: /tmp/test_project/deployment/models")
     print(f"  Match: {detected_path == '/tmp/test_project/deployment/models'}")
     
     # Test 3: With MODEL_BASE_DIR set  
@@ -54,7 +53,7 @@ def test_path_detection():
     detected_path = get_model_base_directory()
     print(f"  Environment var: {os.getenv('MODEL_BASE_DIR')}")
     print(f"  Detected path: {detected_path}")
-    print(f"  Expected: /home/user/projects/emotion-model/deployment/models")
+    print("  Expected: /home/user/projects/emotion-model/deployment/models")
     print(f"  Match: {detected_path == '/home/user/projects/emotion-model/deployment/models'}")
     
     # Test 4: With expanduser (~) path

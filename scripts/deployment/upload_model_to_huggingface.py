@@ -10,9 +10,7 @@ import os
 import sys
 import json
 import shutil
-from pathlib import Path
 from typing import Optional
-import sys
 
 # Use built-in generics for Python 3.9+ (PEP 585)
 if sys.version_info >= (3, 9):
@@ -22,10 +20,8 @@ else:
     from typing import Dict, List
 
 import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, AutoConfig
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from huggingface_hub import HfApi, login, create_repo
-from sklearn.preprocessing import LabelEncoder
-import pickle
 
 def print_banner():
     """Print banner"""
@@ -40,28 +36,25 @@ def print_banner():
 
 def get_model_base_directory() -> str:
     """Get the base directory for model storage with environment variable override."""
-    
     # Priority order for determining base directory:
     # 1. Environment variable (most flexible)
     # 2. Auto-detect project root
     # 3. Current working directory fallback
-    
     # Option 1: Check for environment variable override
     env_base_dir = os.getenv('SAMO_DL_BASE_DIR') or os.getenv('MODEL_BASE_DIR')
     if env_base_dir:
         base_dir = os.path.expanduser(env_base_dir)
         if os.path.exists(base_dir):
             return os.path.join(base_dir, "deployment", "models")
-        else:
-            print(f"⚠️ Environment base directory doesn't exist: {base_dir}")
-    
+        print(f"⚠️ Environment base directory doesn't exist: {base_dir}")
+
     # Option 2: Auto-detect project root (look for specific files that indicate SAMO-DL root)
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    
+
     # Walk up the directory tree to find project root
     search_dir = current_dir
     max_levels = 5  # Prevent infinite loops
-    
+
     for _ in range(max_levels):
         # Check for project indicators
         indicators = [
@@ -71,16 +64,16 @@ def get_model_base_directory() -> str:
             'pyproject.toml',
             'CHANGELOG.md'
         ]
-        
+
         if all(os.path.exists(os.path.join(search_dir, indicator)) for indicator in indicators[:2]):
             # Found project root
             return os.path.join(search_dir, "deployment", "models")
-        
+
         parent_dir = os.path.dirname(search_dir)
         if parent_dir == search_dir:  # Reached filesystem root
             break
         search_dir = parent_dir
-    
+
     # Option 3: Fallback to current working directory
     cwd_models_dir = os.path.join(os.getcwd(), "deployment", "models")
     return cwd_models_dir
@@ -89,19 +82,19 @@ def find_best_trained_model() -> Optional[str]:
     """Find the best trained model from common locations."""
     print("🔍 SEARCHING FOR TRAINED MODELS")
     print("=" * 40)
-    
+
     # Get configurable base directory
     primary_model_dir = get_model_base_directory()
-    
+
     # Display configuration info
     env_override = os.getenv('SAMO_DL_BASE_DIR') or os.getenv('MODEL_BASE_DIR')
     if env_override:
         print(f"🔧 Using environment override: {env_override}")
     else:
-        print(f"🔍 Auto-detected project location")
-    
+        print("🔍 Auto-detected project location")
+
     print(f"🎯 PRIMARY SEARCH LOCATION: {primary_model_dir}")
-    
+
     # Ensure primary model directory exists
     if not os.path.exists(primary_model_dir):
         print(f"📁 Creating model directory: {primary_model_dir}")
@@ -110,9 +103,9 @@ def find_best_trained_model() -> Optional[str]:
             print(f"✅ Created directory: {primary_model_dir}")
         except Exception as e:
             print(f"⚠️ Could not create directory: {e}")
-    
+
     print("🔄 Also checking fallback locations...")
-    
+
     # Model file patterns to search for
     model_patterns = [
         "best_domain_adapted_model.pth",
@@ -125,50 +118,50 @@ def find_best_trained_model() -> Optional[str]:
         "best_simple_model.pth",
         "best_focal_model.pth",
     ]
-    
+
     # Priority order of model locations (now dynamically constructed)
     model_search_paths = []
-    
+
     # PRIMARY: Configured model directory
     for pattern in model_patterns:
         model_search_paths.append(os.path.join(primary_model_dir, pattern))
-    
+
     # FALLBACK 1: Common download locations
     common_download_locations = [
         os.path.expanduser("~/Downloads"),
         os.path.expanduser("~/Desktop"),
         os.path.expanduser("~/Documents"),
     ]
-    
+
     for download_dir in common_download_locations:
         for pattern in model_patterns:
             model_search_paths.append(os.path.join(download_dir, pattern))
-    
+
     # FALLBACK 2: Relative paths from current directory  
     relative_locations = [
         "./deployment/models",
         "./models/checkpoints", 
         "./",  # Project root
     ]
-    
+
     for rel_dir in relative_locations:
         for pattern in model_patterns:
             model_search_paths.append(os.path.join(rel_dir, pattern))
-    
+
     # FALLBACK 3: Additional specific training checkpoint locations
     checkpoint_patterns = [
         "focal_loss_best_model.pt",
         "simple_working_model.pt", 
         "minimal_working_model.pt",
     ]
-    
+
     for pattern in checkpoint_patterns:
         model_search_paths.append(os.path.join("./models/checkpoints", pattern))
         # Also check in primary model directory
         model_search_paths.append(os.path.join(primary_model_dir, pattern))
-    
+
     found_models = []
-    
+
     for path in model_search_paths:
         if os.path.exists(path):
             if os.path.isdir(path):
@@ -176,14 +169,14 @@ def find_best_trained_model() -> Optional[str]:
                 config_file = os.path.join(path, "config.json")
                 tokenizer_file = os.path.join(path, "tokenizer.json")
                 tokenizer_config_file = os.path.join(path, "tokenizer_config.json")
-                
+
                 # Check for essential files (config.json is required, tokenizer files are highly recommended)
                 has_config = os.path.exists(config_file)
                 has_tokenizer = (os.path.exists(tokenizer_file) or 
                                os.path.exists(tokenizer_config_file) or
                                os.path.exists(os.path.join(path, "vocab.txt")) or
                                os.path.exists(os.path.join(path, "vocab.json")))
-                
+
                 # Check for model weight files (essential for a complete model)
                 weight_files = [
                     os.path.join(path, f) for f in [
@@ -192,7 +185,7 @@ def find_best_trained_model() -> Optional[str]:
                     ] if os.path.exists(os.path.join(path, f))
                 ]
                 has_weights = len(weight_files) > 0
-                
+
                 # Only accept as valid HF model if has config, tokenizer, AND weights
                 if has_config and has_tokenizer and has_weights:
                     # Calculate recursive directory size including all nested files
@@ -207,27 +200,27 @@ def find_best_trained_model() -> Optional[str]:
                                     # Skip files that can't be accessed
                                     pass
                         return total_size
-                    
+
                     size = calculate_directory_size(path)
                     found_models.append((path, size, "huggingface_dir"))
-                    
+
                     # Enhanced logging with component status
                     weight_info = f"weights: {len(weight_files)} file(s)"
                     print(f"✅ Found complete HF model: {path} ({size:,} bytes)")
                     print(f"   • Config: ✅ • Tokenizer: ✅ • {weight_info}")
-                
+
                 elif has_config:
                     # Incomplete model directory - log what's missing
                     size = sum(os.path.getsize(os.path.join(path, f)) 
                              for f in os.listdir(path) 
                              if os.path.isfile(os.path.join(path, f)))
-                    
+
                     missing_components = []
                     if not has_tokenizer:
                         missing_components.append("tokenizer")
                     if not has_weights:
                         missing_components.append("model weights")
-                    
+
                     print(f"⚠️ Incomplete HF model: {path} ({size:,} bytes)")
                     print(f"   Missing: {', '.join(missing_components)}")
             else:
@@ -235,7 +228,7 @@ def find_best_trained_model() -> Optional[str]:
                 size = os.path.getsize(path)
                 found_models.append((path, size, "model_file"))
                 print(f"✅ Found model file: {path} ({size:,} bytes)")
-    
+
     if not found_models:
         print("❌ No trained models found!")
         print("\n📋 To use this script, you need to:")
@@ -247,20 +240,20 @@ def find_best_trained_model() -> Optional[str]:
         print("   - comprehensive_emotion_model_final/ (directory)")
         print("   - emotion_model_ensemble_final/ (directory)")
         return None
-    
+
     print(f"\n📊 Found {len(found_models)} model(s)")
-    
+
     # Return the largest model (likely the best one)
     best_model = max(found_models, key=lambda x: x[1])
     print(f"🎯 Selected best model: {best_model[0]} ({best_model[1]:,} bytes)")
-    
+
     return best_model[0]
 
 def setup_huggingface_auth():
     """Setup HuggingFace authentication."""
     print("\n🔐 HUGGINGFACE AUTHENTICATION")
     print("=" * 40)
-    
+
     hf_token = os.getenv('HUGGINGFACE_TOKEN')
     if not hf_token:
         print("❌ HUGGINGFACE_TOKEN environment variable not set")
@@ -270,7 +263,7 @@ def setup_huggingface_auth():
         print("  3. Set it as environment variable:")
         print("     export HUGGINGFACE_TOKEN='your_token_here'")
         print("  4. Or run: huggingface-cli login")
-        
+
         # Try interactive login
         try:
             login()
@@ -287,7 +280,7 @@ def setup_huggingface_auth():
 def load_emotion_labels_from_model(model_path: str) -> list[str]:
     """
     Dynamically load emotion labels from model config, checkpoint, or fallback sources.
-    
+
     Priority order:
     1. HuggingFace model directory config.json (id2label)
     2. PyTorch checkpoint state_dict (label mappings)
@@ -295,7 +288,6 @@ def load_emotion_labels_from_model(model_path: str) -> list[str]:
     4. Environment variable EMOTION_LABELS
     5. Safe default fallback
     """
-    
     # Method 1: Load from HuggingFace model directory config.json
     if os.path.isdir(model_path):
         config_path = os.path.join(model_path, "config.json")
@@ -303,7 +295,7 @@ def load_emotion_labels_from_model(model_path: str) -> list[str]:
             try:
                 with open(config_path, 'r') as f:
                     config = json.load(f)
-                
+
                 if 'id2label' in config:
                     # Convert id2label dict to sorted list
                     id2label = config['id2label']
@@ -311,41 +303,41 @@ def load_emotion_labels_from_model(model_path: str) -> list[str]:
                     sorted_labels = [id2label[str(i)] for i in range(len(id2label))]
                     print(f"✅ Loaded {len(sorted_labels)} labels from HF config.json")
                     return sorted_labels
-                    
+
             except Exception as e:
                 print(f"⚠️ Could not load labels from config.json: {e}")
-    
+
     # Method 2: Load from PyTorch checkpoint
     elif model_path.endswith('.pth') and os.path.exists(model_path):
         try:
             checkpoint = torch.load(model_path, map_location='cpu', weights_only=False)
-            
+
             # Try to find label mappings in various checkpoint keys
             label_keys = ['id2label', 'label2id', 'labels', 'emotion_labels', 'class_names']
-            
+
             for key in label_keys:
                 if key in checkpoint:
                     labels_data = checkpoint[key]
-                    
+
                     if key == 'id2label' and isinstance(labels_data, dict):
                         sorted_labels = [labels_data[str(i)] for i in range(len(labels_data))]
                         print(f"✅ Loaded {len(sorted_labels)} labels from checkpoint['{key}']")
                         return sorted_labels
-                    
-                    elif key == 'label2id' and isinstance(labels_data, dict):
+
+                    if key == 'label2id' and isinstance(labels_data, dict):
                         # Convert label2id to id2label format
                         id2label = {v: k for k, v in labels_data.items()}
                         sorted_labels = [id2label[i] for i in range(len(id2label))]
                         print(f"✅ Loaded {len(sorted_labels)} labels from checkpoint['{key}']")
                         return sorted_labels
-                    
-                    elif isinstance(labels_data, (list, tuple)):
+
+                    if isinstance(labels_data, (list, tuple)):
                         print(f"✅ Loaded {len(labels_data)} labels from checkpoint['{key}']")
                         return list(labels_data)
-                        
+
         except Exception as e:
             print(f"⚠️ Could not load labels from checkpoint: {e}")
-    
+
     # Method 3: Load from external JSON file (same directory as model)
     model_dir = os.path.dirname(model_path) if os.path.isfile(model_path) else model_path
     labels_file_paths = [
@@ -355,24 +347,24 @@ def load_emotion_labels_from_model(model_path: str) -> list[str]:
         "emotion_labels.json",  # Current directory
         "labels.json"
     ]
-    
+
     for labels_file in labels_file_paths:
         if os.path.exists(labels_file):
             try:
                 with open(labels_file, 'r') as f:
                     labels_data = json.load(f)
-                
+
                 if isinstance(labels_data, list):
                     print(f"✅ Loaded {len(labels_data)} labels from {labels_file}")
                     return labels_data
-                elif isinstance(labels_data, dict) and 'labels' in labels_data:
+                if isinstance(labels_data, dict) and 'labels' in labels_data:
                     labels = labels_data['labels']
                     print(f"✅ Loaded {len(labels)} labels from {labels_file}")
                     return labels
-                    
+
             except Exception as e:
                 print(f"⚠️ Could not load labels from {labels_file}: {e}")
-    
+
     # Method 4: Load from environment variable
     env_labels = os.getenv('EMOTION_LABELS')
     if env_labels:
@@ -388,37 +380,37 @@ def load_emotion_labels_from_model(model_path: str) -> list[str]:
             if labels:
                 print(f"✅ Loaded {len(labels)} labels from EMOTION_LABELS environment variable")
                 return labels
-    
+
     # Method 5: Safe default fallback (common emotion categories)
     default_labels = [
         'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
         'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
     ]
-    
+
     print(f"⚠️ Using default emotion labels ({len(default_labels)} classes)")
     print("   Consider creating emotion_labels.json or setting EMOTION_LABELS environment variable")
     print("   for better label consistency with your trained model.")
-    
+
     return default_labels
 
 def prepare_model_for_upload(model_path: str, temp_dir: str) -> dict[str, any]:
     """Prepare model for HuggingFace Hub upload."""
     print(f"\n🔧 PREPARING MODEL: {model_path}")
     print("=" * 40)
-    
+
     os.makedirs(temp_dir, exist_ok=True)
-    
+
     # Load emotion labels dynamically (avoid hardcoding to match actual model)
     emotion_labels = load_emotion_labels_from_model(model_path)
-    
+
     # Create label mappings
-    id2label = {i: label for i, label in enumerate(emotion_labels)}
+    id2label = dict(enumerate(emotion_labels))
     label2id = {label: i for i, label in enumerate(emotion_labels)}
-    
+
     if os.path.isdir(model_path):
         # Already a HuggingFace directory - copy and update
         print("📁 Processing HuggingFace model directory...")
-        
+
         # Copy all files
         for file in os.listdir(model_path):
             src = os.path.join(model_path, file)
@@ -426,35 +418,35 @@ def prepare_model_for_upload(model_path: str, temp_dir: str) -> dict[str, any]:
             if os.path.isfile(src):
                 shutil.copy2(src, dst)
                 print(f"  ✅ Copied: {file}")
-        
+
         # Update config if needed
         config_path = os.path.join(temp_dir, "config.json")
         if os.path.exists(config_path):
             with open(config_path, 'r') as f:
                 config = json.load(f)
-            
+
             config.update({
                 'id2label': id2label,
                 'label2id': label2id,
                 'num_labels': len(emotion_labels)
             })
-            
+
             with open(config_path, 'w') as f:
                 json.dump(config, f, indent=2)
             print("  ✅ Updated config.json")
-        
+
     else:
         # Individual .pth file - need to reconstruct HuggingFace model
         print("🔄 Converting .pth file to HuggingFace format...")
-        
+
         # Load the state dict
         checkpoint = torch.load(model_path, map_location='cpu')
-        
+
         # Determine base model (make educated guess)
         base_model_name = "distilroberta-base"  # Most commonly used in your training
-        
+
         print(f"  📦 Using base model: {base_model_name}")
-        
+
         # Load base model and tokenizer
         tokenizer = AutoTokenizer.from_pretrained(base_model_name)
         model = AutoModelForSequenceClassification.from_pretrained(
@@ -463,7 +455,7 @@ def prepare_model_for_upload(model_path: str, temp_dir: str) -> dict[str, any]:
             id2label=id2label,
             label2id=label2id
         )
-        
+
         # Load trained weights
         if 'model_state_dict' in checkpoint:
             model.load_state_dict(checkpoint['model_state_dict'])
@@ -471,12 +463,12 @@ def prepare_model_for_upload(model_path: str, temp_dir: str) -> dict[str, any]:
         else:
             model.load_state_dict(checkpoint)
             print("  ✅ Loaded state_dict directly")
-        
+
         # Save in HuggingFace format with safetensors (recommended)
         model.save_pretrained(temp_dir, safe_serialization=True)
         tokenizer.save_pretrained(temp_dir)
         print("  ✅ Saved in HuggingFace format with safetensors")
-    
+
     # Create model card with proper HuggingFace metadata
     model_card = f"""---
 language: en
@@ -640,26 +632,26 @@ It may not perform optimally on formal text or other domains.
 - Performance may degrade on very formal or technical text
 - Not suitable for clinical diagnosis (research/wellness use only)
 """
-    
+
     with open(os.path.join(temp_dir, "README.md"), 'w') as f:
         f.write(model_card)
     print("  ✅ Created model card (README.md)")
-    
+
     # Create requirements.txt for the model
     requirements = """torch>=1.9.0
 transformers>=4.21.0
 numpy>=1.21.0
 """
-    
+
     with open(os.path.join(temp_dir, "requirements.txt"), 'w') as f:
         f.write(requirements)
     print("  ✅ Created requirements.txt")
-    
+
     # Validate critical files exist (avoid common pitfalls)
     print("\n🔍 VALIDATING MODEL FILES...")
     critical_files = ['config.json', 'tokenizer.json', 'tokenizer_config.json']
     missing_files = []
-    
+
     for file in critical_files:
         file_path = os.path.join(temp_dir, file)
         if os.path.exists(file_path):
@@ -667,24 +659,24 @@ numpy>=1.21.0
         else:
             missing_files.append(file)
             print(f"  ❌ {file} - MISSING")
-    
+
     if missing_files:
         print(f"\n⚠️  WARNING: Missing critical files: {missing_files}")
         print("This may cause serverless API loading failures.")
         print("Continuing anyway, but consider regenerating the model with proper tokenizer files.")
-    
+
     # Validate config.json has proper labels
     config_path = os.path.join(temp_dir, 'config.json')
     if os.path.exists(config_path):
         with open(config_path, 'r') as f:
             config = json.load(f)
-        
+
         if 'id2label' not in config or 'label2id' not in config:
             print("  ⚠️  WARNING: config.json missing id2label/label2id mappings")
             print("  This may cause output label mapping issues")
         else:
             print("  ✅ config.json has proper label mappings")
-    
+
     return {
         'emotion_labels': emotion_labels,
         'id2label': id2label,
@@ -695,16 +687,16 @@ numpy>=1.21.0
 
 def update_deployment_config(repo_name: str, model_info: dict[str, any]):
     """Update deployment configurations to use the new model."""
-    print(f"\n🔧 UPDATING DEPLOYMENT CONFIGURATIONS")
+    print("\n🔧 UPDATING DEPLOYMENT CONFIGURATIONS")
     print("=" * 40)
-    
+
     # Update model_utils.py to use the new model
     model_utils_path = "deployment/cloud-run/model_utils.py"
-    
+
     if os.path.exists(model_utils_path):
         with open(model_utils_path, 'r') as f:
             content = f.read()
-        
+
         # Update model loading to use HuggingFace model
         updated_content = content.replace(
             "AutoTokenizer.from_pretrained('distilroberta-base')",
@@ -713,19 +705,19 @@ def update_deployment_config(repo_name: str, model_info: dict[str, any]):
             "AutoModelForSequenceClassification.from_pretrained(\n            'distilroberta-base',",
             f"AutoModelForSequenceClassification.from_pretrained(\n            '{repo_name}',"
         )
-        
+
         with open(model_utils_path, 'w') as f:
             f.write(updated_content)
-        
+
         print(f"✅ Updated {model_utils_path}")
-    
+
     # Create a new deployment config file
     config_path = "deployment/custom_model_config.json"
-    
+
     # Ensure the deployment directory exists
     config_dir = os.path.dirname(config_path)
     os.makedirs(config_dir, exist_ok=True)
-    
+
     config = {
         "model_name": repo_name,
         "model_type": "custom_trained",
@@ -757,15 +749,15 @@ def update_deployment_config(repo_name: str, model_info: dict[str, any]):
             }
         }
     }
-    
+
     with open(config_path, 'w') as f:
         json.dump(config, f, indent=2)
-    
+
     print(f"✅ Created {config_path}")
-    
+
     # Create environment template files for different deployment strategies
     create_environment_templates(repo_name)
-    
+
     print("\n📋 Next steps:")
     print("  1. Choose your deployment strategy:")
     print("     - Serverless API (free, for development)")
@@ -777,7 +769,6 @@ def update_deployment_config(repo_name: str, model_info: dict[str, any]):
 
 def create_environment_templates(repo_name: str):
     """Create environment configuration templates for different deployment strategies."""
-    
     # Serverless API template
     serverless_env = f"""# HuggingFace Serverless API Configuration
 # Best for: Development, testing, light usage
@@ -793,11 +784,11 @@ MAX_RETRIES=3
 TIMEOUT_SECONDS=30
 RATE_LIMIT_PAUSE=1
 """
-    
+
     with open(".env.serverless.template", 'w') as f:
         f.write(serverless_env)
     print("✅ Created .env.serverless.template")
-    
+
     # Inference Endpoints template  
     endpoints_env = f"""# HuggingFace Inference Endpoints Configuration
 # Best for: Production, consistent latency, high throughput
@@ -815,11 +806,11 @@ INFERENCE_ENDPOINT_URL=https://your-endpoint-id.us-east-1.aws.endpoints.huggingf
 MAX_RETRIES=3
 TIMEOUT_SECONDS=10
 """
-    
+
     with open(".env.endpoints.template", 'w') as f:
         f.write(endpoints_env)
     print("✅ Created .env.endpoints.template")
-    
+
     # Self-hosted template
     selfhosted_env = f"""# Self-Hosted Configuration  
 # Best for: Maximum control, custom requirements, data privacy
@@ -838,7 +829,7 @@ MODEL_CACHE_DIR=./model_cache
 BATCH_SIZE=1
 MAX_LENGTH=128
 """
-    
+
     with open(".env.selfhosted.template", 'w') as f:
         f.write(selfhosted_env)
     print("✅ Created .env.selfhosted.template")
@@ -847,16 +838,16 @@ def setup_git_lfs():
     """Set up Git LFS for large model files."""
     print("\n🔧 SETTING UP GIT LFS FOR LARGE MODEL FILES")
     print("=" * 40)
-    
+
     try:
         # Check if git lfs is available
         import subprocess
-        result = subprocess.run(['git', 'lfs', 'version'], capture_output=True, text=True)
+        result = subprocess.run(['git', 'lfs', 'version'], capture_output=True, text=True, check=True)
         if result.returncode != 0:
             print("⚠️ Git LFS not available. Large model files will use regular git.")
             print("   Install with: git lfs install")
             return False
-            
+
         # Track large model files
         lfs_patterns = [
             "*.bin",
@@ -867,30 +858,30 @@ def setup_git_lfs():
             "*.pt",
             "*.h5"
         ]
-        
+
         for pattern in lfs_patterns:
-            subprocess.run(['git', 'lfs', 'track', pattern], capture_output=True, text=True)
+            subprocess.run(['git', 'lfs', 'track', pattern], capture_output=True, text=True, check=True)
             print(f"✅ Tracking {pattern} with Git LFS")
-        
+
         # Update .gitattributes if it exists
         gitattributes_path = ".gitattributes"
         if os.path.exists(gitattributes_path):
             with open(gitattributes_path, 'r') as f:
                 content = f.read()
-            
+
             # Add LFS tracking if not already present
             for pattern in lfs_patterns:
                 lfs_line = f"{pattern} filter=lfs diff=lfs merge=lfs -text"
                 if lfs_line not in content:
                     content += f"\n{lfs_line}"
-            
+
             with open(gitattributes_path, 'w') as f:
                 f.write(content)
-            
+
             print("✅ Updated .gitattributes for Git LFS")
-        
+
         return True
-        
+
     except Exception as e:
         print(f"⚠️ Git LFS setup failed: {e}")
         print("   Large model files will be uploaded directly")
@@ -898,7 +889,7 @@ def setup_git_lfs():
 
 def choose_repository_privacy() -> bool:
     """Ask user about repository privacy based on data sensitivity."""
-    print(f"\n🔒 REPOSITORY PRIVACY SELECTION")
+    print("\n🔒 REPOSITORY PRIVACY SELECTION")
     print("=" * 40)
     print("Consider the sensitivity of your journal content:")
     print()
@@ -915,34 +906,33 @@ def choose_repository_privacy() -> bool:
     print("  ✅ Requires HF token for access")
     print("  💰 Free tier with storage/bandwidth quotas")
     print()
-    
+
     while True:
         choice = input("Is your journal content sensitive? (mental health, therapy, PII) [y/N]: ").strip().lower()
         if choice in ['', 'n', 'no']:
             print("📊 Creating PUBLIC repository (free, no limits)")
             return False  # Public
-        elif choice in ['y', 'yes']:
+        if choice in ['y', 'yes']:
             print("🔒 Creating PRIVATE repository (free tier with quotas)")
             return True  # Private
-        else:
-            print("Please enter 'y' for yes or 'n' for no (or press Enter for no)")
+        print("Please enter 'y' for yes or 'n' for no (or press Enter for no)")
 
 def upload_to_huggingface(temp_dir: str, model_info: dict[str, any]) -> str:
     """Upload model to HuggingFace Hub."""
-    print(f"\n🚀 UPLOADING TO HUGGINGFACE HUB")
+    print("\n🚀 UPLOADING TO HUGGINGFACE HUB")
     print("=" * 40)
-    
+
     # Extract information from model_info for better upload experience
     emotion_labels = model_info.get('emotion_labels', [])
     num_labels = len(emotion_labels)
     validation_warnings = model_info.get('validation_warnings', [])
-    
-    print(f"📊 Model Details:")
+
+    print("📊 Model Details:")
     print(f"   • {num_labels} emotion classes: {', '.join(emotion_labels[:6])}")
     if num_labels > 6:
         print(f"     (and {num_labels - 6} more...)")
     print(f"   • Architecture: {model_info.get('model_type', 'Transformer-based')}")
-    
+
     # Show validation warnings if any
     if validation_warnings:
         print(f"   ⚠️  Validation warnings: {len(validation_warnings)} issue(s) detected")
@@ -951,23 +941,23 @@ def upload_to_huggingface(temp_dir: str, model_info: dict[str, any]) -> str:
         if len(validation_warnings) > 3:
             print(f"      • (and {len(validation_warnings) - 3} more...)")
     else:
-        print(f"   ✅ Model validation: All essential files present")
-    
+        print("   ✅ Model validation: All essential files present")
+
     # Set up Git LFS before upload
     setup_git_lfs()
-    
+
     # Get user info
     api = HfApi()
     user_info = api.whoami()
     username = user_info['name']
-    
+
     # Create repository name
     repo_name = f"{username}/samo-dl-emotion-model"
     print(f"📦 Repository: {repo_name}")
-    
+
     # Choose privacy based on content sensitivity
     is_private = choose_repository_privacy()
-    
+
     try:
         # Create repository with appropriate privacy setting
         create_repo(
@@ -978,7 +968,7 @@ def upload_to_huggingface(temp_dir: str, model_info: dict[str, any]) -> str:
         )
         privacy_status = "private" if is_private else "public"
         print(f"✅ Repository created/confirmed ({privacy_status})")
-        
+
         # Create detailed commit message using model information
         commit_message = f"Upload custom emotion detection model - {num_labels} classes"
         if emotion_labels:
@@ -987,7 +977,7 @@ def upload_to_huggingface(temp_dir: str, model_info: dict[str, any]) -> str:
             if len(emotion_labels) > 4:
                 labels_preview += f" (and {len(emotion_labels) - 4} more)"
             commit_message += f": {labels_preview}"
-        
+
         # Upload all files
         api.upload_folder(
             folder_path=temp_dir,
@@ -996,18 +986,18 @@ def upload_to_huggingface(temp_dir: str, model_info: dict[str, any]) -> str:
             commit_message=commit_message
         )
         print("✅ Model uploaded successfully!")
-        
+
         model_url = f"https://huggingface.co/{repo_name}"
         print(f"🔗 Model URL: {model_url}")
-        
+
         # Print deployment options
-        print(f"\n🎯 DEPLOYMENT OPTIONS:")
+        print("\n🎯 DEPLOYMENT OPTIONS:")
         print(f"  🆓 Serverless API: https://api-inference.huggingface.co/models/{repo_name}")
-        print(f"  🚀 Inference Endpoints: https://ui.endpoints.huggingface.co/ (create endpoint)")
+        print("  🚀 Inference Endpoints: https://ui.endpoints.huggingface.co/ (create endpoint)")
         print(f"  🏠 Self-hosted: AutoModelForSequenceClassification.from_pretrained('{repo_name}')")
-        
+
         return repo_name
-        
+
     except Exception as e:
         print(f"❌ Upload failed: {e}")
         print("\n🔍 Common issues:")
@@ -1020,36 +1010,36 @@ def upload_to_huggingface(temp_dir: str, model_info: dict[str, any]) -> str:
 def main():
     """Main function."""
     print_banner()
-    
+
     # Step 1: Find trained model
     model_path = find_best_trained_model()
     if not model_path:
         return False
-    
+
     # Step 2: Setup authentication
     if not setup_huggingface_auth():
         return False
-    
+
     # Step 3: Prepare model
     temp_dir = "./temp_model_upload"
     model_info = prepare_model_for_upload(model_path, temp_dir)
-    
+
     # Step 4: Upload to HuggingFace
     repo_name = upload_to_huggingface(temp_dir, model_info)
     if not repo_name:
         return False
-    
+
     # Step 5: Update deployment configs
     update_deployment_config(repo_name, model_info)
-    
+
     # Cleanup
     if os.path.exists(temp_dir):
         shutil.rmtree(temp_dir)
         print("🧹 Cleaned up temporary files")
-    
+
     print("\n🎉 SUCCESS! Your custom model is now ready for deployment!")
     print(f"🔗 Model: https://huggingface.co/{repo_name}")
-    
+
     print("\n📋 DEPLOYMENT STRATEGIES:")
     print("┌─────────────────────────────────────────────────────────────────────┐")
     print("│ 🆓 SERVERLESS API (Recommended for Development)                    │")
@@ -1057,42 +1047,42 @@ def main():
     print("│   • Setup: Use .env.serverless.template                            │")
     print("│   • Test: curl with HF_TOKEN authorization                         │")
     print("└─────────────────────────────────────────────────────────────────────┘")
-    
+
     print("┌─────────────────────────────────────────────────────────────────────┐")
     print("│ 🚀 INFERENCE ENDPOINTS (Recommended for Production)                │")
     print("│   • Cost: Paid per usage (~$0.06-1.20/hour)                       │")
     print("│   • Setup: https://ui.endpoints.huggingface.co/                    │")
     print("│   • Benefits: No cold starts, consistent latency                   │")
     print("└─────────────────────────────────────────────────────────────────────┘")
-    
+
     print("┌─────────────────────────────────────────────────────────────────────┐")
     print("│ 🏠 SELF-HOSTED (Maximum Control)                                   │")
     print("│   • Cost: Your infrastructure                                      │")
     print("│   • Setup: Use .env.selfhosted.template                            │")
     print("│   • Benefits: Complete control, data privacy                       │")
     print("└─────────────────────────────────────────────────────────────────────┘")
-    
+
     print("\n🚀 QUICK TEST (Serverless API):")
-    print(f"   export HF_TOKEN='your_token_here'")
-    print(f"   curl -X POST \\")
-    print(f"     -H \"Authorization: Bearer $HF_TOKEN\" \\")
-    print(f"     -H \"Content-Type: application/json\" \\")
-    print(f"     -d '{{\"inputs\": \"I am feeling really happy today!\"}}' \\")
+    print("   export HF_TOKEN='your_token_here'")
+    print("   curl -X POST \\")
+    print("     -H \"Authorization: Bearer $HF_TOKEN\" \\")
+    print("     -H \"Content-Type: application/json\" \\")
+    print("     -d '{{\"inputs\": \"I am feeling really happy today!\"}}' \\")
     print(f"     https://api-inference.huggingface.co/models/{repo_name}")
-    
+
     print("\n📁 FILES CREATED:")
     print("   • deployment/custom_model_config.json (model metadata)")
     print("   • .env.serverless.template (for serverless API)")
     print("   • .env.endpoints.template (for inference endpoints)")
     print("   • .env.selfhosted.template (for self-hosting)")
-    
+
     print("\n📖 NEXT STEPS:")
     print("   1. Choose deployment strategy (start with serverless for free)")
     print("   2. Copy appropriate .env template to .env")
     print("   3. Set your HF_TOKEN in the environment")
     print("   4. Test your model with the quick test above")
     print("   5. Integrate into your application")
-    
+
     return True
 
 if __name__ == "__main__":
