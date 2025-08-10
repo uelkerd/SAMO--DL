@@ -105,3 +105,13 @@ def test_permissions_helpers():
     # Malformed token handling
     assert mgr.get_user_permissions("not.a.jwt") == []
 
+    # Token missing permissions field should default to empty list
+    user_no_permissions = {
+        "user_id": "u5",
+        "username": "user5@example.com",
+        "email": "user5@example.com",
+        # intentionally omit "permissions"
+    }
+    token_no_perms = mgr.create_access_token(user_no_permissions)
+    assert mgr.get_user_permissions(token_no_perms) == []
+

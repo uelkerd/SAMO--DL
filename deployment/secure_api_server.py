@@ -270,6 +270,12 @@ class SecureEmotionDetectionModel:
         try:
             if not getattr(self, 'loaded', False):
                 raise RuntimeError("SecureEmotionDetectionModel is not loaded; prediction unavailable.")
+            # Ensure torch is available within function scope for linter/runtime
+            try:
+                import torch  # type: ignore
+            except Exception as e:  # pragma: no cover
+                logger.error("Torch import failed during prediction: %s", e)
+                raise
             # Sanitize input text
             sanitized_text, warnings = input_sanitizer.sanitize_text(text, "emotion")
             if warnings:
