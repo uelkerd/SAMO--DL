@@ -20,6 +20,13 @@ import subprocess
 from pathlib import Path
 from typing import Dict, List, Tuple
 
+# Use shared truthy parsing
+try:
+    from src.common.env import is_truthy
+except Exception:  # Fallback to local helper if import path not available
+    def is_truthy(value: str | None) -> bool:
+        return bool(value) and value.strip().lower() in {"1", "true", "yes"}
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -376,6 +383,13 @@ class CIPipelineRunner:
         return report
 
 
+def write_ci_report_if_needed(report: str) -> None:
+    """Write the CI report artifact only when running in CI environment."""
+    if is_truthy(os.environ.get("CI")):
+        with open("ci_pipeline_report.txt", "w") as f:
+            f.write(report)
+
+
 def main():
     """Main function to run the CI pipeline."""
     runner = CIPipelineRunner()
@@ -385,11 +399,8 @@ def main():
         report = runner.generate_report()
         
         print(report)
-        
         # Only write report to file in CI so it can be uploaded as an artifact
-        if os.environ.get("CI") == "true" or os.environ.get("CI") == "1":
-            with open("ci_pipeline_report.txt", "w") as f:
-                f.write(report)
+        write_ci_report_if_needed(report)
         
         # Exit with appropriate code
         _, total_tests, passed_tests = runner._get_test_stats()
