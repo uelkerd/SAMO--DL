@@ -275,7 +275,7 @@ class FlexibleEmotionDetector:
                 # Model has no parameters, default to CPU
                 device = torch.device('cpu')
                 logger.warning("Model has no parameters, using CPU device")
-            
+
             inputs = {k: v.to(device) for k, v in inputs.items()}
 
             # Get prediction
@@ -327,7 +327,7 @@ class FlexibleEmotionDetector:
         """Safely get the model device as string, handling models with no parameters."""
         if not self.model:
             return None
-        
+
         try:
             device = next(self.model.parameters()).device
             return str(device)
@@ -508,16 +508,16 @@ if __name__ == '__main__':
     SECURE_LOCALHOST = '127.0.0.1'
     ALL_INTERFACES = '0.0.0.0'
     LOCALHOST_ALIAS = 'localhost'
-    
+
     host = os.getenv('FLASK_HOST', SECURE_LOCALHOST)  # Default to localhost for security
     port = int(os.getenv('FLASK_PORT', '5000'))
     debug = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
-    
+
     # Determine security level
     is_all_interfaces = (host == ALL_INTERFACES)
     is_localhost_secure = (host == SECURE_LOCALHOST)
     is_localhost_alias = (host == LOCALHOST_ALIAS)
-    
+
     # Security warning for production binding
     if is_all_interfaces:
         all_interfaces_warning = f"Binding to all interfaces ({ALL_INTERFACES})"
@@ -525,17 +525,17 @@ if __name__ == '__main__':
         print("   This exposes the service to external networks!")
         print("   Only use this in production with proper security measures.")
         print(f"   For development, use FLASK_HOST={SECURE_LOCALHOST} (default)")
-    
+
     # Generate safe display URL (avoid showing sensitive binding in logs)
     display_host = LOCALHOST_ALIAS if is_all_interfaces else host
     server_url = f"http://{display_host}:{port}"
     print(f"\n🚀 Server starting on {server_url}")
-    
+
     print("📝 Example test:")
     print(f"   curl -X POST {server_url}/predict \\")
     print("        -H 'Content-Type: application/json' \\")
     print("        -d '{\"text\": \"I am feeling really happy today!\"}'")
-    
+
     # Security-aware configuration display
     if is_localhost_secure:
         security_status = "SECURE - localhost only"
@@ -543,18 +543,18 @@ if __name__ == '__main__':
         security_status = "EXPOSED - all interfaces" 
     else:
         security_status = "CUSTOM"
-    
-    print(f"\n🔧 Configuration:")
+
+    print("\n🔧 Configuration:")
     print(f"   Host: {host} ({security_status})")
     print(f"   Port: {port}")
     print(f"   Debug: {debug}")
-    
+
     # Security guidance for non-localhost configurations
     if not is_localhost_secure and not is_localhost_alias:
-        print(f"\n💡 Security Tips:")
+        print("\n💡 Security Tips:")
         print(f"   • Use FLASK_HOST={SECURE_LOCALHOST} for development (secure)")
         all_interfaces_env = f"FLASK_HOST={ALL_INTERFACES}"
         print(f"   • Use {all_interfaces_env} only in production with firewall/proxy")
-        print(f"   • Never expose debug=True to external networks")
+        print("   • Never expose debug=True to external networks")
 
     app.run(host=host, port=port, debug=debug)

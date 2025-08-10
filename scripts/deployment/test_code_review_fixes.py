@@ -7,7 +7,6 @@ Validate the fixes made to address code review comments.
 
 import os
 import sys
-import tempfile
 import unittest.mock as mock
 
 # Add the upload script to path to import functions
@@ -25,19 +24,18 @@ def test_portability_fix():
         
         # Test environment variable override using TemporaryDirectory
         from tempfile import TemporaryDirectory
-        with TemporaryDirectory() as test_path:
-            with mock.patch.dict(os.environ, {'SAMO_DL_BASE_DIR': test_path}):
-                result = get_model_base_directory()
-                expected = os.path.join(test_path, "deployment", "models")
-                
-                if result == expected:
-                    print("✅ Environment variable override works correctly")
-                    print(f"   Input: SAMO_DL_BASE_DIR={test_path}")
-                    print(f"   Output: {result}")
-                else:
-                    print(f"❌ Environment variable override failed: {result} != {expected}")
-                    return False
-                
+        with TemporaryDirectory() as test_path, mock.patch.dict(os.environ, {'SAMO_DL_BASE_DIR': test_path}):
+            result = get_model_base_directory()
+            expected = os.path.join(test_path, "deployment", "models")
+            
+            if result == expected:
+                print("✅ Environment variable override works correctly")
+                print(f"   Input: SAMO_DL_BASE_DIR={test_path}")
+                print(f"   Output: {result}")
+            else:
+                print(f"❌ Environment variable override failed: {result} != {expected}")
+                return False
+            
         print("✅ No hardcoded absolute paths - uses configurable environment variables")
         return True
         
@@ -103,10 +101,6 @@ def test_error_handling_simulation():
     def mock_torch_load_new_version(path, map_location, weights_only):
         # Simulate successful load with new PyTorch version
         return {"model_state_dict": {}, "id2label": {0: "happy", 1: "sad"}}
-    
-    def mock_torch_load_old_version_error(path, map_location, weights_only=None):
-        # Simulate TypeError for older PyTorch versions
-        raise TypeError("torch.load() got an unexpected keyword argument 'weights_only'")
     
     def mock_torch_load_old_version_fallback(path, map_location):
         # Simulate successful load with old PyTorch version
@@ -206,7 +200,7 @@ def main():
             print(f"❌ {test_name} failed with exception: {e}")
             results.append((test_name, False))
     
-    print(f"\n🎯 CODE REVIEW FIXES SUMMARY")
+    print("\n🎯 CODE REVIEW FIXES SUMMARY")
     print("=" * 60)
     
     passed = sum(1 for _, result in results if result)
@@ -226,9 +220,8 @@ def main():
         print("  ✅ Comment 3: No error handling → Comprehensive error handling")
         print("  ✅ Bonus: Enhanced authentication with multiple token sources")
         return True
-    else:
-        print(f"\n⚠️ {total - passed} test(s) failed - review implementation")
-        return False
+    print(f"\n⚠️ {total - passed} test(s) failed - review implementation")
+    return False
 
 if __name__ == "__main__":
     success = main()

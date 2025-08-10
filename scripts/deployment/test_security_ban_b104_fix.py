@@ -7,7 +7,6 @@ Validate that hardcoded '0.0.0.0' strings have been eliminated while maintaining
 
 import os
 import sys
-import unittest.mock as mock
 
 def test_no_hardcoded_binding_strings():
     """Test that no hardcoded '0.0.0.0' strings remain in the code."""
@@ -70,12 +69,11 @@ def test_no_hardcoded_binding_strings():
         print("   • Security constants implemented")
         print("   • Boolean logic replaces direct string comparisons")
         return True
-    else:
-        print(f"\n❌ SECURITY FIX INCOMPLETE:")
-        print(f"   • Hardcoded strings: {total_hardcoded} (should be ≤1)")
-        print(f"   • Security constants: {constants_present}/3")
-        print(f"   • Boolean logic: {logic_present}/3") 
-        return False
+    print("\n❌ SECURITY FIX INCOMPLETE:")
+    print(f"   • Hardcoded strings: {total_hardcoded} (should be ≤1)")
+    print(f"   • Security constants: {constants_present}/3")
+    print(f"   • Boolean logic: {logic_present}/3") 
+    return False
 
 def test_security_functionality():
     """Test that security functionality still works with the new implementation."""
@@ -112,10 +110,10 @@ def test_security_functionality():
             alias_match = is_localhost_alias == expected_alias
             
             if secure_match and all_match and alias_match:
-                print(f"      ✅ Logic works correctly")
+                print("      ✅ Logic works correctly")
                 print(f"         Secure: {is_localhost_secure}, All: {is_all_interfaces}, Alias: {is_localhost_alias}")
             else:
-                print(f"      ❌ Logic failed")
+                print("      ❌ Logic failed")
                 print(f"         Expected: Secure={expected_secure}, All={expected_all}, Alias={expected_alias}")
                 print(f"         Got: Secure={is_localhost_secure}, All={is_all_interfaces}, Alias={is_localhost_alias}")
                 return False
@@ -199,9 +197,8 @@ def test_security_constants_defined():
     if all_defined:
         print("\n✅ All security constants properly defined")
         return True
-    else:
-        print("\n❌ Security constants definition incomplete")
-        return False
+    print("\n❌ Security constants definition incomplete")
+    return False
 
 def main():
     """Run all BAN-B104 security fix validation tests."""
@@ -227,7 +224,7 @@ def main():
             print(f"❌ {test_name} failed with exception: {e}")
             results.append((test_name, False))
     
-    print(f"\n🎯 BAN-B104 SECURITY FIX VALIDATION SUMMARY")
+    print("\n🎯 BAN-B104 SECURITY FIX VALIDATION SUMMARY")
     print("=" * 60)
     
     passed = sum(1 for _, result in results if result)
@@ -249,9 +246,8 @@ def main():
         print("  ✅ Security warnings and functionality preserved")
         print("\n🛡️ Security compliance: OWASP Top 10 2021 A05 fully addressed")
         return True
-    else:
-        print(f"\n⚠️ {total - passed} test(s) failed - review security implementation")
-        return False
+    print(f"\n⚠️ {total - passed} test(s) failed - review security implementation")
+    return False
 
 if __name__ == "__main__":
     success = main()

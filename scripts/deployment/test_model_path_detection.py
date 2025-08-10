@@ -56,8 +56,6 @@ def test_path_detection():
     print("\n🔧 Test 3: With MODEL_BASE_DIR environment variable")
     if 'SAMO_DL_BASE_DIR' in os.environ:
         del os.environ['SAMO_DL_BASE_DIR']
-    
-    from tempfile import TemporaryDirectory
     with TemporaryDirectory() as temp_dir:
         os.environ['MODEL_BASE_DIR'] = temp_dir
         

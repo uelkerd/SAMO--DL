@@ -12,7 +12,6 @@ Validate all the latest code review fixes including:
 import os
 import sys
 import unittest.mock as mock
-from tempfile import TemporaryDirectory
 
 def test_temporary_directory_usage():
     """Test that test files use TemporaryDirectory instead of hardcoded paths."""
@@ -86,7 +85,7 @@ def test_hf_repo_private_environment_variable():
             print("🔍 Test 1: HF_REPO_PRIVATE=true (private repository)")
             with mock.patch.dict(os.environ, {'HF_REPO_PRIVATE': 'true'}):
                 result = choose_repository_privacy()
-                if result == True:
+                if result is True:
                     print("   ✅ Correctly returns True for private repository")
                 else:
                     print(f"   ❌ Expected True, got {result}")
@@ -96,7 +95,7 @@ def test_hf_repo_private_environment_variable():
             print("\n🔍 Test 2: HF_REPO_PRIVATE=false (public repository)")
             with mock.patch.dict(os.environ, {'HF_REPO_PRIVATE': 'false'}):
                 result = choose_repository_privacy()
-                if result == False:
+                if result is False:
                     print("   ✅ Correctly returns False for public repository")
                 else:
                     print(f"   ❌ Expected False, got {result}")
@@ -109,7 +108,7 @@ def test_hf_repo_private_environment_variable():
                 # We'll mock input to avoid hanging
                 with mock.patch('builtins.input', return_value='n'):
                     result = choose_repository_privacy()
-                    if result == False:
+                    if result is False:
                         print("   ✅ Invalid value handled gracefully, defaults to public")
                     else:
                         print(f"   ❌ Unexpected result: {result}")
@@ -117,14 +116,13 @@ def test_hf_repo_private_environment_variable():
         
         # Test 4: Non-interactive environment
         print("\n🔍 Test 4: Non-interactive environment (should default to public)")
-        with mock.patch('sys.stdin.isatty', return_value=False):
-            with mock.patch.dict(os.environ, {}, clear=True):  # Clear HF_REPO_PRIVATE
-                result = choose_repository_privacy()
-                if result == False:
-                    print("   ✅ Non-interactive environment defaults to public")
-                else:
-                    print(f"   ❌ Expected False in non-interactive, got {result}")
-                    return False
+        with mock.patch('sys.stdin.isatty', return_value=False), mock.patch.dict(os.environ, {}, clear=True):  # Clear HF_REPO_PRIVATE
+            result = choose_repository_privacy()
+            if result is False:
+                print("   ✅ Non-interactive environment defaults to public")
+            else:
+                print(f"   ❌ Expected False in non-interactive, got {result}")
+                return False
         
         print("\n✅ HF_REPO_PRIVATE environment variable fully functional")
         return True
@@ -295,7 +293,7 @@ def main():
             print(f"❌ {test_name} failed with exception: {e}")
             results.append((test_name, False))
     
-    print(f"\n🎯 CODE REVIEW FIXES VALIDATION SUMMARY")
+    print("\n🎯 CODE REVIEW FIXES VALIDATION SUMMARY")
     print("=" * 60)
     
     passed = sum(1 for _, result in results if result)
@@ -317,9 +315,8 @@ def main():
         print("  ✅ Comprehensive documentation updates")
         print("\n🚀 All fixes validated and ready for production!")
         return True
-    else:
-        print(f"\n⚠️ {total - passed} test(s) failed - review implementation")
-        return False
+    print(f"\n⚠️ {total - passed} test(s) failed - review implementation")
+    return False
 
 if __name__ == "__main__":
     success = main()

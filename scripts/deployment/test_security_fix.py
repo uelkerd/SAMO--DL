@@ -66,7 +66,7 @@ def test_environment_configuration():
             host = os.getenv('FLASK_HOST', '127.0.0.1')
             
             # Simulate security level detection logic
-            if host == '127.0.0.1' or host == 'localhost':
+            if host in ('127.0.0.1', 'localhost'):
                 security_level = 'SECURE'
             elif host == '0.0.0.0':
                 security_level = 'WARNING'
@@ -100,7 +100,7 @@ def test_security_warnings():
         
         # Simulate warning logic from the fixed code
         triggers_security_warning = (host_value == '0.0.0.0')
-        triggers_security_tips = (host_value != '127.0.0.1' and host_value != 'localhost')
+        triggers_security_tips = host_value not in ('127.0.0.1', 'localhost')
         
         if should_warn:
             if triggers_security_warning or triggers_security_tips:
@@ -161,9 +161,8 @@ def test_fix_validation():
     if len(fixes_found) >= 4:
         print("   ✅ COMPREHENSIVE SECURITY FIX IMPLEMENTED")
         return True
-    else:
-        print("   ❌ Insufficient fixes detected")
-        return False
+    print("   ❌ Insufficient fixes detected")
+    return False
 
 def test_configuration_template():
     """Test that the security configuration template exists."""
@@ -198,9 +197,8 @@ def test_configuration_template():
     if len(found_elements) >= 5:
         print("   ✅ COMPREHENSIVE SECURITY TEMPLATE CREATED")
         return True
-    else:
-        print("   ❌ Security template incomplete")
-        return False
+    print("   ❌ Security template incomplete")
+    return False
 
 def main():
     """Run all security fix validation tests."""
@@ -227,7 +225,7 @@ def main():
             print(f"❌ {test_name} failed with exception: {e}")
             results.append((test_name, False))
     
-    print(f"\n🎯 SECURITY FIX VALIDATION SUMMARY")
+    print("\n🎯 SECURITY FIX VALIDATION SUMMARY")
     print("=" * 60)
     
     passed = sum(1 for _, result in results if result)
@@ -249,9 +247,8 @@ def main():
         print("  ✅ Best practices and deployment guidance included")
         print("\n🛡️ Security compliance: OWASP Top 10 2021 A05 addressed")
         return True
-    else:
-        print(f"\n⚠️ {total - passed} test(s) failed - review security implementation")
-        return False
+    print(f"\n⚠️ {total - passed} test(s) failed - review security implementation")
+    return False
 
 if __name__ == "__main__":
     success = main()

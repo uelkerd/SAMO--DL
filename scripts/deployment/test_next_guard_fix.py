@@ -140,9 +140,8 @@ def test_fix_validation():
     if len(fixes_found) >= 3:
         print("✅ COMPREHENSIVE FIX IMPLEMENTED")
         return True
-    else:
-        print("❌ Insufficient fixes detected")
-        return False
+    print("❌ Insufficient fixes detected")
+    return False
 
 def main():
     """Run all tests for the next() guard fix."""
@@ -163,7 +162,7 @@ def main():
             print(f"❌ {test_name} failed with exception: {e}")
             results.append((test_name, False))
     
-    print(f"\n🎯 SUMMARY")
+    print("\n🎯 SUMMARY")
     print("=" * 60)
     
     passed = sum(1 for _, result in results if result)
@@ -184,9 +183,8 @@ def main():
         print("  ✅ Helper methods created for reusable safe access")
         print("  ✅ Warning logging added for edge cases")
         return True
-    else:
-        print(f"\n⚠️ {total - passed} test(s) failed")
-        return False
+    print(f"\n⚠️ {total - passed} test(s) failed")
+    return False
 
 if __name__ == "__main__":
     success = main()
