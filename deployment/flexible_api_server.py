@@ -268,7 +268,13 @@ class FlexibleEmotionDetector:
             )
 
             # Move to same device as model
-            device = next(self.model.parameters()).device
+            try:
+                device = next(self.model.parameters()).device
+            except StopIteration:
+                # Model has no parameters, default to CPU
+                device = torch.device('cpu')
+                logger.warning("Model has no parameters, using CPU device")
+            
             inputs = {k: v.to(device) for k, v in inputs.items()}
 
             # Get prediction
@@ -316,6 +322,19 @@ class FlexibleEmotionDetector:
                 "deployment_type": "local"
             }
 
+    def _get_model_device_str(self) -> Optional[str]:
+        """Safely get the model device as string, handling models with no parameters."""
+        if not self.model:
+            return None
+        
+        try:
+            device = next(self.model.parameters()).device
+            return str(device)
+        except StopIteration:
+            # Model has no parameters, return None or default
+            logger.warning("Model has no parameters, cannot determine device")
+            return "unknown"
+
     def get_status(self) -> Dict[str, Any]:
         """Get detector status information."""
         return {
@@ -326,7 +345,7 @@ class FlexibleEmotionDetector:
             "config": {
                 "serverless_api": self.api_url if hasattr(self, 'api_url') else None,
                 "endpoint_url": self.endpoint_url if hasattr(self, 'endpoint_url') else None,
-                "local_device": str(next(self.model.parameters()).device) if self.model else None,
+                "local_device": self._get_model_device_str() if self.model else None,
             }
         }
 
