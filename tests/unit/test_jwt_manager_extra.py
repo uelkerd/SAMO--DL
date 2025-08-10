@@ -29,9 +29,9 @@ def test_verify_invalid_token_returns_none():
     assert mgr.verify_token("not-a-jwt") is None
 
 
-def test_blacklist_and_cleanup_flow():
+def test_blacklist_and_cleanup_flow(monkeypatch):
     mgr = JWTManager()
-    # Create a short-lived token and blacklist it
+    # Create a token and blacklist it using public API
     token = mgr.create_access_token(
         {
             "user_id": "u2",
@@ -43,8 +43,21 @@ def test_blacklist_and_cleanup_flow():
     assert mgr.blacklist_token(token) is True
     assert mgr.is_token_blacklisted(token) is True
 
-    # Simulate expired blacklist entry and cleanup
-    mgr.blacklisted_tokens[token] = datetime.utcnow() - timedelta(seconds=1)
+    # Determine the stored expiration timestamp via decoding to avoid touching internals
+    import jwt
+
+    payload = jwt.decode(token, mgr.secret_key, algorithms=[mgr.algorithm])
+    exp_ts = payload.get("exp")
+
+    # Monkeypatch datetime.utcnow to simulate time past expiration for cleanup logic
+    class _FakeDateTime(datetime):
+        @classmethod
+        def utcnow(cls):
+            # jump past the token's expiration
+            return datetime.fromtimestamp(exp_ts) + timedelta(seconds=5)
+
+    monkeypatch.setattr("src.security.jwt_manager.datetime", _FakeDateTime)
+
     removed = mgr.cleanup_expired_tokens()
     assert removed >= 1
 
