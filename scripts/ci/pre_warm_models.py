@@ -15,16 +15,11 @@ def pre_warm_models():
 
     try:
         import os
-        # Respect offline mode in CI to avoid failing when network is
-        # unavailable. Accept common truthy values case-insensitively.
-        def _is_truthy(value: str | None) -> bool:
-            if value is None:
-                return False
-            return value.strip().lower() in {"1", "true", "yes"}
-
+        from src.utils.strings import is_truthy
+        # Respect offline mode in CI to avoid failing when network is unavailable.
         offline = (
-            _is_truthy(os.getenv("HF_HUB_OFFLINE"))
-            or _is_truthy(os.getenv("TRANSFORMERS_OFFLINE"))
+            is_truthy(os.getenv("HF_HUB_OFFLINE"))
+            or is_truthy(os.getenv("TRANSFORMERS_OFFLINE"))
         )
         if offline:
             print("Offline mode detected. Skipping pre-warm.")
