@@ -281,4 +281,49 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [Unreleased] - 2025-08-07
+
+### Added
+- **Custom Model Deployment Solution** - Complete pipeline to upload custom-trained models to HuggingFace Hub for production deployment
+  - Created `scripts/deployment/upload_model_to_huggingface.py` - Comprehensive script to find, prepare, and upload custom trained models
+  - Added `deployment/CUSTOM_MODEL_DEPLOYMENT_GUIDE.md` - Complete guide for deploying custom models with multiple deployment strategies
+  - Added `deployment/flexible_api_server.py` - Flexible API server supporting serverless, endpoints, and self-hosted deployments
+  - **Portable Configuration**: Environment variable support (`SAMO_DL_BASE_DIR` or `MODEL_BASE_DIR`) with automatic project root detection
+  - Added `deployment/models/` directory with README for organized model storage
+  - Created `.env.model_config.example` template for easy environment configuration
+  - **HuggingFace Deployment Strategies**:
+    - 🆓 Serverless Inference API (free tier with rate limits)
+    - 🚀 Inference Endpoints (paid, production-grade with consistent latency)
+    - 🏠 Self-hosted (maximum control with local transformers)
+  - **Automated Features**:
+    - Model format conversion (PyTorch .pth to HuggingFace format)
+    - Git LFS setup for large model files
+    - Environment configuration templates (.env.serverless, .env.endpoints, .env.selfhosted)
+    - Deployment configuration updates
+    - Model card generation with proper metadata and usage examples
+    - Cold start handling and retry logic for API calls
+
+### Fixed
+- **Model-as-a-Service Configuration Issue** - Resolved deployment using untrained base models instead of custom trained models
+  - Deployment was falling back to base `distilroberta-base` and `bert-base-uncased` models
+  - Custom models trained in Colab were not accessible to deployment infrastructure
+  - Now properly uploads custom models to HuggingFace Hub for production access
+
+### Changed
+- Deployment infrastructure now supports custom models from HuggingFace Hub instead of local files only
+- Updated model loading configuration to use custom emotion labels (12 classes) instead of generic ones
+
+### Technical Details
+- **Model Architecture**: DistilRoBERTa/BERT fine-tuned on custom journal entries
+- **Emotion Classes**: 12 specialized emotions (anxious, calm, content, excited, frustrated, grateful, happy, hopeful, overwhelmed, proud, sad, tired)
+- **Performance**: Expected ~85% accuracy vs ~60% with base models
+- **Deployment Options**:
+  - Serverless API: Free tier, 30s timeout, automatic retry and cold start handling
+  - Inference Endpoints: Paid service, 10s timeout, no cold starts, consistent latency
+  - Self-hosted: Local transformers, full control, configurable device (CPU/GPU)
+- **Storage**: Uses HuggingFace Hub as model repository with Git LFS for large files
+- **Cost Structure**: Public repos free, private repos with quotas, bandwidth tracking
+
+---
+
 *This changelog follows the [Keep a Changelog](https://keepachangelog.com/) format and adheres to [Semantic Versioning](https://semver.org/).* 
