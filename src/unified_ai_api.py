@@ -682,12 +682,12 @@ async def health_check() -> dict[str, Any]:
 # Authentication Endpoints
 @app.post(
     "/auth/register",
-    response_model=TokenResponse,
+    response_model=TokenPair,
     tags=["Authentication"],
     summary="Register new user",
     description="Register a new user account and receive authentication tokens",
 )
-async def register_user(user_data: UserRegister) -> TokenResponse:
+async def register_user(user_data: UserRegister) -> TokenPair:
     """Register a new user account."""
     try:
         # In a real application, you would:
@@ -722,12 +722,12 @@ async def register_user(user_data: UserRegister) -> TokenResponse:
 
 @app.post(
     "/auth/login",
-    response_model=TokenResponse,
+    response_model=TokenPair,
     tags=["Authentication"],
     summary="User login",
     description="Authenticate user and receive access tokens",
 )
-async def login_user(login_data: UserLogin) -> TokenResponse:
+async def login_user(login_data: UserLogin) -> TokenPair:
     """Authenticate user and provide access tokens."""
     try:
         # In a real application, you would:
@@ -772,12 +772,12 @@ class RefreshTokenRequest(BaseModel):
 
 @app.post(
     "/auth/refresh",
-    response_model=TokenResponse,
+    response_model=TokenPair,
     tags=["Authentication"],
     summary="Refresh access token",
     description="Refresh access token using refresh token",
 )
-async def refresh_token(request: RefreshTokenRequest) -> TokenResponse:
+async def refresh_token(request: RefreshTokenRequest) -> TokenPair:
     """Refresh access token using refresh token."""
     try:
         # Verify refresh token
