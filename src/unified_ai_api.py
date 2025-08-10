@@ -42,7 +42,7 @@ from pydantic import BaseModel, Field
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
 from .api_rate_limiter import add_rate_limiting
-from .security.jwt_manager import JWTManager, TokenResponse, TokenPayload, TokenPair
+from .security.jwt_manager import JWTManager, TokenPayload, TokenPair
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
