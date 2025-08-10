@@ -39,10 +39,15 @@ else:
         DATABASE_URL = f"postgresql://{safe_user}:{safe_password}@{safe_host}:{safe_port}/{safe_db}"
     else:
         # Fall back to SQLite only when explicitly allowed or in CI/TEST
+        def _is_truthy(value: str | None) -> bool:
+            if value is None:
+                return False
+            return value in {"1", "true", "True"}
+
         allow_sqlite = (
-            os.environ.get("ALLOW_SQLITE_FALLBACK") in {"1", "true", "True"}
-            or os.environ.get("TESTING")
-            or os.environ.get("CI")
+            _is_truthy(os.environ.get("ALLOW_SQLITE_FALLBACK"))
+            or _is_truthy(os.environ.get("TESTING"))
+            or _is_truthy(os.environ.get("CI"))
         )
         if not allow_sqlite:
             raise RuntimeError(
@@ -50,6 +55,12 @@ else:
                 "or explicitly allow SQLite fallback via ALLOW_SQLITE_FALLBACK=1 in dev/test."
             )
         default_sqlite_path = Path(os.environ.get("SQLITE_PATH", "./samo_local.db")).expanduser().resolve()
+        # Ensure directory for SQLite exists before engine creation
+        sqlite_dir = default_sqlite_path.parent
+        try:
+            sqlite_dir.mkdir(parents=True, exist_ok=True)
+        except Exception as exc:
+            raise RuntimeError(f"Failed to create SQLite directory '{sqlite_dir}': {exc}")
         DATABASE_URL = f"sqlite:///{default_sqlite_path}"
 
 if DATABASE_URL.startswith("sqlite"):

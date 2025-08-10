@@ -209,6 +209,7 @@ class SecureEmotionDetectionModel:
             logger.warning("TEST/CI environment detected. Running secure model in stub mode.")
             self.tokenizer = None
             self.model = None
+            self.loaded = False
             return
 
         # If the local model directory is missing, skip heavy loading to keep imports working
@@ -218,6 +219,7 @@ class SecureEmotionDetectionModel:
             )
             self.tokenizer = None
             self.model = None
+            self.loaded = False
             return
 
         # If directory exists but lacks required files, also stub to avoid HF hub lookups
@@ -232,6 +234,7 @@ class SecureEmotionDetectionModel:
             )
             self.tokenizer = None
             self.model = None
+            self.loaded = False
             return
 
         try:
@@ -259,6 +262,8 @@ class SecureEmotionDetectionModel:
         start_time = time.time()
         
         try:
+            if not getattr(self, 'loaded', False):
+                raise RuntimeError("SecureEmotionDetectionModel is not loaded; prediction unavailable.")
             # Sanitize input text
             sanitized_text, warnings = input_sanitizer.sanitize_text(text, "emotion")
             if warnings:
@@ -447,8 +452,8 @@ def predict():
         
         # Make secure prediction
         model_instance = get_secure_model()
-        if not hasattr(model_instance, 'predict'):
-            return jsonify({'error': 'Model unavailable in CI/TEST'}), 503
+        if not getattr(model_instance, 'loaded', False):
+            return jsonify({'error': 'Secure model not loaded'}), 503
         result = model_instance.predict(
             sanitized_data['text'],
             confidence_threshold=sanitized_data.get('confidence_threshold')
@@ -513,8 +518,8 @@ def predict_batch():
         # Make secure batch predictions
         results = []
         model_instance = get_secure_model()
-        if not hasattr(model_instance, 'predict'):
-            return jsonify({'error': 'Model unavailable in CI/TEST'}), 503
+        if not getattr(model_instance, 'loaded', False):
+            return jsonify({'error': 'Secure model not loaded'}), 503
         for text in sanitized_data['texts']:
             if text.strip():
                 result = model_instance.predict(

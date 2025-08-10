@@ -386,9 +386,10 @@ def main():
         
         print(report)
         
-        # Write report to file
-        with open("ci_pipeline_report.txt", "w") as f:
-            f.write(report)
+        # Only write report to file in CI so it can be uploaded as an artifact
+        if os.environ.get("CI") == "true" or os.environ.get("CI") == "1":
+            with open("ci_pipeline_report.txt", "w") as f:
+                f.write(report)
         
         # Exit with appropriate code
         _, total_tests, passed_tests = runner._get_test_stats()

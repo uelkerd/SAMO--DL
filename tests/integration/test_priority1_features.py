@@ -386,17 +386,18 @@ class TestEnhancedVoiceTranscription:
     @patch('src.unified_ai_api.voice_transcriber')
     def test_batch_transcription_partial_failures(self, mock_transcriber):
         """Test batch transcription with partial failures."""
-        # Mock transcription to fail for some files
+        # Deterministic side effect: first call succeeds, subsequent calls fail
+        call_state = {"count": 0}
         def mock_transcribe_side_effect(file_path, language=None):
-            if "file1" in file_path:
+            call_state["count"] += 1
+            if call_state["count"] == 1:
                 return {
                     "text": "Successfully transcribed",
                     "language": "en",
                     "confidence": 0.95,
                     "duration": 10.0
                 }
-            else:
-                raise Exception("Transcription failed")
+            raise Exception("Transcription failed")
         
         mock_transcriber.transcribe.side_effect = mock_transcribe_side_effect
         
@@ -435,9 +436,9 @@ class TestEnhancedVoiceTranscription:
             assert response.status_code == 200
             data = response.json()
             assert data["total_files"] == 2
-            # Allow slight variation in mocked environment
-            assert data["successful_transcriptions"] in (1, 0)
-            assert data["failed_transcriptions"] in (1, 2)
+            # Deterministic outcome: first succeeds, second fails
+            assert data["successful_transcriptions"] == 1
+            assert data["failed_transcriptions"] == 1
             assert len(data["results"]) == 2
             
         finally:
