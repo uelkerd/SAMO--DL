@@ -13,6 +13,7 @@ import asyncio
 import json
 import os
 import tempfile
+from pathlib import Path
 import time
 from typing import Dict, Any
 import pytest
@@ -220,8 +221,7 @@ class TestEnhancedVoiceTranscription:
             assert response.status_code == 500  # Internal server error
             
         finally:
-            if os.path.exists(temp_file_path):
-                os.unlink(temp_file_path)
+            Path(temp_file_path).unlink(missing_ok=True)
     
     @patch('src.unified_ai_api.voice_transcriber')
     def test_batch_transcription(self, mock_transcriber):
@@ -289,8 +289,7 @@ class TestEnhancedVoiceTranscription:
             
         finally:
             for temp_file_path in temp_files:
-                if os.path.exists(temp_file_path):
-                    os.unlink(temp_file_path)
+                Path(temp_file_path).unlink(missing_ok=True)
     
     @patch('src.unified_ai_api.voice_transcriber')
     def test_batch_transcription_partial_failures(self, mock_transcriber):
@@ -340,8 +339,7 @@ class TestEnhancedVoiceTranscription:
 
         finally:
             for temp_file_path in temp_files:
-                if os.path.exists(temp_file_path):
-                    os.unlink(temp_file_path)
+                Path(temp_file_path).unlink(missing_ok=True)
     @patch('src.unified_ai_api.voice_transcriber')
     def test_batch_transcription_all_failures(self, mock_transcriber):
         """Test batch transcription where all transcriptions fail."""
@@ -372,8 +370,7 @@ class TestEnhancedVoiceTranscription:
 
         finally:
             for temp_file_path in temp_files:
-                if os.path.exists(temp_file_path):
-                    os.unlink(temp_file_path)
+                Path(temp_file_path).unlink(missing_ok=True)
 
     @patch('src.unified_ai_api.voice_transcriber')
     def test_batch_transcription_all_success(self, mock_transcriber):
@@ -406,8 +403,7 @@ class TestEnhancedVoiceTranscription:
 
         finally:
             for temp_file_path in temp_files:
-                if os.path.exists(temp_file_path):
-                    os.unlink(temp_file_path)
+                Path(temp_file_path).unlink(missing_ok=True)
 
 class TestEnhancedTextSummarization:
     """Test enhanced text summarization features."""
@@ -626,8 +622,7 @@ class TestCompleteWorkflow:
             assert data["pipeline_status"]["text_summarization"] is True
             
         finally:
-            if os.path.exists(temp_file_path):
-                os.unlink(temp_file_path)
+            Path(temp_file_path).unlink(missing_ok=True)
     
     def test_authentication_workflow(self):
         """Test complete authentication workflow."""
