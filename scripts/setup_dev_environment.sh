@@ -11,46 +11,47 @@ echo "✅ Checking Python..."
 python3 --version || { echo "❌ Python3 not found"; exit 1; }
 
 # Install core API dependencies
-echo "✅ Installing core dependencies..."
-pip3 install --user -r requirements.txt || {
-  echo "⚠️ requirements.txt not found, installing minimal dev tools";
-  pip3 install --user pytest ruff;
+echo "✅ Installing core dependencies (API + dev)..."
+python3 -m pip install -r requirements-api.txt -r requirements-dev.txt || {
+  echo "❌ Failed to install development dependencies. Please check your requirements files for conflicts.";
+  exit 1;
 }
 
 # Add local bin to PATH (idempotent)
 echo "✅ Setting up PATH..."
 export PATH="$HOME/.local/bin:$PATH"
-grep -qF "export PATH=\"\$HOME/.local/bin:\$PATH\"" ~/.bashrc || echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> ~/.bashrc
+# Ensure bashrc exists to avoid grep failures under set -e
+[ -f ~/.bashrc ] || touch ~/.bashrc
+# shellcheck disable=SC2016  # Intentionally write literal $HOME/$PATH for expansion at shell load
+grep -qF 'export PATH="$HOME/.local/bin:$PATH"' ~/.bashrc || echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 
 # Set PYTHONPATH (idempotent)
 echo "✅ Setting up PYTHONPATH..."
 WORKSPACE_PATH=$(pwd)
-export PYTHONPATH="$WORKSPACE_PATH/src:$PYTHONPATH"
-grep -qF "export PYTHONPATH=\"$WORKSPACE_PATH/src:\$PYTHONPATH\"" ~/.bashrc || echo "export PYTHONPATH=\"\$WORKSPACE_PATH/src:\$PYTHONPATH\"" >> ~/.bashrc
+export PYTHONPATH="$WORKSPACE_PATH/src:${PYTHONPATH:-}"
+# Write the expanded workspace path; keep ${PYTHONPATH:-} literal for shells
+grep -qF "export PYTHONPATH=\"$WORKSPACE_PATH/src:\${PYTHONPATH:-}\"" ~/.bashrc || echo "export PYTHONPATH=\"$WORKSPACE_PATH/src:\${PYTHONPATH:-}\"" >> ~/.bashrc
 
-# Test API import
-echo "✅ Testing API import..."
-python3 -c "
-import sys
-sys.path.insert(0, '$WORKSPACE_PATH/src')
-from src.unified_ai_api import app
-print('✅ API imports successfully!')
-"
+# Combined API import and health check (skips gracefully if FastAPI missing)
+python3 - <<'PY'
+import importlib.util
 
-# Test API health check
-echo "✅ Testing API health check..."
-python3 -c "
-import sys
-sys.path.insert(0, '$WORKSPACE_PATH/src')
-from src.unified_ai_api import app
-from fastapi.testclient import TestClient
-client = TestClient(app)
-response = client.get('/health')
-assert response.status_code == 200, f'Health check failed: {response.status_code}'
-print('✅ API health check passed!')
-data = response.json()
-print(f'Models status: {data.get(\"models\", {})}')
-"
+print("✅ Testing API import and health check...")
+
+if importlib.util.find_spec('fastapi') is None:
+    print('⚠️ FastAPI not installed; skipping API tests.')
+else:
+    from src.unified_ai_api import app  # noqa: F401
+    print('✅ API imports successfully!')
+
+    from fastapi.testclient import TestClient
+    client = TestClient(app)
+    response = client.get('/health')
+    assert response.status_code == 200, f'Health check failed: {response.status_code}'
+    print('✅ API health check passed!')
+    data = response.json()
+    print(f'Models status: {data.get("models", {})}')
+PY
 
 echo ""
 echo "🎉 Development environment setup complete!"
