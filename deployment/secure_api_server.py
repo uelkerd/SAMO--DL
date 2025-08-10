@@ -356,10 +356,21 @@ def get_secure_model():
 
 # Read admin API key per-request to reflect environment changes during tests
 def get_admin_api_key() -> str | None:
+    """Fetch the admin API key from the environment on each call.
+
+    This function intentionally does not cache the key to support dynamic
+    updates (e.g., during tests or runtime reconfiguration). Be aware this
+    per-request read may introduce race conditions if the environment variable
+    changes mid-request; callers should treat the value as ephemeral per call.
+    """
     return os.environ.get("ADMIN_API_KEY")
 
 def require_admin_api_key(f):
-    """Decorator to require admin API key via X-Admin-API-Key header."""
+    """Decorator to require admin API key via X-Admin-API-Key header.
+
+    Reads the expected key via ``get_admin_api_key()`` for each request and
+    does not cache it. See ``get_admin_api_key`` for concurrency considerations.
+    """
     @functools.wraps(f)
     def decorated_function(*args, **kwargs):
         api_key = request.headers.get("X-Admin-API-Key")
