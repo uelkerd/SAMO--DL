@@ -20,8 +20,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from flask import Flask, request, jsonify, g
 import werkzeug
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import logging
 from pathlib import Path
 import time
@@ -238,15 +236,23 @@ class SecureEmotionDetectionModel:
             return
 
         try:
+            # Lazy import heavy deps only when not in stub mode and path checks passed
+            from transformers import AutoTokenizer, AutoModelForSequenceClassification  # type: ignore
+            import torch  # type: ignore
+
             self.tokenizer = AutoTokenizer.from_pretrained(str(self.model_path), local_files_only=True)
             self.model = AutoModelForSequenceClassification.from_pretrained(str(self.model_path), local_files_only=True)
 
             # Move to GPU if available
-            if torch.cuda.is_available():
-                self.model = self.model.to('cuda')
-                logger.info("✅ Model moved to GPU")
-            else:
-                logger.info("⚠️ CUDA not available, using CPU")
+            try:
+                if torch.cuda.is_available():
+                    self.model = self.model.to('cuda')
+                    logger.info("✅ Model moved to GPU")
+                else:
+                    logger.info("⚠️ CUDA not available, using CPU")
+            except Exception:
+                # If torch is absent at runtime, remain on CPU
+                logger.info("⚠️ Torch not available, using CPU")
 
             self.loaded = True
             logger.info("✅ Secure model loaded successfully")
