@@ -1,0 +1,23 @@
+[run]
+relative_files = True
+parallel = True
+branch = True
+omit =
+    */site-packages/*
+    */tests/*
+    */.venv/*
+    */venv/*
+    */.tox/*
+
+[paths]
+source =
+    src
+    */workspace/*/src
+    */project/*/src
+
+[report]
+show_missing = True
+skip_covered = True
+exclude_lines =
+    pragma: no cover
+    if __name__ == "__main__":
