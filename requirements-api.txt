@@ -11,10 +11,10 @@ pydantic>=2.11.7,<3.0.0
 PyJWT>=2.8.0,<3.0.0
 
 # Database & Storage
-sqlalchemy>=2.0.0,<2.1.0
-psycopg2-binary==2.9.9
-pgvector==0.3.6
-redis>=4.6.0,<5.0.0
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+pgvector>=0.2.0
+redis>=4.6.0
 
 # Utilities
 python-dotenv>=1.1.1,<2.0.0
@@ -25,7 +25,7 @@ rich>=13.0.0
 loguru>=0.7.0
 
 # Production Dependencies (from prod extra)
-gunicorn>=21.2.0,<22.0.0
-prometheus-client==0.21.0
-sentry-sdk[fastapi]>=1.29.0,<2.0.0
+gunicorn>=21.2.0
+prometheus-client>=0.17.0
+sentry-sdk[fastapi]>=1.29.0
 
