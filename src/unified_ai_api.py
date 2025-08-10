@@ -806,8 +806,9 @@ async def login_user(login_data: UserLogin) -> TokenResponse:
         logger.info(f"User logged in: {login_data.username}")
         return token_response
         
-    except HTTPException:
-        raise
+    except HTTPException as http_exc:
+        # Preserve HTTPExceptions without altering trace
+        raise http_exc
     except Exception as exc:
         logger.error(f"Login failed: {exc}")
         raise HTTPException(
