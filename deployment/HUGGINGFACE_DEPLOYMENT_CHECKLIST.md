@@ -116,7 +116,7 @@ import requests
 import os
 
 url = "https://api-inference.huggingface.co/models/your-username/samo-dl-emotion-model"
-headers = {"Authorization": f"Bearer {os.environ['HF_TOKEN']}"}
+headers = {"Authorization": f"Bearer {os.getenv('HF_TOKEN')}"}
 
 # Test cases
 test_cases = [
