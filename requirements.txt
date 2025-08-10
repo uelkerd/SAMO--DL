@@ -1,13 +1,14 @@
 ############################################
-# SAMO-DL Umbrella Requirements File      #
-# References split requirement files      #
+# SAMO-DL Default Requirements File       #
+# Lightweight install (no heavy ML deps)  #
 ############################################
 
 # Core API dependencies (lightweight, no ML)
 -r requirements-api.txt
 
-# Heavy ML dependencies (install on demand)
--r requirements-ml.txt
-
 # Development dependencies (testing, linting, etc.)
--r requirements-dev.txt 
+-r requirements-dev.txt
+
+# Note: For ML functionality, install separately:
+# pip install -r requirements-ml.txt
+# Or use extras: pip install .[ml] 
