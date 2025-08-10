@@ -20,7 +20,7 @@ pip3 install --user -r requirements.txt || {
 # Add local bin to PATH (idempotent)
 echo "✅ Setting up PATH..."
 export PATH="$HOME/.local/bin:$PATH"
-grep -qF 'export PATH="$HOME/.local/bin:$PATH"' ~/.bashrc || echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> ~/.bashrc
+grep -qF "export PATH=\"\$HOME/.local/bin:\$PATH\"" ~/.bashrc || echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> ~/.bashrc
 
 # Set PYTHONPATH (idempotent)
 echo "✅ Setting up PYTHONPATH..."
