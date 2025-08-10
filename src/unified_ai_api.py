@@ -256,15 +256,14 @@ class UserProfile(BaseModel):
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> TokenPayload:
     """Get current authenticated user from JWT token."""
     token = credentials.credentials
-    payload = jwt_manager.verify_token(token)
-    if not payload:
-        # Tests expect 403 for invalid tokens and missing auth
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Invalid or expired token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    return payload
+    if payload := jwt_manager.verify_token(token):
+        return payload
+    # Tests expect 403 for invalid tokens and missing auth
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Invalid or expired token",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
 
 # Permission dependency
 def require_permission(permission: str):
