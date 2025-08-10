@@ -28,7 +28,7 @@ jobs:
             echo "Working directory: $(pwd)"
             echo "PYTHONPATH: $PYTHONPATH"
       - run:
-          name: Install Core Dependencies
+          name: Install Core Dev Dependencies (light)
           command: |
             python3 -m pip install --user -r requirements-dev.txt
       - run:
