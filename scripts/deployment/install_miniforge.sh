@@ -48,7 +48,8 @@ detect_os_arch() {
       esac
       ;;
     *)
-      arch_name="x86_64"
+      echo "Unsupported OS detected: ${os_name} (uname -s: ${uname_s})" >&2
+      exit 1
       ;;
   esac
 
