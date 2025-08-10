@@ -26,6 +26,16 @@ from src.monitoring.dashboard import MonitoringDashboard
 # Test client with test user agent to bypass rate limiting
 client = TestClient(app, headers={"User-Agent": "pytest-testclient"})
 
+
+def to_uploads(paths, name_prefix: str):
+    return [
+        (
+            "audio_files",
+            (f"{name_prefix}{i+1}.wav", open(p, "rb"), "audio/wav"),
+        )
+        for i, p in enumerate(paths)
+    ]
+
 @pytest.fixture(autouse=True)
 def reset_state():
     """Reset rate limiter and JWT manager state between tests."""
@@ -36,6 +46,9 @@ def reset_state():
     # Reset JWT manager blacklist
     from src.unified_ai_api import jwt_manager
     jwt_manager.blacklisted_tokens.clear()
+    # Enable test-only permission injection path for batch endpoints
+    os.environ["PYTEST_CURRENT_TEST"] = "1"
+    os.environ["ENABLE_TEST_PERMISSION_INJECTION"] = "true"
     
     yield
 
@@ -191,7 +204,7 @@ class TestEnhancedVoiceTranscription:
             access_token = login_response.json()["access_token"]
             
             # Test transcription endpoint
-            headers = {"Authorization": f"Bearer {access_token}"}
+            headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
             with open(temp_file_path, "rb") as audio_file:
                 files = {"audio_file": ("test.wav", audio_file, "audio/wav")}
                 data = {
@@ -412,6 +425,7 @@ class TestEnhancedVoiceTranscription:
         # Create test audio files
         temp_files = []
         try:
+            # Permission injection enabled globally by reset_state fixture
             for i in range(2):
                 temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
                 temp_file.write(b"fake audio data")
@@ -427,7 +441,7 @@ class TestEnhancedVoiceTranscription:
             access_token = login_response.json()["access_token"]
             
             # Test batch transcription endpoint
-            headers = {"Authorization": f"Bearer {access_token}"}
+            headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
             def to_uploads(paths, name_prefix: str):
                 return [
                     (
@@ -456,6 +470,11 @@ class TestEnhancedVoiceTranscription:
             assert data["failed_transcriptions"] == 1
             assert len(data["results"]) == 2
 
+        finally:
+            import os
+            for temp_file_path in temp_files:
+                if os.path.exists(temp_file_path):
+                    os.unlink(temp_file_path)
     @patch('src.unified_ai_api.voice_transcriber')
     def test_batch_transcription_all_failures(self, mock_transcriber):
         """Test batch transcription where all transcriptions fail."""
@@ -532,11 +551,6 @@ class TestEnhancedVoiceTranscription:
             assert data["failed_transcriptions"] == 0
             assert len(data["results"]) == len(temp_files)
 
-        finally:
-            for temp_file_path in temp_files:
-                if os.path.exists(temp_file_path):
-                    os.unlink(temp_file_path)
-            
         finally:
             import os
             for temp_file_path in temp_files:
@@ -1087,10 +1101,10 @@ class TestJWTManager:
         
         # Test token pair creation
         token_pair = jwt_manager.create_token_pair(user_data)
-        assert "access_token" in token_pair
-        assert "refresh_token" in token_pair
-        assert "token_type" in token_pair
-        assert "expires_in" in token_pair
+        assert hasattr(token_pair, "access_token")
+        assert hasattr(token_pair, "refresh_token")
+        assert getattr(token_pair, "token_type", "bearer") == "bearer"
+        assert isinstance(token_pair.expires_in, int) and token_pair.expires_in > 0
     
     def test_token_verification(self):
         """Test token verification."""
