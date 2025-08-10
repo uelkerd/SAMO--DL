@@ -11,8 +11,8 @@ echo "✅ Checking Python..."
 python3 --version || { echo "❌ Python3 not found"; exit 1; }
 
 # Install core API dependencies
-echo "✅ Installing core dependencies (dev)..."
-python3 -m pip install --user -r requirements-dev.txt || {
+echo "✅ Installing core dependencies (API + dev)..."
+python3 -m pip install -r requirements-api.txt -r requirements-dev.txt || {
   echo "❌ Failed to install development dependencies. Please check your requirements files for conflicts.";
   exit 1;
 }
