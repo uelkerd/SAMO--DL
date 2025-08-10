@@ -1,37 +1,31 @@
 ############################################
-# API/Runtime dependencies (no heavy ML)   #
+# API/Runtime Dependencies                #
+# Exact mirror of pyproject.toml base+prod #
 ############################################
 
-# API frameworks - aligned with pyproject.toml
+# Base Dependencies (from dependencies)
 fastapi>=0.100.0
 uvicorn[standard]>=0.23.0
+python-multipart>=0.0.6
 pydantic>=2.11.7,<3.0.0
-flask>=3.1.1,<4.0.0
-gunicorn>=21.0.0,<24.0.0
+PyJWT>=2.8.0,<3.0.0
 
-# Database and ORM
-sqlalchemy>=2.0.42,<3.0.0
-psycopg2-binary>=2.9.0,<3.0.0
-pgvector>=0.2.0,<1.0.0
-alembic>=1.16.4,<2.0.0
+# Database & Storage
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+pgvector>=0.2.0
+redis>=4.6.0
 
-# Observability & metrics
-prometheus-client>=0.20.0,<1.0.0
-
-# Security and utilities
-cryptography>=45.0.6,<46.0.0
-certifi>=2025.8.3,<2026.0.0
-urllib3>=2.5.0,<3.0.0
-requests>=2.31.0,<3.0.0
+# Utilities
 python-dotenv>=1.1.1,<2.0.0
-PyJWT==2.8.0
-websockets==12.0
-psutil==5.9.8
+pyyaml>=6.0
+requests>=2.31.0
+click>=8.1.0
+rich>=13.0.0
+loguru>=0.7.0
 
-# Cloud SDKs
-google-cloud-storage>=2.13.0,<3.0.0
-google-cloud-aiplatform>=1.107.0,<2.0.0
-
-# API integrations
-openai>=1.99.1,<2.0.0
+# Production Dependencies (from prod extra)
+gunicorn>=21.2.0
+prometheus-client>=0.17.0
+sentry-sdk[fastapi]>=1.29.0
 
