@@ -20,13 +20,13 @@ pip3 install --user -r requirements.txt || {
 # Add local bin to PATH (idempotent)
 echo "✅ Setting up PATH..."
 export PATH="$HOME/.local/bin:$PATH"
-grep -qF 'export PATH="$HOME/.local/bin:$PATH"' ~/.bashrc || echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+grep -qF 'export PATH="$HOME/.local/bin:$PATH"' ~/.bashrc || echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> ~/.bashrc
 
 # Set PYTHONPATH (idempotent)
 echo "✅ Setting up PYTHONPATH..."
 WORKSPACE_PATH=$(pwd)
 export PYTHONPATH="$WORKSPACE_PATH/src:$PYTHONPATH"
-grep -qF "export PYTHONPATH=\"$WORKSPACE_PATH/src:\$PYTHONPATH\"" ~/.bashrc || echo "export PYTHONPATH=\"$WORKSPACE_PATH/src:\$PYTHONPATH\"" >> ~/.bashrc
+grep -qF "export PYTHONPATH=\"$WORKSPACE_PATH/src:\$PYTHONPATH\"" ~/.bashrc || echo "export PYTHONPATH=\"\$WORKSPACE_PATH/src:\$PYTHONPATH\"" >> ~/.bashrc
 
 # Test API import
 echo "✅ Testing API import..."
