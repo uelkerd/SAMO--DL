@@ -37,12 +37,8 @@ jobs:
             python3 -m pip install -r requirements-api.txt
             python3 -m pip install -r requirements-dev.txt
             # Sanity check to fail fast if imports break
-            python3 - <<'PY'
-            import importlib
-            for pkg in ["fastapi", "uvicorn", "pydantic", "requests"]:
-                assert importlib.util.find_spec(pkg), f"Missing {pkg}"
-            print("✅ core imports OK")
-            PY
+            python3 -c "import importlib,sys; pkgs=['fastapi','uvicorn','pydantic','requests']; missing=[p for p in pkgs if not importlib.util.find_spec(p)];
+print('✅ core imports OK' if not missing else f'❌ Missing: {missing}'); sys.exit(1 if missing else 0)"
       - run:
           name: Test Basic API Import
           command: |
@@ -84,12 +80,8 @@ jobs:
             python3 -m pip install --upgrade pip
             python3 -m pip install -r requirements-api.txt
             python3 -m pip install -r requirements-dev.txt
-            python3 - <<'PY'
-            import importlib
-            for pkg in ["pytest", "ruff"]:
-                assert importlib.util.find_spec(pkg), f"Missing {pkg}"
-            print("✅ test deps imports OK")
-            PY
+            python3 -c "import importlib,sys; pkgs=['pytest','ruff']; missing=[p for p in pkgs if not importlib.util.find_spec(p)];
+print('✅ test deps imports OK' if not missing else f'❌ Missing: {missing}'); sys.exit(1 if missing else 0)"
       - run:
           name: Run Basic Tests
           command: |
