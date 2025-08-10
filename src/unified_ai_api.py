@@ -1465,10 +1465,10 @@ async def batch_transcribe_voice(
             "results": results
         }
         
-    except HTTPException:
-        raise
     except Exception as exc:
-        logger.error(f"Batch transcription failed: {exc}")
+        if isinstance(exc, HTTPException):
+            raise
+        logger.error("Batch transcription failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Batch transcription failed"
