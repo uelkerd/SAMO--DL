@@ -912,8 +912,8 @@ pytest --cov=src --cov-report=html --cov-report=term
 # Generate coverage badge
 coverage-badge -o coverage-badge.svg
 
-# Check coverage threshold
-pytest --cov=src --cov-fail-under=80
+# Check coverage threshold (kept consistent with project settings)
+pytest --cov=src --cov-fail-under=50
 ```
 
 ### **Test Reporting**
