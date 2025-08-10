@@ -34,3 +34,25 @@ def test_http_exception_handler_500_shape():
     assert "error" in body and body["error"] == "Boom"
     assert body.get("status_code") == 500
 
+
+def test_http_exception_handler_other_4xx_codes():
+    client = TestClient(app)
+
+    @app.get("/__raise_401_test__")
+    def __raise_401_test__():  # type: ignore
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    @app.get("/__raise_403_test__")
+    def __raise_403_test__():  # type: ignore
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    for path, expected in [
+        ("/__raise_401_test__", (401, "Unauthorized")),
+        ("/__raise_403_test__", (403, "Forbidden")),
+    ]:
+        resp = client.get(path)
+        assert resp.status_code == expected[0]
+        body = resp.json()
+        assert isinstance(body, dict) and "detail" in body
+        assert body["detail"] == expected[1]
+

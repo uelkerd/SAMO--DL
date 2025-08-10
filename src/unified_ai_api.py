@@ -222,7 +222,7 @@ def require_permission(permission: str):
     async def permission_checker(request: Request, current_user: TokenPayload = Depends(get_current_user)):
         # Allow tests to inject permissions via header only during pytest runs and explicit toggle
         if (
-            "PYTEST_CURRENT_TEST" in os.environ
+            os.environ.get("PYTEST_CURRENT_TEST")
             and os.environ.get("ENABLE_TEST_PERMISSION_INJECTION", "false").lower() == "true"
         ):
             injected = request.headers.get("X-User-Permissions")
