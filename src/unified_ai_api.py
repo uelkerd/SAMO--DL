@@ -64,6 +64,56 @@ REQUEST_LATENCY = Histogram(
     "samo_request_latency_seconds", "Request latency (s)", ["endpoint", "method"]
 )
 
+# ------------------------------
+# Helpers: emotion result normalization
+# ------------------------------
+def normalize_emotion_results(raw: Any) -> dict:
+    """Normalize various emotion detector return shapes to a consistent dict.
+
+    Supports dicts (possibly with MagicMock values) and objects with attributes.
+    Returns a structure matching EmotionAnalysis fields.
+    """
+    try:
+        if isinstance(raw, dict):
+            def _as_float(v: Any) -> float:
+                try:
+                    return float(v)
+                except Exception:
+                    return 1.0
+            def _as_str(v: Any, default: str = "neutral") -> str:
+                try:
+                    return str(v)
+                except Exception:
+                    return default
+            emotions_dict = raw.get("emotions")
+            if not isinstance(emotions_dict, dict):
+                emotions_dict = {"neutral": 1.0}
+            else:
+                emotions_dict = {str(k): _as_float(v) for k, v in emotions_dict.items()}
+            return {
+                "emotions": emotions_dict,
+                "primary_emotion": _as_str(raw.get("primary_emotion"), "neutral"),
+                "confidence": _as_float(raw.get("confidence", 1.0)),
+                "emotional_intensity": _as_str(raw.get("emotional_intensity"), "neutral"),
+            }
+        # Fallback: object with attributes
+        emotions_attr = getattr(raw, "emotions", {"neutral": 1.0})
+        emotions = emotions_attr if isinstance(emotions_attr, dict) else {"neutral": 1.0}
+        return {
+            "emotions": emotions,
+            "primary_emotion": str(getattr(raw, "primary_emotion", "neutral")),
+            "confidence": float(getattr(raw, "confidence", 1.0)),
+            "emotional_intensity": str(getattr(raw, "emotional_intensity", "neutral")),
+        }
+    except Exception:
+        # Conservative fallback
+        return {
+            "emotions": {"neutral": 1.0},
+            "primary_emotion": "neutral",
+            "confidence": 1.0,
+            "emotional_intensity": "neutral",
+        }
+
 # Application startup time
 app_start_time = time.time()
 
@@ -1007,49 +1057,12 @@ async def analyze_journal_entry(
         emotion_results = None
         if emotion_detector is not None:
             try:
-                # Enhanced insights for voice processing
                 raw = emotion_detector.predict(request.text, threshold=request.emotion_threshold)
-                # Normalize possible MagicMock/dict return shapes
-                if isinstance(raw, dict):
-                    # Some mocks set values as MagicMock; coerce to primitives
-                    def _as_float(v):
-                        try:
-                            return float(v)
-                        except Exception:
-                            return 1.0
-                    def _as_str(v, default="neutral"):
-                        try:
-                            return str(v)
-                        except Exception:
-                            return default
-                    emotions_dict = raw.get("emotions")
-                    if not isinstance(emotions_dict, dict):
-                        emotions_dict = {"neutral": 1.0}
-                    else:
-                        emotions_dict = {str(k): _as_float(v) for k, v in emotions_dict.items()}
-                    emotion_results = {
-                        "emotions": emotions_dict,
-                        "primary_emotion": _as_str(raw.get("primary_emotion"), "neutral"),
-                        "confidence": _as_float(raw.get("confidence", 1.0)),
-                        "emotional_intensity": _as_str(raw.get("emotional_intensity"), "neutral"),
-                    }
-                else:
-                    # Expect attributes on object
-                    emotion_results = {
-                        "emotions": getattr(raw, "emotions", {"neutral": 1.0}) if isinstance(getattr(raw, "emotions", None), dict) else {"neutral": 1.0},
-                        "primary_emotion": str(getattr(raw, "primary_emotion", "neutral")),
-                        "confidence": float(getattr(raw, "confidence", 1.0)),
-                        "emotional_intensity": str(getattr(raw, "emotional_intensity", "neutral")),
-                    }
+                emotion_results = normalize_emotion_results(raw)
                 logger.info(f"✅ Emotion analysis completed: {emotion_results['primary_emotion']}")
             except Exception as exc:
                 logger.warning(f"⚠️  Emotion analysis failed: {exc}")
-                emotion_results = {
-                    "emotions": {"neutral": 1.0},
-                    "primary_emotion": "neutral",
-                    "confidence": 1.0,
-                    "emotional_intensity": "neutral",
-                }
+                emotion_results = normalize_emotion_results({})
 
         # Text Summarization
         summary_results = None
