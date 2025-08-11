@@ -106,7 +106,17 @@ def ensure_model_loaded() -> bool:
         # Load trained weights if available
         if Path(MODEL_PATH).exists():
             logger.info(f"📁 Loading trained weights from {MODEL_PATH}")
-            model_local.load_state_dict(torch.load(MODEL_PATH, map_location='cpu'))
+            try:
+                state = torch.load(MODEL_PATH, map_location='cpu')
+                missing, unexpected = model_local.load_state_dict(state, strict=False)
+                if missing or unexpected:
+                    logger.warning(
+                        "State dict not a perfect match (missing=%d, unexpected=%d); continuing with available weights",
+                        len(missing) if isinstance(missing, (list, tuple)) else 0,
+                        len(unexpected) if isinstance(unexpected, (list, tuple)) else 0,
+                    )
+            except Exception as weight_err:
+                logger.warning("Failed to apply local weights from %s: %s; using HF weights", MODEL_PATH, weight_err)
         else:
             logger.warning(f"⚠️ No trained weights found at {MODEL_PATH}, using base/pretrained weights")
 
