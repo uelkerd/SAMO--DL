@@ -37,6 +37,8 @@ EMOTION_LABELS = [
     'admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring',
     'confusion', 'curiosity', 'desire', 'disappointment', 'disgust', 'embarrassment'
 ]
+# Runtime label list derived from model config if available; falls back to default
+emotion_labels_runtime: List[str] = EMOTION_LABELS.copy()
 
 
 def _load_repo_id_from_config() -> Optional[str]:
@@ -98,28 +100,48 @@ def ensure_model_loaded() -> bool:
 
         # Load model
         model_local = AutoModelForSequenceClassification.from_pretrained(
-            repo_id,
-            num_labels=len(EMOTION_LABELS)
+            repo_id
         )
 
         # Load trained weights if available
         if Path(MODEL_PATH).exists():
             logger.info(f"📁 Loading trained weights from {MODEL_PATH}")
-            model_local.load_state_dict(torch.load(MODEL_PATH, map_location='cpu'))
+            try:
+                state = torch.load(MODEL_PATH, map_location='cpu')
+                model_local.load_state_dict(state, strict=True)
+                logger.info("Applied local fine-tuned weights from %s", MODEL_PATH)
+            except Exception as weight_err:
+                logger.warning("Failed to apply local weights from %s; using HF pretrained weights: %s", MODEL_PATH, weight_err)
         else:
             logger.warning(f"⚠️ No trained weights found at {MODEL_PATH}, using base/pretrained weights")
 
         model_local.eval()
 
+        # Derive labels from model config if available
+        derived_labels: List[str] = EMOTION_LABELS
+        labels_from_config = getattr(model_local.config, 'id2label', None)
+        try:
+            if isinstance(labels_from_config, dict) and labels_from_config:
+                try:
+                    sorted_labels = sorted(labels_from_config.items(), key=lambda item: int(item[0]))
+                except (ValueError, TypeError) as sort_exc:
+                    logger.warning("Could not sort id2label by integer keys. Using insertion order: %s", sort_exc)
+                    sorted_labels = list(labels_from_config.items())
+                derived_labels = [str(v) for _, v in sorted_labels]
+        except Exception as e:
+            logger.warning("Failed to parse id2label mapping; falling back to defaults: %s", e)
+
         with model_lock:
             # Assign only after successful load to avoid races
-            global model, tokenizer
+            global model, tokenizer, emotion_labels_runtime
             model = model_local
             tokenizer = tokenizer_local
+            emotion_labels_runtime = derived_labels
             model_loaded = True
             model_loading = False
 
         logger.info("✅ Model loaded successfully!")
+        logger.info("🎯 Active labels: %s", emotion_labels_runtime)
         return True
 
     except Exception as e:
@@ -184,7 +206,7 @@ def predict_emotions(text: str) -> Dict[str, Any]:
         emotions: List[Dict[str, Any]] = []
         for prob, idx in zip(top_probs, top_indices):
             emotions.append({
-                'emotion': EMOTION_LABELS[idx.item()],
+                'emotion': emotion_labels_runtime[idx.item()] if 0 <= idx.item() < len(emotion_labels_runtime) else "UNKNOWN_EMOTION",
                 'confidence': prob.item()
             })
 
@@ -220,7 +242,7 @@ def get_model_status() -> Dict[str, Any]:
         'model_path': MODEL_PATH,
         'max_length': MAX_LENGTH,
         'max_text_length': MAX_TEXT_LENGTH,
-        'emotion_labels': EMOTION_LABELS,
+        'emotion_labels': emotion_labels_runtime,
         'timestamp': time.time()
     }
 
