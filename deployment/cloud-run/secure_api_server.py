@@ -32,10 +32,6 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-# Register shared docs blueprint
-from docs_blueprint import docs_bp
-app.register_blueprint(docs_bp)
-
 # Add security headers
 add_security_headers(app)
 

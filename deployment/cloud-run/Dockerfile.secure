@@ -30,9 +30,6 @@ COPY deployment/cloud-run/secure_api_server.py .
 COPY deployment/cloud-run/security_headers.py .
 COPY deployment/cloud-run/rate_limiter.py .
 COPY deployment/cloud-run/model_utils.py .
-COPY docs_blueprint.py .
-COPY templates/ ./templates/
-COPY openapi.yaml .
 COPY deployment/cloud-run/model/ ./model/
 
 # Create non-root user for security (Cloud Run best practice)

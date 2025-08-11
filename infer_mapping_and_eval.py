@@ -1,4 +1,4 @@
-# infer_mapping_and_eval.py
+CLEAR# infer_mapping_and_eval.py
 import os, numpy as np, torch
 from tqdm import tqdm
 from datasets import load_dataset
@@ -17,8 +17,13 @@ def norm(s: str) -> str:
 
 # Load model/tokenizer
 tok = AutoTokenizer.from_pretrained(MODEL_ID, use_fast=True, token=TOKEN)
-mdl = AutoModelForSequenceClassification.from_pretrained(MODEL_ID, token=TOKEN, num_labels=12)
+mdl = AutoModelForSequenceClassification.from_pretrained(MODEL_ID, token=TOKEN)
 num_labels = mdl.config.num_labels
+
+# Move model to device and set to eval mode
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+mdl.to(device)
+mdl.eval()
 
 # Load GoEmotions split
 ds = load_dataset("go_emotions")[SPLIT]
