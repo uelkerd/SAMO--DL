@@ -9,7 +9,7 @@ import logging
 import time
 import os
 
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify
 import psutil
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 

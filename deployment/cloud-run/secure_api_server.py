@@ -11,7 +11,7 @@ import logging
 import uuid
 import threading
 import hmac
-from flask import Flask, request, jsonify, g, Response
+from flask import Flask, request, jsonify, g
 
 # Import security modules
 from security_headers import add_security_headers
