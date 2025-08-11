@@ -6,7 +6,8 @@ ENV PYTHONUNBUFFERED=1 \
     PORT=8080 \
     HF_HOME=/var/tmp/hf-cache \
     XDG_CACHE_HOME=/var/tmp/hf-cache \
-    PIP_ROOT_USER_ACTION=ignore
+    PIP_ROOT_USER_ACTION=ignore \
+    EMOTION_MODEL_LOCAL_DIR=/app/model
 
 # System deps needed for audio and builds
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -26,6 +27,20 @@ RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
 # Pre-bundle models to reduce cold-start; combine to minimize layers (DOK-W1001)
 RUN python -c "from transformers import AutoTokenizer, T5ForConditionalGeneration; AutoTokenizer.from_pretrained('t5-small'); T5ForConditionalGeneration.from_pretrained('t5-small'); AutoTokenizer.from_pretrained('t5-base'); T5ForConditionalGeneration.from_pretrained('t5-base'); print('Pre-bundled t5-small and t5-base into cache')" \
  && python -c "import whisper; whisper.load_model('small'); print('Pre-bundled whisper-small into cache')"
+
+# Bake emotion model into the image at /app/model (public HF repo by default)
+ARG EMOTION_MODEL_ID=0xmnrv/samo
+ARG HF_TOKEN=""
+RUN python - <<'PY'
+import os
+from huggingface_hub import snapshot_download
+model_id = os.getenv('EMOTION_MODEL_ID', '0xmnrv/samo')
+token = os.getenv('HF_TOKEN') or None
+local_dir = '/app/model'
+os.makedirs(local_dir, exist_ok=True)
+snapshot_download(repo_id=model_id, token=token, local_dir=local_dir, local_dir_use_symlinks=False)
+print('Baked model into', local_dir)
+PY
 
 # Copy source
 COPY src/ ./src/
