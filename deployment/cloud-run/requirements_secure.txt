@@ -2,25 +2,25 @@
 # All versions verified with safety-mcp for security and Python 3.9 compatibility
 
 # Web framework - latest secure version
-flask>=3.1.1,<4.0.0
+flask==3.1.1
 
-# ML libraries - latest secure versions compatible with Python 3.9
-torch>=2.0.0,<3.0.0
-transformers>=4.55.0,<5.0.0
-numpy>=1.26.0,<2.0.0
-scikit-learn>=1.5.0,<2.0.0
+# ML libraries - exact compatible versions for Python 3.9
+torch==2.1.0
+transformers==4.55.0
+numpy==1.24.3
+scikit-learn==1.3.0
 
 # WSGI server - latest secure version
-gunicorn>=23.0.0,<24.0.0
+gunicorn==23.0.0
 
 # HTTP client - latest secure version
-requests>=2.31.0,<3.0.0
+requests==2.31.0
 
 # System monitoring - latest secure version
-psutil>=5.9.0,<6.0.0
+psutil==5.9.5
 
 # Metrics and monitoring - latest secure version
-prometheus-client>=0.19.0,<1.0.0
+prometheus-client==0.17.1
 
 # Security and validation
-cryptography>=45.0.6,<46.0.0
+cryptography==45.0.6

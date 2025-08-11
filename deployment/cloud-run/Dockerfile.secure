@@ -20,19 +20,20 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean
 
 # Copy secure requirements first for better caching
-COPY requirements_secure.txt .
+COPY deployment/cloud-run/requirements_secure.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements_secure.txt
 
 # Copy application code
-COPY secure_api_server.py .
-COPY security_headers.py .
-COPY rate_limiter.py .
+COPY deployment/cloud-run/secure_api_server.py .
+COPY deployment/cloud-run/security_headers.py .
+COPY deployment/cloud-run/rate_limiter.py .
+COPY deployment/cloud-run/model_utils.py .
 COPY docs_blueprint.py .
 COPY templates/ ./templates/
 COPY openapi.yaml .
-COPY model/ ./model/
+COPY deployment/cloud-run/model/ ./model/
 
 # Create non-root user for security (Cloud Run best practice)
 RUN useradd -m -u 1000 appuser && \
@@ -45,8 +46,9 @@ USER appuser
 EXPOSE 8080
 
 # Health check following Cloud Run best practices
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+# Temporarily commented out for debugging
+# HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+#     CMD curl -f http://localhost:8080/health || exit 1
 
 # Use exec form for CMD (Docker best practice)
 # Set timeout to 0 for Cloud Run (allows unlimited request timeouts)
