@@ -299,6 +299,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PredictResponse'
+          maxItems: 10
       required:
         - results
 
