@@ -37,6 +37,8 @@ EMOTION_LABELS = [
     'admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring',
     'confusion', 'curiosity', 'desire', 'disappointment', 'disgust', 'embarrassment'
 ]
+# Runtime label list derived from model config if available; falls back to default
+emotion_labels_runtime: List[str] = EMOTION_LABELS.copy()
 
 
 def _load_repo_id_from_config() -> Optional[str]:
@@ -98,8 +100,7 @@ def ensure_model_loaded() -> bool:
 
         # Load model
         model_local = AutoModelForSequenceClassification.from_pretrained(
-            repo_id,
-            num_labels=len(EMOTION_LABELS)
+            repo_id
         )
 
         # Load trained weights if available
@@ -111,15 +112,39 @@ def ensure_model_loaded() -> bool:
 
         model_local.eval()
 
+        # Derive labels from model config if available
+        derived_labels: List[str] = EMOTION_LABELS
+        labels_from_config = getattr(model_local.config, 'id2label', None)
+        try:
+            if isinstance(labels_from_config, dict) and labels_from_config:
+                # Ensure numeric order if possible
+                def to_int(key: Any) -> Optional[int]:
+                    try:
+                        return int(key)
+                    except Exception:
+                        return None
+                keys = list(labels_from_config.keys())
+                keys_int = [to_int(k) for k in keys]
+                if all(k is not None for k in keys_int):
+                    ordered = [labels_from_config[str(i)] if str(i) in labels_from_config else labels_from_config[i] for i in sorted(set(keys_int))]
+                else:
+                    # Fallback to values order
+                    ordered = list(labels_from_config.values())
+                derived_labels = [str(v) for v in ordered]
+        except Exception:
+            logger.warning("Failed to parse id2label mapping; falling back to defaults")
+
         with model_lock:
             # Assign only after successful load to avoid races
-            global model, tokenizer
+            global model, tokenizer, emotion_labels_runtime
             model = model_local
             tokenizer = tokenizer_local
+            emotion_labels_runtime = derived_labels
             model_loaded = True
             model_loading = False
 
         logger.info("✅ Model loaded successfully!")
+        logger.info("🎯 Active labels: %s", emotion_labels_runtime)
         return True
 
     except Exception as e:
@@ -184,7 +209,7 @@ def predict_emotions(text: str) -> Dict[str, Any]:
         emotions: List[Dict[str, Any]] = []
         for prob, idx in zip(top_probs, top_indices):
             emotions.append({
-                'emotion': EMOTION_LABELS[idx.item()],
+                'emotion': emotion_labels_runtime[idx.item()] if 0 <= idx.item() < len(emotion_labels_runtime) else str(idx.item()),
                 'confidence': prob.item()
             })
 
@@ -220,7 +245,7 @@ def get_model_status() -> Dict[str, Any]:
         'model_path': MODEL_PATH,
         'max_length': MAX_LENGTH,
         'max_text_length': MAX_TEXT_LENGTH,
-        'emotion_labels': EMOTION_LABELS,
+        'emotion_labels': emotion_labels_runtime,
         'timestamp': time.time()
     }
 
