@@ -6,6 +6,7 @@ Matches the actual model architecture: RoBERTa with 12 emotion classes
 """
 
 import logging
+import os
 import time
 import os
 
