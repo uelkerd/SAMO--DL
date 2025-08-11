@@ -31,25 +31,8 @@ RUN python -c "from transformers import AutoTokenizer, T5ForConditionalGeneratio
 # Bake emotion model into the image at /app/model (public HF repo by default)
 ARG EMOTION_MODEL_ID=0xmnrv/samo
 ARG HF_TOKEN=""
-RUN EMOTION_MODEL_ID=${EMOTION_MODEL_ID} HF_TOKEN=${HF_TOKEN} python - <<'PY'
-import os
-from huggingface_hub import login
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-model_id = os.getenv('EMOTION_MODEL_ID', '0xmnrv/samo')
-token = os.getenv('HF_TOKEN') or None
-if token:
-    try:
-        login(token=token)
-    except Exception as e:
-        print('HF login failed, proceeding without token:', e)
-# Load and save to /app/model with top-level config.json
-tok = AutoTokenizer.from_pretrained(model_id, use_fast=True)
-mdl = AutoModelForSequenceClassification.from_pretrained(model_id)
-os.makedirs('/app/model', exist_ok=True)
-tok.save_pretrained('/app/model')
-mdl.save_pretrained('/app/model')
-print('Saved model and tokenizer to /app/model')
-PY
+COPY scripts/deployment/bake_emotion_model.py /app/bake_emotion_model.py
+RUN EMOTION_MODEL_ID=${EMOTION_MODEL_ID} HF_TOKEN=${HF_TOKEN} python /app/bake_emotion_model.py
 
 # Copy source
 COPY src/ ./src/
