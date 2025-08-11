@@ -114,6 +114,52 @@ def normalize_emotion_results(raw: Any) -> dict:
             "emotional_intensity": "neutral",
         }
 
+def _run_emotion_predict(text: str, threshold: float = 0.5) -> dict:
+    """Run emotion prediction using available detector, adapting outputs to a common schema.
+
+    Returns a dict with keys: emotions (label->prob), primary_emotion, confidence, emotional_intensity.
+    """
+    try:
+        if not text or emotion_detector is None:
+            return {}
+        # If detector exposes the expected API
+        if hasattr(emotion_detector, "predict"):
+            return emotion_detector.predict(text, threshold=threshold) or {}
+        # Adapter for BERTEmotionClassifier.predict_emotions
+        if hasattr(emotion_detector, "predict_emotions"):
+            # Import labels lazily to avoid heavy deps at import time
+            from src.models.emotion_detection.labels import GOEMOTIONS_EMOTIONS as _LABELS
+            result = emotion_detector.predict_emotions(text, threshold=threshold) or {}
+            probs_list = result.get("probabilities") or []
+            if not probs_list:
+                return {}
+            probs = probs_list[0]
+            # Build label->prob mapping
+            emotions_map = {label: float(prob) for label, prob in zip(_LABELS, probs)}
+            # Determine primary emotion
+            if emotions_map:
+                primary_label = max(emotions_map.items(), key=lambda kv: kv[1])[0]
+                confidence = float(emotions_map[primary_label])
+            else:
+                primary_label = "neutral"
+                confidence = 1.0
+            # Simple intensity heuristic
+            if confidence >= 0.75:
+                intensity = "high"
+            elif confidence >= 0.4:
+                intensity = "moderate"
+            else:
+                intensity = "low"
+            return {
+                "emotions": emotions_map,
+                "primary_emotion": primary_label,
+                "confidence": confidence,
+                "emotional_intensity": intensity,
+            }
+        return {}
+    except Exception:
+        return {}
+
 # ------------------------------
 # Helpers: test-only permission injection
 # ------------------------------
@@ -319,7 +365,9 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                 create_bert_emotion_classifier,
             )
 
-            emotion_detector, _ = create_bert_emotion_classifier()
+            model, _ = create_bert_emotion_classifier()
+            # Use model directly; prediction helper adapts output as needed
+            emotion_detector = model
             logger.info("✅ Emotion detection model loaded")
         except Exception as exc:
             logger.warning(f"⚠️  Emotion detection model not available: {exc}")
@@ -609,7 +657,7 @@ def _derive_emotion(summary_text: str) -> tuple[str, list[str]]:
     if not summary_text or not emotion_detector:
         return "neutral", []
     try:
-        emotion_result = emotion_detector.predict(summary_text)
+        emotion_result = _run_emotion_predict(summary_text)
         primary = emotion_result.get("primary_emotion", "neutral")
         keys = emotion_result.get("key_emotions")
         if not isinstance(keys, list):
@@ -1090,7 +1138,7 @@ async def analyze_journal_entry(
         emotion_results = None
         if emotion_detector is not None:
             try:
-                raw = emotion_detector.predict(request.text, threshold=request.emotion_threshold)
+                raw = _run_emotion_predict(request.text, threshold=request.emotion_threshold)
                 emotion_results = normalize_emotion_results(raw)
                 logger.info(f"✅ Emotion analysis completed: {emotion_results['primary_emotion']}")
             except Exception as exc:
