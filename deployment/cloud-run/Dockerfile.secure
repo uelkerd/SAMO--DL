@@ -1,5 +1,6 @@
 # Use official Python runtime with explicit platform targeting
-FROM --platform=linux/amd64 python:3.9-slim
+# UPDATED: Python 3.13-slim to reduce base image vulnerabilities
+FROM --platform=linux/amd64 python:3.13-slim
 
 # Set environment variables for Python
 ENV PYTHONDONTWRITEBYTECODE=1 \
