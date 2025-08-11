@@ -362,13 +362,23 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
         try:
             # Prefer loading our HF Hub model; fallback to local BERT if unavailable
             try:
-                from src.models.emotion_detection.hf_loader import load_hf_emotion_model
+                from src.models.emotion_detection.hf_loader import load_emotion_model_multi_source
                 hf_model_id = os.getenv("EMOTION_MODEL_ID", "0xmnrv/samo")
                 hf_token = os.getenv("HF_TOKEN")
-                emotion_detector = load_hf_emotion_model(hf_model_id, token=hf_token)
-                logger.info(f"✅ Loaded HF emotion model: {hf_model_id}")
+                local_dir = os.getenv("EMOTION_MODEL_LOCAL_DIR")
+                archive_url = os.getenv("EMOTION_MODEL_ARCHIVE_URL")
+                endpoint_url = os.getenv("EMOTION_MODEL_ENDPOINT_URL")
+                emotion_detector = load_emotion_model_multi_source(
+                    model_id=hf_model_id,
+                    token=hf_token,
+                    local_dir=local_dir,
+                    archive_url=archive_url,
+                    endpoint_url=endpoint_url,
+                    force_multi_label=None,
+                )
+                logger.info("✅ Loaded emotion model via multi-source strategy")
             except Exception as hf_exc:
-                logger.warning(f"⚠️ HF model load failed: {hf_exc}; falling back to local BERT")
+                logger.warning(f"⚠️ HF multi-source load failed: {hf_exc}; falling back to local BERT")
                 from src.models.emotion_detection.bert_classifier import (
                     create_bert_emotion_classifier,
                 )
