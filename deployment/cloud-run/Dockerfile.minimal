@@ -43,6 +43,7 @@ WORKDIR /app
 COPY minimal_api_server.py .
 COPY security_headers.py .
 COPY model_utils.py .
+COPY openapi.yaml .
 
 # Create model directory and copy entire model
 RUN mkdir -p /app/model

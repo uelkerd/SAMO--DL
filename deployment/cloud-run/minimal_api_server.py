@@ -7,8 +7,9 @@ Matches the actual model architecture: RoBERTa with 12 emotion classes
 
 import logging
 import time
+import os
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 import psutil
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
@@ -120,6 +121,52 @@ def predict():
 def metrics():
     """Prometheus metrics endpoint."""
     return generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST}
+
+
+@app.route('/openapi.yaml', methods=['GET'])
+def serve_openapi_spec():
+    """Serve OpenAPI spec for Swagger UI."""
+    spec_path = os.environ.get('OPENAPI_SPEC_PATH', '/app/openapi.yaml')
+    try:
+        with open(spec_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return Response(content, mimetype='application/yaml')
+    except Exception as e:
+        logger.error(f"Failed to read OpenAPI spec at {spec_path}: {e}")
+        return jsonify({'error': 'OpenAPI spec not found'}), 404
+
+
+@app.route('/docs', methods=['GET'])
+def swagger_ui():
+    """Render Swagger UI that loads the OpenAPI spec from /openapi.yaml."""
+    html = """
+<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+  <meta charset=\"utf-8\" />
+  <title>SAMO Emotion API Docs</title>
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+  <link rel=\"stylesheet\" href=\"https://unpkg.com/swagger-ui-dist@5/swagger-ui.css\" />
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; }
+    #swagger-ui { height: 100%; }
+  </style>
+</head>
+<body>
+  <div id=\"swagger-ui\"></div>
+  <script src=\"https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js\"></script>
+  <script>
+    window.ui = SwaggerUIBundle({
+      url: '/openapi.yaml',
+      dom_id: '#swagger-ui',
+      presets: [SwaggerUIBundle.presets.apis],
+      layout: 'BaseLayout'
+    });
+  </script>
+</body>
+</html>
+    """
+    return Response(html, mimetype='text/html')
 
 
 @app.route('/', methods=['GET'])
