@@ -451,7 +451,6 @@ add_rate_limiting(
     max_concurrent_requests=50,
     rapid_fire_threshold=100,
     sustained_rate_threshold=2000,
-    excluded_paths={"/health", "/metrics", "/docs", "/redoc", "/openapi.json"},
 )
 
 

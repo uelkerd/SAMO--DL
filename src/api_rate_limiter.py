@@ -406,7 +406,7 @@ def add_rate_limiting(app, requests_per_minute=100, burst_size=10, max_concurren
     # Default exclusions
     default_exclusions: Set[str] = {"/health", "/metrics", "/docs", "/redoc", "/openapi.json"}
     # Merge provided exclusions with defaults to ensure core endpoints remain excluded
-    exclusions: Set[str] = (default_exclusions | set(excluded_paths)) if excluded_paths else default_exclusions
+    exclusions: Set[str] = default_exclusions | (set(excluded_paths) if excluded_paths is not None else set())
 
     def normalize_path(path: str) -> str:
         """Normalize path for comparison: lowercase, ensure leading slash, strip trailing slashes (except root)."""
