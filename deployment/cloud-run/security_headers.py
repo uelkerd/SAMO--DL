@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Security Headers Module for Cloud Run API"""
 
-from flask import Flask
+from flask import Flask, request, g
 from typing import Dict, Any
 
 def add_security_headers(app: Flask) -> None:
@@ -9,8 +9,8 @@ def add_security_headers(app: Flask) -> None:
 
     @app.after_request
     def add_headers(response):
-        # Content Security Policy
-        response.headers['Content-Security-Policy'] = (
+        # Path-aware Content Security Policy
+        csp_base = (
             "default-src 'self'; "
             "script-src 'self' 'unsafe-inline'; "
             "style-src 'self' 'unsafe-inline'; "
@@ -19,6 +19,31 @@ def add_security_headers(app: Flask) -> None:
             "connect-src 'self'; "
             "frame-ancestors 'none';"
         )
+        if request.path.startswith('/docs'):
+            nonce = getattr(g, 'csp_nonce', None)
+            if nonce:
+                csp_docs = (
+                    "default-src 'self'; "
+                    f"script-src 'self' https://unpkg.com 'nonce-{nonce}'; "
+                    f"style-src 'self' https://unpkg.com 'nonce-{nonce}'; "
+                    "img-src 'self' data: https:; "
+                    "font-src 'self' https://unpkg.com; "
+                    "connect-src 'self'; "
+                    "frame-ancestors 'none';"
+                )
+            else:
+                csp_docs = (
+                    "default-src 'self'; "
+                    "script-src 'self' 'unsafe-inline' https://unpkg.com; "
+                    "style-src 'self' 'unsafe-inline' https://unpkg.com; "
+                    "img-src 'self' data: https:; "
+                    "font-src 'self' https://unpkg.com; "
+                    "connect-src 'self'; "
+                    "frame-ancestors 'none';"
+                )
+            response.headers['Content-Security-Policy'] = csp_docs
+        else:
+            response.headers['Content-Security-Policy'] = csp_base
 
         # Security headers
         response.headers['X-Content-Type-Options'] = 'nosniff'
