@@ -11,43 +11,10 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
     <style>
-        :root {
-            /* Sophisticated dark gradient color palette */
-            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-            --secondary-gradient: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #3730a3 100%);
-            --dark-gradient: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-            --accent-gradient: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #c084fc 100%);
-            
-            --primary-color: #8b5cf6;
-            --secondary-color: #a855f7;
-            --accent-color: #c084fc;
-            --dark-color: #0f0f23;
-            --darker-color: #0a0a1a;
-            --light-accent: #e9d5ff;
-            --glass-bg: rgba(139, 92, 246, 0.1);
-            --glass-border: rgba(139, 92, 246, 0.2);
-            
-            /* Performance and animation settings */
-            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            --shadow-glow: 0 10px 40px rgba(139, 92, 246, 0.3);
-            --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Removed universal transition for better performance */
         .card, .btn, .nav-link, .badge, .form-control, .feature-card, .hero-card {
             transition: var(--transition-smooth);
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            line-height: 1.8;
-            font-size: 17px;
-            color: #f1f5f9;
-            background: var(--dark-gradient);
-            background-attachment: fixed;
-            min-height: 100vh;
         }
 
         .hero-section {
@@ -85,7 +52,7 @@
             box-shadow: var(--shadow-glass);
             transition: var(--transition-bounce);
             height: 100%;
-            color: #e2e8f0;
+            color: inherit;
         }
 
         .feature-card:hover {
@@ -119,7 +86,7 @@
             background: var(--glass-bg);
             backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
-            color: #e2e8f0;
+            color: inherit;
             border-radius: 20px;
             padding: 30px;
             text-align: center;
@@ -152,7 +119,7 @@
             padding: 40px;
             box-shadow: var(--shadow-glass);
             margin-bottom: 30px;
-            color: #e2e8f0;
+            color: inherit;
             transition: var(--transition-smooth);
         }
 
@@ -161,203 +128,7 @@
             box-shadow: var(--shadow-glow);
         }
 
-        .code-block {
-            background: var(--darker-color);
-            border: 1px solid var(--glass-border);
-            border-radius: 15px;
-            padding: 25px;
-            font-family: 'Fira Code', monospace;
-            font-size: 15px;
-            overflow-x: auto;
-            color: #e2e8f0;
-        }
-
-        .navbar {
-            background: rgba(15, 15, 35, 0.95);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .navbar-brand, .navbar .nav-link {
-            color: #e2e8f0;
-        }
-
-        .footer {
-            background: var(--dark-gradient);
-            color: #e2e8f0;
-            padding: 80px 0 40px;
-            border-top: 1px solid var(--glass-border);
-        }
-
-        .btn-primary {
-            background: var(--primary-gradient);
-            border: none;
-            border-radius: 12px;
-            padding: 12px 30px;
-            font-weight: 600;
-            transition: var(--transition-bounce);
-            box-shadow: var(--shadow-glow);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 15px 50px rgba(139, 92, 246, 0.4);
-        }
-
-        .btn-outline-light {
-            border: 2px solid rgba(226, 232, 240, 0.5);
-            color: #e2e8f0;
-            border-radius: 12px;
-            padding: 10px 28px;
-            font-weight: 600;
-            transition: var(--transition-smooth);
-        }
-
-        .btn-outline-light:hover {
-            background: rgba(226, 232, 240, 0.1);
-            border-color: #e2e8f0;
-            color: #e2e8f0;
-            transform: translateY(-2px);
-        }
-
-        .btn-light {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            border-radius: 12px;
-            padding: 12px 30px;
-            font-weight: 600;
-            transition: var(--transition-bounce);
-        }
-
-        .btn-light:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.3);
-            color: white;
-            transform: translateY(-2px) scale(1.05);
-        }
-
-        /* Form controls */
-        .form-control {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            color: #e2e8f0;
-            padding: 12px 16px;
-        }
-
-        .form-control:focus {
-            background: var(--glass-bg);
-            border-color: var(--primary-color);
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
-            color: #e2e8f0;
-        }
-
-        .form-control::placeholder {
-            color: #94a3b8;
-        }
-
-        /* Cards and badges */
-        .card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            box-shadow: var(--shadow-glass);
-            color: #e2e8f0;
-        }
-
-        .badge {
-            background: var(--primary-gradient);
-            color: white;
-            border-radius: 20px;
-            padding: 8px 12px;
-            font-weight: 600;
-        }
-
-        .badge.bg-success {
-            background: linear-gradient(135deg, #10b981, #34d399);
-        }
-
-        /* Progress bars */
-        .progress {
-            background: rgba(139, 92, 246, 0.2);
-            border-radius: 10px;
-            height: 8px;
-        }
-
-        .progress-bar {
-            background: var(--primary-gradient);
-            border-radius: 10px;
-        }
-
-        /* Animations */
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-20px) rotate(1deg); }
-            66% { transform: translateY(-10px) rotate(-1deg); }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        /* Alert messages */
-        .alert {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
-            border-radius: 15px;
-            color: #e2e8f0;
-        }
-
-        /* Section backgrounds */
-        .bg-light {
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        .bg-primary {
-            background: var(--primary-gradient);
-        }
-
-        /* Links */
-        a {
-            color: var(--accent-color);
-            text-decoration: none;
-        }
-
-        a:hover {
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .hero-section {
-                padding: 80px 0;
-            }
-            
-            .integration-card {
-                padding: 25px;
-                margin-bottom: 20px;
-            }
-            
-            .feature-icon {
-                width: 60px;
-                height: 60px;
-                font-size: 24px;
-                margin-bottom: 20px;
-            }
-        }
+        .navbar-brand, .navbar .nav-link { color: inherit; }
     </style>
 </head>
 <body>
@@ -787,8 +558,8 @@
 from typing import BinaryIO, IO
 
 class SAMO_API_Client:
-    def __init__(self, base_url="https://api.example.com"):
-        # Replace 'https://api.example.com' with your actual deployment URL
+    def __init__(self, base_url="https://samo-emotion-api-minimal-71517823771.us-central1.run.app"):
+        # Set your deployment URL here or pass it in explicitly
         self.base_url = base_url
         self.session = requests.Session()
 
@@ -872,7 +643,7 @@ def analyze_dataset(texts: list) -> pd.DataFrame:
         ).json()
         results.append({
             'text': text,
-            'emotions': analysis.get('emotion_analysis', {}).get('emotions', {})
+            'emotions': emotions
         })
     return pd.DataFrame(results)</code></pre>
                         </div>
