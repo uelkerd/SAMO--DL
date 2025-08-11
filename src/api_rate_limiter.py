@@ -405,13 +405,39 @@ def add_rate_limiting(app, requests_per_minute=100, burst_size=10, max_concurren
 
     # Default exclusions
     default_exclusions: Set[str] = {"/health", "/metrics", "/docs", "/redoc", "/openapi.json"}
-    exclusions: Set[str] = set(excluded_paths) if excluded_paths else default_exclusions
+    # Merge provided exclusions with defaults to ensure core endpoints remain excluded
+    exclusions: Set[str] = (default_exclusions | set(excluded_paths)) if excluded_paths else default_exclusions
+
+    def normalize_path(path: str) -> str:
+        """Normalize path for comparison: lowercase, ensure leading slash, strip trailing slashes (except root)."""
+        if not path:
+            return "/"
+        p = path.lower().strip()
+        if not p.startswith("/"):
+            p = "/" + p
+        # Strip trailing slashes but keep root
+        while len(p) > 1 and p.endswith("/"):
+            p = p[:-1]
+        return p
+
+    normalized_exclusions = {normalize_path(p) for p in exclusions}
+
+    def is_excluded_path(request_path: str) -> bool:
+        """Check if the normalized request path is excluded (exact or prefix match for subpaths)."""
+        norm_path = normalize_path(request_path)
+        if norm_path in normalized_exclusions:
+            return True
+        # Prefix match to cover subpaths like /docs/*
+        for base in normalized_exclusions:
+            if base != "/" and norm_path.startswith(base + "/"):
+                return True
+        return False
     
     @app.middleware("http")
     async def rate_limit_middleware(request: Request, call_next):
         """Rate limiting middleware."""
         # Bypass selected paths
-        if request.url.path in exclusions:
+        if is_excluded_path(request.url.path):
             response = await call_next(request)
             return response
 
