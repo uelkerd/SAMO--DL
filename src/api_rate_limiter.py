@@ -8,7 +8,7 @@ Token bucket algorithm implementation for API rate limiting with security featur
 import time
 import threading
 from collections import defaultdict, deque
-from typing import Dict, Deque, Optional, Tuple
+from typing import Dict, Deque, Optional, Tuple, Set
 import logging
 import hashlib
 import ipaddress
@@ -380,8 +380,11 @@ class TokenBucketRateLimiter:
 
 
 def add_rate_limiting(app, requests_per_minute=100, burst_size=10, max_concurrent_requests=5, 
-                     rapid_fire_threshold=10, sustained_rate_threshold=200):
-    """Add rate limiting middleware to FastAPI app."""
+                     rapid_fire_threshold=10, sustained_rate_threshold=200, excluded_paths: Optional[Set[str]] = None):
+    """Add rate limiting middleware to FastAPI app.
+    
+    excluded_paths: paths that should bypass rate limiting (e.g., /health, /metrics, docs)
+    """
     from fastapi import Request
     from fastapi.responses import JSONResponse
     
@@ -399,14 +402,23 @@ def add_rate_limiting(app, requests_per_minute=100, burst_size=10, max_concurren
     
     # Store rate limiter instance on app for testing
     app.state.rate_limiter = rate_limiter
+
+    # Default exclusions
+    default_exclusions: Set[str] = {"/health", "/metrics", "/docs", "/redoc", "/openapi.json"}
+    exclusions: Set[str] = set(excluded_paths) if excluded_paths else default_exclusions
     
     @app.middleware("http")
     async def rate_limit_middleware(request: Request, call_next):
         """Rate limiting middleware."""
+        # Bypass selected paths
+        if request.url.path in exclusions:
+            response = await call_next(request)
+            return response
+
         client_ip = request.client.host if request.client else "unknown"
         user_agent = request.headers.get("user-agent", "")
         
-        # Bypass rate limiting for test environment
+        # Bypass rate limiting for test environment UAs
         if "test" in user_agent.lower() or "pytest" in user_agent.lower() or "testclient" in user_agent.lower():
             response = await call_next(request)
             return response
