@@ -19,7 +19,7 @@ def add_security_headers(app: Flask) -> None:
             "connect-src 'self'; "
             "frame-ancestors 'none';"
         )
-        if request.path == '/docs':
+        if request.path.startswith('/docs'):
             csp_docs = (
                 "default-src 'self'; "
                 "script-src 'self' 'unsafe-inline' https://unpkg.com; "
