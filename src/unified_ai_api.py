@@ -360,15 +360,21 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     try:
         logger.info("Loading emotion detection model...")
         try:
-            # Import here to avoid issues if not available
-            from src.models.emotion_detection.bert_classifier import (
-                create_bert_emotion_classifier,
-            )
-
-            model, _ = create_bert_emotion_classifier()
-            # Use model directly; prediction helper adapts output as needed
-            emotion_detector = model
-            logger.info("✅ Emotion detection model loaded")
+            # Prefer loading our HF Hub model; fallback to local BERT if unavailable
+            try:
+                from src.models.emotion_detection.hf_loader import load_hf_emotion_model
+                hf_model_id = os.getenv("EMOTION_MODEL_ID", "0xmnrv/samo")
+                hf_token = os.getenv("HF_TOKEN")
+                emotion_detector = load_hf_emotion_model(hf_model_id, token=hf_token)
+                logger.info(f"✅ Loaded HF emotion model: {hf_model_id}")
+            except Exception as hf_exc:
+                logger.warning(f"⚠️ HF model load failed: {hf_exc}; falling back to local BERT")
+                from src.models.emotion_detection.bert_classifier import (
+                    create_bert_emotion_classifier,
+                )
+                model, _ = create_bert_emotion_classifier()
+                emotion_detector = model
+                logger.info("✅ Loaded local BERT emotion model")
         except Exception as exc:
             logger.warning(f"⚠️  Emotion detection model not available: {exc}")
 
