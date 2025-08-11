@@ -382,7 +382,7 @@ class TokenBucketRateLimiter:
 def add_rate_limiting(app, requests_per_minute=100, burst_size=10, max_concurrent_requests=5, 
                      rapid_fire_threshold=10, sustained_rate_threshold=200, excluded_paths: Optional[Set[str]] = None):
     """Add rate limiting middleware to FastAPI app.
-    
+
     excluded_paths: paths that should bypass rate limiting (e.g., /health, /metrics, docs)
     """
     from fastapi import Request
