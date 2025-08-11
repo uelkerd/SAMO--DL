@@ -122,27 +122,12 @@ def ensure_model_loaded() -> bool:
         labels_from_config = getattr(model_local.config, 'id2label', None)
         try:
             if isinstance(labels_from_config, dict) and labels_from_config:
-                # Ensure numeric order if possible
-                keys = list(labels_from_config.keys())
-                def _to_int_or_none(v):
-                    try:
-                        return int(v)
-                    except Exception:
-                        return None
-                keys_int = [_to_int_or_none(k) for k in keys]
-                if all(k is not None for k in keys_int):
-                    ordered = []
-                    for i in sorted(set(k for k in keys_int if k is not None)):
-                        # Prefer string key, then int key; skip if neither exists
-                        v = labels_from_config.get(str(i))
-                        if v is None:
-                            v = labels_from_config.get(i)
-                        if v is not None:
-                            ordered.append(v)
-                else:
-                    # Fallback to values order
-                    ordered = list(labels_from_config.values())
-                derived_labels = [str(v) for v in ordered]
+                try:
+                    sorted_labels = sorted(labels_from_config.items(), key=lambda item: int(item[0]))
+                except (ValueError, TypeError) as sort_exc:
+                    logger.warning("Could not sort id2label by integer keys. Using insertion order: %s", sort_exc)
+                    sorted_labels = list(labels_from_config.items())
+                derived_labels = [str(v) for _, v in sorted_labels]
         except Exception as e:
             logger.warning("Failed to parse id2label mapping; falling back to defaults: %s", e)
 
