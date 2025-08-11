@@ -31,6 +31,7 @@ model_lock = threading.Lock()
 MODEL_PATH = os.getenv('MODEL_PATH', '/app/model/best_simple_model.pth')
 MAX_LENGTH = int(os.getenv('MAX_LENGTH', '128'))
 MAX_TEXT_LENGTH = int(os.getenv('MAX_TEXT_LENGTH', '1000'))
+PREDICTION_THRESHOLD = float(os.getenv('PREDICTION_THRESHOLD', '0.5'))
 
 # Emotion labels (12 classes for DistilRoBERTa model)
 EMOTION_LABELS = [
@@ -39,6 +40,8 @@ EMOTION_LABELS = [
 ]
 # Runtime label list derived from model config if available; falls back to default
 emotion_labels_runtime: List[str] = EMOTION_LABELS.copy()
+# Whether the active model is multi-label (sigmoid) or single-label (softmax)
+is_multi_label_runtime: bool = False
 
 
 def _load_repo_id_from_config() -> Optional[str]:
@@ -131,17 +134,29 @@ def ensure_model_loaded() -> bool:
         except Exception as e:
             logger.warning("Failed to parse id2label mapping; falling back to defaults: %s", e)
 
+        # Resolve multi-label mode: env override -> config -> default False
+        ml_env = os.getenv('MULTI_LABEL', 'auto').lower()
+        if ml_env in ('1', 'true', 'yes'):
+            ml_flag = True
+        elif ml_env in ('0', 'false', 'no'):
+            ml_flag = False
+        else:
+            ml_flag = str(getattr(model_local.config, 'problem_type', '')).lower() == 'multi_label_classification'
+
         with model_lock:
             # Assign only after successful load to avoid races
-            global model, tokenizer, emotion_labels_runtime
+            global model, tokenizer, emotion_labels_runtime, is_multi_label_runtime
             model = model_local
             tokenizer = tokenizer_local
             emotion_labels_runtime = derived_labels
+            is_multi_label_runtime = ml_flag
             model_loaded = True
             model_loading = False
 
         logger.info("✅ Model loaded successfully!")
-        logger.info("🎯 Active labels: %s", emotion_labels_runtime)
+        logger.info("🎯 Active labels (%d): %s", len(emotion_labels_runtime), emotion_labels_runtime)
+        logger.info("🧮 Inference mode: %s", 'multi-label (sigmoid)' if is_multi_label_runtime else 'single-label (softmax)')
+        logger.info("🔧 Prediction threshold: %.2f", PREDICTION_THRESHOLD)
         return True
 
     except Exception as e:
@@ -198,20 +213,42 @@ def predict_emotions(text: str) -> Dict[str, Any]:
         # Get predictions
         with torch.no_grad():
             outputs = model(**inputs)
-            probabilities = torch.softmax(outputs.logits, dim=1)
-
-        # Get top emotions
-        top_probs, top_indices = torch.topk(probabilities[0], k=3)
+            logits = outputs.logits
 
         emotions: List[Dict[str, Any]] = []
-        for prob, idx in zip(top_probs, top_indices):
-            emotions.append({
-                'emotion': emotion_labels_runtime[idx.item()] if 0 <= idx.item() < len(emotion_labels_runtime) else "UNKNOWN_EMOTION",
-                'confidence': prob.item()
-            })
+        overall_confidence: float = 0.0
 
-        # Calculate overall confidence
-        overall_confidence = top_probs[0].item()
+        if is_multi_label_runtime:
+            # Multi-label: sigmoid + threshold
+            probabilities = torch.sigmoid(logits)[0]
+            pairs = [
+                (
+                    emotion_labels_runtime[i] if 0 <= i < len(emotion_labels_runtime) else f"LABEL_{i}",
+                    probabilities[i].item(),
+                )
+                for i in range(probabilities.shape[-1])
+            ]
+            # Filter by threshold, fall back to top-1 if none pass
+            filtered = [(lbl, prob) for lbl, prob in pairs if prob >= PREDICTION_THRESHOLD]
+            if not filtered and pairs:
+                # pick the best single label
+                best_lbl, best_prob = max(pairs, key=lambda kv: kv[1])
+                filtered = [(best_lbl, best_prob)]
+            # Sort by confidence
+            filtered.sort(key=lambda kv: kv[1], reverse=True)
+            emotions = [{'emotion': lbl, 'confidence': prob} for lbl, prob in filtered]
+            overall_confidence = emotions[0]['confidence'] if emotions else 0.0
+        else:
+            # Single-label: softmax + top-k
+            probabilities = torch.softmax(logits, dim=1)
+            k = min(3, probabilities.shape[-1])
+            top_probs, top_indices = torch.topk(probabilities[0], k=k)
+            for prob, idx in zip(top_probs, top_indices):
+                emotions.append({
+                    'emotion': emotion_labels_runtime[idx.item()] if 0 <= idx.item() < len(emotion_labels_runtime) else "UNKNOWN_EMOTION",
+                    'confidence': prob.item()
+                })
+            overall_confidence = top_probs[0].item() if len(top_probs) > 0 else 0.0
 
         return {
             'text': text,
@@ -243,6 +280,8 @@ def get_model_status() -> Dict[str, Any]:
         'max_length': MAX_LENGTH,
         'max_text_length': MAX_TEXT_LENGTH,
         'emotion_labels': emotion_labels_runtime,
+        'multi_label': is_multi_label_runtime,
+        'prediction_threshold': PREDICTION_THRESHOLD,
         'timestamp': time.time()
     }
 
