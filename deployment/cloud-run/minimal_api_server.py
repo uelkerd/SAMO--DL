@@ -7,6 +7,7 @@ Matches the actual model architecture: RoBERTa with 12 emotion classes
 
 import logging
 import time
+import os
 
 from flask import Flask, request, jsonify
 import psutil
@@ -24,6 +25,10 @@ logger = logging.getLogger(__name__)
 
 # Initialize Flask app
 app = Flask(__name__)
+
+# Register shared docs blueprint
+from docs_blueprint import docs_bp
+app.register_blueprint(docs_bp)
 
 # Prometheus metrics
 REQUEST_COUNT = Counter('emotion_api_requests_total', 'Total requests', ['endpoint', 'status'])
@@ -148,5 +153,5 @@ if __name__ == '__main__':
     initialize_model()
 
     # Start server
-    port = int(os.getenv('PORT', 8080))
+    port = int(os.getenv('PORT', '8080'))
     app.run(host='0.0.0.0', port=port, debug=False, threaded=True) 
