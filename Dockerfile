@@ -31,7 +31,7 @@ RUN python -c "from transformers import AutoTokenizer, T5ForConditionalGeneratio
 # Bake emotion model into the image at /app/model (public HF repo by default)
 ARG EMOTION_MODEL_ID=0xmnrv/samo
 ARG HF_TOKEN=""
-RUN python - <<'PY'
+RUN EMOTION_MODEL_ID=${EMOTION_MODEL_ID} HF_TOKEN=${HF_TOKEN} python - <<'PY'
 import os
 from huggingface_hub import snapshot_download
 model_id = os.getenv('EMOTION_MODEL_ID', '0xmnrv/samo')
