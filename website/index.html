@@ -42,7 +42,8 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            line-height: 1.6;
+            line-height: 1.8;
+            font-size: 17px;
             color: #e2e8f0;
             background: var(--dark-gradient);
             background-attachment: fixed;
@@ -166,7 +167,7 @@
             border-radius: 15px;
             padding: 25px;
             font-family: 'Fira Code', monospace;
-            font-size: 14px;
+            font-size: 15px;
             overflow-x: auto;
             color: #e2e8f0;
         }
@@ -1136,7 +1137,7 @@ const analyzeUserFeedback = async (feedback) => {
     <!-- Demo Script -->
     <script>
         // Configure API Base URL for display (replace with your actual deployment URL)
-        const API_BASE_URL = 'https://api.example.com';
+        const API_BASE_URL = 'https://samo-emotion-api-minimal-71517823771.us-central1.run.app';
         document.addEventListener('DOMContentLoaded', () => {
             const el = document.getElementById('api-base-url');
             if (el) el.textContent = API_BASE_URL;
