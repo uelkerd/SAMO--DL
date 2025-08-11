@@ -20,7 +20,7 @@ from transformers import AutoTokenizer
 
 from ..api_rate_limiter import add_rate_limiting
 from .bert_classifier import create_bert_emotion_classifier
-from .dataset_loader import GOEMOTIONS_EMOTIONS
+from .labels import GOEMOTIONS_EMOTIONS
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

@@ -17,7 +17,7 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from transformers import AutoConfig, AutoModel, AutoTokenizer
 
-from .dataset_loader import GOEMOTIONS_EMOTIONS
+from .labels import GOEMOTIONS_EMOTIONS
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
