@@ -22,7 +22,7 @@ new_labels = [
     "pride","realization","relief","remorse","sadness","surprise","neutral"
 ]
 
-print(f"Using token: {TOKEN[:10]}...")
+print("Token configured successfully")
 print(f"Model ID: {MODEL_ID}")
 
 # Load current config
@@ -47,16 +47,22 @@ cfg.num_labels = len(new_labels)
 
 print(f"\nUpdated config: num_labels={cfg.num_labels}")
 
-tmpdir = tempfile.mkdtemp()
-cfg.save_pretrained(tmpdir)
-path = os.path.join(tmpdir, "config.json")
-
-api = HfApi()
-api.upload_file(
-    path_or_fileobj=path,
-    path_in_repo="config.json",
-    repo_id=MODEL_ID,
-    repo_type="model",
-    commit_message="fix: set id2label/label2id + multi_label_classification"
-)
-print("✅ Uploaded config.json with proper labels")
+# Use TemporaryDirectory context manager to avoid disk space leaks
+with tempfile.TemporaryDirectory() as tmpdir:
+    cfg.save_pretrained(tmpdir)
+    path = os.path.join(tmpdir, "config.json")
+    
+    api = HfApi()
+    try:
+        api.upload_file(
+            path_or_fileobj=path,
+            path_in_repo="config.json",
+            repo_id=MODEL_ID,
+            repo_type="model",
+            token=TOKEN,
+            commit_message="fix: set id2label/label2id + multi_label_classification"
+        )
+        print("✅ Uploaded config.json with proper labels")
+    except Exception as e:
+        print(f"❌ Failed to upload config.json: {e}")
+        raise

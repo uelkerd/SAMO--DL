@@ -24,23 +24,16 @@ def add_security_headers(app: Flask) -> None:
             if nonce:
                 csp_docs = (
                     "default-src 'self'; "
-                    f"script-src 'self' https://unpkg.com 'nonce-{nonce}'; "
-                    f"style-src 'self' https://unpkg.com 'nonce-{nonce}'; "
+                    f"script-src 'self' 'nonce-{nonce}'; "
+                    f"style-src 'self' 'nonce-{nonce}'; "
                     "img-src 'self' data: https:; "
-                    "font-src 'self' https://unpkg.com; "
+                    "font-src 'self'; "
                     "connect-src 'self'; "
                     "frame-ancestors 'none';"
                 )
             else:
-                csp_docs = (
-                    "default-src 'self'; "
-                    "script-src 'self' 'unsafe-inline' https://unpkg.com; "
-                    "style-src 'self' 'unsafe-inline' https://unpkg.com; "
-                    "img-src 'self' data: https:; "
-                    "font-src 'self' https://unpkg.com; "
-                    "connect-src 'self'; "
-                    "frame-ancestors 'none';"
-                )
+                # Reject request if no nonce is available for docs
+                return "Content Security Policy violation: nonce required for /docs", 403
             response.headers['Content-Security-Policy'] = csp_docs
         else:
             response.headers['Content-Security-Policy'] = csp_base
