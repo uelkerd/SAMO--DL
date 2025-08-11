@@ -108,15 +108,10 @@ def ensure_model_loaded() -> bool:
             logger.info(f"📁 Loading trained weights from {MODEL_PATH}")
             try:
                 state = torch.load(MODEL_PATH, map_location='cpu')
-                missing, unexpected = model_local.load_state_dict(state, strict=False)
-                if missing or unexpected:
-                    logger.warning(
-                        "State dict not a perfect match (missing=%d, unexpected=%d); continuing with available weights",
-                        len(missing) if isinstance(missing, (list, tuple)) else 0,
-                        len(unexpected) if isinstance(unexpected, (list, tuple)) else 0,
-                    )
+                model_local.load_state_dict(state, strict=True)
+                logger.info("Applied local fine-tuned weights from %s", MODEL_PATH)
             except Exception as weight_err:
-                logger.warning("Failed to apply local weights from %s: %s; using HF weights", MODEL_PATH, weight_err)
+                logger.warning("Failed to apply local weights from %s; using HF pretrained weights: %s", MODEL_PATH, weight_err)
         else:
             logger.warning(f"⚠️ No trained weights found at {MODEL_PATH}, using base/pretrained weights")
 
@@ -141,8 +136,8 @@ def ensure_model_loaded() -> bool:
                     # Fallback to values order
                     ordered = list(labels_from_config.values())
                 derived_labels = [str(v) for v in ordered]
-        except Exception:
-            logger.warning("Failed to parse id2label mapping; falling back to defaults")
+        except Exception as e:
+            logger.warning("Failed to parse id2label mapping; falling back to defaults: %s", e)
 
         with model_lock:
             # Assign only after successful load to avoid races
@@ -219,7 +214,7 @@ def predict_emotions(text: str) -> Dict[str, Any]:
         emotions: List[Dict[str, Any]] = []
         for prob, idx in zip(top_probs, top_indices):
             emotions.append({
-                'emotion': emotion_labels_runtime[idx.item()] if 0 <= idx.item() < len(emotion_labels_runtime) else str(idx.item()),
+                'emotion': emotion_labels_runtime[idx.item()] if 0 <= idx.item() < len(emotion_labels_runtime) else "UNKNOWN_EMOTION",
                 'confidence': prob.item()
             })
 
