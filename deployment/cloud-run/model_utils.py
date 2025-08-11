@@ -123,15 +123,22 @@ def ensure_model_loaded() -> bool:
         try:
             if isinstance(labels_from_config, dict) and labels_from_config:
                 # Ensure numeric order if possible
-                def to_int(key: Any) -> Optional[int]:
+                keys = list(labels_from_config.keys())
+                def _to_int_or_none(v):
                     try:
-                        return int(key)
+                        return int(v)
                     except Exception:
                         return None
-                keys = list(labels_from_config.keys())
-                keys_int = [to_int(k) for k in keys]
+                keys_int = [_to_int_or_none(k) for k in keys]
                 if all(k is not None for k in keys_int):
-                    ordered = [labels_from_config[str(i)] if str(i) in labels_from_config else labels_from_config[i] for i in sorted(set(keys_int))]
+                    ordered = []
+                    for i in sorted(set(k for k in keys_int if k is not None)):
+                        # Prefer string key, then int key; skip if neither exists
+                        v = labels_from_config.get(str(i))
+                        if v is None:
+                            v = labels_from_config.get(i)
+                        if v is not None:
+                            ordered.append(v)
                 else:
                     # Fallback to values order
                     ordered = list(labels_from_config.values())
