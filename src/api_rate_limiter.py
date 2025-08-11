@@ -94,6 +94,11 @@ def _is_excluded_path(request_path: str, normalized_exclusions: Set[str]) -> boo
 
 
 class _RateLimitMiddleware(BaseHTTPMiddleware):
+    """Starlette middleware for token-bucket rate limiting.
+
+    Applies rate limits using a shared limiter instance while respecting
+    normalized path exclusions and test user-agents.
+    """
     def __init__(
         self,
         app,
