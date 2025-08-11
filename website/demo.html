@@ -46,7 +46,7 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             line-height: 1.8;
             font-size: 17px;
-            color: #e2e8f0;
+            color: #f1f5f9;
             background: var(--dark-gradient);
             background-attachment: fixed;
             min-height: 100vh;
@@ -509,6 +509,25 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Try It Now (Direct API) -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="col-lg-8 mx-auto">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">Try it now (direct API)</h5>
+                        <p class="text-muted mb-3">Sends input to the deployed minimal Emotion API at <code>https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict</code>.</p>
+                        <div class="input-group mb-3">
+                            <input id="tryNowInput" type="text" class="form-control" placeholder="Type a short sentence..." value="I am so happy today!" />
+                            <button id="tryNowBtn" class="btn btn-primary">Send</button>
+                        </div>
+                        <pre class="mb-0" style="background:#0b1020;color:#e2e8f0;border-radius:10px;padding:12px;overflow:auto"><code id="tryNowOutput">{}</code></pre>
                     </div>
                 </div>
             </div>
@@ -1025,6 +1044,31 @@
                 }
             });
         });
+
+        // Try It Now wiring
+        (function attachTryNow(){
+            const btn = document.getElementById('tryNowBtn');
+            const input = document.getElementById('tryNowInput');
+            const out = document.getElementById('tryNowOutput');
+            const ENDPOINT = 'https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict';
+            if (!btn || !input || !out) return;
+            btn.addEventListener('click', async () => {
+                const text = (input.value || '').trim();
+                if (!text) { out.textContent = 'Please enter text.'; return; }
+                out.textContent = '...';
+                try {
+                    const resp = await fetch(ENDPOINT, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text })
+                    });
+                    const data = await resp.json();
+                    out.textContent = JSON.stringify(data, null, 2);
+                } catch (e) {
+                    out.textContent = `Error: ${e?.message || e}`;
+                }
+            });
+        })();
     </script>
 </body>
 </html> 
