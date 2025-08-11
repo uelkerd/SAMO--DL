@@ -2,7 +2,8 @@
 """
 🔒 API Rate Limiter
 ==================
-Token bucket algorithm implementation for API rate limiting with security features.
+Token bucket algorithm for API rate limiting.
+Includes security features.
 """
 
 import time
@@ -45,7 +46,10 @@ class RateLimitConfig:
 # -------- Path exclusion helpers --------
 
 def _normalize_path(path: str) -> str:
-    """Normalize path: lowercase, ensure leading slash, strip trailing slashes."""
+    """Normalize path for matching.
+
+    Lowercase, ensure leading slash, strip trailing slashes.
+    """
     if not path:
         return "/"
     p = path.lower().strip()
@@ -68,6 +72,10 @@ def _build_exclusions(excluded_paths: Optional[Set[str]]) -> Set[str]:
 
 
 def _is_excluded_path(request_path: str, normalized_exclusions: Set[str]) -> bool:
+    """Check if the request path should be excluded.
+
+    Matches exact base or any subpath of an excluded base.
+    """
     norm_path = _normalize_path(request_path)
     if norm_path in normalized_exclusions:
         return True
@@ -91,7 +99,7 @@ class _RateLimitMiddleware(BaseHTTPMiddleware):
         self._exclusions = normalized_exclusions
 
     async def dispatch(self, request, call_next):  # type: ignore[override]
-        # Bypass selected paths
+        """Apply rate limits unless path is excluded or test UA is used."""
         if _is_excluded_path(request.url.path, self._exclusions):
             return await call_next(request)
 
