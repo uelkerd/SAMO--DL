@@ -275,7 +275,7 @@ def detect_emotion(text: str) -> dict:
     """Integrate with SAMO Emotion API"""
     try:
          response = requests.post(
-            "https://samo-unified-api-frrnetyhfa-uc.a.run.app/analyze/journal",
+            "https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict",
             json={"text": text},
             headers={"Content-Type": "application/json"},
             timeout=10
@@ -568,7 +568,7 @@ export default EmotionAnalyzer;</code></pre>
                             <p>First, you need to connect your app to our emotion detection API. This is like giving your app the ability to "read" emotions from text.</p>
                             <div class="code-example">
 <pre><code class="language-javascript">// Step 1: Set up your API connection
-const ANALYZE_API_URL = 'https://samo-unified-api-frrnetyhfa-uc.a.run.app/analyze/journal';
+const ANALYZE_API_URL = 'https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict';
 
 // This function sends text to our API and gets back emotion data
 async function analyzeEmotion(text) {
