@@ -99,6 +99,7 @@ class _RateLimitMiddleware(BaseHTTPMiddleware):
     Applies rate limits using a shared limiter instance while respecting
     normalized path exclusions and test user-agents.
     """
+
     def __init__(
         self,
         app,
