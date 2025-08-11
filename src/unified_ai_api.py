@@ -444,8 +444,15 @@ app.add_middleware(
 )
 
 # Add rate limiting middleware (1000 requests/minute per user for testing)
-add_rate_limiting(app, requests_per_minute=1000, burst_size=100, max_concurrent_requests=50,
-                 rapid_fire_threshold=100, sustained_rate_threshold=2000)
+add_rate_limiting(
+    app,
+    requests_per_minute=1000,
+    burst_size=100,
+    max_concurrent_requests=50,
+    rapid_fire_threshold=100,
+    sustained_rate_threshold=2000,
+    excluded_paths={"/health", "/metrics", "/docs", "/redoc", "/openapi.json"},
+)
 
 
 @app.middleware("http")
