@@ -376,7 +376,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                     endpoint_url=endpoint_url,
                     force_multi_label=None,
                 )
-                logger.info("✅ Loaded emotion model via multi-source strategy")
+                logger.info(f"✅ Loaded emotion model (source prioritized: local_dir={bool(local_dir)}, model_id={hf_model_id}, archive={bool(archive_url)}, endpoint={bool(endpoint_url)})")
             except Exception as hf_exc:
                 logger.warning(f"⚠️ HF multi-source load failed: {hf_exc}; falling back to local BERT")
                 from src.models.emotion_detection.bert_classifier import (
