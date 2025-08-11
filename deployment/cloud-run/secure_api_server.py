@@ -2,7 +2,7 @@
 """
 🚀 SECURE EMOTION DETECTION API FOR CLOUD RUN
 ============================================
-Production-ready Flask API with comprehensive security features.
+Production-ready Flask API with comprehensive security features and Swagger documentation.
 """
 
 import os
@@ -12,6 +12,8 @@ import uuid
 import threading
 import hmac
 from flask import Flask, request, jsonify, g
+from flask_restx import Api, Resource, fields, Namespace
+from functools import wraps
 
 # Import security modules
 from security_headers import add_security_headers
@@ -35,6 +37,68 @@ app = Flask(__name__)
 # Add security headers
 add_security_headers(app)
 
+# Initialize Flask-RESTX API with Swagger
+api = Api(
+    app,
+    version='2.0.0',
+    title='SAMO Emotion Detection API',
+    description='Secure, production-ready emotion detection API with comprehensive security features',
+    doc='/docs',
+    authorizations={
+        'apikey': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'X-API-Key'
+        }
+    },
+    security='apikey'
+)
+
+# Create namespaces for better organization
+main_ns = Namespace('', description='Main API operations')  # Root path for main endpoints
+admin_ns = Namespace('/admin', description='Admin operations', authorizations={
+    'apikey': {
+        'type': 'apiKey',
+        'in': 'header',
+        'name': 'X-API-Key'
+    }
+})
+
+# Add namespaces to API
+api.add_namespace(main_ns)
+api.add_namespace(admin_ns)
+
+# Define request/response models for Swagger
+text_input_model = api.model('TextInput', {
+    'text': fields.String(required=True, description='Text to analyze for emotion', example='I am feeling happy today!')
+})
+
+emotion_response_model = api.model('EmotionResponse', {
+    'text': fields.String(description='Input text'),
+    'emotions': fields.List(fields.Nested(api.model('Emotion', {
+        'emotion': fields.String(description='Emotion label'),
+        'confidence': fields.Float(description='Confidence score')
+    }))),
+    'confidence': fields.Float(description='Overall confidence'),
+    'request_id': fields.String(description='Unique request identifier'),
+    'timestamp': fields.Float(description='Unix timestamp')
+})
+
+batch_input_model = api.model('BatchInput', {
+    'texts': fields.List(fields.String, required=True, description='List of texts to analyze', example=['I am happy', 'I am sad'])
+})
+
+batch_response_model = api.model('BatchResponse', {
+    'results': fields.List(fields.Nested(emotion_response_model))
+})
+
+error_model = api.model('Error', {
+    'error': fields.String(description='Error message'),
+    'status_code': fields.Integer(description='HTTP status code'),
+    'request_id': fields.String(description='Unique request identifier'),
+    'timestamp': fields.Float(description='Unix timestamp')
+})
+
 # Security configuration from environment variables
 ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY")
 if not ADMIN_API_KEY:
@@ -55,22 +119,22 @@ model_lock = threading.Lock()
 # Emotion mapping based on training order
 EMOTION_MAPPING = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
 
+def require_api_key(f):
+    """Decorator to require API key via X-API-Key header"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        api_key = request.headers.get('X-API-Key')
+        if not verify_api_key(api_key):
+            logger.warning(f"Invalid API key attempt from {request.remote_addr}")
+            return create_error_response('Unauthorized - Invalid API key', 401)
+        return f(*args, **kwargs)
+    return decorated_function
+
 def verify_api_key(api_key: str) -> bool:
     """Verify API key using constant-time comparison"""
     if not api_key:
         return False
     return hmac.compare_digest(api_key, ADMIN_API_KEY)
-
-def require_api_key(f):
-    """Decorator to require API key for admin endpoints"""
-    from functools import wraps
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        api_key = request.headers.get('X-API-Key')
-        if not verify_api_key(api_key):
-            return jsonify({'error': 'Unauthorized - Invalid API key'}), 401
-        return f(*args, **kwargs)
-    return decorated_function
 
 def sanitize_input(text: str) -> str:
     """Sanitize input text"""
@@ -111,177 +175,303 @@ def check_model_loaded():
     # Use shared model loading function
     return ensure_model_loaded()
 
-def create_error_response(message: str, status_code: int = 500) -> tuple:
-    """Create standardized error response"""
-    return jsonify({
-        'error': message,
+def create_error_response(error_message: str, status_code: int) -> tuple:
+    """Create a properly formatted error response for Flask-RESTX"""
+    error_response = {
+        'error': error_message,
         'status_code': status_code,
         'request_id': str(uuid.uuid4()),
         'timestamp': time.time()
-    }), status_code
+    }
+    return error_response, status_code
+
+def handle_rate_limit_exceeded():
+    """Handle rate limit exceeded - return proper error response"""
+    return create_error_response('Rate limit exceeded - too many requests', 429)
 
 @app.before_request
 def before_request():
     """Add request ID and timing to all requests"""
-    g.request_id = str(uuid.uuid4())
     g.start_time = time.time()
-
-    # Log request
-    logger.info(f"Request {g.request_id}: {request.method} {request.path} from {request.remote_addr}")
+    g.request_id = str(uuid.uuid4())
 
 @app.after_request
 def after_request(response):
-    """Add timing and request ID to response"""
+    """Add request tracking headers"""
     if hasattr(g, 'start_time'):
         duration = time.time() - g.start_time
         response.headers['X-Request-Duration'] = str(duration)
-
     if hasattr(g, 'request_id'):
         response.headers['X-Request-ID'] = g.request_id
-
     return response
 
-@app.route('/', methods=['GET'])
-def root():
-    """Root endpoint with security info"""
-    return jsonify({
-        'service': 'SAMO Emotion Detection API',
-        'version': '2.0.0-secure',
-        'status': 'operational',
-        'security': 'enabled',
-        'rate_limit': RATE_LIMIT_PER_MINUTE,
-        'timestamp': time.time()
-    })
-
-@app.route('/health', methods=['GET'])
-def health_check():
-    """Health check endpoint"""
-    # Use shared model status
-    model_status_info = get_model_status()
-
-    return jsonify({
-        'status': 'healthy',
-        'model_loaded': model_status_info.get('model_loaded', False),
-        'model_loading': model_status_info.get('model_loading', False),
-        'port': PORT,
-        'timestamp': time.time()
-    })
-
-@app.route('/predict', methods=['POST'])
-@rate_limit(RATE_LIMIT_PER_MINUTE)
-def predict():
-    """Predict emotion for given text"""
-    try:
-        # Ensure model is loaded
-        check_model_loaded()
-
-        # Content-type validation
-        if not request.is_json:
-            return create_error_response('Content-Type must be application/json', 400)
-
+# Main API endpoints
+@main_ns.route('/')
+class Root(Resource):
+    @api.doc('get_root')
+    @api.response(200, 'Success')
+    @api.response(500, 'Internal Server Error', error_model)
+    def get(self):
+        """Get API status and information"""
         try:
-            data = request.get_json()
-        except Exception:
-            return create_error_response('Invalid JSON data', 400)
+            logger.info(f"Root endpoint accessed from {request.remote_addr}")
+            return {
+                'service': 'SAMO Emotion Detection API',
+                'status': 'operational',
+                'version': '2.0.0-secure',
+                'security': 'enabled',
+                'rate_limit': RATE_LIMIT_PER_MINUTE,
+                'timestamp': time.time()
+            }
+        except Exception as e:
+            logger.error(f"Root endpoint error for {request.remote_addr}: {str(e)}")
+            return create_error_response('Internal server error', 500)
 
-        if not data:
-            return create_error_response('No JSON data provided', 400)
-
-        text = data.get('text', '')
-
-        # Use shared validation
-        is_valid, error_message = validate_text_input(text)
-        if not is_valid:
-            return create_error_response(error_message, 400)
-
-        # Make prediction
-        result = predict_emotion(text)
-        return jsonify(result)
-
-    except Exception as e:
-        logger.exception(f"Prediction error: {e}")
-        return create_error_response('Prediction processing failed. Please try again later.')
-
-@app.route('/predict_batch', methods=['POST'])
-@rate_limit(RATE_LIMIT_PER_MINUTE)
-def predict_batch():
-    """Predict emotions for multiple texts"""
-    try:
-        # Ensure model is loaded
-        check_model_loaded()
-
-        # Content-type validation
-        if not request.is_json:
-            return create_error_response('Content-Type must be application/json', 400)
-
+@main_ns.route('/health')
+class Health(Resource):
+    @api.doc('get_health')
+    @api.response(200, 'Success')
+    @api.response(503, 'Service Unavailable', error_model)
+    @api.response(500, 'Internal Server Error', error_model)
+    def get(self):
+        """Get API health status"""
         try:
+            logger.info(f"Health check from {request.remote_addr}")
+            model_status = check_model_loaded()
+            
+            if model_status:
+                logger.info("Health check passed - model is ready")
+                return {
+                    'status': 'healthy',
+                    'model_loaded': model_status,
+                    'model_loading': False,
+                    'port': PORT,
+                    'timestamp': time.time()
+                }
+            else:
+                logger.warning("Health check failed - model not ready")
+                return create_error_response('Service unavailable - model not ready', 503)
+                
+        except Exception as e:
+            logger.error(f"Health check error for {request.remote_addr}: {str(e)}")
+            return create_error_response('Internal server error', 500)
+
+@main_ns.route('/predict')
+class Predict(Resource):
+    @api.doc('post_predict', security='apikey')
+    @api.expect(text_input_model, validate=True)
+    @api.response(200, 'Success', emotion_response_model)
+    @api.response(400, 'Bad Request', error_model)
+    @api.response(401, 'Unauthorized', error_model)
+    @api.response(429, 'Too Many Requests', error_model)
+    @api.response(503, 'Service Unavailable', error_model)
+    @rate_limit(RATE_LIMIT_PER_MINUTE)
+    @require_api_key
+    def post(self):
+        """Predict emotion for a single text input"""
+        try:
+            # Get and validate input
             data = request.get_json()
-        except Exception:
-            return create_error_response('Invalid JSON data', 400)
+            if not data or 'text' not in data:
+                logger.warning(f"Missing text field in request from {request.remote_addr}")
+                return create_error_response('Missing text field', 400)
 
-        if not data:
-            return create_error_response('No JSON data provided', 400)
+            text = data['text']
+            if not text or not isinstance(text, str):
+                logger.warning(f"Invalid text input from {request.remote_addr}: {type(text)}")
+                return create_error_response('Text must be a non-empty string', 400)
 
-        texts = data.get('texts', [])
-        if not texts:
-            return create_error_response('No texts provided', 400)
+            # Sanitize input
+            try:
+                text = sanitize_input(text)
+            except ValueError as e:
+                logger.warning(f"Input sanitization failed for {request.remote_addr}: {str(e)}")
+                return create_error_response(str(e), 400)
 
-        # Limit batch size for security
-        if len(texts) > 10:
-            return create_error_response('Batch size too large (max 10)', 400)
+            # Ensure model is loaded
+            if not check_model_loaded():
+                logger.error("Model not ready for prediction request")
+                return create_error_response('Model not ready', 503)
 
-        # Make predictions
-        results = []
-        for text in texts:
+            # Predict emotion
+            logger.info(f"Processing prediction request for {request.remote_addr}")
             result = predict_emotion(text)
-            results.append(result)
+            return result
 
-        return jsonify({'results': results})
+        except Exception as e:
+            logger.error(f"Prediction error for {request.remote_addr}: {str(e)}")
+            return create_error_response('Internal server error', 500)
 
-    except Exception as e:
-        logger.exception(f"Batch prediction error: {e}")
-        return create_error_response('Batch prediction processing failed. Please try again later.')
+@main_ns.route('/predict_batch')
+class PredictBatch(Resource):
+    @api.doc('post_predict_batch', security='apikey')
+    @api.expect(batch_input_model, validate=True)
+    @api.response(200, 'Success', batch_response_model)
+    @api.response(400, 'Bad Request', error_model)
+    @api.response(401, 'Unauthorized', error_model)
+    @api.response(429, 'Too Many Requests', error_model)
+    @api.response(503, 'Service Unavailable', error_model)
+    @rate_limit(RATE_LIMIT_PER_MINUTE)
+    @require_api_key
+    def post(self):
+        """Predict emotions for multiple text inputs"""
+        try:
+            # Get and validate input
+            data = request.get_json()
+            if not data or 'texts' not in data:
+                logger.warning(f"Missing texts field in batch request from {request.remote_addr}")
+                return create_error_response('Missing texts field', 400)
 
-@app.route('/emotions', methods=['GET'])
-def get_emotions():
-    """Get list of supported emotions"""
-    return jsonify({
-        'emotions': EMOTION_MAPPING,
-        'count': len(EMOTION_MAPPING)
-    })
+            texts = data['texts']
+            if not isinstance(texts, list) or len(texts) == 0:
+                logger.warning(f"Invalid texts input from {request.remote_addr}: {type(texts)}")
+                return create_error_response('Texts must be a non-empty list', 400)
 
-@app.route('/model_status', methods=['GET'])
-@require_api_key
-def model_status():
-    """Get detailed model status (admin only)"""
-    # Use shared model status function
-    status = get_model_status()
-    status['device'] = 'cpu'
-    return jsonify(status)
+            if len(texts) > 100:  # Limit batch size
+                logger.warning(f"Batch size too large from {request.remote_addr}: {len(texts)}")
+                return create_error_response('Batch size too large (max 100)', 400)
 
-@app.route('/security_status', methods=['GET'])
-@require_api_key
-def security_status():
-    """Get security status (admin only)"""
-    return jsonify({
-        'rate_limiting': True,
-        'api_key_protection': True,
-        'security_headers': True,
-        'input_sanitization': True,
-        'request_tracking': True,
-        'timestamp': time.time()
-    })
+            # Ensure model is loaded
+            if not check_model_loaded():
+                logger.error("Model not ready for batch prediction request")
+                return create_error_response('Model not ready', 503)
 
-# Load model on startup
+            # Process each text
+            logger.info(f"Processing batch prediction request for {request.remote_addr} with {len(texts)} texts")
+            results = []
+            for text in texts:
+                if not text or not isinstance(text, str):
+                    continue
+                
+                try:
+                    text = sanitize_input(text)
+                    result = predict_emotion(text)
+                    results.append(result)
+                except Exception as e:
+                    logger.warning(f"Failed to process text in batch from {request.remote_addr}: {str(e)}")
+                    continue
+
+            return {'results': results}
+
+        except Exception as e:
+            logger.error(f"Batch prediction error for {request.remote_addr}: {str(e)}")
+            return create_error_response('Internal server error', 500)
+
+@main_ns.route('/emotions')
+class Emotions(Resource):
+    @api.doc('get_emotions')
+    @api.response(200, 'Success')
+    @api.response(500, 'Internal Server Error', error_model)
+    def get(self):
+        """Get list of supported emotions"""
+        try:
+            logger.info(f"Emotions list requested from {request.remote_addr}")
+            return {
+                'emotions': EMOTION_MAPPING,
+                'count': len(EMOTION_MAPPING),
+                'timestamp': time.time()
+            }
+        except Exception as e:
+            logger.error(f"Emotions endpoint error for {request.remote_addr}: {str(e)}")
+            return create_error_response('Internal server error', 500)
+
+# Admin endpoints
+@admin_ns.route('/model_status')
+class ModelStatus(Resource):
+    @api.doc('get_model_status', security='apikey')
+    @api.response(200, 'Success')
+    @api.response(401, 'Unauthorized', error_model)
+    @api.response(500, 'Internal Server Error', error_model)
+    @require_api_key
+    def get(self):
+        """Get detailed model status (admin only)"""
+        try:
+            # Get model status from shared utilities
+            logger.info(f"Admin model status request from {request.remote_addr}")
+            status = get_model_status()
+            return status
+        except Exception as e:
+            logger.error(f"Model status error for {request.remote_addr}: {str(e)}")
+            return create_error_response('Internal server error', 500)
+
+@admin_ns.route('/security_status')
+class SecurityStatus(Resource):
+    @api.doc('get_security_status', security='apikey')
+    @api.response(200, 'Success')
+    @api.response(401, 'Unauthorized', error_model)
+    @api.response(500, 'Internal Server Error', error_model)
+    @require_api_key
+    def get(self):
+        """Get security configuration status (admin only)"""
+        try:
+            logger.info(f"Admin security status request from {request.remote_addr}")
+            return {
+                'api_key_protection': True,
+                'input_sanitization': True,
+                'rate_limiting': True,
+                'request_tracking': True,
+                'security_headers': True,
+                'timestamp': time.time()
+            }
+        except Exception as e:
+            logger.error(f"Security status error for {request.remote_addr}: {str(e)}")
+            return create_error_response('Internal server error', 500)
+
+# Error handlers for Flask-RESTX
+@api.errorhandler(429)
+def rate_limit_exceeded(error):
+    """Handle rate limit exceeded errors"""
+    logger.warning(f"Rate limit exceeded for {request.remote_addr}")
+    return create_error_response('Rate limit exceeded - too many requests', 429)
+
+@api.errorhandler(500)
+def internal_error(error):
+    """Handle internal server errors"""
+    logger.error(f"Internal server error for {request.remote_addr}: {str(error)}")
+    return create_error_response('Internal server error', 500)
+
+@api.errorhandler(404)
+def not_found(error):
+    """Handle not found errors"""
+    logger.warning(f"Endpoint not found for {request.remote_addr}: {request.url}")
+    return create_error_response('Endpoint not found', 404)
+
+@api.errorhandler(405)
+def method_not_allowed(error):
+    """Handle method not allowed errors"""
+    logger.warning(f"Method not allowed for {request.remote_addr}: {request.method} {request.url}")
+    return create_error_response('Method not allowed', 405)
+
+@api.errorhandler(Exception)
+def handle_unexpected_error(error):
+    """Handle any unexpected errors"""
+    logger.error(f"Unexpected error for {request.remote_addr}: {str(error)}")
+    return create_error_response('An unexpected error occurred', 500)
+
 def initialize_model():
-    """Initialize model before first request"""
+    """Initialize the emotion detection model"""
     try:
+        logger.info("🚀 Initializing emotion detection API server...")
+        logger.info(f"📊 Configuration: MAX_INPUT_LENGTH={MAX_INPUT_LENGTH}, RATE_LIMIT={RATE_LIMIT_PER_MINUTE}/min")
+        logger.info(f"🔐 Security: API key protection enabled, Admin API key configured")
+        logger.info(f"🌐 Server: Port {PORT}, Model path: {MODEL_PATH}")
+        
+        # Load the emotion detection model
+        logger.info("🔄 Loading emotion detection model...")
         load_model()
-    except Exception:
-        logger.exception("Failed to initialize model")
+        logger.info("✅ Model initialization completed successfully")
+        logger.info("🚀 API server ready to handle requests")
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to initialize API server: {str(e)}")
+        raise
 
-# Initialize model when module is imported
-initialize_model()
-
+# Initialize model when the application starts
 if __name__ == '__main__':
+    initialize_model()
+    logger.info(f"🌐 Starting Flask development server on port {PORT}")
     app.run(host='0.0.0.0', port=PORT, debug=False)
+else:
+    # For production deployment
+    logger.info("🚀 Production deployment detected - initializing model")
+    initialize_model()
