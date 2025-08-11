@@ -268,7 +268,7 @@ if __name__ == '__main__':
         logger.exception("Failed to load model on startup")
     
     # Get port from environment (Cloud Run requirement)
-    port = int(os.environ.get('PORT', 8080))
+    port = int(os.environ.get('PORT', '8080'))
     
     # Use production WSGI server for better performance and reliability
     import gunicorn.app.base
