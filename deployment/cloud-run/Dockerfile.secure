@@ -29,6 +29,8 @@ RUN pip install --no-cache-dir -r requirements_secure.txt
 COPY secure_api_server.py .
 COPY security_headers.py .
 COPY rate_limiter.py .
+COPY docs_blueprint.py .
+COPY templates/ ./templates/
 COPY openapi.yaml .
 COPY model/ ./model/
 
