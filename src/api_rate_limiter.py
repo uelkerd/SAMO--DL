@@ -379,11 +379,19 @@ class TokenBucketRateLimiter:
             logger.info("Rate limiter state reset")
 
 
-def add_rate_limiting(app, requests_per_minute=100, burst_size=10, max_concurrent_requests=5, 
-                     rapid_fire_threshold=10, sustained_rate_threshold=200, excluded_paths: Optional[Set[str]] = None):
+def add_rate_limiting(
+    app,
+    requests_per_minute: int = 100,
+    burst_size: int = 10,
+    max_concurrent_requests: int = 5,
+    rapid_fire_threshold: int = 10,
+    sustained_rate_threshold: int = 200,
+    excluded_paths: Optional[Set[str]] = None,
+):
     """Add rate limiting middleware to FastAPI app.
 
-    excluded_paths: paths that should bypass rate limiting (e.g., /health, /metrics, docs)
+    excluded_paths: paths that should bypass rate limiting
+    (e.g., /health, /metrics, docs)
     """
     from fastapi import Request
     from fastapi.responses import JSONResponse
@@ -396,7 +404,7 @@ def add_rate_limiting(app, requests_per_minute=100, burst_size=10, max_concurren
         enable_ip_blacklist=True,
         enable_ip_whitelist=False,
         rapid_fire_threshold=rapid_fire_threshold,
-        sustained_rate_threshold=sustained_rate_threshold
+        sustained_rate_threshold=sustained_rate_threshold,
     )
     rate_limiter = TokenBucketRateLimiter(config)
     
@@ -404,12 +412,20 @@ def add_rate_limiting(app, requests_per_minute=100, burst_size=10, max_concurren
     app.state.rate_limiter = rate_limiter
 
     # Default exclusions
-    default_exclusions: Set[str] = {"/health", "/metrics", "/docs", "/redoc", "/openapi.json"}
+    default_exclusions: Set[str] = {
+        "/health",
+        "/metrics",
+        "/docs",
+        "/redoc",
+        "/openapi.json",
+    }
     # Merge provided exclusions with defaults to ensure core endpoints remain excluded
-    exclusions: Set[str] = default_exclusions | (set(excluded_paths) if excluded_paths is not None else set())
+    exclusions: Set[str] = default_exclusions | (
+        set(excluded_paths) if excluded_paths is not None else set()
+    )
 
     def normalize_path(path: str) -> str:
-        """Normalize path for comparison: lowercase, ensure leading slash, strip trailing slashes (except root)."""
+        """Normalize path: lowercase, ensure leading slash, strip trailing slashes."""
         if not path:
             return "/"
         p = path.lower().strip()
@@ -423,7 +439,7 @@ def add_rate_limiting(app, requests_per_minute=100, burst_size=10, max_concurren
     normalized_exclusions = {normalize_path(p) for p in exclusions}
 
     def is_excluded_path(request_path: str) -> bool:
-        """Check if the normalized request path is excluded (exact or prefix match for subpaths)."""
+        """True if normalized request path matches an excluded base or its subpaths."""
         norm_path = normalize_path(request_path)
         if norm_path in normalized_exclusions:
             return True
@@ -445,7 +461,11 @@ def add_rate_limiting(app, requests_per_minute=100, burst_size=10, max_concurren
         user_agent = request.headers.get("user-agent", "")
         
         # Bypass rate limiting for test environment UAs
-        if "test" in user_agent.lower() or "pytest" in user_agent.lower() or "testclient" in user_agent.lower():
+        if (
+            "test" in user_agent.lower()
+            or "pytest" in user_agent.lower()
+            or "testclient" in user_agent.lower()
+        ):
             response = await call_next(request)
             return response
         
@@ -458,8 +478,8 @@ def add_rate_limiting(app, requests_per_minute=100, burst_size=10, max_concurren
                 content={
                     "error": "Rate limit exceeded",
                     "message": reason,
-                    "retry_after": meta.get("retry_after", 60)
-                }
+                    "retry_after": meta.get("retry_after", 60),
+                },
             )
         
         # Add rate limit headers
