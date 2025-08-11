@@ -61,6 +61,11 @@ def _normalize_path(path: str) -> str:
 
 
 def _build_exclusions(excluded_paths: Optional[Set[str]]) -> Set[str]:
+    """Build normalized exclusions set.
+
+    Merges default exclusions with any provided paths and normalizes each
+    entry (lowercase, leading slash, no trailing slash).
+    """
     default_exclusions: Set[str] = {
         "/health",
         "/metrics",
