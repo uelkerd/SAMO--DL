@@ -68,7 +68,10 @@ def _build_exclusions(excluded_paths: Optional[Set[str]]) -> Set[str]:
         "/redoc",
         "/openapi.json",
     }
-    return { _normalize_path(p) for p in (default_exclusions | (excluded_paths or set())) }
+    return {
+        _normalize_path(p)
+        for p in (default_exclusions | (excluded_paths or set()))
+    }
 
 
 def _is_excluded_path(request_path: str, normalized_exclusions: Set[str]) -> bool:
@@ -171,11 +174,21 @@ class TokenBucketRateLimiter:
             return True
         try:
             ip = ipaddress.ip_address(client_ip)
-            if self.config.enable_ip_blacklist and client_ip in self.config.blacklisted_ips:
-                logger.warning(f"Blocked request from blacklisted IP: {client_ip}")
+            if (
+                self.config.enable_ip_blacklist
+                and client_ip in self.config.blacklisted_ips
+            ):
+                logger.warning(
+                    "Blocked request from blacklisted IP: %s", client_ip
+                )
                 return False
-            if self.config.enable_ip_whitelist and client_ip not in self.config.whitelisted_ips:
-                logger.warning(f"Blocked request from non-whitelisted IP: {client_ip}")
+            if (
+                self.config.enable_ip_whitelist
+                and client_ip not in self.config.whitelisted_ips
+            ):
+                logger.warning(
+                    "Blocked request from non-whitelisted IP: %s", client_ip
+                )
                 return False
             return True
         except ValueError:
@@ -219,7 +232,10 @@ class TokenBucketRateLimiter:
         for pattern in low_risk_patterns:
             if pattern in ua_lower:
                 score += 1
-        if any(p in ua_lower for p in ['bot', 'crawler']) and any(p in ua_lower for p in ['python', 'curl', 'wget']):
+        if (
+            any(p in ua_lower for p in ["bot", "crawler"]) and
+            any(p in ua_lower for p in ["python", "curl", "wget"])
+        ):
             score += 2
         return min(score, 10)
     
@@ -230,21 +246,31 @@ class TokenBucketRateLimiter:
         current_time = time.time()
         if len(history) < 5:
             return 0
-        recent_history = [t for t in history if current_time - t <= self.config.anomaly_detection_window]
+        recent_history = [
+            t for t in history
+            if current_time - t <= self.config.anomaly_detection_window
+        ]
         if len(recent_history) < 3:
             return 0
         for window in [1.0, 5.0, 10.0]:
-            burst_requests = [t for t in recent_history if current_time - t <= window]
+            burst_requests = [
+                t for t in recent_history if current_time - t <= window
+            ]
             if len(burst_requests) > window * 2:
                 score += 2
         if len(recent_history) >= 5:
-            intervals = [recent_history[i] - recent_history[i-1] for i in range(1, len(recent_history))]
+            intervals = [
+                recent_history[i] - recent_history[i - 1]
+                for i in range(1, len(recent_history))
+            ]
             if len(intervals) >= 3:
                 avg = sum(intervals) / len(intervals)
                 var = sum((x - avg) ** 2 for x in intervals) / len(intervals)
                 if var < 0.1 and avg < 2.0:
                     score += 3
-        minute_requests = [t for t in recent_history if current_time - t <= 60.0]
+        minute_requests = [
+            t for t in recent_history if current_time - t <= 60.0
+        ]
         if len(minute_requests) > 50:
             score += 2
         return min(score, 10)
@@ -255,14 +281,20 @@ class TokenBucketRateLimiter:
         current_time = time.time()
         while history and current_time - history[0] > 3600:
             history.popleft()
-        recent_requests = [t for t in history if current_time - t <= self.config.rapid_fire_window]
+        recent_requests = [
+            t for t in history
+            if current_time - t <= self.config.rapid_fire_window
+        ]
         if len(recent_requests) > self.config.rapid_fire_threshold:
             logger.warning(
                 "Rate-based abuse detected: %d requests in %ss from %s",
                 len(recent_requests), self.config.rapid_fire_window, client_ip,
             )
             return True
-        minute_requests = [t for t in history if current_time - t <= self.config.sustained_rate_window]
+        minute_requests = [
+            t for t in history
+            if current_time - t <= self.config.sustained_rate_window
+        ]
         if len(minute_requests) > self.config.sustained_rate_threshold:
             logger.warning(
                 "Rate-based abuse detected: %d requests in %ss from %s",
@@ -272,12 +304,20 @@ class TokenBucketRateLimiter:
         if self.config.enable_user_agent_analysis:
             ua_score = self._analyze_user_agent(user_agent)
             if ua_score >= self.config.suspicious_user_agent_score_threshold:
-                logger.warning("User agent abuse detected: score %d from %s", ua_score, client_ip)
+                logger.warning(
+                    "User agent abuse detected: score %d from %s",
+                    ua_score,
+                    client_ip,
+                )
                 return True
         if self.config.enable_request_pattern_analysis:
             pattern_score = self._analyze_request_patterns(client_key, client_ip)
             if pattern_score >= self.config.request_pattern_score_threshold:
-                logger.warning("Pattern-based abuse detected: score %d from %s", pattern_score, client_ip)
+                logger.warning(
+                    "Pattern-based abuse detected: score %d from %s",
+                    pattern_score,
+                    client_ip,
+                )
                 return True
         return False
     
@@ -287,7 +327,10 @@ class TokenBucketRateLimiter:
         last_refill_time = self.last_refill[client_key]
         time_passed = current_time - last_refill_time
         tokens_to_add = (time_passed / 60.0) * self.config.requests_per_minute
-        self.buckets[client_key] = min(self.config.burst_size, self.buckets[client_key] + tokens_to_add)
+        self.buckets[client_key] = min(
+            self.config.burst_size,
+            self.buckets[client_key] + tokens_to_add,
+        )
         self.last_refill[client_key] = current_time
     
     def allow_request(self, client_ip: str, user_agent: str = "") -> Tuple[bool, str, Dict]:
