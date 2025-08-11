@@ -46,9 +46,6 @@ servers:
   - url: https://localhost:8080
     description: Local development server (HTTPS for security)
 
-security:
-  - ApiKeyAuth: []
-
 paths:
   /health:
     get:
@@ -76,8 +73,6 @@ paths:
       description: Predict emotion from a single text input
       tags:
         - Prediction
-      security:
-        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
@@ -131,8 +126,6 @@ paths:
       description: Predict emotions from multiple text inputs
       tags:
         - Prediction
-      security:
-        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
@@ -199,6 +192,8 @@ paths:
       description: Get detailed model status and information
       tags:
         - Information
+      security:
+        - ApiKeyAuth: []
       responses:
         '200':
           description: Model status information
@@ -292,7 +287,7 @@ components:
             minLength: 1
             maxLength: 1000
           minItems: 1
-          maxItems: 50
+          maxItems: 10
           example: ["I'm happy!", "I'm sad."]
       required:
         - texts
