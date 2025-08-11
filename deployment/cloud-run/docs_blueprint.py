@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from flask import Blueprint, Response, jsonify, render_template
+from flask import Blueprint, Response, jsonify, render_template, g
 
 
 docs_bp = Blueprint('docs', __name__, template_folder='templates')
@@ -34,4 +34,8 @@ def swagger_ui():
     """Render Swagger UI that loads the OpenAPI spec from /openapi.yaml."""
     # Allow overriding the spec URL (e.g., behind a proxy) but default to local
     spec_url = os.environ.get('OPENAPI_SPEC_URL', '/openapi.yaml')
-    return render_template('docs.html', spec_url=spec_url)
+    # Generate per-request nonce for CSP and pass to template
+    import secrets
+    nonce = secrets.token_urlsafe(16)
+    g.csp_nonce = nonce
+    return render_template('docs.html', spec_url=spec_url, csp_nonce=nonce)
