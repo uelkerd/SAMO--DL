@@ -1,9 +1,6 @@
-import builtins
 import importlib
 import importlib.util
 import os
-import types
-import pytest
 
 
 def _import_server():
@@ -16,10 +13,6 @@ def _import_server():
 
 def test_ensure_summarizer_loaded_handles_missing_dep(monkeypatch):
     mod = _import_server()
-
-    # Force import error
-    def _fail_import(name, *a, **k):
-        raise ImportError('forced')
 
     monkeypatch.setitem(sys.modules, 'src.models.summarization.t5_summarizer', None) if False else None
     # Simulate ImportError by monkeypatching import system inside function scope via monkeypatching builtins __import__ is risky.

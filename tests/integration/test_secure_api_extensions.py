@@ -1,11 +1,7 @@
-import io
 import json
 import os
-import tempfile
 import pytest
 import requests
-
-from flask import Flask
 
 # These tests hit the running Flask app if present, otherwise skip.
 BASE_URL = os.environ.get("SECURE_API_BASE", "http://127.0.0.1:8081")
