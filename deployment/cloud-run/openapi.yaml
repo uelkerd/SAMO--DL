@@ -389,6 +389,83 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /api/auth/register:
+    post:
+      summary: Register new user
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserRegister' }
+      responses:
+        '200': { description: Token response, content: { application/json: { schema: { $ref: '#/components/schemas/TokenResponse' } } } }
+        '400': { description: Bad request, content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } } }
+
+  /api/auth/login:
+    post:
+      summary: User login
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserLogin' }
+      responses:
+        '200': { description: Token response, content: { application/json: { schema: { $ref: '#/components/schemas/TokenResponse' } } } }
+        '400': { description: Bad request, content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } } }
+
+  /api/auth/refresh:
+    post:
+      summary: Refresh access token
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefreshRequest' }
+      responses:
+        '200': { description: Token response, content: { application/json: { schema: { $ref: '#/components/schemas/TokenResponse' } } } }
+        '401': { description: Unauthorized, content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } } }
+
+  /api/auth/logout:
+    post:
+      summary: Logout user
+      tags: [Authentication]
+      responses:
+        '200': { description: Logged out }
+
+  /api/auth/profile:
+    get:
+      summary: Get user profile
+      tags: [Authentication]
+      responses:
+        '200': { description: Profile, content: { application/json: { schema: { $ref: '#/components/schemas/UserProfile' } } } }
+        '401': { description: Unauthorized, content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } } }
+
+  /api/monitoring/performance:
+    get:
+      summary: Performance metrics
+      tags: [Monitoring]
+      security: [{ ApiKeyAuth: [] }]
+      responses:
+        '200': { description: System metrics }
+
+  /api/monitoring/health/detailed:
+    get:
+      summary: Detailed health check
+      tags: [Monitoring]
+      security: [{ ApiKeyAuth: [] }]
+      responses:
+        '200': { description: Detailed status }
+
+  /api/models/status:
+    get:
+      summary: Models status
+      tags: [System]
+      responses:
+        '200': { description: Models load status }
+
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -651,6 +728,46 @@ components:
       required:
         - error
         - request_id
+
+    UserRegister:
+      type: object
+      properties:
+        username: { type: string }
+        email: { type: string }
+        password: { type: string }
+      required: [username, password]
+
+    UserLogin:
+      type: object
+      properties:
+        username: { type: string }
+        password: { type: string }
+      required: [username, password]
+
+    RefreshRequest:
+      type: object
+      properties:
+        refresh_token: { type: string }
+      required: [refresh_token]
+
+    TokenResponse:
+      type: object
+      properties:
+        access_token: { type: string }
+        refresh_token: { type: string }
+        token_type: { type: string }
+        expires_in: { type: integer }
+      required: [access_token, refresh_token]
+
+    UserProfile:
+      type: object
+      properties:
+        user_id: { type: string }
+        username: { type: string }
+        email: { type: string }
+        permissions:
+          type: array
+          items: { type: string }
 
 tags:
   - name: Health
