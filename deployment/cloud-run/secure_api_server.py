@@ -55,13 +55,14 @@ def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX'
         logger.error(f"Root endpoint error for {request.remote_addr}: {str(e)}")
         return create_error_response('Internal server error', 500)
 
-# Initialize Flask-RESTX API with Swagger
+# Initialize Flask-RESTX API without Swagger to avoid 500 errors
 api = Api(
     app,
     version='2.0.0',
     title='SAMO Emotion Detection API',
     description='Secure, production-ready emotion detection API with comprehensive security features',
-    doc='/docs',
+    # Temporarily disable Swagger docs to avoid 500 errors
+    # doc='/docs',
     authorizations={
         'apikey': {
             'type': 'apiKey',
