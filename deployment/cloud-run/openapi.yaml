@@ -202,6 +202,193 @@ paths:
               schema:
                 $ref: '#/components/schemas/ModelStatusResponse'
 
+  /api/summarize:
+    post:
+      summary: Summarize Text
+      description: Generate a summary for input text
+      tags:
+        - Summarization
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SummarizeRequest'
+      responses:
+        '200':
+          description: Summary generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SummarizeResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/analyze/journal:
+    post:
+      summary: Analyze Journal Entry
+      description: Complete text analysis including emotion detection and optional summarization
+      tags:
+        - Analysis
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JournalRequest'
+      responses:
+        '200':
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JournalResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/transcribe:
+    post:
+      summary: Transcribe Audio
+      description: Transcribe an audio file to text
+      tags:
+        - Voice Processing
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required: [file]
+      responses:
+        '200':
+          description: Transcription result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranscriptionResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/transcribe_batch:
+    post:
+      summary: Batch Transcribe Audio
+      description: Transcribe multiple audio files
+      tags:
+        - Voice Processing
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+              required: [files]
+      responses:
+        '200':
+          description: Batch transcription result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchTranscriptionResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/analyze/voice_journal:
+    post:
+      summary: Analyze Voice Journal Entry
+      description: Transcribe audio and perform full journal analysis
+      tags:
+        - Analysis
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required: [file]
+      responses:
+        '200':
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JournalResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -211,6 +398,107 @@ components:
       description: API key for authentication
 
   schemas:
+    SummarizeRequest:
+      type: object
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        model:
+          type: string
+          description: Optional model override (e.g., t5-small)
+      required: [text]
+
+    SummarizeResponse:
+      type: object
+      properties:
+        summary:
+          type: string
+        meta:
+          type: object
+          additionalProperties: true
+
+    JournalRequest:
+      type: object
+      properties:
+        text:
+          type: string
+          minLength: 1
+        generate_summary:
+          type: boolean
+          default: true
+        emotion_threshold:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+      required: [text]
+
+    JournalResponse:
+      type: object
+      properties:
+        emotion_analysis:
+          type: object
+        summary:
+          type: object
+          nullable: true
+        processing_time_ms:
+          type: number
+          format: float
+        pipeline_status:
+          type: object
+      required: [emotion_analysis, processing_time_ms, pipeline_status]
+
+    TranscriptionResponse:
+      type: object
+      properties:
+        text:
+          type: string
+        language:
+          type: string
+        confidence:
+          type: number
+          format: float
+        duration:
+          type: number
+          format: float
+        audio_quality:
+          type: string
+        word_count:
+          type: integer
+        speaking_rate:
+          type: number
+          format: float
+
+    BatchTranscriptionResponse:
+      type: object
+      properties:
+        total_files:
+          type: integer
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              index:
+                type: integer
+              success:
+                type: boolean
+              text:
+                type: string
+                nullable: true
+              language:
+                type: string
+                nullable: true
+              confidence:
+                type: number
+                format: float
+                nullable: true
+              error:
+                type: string
+                nullable: true
+
     HealthResponse:
       type: object
       properties:
