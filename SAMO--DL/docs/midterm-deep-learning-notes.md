@@ -1,77 +1,96 @@
-### Midterm Progress Notes — Data Science / Deep Learning (Only)
+# Midterm Progress Notes — Deep Learning (Plain English)
 
-- **Tracks (context)**: Data Science / Deep Learning (this doc), UX–UI, Web Development
-- **Tone**: concise, slide-ready, a dash of humor; 1–2 A4 pages
+- **Scope**: Deep Learning only (for slides). Short, clear, and a little fun.
 
-### Problem and product definition (DL perspective)
-- **Updated problem**: Deliver reliable, real-time understanding of text/audio signals (emotion + concise summaries) with strong generalization and predictable latency.
-- **DL solution**: Build accurate, calibrated, and efficient models (emotion detection, summarization), optimized for production constraints while maintaining robustness across domains.
-- **MVP goal (DL deliverable)**:
-  - Emotion labels + confidences and a concise abstractive summary for short inputs
-  - Quality: macro-F1 and per-class PR improvements over baseline; calibrated probabilities
-  - Efficiency: inference-ready artifact with tight p95 latency budget on target hardware
+## What we’re building (DL point of view)
 
-### What we’ve been up to (past weeks)
-- **Data curation**: de-duplication, noise filtering, stratified splits; initial slice definitions (length, domain, sentiment intensity)
-- **Training loop upgrades**: baselines → fine-tuned transformers; early stopping; cosine LR schedules; label smoothing
-- **Imbalance handling**: class-weighting + focal loss trials; minority-focused augmentation; balanced mini-batches
-- **Evaluation harness**: macro-F1, per-class PR/ROC, confusion matrices, slice metrics, robustness checks
-- **Calibration + thresholds**: temperature scaling, class-specific thresholds to align precision/recall with product goals
-- **Model optimization**: knowledge distillation to compact student; PTQ/QAT experiments; export to inference-friendly format; mixed precision benchmarking
-- **Error analysis**: hard-negative mining; cluster-based review of misclassifications; iterative data fixes
-- **Reproducibility**: seeded experiments, config-logged runs, deterministic ops where feasible
+- Help the system understand short text and audio: spot the feeling and give a helpful, one‑line summary.
+- Do it quickly and reliably so it feels live and trustworthy.
 
-### Biggest challenges so far
-- **Label noise and drift**: inconsistent annotations and domain shifts reduce ceiling; addressed with filtering and slice eval
-- **Class imbalance**: minority emotions underrepresented; mitigated with focal loss + augmentation
-- **Efficiency vs. quality trade-offs**: compression/quantization can hurt calibration; careful tuning needed
-- **Generalization**: out-of-domain sentences/audio require targeted augmentation and threshold tuning
+## Biggest challenges and how we handled them
 
-### Wins so far (measurable progress)
-- **Quality lift**: macro-F1 improved over baseline; better per-class recall on rare emotions
-- **Compact models**: distilled student achieves near-baseline accuracy with significant speedup
-- **Calibration**: temperature scaling reduces overconfidence; improved decision thresholds
-- **Robustness**: slice metrics now part of acceptance; fewer brittle failures on long/short inputs
+- **Messy data**
+  - What we saw: duplicates, typos, and inconsistent labels.
+  - What we did: cleaned it up, removed repeats, and split data fairly.
+  - Result: the model learns from better examples and makes fewer avoidable mistakes.
 
-### Interfaces with other tracks (from DL viewpoint)
-- Publish clear I/O contracts for model inputs/outputs and confidence semantics
-- Provide latency/throughput targets and model artifact format for integration
-- Deliver test fixtures and expected metrics to support demos and UX flows
+- **Unbalanced emotions**
+  - What we saw: some feelings were rare, so the model ignored them.
+  - What we did: rebalanced training and added more examples where it struggled.
+  - Result: fairer predictions; rare emotions show up more reliably.
 
-### Visuals to share (DL)
-- Confusion matrix, per-class PR curves, calibration reliability diagram
-- Training/eval curves (loss, F1), ablation table (losses/augmentations), size–speed–F1 trade-off plot
+- **Too slow for a smooth demo**
+  - What we saw: good accuracy but the model took too long to answer.
+  - What we did: made it smaller and more efficient without losing much quality.
+  - Result: faster responses that fit a live, click‑and‑see experience.
+
+- **Overconfident answers**
+  - What we saw: the model said “90% sure” when it wasn’t.
+  - What we did: tuned its confidence so scores better match reality.
+  - Result: confidence you can actually trust.
+
+- **Learning the training set too well**
+  - What we saw: it performed great on familiar data but stumbled on fresh inputs.
+  - What we did: held out clean test sets and built “tricky case” checks.
+  - Result: better generalization to real‑world inputs.
+
+- **Hard to reproduce a “good run”**
+  - What we saw: tiny environment differences changed results.
+  - What we did: locked our setup and recorded settings for each run.
+  - Result: repeatable experiments and easier debugging.
+
+- **Why did it fail here?**
+  - What we saw: certain phrases consistently confused the model.
+  - What we did: reviewed mistakes in batches, added targeted fixes and examples.
+  - Result: fewer repeated errors and clearer behavior.
+
+## What we’ve achieved so far (DL)
+
+- Cleaner dataset and fair splits
+- Better accuracy on core emotions; rare emotions improved
+- Smaller, faster model with minimal quality loss
+- Confidence scores that mean what they say
+- Repeatable training runs with documented settings
+- A ready‑to‑ship model file with clear input/output shape
+
+## Simple picture (DL)
 
 ```mermaid
 flowchart LR
-    A[Data sourcing] --> B[Preprocess & QA]\n(dedup, clean, stratify)
-    B --> C[Train baselines]\n+ fine-tune
-    C --> D[Evaluate]\nF1, PR, slices
+    A[Collect text/audio] --> B[Clean & organize]
+    B --> C[Train model]
+    C --> D[Test on tricky cases]
     D --> E{Good enough?}
     E -- No --> C
-    E -- Yes --> F[Optimize]\n(distill, quantize)
-    F --> G[Calibrate & thresholds]
-    G --> H[Export artifact]\n(inference-ready)
-    H --> I[Sign-off]\n(model card + metrics)
+    E -- Yes --> F[Make smaller & faster]
+    F --> G[Add trustworthy confidence]
+    G --> H[Package for the app]
+    H --> I[Share & monitor]
 ```
 
-### Next steps (DL-only)
-- **Directions**: targeted augmentation for rare classes, refine distillation recipe, finalize calibration + thresholds, stress tests for OOD inputs
-- **Acceptance**: macro-F1 lift on core + slice sets; stable calibration; speed–quality target met
+## What’s next (DL only)
+
+- Add more “tricky” and edge‑case examples
+- Tune decision thresholds so results feel right
+- Push for more speed without harming quality
+- Stress‑test unusual inputs and add guardrails
+- Deliver a short model card and a demo‑ready example set
 
 ```mermaid
 gantt
     dateFormat  YYYY-MM-DD
     title Deep Learning Roadmap (Next 4–6 Weeks)
-    section Data & Eval
-    Finalize slice eval         :active, d1, 2025-08-12, 7d
-    Targeted augmentation       :        d2, after d1, 10d
+    section Data & Evaluation
+    Expand tricky examples      :active, d1, 2025-08-12, 7d
+    Refresh clean test set      :        d2, after d1, 5d
     section Modeling
-    Distillation refinement     :        d3, after d1, 10d
-    QAT/PTQ calibration         :        d4, after d3, 6d
-    section Reliability
-    Threshold tuning + stress   :        d5, after d4, 7d
-    Model card & sign-off       :milestone, d6, 2025-09-10, 1d
+    Light model tuning          :        d3, after d1, 10d
+    Confidence calibration      :        d4, after d3, 6d
+    section Speed & Reliability
+    Faster inference trials     :        d5, after d3, 7d
+    Stress tests + guardrails   :        d6, after d4, 7d
+    section Handoff
+    Model card & demo set       :milestone, d7, 2025-09-10, 1d
 ```
 
-A tiny sprinkle of humor: our loss went down; our spirits went up—turns out gradient descent works on morale, too.
+A tiny sprinkle of humor: feelings are hard—our model agrees, but it’s getting better at reading the room.
