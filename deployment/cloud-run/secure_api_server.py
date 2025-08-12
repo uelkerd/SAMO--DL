@@ -11,6 +11,9 @@ import logging
 import uuid
 import threading
 import hmac
+import hashlib
+import base64
+import json
 from flask import Flask, request, jsonify, g
 from flask_restx import Api, Resource, fields, Namespace
 from functools import wraps
@@ -25,6 +28,12 @@ from model_utils import (
     validate_text_input, 
 )
 
+# Add import for docs blueprint (custom Swagger UI)
+try:
+    from docs_blueprint import docs_bp
+except Exception:
+    docs_bp = None
+
 # Configure logging for Cloud Run
 logging.basicConfig(
     level=logging.INFO,
@@ -34,16 +43,27 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
+# Configure docs blueprint default paths to local openapi.yaml when not set
+if os.environ.get('OPENAPI_SPEC_PATH') is None:
+    _here = os.path.dirname(os.path.abspath(__file__))
+    os.environ['OPENAPI_SPEC_PATH'] = os.path.join(_here, 'openapi.yaml')
+    os.environ['OPENAPI_ALLOWED_DIR'] = _here
+
+# Register custom docs blueprint if available (serves /docs and /openapi.yaml)
+if docs_bp is not None:
+    app.register_blueprint(docs_bp)
+
 # Add security headers
 add_security_headers(app)
 
-# Initialize Flask-RESTX API with Swagger
+# Initialize Flask-RESTX API without Swagger to avoid 500 errors
 api = Api(
     app,
     version='2.0.0',
     title='SAMO Emotion Detection API',
     description='Secure, production-ready emotion detection API with comprehensive security features',
-    doc='/docs',
+    # Temporarily disable Swagger docs to avoid 500 errors
+    # doc='/docs',
     authorizations={
         'apikey': {
             'type': 'apiKey',
@@ -115,6 +135,335 @@ emotion_mapping = None
 model_loading = False
 model_loaded = False
 model_lock = threading.Lock()
+
+# Globals for additional models (lazy-loaded)
+_summarizer = None
+_summarizer_lock = threading.Lock()
+_transcriber = None
+_transcriber_lock = threading.Lock()
+
+
+def ensure_summarizer_loaded(model_name: str | None = None) -> bool:
+    """Lazy load T5 summarizer on first use.
+    Returns True if available, False if unavailable (e.g., dependency missing).
+    """
+    global _summarizer
+    if _summarizer is not None:
+        return True
+    with _summarizer_lock:
+        if _summarizer is not None:
+            return True
+        try:
+            # Import inside function to avoid hard dependency at import time
+            from src.models.summarization.t5_summarizer import T5SummarizationModel, SummarizationConfig
+            cfg = SummarizationConfig()
+            if model_name:
+                cfg.model_name = model_name
+            _summarizer = T5SummarizationModel(config=cfg)
+            logger.info("✅ Summarizer loaded: %s", cfg.model_name)
+            return True
+        except Exception as exc:
+            logger.warning("Summarizer unavailable: %s", exc)
+            _summarizer = None
+            return False
+
+
+def ensure_transcriber_loaded(model_size: str | None = None) -> bool:
+    """Lazy load Whisper transcriber on first use.
+    Returns True if available, False otherwise.
+    """
+    global _transcriber
+    if _transcriber is not None:
+        return True
+    with _transcriber_lock:
+        if _transcriber is not None:
+            return True
+        try:
+            from src.models.voice_processing.whisper_transcriber import WhisperTranscriber, TranscriptionConfig
+            cfg = TranscriptionConfig()
+            if model_size:
+                cfg.model_size = model_size
+            _transcriber = WhisperTranscriber(config=cfg)
+            logger.info("✅ Transcriber loaded: %s", cfg.model_size)
+            return True
+        except Exception as exc:
+            logger.warning("Transcriber unavailable: %s", exc)
+            _transcriber = None
+            return False
+
+
+# --------------------------
+# New API models (for docs)
+# --------------------------
+summary_request_model = api.model('SummarizeRequest', {
+    'text': fields.String(required=True, description='Text to summarize'),
+    'model': fields.String(required=False, description='Summarization model (e.g., t5-small)')
+})
+
+summary_response_model = api.model('SummarizeResponse', {
+    'summary': fields.String(description='Generated summary'),
+    'meta': fields.Raw(description='Metadata about the summarization')
+})
+
+journal_request_model = api.model('JournalRequest', {
+    'text': fields.String(required=True, description='Journal text'),
+    'generate_summary': fields.Boolean(default=True, description='Whether to generate a summary'),
+    'emotion_threshold': fields.Float(required=False, description='Threshold for emotion detection')
+})
+
+journal_response_model = api.model('JournalResponse', {
+    'emotion_analysis': fields.Raw(description='Emotion analysis results'),
+    'summary': fields.Raw(description='Summarization results'),
+    'processing_time_ms': fields.Float(description='Processing time in ms'),
+    'pipeline_status': fields.Raw(description='Which sub-systems were active')
+})
+
+# --------------------------
+# New prioritized endpoints
+# --------------------------
+@main_ns.route('/summarize')
+class Summarize(Resource):
+    @api.doc('post_summarize', security='apikey')
+    @api.expect(summary_request_model, validate=True)
+    @api.response(200, 'Success', summary_response_model)
+    @api.response(400, 'Bad Request', error_model)
+    @api.response(401, 'Unauthorized', error_model)
+    @api.response(503, 'Service Unavailable', error_model)
+    @rate_limit(RATE_LIMIT_PER_MINUTE)
+    @require_api_key
+    def post(self):
+        try:
+            data = request.get_json() or {}
+            text = data.get('text', '')
+            model_name = data.get('model')
+            if not text or not isinstance(text, str):
+                return create_error_response('Text must be a non-empty string', 400)
+
+            # Sanitize and truncate input similarly to predict
+            try:
+                safe_text = sanitize_input(text)
+            except ValueError as e:
+                return create_error_response(str(e), 400)
+
+            if not ensure_summarizer_loaded(model_name=model_name):
+                return create_error_response('Summarization service unavailable', 503)
+
+            start = time.time()
+            summary_text = _summarizer.generate_summary(safe_text, max_length=150, min_length=30)
+            duration_ms = (time.time() - start) * 1000
+            return {
+                'summary': summary_text,
+                'meta': {
+                    'duration_ms': duration_ms,
+                    'model': getattr(_summarizer, 'model_name', None)
+                }
+            }
+        except Exception as exc:
+            logger.error(f"Summarization error for {request.remote_addr}: {exc}")
+            return create_error_response('Internal server error', 500)
+
+
+@main_ns.route('/analyze/journal')
+class AnalyzeJournal(Resource):
+    @api.doc('post_analyze_journal', security='apikey')
+    @api.expect(journal_request_model, validate=True)
+    @api.response(200, 'Success', journal_response_model)
+    @api.response(400, 'Bad Request', error_model)
+    @api.response(401, 'Unauthorized', error_model)
+    @api.response(503, 'Service Unavailable', error_model)
+    @rate_limit(RATE_LIMIT_PER_MINUTE)
+    @require_api_key
+    def post(self):
+        try:
+            payload = request.get_json() or {}
+            text = payload.get('text', '')
+            generate_summary = bool(payload.get('generate_summary', True))
+            threshold = payload.get('emotion_threshold')
+            if not text or not isinstance(text, str):
+                return create_error_response('Text must be a non-empty string', 400)
+
+            # Sanitize text
+            try:
+                safe_text = sanitize_input(text)
+            except ValueError as e:
+                return create_error_response(str(e), 400)
+
+            start = time.time()
+
+            # Emotion analysis via shared utils
+            emotion_results = predict_emotions(safe_text)
+            if 'error' in emotion_results:
+                logger.warning("Emotion analysis degraded: %s", emotion_results.get('error'))
+
+            # Summarization (optional)
+            summary_results = None
+            if generate_summary and ensure_summarizer_loaded():
+                try:
+                    summary_text = _summarizer.generate_summary(safe_text, max_length=150, min_length=30)
+                    summary_results = {
+                        'summary': summary_text,
+                        'key_emotions': [e.get('emotion') for e in (emotion_results.get('emotions') or [])[:1]],
+                        'compression_ratio': 0.5,
+                        'emotional_tone': 'neutral'
+                    }
+                except Exception as e:
+                    logger.warning("Summarization failed: %s", e)
+
+            processing_time_ms = (time.time() - start) * 1000
+
+            return {
+                'emotion_analysis': emotion_results,
+                'summary': summary_results,
+                'processing_time_ms': processing_time_ms,
+                'pipeline_status': {
+                    'emotion_detection': True,
+                    'text_summarization': summary_results is not None
+                }
+            }
+        except Exception as exc:
+            logger.error(f"Journal analysis error for {request.remote_addr}: {exc}")
+            return create_error_response('Internal server error', 500)
+
+
+# File upload helpers
+from werkzeug.utils import secure_filename
+
+def _save_upload(file_storage, suffix: str = '.wav') -> str:
+    tmp_dir = '/tmp'
+    filename = secure_filename(file_storage.filename or f'upload{suffix}')
+    path = os.path.join(tmp_dir, filename)
+    file_storage.save(path)
+    return path
+
+
+@main_ns.route('/transcribe')
+class Transcribe(Resource):
+    @api.doc('post_transcribe', security='apikey')
+    @api.response(200, 'Success')
+    @api.response(400, 'Bad Request', error_model)
+    @api.response(401, 'Unauthorized', error_model)
+    @api.response(503, 'Service Unavailable', error_model)
+    @rate_limit(RATE_LIMIT_PER_MINUTE)
+    @require_api_key
+    def post(self):
+        try:
+            if 'file' not in request.files:
+                return create_error_response('No file uploaded (use multipart/form-data with field "file")', 400)
+            file = request.files['file']
+            if not file or not file.filename:
+                return create_error_response('Invalid file', 400)
+
+            if not ensure_transcriber_loaded():
+                return create_error_response('Transcription service unavailable', 503)
+
+            audio_path = _save_upload(file)
+            try:
+                result = _transcriber.transcribe(audio_path)
+                return {
+                    'text': result.text,
+                    'language': result.language,
+                    'confidence': result.confidence,
+                    'duration': result.duration,
+                    'audio_quality': result.audio_quality,
+                    'word_count': result.word_count,
+                    'speaking_rate': result.speaking_rate
+                }
+            finally:
+                try:
+                    os.remove(audio_path)
+                except Exception:
+                    pass
+        except Exception as exc:
+            logger.error(f"Transcription error for {request.remote_addr}: {exc}")
+            return create_error_response('Internal server error', 500)
+
+
+@main_ns.route('/transcribe_batch')
+class TranscribeBatch(Resource):
+    @api.doc('post_transcribe_batch', security='apikey')
+    @api.response(200, 'Success')
+    @api.response(400, 'Bad Request', error_model)
+    @api.response(401, 'Unauthorized', error_model)
+    @api.response(503, 'Service Unavailable', error_model)
+    @rate_limit(RATE_LIMIT_PER_MINUTE)
+    @require_api_key
+    def post(self):
+        try:
+            files = request.files.getlist('files')
+            if not files:
+                return create_error_response('No files uploaded (use multipart/form-data with field "files")', 400)
+
+            if not ensure_transcriber_loaded():
+                return create_error_response('Transcription service unavailable', 503)
+
+            results = []
+            temp_paths = []
+            try:
+                for idx, f in enumerate(files):
+                    if not f or not f.filename:
+                        results.append({'index': idx, 'success': False, 'error': 'Invalid file'})
+                        continue
+                    p = _save_upload(f)
+                    temp_paths.append(p)
+                    try:
+                        r = _transcriber.transcribe(p)
+                        results.append({'index': idx, 'success': True, 'text': r.text, 'language': r.language, 'confidence': r.confidence})
+                    except Exception as e:
+                        results.append({'index': idx, 'success': False, 'error': str(e)})
+                return {
+                    'total_files': len(files),
+                    'results': results
+                }
+            finally:
+                for p in temp_paths:
+                    try:
+                        os.remove(p)
+                    except Exception:
+                        pass
+        except Exception as exc:
+            logger.error(f"Batch transcription error for {request.remote_addr}: {exc}")
+            return create_error_response('Internal server error', 500)
+
+
+@main_ns.route('/analyze/voice_journal')
+class AnalyzeVoiceJournal(Resource):
+    @api.doc('post_analyze_voice_journal', security='apikey')
+    @api.response(200, 'Success')
+    @api.response(400, 'Bad Request', error_model)
+    @api.response(401, 'Unauthorized', error_model)
+    @api.response(503, 'Service Unavailable', error_model)
+    @rate_limit(RATE_LIMIT_PER_MINUTE)
+    @require_api_key
+    def post(self):
+        try:
+            if 'file' not in request.files:
+                return create_error_response('No file uploaded (use multipart/form-data with field "file")', 400)
+            file = request.files['file']
+            if not file or not file.filename:
+                return create_error_response('Invalid file', 400)
+
+            if not ensure_transcriber_loaded():
+                return create_error_response('Transcription service unavailable', 503)
+
+            audio_path = _save_upload(file)
+            try:
+                tx = _transcriber.transcribe(audio_path)
+            finally:
+                try:
+                    os.remove(audio_path)
+                except Exception:
+                    pass
+
+            # With transcription text, run journal analysis
+            payload = {
+                'text': tx.text,
+                'generate_summary': True
+            }
+            with app.test_request_context(json=payload):
+                return AnalyzeJournal().post()
+        except Exception as exc:
+            logger.error(f"Voice journal analysis error for {request.remote_addr}: {exc}")
+            return create_error_response('Internal server error', 500)
 
 # Emotion mapping based on training order
 EMOTION_MAPPING = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
@@ -479,6 +828,251 @@ api.error_handlers[500] = internal_error
 api.error_handlers[404] = not_found
 api.error_handlers[405] = method_not_allowed
 api.error_handlers[Exception] = handle_unexpected_error
+
+# In-memory token blacklist
+_token_blacklist = set()
+
+
+def _sign_message(message: str) -> str:
+    return hmac.new(ADMIN_API_KEY.encode('utf-8'), message.encode('utf-8'), hashlib.sha256).hexdigest()
+
+
+def _create_token(payload: dict, expires_in_seconds: int = 3600) -> str:
+    exp = int(time.time()) + int(expires_in_seconds)
+    body = json.dumps({'p': payload, 'exp': exp}, separators=(',', ':'))
+    sig = _sign_message(body)
+    token_raw = f"{body}.{sig}"
+    return base64.urlsafe_b64encode(token_raw.encode('utf-8')).decode('utf-8')
+
+
+def _decode_token(token: str) -> dict | None:
+    try:
+        raw = base64.urlsafe_b64decode(token.encode('utf-8')).decode('utf-8')
+        body, sig = raw.rsplit('.', 1)
+        if _sign_message(body) != sig:
+            return None
+        data = json.loads(body)
+        if int(data.get('exp', 0)) < int(time.time()):
+            return None
+        return data.get('p') or {}
+    except Exception:
+        return None
+
+
+def _extract_bearer_token() -> str | None:
+    auth = request.headers.get('Authorization', '')
+    if auth.lower().startswith('bearer '):
+        return auth.split(' ', 1)[1].strip()
+    return None
+
+
+# --------------------------
+# Authentication endpoints
+# --------------------------
+auth_ns = main_ns  # keep under /api
+
+token_response_model = api.model('TokenResponse', {
+    'access_token': fields.String(description='Access token'),
+    'refresh_token': fields.String(description='Refresh token'),
+    'token_type': fields.String(description='Token type', default='bearer'),
+    'expires_in': fields.Integer(description='TTL seconds', default=3600)
+})
+
+user_register_model = api.model('UserRegister', {
+    'username': fields.String(required=True),
+    'email': fields.String(required=False),
+    'password': fields.String(required=True)
+})
+
+user_login_model = api.model('UserLogin', {
+    'username': fields.String(required=True),
+    'password': fields.String(required=True)
+})
+
+refresh_request_model = api.model('RefreshRequest', {
+    'refresh_token': fields.String(required=True)
+})
+
+user_profile_model = api.model('UserProfile', {
+    'user_id': fields.String,
+    'username': fields.String,
+    'email': fields.String,
+    'permissions': fields.List(fields.String)
+})
+
+
+@auth_ns.route('/auth/register')
+class AuthRegister(Resource):
+    @api.doc('post_auth_register')
+    @api.expect(user_register_model, validate=True)
+    @api.response(200, 'Success', token_response_model)
+    @api.response(400, 'Bad Request', error_model)
+    def post(self):
+        data = request.get_json() or {}
+        username = (data.get('username') or '').strip()
+        email = (data.get('email') or (username if '@' in username else f"{username}@example.com"))
+        if not username or not data.get('password'):
+            return create_error_response('Username and password required', 400)
+        payload = {'user_id': f"user_{hash(username)%100000}", 'username': username, 'email': email, 'permissions': ['read', 'write']}
+        access = _create_token(payload, 3600)
+        refresh = _create_token(payload, 86400)
+        return {'access_token': access, 'refresh_token': refresh, 'token_type': 'bearer', 'expires_in': 3600}
+
+
+@auth_ns.route('/auth/login')
+class AuthLogin(Resource):
+    @api.doc('post_auth_login')
+    @api.expect(user_login_model, validate=True)
+    @api.response(200, 'Success', token_response_model)
+    @api.response(400, 'Bad Request', error_model)
+    def post(self):
+        data = request.get_json() or {}
+        username = (data.get('username') or '').strip()
+        if not username or not data.get('password'):
+            return create_error_response('Username and password required', 400)
+        email = username if '@' in username else f"{username}@example.com"
+        permissions = ['read', 'write']
+        payload = {'user_id': f"user_{hash(username)%100000}", 'username': username, 'email': email, 'permissions': permissions}
+        access = _create_token(payload, 3600)
+        refresh = _create_token(payload, 86400)
+        return {'access_token': access, 'refresh_token': refresh, 'token_type': 'bearer', 'expires_in': 3600}
+
+
+@auth_ns.route('/auth/refresh')
+class AuthRefresh(Resource):
+    @api.doc('post_auth_refresh')
+    @api.expect(refresh_request_model, validate=True)
+    @api.response(200, 'Success', token_response_model)
+    @api.response(401, 'Unauthorized', error_model)
+    def post(self):
+        data = request.get_json() or {}
+        rt = data.get('refresh_token')
+        payload = _decode_token(rt) if rt else None
+        if not payload:
+            return create_error_response('Invalid refresh token', 401)
+        access = _create_token(payload, 3600)
+        refresh = _create_token(payload, 86400)
+        return {'access_token': access, 'refresh_token': refresh, 'token_type': 'bearer', 'expires_in': 3600}
+
+
+@auth_ns.route('/auth/logout')
+class AuthLogout(Resource):
+    @api.doc('post_auth_logout')
+    @api.response(200, 'Success')
+    def post(self):
+        token = _extract_bearer_token()
+        if token:
+            _token_blacklist.add(token)
+        return {'message': 'Logged out'}
+
+
+@auth_ns.route('/auth/profile')
+class AuthProfile(Resource):
+    @api.doc('get_auth_profile')
+    @api.response(200, 'Success', user_profile_model)
+    @api.response(401, 'Unauthorized', error_model)
+    def get(self):
+        token = _extract_bearer_token()
+        if not token or token in _token_blacklist:
+            return create_error_response('Unauthorized', 401)
+        payload = _decode_token(token)
+        if not payload:
+            return create_error_response('Unauthorized', 401)
+        return {
+            'user_id': payload.get('user_id'),
+            'username': payload.get('username'),
+            'email': payload.get('email'),
+            'permissions': payload.get('permissions') or []
+        }
+
+
+# --------------------------
+# Monitoring endpoints
+# --------------------------
+@main_ns.route('/monitoring/performance')
+class MonitoringPerformance(Resource):
+    @api.doc('get_monitoring_performance', security='apikey')
+    @api.response(200, 'Success')
+    @require_api_key
+    def get(self):
+        try:
+            import psutil
+            cpu_percent = psutil.cpu_percent(interval=0.1)
+            mem = psutil.virtual_memory()
+            disk = psutil.disk_usage('/')
+            return {
+                'timestamp': time.time(),
+                'system': {
+                    'cpu_percent': cpu_percent,
+                    'memory_percent': mem.percent,
+                    'memory_available_gb': mem.available / (1024**3),
+                    'disk_percent': disk.percent,
+                    'disk_free_gb': disk.free / (1024**3)
+                }
+            }
+        except Exception as exc:
+            logger.error(f"Monitoring error: {exc}")
+            return create_error_response('Internal server error', 500)
+
+
+@main_ns.route('/monitoring/health/detailed')
+class MonitoringHealthDetailed(Resource):
+    @api.doc('get_monitoring_health_detailed', security='apikey')
+    @api.response(200, 'Success')
+    @require_api_key
+    def get(self):
+        issues = []
+        status = 'healthy'
+        model_ok = check_model_loaded()
+        if not model_ok:
+            status = 'degraded'
+            issues.append('Model not loaded')
+        summarizer_ok = ensure_summarizer_loaded() if _summarizer is None else True
+        transcriber_ok = ensure_transcriber_loaded() if _transcriber is None else True
+        if not summarizer_ok:
+            status = 'degraded'
+            issues.append('Summarizer unavailable')
+        if not transcriber_ok:
+            status = 'degraded'
+            issues.append('Transcriber unavailable')
+        try:
+            import psutil
+            sys_cpu = psutil.cpu_percent(interval=0.1)
+            sys_mem = psutil.virtual_memory().percent
+        except Exception:
+            sys_cpu = None
+            sys_mem = None
+        return {
+            'status': status,
+            'issues': issues,
+            'models': {
+                'emotion_detection': model_ok,
+                'text_summarization': summarizer_ok,
+                'voice_processing': transcriber_ok
+            },
+            'system': {
+                'cpu_percent': sys_cpu,
+                'memory_percent': sys_mem
+            },
+            'timestamp': time.time()
+        }
+
+
+@main_ns.route('/models/status')
+class ModelsStatus(Resource):
+    @api.doc('get_models_status')
+    @api.response(200, 'Success')
+    def get(self):
+        try:
+            status = get_model_status()
+        except Exception:
+            status = {'model_loaded': False, 'model_loading': False}
+        return {
+            'emotion_model': status,
+            'summarizer_loaded': _summarizer is not None,
+            'transcriber_loaded': _transcriber is not None,
+            'timestamp': time.time()
+        }
 
 def initialize_model():
     """Initialize the emotion detection model"""
