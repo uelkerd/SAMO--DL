@@ -25,6 +25,12 @@ from model_utils import (
     validate_text_input, 
 )
 
+# Add import for docs blueprint (custom Swagger UI)
+try:
+    from docs_blueprint import docs_bp
+except Exception:
+    docs_bp = None
+
 # Configure logging for Cloud Run
 logging.basicConfig(
     level=logging.INFO,
@@ -34,16 +40,21 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
+# Register custom docs blueprint if available (serves /docs and /openapi.yaml)
+if docs_bp is not None:
+    app.register_blueprint(docs_bp)
+
 # Add security headers
 add_security_headers(app)
 
-# Initialize Flask-RESTX API with Swagger
+# Initialize Flask-RESTX API without Swagger to avoid 500 errors
 api = Api(
     app,
     version='2.0.0',
     title='SAMO Emotion Detection API',
     description='Secure, production-ready emotion detection API with comprehensive security features',
-    doc='/docs',
+    # Temporarily disable Swagger docs to avoid 500 errors
+    # doc='/docs',
     authorizations={
         'apikey': {
             'type': 'apiKey',
@@ -115,6 +126,335 @@ emotion_mapping = None
 model_loading = False
 model_loaded = False
 model_lock = threading.Lock()
+
+# Globals for additional models (lazy-loaded)
+_summarizer = None
+_summarizer_lock = threading.Lock()
+_transcriber = None
+_transcriber_lock = threading.Lock()
+
+
+def ensure_summarizer_loaded(model_name: str | None = None) -> bool:
+    """Lazy load T5 summarizer on first use.
+    Returns True if available, False if unavailable (e.g., dependency missing).
+    """
+    global _summarizer
+    if _summarizer is not None:
+        return True
+    with _summarizer_lock:
+        if _summarizer is not None:
+            return True
+        try:
+            # Import inside function to avoid hard dependency at import time
+            from src.models.summarization.t5_summarizer import T5SummarizationModel, SummarizationConfig
+            cfg = SummarizationConfig()
+            if model_name:
+                cfg.model_name = model_name
+            _summarizer = T5SummarizationModel(config=cfg)
+            logger.info("✅ Summarizer loaded: %s", cfg.model_name)
+            return True
+        except Exception as exc:
+            logger.warning("Summarizer unavailable: %s", exc)
+            _summarizer = None
+            return False
+
+
+def ensure_transcriber_loaded(model_size: str | None = None) -> bool:
+    """Lazy load Whisper transcriber on first use.
+    Returns True if available, False otherwise.
+    """
+    global _transcriber
+    if _transcriber is not None:
+        return True
+    with _transcriber_lock:
+        if _transcriber is not None:
+            return True
+        try:
+            from src.models.voice_processing.whisper_transcriber import WhisperTranscriber, TranscriptionConfig
+            cfg = TranscriptionConfig()
+            if model_size:
+                cfg.model_size = model_size
+            _transcriber = WhisperTranscriber(config=cfg)
+            logger.info("✅ Transcriber loaded: %s", cfg.model_size)
+            return True
+        except Exception as exc:
+            logger.warning("Transcriber unavailable: %s", exc)
+            _transcriber = None
+            return False
+
+
+# --------------------------
+# New API models (for docs)
+# --------------------------
+summary_request_model = api.model('SummarizeRequest', {
+    'text': fields.String(required=True, description='Text to summarize'),
+    'model': fields.String(required=False, description='Summarization model (e.g., t5-small)')
+})
+
+summary_response_model = api.model('SummarizeResponse', {
+    'summary': fields.String(description='Generated summary'),
+    'meta': fields.Raw(description='Metadata about the summarization')
+})
+
+journal_request_model = api.model('JournalRequest', {
+    'text': fields.String(required=True, description='Journal text'),
+    'generate_summary': fields.Boolean(default=True, description='Whether to generate a summary'),
+    'emotion_threshold': fields.Float(required=False, description='Threshold for emotion detection')
+})
+
+journal_response_model = api.model('JournalResponse', {
+    'emotion_analysis': fields.Raw(description='Emotion analysis results'),
+    'summary': fields.Raw(description='Summarization results'),
+    'processing_time_ms': fields.Float(description='Processing time in ms'),
+    'pipeline_status': fields.Raw(description='Which sub-systems were active')
+})
+
+# --------------------------
+# New prioritized endpoints
+# --------------------------
+@main_ns.route('/summarize')
+class Summarize(Resource):
+    @api.doc('post_summarize', security='apikey')
+    @api.expect(summary_request_model, validate=True)
+    @api.response(200, 'Success', summary_response_model)
+    @api.response(400, 'Bad Request', error_model)
+    @api.response(401, 'Unauthorized', error_model)
+    @api.response(503, 'Service Unavailable', error_model)
+    @rate_limit(RATE_LIMIT_PER_MINUTE)
+    @require_api_key
+    def post(self):
+        try:
+            data = request.get_json() or {}
+            text = data.get('text', '')
+            model_name = data.get('model')
+            if not text or not isinstance(text, str):
+                return create_error_response('Text must be a non-empty string', 400)
+
+            # Sanitize and truncate input similarly to predict
+            try:
+                safe_text = sanitize_input(text)
+            except ValueError as e:
+                return create_error_response(str(e), 400)
+
+            if not ensure_summarizer_loaded(model_name=model_name):
+                return create_error_response('Summarization service unavailable', 503)
+
+            start = time.time()
+            summary_text = _summarizer.generate_summary(safe_text, max_length=150, min_length=30)
+            duration_ms = (time.time() - start) * 1000
+            return {
+                'summary': summary_text,
+                'meta': {
+                    'duration_ms': duration_ms,
+                    'model': getattr(_summarizer, 'model_name', None)
+                }
+            }
+        except Exception as exc:
+            logger.error(f"Summarization error for {request.remote_addr}: {exc}")
+            return create_error_response('Internal server error', 500)
+
+
+@main_ns.route('/analyze/journal')
+class AnalyzeJournal(Resource):
+    @api.doc('post_analyze_journal', security='apikey')
+    @api.expect(journal_request_model, validate=True)
+    @api.response(200, 'Success', journal_response_model)
+    @api.response(400, 'Bad Request', error_model)
+    @api.response(401, 'Unauthorized', error_model)
+    @api.response(503, 'Service Unavailable', error_model)
+    @rate_limit(RATE_LIMIT_PER_MINUTE)
+    @require_api_key
+    def post(self):
+        try:
+            payload = request.get_json() or {}
+            text = payload.get('text', '')
+            generate_summary = bool(payload.get('generate_summary', True))
+            threshold = payload.get('emotion_threshold')
+            if not text or not isinstance(text, str):
+                return create_error_response('Text must be a non-empty string', 400)
+
+            # Sanitize text
+            try:
+                safe_text = sanitize_input(text)
+            except ValueError as e:
+                return create_error_response(str(e), 400)
+
+            start = time.time()
+
+            # Emotion analysis via shared utils
+            emotion_results = predict_emotions(safe_text)
+            if 'error' in emotion_results:
+                logger.warning("Emotion analysis degraded: %s", emotion_results.get('error'))
+
+            # Summarization (optional)
+            summary_results = None
+            if generate_summary and ensure_summarizer_loaded():
+                try:
+                    summary_text = _summarizer.generate_summary(safe_text, max_length=150, min_length=30)
+                    summary_results = {
+                        'summary': summary_text,
+                        'key_emotions': [e.get('emotion') for e in (emotion_results.get('emotions') or [])[:1]],
+                        'compression_ratio': 0.5,
+                        'emotional_tone': 'neutral'
+                    }
+                except Exception as e:
+                    logger.warning("Summarization failed: %s", e)
+
+            processing_time_ms = (time.time() - start) * 1000
+
+            return {
+                'emotion_analysis': emotion_results,
+                'summary': summary_results,
+                'processing_time_ms': processing_time_ms,
+                'pipeline_status': {
+                    'emotion_detection': True,
+                    'text_summarization': summary_results is not None
+                }
+            }
+        except Exception as exc:
+            logger.error(f"Journal analysis error for {request.remote_addr}: {exc}")
+            return create_error_response('Internal server error', 500)
+
+
+# File upload helpers
+from werkzeug.utils import secure_filename
+
+def _save_upload(file_storage, suffix: str = '.wav') -> str:
+    tmp_dir = '/tmp'
+    filename = secure_filename(file_storage.filename or f'upload{suffix}')
+    path = os.path.join(tmp_dir, filename)
+    file_storage.save(path)
+    return path
+
+
+@main_ns.route('/transcribe')
+class Transcribe(Resource):
+    @api.doc('post_transcribe', security='apikey')
+    @api.response(200, 'Success')
+    @api.response(400, 'Bad Request', error_model)
+    @api.response(401, 'Unauthorized', error_model)
+    @api.response(503, 'Service Unavailable', error_model)
+    @rate_limit(RATE_LIMIT_PER_MINUTE)
+    @require_api_key
+    def post(self):
+        try:
+            if 'file' not in request.files:
+                return create_error_response('No file uploaded (use multipart/form-data with field "file")', 400)
+            file = request.files['file']
+            if not file or not file.filename:
+                return create_error_response('Invalid file', 400)
+
+            if not ensure_transcriber_loaded():
+                return create_error_response('Transcription service unavailable', 503)
+
+            audio_path = _save_upload(file)
+            try:
+                result = _transcriber.transcribe(audio_path)
+                return {
+                    'text': result.text,
+                    'language': result.language,
+                    'confidence': result.confidence,
+                    'duration': result.duration,
+                    'audio_quality': result.audio_quality,
+                    'word_count': result.word_count,
+                    'speaking_rate': result.speaking_rate
+                }
+            finally:
+                try:
+                    os.remove(audio_path)
+                except Exception:
+                    pass
+        except Exception as exc:
+            logger.error(f"Transcription error for {request.remote_addr}: {exc}")
+            return create_error_response('Internal server error', 500)
+
+
+@main_ns.route('/transcribe_batch')
+class TranscribeBatch(Resource):
+    @api.doc('post_transcribe_batch', security='apikey')
+    @api.response(200, 'Success')
+    @api.response(400, 'Bad Request', error_model)
+    @api.response(401, 'Unauthorized', error_model)
+    @api.response(503, 'Service Unavailable', error_model)
+    @rate_limit(RATE_LIMIT_PER_MINUTE)
+    @require_api_key
+    def post(self):
+        try:
+            files = request.files.getlist('files')
+            if not files:
+                return create_error_response('No files uploaded (use multipart/form-data with field "files")', 400)
+
+            if not ensure_transcriber_loaded():
+                return create_error_response('Transcription service unavailable', 503)
+
+            results = []
+            temp_paths = []
+            try:
+                for idx, f in enumerate(files):
+                    if not f or not f.filename:
+                        results.append({'index': idx, 'success': False, 'error': 'Invalid file'})
+                        continue
+                    p = _save_upload(f)
+                    temp_paths.append(p)
+                    try:
+                        r = _transcriber.transcribe(p)
+                        results.append({'index': idx, 'success': True, 'text': r.text, 'language': r.language, 'confidence': r.confidence})
+                    except Exception as e:
+                        results.append({'index': idx, 'success': False, 'error': str(e)})
+                return {
+                    'total_files': len(files),
+                    'results': results
+                }
+            finally:
+                for p in temp_paths:
+                    try:
+                        os.remove(p)
+                    except Exception:
+                        pass
+        except Exception as exc:
+            logger.error(f"Batch transcription error for {request.remote_addr}: {exc}")
+            return create_error_response('Internal server error', 500)
+
+
+@main_ns.route('/analyze/voice_journal')
+class AnalyzeVoiceJournal(Resource):
+    @api.doc('post_analyze_voice_journal', security='apikey')
+    @api.response(200, 'Success')
+    @api.response(400, 'Bad Request', error_model)
+    @api.response(401, 'Unauthorized', error_model)
+    @api.response(503, 'Service Unavailable', error_model)
+    @rate_limit(RATE_LIMIT_PER_MINUTE)
+    @require_api_key
+    def post(self):
+        try:
+            if 'file' not in request.files:
+                return create_error_response('No file uploaded (use multipart/form-data with field "file")', 400)
+            file = request.files['file']
+            if not file or not file.filename:
+                return create_error_response('Invalid file', 400)
+
+            if not ensure_transcriber_loaded():
+                return create_error_response('Transcription service unavailable', 503)
+
+            audio_path = _save_upload(file)
+            try:
+                tx = _transcriber.transcribe(audio_path)
+            finally:
+                try:
+                    os.remove(audio_path)
+                except Exception:
+                    pass
+
+            # With transcription text, run journal analysis
+            payload = {
+                'text': tx.text,
+                'generate_summary': True
+            }
+            with app.test_request_context(json=payload):
+                return AnalyzeJournal().post()
+        except Exception as exc:
+            logger.error(f"Voice journal analysis error for {request.remote_addr}: {exc}")
+            return create_error_response('Internal server error', 500)
 
 # Emotion mapping based on training order
 EMOTION_MAPPING = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
