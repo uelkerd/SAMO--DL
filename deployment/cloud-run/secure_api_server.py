@@ -40,6 +40,12 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
+# Configure docs blueprint default paths to local openapi.yaml when not set
+if os.environ.get('OPENAPI_SPEC_PATH') is None:
+    _here = os.path.dirname(os.path.abspath(__file__))
+    os.environ['OPENAPI_SPEC_PATH'] = os.path.join(_here, 'openapi.yaml')
+    os.environ['OPENAPI_ALLOWED_DIR'] = _here
+
 # Register custom docs blueprint if available (serves /docs and /openapi.yaml)
 if docs_bp is not None:
     app.register_blueprint(docs_bp)
