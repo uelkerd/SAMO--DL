@@ -150,3 +150,28 @@ Execution
 - Small, focused PRs; commit frequently; extend tests alongside changes.
 - Defer non-essential features (auth suite) to the core backend integration.
 - Prefer simple, robust solutions; remove temporary stubs when replaced.
+
+### Real-time/Streaming Decision (Update)
+- Decision: Extract streaming to a dedicated ASGI microservice after this branch lands.
+  - Rationale: WebSockets fit ASGI better; isolates long-lived connections; simplifies Flask app concerns.
+  - Interim: Keep current HTTP endpoints; add a thin WS gateway later pointing to the same model utilities.
+  - Impact: No blocking dependency for this branch; add issue/task to create `realtime-service` with FastAPI + uvicorn + shared model utils.
+
+---
+
+### Staging Deployment Preparation
+- Pre-flight
+  - Confirm `openapi.yaml` renders new endpoints under `/docs` in local dev.
+  - Ensure `requirements_production.txt`/Dockerfile includes ffmpeg (Whisper) and transformer deps.
+  - Set env: `ADMIN_API_KEY`, `RATE_LIMIT_PER_MINUTE`, `MODEL_PATH` (optional), `BASE_MODEL_NAME` (optional).
+- Build
+  - Use `deployment/cloud-run/Dockerfile.secure` (or unified) and build image with caching enabled.
+  - Optionally pre-bundle `t5-small` and a Whisper model in the image for faster cold starts.
+- Deploy (staging)
+  - Deploy with minimum instances = 1 to warm lazy loaders.
+  - Health checks: `/api/health` (startup), `/api/monitoring/health/detailed` (readiness), `/docs` (UI).
+- Smoke tests
+  - Summarize (short text), Journal analysis, Transcribe (short WAV), Models status.
+  - Observe logs and timing to validate latency targets.
+
+---
