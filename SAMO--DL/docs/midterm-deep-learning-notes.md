@@ -56,7 +56,7 @@
 ## Simple picture (DL)
 
 ```mermaid
-flowchart LR
+graph LR
     A[Collect text/audio] --> B[Clean & organize]
     B --> C[Train model]
     C --> D[Test on tricky cases]
@@ -68,6 +68,21 @@ flowchart LR
     H --> I[Share & monitor]
 ```
 
+_Tip: If Mermaid diagrams don’t render in your viewer, open this file on GitHub or paste the code into the Mermaid Live Editor._
+
+## How it runs in the app (API + GCP)
+
+- We expose the model through a simple API endpoint so the app can send text or short audio and get back the emotion and a one‑line summary.
+- The model runs in a container on Google Cloud (Cloud Run), so it scales when more users try it and we can see logs/metrics.
+
+```mermaid
+graph LR
+    U[User input] --> A[API /predict]
+    A --> M[Model container\n(GCP Cloud Run)]
+    M --> R[Results JSON]
+    M --> O[Logs & metrics\n(GCP)]
+```
+
 ## What’s next (DL only)
 
 - Add more “tricky” and edge‑case examples
@@ -75,6 +90,7 @@ flowchart LR
 - Push for more speed without harming quality
 - Stress‑test unusual inputs and add guardrails
 - Deliver a short model card and a demo‑ready example set
+- Smooth out API behavior (timeouts, friendly errors) and reduce GCP cold‑starts
 
 ```mermaid
 gantt
