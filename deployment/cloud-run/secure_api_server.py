@@ -11,6 +11,9 @@ import logging
 import uuid
 import threading
 import hmac
+import hashlib
+import base64
+import json
 from flask import Flask, request, jsonify, g
 from flask_restx import Api, Resource, fields, Namespace
 from functools import wraps
@@ -825,6 +828,251 @@ api.error_handlers[500] = internal_error
 api.error_handlers[404] = not_found
 api.error_handlers[405] = method_not_allowed
 api.error_handlers[Exception] = handle_unexpected_error
+
+# In-memory token blacklist
+_token_blacklist = set()
+
+
+def _sign_message(message: str) -> str:
+    return hmac.new(ADMIN_API_KEY.encode('utf-8'), message.encode('utf-8'), hashlib.sha256).hexdigest()
+
+
+def _create_token(payload: dict, expires_in_seconds: int = 3600) -> str:
+    exp = int(time.time()) + int(expires_in_seconds)
+    body = json.dumps({'p': payload, 'exp': exp}, separators=(',', ':'))
+    sig = _sign_message(body)
+    token_raw = f"{body}.{sig}"
+    return base64.urlsafe_b64encode(token_raw.encode('utf-8')).decode('utf-8')
+
+
+def _decode_token(token: str) -> dict | None:
+    try:
+        raw = base64.urlsafe_b64decode(token.encode('utf-8')).decode('utf-8')
+        body, sig = raw.rsplit('.', 1)
+        if _sign_message(body) != sig:
+            return None
+        data = json.loads(body)
+        if int(data.get('exp', 0)) < int(time.time()):
+            return None
+        return data.get('p') or {}
+    except Exception:
+        return None
+
+
+def _extract_bearer_token() -> str | None:
+    auth = request.headers.get('Authorization', '')
+    if auth.lower().startswith('bearer '):
+        return auth.split(' ', 1)[1].strip()
+    return None
+
+
+# --------------------------
+# Authentication endpoints
+# --------------------------
+auth_ns = main_ns  # keep under /api
+
+token_response_model = api.model('TokenResponse', {
+    'access_token': fields.String(description='Access token'),
+    'refresh_token': fields.String(description='Refresh token'),
+    'token_type': fields.String(description='Token type', default='bearer'),
+    'expires_in': fields.Integer(description='TTL seconds', default=3600)
+})
+
+user_register_model = api.model('UserRegister', {
+    'username': fields.String(required=True),
+    'email': fields.String(required=False),
+    'password': fields.String(required=True)
+})
+
+user_login_model = api.model('UserLogin', {
+    'username': fields.String(required=True),
+    'password': fields.String(required=True)
+})
+
+refresh_request_model = api.model('RefreshRequest', {
+    'refresh_token': fields.String(required=True)
+})
+
+user_profile_model = api.model('UserProfile', {
+    'user_id': fields.String,
+    'username': fields.String,
+    'email': fields.String,
+    'permissions': fields.List(fields.String)
+})
+
+
+@auth_ns.route('/auth/register')
+class AuthRegister(Resource):
+    @api.doc('post_auth_register')
+    @api.expect(user_register_model, validate=True)
+    @api.response(200, 'Success', token_response_model)
+    @api.response(400, 'Bad Request', error_model)
+    def post(self):
+        data = request.get_json() or {}
+        username = (data.get('username') or '').strip()
+        email = (data.get('email') or (username if '@' in username else f"{username}@example.com"))
+        if not username or not data.get('password'):
+            return create_error_response('Username and password required', 400)
+        payload = {'user_id': f"user_{hash(username)%100000}", 'username': username, 'email': email, 'permissions': ['read', 'write']}
+        access = _create_token(payload, 3600)
+        refresh = _create_token(payload, 86400)
+        return {'access_token': access, 'refresh_token': refresh, 'token_type': 'bearer', 'expires_in': 3600}
+
+
+@auth_ns.route('/auth/login')
+class AuthLogin(Resource):
+    @api.doc('post_auth_login')
+    @api.expect(user_login_model, validate=True)
+    @api.response(200, 'Success', token_response_model)
+    @api.response(400, 'Bad Request', error_model)
+    def post(self):
+        data = request.get_json() or {}
+        username = (data.get('username') or '').strip()
+        if not username or not data.get('password'):
+            return create_error_response('Username and password required', 400)
+        email = username if '@' in username else f"{username}@example.com"
+        permissions = ['read', 'write']
+        payload = {'user_id': f"user_{hash(username)%100000}", 'username': username, 'email': email, 'permissions': permissions}
+        access = _create_token(payload, 3600)
+        refresh = _create_token(payload, 86400)
+        return {'access_token': access, 'refresh_token': refresh, 'token_type': 'bearer', 'expires_in': 3600}
+
+
+@auth_ns.route('/auth/refresh')
+class AuthRefresh(Resource):
+    @api.doc('post_auth_refresh')
+    @api.expect(refresh_request_model, validate=True)
+    @api.response(200, 'Success', token_response_model)
+    @api.response(401, 'Unauthorized', error_model)
+    def post(self):
+        data = request.get_json() or {}
+        rt = data.get('refresh_token')
+        payload = _decode_token(rt) if rt else None
+        if not payload:
+            return create_error_response('Invalid refresh token', 401)
+        access = _create_token(payload, 3600)
+        refresh = _create_token(payload, 86400)
+        return {'access_token': access, 'refresh_token': refresh, 'token_type': 'bearer', 'expires_in': 3600}
+
+
+@auth_ns.route('/auth/logout')
+class AuthLogout(Resource):
+    @api.doc('post_auth_logout')
+    @api.response(200, 'Success')
+    def post(self):
+        token = _extract_bearer_token()
+        if token:
+            _token_blacklist.add(token)
+        return {'message': 'Logged out'}
+
+
+@auth_ns.route('/auth/profile')
+class AuthProfile(Resource):
+    @api.doc('get_auth_profile')
+    @api.response(200, 'Success', user_profile_model)
+    @api.response(401, 'Unauthorized', error_model)
+    def get(self):
+        token = _extract_bearer_token()
+        if not token or token in _token_blacklist:
+            return create_error_response('Unauthorized', 401)
+        payload = _decode_token(token)
+        if not payload:
+            return create_error_response('Unauthorized', 401)
+        return {
+            'user_id': payload.get('user_id'),
+            'username': payload.get('username'),
+            'email': payload.get('email'),
+            'permissions': payload.get('permissions') or []
+        }
+
+
+# --------------------------
+# Monitoring endpoints
+# --------------------------
+@main_ns.route('/monitoring/performance')
+class MonitoringPerformance(Resource):
+    @api.doc('get_monitoring_performance', security='apikey')
+    @api.response(200, 'Success')
+    @require_api_key
+    def get(self):
+        try:
+            import psutil
+            cpu_percent = psutil.cpu_percent(interval=0.1)
+            mem = psutil.virtual_memory()
+            disk = psutil.disk_usage('/')
+            return {
+                'timestamp': time.time(),
+                'system': {
+                    'cpu_percent': cpu_percent,
+                    'memory_percent': mem.percent,
+                    'memory_available_gb': mem.available / (1024**3),
+                    'disk_percent': disk.percent,
+                    'disk_free_gb': disk.free / (1024**3)
+                }
+            }
+        except Exception as exc:
+            logger.error(f"Monitoring error: {exc}")
+            return create_error_response('Internal server error', 500)
+
+
+@main_ns.route('/monitoring/health/detailed')
+class MonitoringHealthDetailed(Resource):
+    @api.doc('get_monitoring_health_detailed', security='apikey')
+    @api.response(200, 'Success')
+    @require_api_key
+    def get(self):
+        issues = []
+        status = 'healthy'
+        model_ok = check_model_loaded()
+        if not model_ok:
+            status = 'degraded'
+            issues.append('Model not loaded')
+        summarizer_ok = ensure_summarizer_loaded() if _summarizer is None else True
+        transcriber_ok = ensure_transcriber_loaded() if _transcriber is None else True
+        if not summarizer_ok:
+            status = 'degraded'
+            issues.append('Summarizer unavailable')
+        if not transcriber_ok:
+            status = 'degraded'
+            issues.append('Transcriber unavailable')
+        try:
+            import psutil
+            sys_cpu = psutil.cpu_percent(interval=0.1)
+            sys_mem = psutil.virtual_memory().percent
+        except Exception:
+            sys_cpu = None
+            sys_mem = None
+        return {
+            'status': status,
+            'issues': issues,
+            'models': {
+                'emotion_detection': model_ok,
+                'text_summarization': summarizer_ok,
+                'voice_processing': transcriber_ok
+            },
+            'system': {
+                'cpu_percent': sys_cpu,
+                'memory_percent': sys_mem
+            },
+            'timestamp': time.time()
+        }
+
+
+@main_ns.route('/models/status')
+class ModelsStatus(Resource):
+    @api.doc('get_models_status')
+    @api.response(200, 'Success')
+    def get(self):
+        try:
+            status = get_model_status()
+        except Exception:
+            status = {'model_loaded': False, 'model_loading': False}
+        return {
+            'emotion_model': status,
+            'summarizer_loaded': _summarizer is not None,
+            'transcriber_loaded': _transcriber is not None,
+            'timestamp': time.time()
+        }
 
 def initialize_model():
     """Initialize the emotion detection model"""
