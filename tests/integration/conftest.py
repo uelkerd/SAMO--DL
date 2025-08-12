@@ -34,7 +34,30 @@ def secure_api_server_url():
     th.start()
     time.sleep(1.5)
     base = f"http://127.0.0.1:{port}"
-    # Export for tests that rely on env
     os.environ['SECURE_API_BASE'] = base
     yield base
-    # teardown: nothing to do, daemon thread exits with process
+
+
+@pytest.fixture(scope="function")
+def secure_api_server_url_rl():
+    # Low rate limit for tests
+    os.environ['ADMIN_API_KEY'] = 'test-key-123'
+    os.environ['OPENAPI_SPEC_PATH'] = os.path.abspath('deployment/cloud-run/openapi.yaml')
+    os.environ['OPENAPI_ALLOWED_DIR'] = os.path.abspath('deployment/cloud-run')
+    os.environ['RATE_LIMIT_PER_MINUTE'] = '2'
+    port = _find_free_port()
+    os.environ['PORT'] = str(port)
+
+    spec = importlib.util.spec_from_file_location('secure_api_server_rl', 'deployment/cloud-run/secure_api_server.py')
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    app = mod.app
+
+    def run():
+        app.run(host='127.0.0.1', port=port, debug=False)
+
+    th = threading.Thread(target=run, daemon=True)
+    th.start()
+    time.sleep(1.0)
+    base = f"http://127.0.0.1:{port}"
+    yield base
