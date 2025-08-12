@@ -37,6 +37,24 @@ app = Flask(__name__)
 # Add security headers
 add_security_headers(app)
 
+# Register root endpoint BEFORE Flask-RESTX initialization to avoid conflicts
+@app.route('/')
+def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX's root
+    """Get API status and information"""
+    try:
+        logger.info(f"Root endpoint accessed from {request.remote_addr}")
+        return jsonify({
+            'service': 'SAMO Emotion Detection API',
+            'status': 'operational',
+            'version': '2.0.0-secure',
+            'security': 'enabled',
+            'rate_limit': RATE_LIMIT_PER_MINUTE,
+            'timestamp': time.time()
+        })
+    except Exception as e:
+        logger.error(f"Root endpoint error for {request.remote_addr}: {str(e)}")
+        return create_error_response('Internal server error', 500)
+
 # Initialize Flask-RESTX API with Swagger
 api = Api(
     app,
@@ -55,7 +73,7 @@ api = Api(
 )
 
 # Create namespaces for better organization
-main_ns = Namespace('', description='Main API operations')  # Root path for main endpoints
+main_ns = Namespace('api', description='Main API operations')  # Removed leading slash to avoid double slashes
 admin_ns = Namespace('/admin', description='Admin operations', authorizations={
     'apikey': {
         'type': 'apiKey',
@@ -175,7 +193,7 @@ def check_model_loaded():
     # Use shared model loading function
     return ensure_model_loaded()
 
-def create_error_response(error_message: str, status_code: int) -> tuple:
+def create_error_response(error_message: str, status_code: int):
     """Create a properly formatted error response for Flask-RESTX"""
     error_response = {
         'error': error_message,
@@ -229,27 +247,7 @@ def after_request(response):
     
     return response
 
-# Main API endpoints
-@main_ns.route('/')
-class Root(Resource):
-    @api.doc('get_root')
-    @api.response(200, 'Success')
-    @api.response(500, 'Internal Server Error', error_model)
-    def get(self):
-        """Get API status and information"""
-        try:
-            logger.info(f"Root endpoint accessed from {request.remote_addr}")
-            return {
-                'service': 'SAMO Emotion Detection API',
-                'status': 'operational',
-                'version': '2.0.0-secure',
-                'security': 'enabled',
-                'rate_limit': RATE_LIMIT_PER_MINUTE,
-                'timestamp': time.time()
-            }
-        except Exception as e:
-            logger.error(f"Root endpoint error for {request.remote_addr}: {str(e)}")
-            return create_error_response('Internal server error', 500)
+
 
 @main_ns.route('/health')
 class Health(Resource):
@@ -508,5 +506,7 @@ else:
     # For production deployment - don't initialize during import
     # Model will be initialized when the app actually starts
     logger.info("🚀 Production deployment detected - model will be initialized on first request")
+
+# Root endpoint is now registered BEFORE Flask-RESTX initialization to avoid conflicts
 
 # Make Flask app available to Gunicorn
