@@ -187,13 +187,32 @@ def create_error_response(error_message: str, status_code: int) -> tuple:
 
 def handle_rate_limit_exceeded():
     """Handle rate limit exceeded - return proper error response"""
+    logger.warning(f"Rate limit exceeded for {request.remote_addr}")
     return create_error_response('Rate limit exceeded - too many requests', 429)
+
+def log_rate_limit_info():
+    """Log rate limiting information for debugging"""
+    logger.debug(f"Rate limiting configured: {RATE_LIMIT_PER_MINUTE} requests per minute")
+    logger.debug(f"Current request from: {request.remote_addr}")
 
 @app.before_request
 def before_request():
     """Add request ID and timing to all requests"""
     g.start_time = time.time()
     g.request_id = str(uuid.uuid4())
+    
+    # Lazy model initialization on first request
+    if not check_model_loaded():
+        logger.info("🔄 Lazy initializing model on first request...")
+        initialize_model()
+    
+    # Log incoming requests for debugging
+    logger.info(f"📥 Request: {request.method} {request.path} from {request.remote_addr} (ID: {g.request_id})")
+    
+    # Log request headers for debugging (excluding sensitive ones)
+    headers_to_log = {k: v for k, v in request.headers.items() 
+                      if k.lower() not in ['authorization', 'x-api-key', 'cookie']}
+    logger.debug(f"📋 Request headers: {headers_to_log}")
 
 @app.after_request
 def after_request(response):
@@ -203,6 +222,11 @@ def after_request(response):
         response.headers['X-Request-Duration'] = str(duration)
     if hasattr(g, 'request_id'):
         response.headers['X-Request-ID'] = g.request_id
+    
+    # Log response for debugging
+    logger.info(f"📤 Response: {response.status_code} for {request.method} {request.path} "
+                f"from {request.remote_addr} (ID: {g.request_id}, Duration: {duration:.3f}s)")
+    
     return response
 
 # Main API endpoints
@@ -270,6 +294,9 @@ class Predict(Resource):
     def post(self):
         """Predict emotion for a single text input"""
         try:
+            # Log rate limiting info for debugging
+            log_rate_limit_info()
+            
             # Get and validate input
             data = request.get_json()
             if not data or 'text' not in data:
@@ -316,6 +343,9 @@ class PredictBatch(Resource):
     def post(self):
         """Predict emotions for multiple text inputs"""
         try:
+            # Log rate limiting info for debugging
+            log_rate_limit_info()
+            
             # Get and validate input
             data = request.get_json()
             if not data or 'texts' not in data:
@@ -417,36 +447,38 @@ class SecurityStatus(Resource):
             logger.error(f"Security status error for {request.remote_addr}: {str(e)}")
             return create_error_response('Internal server error', 500)
 
-# Error handlers for Flask-RESTX
-@api.errorhandler(429)
+# Error handlers for Flask-RESTX - using direct registration due to decorator compatibility issue
 def rate_limit_exceeded(error):
     """Handle rate limit exceeded errors"""
     logger.warning(f"Rate limit exceeded for {request.remote_addr}")
     return create_error_response('Rate limit exceeded - too many requests', 429)
 
-@api.errorhandler(500)
 def internal_error(error):
     """Handle internal server errors"""
     logger.error(f"Internal server error for {request.remote_addr}: {str(error)}")
     return create_error_response('Internal server error', 500)
 
-@api.errorhandler(404)
 def not_found(error):
     """Handle not found errors"""
     logger.warning(f"Endpoint not found for {request.remote_addr}: {request.url}")
     return create_error_response('Endpoint not found', 404)
 
-@api.errorhandler(405)
 def method_not_allowed(error):
     """Handle method not allowed errors"""
     logger.warning(f"Method not allowed for {request.remote_addr}: {request.method} {request.url}")
     return create_error_response('Method not allowed', 405)
 
-@api.errorhandler(Exception)
 def handle_unexpected_error(error):
     """Handle any unexpected errors"""
     logger.error(f"Unexpected error for {request.remote_addr}: {str(error)}")
     return create_error_response('An unexpected error occurred', 500)
+
+# Register error handlers directly
+api.error_handlers[429] = rate_limit_exceeded
+api.error_handlers[500] = internal_error
+api.error_handlers[404] = not_found
+api.error_handlers[405] = method_not_allowed
+api.error_handlers[Exception] = handle_unexpected_error
 
 def initialize_model():
     """Initialize the emotion detection model"""
@@ -455,6 +487,7 @@ def initialize_model():
         logger.info(f"📊 Configuration: MAX_INPUT_LENGTH={MAX_INPUT_LENGTH}, RATE_LIMIT={RATE_LIMIT_PER_MINUTE}/min")
         logger.info(f"🔐 Security: API key protection enabled, Admin API key configured")
         logger.info(f"🌐 Server: Port {PORT}, Model path: {MODEL_PATH}")
+        logger.info(f"🔄 Rate limiting: {RATE_LIMIT_PER_MINUTE} requests per minute")
         
         # Load the emotion detection model
         logger.info("🔄 Loading emotion detection model...")
@@ -472,6 +505,8 @@ if __name__ == '__main__':
     logger.info(f"🌐 Starting Flask development server on port {PORT}")
     app.run(host='0.0.0.0', port=PORT, debug=False)
 else:
-    # For production deployment
-    logger.info("🚀 Production deployment detected - initializing model")
-    initialize_model()
+    # For production deployment - don't initialize during import
+    # Model will be initialized when the app actually starts
+    logger.info("🚀 Production deployment detected - model will be initialized on first request")
+
+# Make Flask app available to Gunicorn
