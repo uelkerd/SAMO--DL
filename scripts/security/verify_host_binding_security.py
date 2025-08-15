@@ -141,7 +141,7 @@ def run_security_verification():
         project_root = Path(project_root_env).resolve()
     else:
         project_root = Path(__file__).resolve().parents[2]
-    
+
     print(f"Project root: {project_root}")
     print()
 
