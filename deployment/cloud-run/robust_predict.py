@@ -290,7 +290,7 @@ if __name__ == '__main__':
     
     # Use configurable host for security - Cloud Run needs HOST=0.0.0.0
     host = os.environ.get('HOST', '127.0.0.1')
-    options = {
+    gunicorn_options = {
         'bind': f'{host}:{port}',
         'workers': 1,  # Single worker for Cloud Run
         'threads': 8,
@@ -303,4 +303,4 @@ if __name__ == '__main__':
         'loglevel': 'info'
     }
     
-    StandaloneApplication(app, options).run() 
+    StandaloneApplication(app, gunicorn_options).run()
