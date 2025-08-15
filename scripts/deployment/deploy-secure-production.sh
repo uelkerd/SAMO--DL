@@ -46,6 +46,15 @@ pre_deployment_checks() {
         exit 1
     fi
     success "Docker is running"
+
+    # Check required host tools
+    for cmd in curl jq; do
+        if ! command -v "$cmd" >/dev/null 2>&1; then
+            error "Required tool not found: $cmd"
+            exit 1
+        fi
+    done
+    success "Host tools available: curl, jq"
     
     # Check if image exists
     if ! docker image inspect "$IMAGE_NAME" > /dev/null 2>&1; then
@@ -56,20 +65,17 @@ pre_deployment_checks() {
     
     # Run security scan
     log "🛡️  Running final security scan..."
-    if command -v trivy > /dev/null 2>&1; then
-        SCAN_RESULT=$(docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-            aquasec/trivy:latest image --severity CRITICAL --quiet --format json "$IMAGE_NAME" 2>/dev/null || echo '{"Results":[]}')
-        
-        CRITICAL_COUNT=$(echo "$SCAN_RESULT" | jq -r '.Results[]?.Vulnerabilities[]? | select(.Severity=="CRITICAL") | .VulnerabilityID' 2>/dev/null | wc -l || echo 0)
-        
-        if [ "$CRITICAL_COUNT" -gt 10 ]; then
-            error "Too many critical vulnerabilities: $CRITICAL_COUNT"
-            exit 1
-        fi
-        success "Security scan passed (Critical: $CRITICAL_COUNT)"
-    else
-        warning "Trivy not available, skipping security scan"
+    # Use containerized Trivy (pinned version) for reproducibility
+    SCAN_RESULT=$(docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+        aquasec/trivy:0.52.2 image --severity CRITICAL --quiet --format json "$IMAGE_NAME" 2>/dev/null || echo '{"Results":[]}')
+    
+    CRITICAL_COUNT=$(echo "$SCAN_RESULT" | jq -r '.Results[]?.Vulnerabilities[]? | select(.Severity=="CRITICAL") | .VulnerabilityID' 2>/dev/null | wc -l || echo 0)
+    
+    if [ "$CRITICAL_COUNT" -gt 10 ]; then
+        error "Too many critical vulnerabilities: $CRITICAL_COUNT"
+        exit 1
     fi
+    success "Security scan passed (Critical: $CRITICAL_COUNT)"
 }
 
 # Backup current container

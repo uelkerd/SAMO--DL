@@ -111,7 +111,7 @@ test_api_endpoints() {
     log "🌐 Testing API endpoints"
     
     # Test health endpoint
-    if curl -sf http://localhost:8080/health > /dev/null; then
+    if curl -sf http://localhost:8000/health > /dev/null; then
         log "✅ Health endpoint responding"
     else
         log "❌ Health endpoint not responding"
@@ -119,7 +119,7 @@ test_api_endpoints() {
     fi
     
     # Test response time
-    RESPONSE_TIME=$(curl -o /dev/null -s -w '%{time_total}' http://localhost:8080/health)
+    RESPONSE_TIME=$(curl -o /dev/null -s -w '%{time_total}' http://localhost:8000/health)
     log "⏱️  Health endpoint response time: ${RESPONSE_TIME}s"
     
     # Check if response time is within acceptable range (< 1 second)
