@@ -66,8 +66,8 @@ gcloud services enable containerregistry.googleapis.com
 
 #### Step 2: Build and Deploy
 ```bash
-# Build container
-docker build -f deployment/cloud-run/Dockerfile -t gcr.io/YOUR_PROJECT_ID/samo-dl-api .
+# Build container from repository root so COPY paths are in-context
+docker build -f deployment/gcp/Dockerfile -t gcr.io/YOUR_PROJECT_ID/samo-dl-api .
 
 # Push to Container Registry
 docker push gcr.io/YOUR_PROJECT_ID/samo-dl-api

@@ -193,8 +193,8 @@ chmod 755 local_deployment/model/
 
 1. **Build the image**
    ```bash
-   cd deployment
-   docker build -t samo-emotion-api .
+   # Build from repository root so Docker has access to all needed files
+   docker build -f deployment/gcp/Dockerfile -t samo-emotion-api .
    ```
 
 2. **Run the container**
