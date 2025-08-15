@@ -121,7 +121,7 @@ services:
       context: .
       dockerfile: deployment/gcp/Dockerfile
     ports:
-      - "8080:8080"
+      - "8000:8000"
     environment:
       - ENVIRONMENT=production
       - DATABASE_URL=\${DATABASE_URL}
@@ -129,7 +129,7 @@ services:
       - API_KEY=\${API_KEY}
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -165,7 +165,7 @@ spec:
       - name: samo-dl-api
         image: gcr.io/YOUR_PROJECT_ID/samo-dl-api:latest
         ports:
-        - containerPort: 8080
+        - containerPort: 8000
         env:
         - name: ENVIRONMENT
           value: "production"
@@ -189,13 +189,13 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: 8080
+            port: 8000
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /health
-            port: 8080
+            port: 8000
           initialDelaySeconds: 5
           periodSeconds: 5
 ---
@@ -209,7 +209,7 @@ spec:
   ports:
   - protocol: TCP
     port: 80
-    targetPort: 8080
+    targetPort: 8000
   type: LoadBalancer
 ```
 
@@ -237,7 +237,7 @@ kubectl apply -f k8s-deployment.yaml
 | `OPENAI_API_KEY` | No | OpenAI API key | `sk-...` |
 | `GOOGLE_CLOUD_CREDENTIALS` | No | GCP credentials path | `/path/to/credentials.json` |
 | `LOG_LEVEL` | No | Logging level | `INFO` |
-| `PORT` | No | Server port | `8080` |
+| `PORT` | No | Server port | `8000` |
 
 ### Security Headers
 The application automatically includes security headers:
@@ -263,7 +263,7 @@ curl https://api.samo-project.com/health
 {
   "status": "healthy",
   "model_status": "loaded",
-  "port": "8080",
+  "port": "8000",
   "timestamp": 1640995200.0
 }
 ```

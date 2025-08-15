@@ -3,7 +3,8 @@ FROM python:3.12-slim-bookworm
 # Environment
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PORT=8080 \
+    PORT=8000 \
+    HOST=0.0.0.0 \
     HF_HOME=/var/tmp/hf-cache \
     XDG_CACHE_HOME=/var/tmp/hf-cache \
     PIP_ROOT_USER_ACTION=ignore \
@@ -22,10 +23,10 @@ WORKDIR /app
 COPY deployment/cloud-run/requirements_unified.txt ./requirements_unified.txt
 # Avoid building wheels for psutil/sentencepiece: ensure build deps exist or use wheels
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential=12.9 \
-    gcc=4:12.2.0-3 \
-    cmake=3.25.1-1 \
-    pkgconf=1.8.1-1 \
+    build-essential \
+    gcc \
+    cmake \
+    pkgconf \
   && rm -rf /var/lib/apt/lists/* \
   && python -m pip install --no-cache-dir --upgrade pip==25.2 \
   && pip install --no-cache-dir --prefer-binary -r requirements_unified.txt
@@ -49,9 +50,9 @@ USER appuser
 
 # Healthcheck (runs as non-root user)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-  CMD curl -fsS http://localhost:8080/health || exit 1
+  CMD curl -fsS http://localhost:8000/health || exit 1
 
-EXPOSE 8080
+EXPOSE 8000
 
 # Unified API entrypoint
 CMD ["sh", "-c", "exec uvicorn src.unified_ai_api:app --host 0.0.0.0 --port ${PORT}"]
