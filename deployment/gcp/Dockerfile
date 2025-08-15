@@ -63,7 +63,11 @@ COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/pytho
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy model and prediction script
-COPY model/ ./model/
+# Configure the source path for the model directory. Defaults to a sample model committed under deployment/models/default
+# Pass a different location at build time with:
+#   docker build -f deployment/gcp/Dockerfile --build-arg MODEL_SOURCE_PATH=deployment/models/model_1_fallback -t <image> .
+ARG MODEL_SOURCE_PATH="deployment/models/default"
+COPY ${MODEL_SOURCE_PATH}/ ./model/
 # IMPORTANT: Build context must be repository root, so that the path below is in-context.
 # If you prefer using deployment/gcp as the build context, move robust_predict.py into
 # deployment/gcp/cloud-run/ and update this COPY accordingly (e.g., COPY cloud-run/robust_predict.py ...).
