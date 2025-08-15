@@ -27,7 +27,8 @@ def main() -> int:
         model = AutoModelForSequenceClassification.from_pretrained(model_id)
     except RuntimeError as e:
         # Handle classifier head size mismatches robustly during image bake
-        # This avoids hard failures due to differing num_labels between config and checkpoint
+        # This avoids hard failures due to differing num_labels between config
+        # and checkpoint
         if "size mismatch" in str(e).lower():
             print(
                 "[WARN] Classifier size mismatch while loading. Retrying with ignore_mismatched_sizes=True"
