@@ -9,7 +9,7 @@ app = Flask(__name__)
 @app.route("/health")
 def health():
     """Health check endpoint.
-    
+
     Returns:
         dict: Health status response
     """
@@ -18,7 +18,7 @@ def health():
 @app.route("/")
 def root():
     """Root endpoint.
-    
+
     Returns:
         dict: Basic application information
     """
