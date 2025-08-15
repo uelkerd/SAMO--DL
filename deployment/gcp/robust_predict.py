@@ -4,7 +4,6 @@ Simple Flask prediction service for Alpine Linux (minimal dependencies)
 """
 
 from flask import Flask, request, jsonify
-import numpy as np
 import os
 import logging
 
@@ -66,7 +65,7 @@ def predict():
     except Exception as e:
         logger.error(f"Prediction error: {e}")
         return jsonify({
-            'error': str(e),
+            'error': 'Internal prediction error',
             'status': 'error'
         }), 500
 

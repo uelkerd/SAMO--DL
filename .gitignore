@@ -363,10 +363,5 @@ yarn-debug.log*
 yarn-error.log*
 notebooks/clean-retraining/samo_stage1_complete.zip
 
-# Ignore large/binary ML artifacts
-*.safetensors
-*.pt
-*.pth
-*.ckpt
-pytorch_model.bin
+# Ignore large/binary ML artifacts (consolidated; patterns already defined above)
 notebooks/clean-retraining/samo_stage1_final_model/

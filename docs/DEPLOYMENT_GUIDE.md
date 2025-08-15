@@ -132,10 +132,10 @@ Loading model from: /path/to/SAMO--DL/local_deployment/model
 
 ```bash
 # Health check
-curl http://localhost:8000/health
+curl http://localhost:8080/health
 
 # Test prediction
-curl -X POST http://localhost:8000/predict \
+curl -X POST http://localhost:8080/predict \
   -H "Content-Type: application/json" \
   -d '{"text": "I am feeling happy today!"}'
 
@@ -199,7 +199,7 @@ chmod 755 local_deployment/model/
 
 2. **Run the container**
    ```bash
-   docker run -p 8000:8000 samo-emotion-api
+   docker run -p 8080:8080 samo-emotion-api
    ```
 
 3. **Test the deployment**
@@ -390,7 +390,7 @@ CMD ["gunicorn", "--bind", "0.0.0.0:8000", "api_server:app"]
 
 3. **Health monitoring**
    ```bash
-   curl http://localhost:8000/health
+   curl http://localhost:8080/health
    ```
 
 ### Production Monitoring
