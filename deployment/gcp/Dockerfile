@@ -1,6 +1,6 @@
 # Multi-stage build for optimized production image
 # Build stage
-FROM python:3.12-alpine3.20 as builder
+FROM python:3.12-alpine3.20 AS builder
 
 # Set environment variables for build
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -11,8 +11,20 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Set working directory
 WORKDIR /app
 
-# Install build dependencies
-RUN apk add --no-cache build-base=~0.5 bash=~5.2 ca-certificates=~2024 curl=~8.7 \
+# Install build dependencies (pin exact versions; bump via ARGs below)
+# Notes:
+# - Keep these versions in sync with the production stage below.
+# - To update safely, verify availability on Alpine 3.20 (pkgs.alpinelinux.org),
+#   update the ARG defaults, and rebuild in CI with the same values passed explicitly.
+ARG BUILD_BASE_VERSION="0.5-r3"
+ARG BASH_VERSION="5.2.26-r0"
+ARG CA_CERTIFICATES_VERSION="20240226-r0"
+ARG CURL_VERSION="8.7.1-r0"
+RUN apk add --no-cache \
+    build-base="=${BUILD_BASE_VERSION}" \
+    bash="=${BASH_VERSION}" \
+    ca-certificates="=${CA_CERTIFICATES_VERSION}" \
+    curl="=${CURL_VERSION}" \
  && update-ca-certificates
 
 # Copy requirements and install Python dependencies
@@ -31,7 +43,16 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     MODEL_PATH=/app/model
 
 # Install runtime dependencies (glibc compat for manylinux wheels)
-RUN apk add --no-cache curl=~8.7 ca-certificates=~2024 bash=~5.2 libc6-compat \
+# Pin exact versions to match build stage for deterministic images
+ARG BASH_VERSION="5.2.26-r0"
+ARG CA_CERTIFICATES_VERSION="20240226-r0"
+ARG CURL_VERSION="8.7.1-r0"
+ARG LIBC6_COMPAT_VERSION="1.2.5-r0"
+RUN apk add --no-cache \
+    curl="=${CURL_VERSION}" \
+    ca-certificates="=${CA_CERTIFICATES_VERSION}" \
+    bash="=${BASH_VERSION}" \
+    libc6-compat="=${LIBC6_COMPAT_VERSION}" \
  && update-ca-certificates
 
 # Set working directory
@@ -43,6 +64,11 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy model and prediction script
 COPY model/ ./model/
+# IMPORTANT: Build context must be repository root, so that the path below is in-context.
+# If you prefer using deployment/gcp as the build context, move robust_predict.py into
+# deployment/gcp/cloud-run/ and update this COPY accordingly (e.g., COPY cloud-run/robust_predict.py ...).
+# Current approach assumes building from repo root:
+#   docker build -f deployment/gcp/Dockerfile -t <image> .
 COPY deployment/cloud-run/robust_predict.py ./robust_predict.py
 
 # Create non-root user for security (GCP best practice)
