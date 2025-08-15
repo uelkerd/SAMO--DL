@@ -39,7 +39,7 @@ def check_hardcoded_bindings(project_root: Path) -> tuple[bool, list]:
 
     return len(issues) == 0, issues
 
-def is_acceptable_binding(line: str, file_path: Path) -> bool:
+def is_acceptable_binding(line: str, _file_path: Path) -> bool:
     """Check if a binding is acceptable (e.g., in comments or documentation)."""
     # Allow in comments
     if line.strip().startswith('#'):
