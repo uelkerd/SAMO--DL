@@ -27,8 +27,8 @@ RUN apk add --no-cache \
     curl="=${CURL_VERSION}" \
  && update-ca-certificates
 
-# Copy requirements and install Python dependencies
-COPY requirements.txt .
+# Copy GCP-specific requirements and install Python dependencies
+COPY deployment/gcp/requirements.txt ./requirements.txt
 RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
  && pip install --no-cache-dir -r requirements.txt
 
