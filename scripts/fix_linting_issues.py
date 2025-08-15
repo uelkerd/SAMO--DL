@@ -6,7 +6,6 @@ Fixes trailing whitespace and indentation issues identified by DeepSource.
 """
 
 import os
-import re
 from pathlib import Path
 from typing import List, Tuple
 
