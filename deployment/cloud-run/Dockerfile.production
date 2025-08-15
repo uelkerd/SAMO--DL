@@ -1,7 +1,7 @@
 # Production Dockerfile for ONNX API Server
 # Uses Gunicorn WSGI server for production deployment
 
-FROM python:3.12-slim-bookworm
+FROM python:3.12-alpine3.20
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
@@ -10,10 +10,9 @@ ENV FLASK_ENV=production
 ENV ENVIRONMENT=production
 ENV PORT=8080
 
-# Install minimal runtime dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl=7.88.1-10+deb12u12 \
-  && rm -rf /var/lib/apt/lists/*
+# Install minimal runtime dependencies (Alpine)
+RUN apk add --no-cache curl ca-certificates bash shadow \
+ && update-ca-certificates
 
 # Set work directory
 WORKDIR /app
@@ -28,8 +27,8 @@ COPY onnx_api_server.py .
 COPY model/ ./model/
 
 # Create non-root user for security
-RUN useradd --create-home --shell /bin/bash app && \
-    chown -R app:app /app
+RUN adduser -D -s /bin/sh -h /home/app app \
+ && chown -R app:app /app
 USER app
 
 # Expose port

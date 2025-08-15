@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bookworm
+FROM python:3.12-alpine3.20
 
 # Environment
 ENV PYTHONUNBUFFERED=1 \
@@ -9,11 +9,25 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_ROOT_USER_ACTION=ignore \
     EMOTION_MODEL_LOCAL_DIR=/app/model
 
-# System deps needed for audio runtime only
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg=7:5.1.6-0+deb12u1 \
-    curl=7.88.1-10+deb12u12 \
-  && rm -rf /var/lib/apt/lists/*
+# System deps (Alpine) and certificates
+RUN apk add --no-cache \
+    ffmpeg \
+    curl \
+    ca-certificates \
+    bash \
+    shadow \
+    libstdc++ \
+    libgcc \
+    gcompat \
+  && update-ca-certificates
+
+# Install glibc compatibility (needed for manylinux wheels like PyTorch on Alpine)
+ENV GLIBC_VERSION=2.39-r0
+RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub \
+ && wget -q https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk \
+ && wget -q https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk \
+ && apk add --no-cache glibc-${GLIBC_VERSION}.apk glibc-bin-${GLIBC_VERSION}.apk \
+ && rm -f glibc-*.apk
 
 WORKDIR /app
 
@@ -36,7 +50,7 @@ RUN EMOTION_MODEL_ID=${EMOTION_MODEL_ID} HF_TOKEN=${HF_TOKEN} python /app/bake_e
 COPY src/ ./src/
 
 # Switch to non-root user before runtime directives
-RUN useradd -m -u 1000 appuser && mkdir -p /var/tmp/hf-cache && chown -R appuser:appuser /app /var/tmp/hf-cache
+RUN adduser -D -u 1000 appuser && mkdir -p /var/tmp/hf-cache && chown -R appuser:appuser /app /var/tmp/hf-cache
 USER appuser
 
 # Healthcheck (runs as non-root user)

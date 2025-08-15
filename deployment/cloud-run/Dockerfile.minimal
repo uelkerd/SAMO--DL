@@ -2,12 +2,11 @@
 # Uses known compatible PyTorch/transformers versions
 
 # Build stage for compiling dependencies
-FROM python:3.12-slim-bookworm as builder
+FROM python:3.12-alpine3.20 as builder
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-  && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache build-base bash ca-certificates \
+ && update-ca-certificates
 
 # Set working directory
 WORKDIR /app
@@ -20,7 +19,7 @@ RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
  && pip install --no-cache-dir -r requirements_minimal.txt
 
 # Runtime stage
-FROM python:3.12-slim-bookworm
+FROM python:3.12-alpine3.20
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
@@ -28,9 +27,8 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PORT=8080
 
 # Install runtime dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-  && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache curl ca-certificates bash \
+ && update-ca-certificates
 
 # Copy Python packages from builder stage
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
@@ -52,8 +50,8 @@ RUN mkdir -p /app/model
 COPY model/ /app/model/
 
 # Create non-root user for security
-RUN useradd --create-home --shell /bin/bash app && \
-    chown -R app:app /app
+RUN adduser -D -s /bin/sh -h /home/app app \
+ && chown -R app:app /app
 USER app
 
 # Expose port

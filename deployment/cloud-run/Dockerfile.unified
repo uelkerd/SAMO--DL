@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bookworm
+FROM python:3.12-alpine3.20
 
 # Environment
 ENV PYTHONUNBUFFERED=1 \
@@ -9,10 +9,8 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_ROOT_USER_ACTION=ignore
 
 # System deps (ffmpeg for pydub/whisper)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg=7:5.1.6-0+deb12u1 \
-    curl=7.88.1-10+deb12u12 \
-  && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache ffmpeg curl ca-certificates bash shadow \
+ && update-ca-certificates
 
 WORKDIR /app
 
@@ -46,7 +44,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
   CMD curl -fsS http://localhost:8080/health || exit 1
 
 # Unified API entrypoint (non-root)
-RUN useradd -m -u 1000 appuser && mkdir -p /var/tmp/hf-cache && chown -R appuser:appuser /app /var/tmp/hf-cache
+RUN adduser -D -s /bin/sh -h /home/app appuser && mkdir -p /var/tmp/hf-cache && chown -R appuser:appuser /app /var/tmp/hf-cache
 USER appuser
 CMD ["sh", "-c", "exec uvicorn src.unified_ai_api:app --host 0.0.0.0 --port ${PORT}"]
 

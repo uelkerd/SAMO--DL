@@ -1,6 +1,6 @@
 # Multi-stage build for optimized production image
 # Build stage
-FROM --platform=linux/amd64 python:3.12-slim-bookworm as builder
+FROM python:3.12-alpine3.20 as builder
 
 # Set environment variables for build
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -12,11 +12,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc=4:12.2.0-3 \
-    g++=4:12.2.0-3 \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+RUN apk add --no-cache build-base bash ca-certificates curl \
+ && update-ca-certificates
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
@@ -24,7 +21,7 @@ RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
  && pip install --no-cache-dir -r requirements.txt
 
 # Production stage
-FROM --platform=linux/amd64 python:3.12-slim-bookworm
+FROM python:3.12-alpine3.20
 
 # Set environment variables for production
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -32,6 +29,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONHASHSEED=random \
     PYTHONPATH=/app \
     MODEL_PATH=/app/model
+
+# Install runtime dependencies
+RUN apk add --no-cache curl ca-certificates bash \
+ && update-ca-certificates
 
 # Set working directory
 WORKDIR /app
@@ -45,8 +46,8 @@ COPY model/ ./model/
 COPY ../cloud-run/robust_predict.py ./robust_predict.py
 
 # Create non-root user for security (GCP best practice)
-RUN useradd -m -u 1000 appuser && \
-    chown -R appuser:appuser /app
+RUN adduser -D -u 1000 appuser \
+ && chown -R appuser:appuser /app
 
 # Switch to non-root user
 USER appuser
@@ -54,9 +55,9 @@ USER appuser
 # Expose port
 EXPOSE 8080
 
-# Health check using Python instead of curl (reduces attack surface)
+# Health check using curl on Alpine
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')" || exit 1
+    CMD curl -f http://localhost:8080/health || exit 1
 
 # Run the prediction service
 CMD ["python", "robust_predict.py"]
