@@ -1,7 +1,10 @@
-transformers>=4.55.0,<5.0.0
-torch>=2.7.1,<2.9.0  # SECURITY: Already safe - requires >=2.7.1 (patched version >=2.6.0)
-scikit-learn>=1.5.0,<2.0.0
-numpy>=2.3.2,<3.0.0
-pandas>=2.0.0,<3.0.0
-flask>=3.1.1,<4.0.0
-requests>=2.32.4,<3.0.0
+# Main Deployment Requirements - Extends Core Requirements
+# This file contains the main deployment dependencies for SAMO
+
+# Include core requirements
+-r requirements-core.txt
+
+# Main deployment specific dependencies (if any)
+# Add only main-specific dependencies or version overrides here
+
+# Note: This file inherits all core dependencies from requirements-core.txt

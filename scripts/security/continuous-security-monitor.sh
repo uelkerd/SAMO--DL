@@ -90,12 +90,12 @@ check_performance() {
         CPU_PERCENT=$(echo "$STATS" | awk '{print $1}' | sed 's/%//')
         MEM_PERCENT=$(echo "$STATS" | awk '{print $3}' | sed 's/%//')
         
-        # Check thresholds
-        if (( $(echo "$CPU_PERCENT > 80" | bc -l) )); then
+        # Check thresholds using shell-native arithmetic (no bc dependency)
+        if [ "$CPU_PERCENT" -gt 80 ]; then
             log "⚠️  WARNING: High CPU usage: ${CPU_PERCENT}%"
         fi
         
-        if (( $(echo "$MEM_PERCENT > 80" | bc -l) )); then
+        if [ "$MEM_PERCENT" -gt 80 ]; then
             log "⚠️  WARNING: High memory usage: ${MEM_PERCENT}%"
         fi
     else
@@ -123,7 +123,8 @@ test_api_endpoints() {
     log "⏱️  Health endpoint response time: ${RESPONSE_TIME}s"
     
     # Check if response time is within acceptable range (< 1 second)
-    if (( $(echo "$RESPONSE_TIME > 1.0" | bc -l) )); then
+    # Use awk for floating point comparison (more portable than bc)
+    if [ "$(echo "$RESPONSE_TIME > 1.0" | awk '{print $1 > $3}')" = "1" ]; then
         log "⚠️  WARNING: Slow response time: ${RESPONSE_TIME}s"
     fi
     

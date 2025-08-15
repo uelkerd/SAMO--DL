@@ -180,7 +180,7 @@ python deployment/cloud-run/secure_api_server.py
 curl http://localhost:8080/health
 curl -X POST http://localhost:8080/api/predict \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: your-secure-api-key-here" \
+  -H "X-API-Key: ${ADMIN_API_KEY}" \
   -d '{"text": "I am feeling happy today"}'
 ```
 
@@ -192,10 +192,10 @@ SERVICE_URL=$(gcloud run services describe samo-emotion-api --platform managed -
 # Test health endpoint
 curl ${SERVICE_URL}/health
 
-# Test prediction endpoint
+# Test prediction endpoint (use environment variable for API key)
 curl -X POST ${SERVICE_URL}/api/predict \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: YOUR-SECURE-API-KEY" \
+  -H "X-API-Key: ${ADMIN_API_KEY}" \
   -d '{"text": "I am feeling happy today"}'
 ```
 
@@ -258,11 +258,19 @@ metadata:
 ## 🚨 Security Notes
 
 1. **HOST Environment Variable**: Must be set to `0.0.0.0` for Cloud Run external access
-2. **API Key Protection**: Store sensitive keys in Google Secret Manager
+2. **API Key Protection**: Store sensitive keys in Google Secret Manager or environment variables
 3. **Health Checks**: Configure proper liveness and readiness probes
 4. **Resource Limits**: Set appropriate CPU and memory limits
 5. **Non-root User**: Run container as non-root user for security
 6. **Network Security**: Use VPC connectors for private network access
+
+## 🔒 Security Best Practices
+
+- **Never hardcode API keys** in documentation or source code
+- **Use environment variables** for configuration in production
+- **Store secrets in Google Secret Manager** for Cloud Run deployments
+- **Rotate API keys regularly** and monitor for unauthorized usage
+- **Use least privilege principle** for API key permissions
 
 ---
 **Status**: ✅ **VERIFIED** - Compatible with Cloud Run security requirements

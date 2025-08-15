@@ -6,8 +6,9 @@ Tests that all fixed files work correctly with secure debug configuration
 
 import os
 import sys
-import subprocess
 import time
+import subprocess
+import shlex
 from pathlib import Path
 
 
@@ -21,7 +22,7 @@ def test_flask_file(file_path, _expected_port):
         del env['FLASK_DEBUG']
 
     try:
-        # Start the Flask app
+        # Start the Flask app - file path is safe as it's a Path object, not user input
         process = subprocess.Popen(
             [sys.executable, str(file_path)],
             stdout=subprocess.PIPE,

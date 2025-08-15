@@ -1,0 +1,29 @@
+# Core Requirements - Shared Dependencies for All SAMO Deployments
+# This file contains the common dependencies used across all deployment configurations
+# Environment-specific requirements should extend this file using -r requirements-core.txt
+
+# Web Framework - Core Flask functionality
+flask>=3.1.1,<4.0.0
+
+# ML Libraries - Core machine learning dependencies
+torch>=2.6.0,<2.9.0  # SECURITY: Mitigates torch.load weights_only deserialization bypass
+transformers>=4.55.0,<5.0.0
+numpy>=2.3.2,<3.0.0
+scikit-learn>=1.5.0,<2.0.0
+pandas>=2.0.0,<3.0.0
+
+# HTTP Client - Core networking
+requests>=2.32.4,<3.0.0
+
+# WSGI Server - Production deployment
+gunicorn>=23.0.0,<24.0.0
+
+# Monitoring - Core system monitoring
+psutil>=5.9.5,<6.0.0
+prometheus-client>=0.17.1,<1.0.0
+
+# Security - Core security libraries
+cryptography>=45.0.6,<46.0.0
+
+# Build Tools - Core build dependencies
+setuptools>=80.9.0,<81.0.0  # FIXED: CVE-2022-40897, CVE-2025-47273, CVE-2024-6345

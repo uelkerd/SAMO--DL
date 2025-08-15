@@ -1,5 +1,32 @@
-# SECURE DOCKERFILE - Addresses Trivy vulnerabilities with minimal complexity
-# Pin base image to immutable digest for reproducible builds
+# Multi-Stage Dockerfile Example - Demonstrates Build vs Runtime Separation
+# This is an example of how to refactor the main Dockerfile for better security
+
+# Stage 1: Build stage with build-time dependencies
+# TODO: Update this digest to the current version before merging
+# Get current digest: docker pull python:3.12-slim-bookworm && docker images --digests | grep python:3.12-slim-bookworm
+FROM python:3.12-slim-bookworm@sha256:placeholder-update-before-merge AS builder
+
+# Environment
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# Install build-time dependencies (will be discarded in final image)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copy and install Python requirements
+COPY requirements-core.txt .
+RUN pip install --no-cache-dir -r requirements-core.txt
+
+# Stage 2: Runtime stage (minimal attack surface)
 # TODO: Update this digest to the current version before merging
 # Get current digest: docker pull python:3.12-slim-bookworm && docker images --digests | grep python:3.12-slim-bookworm
 FROM python:3.12-slim-bookworm@sha256:placeholder-update-before-merge
@@ -10,8 +37,7 @@ ENV PYTHONUNBUFFERED=1 \
     PORT=8000 \
     HOST=0.0.0.0
 
-# SECURITY: Install and pin specific package versions to fix vulnerabilities
-# SECURITY: Pin versions to avoid DOK-DL3008 and ensure reproducible builds
+# Install only runtime system dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     # SECURITY: Pin FFmpeg to fix CVE-2023-6603, CVE-2025-1594
@@ -28,11 +54,11 @@ RUN apt-get update \
 
 WORKDIR /app
 
-# Copy requirements and install Python packages
-COPY requirements-simple.txt .
-RUN pip install --no-cache-dir -r requirements-simple.txt
+# Copy virtual environment from builder stage
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# SECURITY: Create proper non-root user and group first
+# SECURITY: Create proper non-root user and group
 RUN groupadd -r app && useradd -r -g app app
 
 # Copy source code with proper ownership
@@ -52,3 +78,9 @@ EXPOSE 8000
 # SECURITY: Use Gunicorn for production with environment variable support
 CMD ["sh", "-c", "gunicorn --bind ${HOST}:${PORT} --workers 2 --worker-class uvicorn.workers.UvicornWorker --access-logfile - --error-logfile - app:app"]
 
+# Benefits of this multi-stage approach:
+# 1. Build tools (build-essential, git) are not in final image
+# 2. Smaller attack surface in production
+# 3. Cleaner separation of concerns
+# 4. Better security posture
+# 5. Reduced image size

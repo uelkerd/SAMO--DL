@@ -134,7 +134,14 @@ def run_security_verification():
     print("🔐 Host Binding Security Verification")
     print("=" * 50)
 
-    project_root = Path(__file__).parent.parent.parent
+    # Use environment variable PROJECT_ROOT if set, otherwise fallback to dynamic calculation
+    import os
+    project_root_env = os.environ.get("PROJECT_ROOT")
+    if project_root_env:
+        project_root = Path(project_root_env).resolve()
+    else:
+        project_root = Path(__file__).resolve().parents[2]
+    
     print(f"Project root: {project_root}")
     print()
 
