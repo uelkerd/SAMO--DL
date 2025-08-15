@@ -42,17 +42,18 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app \
     MODEL_PATH=/app/model
 
-# Install runtime dependencies (glibc compat for manylinux wheels)
+# Install runtime dependencies (glibc compatibility for manylinux wheels)
+# On Alpine 3.20 aarch64, prefer gcompat over libc6-compat
 # Pin exact versions to match build stage for deterministic images
 ARG BASH_VERSION="5.2.26-r0"
 ARG CA_CERTIFICATES_VERSION="20241121-r1"
 ARG CURL_VERSION="8.12.1-r0"
-ARG LIBC6_COMPAT_VERSION="1.2.5-r0"
+ARG GCOMPAT_VERSION="1.1.0-r4"
 RUN apk add --no-cache \
     curl="=${CURL_VERSION}" \
     ca-certificates="=${CA_CERTIFICATES_VERSION}" \
     bash="=${BASH_VERSION}" \
-    libc6-compat="=${LIBC6_COMPAT_VERSION}" \
+    gcompat="=${GCOMPAT_VERSION}" \
  && update-ca-certificates
 
 # Set working directory
