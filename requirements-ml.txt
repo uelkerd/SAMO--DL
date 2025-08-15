@@ -4,7 +4,7 @@
 ############################################
 
 # Core ML/AI Dependencies
-torch>=2.0.0,<3.0.0
+torch==2.8.0
 transformers>=4.55.0,<5.0.0
 datasets>=2.14.0,<5.0.0
 accelerate>=0.20.0,<1.0.0
