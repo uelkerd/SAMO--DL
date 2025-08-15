@@ -22,10 +22,10 @@ WORKDIR /app
 COPY deployment/cloud-run/requirements_unified.txt ./requirements_unified.txt
 # Avoid building wheels for psutil/sentencepiece: ensure build deps exist or use wheels
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    gcc \
-    cmake \
-    pkg-config \
+    build-essential=12.9ubuntu3 \
+    gcc=4:12.2.0-3ubuntu1 \
+    cmake=3.25.1-1 \
+    pkg-config=0.29.2-1ubuntu3 \
   && rm -rf /var/lib/apt/lists/* \
   && python -m pip install --no-cache-dir --upgrade pip==25.2 \
   && pip install --no-cache-dir --prefer-binary -r requirements_unified.txt
