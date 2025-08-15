@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bookworm
+FROM python:3.11-slim
 
 # Environment
 ENV PYTHONUNBUFFERED=1 \
@@ -8,17 +8,17 @@ ENV PYTHONUNBUFFERED=1 \
     XDG_CACHE_HOME=/var/tmp/hf-cache \
     PIP_ROOT_USER_ACTION=ignore
 
-# System deps (ffmpeg for pydub/whisper)
+# System deps (ffmpeg for pydub/whisper; build tools for some wheels)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg=7:5.1.6-0+deb12u1 \
-    curl=7.88.1-10+deb12u12 \
-  && apt-get clean \
+    gcc=4:12.2.0-3 \
+    g++=4:12.2.0-3 \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # Python deps
-COPY deployment/cloud-run/requirements.txt ./requirements.txt
+COPY requirements.txt ./
 RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
  && pip install --no-cache-dir -r requirements.txt
 

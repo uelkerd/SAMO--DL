@@ -1,6 +1,6 @@
 # Use official Python runtime with explicit platform targeting
-# UPDATED: Python 3.13-slim-bookworm to keep stable Debian and allow pinned packages
-FROM --platform=linux/amd64 python:3.13-slim-bookworm
+# UPDATED: Python 3.13-slim to reduce base image vulnerabilities
+FROM --platform=linux/amd64 python:3.13-slim
 
 # Set environment variables for Python
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -12,26 +12,19 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Set working directory
 WORKDIR /app
 
-# Install minimal system dependencies needed to build wheels and provide runtime curl
-# Note: Avoid exact version pinning to prevent 404s on Debian mirrors
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
     curl \
- && rm -rf /var/lib/apt/lists/* \
- && apt-get clean
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Copy secure requirements first for better caching
 COPY deployment/cloud-run/requirements_secure.txt .
 
-# Install Python dependencies, then remove build tools to keep final image slim
-# Use python -m pip and a bounded pip upgrade range for safety
-# Consider adding --require-hashes once requirements include hashes for hardened installs
-RUN python -m pip install --no-cache-dir --upgrade "pip>=25.2,<25.3" \
- && python -m pip install --no-cache-dir -r requirements_secure.txt \
- && apt-get purge -y --auto-remove gcc g++ \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements_secure.txt
 
 # Copy application code
 COPY deployment/cloud-run/secure_api_server.py .

@@ -3,7 +3,7 @@ uvicorn==0.35.0
 pydantic==2.11.7
 PyJWT==2.8.0
 requests==2.32.4
-psutil==6.0.0
+psutil==5.9.8
 python-multipart==0.0.18
 
 # Ensure compatibility for build-time model pre-bundling
@@ -11,9 +11,9 @@ numpy==1.26.4
 
 # NLP/ML for summarizer and emotion model
 transformers==4.55.0
-sentencepiece==0.2.0
+sentencepiece==0.1.99
 # Torch runtime
-torch==2.2.2
+torch==2.8.0
 
 # Whisper transcription
 openai-whisper==20250625
