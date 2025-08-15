@@ -362,3 +362,11 @@ wheels/
 yarn-debug.log*
 yarn-error.log*
 notebooks/clean-retraining/samo_stage1_complete.zip
+
+# Ignore large/binary ML artifacts
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+pytorch_model.bin
+notebooks/clean-retraining/samo_stage1_final_model/
