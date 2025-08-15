@@ -21,7 +21,7 @@ try:
     logger.info("✅ SAMO AI API loaded successfully")
 
 except ImportError as e:
-    logger.error(f"❌ Failed to import SAMO AI API: {e}")
+    logger.error("❌ Failed to import SAMO AI API: %s", e)
 
     # PRODUCTION: Fallback to simple health check API (FastAPI for consistency)
     from fastapi import FastAPI
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     host = os.getenv("HOST", "127.0.0.1")
     port = int(os.getenv("PORT", "8000"))
 
-    logger.info(f"🚀 Starting SAMO AI API (development mode) on {host}:{port}")
+    logger.info("🚀 Starting SAMO AI API (development mode) on %s:%s", host, port)
     logger.warning("⚠️  Using development server - use Gunicorn for production!")
 
     uvicorn.run(
