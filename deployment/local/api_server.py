@@ -244,7 +244,7 @@ def predict():
     except werkzeug.exceptions.BadRequest:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='invalid_json')
-        logger.error(f"Invalid JSON in request")
+        logger.error("Invalid JSON in request")
         return jsonify({'error': 'Invalid JSON format'}), 400
     except Exception as e:
         response_time = time.time() - start_time
@@ -290,7 +290,7 @@ def predict_batch():
     except werkzeug.exceptions.BadRequest:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='invalid_json')
-        logger.error(f"Invalid JSON in batch request")
+        logger.error("Invalid JSON in batch request")
         return jsonify({'error': 'Invalid JSON format'}), 400
     except Exception as e:
         response_time = time.time() - start_time
