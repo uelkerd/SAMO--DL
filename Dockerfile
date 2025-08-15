@@ -37,16 +37,8 @@ RUN useradd -m -u 1000 appuser \
     && chown -R appuser:appuser /app
 USER appuser
 
-# Create a simple Flask app file
-RUN echo 'from flask import Flask' > app.py && \
-    echo 'app = Flask(__name__)' >> app.py && \
-    echo '' >> app.py && \
-    echo '@app.route("/health")' >> app.py && \
-    echo 'def health():' >> app.py && \
-    echo '    return {"status": "healthy"}' >> app.py && \
-    echo '' >> app.py && \
-    echo 'if __name__ == "__main__":' >> app.py && \
-    echo '    app.run(host="0.0.0.0", port=8000)' >> app.py
+# Copy the main application file
+COPY app.py .
 
 # Healthcheck (runs as non-root user)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
