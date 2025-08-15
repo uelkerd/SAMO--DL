@@ -36,7 +36,7 @@ except ImportError as e:
     @app.get("/health")
     async def health():
         """Health check endpoint for fallback mode.
-        
+
         Returns:
             JSONResponse: Health status with model availability information.
         """
@@ -53,7 +53,7 @@ except ImportError as e:
     @app.get("/")
     async def root():
         """Root endpoint for fallback mode API.
-        
+
         Returns:
             JSONResponse: Basic API information and available endpoints.
         """
