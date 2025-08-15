@@ -117,13 +117,15 @@ def main():
     print("- Debug mode can be enabled with FLASK_DEBUG=1 (when needed)")
     print("- Security fixes successfully implemented in all 4 files")
 
-    if working_files >= 2:
+    if working_files >= 2 and all_passed:
         print("\n🎉 SECURITY VERIFICATION SUCCESSFUL!")
         print("The debug mode security fixes are working correctly.")
         print("Note: Some files have pre-existing Flask-RESTX routing conflicts")
         print("      (unrelated to our security fixes).")
     else:
         print("\n❌ Security verification needs attention.")
+        if not all_passed:
+            print("Some critical files failed to start properly.")
         sys.exit(1)
 
 if __name__ == "__main__":
