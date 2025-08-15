@@ -4,25 +4,22 @@
 ===========================================
 Verifies that all host binding security fixes are working correctly.
 """
-
-import os
 import sys
 import re
-import subprocess
 from pathlib import Path
 
 def check_hardcoded_bindings(project_root: Path) -> tuple[bool, list]:
     """Check for any remaining hardcoded 0.0.0.0 bindings."""
     issues = []
     python_files = list(project_root.glob("**/*.py"))
-    
+
     # Patterns that indicate hardcoded binding issues
     problematic_patterns = [
         r"host\s*=\s*['\"]0\.0\.0\.0['\"]",
         r"bind.*['\"]0\.0\.0\.0:",
         r"\.run\(\s*host\s*=\s*['\"]0\.0\.0\.0['\"]"
     ]
-    
+
     for py_file in python_files:
         try:
             content = py_file.read_text(encoding='utf-8')
@@ -39,7 +36,7 @@ def check_hardcoded_bindings(project_root: Path) -> tuple[bool, list]:
                             })
         except Exception as e:
             print(f"Warning: Could not read {py_file}: {e}")
-    
+
     return len(issues) == 0, issues
 
 def is_acceptable_binding(line: str, file_path: Path) -> bool:
@@ -47,22 +44,22 @@ def is_acceptable_binding(line: str, file_path: Path) -> bool:
     # Allow in comments
     if line.strip().startswith('#'):
         return True
-    
+
     # Allow in documentation strings
     if '"""' in line or "'''" in line:
         return True
-        
+
     # Allow in print statements or logging (informational only)
     if 'print(' in line or 'logger.' in line or '.info(' in line or '.debug(' in line:
         return True
-        
+
     return False
 
 def check_secure_patterns(project_root: Path) -> tuple[bool, list]:
     """Check that files use secure patterns with environment variables."""
     issues = []
     python_files = list(project_root.glob("**/*.py"))
-    
+
     # Files that should have secure host binding patterns
     key_files = [
         'src/unified_ai_api.py',
@@ -71,13 +68,13 @@ def check_secure_patterns(project_root: Path) -> tuple[bool, list]:
         'deployment/cloud-run/robust_predict.py',
         'deployment/gcp/predict.py'
     ]
-    
+
     secure_patterns = [
         r"os\.getenv\(['\"]HOST['\"]",
         r"os\.environ\.get\(['\"]HOST['\"]",
         r"host\s*=\s*os\."
     ]
-    
+
     for key_file in key_files:
         file_path = project_root / key_file
         if file_path.exists():
@@ -87,7 +84,7 @@ def check_secure_patterns(project_root: Path) -> tuple[bool, list]:
                     re.search(pattern, content, re.IGNORECASE) 
                     for pattern in secure_patterns
                 )
-                
+
                 if not has_secure_pattern:
                     issues.append({
                         'file': key_file,
@@ -101,13 +98,13 @@ def check_secure_patterns(project_root: Path) -> tuple[bool, list]:
                 })
         else:
             print(f"Warning: Key file {key_file} not found")
-    
+
     return len(issues) == 0, issues
 
 def verify_deployment_configs(project_root: Path) -> tuple[bool, list]:
     """Verify deployment configurations are properly set."""
     issues = []
-    
+
     # Check for Cloud Run deployment files
     cloud_run_configs = [
         'deployment/cloud-run/',
@@ -115,9 +112,9 @@ def verify_deployment_configs(project_root: Path) -> tuple[bool, list]:
         'cloudbuild.yaml',
         'app.yaml'
     ]
-    
+
     recommendations = []
-    
+
     for config_path in cloud_run_configs:
         full_path = project_root / config_path
         if full_path.exists():
@@ -126,24 +123,24 @@ def verify_deployment_configs(project_root: Path) -> tuple[bool, list]:
                 'action': 'Ensure HOST=0.0.0.0 environment variable is set for Cloud Run deployment',
                 'priority': 'High'
             })
-    
+
     return True, recommendations  # These are recommendations, not issues
 
 def run_security_verification():
     """Run all security verification checks."""
     print("🔐 Host Binding Security Verification")
     print("=" * 50)
-    
+
     project_root = Path(__file__).parent.parent.parent
     print(f"Project root: {project_root}")
     print()
-    
+
     all_passed = True
-    
+
     # Check 1: Hardcoded bindings
     print("1️⃣ Checking for hardcoded 0.0.0.0 bindings...")
     passed, issues = check_hardcoded_bindings(project_root)
-    
+
     if passed:
         print("   ✅ PASS: No hardcoded 0.0.0.0 bindings found")
     else:
@@ -151,13 +148,13 @@ def run_security_verification():
         for issue in issues:
             print(f"      {issue['file']}:{issue['line']} - {issue['content']}")
         all_passed = False
-    
+
     print()
-    
+
     # Check 2: Secure patterns
     print("2️⃣ Checking for secure host configuration patterns...")
     passed, issues = check_secure_patterns(project_root)
-    
+
     if passed:
         print("   ✅ PASS: All key files use secure host configuration")
     else:
@@ -167,35 +164,34 @@ def run_security_verification():
             if 'expected' in issue:
                 print(f"      Expected: {issue['expected']}")
         all_passed = False
-    
+
     print()
-    
+
     # Check 3: Deployment recommendations
     print("3️⃣ Deployment configuration recommendations...")
     passed, recommendations = verify_deployment_configs(project_root)
-    
+
     if recommendations:
         print("   📋 Cloud deployment checklist:")
         for rec in recommendations:
             print(f"      {rec['location']}: {rec['action']}")
     else:
         print("   ℹ️  No specific deployment configs found")
-    
+
     print()
-    
+
     # Summary
     print("🎯 Security Verification Summary")
     print("-" * 30)
-    
+
     if all_passed:
         print("✅ ALL CHECKS PASSED")
         print("🔒 Host binding security vulnerabilities have been resolved")
         print("🚀 Safe to deploy with proper environment configuration")
         return True
-    else:
-        print("❌ SOME CHECKS FAILED")
-        print("⚠️  Please address the issues above before deployment")
-        return False
+    print("❌ SOME CHECKS FAILED")
+    print("⚠️  Please address the issues above before deployment")
+    return False
 
 if __name__ == "__main__":
     success = run_security_verification()
