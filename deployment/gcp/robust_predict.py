@@ -83,6 +83,7 @@ def root():
         'model_type': 'rule-based (no ML dependencies)'
     })
 
+
 if __name__ == '__main__':
     # Parse and validate PORT environment variable
     try:
