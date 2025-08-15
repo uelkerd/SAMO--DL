@@ -502,7 +502,9 @@ def initialize_model():
 if __name__ == '__main__':
     initialize_model()
     logger.info(f"🌐 Starting Flask development server on port {PORT}")
-    app.run(host='0.0.0.0', port=PORT, debug=False)
+    # Use configurable host for security - Cloud Run needs HOST=0.0.0.0
+    host = os.getenv('HOST', '127.0.0.1')
+    app.run(host=host, port=PORT, debug=False)
 else:
     # For production deployment - don't initialize during import
     # Model will be initialized when the app actually starts

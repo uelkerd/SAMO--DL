@@ -6,7 +6,7 @@
 flask==2.3.3
 
 # ML libraries - UPDATED to fix CRITICAL vulnerabilities and Python 3.13 compatibility
-torch==2.8.0  # FIXED: CVE-2024-48063, CVE-2025-32434, CVE-2024-31580, CVE-2024-31583
+torch>=2.6.0  # SECURITY: Fix critical RCE vulnerability CVE torch.load weights_only=True bypass (was incorrectly set to non-existent 2.8.0)
 transformers==4.55.0
 numpy==1.26.4  # UPDATED: Python 3.13 compatible (was 1.24.3)
 scikit-learn==1.7.1  # UPDATED: More recent version for Python 3.13 compatibility

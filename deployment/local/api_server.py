@@ -400,4 +400,6 @@ if __name__ == '__main__':
     logger.info("📊 Monitoring: Comprehensive metrics and logging enabled")
     logger.info("")
     
-    app.run(host='0.0.0.0', port=8000, debug=False)
+    # Use environment variable for host with secure default for development
+    host = os.getenv('HOST', '127.0.0.1')
+    app.run(host=host, port=8000, debug=False)

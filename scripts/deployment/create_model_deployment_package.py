@@ -350,7 +350,9 @@ if __name__ == '__main__':
     print("  - GET  /emotions - List emotions")
     print("=" * 50)
     
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    # Use configurable host for security - set HOST=0.0.0.0 for production deployment
+    host = os.getenv('HOST', '127.0.0.1')
+    app.run(host=host, port=5000, debug=False)
 ''',
         
         "deploy.sh": """#!/bin/bash

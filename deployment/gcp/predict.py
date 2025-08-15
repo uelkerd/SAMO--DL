@@ -150,8 +150,10 @@ if __name__ == '__main__':
     print("   GET  /health - Health check")
     print("   POST /predict - Single prediction")
     print("")
-    print("🚀 Server starting on http://0.0.0.0:8080")
+    # Use configurable host for security - GCP needs HOST=0.0.0.0
+    host = os.environ.get('HOST', '127.0.0.1')
+    print(f"🚀 Server starting on http://{host}:8080")
     print("")
     
     # Run the Flask app
-    app.run(host='0.0.0.0', port=8080, debug=False)
+    app.run(host=host, port=8080, debug=False)

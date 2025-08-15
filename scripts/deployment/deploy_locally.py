@@ -229,7 +229,9 @@ if __name__ == '__main__':
     print("        -d '{\\"text\\": \\"I am feeling happy today!\\"}'")
     print()
     
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    # Use configurable host for security - set HOST=0.0.0.0 for production deployment
+    host = os.getenv('HOST', '127.0.0.1')
+    app.run(host=host, port=5000, debug=False)
 '''
     
     with open(os.path.join(local_deployment_dir, "api_server.py"), 'w') as f:

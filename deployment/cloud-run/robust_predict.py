@@ -288,8 +288,10 @@ if __name__ == '__main__':
         def load(self):
             return self.application
     
+    # Use configurable host for security - Cloud Run needs HOST=0.0.0.0
+    host = os.environ.get('HOST', '127.0.0.1')
     options = {
-        'bind': f'0.0.0.0:{port}',
+        'bind': f'{host}:{port}',
         'workers': 1,  # Single worker for Cloud Run
         'threads': 8,
         'timeout': 0,  # No timeout for Cloud Run

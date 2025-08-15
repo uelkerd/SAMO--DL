@@ -85,7 +85,7 @@ prod = [
 # Heavy ML/NLP stack (install when needed)
 ml = [
     # Core ML/AI Dependencies
-    "torch>=2.0.0,<3.0.0",
+    "torch>=2.6.0,<3.0.0",  # SECURITY: Updated from >=2.0.0 to fix CVE torch.load RCE vulnerability
     "transformers>=4.55.0,<5.0.0",
     "datasets>=2.14.0,<5.0.0",
     "accelerate>=0.20.0,<1.0.0",
@@ -121,9 +121,9 @@ audio = [
 # GPU-optimized ML dependencies (CUDA support)
 ml-gpu = [
     # GPU-enabled PyTorch (CUDA 12.1 compatible)
-    "torch>=2.0.0,<3.0.0; sys_platform == 'linux'",
+    "torch>=2.6.0,<3.0.0; sys_platform == 'linux'",  # SECURITY: Updated from >=2.0.0 to fix CVE torch.load RCE vulnerability
     "torchvision>=0.15.0,<1.0.0; sys_platform == 'linux'", 
-    "torchaudio>=2.0.0,<3.0.0; sys_platform == 'linux'",
+    "torchaudio>=2.6.0,<3.0.0; sys_platform == 'linux'",  # SECURITY: Updated from >=2.0.0 to fix CVE torch.load RCE vulnerability
     
     # Include base ML dependencies
     "transformers>=4.55.0,<5.0.0",

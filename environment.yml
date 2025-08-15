@@ -21,7 +21,7 @@ dependencies:
       - numpy==1.26.4
       - transformers==4.55.0
       - sentencepiece==0.1.99
-      - torch==2.2.2
+      - torch==2.6.0  # SECURITY: Updated from 2.2.2 to fix CVE torch.load RCE vulnerability
       - openai-whisper==20250625
       - pydub==0.25.1
       - jiwer==3.0.3

@@ -25,7 +25,7 @@ try:
     
     def run_server():
         try:
-            app.run(host='0.0.0.0', port=8084, debug=False)
+            app.run(host='127.0.0.1', port=8084, debug=False)
         except Exception as e:
             print(f"❌ Server error: {e}")
             traceback.print_exc()

@@ -28,6 +28,8 @@ def root():
     })
 
 if __name__ == "__main__":
-    host = os.getenv("HOST", "0.0.0.0")
+    # For production, use HOST environment variable. For security, default to localhost
+    # Override with HOST=0.0.0.0 only when explicitly needed (e.g., Docker/Cloud Run)
+    host = os.getenv("HOST", "127.0.0.1")
     port = int(os.getenv("PORT", "8000"))
     app.run(host=host, port=port, debug=False)
