@@ -12,70 +12,87 @@ import shlex
 from pathlib import Path
 
 
+def handle_process_output(process, file_path, mode="normal"):
+    """Handle process output and return success status."""
+    if process.poll() is None:
+        print(f"✅ {file_path.name} started successfully ({mode})")
+        return True
+    else:
+        stdout, stderr = process.communicate()
+        print(f"❌ {file_path.name} failed to start ({mode})")
+        print(f"STDOUT: {stdout}")
+        print(f"STDERR: {stderr}")
+        return False
+
+
 def test_flask_file(file_path, _expected_port):
     """Test a Flask file to ensure it starts without debug mode by default"""
     print(f"\n=== Testing {file_path} ===")
 
     # Ensure FLASK_DEBUG is not set (secure by default)
     env = os.environ.copy()
-    if 'FLASK_DEBUG' in env:
-        del env['FLASK_DEBUG']
+    env.pop('FLASK_DEBUG', None)  # Remove if exists, no-op if not present
 
     try:
-        # Start the Flask app - file path is safe as it's a Path object, not user input
-        process = subprocess.Popen(
-            [sys.executable, str(file_path)],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            env=env
-        )
+        # Test secure by default mode
+        if not test_secure_mode(file_path, env):
+            return False
 
-        # Give it time to start
-        time.sleep(2)
-
-        # Check if process is still running
-        if process.poll() is None:
-            print(f"✅ {file_path.name} started successfully (secure by default)")
-
-            # Test with debug mode enabled
-            process.terminate()
-            process.wait()
-
-            # Now test with debug mode enabled
-            env['FLASK_DEBUG'] = '1'
-            debug_process = subprocess.Popen(
-                [sys.executable, str(file_path)],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                env=env
-            )
-
-            time.sleep(2)
-
-            if debug_process.poll() is None:
-                print(f"✅ {file_path.name} also works with FLASK_DEBUG=1")
-                debug_process.terminate()
-                debug_process.wait()
-            else:
-                stdout, stderr = debug_process.communicate()
-                print(f"❌ {file_path.name} failed with debug mode enabled")
-                print(f"STDOUT: {stdout}")
-                print(f"STDERR: {stderr}")
-                return False
-
-        else:
-            stdout, stderr = process.communicate()
-            print(f"❌ {file_path.name} failed to start")
-            print(f"STDOUT: {stdout}")
-            print(f"STDERR: {stderr}")
+        # Test debug mode enabled
+        if not test_debug_mode(file_path, env):
             return False
 
     except Exception as e:
         print(f"❌ Error testing {file_path.name}: {e}")
         return False
 
+    return True
+
+
+def test_secure_mode(file_path, env):
+    """Test Flask app in secure mode (no debug)."""
+    process = subprocess.Popen(
+        [sys.executable, str(file_path)],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        env=env
+    )
+
+    # Give it time to start
+    time.sleep(2)
+
+    # Check if process is still running
+    if not handle_process_output(process, file_path, "secure by default"):
+        return False
+
+    # Clean up process
+    process.terminate()
+    process.wait()
+    return True
+
+
+def test_debug_mode(file_path, env):
+    """Test Flask app with debug mode enabled."""
+    # Enable debug mode
+    env['FLASK_DEBUG'] = '1'
+    
+    debug_process = subprocess.Popen(
+        [sys.executable, str(file_path)],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        env=env
+    )
+
+    time.sleep(2)
+
+    if not handle_process_output(debug_process, file_path, "debug mode enabled"):
+        return False
+
+    # Clean up debug process
+    debug_process.terminate()
+    debug_process.wait()
     return True
 
 

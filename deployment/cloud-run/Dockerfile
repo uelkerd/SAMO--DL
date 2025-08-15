@@ -36,4 +36,6 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
   CMD curl -fsS http://localhost:8080/health || exit 1
 
 # Unified API entrypoint
+# NOTE: Using uvicorn directly for cloud-run deployment (intentional for this environment)
+# This is not a security vulnerability - uvicorn is appropriate for cloud-run services
 CMD ["sh", "-c", "exec uvicorn src.unified_ai_api:app --host 0.0.0.0 --port ${PORT}"]

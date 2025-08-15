@@ -26,19 +26,17 @@ def check_hardcoded_bindings(project_root: Path) -> tuple[bool, list]:
             content = py_file.read_text(encoding='utf-8')
             for line_num, line in enumerate(content.splitlines(), 1):
                 for pattern in problematic_patterns:
-                    if re.search(pattern, line, re.IGNORECASE):
-                        # Check if this is in our allowlist of acceptable patterns
-                        if not is_acceptable_binding(line, py_file):
-                            issues.append({
-                                'file': str(py_file.relative_to(project_root)),
-                                'line': line_num,
-                                'content': line.strip(),
-                                'issue': 'Hardcoded 0.0.0.0 binding'
-                            })
+                    if re.search(pattern, line, re.IGNORECASE) and not is_acceptable_binding(line, py_file):
+                        issues.append({
+                            'file': str(py_file.relative_to(project_root)),
+                            'line': line_num,
+                            'content': line.strip(),
+                            'issue': 'Hardcoded 0.0.0.0 binding'
+                        })
         except Exception as e:
             print(f"Warning: Could not read {py_file}: {e}")
 
-    return len(issues) == 0, issues
+    return not issues, issues
 
 
 def is_acceptable_binding(line: str, _file_path: Path) -> bool:
@@ -52,10 +50,12 @@ def is_acceptable_binding(line: str, _file_path: Path) -> bool:
         return True
 
     # Allow in print statements or logging (informational only)
-    if 'print(' in line or 'logger.' in line or '.info(' in line or '.debug(' in line:
-        return True
-
-    return False
+    return (
+        'print(' in line
+        or 'logger.' in line
+        or '.info(' in line
+        or '.debug(' in line
+    )
 
 
 def check_secure_patterns(project_root: Path) -> tuple[bool, list]:
@@ -101,7 +101,7 @@ def check_secure_patterns(project_root: Path) -> tuple[bool, list]:
         else:
             print(f"Warning: Key file {key_file} not found")
 
-    return len(issues) == 0, issues
+    return not issues, issues
 
 
 def verify_deployment_configs(project_root: Path) -> tuple[bool, list]:
@@ -127,6 +127,17 @@ def verify_deployment_configs(project_root: Path) -> tuple[bool, list]:
             })
 
     return True, recommendations  # These are recommendations, not issues
+
+
+def print_summary_result(all_passed: bool) -> None:
+    """Print the summary result of the security verification."""
+    if all_passed:
+        print("✅ ALL CHECKS PASSED")
+        print("🔒 Host binding security vulnerabilities have been resolved")
+        print("🚀 Safe to deploy with proper environment configuration")
+    else:
+        print("❌ SOME CHECKS FAILED")
+        print("⚠️  Please address the issues above before deployment")
 
 
 def run_security_verification():
@@ -191,17 +202,9 @@ def run_security_verification():
     print()
 
     # Summary
-    print("🎯 Security Verification Summary")
-    print("-" * 30)
+    print_summary_result(all_passed)
 
-    if all_passed:
-        print("✅ ALL CHECKS PASSED")
-        print("🔒 Host binding security vulnerabilities have been resolved")
-        print("🚀 Safe to deploy with proper environment configuration")
-        return True
-    print("❌ SOME CHECKS FAILED")
-    print("⚠️  Please address the issues above before deployment")
-    return False
+    return all_passed
 
 
 if __name__ == "__main__":
