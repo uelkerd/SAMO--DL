@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-SAMO Emotion Detection API - Production Entry Point
-"""
+"""SAMO Emotion Detection API - Production Entry Point"""
 import os
 import sys
 import logging
@@ -21,20 +19,20 @@ logger = logging.getLogger(__name__)
 try:
     from src.unified_ai_api import app
     logger.info("✅ SAMO AI API loaded successfully")
-    
+
 except ImportError as e:
     logger.error(f"❌ Failed to import SAMO AI API: {e}")
-    
+
     # PRODUCTION: Fallback to simple health check API (FastAPI for consistency)
     from fastapi import FastAPI
     from fastapi.responses import JSONResponse
-    
+
     app = FastAPI(
         title="SAMO AI API - Fallback Mode",
         description="Fallback mode when main API is unavailable",
         version="1.0.0"
     )
-    
+
     @app.get("/health")
     async def health():
         return JSONResponse({
@@ -46,7 +44,7 @@ except ImportError as e:
                 "voice_processing": {"status": "unavailable"}
             }
         })
-    
+
     @app.get("/")
     async def root():
         return JSONResponse({
@@ -56,20 +54,20 @@ except ImportError as e:
                 "health": "/health"
             }
         })
-    
+
     logger.info("✅ SAMO AI API fallback mode loaded")
 
 # PRODUCTION: For development/testing only
 if __name__ == "__main__":
     import uvicorn
-    
+
     # Get configuration from environment
     host = os.getenv("HOST", "0.0.0.0")
     port = int(os.getenv("PORT", 8000))
-    
+
     logger.info(f"🚀 Starting SAMO AI API (development mode) on {host}:{port}")
     logger.warning("⚠️  Using development server - use Gunicorn for production!")
-    
+
     uvicorn.run(
         app,
         host=host,
