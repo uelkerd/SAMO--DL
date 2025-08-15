@@ -8,6 +8,7 @@ import sys
 import re
 from pathlib import Path
 
+
 def check_hardcoded_bindings(project_root: Path) -> tuple[bool, list]:
     """Check for any remaining hardcoded 0.0.0.0 bindings."""
     issues = []
@@ -39,6 +40,7 @@ def check_hardcoded_bindings(project_root: Path) -> tuple[bool, list]:
 
     return len(issues) == 0, issues
 
+
 def is_acceptable_binding(line: str, _file_path: Path) -> bool:
     """Check if a binding is acceptable (e.g., in comments or documentation)."""
     # Allow in comments
@@ -54,6 +56,7 @@ def is_acceptable_binding(line: str, _file_path: Path) -> bool:
         return True
 
     return False
+
 
 def check_secure_patterns(project_root: Path) -> tuple[bool, list]:
     """Check that files use secure patterns with environment variables."""
@@ -80,7 +83,7 @@ def check_secure_patterns(project_root: Path) -> tuple[bool, list]:
             try:
                 content = file_path.read_text(encoding='utf-8')
                 has_secure_pattern = any(
-                    re.search(pattern, content, re.IGNORECASE) 
+                    re.search(pattern, content, re.IGNORECASE)
                     for pattern in secure_patterns
                 )
 
@@ -100,6 +103,7 @@ def check_secure_patterns(project_root: Path) -> tuple[bool, list]:
 
     return len(issues) == 0, issues
 
+
 def verify_deployment_configs(project_root: Path) -> tuple[bool, list]:
     """Verify deployment configurations are properly set."""
     # Check for Cloud Run deployment files
@@ -117,11 +121,13 @@ def verify_deployment_configs(project_root: Path) -> tuple[bool, list]:
         if full_path.exists():
             recommendations.append({
                 'location': config_path,
-                'action': 'Ensure HOST=0.0.0.0 environment variable is set for Cloud Run deployment',
+                'action': 'Ensure HOST=0.0.0.0 environment variable is set '
+                          'for Cloud Run deployment',
                 'priority': 'High'
             })
 
     return True, recommendations  # These are recommendations, not issues
+
 
 def run_security_verification():
     """Run all security verification checks."""
@@ -189,6 +195,7 @@ def run_security_verification():
     print("❌ SOME CHECKS FAILED")
     print("⚠️  Please address the issues above before deployment")
     return False
+
 
 if __name__ == "__main__":
     success = run_security_verification()

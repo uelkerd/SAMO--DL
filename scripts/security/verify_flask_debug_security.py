@@ -10,6 +10,7 @@ import subprocess
 import time
 from pathlib import Path
 
+
 def test_flask_file(file_path, _expected_port):
     """Test a Flask file to ensure it starts without debug mode by default"""
     print(f"\n=== Testing {file_path} ===")
@@ -76,6 +77,7 @@ def test_flask_file(file_path, _expected_port):
 
     return True
 
+
 def main():
     """Main verification function"""
     print("🔒 Flask Debug Mode Security Verification")
@@ -106,7 +108,8 @@ def main():
     print("\n" + "=" * 50)
     print("🔒 Debug Mode Security Analysis:")
     print(f"- Files tested: {len(test_files)}")
-    print(f"- Security fixes verified: {len([f for f, _ in test_files if (project_root / f).exists()])}")
+    verified_count = len([f for f, _ in test_files if (project_root / f).exists()])
+    print(f"- Security fixes verified: {verified_count}")
 
     # Count files that started successfully (debug security works)
     working_files = 2  # From the output we can see 2 files worked
@@ -127,6 +130,7 @@ def main():
         if not all_passed:
             print("Some critical files failed to start properly.")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
