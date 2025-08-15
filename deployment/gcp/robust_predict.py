@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
+
 def simple_emotion_predict(text):
     """Simple rule-based emotion prediction (no ML model)"""
     text_lower = text.lower()
@@ -26,6 +27,7 @@ def simple_emotion_predict(text):
         return 'fear', {'joy': 0.05, 'sadness': 0.1, 'anger': 0.05, 'fear': 0.8}
     return 'neutral', {'joy': 0.25, 'sadness': 0.25, 'anger': 0.25, 'fear': 0.25}
 
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
@@ -34,6 +36,7 @@ def health_check():
         'service': 'SAMO Emotion Prediction (Alpine Linux)',
         'model_type': 'rule-based'
     })
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -65,6 +68,7 @@ def predict():
             'error': 'Internal prediction error',
             'status': 'error'
         }), 500
+
 
 @app.route('/', methods=['GET'])
 def root():
