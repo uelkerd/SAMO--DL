@@ -18,14 +18,22 @@ def simple_emotion_predict(text):
     text_lower = text.lower()
 
     # Simple keyword-based classification
-    if any(word in text_lower for word in ['happy', 'joy', 'excited', 'great', 'wonderful']):
+    happy_words = ['happy', 'joy', 'excited', 'great', 'wonderful']
+    if any(word in text_lower for word in happy_words):
         return 'joy', {'joy': 0.8, 'sadness': 0.1, 'anger': 0.05, 'fear': 0.05}
-    if any(word in text_lower for word in ['sad', 'depressed', 'unhappy', 'terrible', 'awful']):
+    
+    sad_words = ['sad', 'depressed', 'unhappy', 'terrible', 'awful']
+    if any(word in text_lower for word in sad_words):
         return 'sadness', {'joy': 0.1, 'sadness': 0.8, 'anger': 0.05, 'fear': 0.05}
-    if any(word in text_lower for word in ['angry', 'mad', 'furious', 'hate', 'terrible']):
+    
+    angry_words = ['angry', 'mad', 'furious', 'hate', 'terrible']
+    if any(word in text_lower for word in angry_words):
         return 'anger', {'joy': 0.05, 'sadness': 0.1, 'anger': 0.8, 'fear': 0.05}
-    if any(word in text_lower for word in ['afraid', 'scared', 'terrified', 'worried', 'anxious']):
+    
+    fear_words = ['afraid', 'scared', 'terrified', 'worried', 'anxious']
+    if any(word in text_lower for word in fear_words):
         return 'fear', {'joy': 0.05, 'sadness': 0.1, 'anger': 0.05, 'fear': 0.8}
+    
     return 'neutral', {'joy': 0.25, 'sadness': 0.25, 'anger': 0.25, 'fear': 0.25}
 
 
@@ -64,7 +72,7 @@ def predict():
         })
 
     except Exception as e:
-        logger.error(f"Prediction error: {e}")
+        logger.error("Prediction error: %s", e)
         return jsonify({
             'error': 'Internal prediction error',
             'status': 'error'
@@ -90,10 +98,10 @@ if __name__ == '__main__':
         port_str = os.getenv('PORT', '8080')
         port = int(port_str)
         if not 1 <= port <= 65535:
-            logger.error(f"Invalid port number: {port}. Must be between 1 and 65535.")
+            logger.error("Invalid port number: %d. Must be between 1 and 65535.", port)
             sys.exit(1)
     except ValueError:
-        logger.error(f"Invalid PORT value: '{port_str}'. Must be a valid integer.")
+        logger.error("Invalid PORT value: '%s'. Must be a valid integer.", port_str)
         sys.exit(1)
 
     # Read HOST from environment variable, default to 127.0.0.1 for security
@@ -103,7 +111,7 @@ if __name__ == '__main__':
     debug_env = os.getenv('DEBUG', '').lower()
     debug = debug_env in ('1', 'true', 'yes')
 
-    logger.info(f"Starting Flask app on {host}:{port} (debug={debug})")
+    logger.info("Starting Flask app on %s:%d (debug=%s)", host, port, debug)
 
     # Note: In production, use a WSGI server (gunicorn/uwsgi) instead of app.run
     # Example: gunicorn -w 4 -b 0.0.0.0:8080 robust_predict:app
