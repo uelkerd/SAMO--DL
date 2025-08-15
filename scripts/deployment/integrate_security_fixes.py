@@ -31,7 +31,7 @@ class IntegratedSecurityOptimization:
     def get_project_id():
         """Get current GCP project ID dynamically"""
         try:
-            result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], 
+            result = subprocess.run(['gcloud', 'config', 'get-value', 'project'],
                                   capture_output=True, text=True, check=True)
             return result.stdout.strip()
         except subprocess.CalledProcessError:
@@ -117,7 +117,7 @@ steps:
     timeout: '1800s'
     env:
       - 'PROJECT_ID={self.project_id}'
-  
+
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     args:
       - 'gcloud'
@@ -293,4 +293,4 @@ substitutions:
 
 if __name__ == "__main__":
     integrator = IntegratedSecurityOptimization()
-    integrator.run() 
+    integrator.run()

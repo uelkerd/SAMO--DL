@@ -6,7 +6,7 @@ import logging
 from pathlib import Path
 
 # Add project root to Python path for src package discovery
-# Note: src/ has __init__.py, so this should work with PEP 420 implicit 
+# Note: src/ has __init__.py, so this should work with PEP 420 implicit
 # namespace packages
 sys.path.insert(0, str(Path(__file__).parent))
 

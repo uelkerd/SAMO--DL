@@ -114,4 +114,3 @@ def test_permissions_helpers():
     }
     token_no_perms = mgr.create_access_token(user_no_permissions)
     assert mgr.get_user_permissions(token_no_perms) == []
-

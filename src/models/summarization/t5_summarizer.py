@@ -2,7 +2,7 @@
 """
 T5-based Text Summarization for SAMO Deep Learning.
 
-This module provides T5-based text summarization capabilities for
+    This module provides T5-based text summarization capabilities for
 journal entries and other text content.
 """
 

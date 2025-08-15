@@ -10,7 +10,7 @@ import json
 
 def create_emotion_specialized_notebook():
     """Create the emotion specialized notebook content"""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -481,10 +481,10 @@ def create_emotion_specialized_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     with open('notebooks/EMOTION_SPECIALIZED_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook_content, f, indent=2)
-    
+
     print("✅ Emotion specialized notebook created: notebooks/EMOTION_SPECIALIZED_TRAINING_COLAB.ipynb")
     print("📋 Instructions:")
     print("  1. Download the notebook file")
@@ -499,4 +499,4 @@ def create_emotion_specialized_notebook():
     print("  - Better hyperparameters")
 
 if __name__ == "__main__":
-    create_emotion_specialized_notebook() 
+    create_emotion_specialized_notebook()

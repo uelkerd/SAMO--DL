@@ -15,4 +15,3 @@ def is_truthy(value: Optional[str]) -> bool:
     if value is None:
         return False
     return value.strip().lower() in {"1", "true", "yes"}
-

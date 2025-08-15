@@ -15,7 +15,7 @@ import uvicorn
 from fastapi import FastAPI, Header, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field, validator
+    from pydantic import BaseModel, Field, validator
 from transformers import AutoTokenizer
 
 from ..api_rate_limiter import add_rate_limiting

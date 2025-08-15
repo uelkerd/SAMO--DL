@@ -178,7 +178,7 @@ def generate_entries(
 
     Args:
         num_entries: Number of entries to generate
-        num_users: Number of unique users to create entries for
+            num_users: Number of unique users to create entries for
         start_date: Start date for entries (defaults to 60 days ago)
         end_date: End date for entries (defaults to today)
 

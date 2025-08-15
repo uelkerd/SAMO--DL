@@ -26,10 +26,10 @@ def test_vertex_setup():
         config_dir = Path("configs/vertex_ai")
         if config_dir.exists():
             logger.info(f"✅ Configuration directory exists: {config_dir}")
-            
+
             config_files = list(config_dir.glob("*.json"))
             logger.info(f"✅ Found {len(config_files)} configuration files")
-            
+
             for config_file in config_files:
                 logger.info(f"   - {config_file.name}")
         else:
@@ -39,10 +39,10 @@ def test_vertex_setup():
         data_dir = Path("data/vertex_ai")
         if data_dir.exists():
             logger.info(f"✅ Data directory exists: {data_dir}")
-            
+
             data_files = list(data_dir.glob("*.json"))
             logger.info(f"✅ Found {len(data_files)} data files")
-            
+
             for data_file in data_files:
                 logger.info(f"   - {data_file.name}")
         else:

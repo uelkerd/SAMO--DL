@@ -7,7 +7,7 @@ These models correspond to the tables in the PostgreSQL schema.
 import uuid
 from datetime import datetime
 
-from pgvector.sqlalchemy import Vector
+    from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     Boolean,
     Column,

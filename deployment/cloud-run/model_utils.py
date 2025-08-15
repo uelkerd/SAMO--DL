@@ -300,4 +300,4 @@ def validate_text_input(text: str) -> Tuple[bool, str]:
         return False, 'Text must be a non-empty string'
     if len(text) > MAX_TEXT_LENGTH:
         return False, f'Text too long (max {MAX_TEXT_LENGTH} characters)'
-    return True, '' 
+    return True, ''

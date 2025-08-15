@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 import pandas as pd
 from .feature_engineering import FeatureEngineer
-from .validation import DataValidator
+    from .validation import DataValidator
 
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
@@ -36,8 +36,8 @@ class DataPipeline:
         """Initialize data pipeline.
 
         Args:
-            preprocessor: Journal entry preprocessor
-            validator: Data validator
+                preprocessor: Journal entry preprocessor
+                validator: Data validator
             feature_engineer: Feature engineer
             embedding_method: Method for generating embeddings ('tfid', 'word2vec', or 'fasttext')
 

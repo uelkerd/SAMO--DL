@@ -18,44 +18,44 @@ class EmotionDetectionModel:
         """Initialize the model."""
         self.model_path = os.path.join(os.getcwd(), "model")
         print(f"Loading model from: {self.model_path}")
-        
+
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
             self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path)
-            
+
             # Move to GPU if available
             if torch.cuda.is_available():
                 self.model = self.model.to('cuda')
                 print("✅ Model moved to GPU")
             else:
                 print("⚠️ CUDA not available, using CPU")
-            
+
             self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
             print("✅ Model loaded successfully")
-            
+
         except Exception as e:
             print(f"❌ Failed to load model: {str(e)}")
             raise
-        
+
     def predict(self, text):
         """Make a prediction."""
         try:
             # Tokenize input
             inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
-            
+
             if torch.cuda.is_available():
                 inputs = {k: v.to('cuda') for k, v in inputs.items()}
-            
+
             # Get prediction
             with torch.no_grad():
                 outputs = self.model(**inputs)
                 probabilities = torch.softmax(outputs.logits, dim=1)
                 predicted_label = torch.argmax(probabilities, dim=1).item()
                 confidence = probabilities[0][predicted_label].item()
-                
+
                 # Get all probabilities
                 all_probs = probabilities[0].cpu().numpy()
-            
+
             # Get predicted emotion
             if predicted_label in self.model.config.id2label:
                 predicted_emotion = self.model.config.id2label[predicted_label]
@@ -63,7 +63,7 @@ class EmotionDetectionModel:
                 predicted_emotion = self.model.config.id2label[str(predicted_label)]
             else:
                 predicted_emotion = f"unknown_{predicted_label}"
-            
+
             # Create response
             response = {
                 'text': text,
@@ -80,9 +80,9 @@ class EmotionDetectionModel:
                     'average_confidence': '83.9%'
                 }
             }
-            
+
             return response
-            
+
         except Exception as e:
             print(f"Prediction error: {str(e)}")
             raise
@@ -105,19 +105,19 @@ def predict():
     """Prediction endpoint."""
     try:
         data = request.get_json()
-        
+
         if not data or 'text' not in data:
             return jsonify({'error': 'No text provided'}), 400
-        
+
         text = data['text']
         if not text.strip():
             return jsonify({'error': 'Empty text provided'}), 400
-        
+
         # Make prediction
         result = model.predict(text)
-        
+
         return jsonify(result)
-        
+
     except Exception as e:
         print(f"Prediction endpoint error: {str(e)}")
         return jsonify({'error': str(e)}), 500
@@ -154,6 +154,6 @@ if __name__ == '__main__':
     host = os.environ.get('HOST', '127.0.0.1')
     print(f"🚀 Server starting on http://{host}:8080")
     print("")
-    
+
     # Run the Flask app
     app.run(host=host, port=8080, debug=False)

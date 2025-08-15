@@ -152,7 +152,7 @@ def main():
                 process.wait()
             except Exception:
                 pass  # Count as not working if any exception occurs
-    
+
     print(f"- Files with working debug security: {working_files}")
 
     print("\n✅ Flask Debug Mode Security Status:")

@@ -56,7 +56,7 @@ def check_pgvector():
         )
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 
-        # Create a cursor
+            # Create a cursor
         cur = conn.cursor()
 
         # Check if vector extension is available

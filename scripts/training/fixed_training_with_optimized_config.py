@@ -23,7 +23,7 @@
     # Create focal loss
     # Create model with class weights
     # Create simple data loaders (we'll implement proper batching later)
-    # Create zero tensor
+        # Create zero tensor
     # Load data to get class weights
     # Load dataset
     # Set positive labels to 1

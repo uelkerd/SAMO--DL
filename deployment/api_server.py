@@ -7,7 +7,7 @@ REST API server for emotion detection.
 
 import os
 from flask import Flask, request, jsonify
-from inference import EmotionDetector
+    from inference import EmotionDetector
 import logging
 
 # Configure logging
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-# Initialize emotion detector
+    # Initialize emotion detector
 try:
     detector = EmotionDetector()
     logger.info("✅ Emotion detector initialized successfully!")
@@ -38,17 +38,17 @@ def predict_emotion():
     """Predict emotion for given text"""
     if detector is None:
         return jsonify({'error': 'Model not loaded'}), 500
-    
+
     try:
         data = request.get_json()
         text = data.get('text', '')
-        
+
         if not text:
             return jsonify({'error': 'No text provided'}), 400
-        
+
         result = detector.predict(text)
         return jsonify(result)
-    
+
     except Exception as e:
         logger.error(f"Prediction error: {e}")
         return jsonify({'error': str(e)}), 500
@@ -58,17 +58,17 @@ def predict_batch():
     """Predict emotions for multiple texts"""
     if detector is None:
         return jsonify({'error': 'Model not loaded'}), 500
-    
+
     try:
         data = request.get_json()
         texts = data.get('texts', [])
-        
+
         if not texts:
             return jsonify({'error': 'No texts provided'}), 400
-        
+
         results = detector.predict_batch(texts)
         return jsonify({'results': results})
-    
+
     except Exception as e:
         logger.error(f"Batch prediction error: {e}")
         return jsonify({'error': str(e)}), 500
@@ -78,7 +78,7 @@ def get_emotions():
     """Get list of supported emotions"""
     if detector is None:
         return jsonify({'error': 'Model not loaded'}), 500
-    
+
     return jsonify({
         'emotions': list(detector.label_encoder.classes_),
         'count': len(detector.label_encoder.classes_)
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     print("  - POST /predict_batch - Batch prediction")
     print("  - GET  /emotions - List emotions")
     print("=" * 50)
-    
+
     # Use environment variable for host with secure default for development
     host = os.getenv('HOST', '127.0.0.1')
     app.run(host=host, port=5000, debug=False)
