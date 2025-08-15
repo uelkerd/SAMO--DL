@@ -15,7 +15,7 @@ scikit-learn==1.7.1  # UPDATED: More recent version for Python 3.13 compatibilit
 gunicorn==23.0.0
 
 # HTTP client - latest secure version
-requests==2.31.0
+requests==2.32.4
 
 # System monitoring - latest secure version
 psutil==5.9.5
