@@ -146,7 +146,7 @@ def run_security_verification():
     print("🔐 Host Binding Security Verification")
     print("=" * 50)
 
-    # Use environment variable PROJECT_ROOT if set, otherwise fallback to
+        # Use environment variable PROJECT_ROOT if set, otherwise fallback to
     # dynamic calculation
     import os
     project_root_env = os.environ.get("PROJECT_ROOT")
@@ -199,7 +199,7 @@ def run_security_verification():
         for rec in recommendations:
             print(f"      {rec['location']}: {rec['action']}")
     else:
-        print("   ℹ️  No specific deployment configs found")
+        print("   i No specific deployment configs found")
 
     print()
 
