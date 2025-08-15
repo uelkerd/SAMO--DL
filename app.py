@@ -35,6 +35,11 @@ except ImportError as e:
 
     @app.get("/health")
     async def health():
+        """Health check endpoint for fallback mode.
+        
+        Returns:
+            JSONResponse: Health status with model availability information.
+        """
         return JSONResponse({
             "status": "healthy",
             "message": "SAMO API fallback mode",
@@ -47,6 +52,11 @@ except ImportError as e:
 
     @app.get("/")
     async def root():
+        """Root endpoint for fallback mode API.
+        
+        Returns:
+            JSONResponse: Basic API information and available endpoints.
+        """
         return JSONResponse({
             "message": "SAMO AI API - Fallback Mode",
             "status": "degraded",
