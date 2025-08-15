@@ -74,16 +74,26 @@ pre_deployment_checks() {
 
 # Backup current container
 backup_current_container() {
-    if docker ps -q -f name="$CONTAINER_NAME" | grep -q .; then
+    if docker ps -q --filter "name=^/${CONTAINER_NAME}$" | grep -q .; then
         log "📦 Backing up current container..."
+        
+        # Check if backup already exists and handle it
+        if docker ps -a -q --filter "name=^/${BACKUP_CONTAINER}$" | grep -q .; then
+            log "⚠️  Existing backup container found, removing it..."
+            docker stop "$BACKUP_CONTAINER" 2>/dev/null || true
+            docker rm "$BACKUP_CONTAINER" 2>/dev/null || true
+        fi
         
         # Stop current container
         docker stop "$CONTAINER_NAME" || true
         
-        # Rename to backup
-        docker rename "$CONTAINER_NAME" "$BACKUP_CONTAINER" 2>/dev/null || true
-        
-        success "Current container backed up as $BACKUP_CONTAINER"
+        # Rename to backup and check status
+        if docker rename "$CONTAINER_NAME" "$BACKUP_CONTAINER"; then
+            success "Current container backed up as $BACKUP_CONTAINER"
+        else
+            error "Failed to backup current container"
+            exit 1
+        fi
     else
         log "ℹ️  No existing container to backup"
     fi
@@ -155,7 +165,8 @@ validate_deployment() {
     response_time=$(curl -o /dev/null -s -w '%{time_total}' "$HEALTH_CHECK_URL")
     log "Response time: ${response_time}s"
     
-    if (( $(echo "$response_time > 1.0" | bc -l) )); then
+    # Use awk for portable floating-point comparison (no bc dependency)
+    if awk -v rt="$response_time" 'BEGIN { exit (rt > 1.0 ? 0 : 1) }'; then
         warning "Slow response time: ${response_time}s"
     else
         success "Response time acceptable: ${response_time}s"

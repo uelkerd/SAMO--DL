@@ -44,7 +44,20 @@ Thank you for your interest in contributing to the SAMO-DL project! This guide w
    pip install -r requirements.txt
    ```
 
-3. **Run tests**
+3. **Set up Git hooks**
+   ```bash
+   # Configure Git to use hooks from scripts/ directory
+   ./scripts/setup-hooks.sh
+   
+   # Or manually configure:
+   git config core.hooksPath scripts
+   
+   # Verify configuration:
+   git config --get core.hooksPath
+   # Should return: scripts
+   ```
+
+4. **Run tests**
    ```bash
    # Run all tests
    pytest
@@ -54,6 +67,34 @@ Thank you for your interest in contributing to the SAMO-DL project! This guide w
    ```
 
 ## 🛠️ Development Setup
+
+### Git Hooks Setup
+
+This repository uses Git hooks located in the `scripts/` directory for code quality and security checks. After cloning:
+
+1. **Automatic setup**:
+   ```bash
+   ./scripts/setup-hooks.sh
+   ```
+
+2. **Manual setup**:
+   ```bash
+   git config core.hooksPath scripts
+   ```
+
+3. **Verify setup**:
+   ```bash
+   git config --get core.hooksPath
+   # Expected output: scripts
+   ```
+
+**Available hooks:**
+- `pre-push`: Git LFS validation before pushing
+- `post-merge`: Git LFS validation after merging
+- `post-commit`: Git LFS validation after commits
+- `post-checkout`: Git LFS validation after checkout
+
+**Note**: If hooks aren't working, ensure you've run the setup script or configured `core.hooksPath` correctly.
 
 ### Environment Configuration
 
