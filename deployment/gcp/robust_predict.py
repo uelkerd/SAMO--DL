@@ -21,19 +21,19 @@ def simple_emotion_predict(text):
     happy_words = ['happy', 'joy', 'excited', 'great', 'wonderful']
     if any(word in text_lower for word in happy_words):
         return 'joy', {'joy': 0.8, 'sadness': 0.1, 'anger': 0.05, 'fear': 0.05}
-    
+
     sad_words = ['sad', 'depressed', 'unhappy', 'terrible', 'awful']
     if any(word in text_lower for word in sad_words):
         return 'sadness', {'joy': 0.1, 'sadness': 0.8, 'anger': 0.05, 'fear': 0.05}
-    
+
     angry_words = ['angry', 'mad', 'furious', 'hate', 'terrible']
     if any(word in text_lower for word in angry_words):
         return 'anger', {'joy': 0.05, 'sadness': 0.1, 'anger': 0.8, 'fear': 0.05}
-    
+
     fear_words = ['afraid', 'scared', 'terrified', 'worried', 'anxious']
     if any(word in text_lower for word in fear_words):
         return 'fear', {'joy': 0.05, 'sadness': 0.1, 'anger': 0.05, 'fear': 0.8}
-    
+
     return 'neutral', {'joy': 0.25, 'sadness': 0.25, 'anger': 0.25, 'fear': 0.25}
 
 
