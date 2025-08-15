@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """
-Simple Flask prediction service for Alpine Linux (no PyTorch)
+Simple Flask prediction service for Alpine Linux (minimal dependencies)
 """
 
 from flask import Flask, request, jsonify
 import numpy as np
-import joblib
 import os
 import logging
 
@@ -15,57 +14,35 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-# Global model variable
-model = None
-label_encoder = None
-
-def load_model():
-    """Load the scikit-learn model and label encoder"""
-    global model, label_encoder
+def simple_emotion_predict(text):
+    """Simple rule-based emotion prediction (no ML model)"""
+    text_lower = text.lower()
     
-    try:
-        model_path = os.getenv('MODEL_PATH', '/app/model')
-        
-        # Try to load scikit-learn model
-        model_file = os.path.join(model_path, 'model.joblib')
-        if os.path.exists(model_file):
-            model = joblib.load(model_file)
-            logger.info(f"Loaded scikit-learn model from {model_file}")
-        else:
-            logger.warning(f"No model.joblib found at {model_file}")
-            
-        # Try to load label encoder
-        encoder_file = os.path.join(model_path, 'label_encoder.joblib')
-        if os.path.exists(encoder_file):
-            label_encoder = joblib.load(encoder_file)
-            logger.info(f"Loaded label encoder from {encoder_file}")
-        else:
-            logger.warning(f"No label_encoder.joblib found at {encoder_file}")
-            
-    except Exception as e:
-        logger.error(f"Error loading model: {e}")
-        model = None
-        label_encoder = None
+    # Simple keyword-based classification
+    if any(word in text_lower for word in ['happy', 'joy', 'excited', 'great', 'wonderful']):
+        return 'joy', {'joy': 0.8, 'sadness': 0.1, 'anger': 0.05, 'fear': 0.05}
+    elif any(word in text_lower for word in ['sad', 'depressed', 'unhappy', 'terrible', 'awful']):
+        return 'sadness', {'joy': 0.1, 'sadness': 0.8, 'anger': 0.05, 'fear': 0.05}
+    elif any(word in text_lower for word in ['angry', 'mad', 'furious', 'hate', 'terrible']):
+        return 'anger', {'joy': 0.05, 'sadness': 0.1, 'anger': 0.8, 'fear': 0.05}
+    elif any(word in text_lower for word in ['afraid', 'scared', 'terrified', 'worried', 'anxious']):
+        return 'fear', {'joy': 0.05, 'sadness': 0.1, 'anger': 0.05, 'fear': 0.8}
+    else:
+        return 'neutral', {'joy': 0.25, 'sadness': 0.25, 'anger': 0.25, 'fear': 0.25}
 
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
     return jsonify({
         'status': 'healthy',
-        'model_loaded': model is not None,
-        'encoder_loaded': label_encoder is not None
+        'service': 'SAMO Emotion Prediction (Alpine Linux)',
+        'model_type': 'rule-based'
     })
 
 @app.route('/predict', methods=['POST'])
 def predict():
     """Prediction endpoint"""
     try:
-        if model is None:
-            return jsonify({
-                'error': 'Model not loaded',
-                'status': 'error'
-            }), 500
-            
         # Get input data
         data = request.get_json()
         if not data or 'text' not in data:
@@ -76,37 +53,14 @@ def predict():
             
         text = data['text']
         
-        # Simple feature extraction (TF-IDF-like)
-        # In a real scenario, you'd use the same preprocessing as training
-        features = np.array([len(text), len(text.split())]).reshape(1, -1)
-        
-        # Make prediction
-        prediction = model.predict(features)[0]
-        
-        # Get prediction probabilities if available
-        try:
-            probabilities = model.predict_proba(features)[0]
-            prob_dict = {}
-            if label_encoder:
-                for i, prob in enumerate(probabilities):
-                    label = label_encoder.classes_[i]
-                    prob_dict[label] = float(prob)
-        except:
-            prob_dict = {}
-        
-        # Decode prediction if encoder available
-        if label_encoder:
-            try:
-                predicted_label = label_encoder.inverse_transform([prediction])[0]
-            except:
-                predicted_label = str(prediction)
-        else:
-            predicted_label = str(prediction)
+        # Make prediction using simple rules
+        predicted_emotion, probabilities = simple_emotion_predict(text)
         
         return jsonify({
-            'prediction': predicted_label,
-            'probabilities': prob_dict,
-            'status': 'success'
+            'prediction': predicted_emotion,
+            'probabilities': probabilities,
+            'status': 'success',
+            'model_type': 'rule-based'
         })
         
     except Exception as e:
@@ -125,13 +79,10 @@ def root():
             'health': '/health',
             'predict': '/predict (POST)'
         },
-        'model_loaded': model is not None
+        'model_type': 'rule-based (no ML dependencies)'
     })
 
 if __name__ == '__main__':
-    # Load model on startup
-    load_model()
-    
     # Run Flask app
     port = int(os.getenv('PORT', 8080))
     app.run(host='0.0.0.0', port=port, debug=False)

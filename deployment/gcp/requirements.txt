@@ -1,5 +1,3 @@
-# Alpine-compatible requirements (no PyTorch - use CPU-only alternatives)
+# Minimal Alpine-compatible requirements (no compilation needed)
 numpy>=1.21.0
 flask>=2.0.0
-scikit-learn>=1.0.0
-joblib>=1.1.0
