@@ -31,7 +31,8 @@ def main() -> int:
         # and checkpoint
         if "size mismatch" in str(e).lower():
             print(
-                "[WARN] Classifier size mismatch while loading. Retrying with ignore_mismatched_sizes=True"
+                "[WARN] Classifier size mismatch while loading. "
+                "Retrying with ignore_mismatched_sizes=True"
             )
             model = AutoModelForSequenceClassification.from_pretrained(
                 model_id, ignore_mismatched_sizes=True
