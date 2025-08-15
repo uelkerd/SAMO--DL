@@ -32,9 +32,9 @@ run_security_scan() {
     SCAN_OUTPUT=$(docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
         aquasec/trivy:latest image --severity CRITICAL,HIGH --quiet --format json "$IMAGE_NAME" 2>/dev/null || echo '{"Results":[]}')
     
-    # Parse results
-    CRITICAL_COUNT=$(echo "$SCAN_OUTPUT" | jq -r '.Results[]?.Vulnerabilities[]? | select(.Severity=="CRITICAL") | .VulnerabilityID' 2>/dev/null | wc -l || echo 0)
-    HIGH_COUNT=$(echo "$SCAN_OUTPUT" | jq -r '.Results[]?.Vulnerabilities[]? | select(.Severity=="HIGH") | .VulnerabilityID' 2>/dev/null | wc -l || echo 0)
+    # Parse results with clean numeric values
+    CRITICAL_COUNT=$(echo "$SCAN_OUTPUT" | jq -r '[.Results[]?.Vulnerabilities[]? | select(.Severity=="CRITICAL")] | length // 0' 2>/dev/null || echo 0)
+    HIGH_COUNT=$(echo "$SCAN_OUTPUT" | jq -r '[.Results[]?.Vulnerabilities[]? | select(.Severity=="HIGH")] | length // 0' 2>/dev/null || echo 0)
     
     log "📊 Security Scan Results:"
     log "   Critical vulnerabilities: $CRITICAL_COUNT"
