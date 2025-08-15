@@ -32,20 +32,22 @@ RUN pip install --no-cache-dir -r requirements-simple.txt
 # Copy source code
 COPY src/ ./src/
 
-# SECURITY: Create and switch to non-root user for runtime
-RUN useradd -m -u 1000 appuser \
-    && chown -R appuser:appuser /app
-USER appuser
-
-# Copy the main application file
+# Copy the main application file (before user creation for proper ownership)
 COPY app.py .
+
+# SECURITY: Create proper non-root user and group
+RUN groupadd -r app && useradd -r -g app app \
+    && chown -R app:app /app
+
+# SECURITY: Switch to non-root user for runtime
+USER app
 
 # Healthcheck (runs as non-root user)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
   CMD curl -fsS http://localhost:8000/health || exit 1
 
-EXPOSE 8000
+EXPOSE $PORT
 
-# Simple startup
-CMD ["python", "app.py"]
+# SECURITY: Use Gunicorn for production with environment variable support
+CMD ["sh", "-c", "gunicorn --bind ${HOST}:${PORT} --workers 2 --worker-class uvicorn.workers.UvicornWorker --access-logfile - --error-logfile - app:app"]
 
