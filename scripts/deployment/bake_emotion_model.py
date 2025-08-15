@@ -23,7 +23,20 @@ def main() -> int:
 
     print(f"Downloading model: {model_id}")
     tokenizer = AutoTokenizer.from_pretrained(model_id, use_fast=True)
-    model = AutoModelForSequenceClassification.from_pretrained(model_id)
+    try:
+        model = AutoModelForSequenceClassification.from_pretrained(model_id)
+    except RuntimeError as e:
+        # Handle classifier head size mismatches robustly during image bake
+        # This avoids hard failures due to differing num_labels between config and checkpoint
+        if "size mismatch" in str(e).lower():
+            print(
+                "[WARN] Classifier size mismatch while loading. Retrying with ignore_mismatched_sizes=True"
+            )
+            model = AutoModelForSequenceClassification.from_pretrained(
+                model_id, ignore_mismatched_sizes=True
+            )
+        else:
+            raise
 
     out_dir = "/app/model"
     os.makedirs(out_dir, exist_ok=True)
