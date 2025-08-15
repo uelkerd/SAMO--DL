@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     # Get configuration from environment
     host = os.getenv("HOST", "127.0.0.1")
-    port = int(os.getenv("PORT", 8000))
+    port = int(os.getenv("PORT", "8000"))
 
     logger.info(f"🚀 Starting SAMO AI API (development mode) on {host}:{port}")
     logger.warning("⚠️  Using development server - use Gunicorn for production!")
