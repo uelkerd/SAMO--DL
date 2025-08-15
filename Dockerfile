@@ -1,4 +1,4 @@
-FROM python:3.12-alpine3.20
+FROM python:3.12-slim-bookworm
 
 # Environment
 ENV PYTHONUNBUFFERED=1 \
@@ -9,12 +9,12 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_ROOT_USER_ACTION=ignore \
     EMOTION_MODEL_LOCAL_DIR=/app/model
 
-# System deps (Alpine) and certificates
-RUN apk add --no-cache \
-    ffmpeg=~6.1 \
-    curl=8.12.1-r0 \
-    ca-certificates=20241121-r1 \
-  && update-ca-certificates
+# System deps needed for audio runtime only
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg=7:5.1.6-0+deb12u1 \
+    curl=7.88.1-10+deb12u12 \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -37,7 +37,7 @@ RUN EMOTION_MODEL_ID=${EMOTION_MODEL_ID} HF_TOKEN=${HF_TOKEN} python /app/bake_e
 COPY src/ ./src/
 
 # Switch to non-root user before runtime directives
-RUN adduser -D -u 1000 appuser && mkdir -p /var/tmp/hf-cache && chown -R appuser:appuser /app /var/tmp/hf-cache
+RUN useradd -m -u 1000 appuser && mkdir -p /var/tmp/hf-cache && chown -R appuser:appuser /app /var/tmp/hf-cache
 USER appuser
 
 # Healthcheck (runs as non-root user)
