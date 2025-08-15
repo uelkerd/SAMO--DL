@@ -19,7 +19,7 @@ from typing import Optional
 
 import uvicorn
 from fastapi import BackgroundTasks, FastAPI, HTTPException
-    from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator
 
 from .t5_summarizer import T5SummarizationModel, create_t5_summarizer
 

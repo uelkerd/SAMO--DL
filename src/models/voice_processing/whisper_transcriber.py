@@ -69,7 +69,7 @@ class TranscriptionResult:
     duration: float
     processing_time: float
     segments: List[dict]
-        audio_quality: str  # excellent, good, fair, poor
+    audio_quality: str  # excellent, good, fair, poor
     word_count: int
     speaking_rate: float  # words per minute
     no_speech_probability: float

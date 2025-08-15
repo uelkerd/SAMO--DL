@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 import pandas as pd
 from .feature_engineering import FeatureEngineer
-    from .validation import DataValidator
+from .validation import DataValidator
 
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development

@@ -11,7 +11,7 @@
             # Validate audio before transcription
         # Initialize transcriber
         # Track performance metrics
-    from .audio_preprocessor import AudioPreprocessor
+from .audio_preprocessor import AudioPreprocessor
 from .whisper_transcriber import create_whisper_transcriber
 from pathlib import Path
 from typing import Optional, Union, List

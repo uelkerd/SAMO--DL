@@ -13,7 +13,7 @@ import unittest
 import threading
 import time
 
-    from sandbox_executor import SandboxExecutor
+from sandbox_executor import SandboxExecutor
 
 class TestSandboxExecutor(unittest.TestCase):
     """Test sandbox executor functionality."""
