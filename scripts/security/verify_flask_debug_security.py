@@ -10,7 +10,7 @@ import subprocess
 import time
 from pathlib import Path
 
-def test_flask_file(file_path, expected_port):
+def test_flask_file(file_path, _expected_port):
     """Test a Flask file to ensure it starts without debug mode by default"""
     print(f"\n=== Testing {file_path} ===")
 
