@@ -5,6 +5,7 @@
 REST API server for emotion detection.
 """
 
+import os
 from flask import Flask, request, jsonify
 from inference import EmotionDetector
 import logging

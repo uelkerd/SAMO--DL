@@ -3,6 +3,7 @@
 Minimal test script to isolate Flask-RESTX routing issues
 """
 
+import os
 from flask import Flask, jsonify
 from flask_restx import Api, Resource, Namespace
 
@@ -53,4 +54,5 @@ if __name__ == '__main__':
         print(f"API: {rule.rule} -> {rule.endpoint}")
     
     print("\n=== Starting test server ===")
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    debug_mode = os.environ.get("FLASK_DEBUG", "0") == "1"
+    app.run(host='127.0.0.1', port=5000, debug=debug_mode)
