@@ -11,7 +11,7 @@ ENV ENVIRONMENT=production
 ENV PORT=8080
 
 # Install minimal runtime dependencies (Alpine)
-RUN apk add --no-cache curl ca-certificates bash shadow \
+RUN apk add --no-cache curl ca-certificates bash shadow libc6-compat \
  && update-ca-certificates
 
 # Set work directory

@@ -26,8 +26,8 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PORT=8080
 
-# Install runtime dependencies
-RUN apk add --no-cache curl ca-certificates bash \
+# Install runtime dependencies and glibc compat
+RUN apk add --no-cache curl ca-certificates bash libc6-compat \
  && update-ca-certificates
 
 # Copy Python packages from builder stage

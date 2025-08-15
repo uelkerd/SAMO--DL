@@ -30,8 +30,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app \
     MODEL_PATH=/app/model
 
-# Install runtime dependencies
-RUN apk add --no-cache curl=~8.7 ca-certificates=~2024 bash=~5.2 \
+# Install runtime dependencies (glibc compat for manylinux wheels)
+RUN apk add --no-cache curl=~8.7 ca-certificates=~2024 bash=~5.2 libc6-compat \
  && update-ca-certificates
 
 # Set working directory
@@ -43,7 +43,7 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy model and prediction script
 COPY model/ ./model/
-COPY ../cloud-run/robust_predict.py ./robust_predict.py
+COPY deployment/cloud-run/robust_predict.py ./robust_predict.py
 
 # Create non-root user for security (GCP best practice)
 RUN adduser -D -u 1000 appuser \
