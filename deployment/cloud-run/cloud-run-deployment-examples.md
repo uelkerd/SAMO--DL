@@ -54,7 +54,7 @@ spec:
         - name: ADMIN_API_KEY
           valueFrom:
             secretKeyRef:
-              name: samo-secrets
+              name: your-secret-name  # skipcq: SCT-A000
               key: admin-api-key
         resources:
           limits:
@@ -98,7 +98,7 @@ gcloud run deploy samo-emotion-api \
   --region us-central1 \
   --allow-unauthenticated \
   --set-env-vars HOST=0.0.0.0,PORT=8080,MODEL_PATH=/app/model \
-  --set-secrets ADMIN_API_KEY=samo-secrets:admin-api-key \
+  --set-secrets ADMIN_API_KEY=your-secret-name:admin-api-key \  # skipcq: SCT-A000
   --memory 2Gi \
   --cpu 1 \
   --concurrency 10 \
@@ -171,7 +171,7 @@ CMD ["python", "deployment/cloud-run/secure_api_server.py"]
 # Test with Cloud Run environment simulation
 export HOST=0.0.0.0
 export PORT=8080
-export ADMIN_API_KEY=test-key-123
+export ADMIN_API_KEY=your-secure-api-key-here  # skipcq: SCT-A000
 
 # Start service
 python deployment/cloud-run/secure_api_server.py
@@ -180,7 +180,7 @@ python deployment/cloud-run/secure_api_server.py
 curl http://localhost:8080/health
 curl -X POST http://localhost:8080/api/predict \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: test-key-123" \
+  -H "X-API-Key: your-secure-api-key-here" \
   -d '{"text": "I am feeling happy today"}'
 ```
 
@@ -195,7 +195,7 @@ curl ${SERVICE_URL}/health
 # Test prediction endpoint
 curl -X POST ${SERVICE_URL}/api/predict \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: YOUR-API-KEY" \
+  -H "X-API-Key: YOUR-SECURE-API-KEY" \
   -d '{"text": "I am feeling happy today"}'
 ```
 
