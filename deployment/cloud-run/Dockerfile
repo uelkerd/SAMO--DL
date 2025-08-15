@@ -38,4 +38,6 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
 # Unified API entrypoint
 # NOTE: Using uvicorn directly for cloud-run deployment (intentional for this environment)
 # This is not a security vulnerability - uvicorn is appropriate for cloud-run services
+# SECURITY: The "src.unified_ai_api:app" is a Python import path, NOT an API key
+# It imports the FastAPI app instance from the unified_ai_api module
 CMD ["sh", "-c", "exec uvicorn src.unified_ai_api:app --host 0.0.0.0 --port ${PORT}"]

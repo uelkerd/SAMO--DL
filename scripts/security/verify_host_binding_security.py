@@ -26,7 +26,8 @@ def check_hardcoded_bindings(project_root: Path) -> tuple[bool, list]:
             content = py_file.read_text(encoding='utf-8')
             for line_num, line in enumerate(content.splitlines(), 1):
                 for pattern in problematic_patterns:
-                    if re.search(pattern, line, re.IGNORECASE) and not is_acceptable_binding(line, py_file):
+                    if (re.search(pattern, line, re.IGNORECASE) and 
+                        not is_acceptable_binding(line, py_file)):
                         issues.append({
                             'file': str(py_file.relative_to(project_root)),
                             'line': line_num,
@@ -145,7 +146,8 @@ def run_security_verification():
     print("🔐 Host Binding Security Verification")
     print("=" * 50)
 
-    # Use environment variable PROJECT_ROOT if set, otherwise fallback to dynamic calculation
+    # Use environment variable PROJECT_ROOT if set, otherwise fallback to 
+    # dynamic calculation
     import os
     project_root_env = os.environ.get("PROJECT_ROOT")
     if project_root_env:

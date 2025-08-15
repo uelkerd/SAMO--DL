@@ -16,12 +16,12 @@ def handle_process_output(process, file_path, mode="normal"):
     if process.poll() is None:
         print(f"✅ {file_path.name} started successfully ({mode})")
         return True
-    else:
-        stdout, stderr = process.communicate()
-        print(f"❌ {file_path.name} failed to start ({mode})")
-        print(f"STDOUT: {stdout}")
-        print(f"STDERR: {stderr}")
-        return False
+
+    stdout, stderr = process.communicate()
+    print(f"❌ {file_path.name} failed to start ({mode})")
+    print(f"STDOUT: {stdout}")
+    print(f"STDERR: {stderr}")
+    return False
 
 
 def test_flask_file(file_path, _expected_port):
@@ -75,7 +75,7 @@ def test_debug_mode(file_path, env):
     """Test Flask app with debug mode enabled."""
     # Enable debug mode
     env['FLASK_DEBUG'] = '1'
-    
+
     debug_process = subprocess.Popen(
         [sys.executable, str(file_path)],
         stdout=subprocess.PIPE,
