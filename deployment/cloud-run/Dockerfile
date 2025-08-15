@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.12-slim-bookworm
 
 # Environment
 ENV PYTHONUNBUFFERED=1 \
@@ -10,7 +10,7 @@ ENV PYTHONUNBUFFERED=1 \
 
 # System deps (ffmpeg for pydub/whisper)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg \
+    ffmpeg=7:5.1.6-0+deb12u1 \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

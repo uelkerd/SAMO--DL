@@ -1,7 +1,7 @@
 # Production Dockerfile for ONNX API Server
 # Uses Gunicorn WSGI server for production deployment
 
-FROM python:3.12-slim
+FROM python:3.12-slim-bookworm
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
@@ -12,7 +12,7 @@ ENV PORT=8080
 
 # Install minimal runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
+    curl=7.88.1-10+deb12u12 \
   && rm -rf /var/lib/apt/lists/*
 
 # Set work directory

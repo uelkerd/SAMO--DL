@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.11-slim-bookworm
 
 # Environment
 ENV PYTHONUNBUFFERED=1 \
@@ -11,8 +11,8 @@ ENV PYTHONUNBUFFERED=1 \
 
 # System deps needed for audio runtime only
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg \
-    curl \
+    ffmpeg=7:5.1.6-0+deb12u1 \
+    curl=7.88.1-10+deb12u12 \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -20,7 +20,7 @@ WORKDIR /app
 # Install Python deps (minimal unified runtime)
 COPY deployment/cloud-run/requirements_unified.txt ./requirements_unified.txt
 RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
- && pip install --no-cache-dir -r requirements_unified.txt
+ && pip install --no-cache-dir --prefer-binary -r requirements_unified.txt
 
 # Pre-bundle models to reduce cold-start; combine to minimize layers (DOK-W1001)
 RUN python -c "from transformers import AutoTokenizer, T5ForConditionalGeneration; AutoTokenizer.from_pretrained('t5-small'); T5ForConditionalGeneration.from_pretrained('t5-small'); AutoTokenizer.from_pretrained('t5-base'); T5ForConditionalGeneration.from_pretrained('t5-base'); print('Pre-bundled t5-small and t5-base into cache')" \
