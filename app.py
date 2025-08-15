@@ -33,7 +33,7 @@ except ModuleNotFoundError as e:
     @app.get("/health")
     async def health() -> JSONResponse:
         """Health check endpoint for fallback mode.
-        
+
         Returns:
             JSONResponse: Degraded health status with model availability information.
         """
@@ -50,7 +50,7 @@ except ModuleNotFoundError as e:
     @app.get("/")
     async def root() -> JSONResponse:
         """Root endpoint for fallback mode API.
-        
+
         Returns:
             JSONResponse: Basic API information and available endpoints.
         """
