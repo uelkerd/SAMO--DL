@@ -11,14 +11,14 @@ ENV PYTHONUNBUFFERED=1 \
 
 # System deps (Alpine) and certificates
 RUN apk add --no-cache \
-    ffmpeg \
-    curl \
-    ca-certificates \
-    bash \
-    shadow \
-    libstdc++ \
-    libgcc \
-    gcompat \
+    ffmpeg=~6.1 \
+    curl=~8.7 \
+    ca-certificates=~2024 \
+    bash=~5.2 \
+    shadow=~4.14 \
+    libstdc++=~13 \
+    libgcc=~13 \
+    gcompat=~1.1 \
   && update-ca-certificates
 
 # Install glibc compatibility (needed for manylinux wheels like PyTorch on Alpine)

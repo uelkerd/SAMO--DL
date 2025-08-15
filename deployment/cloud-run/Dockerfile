@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_ROOT_USER_ACTION=ignore
 
 # System deps (ffmpeg and curl) on Alpine
-RUN apk add --no-cache ffmpeg curl ca-certificates bash shadow \
+RUN apk add --no-cache ffmpeg=~6.1 curl=~8.7 ca-certificates=~2024 bash=~5.2 shadow=~4.14 \
  && update-ca-certificates
 
 # Install glibc compatibility (needed for manylinux wheels like PyTorch)

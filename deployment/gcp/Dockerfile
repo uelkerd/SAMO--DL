@@ -12,7 +12,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Install build dependencies
-RUN apk add --no-cache build-base bash ca-certificates curl \
+RUN apk add --no-cache build-base=~0.5 bash=~5.2 ca-certificates=~2024 curl=~8.7 \
  && update-ca-certificates
 
 # Copy requirements and install Python dependencies
@@ -31,7 +31,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     MODEL_PATH=/app/model
 
 # Install runtime dependencies
-RUN apk add --no-cache curl ca-certificates bash \
+RUN apk add --no-cache curl=~8.7 ca-certificates=~2024 bash=~5.2 \
  && update-ca-certificates
 
 # Set working directory
