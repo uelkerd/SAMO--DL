@@ -5,7 +5,7 @@
 flask==3.1.1
 
 # ML libraries - KNOWN WORKING COMBINATION
-torch>=2.6.0  # SECURITY: Fix critical RCE vulnerability CVE torch.load weights_only=True bypass
+torch>=2.6.0,<2.7.0  # SECURITY: Mitigates torch.load weights_only deserialization bypass; narrow range for reproducibility
 transformers>=4.55.0
 
 # WSGI server
