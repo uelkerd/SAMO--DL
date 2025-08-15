@@ -58,7 +58,6 @@ def is_acceptable_binding(line: str, file_path: Path) -> bool:
 def check_secure_patterns(project_root: Path) -> tuple[bool, list]:
     """Check that files use secure patterns with environment variables."""
     issues = []
-    python_files = list(project_root.glob("**/*.py"))
 
     # Files that should have secure host binding patterns
     key_files = [
@@ -103,8 +102,6 @@ def check_secure_patterns(project_root: Path) -> tuple[bool, list]:
 
 def verify_deployment_configs(project_root: Path) -> tuple[bool, list]:
     """Verify deployment configurations are properly set."""
-    issues = []
-
     # Check for Cloud Run deployment files
     cloud_run_configs = [
         'deployment/cloud-run/',
