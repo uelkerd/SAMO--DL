@@ -93,10 +93,10 @@ app.run(host=host, port=port)
 ### **3. Secret Key Management**
 ```python
 # ❌ Never hardcode secret keys
-app.secret_key = 'hardcoded-secret'
+app.secret_key = 'hardcoded-secret'  # skipcq: SCT-A000 (documentation example)
 
 # ✅ Use environment variables
-app.secret_key = os.environ.get('SECRET_KEY', os.urandom(32))
+app.secret_key = os.environ.get('SECRET_KEY', os.urandom(32))  # skipcq: SCT-A000 (secure pattern)
 ```
 
 ### **4. Configuration Security**
@@ -104,7 +104,7 @@ app.secret_key = os.environ.get('SECRET_KEY', os.urandom(32))
 # ✅ Environment-based configuration
 class Config:
     DEBUG = os.environ.get('FLASK_DEBUG', '0') == '1'
-    SECRET_KEY = os.environ.get('SECRET_KEY')
+    SECRET_KEY = os.environ.get('SECRET_KEY')  # skipcq: SCT-A000 (secure pattern)
     TESTING = os.environ.get('FLASK_TESTING', '0') == '1'
 
 app.config.from_object(Config)
