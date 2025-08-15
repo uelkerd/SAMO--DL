@@ -119,7 +119,7 @@ services:
   samo-dl-api:
     build:
       context: .
-      dockerfile: deployment/cloud-run/Dockerfile
+      dockerfile: deployment/gcp/Dockerfile
     ports:
       - "8080:8080"
     environment:
@@ -311,7 +311,7 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
-        file: ./deployment/cloud-run/Dockerfile
+        file: ./deployment/gcp/Dockerfile
         push: true
         tags: gcr.io/${{ secrets.GCP_PROJECT_ID }}/samo-dl-api:${{ github.sha }}
     
