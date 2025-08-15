@@ -11,6 +11,7 @@ ENV PYTHONUNBUFFERED=1 \
 # System deps (ffmpeg for pydub/whisper)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg=7:5.1.6-0+deb12u1 \
+    curl=7.88.1-10+deb12u12 \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
