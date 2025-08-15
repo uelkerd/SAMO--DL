@@ -8,17 +8,18 @@ ENV PYTHONUNBUFFERED=1 \
     HOST=0.0.0.0
 
 # SECURITY: Update packages and fix vulnerabilities found by Trivy
+# SECURITY: Pin versions to avoid DOK-DL3008 and ensure reproducible builds
 RUN apt-get update && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends \
-    # SECURITY: Latest FFmpeg to fix CVE-2023-6603, CVE-2025-1594
-    ffmpeg \
-    # SECURITY: Latest libaom3 to fix CVE-2023-6879
-    libaom3 \
-    # SECURITY: Latest libavcodec/libavformat to fix vulnerabilities
-    libavcodec-extra \
-    libavformat-extra \
-    # SECURITY: Latest curl to fix vulnerabilities
-    curl \
+    # SECURITY: Pin FFmpeg to fix CVE-2023-6603, CVE-2025-1594
+    ffmpeg=7:5.1.6-0+deb12u1 \
+    # SECURITY: Pin libaom3 to fix CVE-2023-6879
+    libaom3=3.6.0-1+deb12u1 \
+    # SECURITY: Pin libavcodec/libavformat to fix vulnerabilities
+    libavcodec-extra=7:5.1.6-0+deb12u1 \
+    libavformat-extra=7:5.1.6-0+deb12u1 \
+    # SECURITY: Pin curl to fix vulnerabilities
+    curl=7.88.1-10+deb12u12 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
