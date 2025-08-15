@@ -16,7 +16,7 @@ app = Flask(__name__)
 def simple_emotion_predict(text):
     """Improved rule-based emotion prediction using scoring approach"""
     text_lower = text.lower()
-    
+
     # Define emotion keywords with weights (higher weight = stronger emotion indicator)
     emotion_keywords = {
         'joy': {
@@ -36,32 +36,32 @@ def simple_emotion_predict(text):
             'nervous': 1.5, 'panicked': 1.9, 'stressed': 1.4, 'concerned': 1.3
         }
     }
-    
+
     # Calculate scores for each emotion
     emotion_scores = {'joy': 0.0, 'sadness': 0.0, 'anger': 0.0, 'fear': 0.0}
-    
+
     for emotion, keywords in emotion_keywords.items():
         for keyword, weight in keywords.items():
             if keyword in text_lower:
                 emotion_scores[emotion] += weight
-    
+
     # Find the emotion with highest score
     max_score = max(emotion_scores.values())
-    
+
     if max_score == 0:
         # No emotion keywords found, return neutral
         return 'neutral', {'joy': 0.0, 'sadness': 0.0, 'anger': 0.0, 'fear': 0.0, 'neutral': 1.0}
-    
+
     # Normalize scores to probabilities (sum to 1.0)
     total_score = sum(emotion_scores.values())
     probabilities = {emotion: score / total_score for emotion, score in emotion_scores.items()}
-    
+
     # Add neutral probability (0.0 when emotions are detected)
     probabilities['neutral'] = 0.0
-    
+
     # Get the dominant emotion
     dominant_emotion = max(emotion_scores.items(), key=lambda x: x[1])[0]
-    
+
     return dominant_emotion, probabilities
 
 
