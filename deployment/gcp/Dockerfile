@@ -70,11 +70,8 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 ARG MODEL_SOURCE_PATH="deployment/models/default"
 COPY ${MODEL_SOURCE_PATH}/ ./model/
 # IMPORTANT: Build context must be repository root, so that the path below is in-context.
-# If you prefer using deployment/gcp as the build context, move robust_predict.py into
-# deployment/gcp/cloud-run/ and update this COPY accordingly (e.g., COPY cloud-run/robust_predict.py ...).
-# Current approach assumes building from repo root:
-#   docker build -f deployment/gcp/Dockerfile -t <image> .
-COPY deployment/cloud-run/robust_predict.py ./robust_predict.py
+# Copy the GCP-specific robust_predict.py (Alpine-compatible, no PyTorch)
+COPY deployment/gcp/robust_predict.py ./robust_predict.py
 
 # Create non-root user for security (GCP best practice)
 RUN adduser -D -u 1000 appuser \
