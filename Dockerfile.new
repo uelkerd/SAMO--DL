@@ -28,27 +28,13 @@ WORKDIR /app
 COPY requirements-simple.txt .
 RUN pip install --no-cache-dir -r requirements-simple.txt
 
-# Copy source code
+# Copy source code and health check app
 COPY src/ ./src/
-
-# Simple health check endpoint
-RUN echo 'import os' > app.py && \
-    echo 'from flask import Flask' >> app.py && \
-    echo '' >> app.py && \
-    echo 'app = Flask(__name__)' >> app.py && \
-    echo '' >> app.py && \
-    echo '@app.route("/health")' >> app.py && \
-    echo 'def health():' >> app.py && \
-    echo '    return {"status": "healthy"}' >> app.py && \
-    echo '' >> app.py && \
-    echo 'if __name__ == "__main__":' >> app.py && \
-    echo '    host = os.getenv("HOST", "0.0.0.0")' >> app.py && \
-    echo '    port = int(os.getenv("PORT", "8000"))' >> app.py && \
-    echo '    app.run(host=host, port=port)' >> app.py
+COPY health_app.py .
 
 # Expose port
 EXPOSE 8000
 
-# Simple startup
-CMD ["python", "app.py"]
+# Simple startup using proper health check app
+CMD ["python", "health_app.py"]
 
