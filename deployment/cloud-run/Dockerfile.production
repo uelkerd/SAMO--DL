@@ -24,7 +24,7 @@ RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
 
 # Copy application code
 COPY onnx_api_server.py .
-COPY model/ ./model/
+COPY deployment/cloud-run/model/ ./model/
 
 # Create non-root user for security
 RUN adduser -D -s /bin/sh -h /home/app app \
