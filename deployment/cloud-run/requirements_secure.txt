@@ -1,5 +1,5 @@
 # Secure requirements for Cloud Run deployment
-# All versions verified with safety-mcp for security and Python 3.13 compatibility
+# All versions verified with safety-mcp for security and Python 3.12 compatibility
 # UPDATED: Fixed critical PyTorch and setuptools vulnerabilities
 
 # Web framework - compatible with Flask-RESTX 1.3.0
