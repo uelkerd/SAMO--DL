@@ -4,6 +4,7 @@
 from flask import Flask, request, jsonify
 import os
 import logging
+import sys
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -87,22 +88,22 @@ if __name__ == '__main__':
     try:
         port_str = os.getenv('PORT', '8080')
         port = int(port_str)
-        if not (1 <= port <= 65535):
+        if not 1 <= port <= 65535:
             logger.error(f"Invalid port number: {port}. Must be between 1 and 65535.")
-            exit(1)
+            sys.exit(1)
     except ValueError:
         logger.error(f"Invalid PORT value: '{port_str}'. Must be a valid integer.")
-        exit(1)
-    
+        sys.exit(1)
+
     # Read HOST from environment variable, default to 127.0.0.1 for security
     host = os.getenv('HOST', '127.0.0.1')
-    
+
     # Parse DEBUG environment variable as boolean
     debug_env = os.getenv('DEBUG', '').lower()
     debug = debug_env in ('1', 'true', 'yes')
-    
+
     logger.info(f"Starting Flask app on {host}:{port} (debug={debug})")
-    
+
     # Note: In production, use a WSGI server (gunicorn/uwsgi) instead of app.run
     # Example: gunicorn -w 4 -b 0.0.0.0:8080 robust_predict:app
     app.run(host=host, port=port, debug=debug)
