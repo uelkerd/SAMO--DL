@@ -22,11 +22,17 @@ RUN apt-get update && apt-get upgrade -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# SECURITY: Create non-root user for security
+RUN groupadd -r samo && useradd -r -g samo -s /bin/bash -d /home/samo samo
+
 WORKDIR /app
 
 # Copy requirements and install Python packages
 COPY requirements-simple.txt .
 RUN pip install --no-cache-dir -r requirements-simple.txt
+
+# SECURITY: Install Flask explicitly to ensure it's available at runtime
+RUN pip install --no-cache-dir flask
 
 # Copy source code
 COPY src/ ./src/
@@ -46,8 +52,17 @@ RUN echo 'import os' > app.py && \
     echo '    port = int(os.getenv("PORT", "8000"))' >> app.py && \
     echo '    app.run(host=host, port=port)' >> app.py
 
+# SECURITY: Set ownership of /app to non-root user
+RUN chown -R samo:samo /app
+
 # Expose port
 EXPOSE 8000
+
+# SECURITY: Switch to non-root user
+USER samo
+
+# Set HOME for the user
+ENV HOME=/home/samo
 
 # Simple startup
 CMD ["python", "app.py"]

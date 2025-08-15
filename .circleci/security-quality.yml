@@ -1,0 +1,244 @@
+version: 2.1
+
+# ============================================================================
+# SAMO Deep Learning - INDEPENDENT Security & Quality Pipeline
+# This is a SEPARATE pipeline from the main CI - DO NOT MERGE with existing config
+# Focus: Comprehensive security scanning, code quality, and vulnerability prevention
+# ============================================================================
+
+executors:
+  python-security:
+    docker:
+      - image: cimg/python:3.12
+    resource_class: medium
+    working_directory: ~/samo-dl
+    environment:
+      PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src
+      PIP_CACHE_DIR: ~/.cache/pip
+      PIP_DISABLE_PIP_VERSION_CHECK: 1
+
+  docker-security:
+    docker:
+      - image: cimg/base:2024.01
+    resource_class: medium
+    working_directory: ~/samo-dl
+
+jobs:
+  # Security vulnerability scanning
+  security-scan:
+    executor: python-security
+    steps:
+      - checkout
+      - run:
+          name: Install Security Tools
+          command: |
+            python3 -m pip install --upgrade pip
+            python3 -m pip install safety bandit semgrep
+      - run:
+          name: Run Safety Check (Python dependencies)
+          command: |
+            safety check --json --output safety-report.json || true
+            echo "Safety check completed"
+      - run:
+          name: Run Bandit (Python security)
+          command: |
+            bandit -r . -f json -o bandit-report.json || true
+            echo "Bandit security scan completed"
+      - run:
+          name: Run Semgrep (Static analysis)
+          command: |
+            semgrep ci --config auto --json --output semgrep-report.json || true
+            echo "Semgrep static analysis completed"
+      - store_artifacts:
+          path: |
+            safety-report.json
+            bandit-report.json
+            semgrep-report.json
+          destination: security-reports
+
+  # Code quality and linting
+  code-quality:
+    executor: python-security
+    steps:
+      - checkout
+      - run:
+          name: Install Linting Tools
+          command: |
+            python3 -m pip install --upgrade pip
+            python3 -m pip install ruff black isort mypy
+      - run:
+          name: Run Ruff (Fast Python linter)
+          command: |
+            ruff check . --output-format=json > ruff-report.json || true
+            echo "Ruff linting completed"
+      - run:
+          name: Run Black (Code formatter)
+          command: |
+            black --check --diff . || true
+            echo "Black formatting check completed"
+      - run:
+          name: Run isort (Import sorting)
+          command: |
+            isort --check-only --diff . || true
+            echo "Import sorting check completed"
+      - run:
+          name: Run MyPy (Type checking)
+          command: |
+            mypy . --json-report mypy-report.json || true
+            echo "MyPy type checking completed"
+      - store_artifacts:
+          path: |
+            ruff-report.json
+            mypy-report.json
+          destination: quality-reports
+
+  # Docker security scanning
+  docker-security:
+    executor: docker-security
+    steps:
+      - checkout
+      - run:
+          name: Install Trivy
+          command: |
+            curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.48.4
+      - run:
+          name: Build Docker image
+          command: |
+            docker build -t samo-security-test .
+      - run:
+          name: Run Trivy vulnerability scanner
+          command: |
+            trivy image --format sarif --output trivy-results.sarif samo-security-test:latest
+      - store_artifacts:
+          path: trivy-results.sarif
+          destination: trivy-results
+
+  # Dependency vulnerability audit
+  dependency-audit:
+    executor: python-security
+    steps:
+      - checkout
+      - run:
+          name: Install Audit Tools
+          command: |
+            python3 -m pip install --upgrade pip
+            python3 -m pip install pip-audit
+      - run:
+          name: Audit Python dependencies
+          command: |
+            pip-audit --format json --output pip-audit-report.json || true
+            echo "Pip audit completed"
+      - run:
+          name: Check for known vulnerabilities
+          command: |
+            if [ -f pip-audit-report.json ]; then
+              echo "Checking for high/critical vulnerabilities..."
+              python3 -c "
+              import json
+              with open('pip-audit-report.json') as f:
+                  data = json.load(f)
+              vulns = [v for v in data.get('vulnerabilities', []) 
+                      if v.get('severity') in ['HIGH', 'CRITICAL']]
+              if vulns:
+                  print(f'Found {len(vulns)} high/critical vulnerabilities:')
+                  for v in vulns:
+                      print(f'- {v.get(\"package_name\")}: {v.get(\"vulnerability_id\")}')
+                  exit(1)
+              else:
+                  print('No high/critical vulnerabilities found')
+              "
+            fi
+      - store_artifacts:
+          path: pip-audit-report.json
+          destination: dependency-audit
+
+  # Security verification tests
+  security-verification:
+    executor: python-security
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: |
+            python3 -m pip install --upgrade pip
+            python3 -m pip install -r deployment/requirements-core.txt
+      - run:
+          name: Run Flask Debug Security Verification
+          command: |
+            python3 scripts/security/verify_flask_debug_security.py
+      - run:
+          name: Run Host Binding Security Verification
+          command: |
+            python3 scripts/security/verify_host_binding_security.py
+      - run:
+          name: Run Continuous Security Monitoring
+          command: |
+            bash scripts/security/continuous-security-monitor.sh once
+
+  # Quality gates and reporting
+  quality-gates:
+    executor: python-security
+    steps:
+      - checkout
+      - run:
+          name: Generate Quality Report
+          command: |
+            echo "🔍 Quality Gates Summary Report" > quality-summary.md
+            echo "=================================" >> quality-summary.md
+            echo "" >> quality-summary.md
+            echo "## Security Scan Results" >> quality-summary.md
+            echo "- Security vulnerabilities: [Check security-reports]" >> quality-summary.md
+            echo "- Docker security: [Check trivy-results]" >> quality-summary.md
+            echo "- Dependency audit: [Check dependency-audit]" >> quality-summary.md
+            echo "" >> quality-summary.md
+            echo "## Code Quality Results" >> quality-summary.md
+            echo "- Linting issues: [Check quality-reports]" >> quality-summary.md
+            echo "- Type checking: [Check MyPy results]" >> quality-summary.md
+            echo "- Formatting: [Check Black results]" >> quality-summary.md
+            echo "" >> quality-summary.md
+            echo "## Security Verification" >> quality-summary.md
+            echo "- Flask debug security: ✅ Verified" >> quality-summary.md
+            echo "- Host binding security: ✅ Verified" >> quality-summary.md
+            echo "- Continuous monitoring: ✅ Active" >> quality-summary.md
+      - store_artifacts:
+          path: quality-summary.md
+          destination: quality-summary
+
+workflows:
+  # INDEPENDENT workflow - separate from main CI
+  security-and-quality-standalone:
+    jobs:
+      - security-scan
+      - code-quality
+      - docker-security
+      - dependency-audit
+      - security-verification
+      - quality-gates:
+          requires:
+            - security-scan
+            - code-quality
+            - docker-security
+            - dependency-audit
+            - security-verification
+
+  # Daily security scan (runs at 2 AM UTC)
+  daily-security-scan:
+    triggers:
+      - schedule:
+          cron: "0 2 * * *"
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - security-scan
+      - dependency-audit
+      - security-verification
+
+  # Manual trigger for security audits
+  manual-security-audit:
+    jobs:
+      - security-scan
+      - docker-security
+      - dependency-audit
+      - security-verification

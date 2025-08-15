@@ -3,12 +3,12 @@
 # Environment-specific requirements should extend this file using -r requirements-core.txt
 
 # Web Framework - Core Flask functionality
-flask>=3.1.1,<4.0.0
+flask>=2.3.3,<4.0.0  # FIXED: Broadened to accept both Flask 2.x and 3.x for compatibility
 
 # ML Libraries - Core machine learning dependencies
 torch>=2.6.0,<2.9.0  # SECURITY: Mitigates torch.load weights_only deserialization bypass
 transformers>=4.55.0,<5.0.0
-numpy>=2.3.2,<3.0.0
+numpy>=1.26.4,<3.0.0  # FIXED: Broadened to accept both NumPy 1.x and 2.x for compatibility
 scikit-learn>=1.5.0,<2.0.0
 pandas>=2.0.0,<3.0.0
 

@@ -129,7 +129,30 @@ def main():
     print(f"- Security fixes verified: {verified_count}")
 
     # Count files that started successfully (debug security works)
-    working_files = 2  # From the output we can see 2 files worked
+    # FIXED: Compute actual working files count instead of hardcoded value
+    working_files = 0
+    for file_path_str, port in test_files:
+        file_path = project_root / file_path_str
+        if file_path.exists():
+            # Test if the file can start successfully
+            try:
+                env = os.environ.copy()
+                env['FLASK_DEBUG'] = '0'  # Test secure mode
+                process = subprocess.Popen(
+                    [sys.executable, str(file_path)],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    env=env
+                )
+                time.sleep(1)  # Give it time to start
+                if process.poll() is None:  # Process is still running
+                    working_files += 1
+                process.terminate()
+                process.wait()
+            except Exception:
+                pass  # Count as not working if any exception occurs
+    
     print(f"- Files with working debug security: {working_files}")
 
     print("\n✅ Flask Debug Mode Security Status:")

@@ -90,12 +90,16 @@ check_performance() {
         CPU_PERCENT=$(echo "$STATS" | awk '{print $1}' | sed 's/%//')
         MEM_PERCENT=$(echo "$STATS" | awk '{print $3}' | sed 's/%//')
         
-        # Check thresholds using shell-native arithmetic (no bc dependency)
-        if [ "$CPU_PERCENT" -gt 80 ]; then
+        # FIXED: Handle decimal percentages by converting to integers for comparison
+        CPU_INT=${CPU_PERCENT%.*}  # Remove decimal part, default to 0 if empty
+        MEM_INT=${MEM_PERCENT%.*}  # Remove decimal part, default to 0 if empty
+        
+        # Use integer comparison for threshold checks
+        if [ "${CPU_INT:-0}" -gt 80 ]; then
             log "⚠️  WARNING: High CPU usage: ${CPU_PERCENT}%"
         fi
         
-        if [ "$MEM_PERCENT" -gt 80 ]; then
+        if [ "${MEM_INT:-0}" -gt 80 ]; then
             log "⚠️  WARNING: High memory usage: ${MEM_PERCENT}%"
         fi
     else

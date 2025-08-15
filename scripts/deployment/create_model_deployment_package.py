@@ -250,6 +250,7 @@ if __name__ == "__main__":
 REST API server for emotion detection.
 """
 
+import os
 from flask import Flask, request, jsonify
 from inference import EmotionDetector
 import logging
@@ -351,7 +352,7 @@ if __name__ == '__main__':
     print("=" * 50)
     
     # Use configurable host for security - set HOST=0.0.0.0 for production deployment
-    host = os.getenv('HOST', '127.0.0.1')
+    host = os.getenv('HOST', '0.0.0.0')
     app.run(host=host, port=5000, debug=False)
 ''',
         
