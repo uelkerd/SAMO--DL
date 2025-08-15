@@ -1,4 +1,4 @@
-FROM python:3.12-alpine3.20
+FROM python:3.12-slim-bookworm
 
 # Environment
 ENV PYTHONUNBUFFERED=1 \
@@ -8,9 +8,12 @@ ENV PYTHONUNBUFFERED=1 \
     XDG_CACHE_HOME=/var/tmp/hf-cache \
     PIP_ROOT_USER_ACTION=ignore
 
-# System deps (ffmpeg and curl) on Alpine
-RUN apk add --no-cache ffmpeg=~6.1 curl=8.12.1-r0 ca-certificates=20241121-r1 libc6-compat \
- && update-ca-certificates
+# System deps (ffmpeg for pydub/whisper)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg=7:5.1.6-0+deb12u1 \
+    curl=7.88.1-10+deb12u12 \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -23,8 +26,7 @@ RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
 COPY src/ ./src/
 
 # Create and switch to non-root user before healthcheck
-RUN adduser -D -s /bin/sh -h /home/app appuser \
- && chown -R appuser:appuser /app
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE 8080
