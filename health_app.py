@@ -9,7 +9,7 @@ app: Flask = Flask(__name__)
 @app.route("/health")
 def health() -> Response:
     """Health check endpoint.
-    
+
     Returns:
         Response: JSON health status response.
     """
@@ -20,7 +20,7 @@ def health() -> Response:
 @app.route("/")
 def root() -> Response:
     """Root endpoint.
-    
+
     Returns:
         Response: Basic application information.
     """
