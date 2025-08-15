@@ -18,8 +18,8 @@ WORKDIR /app
 #   update the ARG defaults, and rebuild in CI with the same values passed explicitly.
 ARG BUILD_BASE_VERSION="0.5-r3"
 ARG BASH_VERSION="5.2.26-r0"
-ARG CA_CERTIFICATES_VERSION="20240226-r0"
-ARG CURL_VERSION="8.7.1-r0"
+ARG CA_CERTIFICATES_VERSION="20241121-r1"
+ARG CURL_VERSION="8.12.1-r0"
 RUN apk add --no-cache \
     build-base="=${BUILD_BASE_VERSION}" \
     bash="=${BASH_VERSION}" \
@@ -45,8 +45,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Install runtime dependencies (glibc compat for manylinux wheels)
 # Pin exact versions to match build stage for deterministic images
 ARG BASH_VERSION="5.2.26-r0"
-ARG CA_CERTIFICATES_VERSION="20240226-r0"
-ARG CURL_VERSION="8.7.1-r0"
+ARG CA_CERTIFICATES_VERSION="20241121-r1"
+ARG CURL_VERSION="8.12.1-r0"
 ARG LIBC6_COMPAT_VERSION="1.2.5-r0"
 RUN apk add --no-cache \
     curl="=${CURL_VERSION}" \

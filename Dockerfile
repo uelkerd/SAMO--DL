@@ -20,8 +20,15 @@ WORKDIR /app
 
 # Install Python deps (minimal unified runtime)
 COPY deployment/cloud-run/requirements_unified.txt ./requirements_unified.txt
-RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
- && pip install --no-cache-dir --prefer-binary -r requirements_unified.txt
+# Avoid building wheels for psutil/sentencepiece: ensure build deps exist or use wheels
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    cmake \
+    pkg-config \
+  && rm -rf /var/lib/apt/lists/* \
+  && python -m pip install --no-cache-dir --upgrade pip==25.2 \
+  && pip install --no-cache-dir --prefer-binary -r requirements_unified.txt
 
 # Pre-bundle models to reduce cold-start; combine to minimize layers (DOK-W1001)
 RUN python -c "from transformers import AutoTokenizer, T5ForConditionalGeneration; AutoTokenizer.from_pretrained('t5-small'); T5ForConditionalGeneration.from_pretrained('t5-small'); AutoTokenizer.from_pretrained('t5-base'); T5ForConditionalGeneration.from_pretrained('t5-base'); print('Pre-bundled t5-small and t5-base into cache')" \
