@@ -27,9 +27,11 @@ class TestConfig:
             return os.sys.argv[1]
 
         # Check multiple environment variables for flexibility
-        env_url = (os.environ.get("API_BASE_URL") or
-                      os.environ.get("CLOUD_RUN_API_URL") or
-                  os.environ.get("MODEL_API_BASE_URL"))
+        env_url = (
+            os.environ.get("API_BASE_URL")
+            or os.environ.get("CLOUD_RUN_API_URL")
+            or os.environ.get("MODEL_API_BASE_URL")
+        )
         if env_url:
             return env_url
 

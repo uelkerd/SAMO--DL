@@ -84,7 +84,7 @@ def check_pgvector():
         return extension_installed
 
     except psycopg2.Error as e:
-        logging.info(f"Error connecting to PostgreSQL: {e}")
+        logging.error("Error connecting to PostgreSQL", exc_info=True)
         return False
 
 

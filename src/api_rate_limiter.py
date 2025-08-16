@@ -344,7 +344,7 @@ class TokenBucketRateLimiter:
         )
         self.last_refill[client_key] = current_time
 
-    def allow_request(self, client_ip: str, user_agent: str = "") -> Tuple[bool, str, Dict]:
+    def allow_request(self, client_ip: str, user_agent: str = "") -> tuple[bool, str, dict]:
         """
         Check if request should be allowed.
 
