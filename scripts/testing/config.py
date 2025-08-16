@@ -147,7 +147,13 @@ class APIClient:
         """Make POST request with common configuration."""
         url = f"{self.base_url}{endpoint}"
         headers = {**self.headers, **kwargs.get('headers', {})}
-        return self.session.post(url, json=json_data, headers=headers, timeout=self.timeout, **kwargs)
+        return self.session.post(
+            url,
+            json=json_data,
+            headers=headers,
+            timeout=self.timeout,
+            **kwargs,
+        )
 
     def test_health(self) -> dict:
         """Test health endpoint."""
