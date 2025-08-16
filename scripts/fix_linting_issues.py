@@ -13,6 +13,7 @@ import contextlib
 from pathlib import Path
 from typing import Optional, Set
 
+
 def find_python_files(project_root: Path, excluded_dirs: Optional[Set[str]] = None) -> list[Path]:
     """Find all Python files in the project, skipping excluded directories."""
     if excluded_dirs is None:
@@ -32,6 +33,7 @@ def find_python_files(project_root: Path, excluded_dirs: Optional[Set[str]] = No
         )
 
     return python_files
+
 
 def fix_trailing_whitespace(file_path: Path, backup: bool = False) -> tuple[bool, list[str]]:
     """Fix trailing whitespace in a file, processing line by line for efficiency."""
@@ -62,6 +64,7 @@ def fix_trailing_whitespace(file_path: Path, backup: bool = False) -> tuple[bool
                 Path(tmp.name).unlink()
         return False, [f"Error processing {file_path}: {e}"]
 
+
 def fix_indentation_issues(file_path: Path) -> tuple[bool, list[str]]:
     """Detect indentation issues using AST; do not attempt automatic fixes."""
     try:
@@ -79,6 +82,7 @@ def fix_indentation_issues(file_path: Path) -> tuple[bool, list[str]]:
             return False, [f"Syntax error (may be indentation related): {se}"]
     except Exception as e:
         return False, [f"Error processing {file_path}: {e}"]
+
 
 def fix_blank_lines_with_whitespace(file_path: Path, backup: bool = False) -> tuple[bool, list[str]]:
     """Fix blank lines that contain whitespace."""
@@ -116,6 +120,7 @@ def fix_blank_lines_with_whitespace(file_path: Path, backup: bool = False) -> tu
 
     except Exception as e:
         return False, [f"Error processing {file_path}: {e}"]
+
 
 def main():
     """Main function to fix all linting issues."""
