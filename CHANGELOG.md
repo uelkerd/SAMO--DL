@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - 2025-08-07
 
+### Added
+- `scripts/fix_linting_issues.py` to automate PEP8-style fixes.
+
+### Changed
+- Improve logging and formatting in `scripts/database/check_pgvector.py`.
+- Tidy API rate limiter and testing config for readability.
+
 ### 🚀 **Priority 1 Features Implementation - Complete API Enhancement**
 
 #### **JWT-based Authentication System**

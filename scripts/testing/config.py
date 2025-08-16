@@ -27,10 +27,11 @@ class TestConfig:
             return os.sys.argv[1]
 
         # Check multiple environment variables for flexibility
-        env_url = (os.environ.get("API_BASE_URL") or 
-                  os.environ.get("CLOUD_RUN_API_URL") or 
-                  os.environ.get("MODEL_API_BASE_URL"))
-        if env_url:
+        if env_url := (
+            os.environ.get("API_BASE_URL")
+            or os.environ.get("CLOUD_RUN_API_URL")
+            or os.environ.get("MODEL_API_BASE_URL")
+        ):
             return env_url
 
         # If no URL is provided, raise an error to force explicit configuration
@@ -199,4 +200,4 @@ class APIClient:
                 "status_code": None,
                 "data": None,
                 "error": str(e)
-            } 
+            }

@@ -94,4 +94,4 @@ try:
 except Exception as e:
     print(f"❌ model_utils import failed: {e}")
 
-print("\n🔍 Debug complete. Check above for any import issues.") 
+print("\n🔍 Debug complete. Check above for any import issues.")  # noqa: T201
