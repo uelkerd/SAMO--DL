@@ -37,9 +37,12 @@ COPY health_app.py .
 # SECURITY: Change ownership of application files to non-root user
 RUN chown -R samo:samo /app
 
+# Install Flask as root prior to dropping privileges
+RUN pip install --no-cache-dir flask
+
 # SECURITY: Add health check for container orchestration
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://127.0.0.1:8000/health || exit 1
+    CMD curl -f http://127.0.0.1:${PORT:-8000}/health || exit 1
 
 # Expose port
 EXPOSE 8000
@@ -48,6 +51,4 @@ EXPOSE 8000
 USER samo
 
 # Simple startup using proper health check app
-RUN pip install --no-cache-dir flask
 CMD ["python", "health_app.py"]
-
