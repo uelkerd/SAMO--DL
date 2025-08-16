@@ -94,16 +94,21 @@ def normalize_emotion_results(raw: Any) -> dict:
                 "emotions": emotions_dict,
                 "primary_emotion": _as_str(raw.get("primary_emotion"), "neutral"),
                 "confidence": _as_float(raw.get("confidence", 1.0)),
-                "emotional_intensity": _as_str(raw.get("emotional_intensity"), "neutral"),
+                "emotional_intensity": _as_str(
+                    raw.get("emotional_intensity"), "neutral"
+                ),
             }
         # Fallback: object with attributes
         emotions_attr = getattr(raw, "emotions", {"neutral": 1.0})
-        emotions = emotions_attr if isinstance(emotions_attr, dict) else {"neutral": 1.0}
+        emotions = (emotions_attr if isinstance(emotions_attr, dict) 
+                   else {"neutral": 1.0})
         return {
             "emotions": emotions,
             "primary_emotion": str(getattr(raw, "primary_emotion", "neutral")),
             "confidence": float(getattr(raw, "confidence", 1.0)),
-            "emotional_intensity": str(getattr(raw, "emotional_intensity", "neutral")),
+            "emotional_intensity": str(
+                getattr(raw, "emotional_intensity", "neutral")
+            ),
         }
     except Exception:
         # Conservative fallback
@@ -115,9 +120,11 @@ def normalize_emotion_results(raw: Any) -> dict:
         }
 
 def _run_emotion_predict(text: str, threshold: float = 0.5) -> dict:
-    """Run emotion prediction using available detector, adapting outputs to a common schema.
+    """Run emotion prediction using available detector, adapting outputs to a 
+    common schema.
 
-    Returns a dict with keys: emotions (label->prob), primary_emotion, confidence, emotional_intensity.
+    Returns a dict with keys: emotions (label->prob), primary_emotion, 
+    confidence, emotional_intensity.
     """
     try:
         if not text or emotion_detector is None:
@@ -128,7 +135,9 @@ def _run_emotion_predict(text: str, threshold: float = 0.5) -> dict:
         # Adapter for BERTEmotionClassifier.predict_emotions
         if hasattr(emotion_detector, "predict_emotions"):
             # Import labels lazily to avoid heavy deps at import time
-            from src.models.emotion_detection.labels import GOEMOTIONS_EMOTIONS as _LABELS
+            from src.models.emotion_detection.labels import (
+                GOEMOTIONS_EMOTIONS as _LABELS
+            )
             result = emotion_detector.predict_emotions(text, threshold=threshold) or {}
             probs_list = result.get("probabilities") or []
             if not probs_list:
@@ -166,12 +175,14 @@ def _run_emotion_predict(text: str, threshold: float = 0.5) -> dict:
 def _has_injected_permission(request: Request, permission: str) -> bool:
     """Check for test-only injected permissions via headers when enabled.
 
-    Active only when both PYTEST_CURRENT_TEST is set and ENABLE_TEST_PERMISSION_INJECTION is "true".
+    Active only when both PYTEST_CURRENT_TEST is set and 
+    ENABLE_TEST_PERMISSION_INJECTION is "true".
     """
     try:
         if (
             os.environ.get("PYTEST_CURRENT_TEST")
-            and os.environ.get("ENABLE_TEST_PERMISSION_INJECTION", "false").lower() == "true"
+            and (os.environ.get("ENABLE_TEST_PERMISSION_INJECTION", "false")
+                 .lower() == "true")
         ):
             header_val = request.headers.get("X-User-Permissions")
             if header_val:
@@ -220,7 +231,10 @@ class WebSocketConnectionManager:
             "bytes_processed": 0
         }
         
-        logger.info(f"WebSocket connected for user {user_id}. Total connections: {len(self.active_connections[user_id])}")
+        logger.info(
+            f"WebSocket connected for user {user_id}. "
+            f"Total connections: {len(self.active_connections[user_id])}"
+        )
         return True
         
     async def disconnect(self, websocket: WebSocket):
@@ -237,7 +251,9 @@ class WebSocketConnectionManager:
                 
         logger.info(f"WebSocket disconnected for user {user_id}")
         
-    async def send_personal_message(self, message: dict[str, Any], websocket: WebSocket):
+    async def send_personal_message(
+        self, message: dict[str, Any], websocket: WebSocket
+    ):
         """Send message to specific WebSocket with error handling."""
         try:
             await websocket.send_json(message)
@@ -278,18 +294,26 @@ class WebSocketConnectionManager:
                 stale_connections.append(websocket)
                 
         for websocket in stale_connections:
-            logger.warning(f"Cleaning up stale WebSocket connection for user {self.connection_metadata[websocket]['user_id']}")
+            logger.warning(
+                f"Cleaning up stale WebSocket connection for user "
+                f"{self.connection_metadata[websocket]['user_id']}"
+            )
             await self.disconnect(websocket)
             
     def get_connection_stats(self) -> dict[str, Any]:
         """Get connection statistics."""
-        total_connections = sum(len(connections) for connections in self.active_connections.values())
+        total_connections = sum(
+            len(connections) for connections in self.active_connections.values()
+        )
         total_users = len(self.active_connections)
         
         return {
             "total_connections": total_connections,
             "total_users": total_users,
-            "connections_per_user": {user_id: len(connections) for user_id, connections in self.active_connections.items()},
+            "connections_per_user": {
+                user_id: len(connections) 
+                for user_id, connections in self.active_connections.items()
+            },
             "connection_metadata": {
                 str(ws): metadata for ws, metadata in self.connection_metadata.items()
             }
@@ -302,13 +326,17 @@ websocket_manager = WebSocketConnectionManager()
 class UserLogin(BaseModel):
     """User login request model."""
     username: str = Field(..., description="Username", example="user@example.com")
-    password: str = Field(..., description="Password", min_length=6, example="password123")
+    password: str = Field(
+        ..., description="Password", min_length=6, example="password123"
+    )
 
 class UserRegister(BaseModel):
     """User registration request model."""
     username: str = Field(..., description="Username", example="user@example.com")
     email: str = Field(..., description="Email address", example="user@example.com")
-    password: str = Field(..., description="Password", min_length=6, example="password123")
+    password: str = Field(
+        ..., description="Password", min_length=6, example="password123"
+    )
     full_name: str = Field(..., description="Full name", example="John Doe")
 
 class UserProfile(BaseModel):
@@ -317,11 +345,15 @@ class UserProfile(BaseModel):
     username: str = Field(..., description="Username")
     email: str = Field(..., description="Email address")
     full_name: str = Field(..., description="Full name")
-    permissions: list[str] = Field(default_factory=list, description="User permissions")
+    permissions: list[str] = Field(
+        default_factory=list, description="User permissions"
+    )
     created_at: str = Field(..., description="Account creation date")
 
 # Authentication dependency
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> TokenPayload:
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+) -> TokenPayload:
     """Get current authenticated user from JWT token."""
     token = credentials.credentials
     if payload := jwt_manager.verify_token(token):
@@ -336,8 +368,12 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 # Permission dependency
 def require_permission(permission: str):
     """Require specific permission for endpoint access."""
-    async def permission_checker(request: Request, current_user: TokenPayload = Depends(get_current_user)):
-        # Allow tests to inject permissions via header only during pytest runs and explicit toggle
+    async def permission_checker(
+        request: Request, 
+        current_user: TokenPayload = Depends(get_current_user)
+    ):
+        # Allow tests to inject permissions via header only during pytest runs and 
+        # explicit toggle
         if _has_injected_permission(request, permission):
             return current_user
         if permission not in current_user.permissions:
@@ -362,15 +398,22 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
         try:
             # Prefer loading our HF Hub model; fallback to local BERT if unavailable
             try:
-                from src.models.emotion_detection.hf_loader import load_emotion_model_multi_source
+                from src.models.emotion_detection.hf_loader import (
+                    load_emotion_model_multi_source
+                )
                 hf_model_id = os.getenv("EMOTION_MODEL_ID", "0xmnrv/samo")
                 hf_token = os.getenv("HF_TOKEN")
                 local_dir = os.getenv("EMOTION_MODEL_LOCAL_DIR")
                 archive_url = os.getenv("EMOTION_MODEL_ARCHIVE_URL")
                 endpoint_url = os.getenv("EMOTION_MODEL_ENDPOINT_URL")
                 
-                logger.info(f"🔄 Attempting to load emotion model from HF Hub: {hf_model_id}")
-                logger.info(f"📋 Sources configured: local_dir={bool(local_dir)}, archive={bool(archive_url)}, endpoint={bool(endpoint_url)}")
+                logger.info(
+                    f"🔄 Attempting to load emotion model from HF Hub: {hf_model_id}"
+                )
+                logger.info(
+                    f"📋 Sources configured: local_dir={bool(local_dir)}, "
+                    f"archive={bool(archive_url)}, endpoint={bool(endpoint_url)}"
+                )
                 
                 emotion_detector = load_emotion_model_multi_source(
                     model_id=hf_model_id,
@@ -382,7 +425,10 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                 )
                 logger.info(f"✅ Loaded emotion model from HF Hub: {hf_model_id}")
             except Exception as hf_exc:
-                logger.info(f"ℹ️ HF Hub model loading failed (this is normal in some environments): {hf_exc}")
+                logger.info(
+                    f"ℹ️ HF Hub model loading failed "
+                    f"(this is normal in some environments): {hf_exc}"
+                )
                 logger.info("🔄 Falling back to local BERT emotion classifier...")
                 from src.models.emotion_detection.bert_classifier import (
                     create_bert_emotion_classifier,
@@ -522,7 +568,8 @@ async def general_exception_handler(request: Request, exc: Exception):
 async def http_exception_handler(request: Request, exc: HTTPException):
     """Handle HTTP exceptions."""
     logger.warning(f"⚠️  HTTP exception: {exc.status_code} - {exc.detail}")
-    # Preserve FastAPI's default validation/detail contract for 400-series where tests expect 'detail'
+    # Preserve FastAPI's default validation/detail contract for 400-series 
+    # where tests expect 'detail'
     if exc.status_code in (400, 422):
         return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
     return JSONResponse(
@@ -710,15 +757,23 @@ class JournalEntryRequest(BaseModel):
         description="Journal text to analyze",
         min_length=5,
         max_length=5000,
-        example="Today I received a promotion at work and I'm really excited about it.",
+        example=(
+            "Today I received a promotion at work and I'm really excited "
+            "about it."
+        ),
     )
     generate_summary: bool = Field(True, description="Whether to generate a summary")
-    emotion_threshold: float = Field(0.1, description="Threshold for emotion detection", ge=0, le=1)
+    emotion_threshold: float = Field(
+        0.1, description="Threshold for emotion detection", ge=0, le=1
+    )
 
     class Config:
         json_schema_extra = {
             "example": {
-                "text": "Today I received a promotion at work and I'm really excited about it.",
+                "text": (
+                    "Today I received a promotion at work and I'm really excited "
+                    "about it."
+                ),
                 "generate_summary": True,
                 "emotion_threshold": 0.1,
             }
@@ -730,9 +785,12 @@ class EmotionAnalysis(BaseModel):
     """Emotion analysis results."""
 
     emotions: Dict[str, float] = Field(
-        ..., description="Emotion probabilities", example={"joy": 0.75, "gratitude": 0.65}
+        ..., description="Emotion probabilities", 
+        example={"joy": 0.75, "gratitude": 0.65}
     )
-    primary_emotion: str = Field(..., description="Most confident emotion", example="joy")
+    primary_emotion: str = Field(
+        ..., description="Most confident emotion", example="joy"
+    )
     confidence: float = Field(
         ..., description="Primary emotion confidence", ge=0, le=1, example=0.75
     )
@@ -747,7 +805,10 @@ class TextSummary(BaseModel):
     summary: str = Field(
         ...,
         description="Generated summary",
-        example="User expressed joy about their recent promotion and gratitude toward their supportive team.",
+        example=(
+            "User expressed joy about their recent promotion and gratitude "
+            "toward their supportive team."
+        ),
     )
     key_emotions: List[str] = Field(
         ..., description="Key emotions identified", example=["joy", "gratitude"]
@@ -755,7 +816,9 @@ class TextSummary(BaseModel):
     compression_ratio: float = Field(
         ..., description="Text compression ratio", ge=0, le=1, example=0.85
     )
-    emotional_tone: str = Field(..., description="Overall emotional tone", example="positive")
+    emotional_tone: str = Field(
+        ..., description="Overall emotional tone", example="positive"
+    )
 
 
 class VoiceTranscription(BaseModel):
@@ -764,14 +827,25 @@ class VoiceTranscription(BaseModel):
     text: str = Field(
         ...,
         description="Transcribed text",
-        example="Today I received a promotion at work and I'm really excited about it.",
+        example=(
+            "Today I received a promotion at work and I'm really excited "
+            "about it."
+        ),
     )
     language: str = Field(..., description="Detected language", example="en")
-    confidence: float = Field(..., description="Transcription confidence", ge=0, le=1, example=0.95)
-    duration: float = Field(..., description="Audio duration in seconds", ge=0, example=15.4)
+    confidence: float = Field(
+        ..., description="Transcription confidence", ge=0, le=1, example=0.95
+    )
+    duration: float = Field(
+        ..., description="Audio duration in seconds", ge=0, example=15.4
+    )
     word_count: int = Field(..., description="Number of words", ge=0, example=12)
-    speaking_rate: float = Field(..., description="Words per minute", ge=0, example=120.5)
-    audio_quality: str = Field(..., description="Audio quality assessment", example="excellent")
+    speaking_rate: float = Field(
+        ..., description="Words per minute", ge=0, example=120.5
+    )
+    audio_quality: str = Field(
+        ..., description="Audio quality assessment", example="excellent"
+    )
 
 
 class CompleteJournalAnalysis(BaseModel):
@@ -780,7 +854,9 @@ class CompleteJournalAnalysis(BaseModel):
     transcription: Optional[VoiceTranscription] = Field(
         None, description="Voice transcription results"
     )
-    emotion_analysis: EmotionAnalysis = Field(..., description="Emotion detection results")
+    emotion_analysis: EmotionAnalysis = Field(
+        ..., description="Emotion detection results"
+    )
     summary: TextSummary = Field(..., description="Text summarization results")
     processing_time_ms: float = Field(
         ..., description="Total processing time in milliseconds", ge=0, example=450.2
@@ -788,10 +864,15 @@ class CompleteJournalAnalysis(BaseModel):
     pipeline_status: Dict[str, bool] = Field(
         ...,
         description="Status of each AI component",
-        example={"emotion_detection": True, "text_summarization": True, "voice_processing": False},
+        example={
+            "emotion_detection": True, 
+            "text_summarization": True, 
+            "voice_processing": False
+        },
     )
     insights: Dict[str, Any] = Field(
-        ..., description="Additional insights and metadata", example={"word_count": 12, "language": "en"}
+        ..., description="Additional insights and metadata", 
+        example={"word_count": 12, "language": "en"}
     )
 
 
@@ -805,15 +886,21 @@ async def health_check() -> dict[str, Any]:
         "models": {
             "emotion_detection": {
                 "loaded": emotion_detector is not None,
-                "status": "available" if emotion_detector is not None else "unavailable"
+                "status": (
+                    "available" if emotion_detector is not None else "unavailable"
+                )
             },
             "text_summarization": {
                 "loaded": text_summarizer is not None,
-                "status": "available" if text_summarizer is not None else "unavailable"
+                "status": (
+                    "available" if text_summarizer is not None else "unavailable"
+                )
             },
             "voice_processing": {
                 "loaded": voice_transcriber is not None,
-                "status": "available" if voice_transcriber is not None else "unavailable"
+                "status": (
+                    "available" if voice_transcriber is not None else "unavailable"
+                )
             },
         },
     }
@@ -893,7 +980,10 @@ async def login_user(login_data: UserLogin) -> TokenResponse:
             is_admin_user = True
         # Also support a comma-separated list of admin users
         if not is_admin_user:
-            admin_list = {u.strip() for u in os.getenv("ADMIN_USERS", "").split(",") if u.strip()}
+            admin_list = {
+                u.strip() for u in os.getenv("ADMIN_USERS", "").split(",") 
+                if u.strip()
+            }
             if login_data.username in admin_list:
                 is_admin_user = True
 
@@ -904,7 +994,10 @@ async def login_user(login_data: UserLogin) -> TokenResponse:
         token_user_data = {
             "user_id": str(user_id),
             "username": login_data.username,
-            "email": login_data.username if "@" in login_data.username else f"{login_data.username}@example.com",
+            "email": (
+                login_data.username if "@" in login_data.username 
+                else f"{login_data.username}@example.com"
+            ),
             "permissions": permissions,
         }
         
@@ -987,7 +1080,9 @@ async def logout_user(
             token = auth_header.split(" ")[1]
             # Blacklist the token
             jwt_manager.blacklist_token(token)
-            logger.info(f"User logged out and token blacklisted: {current_user.username}")
+            logger.info(
+                f"User logged out and token blacklisted: {current_user.username}"
+            )
         else:
             logger.warning("No valid Authorization header found during logout")
         
@@ -1007,7 +1102,9 @@ async def logout_user(
     summary="Get user profile",
     description="Get current user profile information",
 )
-async def get_user_profile(current_user: TokenPayload = Depends(get_current_user)) -> UserProfile:
+async def get_user_profile(
+    current_user: TokenPayload = Depends(get_current_user)
+) -> UserProfile:
     """Get current user profile."""
     return UserProfile(
         user_id=current_user.user_id,
@@ -1058,7 +1155,9 @@ async def chat_http(
         if text_summarizer is None:
             _ensure_summarizer_loaded()
         summarizer_instance = _get_request_scoped_summarizer(message.model)
-        summary_text = summarizer_instance.generate_summary(reply, max_length=80, min_length=20)
+        summary_text = summarizer_instance.generate_summary(
+            reply, max_length=80, min_length=20
+        )
 
     return ChatResponse(
         reply=reply,
@@ -1127,7 +1226,9 @@ async def chat_websocket(websocket: WebSocket, token: str = Query(None)) -> None
                     if text_summarizer is None:
                         _ensure_summarizer_loaded()
                     summarizer_instance = _get_request_scoped_summarizer(model)
-                    summary_text = summarizer_instance.generate_summary(reply, max_length=80, min_length=20)
+                    summary_text = summarizer_instance.generate_summary(
+                        reply, max_length=80, min_length=20
+                    )
                     response["summary"] = summary_text
                 except HTTPException as exc:
                     response["summary_error"] = exc.detail
@@ -1147,11 +1248,15 @@ async def chat_websocket(websocket: WebSocket, token: str = Query(None)) -> None
     tags=["Analysis"],
     summary="Analyze text journal entry",
     description="Analyze a text journal entry with emotion detection and summarization",
-    response_description="Complete analysis results including emotion detection and text summarization",
+    response_description=(
+        "Complete analysis results including emotion detection and text summarization"
+    ),
 )
 async def analyze_journal_entry(
     request: JournalEntryRequest,
-    x_api_key: Optional[str] = Header(None, description="API key for authentication"),
+    x_api_key: Optional[str] = Header(
+        None, description="API key for authentication"
+    ),
 ) -> CompleteJournalAnalysis:
     """Analyze a text journal entry with emotion detection and summarization."""
     start_time = time.time()
@@ -1165,9 +1270,13 @@ async def analyze_journal_entry(
         emotion_results = None
         if emotion_detector is not None:
             try:
-                raw = _run_emotion_predict(request.text, threshold=request.emotion_threshold)
+                raw = _run_emotion_predict(
+                    request.text, threshold=request.emotion_threshold
+                )
                 emotion_results = normalize_emotion_results(raw)
-                logger.info(f"✅ Emotion analysis completed: {emotion_results['primary_emotion']}")
+                logger.info(
+                    f"✅ Emotion analysis completed: {emotion_results['primary_emotion']}"
+                )
             except Exception as exc:
                 logger.warning(f"⚠️  Emotion analysis failed: {exc}")
                 emotion_results = normalize_emotion_results({})
@@ -1181,8 +1290,14 @@ async def analyze_journal_entry(
             except Exception as exc:
                 logger.warning(f"⚠️  Text summarization failed: {exc}")
                 summary_results = {
-                    "summary": request.text[:200] + "..." if len(request.text) > 200 else request.text,
-                    "key_emotions": [emotion_results["primary_emotion"]] if emotion_results else ["neutral"],
+                    "summary": (
+                        request.text[:200] + "..." if len(request.text) > 200 
+                        else request.text
+                    ),
+                    "key_emotions": (
+                        [emotion_results["primary_emotion"]] if emotion_results 
+                        else ["neutral"]
+                    ),
                     "compression_ratio": 0.5,
                     "emotional_tone": "neutral",
                 }
@@ -1198,7 +1313,10 @@ async def analyze_journal_entry(
 
         if summary_results is None:
             summary_results = {
-                "summary": request.text[:200] + "..." if len(request.text) > 200 else request.text,
+                "summary": (
+                    request.text[:200] + "..." if len(request.text) > 200 
+                    else request.text
+                ),
                 "key_emotions": [emotion_results["primary_emotion"]],
                 "compression_ratio": 0.5,
                 "emotional_tone": "neutral",
@@ -1235,17 +1353,30 @@ async def analyze_journal_entry(
     response_model=CompleteJournalAnalysis,
     tags=["Analysis"],
     summary="Analyze voice journal entry",
-    description="Complete voice journal analysis pipeline with transcription, emotion detection, and summarization",
-    response_description="Complete analysis results including transcription, emotion detection, and text summarization",
+    description=(
+        "Complete voice journal analysis pipeline with transcription, "
+        "emotion detection, and summarization"
+    ),
+    response_description=(
+        "Complete analysis results including transcription, emotion detection, "
+        "and text summarization"
+    ),
 )
 async def analyze_voice_journal(
-    audio_file: UploadFile = File(..., description="Audio file to transcribe and analyze"),
+    audio_file: UploadFile = File(
+        ..., description="Audio file to transcribe and analyze"
+    ),
     language: Optional[str] = Form(
-        None, description="Language code for transcription (auto-detect if not provided)"
+        None, 
+        description="Language code for transcription (auto-detect if not provided)"
     ),
     generate_summary: bool = Form(True, description="Whether to generate a summary"),
-    emotion_threshold: float = Form(0.1, description="Threshold for emotion detection", ge=0, le=1),
-    x_api_key: Optional[str] = Header(None, description="API key for authentication"),
+    emotion_threshold: float = Form(
+        0.1, description="Threshold for emotion detection", ge=0, le=1
+    ),
+    x_api_key: Optional[str] = Header(
+        None, description="API key for authentication"
+    ),
 ) -> CompleteJournalAnalysis:
     """Complete voice journal analysis pipeline."""
     start_time = time.time()
@@ -1257,7 +1388,9 @@ async def analyze_voice_journal(
         if voice_transcriber is not None:
             try:
                 # Create a temporary file for the audio
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
+                with tempfile.NamedTemporaryFile(
+                    delete=False, suffix=".wav"
+                ) as temp_file:
                     content = await audio_file.read()
                     temp_file.write(content)
                     temp_file.flush()  # Ensure data is written to disk
@@ -1268,7 +1401,9 @@ async def analyze_voice_journal(
                         temp_file_path, language=language
                     )
                     transcribed_text = transcription_results["text"]
-                    logger.info(f"✅ Voice transcription completed: {len(transcribed_text)} characters")
+                    logger.info(
+                        f"✅ Voice transcription completed: {len(transcribed_text)} characters"
+                    )
                 finally:
                     # Clean up temporary file
                     Path(temp_file_path).unlink(missing_ok=True)
@@ -1281,7 +1416,8 @@ async def analyze_voice_journal(
         # Steps 2 & 3: Continue with text analysis using transcribed text
         if not transcribed_text.strip():
             raise HTTPException(
-                status_code=400, detail="Failed to transcribe audio or audio is too short"
+                status_code=400, 
+                detail="Failed to transcribe audio or audio is too short"
             )
 
         # Create a JournalEntryRequest for the text analysis
@@ -1297,7 +1433,8 @@ async def analyze_voice_journal(
         # Cross-model insights
         processing_time = (time.time() - start_time) * 1000
 
-        # Normalize transcription dict to include required optional fields for schema using helper
+        # Normalize transcription dict to include required optional fields for schema 
+        # using helper
         normalized_tx = None
         if transcription_results:
             (
@@ -1311,7 +1448,9 @@ async def analyze_voice_journal(
             ) = _normalize_transcription_attrs(transcription_results)
             # Validate required fields before constructing VoiceTranscription
             if not isinstance(_text, str) or _text is None:
-                logger.warning("Transcription missing text; skipping transcription payload")
+                logger.warning(
+                    "Transcription missing text; skipping transcription payload"
+                )
                 normalized_tx = None
             else:
                 normalized_tx = {
@@ -1320,15 +1459,20 @@ async def analyze_voice_journal(
                     "confidence": float(_conf) if _conf is not None else 0.0,
                     "duration": float(_duration) if _duration is not None else 0.0,
                     "word_count": int(_word_count) if _word_count is not None else 0,
-                    "speaking_rate": float(_speaking_rate) if _speaking_rate is not None else 0.0,
+                    "speaking_rate": (
+                        float(_speaking_rate) if _speaking_rate is not None else 0.0
+                    ),
                     "audio_quality": _audio_quality or "unknown",
                 }
-                # Pre-compute commonly used insight fields to avoid recomputation downstream
+                # Pre-compute commonly used insight fields to avoid recomputation 
+                # downstream
                 normalized_tx["insight_duration"] = normalized_tx["duration"]
                 normalized_tx["insight_quality"] = normalized_tx["audio_quality"]
 
         return CompleteJournalAnalysis(
-            transcription=VoiceTranscription(**normalized_tx) if normalized_tx else None,
+            transcription=(
+                VoiceTranscription(**normalized_tx) if normalized_tx else None
+            ),
             emotion_analysis=text_analysis.emotion_analysis,
             summary=text_analysis.summary,
             processing_time_ms=processing_time,
@@ -1340,8 +1484,12 @@ async def analyze_voice_journal(
             insights={
                 **text_analysis.insights,
                 # Use pre-computed insight values from normalized_tx when available
-                "audio_duration": (normalized_tx.get("insight_duration") if normalized_tx else 0),
-                "audio_quality": (normalized_tx.get("insight_quality") if normalized_tx else "unknown"),
+                "audio_duration": (
+                    normalized_tx.get("insight_duration") if normalized_tx else 0
+                ),
+                "audio_quality": (
+                    normalized_tx.get("insight_quality") if normalized_tx else "unknown"
+                ),
             },
         )
 
@@ -1362,8 +1510,13 @@ async def analyze_voice_journal(
 )
 async def transcribe_voice(
     audio_file: UploadFile = File(..., description="Audio file to transcribe"),
-    language: Optional[str] = Form(None, description="Language code (auto-detect if not provided)"),
-    model_size: str = Form("base", description="Whisper model size (tiny, base, small, medium, large)"),
+    language: Optional[str] = Form(
+        None, description="Language code (auto-detect if not provided)"
+    ),
+    model_size: str = Form(
+        "base", 
+        description="Whisper model size (tiny, base, small, medium, large)"
+    ),
     timestamp: bool = Form(False, description="Include word-level timestamps"),
     current_user: TokenPayload = Depends(get_current_user),
 ) -> VoiceTranscription:
@@ -1381,7 +1534,11 @@ async def transcribe_voice(
         content = await audio_file.read()
         if len(content) > MAX_AUDIO_BYTES:
             # Return a JSON body with 'detail' to match tests expecting that key
-            raise HTTPException(status_code=400, detail=f"File too large (max {MAX_AUDIO_BYTES // (1024*1024)}MB)")
+            max_mb = MAX_AUDIO_BYTES // (1024*1024)
+            raise HTTPException(
+                status_code=400, 
+                detail=f"File too large (max {max_mb}MB)"
+            )
         # Reset file position for later processing
         await audio_file.seek(0)
         
@@ -1401,20 +1558,27 @@ async def transcribe_voice(
                 "file_path": temp_file_path,
                 "language": language,
             }
-            kwargs = {k: v for k, v in candidate_args.items() if k in accepted and v is not None}
+            kwargs = {
+                k: v for k, v in candidate_args.items() 
+                if k in accepted and v is not None
+            }
             if not any(k in accepted for k in ("audio_path", "path", "file_path")):
                 # Try positional fallback if no filename-like kw is accepted
                 try:
                     transcription_result = voice_transcriber.transcribe(
                         temp_file_path,
-                        **{k: v for k, v in kwargs.items() if k not in {"audio_path", "path", "file_path"}}
+                        **{k: v for k, v in kwargs.items() 
+                           if k not in {"audio_path", "path", "file_path"}}
                     )
                 except Exception as e_positional:
                     try:
-                        transcription_result = voice_transcriber.transcribe(temp_file_path)
+                        transcription_result = voice_transcriber.transcribe(
+                            temp_file_path
+                        )
                     except Exception as e_fallback:
                         logger.error(
-                            "Transcriber failed with both positional and fallback calls: %s; %s",
+                            "Transcriber failed with both positional and fallback calls: "
+                            "%s; %s",
                             repr(e_positional), repr(e_fallback)
                         )
                         raise
@@ -1424,13 +1588,18 @@ async def transcribe_voice(
                 except Exception as e_kwargs:
                     # Fallback to positional if keyword call fails
                     try:
-                        transcription_result = voice_transcriber.transcribe(temp_file_path, language=language)
+                        transcription_result = voice_transcriber.transcribe(
+                            temp_file_path, language=language
+                        )
                     except Exception as e_positional:
                         try:
-                            transcription_result = voice_transcriber.transcribe(temp_file_path)
+                            transcription_result = voice_transcriber.transcribe(
+                                temp_file_path
+                            )
                         except Exception as e_fallback:
                             logger.error(
-                                "Transcriber failed with kwargs, positional, and fallback calls: %s; %s; %s",
+                                "Transcriber failed with kwargs, positional, and fallback calls: "
+                                "%s; %s; %s",
                                 repr(e_kwargs), repr(e_positional), repr(e_fallback)
                             )
                             raise
@@ -1479,8 +1648,12 @@ async def transcribe_voice(
 )
 async def batch_transcribe_voice(
     request: Request,
-    audio_files: list[UploadFile] = File(..., description="Multiple audio files to transcribe"),
-    language: Optional[str] = Form(None, description="Language code for all files"),
+    audio_files: list[UploadFile] = File(
+        ..., description="Multiple audio files to transcribe"
+    ),
+    language: Optional[str] = Form(
+        None, description="Language code for all files"
+    ),
     current_user: TokenPayload = Depends(get_current_user),
 ) -> dict[str, Any]:
     """Batch process multiple audio files for transcription."""
@@ -1489,25 +1662,40 @@ async def batch_transcribe_voice(
     
     try:
         # Enforce permission always; allow pytest header override for tests only
-        if not _has_injected_permission(request, "batch_processing") and "batch_processing" not in current_user.permissions:
-            raise HTTPException(status_code=403, detail="Permission 'batch_processing' required")
+        if (not _has_injected_permission(request, "batch_processing") and 
+            "batch_processing" not in current_user.permissions):
+            raise HTTPException(
+                status_code=403, 
+                detail="Permission 'batch_processing' required"
+            )
 
         for i, audio_file in enumerate(audio_files):
             try:
                 # Process each file individually
                 content = await audio_file.read()
-                # Allow empty/invalid content to be passed to mocked transcriber to exercise failure paths
-                prefix = f"{Path(audio_file.filename).stem}_" if audio_file.filename else "file_"
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".wav", prefix=prefix) as temp_file:
+                # Allow empty/invalid content to be passed to mocked transcriber 
+                # to exercise failure paths
+                if audio_file.filename:
+                    prefix = f"{Path(audio_file.filename).stem}_"
+                else:
+                    prefix = "file_"
+                with tempfile.NamedTemporaryFile(
+                    delete=False, suffix=".wav", prefix=prefix
+                ) as temp_file:
                     temp_file.write(content or b"")
                     temp_file.flush()  # Ensure data is written to disk
                     temp_file_path = temp_file.name
                 
                 try:
                     if voice_transcriber is None:
-                        raise HTTPException(status_code=503, detail="Voice transcription service unavailable")
+                        raise HTTPException(
+                            status_code=503, 
+                            detail="Voice transcription service unavailable"
+                        )
                     
-                    transcription_result = voice_transcriber.transcribe(temp_file_path, language=language)
+                    transcription_result = voice_transcriber.transcribe(
+                        temp_file_path, language=language
+                    )
                     
                     results.append({
                         "file_index": i,
@@ -1559,7 +1747,10 @@ async def batch_transcribe_voice(
 )
 async def summarize_text(
     text: str = Form(..., description="Text to summarize", min_length=10),
-    model: str = Form("t5-small", description="Summarization model (t5-small, t5-base, t5-large)"),
+    model: str = Form(
+        "t5-small", 
+        description="Summarization model (t5-small, t5-base, t5-large)"
+    ),
     max_length: int = Form(150, description="Maximum summary length", ge=10, le=500),
     min_length: int = Form(30, description="Minimum summary length", ge=5, le=200),
     # Removed do_sample to keep API contract accurate; summarizer uses beam search
@@ -1578,7 +1769,8 @@ async def summarize_text(
         # Request-scoped model override to avoid global mutation in production
         summarizer_instance = _get_request_scoped_summarizer(model)
 
-        # Generate summary. Some tests inject fakes with simplified signatures; support both.
+        # Generate summary. Some tests inject fakes with simplified signatures; 
+        # support both.
         summary_text = None
         for call in (
             lambda: summarizer_instance.generate_summary(
@@ -1594,12 +1786,17 @@ async def summarize_text(
                 continue
         if summary_text is None:
             logger.error("Summarizer invocation failed for all supported signatures")
-            raise HTTPException(status_code=500, detail="Text summarization failed")
+            raise HTTPException(
+                status_code=500, detail="Text summarization failed"
+            )
 
         # Calculate metrics
         original_length = len(text.split())
         summary_length = len((summary_text or "").split())
-        compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
+        if original_length > 0:
+            compression_ratio = 1 - (summary_length / original_length)
+        else:
+            compression_ratio = 0
 
         # Determine emotional tone and key emotions from summary
         emotional_tone, key_emotions = _derive_emotion(summary_text or "")

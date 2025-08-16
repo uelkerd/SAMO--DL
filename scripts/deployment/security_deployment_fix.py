@@ -123,13 +123,13 @@ scikit-learn>=1.5.0,<2.0.0
 gunicorn>=23.0.0,<24.0.0
 
 # HTTP client - latest secure version
-requests>=2.32.4,<3.0.0
+requests==2.32.4
 
 # System monitoring - latest secure version
 psutil>=5.9.0,<6.0.0
 
 # Metrics and monitoring - latest secure version
-prometheus-client>=0.20.0,<1.0.0
+prometheus-client==0.20.0
 
 # Security and validation
 cryptography>=41.0.0,<42.0.0

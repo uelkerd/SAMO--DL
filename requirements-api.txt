@@ -26,7 +26,7 @@ rich==13.9.4
 loguru==0.7.2
 
 # Production Dependencies (from prod extra)
-gunicorn==21.2.0
+gunicorn>=23.0.0,<24.0.0
 prometheus-client==0.20.0
 sentry-sdk[fastapi]==2.12.0
 
