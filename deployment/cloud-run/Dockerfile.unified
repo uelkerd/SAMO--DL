@@ -20,8 +20,8 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Use a dedicated build directory for COPY to avoid W1006
 WORKDIR /build
-COPY requirements_unified.txt ./requirements_unified.txt
-COPY ../constraints.txt ./constraints.txt
+COPY deployment/cloud-run/requirements_unified.txt ./requirements_unified.txt
+COPY constraints.txt ./constraints.txt
 RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
  && pip install --no-cache-dir -c constraints.txt -r requirements_unified.txt
 
@@ -66,7 +66,7 @@ print('Pre-bundled whisper-small into cache')
 PY
 
 # App code
-COPY ../src/ ./src/
+COPY src/ ./src/
 
 EXPOSE 8080
 
