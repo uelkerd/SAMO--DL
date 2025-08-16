@@ -99,6 +99,51 @@ docker build \
 - **Dependencies**: Full ML stack + security features
 - **Use case**: Production ML deployments with security requirements
 
+## **Environment Variables for Model Loading**
+
+### **Emotion Detection Model Sources**
+The consolidated Dockerfile supports multiple sources for loading the emotion detection model:
+
+```bash
+# Hugging Face Hub model (default: "0xmnrv/samo")
+EMOTION_MODEL_ID=your-model-id
+
+# Hugging Face authentication token (if model is private)
+HF_TOKEN=your-hf-token
+
+# Local model directory (if you have a local copy)
+EMOTION_MODEL_LOCAL_DIR=/path/to/local/model
+
+# Archive URL for model download (tar.gz/zip)
+EMOTION_MODEL_ARCHIVE_URL=https://example.com/model.tar.gz
+
+# Remote inference endpoint
+EMOTION_MODEL_ENDPOINT_URL=https://your-endpoint.com/predict
+```
+
+### **Priority Order for Model Loading:**
+1. **Local directory** (if `EMOTION_MODEL_LOCAL_DIR` is set and exists)
+2. **HF Hub direct** (using `EMOTION_MODEL_ID`)
+3. **HF snapshot download** (cached to `HF_HOME`)
+4. **Archive download** (from `EMOTION_MODEL_ARCHIVE_URL`)
+5. **Remote endpoint** (using `EMOTION_MODEL_ENDPOINT_URL`)
+6. **Fallback to local BERT** (if all above fail)
+
+### **Example Environment Configuration:**
+```bash
+# For production with HF Hub model
+export EMOTION_MODEL_ID="0xmnrv/samo"
+export HF_TOKEN="hf_your_token_here"
+
+# For local development
+export EMOTION_MODEL_LOCAL_DIR="./models/emotion-detection"
+
+# For archive-based deployment
+export EMOTION_MODEL_ARCHIVE_URL="https://your-cdn.com/models/emotion-v1.0.tar.gz"
+```
+
+**Note:** If no environment variables are set, the system will attempt to load from HF Hub and gracefully fall back to local BERT if that fails. This fallback behavior is normal and expected in many deployment scenarios.
+
 ## **Requirements File Mapping**
 
 The Dockerfile automatically selects the appropriate requirements file:

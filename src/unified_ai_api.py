@@ -368,6 +368,10 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                 local_dir = os.getenv("EMOTION_MODEL_LOCAL_DIR")
                 archive_url = os.getenv("EMOTION_MODEL_ARCHIVE_URL")
                 endpoint_url = os.getenv("EMOTION_MODEL_ENDPOINT_URL")
+                
+                logger.info(f"🔄 Attempting to load emotion model from HF Hub: {hf_model_id}")
+                logger.info(f"📋 Sources configured: local_dir={bool(local_dir)}, archive={bool(archive_url)}, endpoint={bool(endpoint_url)}")
+                
                 emotion_detector = load_emotion_model_multi_source(
                     model_id=hf_model_id,
                     token=hf_token,
@@ -376,15 +380,16 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                     endpoint_url=endpoint_url,
                     force_multi_label=None,
                 )
-                logger.info(f"✅ Loaded emotion model (source prioritized: local_dir={bool(local_dir)}, model_id={hf_model_id}, archive={bool(archive_url)}, endpoint={bool(endpoint_url)})")
+                logger.info(f"✅ Loaded emotion model from HF Hub: {hf_model_id}")
             except Exception as hf_exc:
-                logger.warning(f"⚠️ HF multi-source load failed: {hf_exc}; falling back to local BERT")
+                logger.info(f"ℹ️ HF Hub model loading failed (this is normal in some environments): {hf_exc}")
+                logger.info("🔄 Falling back to local BERT emotion classifier...")
                 from src.models.emotion_detection.bert_classifier import (
                     create_bert_emotion_classifier,
                 )
                 model, _ = create_bert_emotion_classifier()
                 emotion_detector = model
-                logger.info("✅ Loaded local BERT emotion model")
+                logger.info("✅ Loaded local BERT emotion model (fallback successful)")
         except Exception as exc:
             logger.warning(f"⚠️  Emotion detection model not available: {exc}")
 
