@@ -19,7 +19,7 @@ This document explains the security considerations and design decisions for diff
 
 **CMD**: 
 ```dockerfile
-CMD ["sh", "-c", "gunicorn --bind ${HOST}:${PORT} --workers 2 --worker-class uvicorn.workers.UvicornWorker --access-logfile - --error-logfile - app:app"]
+CMD ["sh", "-c", "gunicorn --bind ${HOST}:${PORT} --workers 2 --worker-class uvicorn.workers.UvicornWorker --access-logfile - --error-logfile - src.unified_ai_api:app"]
 ```
 
 **Why Gunicorn?**
@@ -64,43 +64,14 @@ CMD ["sh", "-c", "exec uvicorn src.unified_ai_api:app --host 0.0.0.0 --port ${PO
 CMD ["sh", "-c", "exec uvicorn src.unified_ai_api:app --host 0.0.0.0 --port ${PORT}"]
 ```
 
-## Security Analysis
+## Security Analysis (Concise)
 
-### Generic API Key Alert (False Positive)
+Some scanners may raise false positives in these Dockerfiles:
+- Import path flagged as a key: `src.unified_ai_api:app` is a Python module path, not a secret.
+- Subprocess usage in tests: arguments are static lists without `shell=True`, minimizing risk.
+- Bindings/security headers: `0.0.0.0` exposure is intentional for containers; actual binding is controlled via environment variables and platform ingress.
 
-**Issue**: Security scanners flag `src.unified_ai_api:app` as a potential API key
-**Reality**: This is a Python import path, not an API key
-**Explanation**: 
-- `src.unified_ai_api` is a Python module path
-- `:app` is the FastAPI application instance
-- No actual secrets or keys are exposed
-
-**Evidence**:
-```python
-# This is a Python import, not an API key
-from src.unified_ai_api import app
-```
-
-### Subprocess Security (False Positive)
-
-**Issue**: Security scanners flag subprocess usage in test scripts
-**Reality**: No command injection risk
-**Explanation**:
-- File paths are Path objects, not user input
-- Arguments are static strings
-- No shell=True flag (safe by default)
-
-**Evidence**:
-```python
-# Safe: list arguments, no shell=True
-subprocess.Popen(
-    [sys.executable, str(file_path)],  # Path object, not user input
-    stdout=subprocess.PIPE,
-    stderr=subprocess.PIPE,
-    text=True,
-    env=env
-)
-```
+These are documented to avoid unnecessary policy exceptions while keeping configurations secure and clear.
 
 ## Security Best Practices Implemented
 
@@ -158,33 +129,8 @@ subprocess.Popen(
 - Regular vulnerability scanning
 - Keep dependencies updated
 
-## False Positive Explanations
+## Appendix: False Positive References
 
-### 1. Generic API Key Detection
-- **Tool**: gitleaks
-- **Pattern**: `src.unified_ai_api:app`
-- **Reality**: Python import path, not API key
-- **Action**: No action needed
-
-### 2. Subprocess Security Warnings
-- **Tool**: opengrep
-- **Pattern**: subprocess.Popen with dynamic paths
-- **Reality**: Path objects are safe, no user input
-- **Action**: No action needed
-
-### 3. Hardcoded Bindings
-- **Tool**: Custom security scanner
-- **Pattern**: 0.0.0.0 in code
-- **Reality**: Environment variable configuration
-- **Action**: No action needed
-
-## Conclusion
-
-All Dockerfile configurations in the SAMO project implement appropriate security measures for their respective deployment environments. The security alerts are false positives that can be safely ignored:
-
-1. **Main Dockerfile**: Production-grade security with Gunicorn
-2. **Cloud Run Dockerfiles**: Appropriate for serverless environment
-3. **Test Scripts**: Safe subprocess usage with Path objects
-4. **Import Paths**: Python modules, not API keys
-
-The project maintains a high security posture while using appropriate tools for each deployment scenario.
+- Generic API key detection: the string `src.unified_ai_api:app` is an import path (FastAPI app instance), not a credential.
+- Subprocess warnings: tests use argument lists with no `shell=True`, and file paths are programmatically controlled.
+- Hardcoded bindings: `0.0.0.0` is a container best practice for network ingress; actual external exposure is managed by the orchestrator (e.g., Cloud Run).
