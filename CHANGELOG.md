@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - 2025-08-07
 
+### Docker Security Hardening
+- Hardened `deployment/cloud-run/Dockerfile` and `deployment/cloud-run/Dockerfile.unified` (non-root user, multi-stage builds, pinned base images).
+- Added `deployment/DOCKERFILE_SECURITY_GUIDE.md`.
+
 ### 🚀 **Priority 1 Features Implementation - Complete API Enhancement**
 
 #### **JWT-based Authentication System**
