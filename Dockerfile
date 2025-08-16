@@ -1,7 +1,18 @@
-# SECURE DOCKERFILE - Addresses Trivy vulnerabilities with minimal complexity
-# Pin base image to immutable digest for reproducible builds
-# TODO: Update this digest to the current version before merging
-# Get current digest: docker pull python:3.12-slim-bookworm && docker images --digests | grep python:3.12-slim-bookworm
+# SECURE MULTI-STAGE DOCKERFILE - Addresses Trivy vulnerabilities with minimal complexity
+# Builder stage: create isolated virtual environment with dependencies
+FROM python:3.12-slim-bookworm AS builder
+
+# Environment
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# Create virtual environment and install Python deps
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+COPY requirements-api.txt .
+RUN pip install --no-cache-dir -r requirements-api.txt
+
+# Runtime stage: minimal image with only runtime deps
 FROM python:3.12-slim-bookworm
 
 # Environment
@@ -23,9 +34,9 @@ RUN apt-get update \
 
 WORKDIR /app
 
-# Copy requirements and install Python packages
-COPY requirements-api.txt .
-RUN pip install --no-cache-dir -r requirements-api.txt
+# Bring in Python environment from builder
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 # SECURITY: Create proper non-root user and group first
 RUN groupadd -r app && useradd -r -g app app
