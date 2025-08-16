@@ -271,7 +271,8 @@ class TokenBucketRateLimiter:
         window = self.config.anomaly_detection_window
         return [t for t in history if current_time - t <= window]
 
-    def _calculate_burst_score(self, recent_history: list, current_time: float) -> int:
+    @staticmethod
+    def _calculate_burst_score(recent_history: list, current_time: float) -> int:
         """Score short bursts within multiple sliding windows."""
         score = 0
         for window in [1.0, 5.0, 10.0]:
@@ -280,7 +281,8 @@ class TokenBucketRateLimiter:
                 score += 2
         return score
 
-    def _calculate_request_regular_interval_score(self, recent_history: list) -> int:
+    @staticmethod
+    def _calculate_request_regular_interval_score(recent_history: list) -> int:
         """Score unusually regular fast requests (low variance, low average)."""
         if len(recent_history) < 5:
             return 0
@@ -294,8 +296,9 @@ class TokenBucketRateLimiter:
         var = sum((x - avg) ** 2 for x in intervals) / len(intervals)
         return 3 if (var < 0.1 and avg < 2.0) else 0
 
+    @staticmethod
     def _calculate_sustained_volume_score(
-        self, recent_history: list, current_time: float
+        recent_history: list, current_time: float
     ) -> int:
         """Score sustained high request volume over the last minute."""
         minute_count = sum(1 for t in recent_history if current_time - t <= 60.0)
