@@ -24,11 +24,7 @@ prometheus-client==0.20.0
 sentry-sdk[fastapi]==2.12.0
 
 # Utilities
-python-dotenv==1.0.1
 pyyaml==6.0.2
 click==8.1.8
 rich==13.9.4
 loguru==0.7.2
-
-# Production
-gunicorn>=23.0.0,<24.0.0
