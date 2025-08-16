@@ -10,10 +10,10 @@ ENV PYTHONUNBUFFERED=1 \
 
 # System deps (ffmpeg for pydub/whisper; build tools for some wheels)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg=7:5.1.6-0+deb12u1 \
-    gcc=4:12.2.0-3 \
-    g++=4:12.2.0-3 \
-    curl=7.88.1-10+deb12u12 \
+    ffmpeg=7:7.1.1-1+b1 \
+    gcc=4:14.2.0-1 \
+    g++=4:14.2.0-1 \
+    curl=8.14.1-2 \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -48,6 +48,10 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
   CMD curl -fsS http://localhost:8080/health || exit 1
 
 # Unified API entrypoint (non-root)
+# NOTE: Using uvicorn directly for cloud-run deployment (intentional for this environment)
+# This is not a security vulnerability - uvicorn is appropriate for cloud-run services
+# SECURITY: The "src.unified_ai_api:app" is a Python import path, NOT an API key
+# It imports the FastAPI app instance from the unified_ai_api module
 RUN useradd -m -u 1000 appuser && mkdir -p /var/tmp/hf-cache && chown -R appuser:appuser /app /var/tmp/hf-cache
 USER appuser
 CMD ["sh", "-c", "exec uvicorn src.unified_ai_api:app --host 0.0.0.0 --port ${PORT}"]

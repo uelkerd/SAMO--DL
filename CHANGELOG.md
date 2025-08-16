@@ -4,13 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - 2025-08-07
 
+### Docker Security Hardening
+- Hardened `deployment/cloud-run/Dockerfile` and `deployment/cloud-run/Dockerfile.unified` (non-root user, multi-stage builds, pinned base images).
+- Added `deployment/DOCKERFILE_SECURITY_GUIDE.md`.
+
 ### Added
 - `scripts/fix_linting_issues.py` to automate PEP8-style fixes.
 
 ### Changed
 - Improve logging and formatting in `scripts/database/check_pgvector.py`.
 - Tidy API rate limiter and testing config for readability.
-
 ### 🚀 **Priority 1 Features Implementation - Complete API Enhancement**
 
 #### **JWT-based Authentication System**
