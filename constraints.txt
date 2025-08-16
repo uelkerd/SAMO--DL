@@ -7,7 +7,7 @@
 # Core problematic packages - pin to exact versions
 psycopg2-binary==2.9.10
 pgvector==0.3.6
-prometheus-client==0.20.0
+prometheus-client==0.20.0  # NOTE: pinned lower than 0.21.0 due to compatibility issues with exporter libraries
 
 # Google Cloud packages - often cause conflicts
 google-auth==2.35.0

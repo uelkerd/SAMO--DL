@@ -7,6 +7,12 @@ FROM python:3.11-slim-bookworm AS builder
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
+# Install build tools needed for compiling packages like psutil
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc=4:12.2.0-3 \
+    g++=4:12.2.0-3 \
+    && rm -rf /var/lib/apt/lists/*
+
 # Create venv and install Python deps into it
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
@@ -30,12 +36,10 @@ ENV PYTHONUNBUFFERED=1 \
     XDG_CACHE_HOME=/var/tmp/hf-cache \
     PIP_ROOT_USER_ACTION=ignore
 
-# System deps (ffmpeg for pydub/whisper; build tools for some wheels)
+# System deps (ffmpeg for pydub/whisper; curl for health checks)
 # Pin versions for security and reproducibility across all architectures
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg=7:5.1.6-0+deb12u1 \
-    gcc=4:12.2.0-3 \
-    g++=4:12.2.0-3 \
     curl=7.88.1-10+deb12u12 \
   && rm -rf /var/lib/apt/lists/*
 
