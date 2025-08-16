@@ -29,14 +29,14 @@ ENV PYTHONUNBUFFERED=1 \
 # Build arguments for architecture-specific package versions
 ARG TARGETARCH
 
-# Install required system packages (unversioned to avoid arch-specific conflicts)
-# Note: unpinned due to frequent Debian repo churn and multi-arch builds; rely on base image updates
+# Install required system packages with version pinning for security and reproducibility
+# Pin versions to avoid DOK-DL3008 and ensure reproducible builds across architectures
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     # Install FFmpeg for audio processing
-    ffmpeg \
+    ffmpeg=7:5.1.6-0+deb12u1 \
     # Install curl for health checks
-    curl \
+    curl=7.88.1-10+deb12u12 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
