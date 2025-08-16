@@ -253,39 +253,54 @@ class TokenBucketRateLimiter:
 
 	def _analyze_request_patterns(self, client_key: str, client_ip: str) -> int:
 		"""Analyze request patterns for suspicious behavior. Returns score (0-10)."""
-		score = 0
+		# Delegate to helper calculators to reduce complexity and improve readability
 		history = self.request_history[client_key]
 		current_time = time.time()
 		if len(history) < 5:
 			return 0
-		recent_history = [
-			t for t in history
-			if current_time - t <= self.config.anomaly_detection_window
-		]
+		recent_history = self._get_recent_history(history, current_time)
 		if len(recent_history) < 3:
 			return 0
-		for window in [1.0, 5.0, 10.0]:
-			burst_requests = [
-				t for t in recent_history if current_time - t <= window
-			]
-			if len(burst_requests) > window * 2:
-				score += 2
-		if len(recent_history) >= 5:
-			intervals = [
-				recent_history[i] - recent_history[i - 1]
-				for i in range(1, len(recent_history))
-			]
-			if len(intervals) >= 3:
-				avg = sum(intervals) / len(intervals)
-				var = sum((x - avg) ** 2 for x in intervals) / len(intervals)
-				if var < 0.1 and avg < 2.0:
-					score += 3
-		minute_requests = [
-			t for t in recent_history if current_time - t <= 60.0
-		]
-		if len(minute_requests) > 50:
-			score += 2
+		score = 0
+		score += self._calculate_burst_score(recent_history, current_time)
+		score += self._calculate_request_regular_interval_score(recent_history)
+		score += self._calculate_sustained_volume_score(recent_history, current_time)
 		return min(score, 10)
+
+	def _get_recent_history(self, history: Deque, current_time: float) -> list:
+		"""Return recent timestamps within anomaly detection window."""
+		window = self.config.anomaly_detection_window
+		return [t for t in history if current_time - t <= window]
+
+	def _calculate_burst_score(self, recent_history: list, current_time: float) -> int:
+		"""Score short bursts within multiple sliding windows."""
+		score = 0
+		for window in [1.0, 5.0, 10.0]:
+			burst_count = sum(1 for t in recent_history if current_time - t <= window)
+			if burst_count > window * 2:
+				score += 2
+		return score
+
+	def _calculate_request_regular_interval_score(self, recent_history: list) -> int:
+		"""Score unusually regular fast requests (low variance, low average)."""
+		if len(recent_history) < 5:
+			return 0
+		intervals = [
+			recent_history[i] - recent_history[i - 1]
+			for i in range(1, len(recent_history))
+		]
+		if len(intervals) < 3:
+			return 0
+		avg = sum(intervals) / len(intervals)
+		var = sum((x - avg) ** 2 for x in intervals) / len(intervals)
+		return 3 if (var < 0.1 and avg < 2.0) else 0
+
+	def _calculate_sustained_volume_score(
+		self, recent_history: list, current_time: float
+	) -> int:
+		"""Score sustained high request volume over the last minute."""
+		minute_count = sum(1 for t in recent_history if current_time - t <= 60.0)
+		return 2 if minute_count > 50 else 0
 
 	def _detect_abuse(self, client_key: str, client_ip: str, user_agent: str = "") -> bool:
 		"""Enhanced abuse detection with user agent and pattern analysis."""
