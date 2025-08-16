@@ -22,8 +22,7 @@ This consolidated Dockerfile replaces multiple separate Dockerfiles with a singl
 
 ### **Minimal Version (Default)**
 ```bash
-# Build from project root
-cd /Users/minervae/Projects/SAMO--GENERAL/SAMO--DL
+# Build from the repository root
 docker build -f deployment/cloud-run/Dockerfile.consolidated -t samo-dl-minimal .
 ```
 
@@ -187,9 +186,9 @@ docker build -f deployment/cloud-run/Dockerfile.secure -t samo-dl-secure .
 ### **After (Single File)**
 ```bash
 # One Dockerfile, multiple variants
-docker build --build-arg BUILD_TYPE=minimal -f Dockerfile.consolidated -t samo-dl-minimal .
-docker build --build-arg BUILD_TYPE=unified --build-arg INCLUDE_ML=true -f Dockerfile.consolidated -t samo-dl-unified .
-docker build --build-arg BUILD_TYPE=secure --build-arg INCLUDE_SECURITY=true -f Dockerfile.consolidated -t samo-dl-secure .
+docker build --build-arg BUILD_TYPE=minimal -f deployment/cloud-run/Dockerfile.consolidated -t samo-dl-minimal .
+docker build --build-arg BUILD_TYPE=unified --build-arg INCLUDE_ML=true -f deployment/cloud-run/Dockerfile.consolidated -t samo-dl-unified .
+docker build --build-arg BUILD_TYPE=secure --build-arg INCLUDE_SECURITY=true -f deployment/cloud-run/Dockerfile.consolidated -t samo-dl-secure .
 ```
 
 ## **Benefits**
