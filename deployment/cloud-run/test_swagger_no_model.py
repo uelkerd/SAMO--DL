@@ -45,11 +45,12 @@ if __name__ == '__main__':
     print("=== Routes ===")
     for rule in app.url_map.iter_rules():
         print(f"{rule.rule} -> {rule.endpoint}")
-    
+
     print("\n=== Starting test server ===")
     print("Test these endpoints:")
     print("- http://localhost:8083/ (should work)")
     print("- http://localhost:8083/docs (should work)")
     print("- http://localhost:8083/api/health (should work)")
-    
-    app.run(host='0.0.0.0', port=8083, debug=True) 
+
+    debug_mode = os.environ.get("FLASK_DEBUG", "0") == "1"
+    app.run(host='127.0.0.1', port=8083, debug=debug_mode)

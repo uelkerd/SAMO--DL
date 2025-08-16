@@ -73,7 +73,7 @@ class ComprehensiveLintingFixer:
         for line in lines:
             stripped = line.strip()
             if (stripped.startswith('import ') or
-                stripped.startswith('from ') or
+                    stripped.startswith('from ') or
                 stripped.startswith('#')):
                 import_lines.append(line)
             else:
@@ -120,7 +120,7 @@ class ComprehensiveLintingFixer:
         for line in lines:
             stripped = line.strip()
             if (stripped.startswith('import ') or
-                stripped.startswith('from ') or
+                    stripped.startswith('from ') or
                 stripped.startswith('#')):
                 import_lines.append(line)
             else:

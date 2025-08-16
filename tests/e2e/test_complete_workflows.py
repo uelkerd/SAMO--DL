@@ -173,7 +173,7 @@ class TestCompleteWorkflows:
 
         # Check data consistency
         response_data = [r.json() for r in responses]
-        
+
         # Basic structure should be consistent
         for data in response_data:
             assert "emotion_analysis" in data

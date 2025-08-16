@@ -14,7 +14,7 @@
         # Process each file
         # Transcribe audio
         # Validate audio file
-        # Validate with AudioPreprocessor
+            # Validate with AudioPreprocessor
         # Write uploaded content
     # Add API information
     # Basic format validation

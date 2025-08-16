@@ -4,7 +4,7 @@
 ############################################
 
 # Core ML/AI Dependencies
-torch>=2.0.0,<3.0.0
+torch>=2.6.0,<3.0.0  # SECURITY: Fix critical RCE vulnerability CVE torch.load weights_only=True bypass
 transformers>=4.55.0,<5.0.0
 datasets>=2.14.0,<5.0.0
 accelerate>=0.20.0,<1.0.0

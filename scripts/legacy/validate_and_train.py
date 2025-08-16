@@ -2,7 +2,7 @@
         # Start training
         # Training configuration optimized for debugging
         from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
-        from pre_training_validation import PreTrainingValidator
+            from pre_training_validation import PreTrainingValidator
         import traceback
     # Ask for user confirmation
     # Step 1: Pre-training validation

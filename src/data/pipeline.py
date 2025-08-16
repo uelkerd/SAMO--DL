@@ -36,8 +36,8 @@ class DataPipeline:
         """Initialize data pipeline.
 
         Args:
-            preprocessor: Journal entry preprocessor
-            validator: Data validator
+                preprocessor: Journal entry preprocessor
+                validator: Data validator
             feature_engineer: Feature engineer
             embedding_method: Method for generating embeddings ('tfid', 'word2vec', or 'fasttext')
 

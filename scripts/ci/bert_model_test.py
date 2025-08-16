@@ -33,7 +33,7 @@ def test_bert_model_loading():
 
         device = torch.device("cpu")  # Use CPU for CI
 
-        # Initialize model - removed 'device' parameter as it's not in the constructor
+            # Initialize model - removed 'device' parameter as it's not in the constructor
         model = BERTEmotionClassifier(
             model_name="bert-base-uncased",
             num_emotions=28,

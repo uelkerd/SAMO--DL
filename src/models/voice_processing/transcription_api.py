@@ -21,7 +21,7 @@ import time
 """Transcription API for SAMO Voice Processing.
 
 This module provides integration between the WhisperTranscriber and the
-application API layer, handling transcription requests with proper error
+    application API layer, handling transcription requests with proper error
 handling and performance monitoring.
 """
 

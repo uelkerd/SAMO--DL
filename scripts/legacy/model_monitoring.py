@@ -36,7 +36,7 @@
         # Set baseline if not set
         # Use Wasserstein distance as drift measure
     # Create directory if needed
-    # Create monitor
+        # Create monitor
     # Save configuration
     # Start monitoring
 # Add src to path

@@ -55,4 +55,3 @@ def test_http_exception_handler_other_4xx_codes():
         body = resp.json()
         assert isinstance(body, dict) and "detail" in body
         assert body["detail"] == expected[1]
-
