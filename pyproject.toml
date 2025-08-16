@@ -78,7 +78,7 @@ dev = [
 # Production Dependencies
 prod = [
     "gunicorn>=21.2.0",
-    "prometheus-client>=0.17.0",
+    "prometheus-client>=0.20.0",
     "sentry-sdk[fastapi]>=1.29.0",
 ]
 
