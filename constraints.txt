@@ -21,7 +21,7 @@ googleapis-common-protos==1.65.0
 certifi==2024.12.14
 urllib3==2.2.3
 requests==2.32.4
-httpx>=0.24.0
+httpx>=0.25.0,<0.29.0  # Ensures compatibility with AnyIO 4.x and prevents breaking changes
 charset-normalizer==3.4.0
 idna==3.10
 

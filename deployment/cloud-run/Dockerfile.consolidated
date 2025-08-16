@@ -130,7 +130,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
 
 # Create entrypoint script based on build type
 RUN if [ "$BUILD_TYPE" = "minimal" ]; then \
-        echo '#!/bin/sh\nexec python minimal_api_server.py' > /app/entrypoint.sh; \
+        echo '#!/bin/sh\nexec gunicorn -b 0.0.0.0:${PORT:-8080} minimal_api_server:app' > /app/entrypoint.sh; \
     elif [ "$BUILD_TYPE" = "secure" ]; then \
         echo '#!/bin/sh\nexec uvicorn src.secure_api_server:app --host 0.0.0.0 --port ${PORT:-8080}' > /app/entrypoint.sh; \
     else \

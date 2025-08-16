@@ -16,5 +16,4 @@ jiwer>=3.0.0,<4.0.0
 # On Ubuntu: apt-get install portaudio19-dev && pip install pyaudio
 
 # HTTP client dependencies for consistency
-requests==2.32.4
-httpx>=0.24.0
+# Note: requests and httpx versions are constrained in constraints.txt

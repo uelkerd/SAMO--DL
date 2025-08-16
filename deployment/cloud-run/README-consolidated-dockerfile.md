@@ -76,6 +76,23 @@ docker build \
   -t samo-dl-unified-amd64 .
 ```
 
+### **Multi-Architecture Builds with Buildx**
+
+For true multi-architecture builds, you'll need Docker Buildx:
+
+```bash
+# Enable buildx (once per machine)
+docker buildx create --use --name multiarch-builder
+docker buildx inspect --bootstrap
+
+# Example multi-arch build:
+docker buildx build --platform linux/amd64,linux/arm64 \
+  --build-arg BUILD_TYPE=unified \
+  --build-arg INCLUDE_ML=true \
+  -f deployment/cloud-run/Dockerfile.consolidated \
+  -t samo-dl-unified:multiarch --push
+```
+
 ## **Image Characteristics**
 
 ### **Minimal Version**
