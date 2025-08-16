@@ -1,0 +1,53 @@
+/* Shared styles for SAMO-DL website */
+:root {
+  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+  --secondary-gradient: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #3730a3 100%);
+  --dark-gradient: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+  --accent-gradient: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #c084fc 100%);
+  --primary-color: #8b5cf6;
+  --secondary-color: #a855f7;
+  --accent-color: #c084fc;
+  --dark-color: #0f0f23;
+  --darker-color: #0a0a1a;
+  --light-accent: #e9d5ff;
+  --glass-bg: rgba(139, 92, 246, 0.1);
+  --glass-border: rgba(139, 92, 246, 0.2);
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --shadow-glow: 0 10px 40px rgba(139, 92, 246, 0.3);
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.8;
+  font-size: 17px;
+  color: #f1f5f9;
+  background: var(--dark-gradient);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+.navbar {
+  background: rgba(15, 15, 35, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.footer {
+  background: var(--dark-gradient);
+  color: #f1f5f9;
+  padding: 80px 0 40px;
+  border-top: 1px solid var(--glass-border);
+}
+
+.code-block {
+  background: var(--darker-color);
+  border: 1px solid var(--glass-border);
+  border-radius: 15px;
+  padding: 25px;
+  font-family: 'Fira Code', monospace;
+  font-size: 15px;
+  overflow-x: auto;
+  color: #f1f5f9;
+}
