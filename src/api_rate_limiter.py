@@ -162,7 +162,7 @@ class TokenBucketRateLimiter:
 	def __init__(self, config: RateLimitConfig):
 		self.config = config
 		self.buckets: Dict[str, float] = defaultdict(lambda: config.burst_size)
-		self.last_refill: Dict[str, float] = defaultdict(lambda: time.time())
+		self.last_refill: Dict[str, float] = defaultdict(time.time)
 		self.blocked_clients: Dict[str, float] = {}
 		self.concurrent_requests: Dict[str, int] = defaultdict(int)
 		self.request_history: Dict[str, Deque] = defaultdict(lambda: deque(maxlen=100))
@@ -174,7 +174,8 @@ class TokenBucketRateLimiter:
 		if config.blacklisted_ips is None:
 			config.blacklisted_ips = set()
 
-	def _get_client_key(self, client_ip: str, user_agent: str = "") -> str:
+	@staticmethod
+	def _get_client_key(client_ip: str, user_agent: str = "") -> str:
 		"""Generate a unique client key for rate limiting."""
 		fingerprint = f"{client_ip}:{user_agent}"
 		return hashlib.sha256(fingerprint.encode()).hexdigest()
@@ -215,7 +216,8 @@ class TokenBucketRateLimiter:
 			del self.blocked_clients[client_key]
 		return False
 
-	def _analyze_user_agent(self, user_agent: str) -> int:
+	@staticmethod
+	def _analyze_user_agent(user_agent: str) -> int:
 		"""Analyze user agent for suspicious patterns. Returns score (0-10)."""
 		if not user_agent:
 			return 0

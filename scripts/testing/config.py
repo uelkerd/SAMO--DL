@@ -110,7 +110,6 @@ def get_test_config() -> TestConfig:
 
 def create_api_client():
     """Create a reusable API client with common functionality."""
-    import requests
     from requests.adapters import HTTPAdapter
     from urllib3.util.retry import Retry
 
