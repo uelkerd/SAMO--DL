@@ -8,10 +8,11 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install system dependencies
+# Install system dependencies with version pinning for security
+# Pin versions to avoid DOK-DL3008 and ensure reproducible builds
 RUN apt-get update && apt-get install -y \
     git \
-    curl \
+    curl=7.88.1-10+deb12u12 \
     wget \
     build-essential \
     && rm -rf /var/lib/apt/lists/*

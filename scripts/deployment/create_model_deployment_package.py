@@ -63,7 +63,7 @@ scikit-learn==1.3.0
 numpy==1.24.3
 pandas==2.0.3
 flask==2.3.3
-requests==2.31.0
+requests==2.32.4
 """,
         
         "inference.py": '''#!/usr/bin/env python3

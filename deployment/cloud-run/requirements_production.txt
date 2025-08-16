@@ -17,4 +17,8 @@ prometheus-client>=0.20.0,<1.0.0
 psutil>=6.0.0,<7.0.0
 
 # Security and validation
-python-dotenv>=1.0.0,<2.0.0 
+python-dotenv>=1.0.0,<2.0.0
+
+# HTTP client
+requests==2.32.4
+httpx>=0.24.0 

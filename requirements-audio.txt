@@ -14,3 +14,7 @@ jiwer>=3.0.0,<4.0.0
 # Install manually if needed: pip install pyaudio
 # On macOS: brew install portaudio && pip install pyaudio
 # On Ubuntu: apt-get install portaudio19-dev && pip install pyaudio
+
+# HTTP client dependencies for consistency
+requests==2.32.4
+httpx>=0.24.0
