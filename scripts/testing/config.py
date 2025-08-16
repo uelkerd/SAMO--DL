@@ -8,6 +8,7 @@ import os
 import argparse
 import time
 from typing import Optional
+import requests
 
 
 class TestConfig:
