@@ -4,8 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - 2025-08-07
 
-### Code Quality Improvements
-- Add `scripts/fix_linting_issues.py` to automate PEP8-style fixes.
+### Added
+- `scripts/fix_linting_issues.py` to automate PEP8-style fixes.
+
+### Changed
 - Improve logging and formatting in `scripts/database/check_pgvector.py`.
 - Tidy API rate limiter and testing config for readability.
 
