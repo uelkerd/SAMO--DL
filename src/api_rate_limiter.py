@@ -374,7 +374,10 @@ class TokenBucketRateLimiter:
                 return False, "IP not allowed", {"ip": client_ip}
             client_key = self._get_client_key(client_ip, user_agent)
             if self._is_client_blocked(client_key):
-                return False, "Client blocked", {"client_key": client_key, "ip": client_ip}
+                return False, "Client blocked", {
+                    "client_key": client_key,
+                    "ip": client_ip,
+                }
             if self.concurrent_requests[client_key] >= self.config.max_concurrent_requests:
                 return False, "Too many concurrent requests", {
                     "client_key": client_key,
@@ -382,12 +385,19 @@ class TokenBucketRateLimiter:
                     "max": self.config.max_concurrent_requests,
                 }
             if self._detect_abuse(client_key, client_ip, user_agent):
-                self.blocked_clients[client_key] = time.time() + self.config.block_duration_seconds
+                self.blocked_clients[client_key] = (
+                    time.time() + self.config.block_duration_seconds
+                )
                 logger.warning(
                     "Blocked abusive client %s from %s for %ss",
-                    client_key, client_ip, self.config.block_duration_seconds,
+                    client_key,
+                    client_ip,
+                    self.config.block_duration_seconds,
                 )
-                return False, "Abuse detected", {"client_key": client_key, "ip": client_ip}
+                return False, "Abuse detected", {
+                    "client_key": client_key,
+                    "ip": client_ip,
+                }
             self._refill_bucket(client_key)
             if self.buckets[client_key] < 0.999999:
                 return False, "Rate limit exceeded", {

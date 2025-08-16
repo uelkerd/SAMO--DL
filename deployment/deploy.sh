@@ -14,7 +14,7 @@ fi
 
 # Install dependencies
 echo "📦 Installing dependencies..."
-pip install -r requirements.txt
+pip install -r requirements-api.txt
 
 # Test the model
 echo "🧪 Testing model..."
