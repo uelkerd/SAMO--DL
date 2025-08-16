@@ -9,7 +9,7 @@
 ## 📦 What's Included
 - `model/` - Trained model files
 - `inference.py` - Standalone inference script
-- `requirements.txt` - Dependencies
+- `requirements-api.txt` - API/runtime dependencies (pinned)
 - `test_examples.py` - Test the model
 - `api_server.py` - REST API server
 
@@ -17,7 +17,7 @@
 
 ### 1. Install Dependencies
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-api.txt
 ```
 
 ### 2. Test the Model

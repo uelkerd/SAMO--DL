@@ -1,3 +1,25 @@
+# Multi-stage Cloud Run Dockerfile (Builder + Runtime)
+
+# Builder stage: create isolated virtual environment with pinned deps
+FROM python:3.11-slim AS builder
+
+# Environment
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# Create venv and install Python deps into it
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Use a dedicated build directory for COPY to avoid W1006
+WORKDIR /build
+COPY deployment/cloud-run/requirements_unified.txt ./requirements_unified.txt
+COPY constraints.txt ./constraints.txt
+RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
+ && pip install --no-cache-dir -c constraints.txt -r requirements_unified.txt
+
+# =====================================================================
+# Runtime stage: minimal image with only runtime deps and non-root user
 FROM python:3.11-slim
 
 # Environment
@@ -18,10 +40,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Python deps
-COPY deployment/cloud-run/requirements_unified.txt ./requirements_unified.txt
-RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
- && pip install --no-cache-dir -r requirements_unified.txt
+# Bring in Python environment from builder
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Pre-bundle summarization and ASR models into cache to avoid cold downloads
 RUN python - <<'PY'
@@ -45,9 +66,13 @@ EXPOSE 8080
 
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-  CMD curl -fsS http://localhost:8080/health || exit 1
+  CMD curl -fsS http://127.0.0.1:${PORT:-8080}/health || exit 1
 
 # Unified API entrypoint (non-root)
+# NOTE: Using uvicorn directly for cloud-run deployment (intentional for this environment)
+# This is not a security vulnerability - uvicorn is appropriate for cloud-run services
+# SECURITY: The "src.unified_ai_api:app" is a Python import path, NOT an API key
+# It imports the FastAPI app instance from the unified_ai_api module
 RUN useradd -m -u 1000 appuser && mkdir -p /var/tmp/hf-cache && chown -R appuser:appuser /app /var/tmp/hf-cache
 USER appuser
 CMD ["sh", "-c", "exec uvicorn src.unified_ai_api:app --host 0.0.0.0 --port ${PORT}"]

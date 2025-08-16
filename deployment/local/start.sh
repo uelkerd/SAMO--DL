@@ -6,7 +6,7 @@ echo "============================"
 
 # Install dependencies
 echo "📦 Installing dependencies..."
-pip install -r requirements.txt
+pip install -r requirements-api.txt
 
 # Start API server
 echo "🌐 Starting API server..."

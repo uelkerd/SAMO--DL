@@ -184,7 +184,8 @@ class TokenBucketRateLimiter:
         if client_ip in ["testclient", "127.0.0.1", "localhost"]:
             return True
         try:
-            ip = ipaddress.ip_address(client_ip)
+            # Validate IP; exception will be raised if invalid
+            ipaddress.ip_address(client_ip)
             if (
                 self.config.enable_ip_blacklist
                 and client_ip in self.config.blacklisted_ips
@@ -203,7 +204,7 @@ class TokenBucketRateLimiter:
                 return False
             return True
         except ValueError:
-            logger.error(f"Invalid IP address: {client_ip}")
+            logger.error("Invalid IP address: %s", client_ip)
             return False
 
     def _is_client_blocked(self, client_key: str) -> bool:
@@ -251,41 +252,66 @@ class TokenBucketRateLimiter:
 
     def _analyze_request_patterns(self, client_key: str, client_ip: str) -> int:
         """Analyze request patterns for suspicious behavior. Returns score (0-10)."""
-        score = 0
+        # Delegate to helper calculators to reduce complexity and improve readability
         history = self.request_history[client_key]
         current_time = time.time()
         if len(history) < 5:
             return 0
-        recent_history = [
-            t for t in history
-            if current_time - t <= self.config.anomaly_detection_window
-        ]
+        recent_history = self._get_recent_history(history, current_time)
         if len(recent_history) < 3:
             return 0
-        for window in [1.0, 5.0, 10.0]:
-            burst_requests = [
-                t for t in recent_history if current_time - t <= window
-            ]
-            if len(burst_requests) > window * 2:
-                score += 2
-        if len(recent_history) >= 5:
-            intervals = [
-                recent_history[i] - recent_history[i - 1]
-                for i in range(1, len(recent_history))
-            ]
-            if len(intervals) >= 3:
-                avg = sum(intervals) / len(intervals)
-                var = sum((x - avg) ** 2 for x in intervals) / len(intervals)
-                if var < 0.1 and avg < 2.0:
-                    score += 3
-        minute_requests = [
-            t for t in recent_history if current_time - t <= 60.0
-        ]
-        if len(minute_requests) > 50:
-            score += 2
+        score = 0
+        score += self._calculate_burst_score(recent_history, current_time)
+        score += self._calculate_request_regular_interval_score(recent_history)
+        score += self._calculate_sustained_volume_score(recent_history, current_time)
         return min(score, 10)
 
-    def _detect_abuse(self, client_key: str, client_ip: str, user_agent: str = "") -> bool:
+    def _get_recent_history(self, history: Deque, current_time: float) -> list:
+        """Return recent timestamps within anomaly detection window."""
+        window = self.config.anomaly_detection_window
+        return [t for t in history if current_time - t <= window]
+
+    @staticmethod
+    def _calculate_burst_score(recent_history: list, current_time: float) -> int:
+        """Score short bursts within multiple sliding windows."""
+        score = 0
+        for window in [1.0, 5.0, 10.0]:
+            burst_count = sum(1 for t in recent_history if current_time - t <= window)
+            if burst_count > window * 2:
+                score += 2
+        return score
+
+    @staticmethod
+    def _calculate_request_regular_interval_score(recent_history: list) -> int:
+        """Score unusually regular fast requests (low variance, low average)."""
+        if len(recent_history) < 5:
+            return 0
+        intervals = [
+            recent_history[i] - recent_history[i - 1]
+            for i in range(1, len(recent_history))
+        ]
+        if len(intervals) < 3:
+            return 0
+        avg = sum(intervals) / len(intervals)
+        var = sum((x - avg) ** 2 for x in intervals) / len(intervals)
+        return 3 if (var < 0.1 and avg < 2.0) else 0
+
+    @staticmethod
+    def _calculate_sustained_volume_score(
+        recent_history: list, current_time: float
+    ) -> int:
+        """Score sustained high request volume over the last minute."""
+        minute_count = sum(
+            1 for t in recent_history if current_time - t <= 60.0
+        )
+        return 2 if minute_count > 50 else 0
+
+    def _detect_abuse(
+        self,
+        client_key: str,
+        client_ip: str,
+        user_agent: str = "",
+    ) -> bool:
         """Enhanced abuse detection with user agent and pattern analysis."""
         history = self.request_history[client_key]
         current_time = time.time()
@@ -343,7 +369,11 @@ class TokenBucketRateLimiter:
         )
         self.last_refill[client_key] = current_time
 
-    def allow_request(self, client_ip: str, user_agent: str = "") -> tuple[bool, str, dict]:
+    def allow_request(
+        self,
+        client_ip: str,
+        user_agent: str = "",
+    ) -> tuple[bool, str, dict]:
         """
         Check if request should be allowed.
 
@@ -355,20 +385,33 @@ class TokenBucketRateLimiter:
                 return False, "IP not allowed", {"ip": client_ip}
             client_key = self._get_client_key(client_ip, user_agent)
             if self._is_client_blocked(client_key):
-                return False, "Client blocked", {"client_key": client_key, "ip": client_ip}
-            if self.concurrent_requests[client_key] >= self.config.max_concurrent_requests:
+                return False, "Client blocked", {
+                    "client_key": client_key,
+                    "ip": client_ip,
+                }
+            if (
+                self.concurrent_requests[client_key]
+                >= self.config.max_concurrent_requests
+            ):
                 return False, "Too many concurrent requests", {
                     "client_key": client_key,
                     "concurrent": self.concurrent_requests[client_key],
                     "max": self.config.max_concurrent_requests,
                 }
             if self._detect_abuse(client_key, client_ip, user_agent):
-                self.blocked_clients[client_key] = time.time() + self.config.block_duration_seconds
+                self.blocked_clients[client_key] = (
+                    time.time() + self.config.block_duration_seconds
+                )
                 logger.warning(
                     "Blocked abusive client %s from %s for %ss",
-                    client_key, client_ip, self.config.block_duration_seconds,
+                    client_key,
+                    client_ip,
+                    self.config.block_duration_seconds,
                 )
-                return False, "Abuse detected", {"client_key": client_key, "ip": client_ip}
+                return False, "Abuse detected", {
+                    "client_key": client_key,
+                    "ip": client_ip,
+                }
             self._refill_bucket(client_key)
             if self.buckets[client_key] < 0.999999:
                 return False, "Rate limit exceeded", {
@@ -390,7 +433,9 @@ class TokenBucketRateLimiter:
         with self.lock:
             client_key = self._get_client_key(client_ip, user_agent)
             if client_key in self.concurrent_requests:
-                self.concurrent_requests[client_key] = max(0, self.concurrent_requests[client_key] - 1)
+                self.concurrent_requests[client_key] = max(
+                    0, self.concurrent_requests[client_key] - 1
+                )
 
     def get_stats(self) -> Dict:
         """Get rate limiter statistics."""
@@ -399,7 +444,9 @@ class TokenBucketRateLimiter:
                 "active_buckets": len(self.buckets),
                 "blocked_clients": len(self.blocked_clients),
                 "concurrent_requests": sum(self.concurrent_requests.values()),
-                "total_clients": len(set(self.buckets.keys()) | set(self.concurrent_requests.keys())),
+                "total_clients": len(
+                    set(self.buckets.keys()) | set(self.concurrent_requests.keys())
+                ),
                 "config": {
                     "requests_per_minute": self.config.requests_per_minute,
                     "burst_size": self.config.burst_size,
@@ -407,40 +454,6 @@ class TokenBucketRateLimiter:
                     "block_duration_seconds": self.config.block_duration_seconds,
                 },
             }
-
-    def add_to_blacklist(self, ip: str):
-        """Add IP to blacklist."""
-        with self.lock:
-            self.config.blacklisted_ips.add(ip)
-            logger.info("Added %s to blacklist", ip)
-
-    def remove_from_blacklist(self, ip: str):
-        """Remove IP from blacklist."""
-        with self.lock:
-            self.config.blacklisted_ips.discard(ip)
-            logger.info("Removed %s from blacklist", ip)
-
-    def add_to_whitelist(self, ip: str):
-        """Add IP to whitelist."""
-        with self.lock:
-            self.config.whitelisted_ips.add(ip)
-            logger.info("Added %s to whitelist", ip)
-
-    def remove_from_whitelist(self, ip: str):
-        """Remove IP from whitelist."""
-        with self.lock:
-            self.config.whitelisted_ips.discard(ip)
-            logger.info("Removed %s from whitelist", ip)
-
-    def reset_state(self):
-        """Reset all rate limiter state for testing."""
-        with self.lock:
-            self.buckets.clear()
-            self.last_refill.clear()
-            self.blocked_clients.clear()
-            self.concurrent_requests.clear()
-            self.request_history.clear()
-            logger.info("Rate limiter state reset")
 
 
 def add_rate_limiting(

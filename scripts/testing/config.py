@@ -8,6 +8,7 @@ import os
 import argparse
 import time
 from typing import Optional
+import requests
 
 
 class TestConfig:
@@ -109,7 +110,6 @@ def get_test_config() -> TestConfig:
 
 def create_api_client():
     """Create a reusable API client with common functionality."""
-    import requests
     from requests.adapters import HTTPAdapter
     from urllib3.util.retry import Retry
 
@@ -146,7 +146,13 @@ class APIClient:
         """Make POST request with common configuration."""
         url = f"{self.base_url}{endpoint}"
         headers = {**self.headers, **kwargs.get('headers', {})}
-        return self.session.post(url, json=json_data, headers=headers, timeout=self.timeout, **kwargs)
+        return self.session.post(
+            url,
+            json=json_data,
+            headers=headers,
+            timeout=self.timeout,
+            **kwargs,
+        )
 
     def test_health(self) -> dict:
         """Test health endpoint."""
