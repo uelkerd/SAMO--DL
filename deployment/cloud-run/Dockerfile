@@ -1,7 +1,7 @@
 # Multi-stage Cloud Run Dockerfile (Builder + Runtime)
 
 # Builder stage: create isolated virtual environment with pinned deps
-FROM python:3.11-slim AS builder
+FROM python:3.11-slim-bookworm AS builder
 
 # Environment
 ENV PYTHONUNBUFFERED=1 \
@@ -20,7 +20,7 @@ RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
 
 # =====================================================================
 # Runtime stage: minimal image with only runtime deps and non-root user
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
 
 # Environment
 ENV PYTHONUNBUFFERED=1 \
@@ -31,11 +31,12 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_ROOT_USER_ACTION=ignore
 
 # System deps (ffmpeg for pydub/whisper; build tools for some wheels)
+# Pin versions for security and reproducibility across all architectures
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg \
-    gcc \
-    g++ \
-    curl \
+    ffmpeg=7:5.1.6-0+deb12u1 \
+    gcc=4:12.2.0-3 \
+    g++=4:12.2.0-3 \
+    curl=7.88.1-10+deb12u12 \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
