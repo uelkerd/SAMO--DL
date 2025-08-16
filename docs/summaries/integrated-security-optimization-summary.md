@@ -69,7 +69,7 @@ steps:
 - `bcrypt==4.2.0` - Password hashing
 - `redis==5.2.0` - Rate limiting backend
 - `psutil==5.9.6` - System monitoring
-- `prometheus-client==0.19.0` - Metrics collection
+- `prometheus-client==0.20.0` - Metrics collection
 
 **Optimization Dependencies Maintained**:
 - `flask==3.1.1` - Web framework
