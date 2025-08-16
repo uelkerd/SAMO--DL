@@ -1,3 +1,25 @@
+# Multi-stage Cloud Run Dockerfile (Builder + Runtime)
+
+# Builder stage: create isolated virtual environment with pinned deps
+FROM python:3.11-slim AS builder
+
+# Environment
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# Create venv and install Python deps into it
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Use a dedicated build directory for COPY to avoid W1006
+WORKDIR /build
+COPY requirements-api.txt ./requirements-api.txt
+COPY constraints.txt ./constraints.txt
+RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
+ && pip install --no-cache-dir -c constraints.txt -r requirements-api.txt
+
+# =====================================================================
+# Runtime stage: minimal image with only runtime deps and non-root user
 FROM python:3.11-slim
 
 # Environment
@@ -18,11 +40,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Python deps
-COPY requirements-api.txt ./
-COPY constraints.txt ./
-RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
- && pip install --no-cache-dir -c constraints.txt -r requirements-api.txt
+# Bring in Python environment from builder
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 # App code
 COPY src/ ./src/
