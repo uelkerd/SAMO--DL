@@ -14,7 +14,8 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 WORKDIR /tmp/build
 COPY requirements-api.txt .
-RUN pip install --no-cache-dir -r requirements-api.txt
+COPY constraints.txt .
+RUN pip install --no-cache-dir -r requirements-api.txt --constraint constraints.txt
 
 # Runtime stage: minimal image with only runtime deps
 FROM python:3.12-slim-bookworm@sha256:placeholder-update-before-merge

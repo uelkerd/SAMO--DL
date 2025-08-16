@@ -87,7 +87,9 @@ def fix_trailing_whitespace(
         # If content changed, optionally back up and replace
         if changed:
             if backup:
-                shutil.copyfile(safe_path, f"{safe_path}.bak")
+                bak = Path(f"{safe_path}.bak")
+                if not bak.exists():
+                    shutil.copyfile(safe_path, bak)
             Path(tmp.name).replace(safe_path)
         else:
             Path(tmp.name).unlink(missing_ok=True)
@@ -153,7 +155,9 @@ def fix_blank_lines_with_whitespace(
 
         if fixed_content != original_content:
             if backup:
-                shutil.copyfile(safe_path, f"{safe_path}.bak")
+                bak = Path(f"{safe_path}.bak")
+                if not bak.exists():
+                    shutil.copyfile(safe_path, bak)
             with open(safe_path, 'w', encoding='utf-8') as f_out:
                 f_out.write(fixed_content)
             return True, issues_fixed
