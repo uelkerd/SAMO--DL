@@ -147,7 +147,6 @@ def main():
     for file_path in python_files:
         print(f"\nProcessing: {file_path.relative_to(project_root)}")
 
-        file_fixed = False  # Track if file was modified
         fixed_issues: List[str] = []
         detected_issues: List[str] = []
 
@@ -155,7 +154,6 @@ def main():
         fixed, issues = fix_trailing_whitespace(file_path, backup=args.backup)
         if issues:
             if fixed:
-                file_fixed = True
                 fixed_issues.extend(issues)
             else:
                 detected_issues.extend(issues)
@@ -170,7 +168,6 @@ def main():
         fixed, issues = fix_blank_lines_with_whitespace(file_path, backup=args.backup)
         if issues:
             if fixed:
-                file_fixed = True
                 fixed_issues.extend(issues)
             else:
                 detected_issues.extend(issues)
