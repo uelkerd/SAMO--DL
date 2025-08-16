@@ -301,7 +301,9 @@ class TokenBucketRateLimiter:
         recent_history: list, current_time: float
     ) -> int:
         """Score sustained high request volume over the last minute."""
-        minute_count = sum(1 for t in recent_history if current_time - t <= 60.0)
+        minute_count = sum(
+            1 for t in recent_history if current_time - t <= 60.0
+        )
         return 2 if minute_count > 50 else 0
 
     def _detect_abuse(self, client_key: str, client_ip: str, user_agent: str = "") -> bool:
@@ -362,7 +364,11 @@ class TokenBucketRateLimiter:
         )
         self.last_refill[client_key] = current_time
 
-    def allow_request(self, client_ip: str, user_agent: str = "") -> tuple[bool, str, dict]:
+    def allow_request(
+        self,
+        client_ip: str,
+        user_agent: str = "",
+    ) -> tuple[bool, str, dict]:
         """
         Check if request should be allowed.
 
@@ -378,7 +384,10 @@ class TokenBucketRateLimiter:
                     "client_key": client_key,
                     "ip": client_ip,
                 }
-            if self.concurrent_requests[client_key] >= self.config.max_concurrent_requests:
+            if (
+                self.concurrent_requests[client_key]
+                >= self.config.max_concurrent_requests
+            ):
                 return False, "Too many concurrent requests", {
                     "client_key": client_key,
                     "concurrent": self.concurrent_requests[client_key],
