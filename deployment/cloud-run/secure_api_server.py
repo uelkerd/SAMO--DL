@@ -474,10 +474,10 @@ def handle_unexpected_error(error):
 
 # Register error handlers directly
 api.error_handlers[429] = rate_limit_exceeded
-    api.error_handlers[500] = internal_error
+api.error_handlers[500] = internal_error
 api.error_handlers[404] = not_found
 api.error_handlers[405] = method_not_allowed
-    api.error_handlers[Exception] = handle_unexpected_error
+api.error_handlers[Exception] = handle_unexpected_error
 
 def initialize_model():
     """Initialize the emotion detection model"""

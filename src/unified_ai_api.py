@@ -194,8 +194,8 @@ class WebSocketConnectionManager:
     """Enhanced WebSocket connection manager with pooling and heartbeat."""
 
     def __init__(self):
-        self.active_connections: dict[str, set[WebSocket]] = defaultdict(set)
-        self.connection_metadata: dict[WebSocket, dict[str, Any]] = {}
+        self.active_connections: Dict[str, Set[WebSocket]] = defaultdict(set)
+        self.connection_metadata: Dict[WebSocket, Dict[str, Any]] = {}
         self.heartbeat_interval = 30  # seconds
         self.max_connections_per_user = 5
         self.connection_timeout = 300  # 5 minutes
@@ -237,7 +237,7 @@ class WebSocketConnectionManager:
 
         logger.info(f"WebSocket disconnected for user {user_id}")
 
-    async def send_personal_message(self, message: dict[str, Any], websocket: WebSocket):
+    async def send_personal_message(self, message: Dict[str, Any], websocket: WebSocket):
         """Send message to specific WebSocket with error handling."""
         try:
             await websocket.send_json(message)
@@ -247,7 +247,7 @@ class WebSocketConnectionManager:
             logger.error(f"Failed to send message to WebSocket: {e}")
             await self.disconnect(websocket)
 
-    async def broadcast_to_user(self, message: dict[str, Any], user_id: str):
+    async def broadcast_to_user(self, message: Dict[str, Any], user_id: str):
         """Broadcast message to all connections of a specific user."""
         disconnected = set()
         for websocket in self.active_connections[user_id]:

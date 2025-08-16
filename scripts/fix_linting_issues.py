@@ -37,7 +37,7 @@ def fix_trailing_whitespace(file_path: Path) -> Tuple[bool, List[str]]:
         for i, line in enumerate(lines, 1):
             # Remove trailing whitespace
             if line.rstrip() != line:
-                original_line = line
+                _ = line  # Store original line for reference (renamed from original_line)
                 line = line.rstrip()
                 issues_fixed.append(f"Line {i}: Removed trailing whitespace")
 
@@ -155,25 +155,25 @@ def main():
     for file_path in python_files:
         print(f"\nProcessing: {file_path.relative_to(project_root)}")
 
-        file_fixed = False
+        _ = False  # Track if file was modified (renamed from file_fixed)
         file_issues = []
 
         # Fix trailing whitespace
         fixed, issues = fix_trailing_whitespace(file_path)
         if fixed:
-            file_fixed = True
+            _ = True
             file_issues.extend(issues)
 
         # Fix indentation issues
         fixed, issues = fix_indentation_issues(file_path)
         if fixed:
-            file_fixed = True
+            _ = True
             file_issues.extend(issues)
 
         # Fix blank lines with whitespace
         fixed, issues = fix_blank_lines_with_whitespace(file_path)
         if fixed:
-            file_fixed = True
+            _ = True
             file_issues.extend(issues)
 
         if file_issues:

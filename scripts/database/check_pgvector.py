@@ -61,9 +61,9 @@ def check_pgvector():
 
         # Check if vector extension is available
         cur.execute("SELECT extname FROM pg_extension WHERE extname = 'vector';")
-        is_installed = cur.fetchone() is not None
+        extension_installed = cur.fetchone() is not None
 
-        if is_installed:
+        if extension_installed:
             logging.info("✅ pgvector extension is installed and available.")
         else:
             logging.info("❌ pgvector extension is NOT installed.")
@@ -81,7 +81,7 @@ def check_pgvector():
         cur.close()
         conn.close()
 
-        return is_installed
+        return extension_installed
 
     except psycopg2.Error as e:
         logging.info(f"Error connecting to PostgreSQL: {e}")
