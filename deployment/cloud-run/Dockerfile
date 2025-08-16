@@ -54,7 +54,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY src/ ./src/
 
 # Create and switch to non-root user before healthcheck
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+RUN useradd -m -u 1000 appuser \
+ && mkdir -p /var/tmp/hf-cache \
+ && chown -R appuser:appuser /app /var/tmp/hf-cache
 USER appuser
 
 EXPOSE 8080

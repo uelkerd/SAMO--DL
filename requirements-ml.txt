@@ -28,3 +28,7 @@ textblob>=0.17.0,<1.0.0
 # Note: For GPU support, use: pip install .[ml-gpu] 
 # For audio processing, use: pip install .[audio]
 
+# HTTP client dependencies for consistency
+requests==2.32.4
+httpx>=0.24.0
+

@@ -17,9 +17,11 @@ google-api-core==2.21.0
 googleapis-common-protos==1.65.0
 
 # Common transitive dependencies that cause backtracking
-certifi>=2024.12.14,<2026.0.0
+# NOTE: certifi pinned to exact version for CI determinism; security updates handled via base image updates
+certifi==2024.12.14
 urllib3==2.2.3
 requests==2.32.4
+httpx>=0.24.0
 charset-normalizer==3.4.0
 idna==3.10
 
