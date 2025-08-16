@@ -11,10 +11,13 @@ import shutil
 import tempfile
 import contextlib
 from pathlib import Path
-from typing import Optional, Set
+from typing import Optional
 
 
-def find_python_files(project_root: Path, excluded_dirs: Optional[Set[str]] = None) -> list[Path]:
+def find_python_files(
+    project_root: Path,
+    excluded_dirs: Optional[set[str]] = None,
+) -> list[Path]:
     """Find all Python files in the project, skipping excluded directories."""
     if excluded_dirs is None:
         excluded_dirs = {
@@ -35,12 +38,17 @@ def find_python_files(project_root: Path, excluded_dirs: Optional[Set[str]] = No
     return python_files
 
 
-def fix_trailing_whitespace(file_path: Path, backup: bool = False) -> tuple[bool, list[str]]:
+def fix_trailing_whitespace(
+    file_path: Path,
+    backup: bool = False,
+) -> tuple[bool, list[str]]:
     """Fix trailing whitespace in a file, processing line by line for efficiency."""
     changed = False
     issues_fixed: list[str] = []
     try:
-        with open(file_path, encoding='utf-8') as src, tempfile.NamedTemporaryFile('w', delete=False, encoding='utf-8') as tmp:
+        with open(file_path, encoding='utf-8') as src, tempfile.NamedTemporaryFile(
+            'w', delete=False, encoding='utf-8'
+        ) as tmp:
             for i, line in enumerate(src, 1):
                 # Remove trailing whitespace (including tabs/spaces) and normalize newline
                 stripped_line_no_nl = line.rstrip('\r\n')
@@ -68,7 +76,7 @@ def fix_trailing_whitespace(file_path: Path, backup: bool = False) -> tuple[bool
 def fix_indentation_issues(file_path: Path) -> tuple[bool, list[str]]:
     """Detect indentation issues using AST; do not attempt automatic fixes."""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding='utf-8') as f:
             original_content = f.read()
 
         # Use ast to check for indentation/syntax issues without modifying the file
@@ -84,10 +92,13 @@ def fix_indentation_issues(file_path: Path) -> tuple[bool, list[str]]:
         return False, [f"Error processing {file_path}: {e}"]
 
 
-def fix_blank_lines_with_whitespace(file_path: Path, backup: bool = False) -> tuple[bool, list[str]]:
+def fix_blank_lines_with_whitespace(
+    file_path: Path,
+    backup: bool = False,
+) -> tuple[bool, list[str]]:
     """Fix blank lines that contain whitespace."""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding='utf-8') as f:
             content = f.read()
 
         original_content = content
@@ -98,7 +109,9 @@ def fix_blank_lines_with_whitespace(file_path: Path, backup: bool = False) -> tu
         for i, line in enumerate(lines, 1):
             # Check if line is blank but contains whitespace
             if not line.strip() and line != '':
-                issues_fixed.append(f"Line {i}: Removed whitespace from blank line")
+                issues_fixed.append(
+                    f"Line {i}: Removed whitespace from blank line"
+                )
                 fixed_lines.append('')
                 continue
 
@@ -124,14 +137,25 @@ def fix_blank_lines_with_whitespace(file_path: Path, backup: bool = False) -> tu
 
 def main():
     """Main function to fix all linting issues."""
-    parser = argparse.ArgumentParser(description="Fix linting issues in files.")
-    parser.add_argument("--backup", action="store_true", help="Create backups of files before modifying them.")
+    parser = argparse.ArgumentParser(
+        description="Fix linting issues in files."
+    )
+    parser.add_argument(
+        "--backup",
+        action="store_true",
+        help="Create backups of files before modifying them.",
+    )
     args = parser.parse_args()
 
     # Warn user if not backing up
     if not args.backup:
-        print("⚠️ WARNING: No backups will be created before modifying files. This may result in accidental data loss.")
-        print("   Use the --backup option to create .bak files before changes are made.\n")
+        print(
+            "⚠️ WARNING: No backups will be created before modifying files. "
+            "This may result in accidental data loss."
+        )
+        print(
+            "   Use the --backup option to create .bak files before changes are made.\n"
+        )
 
     print("🔧 SAMO Linting Issues Fix Script")
     print("=" * 50)
@@ -185,7 +209,10 @@ def main():
             total_files_fixed += 1
 
         if detected_issues:
-            print(f"  ⚠️ Detected {len(detected_issues)} issues that may require manual attention:")
+            print(
+                f"  ⚠️ Detected {len(detected_issues)} issues that may require "
+                f"manual attention:"
+            )
             for issue in detected_issues:
                 print(f"    - {issue}")
 
@@ -210,6 +237,7 @@ def main():
     print("  3. Commit the fixes")
     print("  4. Run linting tools to verify")
     print("  5. If you used --backup, verify .bak files were created for safety.")
+
 
 if __name__ == "__main__":
     main()
