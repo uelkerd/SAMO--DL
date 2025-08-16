@@ -14,6 +14,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg=7:5.1.6-0+deb12u1 \
     gcc=4:12.2.0-3 \
     g++=4:12.2.0-3 \
+    build-essential \
+    python3-dev \
+    pkg-config \
+    git \
+    cmake \
     curl=7.88.1-10+deb12u12 \
   && rm -rf /var/lib/apt/lists/*
 
