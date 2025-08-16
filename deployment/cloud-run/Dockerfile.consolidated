@@ -19,8 +19,8 @@ ENV PYTHONUNBUFFERED=1 \
 # Install build tools only when ML dependencies are needed
 RUN if [ "$INCLUDE_ML" = "true" ]; then \
         apt-get update && apt-get install -y --no-install-recommends \
-        gcc=4:12.2.0-* \
-        g++=4:12.2.0-* \
+        gcc \
+        g++ \
         && rm -rf /var/lib/apt/lists/*; \
     fi
 
@@ -31,25 +31,24 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Use a dedicated build directory for COPY to avoid W1006
 WORKDIR /build
 
-# Copy appropriate requirements based on build type
-COPY deployment/cloud-run/requirements_${BUILD_TYPE}.txt ./requirements.txt
-COPY constraints.txt ./constraints.txt
+# Copy all requirements files and constraints
+COPY requirements_*.txt ./
+COPY constraints.txt ./
 
 # Install Python dependencies
 RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
+ && cp requirements_${BUILD_TYPE}.txt requirements.txt \
  && pip install --no-cache-dir -c constraints.txt -r requirements.txt
 
-# Create a simple minimal API server for the minimal variant
-RUN if [ "$BUILD_TYPE" = "minimal" ]; then \
-        echo '#!/usr/bin/env python3' > ./minimal_api_server.py && \
-        echo 'from flask import Flask, jsonify' >> ./minimal_api_server.py && \
-        echo 'app = Flask(__name__)' >> ./minimal_api_server.py && \
-        echo '@app.route("/health")' >> ./minimal_api_server.py && \
-        echo 'def health():' >> ./minimal_api_server.py && \
-        echo '    return jsonify({"status": "healthy", "variant": "minimal"})' >> ./minimal_api_server.py && \
-        echo 'if __name__ == "__main__":' >> ./minimal_api_server.py && \
-        echo '    app.run(host="0.0.0.0", port=8080)' >> ./minimal_api_server.py; \
-    fi
+# Create a simple minimal API server (always created for runtime stage compatibility)
+RUN echo '#!/usr/bin/env python3' > ./minimal_api_server.py && \
+    echo 'from flask import Flask, jsonify' >> ./minimal_api_server.py && \
+    echo 'app = Flask(__name__)' >> ./minimal_api_server.py && \
+    echo '@app.route("/health")' >> ./minimal_api_server.py && \
+    echo 'def health():' >> ./minimal_api_server.py && \
+    echo '    return jsonify({"status": "healthy", "variant": "minimal"})' >> ./minimal_api_server.py && \
+    echo 'if __name__ == "__main__":' >> ./minimal_api_server.py && \
+    echo '    app.run(host="0.0.0.0", port=8080)' >> ./minimal_api_server.py
 
 # =====================================================================
 # Runtime stage: minimal image with only runtime deps and non-root user
@@ -72,13 +71,13 @@ ENV PYTHONUNBUFFERED=1 \
 RUN if [ "$INCLUDE_ML" = "true" ]; then \
         # ML version needs ffmpeg for audio processing
         apt-get update && apt-get install -y --no-install-recommends \
-        ffmpeg=7:5.1.6-0+deb12u1 \
-        curl=7.88.1-10+deb12u12 \
+        ffmpeg \
+        curl \
         && rm -rf /var/lib/apt/lists/*; \
     else \
         # Minimal version only needs curl for health checks
         apt-get update && apt-get install -y --no-install-recommends \
-        curl=7.88.1-10+deb12u12 \
+        curl \
         && rm -rf /var/lib/apt/lists/*; \
     fi
 
