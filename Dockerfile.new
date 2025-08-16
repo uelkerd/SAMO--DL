@@ -1,0 +1,54 @@
+# MINIMAL VULNERABILITY FIX - Addresses ONLY Trivy findings
+FROM python:3.12-slim-bookworm
+
+# Environment
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PORT=8000 \
+    HOST=0.0.0.0
+
+# SECURITY: Update packages and fix vulnerabilities found by Trivy
+RUN apt-get update && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends \
+    # SECURITY: Latest FFmpeg to fix CVE-2023-6603, CVE-2025-1594
+    ffmpeg \
+    # SECURITY: Latest libaom3 to fix CVE-2023-6879
+    libaom3 \
+    # SECURITY: Latest libavcodec/libavformat to fix vulnerabilities
+    libavcodec-extra \
+    libavformat-extra \
+    # SECURITY: Latest curl to fix vulnerabilities (needed for HEALTHCHECK)
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# SECURITY: Create dedicated non-root user and group
+RUN groupadd --gid 1000 samo && \
+    useradd --uid 1000 --gid samo --shell /bin/bash --create-home samo
+
+WORKDIR /app
+
+# Copy requirements and install Python packages
+COPY requirements-simple.txt .
+RUN pip install --no-cache-dir -r requirements-simple.txt
+
+# Copy source code and health check app
+COPY src/ ./src/
+COPY health_app.py .
+
+# SECURITY: Change ownership of application files to non-root user
+RUN chown -R samo:samo /app
+
+# SECURITY: Add health check for container orchestration
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://127.0.0.1:8000/health || exit 1
+
+# Expose port
+EXPOSE 8000
+
+# SECURITY: Switch to non-root user before starting application
+USER samo
+
+# Simple startup using proper health check app
+CMD ["python", "health_app.py"]
+
