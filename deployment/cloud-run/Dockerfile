@@ -20,8 +20,9 @@ WORKDIR /app
 
 # Python deps
 COPY requirements-api.txt ./
+COPY constraints.txt ./
 RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
- && pip install --no-cache-dir -r requirements-api.txt
+ && pip install --no-cache-dir -c constraints.txt -r requirements-api.txt
 
 # App code
 COPY src/ ./src/
