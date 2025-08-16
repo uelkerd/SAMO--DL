@@ -28,15 +28,15 @@ ENV PYTHONUNBUFFERED=1 \
 
 # Build arguments for architecture-specific package versions
 ARG TARGETARCH
-ARG TARGETOS
 
-# SECURITY: Install and pin specific package versions to fix vulnerabilities
-# SECURITY: Pin versions to avoid DOK-DL3008 and ensure reproducible builds
+# Install required system packages (unversioned to avoid arch-specific conflicts)
+# Note: unpinned due to frequent Debian repo churn and multi-arch builds; rely on base image updates
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-    # SECURITY: Use architecture-specific versions when available, fallback to unpinned for compatibility
-    $(if [ "$TARGETARCH" = "amd64" ]; then echo "ffmpeg=7:5.1.6-0+deb12u1"; else echo "ffmpeg"; fi) \
-    $(if [ "$TARGETARCH" = "amd64" ]; then echo "curl=7.88.1-10+deb12u12"; else echo "curl"; fi) \
+    # Install FFmpeg for audio processing
+    ffmpeg \
+    # Install curl for health checks
+    curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
