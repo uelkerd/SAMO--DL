@@ -8,10 +8,10 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
 # Install build tools needed for compiling packages like psutil
-# Allow apt to resolve per-architecture appropriate package versions
+# Pin versions using Debian release pockets for multi-arch compatibility
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    g++ \
+    gcc=4:12.2.0-* \
+    g++=4:12.2.0-* \
     && rm -rf /var/lib/apt/lists/*
 
 # Create venv and install Python deps into it
