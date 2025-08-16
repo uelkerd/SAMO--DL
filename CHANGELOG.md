@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased] - 2025-08-07
 
 ### Docker Security Hardening
-- Hardened `deployment/cloud-run/Dockerfile` and `deployment/cloud-run/Dockerfile.unified` (non-root user, multi-stage builds, pinned base images).
+- Hardened `deployment/cloud-run/Dockerfile` and `deployment/cloud-run/Dockerfile.unified` (non-root user, pinned OS packages, healthchecks, explicit EXPOSE, clarified uvicorn entrypoint).
 - Added `deployment/DOCKERFILE_SECURITY_GUIDE.md`.
 
 ### Added
