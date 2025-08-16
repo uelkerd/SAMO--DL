@@ -2,7 +2,9 @@
 """
 🔧 SAMO Linting Issues Fix Script
 ==================================
-Fixes trailing whitespace, stray blank-line whitespace, and simple continuation-indentation issues flagged by common linters (e.g., Ruff/Flake8). Use with care.
+Fixes trailing whitespace, stray blank-line whitespace, and simple
+continuation-indentation issues flagged by common linters (e.g., Ruff/Flake8).
+Use with care.
 """
 
 import os
@@ -50,7 +52,7 @@ def fix_trailing_whitespace(
             'w', delete=False, encoding='utf-8'
         ) as tmp:
             for i, line in enumerate(src, 1):
-                # Remove trailing whitespace (including tabs/spaces) and normalize newline
+                # Remove trailing whitespace and normalize newline
                 stripped_line_no_nl = line.rstrip('\r\n')
                 stripped_line = stripped_line_no_nl.rstrip()
                 if stripped_line != stripped_line_no_nl:
