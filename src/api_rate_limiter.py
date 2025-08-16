@@ -149,7 +149,7 @@ class _RateLimitMiddleware(BaseHTTPMiddleware):
 class TokenBucketRateLimiter:
     """
     Token bucket rate limiter with security enhancements.
-    
+
     Features:
     - Token bucket algorithm for smooth rate limiting
     - IP-based rate limiting with whitelist/blacklist
@@ -158,7 +158,7 @@ class TokenBucketRateLimiter:
     - Automatic blocking of abusive clients
     - Request fingerprinting for advanced detection
     """
-    
+
     def __init__(self, config: RateLimitConfig):
         self.config = config
         self.buckets: Dict[str, float] = defaultdict(lambda: config.burst_size)
@@ -167,18 +167,18 @@ class TokenBucketRateLimiter:
         self.concurrent_requests: Dict[str, int] = defaultdict(int)
         self.request_history: Dict[str, Deque] = defaultdict(lambda: deque(maxlen=100))
         self.lock = threading.RLock()
-        
+
         # Initialize whitelist/blacklist
         if config.whitelisted_ips is None:
             config.whitelisted_ips = set()
         if config.blacklisted_ips is None:
             config.blacklisted_ips = set()
-    
+
     def _get_client_key(self, client_ip: str, user_agent: str = "") -> str:
         """Generate a unique client key for rate limiting."""
         fingerprint = f"{client_ip}:{user_agent}"
         return hashlib.sha256(fingerprint.encode()).hexdigest()
-    
+
     def _is_ip_allowed(self, client_ip: str) -> bool:
         """Check if IP is allowed based on whitelist/blacklist."""
         if client_ip in ["testclient", "127.0.0.1", "localhost"]:
@@ -205,7 +205,7 @@ class TokenBucketRateLimiter:
         except ValueError:
             logger.error(f"Invalid IP address: {client_ip}")
             return False
-    
+
     def _is_client_blocked(self, client_key: str) -> bool:
         """Check if client is currently blocked."""
         if client_key in self.blocked_clients:
@@ -214,7 +214,7 @@ class TokenBucketRateLimiter:
                 return True
             del self.blocked_clients[client_key]
         return False
-    
+
     def _analyze_user_agent(self, user_agent: str) -> int:
         """Analyze user agent for suspicious patterns. Returns score (0-10)."""
         if not user_agent:
@@ -244,12 +244,12 @@ class TokenBucketRateLimiter:
             if pattern in ua_lower:
                 score += 1
         if (
-            any(p in ua_lower for p in ["bot", "crawler"]) and
+                any(p in ua_lower for p in ["bot", "crawler"]) and
             any(p in ua_lower for p in ["python", "curl", "wget"])
         ):
             score += 2
         return min(score, 10)
-    
+
     def _analyze_request_patterns(self, client_key: str, client_ip: str) -> int:
         """Analyze request patterns for suspicious behavior. Returns score (0-10)."""
         score = 0
@@ -285,7 +285,7 @@ class TokenBucketRateLimiter:
         if len(minute_requests) > 50:
             score += 2
         return min(score, 10)
-    
+
     def _detect_abuse(self, client_key: str, client_ip: str, user_agent: str = "") -> bool:
         """Enhanced abuse detection with user agent and pattern analysis."""
         history = self.request_history[client_key]
@@ -331,7 +331,7 @@ class TokenBucketRateLimiter:
                 )
                 return True
         return False
-    
+
     def _refill_bucket(self, client_key: str):
         """Refill the token bucket for a client."""
         current_time = time.time()
@@ -343,11 +343,11 @@ class TokenBucketRateLimiter:
             self.buckets[client_key] + tokens_to_add,
         )
         self.last_refill[client_key] = current_time
-    
+
     def allow_request(self, client_ip: str, user_agent: str = "") -> Tuple[bool, str, Dict]:
         """
         Check if request should be allowed.
-        
+
         Returns:
             Tuple of (allowed, reason, metadata)
         """
@@ -385,14 +385,14 @@ class TokenBucketRateLimiter:
                 "tokens_remaining": self.buckets[client_key],
                 "concurrent_requests": self.concurrent_requests[client_key],
             }
-    
+
     def release_request(self, client_ip: str, user_agent: str = ""):
         """Release a concurrent request slot."""
         with self.lock:
             client_key = self._get_client_key(client_ip, user_agent)
             if client_key in self.concurrent_requests:
                 self.concurrent_requests[client_key] = max(0, self.concurrent_requests[client_key] - 1)
-    
+
     def get_stats(self) -> Dict:
         """Get rate limiter statistics."""
         with self.lock:
@@ -408,31 +408,31 @@ class TokenBucketRateLimiter:
                     "block_duration_seconds": self.config.block_duration_seconds,
                 },
             }
-    
+
     def add_to_blacklist(self, ip: str):
         """Add IP to blacklist."""
         with self.lock:
             self.config.blacklisted_ips.add(ip)
             logger.info("Added %s to blacklist", ip)
-    
+
     def remove_from_blacklist(self, ip: str):
         """Remove IP from blacklist."""
         with self.lock:
             self.config.blacklisted_ips.discard(ip)
             logger.info("Removed %s from blacklist", ip)
-    
+
     def add_to_whitelist(self, ip: str):
         """Add IP to whitelist."""
         with self.lock:
             self.config.whitelisted_ips.add(ip)
             logger.info("Added %s to whitelist", ip)
-    
+
     def remove_from_whitelist(self, ip: str):
         """Remove IP from whitelist."""
         with self.lock:
             self.config.whitelisted_ips.discard(ip)
             logger.info("Removed %s from whitelist", ip)
-    
+
     def reset_state(self):
         """Reset all rate limiter state for testing."""
         with self.lock:
