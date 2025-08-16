@@ -32,7 +32,7 @@
    numpy==1.24.4
    gunicorn==23.0.0
    psutil==5.9.6
-   prometheus-client==0.19.0
+   prometheus-client==0.20.0
    ```
 
 3. **Python 3.8 Compatibility**

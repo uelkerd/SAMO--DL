@@ -65,8 +65,8 @@ This document summarizes all the fixes applied to address the code review commen
 **Fix:** Updated requirements to use pinned versions (`==`) and added missing dependencies:
 - `fastapi==0.104.1`
 - `psutil==5.9.6`
-- `requests==2.31.0`
-- `prometheus-client==0.19.0`
+- `requests==2.32.4`
+- `prometheus-client==0.20.0`
 
 ### 8. Cloud Build YAML Enhancement
 **File:** `deployment/cloud-run/cloudbuild.yaml`
