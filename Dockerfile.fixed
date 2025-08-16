@@ -27,10 +27,6 @@ RUN groupadd -r samo && useradd -r -g samo -s /bin/bash -d /home/samo samo
 
 WORKDIR /app
 
-# Copy requirements and install Python packages
-COPY requirements-simple.txt .
-RUN pip install --no-cache-dir -r requirements-simple.txt
-
 # SECURITY: Install Flask explicitly to ensure it's available at runtime
 RUN pip install --no-cache-dir flask
 

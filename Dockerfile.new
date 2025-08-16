@@ -28,9 +28,7 @@ RUN groupadd --gid 1000 samo && \
 
 WORKDIR /app
 
-# Copy requirements and install Python packages
-COPY requirements-simple.txt .
-RUN pip install --no-cache-dir -r requirements-simple.txt
+# Use only Flask for health app
 
 # Copy source code and health check app
 COPY src/ ./src/
@@ -50,5 +48,6 @@ EXPOSE 8000
 USER samo
 
 # Simple startup using proper health check app
+RUN pip install --no-cache-dir flask
 CMD ["python", "health_app.py"]
 
