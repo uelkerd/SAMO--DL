@@ -1,4 +1,4 @@
 flask>=2.0.0
-torch>=2.0.0
+torch>=2.6.0  # SECURITY: Fix critical RCE vulnerability CVE torch.load weights_only=True bypass
 transformers>=4.55.0
-numpy>=1.21.0
+numpy>=1.24.0  # Align with PyTorch >=2.6 wheel compatibility

@@ -1,16 +1,12 @@
-# Minimal Working Requirements - Known Compatible Versions
+# Minimal Working Requirements - Extends Core Requirements
 # Avoids PyTorch/safetensors compatibility issues
 
-# Web framework
-flask==3.1.1
+# Include core requirements
+-r ../requirements-core.txt
 
-# ML libraries - KNOWN WORKING COMBINATION
-torch==2.2.2
-transformers>=4.55.0
+# Minimal-specific overrides (if any needed)
+# flask==3.1.1  # Override from core if specific version needed
+# torch>=2.6.0,<2.7.0  # Override from core if specific version needed
 
-# WSGI server
-gunicorn==23.0.0
-
-# Monitoring
-psutil==5.9.6
-prometheus-client==0.19.0 
+# Note: This file now inherits all core dependencies from requirements-core.txt
+# Add only minimal-specific dependencies or version overrides here 

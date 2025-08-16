@@ -1,0 +1,35 @@
+############################################
+# API/Runtime Dependencies                #
+# Exact mirror of pyproject.toml base+prod #
+############################################
+
+# Base Dependencies (from dependencies)
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+python-multipart>=0.0.6
+pydantic>=2.11.7,<3.0.0
+PyJWT>=2.8.0,<3.0.0
+
+# Database & Storage
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+pgvector>=0.2.0
+redis>=4.6.0
+
+# Utilities
+python-dotenv>=1.1.1,<2.0.0
+pyyaml>=6.0
+requests>=2.31.0
+certifi>=2025.7.14,<2026.0.0
+click>=8.1.0
+rich>=13.0.0
+loguru>=0.7.0
+
+# Production Dependencies (from prod extra)
+gunicorn>=21.2.0
+prometheus-client>=0.17.0
+sentry-sdk[fastapi]>=1.29.0
+
+# Health Check Dependencies
+flask>=2.3.0
+
