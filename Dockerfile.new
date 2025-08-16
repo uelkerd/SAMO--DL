@@ -10,9 +10,10 @@ ENV PYTHONUNBUFFERED=1 \
 # SECURITY: Update packages and fix vulnerabilities found by Trivy
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-    # SECURITY: Pin OS packages to known-good Debian bookworm versions
-    ffmpeg=7:5.1.6-0+deb12u1 \
-    curl=7.88.1-10+deb12u12 \
+    # SECURITY: Install FFmpeg for audio processing
+    ffmpeg \
+    # SECURITY: Install curl for health checks
+    curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

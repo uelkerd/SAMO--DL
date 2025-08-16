@@ -40,10 +40,10 @@ ENV PYTHONUNBUFFERED=1 \
 # Install only runtime system dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-    # SECURITY: Pin FFmpeg to a known secure version on Debian bookworm
-    ffmpeg=7:5.1.6-0+deb12u1 \
-    # SECURITY: Pin curl to fix vulnerabilities
-    curl=7.88.1-10+deb12u12 \
+    # SECURITY: Install FFmpeg for audio processing
+    ffmpeg \
+    # SECURITY: Install curl for health checks
+    curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

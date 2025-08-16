@@ -32,10 +32,10 @@ ENV PYTHONUNBUFFERED=1 \
 
 # System deps (ffmpeg for pydub/whisper; build tools for some wheels)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg=7:5.1.6-0+deb12u1 \
-    gcc=4:12.2.0-3 \
-    g++=4:12.2.0-3 \
-    curl=7.88.1-10+deb12u12 \
+    ffmpeg \
+    gcc \
+    g++ \
+    curl \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

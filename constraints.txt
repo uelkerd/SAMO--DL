@@ -5,9 +5,9 @@
 ############################################
 
 # Core problematic packages - pin to exact versions
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.10
 pgvector==0.3.6
-prometheus-client==0.21.0
+prometheus-client==0.20.0
 
 # Google Cloud packages - often cause conflicts
 google-auth==2.35.0
@@ -19,7 +19,7 @@ googleapis-common-protos==1.65.0
 # Common transitive dependencies that cause backtracking
 certifi>=2024.12.14,<2026.0.0
 urllib3==2.2.3
-requests==2.32.3
+requests==2.32.4
 charset-normalizer==3.4.0
 idna==3.10
 
