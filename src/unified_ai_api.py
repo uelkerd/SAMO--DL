@@ -249,7 +249,7 @@ class WebSocketConnectionManager:
             if not self.active_connections[user_id]:
                 del self.active_connections[user_id]
 
-        logger.info(f"WebSocket disconnected for user {user_id}")
+        logger.info("WebSocket disconnected for user %s", user_id)
 
     async def send_personal_message(
         self, message: dict[str, Any], websocket: WebSocket
@@ -260,7 +260,7 @@ class WebSocketConnectionManager:
             if websocket in self.connection_metadata:
                 self.connection_metadata[websocket]["message_count"] += 1
         except Exception as e:
-            logger.error(f"Failed to send message to WebSocket: {e}")
+            logger.error("Failed to send message to WebSocket: %s", e)
             await self.disconnect(websocket)
 
     async def broadcast_to_user(self, message: dict[str, Any], user_id: str):
@@ -272,7 +272,7 @@ class WebSocketConnectionManager:
                 if websocket in self.connection_metadata:
                     self.connection_metadata[websocket]["message_count"] += 1
             except Exception as e:
-                logger.error(f"Failed to broadcast to WebSocket: {e}")
+                logger.error("Failed to broadcast to WebSocket: %s", e)
                 disconnected.add(websocket)
 
         # Cleanup disconnected connections
@@ -544,9 +544,9 @@ def _tx_to_dict(result: Any) -> dict[str, Any]:
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
     """Handle all unhandled exceptions."""
-    logger.error(f"❌ Unhandled exception: {exc}")
-    logger.error(f"Request path: {request.url.path}")
-    logger.error(f"Traceback: {traceback.format_exc()}")
+    logger.error("❌ Unhandled exception: %s", exc)
+    logger.error("Request path: %s", request.url.path)
+    logger.error("Traceback: %s", traceback.format_exc())
 
     return JSONResponse(
         status_code=500,
@@ -562,7 +562,7 @@ async def general_exception_handler(request: Request, exc: Exception):
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
     """Handle HTTP exceptions."""
-    logger.warning(f"⚠️  HTTP exception: {exc.status_code} - {exc.detail}")
+    logger.warning("⚠️  HTTP exception: %s - %s", exc.status_code, exc.detail)
     # Preserve FastAPI's default validation/detail contract for 400-series
     # where tests expect 'detail'
     if exc.status_code in (400, 422):
@@ -931,11 +931,11 @@ async def register_user(user_data: UserRegister) -> TokenResponse:
         # Generate tokens
         token_response: TokenResponse = jwt_manager.create_token_pair(token_user_data)
 
-        logger.info(f"New user registered: {user_data.username}")
+        logger.info("New user registered: %s", user_data.username)
         return token_response
 
     except Exception as exc:
-        logger.error(f"Registration failed: {exc}")
+        logger.error("Registration failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Registration failed"
@@ -999,14 +999,14 @@ async def login_user(login_data: UserLogin) -> TokenResponse:
         # Generate tokens
         token_response: TokenResponse = jwt_manager.create_token_pair(token_user_data)
 
-        logger.info(f"User logged in: {login_data.username}")
+        logger.info("User logged in: %s", login_data.username)
         return token_response
 
     except HTTPException as http_exc:
         # Preserve HTTPExceptions without altering trace
         raise http_exc
     except Exception as exc:
-        logger.error(f"Login failed: {exc}")
+        logger.error("Login failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Login failed"
@@ -1045,13 +1045,13 @@ async def refresh_token(request: RefreshTokenRequest) -> TokenResponse:
         # Generate new token pair
         token_response: TokenResponse = jwt_manager.create_token_pair(user_data)
 
-        logger.info(f"Token refreshed for user: {payload.username}")
+        logger.info("Token refreshed for user: %s", payload.username)
         return token_response
 
     except HTTPException:
         raise
     except Exception as exc:
-        logger.error(f"Token refresh failed: {exc}")
+        logger.error("Token refresh failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Token refresh failed"
@@ -1084,7 +1084,7 @@ async def logout_user(
         return {"message": "Successfully logged out"}
 
     except Exception as exc:
-        logger.error(f"Logout failed: {exc}")
+        logger.error("Logout failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Logout failed"
@@ -1229,7 +1229,8 @@ async def chat_websocket(websocket: WebSocket, token: str = Query(None)) -> None
                     response["summary_error"] = exc.detail
                 except Exception as exc:  # pragma: no cover
                     logger.error(
-                        f"Error during websocket summary generation: {exc}",
+                        "Error during websocket summary generation: %s",
+                        exc,
                         exc_info=True,
                     )
                     response["summary_error"] = str(exc)
@@ -1274,7 +1275,7 @@ async def analyze_journal_entry(
                     f"{emotion_results['primary_emotion']}"
                 )
             except Exception as exc:
-                logger.warning(f"⚠️  Emotion analysis failed: {exc}")
+                logger.warning("⚠️  Emotion analysis failed: %s", exc)
                 emotion_results = normalize_emotion_results({})
 
         # Text Summarization
@@ -1284,7 +1285,7 @@ async def analyze_journal_entry(
                 summary_results = text_summarizer.summarize(request.text)
                 logger.info("✅ Text summarization completed")
             except Exception as exc:
-                logger.warning(f"⚠️  Text summarization failed: {exc}")
+                logger.warning("⚠️  Text summarization failed: %s", exc)
                 summary_results = {
                     "summary": (
                         request.text[:200] + "..." if len(request.text) > 200
@@ -1406,7 +1407,7 @@ async def analyze_voice_journal(
                     Path(temp_file_path).unlink(missing_ok=True)
 
             except Exception as exc:
-                logger.warning(f"⚠️  Voice transcription failed: {exc}")
+                logger.warning("⚠️  Voice transcription failed: %s", exc)
                 # Continue in degraded mode
                 transcribed_text = ""
 
@@ -1493,7 +1494,7 @@ async def analyze_voice_journal(
     except HTTPException:
         raise
     except Exception as exc:
-        logger.error(f"❌ Error in voice journal analysis: {exc}")
+        logger.error("❌ Error in voice journal analysis: %s", exc)
         raise HTTPException(status_code=500, detail="Voice analysis failed") from exc
 
 
@@ -1810,7 +1811,7 @@ async def summarize_text(
     except HTTPException:
         raise
     except Exception as exc:
-        logger.error(f"Text summarization failed: {exc}")
+        logger.error("Text summarization failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Text summarization failed"
@@ -1871,7 +1872,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
             await websocket.close()
             return
 
-        logger.info(f"WebSocket authenticated for user: {payload.username}")
+        logger.info("WebSocket authenticated for user: %s", payload.username)
 
     except Exception as exc:
         await websocket.send_json({
@@ -1927,7 +1928,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
     except WebSocketDisconnect:
         logger.info("WebSocket client disconnected")
     except Exception as exc:
-        logger.error(f"WebSocket error: {exc}")
+        logger.error("WebSocket error: %s", exc)
         try:
             await websocket.send_json({
                 "type": "error",
@@ -1992,7 +1993,7 @@ async def get_performance_metrics(
         }
 
     except Exception as exc:
-        logger.error(f"Failed to get performance metrics: {exc}")
+        logger.error("Failed to get performance metrics: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get performance metrics"
