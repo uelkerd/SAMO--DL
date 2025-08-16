@@ -63,7 +63,7 @@ def fix_trailing_whitespace(file_path: Path, backup: bool = False) -> tuple[bool
             pass
         return False, [f"Error processing {file_path}: {e}"]
 
-def fix_indentation_issues(file_path: Path) -> Tuple[bool, List[str]]:
+def fix_indentation_issues(file_path: Path) -> tuple[bool, list[str]]:
     """Detect indentation issues using AST; do not attempt automatic fixes."""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -81,7 +81,7 @@ def fix_indentation_issues(file_path: Path) -> Tuple[bool, List[str]]:
     except Exception as e:
         return False, [f"Error processing {file_path}: {e}"]
 
-def fix_blank_lines_with_whitespace(file_path: Path, backup: bool = False) -> Tuple[bool, List[str]]:
+def fix_blank_lines_with_whitespace(file_path: Path, backup: bool = False) -> tuple[bool, list[str]]:
     """Fix blank lines that contain whitespace."""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -89,8 +89,8 @@ def fix_blank_lines_with_whitespace(file_path: Path, backup: bool = False) -> Tu
 
         original_content = content
         lines = content.splitlines()
-        fixed_lines: List[str] = []
-        issues_fixed: List[str] = []
+        fixed_lines: list[str] = []
+        issues_fixed: list[str] = []
 
         for i, line in enumerate(lines, 1):
             # Check if line is blank but contains whitespace
@@ -141,14 +141,14 @@ def main():
 
     total_files_processed = 0
     total_files_fixed = 0
-    all_issues: List[str] = []
+    all_issues: list[str] = []
 
     # Process each file
     for file_path in python_files:
         print(f"\nProcessing: {file_path.relative_to(project_root)}")
 
-        fixed_issues: List[str] = []
-        detected_issues: List[str] = []
+        fixed_issues: list[str] = []
+        detected_issues: list[str] = []
 
         # Fix trailing whitespace
         fixed, issues = fix_trailing_whitespace(file_path, backup=args.backup)
