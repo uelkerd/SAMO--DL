@@ -408,8 +408,10 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                 archive_url = os.getenv("EMOTION_MODEL_ARCHIVE_URL")
                 endpoint_url = os.getenv("EMOTION_MODEL_ENDPOINT_URL")
                 logger.info("Attempting to load emotion model from HF Hub: %s", hf_model_id)
-                logger.info("Sources configured: local_dir=%s, archive=%s, endpoint=%s",
-                            bool(local_dir), bool(archive_url), bool(endpoint_url))
+                logger.info(
+                    "Sources configured: local_dir=%s, archive=%s, endpoint=%s",
+                    bool(local_dir), bool(archive_url), bool(endpoint_url)
+                )
                 emotion_detector = load_emotion_model_multi_source(
                     model_id=hf_model_id,
                     token=hf_token,
@@ -1598,8 +1600,8 @@ async def transcribe_voice(
                             )
                         except Exception as e_fallback:
                             logger.error(
-                                "Transcriber failed with kwargs, positional, and fallback "
-                                "calls: %s; %s; %s",
+                                "Transcriber failed with kwargs, positional, and "
+                                "fallback calls: %s; %s; %s",
                                 repr(e_kwargs), repr(e_positional), repr(e_fallback)
                             )
                             raise
