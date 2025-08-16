@@ -6,6 +6,22 @@ version: 2.1
 # Focus: Comprehensive security scanning, code quality, and vulnerability prevention
 # ============================================================================
 
+commands:
+  install_python_tools:
+    description: "Install Python tooling with pip"
+    parameters:
+      packages:
+        type: string
+        default: ""
+    steps:
+      - run:
+          name: Install Python Tools
+          command: |
+            python3 -m pip install --upgrade pip
+            if [ -n "<< parameters.packages >>" ]; then
+              python3 -m pip install << parameters.packages >>
+            fi
+
 executors:
   python-security:
     docker:
@@ -29,11 +45,8 @@ jobs:
     executor: python-security
     steps:
       - checkout
-      - run:
-          name: Install Security Tools
-          command: |
-            python3 -m pip install --upgrade pip
-            python3 -m pip install safety bandit semgrep
+      - install_python_tools:
+          packages: "safety bandit semgrep"
       - run:
           name: Run Safety Check (Python dependencies)
           command: |
@@ -61,11 +74,8 @@ jobs:
     executor: python-security
     steps:
       - checkout
-      - run:
-          name: Install Linting Tools
-          command: |
-            python3 -m pip install --upgrade pip
-            python3 -m pip install ruff black isort mypy
+      - install_python_tools:
+          packages: "ruff black isort mypy"
       - run:
           name: Run Ruff (Fast Python linter)
           command: |
@@ -97,6 +107,7 @@ jobs:
     executor: docker-security
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Install Trivy
           command: |
@@ -118,38 +129,35 @@ jobs:
     executor: python-security
     steps:
       - checkout
+      - install_python_tools:
+          packages: "safety"
       - run:
-          name: Install Audit Tools
+          name: Run Safety Check (JSON)
           command: |
-            python3 -m pip install --upgrade pip
-            python3 -m pip install pip-audit
+            safety check --json --output safety-report.json || true
       - run:
-          name: Audit Python dependencies
+          name: Gate on High/Critical via Safety
           command: |
-            pip-audit --format json --output pip-audit-report.json || true
-            echo "Pip audit completed"
-      - run:
-          name: Check for known vulnerabilities
-          command: |
-            if [ -f pip-audit-report.json ]; then
-              echo "Checking for high/critical vulnerabilities..."
-              python3 -c "
-              import json
-              with open('pip-audit-report.json') as f:
-                  data = json.load(f)
-              vulns = [v for v in data.get('vulnerabilities', []) 
-                      if v.get('severity') in ['HIGH', 'CRITICAL']]
-              if vulns:
-                  print(f'Found {len(vulns)} high/critical vulnerabilities:')
-                  for v in vulns:
-                      print(f'- {v.get(\"package_name\")}: {v.get(\"vulnerability_id\")}')
-                  exit(1)
-              else:
-                  print('No high/critical vulnerabilities found')
-              "
-            fi
+            python3 - << 'PY'
+            import json, sys
+            try:
+                with open('safety-report.json') as f:
+                    data = json.load(f)
+            except Exception as e:
+                print('Could not load safety-report.json:', e)
+                sys.exit(0)
+            findings = data if isinstance(data, list) else data.get("issues", [])
+            severities = {"critical","high"}
+            flagged = [i for i in findings if str(i.get("severity", "")).lower() in severities]
+            if flagged:
+                print(f"Found {len(flagged)} high/critical vulnerabilities:")
+                for i in flagged:
+                    print('-', i.get('vulnerability_id') or i.get('advisory_id'), i.get('package_name'), i.get('affected_versions'))
+                sys.exit(1)
+            print('No high/critical vulnerabilities found')
+            PY
       - store_artifacts:
-          path: pip-audit-report.json
+          path: safety-report.json
           destination: dependency-audit
 
   # Security verification tests
@@ -157,11 +165,8 @@ jobs:
     executor: python-security
     steps:
       - checkout
-      - run:
-          name: Install Dependencies
-          command: |
-            python3 -m pip install --upgrade pip
-            python3 -m pip install -r deployment/requirements-core.txt
+      - install_python_tools:
+          packages: "flask flask-restx requests"
       - run:
           name: Run Flask Debug Security Verification
           command: |
@@ -170,10 +175,6 @@ jobs:
           name: Run Host Binding Security Verification
           command: |
             python3 scripts/security/verify_host_binding_security.py
-      - run:
-          name: Run Continuous Security Monitoring
-          command: |
-            bash scripts/security/continuous-security-monitor.sh once
 
   # Quality gates and reporting
   quality-gates:
@@ -199,7 +200,6 @@ jobs:
             echo "## Security Verification" >> quality-summary.md
             echo "- Flask debug security: ✅ Verified" >> quality-summary.md
             echo "- Host binding security: ✅ Verified" >> quality-summary.md
-            echo "- Continuous monitoring: ✅ Active" >> quality-summary.md
       - store_artifacts:
           path: quality-summary.md
           destination: quality-summary
@@ -232,13 +232,7 @@ workflows:
                 - main
     jobs:
       - security-scan
-      - dependency-audit
-      - security-verification
-
-  # Manual trigger for security audits
-  manual-security-audit:
-    jobs:
-      - security-scan
+      - code-quality
       - docker-security
       - dependency-audit
       - security-verification

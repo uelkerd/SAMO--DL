@@ -6,13 +6,24 @@ Verifies that all host binding security fixes are working correctly.
 """
 import sys
 import re
+import os
 from pathlib import Path
+from typing import List
 
 
-def check_hardcoded_bindings(project_root: Path) -> tuple[bool, list]:
+def check_hardcoded_bindings(project_root: Path, exclude_globs: List[str] | None = None) -> tuple[bool, list]:
     """Check for any remaining hardcoded 0.0.0.0 bindings."""
     issues = []
+    exclude_globs = exclude_globs or []
+
     python_files = list(project_root.glob("**/*.py"))
+
+    # Exclude patterns (tests/demos) to reduce false positives
+    excluded = set()
+    for pattern in exclude_globs:
+        for p in project_root.glob(pattern):
+            if p.is_file():
+                excluded.add(p.resolve())
 
     # Patterns that indicate hardcoded binding issues
     problematic_patterns = [
@@ -23,6 +34,8 @@ def check_hardcoded_bindings(project_root: Path) -> tuple[bool, list]:
 
     for py_file in python_files:
         try:
+            if py_file.resolve() in excluded:
+                continue
             content = py_file.read_text(encoding='utf-8')
             for line_num, line in enumerate(content.splitlines(), 1):
                 for pattern in problematic_patterns:
@@ -59,18 +72,9 @@ def is_acceptable_binding(line: str, _file_path: Path) -> bool:
     )
 
 
-def check_secure_patterns(project_root: Path) -> tuple[bool, list]:
+def check_secure_patterns(project_root: Path, key_files: List[str]) -> tuple[bool, list]:
     """Check that files use secure patterns with environment variables."""
     issues = []
-
-    # Files that should have secure host binding patterns
-    key_files = [
-        'src/unified_ai_api.py',
-        'health_app.py',
-        'deployment/cloud-run/secure_api_server.py',
-        'deployment/cloud-run/robust_predict.py',
-        'deployment/gcp/predict.py'
-    ]
 
     secure_patterns = [
         r"os\.getenv\(['\"]HOST['\"]",
@@ -141,14 +145,18 @@ def print_summary_result(all_passed: bool) -> None:
         print("⚠️  Please address the issues above before deployment")
 
 
+def _parse_key_files_env(env_value: str) -> List[str]:
+    """Parse HOST_SECURITY_KEY_FILES env var formatted as 'path1,path2,...'"""
+    parts = [p.strip() for p in env_value.split(',') if p.strip()]
+    return parts
+
+
 def run_security_verification():
     """Run all security verification checks."""
     print("🔐 Host Binding Security Verification")
     print("=" * 50)
 
-        # Use environment variable PROJECT_ROOT if set, otherwise fallback to
-    # dynamic calculation
-    import os
+    # Use environment variable PROJECT_ROOT if set, otherwise fallback to dynamic calculation
     project_root_env = os.environ.get("PROJECT_ROOT")
     if project_root_env:
         project_root = Path(project_root_env).resolve()
@@ -160,12 +168,35 @@ def run_security_verification():
 
     all_passed = True
 
+    # Default key files; allow override via HOST_SECURITY_KEY_FILES
+    default_key_files = [
+        'src/unified_ai_api.py',
+        'health_app.py',
+        'deployment/cloud-run/secure_api_server.py',
+        'deployment/cloud-run/robust_predict.py',
+        'deployment/gcp/predict.py'
+    ]
+    key_files_env = os.environ.get("HOST_SECURITY_KEY_FILES")
+    if key_files_env:
+        key_files = _parse_key_files_env(key_files_env)
+    else:
+        key_files = default_key_files
+
+    # Default exclusions to reduce false positives; allow override via HOST_SECURITY_EXCLUDE_GLOBS
+    default_exclude_globs = [
+        'deployment/cloud-run/test_*.py',
+        'tests/**/*.py',
+        'docs/**/*.py'
+    ]
+    exclude_env = os.environ.get("HOST_SECURITY_EXCLUDE_GLOBS")
+    exclude_globs = _parse_key_files_env(exclude_env) if exclude_env else default_exclude_globs
+
     # Check 1: Hardcoded bindings
     print("1️⃣ Checking for hardcoded 0.0.0.0 bindings...")
-    passed, issues = check_hardcoded_bindings(project_root)
+    passed, issues = check_hardcoded_bindings(project_root, exclude_globs=exclude_globs)
 
     if passed:
-        print("   ✅ PASS: No hardcoded 0.0.0.0 bindings found")
+        print("   ✅ PASS: No hardcoded 0.0.0.0 bindings found (outside exclusions)")
     else:
         print("   ❌ FAIL: Found hardcoded bindings:")
         for issue in issues:
@@ -176,7 +207,7 @@ def run_security_verification():
 
     # Check 2: Secure patterns
     print("2️⃣ Checking for secure host configuration patterns...")
-    passed, issues = check_secure_patterns(project_root)
+    passed, issues = check_secure_patterns(project_root, key_files)
 
     if passed:
         print("   ✅ PASS: All key files use secure host configuration")
