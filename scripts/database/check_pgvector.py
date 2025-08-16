@@ -47,47 +47,53 @@ def check_pgvector():
     """Check if pgvector extension is installed and available."""
     try:
         # Connect to the database
-        conn = psycopg2.connect(
+        with psycopg2.connect(
             dbname=DB_NAME,
             user=DB_USER,
             password=DB_PASSWORD,
             host=DB_HOST,
             port=DB_PORT,
-        )
-        conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        ) as conn:
+            conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 
-        # Create a cursor
-        cur = conn.cursor()
+            # Create a cursor
+            with conn.cursor() as cur:
+                # Check if vector extension is available
+                cur.execute(
+                    "SELECT extname FROM pg_extension "
+                    "WHERE extname = 'vector';"
+                )
+                extension_installed = cur.fetchone() is not None
 
-        # Check if vector extension is available
-        cur.execute("SELECT extname FROM pg_extension WHERE extname = 'vector';")
-        is_installed = cur.fetchone() is not None
-
-        if is_installed:
+        if extension_installed:
             logging.info("✅ pgvector extension is installed and available.")
         else:
             logging.info("❌ pgvector extension is NOT installed.")
             logging.info("\nTo install pgvector:")
             logging.info("1. Install the extension in your PostgreSQL server:")
-            logging.info("   - On Ubuntu/Debian: sudo apt install postgresql-15-pgvector")
+            logging.info(
+                "   - On Ubuntu/Debian: sudo apt install "
+                "'postgresql-<version>-pgvector' "
+                "# e.g., 14/15/16"
+            )
             logging.info("   - On macOS with Homebrew: brew install pgvector")
-            logging.info("   - From source: https://github.com/pgvector/pgvector#installation")
+            logging.info(
+                "   - From source: https://github.com/pgvector/pgvector#installation"
+            )
             logging.info("\n2. Enable the extension in your database:")
             logging.info("   - psql -U postgres")
-            logging.info(f"   - \\c {DB_NAME}")
+            logging.info("   - \\c %s", DB_NAME)
             logging.info("   - CREATE EXTENSION vector;")
 
-        # Close cursor and connection
-        cur.close()
-        conn.close()
+        # Cursor and connection are closed by context managers
+        return extension_installed
 
-        return is_installed
-
-    except psycopg2.Error as e:
-        logging.info(f"Error connecting to PostgreSQL: {e}")
+    except psycopg2.Error:
+        logging.exception("Error connecting to PostgreSQL")
         return False
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     is_installed = check_pgvector()
     sys.exit(0 if is_installed else 1)
