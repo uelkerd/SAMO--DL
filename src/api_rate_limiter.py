@@ -244,7 +244,7 @@ class TokenBucketRateLimiter:
             if pattern in ua_lower:
                 score += 1
         if (
-                any(p in ua_lower for p in ["bot", "crawler"]) and
+            any(p in ua_lower for p in ["bot", "crawler"]) and
             any(p in ua_lower for p in ["python", "curl", "wget"])
         ):
             score += 2
