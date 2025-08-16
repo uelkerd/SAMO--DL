@@ -1,33 +1,19 @@
-# Secure requirements for Cloud Run deployment
+# Secure Requirements - Extends Core Requirements for Cloud Run Deployment
 # All versions verified with safety-mcp for security and Python 3.13 compatibility
 # UPDATED: Fixed critical PyTorch and setuptools vulnerabilities
 
-# Web framework - compatible with Flask-RESTX 1.3.0
-flask==2.3.3
+# Include core requirements
+-r ../requirements-core.txt
 
-# ML libraries - UPDATED to fix CRITICAL vulnerabilities and Python 3.13 compatibility
-torch==2.8.0  # FIXED: CVE-2024-48063, CVE-2025-32434, CVE-2024-31580, CVE-2024-31583
-transformers==4.55.0
-numpy==1.26.4  # UPDATED: Python 3.13 compatible (was 1.24.3)
-scikit-learn==1.7.1  # UPDATED: More recent version for Python 3.13 compatibility
+# Security-specific overrides and additions
+flask==2.3.3  # Override: Specific version for Flask-RESTX 1.3.0 compatibility
+numpy==1.26.4  # Override: Python 3.13 compatible (was 1.24.3)
+scikit-learn==1.7.1  # Override: More recent version for Python 3.13 compatibility
+psutil==5.9.5  # Override: Specific version for stability
+prometheus-client==0.17.1  # Override: Specific version for stability
 
-# WSGI server - latest secure version
-gunicorn==23.0.0
+# Additional security and API dependencies
+flask-restx==1.3.0  # API documentation and validation
 
-# HTTP client - latest secure version
-requests==2.31.0
-
-# System monitoring - latest secure version
-psutil==5.9.5
-
-# Metrics and monitoring - latest secure version
-prometheus-client==0.17.1
-
-# Security and validation
-cryptography==45.0.6
-
-# API Documentation
-flask-restx==1.3.0
-
-# Build tools - UPDATED to fix HIGH vulnerabilities
-setuptools==80.9.0  # FIXED: CVE-2022-40897, CVE-2025-47273, CVE-2024-6345
+# Note: This file inherits all core dependencies from requirements-core.txt
+# Add only security-specific overrides or additional dependencies here

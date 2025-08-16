@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased] - 2025-08-07
 
 ### Security Infrastructure
+- Centralize dependencies: add `deployment/requirements-core.txt`, align multiple requirements files.
+- Add `deployment/cloud-run/cloud-run-deployment-examples.md`.
+
 - Add `.circleci/security-quality.yml` for security scanning pipeline.
 - Add `.pre-commit-config.yaml` with security/quality hooks.
 - Add `docs/ci/SECURITY_PIPELINE_GUIDE.md` and security verification scripts.

@@ -13,7 +13,7 @@ numpy==1.26.4
 transformers==4.55.0
 sentencepiece==0.1.99
 # Torch runtime
-torch==2.8.0
+torch>=2.6.0  # SECURITY: Fix critical RCE vulnerability CVE torch.load weights_only=True bypass (was incorrectly set to non-existent 2.8.0)
 
 # Whisper transcription
 openai-whisper==20250625
