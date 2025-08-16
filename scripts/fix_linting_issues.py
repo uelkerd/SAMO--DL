@@ -9,8 +9,9 @@ import os
 import argparse
 import shutil
 import tempfile
+import contextlib
 from pathlib import Path
-from typing import Optional, Set, Tuple, List
+from typing import Optional, Set
 
 def find_python_files(project_root: Path, excluded_dirs: Optional[Set[str]] = None) -> list[Path]:
     """Find all Python files in the project, skipping excluded directories."""
@@ -49,18 +50,16 @@ def fix_trailing_whitespace(file_path: Path, backup: bool = False) -> tuple[bool
         # If content changed, optionally back up and replace
         if changed:
             if backup:
-                shutil.copyfile(file_path, str(file_path) + '.bak')
-            os.replace(tmp.name, file_path)
+                shutil.copyfile(file_path, f"{file_path}.bak")
+            Path(tmp.name).replace(file_path)
         else:
-            os.remove(tmp.name)
+            Path(tmp.name).unlink(missing_ok=True)
         return changed, issues_fixed
     except Exception as e:
         # Best-effort cleanup of temp file if it still exists
-        try:
-            if 'tmp' in locals():
-                os.remove(tmp.name)
-        except Exception:
-            pass
+        if 'tmp' in locals():
+            with contextlib.suppress(FileNotFoundError):
+                Path(tmp.name).unlink()
         return False, [f"Error processing {file_path}: {e}"]
 
 def fix_indentation_issues(file_path: Path) -> tuple[bool, list[str]]:
@@ -96,7 +95,8 @@ def fix_blank_lines_with_whitespace(file_path: Path, backup: bool = False) -> tu
             # Check if line is blank but contains whitespace
             if not line.strip() and line != '':
                 issues_fixed.append(f"Line {i}: Removed whitespace from blank line")
-                line = ''
+                fixed_lines.append('')
+                continue
 
             fixed_lines.append(line)
 
@@ -107,7 +107,7 @@ def fix_blank_lines_with_whitespace(file_path: Path, backup: bool = False) -> tu
 
         if fixed_content != original_content:
             if backup:
-                shutil.copyfile(file_path, str(file_path) + '.bak')
+                shutil.copyfile(file_path, f"{file_path}.bak")
             with open(file_path, 'w', encoding='utf-8') as f_out:
                 f_out.write(fixed_content)
             return True, issues_fixed
