@@ -306,7 +306,12 @@ class TokenBucketRateLimiter:
         )
         return 2 if minute_count > 50 else 0
 
-    def _detect_abuse(self, client_key: str, client_ip: str, user_agent: str = "") -> bool:
+    def _detect_abuse(
+        self,
+        client_key: str,
+        client_ip: str,
+        user_agent: str = "",
+    ) -> bool:
         """Enhanced abuse detection with user agent and pattern analysis."""
         history = self.request_history[client_key]
         current_time = time.time()
