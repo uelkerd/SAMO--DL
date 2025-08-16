@@ -390,7 +390,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     """Manage all AI models lifecycle - load on startup, cleanup on shutdown."""
     global emotion_detector, text_summarizer, voice_transcriber
 
-    logger.info("🚀 Loading SAMO AI Pipeline...")
+    logger.info("Loading SAMO AI Pipeline...")
     start_time = time.time()
 
     try:
@@ -406,8 +406,9 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                 local_dir = os.getenv("EMOTION_MODEL_LOCAL_DIR")
                 archive_url = os.getenv("EMOTION_MODEL_ARCHIVE_URL")
                 endpoint_url = os.getenv("EMOTION_MODEL_ENDPOINT_URL")
-                logger.info(f"🔄 Attempting to load emotion model from HF Hub: {hf_model_id}")
-                logger.info(f"📋 Sources configured: local_dir={bool(local_dir)}, archive={bool(archive_url)}, endpoint={bool(endpoint_url)}")
+                logger.info("Attempting to load emotion model from HF Hub: %s", hf_model_id)
+                logger.info("Sources configured: local_dir=%s, archive=%s, endpoint=%s", 
+                           bool(local_dir), bool(archive_url), bool(endpoint_url))
                 emotion_detector = load_emotion_model_multi_source(
                     model_id=hf_model_id,
                     token=hf_token,
@@ -416,30 +417,31 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                     endpoint_url=endpoint_url,
                     force_multi_label=None,
                 )
-                logger.info(f"✅ Loaded emotion model from HF Hub: {hf_model_id}")
+                logger.info("Loaded emotion model from HF Hub: %s", hf_model_id)
             except Exception as hf_exc:
                 logger.info(
-                    f"ℹ️ HF Hub model loading failed "
-                    f"(this is normal in some environments): {hf_exc}"
+                    "HF Hub model loading failed (normal in some environments): %s",
+                    hf_exc,
+                    exc_info=True,
                 )
-                logger.info("🔄 Falling back to local BERT emotion classifier...")
+                logger.info("Falling back to local BERT emotion classifier...")
                 from src.models.emotion_detection.bert_classifier import (
                     create_bert_emotion_classifier,
                 )
                 model, _ = create_bert_emotion_classifier()
                 emotion_detector = model
-                logger.info("✅ Loaded local BERT emotion model (fallback successful)")
+                logger.info("Loaded local BERT emotion model (fallback successful)")
         except Exception as exc:
-            logger.warning(f"⚠️  Emotion detection model not available: {exc}")
+            logger.warning("Emotion detection model not available: %s", exc)
 
         logger.info("Loading text summarization model...")
         try:
             from src.models.summarization.t5_summarizer import create_t5_summarizer
 
             text_summarizer = create_t5_summarizer("t5-small")
-            logger.info("✅ Text summarization model loaded")
+            logger.info("Text summarization model loaded")
         except Exception as exc:
-            logger.warning(f"⚠️  Text summarization model not available: {exc}")
+            logger.warning("Text summarization model not available: %s", exc)
 
         logger.info("Loading voice processing model...")
         try:
@@ -448,26 +450,26 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
             )
 
             voice_transcriber = create_whisper_transcriber()
-            logger.info("✅ Voice processing model loaded")
+            logger.info("Voice processing model loaded")
         except Exception as exc:
-            logger.warning(f"⚠️  Voice processing model not available: {exc}")
+            logger.warning("Voice processing model not available: %s", exc)
 
         load_time = time.time() - start_time
-        logger.info(f"✅ SAMO AI Pipeline loaded in {load_time:.2f} seconds")
+        logger.info("SAMO AI Pipeline loaded in %.2f seconds", load_time)
 
     except Exception as exc:
-        logger.error(f"❌ Failed to load SAMO AI Pipeline: {exc}")
+        logger.error("Failed to load SAMO AI Pipeline: %s", exc)
         raise
 
     yield
 
     # Shutdown: Cleanup
-    logger.info("🔄 Shutting down SAMO AI Pipeline...")
+    logger.info("Shutting down SAMO AI Pipeline...")
     try:
         # Cleanup any resources if needed
-        logger.info("✅ SAMO AI Pipeline shutdown complete")
+        logger.info("SAMO AI Pipeline shutdown complete")
     except Exception as exc:
-        logger.error(f"❌ Error during shutdown: {exc}")
+        logger.error("Error during shutdown: %s", exc)
 
 
 # Initialize FastAPI with lifecycle management
