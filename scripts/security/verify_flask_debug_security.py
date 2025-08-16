@@ -81,9 +81,6 @@ def test_secure_mode(file_path, env, project_root: Path):
         env=env
     )
 
-    # Wait for readiness signal with timeout
-    import time
-
     ready = False
     timeout = 10  # seconds
     start_time = time.time()
@@ -118,9 +115,6 @@ def test_debug_mode(file_path, env, project_root: Path):
         text=True,
         env=env
     )
-
-    # Wait for readiness signal with timeout
-    import time
 
     ready = False
     timeout = 10  # seconds
