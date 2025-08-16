@@ -78,8 +78,8 @@ def main():
     # Make prediction
     result = detector.predict(text)
 
-    print(f"\n🎯 EMOTION DETECTION RESULT")
-    print(f"=" * 40)
+    print("\n🎯 EMOTION DETECTION RESULT")
+    print("=" * 40)
     print(f"Text: {result['text']}")
     print(f"Emotion: {result['emotion']}")
     print(f"Confidence: {result['confidence']:.3f}")
