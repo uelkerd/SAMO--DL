@@ -73,7 +73,7 @@ def check_pgvector():
             logging.info("   - From source: https://github.com/pgvector/pgvector#installation")
             logging.info("\n2. Enable the extension in your database:")
             logging.info("   - psql -U postgres")
-            logging.info(f"   - \\c {DB_NAME}")
+            logging.info("   - \\c %s", DB_NAME)
             logging.info("   - CREATE EXTENSION vector;")
 
         # Cursor and connection are closed by context managers
