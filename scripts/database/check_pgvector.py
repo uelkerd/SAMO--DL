@@ -72,8 +72,9 @@ def check_pgvector():
             logging.info("\nTo install pgvector:")
             logging.info("1. Install the extension in your PostgreSQL server:")
             logging.info(
-                "   - On Ubuntu/Debian: sudo apt install 'postgresql-<version>-pgvector' "
-                " # e.g., 14/15/16"
+                "   - On Ubuntu/Debian: sudo apt install "
+                "'postgresql-<version>-pgvector' "
+                "# e.g., 14/15/16"
             )
             logging.info("   - On macOS with Homebrew: brew install pgvector")
             logging.info(
