@@ -2,7 +2,7 @@
 """
 🔧 SAMO Linting Issues Fix Script
 ==================================
-Fixes trailing whitespace and indentation issues identified by DeepSource.
+Fixes trailing whitespace, stray blank-line whitespace, and simple continuation-indentation issues flagged by common linters (e.g., Ruff/Flake8). Use with care.
 """
 
 import os
@@ -10,9 +10,9 @@ import argparse
 import shutil
 import tempfile
 from pathlib import Path
-from typing import List, Tuple, Optional, Set
+from typing import Optional, Set, Tuple, List
 
-def find_python_files(project_root: Path, excluded_dirs: Optional[Set[str]] = None) -> List[Path]:
+def find_python_files(project_root: Path, excluded_dirs: Optional[Set[str]] = None) -> list[Path]:
     """Find all Python files in the project, skipping excluded directories."""
     if excluded_dirs is None:
         excluded_dirs = {
@@ -26,18 +26,18 @@ def find_python_files(project_root: Path, excluded_dirs: Optional[Set[str]] = No
         # Skip certain directories
         dirs[:] = [d for d in dirs if d not in excluded_dirs]
 
-        for file in files:
-            if file.endswith('.py'):
-                python_files.append(Path(root) / file)
+        python_files.extend(
+            Path(root) / file for file in files if file.endswith('.py')
+        )
 
     return python_files
 
-def fix_trailing_whitespace(file_path: Path, backup: bool = False) -> Tuple[bool, List[str]]:
+def fix_trailing_whitespace(file_path: Path, backup: bool = False) -> tuple[bool, list[str]]:
     """Fix trailing whitespace in a file, processing line by line for efficiency."""
     changed = False
-    issues_fixed: List[str] = []
+    issues_fixed: list[str] = []
     try:
-        with open(file_path, 'r', encoding='utf-8') as src, tempfile.NamedTemporaryFile('w', delete=False, encoding='utf-8') as tmp:
+        with open(file_path, encoding='utf-8') as src, tempfile.NamedTemporaryFile('w', delete=False, encoding='utf-8') as tmp:
             for i, line in enumerate(src, 1):
                 # Remove trailing whitespace (including tabs/spaces) and normalize newline
                 stripped_line_no_nl = line.rstrip('\r\n')
@@ -61,7 +61,7 @@ def fix_trailing_whitespace(file_path: Path, backup: bool = False) -> Tuple[bool
                 os.remove(tmp.name)
         except Exception:
             pass
-        return False, [f"Error processing file: {e}"]
+        return False, [f"Error processing {file_path}: {e}"]
 
 def fix_indentation_issues(file_path: Path) -> Tuple[bool, List[str]]:
     """Detect indentation issues using AST; do not attempt automatic fixes."""
@@ -79,7 +79,7 @@ def fix_indentation_issues(file_path: Path) -> Tuple[bool, List[str]]:
         except SyntaxError as se:
             return False, [f"Syntax error (may be indentation related): {se}"]
     except Exception as e:
-        return False, [f"Error processing file: {e}"]
+        return False, [f"Error processing {file_path}: {e}"]
 
 def fix_blank_lines_with_whitespace(file_path: Path, backup: bool = False) -> Tuple[bool, List[str]]:
     """Fix blank lines that contain whitespace."""
@@ -115,7 +115,7 @@ def fix_blank_lines_with_whitespace(file_path: Path, backup: bool = False) -> Tu
         return False, []
 
     except Exception as e:
-        return False, [f"Error processing file: {e}"]
+        return False, [f"Error processing {file_path}: {e}"]
 
 def main():
     """Main function to fix all linting issues."""
