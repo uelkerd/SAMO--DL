@@ -10,6 +10,7 @@ flask==2.3.3
 
 # HTTP client
 requests==2.32.4
+httpx>=0.24.0
 
 # Monitoring
 prometheus-client==0.20.0
