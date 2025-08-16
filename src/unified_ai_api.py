@@ -232,8 +232,9 @@ class WebSocketConnectionManager:
         }
 
         logger.info(
-            f"WebSocket connected for user {user_id}. "
-            f"Total connections: {len(self.active_connections[user_id])}"
+            "WebSocket connected for user %s. "
+            "Total connections: %s",
+            user_id, len(self.active_connections[user_id])
         )
         return True
 
@@ -295,8 +296,8 @@ class WebSocketConnectionManager:
 
         for websocket in stale_connections:
             logger.warning(
-                f"Cleaning up stale WebSocket connection for user "
-                f"{self.connection_metadata[websocket]['user_id']}"
+                "Cleaning up stale WebSocket connection for user %s",
+                self.connection_metadata[websocket]['user_id']
             )
             await self.disconnect(websocket)
 
@@ -408,7 +409,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                 endpoint_url = os.getenv("EMOTION_MODEL_ENDPOINT_URL")
                 logger.info("Attempting to load emotion model from HF Hub: %s", hf_model_id)
                 logger.info("Sources configured: local_dir=%s, archive=%s, endpoint=%s",
-                           bool(local_dir), bool(archive_url), bool(endpoint_url))
+                            bool(local_dir), bool(archive_url), bool(endpoint_url))
                 emotion_detector = load_emotion_model_multi_source(
                     model_id=hf_model_id,
                     token=hf_token,
@@ -1076,7 +1077,8 @@ async def logout_user(
             # Blacklist the token
             jwt_manager.blacklist_token(token)
             logger.info(
-                f"User logged out and token blacklisted: {current_user.username}"
+                "User logged out and token blacklisted: %s",
+                current_user.username
             )
         else:
             logger.warning("No valid Authorization header found during logout")
@@ -1271,8 +1273,8 @@ async def analyze_journal_entry(
                 )
                 emotion_results = normalize_emotion_results(raw)
                 logger.info(
-                    f"✅ Emotion analysis completed: "
-                    f"{emotion_results['primary_emotion']}"
+                    "Emotion analysis completed: %s",
+                    emotion_results['primary_emotion']
                 )
             except Exception as exc:
                 logger.warning("⚠️  Emotion analysis failed: %s", exc)
@@ -1399,8 +1401,8 @@ async def analyze_voice_journal(
                     )
                     transcribed_text = transcription_results["text"]
                     logger.info(
-                        f"✅ Voice transcription completed: "
-                        f"{len(transcribed_text)} characters"
+                        "Voice transcription completed: %s characters",
+                        len(transcribed_text)
                     )
                 finally:
                     # Clean up temporary file
