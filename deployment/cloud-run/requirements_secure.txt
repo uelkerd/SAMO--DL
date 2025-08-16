@@ -14,7 +14,6 @@ bcrypt>=4.0.0
 
 # HTTP & Networking
 requests==2.32.4
-httpx>=0.24.0
 
 # Database
 sqlalchemy==2.0.36
@@ -32,4 +31,4 @@ rich==13.9.4
 loguru==0.7.2
 
 # Production
-gunicorn==21.2.0
+gunicorn>=23.0.0,<24.0.0
