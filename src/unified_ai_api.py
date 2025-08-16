@@ -406,15 +406,8 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                 local_dir = os.getenv("EMOTION_MODEL_LOCAL_DIR")
                 archive_url = os.getenv("EMOTION_MODEL_ARCHIVE_URL")
                 endpoint_url = os.getenv("EMOTION_MODEL_ENDPOINT_URL")
-                
-                logger.info(
-                    f"🔄 Attempting to load emotion model from HF Hub: {hf_model_id}"
-                )
-                logger.info(
-                    f"📋 Sources configured: local_dir={bool(local_dir)}, "
-                    f"archive={bool(archive_url)}, endpoint={bool(endpoint_url)}"
-                )
-                
+                logger.info(f"🔄 Attempting to load emotion model from HF Hub: {hf_model_id}")
+                logger.info(f"📋 Sources configured: local_dir={bool(local_dir)}, archive={bool(archive_url)}, endpoint={bool(endpoint_url)}")
                 emotion_detector = load_emotion_model_multi_source(
                     model_id=hf_model_id,
                     token=hf_token,
