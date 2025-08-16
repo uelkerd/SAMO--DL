@@ -2,7 +2,7 @@
 # Pin base image to immutable digest for reproducible builds
 # TODO: Update this digest to the current version before merging
 # Get current digest: docker pull python:3.12-slim-bookworm && docker images --digests | grep python:3.12-slim-bookworm
-FROM python:3.12-slim-bookworm@sha256:placeholder-update-before-merge
+FROM python:3.12-slim-bookworm
 
 # Environment
 ENV PYTHONUNBUFFERED=1 \
