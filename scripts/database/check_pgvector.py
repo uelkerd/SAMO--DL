@@ -59,7 +59,10 @@ def check_pgvector():
             # Create a cursor
             with conn.cursor() as cur:
                 # Check if vector extension is available
-                cur.execute("SELECT extname FROM pg_extension WHERE extname = 'vector';")
+                cur.execute(
+                    "SELECT extname FROM pg_extension "
+                    "WHERE extname = 'vector';"
+                )
                 extension_installed = cur.fetchone() is not None
 
         if extension_installed:
@@ -68,9 +71,14 @@ def check_pgvector():
             logging.info("❌ pgvector extension is NOT installed.")
             logging.info("\nTo install pgvector:")
             logging.info("1. Install the extension in your PostgreSQL server:")
-            logging.info("   - On Ubuntu/Debian: sudo apt install 'postgresql-<version>-pgvector'  # e.g., 14/15/16")
+            logging.info(
+                "   - On Ubuntu/Debian: sudo apt install 'postgresql-<version>-pgvector' "
+                " # e.g., 14/15/16"
+            )
             logging.info("   - On macOS with Homebrew: brew install pgvector")
-            logging.info("   - From source: https://github.com/pgvector/pgvector#installation")
+            logging.info(
+                "   - From source: https://github.com/pgvector/pgvector#installation"
+            )
             logging.info("\n2. Enable the extension in your database:")
             logging.info("   - psql -U postgres")
             logging.info("   - \\c %s", DB_NAME)
