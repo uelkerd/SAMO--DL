@@ -6,15 +6,25 @@ Fixes trailing whitespace and indentation issues identified by DeepSource.
 """
 
 import os
+import argparse
+import shutil
+import tempfile
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Optional, Set
 
-def find_python_files(project_root: Path) -> List[Path]:
-    """Find all Python files in the project."""
+def find_python_files(project_root: Path, excluded_dirs: Optional[Set[str]] = None) -> List[Path]:
+    """Find all Python files in the project, skipping excluded directories."""
+    if excluded_dirs is None:
+        excluded_dirs = {
+            '.git', '__pycache__', '.venv', 'venv', 'node_modules', 'build', 'dist',
+            '.mypy_cache', '.pytest_cache', '.cache', '.coverage', '.eggs', '.tox',
+            '.idea', '.vscode', '.DS_Store'
+        }
+
     python_files = []
     for root, dirs, files in os.walk(project_root):
         # Skip certain directories
-        dirs[:] = [d for d in dirs if d not in {'.git', '__pycache__', '.venv', 'venv', 'node_modules', 'build', 'dist'}]
+        dirs[:] = [d for d in dirs if d not in excluded_dirs]
 
         for file in files:
             if file.endswith('.py'):
@@ -22,84 +32,56 @@ def find_python_files(project_root: Path) -> List[Path]:
 
     return python_files
 
-def fix_trailing_whitespace(file_path: Path) -> Tuple[bool, List[str]]:
-    """Fix trailing whitespace in a file."""
+def fix_trailing_whitespace(file_path: Path, backup: bool = False) -> Tuple[bool, List[str]]:
+    """Fix trailing whitespace in a file, processing line by line for efficiency."""
+    changed = False
+    issues_fixed: List[str] = []
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-
-        original_content = content
-        lines = content.splitlines()
-        fixed_lines = []
-        issues_fixed = []
-
-        for i, line in enumerate(lines, 1):
-            # Remove trailing whitespace
-            if line.rstrip() != line:
-                _ = line  # Store original line for reference (renamed from original_line)
-                line = line.rstrip()
-                issues_fixed.append(f"Line {i}: Removed trailing whitespace")
-
-            fixed_lines.append(line)
-
-        # Reconstruct content with proper line endings
-        fixed_content = '\n'.join(fixed_lines)
-        if fixed_content and not fixed_content.endswith('\n'):
-            fixed_content += '\n'
-
-        if fixed_content != original_content:
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write(fixed_content)
-            return True, issues_fixed
-
-        return False, []
-
+        with open(file_path, 'r', encoding='utf-8') as src, tempfile.NamedTemporaryFile('w', delete=False, encoding='utf-8') as tmp:
+            for i, line in enumerate(src, 1):
+                # Remove trailing whitespace (including tabs/spaces) and normalize newline
+                stripped_line_no_nl = line.rstrip('\r\n')
+                stripped_line = stripped_line_no_nl.rstrip()
+                if stripped_line != stripped_line_no_nl:
+                    changed = True
+                    issues_fixed.append(f"Line {i}: Removed trailing whitespace")
+                tmp.write(stripped_line + '\n')
+        # If content changed, optionally back up and replace
+        if changed:
+            if backup:
+                shutil.copyfile(file_path, str(file_path) + '.bak')
+            os.replace(tmp.name, file_path)
+        else:
+            os.remove(tmp.name)
+        return changed, issues_fixed
     except Exception as e:
+        # Best-effort cleanup of temp file if it still exists
+        try:
+            if 'tmp' in locals():
+                os.remove(tmp.name)
+        except Exception:
+            pass
         return False, [f"Error processing file: {e}"]
 
 def fix_indentation_issues(file_path: Path) -> Tuple[bool, List[str]]:
-    """Fix indentation issues in a file."""
+    """Detect indentation issues using AST; do not attempt automatic fixes."""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
+            original_content = f.read()
 
-        original_content = content
-        lines = content.splitlines()
-        fixed_lines = []
-        issues_fixed = []
-
-        for i, line in enumerate(lines, 1):
-            # Fix visually indented lines with same indent as next logical line
-            # This is a simplified fix - in practice, you'd need more context
-            if i < len(lines) - 1:
-                current_indent = len(line) - len(line.lstrip())
-                next_line = lines[i]
-                next_indent = len(next_line) - len(next_line.lstrip())
-
-                # If current line is continuation and next line has same indent
-                if (line.strip().endswith('and') or line.strip().endswith('or')) and current_indent == next_indent:
-                    # Add proper indentation for continuation
-                    line = ' ' * (current_indent + 4) + line.strip()
-                    issues_fixed.append(f"Line {i}: Fixed continuation indentation")
-
-            fixed_lines.append(line)
-
-        # Reconstruct content
-        fixed_content = '\n'.join(fixed_lines)
-        if fixed_content and not fixed_content.endswith('\n'):
-            fixed_content += '\n'
-
-        if fixed_content != original_content:
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write(fixed_content)
-            return True, issues_fixed
-
-        return False, []
-
+        # Use ast to check for indentation/syntax issues without modifying the file
+        import ast
+        try:
+            ast.parse(original_content)
+            return False, []  # Parsed successfully; assume no indentation issues
+        except IndentationError as ie:
+            return False, [f"Indentation error: {ie}"]
+        except SyntaxError as se:
+            return False, [f"Syntax error (may be indentation related): {se}"]
     except Exception as e:
         return False, [f"Error processing file: {e}"]
 
-def fix_blank_lines_with_whitespace(file_path: Path) -> Tuple[bool, List[str]]:
+def fix_blank_lines_with_whitespace(file_path: Path, backup: bool = False) -> Tuple[bool, List[str]]:
     """Fix blank lines that contain whitespace."""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -107,8 +89,8 @@ def fix_blank_lines_with_whitespace(file_path: Path) -> Tuple[bool, List[str]]:
 
         original_content = content
         lines = content.splitlines()
-        fixed_lines = []
-        issues_fixed = []
+        fixed_lines: List[str] = []
+        issues_fixed: List[str] = []
 
         for i, line in enumerate(lines, 1):
             # Check if line is blank but contains whitespace
@@ -124,8 +106,10 @@ def fix_blank_lines_with_whitespace(file_path: Path) -> Tuple[bool, List[str]]:
             fixed_content += '\n'
 
         if fixed_content != original_content:
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write(fixed_content)
+            if backup:
+                shutil.copyfile(file_path, str(file_path) + '.bak')
+            with open(file_path, 'w', encoding='utf-8') as f_out:
+                f_out.write(fixed_content)
             return True, issues_fixed
 
         return False, []
@@ -135,6 +119,15 @@ def fix_blank_lines_with_whitespace(file_path: Path) -> Tuple[bool, List[str]]:
 
 def main():
     """Main function to fix all linting issues."""
+    parser = argparse.ArgumentParser(description="Fix linting issues in files.")
+    parser.add_argument("--backup", action="store_true", help="Create backups of files before modifying them.")
+    args = parser.parse_args()
+
+    # Warn user if not backing up
+    if not args.backup:
+        print("⚠️ WARNING: No backups will be created before modifying files. This may result in accidental data loss.")
+        print("   Use the --backup option to create .bak files before changes are made.\n")
+
     print("🔧 SAMO Linting Issues Fix Script")
     print("=" * 50)
 
@@ -148,39 +141,51 @@ def main():
 
     total_files_processed = 0
     total_files_fixed = 0
-    all_issues = []
+    all_issues: List[str] = []
 
     # Process each file
     for file_path in python_files:
         print(f"\nProcessing: {file_path.relative_to(project_root)}")
 
-        _ = False  # Track if file was modified (renamed from file_fixed)
-        file_issues = []
+        file_fixed = False  # Track if file was modified
+        fixed_issues: List[str] = []
+        detected_issues: List[str] = []
 
         # Fix trailing whitespace
-        fixed, issues = fix_trailing_whitespace(file_path)
-        if fixed:
-            _ = True
-            file_issues.extend(issues)
+        fixed, issues = fix_trailing_whitespace(file_path, backup=args.backup)
+        if issues:
+            if fixed:
+                file_fixed = True
+                fixed_issues.extend(issues)
+            else:
+                detected_issues.extend(issues)
 
-        # Fix indentation issues
+        # Detect indentation issues (no auto-fix)
         fixed, issues = fix_indentation_issues(file_path)
-        if fixed:
-            _ = True
-            file_issues.extend(issues)
+        if issues:
+            # These are detections only; no modifications performed here
+            detected_issues.extend(issues)
 
         # Fix blank lines with whitespace
-        fixed, issues = fix_blank_lines_with_whitespace(file_path)
-        if fixed:
-            _ = True
-            file_issues.extend(issues)
+        fixed, issues = fix_blank_lines_with_whitespace(file_path, backup=args.backup)
+        if issues:
+            if fixed:
+                file_fixed = True
+                fixed_issues.extend(issues)
+            else:
+                detected_issues.extend(issues)
 
-        if file_issues:
-            print(f"  ✅ Fixed {len(file_issues)} issues:")
-            for issue in file_issues:
+        if fixed_issues:
+            print(f"  ✅ Fixed {len(fixed_issues)} issues:")
+            for issue in fixed_issues:
                 print(f"    - {issue}")
-            all_issues.extend(file_issues)
+            all_issues.extend(fixed_issues)
             total_files_fixed += 1
+
+        if detected_issues:
+            print(f"  ⚠️ Detected {len(detected_issues)} issues that may require manual attention:")
+            for issue in detected_issues:
+                print(f"    - {issue}")
 
         total_files_processed += 1
 
@@ -202,6 +207,7 @@ def main():
     print("  2. Test that functionality is preserved")
     print("  3. Commit the fixes")
     print("  4. Run linting tools to verify")
+    print("  5. If you used --backup, verify .bak files were created for safety.")
 
 if __name__ == "__main__":
     main()
