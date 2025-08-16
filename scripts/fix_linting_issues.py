@@ -16,6 +16,30 @@ from pathlib import Path
 from typing import Optional
 
 
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+
+def _resolve_safe_path(path: Path) -> Path:
+    """Resolve path and ensure it is a file under the project root."""
+    resolved = path.resolve()
+    try:
+        is_under = resolved.is_relative_to(PROJECT_ROOT)
+    except AttributeError:
+        # Python <3.9 fallback (not expected, target py39)
+        try:
+            resolved.relative_to(PROJECT_ROOT)
+            is_under = True
+        except ValueError:
+            is_under = False
+    if not is_under:
+        raise ValueError(
+            f"Refusing to operate outside project root: {resolved}"
+        )
+    if not resolved.exists() or not resolved.is_file():
+        raise FileNotFoundError(f"File not found: {resolved}")
+    return resolved
+
+
 def find_python_files(
     project_root: Path,
     excluded_dirs: Optional[set[str]] = None,
@@ -48,7 +72,8 @@ def fix_trailing_whitespace(
     changed = False
     issues_fixed: list[str] = []
     try:
-        with open(file_path, encoding='utf-8') as src, tempfile.NamedTemporaryFile(
+        safe_path = _resolve_safe_path(file_path)
+        with open(safe_path, encoding='utf-8') as src, tempfile.NamedTemporaryFile(
             'w', delete=False, encoding='utf-8'
         ) as tmp:
             for i, line in enumerate(src, 1):
@@ -62,8 +87,8 @@ def fix_trailing_whitespace(
         # If content changed, optionally back up and replace
         if changed:
             if backup:
-                shutil.copyfile(file_path, f"{file_path}.bak")
-            Path(tmp.name).replace(file_path)
+                shutil.copyfile(safe_path, f"{safe_path}.bak")
+            Path(tmp.name).replace(safe_path)
         else:
             Path(tmp.name).unlink(missing_ok=True)
         return changed, issues_fixed
@@ -78,7 +103,8 @@ def fix_trailing_whitespace(
 def fix_indentation_issues(file_path: Path) -> tuple[bool, list[str]]:
     """Detect indentation issues using AST; do not attempt automatic fixes."""
     try:
-        with open(file_path, encoding='utf-8') as f:
+        safe_path = _resolve_safe_path(file_path)
+        with open(safe_path, encoding='utf-8') as f:
             original_content = f.read()
 
         # Use ast to check for indentation/syntax issues without modifying the file
@@ -100,7 +126,8 @@ def fix_blank_lines_with_whitespace(
 ) -> tuple[bool, list[str]]:
     """Fix blank lines that contain whitespace."""
     try:
-        with open(file_path, encoding='utf-8') as f:
+        safe_path = _resolve_safe_path(file_path)
+        with open(safe_path, encoding='utf-8') as f:
             content = f.read()
 
         original_content = content
@@ -126,8 +153,8 @@ def fix_blank_lines_with_whitespace(
 
         if fixed_content != original_content:
             if backup:
-                shutil.copyfile(file_path, f"{file_path}.bak")
-            with open(file_path, 'w', encoding='utf-8') as f_out:
+                shutil.copyfile(safe_path, f"{safe_path}.bak")
+            with open(safe_path, 'w', encoding='utf-8') as f_out:
                 f_out.write(fixed_content)
             return True, issues_fixed
 
