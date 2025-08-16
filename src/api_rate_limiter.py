@@ -219,8 +219,8 @@ class TokenBucketRateLimiter:
         """Analyze user agent for suspicious patterns. Returns score (0-10)."""
         if not user_agent:
             return 0
-        score = 0
         ua_lower = user_agent.lower()
+
         high_risk_patterns = [
             'sqlmap', 'nikto', 'nmap', 'scanner', 'crawler', 'spider',
             'bot', 'automation', 'script', 'python-requests', 'curl',
@@ -234,20 +234,19 @@ class TokenBucketRateLimiter:
             'bot', 'crawler', 'spider', 'indexer', 'feed', 'rss',
             'aggregator', 'monitor', 'checker'
         ]
-        for pattern in high_risk_patterns:
-            if pattern in ua_lower:
-                score += 3
-        for pattern in medium_risk_patterns:
-            if pattern in ua_lower:
-                score += 2
-        for pattern in low_risk_patterns:
-            if pattern in ua_lower:
-                score += 1
+
+        score = (
+            3 * sum(1 for p in high_risk_patterns if p in ua_lower)
+            + 2 * sum(1 for p in medium_risk_patterns if p in ua_lower)
+            + 1 * sum(1 for p in low_risk_patterns if p in ua_lower)
+        )
+
         if (
             any(p in ua_lower for p in ["bot", "crawler"]) and
             any(p in ua_lower for p in ["python", "curl", "wget"])
         ):
             score += 2
+
         return min(score, 10)
 
     def _analyze_request_patterns(self, client_key: str, client_ip: str) -> int:
