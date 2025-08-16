@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - 2025-08-07
 
+### Tests & Training
+- Refresh core tests (unit, integration, e2e) and minimal training helpers.
+- Keep scope small to validate core flows and CI signal without large refactors.
+
 ### 🚀 **Priority 1 Features Implementation - Complete API Enhancement**
 
 #### **JWT-based Authentication System**
