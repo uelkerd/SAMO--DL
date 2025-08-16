@@ -12,7 +12,7 @@ This document explains the security considerations and design decisions for diff
 **Server**: Gunicorn with Uvicorn workers
 **Security Features**:
 - ✅ Non-root user execution
-- ✅ Pinned package versions
+- ✅ Pinned package versions (OS packages pinned; Python deps pinned in `requirements-api.txt` and enforced with `constraints.txt`)
 - ✅ Minimal attack surface
 - ✅ Health checks
 - ✅ Environment variable configuration
@@ -35,6 +35,8 @@ CMD ["sh", "-c", "gunicorn --bind ${HOST}:${PORT} --workers 2 --worker-class uvi
 **Security Features**:
 - ✅ Non-root user execution
 - ✅ Pinned package versions
+  - OS packages pinned to Debian bookworm security releases
+  - Python dependencies pinned in `requirements-api.txt` and additionally constrained with `constraints.txt` during install
 - ✅ Health checks
 - ✅ Environment variable configuration
 
@@ -56,6 +58,8 @@ CMD ["sh", "-c", "exec uvicorn src.unified_ai_api:app --host 0.0.0.0 --port ${PO
 **Security Features**:
 - ✅ Non-root user execution
 - ✅ Pinned package versions
+  - OS packages pinned to Debian bookworm security releases
+  - Python dependencies pinned via `requirements_unified.txt` and additionally constrained with `constraints.txt`
 - ✅ Health checks
 - ✅ Model pre-bundling for security
 
@@ -81,7 +85,8 @@ These are documented to avoid unnecessary policy exceptions while keeping config
 - Minimal privileges for runtime
 
 ### 2. Package Security
-- Pinned versions for all packages
+- Pinned OS package versions
+- Python packages pinned in requirements and enforced with constraints to ensure reproducibility
 - Regular security updates
 - Vulnerability scanning in CI/CD
 
