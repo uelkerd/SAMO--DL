@@ -12,11 +12,10 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Install build dependencies with version pinning for security
-# Pin versions to avoid DOK-DL3008 and ensure reproducible builds
+# Install build dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
-    curl=7.88.1-10+deb12u12 \
+    curl \
     git \
     && rm -rf /var/lib/apt/lists/*
 
@@ -41,10 +40,9 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app/src
 
-# Install only runtime dependencies with version pinning for security
-# Pin versions to avoid DOK-DL3008 and ensure reproducible builds
+# Install only runtime dependencies
 RUN apt-get update && apt-get install -y \
-    curl=7.88.1-10+deb12u12 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
