@@ -12,6 +12,7 @@ ENV PYTHONUNBUFFERED=1 \
 # Create virtual environment and install Python deps
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
+WORKDIR /tmp/build
 COPY requirements-api.txt .
 RUN pip install --no-cache-dir -r requirements-api.txt
 
