@@ -188,7 +188,7 @@ def validate_training_data(data_path: str, expected_columns: list, logger: Optio
         # Check if all expected columns exist
         missing_columns = set(expected_columns) - set(df.columns)
         if missing_columns:
-            logger.warning(f"Missing columns: {missing_columns}")
+            logger.warning("Missing columns: %s", missing_columns)
             return False
 
         # Check if data is not empty
@@ -199,5 +199,5 @@ def validate_training_data(data_path: str, expected_columns: list, logger: Optio
         return True
 
     except Exception as e:
-        logger.error(f"Data validation failed: {e}")
+        logger.error("Data validation failed: %s", e)
         return False
