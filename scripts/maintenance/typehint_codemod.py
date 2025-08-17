@@ -201,6 +201,79 @@ class TypeHintVisitor(ast.NodeVisitor):
             )
 
 
+def _apply_changes_to_lines(lines: List[str], visitor: TypeHintVisitor, verbose: bool) -> None:
+    """Apply AST changes to the lines of code."""
+    for change in visitor.changes:
+        if change['type'] == 'annotation':
+            old_code = ast_to_source(change['old'])
+            new_code = ast_to_source(change['new'])
+            if verbose:
+                print(f"    Annotation: {old_code} -> {new_code}")
+
+        elif change['type'] == 'arg':
+            old_code = ast_to_source(change['old'])
+            new_code = ast_to_source(change['new'])
+            if verbose:
+                print(f"    Argument: {old_code} -> {new_code}")
+
+        elif change['type'] == 'returns':
+            old_code = ast_to_source(change['old'])
+            new_code = ast_to_source(change['new'])
+            if verbose:
+                print(f"    Returns: {old_code} -> {new_code}")
+
+        elif change['type'] == 'base':
+            old_code = ast_to_source(change['old'])
+            new_code = ast_to_source(change['new'])
+            if verbose:
+                print(f"    Base: {old_code} -> {new_code}")
+
+
+def _add_typing_imports_to_lines(lines: List[str], imports_to_add: set) -> None:
+    """Add missing typing imports to the lines."""
+    if not imports_to_add:
+        return
+        
+    # Find the last typing import or add after existing imports
+    typing_import_found = False
+    last_import_line = -1
+
+    for i, line in enumerate(lines):
+        if line.strip().startswith('from typing import'):
+            typing_import_found = True
+            last_import_line = i
+        elif (line.strip().startswith('import ') or
+              line.strip().startswith('from ')):
+            last_import_line = i
+
+    if typing_import_found:
+        # Add to existing typing import
+        for i, line in enumerate(lines):
+            if line.strip().startswith('from typing import'):
+                existing_imports = line.replace('from typing import ', '').strip()
+                new_imports = ', '.join(sorted(imports_to_add))
+                if existing_imports:
+                    new_import_line = (
+                        f"from typing import {existing_imports}, {new_imports}"
+                    )
+                    lines[i] = new_import_line
+                else:
+                    lines[i] = f"from typing import {new_imports}"
+                break
+    else:
+        # Add new typing import after last import
+        if last_import_line >= 0:
+            import_line = (
+                f"from typing import {', '.join(sorted(imports_to_add))}"
+            )
+            lines.insert(last_import_line + 1, import_line)
+        else:
+            import_line = (
+                f"from typing import {', '.join(sorted(imports_to_add))}"
+            )
+            lines.insert(0, import_line)
+
+
 def process_file(
     file_path: Path, dry_run: bool = False, verbose: bool = False
 ) -> Dict[str, Any]:
@@ -234,81 +307,15 @@ def process_file(
             # Convert content to lines for easier manipulation
             lines = content.splitlines()
 
-            for change in visitor.changes:
-                if change['type'] == 'annotation':
-                    old_code = ast_to_source(change['old'])
-                    new_code = ast_to_source(change['new'])
-                    if verbose:
-                        print(f"    Annotation: {old_code} -> {new_code}")
-
-                elif change['type'] == 'arg':
-                    old_code = ast_to_source(change['old'])
-                    new_code = ast_to_source(change['new'])
-                    if verbose:
-                        print(f"    Argument: {old_code} -> {new_code}")
-
-                elif change['type'] == 'returns':
-                    old_code = ast_to_source(change['old'])
-                    new_code = ast_to_source(change['new'])
-                    if verbose:
-                        print(f"    Returns: {old_code} -> {new_code}")
-
-                elif change['type'] == 'base':
-                    old_code = ast_to_source(change['old'])
-                    new_code = ast_to_source(change['new'])
-                    if verbose:
-                        print(f"    Base: {old_code} -> {new_code}")
+            # Apply AST changes
+            _apply_changes_to_lines(lines, visitor, verbose)
 
             # Add missing imports
-            if visitor.imports_to_add:
-                import_lines = []
-                for import_name in sorted(visitor.imports_to_add):
-                    import_lines.append(f"from typing import {import_name}")
+            _add_typing_imports_to_lines(lines, visitor.imports_to_add)
 
-                # Find the last typing import or add after existing imports
-                lines_with_imports = []
-                typing_import_found = False
-                last_import_line = -1
-
-                for i, line in enumerate(lines):
-                    lines_with_imports.append(line)
-                    if line.strip().startswith('from typing import'):
-                        typing_import_found = True
-                        last_import_line = i
-                    elif (line.strip().startswith('import ') or
-                          line.strip().startswith('from ')):
-                        last_import_line = i
-
-                if typing_import_found:
-                    # Add to existing typing import
-                    for i, line in enumerate(lines):
-                        if line.strip().startswith('from typing import'):
-                            existing_imports = line.replace('from typing import ', '').strip()
-                            new_imports = ', '.join(sorted(visitor.imports_to_add))
-                            if existing_imports:
-                                new_import_line = (
-                                f"from typing import {existing_imports}, {new_imports}"
-                            )
-                            lines[i] = new_import_line
-                        else:
-                            lines[i] = f"from typing import {new_imports}"
-                            break
-                else:
-                    # Add new typing import after last import
-                    if last_import_line >= 0:
-                        import_line = (
-                            f"from typing import {', '.join(sorted(visitor.imports_to_add))}"
-                        )
-                        lines.insert(last_import_line + 1, import_line)
-                    else:
-                        import_line = (
-                            f"from typing import {', '.join(sorted(visitor.imports_to_add))}"
-                        )
-                        lines.insert(0, import_line)
-
-                # Write back to file
-                with open(file_path, 'w', encoding='utf-8') as f:
-                    f.write('\n'.join(lines))
+            # Write back to file
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write('\n'.join(lines))
 
         return {
             'file': str(file_path),
@@ -319,6 +326,65 @@ def process_file(
 
     except Exception as e:
         return {'file': str(file_path), 'status': 'error', 'error': str(e)}
+
+
+def _process_single_file(file_path: Path, dry_run: bool, verbose: bool) -> Dict[str, Any]:
+    """Process a single file and return the result."""
+    if verbose:
+        print(f"Processing: {file_path}")
+
+    result = process_file(file_path, dry_run=dry_run, verbose=verbose)
+    
+    if result['status'] == 'success' and result['changes'] > 0:
+        if verbose:
+            print(
+                f"  ✅ {result['changes']} changes, "
+                f"imports: {result['imports_added']}"
+            )
+    elif result['status'] == 'no_changes':
+        if verbose:
+            print(f"  ⏭️  No changes needed")
+    elif result['status'] == 'error':
+        print(f"  ❌ Error: {result['error']}")
+    elif result['status'] == 'syntax_error':
+        print(f"  ⚠️  Syntax error: {result['error']}")
+
+    if verbose:
+        print()
+        
+    return result
+
+
+def _print_summary(results: List[Dict[str, Any]], total_changes: int, dry_run: bool) -> None:
+    """Print summary of processing results."""
+    print("=" * 50)
+    print("SUMMARY")
+    print("=" * 50)
+
+    successful = [r for r in results if r['status'] == 'success']
+    errors = [r for r in results if r['status'] == 'error']
+    syntax_errors = [r for r in results if r['status'] == 'syntax_error']
+    no_changes = [r for r in results if r['status'] == 'no_changes']
+
+    print(f"Files processed: {len(results)}")
+    print(f"Successful: {len(successful)}")
+    print(f"Errors: {len(errors)}")
+    print(f"Syntax errors: {len(syntax_errors)}")
+    print(f"No changes needed: {len(no_changes)}")
+    print(f"Total changes: {total_changes}")
+
+    if errors:
+        print("\nFiles with errors:")
+        for result in errors:
+            print(f"  {result['file']}: {result['error']}")
+
+    if syntax_errors:
+        print("\nFiles with syntax errors:")
+        for result in syntax_errors:
+            print(f"  {result['file']}: {result['error']}")
+
+    if dry_run and total_changes > 0:
+        print(f"\nTo apply these changes, run without --dry-run")
 
 
 def find_python_files(directory: Path) -> List[Path]:
@@ -367,59 +433,14 @@ def main():
     total_changes = 0
 
     for file_path in python_files:
-        if args.verbose:
-            print(f"Processing: {file_path}")
-
-        result = process_file(file_path, dry_run=args.dry_run, verbose=args.verbose)
+        result = _process_single_file(file_path, args.dry_run, args.verbose)
         results.append(result)
 
         if result['status'] == 'success' and result['changes'] > 0:
             total_changes += result['changes']
-            if args.verbose:
-                print(
-                    f"  ✅ {result['changes']} changes, "
-                    f"imports: {result['imports_added']}"
-                )
-        elif result['status'] == 'no_changes':
-            if args.verbose:
-                print(f"  ⏭️  No changes needed")
-        elif result['status'] == 'error':
-            print(f"  ❌ Error: {result['error']}")
-        elif result['status'] == 'syntax_error':
-            print(f"  ⚠️  Syntax error: {result['error']}")
 
-        if args.verbose:
-            print()
-
-    # Summary
-    print("=" * 50)
-    print("SUMMARY")
-    print("=" * 50)
-
-    successful = [r for r in results if r['status'] == 'success']
-    errors = [r for r in results if r['status'] == 'error']
-    syntax_errors = [r for r in results if r['status'] == 'syntax_error']
-    no_changes = [r for r in results if r['status'] == 'no_changes']
-
-    print(f"Files processed: {len(results)}")
-    print(f"Successful: {len(successful)}")
-    print(f"Errors: {len(errors)}")
-    print(f"Syntax errors: {len(syntax_errors)}")
-    print(f"No changes needed: {len(no_changes)}")
-    print(f"Total changes: {total_changes}")
-
-    if errors:
-        print("\nFiles with errors:")
-        for result in errors:
-            print(f"  {result['file']}: {result['error']}")
-
-    if syntax_errors:
-        print("\nFiles with syntax errors:")
-        for result in syntax_errors:
-            print(f"  {result['file']}: {result['error']}")
-
-    if args.dry_run and total_changes > 0:
-        print(f"\nTo apply these changes, run without --dry-run")
+    # Print summary
+    _print_summary(results, total_changes, args.dry_run)
 
     print()
 
