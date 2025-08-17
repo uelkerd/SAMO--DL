@@ -37,7 +37,7 @@ from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadF
 from fastapi.responses import JSONResponse
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import Any
+from typing import Any, Optional, List, Dict
 import logging
 import os
 import tempfile
@@ -50,7 +50,7 @@ import uvicorn
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-whisper_transcriber: WhisperTranscriber | None = None
+whisper_transcriber: Optional[WhisperTranscriber] = None
 
 
 @asynccontextmanager
@@ -113,7 +113,7 @@ class TranscriptionResponse(BaseModel):
 class BatchTranscriptionResponse(BaseModel):
     """Response model for batch transcription."""
 
-    transcriptions: list[TranscriptionResponse] = Field(
+    transcriptions: List[TranscriptionResponse] = Field(
         ..., description="List of transcription results"
     )
     total_processing_time: float = Field(..., description="Total batch processing time")
@@ -127,7 +127,7 @@ class ErrorResponse(BaseModel):
 
     error: str = Field(..., description="Error type")
     message: str = Field(..., description="Error message")
-    details: dict | None = Field(None, description="Additional error details")
+    details: Optional[Dict] = Field(None, description="Additional error details")
 
 
 @app.get("/health")
@@ -150,8 +150,8 @@ async def health_check():
 @app.post("/transcribe", response_model=TranscriptionResponse)
 async def transcribe_audio(
     audio_file: UploadFile = File(...),
-    language: str | None = Form(None),
-    initial_prompt: str | None = Form(None),
+    language: Optional[str] = Form(None),
+    initial_prompt: Optional[str] = Form(None),
 ):
     """Transcribe a single audio file to text.
 
@@ -225,9 +225,9 @@ async def transcribe_audio(
 
 @app.post("/transcribe/batch", response_model=BatchTranscriptionResponse)
 async def transcribe_batch(
-    audio_files: list[UploadFile] = File(...),
-    language: str | None = Form(None),
-    initial_prompt: str | None = Form(None),
+    audio_files: List[UploadFile] = File(...),
+    language: Optional[str] = Form(None),
+    initial_prompt: Optional[str] = Form(None),
 ):
     """Transcribe multiple audio files in batch for efficiency.
 

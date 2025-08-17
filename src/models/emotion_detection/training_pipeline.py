@@ -49,7 +49,7 @@ class EmotionDetectionTrainer:
         warmup_steps: int = 500,
         weight_decay: float = 0.01,
         freeze_initial_layers: int = 6,
-        unfreeze_schedule: Optional[list[int]] = None,
+        unfreeze_schedule: Optional[List[int]] = None,
         save_best_only: bool = True,
         early_stopping_patience: int = 3,
         evaluation_strategy: str = "epoch",

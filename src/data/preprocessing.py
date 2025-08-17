@@ -6,7 +6,7 @@ This module provides comprehensive text preprocessing functionality
 for journal entries and other text data.
 """
 import string
-from typing import List
+from typing import List, Optional
 
 import nltk
 import numpy as np
@@ -141,7 +141,7 @@ class TextPreprocessor:
 class JournalEntryPreprocessor:
     """Preprocessing pipeline for journal entries."""
 
-    def __init__(self, text_preprocessor: TextPreprocessor | None = None) -> None:
+    def __init__(self, text_preprocessor: Optional[TextPreprocessor] = None) -> None:
         """Initialize journal entry preprocessor.
 
         Args:

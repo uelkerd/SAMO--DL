@@ -28,9 +28,9 @@ class DataPipeline:
 
     def __init__(
         self,
-        preprocessor: JournalEntryPreprocessor | None = None,
-        validator: DataValidator | None = None,
-        feature_engineer: FeatureEngineer | None = None,
+        preprocessor: Optional[JournalEntryPreprocessor] = None,
+        validator: Optional[DataValidator] = None,
+        feature_engineer: Optional[FeatureEngineer] = None,
         embedding_method: str = "tfid",
     ) -> None:
         """Initialize data pipeline.
@@ -61,11 +61,11 @@ class DataPipeline:
 
     def run(
         self,
-        data_source: str | pd.DataFrame,
+        data_source: Union[str, pd.DataFrame],
         source_type: str = "db",
-        output_dir: str | None = None,
-        user_id: int | None = None,
-        limit: int | None = None,
+        output_dir: Optional[str] = None,
+        user_id: Optional[int] = None,
+        limit: Optional[int] = None,
         extract_topics: bool = True,
         save_intermediates: bool = False,
     ) -> Dict[str, pd.DataFrame]:
@@ -147,10 +147,10 @@ class DataPipeline:
 
     def _load_data(
         self,
-        data_source: str | pd.DataFrame,
+        data_source: Union[str, pd.DataFrame],
         source_type: str,
-        user_id: int | None,
-        limit: int | None,
+        user_id: Optional[int],
+        limit: Optional[int],
     ) -> pd.DataFrame:
         """Load data from specified source.
 
@@ -198,7 +198,7 @@ class DataPipeline:
         processed_df: pd.DataFrame,
         featured_df: pd.DataFrame,
         embeddings_df: pd.DataFrame,
-        topics_df: pd.DataFrame | None = None,
+        topics_df: Optional[pd.DataFrame] = None,
         save_intermediates: bool = False,
     ) -> None:
         """Save pipeline results to output directory.
