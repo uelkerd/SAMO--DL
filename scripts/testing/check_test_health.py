@@ -33,8 +33,9 @@ def count_test_functions():
         try:
             content = test_file.read_text(encoding="utf-8")
             tree = ast.parse(content)
-            count += sum(1 for node in ast.walk(tree) 
-                        if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"))
+            count += sum(1 for node in ast.walk(tree)
+                         if (isinstance(node, ast.FunctionDef) and
+                             node.name.startswith("test_")))
         except (OSError, SyntaxError):
             # Handle cases where file can't be read or parsed
             continue
@@ -50,7 +51,6 @@ def check_pytest_available():
 def run_basic_test_discovery():
     """Run basic pytest discovery to check test health."""
     if not check_pytest_available():
-        print("❌ pytest not available")
         return False
 
     try:

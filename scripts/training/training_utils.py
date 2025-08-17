@@ -7,7 +7,7 @@ Keeps scope small and focused on common training tasks.
 """
 import logging
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Optional
 import json
 
 
@@ -58,7 +58,7 @@ def setup_training_logging(log_file: str = "training.log") -> logging.Logger:
     return logger
 
 
-def save_training_config(config: Dict[str, Any], output_dir: str) -> Path:
+def save_training_config(config: dict[str, Any], output_dir: str) -> Path:
     """Save training configuration to JSON file.
 
     Args:
@@ -78,7 +78,7 @@ def save_training_config(config: Dict[str, Any], output_dir: str) -> Path:
     return config_file
 
 
-def load_training_config(config_file: str) -> Dict[str, Any]:
+def load_training_config(config_file: str) -> dict[str, Any]:
     """Load training configuration from JSON file.
 
     Args:
@@ -94,8 +94,12 @@ def load_training_config(config_file: str) -> Dict[str, Any]:
     # Security: Validate file path to prevent path traversal attacks
     config_path = Path(config_file).expanduser()
 
-    # Ensure path is safe (no parent directory traversal)
-    if ".." in str(config_path) or config_path.is_absolute():
+    # Normalize path; allow absolute paths but prevent directory traversal
+    try:
+        resolved_path = config_path.resolve(strict=False)
+        if ".." in str(resolved_path):
+            raise ValueError(f"Invalid config file path: {config_file}")
+    except Exception:
         raise ValueError(f"Invalid config file path: {config_file}")
 
     # Ensure file exists and is a file
@@ -180,8 +184,12 @@ def validate_training_data(
     # Security: Validate file path to prevent path traversal attacks
     data_path_obj = Path(data_path).expanduser()
 
-    # Ensure path is safe (no parent directory traversal)
-    if ".." in str(data_path_obj) or data_path_obj.is_absolute():
+    # Normalize path; allow absolute paths but prevent directory traversal
+    try:
+        resolved_path = data_path_obj.resolve(strict=False)
+        if ".." in str(resolved_path):
+            raise ValueError(f"Invalid data file path: {data_path}")
+    except Exception:
         raise ValueError(f"Invalid data file path: {data_path}")
 
     # Ensure pandas is available

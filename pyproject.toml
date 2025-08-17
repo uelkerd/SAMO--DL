@@ -61,6 +61,7 @@ test = [
     "httpx>=0.24.0",  # For FastAPI testing
     "coverage[toml]>=7.2.0",
     "factory-boy>=3.3.0",  # For test data generation
+    "flask~=2.3.3",  # Legacy Flask support for Python 3.8 compatibility
 ]
 
 # Development Dependencies
