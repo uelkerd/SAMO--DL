@@ -78,6 +78,7 @@ class TypeHintVisitor(ast.NodeVisitor):
                 })
         self.generic_visit(node)
 
+
     def visit_FunctionDef(self, node):
         """Visit function definitions."""
         if node.returns:
