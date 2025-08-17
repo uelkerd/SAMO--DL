@@ -230,7 +230,7 @@ class CodeQualityAutoFixer:
                             last_param = params_part[last_comma + 1:]
 
                             new_lines = [
-                                func_start + first_params, 
+                                func_start + first_params,
                                 ' ' * (indent + 4) + last_param
                             ]
 
@@ -239,7 +239,9 @@ class CodeQualityAutoFixer:
                             fixes.append({
                                 'type': 'FLK-E501',
                                 'line': i + 1,
-                                'description': 'Broke long function definition into multiple lines'
+                                'description': (
+                                    'Broke long function definition into multiple lines'
+                                )
                             })
 
         if modified:
@@ -273,9 +275,9 @@ class CodeQualityAutoFixer:
             sorted_imports = sorted(import_lines, key=lambda x: (
                 # Standard library first
                 0 if (
-                    not x.strip().startswith('from ') and 
+                    not x.strip().startswith('from ') and
                     not any(pkg in x for pkg in [
-                        'django', 'flask', 'numpy', 'pandas', 
+                        'django', 'flask', 'numpy', 'pandas',
                         'torch', 'transformers'
                     ])
                 ) else 1,

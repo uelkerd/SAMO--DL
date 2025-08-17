@@ -236,7 +236,7 @@ class CodeQualityEnforcer:
                 if isinstance(node, ast.Import):
                     for alias in node.names:
                         if (
-                            alias.name not in used_names and 
+                            alias.name not in used_names and
                             not alias.name.startswith('_')
                         ):
                             issues.append({
