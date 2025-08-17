@@ -644,8 +644,13 @@ def train_emotion_detection_model(
     return trainer.train()
 
 
-if __name__ == "__main__":
-
+def main():
+    """Main function to run emotion detection training."""
     results = train_emotion_detection_model(
         batch_size=8, num_epochs=1, output_dir="./test_checkpoints"
     )
+    return results
+
+
+if __name__ == "__main__":
+    main()
