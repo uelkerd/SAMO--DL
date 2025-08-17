@@ -174,8 +174,8 @@ class CodeQualityAutoFixer:
                     'type': 'PTC-W0027',
                     'line': content[:match.start()].count('\n') + 1,
                     'description': (
-                    f'Converted f-string to regular string: {match.group(0)}'
-                )
+                        f'Converted f-string to regular string: {match.group(0)}'
+                    )
                 })
                 return f'"{string_content}"'
             return match.group(0)
