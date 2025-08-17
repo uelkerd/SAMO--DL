@@ -322,7 +322,8 @@ class CodeQualityEnforcer:
 
         return False
 
-    def _contains_return(self, body: List[ast.stmt]) -> bool:
+    @staticmethod
+    def _contains_return(body: List[ast.stmt]) -> bool:
         """Check if a list of statements contains a return."""
         return any(isinstance(stmt, ast.Return) for stmt in body)
 
