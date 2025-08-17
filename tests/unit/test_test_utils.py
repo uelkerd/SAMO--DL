@@ -7,7 +7,6 @@ to ensure they work correctly and handle edge cases properly.
 """
 
 import json
-import os
 import pytest
 import tempfile
 from pathlib import Path
