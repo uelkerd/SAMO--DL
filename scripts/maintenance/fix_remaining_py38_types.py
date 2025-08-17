@@ -107,8 +107,11 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
                 new_imports = ', '.join(sorted(imports_to_add))
                 if existing_imports:
                     # Add to existing import
-                    content = re.sub(r'from typing import ([^\\n]+)',
-                                    f'from typing import {existing_imports}, {new_imports}', content)
+                    content = re.sub(
+                        r'from typing import ([^\\n]+)',
+                        f'from typing import {existing_imports}, {new_imports}',
+                        content
+                    )
                 else:
                     # Replace empty import
                     content = re.sub(r'from typing import', f'from typing import {new_imports}', content)
@@ -117,8 +120,8 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
                 lines = content.splitlines()
                 last_import_line = -1
                 for i, line in enumerate(lines):
-                    if (line.strip().startswith('import ') or 
-                    line.strip().startswith('from ')):
+                    if (line.strip().startswith('import ') or
+                        line.strip().startswith('from ')):
                         last_import_line = i
                 
                 if last_import_line >= 0:
