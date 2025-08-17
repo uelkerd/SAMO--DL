@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 """
 Simple Test Utilities for SAMO Deep Learning
 
@@ -8,8 +8,9 @@ Keeps scope small and focused on common testing tasks.
 
 import tempfile
 import json
+import wave
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any, Optional
 import numpy as np
 
 
@@ -36,7 +37,6 @@ def create_temp_audio_file(duration: float = 2.0, sample_rate: int = 16000) -> P
     audio_data = np.sin(440 * 2 * np.pi * t)  # 440 Hz tone
     
     # Save as WAV file
-    import wave
     temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
     
     # Close the temporary file immediately to prevent file descriptor leaks
@@ -52,7 +52,7 @@ def create_temp_audio_file(duration: float = 2.0, sample_rate: int = 16000) -> P
     return Path(temp_file.name)
 
 
-def create_temp_json_file(data: Dict[str, Any]) -> Path:
+def create_temp_json_file(data: dict[str, Any]) -> Path:
     """Create a temporary JSON file for testing.
     
     Args:
@@ -61,13 +61,15 @@ def create_temp_json_file(data: Dict[str, Any]) -> Path:
     Returns:
         Path to temporary JSON file
     """
-    temp_file = tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode='w')
-    json.dump(data, temp_file)
+    temp_file = tempfile.NamedTemporaryFile(
+        suffix=".json", delete=False, mode='w', encoding='utf-8'
+    )
+    json.dump(data, temp_file, ensure_ascii=False)
     temp_file.close()
     return Path(temp_file.name)
 
 
-def create_sample_text_data(num_samples: int = 5) -> List[Dict[str, Any]]:
+def create_sample_text_data(num_samples: int = 5) -> list[dict[str, Any]]:
     """Create sample text data for testing.
     
     Args:
@@ -95,7 +97,7 @@ def create_sample_text_data(num_samples: int = 5) -> List[Dict[str, Any]]:
     ]
 
 
-def assert_dict_structure(data: Dict[str, Any], expected_keys: List[str]) -> None:
+def assert_dict_structure(data: dict[str, Any], expected_keys: list[str]) -> None:
     """Assert that a dictionary has the expected structure.
     
     Args:
@@ -115,7 +117,7 @@ def assert_dict_structure(data: Dict[str, Any], expected_keys: List[str]) -> Non
         raise AssertionError(f"Unexpected extra keys: {extra_keys}")
 
 
-def cleanup_temp_files(file_paths: List[Path]) -> None:
+def cleanup_temp_files(file_paths: list[Path]) -> None:
     """Clean up temporary test files.
     
     Args:
@@ -123,13 +125,14 @@ def cleanup_temp_files(file_paths: List[Path]) -> None:
     """
     for file_path in file_paths:
         try:
-            if file_path.exists():
-                file_path.unlink()
+            file_path.unlink(missing_ok=True)
         except Exception:
             pass  # Ignore cleanup errors in tests
 
 
-def create_mock_response(status_code: int = 200, data: Dict[str, Any] = None) -> Dict[str, Any]:
+def create_mock_response(
+    status_code: int = 200, data: Optional[dict[str, Any]] = None
+) -> dict[str, Any]:
     """Create a mock API response for testing.
     
     Args:

@@ -60,14 +60,14 @@ class TestCreateTempAudioFile:
         temp_file = create_temp_audio_file(duration=0.5, sample_rate=8000)
         
         # Simulate cleanup error by making file read-only
-        os.chmod(temp_file, 0o444)
+        temp_file.chmod(0o444)
         
         try:
             with pytest.raises(PermissionError):
                 temp_file.unlink()
         finally:
             # Restore permissions and cleanup
-            os.chmod(temp_file, 0o666)
+            temp_file.chmod(0o644)
             temp_file.unlink()
 
 
@@ -84,7 +84,7 @@ class TestCreateTempJsonFile:
         assert temp_file.exists()
         
         # Verify content
-        with open(temp_file, 'r') as f:
+        with open(temp_file) as f:
             import json
             loaded_data = json.load(f)
             assert loaded_data == test_data

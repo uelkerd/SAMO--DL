@@ -5,6 +5,7 @@ Simple Test Health Check Script
 This script provides basic test health information without complex analysis.
 Keeps scope small and focused on essential metrics.
 """
+import importlib.util
 import subprocess
 import sys
 from pathlib import Path
@@ -40,12 +41,8 @@ def count_test_functions():
 
 
 def check_pytest_available():
-    """Check if pytest is available."""
-    try:
-        import pytest
-        return True
-    except ImportError:
-        return False
+    """Check if pytest is available without importing it (avoids side effects)."""
+    return importlib.util.find_spec("pytest") is not None
 
 
 def run_basic_test_discovery():
@@ -85,7 +82,8 @@ def main():
     print(f"🔧 Test functions: {test_functions}")
 
     # Check pytest availability
-    if check_pytest_available():
+    pytest_available = check_pytest_available()
+    if pytest_available:
         print("✅ pytest available")
     else:
         print("❌ pytest not available")
@@ -100,7 +98,7 @@ def main():
     print("\n📊 Summary:")
     print(f"- Total test files: {test_files}")
     print(f"- Total test functions: {test_functions}")
-    print(f"- pytest available: {'Yes' if check_pytest_available() else 'No'}")
+    print(f"- pytest available: {'Yes' if pytest_available else 'No'}")
 
     if test_files > 0 and test_functions > 0:
         print("🎯 Test suite appears healthy!")

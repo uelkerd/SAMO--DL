@@ -88,7 +88,7 @@ def load_training_config(config_file: str) -> Dict[str, Any]:
     Returns:
         Training configuration dictionary
     """
-    with open(config_file, 'r') as f:
+    with open(config_file) as f:
         config = json.load(f)
     return config
 
@@ -107,7 +107,7 @@ def create_output_dirs(base_dir: str, experiment_name: str) -> Dict[str, Path]:
 
     dirs = {
         "checkpoints": base_path / "checkpoints",
-        "logs": base_path / "logs", 
+        "logs": base_path / "logs",
         "models": base_path / "models",
         "results": base_path / "results",
         "configs": base_path / "configs"
