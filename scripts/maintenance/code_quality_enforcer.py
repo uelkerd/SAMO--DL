@@ -118,7 +118,7 @@ class CodeQualityEnforcer:
                 'message': 'Unsafe file path detected',
                 'severity': 'error'
             }]
-        
+
         issues = []
 
         try:
@@ -351,12 +351,13 @@ class CodeQualityEnforcer:
         """Check if a list of statements contains a return."""
         return any(isinstance(stmt, ast.Return) for stmt in body)
 
-    def _is_safe_file_path(self, file_path: Path) -> bool:
+    @staticmethod
+    def _is_safe_file_path(file_path: Path) -> bool:
         """Validate that file path is safe for processing."""
         try:
             # Resolve to absolute path to prevent path traversal
             resolved_path = file_path.resolve()
-            
+
             # Check if path contains suspicious patterns
             path_str = str(resolved_path)
             suspicious_patterns = [
@@ -365,17 +366,17 @@ class CodeQualityEnforcer:
                 '/etc', '/var', '/usr', '/bin', '/sbin',  # System directories
                 'C:\\', 'D:\\',  # Windows system drives
             ]
-            
+
             for pattern in suspicious_patterns:
                 if pattern in path_str:
                     return False
-            
+
             # Ensure it's a Python file
             if not path_str.endswith('.py'):
                 return False
-                
+
             return True
-            
+
         except Exception:
             return False
 
