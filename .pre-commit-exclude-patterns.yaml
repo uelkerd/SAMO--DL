@@ -1,0 +1,25 @@
+# Pre-commit exclude patterns for SAMO-DL
+# This file contains the exclude patterns used by multiple pre-commit hooks
+# to avoid duplication and make maintenance easier
+
+exclude_patterns:
+  - "^\\.git$"
+  - "^\\.venv$"
+  - "^\\.env$"
+  - "^__pycache__$"
+  - "^\\.pytest_cache$"
+  - "^\\.mypy_cache$"
+  - "^\\.ruff_cache$"
+  - "^build$"
+  - "^dist$"
+  - "^\\.eggs$"
+  - "^\\.tox$"
+  - "^\\.coverage$"
+  - "^htmlcov$"
+  - "^\\.cache$"
+  - "^\\.logs$"
+  - "^results$"
+  - "^samples$"
+  - "^notebooks$"
+  - "^website$"
+  - "^docs/diagrams$"
