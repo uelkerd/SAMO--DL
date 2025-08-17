@@ -9,7 +9,7 @@ Includes security features.
 import time
 import threading
 from collections import defaultdict, deque
-from typing import Deque, Dict, Optional, Set, Tuple
+from typing import Any, Deque, Dict, Optional, Set, Tuple
 import logging
 import hashlib
 import ipaddress
@@ -373,7 +373,7 @@ class TokenBucketRateLimiter:
         self,
         client_ip: str,
         user_agent: str = "",
-    ) -> Tuple[bool, str, dict]:
+    ) -> Tuple[bool, str, Dict[str, Any]]:
         """
         Check if request should be allowed.
 

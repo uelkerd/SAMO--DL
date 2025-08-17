@@ -24,6 +24,7 @@ bandit[toml]>=1.7.5
 pre-commit>=3.3.0
 jupyterlab>=4.0.0
 ipykernel>=6.25.0
+flask>=3.0.3,<4.0.0
 
 # Keep safety optional in CI to avoid resolver backtracking
 # safety>=2.3.0
