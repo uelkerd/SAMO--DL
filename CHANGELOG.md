@@ -4,7 +4,6 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - 2025-08-07
 
-<<<<<<< HEAD
 ### Docker Security Hardening
 - Hardened `deployment/cloud-run/Dockerfile` and `deployment/cloud-run/Dockerfile.unified` (non-root user, pinned OS packages, healthchecks, explicit EXPOSE, clarified uvicorn entrypoint).
 - Added `deployment/DOCKERFILE_SECURITY_GUIDE.md`.
@@ -15,12 +14,10 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Improve logging and formatting in `scripts/database/check_pgvector.py`.
 - Tidy API rate limiter and testing config for readability.
-=======
+
 ### Tests & Training
 - Refresh core tests (unit, integration, e2e) and minimal training helpers.
 - Keep scope small to validate core flows and CI signal without large refactors.
-
->>>>>>> 9f4f697 (tests: refresh core unit/integration/e2e tests; training: add minimal helpers; update changelog)
 ### 🚀 **Priority 1 Features Implementation - Complete API Enhancement**
 
 #### **JWT-based Authentication System**
