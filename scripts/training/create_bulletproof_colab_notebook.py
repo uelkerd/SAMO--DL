@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""
+""""
 🚀 CREATE BULLETPROOF COLAB NOTEBOOK
 ====================================
 
 This script creates a bulletproof Colab notebook that automatically detects
 file paths and handles all edge cases for reliable training.
-"""
+""""
 
 import json
 
@@ -40,7 +40,7 @@ def create_bulletproof_colab_notebook():
                 "source": [
                     "# Install dependencies\n",
                     "!pip install transformers torch scikit-learn pandas numpy\n",
-                    "print(\"✅ All dependencies installed!\")"
+                    "print(\" All dependencies installed!\")"
                 ]
             },
             {
@@ -68,23 +68,23 @@ def create_bulletproof_colab_notebook():
                     "import os\n",
                     "import glob\n",
                     "from torch.utils.data import Dataset, DataLoader\n",
-                    "from transformers import (\n",
+                    "from transformers import (\n",)
                     "    AutoTokenizer,\n",
                     "    AutoModelForSequenceClassification,\n",
                     "    TrainingArguments,\n",
                     "    Trainer,\n",
                     "    EarlyStoppingCallback\n",
-                    ")\n",
+(                    ")\n",
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.preprocessing import LabelEncoder\n",
                     "from sklearn.metrics import                    "from sklearn.metrics import f1_score,
                          accuracy_score,
-                         classification_report\n",
-                        
+                         classification_report\n","
+
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",
-                    "print(\"✅ All libraries imported!\")"
+                    "print(\" All libraries imported!\")"
                 ]
             },
             {
@@ -94,7 +94,7 @@ def create_bulletproof_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# BULLETPROOF: Auto-detect repository path and data files\n",
-                    "print(\"🔍 Auto-detecting repository structure...\")\n",
+                    "print(\" Auto-detecting repository structure...\")\n",
                     "\n",
                     "# Find the repository directory\n",
                     "possible_paths = [\n",
@@ -109,7 +109,7 @@ def create_bulletproof_colab_notebook():
                     "for path in possible_paths:\n",
                     "    if os.path.exists(path):\n",
                     "        repo_path = path\n",
-                    "        print(f\"✅ Found repository at: {repo_path}\")\n",
+                    "        print(f\" Found repository at: {repo_path}\")\n",
                     "        break\n",
                     "\n",
                     "if repo_path is None:\n",
@@ -124,7 +124,7 @@ def create_bulletproof_colab_notebook():
                     "# Check if data directory exists\n",
                     "data_path = os.path.join(repo_path, 'data')\n",
                     "if os.path.exists(data_path):\n",
-                    "    print(f\"✅ Data directory found at: {data_path}\")\n",
+                    "    print(f\" Data directory found at: {data_path}\")\n",
                     "    print(f\"📂 Data directory contents:\")\n",
                     "    !ls -la {data_path}/\n",
                     "else:\n",
@@ -139,7 +139,7 @@ def create_bulletproof_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# BULLETPROOF: Load combined dataset with automatic path detection\n",
-                    "print(\"📊 Loading combined dataset...\")\n",
+                    "print(\" Loading combined dataset...\")\n",
                     "\n",
                     "combined_samples = []\n",
                     "\n",
@@ -160,17 +160,17 @@ def create_bulletproof_colab_notebook():
                     "            # Handle different data structures\n",
                     "            for item in journal_data:\n",
                     "                if 'content' in item and 'emotion' in item:\n",
-                    "                    combined_samples.append({\n",
+                    "                    combined_samples.append({\n",)
                     "                        'text': item['content'],\n",
                     "                        'emotion': item['emotion']\n",
-                    "                    })\n",
+(                    "                    })\n",
                     "                elif 'text' in item and 'emotion' in item:\n",
-                    "                    combined_samples.append({\n",
+                    "                    combined_samples.append({\n",)
                     "                        'text': item['text'],\n",
                     "                        'emotion': item['emotion']\n",
-                    "                    })\n",
+(                    "                    })\n",
                     "            \n",
-                    "            print(f\"✅ Loaded {len(journal_data)} journal samples from {journal_path}\")\n",
+                    "            print(f\" Loaded {len(journal_data)} journal samples from {journal_path}\")\n",
                     "            journal_loaded = True\n",
                     "            break\n",
                     "    except Exception as e:\n",
@@ -195,12 +195,12 @@ def create_bulletproof_colab_notebook():
                     "            \n",
                     "            for item in cmu_data:\n",
                     "                if 'text' in item and 'emotion' in item:\n",
-                    "                    combined_samples.append({\n",
+                    "                    combined_samples.append({\n",)
                     "                        'text': item['text'],\n",
                     "                        'emotion': item['emotion']\n",
-                    "                    })\n",
+(                    "                    })\n",
                     "            \n",
-                    "            print(f\"✅ Loaded {len(cmu_data)} CMU-MOSEI samples from {cmu_path}\")\n",
+                    "            print(f\" Loaded {len(cmu_data)} CMU-MOSEI samples from {cmu_path}\")\n",
                     "            cmu_loaded = True\n",
                     "            break\n",
                     "    except Exception as e:\n",
@@ -210,7 +210,7 @@ def create_bulletproof_colab_notebook():
                     "if not cmu_loaded:\n",
                     "    print(\"❌ Could not load any CMU-MOSEI data!\")\n",
                     "\n",
-                    "print(f\"📊 Total combined samples: {len(combined_samples)}\")\n",
+                    "print(f\" Total combined samples: {len(combined_samples)}\")\n",
                     "\n",
                     "# Show emotion distribution\n",
                     "if combined_samples:\n",
@@ -219,7 +219,7 @@ def create_bulletproof_colab_notebook():
                     "        emotion = sample['emotion']\n",
                     "        emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1\n",
                     "    \n",
-                    "    print(\"📊 Emotion distribution:\")\n",
+                    "    print(\" Emotion distribution:\")\n",
                     "    for emotion, count in sorted(emotion_counts.items()):\n",
                     "        print(f\"  {emotion}: {count} samples\")\n",
                     "else:\n",
@@ -239,178 +239,178 @@ def create_bulletproof_colab_notebook():
                     "    # Create comprehensive fallback dataset with 12 samples per emotion\n",
                     "    fallback_samples = [\n",
                     "        # Happy samples\n",
-                    "        {\"text\": \"I'm feeling really happy today! Everything is going well.\", \"emotion\": \"happy\"},\n",
-                    "        {\"text\": \"I'm so excited about this amazing news!\", \"emotion\": \"happy\"},\n",
+                    "        {\"text\": \"I'm feeling really happy today! Everything is going well.\", \"emotion\": \"happy\"},\n",'
+                    "        {\"text\": \"I'm so excited about this amazing news!\", \"emotion\": \"happy\"},\n",'
                     "        {\"text\": \"Today has been absolutely wonderful!\", \"emotion\": \"happy\"},\n",
-                    "        {\"text\": \"I'm thrilled with how things are working out!\", \"emotion\": \"happy\"},\n",
+                    "        {\"text\": \"I'm thrilled with how things are working out!\", \"emotion\": \"happy\"},\n",'
                     "        {\"text\": \"This is the best day ever!\", \"emotion\": \"happy\"},\n",
-                    "        {\"text\": \"I'm overjoyed with the results!\", \"emotion\": \"happy\"},\n",
-                    "        {\"text\": \"I'm feeling fantastic today!\", \"emotion\": \"happy\"},\n",
+                    "        {\"text\": \"I'm overjoyed with the results!\", \"emotion\": \"happy\"},\n",'
+                    "        {\"text\": \"I'm feeling fantastic today!\", \"emotion\": \"happy\"},\n",'
                     "        {\"text\": \"Everything is perfect right now!\", \"emotion\": \"happy\"},\n",
-                    "        {\"text\": \"I'm so grateful for this happiness!\", \"emotion\": \"happy\"},\n",
-                    "        {\"text\": \"I'm beaming with joy!\", \"emotion\": \"happy\"},\n",
+                    "        {\"text\": \"I'm so grateful for this happiness!\", \"emotion\": \"happy\"},\n",'
+                    "        {\"text\": \"I'm beaming with joy!\", \"emotion\": \"happy\"},\n",'
                     "        {\"text\": \"This makes me incredibly happy!\", \"emotion\": \"happy\"},\n",
-                    "        {\"text\": \"I'm feeling pure joy right now!\", \"emotion\": \"happy\"},\n",
+                    "        {\"text\": \"I'm feeling pure joy right now!\", \"emotion\": \"happy\"},\n",'
                     "        \n",
                     "        # Frustrated samples\n",
-                    "        {\"text\": \"I'm so frustrated with this project. Nothing is working.\", \"emotion\": \"frustrated\"},\n",
+                    "        {\"text\": \"I'm so frustrated with this project. Nothing is working.\", \"emotion\": \"frustrated\"},\n",'
                     "        {\"text\": \"This is driving me crazy!\", \"emotion\": \"frustrated\"},\n",
-                    "        {\"text\": \"I'm getting really annoyed with this situation.\", \"emotion\": \"frustrated\"},\n",
+                    "        {\"text\": \"I'm getting really annoyed with this situation.\", \"emotion\": \"frustrated\"},\n",'
                     "        {\"text\": \"This is so irritating!\", \"emotion\": \"frustrated\"},\n",
-                    "        {\"text\": \"I'm fed up with all these problems.\", \"emotion\": \"frustrated\"},\n",
+                    "        {\"text\": \"I'm fed up with all these problems.\", \"emotion\": \"frustrated\"},\n",'
                     "        {\"text\": \"This is really getting on my nerves.\", \"emotion\": \"frustrated\"},\n",
-                    "        {\"text\": \"I'm so tired of dealing with this.\", \"emotion\": \"frustrated\"},\n",
+                    "        {\"text\": \"I'm so tired of dealing with this.\", \"emotion\": \"frustrated\"},\n",'
                     "        {\"text\": \"This is absolutely maddening!\", \"emotion\": \"frustrated\"},\n",
-                    "        {\"text\": \"I'm really frustrated with the lack of progress.\", \"emotion\": \"frustrated\"},\n",
+                    "        {\"text\": \"I'm really frustrated with the lack of progress.\", \"emotion\": \"frustrated\"},\n",'
                     "        {\"text\": \"This is so aggravating!\", \"emotion\": \"frustrated\"},\n",
-                    "        {\"text\": \"I'm getting really frustrated here.\", \"emotion\": \"frustrated\"},\n",
+                    "        {\"text\": \"I'm getting really frustrated here.\", \"emotion\": \"frustrated\"},\n",'
                     "        {\"text\": \"This is beyond frustrating!\", \"emotion\": \"frustrated\"},\n",
                     "        \n",
                     "        # Anxious samples\n",
                     "        {\"text\": \"I feel anxious about the upcoming presentation.\", \"emotion\": \"anxious\"},\n",
-                    "        {\"text\": \"I'm worried about what might happen.\", \"emotion\": \"anxious\"},\n",
-                    "        {\"text\": \"I'm feeling nervous about this situation.\", \"emotion\": \"anxious\"},\n",
-                    "        {\"text\": \"I'm anxious about the future.\", \"emotion\": \"anxious\"},\n",
-                    "        {\"text\": \"I'm feeling uneasy about this.\", \"emotion\": \"anxious\"},\n",
-                    "        {\"text\": \"I'm worried about making the right decision.\", \"emotion\": \"anxious\"},\n",
-                    "        {\"text\": \"I'm feeling tense about this.\", \"emotion\": \"anxious\"},\n",
-                    "        {\"text\": \"I'm anxious about the outcome.\", \"emotion\": \"anxious\"},\n",
-                    "        {\"text\": \"I'm feeling stressed about this.\", \"emotion\": \"anxious\"},\n",
-                    "        {\"text\": \"I'm worried about what others think.\", \"emotion\": \"anxious\"},\n",
-                    "        {\"text\": \"I'm feeling apprehensive about this.\", \"emotion\": \"anxious\"},\n",
-                    "        {\"text\": \"I'm anxious about the unknown.\", \"emotion\": \"anxious\"},\n",
+                    "        {\"text\": \"I'm worried about what might happen.\", \"emotion\": \"anxious\"},\n",'
+                    "        {\"text\": \"I'm feeling nervous about this situation.\", \"emotion\": \"anxious\"},\n",'
+                    "        {\"text\": \"I'm anxious about the future.\", \"emotion\": \"anxious\"},\n",'
+                    "        {\"text\": \"I'm feeling uneasy about this.\", \"emotion\": \"anxious\"},\n",'
+                    "        {\"text\": \"I'm worried about making the right decision.\", \"emotion\": \"anxious\"},\n",'
+                    "        {\"text\": \"I'm feeling tense about this.\", \"emotion\": \"anxious\"},\n",'
+                    "        {\"text\": \"I'm anxious about the outcome.\", \"emotion\": \"anxious\"},\n",'
+                    "        {\"text\": \"I'm feeling stressed about this.\", \"emotion\": \"anxious\"},\n",'
+                    "        {\"text\": \"I'm worried about what others think.\", \"emotion\": \"anxious\"},\n",'
+                    "        {\"text\": \"I'm feeling apprehensive about this.\", \"emotion\": \"anxious\"},\n",'
+                    "        {\"text\": \"I'm anxious about the unknown.\", \"emotion\": \"anxious\"},\n",'
                     "        \n",
                     "        # Grateful samples\n",
                     "        {\"text\": \"I'm grateful for all the support I've received.\", \"emotion\": \"grateful\"},\n",
-                    "        {\"text\": \"I'm thankful for this opportunity.\", \"emotion\": \"grateful\"},\n",
-                    "        {\"text\": \"I'm so grateful for my friends and family.\", \"emotion\": \"grateful\"},\n",
-                    "        {\"text\": \"I'm thankful for all the blessings in my life.\", \"emotion\": \"grateful\"},\n",
-                    "        {\"text\": \"I'm grateful for this amazing experience.\", \"emotion\": \"grateful\"},\n",
+                    "        {\"text\": \"I'm thankful for this opportunity.\", \"emotion\": \"grateful\"},\n",'
+                    "        {\"text\": \"I'm so grateful for my friends and family.\", \"emotion\": \"grateful\"},\n",'
+                    "        {\"text\": \"I'm thankful for all the blessings in my life.\", \"emotion\": \"grateful\"},\n",'
+                    "        {\"text\": \"I'm grateful for this amazing experience.\", \"emotion\": \"grateful\"},\n",'
                     "        {\"text\": \"I'm thankful for the lessons I've learned.\", \"emotion\": \"grateful\"},\n",
-                    "        {\"text\": \"I'm grateful for the people who believe in me.\", \"emotion\": \"grateful\"},\n",
-                    "        {\"text\": \"I'm thankful for this moment.\", \"emotion\": \"grateful\"},\n",
-                    "        {\"text\": \"I'm grateful for the challenges that made me stronger.\", \"emotion\": \"grateful\"},\n",
-                    "        {\"text\": \"I'm thankful for the beauty in everyday life.\", \"emotion\": \"grateful\"},\n",
-                    "        {\"text\": \"I'm grateful for the love I receive.\", \"emotion\": \"grateful\"},\n",
-                    "        {\"text\": \"I'm thankful for this journey.\", \"emotion\": \"grateful\"},\n",
+                    "        {\"text\": \"I'm grateful for the people who believe in me.\", \"emotion\": \"grateful\"},\n",'
+                    "        {\"text\": \"I'm thankful for this moment.\", \"emotion\": \"grateful\"},\n",'
+                    "        {\"text\": \"I'm grateful for the challenges that made me stronger.\", \"emotion\": \"grateful\"},\n",'
+                    "        {\"text\": \"I'm thankful for the beauty in everyday life.\", \"emotion\": \"grateful\"},\n",'
+                    "        {\"text\": \"I'm grateful for the love I receive.\", \"emotion\": \"grateful\"},\n",'
+                    "        {\"text\": \"I'm thankful for this journey.\", \"emotion\": \"grateful\"},\n",'
                     "        \n",
                     "        # Overwhelmed samples\n",
-                    "        {\"text\": \"I'm feeling overwhelmed with all these tasks.\", \"emotion\": \"overwhelmed\"},\n",
+                    "        {\"text\": \"I'm feeling overwhelmed with all these tasks.\", \"emotion\": \"overwhelmed\"},\n",'
                     "        {\"text\": \"This is too much to handle right now.\", \"emotion\": \"overwhelmed\"},\n",
-                    "        {\"text\": \"I'm feeling swamped with responsibilities.\", \"emotion\": \"overwhelmed\"},\n",
-                    "        {\"text\": \"I'm drowning in all this work.\", \"emotion\": \"overwhelmed\"},\n",
-                    "        {\"text\": \"I'm feeling buried under all these tasks.\", \"emotion\": \"overwhelmed\"},\n",
+                    "        {\"text\": \"I'm feeling swamped with responsibilities.\", \"emotion\": \"overwhelmed\"},\n",'
+                    "        {\"text\": \"I'm drowning in all this work.\", \"emotion\": \"overwhelmed\"},\n",'
+                    "        {\"text\": \"I'm feeling buried under all these tasks.\", \"emotion\": \"overwhelmed\"},\n",'
                     "        {\"text\": \"This is overwhelming me completely.\", \"emotion\": \"overwhelmed\"},\n",
-                    "        {\"text\": \"I'm feeling crushed by all this pressure.\", \"emotion\": \"overwhelmed\"},\n",
-                    "        {\"text\": \"I'm feeling suffocated by all these demands.\", \"emotion\": \"overwhelmed\"},\n",
+                    "        {\"text\": \"I'm feeling crushed by all this pressure.\", \"emotion\": \"overwhelmed\"},\n",'
+                    "        {\"text\": \"I'm feeling suffocated by all these demands.\", \"emotion\": \"overwhelmed\"},\n",'
                     "        {\"text\": \"This is too overwhelming to process.\", \"emotion\": \"overwhelmed\"},\n",
-                    "        {\"text\": \"I'm feeling buried alive by all this work.\", \"emotion\": \"overwhelmed\"},\n",
-                    "        {\"text\": \"I'm feeling completely overwhelmed.\", \"emotion\": \"overwhelmed\"},\n",
+                    "        {\"text\": \"I'm feeling buried alive by all this work.\", \"emotion\": \"overwhelmed\"},\n",'
+                    "        {\"text\": \"I'm feeling completely overwhelmed.\", \"emotion\": \"overwhelmed\"},\n",'
                     "        {\"text\": \"This is just too much for me.\", \"emotion\": \"overwhelmed\"},\n",
                     "        \n",
                     "        # Proud samples\n",
                     "        {\"text\": \"I'm proud of what I've accomplished so far.\", \"emotion\": \"proud\"},\n",
                     "        {\"text\": \"I'm proud of how far I've come.\", \"emotion\": \"proud\"},\n",
-                    "        {\"text\": \"I'm proud of my achievements.\", \"emotion\": \"proud\"},\n",
+                    "        {\"text\": \"I'm proud of my achievements.\", \"emotion\": \"proud\"},\n",'
                     "        {\"text\": \"I'm proud of the person I've become.\", \"emotion\": \"proud\"},\n",
-                    "        {\"text\": \"I'm proud of my hard work.\", \"emotion\": \"proud\"},\n",
-                    "        {\"text\": \"I'm proud of my determination.\", \"emotion\": \"proud\"},\n",
-                    "        {\"text\": \"I'm proud of my resilience.\", \"emotion\": \"proud\"},\n",
-                    "        {\"text\": \"I'm proud of my growth.\", \"emotion\": \"proud\"},\n",
-                    "        {\"text\": \"I'm proud of my progress.\", \"emotion\": \"proud\"},\n",
-                    "        {\"text\": \"I'm proud of my strength.\", \"emotion\": \"proud\"},\n",
-                    "        {\"text\": \"I'm proud of my courage.\", \"emotion\": \"proud\"},\n",
-                    "        {\"text\": \"I'm proud of my journey.\", \"emotion\": \"proud\"},\n",
+                    "        {\"text\": \"I'm proud of my hard work.\", \"emotion\": \"proud\"},\n",'
+                    "        {\"text\": \"I'm proud of my determination.\", \"emotion\": \"proud\"},\n",'
+                    "        {\"text\": \"I'm proud of my resilience.\", \"emotion\": \"proud\"},\n",'
+                    "        {\"text\": \"I'm proud of my growth.\", \"emotion\": \"proud\"},\n",'
+                    "        {\"text\": \"I'm proud of my progress.\", \"emotion\": \"proud\"},\n",'
+                    "        {\"text\": \"I'm proud of my strength.\", \"emotion\": \"proud\"},\n",'
+                    "        {\"text\": \"I'm proud of my courage.\", \"emotion\": \"proud\"},\n",'
+                    "        {\"text\": \"I'm proud of my journey.\", \"emotion\": \"proud\"},\n",'
                     "        \n",
                     "        # Sad samples\n",
-                    "        {\"text\": \"I'm feeling sad and lonely today.\", \"emotion\": \"sad\"},\n",
-                    "        {\"text\": \"I'm feeling down and depressed.\", \"emotion\": \"sad\"},\n",
-                    "        {\"text\": \"I'm feeling blue today.\", \"emotion\": \"sad\"},\n",
-                    "        {\"text\": \"I'm feeling heartbroken.\", \"emotion\": \"sad\"},\n",
-                    "        {\"text\": \"I'm feeling miserable.\", \"emotion\": \"sad\"},\n",
-                    "        {\"text\": \"I'm feeling dejected.\", \"emotion\": \"sad\"},\n",
-                    "        {\"text\": \"I'm feeling sorrowful.\", \"emotion\": \"sad\"},\n",
-                    "        {\"text\": \"I'm feeling melancholic.\", \"emotion\": \"sad\"},\n",
-                    "        {\"text\": \"I'm feeling despondent.\", \"emotion\": \"sad\"},\n",
-                    "        {\"text\": \"I'm feeling crestfallen.\", \"emotion\": \"sad\"},\n",
-                    "        {\"text\": \"I'm feeling disheartened.\", \"emotion\": \"sad\"},\n",
-                    "        {\"text\": \"I'm feeling forlorn.\", \"emotion\": \"sad\"},\n",
+                    "        {\"text\": \"I'm feeling sad and lonely today.\", \"emotion\": \"sad\"},\n",'
+                    "        {\"text\": \"I'm feeling down and depressed.\", \"emotion\": \"sad\"},\n",'
+                    "        {\"text\": \"I'm feeling blue today.\", \"emotion\": \"sad\"},\n",'
+                    "        {\"text\": \"I'm feeling heartbroken.\", \"emotion\": \"sad\"},\n",'
+                    "        {\"text\": \"I'm feeling miserable.\", \"emotion\": \"sad\"},\n",'
+                    "        {\"text\": \"I'm feeling dejected.\", \"emotion\": \"sad\"},\n",'
+                    "        {\"text\": \"I'm feeling sorrowful.\", \"emotion\": \"sad\"},\n",'
+                    "        {\"text\": \"I'm feeling melancholic.\", \"emotion\": \"sad\"},\n",'
+                    "        {\"text\": \"I'm feeling despondent.\", \"emotion\": \"sad\"},\n",'
+                    "        {\"text\": \"I'm feeling crestfallen.\", \"emotion\": \"sad\"},\n",'
+                    "        {\"text\": \"I'm feeling disheartened.\", \"emotion\": \"sad\"},\n",'
+                    "        {\"text\": \"I'm feeling forlorn.\", \"emotion\": \"sad\"},\n",'
                     "        \n",
                     "        # Excited samples\n",
-                    "        {\"text\": \"I'm excited about the new opportunities ahead.\", \"emotion\": \"excited\"},\n",
-                    "        {\"text\": \"I'm thrilled about this new adventure!\", \"emotion\": \"excited\"},\n",
+                    "        {\"text\": \"I'm excited about the new opportunities ahead.\", \"emotion\": \"excited\"},\n",'
+                    "        {\"text\": \"I'm thrilled about this new adventure!\", \"emotion\": \"excited\"},\n",'
                     "        {\"text\": \"I'm pumped about what's coming next!\", \"emotion\": \"excited\"},\n",
-                    "        {\"text\": \"I'm stoked about this opportunity!\", \"emotion\": \"excited\"},\n",
-                    "        {\"text\": \"I'm jazzed about this new project!\", \"emotion\": \"excited\"},\n",
-                    "        {\"text\": \"I'm hyped about this new challenge!\", \"emotion\": \"excited\"},\n",
-                    "        {\"text\": \"I'm elated about this new beginning!\", \"emotion\": \"excited\"},\n",
-                    "        {\"text\": \"I'm ecstatic about this new chapter!\", \"emotion\": \"excited\"},\n",
-                    "        {\"text\": \"I'm overjoyed about this new direction!\", \"emotion\": \"excited\"},\n",
-                    "        {\"text\": \"I'm exhilarated about this new journey!\", \"emotion\": \"excited\"},\n",
-                    "        {\"text\": \"I'm euphoric about this new opportunity!\", \"emotion\": \"excited\"},\n",
-                    "        {\"text\": \"I'm rapturous about this new adventure!\", \"emotion\": \"excited\"},\n",
+                    "        {\"text\": \"I'm stoked about this opportunity!\", \"emotion\": \"excited\"},\n",'
+                    "        {\"text\": \"I'm jazzed about this new project!\", \"emotion\": \"excited\"},\n",'
+                    "        {\"text\": \"I'm hyped about this new challenge!\", \"emotion\": \"excited\"},\n",'
+                    "        {\"text\": \"I'm elated about this new beginning!\", \"emotion\": \"excited\"},\n",'
+                    "        {\"text\": \"I'm ecstatic about this new chapter!\", \"emotion\": \"excited\"},\n",'
+                    "        {\"text\": \"I'm overjoyed about this new direction!\", \"emotion\": \"excited\"},\n",'
+                    "        {\"text\": \"I'm exhilarated about this new journey!\", \"emotion\": \"excited\"},\n",'
+                    "        {\"text\": \"I'm euphoric about this new opportunity!\", \"emotion\": \"excited\"},\n",'
+                    "        {\"text\": \"I'm rapturous about this new adventure!\", \"emotion\": \"excited\"},\n",'
                     "        \n",
                     "        # Calm samples\n",
                     "        {\"text\": \"I feel calm and peaceful right now.\", \"emotion\": \"calm\"},\n",
-                    "        {\"text\": \"I'm feeling serene and tranquil.\", \"emotion\": \"calm\"},\n",
-                    "        {\"text\": \"I'm feeling relaxed and at ease.\", \"emotion\": \"calm\"},\n",
-                    "        {\"text\": \"I'm feeling composed and collected.\", \"emotion\": \"calm\"},\n",
-                    "        {\"text\": \"I'm feeling centered and balanced.\", \"emotion\": \"calm\"},\n",
-                    "        {\"text\": \"I'm feeling grounded and stable.\", \"emotion\": \"calm\"},\n",
-                    "        {\"text\": \"I'm feeling mellow and laid-back.\", \"emotion\": \"calm\"},\n",
-                    "        {\"text\": \"I'm feeling placid and undisturbed.\", \"emotion\": \"calm\"},\n",
-                    "        {\"text\": \"I'm feeling unruffled and untroubled.\", \"emotion\": \"calm\"},\n",
-                    "        {\"text\": \"I'm feeling cool and collected.\", \"emotion\": \"calm\"},\n",
-                    "        {\"text\": \"I'm feeling steady and secure.\", \"emotion\": \"calm\"},\n",
-                    "        {\"text\": \"I'm feeling peaceful and content.\", \"emotion\": \"calm\"},\n",
+                    "        {\"text\": \"I'm feeling serene and tranquil.\", \"emotion\": \"calm\"},\n",'
+                    "        {\"text\": \"I'm feeling relaxed and at ease.\", \"emotion\": \"calm\"},\n",'
+                    "        {\"text\": \"I'm feeling composed and collected.\", \"emotion\": \"calm\"},\n",'
+                    "        {\"text\": \"I'm feeling centered and balanced.\", \"emotion\": \"calm\"},\n",'
+                    "        {\"text\": \"I'm feeling grounded and stable.\", \"emotion\": \"calm\"},\n",'
+                    "        {\"text\": \"I'm feeling mellow and laid-back.\", \"emotion\": \"calm\"},\n",'
+                    "        {\"text\": \"I'm feeling placid and undisturbed.\", \"emotion\": \"calm\"},\n",'
+                    "        {\"text\": \"I'm feeling unruffled and untroubled.\", \"emotion\": \"calm\"},\n",'
+                    "        {\"text\": \"I'm feeling cool and collected.\", \"emotion\": \"calm\"},\n",'
+                    "        {\"text\": \"I'm feeling steady and secure.\", \"emotion\": \"calm\"},\n",'
+                    "        {\"text\": \"I'm feeling peaceful and content.\", \"emotion\": \"calm\"},\n",'
                     "        \n",
                     "        # Hopeful samples\n",
-                    "        {\"text\": \"I'm hopeful that things will get better.\", \"emotion\": \"hopeful\"},\n",
-                    "        {\"text\": \"I'm optimistic about the future.\", \"emotion\": \"hopeful\"},\n",
-                    "        {\"text\": \"I'm hopeful for positive changes.\", \"emotion\": \"hopeful\"},\n",
+                    "        {\"text\": \"I'm hopeful that things will get better.\", \"emotion\": \"hopeful\"},\n",'
+                    "        {\"text\": \"I'm optimistic about the future.\", \"emotion\": \"hopeful\"},\n",'
+                    "        {\"text\": \"I'm hopeful for positive changes.\", \"emotion\": \"hopeful\"},\n",'
                     "        {\"text\": \"I'm optimistic about what's ahead.\", \"emotion\": \"hopeful\"},\n",
-                    "        {\"text\": \"I'm hopeful for better days.\", \"emotion\": \"hopeful\"},\n",
-                    "        {\"text\": \"I'm optimistic about the possibilities.\", \"emotion\": \"hopeful\"},\n",
-                    "        {\"text\": \"I'm hopeful for a brighter future.\", \"emotion\": \"hopeful\"},\n",
-                    "        {\"text\": \"I'm optimistic about the outcome.\", \"emotion\": \"hopeful\"},\n",
-                    "        {\"text\": \"I'm hopeful for positive results.\", \"emotion\": \"hopeful\"},\n",
-                    "        {\"text\": \"I'm optimistic about the journey.\", \"emotion\": \"hopeful\"},\n",
-                    "        {\"text\": \"I'm hopeful for success.\", \"emotion\": \"hopeful\"},\n",
-                    "        {\"text\": \"I'm optimistic about the path forward.\", \"emotion\": \"hopeful\"},\n",
+                    "        {\"text\": \"I'm hopeful for better days.\", \"emotion\": \"hopeful\"},\n",'
+                    "        {\"text\": \"I'm optimistic about the possibilities.\", \"emotion\": \"hopeful\"},\n",'
+                    "        {\"text\": \"I'm hopeful for a brighter future.\", \"emotion\": \"hopeful\"},\n",'
+                    "        {\"text\": \"I'm optimistic about the outcome.\", \"emotion\": \"hopeful\"},\n",'
+                    "        {\"text\": \"I'm hopeful for positive results.\", \"emotion\": \"hopeful\"},\n",'
+                    "        {\"text\": \"I'm optimistic about the journey.\", \"emotion\": \"hopeful\"},\n",'
+                    "        {\"text\": \"I'm hopeful for success.\", \"emotion\": \"hopeful\"},\n",'
+                    "        {\"text\": \"I'm optimistic about the path forward.\", \"emotion\": \"hopeful\"},\n",'
                     "        \n",
                     "        # Tired samples\n",
-                    "        {\"text\": \"I'm tired and need some rest.\", \"emotion\": \"tired\"},\n",
-                    "        {\"text\": \"I'm exhausted from all this work.\", \"emotion\": \"tired\"},\n",
-                    "        {\"text\": \"I'm feeling worn out.\", \"emotion\": \"tired\"},\n",
-                    "        {\"text\": \"I'm feeling fatigued.\", \"emotion\": \"tired\"},\n",
-                    "        {\"text\": \"I'm feeling drained.\", \"emotion\": \"tired\"},\n",
-                    "        {\"text\": \"I'm feeling weary.\", \"emotion\": \"tired\"},\n",
-                    "        {\"text\": \"I'm feeling depleted.\", \"emotion\": \"tired\"},\n",
-                    "        {\"text\": \"I'm feeling spent.\", \"emotion\": \"tired\"},\n",
-                    "        {\"text\": \"I'm feeling run down.\", \"emotion\": \"tired\"},\n",
-                    "        {\"text\": \"I'm feeling beat.\", \"emotion\": \"tired\"},\n",
-                    "        {\"text\": \"I'm feeling pooped.\", \"emotion\": \"tired\"},\n",
-                    "        {\"text\": \"I'm feeling knackered.\", \"emotion\": \"tired\"},\n",
+                    "        {\"text\": \"I'm tired and need some rest.\", \"emotion\": \"tired\"},\n",'
+                    "        {\"text\": \"I'm exhausted from all this work.\", \"emotion\": \"tired\"},\n",'
+                    "        {\"text\": \"I'm feeling worn out.\", \"emotion\": \"tired\"},\n",'
+                    "        {\"text\": \"I'm feeling fatigued.\", \"emotion\": \"tired\"},\n",'
+                    "        {\"text\": \"I'm feeling drained.\", \"emotion\": \"tired\"},\n",'
+                    "        {\"text\": \"I'm feeling weary.\", \"emotion\": \"tired\"},\n",'
+                    "        {\"text\": \"I'm feeling depleted.\", \"emotion\": \"tired\"},\n",'
+                    "        {\"text\": \"I'm feeling spent.\", \"emotion\": \"tired\"},\n",'
+                    "        {\"text\": \"I'm feeling run down.\", \"emotion\": \"tired\"},\n",'
+                    "        {\"text\": \"I'm feeling beat.\", \"emotion\": \"tired\"},\n",'
+                    "        {\"text\": \"I'm feeling pooped.\", \"emotion\": \"tired\"},\n",'
+                    "        {\"text\": \"I'm feeling knackered.\", \"emotion\": \"tired\"},\n",'
                     "        \n",
                     "        # Content samples\n",
-                    "        {\"text\": \"I'm content with how things are going.\", \"emotion\": \"content\"},\n",
-                    "        {\"text\": \"I'm satisfied with the current situation.\", \"emotion\": \"content\"},\n",
-                    "        {\"text\": \"I'm pleased with how things are.\", \"emotion\": \"content\"},\n",
-                    "        {\"text\": \"I'm comfortable with the way things are.\", \"emotion\": \"content\"},\n",
-                    "        {\"text\": \"I'm at peace with the current state.\", \"emotion\": \"content\"},\n",
-                    "        {\"text\": \"I'm satisfied with the progress.\", \"emotion\": \"content\"},\n",
-                    "        {\"text\": \"I'm comfortable with this situation.\", \"emotion\": \"content\"},\n",
-                    "        {\"text\": \"I'm pleased with the outcome.\", \"emotion\": \"content\"},\n",
-                    "        {\"text\": \"I'm satisfied with the results.\", \"emotion\": \"content\"},\n",
-                    "        {\"text\": \"I'm comfortable with the arrangement.\", \"emotion\": \"content\"},\n",
-                    "        {\"text\": \"I'm pleased with the current state.\", \"emotion\": \"content\"},\n",
-                    "        {\"text\": \"I'm satisfied with how things turned out.\", \"emotion\": \"content\"}\n",
+                    "        {\"text\": \"I'm content with how things are going.\", \"emotion\": \"content\"},\n",'
+                    "        {\"text\": \"I'm satisfied with the current situation.\", \"emotion\": \"content\"},\n",'
+                    "        {\"text\": \"I'm pleased with how things are.\", \"emotion\": \"content\"},\n",'
+                    "        {\"text\": \"I'm comfortable with the way things are.\", \"emotion\": \"content\"},\n",'
+                    "        {\"text\": \"I'm at peace with the current state.\", \"emotion\": \"content\"},\n",'
+                    "        {\"text\": \"I'm satisfied with the progress.\", \"emotion\": \"content\"},\n",'
+                    "        {\"text\": \"I'm comfortable with this situation.\", \"emotion\": \"content\"},\n",'
+                    "        {\"text\": \"I'm pleased with the outcome.\", \"emotion\": \"content\"},\n",'
+                    "        {\"text\": \"I'm satisfied with the results.\", \"emotion\": \"content\"},\n",'
+                    "        {\"text\": \"I'm comfortable with the arrangement.\", \"emotion\": \"content\"},\n",'
+                    "        {\"text\": \"I'm pleased with the current state.\", \"emotion\": \"content\"},\n",'
+                    "        {\"text\": \"I'm satisfied with how things turned out.\", \"emotion\": \"content\"}\n",'
                     "    ]\n",
                     "    \n",
                     "    combined_samples = fallback_samples\n",
-                    "    print(f\"✅ Created {len(combined_samples)} comprehensive fallback samples\")\n",
+                    "    print(f\" Created {len(combined_samples)} comprehensive fallback samples\")\n",
                     "\n",
-                    "print(f\"📊 Final dataset size: {len(combined_samples)} samples\")\n",
+                    "print(f\" Final dataset size: {len(combined_samples)} samples\")\n",
                     "\n",
                     "# Verify we have enough data\n",
                     "if len(combined_samples) < 50:\n",
@@ -438,13 +438,13 @@ def create_bulletproof_colab_notebook():
                     "        text = str(self.texts[idx])\n",
                     "        label = self.labels[idx]\n",
                     "        \n",
-                    "        encoding = self.tokenizer(\n",
+                    "        encoding = self.tokenizer(\n",)
                     "            text,\n",
                     "            truncation=True,\n",
                     "            padding='max_length',\n",
                     "            max_length=self.max_length,\n",
                     "            return_tensors='pt'\n",
-                    "        )\n",
+(                    "        )\n",
                     "        \n",
                     "        return {\n",
                     "            'input_ids': encoding['input_ids'].flatten(),\n",
@@ -467,13 +467,13 @@ def create_bulletproof_colab_notebook():
                     "label_encoder = LabelEncoder()\n",
                     "labels = label_encoder.fit_transform(emotions)\n",
                     "\n",
-                    "print(f\"🎯 Number of labels: {len(label_encoder.classes_)}\")\n",
-                    "print(f\"📊 Labels: {list(label_encoder.classes_)}\")\n",
+                    "print(f\" Number of labels: {len(label_encoder.classes_)}\")\n",
+                    "print(f\" Labels: {list(label_encoder.classes_)}\")\n",
                     "\n",
                     "# Split data\n",
-                    "train_texts, test_texts, train_labels, test_labels = train_test_split(\n",
+                    "train_texts, test_texts, train_labels, test_labels = train_test_split(\n",)
                     "    texts, labels, test_size=0.2, random_state=42, stratify=labels\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
                     "print(f\"📈 Training samples: {len(train_texts)}\")\n",
                     "print(f\"🧪 Test samples: {len(test_labels)}\")"
@@ -488,14 +488,14 @@ def create_bulletproof_colab_notebook():
                     "# Load model and tokenizer\n",
                     "model_name = \"bert-base-uncased\"\n",
                     "tokenizer = AutoTokenizer.from_pretrained(model_name)\n",
-                    "model = AutoModelForSequenceClassification.from_pretrained(\n",
+                    "model = AutoModelForSequenceClassification.from_pretrained(\n",)
                     "    model_name, \n",
                     "    num_labels=len(label_encoder.classes_),\n",
                     "    problem_type=\"single_label_classification\"\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
-                    "print(f\"✅ Model loaded: {model_name}\")\n",
-                    "print(f\"📊 Number of classes: {len(label_encoder.classes_)}\")"
+                    "print(f\" Model loaded: {model_name}\")\n",
+                    "print(f\" Number of classes: {len(label_encoder.classes_)}\")"
                 ]
             },
             {
@@ -508,7 +508,7 @@ def create_bulletproof_colab_notebook():
                     "train_dataset = EmotionDataset(train_texts, train_labels, tokenizer)\n",
                     "test_dataset = EmotionDataset(test_texts, test_labels, tokenizer)\n",
                     "\n",
-                    "print(f\"✅ Datasets created\")\n",
+                    "print(f\" Datasets created\")\n",
                     "print(f\"📈 Train dataset: {len(train_dataset)} samples\")\n",
                     "print(f\"🧪 Test dataset: {len(test_dataset)} samples\")"
                 ]
@@ -537,7 +537,7 @@ def create_bulletproof_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Training arguments with optimized hyperparameters\n",
-                    "training_args = TrainingArguments(\n",
+                    "training_args = TrainingArguments(\n",)
                     "    output_dir=\"./emotion_model_bulletproof\",\n",
                     "    num_train_epochs=5,  # Reduced to prevent overfitting\n",
                     "    per_device_train_batch_size=8,  # Smaller batch size\n",
@@ -558,9 +558,9 @@ def create_bulletproof_colab_notebook():
                     "    report_to=None,\n",
                     "    learning_rate=1e-5,  # Lower learning rate\n",
                     "    gradient_accumulation_steps=4,  # Increased for stability\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
-                    "print(\"✅ Training arguments configured\")"
+                    "print(\" Training arguments configured\")"
                 ]
             },
             {
@@ -570,16 +570,16 @@ def create_bulletproof_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Create trainer\n",
-                    "trainer = Trainer(\n",
+                    "trainer = Trainer(\n",)
                     "    model=model,\n",
                     "    args=training_args,\n",
                     "    train_dataset=train_dataset,\n",
                     "    eval_dataset=test_dataset,\n",
                     "    compute_metrics=compute_metrics,\n",
                     "    callbacks=[EarlyStoppingCallback(early_stopping_patience=2)]  # Shorter patience\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
-                    "print(\"✅ Trainer created with early stopping\")"
+                    "print(\" Trainer created with early stopping\")"
                 ]
             },
             {
@@ -590,15 +590,15 @@ def create_bulletproof_colab_notebook():
                 "source": [
                     "# Start training\n",
                     "print(\"🚀 Starting BULLETPROOF training...\")\n",
-                    "print(\"🎯 Target F1 Score: 75-85%\")\n",
-                    "print(\"📊 Current Best: 67%\")\n",
+                    "print(\" Target F1 Score: 75-85%\")\n",
+                    "print(\" Current Best: 67%\")\n",
                     "print(\"📈 Expected Improvement: 8-18%\")\n",
-                    "print(f\"📊 Training on {len(train_dataset)} samples\")\n",
+                    "print(f\" Training on {len(train_dataset)} samples\")\n",
                     "print(f\"🧪 Evaluating on {len(test_dataset)} samples\")\n",
                     "\n",
                     "trainer.train()\n",
                     "\n",
-                    "print(\"✅ Training completed!\")"
+                    "print(\" Training completed!\")"
                 ]
             },
             {
@@ -608,11 +608,11 @@ def create_bulletproof_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Evaluate final model\n",
-                    "print(\"📊 Evaluating final model...\")\n",
+                    "print(\" Evaluating final model...\")\n",
                     "results = trainer.evaluate()\n",
                     "\n",
                     "print(f\"🏆 Final F1 Score: {results['eval_f1']:.4f} ({results['eval_f1']*100:.2f}%)\")\n",
-                    "print(f\"🎯 Target achieved: {'✅ YES!' if results['eval_f1'] >= 0.75 else '❌ Not yet'}\")\n",
+                    "print(f\" Target achieved: {' YES!' if results['eval_f1'] >= 0.75 else '❌ Not yet'}\")\n",
                     "\n",
                     "# Save model\n",
                     "trainer.save_model(\"./emotion_model_bulletproof_final\")\n",
@@ -629,11 +629,11 @@ def create_bulletproof_colab_notebook():
                     "print(\"🧪 Testing on sample texts...\")\n",
                     "\n",
                     "test_texts = [\n",
-                    "    \"I'm feeling really happy today!\",\n",
-                    "    \"I'm so frustrated with this project.\",\n",
+                    "    \"I'm feeling really happy today!\",\n",'
+                    "    \"I'm so frustrated with this project.\",\n",'
                     "    \"I feel anxious about the presentation.\",\n",
-                    "    \"I'm grateful for all the support.\",\n",
-                    "    \"I'm feeling overwhelmed with tasks.\"\n",
+                    "    \"I'm grateful for all the support.\",\n",'
+                    "    \"I'm feeling overwhelmed with tasks.\"\n",'
                     "]\n",
                     "\n",
                     "model.eval()\n",
@@ -655,7 +655,7 @@ def create_bulletproof_colab_notebook():
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🎉 BULLETPROOF Training Complete!\n",
+                    "##  BULLETPROOF Training Complete!\n",
                     "\n",
                     "**Results Summary:**\n",
                     "- Final F1 Score: [See output above]\n",
@@ -663,11 +663,11 @@ def create_bulletproof_colab_notebook():
                     "- Improvement: [Calculated above]\n",
                     "\n",
                     "**Key Features:**\n",
-                    "- ✅ Automatic path detection\n",
-                    "- ✅ Comprehensive fallback dataset\n",
-                    "- ✅ Optimized hyperparameters\n",
-                    "- ✅ Robust error handling\n",
-                    "- ✅ Detailed logging\n",
+                    "-  Automatic path detection\n",
+                    "-  Comprehensive fallback dataset\n",
+                    "-  Optimized hyperparameters\n",
+                    "-  Robust error handling\n",
+                    "-  Detailed logging\n",
                     "\n",
                     "**Next Steps:**\n",
                     "1. If F1 < 75%: The fallback dataset should still achieve decent results\n",
@@ -703,8 +703,8 @@ def create_bulletproof_colab_notebook():
     with open('notebooks/BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook_content, f, indent=2)
 
-    print("✅ Bulletproof notebook created: notebooks/BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb")
-    print("📋 Instructions:")
+    print(" Bulletproof notebook created: notebooks/BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb")
+    print(" Instructions:")
     print("  1. Download the notebook file")
     print("  2. Upload to Google Colab")
     print("  3. Set Runtime → GPU")

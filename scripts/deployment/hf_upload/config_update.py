@@ -44,7 +44,7 @@ def update_deployment_config(repo_id: str, model_info: Dict[str, Any], templates
                 "consistent_latency": True,
             },
             "self_hosted": {
-                "model_loading": "AutoModelForSequenceClassification.from_pretrained("{repo_id}')",
+                "model_loading": "AutoModelForSequenceClassification.from_pretrained("{repo_id}')","
                 "cost": "infrastructure_costs",
                 "best_for": "maximum_control",
                 "requires": ["transformers", "torch"],

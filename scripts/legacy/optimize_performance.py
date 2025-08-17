@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+""""
 Performance Optimization Script for SAMO Deep Learning.
 
 This script handles GPU setup verification, ONNX model conversion,
@@ -9,7 +9,7 @@ Usage:
     python scripts/optimize_performance.py --check-gpu
     python scripts/optimize_performance.py --convert-onnx --model-path ./models/checkpoints/best_model.pt
     python scripts/optimize_performance.py --benchmark --target-latency 500
-"""
+""""
 
 import argparse
 import logging
@@ -42,13 +42,13 @@ logger = logging.getLogger(__name__)
 
 
 def check_gpu_setup() -> dict[str, any]:
-    """Check GPU availability and CUDA setup.
+    """Check GPU availability and CUDA setup."
 
     Returns:
         Dictionary with GPU setup information
 
-    """
-    logger.info("🔍 Checking GPU Setup...")
+    """"
+    logger.info(" Checking GPU Setup...")
 
     gpu_info = {
         "cuda_available": torch.cuda.is_available(),
@@ -66,49 +66,49 @@ def check_gpu_setup() -> dict[str, any]:
         memory_total = torch.cuda.get_device_properties(0).total_memory
         memory_free = torch.cuda.memory_reserved(0)
 
-        gpu_info.update(
+        gpu_info.update()
             {
                 "device_name": device_name,
                 "memory_total": f"{memory_total / 1e9:.1f} GB",
                 "memory_free": f"{memory_free / 1e9:.1f} GB",
             }
-        )
+(        )
 
-        logger.info(f"✅ GPU Available: {device_name}")
+        logger.info(f" GPU Available: {device_name}")
         logger.info(f"   CUDA Version: {torch.version.cuda}")
         logger.info(f"   Memory: {memory_total / 1e9:.1f} GB total")
 
         if memory_total < 8e9:  # Less than 8GB
-            gpu_info["recommendations"].append(
+            gpu_info["recommendations"].append()
                 "Consider using mixed precision training (fp16) to save memory"
-            )
+(            )
             gpu_info["recommendations"].append("Reduce batch size if encountering OOM errors")
 
         if "T4" in device_name or "V100" in device_name:
-            gpu_info["recommendations"].append(
+            gpu_info["recommendations"].append()
                 "Tensor Core support available - use mixed precision for 2x speedup"
-            )
+(            )
 
     else:
         logger.warning("⚠️  No GPU available - training will use CPU")
-        gpu_info["recommendations"].extend(
+        gpu_info["recommendations"].extend()
             [
                 "Install CUDA-compatible PyTorch for GPU acceleration",
                 "Consider using Google Colab or cloud GPU instances for faster training",
                 "CPU training will be significantly slower for BERT models",
             ]
-        )
+(        )
 
     return gpu_info
 
 
-def convert_to_onnx(
+        def convert_to_onnx()
     model_path: str,
     output_path: str | None = None,
     model_name: str = "bert-base-uncased",
     max_length: int = 512,
-) -> str:
-    """Convert PyTorch model to ONNX format for inference optimization.
+() -> str:
+    """Convert PyTorch model to ONNX format for inference optimization."
 
     Args:
         model_path: Path to the saved PyTorch model
@@ -119,7 +119,7 @@ def convert_to_onnx(
     Returns:
         Path to the converted ONNX model
 
-    """
+    """"
     logger.info("🔄 Converting model to ONNX format...")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -132,18 +132,18 @@ def convert_to_onnx(
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     dummy_text = "This is a sample text for ONNX conversion."
-    dummy_encoding = tokenizer(
+    dummy_encoding = tokenizer()
         dummy_text,
         max_length=max_length,
         padding="max_length",
         truncation=True,
         return_tensors="pt",
-    ).to(device)
+(    ).to(device)
 
-    if output_path is None:
+        if output_path is None:
         output_path = model_path.replace(".pt", ".onnx")
 
-    torch.onnx.export(
+    torch.onnx.export()
         model,
         (dummy_encoding["input_ids"], dummy_encoding["attention_mask"]),
         output_path,
@@ -157,23 +157,23 @@ def convert_to_onnx(
             "attention_mask": {0: "batch_size", 1: "sequence"},
             "logits": {0: "batch_size"},
         },
-    )
+(    )
 
     onnx_model = onnx.load(output_path)
     onnx.checker.check_model(onnx_model)
 
-    logger.info(f"✅ ONNX model saved to: {output_path}")
+    logger.info(f" ONNX model saved to: {output_path}")
     return output_path
 
 
-def benchmark_model_performance(
+        def benchmark_model_performance()
     model_path: str,
     onnx_path: str | None = None,
     num_samples: int = 100,
     target_latency: float = 500.0,
     model_name: str = "bert-base-uncased",
-) -> dict[str, any]:
-    """Benchmark model performance for PyTorch and ONNX versions.
+() -> dict[str, any]:
+    """Benchmark model performance for PyTorch and ONNX versions."
 
     Args:
         model_path: Path to PyTorch model
@@ -185,32 +185,32 @@ def benchmark_model_performance(
     Returns:
         Dictionary with benchmark results
 
-    """
-    logger.info("📊 Starting performance benchmark...")
+    """"
+    logger.info(" Starting performance benchmark...")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     sample_texts = [
-        "I'm feeling great today, everything is going well!",
+        "I'm feeling great today, everything is going well!",'
         "This situation is really frustrating and disappointing.",
-        "I'm worried about the upcoming presentation at work.",
+        "I'm worried about the upcoming presentation at work.",'
         "The sunset was absolutely beautiful and peaceful.",
-        "I can't believe how angry this makes me feel.",
+        "I can't believe how angry this makes me feel.",'
         "Feeling grateful for all the support from friends.",
-        "This is the most boring meeting I've ever attended.",
-        "I'm so excited about the weekend trip we planned!",
+        "This is the most boring meeting I've ever attended.",'
+        "I'm so excited about the weekend trip we planned!",'
     ] * (num_samples // 8 + 1)
     sample_texts = sample_texts[:num_samples]
 
     results = {}
 
-    if Path(model_path).exists():
+        if Path(model_path).exists():
         logger.info("Testing PyTorch model performance...")
         pytorch_latencies = benchmark_pytorch_model(model_path, sample_texts, tokenizer, device)
         results["pytorch"] = analyze_latencies(pytorch_latencies, "PyTorch")
 
-    if onnx_path and Path(onnx_path).exists():
+        if onnx_path and Path(onnx_path).exists():
         logger.info("Testing ONNX model performance...")
         onnx_latencies = benchmark_onnx_model(onnx_path, sample_texts, tokenizer)
         results["onnx"] = analyze_latencies(onnx_latencies, "ONNX")
@@ -226,9 +226,9 @@ def benchmark_model_performance(
     return results
 
 
-def benchmark_pytorch_model(
+        def benchmark_pytorch_model()
     model_path: str, texts: list[str], tokenizer, device: torch.device
-) -> list[float]:
+() -> list[float]:
     """Benchmark PyTorch model inference times."""
     checkpoint = torch.load(model_path, map_location=device)
 
@@ -243,13 +243,13 @@ def benchmark_pytorch_model(
         for text in texts:
             start_time = time.time()
 
-            encoding = tokenizer(
+            encoding = tokenizer()
                 text,
                 max_length=512,
                 padding="max_length",
                 truncation=True,
                 return_tensors="pt",
-            ).to(device)
+(            ).to(device)
 
             model(encoding["input_ids"], encoding["attention_mask"])
 
@@ -262,22 +262,22 @@ def benchmark_pytorch_model(
     return latencies
 
 
-def benchmark_onnx_model(model_path: str, texts: list[str], tokenizer) -> list[float]:
+            def benchmark_onnx_model(model_path: str, texts: list[str], tokenizer) -> list[float]:
     """Benchmark ONNX model inference times."""
     session = ort.InferenceSession(model_path)
 
     latencies = []
 
-    for text in texts:
+            for text in texts:
         start_time = time.time()
 
-        encoding = tokenizer(
+        encoding = tokenizer()
             text,
             max_length=512,
             padding="max_length",
             truncation=True,
             return_tensors="np",
-        )
+(        )
 
         inputs = {
             "input_ids": encoding["input_ids"].astype(np.int64),
@@ -292,7 +292,7 @@ def benchmark_onnx_model(model_path: str, texts: list[str], tokenizer) -> list[f
     return latencies
 
 
-def analyze_latencies(latencies: list[float], model_type: str) -> dict[str, float]:
+            def analyze_latencies(latencies: list[float], model_type: str) -> dict[str, float]:
     """Analyze latency statistics."""
     latencies_sorted = sorted(latencies)
 
@@ -307,96 +307,96 @@ def analyze_latencies(latencies: list[float], model_type: str) -> dict[str, floa
     }
 
     logger.info(f"{model_type} Performance:")
-    logger.info("  Mean: {stats["mean_latency']:.1f}ms")
-    logger.info("  P95:  {stats["p95_latency']:.1f}ms")
-    logger.info("  P99:  {stats["p99_latency']:.1f}ms")
+    logger.info("  Mean: {stats["mean_latency']:.1f}ms")"
+    logger.info("  P95:  {stats["p95_latency']:.1f}ms")"
+    logger.info("  P99:  {stats["p99_latency']:.1f}ms")"
 
     return stats
 
 
-def assess_performance(results: dict[str, any], target_latency: float) -> dict[str, str]:
+            def assess_performance(results: dict[str, any], target_latency: float) -> dict[str, str]:
     """Assess whether performance meets targets."""
     assessment = {}
 
-    for model_type in ["pytorch", "onnx"]:
-        if model_type in results:
+            for model_type in ["pytorch", "onnx"]:
+            if model_type in results:
             p95_latency = results[model_type]["p95_latency"]
 
             if p95_latency <= target_latency:
-                assessment[model_type] = (
-                    f"✅ MEETS TARGET ({p95_latency:.1f}ms ≤ {target_latency}ms)"
-                )
+                assessment[model_type] = ()
+                    f" MEETS TARGET ({p95_latency:.1f}ms ≤ {target_latency}ms)"
+(                )
             elif p95_latency <= target_latency * 1.2:  # Within 20%
-                assessment[model_type] = (
+                assessment[model_type] = ()
                     f"⚠️  CLOSE TO TARGET ({p95_latency:.1f}ms vs {target_latency}ms)"
-                )
+(                )
             else:
-                assessment[model_type] = (
+                assessment[model_type] = ()
                     f"❌ EXCEEDS TARGET ({p95_latency:.1f}ms > {target_latency}ms)"
-                )
+(                )
 
     return assessment
 
 
-def main() -> None:
+            def main() -> None:
     parser = argparse.ArgumentParser(description="SAMO Deep Learning Performance Optimization")
     parser.add_argument("--check-gpu", action="store_true", help="Check GPU setup")
     parser.add_argument("--convert-onnx", action="store_true", help="Convert model to ONNX")
     parser.add_argument("--benchmark", action="store_true", help="Benchmark model performance")
     parser.add_argument("--model-path", type=str, default="./models/checkpoints/best_model.pt")
     parser.add_argument("--onnx-path", type=str, default=None)
-    parser.add_argument(
+    parser.add_argument()
         "--target-latency", type=float, default=500.0, help="Target P95 latency (ms)"
-    )
+(    )
     parser.add_argument("--num-samples", type=int, default=100, help="Number of benchmark samples")
 
     args = parser.parse_args()
 
-    if args.check_gpu:
+            if args.check_gpu:
         gpu_info = check_gpu_setup()
 
         print("\n" + "=" * 50)
-        print("🔍 GPU SETUP ASSESSMENT")
+        print(" GPU SETUP ASSESSMENT")
         print("=" * 50)
 
-        for key, value in gpu_info.items():
+            for key, value in gpu_info.items():
             if key != "recommendations":
                 print(f"{key}: {value}")
 
-        if gpu_info["recommendations"]:
+            if gpu_info["recommendations"]:
             print("\n💡 Recommendations:")
             for rec in gpu_info["recommendations"]:
                 print("   • {rec}")
 
-    if args.convert_onnx:
-        if not Path(args.model_path).exists():
+            if args.convert_onnx:
+            if not Path(args.model_path).exists():
             logger.error(f"Model not found: {args.model_path}")
             return
 
         onnx_path = convert_to_onnx(args.model_path, args.onnx_path)
-        print(f"\n✅ ONNX conversion complete: {onnx_path}")
+        print(f"\n ONNX conversion complete: {onnx_path}")
 
-    if args.benchmark:
-        if not Path(args.model_path).exists():
+            if args.benchmark:
+            if not Path(args.model_path).exists():
             logger.error(f"Model not found: {args.model_path}")
             return
 
-        results = benchmark_model_performance(
+        results = benchmark_model_performance()
             args.model_path, args.onnx_path, args.num_samples, args.target_latency
-        )
+(        )
 
         print("\n" + "=" * 60)
-        print("📊 PERFORMANCE BENCHMARK RESULTS")
+        print(" PERFORMANCE BENCHMARK RESULTS")
         print("=" * 60)
 
-        for model_type, assessment in results["assessment"].items():
+            for model_type, assessment in results["assessment"].items():
             print(f"\n{model_type.upper()}: {assessment}")
 
-        if "onnx_speedup" in results:
-            print("\n🚀 ONNX Optimization: {results["onnx_speedup']} faster")
+            if "onnx_speedup" in results:
+            print("\n🚀 ONNX Optimization: {results["onnx_speedup']} faster")"
 
         print(f"\nTarget: P95 ≤ {args.target_latency}ms")
 
 
-if __name__ == "__main__":
+            if __name__ == "__main__":
     main()

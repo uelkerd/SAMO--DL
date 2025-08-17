@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""
+""""
 Code Quality Fixer Script
 
 This script automatically fixes common code quality issues
 identified by Ruff linter.
-"""
+""""
 
 import logging
 import re
@@ -40,39 +40,39 @@ class CodeQualityFixer:
                             lines.insert(i, "from pathlib import Path")
                             import_found = True
                             break
-                if not import_found:
+                    if not import_found:
                     lines.insert(0, "from pathlib import Path")
                 content = "\n".join(lines)
 
         # Replace os.path operations with pathlib equivalents
-        content = re.sub(r"os\.path\.join\(([^)]+)\)", r"Path(\1).as_posix()", content)
-        content = re.sub(r"os\.makedirs\(([^,)]+)\)", r"Path(\1).mkdir(parents=True, exist_ok=True)", content)
-        content = re.sub(r"os\.remove\(([^)]+)\)", r"Path(\1).unlink(missing_ok=True)", content)
-        content = re.sub(r"os\.path\.exists\(([^)]+)\)", r"Path(\1).exists()", content)
-        content = re.sub(r"os\.path\.isfile\(([^)]+)\)", r"Path(\1).is_file()", content)
-        content = re.sub(r"os\.path\.isdir\(([^)]+)\)", r"Path(\1).is_dir()", content)
+(        content = re.sub(r"os\.path\.join\(([^)]+)\)", r"Path(\1).as_posix()", content)
+(        content = re.sub(r"os\.makedirs\(([^,)]+)\)", r"Path(\1).mkdir(parents=True, exist_ok=True)", content)
+(        content = re.sub(r"os\.remove\(([^)]+)\)", r"Path(\1).unlink(missing_ok=True)", content)
+(        content = re.sub(r"os\.path\.exists\(([^)]+)\)", r"Path(\1).exists()", content)
+(        content = re.sub(r"os\.path\.isfile\(([^)]+)\)", r"Path(\1).is_file()", content)
+(        content = re.sub(r"os\.path\.isdir\(([^)]+)\)", r"Path(\1).is_dir()", content)
 
         return content
 
-    def fix_f_strings(self, content: str) -> str:
+                    def fix_f_strings(self, content: str) -> str:
         """Fix f-string formatting issues."""
         # Fix f-strings without placeholders
-        content = re.sub(r'"([^"]*)"', r'"\1"', content)
-        content = re.sub(r""([^"]*)'", r"'\1'", content)
+        content = re.sub(r'"([^"]*)"', r'"\1"', content)"
+        content = re.sub(r""([^"]*)'", r"'\1'", content)'
 
         # Fix f-strings with invalid syntax
         content = re.sub(r'"([^"]*)\{([^}]*)\}([^"]*)"', r'f"\1{\2}\3"', content)
 
         return content
 
-    def fix_import_order(self, content: str) -> str:
+                    def fix_import_order(self, content: str) -> str:
         """Fix import order and grouping."""
         lines = content.split("\n")
         import_lines = []
         other_lines = []
 
-        for line in lines:
-            if line.strip().startswith(("import ", "from ")):
+                    for line in lines:
+                    if line.strip().startswith(("import ", "from ")):
                 import_lines.append(line)
             else:
                 other_lines.append(line)
@@ -83,13 +83,13 @@ class CodeQualityFixer:
         # Reconstruct content
         return "\n".join(import_lines + [""] + other_lines)
 
-    def fix_unused_imports(self, content: str) -> str:
+                    def fix_unused_imports(self, content: str) -> str:
         """Remove unused imports."""
         lines = content.split("\n")
         filtered_lines = []
 
-        for line in lines:
-            if line.strip().startswith(("import ", "from ")):
+                    for line in lines:
+                    if line.strip().startswith(("import ", "from ")):
                 # Keep all imports for now - let Ruff handle specific removals
                 filtered_lines.append(line)
             else:
@@ -97,19 +97,19 @@ class CodeQualityFixer:
 
         return "\n".join(filtered_lines)
 
-    def fix_trailing_whitespace(self, content: str) -> str:
+                    def fix_trailing_whitespace(self, content: str) -> str:
         """Remove trailing whitespace."""
         lines = content.split("\n")
         cleaned_lines = [line.rstrip() for line in lines]
         return "\n".join(cleaned_lines)
 
-    def fix_missing_newlines(self, content: str) -> str:
+                    def fix_missing_newlines(self, content: str) -> str:
         """Ensure file ends with newline."""
-        if not content.endswith("\n"):
+                    if not content.endswith("\n"):
             content += "\n"
         return content
 
-    def fix_file(self, file_path: Path) -> bool:
+                    def fix_file(self, file_path: Path) -> bool:
         """Fix code quality issues in a single file."""
         try:
             with open(file_path, "r", encoding="utf-8") as f:
@@ -126,10 +126,10 @@ class CodeQualityFixer:
             content = self.fix_missing_newlines(content)
 
             # Write back if changed
-            if content != original_content:
+                    if content != original_content:
                 with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
-                logger.info(f"✅ Fixed: {file_path}")
+                logger.info(f" Fixed: {file_path}")
                 self.fixed_files += 1
                 return True
 
@@ -139,28 +139,28 @@ class CodeQualityFixer:
             logger.error(f"❌ Error fixing {file_path}: {e}")
             return False
 
-    def fix_project(self) -> None:
+                    def fix_project(self) -> None:
         """Fix code quality issues across the entire project."""
         logger.info(f"🔧 Starting code quality fixes in: {self.project_root}")
 
         python_files = list(self.project_root.rglob("*.py"))
         logger.info(f"📁 Found {len(python_files)} Python files")
 
-        for file_path in python_files:
-            if self.fix_file(file_path):
+                    for file_path in python_files:
+                    if self.fix_file(file_path):
                 self.total_issues += 1
 
-        logger.info("✅ Code quality fixes completed!")
+        logger.info(" Code quality fixes completed!")
         logger.info(f"   • Files fixed: {self.fixed_files}")
         logger.info(f"   • Total issues resolved: {self.total_issues}")
 
 
-def main():
+                    def main():
     """Main function to run code quality fixes."""
     project_root = Path(__file__).parent.parent.parent
     fixer = CodeQualityFixer(project_root)
     fixer.fix_project()
 
 
-if __name__ == "__main__":
+                    if __name__ == "__main__":
     main()

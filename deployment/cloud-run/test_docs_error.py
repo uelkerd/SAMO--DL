@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""
+""""
 Test script to investigate the Swagger docs 500 error
-"""
+""""
 
 import os
 import requests
@@ -16,7 +16,7 @@ os.environ['PORT'] = '8082'  # Different port
 try:
     from secure_api_server import app
 
-    print("✅ Successfully imported secure_api_server")
+    print(" Successfully imported secure_api_server")
 
     # Start server in background
     import threading
@@ -40,7 +40,7 @@ try:
         response = requests.get(f"{base_url}/docs", timeout=10)
         print(f"Status Code: {response.status_code}")
         print(f"Headers: {dict(response.headers)}")
-        print("Content Type: {response.headers.get("content-type', 'unknown')}")
+        print("Content Type: {response.headers.get("content-type', 'unknown')}")"
         print(f"Content Length: {len(response.text)}")
         print(f"Response Text (first 500 chars): {response.text[:500]}")
 
@@ -51,7 +51,7 @@ try:
     except Exception as e:
         print(f"❌ Request failed: {e}")
 
-    print("\n✅ Docs test completed!")
+    print("\n Docs test completed!")
 
 except Exception as e:
     print(f"❌ Error: {e}")

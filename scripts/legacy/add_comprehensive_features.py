@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""
+""""
 Add Comprehensive Features
 =========================
 
 This script adds all the advanced features to the comprehensive notebook
 to make it truly complete with all the gains from previous iterations.
-"""
+""""
 
 import json
 
@@ -45,11 +45,11 @@ def add_comprehensive_features():
                 "print('=' * 60)\n",
                 "\n",
                 "# Create a new model with the correct number of labels\n",
-                "model = AutoModelForSequenceClassification.from_pretrained(\n",
+                "model = AutoModelForSequenceClassification.from_pretrained(\n",)
                 "    model_name,\n",
                 "    num_labels=len(emotions),  # Set to 12 emotions\n",
                 "    ignore_mismatched_sizes=True  # Important: ignore size mismatches\n",
-                ")\n",
+(                ")\n",
                 "\n",
                 "# Configure the model properly\n",
                 "model.config.num_labels = len(emotions)\n",
@@ -58,24 +58,24 @@ def add_comprehensive_features():
                 "model.config.problem_type = 'single_label_classification'\n",
                 "\n",
                 "# Verify the configuration\n",
-                "print(f'✅ Model created with {model.config.num_labels} labels')\n",
-                "print(f'✅ New id2label: {model.config.id2label}')\n",
-                "print(f'✅ Classifier output size: {model.classifier.out_proj.out_features}')\n",
-                "print(f'✅ Problem type: {model.config.problem_type}')\n",
+                "print(f' Model created with {model.config.num_labels} labels')\n",
+                "print(f' New id2label: {model.config.id2label}')\n",
+                "print(f' Classifier output size: {model.classifier.out_proj.out_features}')\n",
+                "print(f' Problem type: {model.config.problem_type}')\n",
                 "\n",
                 "# Test the model with a sample input\n",
                 "test_input = tokenizer('I feel happy today', return_tensors='pt', truncation=True, padding=True)\n",
                 "with torch.no_grad():\n",
                 "    test_output = model(**test_input)\n",
-                "    print(f'✅ Test output shape: {test_output.logits.shape}')\n",
-                "    print(f'✅ Expected shape: [1, {len(emotions)}]')\n",
+                "    print(f' Test output shape: {test_output.logits.shape}')\n",
+                "    print(f' Expected shape: [1, {len(emotions)}]')\n",
                 "    assert test_output.logits.shape[1] == len(emotions), f'Output shape mismatch: {test_output.logits.shape[1]} != {len(emotions)}'\n",
-                "    print('✅ Model architecture verified!')\n",
+                "    print(' Model architecture verified!')\n",
                 "\n",
                 "# Move model to GPU\n",
                 "if torch.cuda.is_available():\n",
                 "    model = model.to('cuda')\n",
-                "    print('✅ Model moved to GPU')\n",
+                "    print(' Model moved to GPU')\n",
                 "else:\n",
                 "    print('⚠️ CUDA not available, model will run on CPU')"
             ]
@@ -84,7 +84,7 @@ def add_comprehensive_features():
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "## 📊 DATA PREPROCESSING AND SPLITTING"
+                "##  DATA PREPROCESSING AND SPLITTING"
             ]
         },
         {
@@ -93,22 +93,22 @@ def add_comprehensive_features():
             "metadata": {},
             "outputs": [],
             "source": [
-                "print('📊 PREPROCESSING AND SPLITTING DATA')\n",
+                "print(' PREPROCESSING AND SPLITTING DATA')\n",
                 "print('=' * 50)\n",
                 "\n",
                 "# Split the data\n",
-                "train_texts, val_texts, train_labels, val_labels = train_test_split(\n",
+                "train_texts, val_texts, train_labels, val_labels = train_test_split(\n",)
                 "    texts, labels, test_size=0.2, random_state=42, stratify=labels\n",
-                ")\n",
+(                ")\n",
                 "\n",
-                "print(f'📊 Training samples: {len(train_texts)}')\n",
-                "print(f'📊 Validation samples: {len(val_texts)}')\n",
+                "print(f' Training samples: {len(train_texts)}')\n",
+                "print(f' Validation samples: {len(val_texts)}')\n",
                 "\n",
                 "# Create datasets\n",
                 "train_dataset = {'text': train_texts, 'label': train_labels}\n",
                 "val_dataset = {'text': val_texts, 'label': val_labels}\n",
                 "\n",
-                "print('✅ Data split and prepared')"
+                "print(' Data split and prepared')"
             ]
         },
         {
@@ -128,18 +128,18 @@ def add_comprehensive_features():
                 "print('=' * 60)\n",
                 "\n",
                 "# Calculate class weights\n",
-                "class_weights = compute_class_weight(\n",
+                "class_weights = compute_class_weight(\n",)
                 "    'balanced',\n",
                 "    classes=np.unique(train_labels),\n",
                 "    y=train_labels\n",
-                ")\n",
+(                ")\n",
                 "\n",
                 "class_weights_tensor = torch.FloatTensor(class_weights)\n",
                 "if torch.cuda.is_available():\n",
                 "    class_weights_tensor = class_weights_tensor.cuda()\n",
                 "\n",
-                "print(f'✅ Class weights calculated: {class_weights}')\n",
-                "print(f'✅ Class weights tensor shape: {class_weights_tensor.shape}')\n",
+                "print(f' Class weights calculated: {class_weights}')\n",
+                "print(f' Class weights tensor shape: {class_weights_tensor.shape}')\n",
                 "\n",
                 "# Focal Loss implementation\n",
                 "class FocalLoss(torch.nn.Module):\n",
@@ -154,14 +154,14 @@ def add_comprehensive_features():
                 "        focal_loss = self.alpha * (1-pt)**self.gamma * ce_loss\n",
                 "        return focal_loss.mean()\n",
                 "\n",
-                "print('✅ Focal Loss class defined')"
+                "print(' Focal Loss class defined')"
             ]
         },
         {
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "## 🎯 WEIGHTED LOSS TRAINER"
+                "##  WEIGHTED LOSS TRAINER"
             ]
         },
         {
@@ -170,7 +170,7 @@ def add_comprehensive_features():
             "metadata": {},
             "outputs": [],
             "source": [
-                "print('🎯 CREATING WEIGHTED LOSS TRAINER')\n",
+                "print(' CREATING WEIGHTED LOSS TRAINER')\n",
                 "print('=' * 50)\n",
                 "\n",
                 "# Custom trainer with focal loss and class weighting\n",
@@ -200,7 +200,7 @@ def add_comprehensive_features():
                 "        \n",
                 "        return (loss, outputs) if return_outputs else loss\n",
                 "\n",
-                "print('✅ WeightedLossTrainer created with focal loss and class weighting')"
+                "print(' WeightedLossTrainer created with focal loss and class weighting')"
             ]
         },
         {
@@ -221,13 +221,13 @@ def add_comprehensive_features():
                 "\n",
                 "# Preprocessing function\n",
                 "def preprocess_function(examples):\n",
-                "    tokenized = tokenizer(\n",
+                "    tokenized = tokenizer(\n",)
                 "        examples['text'],\n",
                 "        truncation=True,\n",
                 "        padding='max_length',\n",
                 "        max_length=128,\n",
                 "        return_tensors=None\n",
-                "    )\n",
+(                "    )\n",
                 "    if 'label' in examples:\n",
                 "        tokenized['labels'] = examples['label']\n",
                 "    return tokenized\n",
@@ -237,14 +237,14 @@ def add_comprehensive_features():
                 "val_dataset_processed = preprocess_function(val_dataset)\n",
                 "\n",
                 "# Create data collator\n",
-                "data_collator = DataCollatorWithPadding(\n",
+                "data_collator = DataCollatorWithPadding(\n",)
                 "    tokenizer=tokenizer,\n",
                 "    padding=True,\n",
                 "    return_tensors='pt'\n",
-                ")\n",
+(                ")\n",
                 "\n",
-                "print('✅ Data preprocessing completed')\n",
-                "print('✅ Data collator created')"
+                "print(' Data preprocessing completed')\n",
+                "print(' Data collator created')"
             ]
         },
         {
@@ -264,7 +264,7 @@ def add_comprehensive_features():
                 "print('=' * 50)\n",
                 "\n",
                 "# Training arguments\n",
-                "training_args = TrainingArguments(\n",
+                "training_args = TrainingArguments(\n",)
                 "    output_dir='./comprehensive_emotion_model',\n",
                 "    num_train_epochs=5,\n",
                 "    per_device_train_batch_size=8,\n",
@@ -280,16 +280,16 @@ def add_comprehensive_features():
                 "    greater_is_better=True,\n",
                 "    # Disable wandb if no API key is set\n",
                 "    report_to=None if 'WANDB_API_KEY' not in os.environ else ['wandb']\n",
-                ")\n",
+(                ")\n",
                 "\n",
-                "print('✅ Training arguments configured')"
+                "print(' Training arguments configured')"
             ]
         },
         {
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "## 📊 COMPUTE METRICS FUNCTION"
+                "##  COMPUTE METRICS FUNCTION"
             ]
         },
         {
@@ -298,7 +298,7 @@ def add_comprehensive_features():
             "metadata": {},
             "outputs": [],
             "source": [
-                "print('📊 SETTING UP COMPUTE METRICS')\n",
+                "print(' SETTING UP COMPUTE METRICS')\n",
                 "print('=' * 50)\n",
                 "\n",
                 "# Compute metrics function\n",
@@ -319,7 +319,7 @@ def add_comprehensive_features():
                 "        'recall': recall\n",
                 "    }\n",
                 "\n",
-                "print('✅ Compute metrics function defined')"
+                "print(' Compute metrics function defined')"
             ]
         },
         {
@@ -336,7 +336,7 @@ def add_comprehensive_features():
             "outputs": [],
             "source": [
                 "# Initialize trainer\n",
-                "trainer = WeightedLossTrainer(\n",
+                "trainer = WeightedLossTrainer(\n",)
                 "    model=model,\n",
                 "    args=training_args,\n",
                 "    train_dataset=train_dataset_processed,\n",
@@ -347,15 +347,15 @@ def add_comprehensive_features():
                 "    focal_alpha=1,\n",
                 "    focal_gamma=2,\n",
                 "    class_weights=class_weights_tensor\n",
-                ")\n",
+(                ")\n",
                 "\n",
-                "print('✅ Trainer initialized')\n",
+                "print(' Trainer initialized')\n",
                 "\n",
                 "# Start training\n",
                 "print('🚀 STARTING COMPREHENSIVE TRAINING')\n",
                 "print('=' * 60)\n",
-                "print("🎯 Target: 75-85% F1 score")\n",
-                "print(f'📊 Training samples: {len(train_texts)}')\n",
+                "print(" Target: 75-85% F1 score")\n",
+                "print(f' Training samples: {len(train_texts)}')\n",
                 "print(f'🧪 Validation samples: {len(val_texts)}')\n",
                 "print("⚖️ Using focal loss + class weighting")\n",
                 "print(f'🔧 Model: {model_name}')\n",
@@ -364,14 +364,14 @@ def add_comprehensive_features():
                 "# Train the model\n",
                 "trainer.train()\n",
                 "\n",
-                "print('✅ Training completed successfully!')"
+                "print(' Training completed successfully!')"
             ]
         },
         {
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "## 📊 EVALUATION AND VALIDATION"
+                "##  EVALUATION AND VALIDATION"
             ]
         },
         {
@@ -380,18 +380,18 @@ def add_comprehensive_features():
             "metadata": {},
             "outputs": [],
             "source": [
-                "print('📊 EVALUATING MODEL PERFORMANCE')\n",
+                "print(' EVALUATING MODEL PERFORMANCE')\n",
                 "print('=' * 50)\n",
                 "\n",
                 "# Evaluate the model\n",
                 "eval_results = trainer.evaluate()\n",
-                "print('\\n📊 EVALUATION RESULTS:')\n",
+                "print('\\n EVALUATION RESULTS:')\n",
                 "print('=' * 30)\n",
                 "for key, value in eval_results.items():\n",
                 "    print(f'{key}: {value:.4f}')\n",
                 "\n",
                 "# Detailed classification report\n",
-                "print('\\n📋 DETAILED CLASSIFICATION REPORT:')\n",
+                "print('\\n DETAILED CLASSIFICATION REPORT:')\n",
                 "print('=' * 40)\n",
                 "predictions = trainer.predict(val_dataset_processed)\n",
                 "pred_labels = np.argmax(predictions.predictions, axis=1)\n",
@@ -404,7 +404,7 @@ def add_comprehensive_features():
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "## 🔍 ADVANCED VALIDATION"
+                "##  ADVANCED VALIDATION"
             ]
         },
         {
@@ -413,7 +413,7 @@ def add_comprehensive_features():
             "metadata": {},
             "outputs": [],
             "source": [
-                "print('🔍 ADVANCED VALIDATION AND BIAS ANALYSIS')\n",
+                "print(' ADVANCED VALIDATION AND BIAS ANALYSIS')\n",
                 "print('=' * 60)\n",
                 "\n",
                 "# Test on completely unseen examples\n",
@@ -449,7 +449,7 @@ def add_comprehensive_features():
                 "    print()\n",
                 "\n",
                 "# Bias analysis\n",
-                "print('\\n📊 BIAS ANALYSIS:')\n",
+                "print('\\n BIAS ANALYSIS:')\n",
                 "print('=' * 30)\n",
                 "print('Checking for prediction bias across emotions...')\n",
                 "\n",
@@ -463,7 +463,7 @@ def add_comprehensive_features():
                 "    percentage = (count / len(pred_labels)) * 100\n",
                 "    print(f'{emotion:12s}: {count:3d} ({percentage:5.1f}%)')\n",
                 "\n",
-                "print('\\n✅ Advanced validation completed')"
+                "print('\\n Advanced validation completed')"
             ]
         },
         {
@@ -487,20 +487,20 @@ def add_comprehensive_features():
                 "trainer.save_model(model_save_path)\n",
                 "tokenizer.save_pretrained(model_save_path)\n",
                 "\n",
-                "print(f'✅ Model saved to: {model_save_path}')\n",
+                "print(f' Model saved to: {model_save_path}')\n",
                 "\n",
                 "# CRITICAL: Verify the saved configuration\n",
-                "print('\\n🔍 VERIFYING SAVED MODEL CONFIGURATION:')\n",
+                "print('\\n VERIFYING SAVED MODEL CONFIGURATION:')\n",
                 "print('=' * 50)\n",
                 "\n",
                 "# Load the saved model and check configuration\n",
                 "saved_model = AutoModelForSequenceClassification.from_pretrained(model_save_path)\n",
                 "saved_tokenizer = AutoTokenizer.from_pretrained(model_save_path)\n",
                 "\n",
-                "print(f'✅ Saved model labels: {saved_model.config.num_labels}')\n",
-                "print(f'✅ Saved id2label: {saved_model.config.id2label}')\n",
-                "print(f'✅ Saved label2id: {saved_model.config.label2id}')\n",
-                "print(f'✅ Saved problem_type: {saved_model.config.problem_type}')\n",
+                "print(f' Saved model labels: {saved_model.config.num_labels}')\n",
+                "print(f' Saved id2label: {saved_model.config.id2label}')\n",
+                "print(f' Saved label2id: {saved_model.config.label2id}')\n",
+                "print(f' Saved problem_type: {saved_model.config.problem_type}')\n",
                 "\n",
                 "# Test the saved model\n",
                 "test_input = saved_tokenizer('I feel happy today', return_tensors='pt', truncation=True, padding=True)\n",
@@ -510,28 +510,28 @@ def add_comprehensive_features():
                 "    confidence = torch.softmax(test_output.logits, dim=1)[0][predicted_label].item()\n",
                 "\n",
                 "print("\\n🧪 SAVED MODEL TEST:")\n",
-                "print("Input: \"I feel happy today\"')\n",
+                "print("Input: \"I feel happy today\"')\n","
                 "print(f'Predicted: {saved_model.config.id2label[predicted_label]} (confidence: {confidence:.3f})')\n",
                 "\n",
                 "# Verify configuration persistence\n",
-                "config_correct = (\n",
+                "config_correct = (\n",)
                 "    saved_model.config.num_labels == len(emotions) and\n",
                 "    saved_model.config.id2label == {i: emotion for i, emotion in enumerate(emotions)} and\n",
                 "    saved_model.config.problem_type == 'single_label_classification'\n",
-                ")\n",
+(                ")\n",
                 "\n",
                 "if config_correct:\n",
-                "    print('\\n✅ CONFIGURATION PERSISTENCE VERIFIED!')\n",
-                "    print('✅ Model will work correctly in deployment')\n",
-                "    print('✅ No more 8.3% vs 75% discrepancy!')\n",
+                "    print('\\n CONFIGURATION PERSISTENCE VERIFIED!')\n",
+                "    print(' Model will work correctly in deployment')\n",
+                "    print(' No more 8.3% vs 75% discrepancy!')\n",
                 "else:\n",
                 "    print('\\n❌ CONFIGURATION PERSISTENCE FAILED!')\n",
                 "    print('❌ Model may have issues in deployment')\n",
                 "\n",
-                "print("\\n🎉 COMPREHENSIVE TRAINING COMPLETED!")\n",
+                "print("\\n COMPREHENSIVE TRAINING COMPLETED!")\n",
                 "print(f'📁 Model saved to: {model_save_path}')\n",
-                "print("📊 Final F1 Score: {eval_results.get(\"eval_f1\", \"N/A\"):.4f}')\n",
-                "print("📊 Final Accuracy: {eval_results.get(\"eval_accuracy\", \"N/A\"):.4f}')"
+                "print(" Final F1 Score: {eval_results.get(\"eval_f1\", \"N/A\"):.4f}')\n","
+                "print(" Final Accuracy: {eval_results.get(\"eval_accuracy\", \"N/A\"):.4f}')""
             ]
         }
     ]
@@ -543,19 +543,19 @@ def add_comprehensive_features():
     with open('notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook, f, indent=2)
 
-    print('✅ Added all comprehensive features!')
-    print('📋 Advanced features added:')
-    print('   ✅ Model setup with architecture fixes')
-    print('   ✅ Data preprocessing and splitting')
-    print('   ✅ Focal loss and class weighting')
-    print('   ✅ WeightedLossTrainer with advanced loss')
-    print('   ✅ Data preprocessing function')
-    print('   ✅ Training arguments configuration')
-    print('   ✅ Compute metrics function')
-    print('   ✅ Training execution')
-    print('   ✅ Evaluation and validation')
-    print('   ✅ Advanced validation with bias analysis')
-    print('   ✅ Model saving with verification')
+    print(' Added all comprehensive features!')
+    print(' Advanced features added:')
+    print('    Model setup with architecture fixes')
+    print('    Data preprocessing and splitting')
+    print('    Focal loss and class weighting')
+    print('    WeightedLossTrainer with advanced loss')
+    print('    Data preprocessing function')
+    print('    Training arguments configuration')
+    print('    Compute metrics function')
+    print('    Training execution')
+    print('    Evaluation and validation')
+    print('    Advanced validation with bias analysis')
+    print('    Model saving with verification')
     print('\\n🚀 COMPREHENSIVE NOTEBOOK IS NOW COMPLETE!')
 
 if __name__ == "__main__":

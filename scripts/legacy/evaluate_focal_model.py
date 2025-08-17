@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+""""
 Evaluate Focal Loss Trained Model
 
 This script evaluates the trained focal loss model and calculates F1 scores.
@@ -7,7 +7,7 @@ It also implements threshold optimization to improve performance.
 
 Usage:
     python3 evaluate_focal_model.py
-"""
+""""
 
 import json
 import logging
@@ -40,7 +40,7 @@ class SimpleBERTClassifier(nn.Module):
         return logits
 
 
-def load_trained_model(model_path):
+    def load_trained_model(model_path):
     """Load the trained focal loss model."""
     logger.info(f"📂 Loading trained model from {model_path}")
 
@@ -49,19 +49,19 @@ def load_trained_model(model_path):
     checkpoint = torch.load(model_path, map_location="cpu")
     model.load_state_dict(checkpoint["model_state_dict"])
 
-    logger.info("✅ Model loaded successfully")
-    logger.info("   • Final loss: {checkpoint["final_loss']:.4f}")
-    logger.info("   • Focal loss alpha: {checkpoint["focal_loss_alpha']}")
-    logger.info("   • Focal loss gamma: {checkpoint["focal_loss_gamma']}")
-    logger.info("   • Learning rate: {checkpoint["learning_rate']}")
-    logger.info("   • Epochs trained: {checkpoint["epochs']}")
+    logger.info(" Model loaded successfully")
+    logger.info("   • Final loss: {checkpoint["final_loss']:.4f}")"
+    logger.info("   • Focal loss alpha: {checkpoint["focal_loss_alpha']}")"
+    logger.info("   • Focal loss gamma: {checkpoint["focal_loss_gamma']}")"
+    logger.info("   • Learning rate: {checkpoint["learning_rate']}")"
+    logger.info("   • Epochs trained: {checkpoint["epochs']}")"
 
     return model
 
 
-def create_test_data():
+    def create_test_data():
     """Create test data for evaluation."""
-    logger.info("📊 Creating test data for evaluation...")
+    logger.info(" Creating test data for evaluation...")
 
     # Test examples with known emotions
     test_data = [
@@ -82,18 +82,18 @@ def create_test_data():
             "labels": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # admiration, excitement
         },
         {
-            "text": "I'm neutral about this.",
+            "text": "I'm neutral about this.",'
             "labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]  # neutral
         }
     ]
 
-    logger.info(f"✅ Created {len(test_data)} test examples")
+    logger.info(f" Created {len(test_data)} test examples")
     return test_data
 
 
-def evaluate_model(model, test_data, threshold=0.5):
+    def evaluate_model(model, test_data, threshold=0.5):
     """Evaluate model with given threshold."""
-    logger.info(f"🔍 Evaluating model with threshold {threshold}...")
+    logger.info(f" Evaluating model with threshold {threshold}...")
 
     model.eval()
     device = next(model.parameters()).device
@@ -107,13 +107,13 @@ def evaluate_model(model, test_data, threshold=0.5):
         true_labels = example["labels"]
 
         # Tokenize
-        inputs = model.tokenizer(
+        inputs = model.tokenizer()
             text,
             return_tensors="pt",
             truncation=True,
             max_length=512,
             padding=True
-        )
+(        )
 
         # Move to device
         input_ids = inputs["input_ids"].to(device)
@@ -146,7 +146,7 @@ def evaluate_model(model, test_data, threshold=0.5):
     precision = precision_score(all_true, all_pred, average='macro', zero_division=0)
     recall = recall_score(all_true, all_pred, average='macro', zero_division=0)
 
-    logger.info(f"📊 Results with threshold {threshold}:")
+    logger.info(f" Results with threshold {threshold}:")
     logger.info(f"   F1 Macro: {f1_macro:.4f}")
     logger.info(f"   F1 Micro: {f1_micro:.4f}")
     logger.info(f"   Precision: {precision:.4f}")
@@ -163,9 +163,9 @@ def evaluate_model(model, test_data, threshold=0.5):
     }
 
 
-def optimize_threshold(model, test_data):
+    def optimize_threshold(model, test_data):
     """Optimize threshold for best F1 score."""
-    logger.info("🎯 Optimizing threshold for best F1 score...")
+    logger.info(" Optimizing threshold for best F1 score...")
 
     # Get raw probabilities first
     model.eval()
@@ -179,13 +179,13 @@ def optimize_threshold(model, test_data):
         true_labels = example["labels"]
 
         # Tokenize
-        inputs = model.tokenizer(
+        inputs = model.tokenizer()
             text,
             return_tensors="pt",
             truncation=True,
             max_length=512,
             padding=True
-        )
+(        )
 
         # Move to device
         input_ids = inputs["input_ids"].to(device)
@@ -219,16 +219,16 @@ def optimize_threshold(model, test_data):
 
     # Show top 5 thresholds
     results.sort(key=lambda x: x['f1'], reverse=True)
-    logger.info("📊 Top 5 thresholds:")
-    for i, result in enumerate(results[:5]):
+    logger.info(" Top 5 thresholds:")
+        for i, result in enumerate(results[:5]):
         logger.info(f"   {i+1}. Threshold {result['threshold']:.2f}: F1 = {result['f1']:.4f}")
 
-    logger.info(f"🎯 Best threshold: {best_threshold:.2f} (F1 = {best_f1:.4f})")
+    logger.info(f" Best threshold: {best_threshold:.2f} (F1 = {best_f1:.4f})")
 
     return best_threshold, best_f1
 
 
-def main():
+        def main():
     """Main evaluation function."""
     logger.info("🚀 Starting Focal Loss Model Evaluation...")
 
@@ -238,7 +238,7 @@ def main():
 
     # Check if model file exists
     model_path = Path("test_checkpoints/best_model.pt")
-    if not model_path.exists():
+        if not model_path.exists():
         logger.error(f"❌ Model file not found: {model_path}")
         return False
 
@@ -264,10 +264,10 @@ def main():
 
         # Compare results
         logger.info("=" * 50)
-        logger.info("📋 Comparison:")
-        logger.info("   Default threshold (0.5): F1 = {default_results["f1_macro']:.4f}")
+        logger.info(" Comparison:")
+        logger.info("   Default threshold (0.5): F1 = {default_results["f1_macro']:.4f}")"
         logger.info(f"   Optimized threshold ({best_threshold:.2f}): F1 = {optimized_results['f1_macro']:.4f}")
-        logger.info("   Improvement: {optimized_results["f1_macro'] - default_results['f1_macro']:.4f}")
+        logger.info("   Improvement: {optimized_results["f1_macro'] - default_results['f1_macro']:.4f}")"
 
         # Save results
         results = {
@@ -291,7 +291,7 @@ def main():
             json.dump(results, f, indent=2)
 
         logger.info("💾 Results saved to evaluation_results.json")
-        logger.info("🎉 Evaluation Complete!")
+        logger.info(" Evaluation Complete!")
         return True
 
     except Exception as e:
@@ -299,7 +299,7 @@ def main():
         return False
 
 
-if __name__ == "__main__":
+        if __name__ == "__main__":
     success = main()
-    if not success:
+        if not success:
         sys.exit(1)

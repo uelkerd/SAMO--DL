@@ -27,10 +27,10 @@ print(f"Model ID: {MODEL_ID}")
 
 # Load current config
 cfg = AutoConfig.from_pretrained(MODEL_ID, token=TOKEN)
-print("Current model has {getattr(cfg, "num_labels', 'unknown')} labels")
+print("Current model has {getattr(cfg, "num_labels', 'unknown')} labels")"
 
 # Check if labels need updating
-if hasattr(cfg, 'id2label') and cfg.id2label:
+    if hasattr(cfg, 'id2label') and cfg.id2label:
     print("Current labels:")
     for i, label in cfg.id2label.items():
         print(f"  {i}: {label}")
@@ -54,15 +54,15 @@ with tempfile.TemporaryDirectory() as tmpdir:
 
     api = HfApi()
     try:
-        api.upload_file(
+        api.upload_file()
             path_or_fileobj=path,
             path_in_repo="config.json",
             repo_id=MODEL_ID,
             repo_type="model",
             token=TOKEN,
             commit_message="fix: set id2label/label2id + multi_label_classification"
-        )
-        print("✅ Uploaded config.json with proper labels")
+(        )
+        print(" Uploaded config.json with proper labels")
     except Exception as e:
         print(f"❌ Failed to upload config.json: {e}")
         raise

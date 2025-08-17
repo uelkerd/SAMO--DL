@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""
+""""
 Complete Simple Notebook
 ========================
 
 This script adds all the missing training, validation, and model saving
 components to the simple notebook.
-"""
+""""
 
 import json
 
@@ -22,7 +22,7 @@ def complete_simple_notebook():
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "## 🎯 FOCAL LOSS IMPLEMENTATION"
+                "##  FOCAL LOSS IMPLEMENTATION"
             ]
         },
         {
@@ -53,7 +53,7 @@ def complete_simple_notebook():
                 "        else:\n",
                 "            return focal_loss\n",
                 "\n",
-                "print('✅ Focal Loss implementation ready')"
+                "print(' Focal Loss implementation ready')"
             ]
         },
         {
@@ -73,11 +73,11 @@ def complete_simple_notebook():
                 "print('⚖️ CALCULATING CLASS WEIGHTS')\n",
                 "print('=' * 40)\n",
                 "\n",
-                "class_weights = compute_class_weight(\n",
+                "class_weights = compute_class_weight(\n",)
                 "    'balanced',\n",
                 "    classes=np.unique(labels),\n",
                 "    y=labels\n",
-                ")\n",
+(                ")\n",
                 "\n",
                 "class_weights_tensor = torch.FloatTensor(class_weights)\n",
                 "if torch.cuda.is_available():\n",
@@ -85,7 +85,7 @@ def complete_simple_notebook():
                 "\n",
                 "print(f'Class weights: {class_weights}')\n",
                 "print(f'Class weights tensor shape: {class_weights_tensor.shape}')\n",
-                "print('✅ Class weights calculated')\n",
+                "print(' Class weights calculated')\n",
                 "\n",
                 "# Weighted Loss Trainer\n",
                 "class WeightedLossTrainer(Trainer):\n",
@@ -119,7 +119,7 @@ def complete_simple_notebook():
                 "        \n",
                 "        return (loss, outputs) if return_outputs else loss\n",
                 "\n",
-                "print('✅ WeightedLossTrainer ready')"
+                "print(' WeightedLossTrainer ready')"
             ]
         },
         {
@@ -148,14 +148,14 @@ def complete_simple_notebook():
                 "model.config.label2id = {emotion: i for i, emotion in enumerate(emotions)}\n",
                 "\n",
                 "# Verify configuration\n",
-                "print(f'✅ Model configured for {len(emotions)} emotions')\n",
-                "print(f'✅ id2label: {model.config.id2label}')\n",
-                "print(f'✅ label2id: {model.config.label2id}')\n",
+                "print(f' Model configured for {len(emotions)} emotions')\n",
+                "print(f' id2label: {model.config.id2label}')\n",
+                "print(f' label2id: {model.config.label2id}')\n",
                 "\n",
                 "# Move to GPU if available\n",
                 "device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')\n",
                 "model = model.to(device)\n",
-                "print(f'✅ Model moved to: {device}')"
+                "print(f' Model moved to: {device}')"
             ]
         },
         {
@@ -176,30 +176,30 @@ def complete_simple_notebook():
                 "print('=' * 40)\n",
                 "\n",
                 "# Split data\n",
-                "train_texts, val_texts, train_labels, val_labels = train_test_split(\n",
+                "train_texts, val_texts, train_labels, val_labels = train_test_split(\n",)
                 "    texts, labels, test_size=0.2, random_state=42, stratify=labels\n",
-                ")\n",
+(                ")\n",
                 "\n",
-                "print(f'📊 Training samples: {len(train_texts)}')\n",
-                "print(f'📊 Validation samples: {len(val_texts)}')\n",
+                "print(f' Training samples: {len(train_texts)}')\n",
+                "print(f' Validation samples: {len(val_texts)}')\n",
                 "\n",
                 "# Tokenize training data\n",
-                "train_encodings = tokenizer(\n",
+                "train_encodings = tokenizer(\n",)
                 "    train_texts,\n",
                 "    truncation=True,\n",
                 "    padding=True,\n",
                 "    max_length=128,\n",
                 "    return_tensors='pt'\n",
-                ")\n",
+(                ")\n",
                 "\n",
                 "# Tokenize validation data\n",
-                "val_encodings = tokenizer(\n",
+                "val_encodings = tokenizer(\n",)
                 "    val_texts,\n",
                 "    truncation=True,\n",
                 "    padding=True,\n",
                 "    max_length=128,\n",
                 "    return_tensors='pt'\n",
-                ")\n",
+(                ")\n",
                 "\n",
                 "# Create simple dataset class\n",
                 "class SimpleDataset(torch.utils.data.Dataset):\n",
@@ -219,7 +219,7 @@ def complete_simple_notebook():
                 "train_dataset = SimpleDataset(train_encodings, train_labels)\n",
                 "val_dataset = SimpleDataset(val_encodings, val_labels)\n",
                 "\n",
-                "print('✅ Data preprocessing completed')"
+                "print(' Data preprocessing completed')"
             ]
         },
         {
@@ -236,7 +236,7 @@ def complete_simple_notebook():
             "outputs": [],
             "source": [
                 "# Training arguments\n",
-                "training_args = TrainingArguments(\n",
+                "training_args = TrainingArguments(\n",)
                 "    output_dir='./ultimate_emotion_model',\n",
                 "    num_train_epochs=5,\n",
                 "    per_device_train_batch_size=8,\n",
@@ -254,16 +254,16 @@ def complete_simple_notebook():
                 "    greater_is_better=True,\n",
                 "    report_to='wandb',\n",
                 "    run_name='ultimate_emotion_model'\n",
-                ")\n",
+(                ")\n",
                 "\n",
-                "print('✅ Training arguments configured')"
+                "print(' Training arguments configured')"
             ]
         },
         {
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "## 📊 COMPUTE METRICS"
+                "##  COMPUTE METRICS"
             ]
         },
         {
@@ -285,7 +285,7 @@ def complete_simple_notebook():
                 "        'recall': recall_score(labels, predictions, average='weighted')\n",
                 "    }\n",
                 "\n",
-                "print('✅ Compute metrics function ready')"
+                "print(' Compute metrics function ready')"
             ]
         },
         {
@@ -302,7 +302,7 @@ def complete_simple_notebook():
             "outputs": [],
             "source": [
                 "# Initialize trainer\n",
-                "trainer = WeightedLossTrainer(\n",
+                "trainer = WeightedLossTrainer(\n",)
                 "    model=model,\n",
                 "    args=training_args,\n",
                 "    train_dataset=train_dataset,\n",
@@ -312,15 +312,15 @@ def complete_simple_notebook():
                 "    focal_alpha=1,\n",
                 "    focal_gamma=2,\n",
                 "    class_weights=class_weights_tensor\n",
-                ")\n",
+(                ")\n",
                 "\n",
-                "print('✅ Trainer initialized with focal loss and class weighting')\n",
+                "print(' Trainer initialized with focal loss and class weighting')\n",
                 "\n",
                 "# Start training\n",
                 "print('🚀 STARTING ULTIMATE TRAINING')\n",
                 "print('=' * 50)\n",
-                "print("🎯 Target: 75-85% F1 score")\n",
-                "print(f'📊 Training samples: {len(train_dataset)}')\n",
+                "print(" Target: 75-85% F1 score")\n",
+                "print(f' Training samples: {len(train_dataset)}')\n",
                 "print(f'🧪 Validation samples: {len(val_dataset)}')\n",
                 "print("⚖️ Using focal loss + class weighting")\n",
                 "print(f'🔧 Model: {specialized_model_name}')\n",
@@ -328,7 +328,7 @@ def complete_simple_notebook():
                 "# Train the model\n",
                 "trainer.train()\n",
                 "\n",
-                "print('✅ Training completed successfully!')"
+                "print(' Training completed successfully!')"
             ]
         },
         {
@@ -349,13 +349,13 @@ def complete_simple_notebook():
                 "print('=' * 40)\n",
                 "\n",
                 "results = trainer.evaluate()\n",
-                "print('\\n📊 FINAL RESULTS:')\n",
-                "print("F1 Score: {results[\"eval_f1\"]:.4f}')\n",
-                "print("Accuracy: {results[\"eval_accuracy\"]:.4f}')\n",
-                "print("Precision: {results[\"eval_precision\"]:.4f}')\n",
-                "print("Recall: {results[\"eval_recall\"]:.4f}')\n",
+                "print('\\n FINAL RESULTS:')\n",
+                "print("F1 Score: {results[\"eval_f1\"]:.4f}')\n","
+                "print("Accuracy: {results[\"eval_accuracy\"]:.4f}')\n","
+                "print("Precision: {results[\"eval_precision\"]:.4f}')\n","
+                "print("Recall: {results[\"eval_recall\"]:.4f}')\n","
                 "\n",
-                "print('✅ Evaluation completed!')"
+                "print(' Evaluation completed!')"
             ]
         },
         {
@@ -391,7 +391,7 @@ def complete_simple_notebook():
                 "    'I feel content with my current situation.'\n",
                 "]\n",
                 "\n",
-                "print('🔍 Testing on diverse examples:')\n",
+                "print(' Testing on diverse examples:')\n",
                 "for i, example in enumerate(test_examples):\n",
                 "    inputs = tokenizer(example, return_tensors='pt', truncation=True, padding=True)\n",
                 "    inputs = {k: v.to(device) for k, v in inputs.items()}\n",
@@ -404,7 +404,7 @@ def complete_simple_notebook():
                 "    \n",
                 "    print(f'{i+1:2d}. \"{example}\" → {emotions[predicted_class]} ({confidence:.3f})')\n",
                 "\n",
-                "print('✅ Advanced validation completed!')"
+                "print(' Advanced validation completed!')"
             ]
         },
         {
@@ -429,18 +429,18 @@ def complete_simple_notebook():
                 "trainer.save_model(model_path)\n",
                 "tokenizer.save_pretrained(model_path)\n",
                 "\n",
-                "print(f'✅ Model saved to: {model_path}')\n",
+                "print(f' Model saved to: {model_path}')\n",
                 "\n",
                 "# Verify the saved configuration\n",
-                "print('\\n🔍 VERIFYING SAVED CONFIGURATION:')\n",
+                "print('\\n VERIFYING SAVED CONFIGURATION:')\n",
                 "config_path = f'{model_path}/config.json'\n",
                 "with open(config_path, 'r') as f:\n",
                 "    config = json.load(f)\n",
                 "\n",
-                "print("Model type: {config.get(\"model_type\", \"NOT SET\")}')\n",
-                "print("Number of labels: {config.get(\"num_labels\", \"NOT SET\")}')\n",
-                "print("id2label: {config.get(\"id2label\", \"NOT SET\")}')\n",
-                "print("label2id: {config.get(\"label2id\", \"NOT SET\")}')\n",
+                "print("Model type: {config.get(\"model_type\", \"NOT SET\")}')\n","
+                "print("Number of labels: {config.get(\"num_labels\", \"NOT SET\")}')\n","
+                "print("id2label: {config.get(\"id2label\", \"NOT SET\")}')\n","
+                "print("label2id: {config.get(\"label2id\", \"NOT SET\")}')\n","
                 "\n",
                 "# Test loading the saved model\n",
                 "print('\\n🧪 TESTING SAVED MODEL:')\n",
@@ -457,11 +457,11 @@ def complete_simple_notebook():
                 "    test_predicted_class = torch.argmax(test_predictions, dim=-1).item()\n",
                 "    test_confidence = test_predictions[0][test_predicted_class].item()\n",
                 "\n",
-                "print("Test input: \"{test_input}\"')\n",
+                "print("Test input: \"{test_input}\"')\n","
                 "print(f'Predicted emotion: {test_model.config.id2label[test_predicted_class]}')\n",
                 "print(f'Confidence: {test_confidence:.3f}')\n",
                 "\n",
-                "print('\\n✅ Model saving and verification completed!')"
+                "print('\\n Model saving and verification completed!')"
             ]
         }
     ]
@@ -473,18 +473,18 @@ def complete_simple_notebook():
     with open('notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook, f, indent=2)
 
-    print('✅ Completed simple notebook with ALL components!')
-    print('📋 Added components:')
-    print('   ✅ Focal Loss implementation')
-    print('   ✅ Class weighting & WeightedLossTrainer')
-    print('   ✅ Model loading & configuration')
-    print('   ✅ Data preprocessing (simple approach)')
-    print('   ✅ Training arguments')
-    print('   ✅ Compute metrics')
-    print('   ✅ Training execution')
-    print('   ✅ Evaluation')
-    print('   ✅ Advanced validation')
-    print('   ✅ Model saving with verification')
+    print(' Completed simple notebook with ALL components!')
+    print(' Added components:')
+    print('    Focal Loss implementation')
+    print('    Class weighting & WeightedLossTrainer')
+    print('    Model loading & configuration')
+    print('    Data preprocessing (simple approach)')
+    print('    Training arguments')
+    print('    Compute metrics')
+    print('    Training execution')
+    print('    Evaluation')
+    print('    Advanced validation')
+    print('    Model saving with verification')
     print('\\n🚀 The notebook is now COMPLETE and ready to use!')
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""
+""""
 Final Inference Test Script for Emotion Detection Model
 Uses public RoBERTa tokenizer to avoid authentication issues
-"""
+""""
 
 import json
 import torch
@@ -25,24 +25,24 @@ def test_final_inference():
     for file in required_files:
         file_path = model_dir / file
         if file_path.exists():
-            print(f"✅ Found: {file}")
+            print(f" Found: {file}")
         else:
             print(f"❌ Missing: {file}")
             missing_files.append(file)
 
-    if missing_files:
+        if missing_files:
         print(f"\n❌ Missing required files: {missing_files}")
         return False
 
-    print("\n✅ All model files found!")
+    print("\n All model files found!")
 
     try:
         # Load the model config to understand the architecture
         with open(model_dir / 'config.json', 'r') as f:
             config = json.load(f)
 
-        print("🔧 Model type: {config.get("model_type', 'unknown')}")
-        print("📊 Number of labels: {len(config.get("id2label', {}))}")
+        print("🔧 Model type: {config.get("model_type', 'unknown')}")"
+        print(" Number of labels: {len(config.get("id2label', {}))}")"
 
         # Define the emotion mapping based on your training
         # This should match the order from your training
@@ -51,7 +51,7 @@ def test_final_inference():
             'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
         ]
 
-        print(f"🎯 Emotion mapping: {emotion_mapping}")
+        print(f" Emotion mapping: {emotion_mapping}")
 
         # Use a public RoBERTa tokenizer instead of the private one
         base_model_name = "roberta-base"  # Public model, no authentication needed
@@ -67,35 +67,35 @@ def test_final_inference():
         model.to(device)
         model.eval()
 
-        print("✅ Model loaded successfully!")
-        print(f"🎯 Device: {device}")
+        print(" Model loaded successfully!")
+        print(f" Device: {device}")
 
         # Test texts
         test_texts = [
-            "I'm feeling really happy today!",
-            "I'm so frustrated with this project.",
+            "I'm feeling really happy today!",'
+            "I'm so frustrated with this project.",'
             "I feel anxious about the presentation.",
-            "I'm grateful for all the support.",
-            "I'm feeling overwhelmed with tasks.",
+            "I'm grateful for all the support.",'
+            "I'm feeling overwhelmed with tasks.",'
             "I'm proud of what I've accomplished.",
-            "I'm feeling sad and lonely today.",
-            "I'm excited about the new opportunities.",
+            "I'm feeling sad and lonely today.",'
+            "I'm excited about the new opportunities.",'
             "I feel calm and peaceful right now.",
-            "I'm hopeful that things will get better."
+            "I'm hopeful that things will get better."'
         ]
 
-        print("\n📊 Testing predictions:")
+        print("\n Testing predictions:")
         print("-" * 50)
 
         for i, text in enumerate(test_texts, 1):
             try:
                 # Tokenize input
-                inputs = tokenizer(
+                inputs = tokenizer()
                     text,
                     truncation=True,
                     padding=True,
                     return_tensors='pt'
-                ).to(device)
+(                ).to(device)
 
                 # Get predictions
                 with torch.no_grad():
@@ -127,7 +127,7 @@ def test_final_inference():
                 print(f"    Error: {e}")
                 print()
 
-        print("🎉 Final inference test completed successfully!")
+        print(" Final inference test completed successfully!")
         return True
 
     except Exception as e:
@@ -136,7 +136,7 @@ def test_final_inference():
         traceback.print_exc()
         return False
 
-def test_simple_prediction():
+                def test_simple_prediction():
     """Simple test with just one prediction"""
 
     print("🧪 SIMPLE PREDICTION TEST")
@@ -160,7 +160,7 @@ def test_simple_prediction():
         ]
 
         # Test one text
-        text = "I'm feeling really happy today!"
+        text = "I'm feeling really happy today!"'
         print(f"📝 Testing: {text}")
 
         inputs = tokenizer(text, truncation=True, padding=True, return_tensors='pt').to(device)
@@ -173,25 +173,25 @@ def test_simple_prediction():
 
         predicted_emotion = emotion_mapping[predicted_class]
 
-        print(f"🎯 Predicted: {predicted_emotion}")
-        print(f"📊 Confidence: {confidence:.3f}")
+        print(f" Predicted: {predicted_emotion}")
+        print(f" Confidence: {confidence:.3f}")
 
         # Show top 3
         top3_indices = torch.topk(probabilities[0], 3).indices
         print("\n🏆 Top 3 predictions:")
-        for i, idx in enumerate(top3_indices):
+                for i, idx in enumerate(top3_indices):
             emotion = emotion_mapping[idx.item()]
             conf = probabilities[0][idx].item()
             print(f"   {i+1}. {emotion}: {conf:.3f}")
 
-        print("\n🎉 Simple prediction test completed!")
+        print("\n Simple prediction test completed!")
         return True
 
     except Exception as e:
         print(f"❌ Error: {e}")
         return False
 
-if __name__ == "__main__":
+                if __name__ == "__main__":
     print("🚀 EMOTION DETECTION - FINAL TEST")
     print("=" * 60)
 
@@ -199,13 +199,13 @@ if __name__ == "__main__":
     print("\n1️⃣ Testing full inference...")
     success = test_final_inference()
 
-    if not success:
+                if not success:
         print("\n2️⃣ Trying simple prediction test...")
         test_simple_prediction()
 
-    if success:
-        print("\n🎉 SUCCESS! Your 99.54% F1 score model is working!")
-        print("📋 Next steps:")
+                if success:
+        print("\n SUCCESS! Your 99.54% F1 score model is working!")
+        print(" Next steps:")
         print("   - Deploy with: cd deployment && ./deploy.sh")
         print("   - API will be available at: http://localhost:5000")
     else:

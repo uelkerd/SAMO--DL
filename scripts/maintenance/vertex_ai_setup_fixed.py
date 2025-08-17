@@ -35,12 +35,12 @@ from typing import Dict, Any, Optional
 
 
 
-"""
+""""
 Fixed Vertex AI Setup for SAMO Deep Learning Project.
 
 This script sets up Vertex AI infrastructure with correct API syntax
 to solve the 0.0000 loss issue and provide managed ML training.
-"""
+""""
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
@@ -64,15 +64,15 @@ class VertexAISetupFixed:
         logger.info("🔧 Setting up Vertex AI environment...")
 
         try:
-            logger.info("✅ Vertex AI SDK available")
+            logger.info(" Vertex AI SDK available")
 
-            aiplatform.init(
+            aiplatform.init()
                 project=self.project_id,
                 location=self.region,
-            )
+(            )
 
-            logger.info("✅ Vertex AI initialized for project: {self.project_id}")
-            logger.info("✅ Region: {self.region}")
+            logger.info(" Vertex AI initialized for project: {self.project_id}")
+            logger.info(" Region: {self.region}")
 
             return True
 
@@ -85,7 +85,7 @@ class VertexAISetupFixed:
         logger.info("🚀 Creating Vertex AI custom training job...")
 
         try:
-            job = aiplatform.CustomTrainingJob(
+            job = aiplatform.CustomTrainingJob()
                 display_name="samo-emotion-detection-training",
                 container_uri="gcr.io/cloud-aiplatform/training/pytorch-gpu.2-0:latest",
                 model_serving_container_image_uri="gcr.io/cloud-aiplatform/prediction/pytorch-gpu.2-0:latest",
@@ -98,9 +98,9 @@ class VertexAISetupFixed:
                 test_fraction_split=0.1,
                 enable_web_access=True,
                 enable_dashboard_access=True,
-            )
+(            )
 
-            logger.info("✅ Custom training job created successfully")
+            logger.info(" Custom training job created successfully")
             logger.info("   Display name: samo-emotion-detection-training")
             logger.info("   Machine type: n1-standard-4")
             logger.info("   GPU: NVIDIA_TESLA_T4")
@@ -114,10 +114,10 @@ class VertexAISetupFixed:
 
     def create_hyperparameter_tuning_job(self) -> Dict[str, Any]:
         """Create hyperparameter tuning job to optimize the model."""
-        logger.info("🎯 Creating hyperparameter tuning job...")
+        logger.info(" Creating hyperparameter tuning job...")
 
         try:
-            tuning_job = aiplatform.HyperparameterTuningJob(
+            tuning_job = aiplatform.HyperparameterTuningJob()
                 display_name="samo-emotion-detection-tuning",
                 container_uri="gcr.io/cloud-aiplatform/training/pytorch-gpu.2-0:latest",
                 machine_type="n1-standard-4",
@@ -145,9 +145,9 @@ class VertexAISetupFixed:
                 metric_spec={
                     "f1_score": "maximize"
                 }
-            )
+(            )
 
-            logger.info("✅ Hyperparameter tuning job created successfully")
+            logger.info(" Hyperparameter tuning job created successfully")
             logger.info("   Max trials: 10")
             logger.info("   Parallel trials: 2")
             logger.info("   Optimization metric: F1 Score")
@@ -160,7 +160,7 @@ class VertexAISetupFixed:
 
     def create_model_monitoring(self) -> Dict[str, Any]:
         """Create model monitoring for production deployment."""
-        logger.info("📊 Setting up model monitoring...")
+        logger.info(" Setting up model monitoring...")
 
         try:
             monitoring_config = {
@@ -179,7 +179,7 @@ class VertexAISetupFixed:
                 }
             }
 
-            logger.info("✅ Model monitoring configuration created")
+            logger.info(" Model monitoring configuration created")
             logger.info("   Monitoring interval: 1 hour")
             logger.info("   Metrics: latency, throughput, accuracy, data drift")
 
@@ -212,7 +212,7 @@ class VertexAISetupFixed:
                 ]
             }
 
-            logger.info("✅ Automated pipeline configuration created")
+            logger.info(" Automated pipeline configuration created")
             logger.info("   Schedule: Daily at 2 AM")
             logger.info("   Trigger conditions: data drift, performance degradation, new data")
 
@@ -224,17 +224,17 @@ class VertexAISetupFixed:
 
     def run_validation_on_vertex(self) -> bool:
         """Run validation on Vertex AI to identify 0.0000 loss issues."""
-        logger.info("🔍 Running validation on Vertex AI...")
+        logger.info(" Running validation on Vertex AI...")
 
         try:
-            validation_job = aiplatform.CustomTrainingJob(
+            validation_job = aiplatform.CustomTrainingJob()
                 display_name="samo-validation-job",
                 container_uri="gcr.io/cloud-aiplatform/training/pytorch-cpu.2-0:latest",
                 machine_type="n1-standard-4",
                 replica_count=1,
-            )
+(            )
 
-            logger.info("✅ Validation job created successfully")
+            logger.info(" Validation job created successfully")
             logger.info("   This will identify the root cause of 0.0000 loss")
             logger.info("   Check Vertex AI console for results")
 
@@ -254,39 +254,39 @@ class VertexAISetupFixed:
             logger.error("❌ Environment setup failed")
             return results
 
-        logger.info("\n📋 Step 1: Creating validation job...")
+        logger.info("\n Step 1: Creating validation job...")
         validation_success = self.run_validation_on_vertex()
         results["validation"] = validation_success
 
-        logger.info("\n📋 Step 2: Creating custom training job...")
+        logger.info("\n Step 2: Creating custom training job...")
         training_result = self.create_custom_training_job()
         results["training"] = training_result.get("success", False)
 
-        logger.info("\n📋 Step 3: Creating hyperparameter tuning...")
+        logger.info("\n Step 3: Creating hyperparameter tuning...")
         tuning_result = self.create_hyperparameter_tuning_job()
         results["tuning"] = tuning_result.get("success", False)
 
-        logger.info("\n📋 Step 4: Creating model monitoring...")
+        logger.info("\n Step 4: Creating model monitoring...")
         monitoring_result = self.create_model_monitoring()
         results["monitoring"] = monitoring_result.get("success", False)
 
-        logger.info("\n📋 Step 5: Creating automated pipeline...")
+        logger.info("\n Step 5: Creating automated pipeline...")
         pipeline_result = self.create_automated_pipeline()
         results["pipeline"] = pipeline_result.get("success", False)
 
         return results
 
 
-def main():
+        def main():
     """Main function to setup Vertex AI infrastructure."""
     logger.info("🚀 SAMO Deep Learning - Fixed Vertex AI Setup")
     logger.info("=" * 50)
 
     project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
-    if not project_id:
+        if not project_id:
         project_id = input("Enter your GCP Project ID: ").strip()
 
-    if not project_id:
+        if not project_id:
         logger.error("❌ Project ID is required")
         sys.exit(1)
 
@@ -295,16 +295,16 @@ def main():
     results = vertex_setup.setup_complete_infrastructure()
 
     logger.info("\n{'='*50}")
-    logger.info("📊 VERTEX AI SETUP SUMMARY")
+    logger.info(" VERTEX AI SETUP SUMMARY")
     logger.info("{'='*50}")
 
-    for component, result in results.items():
+        for component, result in results.items():
         if result:
-            logger.info("✅ {component.title()}: SUCCESS")
+            logger.info(" {component.title()}: SUCCESS")
         else:
             logger.error("❌ {component.title()}: FAILED")
 
-    logger.info("\n🎯 NEXT STEPS:")
+    logger.info("\n NEXT STEPS:")
     logger.info("   1. Check Vertex AI console: https://console.cloud.google.com/vertex-ai")
     logger.info("   2. Run validation job to identify 0.0000 loss root cause")
     logger.info("   3. Start training job with optimized configuration")
@@ -321,7 +321,7 @@ def main():
     return all(results.values())
 
 
-if __name__ == "__main__":
+        if __name__ == "__main__":
     success = main()
-    if not success:
+        if not success:
         sys.exit(1)

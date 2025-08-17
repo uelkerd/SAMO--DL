@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""
+""""
 Working Inference Test Script for Emotion Detection Model
 Uses public roberta-base tokenizer and maps generic labels to emotions
-"""
+""""
 
 import json
 import torch
@@ -25,27 +25,27 @@ def test_working_inference():
     for file in required_files:
         file_path = model_dir / file
         if file_path.exists():
-            print(f"✅ Found: {file}")
+            print(f" Found: {file}")
         else:
             print(f"❌ Missing: {file}")
             missing_files.append(file)
 
-    if missing_files:
+        if missing_files:
         print(f"\n❌ Missing files: {missing_files}")
         return False
 
-    print("\n✅ All model files found!")
+    print("\n All model files found!")
 
     # Load config to understand the model
     with open(model_dir / 'config.json', 'r') as f:
         config = json.load(f)
 
-    print("🔧 Model type: {config.get("model_type', 'unknown')}")
-    print("📊 Number of labels: {len(config.get("id2label', {}))}")
+    print("🔧 Model type: {config.get("model_type', 'unknown')}")"
+    print(" Number of labels: {len(config.get("id2label', {}))}")"
 
     # Define emotion mapping based on your training order
     emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
-    print(f"🎯 Emotion mapping: {emotion_mapping}")
+    print(f" Emotion mapping: {emotion_mapping}")
 
     try:
         print("\n🔧 Loading public tokenizer: roberta-base")
@@ -58,15 +58,15 @@ def test_working_inference():
         model.to(device)
         model.eval()
 
-        print(f"✅ Model loaded successfully on {device}")
+        print(f" Model loaded successfully on {device}")
 
         # Test texts
         test_texts = [
-            "I'm feeling really happy today!",
-            "I'm so frustrated with this project.",
+            "I'm feeling really happy today!",'
+            "I'm so frustrated with this project.",'
             "I feel anxious about the presentation.",
-            "I'm grateful for all the support.",
-            "I'm feeling overwhelmed with tasks."
+            "I'm grateful for all the support.",'
+            "I'm feeling overwhelmed with tasks."'
         ]
 
         print("\n🧪 Testing inference...")
@@ -91,14 +91,14 @@ def test_working_inference():
 
             print(f"   Predicted: {emotion} (confidence: {confidence:.3f})")
 
-        print("\n✅ Inference test completed successfully!")
+        print("\n Inference test completed successfully!")
         return True
 
     except Exception as e:
         print(f"\n❌ Error during inference: {str(e)}")
         return False
 
-def test_simple_inference():
+        def test_simple_inference():
     """Simple inference test as fallback"""
 
     print("\n🧪 SIMPLE INFERENCE TEST")
@@ -118,7 +118,7 @@ def test_simple_inference():
         model.eval()
 
         # Simple test
-        text = "I'm feeling happy today!"
+        text = "I'm feeling happy today!"'
         inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
@@ -131,7 +131,7 @@ def test_simple_inference():
         emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
         emotion = emotion_mapping[predicted_class]
 
-        print("✅ Simple test successful!")
+        print(" Simple test successful!")
         print(f"   Text: {text}")
         print(f"   Predicted: {emotion} (confidence: {confidence:.3f})")
         return True
@@ -140,7 +140,7 @@ def test_simple_inference():
         print(f"❌ Error during simple inference: {str(e)}")
         return False
 
-if __name__ == "__main__":
+        if __name__ == "__main__":
     print("🚀 EMOTION DETECTION - WORKING TEST")
     print("=" * 60)
 
@@ -148,12 +148,12 @@ if __name__ == "__main__":
     print("\n1️⃣ Testing full inference...")
     success = test_working_inference()
 
-    if not success:
+        if not success:
         print("\n2️⃣ Trying simple inference test...")
         success = test_simple_inference()
 
-    if success:
-        print("\n🎉 SUCCESS! Your 99.54% F1 score model is working!")
-        print("📊 Ready for deployment!")
+        if success:
+        print("\n SUCCESS! Your 99.54% F1 score model is working!")
+        print(" Ready for deployment!")
     else:
         print("\n❌ Test failed. Check the error messages above.")

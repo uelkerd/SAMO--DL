@@ -4,8 +4,8 @@
         # Calculate micro F1
         # Concatenate results
         # Convert to numpy for sklearn
-        # If it's a tuple, assume first element is the state dict
-        # If it's just the state dict directly
+        # If it's a tuple, assume first element is the state dict'
+        # If it's just the state dict directly'
         # Run evaluation
         # Set temperature
         # Show some predictions
@@ -34,9 +34,9 @@ from torch.utils.data import DataLoader
 
 
 
-"""
+""""
 Simple Temperature Scaling Test - Using Local Sample Data.
-"""
+""""
 
 sys.path.append(str(Path.cwd() / "src"))
 
@@ -65,9 +65,9 @@ def simple_temperature_test_local():
     model.to(device)
     model.eval()
 
-    logging.info("✅ Model loaded successfully!")
+    logging.info(" Model loaded successfully!")
 
-    logging.info("📊 Loading sample data...")
+    logging.info(" Loading sample data...")
     sample_data_path = Path("data/raw/sample_journal_entries.json")
 
     if not sample_data_path.exists():
@@ -80,8 +80,8 @@ def simple_temperature_test_local():
     test_texts = [
         "I am feeling happy today!",
         "This makes me so angry and frustrated.",
-        "I'm really sad about what happened.",
-        "I'm excited about the new project!",
+        "I'm really sad about what happened.",'
+        "I'm excited about the new project!",'
         "This is really disappointing and upsetting.",
     ]
 
@@ -96,7 +96,7 @@ def simple_temperature_test_local():
     dataset = EmotionDataset(test_texts, emotion_labels, max_length=512)
     dataloader = DataLoader(dataset, batch_size=2, shuffle=False)
 
-    logging.info("✅ Created test dataset with {len(test_texts)} samples")
+    logging.info(" Created test dataset with {len(test_texts)} samples")
 
     temperatures = [1.0, 2.0, 3.0, 4.0]
 
@@ -104,7 +104,7 @@ def simple_temperature_test_local():
     logging.info("=" * 50)
 
     for temp in temperatures:
-        logging.info("\n📊 Temperature: {temp}")
+        logging.info("\n Temperature: {temp}")
 
         model.set_temperature(temp)
 
@@ -146,8 +146,8 @@ def simple_temperature_test_local():
             logging.info("     Pred: {pred_emotions}")
             logging.info("     True: {true_emotions}")
 
-    logging.info("\n✅ Temperature scaling test completed!")
+    logging.info("\n Temperature scaling test completed!")
 
 
-if __name__ == "__main__":
+        if __name__ == "__main__":
     simple_temperature_test_local()

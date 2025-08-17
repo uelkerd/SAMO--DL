@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""
+""""
 Prepare Vertex AI Data Script
 
 This script prepares data for training on Google Cloud Vertex AI.
-"""
+""""
 
 import logging
 import sys
@@ -30,8 +30,8 @@ def prepare_vertex_data():
         sample_data = [
             {"text": "I am feeling happy today!", "labels": [1, 0, 0, 0]},
             {"text": "This makes me sad.", "labels": [0, 1, 0, 0]},
-            {"text": "I'm really angry about this!", "labels": [0, 0, 1, 0]},
-            {"text": "I'm scared of what might happen.", "labels": [0, 0, 0, 1]},
+            {"text": "I'm really angry about this!", "labels": [0, 0, 1, 0]},'
+            {"text": "I'm scared of what might happen.", "labels": [0, 0, 0, 1]},'
         ]
 
         # Save training data
@@ -39,8 +39,8 @@ def prepare_vertex_data():
         with open(data_dir / "training_data.json", "w") as f:
             json.dump(sample_data, f, indent=2)
 
-        logger.info("✅ Training data saved to {data_dir / "training_data.json'}")
-        logger.info(f"✅ Created {len(sample_data)} training samples")
+        logger.info(" Training data saved to {data_dir / "training_data.json'}")"
+        logger.info(f" Created {len(sample_data)} training samples")
 
         # Create configuration file
         config = {
@@ -54,8 +54,8 @@ def prepare_vertex_data():
         with open(data_dir / "config.json", "w") as f:
             json.dump(config, f, indent=2)
 
-        logger.info("✅ Configuration saved to {data_dir / "config.json'}")
-        logger.info("✅ Vertex AI data preparation completed!")
+        logger.info(" Configuration saved to {data_dir / "config.json'}")"
+        logger.info(" Vertex AI data preparation completed!")
 
     except Exception as e:
         logger.error(f"❌ Data preparation failed: {e}")

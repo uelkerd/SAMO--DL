@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+""""
 🔒 INTEGRATED SECURITY & CLOUD RUN OPTIMIZATION
 ===============================================
 Comprehensive script that integrates security fixes with Phase 3 Cloud Run optimization.
@@ -9,7 +9,7 @@ This script:
 2. Integrates them with the current Cloud Run optimization features
 3. Deploys a fully optimized and secure Cloud Run service
 4. Tests both security and performance features
-"""
+""""
 
 import os
 import requests
@@ -31,8 +31,8 @@ class IntegratedSecurityOptimization:
     def get_project_id():
         """Get current GCP project ID dynamically"""
         try:
-            result = subprocess.run(['gcloud', 'config', 'get-value', 'project'],
-                                  capture_output=True, text=True, check=True)
+            result = subprocess.run(['gcloud', 'config', 'get-value', 'project'],)
+(                                  capture_output=True, text=True, check=True)
             return result.stdout.strip()
         except subprocess.CalledProcessError:
             return os.environ.get('GOOGLE_CLOUD_PROJECT', 'the-tendril-466607-n8')
@@ -52,7 +52,7 @@ class IntegratedSecurityOptimization:
             else:
                 sanitized_command.append(str(arg))
 
-        self.log("Running: {" '.join(sanitized_command)}")
+        self.log("Running: {" '.join(sanitized_command)}")"
         try:
             result = subprocess.run(command, capture_output=True, text=True, check=check)
             if result.stdout:
@@ -64,11 +64,11 @@ class IntegratedSecurityOptimization:
                 raise
             return e
 
-    def update_requirements_with_security(self):
+            def update_requirements_with_security(self):
         """Update requirements with latest secure versions"""
         self.log("Updating requirements with security fixes...")
 
-        secure_requirements = """# Integrated Secure & Optimized Requirements for Cloud Run
+        secure_requirements = """# Integrated Secure & Optimized Requirements for Cloud Run"
 # All versions verified with safety-mcp for security and Python 3.9 compatibility
 
 # Web framework - latest secure version
@@ -97,19 +97,19 @@ prometheus-client==0.20.0
 # Additional security dependencies
 requests==2.32.4
 fastapi==0.104.1
-"""
+""""
 
         requirements_file = self.deployment_dir / "requirements_secure.txt"
         with open(requirements_file, 'w') as f:
             f.write(secure_requirements)
 
-        self.log("✅ Requirements updated with security fixes")
+        self.log(" Requirements updated with security fixes")
 
-    def enhance_cloudbuild_with_security(self):
+            def enhance_cloudbuild_with_security(self):
         """Enhance cloudbuild.yaml with security features"""
         self.log("Enhancing Cloud Build configuration with security...")
 
-        enhanced_cloudbuild = """timeout: '3600s'
+        enhanced_cloudbuild = """timeout: '3600s'"
 
 steps:
   - name: 'gcr.io/cloud-builders/docker'
@@ -147,15 +147,15 @@ images:
 
 substitutions:
   _ADMIN_API_KEY: 'samo-admin-key-2024-secure-$(date +%s)'
-"""
+""""
 
         cloudbuild_file = self.deployment_dir / "cloudbuild.yaml"
         with open(cloudbuild_file, 'w') as f:
             f.write(enhanced_cloudbuild)
 
-        self.log("✅ Cloud Build configuration enhanced with security")
+        self.log(" Cloud Build configuration enhanced with security")
 
-    def deploy_integrated_service(self):
+            def deploy_integrated_service(self):
         """Deploy the integrated secure and optimized service"""
         self.log("Deploying integrated secure and optimized service...")
 
@@ -168,28 +168,28 @@ substitutions:
         ]
 
         self.run_command(build_command)
-        self.log("✅ Integrated service deployed successfully")
+        self.log(" Integrated service deployed successfully")
 
-    def test_integrated_deployment(self):
+            def test_integrated_deployment(self):
         """Test both security and optimization features"""
         self.log("Testing integrated deployment...")
 
         # Get service URL
-        result = self.run_command([
+        result = self.run_command([)
             'gcloud', 'run', 'services', 'describe', self.service_name,
             '--region', self.region, '--format', 'value(status.url)'
-        ])
+(        ])
         service_url = result.stdout.strip()
 
-        if not service_url:
+            if not service_url:
             raise RuntimeError("Service URL not found")
 
         self.log(f"Testing service at: {service_url}")
 
         # Test health endpoint
         health_response = requests.get(f"{service_url}/health", timeout=10)
-        if health_response.status_code == 200:
-            self.log("✅ Health endpoint working")
+            if health_response.status_code == 200:
+            self.log(" Health endpoint working")
         else:
             raise RuntimeError(f"Health endpoint failed: {health_response.status_code}")
 
@@ -203,54 +203,54 @@ substitutions:
         ]
 
         missing_headers = []
-        for header in security_headers:
+            for header in security_headers:
             if header not in headers_response.headers:
                 missing_headers.append(header)
 
-        if missing_headers:
+            if missing_headers:
             self.log(f"⚠️ Missing security headers: {missing_headers}")
         else:
-            self.log("✅ All security headers present")
+            self.log(" All security headers present")
 
         # Test rate limiting
         responses = []
-        for i in range(105):
+            for i in range(105):
             try:
-                response = requests.post(
+                response = requests.post()
                     f"{service_url}/predict",
                     json={"text": "test"},
                     headers={"Content-Type": "application/json"},
                     timeout=5
-                )
+(                )
                 responses.append(response.status_code)
             except requests.exceptions.RequestException:
                 responses.append(0)
 
-        if 429 in responses:
-            self.log("✅ Rate limiting working")
+            if 429 in responses:
+            self.log(" Rate limiting working")
         else:
             self.log("⚠️ Rate limiting may not be working")
 
         # Test prediction endpoint
-        prediction_response = requests.post(
+        prediction_response = requests.post()
             f"{service_url}/predict",
             json={"text": "I am feeling happy today!"},
             headers={"Content-Type": "application/json"},
             timeout=10
-        )
+(        )
 
-        if prediction_response.status_code == 200:
+            if prediction_response.status_code == 200:
             result = prediction_response.json()
             if 'emotion' in result and 'confidence' in result:
-                self.log("✅ Prediction working: {result["emotion']} ({result['confidence']:.2f})")
+                self.log(" Prediction working: {result["emotion']} ({result['confidence']:.2f})")"
             else:
                 self.log("⚠️ Prediction response format unexpected")
         else:
             self.log(f"⚠️ Prediction endpoint failed: {prediction_response.status_code}")
 
-        self.log("✅ Integrated deployment testing completed")
+        self.log(" Integrated deployment testing completed")
 
-    def run(self):
+            def run(self):
         """Run the complete integration process"""
         self.log("🚀 Starting Integrated Security & Cloud Run Optimization")
         self.log(f"Project ID: {self.project_id}")
@@ -270,19 +270,19 @@ substitutions:
             # Step 4: Test integrated deployment
             self.test_integrated_deployment()
 
-            self.log("🎉 INTEGRATED SECURITY & OPTIMIZATION COMPLETED SUCCESSFULLY!")
+            self.log(" INTEGRATED SECURITY & OPTIMIZATION COMPLETED SUCCESSFULLY!")
             self.log("")
-            self.log("📋 DEPLOYMENT SUMMARY:")
+            self.log(" DEPLOYMENT SUMMARY:")
             self.log("======================")
-            self.log(f"✅ Service: {self.service_name}")
-            self.log(f"✅ Project: {self.project_id}")
-            self.log(f"✅ Region: {self.region}")
-            self.log("✅ Security headers implemented")
-            self.log("✅ Rate limiting active (100 req/min)")
-            self.log("✅ Input sanitization enabled")
-            self.log("✅ Health monitoring active")
-            self.log("✅ Auto-scaling configured")
-            self.log("✅ Graceful shutdown enabled")
+            self.log(f" Service: {self.service_name}")
+            self.log(f" Project: {self.project_id}")
+            self.log(f" Region: {self.region}")
+            self.log(" Security headers implemented")
+            self.log(" Rate limiting active (100 req/min)")
+            self.log(" Input sanitization enabled")
+            self.log(" Health monitoring active")
+            self.log(" Auto-scaling configured")
+            self.log(" Graceful shutdown enabled")
             self.log("")
             self.log("🔗 Service URL: Check Cloud Run console or run:")
             self.log(f"   gcloud run services describe {self.service_name} --region={self.region} --format='value(status.url)'")
@@ -291,6 +291,6 @@ substitutions:
             self.log(f"❌ Integration failed: {str(e)}", "ERROR")
             raise
 
-if __name__ == "__main__":
+            if __name__ == "__main__":
     integrator = IntegratedSecurityOptimization()
     integrator.run()

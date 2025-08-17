@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""
+""""
 Local Emotion Detection API Server
 =================================
 
 A production-ready Flask API server with monitoring, logging, and rate limiting.
-"""
+""""
 
 import logging
 import os
@@ -19,14 +19,14 @@ from functools import wraps
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 # Configure logging
-logging.basicConfig(
+logging.basicConfig()
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler('api_server.log'),
         logging.StreamHandler()
     ]
-)
+()
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
@@ -66,10 +66,10 @@ def rate_limit(f):
             # Check rate limit
             if len(rate_limit_data[client_ip]) >= RATE_LIMIT_MAX_REQUESTS:
                 logger.warning(f"Rate limit exceeded for IP: {client_ip}")
-                return jsonify({
+                return jsonify({)
                     'error': 'Rate limit exceeded',
                     'message': f'Maximum {RATE_LIMIT_MAX_REQUESTS} requests per {RATE_LIMIT_WINDOW} seconds'
-                }), 429
+(                }), 429
 
             # Add current request
             rate_limit_data[client_ip].append(current_time)
@@ -77,13 +77,13 @@ def rate_limit(f):
         return f(*args, **kwargs)
     return decorated_function
 
-def update_metrics(response_time, success=True, emotion=None, error_type=None):
+            def update_metrics(response_time, success=True, emotion=None, error_type=None):
     """Update monitoring metrics."""
     with metrics_lock:
         metrics['total_requests'] += 1
         metrics['response_times'].append(response_time)
 
-        if success:
+            if success:
             metrics['successful_requests'] += 1
             if emotion:
                 metrics['emotion_distribution'][emotion] += 1
@@ -93,11 +93,11 @@ def update_metrics(response_time, success=True, emotion=None, error_type=None):
                 metrics['error_counts'][error_type] += 1
 
         # Update average response time
-        if metrics['response_times']:
+            if metrics['response_times']:
             metrics['average_response_time'] = sum(metrics['response_times']) / len(metrics['response_times'])
 
-class EmotionDetectionModel:
-    def __init__(self):
+            class EmotionDetectionModel:
+            def __init__(self):
         """Initialize the model."""
         self.model_path = os.path.join(os.getcwd(), "model")
         logger.info(f"Loading model from: {self.model_path}")
@@ -109,18 +109,18 @@ class EmotionDetectionModel:
             # Move to GPU if available
             if torch.cuda.is_available():
                 self.model = self.model.to('cuda')
-                logger.info("✅ Model moved to GPU")
+                logger.info(" Model moved to GPU")
             else:
                 logger.info("⚠️ CUDA not available, using CPU")
 
             self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
-            logger.info("✅ Model loaded successfully")
+            logger.info(" Model loaded successfully")
 
         except Exception as e:
             logger.error(f"❌ Failed to load model: {str(e)}")
             raise
 
-    def predict(self, text):
+            def predict(self, text):
         """Make a prediction."""
         start_time = time.time()
 
@@ -183,7 +183,7 @@ model = EmotionDetectionModel()
 
 @app.route('/health', methods=['GET'])
 @rate_limit
-def health_check():
+            def health_check():
     """Health check endpoint."""
     start_time = time.time()
 
@@ -215,20 +215,20 @@ def health_check():
 
 @app.route('/predict', methods=['POST'])
 @rate_limit
-def predict():
+            def predict():
     """Prediction endpoint."""
     start_time = time.time()
 
     try:
         data = request.get_json()
 
-        if not data or 'text' not in data:
+            if not data or 'text' not in data:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='missing_text')
             return jsonify({'error': 'No text provided'}), 400
 
         text = data['text']
-        if not text.strip():
+            if not text.strip():
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='empty_text')
             return jsonify({'error': 'Empty text provided'}), 400
@@ -254,26 +254,26 @@ def predict():
 
 @app.route('/predict_batch', methods=['POST'])
 @rate_limit
-def predict_batch():
+            def predict_batch():
     """Batch prediction endpoint."""
     start_time = time.time()
 
     try:
         data = request.get_json()
 
-        if not data or 'texts' not in data:
+            if not data or 'texts' not in data:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='missing_texts')
             return jsonify({'error': 'No texts provided'}), 400
 
         texts = data['texts']
-        if not isinstance(texts, list):
+            if not isinstance(texts, list):
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='invalid_texts_format')
             return jsonify({'error': 'Texts must be a list'}), 400
 
         results = []
-        for text in texts:
+            for text in texts:
             if text.strip():
                 result = model.predict(text)
                 results.append(result)
@@ -281,11 +281,11 @@ def predict_batch():
         response_time = time.time() - start_time
         update_metrics(response_time, success=True)
 
-        return jsonify({
+        return jsonify({)
             'predictions': results,
             'count': len(results),
             'batch_processing_time_ms': round(response_time * 1000, 2)
-        })
+(        })
 
     except werkzeug.exceptions.BadRequest:
         response_time = time.time() - start_time
@@ -299,16 +299,16 @@ def predict_batch():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/metrics', methods=['GET'])
-def get_metrics():
+            def get_metrics():
     """Get detailed metrics endpoint."""
     with metrics_lock:
-        return jsonify({
+        return jsonify({)
             'server_metrics': {
                 'uptime_seconds': (datetime.now() - metrics['start_time']).total_seconds(),
                 'total_requests': metrics['total_requests'],
                 'successful_requests': metrics['successful_requests'],
                 'failed_requests': metrics['failed_requests'],
-                'success_rate': "{(metrics["successful_requests'] / max(metrics['total_requests'], 1)) * 100:.2f}%",
+                'success_rate': "{(metrics["successful_requests'] / max(metrics['total_requests'], 1)) * 100:.2f}%","
                 'average_response_time_ms': round(metrics['average_response_time'] * 1000, 2),
                 'requests_per_minute': metrics['total_requests'] / max((datetime.now() - metrics['start_time']).total_seconds() / 60, 1)
             },
@@ -318,11 +318,11 @@ def get_metrics():
                 'window_seconds': RATE_LIMIT_WINDOW,
                 'max_requests': RATE_LIMIT_MAX_REQUESTS
             }
-        })
+(        })
 
 @app.route('/', methods=['GET'])
 @rate_limit
-def home():
+            def home():
     """Home endpoint with API documentation."""
     start_time = time.time()
 
@@ -375,15 +375,15 @@ def home():
         return jsonify({'error': str(e)}), 500
 
 @app.errorhandler(werkzeug.exceptions.BadRequest)
-def handle_bad_request(e):
+            def handle_bad_request(e):
     """Handle BadRequest exceptions (invalid JSON, etc.)."""
     logger.error(f"BadRequest error: {str(e)}")
     update_metrics(0.0, success=False, error_type='invalid_json')
     return jsonify({'error': 'Invalid JSON format'}), 400
 
-if __name__ == '__main__':
+            if __name__ == '__main__':
     logger.info("🌐 Starting enhanced local API server...")
-    logger.info("📋 Available endpoints:")
+    logger.info(" Available endpoints:")
     logger.info("   GET  / - API documentation")
     logger.info("   GET  /health - Health check with metrics")
     logger.info("   GET  /metrics - Detailed server metrics")
@@ -397,7 +397,7 @@ if __name__ == '__main__':
     logger.info("        -d '{\"text\": \"I am feeling happy today!\"}'")
     logger.info("")
     logger.info(f"🔒 Rate limiting: {RATE_LIMIT_MAX_REQUESTS} requests per {RATE_LIMIT_WINDOW} seconds")
-    logger.info("📊 Monitoring: Comprehensive metrics and logging enabled")
+    logger.info(" Monitoring: Comprehensive metrics and logging enabled")
     logger.info("")
 
     app.run(host='0.0.0.0', port=8000, debug=False)

@@ -25,12 +25,12 @@ from typing import Optional
 
 
 
-"""
+""""
 Training Monitor for SAMO Emotion Detection Model
 
 This script monitors the training progress of the emotion detection model
 and provides insights on performance, convergence, and next steps.
-"""
+""""
 
 sys.path.append(str(Path(__file__).parent.parent / "src"))
 
@@ -47,7 +47,7 @@ def load_training_history(checkpoint_dir: str = "test_checkpoints_dev") -> list[
 
     return history
 
-def analyze_training_progress(history: list[dict]) -> dict:
+    def analyze_training_progress(history: list[dict]) -> dict:
     """Analyze training progress and provide insights."""
     if not history:
         return {"error": "No training history found"}
@@ -76,10 +76,10 @@ def analyze_training_progress(history: list[dict]) -> dict:
 
         if loss_improvement > 0.01:
             analysis["convergence_status"] = "excellent"
-            analysis["recommendations"].append("✅ Loss decreasing significantly - continue training")
+            analysis["recommendations"].append(" Loss decreasing significantly - continue training")
         elif loss_improvement > 0.001:
             analysis["convergence_status"] = "good"
-            analysis["recommendations"].append("✅ Loss decreasing - continue training")
+            analysis["recommendations"].append(" Loss decreasing - continue training")
         elif loss_improvement > -0.001:
             analysis["convergence_status"] = "plateauing"
             analysis["recommendations"].append("⚠️ Loss plateauing - consider learning rate adjustment")
@@ -88,38 +88,38 @@ def analyze_training_progress(history: list[dict]) -> dict:
             analysis["recommendations"].append("❌ Loss increasing - check learning rate and data")
 
     latest_f1 = analysis["f1_progress"][-1]
-    if latest_f1 > 0.8:
-        analysis["recommendations"].append("🎯 Excellent F1 score achieved!")
+        if latest_f1 > 0.8:
+        analysis["recommendations"].append(" Excellent F1 score achieved!")
     elif latest_f1 > 0.6:
         analysis["recommendations"].append("📈 Good F1 score - continue training")
     else:
-        analysis["recommendations"].append("📊 F1 score needs improvement - consider data augmentation")
+        analysis["recommendations"].append(" F1 score needs improvement - consider data augmentation")
 
     avg_epoch_time = np.mean(analysis["training_time"])
     analysis["avg_epoch_time_minutes"] = avg_epoch_time / 60
 
-    if avg_epoch_time > 1200:  # 20 minutes
+        if avg_epoch_time > 1200:  # 20 minutes
         analysis["recommendations"].append("⏱️ Training time is high - consider GPU acceleration")
 
     return analysis
 
-def generate_training_report(analysis: dict) -> str:
+        def generate_training_report(analysis: dict) -> str:
     """Generate a comprehensive training report."""
     report = []
     report.append("=" * 60)
     report.append("🧠 SAMO Emotion Detection Training Report")
     report.append("=" * 60)
-    report.append("📅 Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S')}")
+    report.append("📅 Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S')}")"
     report.append("")
 
-    report.append("📊 TRAINING PROGRESS")
+    report.append(" TRAINING PROGRESS")
     report.append("-" * 30)
-    report.append("Total Epochs: {analysis["total_epochs']}")
-    report.append("Latest Epoch: {analysis["latest_epoch']}")
-    report.append("Convergence Status: {analysis["convergence_status'].upper()}")
+    report.append("Total Epochs: {analysis["total_epochs']}")"
+    report.append("Latest Epoch: {analysis["latest_epoch']}")"
+    report.append("Convergence Status: {analysis["convergence_status'].upper()}")"
     report.append("")
 
-    if analysis["loss_progress"]:
+        if analysis["loss_progress"]:
         latest_loss = analysis["loss_progress"][-1]
         initial_loss = analysis["loss_progress"][0]
         loss_reduction = ((initial_loss - latest_loss) / initial_loss) * 100
@@ -134,18 +134,18 @@ def generate_training_report(analysis: dict) -> str:
             latest_f1 = analysis["f1_progress"][-1]
             report.append(f"Latest F1 Score: {latest_f1:.4f}")
 
-        report.append("Average Epoch Time: {analysis["avg_epoch_time_minutes']:.1f} minutes")
+        report.append("Average Epoch Time: {analysis["avg_epoch_time_minutes']:.1f} minutes")"
         report.append("")
 
     report.append("💡 RECOMMENDATIONS")
     report.append("-" * 30)
-    for rec in analysis["recommendations"]:
+        for rec in analysis["recommendations"]:
         report.append(f"• {rec}")
     report.append("")
 
     report.append("🚀 NEXT STEPS")
     report.append("-" * 30)
-    if analysis["convergence_status"] in ["excellent", "good"]:
+        if analysis["convergence_status"] in ["excellent", "good"]:
         report.append("• Continue training for more epochs")
         report.append("• Monitor validation metrics")
         report.append("• Consider fine-tuning hyperparameters")
@@ -163,9 +163,9 @@ def generate_training_report(analysis: dict) -> str:
 
     return "\n".join(report)
 
-def plot_training_curves(history: list[dict], save_path: Optional[str] = None):
+        def plot_training_curves(history: list[dict], save_path: Optional[str] = None):
     """Plot training curves for visualization."""
-    if not history:
+        if not history:
         logging.info("❌ No training history to plot")
         return
 
@@ -191,13 +191,13 @@ def plot_training_curves(history: list[dict], save_path: Optional[str] = None):
 
     plt.tight_layout()
 
-    if save_path:
+        if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
-        logging.info(f"📊 Training curves saved to {save_path}")
+        logging.info(f" Training curves saved to {save_path}")
     else:
         plt.show()
 
-def check_model_files(checkpoint_dir: str = "test_checkpoints_dev") -> dict:
+        def check_model_files(checkpoint_dir: str = "test_checkpoints_dev") -> dict:
     """Check if model files exist and are valid."""
     checkpoint_path = Path(checkpoint_dir)
 
@@ -208,7 +208,7 @@ def check_model_files(checkpoint_dir: str = "test_checkpoints_dev") -> dict:
     }
 
     status = {}
-    for name, file_path in files.items():
+        for name, file_path in files.items():
         if file_path.exists():
             size_mb = file_path.stat().st_size / (1024 * 1024)
             status[name] = {
@@ -225,24 +225,24 @@ def check_model_files(checkpoint_dir: str = "test_checkpoints_dev") -> dict:
 
     return status
 
-def main():
+        def main():
     """Main monitoring function."""
-    logging.info("🔍 SAMO Training Monitor")
+    logging.info(" SAMO Training Monitor")
     logging.info("=" * 40)
 
     logging.info("\n📁 Checking model files...")
     model_status = check_model_files()
 
-    for name, info in model_status.items():
+        for name, info in model_status.items():
         if info["exists"]:
-            logging.info(f"✅ {name}: {info['size_mb']:.1f}MB")
+            logging.info(f" {name}: {info['size_mb']:.1f}MB")
         else:
             logging.info(f"❌ {name}: Not found")
 
-    logging.info("\n📊 Analyzing training progress...")
+    logging.info("\n Analyzing training progress...")
     history = load_training_history()
 
-    if not history:
+        if not history:
         logging.info("❌ No training history found. Run training first:")
         logging.info("   python -m src.models.emotion_detection.training_pipeline")
         return
@@ -255,15 +255,15 @@ def main():
     logging.info("\n📈 Generating training curves...")
     plots_dir = Path("logs/plots")
     plots_dir.mkdir(exist_ok=True)
-    plot_path = plots_dir / "training_curves_{datetime.now().strftime("%Y%m%d_%H%M%S')}.png"
+    plot_path = plots_dir / "training_curves_{datetime.now().strftime("%Y%m%d_%H%M%S')}.png""
     plot_training_curves(history, str(plot_path))
 
-    report_path = plots_dir / "training_report_{datetime.now().strftime("%Y%m%d_%H%M%S')}.txt"
+    report_path = plots_dir / "training_report_{datetime.now().strftime("%Y%m%d_%H%M%S')}.txt""
     with open(report_path, 'w') as f:
         f.write(report)
 
     logging.info(f"\n📄 Analysis report saved to {report_path}")
-    logging.info(f"📊 Training curves saved to {plot_path}")
+    logging.info(f" Training curves saved to {plot_path}")
 
-if __name__ == "__main__":
+        if __name__ == "__main__":
     main()

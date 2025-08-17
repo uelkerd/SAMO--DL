@@ -26,12 +26,12 @@ from src.models.emotion_detection.training_pipeline import create_bert_emotion_c
 
 
 
-"""
+""""
 Threshold Optimization for Multi-label Classification
 
 This script optimizes per-class thresholds to improve F1 score
 by 10-15% through better classification boundaries.
-"""
+""""
 
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 
 def optimize_thresholds(val_logits, val_labels, num_classes=28):
     """Optimize thresholds for each emotion class."""
-    logger.info("🎯 Optimizing per-class thresholds...")
+    logger.info(" Optimizing per-class thresholds...")
 
     thresholds = []
     best_f1_scores = []
@@ -65,15 +65,15 @@ def optimize_thresholds(val_logits, val_labels, num_classes=28):
         logger.info("   • Class {i}: threshold={best_threshold:.3f}, F1={best_f1:.3f}")
 
     avg_f1 = np.mean(best_f1_scores)
-    logger.info("✅ Average F1 score: {avg_f1:.3f}")
+    logger.info(" Average F1 score: {avg_f1:.3f}")
 
     return thresholds, best_f1_scores
 
 
-def apply_threshold_optimization():
+            def apply_threshold_optimization():
     """Apply threshold optimization to improve classification performance."""
 
-    logger.info("🎯 Starting Threshold Optimization")
+    logger.info(" Starting Threshold Optimization")
     logger.info("   • Expected improvement: 10-15% F1 score")
     logger.info("   • Method: Per-class threshold tuning")
 
@@ -89,22 +89,22 @@ def apply_threshold_optimization():
         val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
 
         model_path = "./models/checkpoints/focal_loss_best_model.pt"
-        if not Path(model_path):
+            if not Path(model_path):
             logger.error("❌ Model not found: {model_path}")
             logger.info("   • Please run focal_loss_training.py first")
             return False
 
         logger.info("Loading model from {model_path}")
-        model, _ = create_bert_emotion_classifier(
+        model, _ = create_bert_emotion_classifier()
             model_name="bert-base-uncased",
             class_weights=None,
             freeze_bert_layers=4,
-        )
+(        )
         model.to(device)
 
         checkpoint = torch.load(model_path, map_location=device)
         model.load_state_dict(checkpoint["model_state_dict"])
-        logger.info("✅ Model loaded successfully")
+        logger.info(" Model loaded successfully")
 
         all_logits = []
         all_labels = []
@@ -131,7 +131,7 @@ def apply_threshold_optimization():
         os.makedirs(output_dir, exist_ok=True)
         thresholds_path = Path(output_dir, "optimized_thresholds.pt")
 
-        torch.save(
+        torch.save()
             {
                 "thresholds": thresholds,
                 "f1_scores": f1_scores,
@@ -139,9 +139,9 @@ def apply_threshold_optimization():
                 "model_path": model_path,
             },
             thresholds_path,
-        )
+(        )
 
-        logger.info("✅ Optimized thresholds saved to: {thresholds_path}")
+        logger.info(" Optimized thresholds saved to: {thresholds_path}")
         logger.info("   • Average F1: {np.mean(f1_scores):.3f}")
         logger.info("   • Threshold range: {min(thresholds):.3f} - {max(thresholds):.3f}")
 
@@ -153,20 +153,20 @@ def apply_threshold_optimization():
         return False
 
 
-def main():
+            def main():
     """Main function."""
-    logger.info("🎯 Threshold Optimization Script")
+    logger.info(" Threshold Optimization Script")
     logger.info("This script optimizes classification thresholds for better F1 scores")
 
     success = apply_threshold_optimization()
 
-    if success:
-        logger.info("✅ Threshold optimization completed successfully!")
+            if success:
+        logger.info(" Threshold optimization completed successfully!")
         sys.exit(0)
     else:
         logger.error("❌ Threshold optimization failed. Check the logs above.")
         sys.exit(1)
 
 
-if __name__ == "__main__":
+            if __name__ == "__main__":
     main()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""
+""""
 Debug script to understand Flask-RESTX routing behavior
-"""
+""""
 
 from flask import Flask, jsonify
 from flask_restx import Api, Resource, Namespace
@@ -13,13 +13,13 @@ print("=== After Flask app creation ===")
 print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
 
 # Initialize Flask-RESTX API
-api = Api(
+api = Api()
     app,
     version='1.0.0',
     title='Test API',
     description='Minimal test to isolate routing issues',
     doc='/docs'
-)
+()
 
 print("\n=== After API creation ===")
 print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
@@ -42,7 +42,7 @@ print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
 
 # Test direct Flask route
 @app.route('/test')
-def test():
+    def test():
     return jsonify({'message': 'Test route'})
 
 print("\n=== After adding Flask route ===")
@@ -54,7 +54,7 @@ try:
     @app.route('/')
     def root():
         return jsonify({'message': 'Root endpoint'})
-    print("✅ Root endpoint added successfully")
+    print(" Root endpoint added successfully")
 except Exception as e:
     print(f"❌ Failed to add root endpoint: {e}")
 
@@ -63,21 +63,21 @@ print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
 
 # Check for endpoint name conflicts
 endpoints = {}
-for rule in app.url_map.iter_rules():
+    for rule in app.url_map.iter_rules():
     if rule.endpoint in endpoints:
-        print("⚠️  CONFLICT: Endpoint "{rule.endpoint}' appears multiple times:")
+        print("⚠️  CONFLICT: Endpoint "{rule.endpoint}' appears multiple times:")"
         print(f"   - {endpoints[rule.endpoint]} -> {rule.rule}")
         print(f"   - {rule.endpoint} -> {rule.rule}")
     else:
         endpoints[rule.endpoint] = rule.rule
 
 print("\n=== All endpoints ===")
-for endpoint, rule in endpoints.items():
+    for endpoint, rule in endpoints.items():
     print(f"{endpoint} -> {rule}")
 
 # Check what Flask-RESTX created for the root route
 print("\n=== Flask-RESTX root route details ===")
-for rule in app.url_map.iter_rules():
+    for rule in app.url_map.iter_rules():
     if rule.rule == '/':
         print(f"Root route: {rule.rule} -> {rule.endpoint}")
         print(f"  Methods: {rule.methods}")

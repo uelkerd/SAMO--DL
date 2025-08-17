@@ -66,7 +66,7 @@ from typing import Any, Optional
 
 
 
-"""
+""""
 Model Monitoring Script for REQ-DL-010
 
 This script implements comprehensive model monitoring for SAMO Deep Learning:
@@ -82,7 +82,7 @@ Arguments:
     --config_path: Path to monitoring configuration (default: configs/monitoring.yaml)
     --monitor_interval: Monitoring interval in seconds (default: 300)
     --alert_threshold: Performance degradation threshold for alerts (default: 0.1)
-"""
+""""
 
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -138,34 +138,34 @@ class PerformanceTracker:
     """Track real-time model performance metrics."""
 
     def __init__(self, window_size: int = 100):
-        """Initialize performance tracker.
+        """Initialize performance tracker."
 
         Args:
             window_size: Size of sliding window for metrics
-        """
+        """"
         self.window_size = window_size
         self.metrics_history = deque(maxlen=window_size)
         self.baseline_metrics = None
         self.degradation_threshold = DEFAULT_ALERT_THRESHOLD
 
     def add_metrics(self, metrics: ModelMetrics) -> None:
-        """Add new metrics to the tracker.
+        """Add new metrics to the tracker."
 
         Args:
             metrics: Model performance metrics
-        """
+        """"
         self.metrics_history.append(metrics)
 
         if self.baseline_metrics is None:
             self.baseline_metrics = metrics
             logger.info("Baseline metrics established")
 
-    def get_current_performance(self) -> dict[str, float]:
-        """Get current performance metrics.
+        def get_current_performance(self) -> dict[str, float]:
+        """Get current performance metrics."
 
         Returns:
             Dictionary with current performance metrics
-        """
+        """"
         if not self.metrics_history:
             return {}
 
@@ -179,26 +179,26 @@ class PerformanceTracker:
             "memory_usage_mb": latest.memory_usage_mb,
         }
 
-    def detect_degradation(self) -> Optional[Alert]:
-        """Detect performance degradation.
+        def detect_degradation(self) -> Optional[Alert]:
+        """Detect performance degradation."
 
         Returns:
             Alert if degradation detected, None otherwise
-        """
+        """"
         if not self.metrics_history or self.baseline_metrics is None:
             return None
 
         latest = self.metrics_history[-1]
 
-        f1_degradation = (
+        f1_degradation = ()
             self.baseline_metrics.f1_score - latest.f1_score
-        ) / self.baseline_metrics.f1_score
-        precision_degradation = (
+(        ) / self.baseline_metrics.f1_score
+        precision_degradation = ()
             self.baseline_metrics.precision - latest.precision
-        ) / self.baseline_metrics.precision
-        recall_degradation = (
+(        ) / self.baseline_metrics.precision
+        recall_degradation = ()
             self.baseline_metrics.recall - latest.recall
-        ) / self.baseline_metrics.recall
+(        ) / self.baseline_metrics.recall
 
         max_degradation = max(f1_degradation, precision_degradation, recall_degradation)
 
@@ -206,7 +206,7 @@ class PerformanceTracker:
             severity = "HIGH" if max_degradation > DEFAULT_RETRAIN_THRESHOLD else "MEDIUM"
             action_required = max_degradation > DEFAULT_RETRAIN_THRESHOLD
 
-            return Alert(
+            return Alert()
                 timestamp=datetime.now(),
                 alert_type="PERFORMANCE_DEGRADATION",
                 severity=severity,
@@ -218,16 +218,16 @@ class PerformanceTracker:
                     "max_degradation": max_degradation,
                 },
                 action_required=action_required,
-            )
+(            )
 
         return None
 
-    def get_trend_analysis(self) -> dict[str, Any]:
-        """Analyze performance trends.
+        def get_trend_analysis(self) -> dict[str, Any]:
+        """Analyze performance trends."
 
         Returns:
             Dictionary with trend analysis
-        """
+        """"
         if len(self.metrics_history) < 10:
             return {"insufficient_data": True}
 
@@ -246,28 +246,28 @@ class PerformanceTracker:
         }
 
 
-class DataDriftDetector:
+        class DataDriftDetector:
     """Detect data drift using statistical methods."""
 
-    def __init__(
+        def __init__()
         self, reference_data: pd.DataFrame, drift_threshold: float = DEFAULT_DRIFT_THRESHOLD
-    ):
-        """Initialize drift detector.
+(    ):
+        """Initialize drift detector."
 
         Args:
             reference_data: Reference dataset for drift detection
             drift_threshold: Threshold for drift detection
-        """
+        """"
         self.reference_data = reference_data
         self.drift_threshold = drift_threshold
         self.feature_stats = self._compute_reference_stats()
 
-    def _compute_reference_stats(self) -> dict[str, dict[str, float]]:
-        """Compute reference statistics for features.
+        def _compute_reference_stats(self) -> dict[str, dict[str, float]]:
+        """Compute reference statistics for features."
 
         Returns:
             Dictionary with feature statistics
-        """
+        """"
         stats_dict = {}
 
         for column in self.reference_data.columns:
@@ -281,52 +281,52 @@ class DataDriftDetector:
 
         return stats_dict
 
-    def detect_drift(self, current_data: pd.DataFrame) -> DriftMetrics:
-        """Detect data drift in current data.
+            def detect_drift(self, current_data: pd.DataFrame) -> DriftMetrics:
+        """Detect data drift in current data."
 
         Args:
             current_data: Current data to check for drift
 
         Returns:
             Drift metrics
-        """
+        """"
         drift_scores = {}
         affected_features = []
 
-        for feature, ref_stats in self.feature_stats.items():
+            for feature, ref_stats in self.feature_stats.items():
             if feature in current_data.columns:
                 current_mean = current_data[feature].mean()
                 current_std = current_data[feature].std()
 
-                drift_score = self._calculate_drift_score(
+                drift_score = self._calculate_drift_score()
                     ref_stats["mean"], ref_stats["std"], current_mean, current_std
-                )
+(                )
 
                 drift_scores[feature] = drift_score
 
                 if drift_score > self.drift_threshold:
                     affected_features.append(feature)
 
-        if drift_scores:
+                if drift_scores:
             overall_drift = np.mean(list(drift_scores.values()))
             drift_detected = overall_drift > self.drift_threshold
         else:
             overall_drift = 0.0
             drift_detected = False
 
-        return DriftMetrics(
+        return DriftMetrics()
             timestamp=datetime.now(),
             feature_drift_score=overall_drift,
             label_drift_score=0.0,  # Placeholder for label drift
             distribution_shift=overall_drift,
             drift_detected=drift_detected,
             affected_features=affected_features,
-        )
+(        )
 
-    def _calculate_drift_score(
+                def _calculate_drift_score()
         self, ref_mean: float, ref_std: float, current_mean: float, current_std: float
-    ) -> float:
-        """Calculate drift score between reference and current distributions.
+(    ) -> float:
+        """Calculate drift score between reference and current distributions."
 
         Args:
             ref_mean: Reference mean
@@ -336,7 +336,7 @@ class DataDriftDetector:
 
         Returns:
             Drift score
-        """
+        """"
         mean_diff = abs(current_mean - ref_mean)
         std_diff = abs(current_std - ref_std)
 
@@ -348,19 +348,19 @@ class DataDriftDetector:
         return drift_score
 
 
-class ModelHealthMonitor:
+                class ModelHealthMonitor:
     """Main model health monitoring system."""
 
-    def __init__(self, config_path: str = DEFAULT_CONFIG_PATH):
-        """Initialize model health monitor.
+                def __init__(self, config_path: str = DEFAULT_CONFIG_PATH):
+        """Initialize model health monitor."
 
         Args:
             config_path: Path to monitoring configuration
-        """
+        """"
         self.config = self._load_config(config_path)
-        self.performance_tracker = PerformanceTracker(
+        self.performance_tracker = PerformanceTracker()
             window_size=self.config.get("window_size", 100)
-        )
+(        )
         self.drift_detector = None  # Will be initialized with reference data
         self.alerts = deque(maxlen=1000)
         self.monitoring_active = False
@@ -370,17 +370,17 @@ class ModelHealthMonitor:
         self.tokenizer = None
         self._initialize_model()
 
-    def _load_config(self, config_path: str) -> dict[str, Any]:
-        """Load monitoring configuration.
+                def _load_config(self, config_path: str) -> dict[str, Any]:
+        """Load monitoring configuration."
 
         Args:
             config_path: Path to configuration file
 
         Returns:
             Configuration dictionary
-        """
+        """"
         config_file = Path(config_path)
-        if config_file.exists():
+                if config_file.exists():
             with open(config_file) as f:
                 return yaml.safe_load(f)
         else:
@@ -393,13 +393,13 @@ class ModelHealthMonitor:
                 "retrain_threshold": DEFAULT_RETRAIN_THRESHOLD,
             }
 
-    def _initialize_model(self) -> None:
+                def _initialize_model(self) -> None:
         """Initialize the model for monitoring."""
         try:
-            model_path = self.config.get(
+            model_path = self.config.get()
                 "model_path", "models/checkpoints/bert_emotion_classifier_final.pt"
-            )
-            if Path(model_path).exists():
+(            )
+                if Path(model_path).exists():
                 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
                 self.model, _ = create_bert_emotion_classifier()
                 self.model.to(device)
@@ -418,9 +418,9 @@ class ModelHealthMonitor:
         except Exception as e:
             logger.error("Error initializing model: {e}")
 
-    def start_monitoring(self) -> None:
+                def start_monitoring(self) -> None:
         """Start continuous monitoring."""
-        if self.monitoring_active:
+                if self.monitoring_active:
             logger.warning("Monitoring already active")
             return
 
@@ -431,17 +431,17 @@ class ModelHealthMonitor:
 
         logger.info("Model monitoring started")
 
-    def stop_monitoring(self) -> None:
+                def stop_monitoring(self) -> None:
         """Stop continuous monitoring."""
         self.monitoring_active = False
-        if self.monitor_thread:
+                if self.monitor_thread:
             self.monitor_thread.join()
 
         logger.info("Model monitoring stopped")
 
-    def _monitoring_loop(self) -> None:
+                def _monitoring_loop(self) -> None:
         """Main monitoring loop."""
-        while self.monitoring_active:
+                while self.monitoring_active:
             try:
                 metrics = self._collect_metrics()
                 if metrics:
@@ -455,14 +455,14 @@ class ModelHealthMonitor:
                 if self.drift_detector:
                     drift_metrics = self._check_data_drift()
                     if drift_metrics.drift_detected:
-                        drift_alert = Alert(
+                        drift_alert = Alert()
                             timestamp=datetime.now(),
                             alert_type="DATA_DRIFT",
                             severity="MEDIUM",
                             message="Data drift detected in {len(drift_metrics.affected_features)} features",
                             metrics=asdict(drift_metrics),
                             action_required=False,
-                        )
+(                        )
                         self.alerts.append(drift_alert)
                         self._handle_alert(drift_alert)
 
@@ -472,29 +472,29 @@ class ModelHealthMonitor:
                 logger.error("Error in monitoring loop: {e}")
                 time.sleep(60)  # Wait before retrying
 
-    def _collect_metrics(self) -> Optional[ModelMetrics]:
-        """Collect current model performance metrics.
+                    def _collect_metrics(self) -> Optional[ModelMetrics]:
+        """Collect current model performance metrics."
 
         Returns:
             Model metrics if collection successful, None otherwise
-        """
-        if not self.model:
+        """"
+                    if not self.model:
             return None
 
         try:
             start_time = time.time()
 
             test_texts = [
-                "I'm feeling really excited about this new project!",
+                "I'm feeling really excited about this new project!",'
                 "This is making me so frustrated and angry.",
                 "I'm grateful for all the support I've received.",
-                "I'm feeling a bit nervous about the presentation.",
+                "I'm feeling a bit nervous about the presentation.",'
                 "This is absolutely amazing and wonderful!",
             ]
 
-            inputs = self.tokenizer(
+            inputs = self.tokenizer()
                 test_texts, return_tensors="pt", padding=True, truncation=True, max_length=128
-            )
+(            )
 
             device = next(self.model.parameters()).device
             inputs = {k: v.to(device) for k, v in inputs.items()}
@@ -516,7 +516,7 @@ class ModelHealthMonitor:
 
             gpu_utilization = self._get_gpu_utilization()
 
-            return ModelMetrics(
+            return ModelMetrics()
                 timestamp=datetime.now(),
                 f1_score=f1_score_val,
                 precision=precision_val,
@@ -525,90 +525,90 @@ class ModelHealthMonitor:
                 throughput_rps=throughput_rps,
                 memory_usage_mb=memory_usage_mb,
                 gpu_utilization=gpu_utilization,
-            )
+(            )
 
         except Exception as e:
             logger.error("Error collecting metrics: {e}")
             return None
 
-    def _get_memory_usage(self) -> float:
-        """Get current memory usage in MB.
+                    def _get_memory_usage(self) -> float:
+        """Get current memory usage in MB."
 
         Returns:
             Memory usage in MB
-        """
+        """"
         try:
             process = psutil.Process()
             return process.memory_info().rss / (1024 * 1024)
         except ImportError:
             return 0.0
 
-    def _get_gpu_utilization(self) -> Optional[float]:
-        """Get GPU utilization percentage.
+                    def _get_gpu_utilization(self) -> Optional[float]:
+        """Get GPU utilization percentage."
 
         Returns:
             GPU utilization percentage if available, None otherwise
-        """
+        """"
         try:
-            if torch.cuda.is_available():
+                    if torch.cuda.is_available():
                 return torch.cuda.utilization()
         except:
             pass
         return None
 
-    def _check_data_drift(self) -> DriftMetrics:
-        """Check for data drift in incoming data.
+                    def _check_data_drift(self) -> DriftMetrics:
+        """Check for data drift in incoming data."
 
         Returns:
             Drift metrics
-        """
-        return DriftMetrics(
+        """"
+        return DriftMetrics()
             timestamp=datetime.now(),
             feature_drift_score=0.02,
             label_drift_score=0.01,
             distribution_shift=0.02,
             drift_detected=False,
             affected_features=[],
-        )
+(        )
 
-    def _handle_alert(self, alert: Alert) -> None:
-        """Handle monitoring alerts.
+                    def _handle_alert(self, alert: Alert) -> None:
+        """Handle monitoring alerts."
 
         Args:
             alert: Alert to handle
-        """
+        """"
         logger.warning("ALERT [{alert.severity}]: {alert.message}")
 
-        if alert.action_required:
+                    if alert.action_required:
             logger.info("Action required - triggering retraining pipeline")
             self._trigger_retraining()
 
         self._save_alert(alert)
 
-    def _trigger_retraining(self) -> None:
+                    def _trigger_retraining(self) -> None:
         """Trigger model retraining pipeline."""
         try:
             logger.info("Triggering model retraining...")
 
-            retrain_alert = Alert(
+            retrain_alert = Alert()
                 timestamp=datetime.now(),
                 alert_type="RETRAINING_TRIGGERED",
                 severity="INFO",
                 message="Model retraining pipeline triggered",
                 metrics={},
                 action_required=False,
-            )
+(            )
             self.alerts.append(retrain_alert)
 
         except Exception as e:
             logger.error("Error triggering retraining: {e}")
 
-    def _save_alert(self, alert: Alert) -> None:
-        """Save alert to file.
+                    def _save_alert(self, alert: Alert) -> None:
+        """Save alert to file."
 
         Args:
             alert: Alert to save
-        """
+        """"
         try:
             alerts_dir = Path("logs/alerts")
             alerts_dir.mkdir(parents=True, exist_ok=True)
@@ -620,12 +620,12 @@ class ModelHealthMonitor:
         except Exception as e:
             logger.error("Error saving alert: {e}")
 
-    def get_health_status(self) -> dict[str, Any]:
-        """Get current model health status.
+                    def get_health_status(self) -> dict[str, Any]:
+        """Get current model health status."
 
         Returns:
             Dictionary with health status
-        """
+        """"
         current_performance = self.performance_tracker.get_current_performance()
         trend_analysis = self.performance_tracker.get_trend_analysis()
 
@@ -635,18 +635,18 @@ class ModelHealthMonitor:
             "monitoring_active": self.monitoring_active,
             "current_performance": current_performance,
             "trend_analysis": trend_analysis,
-            "recent_alerts": len(
+            "recent_alerts": len()
                 [a for a in self.alerts if a.timestamp > datetime.now() - timedelta(hours=1)]
-            ),
+(            ),
             "total_alerts": len(self.alerts),
         }
 
-    def get_dashboard_data(self) -> dict[str, Any]:
-        """Get data for monitoring dashboard.
+                    def get_dashboard_data(self) -> dict[str, Any]:
+        """Get data for monitoring dashboard."
 
         Returns:
             Dictionary with dashboard data
-        """
+        """"
         recent_metrics = list(self.performance_tracker.metrics_history)[-50:]
 
         recent_alerts = [
@@ -660,12 +660,12 @@ class ModelHealthMonitor:
         }
 
 
-def create_monitoring_config(output_path: str = DEFAULT_CONFIG_PATH) -> None:
-    """Create default monitoring configuration.
+                    def create_monitoring_config(output_path: str = DEFAULT_CONFIG_PATH) -> None:
+    """Create default monitoring configuration."
 
     Args:
         output_path: Path to save configuration
-    """
+    """"
     config = {
         "model_path": "models/checkpoints/bert_emotion_classifier_final.pt",
         "window_size": 100,
@@ -685,33 +685,33 @@ def create_monitoring_config(output_path: str = DEFAULT_CONFIG_PATH) -> None:
     logger.info("Monitoring configuration created: {output_path}")
 
 
-if __name__ == "__main__":
+                    if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Model Monitoring for REQ-DL-010")
-    parser.add_argument(
+    parser.add_argument()
         "--config_path",
         type=str,
         default=DEFAULT_CONFIG_PATH,
         help="Path to monitoring configuration (default: {DEFAULT_CONFIG_PATH})",
-    )
-    parser.add_argument(
+(    )
+    parser.add_argument()
         "--monitor_interval",
         type=int,
         default=DEFAULT_MONITOR_INTERVAL,
         help="Monitoring interval in seconds (default: {DEFAULT_MONITOR_INTERVAL})",
-    )
-    parser.add_argument(
+(    )
+    parser.add_argument()
         "--alert_threshold",
         type=float,
         default=DEFAULT_ALERT_THRESHOLD,
         help="Performance degradation threshold for alerts (default: {DEFAULT_ALERT_THRESHOLD})",
-    )
-    parser.add_argument(
+(    )
+    parser.add_argument()
         "--create_config", action="store_true", help="Create default monitoring configuration"
-    )
+(    )
 
     args = parser.parse_args()
 
-    if args.create_config:
+                    if args.create_config:
         create_monitoring_config(args.config_path)
         sys.exit(0)
 
@@ -720,7 +720,7 @@ if __name__ == "__main__":
     try:
         monitor.start_monitoring()
 
-        while True:
+                    while True:
             time.sleep(60)
 
     except KeyboardInterrupt:

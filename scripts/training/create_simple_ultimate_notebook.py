@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""
+""""
 Create Simple Ultimate Notebook
 ==============================
 
 This script creates a simplified version of the ultimate notebook that
 avoids the datasets library issues by using a more direct approach.
-"""
+""""
 
 import json
 
@@ -22,12 +22,12 @@ def create_simple_notebook():
                     "## Avoiding Datasets Library Issues\n",
                     "\n",
                     "**FEATURES INCLUDED:**\n",
-                    "✅ Configuration preservation (prevents 8.3% vs 75% discrepancy)\n",
-                    "✅ Focal loss (handles class imbalance)\n",
-                    "✅ Class weighting (WeightedLossTrainer)\n",
-                    "✅ Data augmentation (sophisticated techniques)\n",
-                    "✅ Advanced validation (proper testing)\n",
-                    "✅ Simple, direct approach (no datasets library issues)\n",
+                    " Configuration preservation (prevents 8.3% vs 75% discrepancy)\n",
+                    " Focal loss (handles class imbalance)\n",
+                    " Class weighting (WeightedLossTrainer)\n",
+                    " Data augmentation (sophisticated techniques)\n",
+                    " Advanced validation (proper testing)\n",
+                    " Simple, direct approach (no datasets library issues)\n",
                     "\n",
                     "**Target**: Reliable 75-85% F1 score with consistent performance"
                 ]
@@ -55,22 +55,22 @@ def create_simple_notebook():
                          AutoModelForSequenceClassification,
                          TrainingArguments,
                          Trainer,
-                         DataCollatorWithPadding\n",
-                        
+                         DataCollatorWithPadding\n","
+
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.metrics import                    "from sklearn.metrics import classification_report,
                          confusion_matrix,
                          f1_score,
                          accuracy_score,
                          precision_score,
-                         recall_score\n",
-                        
+                         recall_score\n","
+
                     "from sklearn.utils.class_weight import compute_class_weight\n",
                     "import json\n",
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",
-                    "print('✅ All packages imported successfully')\n",
+                    "print(' All packages imported successfully')\n",
                     "print(f'PyTorch version: {torch.__version__}')\n",
                     "print(f'CUDA available: {torch.cuda.is_available()}')"
                 ]
@@ -79,7 +79,7 @@ def create_simple_notebook():
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🔍 VERIFYING SPECIALIZED MODEL ACCESS"
+                    "##  VERIFYING SPECIALIZED MODEL ACCESS"
                 ]
             },
             {
@@ -88,7 +88,7 @@ def create_simple_notebook():
                 "metadata": {},
                 "outputs": [],
                 "source": [
-                    "print('🔍 VERIFYING SPECIALIZED MODEL ACCESS')\n",
+                    "print(' VERIFYING SPECIALIZED MODEL ACCESS')\n",
                     "print('=' * 50)\n",
                     "\n",
                     "specialized_model_name = 'j-hartmann/emotion-english-distilroberta-base'\n",
@@ -98,7 +98,7 @@ def create_simple_notebook():
                     "    test_tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\n",
                     "    test_model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name)\n",
                     "    \n",
-                    "    print('✅ SUCCESS: Specialized model loaded!')\n",
+                    "    print(' SUCCESS: Specialized model loaded!')\n",
                     "    print(f'Model type: {test_model.config.model_type}')\n",
                     "    print(f'Architecture: {test_model.config.architectures[0]}')\n",
                     "    print(f'Hidden layers: {test_model.config.num_hidden_layers}')\n",
@@ -106,9 +106,9 @@ def create_simple_notebook():
                     "    print(f'Number of labels: {test_model.config.num_labels}')\n",
                     "    print(f'Original labels: {test_model.config.id2label}')\n",
                     "    \n",
-                    "    # Verify it's actually DistilRoBERTa\n",
+                    "    # Verify it's actually DistilRoBERTa\n",'
                     "    if test_model.config.num_hidden_layers == 6:\n",
-                    "        print('✅ CONFIRMED: This is DistilRoBERTa architecture')\n",
+                    "        print(' CONFIRMED: This is DistilRoBERTa architecture')\n",
                     "    else:\n",
                     "        print('⚠️  WARNING: This may not be the expected DistilRoBERTa model')\n",
                     "    \n",
@@ -118,14 +118,14 @@ def create_simple_notebook():
                     "    specialized_model_name = 'roberta-base'\n",
                     "    test_tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\n",
                     "    test_model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name, num_labels=12)\n",
-                    "    print(f'✅ Fallback model loaded: {specialized_model_name}')"
+                    "    print(f' Fallback model loaded: {specialized_model_name}')"
                 ]
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🎯 DEFINING EMOTION CLASSES"
+                    "##  DEFINING EMOTION CLASSES"
                 ]
             },
             {
@@ -136,15 +136,15 @@ def create_simple_notebook():
                 "source": [
                     "# Define our emotion classes\n",
                     "emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\n",
-                    "print(f'🎯 Our emotion classes: {emotions}')\n",
-                    "print(f'📊 Number of emotions: {len(emotions)}')"
+                    "print(f' Our emotion classes: {emotions}')\n",
+                    "print(f' Number of emotions: {len(emotions)}')"
                 ]
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 📊 CREATING ENHANCED DATASET WITH AUGMENTATION"
+                    "##  CREATING ENHANCED DATASET WITH AUGMENTATION"
                 ]
             },
             {
@@ -153,7 +153,7 @@ def create_simple_notebook():
                 "metadata": {},
                 "outputs": [],
                 "source": [
-                    "print('📊 CREATING ENHANCED DATASET WITH AUGMENTATION')\n",
+                    "print(' CREATING ENHANCED DATASET WITH AUGMENTATION')\n",
                     "print('=' * 50)\n",
                     "\n",
                     "# Base balanced dataset\n",
@@ -327,7 +327,7 @@ def create_simple_notebook():
                     "    {'text': 'This creates fatigue in me.', 'label': 11}\n",
                     "]\n",
                     "\n",
-                    "print(f'📊 Base dataset size: {len(base_data)} samples')\n",
+                    "print(f' Base dataset size: {len(base_data)} samples')\n",
                     "\n",
                     "# Data augmentation function\n",
                     "def augment_text(text, emotion):\n",
@@ -374,14 +374,14 @@ def create_simple_notebook():
                     "\n",
                     "# Combine base and augmented data\n",
                     "enhanced_data = base_data + augmented_data\n",
-                    "print(f'📊 Enhanced dataset size: {len(enhanced_data)} samples')\n",
-                    "print(f'📊 Augmentation added: {len(augmented_data)} samples')\n",
+                    "print(f' Enhanced dataset size: {len(enhanced_data)} samples')\n",
+                    "print(f' Augmentation added: {len(augmented_data)} samples')\n",
                     "\n",
                     "# Convert to lists for simple processing\n",
                     "texts = [item['text'] for item in enhanced_data]\n",
                     "labels = [item['label'] for item in enhanced_data]\n",
                     "\n",
-                    "print(f'✅ Dataset prepared with {len(texts)} samples')"
+                    "print(f' Dataset prepared with {len(texts)} samples')"
                 ]
             }
         ],
@@ -413,14 +413,14 @@ def create_simple_notebook():
     with open(output_path, 'w') as f:
         json.dump(notebook_content, f, indent=2)
 
-    print(f"✅ Created simple ultimate notebook: {output_path}")
-    print("📋 Features included:")
-    print("   ✅ Configuration preservation")
-    print("   ✅ Focal loss (to be added)")
-    print("   ✅ Class weighting (to be added)")
-    print("   ✅ Data augmentation")
-    print("   ✅ Simple approach (no datasets library)")
-    print("   ✅ Advanced validation (to be added)")
+    print(f" Created simple ultimate notebook: {output_path}")
+    print(" Features included:")
+    print("    Configuration preservation")
+    print("    Focal loss (to be added)")
+    print("    Class weighting (to be added)")
+    print("    Data augmentation")
+    print("    Simple approach (no datasets library)")
+    print("    Advanced validation (to be added)")
 
     return output_path
 

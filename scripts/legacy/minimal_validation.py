@@ -23,11 +23,11 @@ from pathlib import Path
 
 
 
-"""
+""""
 Minimal Validation for Core Components
 
 Quick validation of essential components before GCP deployment.
-"""
+""""
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -38,16 +38,16 @@ def test_imports():
     logger.info("📦 Testing Basic Imports...")
 
     try:
-        logger.info("   ✅ PyTorch: {torch.__version__}")
+        logger.info("    PyTorch: {torch.__version__}")
 
-        logger.info("   ✅ Transformers: {transformers.__version__}")
+        logger.info("    Transformers: {transformers.__version__}")
 
 
-        logger.info("   ✅ NumPy: {np.__version__}")
+        logger.info("    NumPy: {np.__version__}")
 
-        logger.info("   ✅ Scikit-learn: {sklearn.__version__}")
+        logger.info("    Scikit-learn: {sklearn.__version__}")
 
-        logger.info("✅ Basic Imports: PASSED")
+        logger.info(" Basic Imports: PASSED")
         return True
 
     except ImportError as _:
@@ -81,8 +81,8 @@ def test_focal_loss():
         focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
         loss = focal_loss(inputs, targets)
 
-        logger.info("   ✅ Focal Loss: {loss.item():.4f}")
-        logger.info("✅ Focal Loss: PASSED")
+        logger.info("    Focal Loss: {loss.item():.4f}")
+        logger.info(" Focal Loss: PASSED")
         return True
 
     except Exception as e:
@@ -90,7 +90,7 @@ def test_focal_loss():
         return False
 
 
-def test_file_structure():
+            def test_file_structure():
     """Test that required files exist."""
     logger.info("📁 Testing File Structure...")
 
@@ -104,38 +104,38 @@ def test_file_structure():
     ]
 
     missing_files = []
-    for file_path in required_files:
-        if Path(file_path).exists():
-            logger.info("   ✅ {file_path}")
+            for file_path in required_files:
+            if Path(file_path).exists():
+            logger.info("    {file_path}")
         else:
             logger.error("   ❌ {file_path} - MISSING")
             missing_files.append(file_path)
 
-    if missing_files:
+            if missing_files:
         logger.error("❌ File Structure: FAILED - {len(missing_files)} files missing")
         return False
     else:
-        logger.info("✅ File Structure: PASSED - All {len(required_files)} files found")
+        logger.info(" File Structure: PASSED - All {len(required_files)} files found")
         return True
 
 
-def test_model_creation():
+            def test_model_creation():
     """Test model creation without dataset loading."""
     logger.info("🤖 Testing Model Creation...")
 
     try:
         sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
-        model, loss_fn = create_bert_emotion_classifier(
+        model, loss_fn = create_bert_emotion_classifier()
             model_name="bert-base-uncased", class_weights=None, freeze_bert_layers=4
-        )
+(        )
 
         param_count = sum(p.numel() for p in model.parameters())
         trainable_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
-        logger.info("   ✅ Model created: {param_count:,} total params")
-        logger.info("   ✅ Trainable: {trainable_count:,} params")
-        logger.info("✅ Model Creation: PASSED")
+        logger.info("    Model created: {param_count:,} total params")
+        logger.info("    Trainable: {trainable_count:,} params")
+        logger.info(" Model Creation: PASSED")
         return True
 
     except Exception as e:
@@ -143,9 +143,9 @@ def test_model_creation():
         return False
 
 
-def main():
+            def main():
     """Run minimal validations."""
-    logger.info("🎯 Minimal Validation for GCP Deployment")
+    logger.info(" Minimal Validation for GCP Deployment")
     logger.info("=" * 50)
 
     validations = [
@@ -157,30 +157,30 @@ def main():
 
     results = {}
 
-    for name, validation_func in validations:
-        logger.info("\n📋 Running {name}...")
+            for name, validation_func in validations:
+        logger.info("\n Running {name}...")
         try:
             results[name] = validation_func()
         except Exception as e:
             logger.error("❌ {name} failed with exception: {e}")
             results[name] = False
 
-    logger.info("\n📊 Validation Results:")
+    logger.info("\n Validation Results:")
     logger.info("=" * 30)
 
     passed = sum(results.values())
     total = len(results)
 
-    for name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
+            for name, result in results.items():
+        status = " PASS" if result else "❌ FAIL"
         logger.info("   • {name}: {status}")
 
-    logger.info("\n🎯 Overall: {passed}/{total} validations passed")
+    logger.info("\n Overall: {passed}/{total} validations passed")
 
-    if passed >= 3:
-        logger.info("✅ Ready for GCP deployment!")
+            if passed >= 3:
+        logger.info(" Ready for GCP deployment!")
         logger.info("🚀 Core components are working correctly.")
-logger.info("📋 Next: Follow docs/GCP_DEPLOYMENT_GUIDE.md")
+logger.info(" Next: Follow docs/GCP_DEPLOYMENT_GUIDE.md")
         return True
     else:
         logger.info("⚠️ Some validations failed.")
@@ -188,6 +188,6 @@ logger.info("📋 Next: Follow docs/GCP_DEPLOYMENT_GUIDE.md")
         return False
 
 
-if __name__ == "__main__":
+            if __name__ == "__main__":
     success = main()
     sys.exit(0 if success else 1)

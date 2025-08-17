@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""
+""""
 Training Pipeline for BERT Emotion Detection.
 
 This module provides a comprehensive training pipeline for the BERT-based
 emotion detection model with advanced features like focal loss, temperature
 scaling, and ensemble methods.
-"""
+""""
 
 import json
 import logging
@@ -18,19 +18,19 @@ import torch
 import torch.nn.functional as F
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
-from transformers import (
+from transformers import ()
     AutoTokenizer,
     get_linear_schedule_with_warmup,
-)
+()
 
-from .bert_classifier import (
+from .bert_classifier import ()
     create_bert_emotion_classifier,
     evaluate_emotion_classifier,
-)
-from .dataset_loader import (
+()
+from .dataset_loader import ()
     create_goemotions_loader,
     GoEmotionsDataset,
-)
+()
 
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 class EmotionDetectionTrainer:
     """Complete training pipeline for BERT emotion detection model."""
 
-    def __init__(
+    def __init__()
         self,
         model_name: str = "bert-base-uncased",
         cache_dir: str = "./data/cache",
@@ -58,8 +58,8 @@ class EmotionDetectionTrainer:
         early_stopping_patience: int = 3,
         evaluation_strategy: str = "epoch",
         device: Optional[str] = None,
-    ) -> None:
-        """Initialize emotion detection trainer.
+(    ) -> None:
+        """Initialize emotion detection trainer."
 
         Args:
             model_name: Hugging Face model name
@@ -77,7 +77,7 @@ class EmotionDetectionTrainer:
             early_stopping_patience: Patience for early stopping
             evaluation_strategy: When to evaluate ('epoch' or 'steps')
             device: Device for training ('cuda', 'cpu', or None for auto)
-        """
+        """"
         self.model_name = model_name
         self.cache_dir = cache_dir
         self.output_dir = Path(output_dir)
@@ -115,20 +115,20 @@ class EmotionDetectionTrainer:
 
         logger.info("Initialized EmotionDetectionTrainer")
 
-    def prepare_data(self, dev_mode: bool = False) -> Dict[str, Any]:
-        """Prepare GoEmotions dataset for training.
+        def prepare_data(self, dev_mode: bool = False) -> Dict[str, Any]:
+        """Prepare GoEmotions dataset for training."
 
         Args:
             dev_mode: If True, use smaller dataset for faster development
 
         Returns:
             Dictionary with prepared datasets and metadata
-        """
+        """"
         logger.info("Preparing GoEmotions dataset...")
 
-        self.data_loader = create_goemotions_loader(
+        self.data_loader = create_goemotions_loader()
             cache_dir=self.cache_dir, model_name=self.model_name
-        )
+(        )
 
         datasets = self.data_loader.prepare_datasets()
 
@@ -158,57 +158,57 @@ class EmotionDetectionTrainer:
 
             original_batch_size = self.batch_size
             self.batch_size = min(128, self.batch_size * 8)  # Much larger batch size
-            logger.info(
+            logger.info()
                 "🔧 DEVELOPMENT MODE: Using {len(train_texts)} training examples, batch_size={self.batch_size} (was {original_batch_size})"
-            )
+(            )
 
-        self.train_dataset = GoEmotionsDataset(
+        self.train_dataset = GoEmotionsDataset()
             train_texts, train_labels, self.tokenizer, self.max_length
-        )
+(        )
         self.val_dataset = GoEmotionsDataset(val_texts, val_labels, self.tokenizer, self.max_length)
         self.test_dataset = GoEmotionsDataset(test_texts, test_labels, self.tokenizer, self.max_length)
 
-        self.train_dataloader = DataLoader(
+        self.train_dataloader = DataLoader()
             self.train_dataset,
             batch_size=self.batch_size,
             shuffle=True,
             num_workers=0,  # Avoid tokenizers parallelism warning
-        )
-        self.val_dataloader = DataLoader(
+(        )
+        self.val_dataloader = DataLoader()
             self.val_dataset,
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=0,  # Avoid tokenizers parallelism warning
-        )
-        self.test_dataloader = DataLoader(
+(        )
+        self.test_dataloader = DataLoader()
             self.test_dataset,
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=0,  # Avoid tokenizers parallelism warning
-        )
+(        )
 
-        logger.info(
+        logger.info()
             "Prepared datasets - Train: {len(self.train_dataset)}, "
             "Val: {len(self.val_dataset)}, Test: {len(self.test_dataset)}"
-        )
+(        )
 
         return datasets
 
-    def initialize_model(self, class_weights: Optional[np.ndarray] = None) -> None:
-        """Initialize BERT emotion detection model and training components.
+        def initialize_model(self, class_weights: Optional[np.ndarray] = None) -> None:
+        """Initialize BERT emotion detection model and training components."
 
         Args:
             class_weights: Class weights for imbalanced data handling
-        """
+        """"
         logger.info("Initializing BERT emotion detection model...")
 
-        self.model, self.loss_fn = create_bert_emotion_classifier(
+        self.model, self.loss_fn = create_bert_emotion_classifier()
             model_name=self.model_name,
             class_weights=class_weights,
             freeze_bert_layers=self.freeze_initial_layers,
-        )
+(        )
 
-        logger.info("🔍 DEBUG: Loss Function Analysis")
+        logger.info(" DEBUG: Loss Function Analysis")
         logger.info("   Loss function type: {type(self.loss_fn).__name__}")
 
         if hasattr(self.loss_fn, "class_weights") and self.loss_fn.class_weights is not None:
@@ -227,36 +227,36 @@ class EmotionDetectionTrainer:
 
         self.model.to(self.device)
 
-        self.optimizer = AdamW(
+        self.optimizer = AdamW()
             self.model.parameters(),
             lr=self.learning_rate,
             weight_decay=self.weight_decay,
-        )
+(        )
 
         total_steps = len(self.train_dataloader) * self.num_epochs
 
-        self.scheduler = get_linear_schedule_with_warmup(
+        self.scheduler = get_linear_schedule_with_warmup()
             self.optimizer,
             num_warmup_steps=self.warmup_steps,
             num_training_steps=total_steps,
-        )
+(        )
 
-        logger.info(
+        logger.info()
             "Model initialized with {self.model.count_parameters():,} trainable parameters"
-        )
+(        )
         logger.info("Total training steps: {total_steps}")
 
-    def load_model(self, checkpoint_path: str) -> None:
-        """Load a trained model from checkpoint.
+            def load_model(self, checkpoint_path: str) -> None:
+        """Load a trained model from checkpoint."
 
         Args:
             checkpoint_path: Path to the model checkpoint file
-        """
+        """"
         logger.info("Loading model from checkpoint: {checkpoint_path}")
 
         checkpoint = torch.load(checkpoint_path, map_location=self.device)
 
-        if not hasattr(self, "model"):
+            if not hasattr(self, "model"):
             datasets = self.prepare_data()
             class_weights = datasets.get("class_weights")
             self.initialize_model(class_weights)
@@ -264,40 +264,40 @@ class EmotionDetectionTrainer:
         self.model.load_state_dict(checkpoint["model_state_dict"])
         self.model.eval()
 
-        logger.info("✅ Model loaded successfully")
+        logger.info(" Model loaded successfully")
 
-    def train_epoch(self, epoch: int) -> Dict[str, float]:
-        """Train model for one epoch.
+            def train_epoch(self, epoch: int) -> Dict[str, float]:
+        """Train model for one epoch."
 
         Args:
             epoch: Current epoch number
 
         Returns:
             Dictionary with training metrics
-        """
+        """"
         self.model.train()
 
         total_loss = 0.0
         num_batches = len(self.train_dataloader)
         start_time = time.time()
 
-        if epoch in self.unfreeze_schedule:
+            if epoch in self.unfreeze_schedule:
             layers_to_unfreeze = 2  # Unfreeze 2 layers at a time
             self.model.unfreeze_bert_layers(layers_to_unfreeze)
-            logger.info(
+            logger.info()
                 "Epoch {epoch}: Applied progressive unfreezing", extra={"format_args": True}
-            )
+(            )
 
         val_frequency = max(500, num_batches // 5)
         logger.info("🔧 Validation frequency: every {val_frequency} batches")
 
-        for batch_idx, batch in enumerate(self.train_dataloader):
+            for batch_idx, batch in enumerate(self.train_dataloader):
             input_ids = batch["input_ids"].to(self.device)
             attention_mask = batch["attention_mask"].to(self.device)
             labels = batch["labels"].to(self.device)
 
             if batch_idx == 0:
-                logger.info("🔍 DEBUG: Data Distribution Analysis")
+                logger.info(" DEBUG: Data Distribution Analysis")
                 logger.info("   Labels shape: {labels.shape}")
                 logger.info("   Labels dtype: {labels.dtype}")
                 logger.info("   Labels min: {labels.min().item()}")
@@ -321,17 +321,17 @@ class EmotionDetectionTrainer:
 
             logits = self.model(input_ids, attention_mask)
 
-            if batch_idx == 0:
-                logger.info("🔍 DEBUG: Model Output Analysis")
+                    if batch_idx == 0:
+                logger.info(" DEBUG: Model Output Analysis")
                 logger.info("   Logits shape: {logits.shape}")
                 logger.info("   Logits min: {logits.min().item():.6f}")
                 logger.info("   Logits max: {logits.max().item():.6f}")
                 logger.info("   Logits mean: {logits.mean().item():.6f}")
                 logger.info("   Logits std: {logits.std().item():.6f}")
 
-                if torch.isnan(logits).any():
+                    if torch.isnan(logits).any():
                     logger.error("❌ CRITICAL: NaN values in logits!")
-                if torch.isinf(logits).any():
+                    if torch.isinf(logits).any():
                     logger.error("❌ CRITICAL: Inf values in logits!")
 
                 predictions = torch.sigmoid(logits)
@@ -341,40 +341,40 @@ class EmotionDetectionTrainer:
 
             loss = self.loss_fn(logits, labels)
 
-            if batch_idx == 0:
-                logger.info("🔍 DEBUG: Loss Analysis")
+                    if batch_idx == 0:
+                logger.info(" DEBUG: Loss Analysis")
                 logger.info("   Raw loss: {loss.item():.8f}")
 
-                bce_manual = F.binary_cross_entropy_with_logits(
+                bce_manual = F.binary_cross_entropy_with_logits()
                     logits, labels.float(), reduction="mean"
-                )
+(                )
                 logger.info("   Manual BCE loss: {bce_manual.item():.8f}")
 
-                if abs(loss.item()) < 1e-10:
+                    if abs(loss.item()) < 1e-10:
                     logger.error("❌ CRITICAL: Loss is effectively zero!")
                     logger.error("   This indicates a serious training issue!")
 
-                for i in range(min(5, logits.shape[1])):
+                    for i in range(min(5, logits.shape[1])):
                     class_logits = logits[:, i]
                     class_labels = labels[:, i].float()
-                    class_loss = F.binary_cross_entropy_with_logits(
+                    class_loss = F.binary_cross_entropy_with_logits()
                         class_logits, class_labels, reduction="mean"
-                    )
+(                    )
                     logger.info("   Class {i} loss: {class_loss.item():.8f}")
 
             loss.backward()
 
-            if batch_idx == 0:
-                logger.info("🔍 DEBUG: Gradient Analysis")
+                    if batch_idx == 0:
+                logger.info(" DEBUG: Gradient Analysis")
                 total_norm = 0
                 param_count = 0
-                for p in self.model.parameters():
+                    for p in self.model.parameters():
                     if p.grad is not None:
                         param_norm = p.grad.data.norm(2)
                         total_norm += param_norm.item() ** 2
                         param_count += 1
 
-                if param_count > 0:
+                    if param_count > 0:
                     total_norm = total_norm ** (1.0 / 2)
                     logger.info("   Gradient norm before clipping: {total_norm:.6f}")
 
@@ -385,7 +385,7 @@ class EmotionDetectionTrainer:
 
             clip_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
 
-            if batch_idx == 0:
+                    if batch_idx == 0:
                 logger.info("   Gradient norm after clipping: {clip_norm:.6f}")
 
             self.optimizer.step()
@@ -393,25 +393,25 @@ class EmotionDetectionTrainer:
 
             total_loss += loss.item()
 
-            if batch_idx < 5 or (batch_idx + 1) % 100 == 0:  # First 5 batches + every 100
+                    if batch_idx < 5 or (batch_idx + 1) % 100 == 0:  # First 5 batches + every 100
                 avg_loss = total_loss / (batch_idx + 1)
                 current_lr = self.scheduler.get_last_lr()[0]
 
-                logger.info(
+                logger.info()
                     "Epoch {epoch}, Batch {batch_idx + 1}/{num_batches}, "
                     "Loss: {avg_loss:.8f}, LR: {current_lr:.2e}"
-                )
+(                )
 
-                if avg_loss < 1e-8:
+                    if avg_loss < 1e-8:
                     logger.error("❌ CRITICAL: Average loss is suspiciously small: {avg_loss:.8f}")
-                if avg_loss > 100:
+                    if avg_loss > 100:
                     logger.error("❌ CRITICAL: Average loss is suspiciously large: {avg_loss:.8f}")
 
-            if (batch_idx + 1) % val_frequency == 0:
-                logger.info("🔍 Validating at batch {batch_idx + 1}...")
+                    if (batch_idx + 1) % val_frequency == 0:
+                logger.info(" Validating at batch {batch_idx + 1}...")
                 self.validate(epoch)
 
-                if self.should_stop_early():
+                    if self.should_stop_early():
                     logger.info("🛑 Early stopping triggered at batch {batch_idx + 1}")
                     return {
                         "epoch": epoch,
@@ -435,51 +435,51 @@ class EmotionDetectionTrainer:
 
         return metrics
 
-    def validate(self, epoch: int) -> Dict[str, float]:
-        """Validate model performance.
+                    def validate(self, epoch: int) -> Dict[str, float]:
+        """Validate model performance."
 
         Args:
             epoch: Current epoch number
 
         Returns:
             Dictionary with validation metrics
-        """
+        """"
         logger.info("Validating model at epoch {epoch}...")
 
-        val_metrics = evaluate_emotion_classifier(
+        val_metrics = evaluate_emotion_classifier()
             self.model, self.val_dataloader, self.device, threshold=0.2
-        )
+(        )
 
         val_metrics["epoch"] = epoch
 
         current_score = val_metrics["macro_f1"]
-        if current_score > self.best_score:
+                    if current_score > self.best_score:
             self.best_score = current_score
             self.patience_counter = 0
 
-            if self.save_best_only:
+                    if self.save_best_only:
                 self.save_checkpoint(epoch, val_metrics, is_best=True)
                 logger.info("New best model saved! Macro F1: {current_score:.4f}")
         else:
             self.patience_counter += 1
-            logger.info(
+            logger.info()
                 "No improvement. Patience: {self.patience_counter}/{self.early_stopping_patience}"
-            )
+(            )
 
         return val_metrics
 
-    def should_stop_early(self) -> bool:
+                    def should_stop_early(self) -> bool:
         """Check if training should stop early."""
         return self.patience_counter >= self.early_stopping_patience
 
-    def save_checkpoint(self, epoch: int, metrics: Dict[str, float], is_best: bool = False) -> None:
-        """Save model checkpoint.
+                    def save_checkpoint(self, epoch: int, metrics: Dict[str, float], is_best: bool = False) -> None:
+        """Save model checkpoint."
 
         Args:
             epoch: Current epoch
             metrics: Validation metrics
             is_best: Whether this is the best model so far
-        """
+        """"
         checkpoint = {
             "epoch": epoch,
             "model_state_dict": self.model.state_dict(),
@@ -495,7 +495,7 @@ class EmotionDetectionTrainer:
             },
         }
 
-        if is_best:
+                    if is_best:
             checkpoint_path = self.output_dir / "best_model.pt"
         else:
             checkpoint_path = self.output_dir / "checkpoint_epoch_{epoch}.pt"
@@ -503,12 +503,12 @@ class EmotionDetectionTrainer:
         torch.save(checkpoint, checkpoint_path)
         logger.info("Checkpoint saved: {checkpoint_path}")
 
-    def train(self) -> Dict[str, Any]:
-        """Complete training pipeline.
+                    def train(self) -> Dict[str, Any]:
+        """Complete training pipeline."
 
         Returns:
             Dictionary with training results and final metrics
-        """
+        """"
         logger.info("Starting emotion detection training...")
 
         datasets = self.prepare_data()
@@ -516,30 +516,30 @@ class EmotionDetectionTrainer:
         class_weights = datasets.get("class_weights")
         self.initialize_model(class_weights)
 
-        for epoch in range(1, self.num_epochs + 1):
+                    for epoch in range(1, self.num_epochs + 1):
             train_metrics = self.train_epoch(epoch)
 
-            if self.evaluation_strategy == "epoch":
+                    if self.evaluation_strategy == "epoch":
                 val_metrics = self.validate(epoch)
 
                 epoch_metrics = {**train_metrics, **val_metrics}
                 self.training_history.append(epoch_metrics)
 
-                if self.should_stop_early():
+                    if self.should_stop_early():
                     logger.info(f"Early stopping at epoch {epoch}")
                     break
             else:
                 self.training_history.append(train_metrics)
 
         logger.info("Running final evaluation on test set...")
-        test_metrics = evaluate_emotion_classifier(
+        test_metrics = evaluate_emotion_classifier()
             self.model, self.test_dataloader, self.device, threshold=0.2
-        )
+(        )
 
         history_path = self.output_dir / "training_history.json"
 
-        def convert_numpy_types(obj):
-            if isinstance(obj, dict):
+                    def convert_numpy_types(obj):
+                    if isinstance(obj, dict):
                 return {k: convert_numpy_types(v) for k, v in obj.items()}
             elif isinstance(obj, list):
                 return [convert_numpy_types(item) for item in obj]
@@ -560,9 +560,9 @@ class EmotionDetectionTrainer:
         except Exception:
             logger.exception("Failed to save training history")
             simplified_history = []
-            for entry in self.training_history:
+                    for entry in self.training_history:
                 simplified_entry = {}
-                for k, v in entry.items():
+                    for k, v in entry.items():
                     try:
                         if isinstance(v, (np.integer, np.floating)):
                             simplified_entry[k] = float(v.item())
@@ -586,15 +586,15 @@ class EmotionDetectionTrainer:
             "total_epochs": len(self.training_history),
         }
 
-        logger.info("✅ Training completed!")
+        logger.info(" Training completed!")
         logger.info(f"Best validation Macro F1: {self.best_score:.4f}")
-        logger.info("Final test Macro F1: {test_metrics["macro_f1']:.4f}")
-        logger.info("Final test Micro F1: {test_metrics["micro_f1']:.4f}")
+        logger.info("Final test Macro F1: {test_metrics["macro_f1']:.4f}")"
+        logger.info("Final test Micro F1: {test_metrics["micro_f1']:.4f}")"
 
         return results
 
 
-def train_emotion_detection_model(
+                        def train_emotion_detection_model()
     model_name: str = "bert-base-uncased",
     cache_dir: str = "./data/cache",
     output_dir: str = "./models/emotion_detection",
@@ -604,8 +604,8 @@ def train_emotion_detection_model(
     device: Optional[str] = None,
     dev_mode: bool = True,  # Enable development mode by default
     debug_mode: bool = True,  # Enable debugging by default
-    ) -> Dict[str, Any]:
-    """Convenient function to train emotion detection model with default settings.
+(    ) -> Dict[str, Any]:
+    """Convenient function to train emotion detection model with default settings."
 
     Args:
         model_name: Hugging Face model name
@@ -620,14 +620,14 @@ def train_emotion_detection_model(
 
     Returns:
         Dictionary containing training results and metrics
-    """
-    if dev_mode:
+    """"
+                        if dev_mode:
         logger.info("🚀 DEVELOPMENT MODE ENABLED: Fast training with reduced dataset")
         logger.info("🚀 Expected training time: 30-60 minutes instead of 9 hours")
     else:
         logger.info("🏭 PRODUCTION MODE: Full dataset training")
 
-    trainer = EmotionDetectionTrainer(
+    trainer = EmotionDetectionTrainer()
         model_name=model_name,
         cache_dir=cache_dir,
         output_dir=output_dir,
@@ -636,20 +636,20 @@ def train_emotion_detection_model(
         num_epochs=num_epochs,
         device=device,
         unfreeze_schedule=[2, 4],  # Progressive unfreezing at epochs 2 and 4
-    )
+(    )
 
     trainer.prepare_data(dev_mode=dev_mode)
 
     return trainer.train()
 
 
-def main():
+                        def main():
     """Main function to run emotion detection training."""
-    results = train_emotion_detection_model(
+    results = train_emotion_detection_model()
         batch_size=8, num_epochs=1, output_dir="./test_checkpoints"
-    )
+(    )
     return results
 
 
-if __name__ == "__main__":
+                        if __name__ == "__main__":
     main()

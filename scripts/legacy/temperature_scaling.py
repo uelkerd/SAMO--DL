@@ -31,12 +31,12 @@ from torch import nn
 
 
 
-"""
+""""
 Temperature Scaling for Model Calibration
 
 This script applies temperature scaling to improve model calibration
 and potentially boost F1 score by 5-10%.
-"""
+""""
 
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
@@ -57,7 +57,7 @@ class TemperatureScaling(nn.Module):
         return logits / self.temperature
 
 
-def calibrate_temperature(model, val_loader, device):
+    def calibrate_temperature(model, val_loader, device):
     """Calibrate temperature parameter on validation set."""
     logger.info("🔧 Calibrating temperature parameter...")
 
@@ -84,23 +84,23 @@ def calibrate_temperature(model, val_loader, device):
 
     optimizer = torch.optim.LBFGS([temperature_scaling.temperature], lr=0.01, max_iter=50)
 
-    def eval():
+        def eval():
         optimizer.zero_grad()
-        loss = nn.functional.binary_cross_entropy_with_logits(
+        loss = nn.functional.binary_cross_entropy_with_logits()
             temperature_scaling(all_logits), all_labels
-        )
+(        )
         loss.backward()
         return loss
 
     optimizer.step(eval)
 
     optimal_temperature = temperature_scaling.temperature.item()
-    logger.info("✅ Optimal temperature: {optimal_temperature:.3f}")
+    logger.info(" Optimal temperature: {optimal_temperature:.3f}")
 
     return temperature_scaling
 
 
-def apply_temperature_scaling():
+        def apply_temperature_scaling():
     """Apply temperature scaling to improve model calibration."""
 
     logger.info("🌡️ Starting Temperature Scaling")
@@ -130,16 +130,16 @@ def apply_temperature_scaling():
             return False
 
         logger.info("Loading model from {model_path}")
-        model, _ = create_bert_emotion_classifier(
+        model, _ = create_bert_emotion_classifier()
             model_name="bert-base-uncased",
             class_weights=None,
             freeze_bert_layers=4,
-        )
+(        )
         model.to(device)
 
         checkpoint = torch.load(model_path, map_location=device)
         model.load_state_dict(checkpoint["model_state_dict"])
-        logger.info("✅ Model loaded successfully")
+        logger.info(" Model loaded successfully")
 
         temperature_scaling = calibrate_temperature(model, val_loader, device)
 
@@ -147,7 +147,7 @@ def apply_temperature_scaling():
         os.makedirs(output_dir, exist_ok=True)
         calibrated_path = Path(output_dir, "temperature_scaled_model.pt")
 
-        torch.save(
+        torch.save()
             {
                 "model_state_dict": model.state_dict(),
                 "temperature_scaling_state_dict": temperature_scaling.state_dict(),
@@ -155,9 +155,9 @@ def apply_temperature_scaling():
                 "original_checkpoint": checkpoint,
             },
             calibrated_path,
-        )
+(        )
 
-        logger.info("✅ Calibrated model saved to: {calibrated_path}")
+        logger.info(" Calibrated model saved to: {calibrated_path}")
         logger.info("   • Temperature: {temperature_scaling.temperature.item():.3f}")
 
         return True
@@ -168,20 +168,20 @@ def apply_temperature_scaling():
         return False
 
 
-def main():
+        def main():
     """Main function."""
     logger.info("🌡️ Temperature Scaling Script")
     logger.info("This script calibrates the model for better F1 scores")
 
     success = apply_temperature_scaling()
 
-    if success:
-        logger.info("✅ Temperature scaling completed successfully!")
+        if success:
+        logger.info(" Temperature scaling completed successfully!")
         sys.exit(0)
     else:
         logger.error("❌ Temperature scaling failed. Check the logs above.")
         sys.exit(1)
 
 
-if __name__ == "__main__":
+        if __name__ == "__main__":
     main()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""
+""""
 Final Temperature Scaling Test - Guaranteed to Work!
-"""
+""""
 
 import logging
 import sys
@@ -35,13 +35,13 @@ def final_temperature_test():
 
     try:
         checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
-        logging.info(f"✅ Checkpoint loaded successfully! Type: {type(checkpoint)}")
+        logging.info(f" Checkpoint loaded successfully! Type: {type(checkpoint)}")
 
         if isinstance(checkpoint, dict):
-            logging.info(f"📋 Checkpoint keys: {list(checkpoint.keys())}")
-            logging.info("🎯 Best F1 score: {checkpoint.get("best_score', 'N/A')}")
+            logging.info(f" Checkpoint keys: {list(checkpoint.keys())}")
+            logging.info(" Best F1 score: {checkpoint.get("best_score', 'N/A')}")"
         elif isinstance(checkpoint, tuple):
-            logging.info(f"📋 Tuple length: {len(checkpoint)}")
+            logging.info(f" Tuple length: {len(checkpoint)}")
             for i, item in enumerate(checkpoint):
                 logging.info(f"  - Item {i}: {type(item)}")
 
@@ -57,10 +57,10 @@ def final_temperature_test():
             state_dict = checkpoint["model_state_dict"]
             if isinstance(state_dict, tuple):
                 actual_state_dict = state_dict[0]
-                logging.info("✅ Found tuple model_state_dict, using first element")
+                logging.info(" Found tuple model_state_dict, using first element")
             else:
                 actual_state_dict = state_dict
-                logging.info("✅ Found dictionary model_state_dict")
+                logging.info(" Found dictionary model_state_dict")
             model.load_state_dict(actual_state_dict)
         elif isinstance(checkpoint, tuple):
             model.load_state_dict(checkpoint[0])
@@ -69,7 +69,7 @@ def final_temperature_test():
 
         model.to(device)
         model.eval()
-        logging.info("✅ Model loaded successfully!")
+        logging.info(" Model loaded successfully!")
 
     except Exception as e:
         logging.info(f"❌ Failed to load model state: {e}")
@@ -85,12 +85,12 @@ def final_temperature_test():
     test_texts = [
         "I am so happy today!",
         "This makes me very sad.",
-        "I'm really angry about this.",
-        "I'm scared of what might happen.",
+        "I'm really angry about this.",'
+        "I'm scared of what might happen.",'
         "I feel great about everything!",
         "This is disappointing.",
-        "I'm furious with you!",
-        "I'm terrified of the dark."
+        "I'm furious with you!",'
+        "I'm terrified of the dark."'
     ]
 
     test_labels = [
@@ -116,7 +116,7 @@ def final_temperature_test():
 
     logging.info("🧪 Testing temperature scaling...")
 
-    for temp in temperatures:
+            for temp in temperatures:
         logging.info(f"\n🌡️ Temperature: {temp}")
 
         # Set temperature
@@ -155,7 +155,7 @@ def final_temperature_test():
 
         # Show some predictions
         logging.info("  Sample predictions:")
-        for i in range(min(3, len(test_texts))):
+            for i in range(min(3, len(test_texts))):
             pred_emotions = [emotion_labels[j] for j, pred in enumerate(all_predictions[i]) if pred > 0.5]
             true_emotions = [emotion_labels[j] for j, true in enumerate(all_labels[i]) if true > 0.5]
             logging.info(f"    Text: {test_texts[i]}")
@@ -163,9 +163,9 @@ def final_temperature_test():
             logging.info(f"    True: {true_emotions}")
             logging.info(f"    Raw probs: {probabilities[i].cpu().numpy()}")
 
-    logging.info("✅ Temperature scaling test completed!")
+    logging.info(" Temperature scaling test completed!")
 
 
-if __name__ == "__main__":
+            if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     final_temperature_test()

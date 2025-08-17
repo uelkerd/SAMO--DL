@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""
+""""
 Local Deployment Script
 =======================
 
 This script deploys the comprehensive emotion detection model locally
 for testing before cloud deployment.
-"""
+""""
 
 import json
 import os
@@ -16,7 +16,7 @@ def deploy_locally():
     """Deploy the model locally for testing."""
     print("🚀 LOCAL DEPLOYMENT")
     print("=" * 50)
-    print("⏰ Started at: {datetime.now().strftime("%Y-%m-%d %H:%M:%S')}")
+    print("⏰ Started at: {datetime.now().strftime("%Y-%m-%d %H:%M:%S')}")"
     print()
 
     # Check if model exists
@@ -25,7 +25,7 @@ def deploy_locally():
         print(f"❌ Model not found at: {model_path}")
         return False
 
-    print("✅ Model found")
+    print(" Model found")
 
     # Create local deployment directory
     local_deployment_dir = "local_deployment"
@@ -37,16 +37,16 @@ def deploy_locally():
     # Copy model files
     import shutil
     shutil.copytree(model_path, os.path.join(local_deployment_dir, "model"))
-    print("✅ Model files copied")
+    print(" Model files copied")
 
     # Create local API server
-    api_server_script = '''#!/usr/bin/env python3
-"""
+    api_server_script = '''#!/usr/bin/env python3'
+""""
 Local Emotion Detection API Server
 =================================
 
 A simple Flask API server for local testing of the emotion detection model.
-"""
+""""
 
 from flask import Flask, request, jsonify
 import torch
@@ -56,7 +56,7 @@ import os
 
 app = Flask(__name__)
 
-class EmotionDetectionModel:
+    class EmotionDetectionModel:
     def __init__(self):
         """Initialize the model."""
         self.model_path = os.path.join(os.getcwd(), "model")
@@ -68,14 +68,14 @@ class EmotionDetectionModel:
         # Move to GPU if available
         if torch.cuda.is_available():
             self.model = self.model.to('cuda')
-            print("✅ Model moved to GPU")
+            print(" Model moved to GPU")
         else:
             print("⚠️ CUDA not available, using CPU")
 
         self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
-        print("✅ Model loaded successfully")
+        print(" Model loaded successfully")
 
-    def predict(self, text):
+        def predict(self, text):
         """Make a prediction."""
         # Tokenize input
         inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
@@ -125,17 +125,17 @@ print("🔧 Loading emotion detection model...")
 model = EmotionDetectionModel()
 
 @app.route('/health', methods=['GET'])
-def health_check():
+        def health_check():
     """Health check endpoint."""
-    return jsonify({
+    return jsonify({)
         'status': 'healthy',
         'model_loaded': True,
         'model_version': '2.0',
         'emotions': model.emotions
-    })
+(    })
 
 @app.route('/predict', methods=['POST'])
-def predict():
+        def predict():
     """Prediction endpoint."""
     try:
         data = request.get_json()
@@ -156,7 +156,7 @@ def predict():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/predict_batch', methods=['POST'])
-def predict_batch():
+        def predict_batch():
     """Batch prediction endpoint."""
     try:
         data = request.get_json()
@@ -174,18 +174,18 @@ def predict_batch():
                 result = model.predict(text)
                 results.append(result)
 
-        return jsonify({
+        return jsonify({)
             'predictions': results,
             'count': len(results)
-        })
+(        })
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 @app.route('/', methods=['GET'])
-def home():
+            def home():
     """Home endpoint with API documentation."""
-    return jsonify({
+    return jsonify({)
         'message': 'Comprehensive Emotion Detection API',
         'version': '2.0',
         'endpoints': {
@@ -212,11 +212,11 @@ def home():
                 'body': '{"texts": ["I am happy", "I feel sad", "I am excited"]}'
             }
         }
-    })
+(    })
 
-if __name__ == '__main__':
+            if __name__ == '__main__':
     print("🌐 Starting local API server...")
-    print("📋 Available endpoints:")
+    print(" Available endpoints:")
     print("   GET  / - API documentation")
     print("   GET  /health - Health check")
     print("   POST /predict - Single prediction")
@@ -230,37 +230,37 @@ if __name__ == '__main__':
     print()
 
     app.run(host='0.0.0.0', port=5000, debug=False)
-'''
+''''
 
     with open(os.path.join(local_deployment_dir, "api_server.py"), 'w') as f:
         f.write(api_server_script)
-    print("✅ API server script created")
+    print(" API server script created")
 
     # Create requirements.txt
-    requirements = '''flask>=2.0.0
+    requirements = '''flask>=2.0.0'
 torch>=2.0.0
 transformers>=4.30.0
 numpy>=1.21.0
-'''
+''''
 
     with open(os.path.join(local_deployment_dir, "requirements.txt"), 'w') as f:
         f.write(requirements)
-    print("✅ Requirements file created")
+    print(" Requirements file created")
 
     # Create test script
-    test_script = '''#!/usr/bin/env python3
-"""
+    test_script = '''#!/usr/bin/env python3'
+""""
 Test script for local deployment
 ===============================
 
 This script tests the local API server with various examples.
-"""
+""""
 
 import requests
 import json
 import time
 
-def test_api():
+            def test_api():
     """Test the local API server."""
     base_url = "http://localhost:5000"
 
@@ -271,8 +271,8 @@ def test_api():
     print("1. Testing health check...")
     try:
         response = requests.get(f"{base_url}/health")
-        if response.status_code == 200:
-            print("✅ Health check passed")
+            if response.status_code == 200:
+            print(" Health check passed")
             print(f"   Response: {response.json()}")
         else:
             print(f"❌ Health check failed: {response.status_code}")
@@ -291,17 +291,17 @@ def test_api():
         "I am calm and relaxed"
     ]
 
-    for i, text in enumerate(test_cases, 1):
+            for i, text in enumerate(test_cases, 1):
         try:
-            response = requests.post(
+            response = requests.post()
                 f"{base_url}/predict",
                 json={"text": text},
                 headers={"Content-Type": "application/json"}
-            )
+(            )
 
             if response.status_code == 200:
                 result = response.json()
-                print(f"✅ Test {i}: '{text}' → {result['predicted_emotion']} (conf: {result['confidence']:.3f})")
+                print(f" Test {i}: '{text}' → {result['predicted_emotion']} (conf: {result['confidence']:.3f})")
             else:
                 print(f"❌ Test {i} failed: {response.status_code}")
 
@@ -311,15 +311,15 @@ def test_api():
     # Test batch prediction
     print("\\n3. Testing batch prediction...")
     try:
-        response = requests.post(
+        response = requests.post()
             f"{base_url}/predict_batch",
             json={"texts": test_cases},
             headers={"Content-Type": "application/json"}
-        )
+(        )
 
-        if response.status_code == 200:
+            if response.status_code == 200:
             result = response.json()
-            print("✅ Batch prediction successful: {result["count']} predictions")
+            print(" Batch prediction successful: {result["count']} predictions")"
             for i, pred in enumerate(result['predictions']):
                 print(f"   {i+1}. '{pred['text']}' → {pred['predicted_emotion']} (conf: {pred['confidence']:.3f})")
         else:
@@ -328,23 +328,23 @@ def test_api():
     except Exception as e:
         print(f"❌ Batch prediction error: {e}")
 
-    print("\\n🎉 API testing completed!")
+    print("\\n API testing completed!")
     return True
 
-if __name__ == "__main__":
+            if __name__ == "__main__":
     # Wait a bit for server to start
     print("⏳ Waiting for server to start...")
     time.sleep(3)
 
     test_api()
-'''
+''''
 
     with open(os.path.join(local_deployment_dir, "test_api.py"), 'w') as f:
         f.write(test_script)
-    print("✅ Test script created")
+    print(" Test script created")
 
     # Create start script
-    start_script = '''#!/bin/bash
+    start_script = '''#!/bin/bash'
 # Start local deployment
 
 echo "🚀 STARTING LOCAL DEPLOYMENT"
@@ -361,12 +361,12 @@ echo "Press Ctrl+C to stop the server"
 echo ""
 
 python api_server.py
-'''
+''''
 
     with open(os.path.join(local_deployment_dir, "start.sh"), 'w') as f:
         f.write(start_script)
     os.chmod(os.path.join(local_deployment_dir, "start.sh"), 0o755)
-    print("✅ Start script created")
+    print(" Start script created")
 
     # Create deployment summary
     deployment_summary = {
@@ -389,9 +389,9 @@ python api_server.py
 
     with open(os.path.join(local_deployment_dir, "deployment_info.json"), 'w') as f:
         json.dump(deployment_summary, f, indent=2)
-    print("✅ Deployment info created")
+    print(" Deployment info created")
 
-    print("\n✅ LOCAL DEPLOYMENT READY!")
+    print("\n LOCAL DEPLOYMENT READY!")
     print("=" * 50)
     print(f"📁 Deployment directory: {local_deployment_dir}")
     print()
@@ -403,7 +403,7 @@ python api_server.py
     print(f"   cd {local_deployment_dir}")
     print("   python test_api.py")
     print()
-    print("📋 API Endpoints:")
+    print(" API Endpoints:")
     print("   GET  http://localhost:5000/ - Documentation")
     print("   GET  http://localhost:5000/health - Health check")
     print("   POST http://localhost:5000/predict - Single prediction")
@@ -416,6 +416,6 @@ python api_server.py
 
     return True
 
-if __name__ == "__main__":
+            if __name__ == "__main__":
     success = deploy_locally()
     sys.exit(0 if success else 1)

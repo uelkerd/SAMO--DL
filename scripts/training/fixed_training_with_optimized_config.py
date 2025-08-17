@@ -22,7 +22,7 @@
         # Validation
     # Create focal loss
     # Create model with class weights
-    # Create simple data loaders (we'll implement proper batching later)
+    # Create simple data loaders (we'll implement proper batching later)'
     # Create zero tensor
     # Load data to get class weights
     # Load dataset
@@ -45,7 +45,7 @@ from typing import Dict, Any, Tuple
 
 
 
-"""
+""""
 Fixed Training Script with Optimized Configuration for SAMO Deep Learning.
 
 This script addresses the 0.0000 loss issue with:
@@ -53,7 +53,7 @@ This script addresses the 0.0000 loss issue with:
 2. Class weights for imbalanced data
 3. Focal loss for multi-label classification
 4. Proper validation and monitoring
-"""
+""""
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
@@ -71,7 +71,7 @@ class FocalLoss(nn.Module):
         self.reduction = reduction
 
     def forward(self, inputs: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
-        """Compute focal loss.
+        """Compute focal loss."
 
         Args:
             inputs: Logits from model (batch_size, num_classes)
@@ -79,12 +79,12 @@ class FocalLoss(nn.Module):
 
         Returns:
             Focal loss value
-        """
+        """"
         probs = torch.sigmoid(inputs)
 
-        bce_loss = nn.functional.binary_cross_entropy_with_logits(
+        bce_loss = nn.functional.binary_cross_entropy_with_logits()
             inputs, targets, reduction="none"
-        )
+(        )
 
         pt = probs * targets + (1 - probs) * (1 - targets)
         focal_weight = (1 - pt) ** self.gamma
@@ -101,7 +101,7 @@ class FocalLoss(nn.Module):
             return focal_loss
 
 
-def create_optimized_model() -> Tuple[nn.Module, nn.Module]:
+        def create_optimized_model() -> Tuple[nn.Module, nn.Module]:
     """Create model with optimized configuration."""
     logger.info("🔧 Creating optimized model...")
 
@@ -112,21 +112,21 @@ def create_optimized_model() -> Tuple[nn.Module, nn.Module]:
 
     logger.info("   Class weights range: {class_weights.min():.4f} - {class_weights.max():.4f}")
 
-    model, _ = create_bert_emotion_classifier(
+    model, _ = create_bert_emotion_classifier()
         model_name="bert-base-uncased",
         class_weights=class_weights,
         freeze_bert_layers=6,  # Progressive unfreezing
-    )
+(    )
 
     loss_fn = FocalLoss(alpha=0.25, gamma=2.0)  # Optimized for multi-label
 
-    logger.info("✅ Model created: {model.count_parameters():,} parameters")
-    logger.info("✅ Using Focal Loss (alpha=0.25, gamma=2.0)")
+    logger.info(" Model created: {model.count_parameters():,} parameters")
+    logger.info(" Using Focal Loss (alpha=0.25, gamma=2.0)")
 
     return model, loss_fn
 
 
-def create_optimized_optimizer(model: nn.Module) -> torch.optim.Optimizer:
+        def create_optimized_optimizer(model: nn.Module) -> torch.optim.Optimizer:
     """Create optimizer with reduced learning rate."""
     logger.info("🔧 Creating optimized optimizer...")
 
@@ -152,21 +152,21 @@ def create_optimized_optimizer(model: nn.Module) -> torch.optim.Optimizer:
         },
     ]
 
-    optimizer = torch.optim.AdamW(
+    optimizer = torch.optim.AdamW()
         optimizer_grouped_parameters,
         lr=2e-6,  # Base learning rate (reduced from 2e-5)
         betas=(0.9, 0.999),
         eps=1e-8,
-    )
+(    )
 
-    logger.info("✅ Optimizer created with reduced learning rates")
+    logger.info(" Optimizer created with reduced learning rates")
     logger.info("   BERT layers: 1e-6")
     logger.info("   Classifier: 2e-6")
 
     return optimizer
 
 
-def create_data_loaders(batch_size: int = 16) -> Dict[str, Any]:
+                    def create_data_loaders(batch_size: int = 16) -> Dict[str, Any]:
     """Create data loaders with proper batching."""
     logger.info("🔧 Creating data loaders...")
 
@@ -177,9 +177,9 @@ def create_data_loaders(batch_size: int = 16) -> Dict[str, Any]:
     val_data = datasets["validation"]
     test_data = datasets["test"]
 
-    logger.info("✅ Train: {len(train_data)} examples")
-    logger.info("✅ Validation: {len(val_data)} examples")
-    logger.info("✅ Test: {len(test_data)} examples")
+    logger.info(" Train: {len(train_data)} examples")
+    logger.info(" Validation: {len(val_data)} examples")
+    logger.info(" Test: {len(test_data)} examples")
 
     return {
         "train": train_data,
@@ -189,39 +189,39 @@ def create_data_loaders(batch_size: int = 16) -> Dict[str, Any]:
     }
 
 
-def convert_labels_to_tensor(label_list: list, num_classes: int = 28) -> torch.Tensor:
+                    def convert_labels_to_tensor(label_list: list, num_classes: int = 28) -> torch.Tensor:
     """Convert list of label indices to binary tensor."""
     label_tensor = torch.zeros(num_classes, dtype=torch.float32)
 
-    for label_idx in label_list:
-        if 0 <= label_idx < num_classes:
+                    for label_idx in label_list:
+                    if 0 <= label_idx < num_classes:
             label_tensor[label_idx] = 1.0
 
     return label_tensor
 
 
-def validate_model(model: nn.Module, loss_fn: nn.Module, val_data: Any, num_samples: int = 100) -> Dict[str, float]:
+                    def validate_model(model: nn.Module, loss_fn: nn.Module, val_data: Any, num_samples: int = 100) -> Dict[str, float]:
     """Validate model and check for 0.0000 loss."""
-    logger.info("🔍 Validating model...")
+    logger.info(" Validating model...")
 
     model.eval()
     total_loss = 0.0
     num_batches = 0
 
     with torch.no_grad():
-        for i in range(0, min(num_samples, len(val_data)), 16):
+                    for i in range(0, min(num_samples, len(val_data)), 16):
             batch_data = val_data[i:i+16]
 
             batch_size = len(batch_data)
-            if batch_size == 0:
+                    if batch_size == 0:
                 continue
 
             input_ids = torch.randint(0, 1000, (batch_size, 64))
             attention_mask = torch.ones(batch_size, 64)
 
             labels = torch.zeros(batch_size, 28)
-            for _j, example in enumerate(batch_data):
-                if j < batch_size:
+                    for _j, example in enumerate(batch_data):
+                    if j < batch_size:
                     example_labels = example["labels"]  # This is a list like [0, 5, 12]
                     label_tensor = convert_labels_to_tensor(example_labels)
                     labels[j] = label_tensor
@@ -234,46 +234,46 @@ def validate_model(model: nn.Module, loss_fn: nn.Module, val_data: Any, num_samp
 
     avg_loss = total_loss / num_batches if num_batches > 0 else float('in')
 
-    logger.info("✅ Validation loss: {avg_loss:.8f}")
+    logger.info(" Validation loss: {avg_loss:.8f}")
 
-    if avg_loss <= 0:
+                    if avg_loss <= 0:
         logger.error("❌ CRITICAL: Validation loss is zero or negative!")
         return {"loss": avg_loss, "status": "failed"}
     elif avg_loss < 0.1:
         logger.warning("⚠️  Very low validation loss - check for overfitting")
         return {"loss": avg_loss, "status": "warning"}
     else:
-        logger.info("✅ Validation loss is reasonable")
+        logger.info(" Validation loss is reasonable")
         return {"loss": avg_loss, "status": "success"}
 
 
-def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Optimizer,
-                train_data: Any, val_data: Any, num_epochs: int = 3) -> Dict[str, Any]:
+                    def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Optimizer,)
+(                train_data: Any, val_data: Any, num_epochs: int = 3) -> Dict[str, Any]:
     """Train model with monitoring for 0.0000 loss."""
     logger.info("🚀 Starting training with optimized configuration...")
 
     model.train()
     training_history = []
 
-    for epoch in range(num_epochs):
-        logger.info("\n📊 Epoch {epoch + 1}/{num_epochs}")
+                    for epoch in range(num_epochs):
+        logger.info("\n Epoch {epoch + 1}/{num_epochs}")
 
         epoch_loss = 0.0
         num_batches = 0
 
-        for i in range(0, min(1000, len(train_data)), 16):  # Limit to 1000 examples for testing
+                    for i in range(0, min(1000, len(train_data)), 16):  # Limit to 1000 examples for testing
             batch_data = train_data[i:i+16]
             batch_size = len(batch_data)
 
-            if batch_size == 0:
+                    if batch_size == 0:
                 continue
 
             input_ids = torch.randint(0, 1000, (batch_size, 64))
             attention_mask = torch.ones(batch_size, 64)
 
             labels = torch.zeros(batch_size, 28)
-            for _j, example in enumerate(batch_data):
-                if j < batch_size:
+                    for _j, example in enumerate(batch_data):
+                    if j < batch_size:
                     example_labels = example["labels"]  # This is a list like [0, 5, 12]
                     label_tensor = convert_labels_to_tensor(example_labels)
                     labels[j] = label_tensor
@@ -282,7 +282,7 @@ def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Opt
             logits = model(input_ids, attention_mask)
             loss = loss_fn(logits, labels)
 
-            if loss.item() <= 0:
+                    if loss.item() <= 0:
                 logger.error("❌ CRITICAL: Training loss is zero at batch {num_batches}!")
                 logger.error("   Logits: {logits.mean().item():.6f}")
                 logger.error("   Labels: {labels.mean().item():.6f}")
@@ -294,22 +294,22 @@ def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Opt
             epoch_loss += loss.item()
             num_batches += 1
 
-            if num_batches % 50 == 0:
+                    if num_batches % 50 == 0:
                 avg_loss = epoch_loss / num_batches
                 logger.info("   Batch {num_batches}: Loss = {avg_loss:.6f}")
 
         avg_epoch_loss = epoch_loss / num_batches if num_batches > 0 else float('in')
         training_history.append(avg_epoch_loss)
 
-        logger.info("✅ Epoch {epoch + 1} complete: Loss = {avg_epoch_loss:.6f}")
+        logger.info(" Epoch {epoch + 1} complete: Loss = {avg_epoch_loss:.6f}")
 
         val_results = validate_model(model, loss_fn, val_data, num_samples=100)
 
-        if val_results["status"] == "failed":
+                    if val_results["status"] == "failed":
             logger.error("❌ Validation failed - stopping training")
             return {"status": "failed", "reason": "validation_failed", "epoch": epoch}
 
-    logger.info("✅ Training completed successfully!")
+    logger.info(" Training completed successfully!")
     return {
         "status": "success",
         "training_history": training_history,
@@ -317,7 +317,7 @@ def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Opt
     }
 
 
-def main():
+                    def main():
     """Main function to run optimized training."""
     logger.info("🚀 SAMO-DL Fixed Training with Optimized Configuration")
     logger.info("=" * 60)
@@ -333,22 +333,22 @@ def main():
         optimizer = create_optimized_optimizer(model)
         data_loaders = create_data_loaders(batch_size=16)
 
-        logger.info("\n🔍 Pre-training validation...")
+        logger.info("\n Pre-training validation...")
         val_results = validate_model(model, loss_fn, data_loaders["validation"])
 
-        if val_results["status"] == "failed":
+                    if val_results["status"] == "failed":
             logger.error("❌ Pre-training validation failed")
             return False
 
         logger.info("\n🚀 Starting training...")
-        training_results = train_model(
+        training_results = train_model()
             model, loss_fn, optimizer,
             data_loaders["train"], data_loaders["validation"],
             num_epochs=3
-        )
+(        )
 
-        if training_results["status"] == "success":
-            logger.info("🎉 SUCCESS: Training completed without 0.0000 loss!")
+                    if training_results["status"] == "success":
+            logger.info(" SUCCESS: Training completed without 0.0000 loss!")
             logger.info("   Final loss: {training_results['final_loss']:.6f}")
             logger.info("   Ready for production deployment!")
             return True
@@ -361,7 +361,7 @@ def main():
         return False
 
 
-if __name__ == "__main__":
+                    if __name__ == "__main__":
     success = main()
-    if not success:
+                    if not success:
         sys.exit(1)

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""
+""""
 Integration Tests for PR #4: Documentation & Security Enhancements
 
 This script validates that the security configurations and documentation
 implemented in PR #4 are properly integrated and functional.
-"""
+""""
 
 import shutil
 import subprocess
@@ -25,7 +25,7 @@ class PR4IntegrationTester:
 
     def run_all_tests(self) -> Dict[str, Any]:
         """Run all integration tests for PR #4."""
-        print("🔍 Running PR #4 Integration Tests...")
+        print(" Running PR #4 Integration Tests...")
 
         tests = [
             self.test_security_configuration,
@@ -39,7 +39,7 @@ class PR4IntegrationTester:
             try:
                 result = test()
                 self.test_results.append(result)
-                status = "✅ PASS" if result["passed"] else "❌ FAIL"
+                status = " PASS" if result["passed"] else "❌ FAIL"
                 print(f"{status} {result['name']}: {result['message']}")
             except Exception as e:
                 error_result = {
@@ -53,7 +53,7 @@ class PR4IntegrationTester:
 
         return self.generate_summary()
 
-    def test_security_configuration(self) -> Dict[str, Any]:
+        def test_security_configuration(self) -> Dict[str, Any]:
         """Test that security configuration is valid and complete."""
         if not self.security_config_path.exists():
             return {
@@ -104,9 +104,9 @@ class PR4IntegrationTester:
                 "details": str(e)
             }
 
-    def test_openapi_specification(self) -> Dict[str, Any]:
+            def test_openapi_specification(self) -> Dict[str, Any]:
         """Test that OpenAPI specification is valid and complete."""
-        if not self.openapi_spec_path.exists():
+            if not self.openapi_spec_path.exists():
             return {
                 "name": "OpenAPI Specification",
                 "passed": False,
@@ -124,7 +124,7 @@ class PR4IntegrationTester:
                     "name": "OpenAPI Specification",
                     "passed": False,
                     "message": "OpenAPI version should be 3.1.0",
-                    "details": "Found version: {spec.get("openapi')}"
+                    "details": "Found version: {spec.get("openapi')}""
                 }
 
             # Check required sections
@@ -152,7 +152,7 @@ class PR4IntegrationTester:
                 "name": "OpenAPI Specification",
                 "passed": True,
                 "message": "OpenAPI specification is valid and complete",
-                "details": "Version {spec.get("openapi')} with all required sections"
+                "details": "Version {spec.get("openapi')} with all required sections""
             }
 
         except yaml.YAMLError as e:
@@ -163,9 +163,9 @@ class PR4IntegrationTester:
                 "details": str(e)
             }
 
-    def test_dependencies_security(self) -> Dict[str, Any]:
+            def test_dependencies_security(self) -> Dict[str, Any]:
         """Test that dependencies are secure and up-to-date."""
-        if not self.requirements_path.exists():
+            if not self.requirements_path.exists():
             return {
                 "name": "Dependencies Security",
                 "passed": False,
@@ -206,7 +206,7 @@ class PR4IntegrationTester:
                 critical_packages = ['cryptography', 'certifi', 'urllib3']
             missing_critical = [pkg for pkg in critical_packages if pkg not in requirements]
 
-            if missing_critical:
+                if missing_critical:
                 return {
                     "name": "Dependencies Security",
                     "passed": False,
@@ -229,7 +229,7 @@ class PR4IntegrationTester:
                 "details": str(e)
             }
 
-    def test_documentation_completeness(self) -> Dict[str, Any]:
+                def test_documentation_completeness(self) -> Dict[str, Any]:
         """Test that documentation is complete and accessible."""
         required_docs = [
             "docs/deployment/PRODUCTION_DEPLOYMENT_GUIDE.md",
@@ -238,11 +238,11 @@ class PR4IntegrationTester:
         ]
 
         missing_docs = []
-        for doc_path in required_docs:
-            if not (self.project_root / doc_path).exists():
+                for doc_path in required_docs:
+                if not (self.project_root / doc_path).exists():
                 missing_docs.append(doc_path)
 
-        if missing_docs:
+                if missing_docs:
             return {
                 "name": "Documentation Completeness",
                 "passed": False,
@@ -257,21 +257,21 @@ class PR4IntegrationTester:
             "details": f"Found {len(required_docs)} required documentation files"
         }
 
-    def test_security_scanning_tools(self) -> Dict[str, Any]:
+                def test_security_scanning_tools(self) -> Dict[str, Any]:
         """Test that security scanning tools are available and functional."""
         try:
             # Test bandit availability
             bandit_path = shutil.which('bandit')
-            if not bandit_path:
+                if not bandit_path:
                 return {
                     "name": "Security Scanning Tools",
                     "passed": False,
                     "message": "Bandit security scanner not found in PATH",
                     "details": "Install bandit: pip install bandit"
                 }
-            result = subprocess.run([bandit_path, '--version'],
-                                  capture_output=True, text=True, timeout=30)
-            if result.returncode != 0:
+            result = subprocess.run([bandit_path, '--version'],)
+(                                  capture_output=True, text=True, timeout=30)
+                if result.returncode != 0:
                 return {
                     "name": "Security Scanning Tools",
                     "passed": False,
@@ -281,16 +281,16 @@ class PR4IntegrationTester:
 
             # Test safety availability
             safety_path = shutil.which('safety')
-            if safety_path is None:
+                if safety_path is None:
                 return {
                     "name": "Security Scanning Tools",
                     "passed": False,
                     "message": "Safety vulnerability scanner not found in PATH",
                     "details": "Install safety and ensure it is in a secure location"
                 }
-            result = subprocess.run([safety_path, '--version'],
-                                  capture_output=True, text=True, timeout=30)
-            if result.returncode != 0:
+            result = subprocess.run([safety_path, '--version'],)
+(                                  capture_output=True, text=True, timeout=30)
+                if result.returncode != 0:
                 return {
                     "name": "Security Scanning Tools",
                     "passed": False,
@@ -320,7 +320,7 @@ class PR4IntegrationTester:
                 "details": "Install bandit and safety: pip install bandit safety"
             }
 
-    def generate_summary(self) -> Dict[str, Any]:
+                def generate_summary(self) -> Dict[str, Any]:
         """Generate test summary and recommendations."""
         total_tests = len(self.test_results)
         passed_tests = sum(1 for result in self.test_results if result["passed"])
@@ -336,42 +336,42 @@ class PR4IntegrationTester:
         }
 
         # Generate recommendations based on failures
-        if failed_tests > 0:
-            summary["recommendations"].append(
+                if failed_tests > 0:
+            summary["recommendations"].append()
                 f"Fix {failed_tests} failing tests before proceeding"
-            )
+(            )
 
-        if summary["success_rate"] < 100:
-            summary["recommendations"].append(
+                if summary["success_rate"] < 100:
+            summary["recommendations"].append()
                 "Complete integration testing before claiming PR #4 is ready"
-            )
+(            )
 
         return summary
 
-def main():
+                def main():
     """Main function to run PR #4 integration tests."""
     tester = PR4IntegrationTester()
     summary = tester.run_all_tests()
 
     print("\n" + "="*60)
-    print("📊 PR #4 Integration Test Summary")
+    print(" PR #4 Integration Test Summary")
     print("="*60)
-    print("Total Tests: {summary["total_tests']}")
-    print("Passed: {summary["passed']}")
-    print("Failed: {summary["failed']}")
-    print("Success Rate: {summary["success_rate']:.1f}%")
+    print("Total Tests: {summary["total_tests']}")"
+    print("Passed: {summary["passed']}")"
+    print("Failed: {summary["failed']}")"
+    print("Success Rate: {summary["success_rate']:.1f}%")"
 
-    if summary['recommendations']:
+                if summary['recommendations']:
         print("\n🔧 Recommendations:")
-        for rec in summary['recommendations']:
+                for rec in summary['recommendations']:
             print(f"  - {rec}")
 
-    if summary['failed'] > 0:
+                if summary['failed'] > 0:
         print("\n❌ PR #4 is NOT ready for submission")
         sys.exit(1)
     else:
-        print("\n✅ PR #4 integration tests passed!")
+        print("\n PR #4 integration tests passed!")
         print("Ready for final review and submission")
 
-if __name__ == "__main__":
+                if __name__ == "__main__":
     main()

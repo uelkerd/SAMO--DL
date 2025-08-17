@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""
+""""
 🚀 CREATE FIXED BULLETPROOF NOTEBOOK
 ====================================
 Create a bulletproof Colab notebook that uses the unique fallback dataset.
 This fixes the duplicate data issue that caused model collapse.
-"""
+""""
 
 import json
 
@@ -52,19 +52,19 @@ def create_fixed_bulletproof_notebook():
                         "import numpy as np\n",
                         "import torch\n",
                         "from torch.utils.data import Dataset, DataLoader\n",
-                        "from transformers import (\n",
+                        "from transformers import (\n",)
                         "    AutoTokenizer,\n",
                         "    AutoModelForSequenceClassification,\n",
                         "    TrainingArguments,\n",
                         "    Trainer,\n",
                         "    EarlyStoppingCallback\n",
-                        ")\n",
+(                        ")\n",
                         "from sklearn.model_selection import train_test_split\n",
                         "from sklearn.preprocessing import LabelEncoder\n",
                         "from sklearn.metrics import                        "from sklearn.metrics import f1_score,
                              accuracy_score,
-                             classification_report\n",
-                            
+                             classification_report\n","
+
                         "import warnings\n",
                         "warnings.filterwarnings('ignore')\n",
                         "\n",
@@ -80,7 +80,7 @@ def create_fixed_bulletproof_notebook():
                 "source": [
                     "# BULLETPROOF: Auto-detect repository path and data files\n",
                     "import os\n",
-                    "print('🔍 Auto-detecting repository structure...')\n",
+                    "print(' Auto-detecting repository structure...')\n",
                     "\n",
                     "# Find the repository directory\n",
                     "possible_paths = [\n",
@@ -95,7 +95,7 @@ def create_fixed_bulletproof_notebook():
                     "for path in possible_paths:\n",
                     "    if os.path.exists(path):\n",
                     "        repo_path = path\n",
-                    "        print(f'✅ Found repository at: {repo_path}')\n",
+                    "        print(f' Found repository at: {repo_path}')\n",
                     "        break\n",
                     "\n",
                     "if repo_path is None:\n",
@@ -109,7 +109,7 @@ def create_fixed_bulletproof_notebook():
                     "    print(f'❌ Data directory not found: {data_path}')\n",
                     "    raise Exception('Data directory not found!')\n",
                     "\n",
-                    "print(f'✅ Data directory found: {data_path}')\n",
+                    "print(f' Data directory found: {data_path}')\n",
                     "print('📂 Listing data files:')\n",
                     "!ls -la {data_path}/"
                 ]
@@ -121,7 +121,7 @@ def create_fixed_bulletproof_notebook():
                 "outputs": [],
                 "source": [
                     "# Load combined dataset with UNIQUE fallback\n",
-                    "print('📊 Loading combined dataset...')\n",
+                    "print(' Loading combined dataset...')\n",
                     "combined_samples = []\n",
                     "\n",
                     "# Load journal data\n",
@@ -135,7 +135,7 @@ def create_fixed_bulletproof_notebook():
                     "            combined_samples.append({'text': item['content'], 'emotion': item['emotion']})\n",
                     "        elif 'text' in item and 'emotion' in item: # Fallback for other journal formats\n",
                     "            combined_samples.append({'text': item['text'], 'emotion': item['emotion']})\n",
-                    "    print(f'✅ Loaded {len(journal_data)} journal samples from {journal_path}')\n",
+                    "    print(f' Loaded {len(journal_data)} journal samples from {journal_path}')\n",
                     "except FileNotFoundError:\n",
                     "    print(f'⚠️ Could not load journal data: {journal_path} not found.')\n",
                     "\n",
@@ -147,11 +147,11 @@ def create_fixed_bulletproof_notebook():
                     "    for item in cmu_data:\n",
                     "        if 'text' in item and 'emotion' in item:\n",
                     "            combined_samples.append({'text': item['text'], 'emotion': item['emotion']})\n",
-                    "    print(f'✅ Loaded {len(cmu_data)} CMU-MOSEI samples from {cmu_path}')\n",
+                    "    print(f' Loaded {len(cmu_data)} CMU-MOSEI samples from {cmu_path}')\n",
                     "except FileNotFoundError:\n",
                     "    print(f'⚠️ Could not load CMU-MOSEI data: {cmu_path} not found.')\n",
                     "\n",
-                    "print(f'📊 Total combined samples: {len(combined_samples)}')\n",
+                    "print(f' Total combined samples: {len(combined_samples)}')\n",
                     "\n",
                     "# BULLETPROOF: Use UNIQUE fallback dataset if needed\n",
                     "if len(combined_samples) < 100:\n",
@@ -163,22 +163,22 @@ def create_fixed_bulletproof_notebook():
                     "        with open(fallback_path, 'r') as f:\n",
                     "            fallback_data = json.load(f)\n",
                     "        combined_samples = fallback_data\n",
-                    "        print(f'✅ Loaded {len(combined_samples)} UNIQUE fallback samples')\n",
+                    "        print(f' Loaded {len(combined_samples)} UNIQUE fallback samples')\n",
                     "    except FileNotFoundError:\n",
                     "        print(f'❌ Could not load unique fallback dataset: {fallback_path}')\n",
                     "        print('❌ No data available for training!')\n",
                     "        raise Exception('No training data available!')\n",
                     "\n",
-                    "print(f'✅ Final dataset size: {len(combined_samples)} samples')\n",
+                    "print(f' Final dataset size: {len(combined_samples)} samples')\n",
                     "\n",
                     "# Verify no duplicates\n",
                     "texts = [sample['text'] for sample in combined_samples]\n",
                     "unique_texts = set(texts)\n",
-                    "print(f'🔍 Duplicate check: {len(texts)} total, {len(unique_texts)} unique')\n",
+                    "print(f' Duplicate check: {len(texts)} total, {len(unique_texts)} unique')\n",
                     "if len(texts) != len(unique_texts):\n",
                     "    print('❌ WARNING: DUPLICATES FOUND! This will cause model collapse!')\n",
                     "else:\n",
-                    "    print('✅ All samples are unique - no model collapse risk!')"
+                    "    print(' All samples are unique - no model collapse risk!')"
                 ]
             },
             {
@@ -197,13 +197,13 @@ def create_fixed_bulletproof_notebook():
                     "label_encoder = LabelEncoder()\n",
                     "labels = label_encoder.fit_transform(emotions)\n",
                     "\n",
-                    "print(f'🎯 Number of labels: {len(label_encoder.classes_)}')\n",
-                    "print(f'📊 Labels: {list(label_encoder.classes_)}')\n",
+                    "print(f' Number of labels: {len(label_encoder.classes_)}')\n",
+                    "print(f' Labels: {list(label_encoder.classes_)}')\n",
                     "\n",
                     "# Split data\n",
-                    "train_texts, test_texts, train_labels, test_labels = train_test_split(\n",
+                    "train_texts, test_texts, train_labels, test_labels = train_test_split(\n",)
                     "    texts, labels, test_size=0.2, random_state=42, stratify=labels\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
                     "print(f'📈 Training samples: {len(train_texts)}')\n",
                     "print(f'🧪 Test samples: {len(test_labels)}')\n",
@@ -213,7 +213,7 @@ def create_fixed_bulletproof_notebook():
                     "for emotion in emotions:\n",
                     "    emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1\n",
                     "\n",
-                    "print('\\n📊 Emotion Distribution:')\n",
+                    "print('\\n Emotion Distribution:')\n",
                     "for emotion, count in sorted(emotion_counts.items()):\n",
                     "    print(f'  {emotion}: {count} samples')"
                 ]
@@ -239,13 +239,13 @@ def create_fixed_bulletproof_notebook():
                     "        text = str(self.texts[idx])\n",
                     "        label = self.labels[idx]\n",
                     "        \n",
-                    "        encoding = self.tokenizer(\n",
+                    "        encoding = self.tokenizer(\n",)
                     "            text,\n",
                     "            truncation=True,\n",
                     "            padding='max_length',\n",
                     "            max_length=self.max_length,\n",
                     "            return_tensors='pt'\n",
-                    "        )\n",
+(                    "        )\n",
                     "        \n",
                     "        return {\n",
                     "            'input_ids': encoding['input_ids'].flatten(),\n",
@@ -265,19 +265,19 @@ def create_fixed_bulletproof_notebook():
                     "\n",
                     "model_name = 'bert-base-uncased'\n",
                     "tokenizer = AutoTokenizer.from_pretrained(model_name)\n",
-                    "model = AutoModelForSequenceClassification.from_pretrained(\n",
+                    "model = AutoModelForSequenceClassification.from_pretrained(\n",)
                     "    model_name,\n",
                     "    num_labels=len(label_encoder.classes_),\n",
                     "    problem_type='single_label_classification'\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
-                    "print(f'✅ Model initialized with {len(label_encoder.classes_)} labels')\n",
+                    "print(f' Model initialized with {len(label_encoder.classes_)} labels')\n",
                     "\n",
                     "# Create datasets\n",
                     "train_dataset = EmotionDataset(train_texts, train_labels, tokenizer)\n",
                     "test_dataset = EmotionDataset(test_texts, test_labels, tokenizer)\n",
                     "\n",
-                    "print('✅ Datasets created successfully')"
+                    "print(' Datasets created successfully')"
                 ]
             },
             {
@@ -305,12 +305,12 @@ def create_fixed_bulletproof_notebook():
                 "source": [
                     "# Configure training arguments with OPTIMIZED hyperparameters\n",
                     "print('🚀 Starting FIXED BULLETPROOF training...')\n",
-                    "print('🎯 Target F1 Score: 75-85%')\n",
-                    "print('📊 Current Best: 67%')\n",
+                    "print(' Target F1 Score: 75-85%')\n",
+                    "print(' Current Best: 67%')\n",
                     "print('📈 Expected Improvement: 8-18%')\n",
                     "\n",
-                    "training_args = TrainingArguments(\n",
-                    "    output_dir='./emotion_model_fixed_bulletproo",\n",
+                    "training_args = TrainingArguments(\n",)
+                    "    output_dir='./emotion_model_fixed_bulletproo",\n","
                     "    num_train_epochs=3,  # Reduced to prevent overfitting\n",
                     "    per_device_train_batch_size=8,  # Smaller batch size\n",
                     "    per_device_eval_batch_size=8,\n",
@@ -331,19 +331,19 @@ def create_fixed_bulletproof_notebook():
                     "    learning_rate=2e-5,  # Standard learning rate\n",
                     "    gradient_accumulation_steps=2,  # Increased for stability\n",
                     "    fp16=True,  # Enable mixed precision for GPU\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
                     "# Create trainer\n",
-                    "trainer = Trainer(\n",
+                    "trainer = Trainer(\n",)
                     "    model=model,\n",
                     "    args=training_args,\n",
                     "    train_dataset=train_dataset,\n",
                     "    eval_dataset=test_dataset,\n",
                     "    compute_metrics=compute_metrics,\n",
                     "    callbacks=[EarlyStoppingCallback(early_stopping_patience=2)]\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
-                    "print(f'📊 Training on {len(train_texts)} samples')\n",
+                    "print(f' Training on {len(train_texts)} samples')\n",
                     "print(f'🧪 Evaluating on {len(test_labels)} samples')\n",
                     "\n",
                     "# Start training\n",
@@ -357,11 +357,11 @@ def create_fixed_bulletproof_notebook():
                 "outputs": [],
                 "source": [
                     "# Evaluate final model\n",
-                    "print('📊 Evaluating final model...')\n",
+                    "print(' Evaluating final model...')\n",
                     "results = trainer.evaluate()\n",
                     "\n",
-                    "print("🏆 Final F1 Score: {results[\"eval_f1\"]:.4f} ({results[\"eval_f1\"]*100:.2f}%)')\n",
-                    "print("🎯 Target achieved: {\"✅ YES!\" if results[\"eval_f1\"] >= 0.75 else \"❌ Not yet\"}')\n",
+                    "print("🏆 Final F1 Score: {results[\"eval_f1\"]:.4f} ({results[\"eval_f1\"]*100:.2f}%)')\n","
+                    "print(" Target achieved: {\" YES!\" if results[\"eval_f1\"] >= 0.75 else \"❌ Not yet\"}')\n","
                     "\n",
                     "# Save model\n",
                     "trainer.save_model('./emotion_model_fixed_bulletproof_final')\n",
@@ -378,22 +378,22 @@ def create_fixed_bulletproof_notebook():
                     "print('🧪 Testing on sample texts...')\n",
                     "\n",
                     "test_texts = [\n",
-                    "    \"I'm feeling really happy today!\",\n",
-                    "    \"I'm so frustrated with this project.\",\n",
+                    "    \"I'm feeling really happy today!\",\n",'
+                    "    \"I'm so frustrated with this project.\",\n",'
                     "    \"I feel anxious about the presentation.\",\n",
-                    "    \"I'm grateful for all the support.\",\n",
-                    "    \"I'm feeling overwhelmed with tasks.\"\n",
+                    "    \"I'm grateful for all the support.\",\n",'
+                    "    \"I'm feeling overwhelmed with tasks.\"\n",'
                     "]\n",
                     "\n",
                     "model.eval()\n",
                     "with torch.no_grad():\n",
                     "    for i, text in enumerate(test_texts, 1):\n",
-                    "        inputs = tokenizer(\n",
+                    "        inputs = tokenizer(\n",)
                     "            text,\n",
                     "            truncation=True,\n",
                     "            padding=True,\n",
                     "            return_tensors='pt'\n",
-                    "        )\n",
+(                    "        )\n",
                     "        \n",
                     "        outputs = model(**inputs)\n",
                     "        probabilities = torch.softmax(outputs.logits, dim=1)\n",
@@ -410,17 +410,17 @@ def create_fixed_bulletproof_notebook():
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🎉 Training Complete!\n",
+                    "##  Training Complete!\n",
                     "\n",
                     "**Key Improvements:**\n",
-                    "- ✅ **UNIQUE** fallback dataset (no duplicates)\n",
-                    "- ✅ Proper data loading with field name handling\n",
-                    "- ✅ Optimized hyperparameters\n",
-                    "- ✅ Early stopping to prevent overfitting\n",
-                    "- ✅ Mixed precision training for GPU efficiency\n",
+                    "-  **UNIQUE** fallback dataset (no duplicates)\n",
+                    "-  Proper data loading with field name handling\n",
+                    "-  Optimized hyperparameters\n",
+                    "-  Early stopping to prevent overfitting\n",
+                    "-  Mixed precision training for GPU efficiency\n",
                     "\n",
                     "**Expected Results:**\n",
-                    "- 🎯 **Target F1 Score: 75-85%**\n",
+                    "-  **Target F1 Score: 75-85%**\n",
                     "- 📈 **Improvement from 67% baseline**\n",
                     "- 🔧 **No model collapse** (unique data prevents this)\n",
                     "\n",
@@ -457,8 +457,8 @@ def create_fixed_bulletproof_notebook():
     with open('notebooks/FIXED_BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook_content, f, indent=2)
 
-    print("✅ Fixed bulletproof notebook created: notebooks/FIXED_BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb")
-    print("📋 Instructions:")
+    print(" Fixed bulletproof notebook created: notebooks/FIXED_BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb")
+    print(" Instructions:")
     print("  1. Download the notebook file")
     print("  2. Upload to Google Colab")
     print("  3. Set Runtime → GPU")

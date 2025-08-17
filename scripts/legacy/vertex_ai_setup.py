@@ -44,12 +44,12 @@ from typing import Dict, Any, Optional
 
 
 
-"""
+""""
 Vertex AI Setup for SAMO Deep Learning Project.
 
 This script sets up Vertex AI infrastructure to solve the 0.0000 loss issue
 and provide managed ML training, deployment, and monitoring.
-"""
+""""
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
@@ -61,12 +61,12 @@ class VertexAISetup:
     """Vertex AI setup and management for SAMO Deep Learning."""
 
     def __init__(self, project_id: str, region: str = "us-central1"):
-        """Initialize Vertex AI setup.
+        """Initialize Vertex AI setup."
 
         Args:
             project_id: GCP project ID
             region: GCP region for Vertex AI resources
-        """
+        """"
         self.project_id = project_id
         self.region = region
         self.dataset_id = "samo-emotions-dataset"
@@ -78,20 +78,20 @@ class VertexAISetup:
         logger.info("🔧 Setting up Vertex AI environment...")
 
         try:
-            subprocess.run([
+            subprocess.run([)
                 sys.executable, "-m", "pip", "install",
                 "google-cloud-aiplatform", "google-cloud-storage"
-            ], check=True)
+(            ], check=True)
 
-            logger.info("✅ Vertex AI SDK installed successfully")
+            logger.info(" Vertex AI SDK installed successfully")
 
-            aiplatform.init(
+            aiplatform.init()
                 project=self.project_id,
                 location=self.region,
-            )
+(            )
 
-            logger.info("✅ Vertex AI initialized for project: {self.project_id}")
-            logger.info("✅ Region: {self.region}")
+            logger.info(" Vertex AI initialized for project: {self.project_id}")
+            logger.info(" Region: {self.region}")
 
             return True
 
@@ -133,7 +133,7 @@ class VertexAISetup:
                 "enable_dashboard_access": True,
             }
 
-            job = aiplatform.CustomTrainingJob(
+            job = aiplatform.CustomTrainingJob()
                 display_name=job_config["display_name"],
                 container_uri=job_config["container_uri"],
                 model_serving_container_image_uri=job_config["model_serving_container_image_uri"],
@@ -147,9 +147,9 @@ class VertexAISetup:
                 test_fraction_split=job_config["test_fraction_split"],
                 enable_web_access=job_config["enable_web_access"],
                 enable_dashboard_access=job_config["enable_dashboard_access"],
-            )
+(            )
 
-            logger.info("✅ Custom training job created successfully")
+            logger.info(" Custom training job created successfully")
             logger.info("   Display name: {job_config['display_name']}")
             logger.info("   Machine type: {job_config['machine_spec']['machine_type']}")
             logger.info("   GPU: {job_config['machine_spec']['accelerator_type']}")
@@ -163,7 +163,7 @@ class VertexAISetup:
 
     def create_hyperparameter_tuning_job(self) -> Dict[str, Any]:
         """Create hyperparameter tuning job to optimize the model."""
-        logger.info("🎯 Creating hyperparameter tuning job...")
+        logger.info(" Creating hyperparameter tuning job...")
 
         try:
             tuning_config = {
@@ -207,7 +207,7 @@ class VertexAISetup:
                 }
             }
 
-            tuning_job = aiplatform.HyperparameterTuningJob(
+            tuning_job = aiplatform.HyperparameterTuningJob()
                 display_name=tuning_config["display_name"],
                 container_uri=tuning_config["container_uri"],
                 args=tuning_config["args"],
@@ -219,9 +219,9 @@ class VertexAISetup:
                 parallel_trial_count=tuning_config["parallel_trial_count"],
                 hyperparameter_spec=tuning_config["hyperparameter_spec"],
                 metric_spec=tuning_config["metric_spec"],
-            )
+(            )
 
-            logger.info("✅ Hyperparameter tuning job created successfully")
+            logger.info(" Hyperparameter tuning job created successfully")
             logger.info("   Max trials: {tuning_config['max_trial_count']}")
             logger.info("   Parallel trials: {tuning_config['parallel_trial_count']}")
             logger.info("   Optimization metric: F1 Score")
@@ -234,7 +234,7 @@ class VertexAISetup:
 
     def create_model_monitoring(self) -> Dict[str, Any]:
         """Create model monitoring for production deployment."""
-        logger.info("📊 Setting up model monitoring...")
+        logger.info(" Setting up model monitoring...")
 
         try:
             monitoring_config = {
@@ -253,7 +253,7 @@ class VertexAISetup:
                 }
             }
 
-            logger.info("✅ Model monitoring configuration created")
+            logger.info(" Model monitoring configuration created")
             logger.info("   Monitoring interval: 1 hour")
             logger.info("   Metrics: latency, throughput, accuracy, data drift")
 
@@ -286,7 +286,7 @@ class VertexAISetup:
                 ]
             }
 
-            logger.info("✅ Automated pipeline configuration created")
+            logger.info(" Automated pipeline configuration created")
             logger.info("   Schedule: Daily at 2 AM")
             logger.info("   Trigger conditions: data drift, performance degradation, new data")
 
@@ -298,7 +298,7 @@ class VertexAISetup:
 
     def run_validation_on_vertex(self) -> bool:
         """Run validation on Vertex AI to identify 0.0000 loss issues."""
-        logger.info("🔍 Running validation on Vertex AI...")
+        logger.info(" Running validation on Vertex AI...")
 
         try:
             validation_config = {
@@ -317,15 +317,15 @@ class VertexAISetup:
                 "replica_count": 1,
             }
 
-            validation_job = aiplatform.CustomTrainingJob(
+            validation_job = aiplatform.CustomTrainingJob()
                 display_name=validation_config["display_name"],
                 container_uri=validation_config["container_uri"],
                 args=validation_config["args"],
                 machine_type=validation_config["machine_spec"]["machine_type"],
                 replica_count=validation_config["replica_count"],
-            )
+(            )
 
-            logger.info("✅ Validation job created successfully")
+            logger.info(" Validation job created successfully")
             logger.info("   This will identify the root cause of 0.0000 loss")
             logger.info("   Check Vertex AI console for results")
 
@@ -345,39 +345,39 @@ class VertexAISetup:
             logger.error("❌ Environment setup failed")
             return results
 
-        logger.info("\n📋 Step 1: Creating validation job...")
+        logger.info("\n Step 1: Creating validation job...")
         validation_success = self.run_validation_on_vertex()
         results["validation"] = validation_success
 
-        logger.info("\n📋 Step 2: Creating custom training job...")
+        logger.info("\n Step 2: Creating custom training job...")
         training_result = self.create_custom_training_job()
         results["training"] = training_result
 
-        logger.info("\n📋 Step 3: Creating hyperparameter tuning...")
+        logger.info("\n Step 3: Creating hyperparameter tuning...")
         tuning_result = self.create_hyperparameter_tuning_job()
         results["tuning"] = tuning_result
 
-        logger.info("\n📋 Step 4: Creating model monitoring...")
+        logger.info("\n Step 4: Creating model monitoring...")
         monitoring_result = self.create_model_monitoring()
         results["monitoring"] = monitoring_result
 
-        logger.info("\n📋 Step 5: Creating automated pipeline...")
+        logger.info("\n Step 5: Creating automated pipeline...")
         pipeline_result = self.create_automated_pipeline()
         results["pipeline"] = pipeline_result
 
         return results
 
 
-def main():
+        def main():
     """Main function to setup Vertex AI infrastructure."""
     logger.info("🚀 SAMO Deep Learning - Vertex AI Setup")
     logger.info("=" * 50)
 
     project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
-    if not project_id:
+        if not project_id:
         project_id = input("Enter your GCP Project ID: ").strip()
 
-    if not project_id:
+        if not project_id:
         logger.error("❌ Project ID is required")
         sys.exit(1)
 
@@ -386,16 +386,16 @@ def main():
     results = vertex_setup.setup_complete_infrastructure()
 
     logger.info("\n{'='*50}")
-    logger.info("📊 VERTEX AI SETUP SUMMARY")
+    logger.info(" VERTEX AI SETUP SUMMARY")
     logger.info("{'='*50}")
 
-    for component, result in results.items():
+        for component, result in results.items():
         if result:
-            logger.info("✅ {component.title()}: SUCCESS")
+            logger.info(" {component.title()}: SUCCESS")
         else:
             logger.error("❌ {component.title()}: FAILED")
 
-    logger.info("\n🎯 NEXT STEPS:")
+    logger.info("\n NEXT STEPS:")
     logger.info("   1. Check Vertex AI console: https://console.cloud.google.com/vertex-ai")
     logger.info("   2. Run validation job to identify 0.0000 loss root cause")
     logger.info("   3. Start training job with optimized configuration")
@@ -412,7 +412,7 @@ def main():
     return all(results.values())
 
 
-if __name__ == "__main__":
+        if __name__ == "__main__":
     success = main()
-    if not success:
+        if not success:
         sys.exit(1)

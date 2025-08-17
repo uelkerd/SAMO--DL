@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+""""
 SAMO-DL Code Quality Enforcer
 
 This script enforces comprehensive code quality standards and prevents
@@ -18,7 +18,7 @@ Prevents:
 - FLK-W505: Doc line length
 - PY-D0003: Missing docstrings
 - PY-R1000: High cyclomatic complexity
-"""
+""""
 import ast
 import logging
 import re
@@ -27,10 +27,10 @@ from pathlib import Path
 from typing import Dict, List, Set, Tuple, Any, Optional
 
 # Configure logging
-logging.basicConfig(
+logging.basicConfig()
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
-)
+()
 logger = logging.getLogger(__name__)
 
 
@@ -52,9 +52,9 @@ class CodeQualityEnforcer:
             'PTC-W0027': {
                 'name': 'f-string without expressions',
                 'severity': 'warning',
-                'description': (
+                'description': ()
                     'Use regular strings instead of f-strings without expressions'
-                )
+(                )
             },
             'PY-W2000': {
                 'name': 'Unused imports',
@@ -128,12 +128,12 @@ class CodeQualityEnforcer:
 
             # Check for missing newline at end of file
             if content and not content.endswith('\n'):
-                issues.append({
+                issues.append({)
                     'rule': 'FLK-W292',
                     'line': len(lines),
                     'message': 'Missing newline at end of file',
                     'severity': 'error'
-                })
+(                })
 
             # Check each line for issues
             for line_num, line in enumerate(lines, 1):
@@ -154,63 +154,63 @@ class CodeQualityEnforcer:
 
         except Exception as e:
             logger.error("Error checking %s: %s", file_path, e)
-            issues.append({
+            issues.append({)
                 'rule': 'ERROR',
                 'line': 0,
                 'message': f'Error reading file: {e}',
                 'severity': 'error'
-            })
+(            })
 
         return issues
 
     @staticmethod
-    def _check_line(line: str, line_num: int) -> List[Dict[str, Any]]:
+            def _check_line(line: str, line_num: int) -> List[Dict[str, Any]]:
         """Check a single line for quality issues."""
         issues = []
 
         # Check for trailing whitespace
-        if line.rstrip() != line:
-            issues.append({
+            if line.rstrip() != line:
+            issues.append({)
                 'rule': 'FLK-W291',
                 'line': line_num,
                 'message': 'Trailing whitespace detected',
                 'severity': 'error'
-            })
+(            })
 
         # Check for blank line with whitespace
-        if line.strip() == '' and line != '':
-            issues.append({
+            if line.strip() == '' and line != '':
+            issues.append({)
                 'rule': 'FLK-W293',
                 'line': line_num,
                 'message': 'Blank line contains whitespace',
                 'severity': 'error'
-            })
+(            })
 
         # Check for line length
-        if len(line) > 88:
-            issues.append({
+            if len(line) > 88:
+            issues.append({)
                 'rule': 'FLK-E501',
                 'line': line_num,
                 'message': f'Line too long ({len(line)} > 88 characters)',
                 'severity': 'error'
-            })
+(            })
 
         # Check for f-strings without expressions
-        if (
-            (line.strip().startswith('f"') or line.strip().startswith('f\''))
+            if ()
+            (line.strip().startswith('f"') or line.strip().startswith('f\''))"
             and not re.search(r'\{[^}]*\}', line)
-        ):
-            issues.append({
+(        ):
+            issues.append({)
                 'rule': 'PTC-W0027',
                 'line': line_num,
                 'message': 'f-string used without expressions',
                 'severity': 'warning'
-            })
+(            })
 
         return issues
 
     @staticmethod
-    def _check_unused_imports(content: str, file_path: Path) -> List[Dict[str, Any]]:
+            def _check_unused_imports(content: str, file_path: Path) -> List[Dict[str, Any]]:
         """Check for unused imports using AST analysis."""
         issues = []
 
@@ -231,19 +231,19 @@ class CodeQualityEnforcer:
                         used_names.add(node.value.id)
 
             # Check for unused imports
-            for node in import_nodes:
-                if isinstance(node, ast.Import):
+                    for node in import_nodes:
+                    if isinstance(node, ast.Import):
                     for alias in node.names:
-                        if (
+                        if ()
                             alias.name not in used_names and
                             not alias.name.startswith('_')
-                        ):
-                            issues.append({
+(                        ):
+                            issues.append({)
                                 'rule': 'PY-W2000',
                                 'line': getattr(node, 'lineno', 0),
                                 'message': f'Unused import: {alias.name}',
                                 'severity': 'warning'
-                            })
+(                            })
                 elif isinstance(node, ast.ImportFrom):
                     pass
 
@@ -253,30 +253,30 @@ class CodeQualityEnforcer:
 
         return issues
 
-    def _check_cyclomatic_complexity(
+                        def _check_cyclomatic_complexity()
         self, content: str, file_path: Path
-    ) -> List[Dict[str, Any]]:
+(    ) -> List[Dict[str, Any]]:
         """Check for high cyclomatic complexity."""
         issues = []
 
         try:
             tree = ast.parse(content)
 
-            for node in ast.walk(tree):
-                if isinstance(
+                        for node in ast.walk(tree):
+                        if isinstance()
                     node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
-                ):
+(                ):
                     complexity = self._calculate_complexity(node)
-                    if complexity > 10:  # Threshold for high complexity
-                        issues.append({
+                        if complexity > 10:  # Threshold for high complexity
+                        issues.append({)
                             'rule': 'PY-R1000',
                             'line': getattr(node, 'lineno', 0),
-                            'message': (
+                            'message': ()
                                 "Function/class has high cyclomatic complexity "
                                 f'({complexity})'
-                            ),
+(                            ),
                             'severity': 'warning'
-                        })
+(                        })
 
         except SyntaxError:
             # File has syntax errors, skip complexity analysis
@@ -285,12 +285,12 @@ class CodeQualityEnforcer:
         return issues
 
     @staticmethod
-    def _calculate_complexity(node: ast.AST) -> int:
+                        def _calculate_complexity(node: ast.AST) -> int:
         """Calculate cyclomatic complexity of a function/class."""
         complexity = 1  # Base complexity
 
-        for child in ast.walk(node):
-            if isinstance(child, (ast.If, ast.While, ast.For, ast.AsyncFor)):
+                        for child in ast.walk(node):
+                        if isinstance(child, (ast.If, ast.While, ast.For, ast.AsyncFor)):
                 complexity += 1
             elif isinstance(child, ast.ExceptHandler):
                 complexity += 1
@@ -303,25 +303,25 @@ class CodeQualityEnforcer:
 
         return complexity
 
-    def _check_control_flow(
+                        def _check_control_flow()
         self, content: str, file_path: Path
-    ) -> List[Dict[str, Any]]:
+(    ) -> List[Dict[str, Any]]:
         """Check for unnecessary else/elif after return."""
         issues = []
 
         try:
             tree = ast.parse(content)
 
-            for node in ast.walk(tree):
-                if isinstance(node, ast.If):
+                        for node in ast.walk(tree):
+                        if isinstance(node, ast.If):
                     # Check if this if statement has a return and unnecessary else
-                    if self._has_unnecessary_else(node):
-                        issues.append({
+                        if self._has_unnecessary_else(node):
+                        issues.append({)
                             'rule': 'PYL-R1705',
                             'line': getattr(node, 'lineno', 0),
                             'message': 'Unnecessary else/elif after return',
                             'severity': 'error'
-                        })
+(                        })
 
         except SyntaxError:
             # File has syntax errors, skip control flow analysis
@@ -329,15 +329,15 @@ class CodeQualityEnforcer:
 
         return issues
 
-    def _has_unnecessary_else(self, node: ast.If) -> bool:
+                        def _has_unnecessary_else(self, node: ast.If) -> bool:
         """Check if an if statement has unnecessary else/elif after return."""
         # Check if the if body has a return
         has_return_in_if = self._contains_return(node.body)
 
-        # Check if there's an else clause
-        if hasattr(node, 'orelse') and node.orelse:
+        # Check if there's an else clause'
+                        if hasattr(node, 'orelse') and node.orelse:
             # Check if the else clause is just another if (elif)
-            if len(node.orelse) == 1 and isinstance(node.orelse[0], ast.If):
+                        if len(node.orelse) == 1 and isinstance(node.orelse[0], ast.If):
                 return self._has_unnecessary_else(node.orelse[0])
             # Check if the else body has a return
             has_return_in_else = self._contains_return(node.orelse)
@@ -346,12 +346,12 @@ class CodeQualityEnforcer:
         return False
 
     @staticmethod
-    def _contains_return(body: List[ast.stmt]) -> bool:
+                        def _contains_return(body: List[ast.stmt]) -> bool:
         """Check if a list of statements contains a return."""
         return any(isinstance(stmt, ast.Return) for stmt in body)
 
     @staticmethod
-    def _is_safe_file_path(file_path: Path) -> bool:
+                        def _is_safe_file_path(file_path: Path) -> bool:
         """Validate that file path is safe for processing."""
         try:
             # Resolve to absolute path to prevent path traversal
@@ -366,12 +366,12 @@ class CodeQualityEnforcer:
                 'C:\\', 'D:\\',  # Windows system drives
             ]
 
-            for pattern in suspicious_patterns:
-                if pattern in path_str:
+                        for pattern in suspicious_patterns:
+                        if pattern in path_str:
                     return False
 
-            # Ensure it's a Python file
-            if not path_str.endswith('.py'):
+            # Ensure it's a Python file'
+                        if not path_str.endswith('.py'):
                 return False
 
             return True
@@ -379,7 +379,7 @@ class CodeQualityEnforcer:
         except Exception:
             return False
 
-    def check_directory(self, directory: Path) -> Dict[str, Any]:
+                        def check_directory(self, directory: Path) -> Dict[str, Any]:
         """Check all Python files in a directory for quality issues."""
         logger.info("Checking directory: %s", directory)
 
@@ -388,30 +388,30 @@ class CodeQualityEnforcer:
 
         total_issues = 0
 
-        for file_path in python_files:
+                        for file_path in python_files:
             # Skip certain directories
-            if any(part in str(file_path) for part in [
+                        if any(part in str(file_path) for part in [)
                 '__pycache__', '.git', '.venv', '.env', 'build', 'dist',
                 '.eggs', '.tox', '.coverage', 'htmlcov', '.cache',
                 '.logs', 'results', 'samples', 'notebooks', 'website'
-            ]):
+(            ]):
                 continue
 
             logger.info("Checking: %s", file_path)
             issues = self.check_file(file_path)
 
-            if issues:
+                        if issues:
                 self.files_with_issues += 1
                 total_issues += len(issues)
 
-                for issue in issues:
-                    self.issues_found.append({
+                        for issue in issues:
+                    self.issues_found.append({)
                         'file': str(file_path),
                         'line': issue['line'],
                         'rule': issue['rule'],
                         'message': issue['message'],
                         'severity': issue['severity']
-                    })
+(                    })
 
             self.files_checked += 1
 
@@ -422,66 +422,66 @@ class CodeQualityEnforcer:
             'issues': self.issues_found
         }
 
-    def generate_report(self) -> str:
+                        def generate_report(self) -> str:
         """Generate a comprehensive quality report."""
-        if not self.issues_found:
-            return "✅ No code quality issues found! All files meet standards."
+                        if not self.issues_found:
+            return " No code quality issues found! All files meet standards."
 
         # Group issues by rule
         issues_by_rule = {}
-        for issue in self.issues_found:
+                        for issue in self.issues_found:
             rule = issue['rule']
-            if rule not in issues_by_rule:
+                        if rule not in issues_by_rule:
                 issues_by_rule[rule] = []
             issues_by_rule[rule].append(issue)
 
         # Generate report
-        report = f"""
-🔍 CODE QUALITY REPORT
+        report = f""""
+ CODE QUALITY REPORT
 {'='*50}
 
-📊 SUMMARY:
+ SUMMARY:
 - Files checked: {self.files_checked}
 - Files with issues: {self.files_with_issues}
 - Total issues found: {len(self.issues_found)}
 
-🚨 ISSUES BY RULE:
-"""
+ ISSUES BY RULE:
+""""
 
-        for rule, issues in sorted(issues_by_rule.items()):
+                        for rule, issues in sorted(issues_by_rule.items()):
             rule_info = self.rules.get(rule, {'name': rule, 'severity': 'unknown'})
             report += f"\n{rule}: {rule_info['name']} ({len(issues)} issues)"
             report += f"\n  Severity: {rule_info['severity']}"
-            report += (
+            report += ()
                 f"\n  Description: "
                 f"{rule_info.get('description', 'No description')}"
-            )
+(            )
 
             # Show first few examples
-            for issue in issues[:3]:
-                report += (
-                    "\n    - {issue["file']}:{issue['line']} - "
-                    "{issue["message']}"
-                )
+                        for issue in issues[:3]:
+                report += ()
+                    "\n    - {issue["file']}:{issue['line']} - ""
+                    "{issue["message']}""
+(                )
 
-            if len(issues) > 3:
+                        if len(issues) > 3:
                 report += f"\n    ... and {len(issues) - 3} more issues"
 
-        report += """
+        report += """"
 
-📋 DETAILED ISSUES:
+ DETAILED ISSUES:
 {'-'*50}
-"""
+""""
 
-        for issue in self.issues_found:
-            report += (
+                        for issue in self.issues_found:
+            report += ()
                 f"{issue['file']}:{issue['line']} - "
                 f"{issue['rule']}: {issue['message']}\n"
-            )
+(            )
 
         return report
 
-    def run_checks(self, directory: Path) -> bool:
+                        def run_checks(self, directory: Path) -> bool:
         """Run all quality checks and return success status."""
         logger.info("Starting code quality enforcement...")
 
@@ -496,27 +496,27 @@ class CodeQualityEnforcer:
         return len(critical_issues) == 0
 
 
-def main():
+                        def main():
     """Main function for command-line usage."""
-    if len(sys.argv) != 2:
+                        if len(sys.argv) != 2:
         print("Usage: python code_quality_enforcer.py <directory>")
         sys.exit(1)
 
     directory = Path(sys.argv[1])
-    if not directory.exists():
+                        if not directory.exists():
         print(f"Error: Directory {directory} does not exist")
         sys.exit(1)
 
     enforcer = CodeQualityEnforcer()
     success = enforcer.run_checks(directory)
 
-    if success:
-        print("\n✅ All critical quality checks passed!")
+                        if success:
+        print("\n All critical quality checks passed!")
         sys.exit(0)
     else:
         print("\n❌ Critical quality issues found!")
         sys.exit(1)
 
 
-if __name__ == "__main__":
+                        if __name__ == "__main__":
     main()

@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
-"""
+""""
 DEEP MODEL ANALYSIS SCRIPT
 ===========================
-Analyzes the model's behavior to understand performance discrepancies
-"""
+Analyzes the model's behavior to understand performance discrepancies'
+""""
 
 import torch
 from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 def deep_model_analysis():
-    """Deep analysis of the model's behavior"""
+    """Deep analysis of the model's behavior"""'
 
-    print("🔍 DEEP MODEL ANALYSIS")
+    print(" DEEP MODEL ANALYSIS")
     print("=" * 50)
-    print("🎯 Goal: Understand 99.54% F1 vs 58.3% basic accuracy")
+    print(" Goal: Understand 99.54% F1 vs 58.3% basic accuracy")
     print("=" * 50)
 
     # Load model
@@ -28,7 +28,7 @@ def deep_model_analysis():
     # Define emotion mapping
     emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
 
-    print("\n📊 EMOTION MAPPING ANALYSIS")
+    print("\n EMOTION MAPPING ANALYSIS")
     print("-" * 40)
     print("Current mapping (LABEL_0 to LABEL_11):")
     for i, emotion in enumerate(emotion_mapping):
@@ -39,16 +39,16 @@ def deep_model_analysis():
     print("-" * 40)
 
     test_cases = [
-        ("I'm grateful for all the support.", "grateful"),
-        ("I'm feeling overwhelmed with tasks.", "overwhelmed"),
-        ("I'm proud of my accomplishments.", "proud"),
-        ("I'm excited about the new opportunity.", "excited"),
-        ("I'm hopeful for the future.", "hopeful"),
+        ("I'm grateful for all the support.", "grateful"),'
+        ("I'm feeling overwhelmed with tasks.", "overwhelmed"),'
+        ("I'm proud of my accomplishments.", "proud"),'
+        ("I'm excited about the new opportunity.", "excited"),'
+        ("I'm hopeful for the future.", "hopeful"),'
     ]
 
     for text, expected_emotion in test_cases:
-        print("\n📝 Text: "{text}'")
-        print(f"🎯 Expected: {expected_emotion}")
+        print("\n📝 Text: "{text}'")"
+        print(f" Expected: {expected_emotion}")
 
         # Tokenize
         inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
@@ -62,7 +62,7 @@ def deep_model_analysis():
         # Get top 3 predictions
         top_probs, top_indices = torch.topk(probabilities[0], 3)
 
-        print("🔍 Top 3 predictions:")
+        print(" Top 3 predictions:")
         for i, (prob, idx) in enumerate(zip(top_probs, top_indices)):
             emotion = emotion_mapping[idx.item()]
             print(f"  {i+1}. {emotion}: {prob.item():.3f}")
@@ -70,7 +70,7 @@ def deep_model_analysis():
         # Check if expected emotion is in top 3
         expected_idx = emotion_mapping.index(expected_emotion)
         expected_prob = probabilities[0][expected_idx].item()
-        print("📊 Expected emotion "{expected_emotion}' probability: {expected_prob:.3f}")
+        print(" Expected emotion "{expected_emotion}' probability: {expected_prob:.3f}")"
 
     # Analyze model confidence patterns
     print("\n📈 CONFIDENCE PATTERN ANALYSIS")
@@ -83,7 +83,7 @@ def deep_model_analysis():
         "happy", "sad", "angry", "excited", "calm", "anxious", "proud", "grateful", "hopeful", "tired", "content", "overwhelmed"
     ]
 
-    for word in simple_tests:
+        for word in simple_tests:
         inputs = tokenizer(word, return_tensors="pt", truncation=True, max_length=512, padding=True)
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
@@ -96,26 +96,26 @@ def deep_model_analysis():
         predicted_emotion = emotion_mapping[predicted_class]
         confidence_by_emotion[predicted_emotion].append(confidence)
 
-        print(""{word}' → {predicted_emotion} (confidence: {confidence:.3f})")
+        print(""{word}' → {predicted_emotion} (confidence: {confidence:.3f})")"
 
     # Check for bias towards certain emotions
-    print("\n🎯 EMOTION BIAS ANALYSIS")
+    print("\n EMOTION BIAS ANALYSIS")
     print("-" * 40)
 
     emotion_counts = {}
-    for emotion in emotion_mapping:
+        for emotion in emotion_mapping:
         emotion_counts[emotion] = len(confidence_by_emotion[emotion])
 
     print("Prediction frequency by emotion:")
-    for emotion, count in sorted(emotion_counts.items(), key=lambda x: x[1], reverse=True):
+        for emotion, count in sorted(emotion_counts.items(), key=lambda x: x[1], reverse=True):
         print(f"  {emotion}: {count} predictions")
 
     # Check if model is biased towards certain emotions
     most_common = max(emotion_counts.items(), key=lambda x: x[1])
     print(f"\n⚠️  Most predicted emotion: {most_common[0]} ({most_common[1]} times)")
 
-    if most_common[1] > len(simple_tests) * 0.3:
-        print("❌ WARNING: Model shows bias towards "{most_common[0]}'")
+        if most_common[1] > len(simple_tests) * 0.3:
+        print("❌ WARNING: Model shows bias towards "{most_common[0]}'")"
 
     # Test with training-like data
     print("\n🎓 TRAINING-LIKE DATA TEST")
@@ -138,7 +138,7 @@ def deep_model_analysis():
     ]
 
     correct_training_like = 0
-    for text in training_like_tests:
+        for text in training_like_tests:
         inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
@@ -161,21 +161,21 @@ def deep_model_analysis():
             is_correct = predicted_emotion == expected_emotion
             if is_correct:
                 correct_training_like += 1
-                status = "✅"
+                status = ""
             else:
                 status = "❌"
 
             print(f"{status} '{text}' → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})")
 
     training_like_accuracy = correct_training_like / len(training_like_tests)
-    print(f"\n📊 Training-like accuracy: {training_like_accuracy:.1%}")
+    print(f"\n Training-like accuracy: {training_like_accuracy:.1%}")
 
     # Final analysis
-    print("\n🔍 ANALYSIS SUMMARY")
+    print("\n ANALYSIS SUMMARY")
     print("=" * 50)
 
-    if training_like_accuracy > 0.8:
-        print(f"✅ Model performs well on training-like data ({training_like_accuracy:.1%})")
+            if training_like_accuracy > 0.8:
+        print(f" Model performs well on training-like data ({training_like_accuracy:.1%})")
         print("⚠️  Issue: Model may be overfitting to specific training patterns")
         print("💡 Solution: Model needs more diverse training data or regularization")
     else:
@@ -185,6 +185,6 @@ def deep_model_analysis():
 
     return training_like_accuracy > 0.8
 
-if __name__ == "__main__":
+            if __name__ == "__main__":
     success = deep_model_analysis()
     exit(0 if success else 1)

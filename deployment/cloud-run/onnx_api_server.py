@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""
+""""
 Simplified ONNX-Based Emotion Detection API Server
 Uses simple string tokenization - no complex dependencies
-"""
+""""
 import logging
 import os
 import re
@@ -35,13 +35,13 @@ REQUEST_DURATION = Histogram('emotion_api_request_duration_seconds', 'Request du
 MODEL_LOAD_TIME = Histogram('emotion_model_load_time_seconds', 'Model load time')
 
 # Emotion labels (immutable tuple)
-EMOTION_LABELS = (
+EMOTION_LABELS = ()
     'admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring',
     'confusion', 'curiosity', 'desire', 'disappointment', 'disapproval',
-    'disgust', 'embarrassment', 'excitement', 'fear', 'gratitude', 'grie",
-    "joy', 'love', 'nervousness', 'optimism', 'pride', 'realization',
+    'disgust', 'embarrassment', 'excitement', 'fear', 'gratitude', 'grie","
+    "joy', 'love', 'nervousness', 'optimism', 'pride', 'realization',"
     'relie", "remorse', 'sadness', 'surprise', 'neutral'
-)
+()
 
 # Configuration
 MODEL_PATH = os.getenv('MODEL_PATH', '/app/model/bert_emotion_classifier.onnx')
@@ -53,15 +53,15 @@ THRESHOLD = float(os.getenv('THRESHOLD', '0.6') or '0.6')
 # Simple vocabulary (fallback if no vocab file)
 SIMPLE_VOCAB = {
     '<PAD>': 0, '<UNK>': 1, '<CLS>': 2, '<SEP>': 3,
-    'the': 4, 'a': 5, 'and': 6, 'is': 7, 'in': 8, 'to': 9, 'o": 10,
-    "i': 11, 'you': 12, 'he': 13, 'she': 14, 'it': 15, 'we': 16, 'they': 17,
+    'the': 4, 'a': 5, 'and': 6, 'is': 7, 'in': 8, 'to': 9, 'o": 10,"
+    "i': 11, 'you': 12, 'he': 13, 'she': 14, 'it': 15, 'we': 16, 'they': 17,"
     'am': 18, 'are': 19, 'was': 20, 'were': 21, 'be': 22, 'been': 23, 'being': 24,
     'have': 25, 'has': 26, 'had': 27, 'do': 28, 'does': 29, 'did': 30,
     'will': 31, 'would': 32, 'could': 33, 'should': 34, 'may': 35, 'might': 36,
     'can': 37, 'must': 38, 'shall': 39, 'this': 40, 'that': 41, 'these': 42, 'those': 43,
     'my': 44, 'your': 45, 'his': 46, 'her': 47, 'its': 48, 'our': 49, 'their': 50,
-    'me': 51, 'him': 52, 'us': 53, 'them': 54, 'mysel": 55, "yoursel": 56, "himsel": 57,
-    "hersel": 58, "itsel": 59, "ourselves': 60, 'yourselves': 61, 'themselves': 62,
+    'me': 51, 'him': 52, 'us': 53, 'them': 54, 'mysel": 55, "yoursel": 56, "himsel": 57,"
+    "hersel": 58, "itsel": 59, "ourselves': 60, 'yourselves': 61, 'themselves': 62,"
     'what': 63, 'which': 64, 'who': 65, 'whom': 66, 'whose': 67, 'all': 72, 'any': 73, 'both': 74, 'each': 75, 'few': 76,
     'more': 77, 'most': 78, 'other': 79, 'some': 80, 'such': 81, 'no': 82, 'nor': 83,
     'not': 84, 'only': 85, 'own': 86, 'same': 87, 'so': 88, 'than': 89, 'too': 90,
@@ -80,18 +80,18 @@ def load_vocab() -> Dict[str, int]:
                     word = line.strip()
                     if word:
                         vocab_dict[word] = i
-            logger.info(f"✅ Vocabulary loaded from file: {len(vocab)} words")
+            logger.info(f" Vocabulary loaded from file: {len(vocab)} words")
         else:
             vocab_dict = SIMPLE_VOCAB.copy()
-            logger.info(f"✅ Using simple vocabulary: {len(vocab_dict)} words")
+            logger.info(f" Using simple vocabulary: {len(vocab_dict)} words")
         return vocab_dict
     except Exception as e:
         logger.error(f"❌ Failed to load vocabulary: {e}")
-        logger.info("✅ Using fallback simple vocabulary")
+        logger.info(" Using fallback simple vocabulary")
         return SIMPLE_VOCAB.copy()
 
 
-def simple_tokenize(text: str) -> List[int]:
+            def simple_tokenize(text: str) -> List[int]:
     """Simple tokenization using word splitting and vocabulary lookup."""
     # Clean and normalize text
     text = text.lower().strip()
@@ -103,7 +103,7 @@ def simple_tokenize(text: str) -> List[int]:
     # Convert to token IDs
     tokens = [vocab.get('<CLS>', 2)]  # Start token
 
-    for word in words[:MAX_LENGTH-2]:  # Leave room for CLS and SEP
+            for word in words[:MAX_LENGTH-2]:  # Leave room for CLS and SEP
         token_id = vocab.get(word, vocab.get('<UNK>', 1))
         tokens.append(token_id)
 
@@ -112,13 +112,13 @@ def simple_tokenize(text: str) -> List[int]:
     return tokens
 
 
-def preprocess_text(text: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+            def preprocess_text(text: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Preprocess text using simple tokenization."""
     # Tokenize
     tokens = simple_tokenize(text)
 
     # Pad or truncate to MAX_LENGTH
-    if len(tokens) < MAX_LENGTH:
+            if len(tokens) < MAX_LENGTH:
         tokens.extend([vocab.get('<PAD>', 0)] * (MAX_LENGTH - len(tokens)))
     else:
         tokens = tokens[:MAX_LENGTH]
@@ -131,7 +131,7 @@ def preprocess_text(text: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     return input_ids, attention_mask, token_type_ids
 
 
-def load_onnx_model() -> ort.InferenceSession:
+            def load_onnx_model() -> ort.InferenceSession:
     """Load ONNX model with optimized settings."""
     try:
         start_time = time.time()
@@ -148,9 +148,9 @@ def load_onnx_model() -> ort.InferenceSession:
         load_time = time.time() - start_time
         MODEL_LOAD_TIME.observe(load_time)
 
-        logger.info(f"✅ ONNX model loaded successfully in {load_time:.2f}s")
-        logger.info(f"📊 Model input names: {session.get_inputs()}")
-        logger.info(f"📊 Model output names: {session.get_outputs()}")
+        logger.info(f" ONNX model loaded successfully in {load_time:.2f}s")
+        logger.info(f" Model input names: {session.get_inputs()}")
+        logger.info(f" Model output names: {session.get_outputs()}")
 
         return session
     except Exception as e:
@@ -158,7 +158,7 @@ def load_onnx_model() -> ort.InferenceSession:
         raise
 
 
-def postprocess_predictions(logits: np.ndarray) -> List[Dict[str, float]]:
+            def postprocess_predictions(logits: np.ndarray) -> List[Dict[str, float]]:
     """Postprocess ONNX model outputs."""
     # Apply temperature scaling
     logits = logits / TEMPERATURE
@@ -169,12 +169,12 @@ def postprocess_predictions(logits: np.ndarray) -> List[Dict[str, float]]:
 
     # Filter by threshold and create results
     results = []
-    for i, prob in enumerate(probabilities[0]):
-        if prob >= THRESHOLD:
-            results.append({
+            for i, prob in enumerate(probabilities[0]):
+            if prob >= THRESHOLD:
+            results.append({)
                 'emotion': EMOTION_LABELS[i],
                 'confidence': float(prob)
-            })
+(            })
 
     # Sort by confidence
     results.sort(key=lambda x: x['confidence'], reverse=True)
@@ -182,7 +182,7 @@ def postprocess_predictions(logits: np.ndarray) -> List[Dict[str, float]]:
     return results
 
 
-def predict_emotions(text: str) -> Dict[str, any]:
+            def predict_emotions(text: str) -> Dict[str, any]:
     """Predict emotions using ONNX model."""
     try:
         # Preprocess
@@ -216,18 +216,18 @@ def predict_emotions(text: str) -> Dict[str, any]:
         raise
 
 
-def initialize_model():
+            def initialize_model():
     """Initialize model and vocabulary."""
     global model_session, vocab, model_loading
 
     with model_lock:
-        if model_session is None and not model_loading:
+            if model_session is None and not model_loading:
             model_loading = True
             try:
                 logger.info("🚀 Initializing model and vocabulary...")
                 model_session = load_onnx_model()
                 vocab = load_vocab()
-                logger.info("✅ Model initialization complete")
+                logger.info(" Model initialization complete")
             except Exception as e:
                 logger.error(f"❌ Model initialization failed: {e}")
                 model_session = None
@@ -241,7 +241,7 @@ initialize_model()
 
 
 @app.route('/health', methods=['GET'])
-def health_check():
+            def health_check():
     """Health check endpoint."""
     try:
         # Check model status
@@ -272,18 +272,18 @@ def health_check():
 
 
 @app.route('/predict', methods=['POST'])
-def predict():
+            def predict():
     """Predict emotions from text."""
     start_time = time.time()
 
     try:
         # Get request data
         data = request.get_json()
-        if not data or 'text' not in data:
+            if not data or 'text' not in data:
             return jsonify({'error': 'Missing text field'}), 400
 
         text = data['text'].strip()
-        if not text:
+            if not text:
             return jsonify({'error': 'Text cannot be empty'}), 400
 
         # Predict emotions
@@ -305,15 +305,15 @@ def predict():
 
 
 @app.route('/metrics', methods=['GET'])
-def metrics():
+            def metrics():
     """Prometheus metrics endpoint."""
     return generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST}
 
 
 @app.route('/', methods=['GET'])
-def root():
+            def root():
     """Root endpoint with API information."""
-    return jsonify({
+    return jsonify({)
         'service': 'SAMO Emotion Detection API',
         'version': '2.0.0',
         'model_type': 'ONNX Simple Tokenizer',
@@ -322,15 +322,15 @@ def root():
             '/predict': 'Emotion prediction (POST)',
             '/metrics': 'Prometheus metrics'
         }
-    }), 200
+(    }), 200
 
 
-if __name__ == '__main__':
+            if __name__ == '__main__':
     # Production WSGI server
     try:
         import gunicorn.app.base
 
-        class StandaloneApplication(gunicorn.app.base.BaseApplication):
+            class StandaloneApplication(gunicorn.app.base.BaseApplication):
             def init(self, parser, opts, args):
                 """Initialize the application (abstract method override)."""
                 raise NotImplementedError()
@@ -343,7 +343,7 @@ if __name__ == '__main__':
                 for key, value in self.options.items():
                     self.cfg.set(key, value)
 
-            def load(self):
+                def load(self):
                 return self.application
 
         # Production configuration

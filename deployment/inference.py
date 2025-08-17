@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""
+""""
 EMOTION DETECTION INFERENCE SCRIPT
 =====================================
 Standalone script to run emotion detection on text.
-"""
+""""
 
 import torch
 from pathlib import Path
@@ -29,9 +29,9 @@ class EmotionDetector:
         # Define emotion mapping based on training order
         self.emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
 
-        print(f"✅ Model loaded successfully on {self.device}")
+        print(f" Model loaded successfully on {self.device}")
 
-    def predict(self, text):
+        def predict(self, text):
         """Predict emotion for given text"""
         # Tokenize
         inputs = self.tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
@@ -53,7 +53,7 @@ class EmotionDetector:
             "text": text
         }
 
-    def predict_batch(self, texts):
+        def predict_batch(self, texts):
         """Predict emotions for multiple texts"""
         results = []
         for text in texts:
@@ -61,11 +61,11 @@ class EmotionDetector:
             results.append(result)
         return results
 
-def main():
+        def main():
     """Main function for command line usage"""
     import sys
 
-    if len(sys.argv) < 2:
+        if len(sys.argv) < 2:
         print("Usage: python inference.py 'Your text here'")
         print("Example: python inference.py 'I am feeling happy today!'")
         return
@@ -78,11 +78,11 @@ def main():
     # Make prediction
     result = detector.predict(text)
 
-    print("\n🎯 EMOTION DETECTION RESULT")
+    print("\n EMOTION DETECTION RESULT")
     print("=" * 40)
-    print("Text: {result["text']}")
-    print("Emotion: {result["emotion']}")
-    print("Confidence: {result["confidence']:.3f}")
+    print("Text: {result["text']}")"
+    print("Emotion: {result["emotion']}")"
+    print("Confidence: {result["confidence']:.3f}")"
 
-if __name__ == "__main__":
+        if __name__ == "__main__":
     main()

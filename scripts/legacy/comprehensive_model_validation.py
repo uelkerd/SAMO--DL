@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""
+""""
 COMPREHENSIVE MODEL VALIDATION SCRIPT
 ========================================
 Thoroughly validates the emotion detection model to ensure 100% reliability
-"""
+""""
 
 import json
 import time
@@ -17,7 +17,7 @@ def comprehensive_validation():
 
     print("🔬 COMPREHENSIVE MODEL VALIDATION")
     print("=" * 60)
-    print("🎯 Goal: Verify 99.54% F1 score reliability")
+    print(" Goal: Verify 99.54% F1 score reliability")
     print("=" * 60)
 
     # Check model files
@@ -32,16 +32,16 @@ def comprehensive_validation():
         file_path = model_dir / file
         if file_path.exists():
             file_size = file_path.stat().st_size / (1024 * 1024)  # MB
-            print(f"✅ {file}: {file_size:.2f} MB")
+            print(f" {file}: {file_size:.2f} MB")
         else:
             print(f"❌ {file}: MISSING")
             missing_files.append(file)
 
-    if missing_files:
+        if missing_files:
         print(f"\n❌ CRITICAL: Missing files: {missing_files}")
         return False
 
-    print("✅ All model files present and valid")
+    print(" All model files present and valid")
 
     # Load model configuration
     print("\n🔧 MODEL CONFIGURATION VALIDATION")
@@ -50,11 +50,11 @@ def comprehensive_validation():
     with open(model_dir / 'config.json', 'r') as f:
         config = json.load(f)
 
-    print("Model Type: {config.get("model_type', 'unknown')}")
-    print("Architecture: {config.get("architectures', ['unknown'])[0]}")
-    print("Hidden Size: {config.get("hidden_size', 'unknown')}")
-    print("Number of Labels: {len(config.get("id2label', {}))}")
-    print("Vocab Size: {config.get("vocab_size', 'unknown')}")
+    print("Model Type: {config.get("model_type', 'unknown')}")"
+    print("Architecture: {config.get("architectures', ['unknown'])[0]}")"
+    print("Hidden Size: {config.get("hidden_size', 'unknown')}")"
+    print("Number of Labels: {len(config.get("id2label', {}))}")"
+    print("Vocab Size: {config.get("vocab_size', 'unknown')}")"
 
     # Define emotion mapping
     emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
@@ -68,17 +68,17 @@ def comprehensive_validation():
         start_time = time.time()
         tokenizer = AutoTokenizer.from_pretrained("roberta-base")
         load_time = time.time() - start_time
-        print(f"✅ Tokenizer loaded: {load_time:.2f}s")
+        print(f" Tokenizer loaded: {load_time:.2f}s")
 
         start_time = time.time()
         model = AutoModelForSequenceClassification.from_pretrained(str(model_dir))
         load_time = time.time() - start_time
-        print(f"✅ Model loaded: {load_time:.2f}s")
+        print(f" Model loaded: {load_time:.2f}s")
 
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         model.to(device)
         model.eval()
-        print(f"✅ Model moved to {device}")
+        print(f" Model moved to {device}")
 
     except Exception as e:
         print(f"❌ Model loading failed: {str(e)}")
@@ -89,24 +89,24 @@ def comprehensive_validation():
     print("-" * 40)
 
     test_cases = [
-        ("I'm feeling really happy today!", "happy"),
-        ("I'm so frustrated with this project.", "frustrated"),
+        ("I'm feeling really happy today!", "happy"),'
+        ("I'm so frustrated with this project.", "frustrated"),'
         ("I feel anxious about the presentation.", "anxious"),
-        ("I'm grateful for all the support.", "grateful"),
-        ("I'm feeling overwhelmed with tasks.", "overwhelmed"),
-        ("I'm proud of my accomplishments.", "proud"),
+        ("I'm grateful for all the support.", "grateful"),'
+        ("I'm feeling overwhelmed with tasks.", "overwhelmed"),'
+        ("I'm proud of my accomplishments.", "proud"),'
         ("I feel sad about the loss.", "sad"),
-        ("I'm tired from working all day.", "tired"),
+        ("I'm tired from working all day.", "tired"),'
         ("I feel calm and peaceful.", "calm"),
-        ("I'm excited about the new opportunity.", "excited"),
+        ("I'm excited about the new opportunity.", "excited"),'
         ("I feel content with my life.", "content"),
-        ("I'm hopeful for the future.", "hopeful")
+        ("I'm hopeful for the future.", "hopeful")'
     ]
 
     correct_predictions = 0
     total_predictions = len(test_cases)
 
-    for text, expected_emotion in test_cases:
+        for text, expected_emotion in test_cases:
         try:
             # Tokenize
             inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
@@ -124,22 +124,22 @@ def comprehensive_validation():
 
             if is_correct:
                 correct_predictions += 1
-                status = "✅"
+                status = ""
             else:
                 status = "❌"
 
             print(f"{status} '{text}' → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})")
 
         except Exception as e:
-            print("❌ Error predicting "{text}': {str(e)}")
+            print("❌ Error predicting "{text}': {str(e)}")"
             return False
 
     accuracy = correct_predictions / total_predictions
-    print("\n📊 Basic Functionality Results:")
+    print("\n Basic Functionality Results:")
     print(f"   Correct: {correct_predictions}/{total_predictions}")
     print(f"   Accuracy: {accuracy:.1%}")
 
-    if accuracy < 0.8:
+            if accuracy < 0.8:
         print(f"❌ CRITICAL: Basic accuracy too low ({accuracy:.1%})")
         return False
 
@@ -148,7 +148,7 @@ def comprehensive_validation():
     print("-" * 40)
 
     confidence_scores = []
-    for text, _ in test_cases:
+            for text, _ in test_cases:
         inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
@@ -166,7 +166,7 @@ def comprehensive_validation():
     print(f"Min Confidence: {min_confidence:.3f}")
     print(f"Max Confidence: {max_confidence:.3f}")
 
-    if avg_confidence < 0.5:
+            if avg_confidence < 0.5:
         print(f"⚠️  WARNING: Low average confidence ({avg_confidence:.3f})")
 
     # Test 3: Edge Cases
@@ -179,13 +179,13 @@ def comprehensive_validation():
         "I am feeling " + "very " * 50 + "happy",  # Very long text
         "!@#$%^&*()",  # Special characters
         "1234567890",  # Numbers only
-        "I'm feeling happy! 😊",  # With emoji
-        "I'M FEELING HAPPY TODAY!",  # All caps
+        "I'm feeling happy! 😊",  # With emoji'
+        "I'M FEELING HAPPY TODAY!",  # All caps'
         "i am feeling happy today",  # All lowercase
     ]
 
     edge_case_success = 0
-    for text in edge_cases:
+            for text in edge_cases:
         try:
             inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
             inputs = {k: v.to(device) for k, v in inputs.items()}
@@ -198,22 +198,22 @@ def comprehensive_validation():
 
             predicted_emotion = emotion_mapping[predicted_class]
             edge_case_success += 1
-            print("✅ Edge case handled: "{text[:30]}...' → {predicted_emotion} ({confidence:.3f})")
+            print(" Edge case handled: "{text[:30]}...' → {predicted_emotion} ({confidence:.3f})")"
 
         except Exception as e:
-            print("❌ Edge case failed: "{text[:30]}...' - {str(e)}")
+            print("❌ Edge case failed: "{text[:30]}...' - {str(e)}")"
 
-    print(f"\n📊 Edge Case Results: {edge_case_success}/{len(edge_cases)} successful")
+    print(f"\n Edge Case Results: {edge_case_success}/{len(edge_cases)} successful")
 
     # Test 4: Performance Benchmark
     print("\n🧪 TEST 4: PERFORMANCE BENCHMARK")
     print("-" * 40)
 
-    benchmark_text = "I'm feeling really happy today!"
+    benchmark_text = "I'm feeling really happy today!"'
     num_iterations = 100
 
     start_time = time.time()
-    for _ in range(num_iterations):
+            for _ in range(num_iterations):
         inputs = tokenizer(benchmark_text, return_tensors="pt", truncation=True, max_length=512, padding=True)
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
@@ -229,17 +229,17 @@ def comprehensive_validation():
     print(f"Average Time per Prediction: {avg_time:.4f}s")
     print(f"Throughput: {throughput:.1f} predictions/second")
 
-    if avg_time > 1.0:
+            if avg_time > 1.0:
         print(f"⚠️  WARNING: Slow inference time ({avg_time:.4f}s)")
 
     # Test 5: Consistency Check
     print("\n🧪 TEST 5: CONSISTENCY CHECK")
     print("-" * 40)
 
-    consistency_text = "I'm feeling happy today!"
+    consistency_text = "I'm feeling happy today!"'
     predictions = []
 
-    for _ in range(10):
+            for _ in range(10):
         inputs = tokenizer(consistency_text, return_tensors="pt", truncation=True, max_length=512, padding=True)
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
@@ -255,15 +255,15 @@ def comprehensive_validation():
     unique_predictions = set(pred[0] for pred in predictions)
     is_consistent = len(unique_predictions) == 1
 
-    if is_consistent:
+            if is_consistent:
         emotion, avg_conf = unique_predictions.pop(), np.mean([p[1] for p in predictions])
-        print(f"✅ Consistent predictions: {emotion} (avg confidence: {avg_conf:.3f})")
+        print(f" Consistent predictions: {emotion} (avg confidence: {avg_conf:.3f})")
     else:
         print(f"❌ Inconsistent predictions: {unique_predictions}")
         return False
 
     # Final Validation Summary
-    print("\n🎯 FINAL VALIDATION SUMMARY")
+    print("\n FINAL VALIDATION SUMMARY")
     print("=" * 60)
 
     validation_results = {
@@ -277,20 +277,20 @@ def comprehensive_validation():
 
     all_passed = all(validation_results.values())
 
-    for test, passed in validation_results.items():
-        status = "✅ PASS" if passed else "❌ FAIL"
+            for test, passed in validation_results.items():
+        status = " PASS" if passed else "❌ FAIL"
         print(f"{status} {test.replace('_', ' ').title()}")
 
-    print("\n{"🎉 ALL TESTS PASSED!' if all_passed else '❌ SOME TESTS FAILED'}")
+    print("\n{" ALL TESTS PASSED!' if all_passed else '❌ SOME TESTS FAILED'}")"
 
-    if all_passed:
-        print("✅ Your 99.54% F1 score model is 100% RELIABLE!")
+            if all_passed:
+        print(" Your 99.54% F1 score model is 100% RELIABLE!")
         print("🚀 Ready for production deployment!")
     else:
         print("⚠️  Model needs further validation before deployment")
 
     return all_passed
 
-if __name__ == "__main__":
+            if __name__ == "__main__":
     success = comprehensive_validation()
     exit(0 if success else 1)

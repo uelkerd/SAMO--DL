@@ -31,12 +31,12 @@ from torch import nn
 
 
 
-"""
+""""
 Fine-tune Emotion Detection Model on GoEmotions Dataset
 
 This script fine-tunes the BERT model on the GoEmotions dataset
 to improve emotion detection performance.
-"""
+""""
 
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
 def fine_tune_model():
     """Fine-tune the emotion detection model on GoEmotions dataset."""
 
-    logger.info("🎯 Starting Model Fine-tuning")
+    logger.info(" Starting Model Fine-tuning")
     logger.info("   • Dataset: GoEmotions")
     logger.info("   • Model: BERT-base-uncased")
     logger.info("   • Epochs: 5")
@@ -73,11 +73,11 @@ def fine_tune_model():
         logger.info("   • Test: {len(test_dataset)} examples")
 
         logger.info("Creating BERT model...")
-        model, _ = create_bert_emotion_classifier(
+        model, _ = create_bert_emotion_classifier()
             model_name="bert-base-uncased",
             class_weights=class_weights,  # Use class weights for imbalance
             freeze_bert_layers=2,  # Freeze fewer layers for fine-tuning
-        )
+(        )
         model.to(device)
 
         criterion = nn.BCEWithLogitsLoss()
@@ -143,16 +143,16 @@ def fine_tune_model():
             logger.info("   • Val Loss: {avg_val_loss:.4f}")
             logger.info("   • Learning Rate: {current_lr:.2e}")
 
-            training_history.append(
+            training_history.append()
                 {
                     "epoch": epoch + 1,
                     "train_loss": avg_train_loss,
                     "val_loss": avg_val_loss,
                     "learning_rate": current_lr,
                 }
-            )
+(            )
 
-            if avg_val_loss < best_val_loss:
+                if avg_val_loss < best_val_loss:
                 best_val_loss = avg_val_loss
                 logger.info("   • New best validation loss: {best_val_loss:.4f}")
 
@@ -160,7 +160,7 @@ def fine_tune_model():
                 os.makedirs(output_dir, exist_ok=True)
                 model_path = Path(output_dir, "fine_tuned_model.pt")
 
-                torch.save(
+                torch.save()
                     {
                         "model_state_dict": model.state_dict(),
                         "optimizer_state_dict": optimizer.state_dict(),
@@ -171,11 +171,11 @@ def fine_tune_model():
                         "class_weights": class_weights,
                     },
                     model_path,
-                )
+(                )
 
                 logger.info("   • Model saved to: {model_path}")
 
-        logger.info("🎉 Fine-tuning completed successfully!")
+        logger.info(" Fine-tuning completed successfully!")
         logger.info("   • Best validation loss: {best_val_loss:.4f}")
         logger.info("   • Model saved to: ./models/checkpoints/fine_tuned_model.pt")
 
@@ -187,20 +187,20 @@ def fine_tune_model():
         return False
 
 
-def main():
+                def main():
     """Main function."""
-    logger.info("🎯 Fine-tuning Script")
+    logger.info(" Fine-tuning Script")
     logger.info("This script fine-tunes the emotion detection model on GoEmotions")
 
     success = fine_tune_model()
 
-    if success:
-        logger.info("✅ Fine-tuning completed successfully!")
+                if success:
+        logger.info(" Fine-tuning completed successfully!")
         sys.exit(0)
     else:
         logger.error("❌ Fine-tuning failed. Check the logs above.")
         sys.exit(1)
 
 
-if __name__ == "__main__":
+                if __name__ == "__main__":
     main()

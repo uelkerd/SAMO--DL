@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""
+""""
 Create Minimal Working Notebook
 ==============================
 
 This script creates a minimal working notebook with the most basic
 training arguments that should work in any transformers version.
-"""
+""""
 
 import json
 
@@ -22,10 +22,10 @@ def create_minimal_notebook():
                     "## Ultra-Simple Version That Should Work\n",
                     "\n",
                     "**FEATURES:**\n",
-                    "✅ Basic training (no complex arguments)\n",
-                    "✅ Configuration preservation\n",
-                    "✅ Simple data processing\n",
-                    "✅ Model saving with verification\n",
+                    " Basic training (no complex arguments)\n",
+                    " Configuration preservation\n",
+                    " Simple data processing\n",
+                    " Model saving with verification\n",
                     "\n",
                     "**Target**: Get training working first, then optimize"
                 ]
@@ -52,18 +52,18 @@ def create_minimal_notebook():
                     "from transformers import                    "from transformers import AutoTokenizer,
                          AutoModelForSequenceClassification,
                          TrainingArguments,
-                         Trainer\n",
-                        
+                         Trainer\n","
+
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.metrics import                    "from sklearn.metrics import classification_report,
                          f1_score,
-                         accuracy_score\n",
-                        
+                         accuracy_score\n","
+
                     "import json\n",
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",
-                    "print('✅ All packages imported successfully')\n",
+                    "print(' All packages imported successfully')\n",
                     "print(f'PyTorch version: {torch.__version__}')\n",
                     "print(f'CUDA available: {torch.cuda.is_available()}')"
                 ]
@@ -72,7 +72,7 @@ def create_minimal_notebook():
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🎯 SETUP"
+                    "##  SETUP"
                 ]
             },
             {
@@ -83,7 +83,7 @@ def create_minimal_notebook():
                 "source": [
                     "# Define emotion classes\n",
                     "emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\n",
-                    "print(f'🎯 Emotion classes: {emotions}')\n",
+                    "print(f' Emotion classes: {emotions}')\n",
                     "\n",
                     "# Simple dataset\n",
                     "data = [\n",
@@ -114,7 +114,7 @@ def create_minimal_notebook():
                     "    {'text': 'I feel exhausted from the work.', 'label': 11}\n",
                     "]\n",
                     "\n",
-                    "print(f'📊 Dataset size: {len(data)} samples')"
+                    "print(f' Dataset size: {len(data)} samples')"
                 ]
             },
             {
@@ -142,8 +142,8 @@ def create_minimal_notebook():
                     "model.config.id2label = {i: emotion for i, emotion in enumerate(emotions)}\n",
                     "model.config.label2id = {emotion: i for i, emotion in enumerate(emotions)}\n",
                     "\n",
-                    "print(f'✅ Model configured for {len(emotions)} emotions')\n",
-                    "print(f'✅ id2label: {model.config.id2label}')"
+                    "print(f' Model configured for {len(emotions)} emotions')\n",
+                    "print(f' id2label: {model.config.id2label}')"
                 ]
             },
             {
@@ -164,12 +164,12 @@ def create_minimal_notebook():
                     "labels = [item['label'] for item in data]\n",
                     "\n",
                     "# Split data\n",
-                    "train_texts, val_texts, train_labels, val_labels = train_test_split(\n",
+                    "train_texts, val_texts, train_labels, val_labels = train_test_split(\n",)
                     "    texts, labels, test_size=0.2, random_state=42, stratify=labels\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
-                    "print(f'📊 Training samples: {len(train_texts)}')\n",
-                    "print(f'📊 Validation samples: {len(val_texts)}')\n",
+                    "print(f' Training samples: {len(train_texts)}')\n",
+                    "print(f' Validation samples: {len(val_texts)}')\n",
                     "\n",
                     "# Tokenize\n",
                     "train_encodings = tokenizer(train_texts, truncation=True, padding=True, return_tensors='pt')\n",
@@ -192,7 +192,7 @@ def create_minimal_notebook():
                     "train_dataset = SimpleDataset(train_encodings, train_labels)\n",
                     "val_dataset = SimpleDataset(val_encodings, val_labels)\n",
                     "\n",
-                    "print('✅ Data preprocessing completed')"
+                    "print(' Data preprocessing completed')"
                 ]
             },
             {
@@ -209,7 +209,7 @@ def create_minimal_notebook():
                 "outputs": [],
                 "source": [
                     "# Minimal training arguments - only essential parameters\n",
-                    "training_args = TrainingArguments(\n",
+                    "training_args = TrainingArguments(\n",)
                     "    output_dir='./minimal_emotion_model',\n",
                     "    num_train_epochs=3,\n",
                     "    per_device_train_batch_size=4,\n",
@@ -217,16 +217,16 @@ def create_minimal_notebook():
                     "    logging_steps=10,\n",
                     "    save_steps=50,\n",
                     "    eval_steps=50\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
-                    "print('✅ Minimal training arguments configured')"
+                    "print(' Minimal training arguments configured')"
                 ]
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 📊 COMPUTE METRICS"
+                    "##  COMPUTE METRICS"
                 ]
             },
             {
@@ -245,7 +245,7 @@ def create_minimal_notebook():
                     "        'accuracy': accuracy_score(labels, predictions)\n",
                     "    }\n",
                     "\n",
-                    "print('✅ Compute metrics function ready')"
+                    "print(' Compute metrics function ready')"
                 ]
             },
             {
@@ -262,27 +262,27 @@ def create_minimal_notebook():
                 "outputs": [],
                 "source": [
                     "# Initialize trainer\n",
-                    "trainer = Trainer(\n",
+                    "trainer = Trainer(\n",)
                     "    model=model,\n",
                     "    args=training_args,\n",
                     "    train_dataset=train_dataset,\n",
                     "    eval_dataset=val_dataset,\n",
                     "    tokenizer=tokenizer,\n",
                     "    compute_metrics=compute_metrics\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
-                    "print('✅ Trainer initialized')\n",
+                    "print(' Trainer initialized')\n",
                     "\n",
                     "# Start training\n",
                     "print('🚀 STARTING MINIMAL TRAINING')\n",
                     "print('=' * 40)\n",
-                    "print(f'📊 Training samples: {len(train_dataset)}')\n",
+                    "print(f' Training samples: {len(train_dataset)}')\n",
                     "print(f'🧪 Validation samples: {len(val_dataset)}')\n",
                     "\n",
                     "# Train the model\n",
                     "trainer.train()\n",
                     "\n",
-                    "print('✅ Training completed successfully!')"
+                    "print(' Training completed successfully!')"
                 ]
             },
             {
@@ -303,11 +303,11 @@ def create_minimal_notebook():
                     "print('=' * 40)\n",
                     "\n",
                     "results = trainer.evaluate()\n",
-                    "print('\\n📊 FINAL RESULTS:')\n",
-                    "print("F1 Score: {results[\"eval_f1\"]:.4f}')\n",
-                    "print("Accuracy: {results[\"eval_accuracy\"]:.4f}')\n",
+                    "print('\\n FINAL RESULTS:')\n",
+                    "print("F1 Score: {results[\"eval_f1\"]:.4f}')\n","
+                    "print("Accuracy: {results[\"eval_accuracy\"]:.4f}')\n","
                     "\n",
-                    "print('✅ Evaluation completed!')"
+                    "print(' Evaluation completed!')"
                 ]
             },
             {
@@ -331,19 +331,19 @@ def create_minimal_notebook():
                     "trainer.save_model(model_path)\n",
                     "tokenizer.save_pretrained(model_path)\n",
                     "\n",
-                    "print(f'✅ Model saved to: {model_path}')\n",
+                    "print(f' Model saved to: {model_path}')\n",
                     "\n",
                     "# Verify configuration\n",
                     "config_path = f'{model_path}/config.json'\n",
                     "with open(config_path, 'r') as f:\n",
                     "    config = json.load(f)\n",
                     "\n",
-                    "print("\\n🔍 SAVED CONFIGURATION:")\n",
-                    "print("Model type: {config.get(\"model_type\", \"NOT SET\")}')\n",
-                    "print("Number of labels: {config.get(\"num_labels\", \"NOT SET\")}')\n",
-                    "print("id2label: {config.get(\"id2label\", \"NOT SET\")}')\n",
+                    "print("\\n SAVED CONFIGURATION:")\n",
+                    "print("Model type: {config.get(\"model_type\", \"NOT SET\")}')\n","
+                    "print("Number of labels: {config.get(\"num_labels\", \"NOT SET\")}')\n","
+                    "print("id2label: {config.get(\"id2label\", \"NOT SET\")}')\n","
                     "\n",
-                    "print('\\n✅ Model saving completed!')"
+                    "print('\\n Model saving completed!')"
                 ]
             }
         ],
@@ -375,12 +375,12 @@ def create_minimal_notebook():
     with open(output_path, 'w') as f:
         json.dump(notebook_content, f, indent=2)
 
-    print(f"✅ Created minimal working notebook: {output_path}")
-    print("📋 Features:")
-    print("   ✅ Ultra-minimal training arguments")
-    print("   ✅ No complex parameters")
-    print("   ✅ Basic training and evaluation")
-    print("   ✅ Model saving with verification")
+    print(f" Created minimal working notebook: {output_path}")
+    print(" Features:")
+    print("    Ultra-minimal training arguments")
+    print("    No complex parameters")
+    print("    Basic training and evaluation")
+    print("    Model saving with verification")
     print("\\n🚀 This should work in ANY transformers version!")
 
     return output_path

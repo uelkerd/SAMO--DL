@@ -13,12 +13,12 @@ from pathlib import Path
 
 
 
-"""
+""""
 Simple Vertex AI Validation for SAMO Deep Learning.
 
 This script runs a simple validation on Vertex AI to identify the 0.0000 loss issue
 without complex infrastructure setup.
-"""
+""""
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -33,28 +33,28 @@ def main():
         project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "the-tendril-466607-n8")
         region = "us-central1"
 
-        logger.info("✅ Project ID: {project_id}")
-        logger.info("✅ Region: {region}")
+        logger.info(" Project ID: {project_id}")
+        logger.info(" Region: {region}")
 
-        aiplatform.init(
+        aiplatform.init()
             project=project_id,
             location=region,
-        )
+(        )
 
-        logger.info("✅ Vertex AI initialized successfully")
+        logger.info(" Vertex AI initialized successfully")
 
-        logger.info("🔍 Creating validation job...")
+        logger.info(" Creating validation job...")
 
-        job = aiplatform.CustomTrainingJob(
+        job = aiplatform.CustomTrainingJob()
             display_name="samo-simple-validation",
             container_uri="gcr.io/cloud-aiplatform/training/pytorch-cpu.2-0:latest",
             machine_type="n1-standard-4",
             replica_count=1,
-        )
+(        )
 
-        logger.info("✅ Validation job created successfully!")
+        logger.info(" Validation job created successfully!")
         logger.info("")
-        logger.info("🎯 NEXT STEPS:")
+        logger.info(" NEXT STEPS:")
         logger.info("1. Go to Vertex AI Console: https://console.cloud.google.com/vertex-ai")
         logger.info("2. Navigate to Training → Custom jobs")
         logger.info("3. Find 'samo-simple-validation' job")
@@ -75,7 +75,7 @@ def main():
         logger.error("❌ Vertex AI validation failed: {e}")
         logger.error("")
         logger.error("🔧 ALTERNATIVE APPROACH:")
-        logger.error("Since Vertex AI setup is complex, let's focus on the immediate issue:")
+        logger.error("Since Vertex AI setup is complex, let's focus on the immediate issue:")'
         logger.error("")
         logger.error("1. Run local validation: python scripts/local_validation_debug.py")
         logger.error("2. Check data distribution manually")

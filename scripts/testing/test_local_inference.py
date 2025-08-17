@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""
+""""
 Local Inference Test Script for Emotion Detection Model
 Tests the downloaded model files directly without API server
-"""
+""""
 
 import sys
 from pathlib import Path
@@ -26,30 +26,30 @@ def test_local_inference():
     for file in required_files:
         file_path = model_dir / file
         if file_path.exists():
-            print(f"✅ Found: {file}")
+            print(f" Found: {file}")
         else:
             print(f"❌ Missing: {file}")
             missing_files.append(file)
 
-    if missing_files:
+        if missing_files:
         print(f"\n❌ Missing required files: {missing_files}")
         print("Please download the model files from Colab first!")
         return False
 
-    print("\n✅ All model files found!")
+    print("\n All model files found!")
 
     # Test texts
     test_texts = [
-        "I'm feeling really happy today!",
-        "I'm so frustrated with this project.",
+        "I'm feeling really happy today!",'
+        "I'm so frustrated with this project.",'
         "I feel anxious about the presentation.",
-        "I'm grateful for all the support.",
-        "I'm feeling overwhelmed with tasks.",
+        "I'm grateful for all the support.",'
+        "I'm feeling overwhelmed with tasks.",'
         "I'm proud of what I've accomplished.",
-        "I'm feeling sad and lonely today.",
-        "I'm excited about the new opportunities.",
+        "I'm feeling sad and lonely today.",'
+        "I'm excited about the new opportunities.",'
         "I feel calm and peaceful right now.",
-        "I'm hopeful that things will get better."
+        "I'm hopeful that things will get better."'
     ]
 
     try:
@@ -58,9 +58,9 @@ def test_local_inference():
 
         print("\n🔧 Loading model...")
         detector = EmotionDetector()
-        print("✅ Model loaded successfully!")
+        print(" Model loaded successfully!")
 
-        print("\n📊 Testing predictions:")
+        print("\n Testing predictions:")
         print("-" * 50)
 
         for i, text in enumerate(test_texts, 1):
@@ -76,19 +76,19 @@ def test_local_inference():
                 print(f"    Error: {e}")
                 print()
 
-        print("🎉 Local inference test completed successfully!")
+        print(" Local inference test completed successfully!")
         return True
 
     except ImportError as e:
         print(f"❌ Import error: {e}")
-        print("Make sure you're in the correct directory and all dependencies are installed.")
+        print("Make sure you're in the correct directory and all dependencies are installed.")'
         return False
     except Exception as e:
         print(f"❌ Error during inference: {e}")
         print("Check if the model files are compatible with the inference script.")
         return False
 
-def test_simple_inference():
+        def test_simple_inference():
     """Simple test without the full inference module"""
 
     print("🧪 SIMPLE INFERENCE TEST")
@@ -107,10 +107,10 @@ def test_simple_inference():
         tokenizer = AutoTokenizer.from_pretrained(str(model_dir))
         model = AutoModelForSequenceClassification.from_pretrained(str(model_dir))
 
-        print("✅ Model loaded successfully!")
+        print(" Model loaded successfully!")
 
         # Test text
-        test_text = "I'm feeling really happy today!"
+        test_text = "I'm feeling really happy today!"'
         print(f"\n📝 Testing text: {test_text}")
 
         # Tokenize
@@ -127,8 +127,8 @@ def test_simple_inference():
         id2label = model.config.id2label
         predicted_emotion = id2label[predicted_class]
 
-        print(f"🎯 Predicted: {predicted_emotion}")
-        print(f"📊 Confidence: {confidence:.3f}")
+        print(f" Predicted: {predicted_emotion}")
+        print(f" Confidence: {confidence:.3f}")
 
         # Show top 3 predictions
         top3_indices = torch.topk(probabilities[0], 3).indices
@@ -138,14 +138,14 @@ def test_simple_inference():
             conf = probabilities[0][idx].item()
             print(f"   {i+1}. {emotion}: {conf:.3f}")
 
-        print("\n🎉 Simple inference test completed!")
+        print("\n Simple inference test completed!")
         return True
 
     except Exception as e:
         print(f"❌ Error during simple inference: {e}")
         return False
 
-if __name__ == "__main__":
+        if __name__ == "__main__":
     print("🚀 EMOTION DETECTION - LOCAL TEST")
     print("=" * 60)
 
@@ -153,11 +153,11 @@ if __name__ == "__main__":
     print("\n1️⃣ Testing full inference module...")
     success = test_local_inference()
 
-    if not success:
+        if not success:
         print("\n2️⃣ Trying simple inference test...")
         test_simple_inference()
 
-    print("\n📋 Next steps:")
-    print("   - If tests pass: Run "cd deployment && ./deploy.sh'")
+    print("\n Next steps:")
+    print("   - If tests pass: Run "cd deployment && ./deploy.sh'")"
     print("   - If tests fail: Check model files and dependencies")
     print("   - API will be available at: http://localhost:5000")

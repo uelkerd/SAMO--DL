@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+""""
 Comprehensive CI Pipeline Runner for SAMO Deep Learning
 
 This script runs the complete CI pipeline end-to-end, including:
@@ -10,7 +10,7 @@ This script runs the complete CI pipeline end-to-end, including:
 - GPU compatibility (when available)
 
 Designed to work in both local and Colab environments.
-"""
+""""
 
 import logging
 import os
@@ -28,18 +28,18 @@ except Exception:  # Fallback to local helper if import path not available
         return bool(value) and value.strip().lower() in {"1", "true", "yes"}
 
 # Configure logging
-logging.basicConfig(
+logging.basicConfig()
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
         logging.FileHandler('ci_pipeline.log')
     ]
-)
+()
 logger = logging.getLogger(__name__)
 
 
-class CIPipelineRunner:
+    class CIPipelineRunner:
     """Comprehensive CI Pipeline Runner."""
 
     def __init__(self):
@@ -55,11 +55,11 @@ class CIPipelineRunner:
         ]
 
     def _get_test_stats(self) -> tuple[dict, int, int]:
-        """Calculate statistics on test results.
+        """Calculate statistics on test results."
 
         Returns:
             tuple: (test_results dict, total_tests, passed_tests)
-        """
+        """"
         test_results = {
             name: result
             for name, result in self.results.items()
@@ -70,9 +70,9 @@ class CIPipelineRunner:
         passed_tests = sum(test_results.values())
         return test_results, total_tests, passed_tests
 
-    def detect_environment(self) -> Dict[str, str]:
+            def detect_environment(self) -> Dict[str, str]:
         """Detect the current environment (local vs Colab)."""
-        logger.info("🔍 Detecting environment...")
+        logger.info(" Detecting environment...")
 
         env_info = {
             "platform": sys.platform,
@@ -93,16 +93,16 @@ class CIPipelineRunner:
             logger.warning("⚠️ PyTorch not available for GPU detection")
 
         # Check for Colab
-        if env_info["is_colab"]:
-            logger.info("🎯 Running in Google Colab environment")
+            if env_info["is_colab"]:
+            logger.info(" Running in Google Colab environment")
             env_info["colab_gpu"] = os.environ.get("COLAB_GPU", "unknown")
         else:
             logger.info("💻 Running in local environment")
 
-        logger.info(f"📊 Environment: {env_info}")
+        logger.info(f" Environment: {env_info}")
         return env_info
 
-    def validate_dependencies(self) -> bool:
+            def validate_dependencies(self) -> bool:
         """Validate that all required dependencies are available."""
         logger.info("📦 Validating dependencies...")
 
@@ -112,22 +112,22 @@ class CIPipelineRunner:
         ]
 
         missing_packages = []
-        for package in required_packages:
+            for package in required_packages:
             try:
                 __import__(package)
-                logger.info(f"✅ {package} available")
+                logger.info(f" {package} available")
             except ImportError:
                 missing_packages.append(package)
                 logger.error(f"❌ {package} missing")
 
-        if missing_packages:
+            if missing_packages:
             logger.error(f"❌ Missing packages: {missing_packages}")
             return False
 
-        logger.info("✅ All dependencies validated")
+        logger.info(" All dependencies validated")
         return True
 
-    def run_ci_script(self, script_path: str) -> Tuple[bool, str]:
+            def run_ci_script(self, script_path: str) -> Tuple[bool, str]:
         """Run a single CI script and return success status and output."""
         logger.info(f"🚀 Running {script_path}...")
 
@@ -136,15 +136,15 @@ class CIPipelineRunner:
             python_executable = sys.executable
 
             # Run the script
-            result = subprocess.run(
+            result = subprocess.run()
                 [python_executable, script_path],
                 capture_output=True,
                 text=True,
                 timeout=300  # 5 minute timeout
-            )
+(            )
 
             if result.returncode == 0:
-                logger.info(f"✅ {script_path} PASSED")
+                logger.info(f" {script_path} PASSED")
                 return True, result.stdout
             else:
                 logger.error(f"❌ {script_path} FAILED")
@@ -158,20 +158,20 @@ class CIPipelineRunner:
             logger.error(f"💥 {script_path} ERROR: {e}")
             return False, str(e)
 
-    def run_unit_tests(self) -> bool:
+            def run_unit_tests(self) -> bool:
         """Run unit tests."""
         logger.info("🧪 Running unit tests...")
 
         try:
-            result = subprocess.run(
+            result = subprocess.run()
                 [sys.executable, "-m", "pytest", "tests/unit/", "-v"],
                 capture_output=True,
                 text=True,
                 timeout=1200  # 20 minute timeout (increased from 10)
-            )
+(            )
 
             if result.returncode == 0:
-                logger.info("✅ Unit tests PASSED")
+                logger.info(" Unit tests PASSED")
                 return True
             else:
                 logger.error("❌ Unit tests FAILED")
@@ -187,20 +187,20 @@ class CIPipelineRunner:
             logger.error(f"💥 Unit tests ERROR: {e}")
             return False
 
-    def run_e2e_tests(self) -> bool:
+            def run_e2e_tests(self) -> bool:
         """Run end-to-end tests."""
-        logger.info("🎯 Running E2E tests...")
+        logger.info(" Running E2E tests...")
 
         try:
-            result = subprocess.run(
+            result = subprocess.run()
                 [sys.executable, "-m", "pytest", "tests/e2e/", "-v"],
                 capture_output=True,
                 text=True,
                 timeout=900  # 15 minute timeout
-            )
+(            )
 
             if result.returncode == 0:
-                logger.info("✅ E2E tests PASSED")
+                logger.info(" E2E tests PASSED")
                 return True
             else:
                 logger.error("❌ E2E tests FAILED")
@@ -211,7 +211,7 @@ class CIPipelineRunner:
             logger.error(f"💥 E2E tests ERROR: {e}")
             return False
 
-    def test_gpu_compatibility(self) -> bool:
+            def test_gpu_compatibility(self) -> bool:
         """Test GPU compatibility if available."""
         logger.info("🖥️ Testing GPU compatibility...")
 
@@ -245,14 +245,14 @@ class CIPipelineRunner:
             with torch.no_grad():
                 output = model(dummy_input, torch.ones_like(dummy_input))
 
-            logger.info(f"✅ GPU forward pass successful, output shape: {output.shape}")
+            logger.info(f" GPU forward pass successful, output shape: {output.shape}")
             return True
 
         except Exception as e:
             logger.error(f"❌ GPU compatibility test failed: {e}")
             return False
 
-    def run_performance_benchmarks(self) -> bool:
+            def run_performance_benchmarks(self) -> bool:
         """Run performance benchmarks."""
         logger.info("⚡ Running performance benchmarks...")
 
@@ -284,12 +284,12 @@ class CIPipelineRunner:
                 output = model(dummy_input, torch.ones_like(dummy_input))
             inference_time = time.time() - start_time
 
-            logger.info(f"✅ Model loading time: {loading_time:.2f}s")
-            logger.info(f"✅ Inference time: {inference_time:.2f}s")
+            logger.info(f" Model loading time: {loading_time:.2f}s")
+            logger.info(f" Inference time: {inference_time:.2f}s")
 
             # Check if times are reasonable
             if loading_time < 10.0 and inference_time < 5.0:  # Increased threshold for CPU environments
-                logger.info("✅ Performance benchmarks passed")
+                logger.info(" Performance benchmarks passed")
                 return True
             else:
                 logger.error(f"❌ Performance too slow - loading: {loading_time:.2f}s, inference: {inference_time:.2f}s")
@@ -299,7 +299,7 @@ class CIPipelineRunner:
             logger.error(f"❌ Performance benchmark failed: {e}")
             return False
 
-    def run_full_pipeline(self) -> Dict[str, bool]:
+            def run_full_pipeline(self) -> Dict[str, bool]:
         """Run the complete CI pipeline."""
         logger.info("🚀 Starting Comprehensive CI Pipeline")
         logger.info("=" * 60)
@@ -312,7 +312,7 @@ class CIPipelineRunner:
         self.results["dependencies"] = self.validate_dependencies()
 
         # Run individual CI scripts
-        for script in self.ci_scripts:
+            for script in self.ci_scripts:
             script_name = Path(script).stem
             success, output = self.run_ci_script(script)
             self.results[script_name] = success
@@ -334,9 +334,9 @@ class CIPipelineRunner:
 
         return self.results
 
-    def generate_report(self) -> str:
+            def generate_report(self) -> str:
         """Generate a comprehensive CI report."""
-        logger.info("📊 Generating CI Report")
+        logger.info(" Generating CI Report")
         logger.info("=" * 60)
 
         # Only count boolean results as actual tests
@@ -346,51 +346,51 @@ class CIPipelineRunner:
         safe_total = total_tests if total_tests > 0 else 1
         success_rate = (passed_tests / safe_total) * 100.0
 
-        report = """
-🎯 COMPREHENSIVE CI PIPELINE REPORT
+        report = """"
+ COMPREHENSIVE CI PIPELINE REPORT
 {'=' * 60}
 
-📊 SUMMARY:
+ SUMMARY:
 - Total Tests: {total_tests}
 - Passed: {passed_tests}
 - Failed: {total_tests - passed_tests}
 - Success Rate: {success_rate:.1f}%
 
-🔍 DETAILED RESULTS:
-"""
+ DETAILED RESULTS:
+""""
 
-        for test_name, result in self.results.items():
+            for test_name, result in self.results.items():
             if isinstance(result, bool):
-                status = "✅ PASSED" if result else "❌ FAILED"
+                status = " PASSED" if result else "❌ FAILED"
                 report += f"- {test_name}: {status}\n"
             elif isinstance(result, dict):
                 report += f"- {test_name}: {result}\n"
 
-        report += """
+        report += """"
 ⏱️ EXECUTION TIME: {time.time() - self.start_time:.1f}s
 
-🎯 RECOMMENDATIONS:
-"""
+ RECOMMENDATIONS:
+""""
 
-        if passed_tests == total_tests:
-            report += "🎉 All tests passed! Pipeline is ready for deployment.\n"
+            if passed_tests == total_tests:
+            report += " All tests passed! Pipeline is ready for deployment.\n"
         else:
             failed_test_names = [name for name, result in test_results.items()
                                if not result]
-            report += "⚠️ Failed tests: {", '.join(failed_test_names)}\n"
+            report += "⚠️ Failed tests: {", '.join(failed_test_names)}\n""
             report += "🔧 Please fix the failed tests before deployment.\n"
 
         return report
 
 
-def write_ci_report_if_needed(report: str) -> None:
+                def write_ci_report_if_needed(report: str) -> None:
     """Write the CI report artifact only when running in CI environment."""
-    if is_truthy(os.environ.get("CI")):
+                if is_truthy(os.environ.get("CI")):
         with open("ci_pipeline_report.txt", "w") as f:
             f.write(report)
 
 
-def main():
+                def main():
     """Main function to run the CI pipeline."""
     runner = CIPipelineRunner()
 
@@ -405,8 +405,8 @@ def main():
         # Exit with appropriate code
         _, total_tests, passed_tests = runner._get_test_stats()
 
-        if passed_tests == total_tests:
-            logger.info("🎉 CI Pipeline completed successfully!")
+                if passed_tests == total_tests:
+            logger.info(" CI Pipeline completed successfully!")
             sys.exit(0)
         else:
             logger.error("❌ CI Pipeline failed!")
@@ -420,5 +420,5 @@ def main():
         sys.exit(1)
 
 
-if __name__ == "__main__":
+                if __name__ == "__main__":
     main()

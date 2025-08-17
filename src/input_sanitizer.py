@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""
+""""
 🧹 Input Sanitizer
 =================
 Comprehensive input sanitization and validation for API security.
-"""
+""""
 
 import html
 import logging
@@ -29,7 +29,7 @@ class SanitizationConfig:
     enable_content_type_validation: bool = True
 
 class InputSanitizer:
-    """
+    """"
     Comprehensive input sanitization and validation.
 
     Features:
@@ -41,7 +41,7 @@ class InputSanitizer:
     - Content type validation
     - Length limits
     - Pattern blocking
-    """
+    """"
 
     def __init__(self, config: SanitizationConfig):
         self.config = config
@@ -66,8 +66,8 @@ class InputSanitizer:
                 # Path traversal patterns
                 r'\.\./',
                 r'\.\.\\',
-                r'%2e%2e%2",
-                r"%2e%2e%5c',
+                r'%2e%2e%2","
+                r"%2e%2e%5c',"
 
                 # Command injection patterns
                 r'(\b(cmd|command|exec|system|eval|exec)\b)',
@@ -88,8 +88,8 @@ class InputSanitizer:
                 'p', 'br', 'strong', 'em', 'u', 'i', 'b', 'span', 'div'
             }
 
-    def sanitize_text(self, text: str, context: str = "general") -> Tuple[str, List[str]]:
-        """
+        def sanitize_text(self, text: str, context: str = "general") -> Tuple[str, List[str]]:
+        """"
         Sanitize text input.
 
         Args:
@@ -98,7 +98,7 @@ class InputSanitizer:
 
         Returns:
             Tuple of (sanitized_text, warnings)
-        """
+        """"
         warnings = []
 
         if not isinstance(text, str):
@@ -122,7 +122,7 @@ class InputSanitizer:
                     text = re.sub(pattern, '[BLOCKED]', text, flags=re.IGNORECASE)
 
         # HTML escaping for XSS protection
-        if self.config.enable_xss_protection:
+                if self.config.enable_xss_protection:
             text = html.escape(text)
 
         # Remove null bytes and control characters
@@ -133,8 +133,8 @@ class InputSanitizer:
 
         return text, warnings
 
-    def sanitize_json(self, data: Any, max_depth: int = 10) -> Tuple[Any, List[str]]:
-        """
+                def sanitize_json(self, data: Any, max_depth: int = 10) -> Tuple[Any, List[str]]:
+        """"
         Sanitize JSON data recursively.
 
         Args:
@@ -143,15 +143,15 @@ class InputSanitizer:
 
         Returns:
             Tuple of (sanitized_data, warnings)
-        """
+        """"
         warnings = []
 
-        def _sanitize_recursive(obj: Any, depth: int = 0) -> Any:
-            if depth > max_depth:
+                def _sanitize_recursive(obj: Any, depth: int = 0) -> Any:
+                if depth > max_depth:
                 warnings.append(f"Maximum recursion depth {max_depth} exceeded")
                 return None
 
-            if isinstance(obj, str):
+                if isinstance(obj, str):
                 sanitized, obj_warnings = self.sanitize_text(obj)
                 warnings.extend(obj_warnings)
                 return sanitized
@@ -167,8 +167,8 @@ class InputSanitizer:
 
         return _sanitize_recursive(data), warnings
 
-    def validate_emotion_request(self, data: Dict) -> Tuple[Dict, List[str]]:
-        """
+                def validate_emotion_request(self, data: Dict) -> Tuple[Dict, List[str]]:
+        """"
         Validate and sanitize emotion detection request.
 
         Args:
@@ -176,16 +176,16 @@ class InputSanitizer:
 
         Returns:
             Tuple of (sanitized_data, warnings)
-        """
+        """"
         warnings = []
         sanitized_data = {}
 
         # Validate text field
-        if 'text' not in data:
+                if 'text' not in data:
             raise ValueError("Missing required field 'text'")
 
         text = data['text']
-        if not isinstance(text, str):
+                if not isinstance(text, str):
             raise ValueError("Field 'text' must be a string")
 
         sanitized_text, text_warnings = self.sanitize_text(text, "emotion")
@@ -193,7 +193,7 @@ class InputSanitizer:
         warnings.extend(text_warnings)
 
         # Validate optional fields
-        if 'confidence_threshold' in data:
+                if 'confidence_threshold' in data:
             try:
                 threshold = float(data['confidence_threshold'])
                 if 0.0 <= threshold <= 1.0:
@@ -205,8 +205,8 @@ class InputSanitizer:
 
         return sanitized_data, warnings
 
-    def validate_batch_request(self, data: Dict) -> Tuple[Dict, List[str]]:
-        """
+                def validate_batch_request(self, data: Dict) -> Tuple[Dict, List[str]]:
+        """"
         Validate and sanitize batch emotion detection request.
 
         Args:
@@ -214,27 +214,27 @@ class InputSanitizer:
 
         Returns:
             Tuple of (sanitized_data, warnings)
-        """
+        """"
         warnings = []
         sanitized_data = {}
 
         # Validate texts field
-        if 'texts' not in data:
+                if 'texts' not in data:
             raise ValueError("Missing required field 'texts'")
 
         texts = data['texts']
-        if not isinstance(texts, list):
+                if not isinstance(texts, list):
             raise ValueError("Field 'texts' must be a list")
 
         # Check batch size
-        if len(texts) > self.config.max_batch_size:
+                if len(texts) > self.config.max_batch_size:
             warnings.append(f"Batch size {len(texts)} exceeds maximum {self.config.max_batch_size}")
             texts = texts[:self.config.max_batch_size]
 
         # Sanitize each text
         sanitized_texts = []
-        for i, text in enumerate(texts):
-            if not isinstance(text, str):
+                for i, text in enumerate(texts):
+                if not isinstance(text, str):
                 warnings.append(f"Text at index {i} is not a string, skipping")
                 continue
 
@@ -245,7 +245,7 @@ class InputSanitizer:
         sanitized_data['texts'] = sanitized_texts
 
         # Validate optional fields
-        if 'confidence_threshold' in data:
+                if 'confidence_threshold' in data:
             try:
                 threshold = float(data['confidence_threshold'])
                 if 0.0 <= threshold <= 1.0:
@@ -257,8 +257,8 @@ class InputSanitizer:
 
         return sanitized_data, warnings
 
-    def validate_content_type(self, content_type: str) -> bool:
-        """
+                def validate_content_type(self, content_type: str) -> bool:
+        """"
         Validate content type header.
 
         Args:
@@ -266,18 +266,18 @@ class InputSanitizer:
 
         Returns:
             True if valid, False otherwise
-        """
-        if not self.config.enable_content_type_validation:
+        """"
+                if not self.config.enable_content_type_validation:
             return True
 
         # Check for JSON content type
-        if not content_type or 'application/json' not in content_type.lower():
+                if not content_type or 'application/json' not in content_type.lower():
             return False
 
         return True
 
-    def sanitize_headers(self, headers: Dict[str, str]) -> Tuple[Dict[str, str], List[str]]:
-        """
+                def sanitize_headers(self, headers: Dict[str, str]) -> Tuple[Dict[str, str], List[str]]:
+        """"
         Sanitize HTTP headers.
 
         Args:
@@ -285,12 +285,12 @@ class InputSanitizer:
 
         Returns:
             Tuple of (sanitized_headers, warnings)
-        """
+        """"
         warnings = []
         sanitized_headers = {}
 
-        for key, value in headers.items():
-            if not isinstance(key, str) or not isinstance(value, str):
+                for key, value in headers.items():
+                if not isinstance(key, str) or not isinstance(value, str):
                 warnings.append(f"Invalid header type: {key}")
                 continue
 
@@ -304,8 +304,8 @@ class InputSanitizer:
 
         return sanitized_headers, warnings
 
-    def detect_anomalies(self, data: Any) -> List[str]:
-        """
+                def detect_anomalies(self, data: Any) -> List[str]:
+        """"
         Detect potential security anomalies in data.
 
         Args:
@@ -313,16 +313,16 @@ class InputSanitizer:
 
         Returns:
             List of detected anomalies
-        """
+        """"
         anomalies = []
 
-        def _analyze_recursive(obj: Any, path: str = ""):
-            if isinstance(obj, str):
+                def _analyze_recursive(obj: Any, path: str = ""):
+                if isinstance(obj, str):
                 # Check for suspicious patterns
                 if len(obj) > 1000:
                     anomalies.append(f"Large string at {path}: {len(obj)} characters")
 
-                if re.search(r'[<>"\']', obj):
+                if re.search(r'[<>"\']', obj):"
                     anomalies.append(f"Potential HTML/script content at {path}")
 
                 if re.search(r'\b(union|select|insert|update|delete)\b', obj, re.IGNORECASE):
@@ -338,7 +338,7 @@ class InputSanitizer:
         _analyze_recursive(data)
         return anomalies
 
-    def get_sanitization_stats(self) -> Dict:
+                def get_sanitization_stats(self) -> Dict:
         """Get sanitization statistics."""
         return {
             "config": {

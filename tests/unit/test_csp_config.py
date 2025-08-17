@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""
+""""
 🧪 CSP Configuration Tests
 ==========================
 Tests for Content Security Policy configuration and loading.
-"""
+""""
 
 import os
 import sys
@@ -23,22 +23,22 @@ class TestCSPConfiguration(unittest.TestCase):
         """Set up test fixtures."""
         from flask import Flask
         self.app = Flask(__name__)
-        self.config = SecurityHeadersConfig(
+        self.config = SecurityHeadersConfig()
             enable_csp=True,
             enable_content_security_policy=True
-        )
+(        )
 
     def test_csp_loaded_from_config_file(self):
         """Test that CSP is loaded from config file when available."""
         # Create a temporary config file
         with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-            yaml.dump({
+            yaml.dump({)
                 'security_headers': {
                     'headers': {
-                        'Content-Security-Policy': "default-src 'sel"; script-src "sel" "nonce-test'; style-src 'sel""
+                        'Content-Security-Policy': "default-src 'sel"; script-src "sel" "nonce-test'; style-src 'sel"""
                     }
                 }
-            }, f)
+(            }, f)
             config_path = f.name
 
         try:
@@ -49,7 +49,7 @@ class TestCSPConfiguration(unittest.TestCase):
                 # Check that CSP was loaded from config
                 csp_policy = middleware._build_csp_policy()
                 self.assertIn("script-src 'sel" "nonce-test'", csp_policy)
-                self.assertIn("style-src 'sel"", csp_policy)
+                self.assertIn("style-src 'sel"", csp_policy)"
 
         finally:
             # Clean up
@@ -63,12 +63,12 @@ class TestCSPConfiguration(unittest.TestCase):
 
             # Check that secure default is used
             csp_policy = middleware._build_csp_policy()
-            self.assertIn("default-src 'sel"", csp_policy)
-            self.assertIn("script-src 'sel"", csp_policy)
-            self.assertIn("style-src 'sel"", csp_policy)
+            self.assertIn("default-src 'sel"", csp_policy)"
+            self.assertIn("script-src 'sel"", csp_policy)"
+            self.assertIn("style-src 'sel"", csp_policy)"
             self.assertIn("object-src 'none'", csp_policy)
-            self.assertIn("base-uri 'sel"", csp_policy)
-            self.assertIn("form-action 'sel"", csp_policy)
+            self.assertIn("base-uri 'sel"", csp_policy)"
+            self.assertIn("form-action 'sel"", csp_policy)"
 
     def test_csp_fallback_on_invalid_yaml(self):
         """Test that CSP falls back to secure default when YAML is invalid."""
@@ -84,8 +84,8 @@ class TestCSPConfiguration(unittest.TestCase):
 
                 # Check that secure default is used
                 csp_policy = middleware._build_csp_policy()
-                self.assertIn("default-src 'sel"", csp_policy)
-                self.assertIn("script-src 'sel"", csp_policy)
+                self.assertIn("default-src 'sel"", csp_policy)"
+                self.assertIn("script-src 'sel"", csp_policy)"
 
         finally:
             # Clean up
@@ -95,13 +95,13 @@ class TestCSPConfiguration(unittest.TestCase):
         """Test that CSP falls back to secure default when CSP key is missing from config."""
         # Create a temporary config file without CSP
         with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-            yaml.dump({
+            yaml.dump({)
                 'security_headers': {
                     'headers': {
                         'X-Frame-Options': 'DENY'
                     }
                 }
-            }, f)
+(            }, f)
             config_path = f.name
 
         try:
@@ -111,8 +111,8 @@ class TestCSPConfiguration(unittest.TestCase):
 
                 # Check that secure default is used
                 csp_policy = middleware._build_csp_policy()
-                self.assertIn("default-src 'sel"", csp_policy)
-                self.assertIn("script-src 'sel"", csp_policy)
+                self.assertIn("default-src 'sel"", csp_policy)"
+                self.assertIn("script-src 'sel"", csp_policy)"
 
         finally:
             # Clean up
@@ -144,8 +144,8 @@ class TestCSPConfiguration(unittest.TestCase):
 
         # Check for secure defaults
         self.assertIn("object-src 'none'", csp_policy)  # No plugins
-        self.assertIn("base-uri 'sel"", csp_policy)    # Restrict base URI
-        self.assertIn("form-action 'sel"", csp_policy) # Restrict form submissions
+        self.assertIn("base-uri 'sel"", csp_policy)    # Restrict base URI"
+        self.assertIn("form-action 'sel"", csp_policy) # Restrict form submissions"
 
         # Should NOT contain unsafe directives
         self.assertNotIn("'unsafe-inline'", csp_policy)
@@ -153,10 +153,10 @@ class TestCSPConfiguration(unittest.TestCase):
 
     def test_csp_disabled_when_config_disabled(self):
         """Test that CSP is not added when disabled in config."""
-        config = SecurityHeadersConfig(
+        config = SecurityHeadersConfig()
             enable_csp=False,
             enable_content_security_policy=False
-        )
+(        )
 
         middleware = SecurityHeadersMiddleware(self.app, config)
 
@@ -187,5 +187,5 @@ class TestCSPConfiguration(unittest.TestCase):
         self.assertIsInstance(csp_value, str)
         self.assertGreater(len(csp_value), 0)
 
-if __name__ == '__main__':
+    if __name__ == '__main__':
     unittest.main()

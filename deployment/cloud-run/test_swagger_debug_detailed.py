@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""
+""""
 Detailed test to capture Swagger docs 500 error
-"""
+""""
 
 import os
 import requests
@@ -17,7 +17,7 @@ os.environ['PORT'] = '8084'
 try:
     from secure_api_server import app
 
-    print("✅ Successfully imported secure_api_server")
+    print(" Successfully imported secure_api_server")
 
     # Start server in background with error capture
     import threading
@@ -45,11 +45,11 @@ try:
     try:
         # First test if server is responding
         response = requests.get(f"{base_url}/", timeout=5)
-        print(f"✅ Root endpoint: {response.status_code}")
+        print(f" Root endpoint: {response.status_code}")
 
         # Test health endpoint
         response = requests.get(f"{base_url}/api/health", timeout=5)
-        print(f"✅ Health endpoint: {response.status_code}")
+        print(f" Health endpoint: {response.status_code}")
 
         # Now test docs endpoint
         print("\n🔄 Testing /docs endpoint...")
@@ -57,27 +57,27 @@ try:
 
         print(f"Status Code: {response.status_code}")
         print(f"Headers: {dict(response.headers)}")
-        print("Content Type: {response.headers.get("content-type', 'unknown')}")
+        print("Content Type: {response.headers.get("content-type', 'unknown')}")"
         print(f"Content Length: {len(response.text)}")
 
         if response.status_code == 500:
             print("\n❌ 500 Error Details:")
             print(f"Full Response: {response.text}")
 
-            # Try to get more info by checking if it's a Flask error page
+            # Try to get more info by checking if it's a Flask error page'
             if "Internal Server Error" in response.text:
-                print("🔍 This is a Flask internal server error page")
-                print("🔍 The actual error is likely in the server logs")
+                print(" This is a Flask internal server error page")
+                print(" The actual error is likely in the server logs")
 
         elif response.status_code == 200:
-            print("✅ Docs endpoint working!")
+            print(" Docs endpoint working!")
             print(f"Content preview: {response.text[:200]}...")
 
     except Exception as e:
         print(f"❌ Request failed: {e}")
         traceback.print_exc()
 
-    print("\n✅ Docs test completed!")
+    print("\n Docs test completed!")
 
 except Exception as e:
     print(f"❌ Error: {e}")

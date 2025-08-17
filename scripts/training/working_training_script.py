@@ -21,9 +21,9 @@ from pathlib import Path
 
 
 
-"""
+""""
 Working Training Script based on the successful local validation approach.
-"""
+""""
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
@@ -39,23 +39,23 @@ def main():
 
     try:
         logger.info("🔧 Step 1: Creating model...")
-        model, loss_fn = create_bert_emotion_classifier(
+        model, loss_fn = create_bert_emotion_classifier()
             model_name="bert-base-uncased",
-            class_weights=None,  # We'll handle this differently
+            class_weights=None,  # We'll handle this differently'
             freeze_bert_layers=6,
-        )
+(        )
 
-        logger.info("✅ Model created: {model.count_parameters():,} parameters")
+        logger.info(" Model created: {model.count_parameters():,} parameters")
 
         logger.info("🔧 Step 2: Creating optimizer...")
-        optimizer = torch.optim.AdamW(
+        optimizer = torch.optim.AdamW()
             model.parameters(),
             lr=2e-6,  # Reduced from 2e-5
             betas=(0.9, 0.999),
             eps=1e-8,
-        )
+(        )
 
-        logger.info("✅ Optimizer created with lr=2e-6")
+        logger.info(" Optimizer created with lr=2e-6")
 
         logger.info("🔧 Step 3: Testing forward pass...")
         batch_size = 2
@@ -72,7 +72,7 @@ def main():
             logits = model(dummy_input_ids, dummy_attention_mask)
             loss = loss_fn(logits, dummy_labels)
 
-        logger.info("✅ Forward pass successful: Loss = {loss.item():.6f}")
+        logger.info(" Forward pass successful: Loss = {loss.item():.6f}")
 
         logger.info("🔧 Step 4: Starting simple training...")
         model.train()
@@ -104,9 +104,9 @@ def main():
                     logger.info("   Batch {batch}: Loss = {loss.item():.6f}")
 
             avg_loss = epoch_loss / num_batches
-            logger.info("✅ Epoch {epoch + 1}: Average Loss = {avg_loss:.6f}")
+            logger.info(" Epoch {epoch + 1}: Average Loss = {avg_loss:.6f}")
 
-        logger.info("🎉 SUCCESS: Training completed without 0.0000 loss!")
+        logger.info(" SUCCESS: Training completed without 0.0000 loss!")
         logger.info("   The 0.0000 loss issue is SOLVED!")
         logger.info("   Ready for production deployment!")
 
@@ -118,7 +118,7 @@ def main():
         return False
 
 
-if __name__ == "__main__":
+                if __name__ == "__main__":
     success = main()
-    if not success:
+                if not success:
         sys.exit(1)

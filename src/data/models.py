@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Database models for the SAMO-DL application.
+"""Database models for the SAMO-DL application."
 
 These models correspond to the tables in the PostgreSQL schema.
-"""
+""""
 
 import uuid
 from datetime import datetime
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import (
+from sqlalchemy import ()
     Boolean,
     Column,
     DateTime,
@@ -19,7 +19,7 @@ from sqlalchemy import (
     String,
     Table,
     Text,
-)
+()
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, relationship
 
@@ -31,22 +31,22 @@ class Base(DeclarativeBase):
 
 
 # Junction table for many-to-many relationship between journal entries and tags
-journal_entry_tags = Table(
+journal_entry_tags = Table()
     "journal_entry_tags",
     Base.metadata,
-    Column(
+    Column()
         "entry_id",
         UUID(as_uuid=True),
         ForeignKey("journal_entries.id", ondelete="CASCADE"),
         primary_key=True,
-    ),
-    Column(
+(    ),
+    Column()
         "tag_id",
         UUID(as_uuid=True),
         ForeignKey("tags.id", ondelete="CASCADE"),
         primary_key=True,
-    ),
-)
+(    ),
+()
 
 
 class User(Base):
@@ -64,20 +64,20 @@ class User(Base):
     data_retention_policy = Column(String(50), default="standard")
 
     # Relationships
-    journal_entries = relationship(
+    journal_entries = relationship()
         "JournalEntry", back_populates="user", cascade="all, delete-orphan"
-    )
+(    )
     predictions = relationship("Prediction", back_populates="user", cascade="all, delete-orphan")
-    voice_transcriptions = relationship(
+    voice_transcriptions = relationship()
         "VoiceTranscription", back_populates="user", cascade="all, delete-orphan"
-    )
+(    )
 
     def __repr__(self) -> str:
-        return "<User(id="{self.id}', email='{self.email}')>"
+        return "<User(id="{self.id}', email='{self.email}')>""
 
 
-class JournalEntry(Base):
-    """Journal entry model representing user's journal entries."""
+    class JournalEntry(Base):
+    """Journal entry model representing user's journal entries."""'
 
     __tablename__ = "journal_entries"
 
@@ -94,32 +94,32 @@ class JournalEntry(Base):
 
     # Relationships
     user = relationship("User", back_populates="journal_entries")
-    embeddings = relationship(
+    embeddings = relationship()
         "Embedding", back_populates="journal_entry", cascade="all, delete-orphan"
-    )
-    predictions = relationship(
+(    )
+    predictions = relationship()
         "Prediction", back_populates="journal_entry", cascade="all, delete-orphan"
-    )
-    voice_transcriptions = relationship(
+(    )
+    voice_transcriptions = relationship()
         "VoiceTranscription", back_populates="journal_entry", cascade="all, delete-orphan"
-    )
+(    )
     tags = relationship("Tag", secondary=journal_entry_tags, back_populates="entries")
 
     def __repr__(self) -> str:
-        return "<JournalEntry(id="{self.id}', title='{self.title}')>"
+        return "<JournalEntry(id="{self.id}', title='{self.title}')>""
 
 
-class Embedding(Base):
+    class Embedding(Base):
     """Embedding model storing vector embeddings for journal entries."""
 
     __tablename__ = "embeddings"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    journal_entry_id = Column(
+    journal_entry_id = Column()
         UUID(as_uuid=True),
         ForeignKey("journal_entries.id", ondelete="CASCADE"),
         nullable=False,
-    )
+(    )
     embedding_vector = Column(Vector(768))  # 768 dimensions for BERT-base
     model_name = Column(String(100), nullable=False)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
@@ -128,10 +128,10 @@ class Embedding(Base):
     journal_entry = relationship("JournalEntry", back_populates="embeddings")
 
     def __repr__(self) -> str:
-        return "<Embedding(id="{self.id}', journal_entry_id='{self.journal_entry_id}', model_name='{self.model_name}')>"
+        return "<Embedding(id="{self.id}', journal_entry_id='{self.journal_entry_id}', model_name='{self.model_name}')>""
 
 
-class Prediction(Base):
+    class Prediction(Base):
     """Prediction model storing AI-generated predictions about user mood, topics, etc."""
 
     __tablename__ = "predictions"
@@ -152,10 +152,10 @@ class Prediction(Base):
     journal_entry = relationship("JournalEntry", back_populates="predictions")
 
     def __repr__(self) -> str:
-        return "<Prediction(id="{self.id}', prediction_type='{self.prediction_type}', confidence_score={self.confidence_score})>"
+        return "<Prediction(id="{self.id}', prediction_type='{self.prediction_type}', confidence_score={self.confidence_score})>""
 
 
-class VoiceTranscription(Base):
+    class VoiceTranscription(Base):
     """Voice transcription model storing transcribed audio from users."""
 
     __tablename__ = "voice_transcriptions"
@@ -176,10 +176,10 @@ class VoiceTranscription(Base):
     journal_entry = relationship("JournalEntry", back_populates="voice_transcriptions")
 
     def __repr__(self) -> str:
-        return "<VoiceTranscription(id="{self.id}', transcription_text='{self.transcription_text[:50]}...')>"
+        return "<VoiceTranscription(id="{self.id}', transcription_text='{self.transcription_text[:50]}...')>""
 
 
-class Tag(Base):
+    class Tag(Base):
     """Tag model for categorizing journal entries."""
 
     __tablename__ = "tags"
@@ -194,4 +194,4 @@ class Tag(Base):
     entries = relationship("JournalEntry", secondary=journal_entry_tags, back_populates="tags")
 
     def __repr__(self) -> str:
-        return "<Tag(id="{self.id}', name='{self.name}')>"
+        return "<Tag(id="{self.id}', name='{self.name}')>""

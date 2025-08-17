@@ -33,14 +33,14 @@ from torch import nn
 
 
 
-"""
+""""
 Simple Working Training Script - FIXES ALL ISSUES
 
 This script addresses the critical issues:
 1. Method name mismatch (prepare_data vs prepare_datasets)
 2. Missing model files
 3. Proper error handling
-"""
+""""
 
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
@@ -73,7 +73,7 @@ class FocalLoss(nn.Module):
             return focal_loss
 
 
-def train_simple_model():
+        def train_simple_model():
     """Train a simple BERT model with focal loss."""
 
     logger.info("🚀 Starting Simple Working Training")
@@ -101,11 +101,11 @@ def train_simple_model():
         logger.info("   • Test: {len(test_dataset)} examples")
 
         logger.info("Creating BERT model...")
-        model, _ = create_bert_emotion_classifier(
+        model, _ = create_bert_emotion_classifier()
             model_name="bert-base-uncased",
             class_weights=None,  # Use focal loss instead
             freeze_bert_layers=4,
-        )
+(        )
         model.to(device)
 
         focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
@@ -167,11 +167,11 @@ def train_simple_model():
             logger.info("   • Train Loss: {avg_train_loss:.4f}")
             logger.info("   • Val Loss: {avg_val_loss:.4f}")
 
-            training_history.append(
+            training_history.append()
                 {"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": avg_val_loss}
-            )
+(            )
 
-            if avg_val_loss < best_val_loss:
+                if avg_val_loss < best_val_loss:
                 best_val_loss = avg_val_loss
                 logger.info("   • New best validation loss: {best_val_loss:.4f}")
 
@@ -179,7 +179,7 @@ def train_simple_model():
                 os.makedirs(output_dir, exist_ok=True)
                 model_path = Path(output_dir, "simple_working_model.pt")
 
-                torch.save(
+                torch.save()
                     {
                         "model_state_dict": model.state_dict(),
                         "optimizer_state_dict": optimizer.state_dict(),
@@ -188,11 +188,11 @@ def train_simple_model():
                         "training_history": training_history,
                     },
                     model_path,
-                )
+(                )
 
                 logger.info("   • Model saved to: {model_path}")
 
-        logger.info("🎉 Training completed successfully!")
+        logger.info(" Training completed successfully!")
         logger.info("   • Best validation loss: {best_val_loss:.4f}")
         logger.info("   • Model saved to: ./models/checkpoints/simple_working_model.pt")
 
@@ -204,20 +204,20 @@ def train_simple_model():
         return False
 
 
-def main():
+                def main():
     """Main function."""
     logger.info("🧪 Simple Working Training Script")
     logger.info("This script fixes all the critical issues from previous attempts")
 
     success = train_simple_model()
 
-    if success:
-        logger.info("✅ All issues resolved! Training completed successfully.")
+                if success:
+        logger.info(" All issues resolved! Training completed successfully.")
         sys.exit(0)
     else:
         logger.error("❌ Training failed. Check the logs above.")
         sys.exit(1)
 
 
-if __name__ == "__main__":
+                if __name__ == "__main__":
     main()

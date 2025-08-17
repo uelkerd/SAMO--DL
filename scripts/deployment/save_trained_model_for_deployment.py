@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""
+""""
 🚀 SAVE TRAINED MODEL FOR DEPLOYMENT
 ====================================
 Save the trained emotion detection model in deployment-ready format.
 This includes model files, tokenizer, and label encoder.
-"""
+""""
 
 import json
 import os
@@ -29,18 +29,18 @@ def save_model_for_deployment():
     best_model_path = None
     for path in model_paths:
         if os.path.exists(path):
-            print(f"✅ Found model at: {path}")
+            print(f" Found model at: {path}")
             best_model_path = path
             break
 
     if not best_model_path:
         print("❌ No trained model found!")
-        print("📋 Available paths checked:")
+        print(" Available paths checked:")
         for path in model_paths:
-            print(f"  - {path}: {'✅ EXISTS' if os.path.exists(path) else '❌ NOT FOUND'}")
+            print(f"  - {path}: {' EXISTS' if os.path.exists(path) else '❌ NOT FOUND'}")
         return False
 
-    print(f"🎯 Using model: {best_model_path}")
+    print(f" Using model: {best_model_path}")
 
     # Create deployment model directory
     deployment_model_dir = "deployment/model"
@@ -100,12 +100,12 @@ def save_model_for_deployment():
         with open(f"{deployment_model_dir}/model_info.json", 'w') as f:
             json.dump(model_info, f, indent=2)
 
-        print("✅ Model saved successfully!")
+        print(" Model saved successfully!")
         print(f"📁 Deployment directory: {deployment_model_dir}")
-        print("📊 Model info:")
+        print(" Model info:")
         print(f"  - Emotions: {len(emotions)} classes")
         print("  - F1 Score: 99.48%")
-        print("  - Target Achieved: ✅ YES!")
+        print("  - Target Achieved:  YES!")
 
         # Test the saved model
         print("🧪 Testing saved model...")
@@ -117,7 +117,7 @@ def save_model_for_deployment():
         print(f"❌ Error saving model: {e}")
         return False
 
-def test_saved_model(model_dir):
+        def test_saved_model(model_dir):
     """Test the saved model"""
     try:
         from inference import EmotionDetector
@@ -127,31 +127,31 @@ def test_saved_model(model_dir):
 
         # Test cases
         test_texts = [
-            "I'm feeling really happy today!",
-            "I'm so frustrated with this project.",
+            "I'm feeling really happy today!",'
+            "I'm so frustrated with this project.",'
             "I feel anxious about the presentation.",
-            "I'm grateful for all the support.",
-            "I'm feeling overwhelmed with tasks."
+            "I'm grateful for all the support.",'
+            "I'm feeling overwhelmed with tasks."'
         ]
 
-        print("📊 Testing saved model:")
+        print(" Testing saved model:")
         print("-" * 30)
 
         for text in test_texts:
             result = detector.predict(text)
             print(f"Text: {text}")
-            print("Emotion: {result["emotion']} (confidence: {result['confidence']:.3f})")
+            print("Emotion: {result["emotion']} (confidence: {result['confidence']:.3f})")"
             print()
 
-        print("✅ Saved model test completed!")
+        print(" Saved model test completed!")
 
     except Exception as e:
         print(f"⚠️ Could not test saved model: {e}")
 
-def create_deployment_script():
+        def create_deployment_script():
     """Create a deployment script"""
 
-    deployment_script = """#!/bin/bash
+    deployment_script = """#!/bin/bash"
 # 🚀 EMOTION DETECTION MODEL DEPLOYMENT
 # =====================================
 
@@ -159,7 +159,7 @@ echo "🚀 DEPLOYING EMOTION DETECTION MODEL"
 echo "===================================="
 
 # Check if model exists
-if [ ! -d "./model" ]; then
+        if [ ! -d "./model" ]; then
     echo "❌ Model directory not found!"
     echo "Please run: python3.12 scripts/save_trained_model_for_deployment.py"
     exit 1
@@ -173,8 +173,8 @@ pip install -r requirements.txt
 echo "🧪 Testing model..."
 python test_examples.py
 
-if [ $? -eq 0 ]; then
-    echo "✅ Model test passed!"
+        if [ $? -eq 0 ]; then
+    echo " Model test passed!"
 else
     echo "❌ Model test failed!"
     exit 1
@@ -185,21 +185,21 @@ echo "🌐 Starting API server..."
 echo "Server will be available at: http://localhost:5000"
 echo "Press Ctrl+C to stop the server"
 python api_server.py
-"""
+""""
 
     with open("deployment/deploy.sh", 'w') as f:
         f.write(deployment_script)
 
     # Make executable
     os.chmod("deployment/deploy.sh", 0o755)
-    print("✅ Deployment script updated!")
+    print(" Deployment script updated!")
 
-if __name__ == "__main__":
+        if __name__ == "__main__":
     success = save_model_for_deployment()
 
-    if success:
+        if success:
         create_deployment_script()
-        print("\n🎉 DEPLOYMENT PACKAGE READY!")
+        print("\n DEPLOYMENT PACKAGE READY!")
         print("=" * 40)
         print("📁 Files created:")
         print("  - deployment/model/ (model files)")
@@ -211,8 +211,8 @@ if __name__ == "__main__":
         print("  1. cd deployment")
         print("  2. ./deploy.sh")
         print("  3. Test API at: http://localhost:5000")
-        print("\n🎯 Model Performance: 99.48% F1 Score!")
-        print("🏆 Target Achieved: ✅ YES!")
+        print("\n Model Performance: 99.48% F1 Score!")
+        print("🏆 Target Achieved:  YES!")
     else:
         print("\n❌ Failed to create deployment package!")
         print("Please ensure you have a trained model available.")

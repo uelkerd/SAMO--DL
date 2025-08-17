@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""
+""""
 🚀 CREATE FIXED COLAB NOTEBOOK
 ==============================
 
 This script creates a fixed Colab notebook that handles the correct data structure.
-"""
+""""
 
 import json
 
@@ -39,7 +39,7 @@ def create_fixed_colab_notebook():
                 "source": [
                     "# Install dependencies\n",
                     "!pip install transformers torch scikit-learn pandas numpy\n",
-                    "print(\"✅ All dependencies installed!\")"
+                    "print(\" All dependencies installed!\")"
                 ]
             },
             {
@@ -65,23 +65,23 @@ def create_fixed_colab_notebook():
                     "import numpy as np\n",
                     "import torch\n",
                     "from torch.utils.data import Dataset, DataLoader\n",
-                    "from transformers import (\n",
+                    "from transformers import (\n",)
                     "    AutoTokenizer,\n",
                     "    AutoModelForSequenceClassification,\n",
                     "    TrainingArguments,\n",
                     "    Trainer,\n",
                     "    EarlyStoppingCallback\n",
-                    ")\n",
+(                    ")\n",
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.preprocessing import LabelEncoder\n",
                     "from sklearn.metrics import                    "from sklearn.metrics import f1_score,
                          accuracy_score,
-                         classification_report\n",
-                        
+                         classification_report\n","
+
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",
-                    "print(\"✅ All libraries imported!\")"
+                    "print(\" All libraries imported!\")"
                 ]
             },
             {
@@ -91,7 +91,7 @@ def create_fixed_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# FIXED: Load combined dataset with correct field names\n",
-                    "print(\"📊 Loading combined dataset...\")\n",
+                    "print(\" Loading combined dataset...\")\n",
                     "\n",
                     "combined_samples = []\n",
                     "\n",
@@ -101,11 +101,11 @@ def create_fixed_colab_notebook():
                     "        journal_data = json.load(f)\n",
                     "    \n",
                     "    for item in journal_data:\n",
-                    "        combined_samples.append({\n",
+                    "        combined_samples.append({\n",)
                     "            'text': item['content'],  # FIXED: use 'content' not 'text'\n",
                     "            'emotion': item['emotion']\n",
-                    "        })\n",
-                    "    print(f\"✅ Loaded {len(journal_data)} journal samples\")\n",
+(                    "        })\n",
+                    "    print(f\" Loaded {len(journal_data)} journal samples\")\n",
                     "except Exception as e:\n",
                     "    print(f\"⚠️ Could not load journal data: {e}\")\n",
                     "\n",
@@ -115,15 +115,15 @@ def create_fixed_colab_notebook():
                     "        cmu_data = json.load(f)\n",
                     "    \n",
                     "    for item in cmu_data:\n",
-                    "        combined_samples.append({\n",
+                    "        combined_samples.append({\n",)
                     "            'text': item['text'],  # CMU-MOSEI uses 'text' field\n",
                     "            'emotion': item['emotion']\n",
-                    "        })\n",
-                    "    print(f\"✅ Loaded {len(cmu_data)} CMU-MOSEI samples\")\n",
+(                    "        })\n",
+                    "    print(f\" Loaded {len(cmu_data)} CMU-MOSEI samples\")\n",
                     "except Exception as e:\n",
                     "    print(f\"⚠️ Could not load CMU-MOSEI data: {e}\")\n",
                     "\n",
-                    "print(f\"📊 Total combined samples: {len(combined_samples)}\")\n",
+                    "print(f\" Total combined samples: {len(combined_samples)}\")\n",
                     "\n",
                     "# Show emotion distribution\n",
                     "if combined_samples:\n",
@@ -132,7 +132,7 @@ def create_fixed_colab_notebook():
                     "        emotion = sample['emotion']\n",
                     "        emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1\n",
                     "    \n",
-                    "    print(\"📊 Emotion distribution:\")\n",
+                    "    print(\" Emotion distribution:\")\n",
                     "    for emotion, count in sorted(emotion_counts.items()):\n",
                     "        print(f\"  {emotion}: {count} samples\")\n",
                     "else:\n",
@@ -151,23 +151,23 @@ def create_fixed_colab_notebook():
                     "    \n",
                     "    # Create minimal fallback dataset\n",
                     "    fallback_samples = [\n",
-                    "        {\"text\": \"I'm feeling happy today!\", \"emotion\": \"happy\"},\n",
-                    "        {\"text\": \"I'm so frustrated with this project.\", \"emotion\": \"frustrated\"},\n",
+                    "        {\"text\": \"I'm feeling happy today!\", \"emotion\": \"happy\"},\n",'
+                    "        {\"text\": \"I'm so frustrated with this project.\", \"emotion\": \"frustrated\"},\n",'
                     "        {\"text\": \"I feel anxious about the presentation.\", \"emotion\": \"anxious\"},\n",
-                    "        {\"text\": \"I'm grateful for all the support.\", \"emotion\": \"grateful\"},\n",
-                    "        {\"text\": \"I'm feeling overwhelmed with tasks.\", \"emotion\": \"overwhelmed\"},\n",
-                    "        {\"text\": \"I'm proud of what I accomplished.\", \"emotion\": \"proud\"},\n",
-                    "        {\"text\": \"I'm feeling sad and lonely.\", \"emotion\": \"sad\"},\n",
-                    "        {\"text\": \"I'm excited about new opportunities.\", \"emotion\": \"excited\"},\n",
+                    "        {\"text\": \"I'm grateful for all the support.\", \"emotion\": \"grateful\"},\n",'
+                    "        {\"text\": \"I'm feeling overwhelmed with tasks.\", \"emotion\": \"overwhelmed\"},\n",'
+                    "        {\"text\": \"I'm proud of what I accomplished.\", \"emotion\": \"proud\"},\n",'
+                    "        {\"text\": \"I'm feeling sad and lonely.\", \"emotion\": \"sad\"},\n",'
+                    "        {\"text\": \"I'm excited about new opportunities.\", \"emotion\": \"excited\"},\n",'
                     "        {\"text\": \"I feel calm and peaceful.\", \"emotion\": \"calm\"},\n",
-                    "        {\"text\": \"I'm hopeful things will get better.\", \"emotion\": \"hopeful\"},\n",
-                    "        {\"text\": \"I'm tired and need rest.\", \"emotion\": \"tired\"},\n",
-                    "        {\"text\": \"I'm content with how things are.\", \"emotion\": \"content\"}\n",
+                    "        {\"text\": \"I'm hopeful things will get better.\", \"emotion\": \"hopeful\"},\n",'
+                    "        {\"text\": \"I'm tired and need rest.\", \"emotion\": \"tired\"},\n",'
+                    "        {\"text\": \"I'm content with how things are.\", \"emotion\": \"content\"}\n",'
                     "    ]\n",
                     "    combined_samples = fallback_samples\n",
-                    "    print(f\"✅ Created {len(combined_samples)} fallback samples\")\n",
+                    "    print(f\" Created {len(combined_samples)} fallback samples\")\n",
                     "\n",
-                    "print(f\"📊 Final dataset size: {len(combined_samples)} samples\")"
+                    "print(f\" Final dataset size: {len(combined_samples)} samples\")"
                 ]
             },
             {
@@ -191,13 +191,13 @@ def create_fixed_colab_notebook():
                     "        text = str(self.texts[idx])\n",
                     "        label = self.labels[idx]\n",
                     "        \n",
-                    "        encoding = self.tokenizer(\n",
+                    "        encoding = self.tokenizer(\n",)
                     "            text,\n",
                     "            truncation=True,\n",
                     "            padding='max_length',\n",
                     "            max_length=self.max_length,\n",
                     "            return_tensors='pt'\n",
-                    "        )\n",
+(                    "        )\n",
                     "        \n",
                     "        return {\n",
                     "            'input_ids': encoding['input_ids'].flatten(),\n",
@@ -220,13 +220,13 @@ def create_fixed_colab_notebook():
                     "label_encoder = LabelEncoder()\n",
                     "labels = label_encoder.fit_transform(emotions)\n",
                     "\n",
-                    "print(f\"🎯 Number of labels: {len(label_encoder.classes_)}\")\n",
-                    "print(f\"📊 Labels: {list(label_encoder.classes_)}\")\n",
+                    "print(f\" Number of labels: {len(label_encoder.classes_)}\")\n",
+                    "print(f\" Labels: {list(label_encoder.classes_)}\")\n",
                     "\n",
                     "# Split data\n",
-                    "train_texts, test_texts, train_labels, test_labels = train_test_split(\n",
+                    "train_texts, test_texts, train_labels, test_labels = train_test_split(\n",)
                     "    texts, labels, test_size=0.2, random_state=42, stratify=labels\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
                     "print(f\"📈 Training samples: {len(train_texts)}\")\n",
                     "print(f\"🧪 Test samples: {len(test_labels)}\")"
@@ -241,14 +241,14 @@ def create_fixed_colab_notebook():
                     "# Load model and tokenizer\n",
                     "model_name = \"bert-base-uncased\"\n",
                     "tokenizer = AutoTokenizer.from_pretrained(model_name)\n",
-                    "model = AutoModelForSequenceClassification.from_pretrained(\n",
+                    "model = AutoModelForSequenceClassification.from_pretrained(\n",)
                     "    model_name, \n",
                     "    num_labels=len(label_encoder.classes_),\n",
                     "    problem_type=\"single_label_classification\"\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
-                    "print(f\"✅ Model loaded: {model_name}\")\n",
-                    "print(f\"📊 Number of classes: {len(label_encoder.classes_)}\")"
+                    "print(f\" Model loaded: {model_name}\")\n",
+                    "print(f\" Number of classes: {len(label_encoder.classes_)}\")"
                 ]
             },
             {
@@ -261,7 +261,7 @@ def create_fixed_colab_notebook():
                     "train_dataset = EmotionDataset(train_texts, train_labels, tokenizer)\n",
                     "test_dataset = EmotionDataset(test_texts, test_labels, tokenizer)\n",
                     "\n",
-                    "print(f\"✅ Datasets created\")\n",
+                    "print(f\" Datasets created\")\n",
                     "print(f\"📈 Train dataset: {len(train_dataset)} samples\")\n",
                     "print(f\"🧪 Test dataset: {len(test_dataset)} samples\")"
                 ]
@@ -290,7 +290,7 @@ def create_fixed_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Training arguments\n",
-                    "training_args = TrainingArguments(\n",
+                    "training_args = TrainingArguments(\n",)
                     "    output_dir=\"./emotion_model_combined\",\n",
                     "    num_train_epochs=8,\n",
                     "    per_device_train_batch_size=16,\n",
@@ -311,9 +311,9 @@ def create_fixed_colab_notebook():
                     "    report_to=None,\n",
                     "    learning_rate=2e-5,\n",
                     "    gradient_accumulation_steps=2,\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
-                    "print(\"✅ Training arguments configured\")"
+                    "print(\" Training arguments configured\")"
                 ]
             },
             {
@@ -323,16 +323,16 @@ def create_fixed_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Create trainer\n",
-                    "trainer = Trainer(\n",
+                    "trainer = Trainer(\n",)
                     "    model=model,\n",
                     "    args=training_args,\n",
                     "    train_dataset=train_dataset,\n",
                     "    eval_dataset=test_dataset,\n",
                     "    compute_metrics=compute_metrics,\n",
                     "    callbacks=[EarlyStoppingCallback(early_stopping_patience=3)]\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
-                    "print(\"✅ Trainer created with early stopping\")"
+                    "print(\" Trainer created with early stopping\")"
                 ]
             },
             {
@@ -343,13 +343,13 @@ def create_fixed_colab_notebook():
                 "source": [
                     "# Start training\n",
                     "print(\"🚀 Starting training...\")\n",
-                    "print(\"🎯 Target F1 Score: 75-85%\")\n",
-                    "print(\"📊 Current Best: 67%\")\n",
+                    "print(\" Target F1 Score: 75-85%\")\n",
+                    "print(\" Current Best: 67%\")\n",
                     "print(\"📈 Expected Improvement: 8-18%\")\n",
                     "\n",
                     "trainer.train()\n",
                     "\n",
-                    "print(\"✅ Training completed!\")"
+                    "print(\" Training completed!\")"
                 ]
             },
             {
@@ -359,11 +359,11 @@ def create_fixed_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Evaluate final model\n",
-                    "print(\"📊 Evaluating final model...\")\n",
+                    "print(\" Evaluating final model...\")\n",
                     "results = trainer.evaluate()\n",
                     "\n",
                     "print(f\"🏆 Final F1 Score: {results['eval_f1']:.4f} ({results['eval_f1']*100:.2f}%)\")\n",
-                    "print(f\"🎯 Target achieved: {'✅ YES!' if results['eval_f1'] >= 0.75 else '❌ Not yet'}\")\n",
+                    "print(f\" Target achieved: {' YES!' if results['eval_f1'] >= 0.75 else '❌ Not yet'}\")\n",
                     "\n",
                     "# Save model\n",
                     "trainer.save_model(\"./emotion_model_final_combined\")\n",
@@ -380,11 +380,11 @@ def create_fixed_colab_notebook():
                     "print(\"🧪 Testing on sample texts...\")\n",
                     "\n",
                     "test_texts = [\n",
-                    "    \"I'm feeling really happy today!\",\n",
-                    "    \"I'm so frustrated with this project.\",\n",
+                    "    \"I'm feeling really happy today!\",\n",'
+                    "    \"I'm so frustrated with this project.\",\n",'
                     "    \"I feel anxious about the presentation.\",\n",
-                    "    \"I'm grateful for all the support.\",\n",
-                    "    \"I'm feeling overwhelmed with tasks.\"\n",
+                    "    \"I'm grateful for all the support.\",\n",'
+                    "    \"I'm feeling overwhelmed with tasks.\"\n",'
                     "]\n",
                     "\n",
                     "model.eval()\n",
@@ -406,7 +406,7 @@ def create_fixed_colab_notebook():
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🎉 Training Complete!\n",
+                    "##  Training Complete!\n",
                     "\n",
                     "**Results Summary:**\n",
                     "- Final F1 Score: [See output above]\n",
@@ -447,8 +447,8 @@ def create_fixed_colab_notebook():
     with open('notebooks/FIXED_COMBINED_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook_content, f, indent=2)
 
-    print("✅ Fixed notebook created: notebooks/FIXED_COMBINED_TRAINING_COLAB.ipynb")
-    print("📋 Instructions:")
+    print(" Fixed notebook created: notebooks/FIXED_COMBINED_TRAINING_COLAB.ipynb")
+    print(" Instructions:")
     print("  1. Download the notebook file")
     print("  2. Upload to Google Colab")
     print("  3. Set Runtime → GPU")

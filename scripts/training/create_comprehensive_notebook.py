@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""
+""""
 Create Comprehensive Notebook
 ============================
 
 This script creates a comprehensive notebook that includes all the advanced
 features from the original working notebook while fixing the technical issues.
-"""
+""""
 
 import json
 
@@ -22,14 +22,14 @@ def create_comprehensive_notebook():
                     "## All Advanced Features + Technical Fixes\n",
                     "\n",
                     "**FEATURES INCLUDED:**\n",
-                    "✅ Configuration preservation (prevents 8.3% vs 75% discrepancy)\n",
-                    "✅ Focal loss (handles class imbalance)\n",
-                    "✅ Class weighting (WeightedLossTrainer)\n",
-                    "✅ Data augmentation (sophisticated techniques)\n",
-                    "✅ Advanced validation (proper testing)\n",
-                    "✅ WandB integration with secrets\n",
-                    "✅ Model architecture fixes\n",
-                    "✅ Comprehensive dataset\n",
+                    " Configuration preservation (prevents 8.3% vs 75% discrepancy)\n",
+                    " Focal loss (handles class imbalance)\n",
+                    " Class weighting (WeightedLossTrainer)\n",
+                    " Data augmentation (sophisticated techniques)\n",
+                    " Advanced validation (proper testing)\n",
+                    " WandB integration with secrets\n",
+                    " Model architecture fixes\n",
+                    " Comprehensive dataset\n",
                     "\n",
                     "**Target**: Reliable 75-85% F1 score with consistent performance"
                 ]
@@ -57,22 +57,22 @@ def create_comprehensive_notebook():
                          AutoModelForSequenceClassification,
                          TrainingArguments,
                          Trainer,
-                         DataCollatorWithPadding\n",
-                        
+                         DataCollatorWithPadding\n","
+
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.metrics import                    "from sklearn.metrics import classification_report,
                          confusion_matrix,
                          f1_score,
                          accuracy_score,
                          precision_score,
-                         recall_score\n",
-                        
+                         recall_score\n","
+
                     "from sklearn.utils.class_weight import compute_class_weight\n",
                     "import json\n",
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",
-                    "print('✅ All packages imported successfully')\n",
+                    "print(' All packages imported successfully')\n",
                     "print(f'PyTorch version: {torch.__version__}')\n",
                     "print(f'CUDA available: {torch.cuda.is_available()}')"
                 ]
@@ -118,7 +118,7 @@ def create_comprehensive_notebook():
                     "        try:\n",
                     "            api_key = userdata.get(secret_name)\n",
                     "            used_secret_name = secret_name\n",
-                    "            print(f'✅ Found API key in secret: {secret_name}')\n",
+                    "            print(f' Found API key in secret: {secret_name}')\n",
                     "            break\n",
                     "        except:\n",
                     "            continue\n",
@@ -126,18 +126,18 @@ def create_comprehensive_notebook():
                     "    if api_key:\n",
                     "        # Set the environment variable\n",
                     "        os.environ['WANDB_API_KEY'] = api_key\n",
-                    "        print(f'✅ API key set from secret: {used_secret_name}')\n",
+                    "        print(f' API key set from secret: {used_secret_name}')\n",
                     "        \n",
                     "        # Test wandb login\n",
                     "        try:\n",
                     "            wandb.login(key=api_key)\n",
-                    "            print('✅ WandB login successful!')\n",
+                    "            print(' WandB login successful!')\n",
                     "        except Exception as e:\n",
                     "            print(f'⚠️ WandB login failed: {str(e)}')\n",
                     "            print('Continuing without WandB...')\n",
                     "    else:\n",
                     "        print('❌ No WandB API key found in secrets')\n",
-                    "        print('\\n📋 TO SET UP WANDB SECRET:')\n",
+                    "        print('\\n TO SET UP WANDB SECRET:')\n",
                     "        print('1. Go to Colab → Settings → Secrets')\n",
                     "        print('2. Add a new secret with name: WANDB_API_KEY')\n",
                     "        print('3. Value: Your WandB API key from https://wandb.ai/authorize')\n",
@@ -146,20 +146,20 @@ def create_comprehensive_notebook():
                     "        \n",
                     "except ImportError:\n",
                     "    print('⚠️ Google Colab secrets not available')\n",
-                    "    print('\\n📋 TO SET UP WANDB:')\n",
+                    "    print('\\n TO SET UP WANDB:')\n",
                     "    print('1. Get your API key from: https://wandb.ai/authorize')\n",
                     "    print('2. Run: wandb login')\n",
                     "    print('3. Enter your API key when prompted')\n",
                     "    print('\\n⚠️ Continuing without WandB logging...')\n",
                     "\n",
-                    "print('\\n✅ WandB setup completed')"
+                    "print('\\n WandB setup completed')"
                 ]
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🔍 VERIFYING SPECIALIZED MODEL ACCESS"
+                    "##  VERIFYING SPECIALIZED MODEL ACCESS"
                 ]
             },
             {
@@ -168,7 +168,7 @@ def create_comprehensive_notebook():
                 "metadata": {},
                 "outputs": [],
                 "source": [
-                    "print('🔍 VERIFYING SPECIALIZED MODEL ACCESS')\n",
+                    "print(' VERIFYING SPECIALIZED MODEL ACCESS')\n",
                     "print('=' * 50)\n",
                     "\n",
                     "specialized_model_name = 'j-hartmann/emotion-english-distilroberta-base'\n",
@@ -178,7 +178,7 @@ def create_comprehensive_notebook():
                     "    test_tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\n",
                     "    test_model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name)\n",
                     "    \n",
-                    "    print('✅ SUCCESS: Specialized model loaded!')\n",
+                    "    print(' SUCCESS: Specialized model loaded!')\n",
                     "    print(f'Model type: {test_model.config.model_type}')\n",
                     "    print(f'Architecture: {test_model.config.architectures[0]}')\n",
                     "    print(f'Hidden layers: {test_model.config.num_hidden_layers}')\n",
@@ -186,9 +186,9 @@ def create_comprehensive_notebook():
                     "    print(f'Number of labels: {test_model.config.num_labels}')\n",
                     "    print(f'Original labels: {test_model.config.id2label}')\n",
                     "    \n",
-                    "    # Verify it's actually DistilRoBERTa\n",
+                    "    # Verify it's actually DistilRoBERTa\n",'
                     "    if test_model.config.num_hidden_layers == 6:\n",
-                    "        print('✅ CONFIRMED: This is DistilRoBERTa architecture')\n",
+                    "        print(' CONFIRMED: This is DistilRoBERTa architecture')\n",
                     "    else:\n",
                     "        print('⚠️  WARNING: This may not be the expected DistilRoBERTa model')\n",
                     "    \n",
@@ -198,14 +198,14 @@ def create_comprehensive_notebook():
                     "    specialized_model_name = 'roberta-base'\n",
                     "    test_tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\n",
                     "    test_model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name, num_labels=12)\n",
-                    "    print(f'✅ Fallback model loaded: {specialized_model_name}')"
+                    "    print(f' Fallback model loaded: {specialized_model_name}')"
                 ]
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🎯 DEFINING EMOTION CLASSES"
+                    "##  DEFINING EMOTION CLASSES"
                 ]
             },
             {
@@ -216,15 +216,15 @@ def create_comprehensive_notebook():
                 "source": [
                     "# Define our emotion classes\n",
                     "emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\n",
-                    "print(f'🎯 Our emotion classes: {emotions}')\n",
-                    "print(f'📊 Number of emotions: {len(emotions)}')"
+                    "print(f' Our emotion classes: {emotions}')\n",
+                    "print(f' Number of emotions: {len(emotions)}')"
                 ]
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 📊 CREATING COMPREHENSIVE ENHANCED DATASET"
+                    "##  CREATING COMPREHENSIVE ENHANCED DATASET"
                 ]
             },
             {
@@ -233,7 +233,7 @@ def create_comprehensive_notebook():
                 "metadata": {},
                 "outputs": [],
                 "source": [
-                    "print('📊 CREATING COMPREHENSIVE ENHANCED DATASET')\n",
+                    "print(' CREATING COMPREHENSIVE ENHANCED DATASET')\n",
                     "print('=' * 50)\n",
                     "\n",
                     "# Comprehensive balanced dataset with multiple samples per emotion\n",
@@ -503,7 +503,7 @@ def create_comprehensive_notebook():
                     "    {'text': 'I am fatigued from the workload.', 'label': 11}\n",
                     "]\n",
                     "\n",
-                    "print(f'📊 Base dataset size: {len(base_data)} samples')\n",
+                    "print(f' Base dataset size: {len(base_data)} samples')\n",
                     "\n",
                     "# Advanced data augmentation function\n",
                     "def augment_text(text, emotion):\n",
@@ -560,14 +560,14 @@ def create_comprehensive_notebook():
                     "\n",
                     "# Combine base and augmented data\n",
                     "enhanced_data = base_data + augmented_data\n",
-                    "print(f'📊 Enhanced dataset size: {len(enhanced_data)} samples')\n",
-                    "print(f'📊 Augmentation added: {len(augmented_data)} samples')\n",
+                    "print(f' Enhanced dataset size: {len(enhanced_data)} samples')\n",
+                    "print(f' Augmentation added: {len(augmented_data)} samples')\n",
                     "\n",
                     "# Convert to lists for processing\n",
                     "texts = [item['text'] for item in enhanced_data]\n",
                     "labels = [item['label'] for item in enhanced_data]\n",
                     "\n",
-                    "print(f'✅ Comprehensive dataset prepared with {len(texts)} samples')"
+                    "print(f' Comprehensive dataset prepared with {len(texts)} samples')"
                 ]
             }
         ],
@@ -599,13 +599,13 @@ def create_comprehensive_notebook():
     with open(output_path, 'w') as f:
         json.dump(notebook_content, f, indent=2)
 
-    print(f"✅ Created comprehensive notebook: {output_path}")
-    print("📋 Features included:")
-    print("   ✅ Comprehensive dataset (240 base + augmentation)")
-    print("   ✅ Advanced data augmentation techniques")
-    print("   ✅ WandB integration with secrets")
-    print("   ✅ Model architecture fixes")
-    print("   ✅ All advanced features (to be added)")
+    print(f" Created comprehensive notebook: {output_path}")
+    print(" Features included:")
+    print("    Comprehensive dataset (240 base + augmentation)")
+    print("    Advanced data augmentation techniques")
+    print("    WandB integration with secrets")
+    print("    Model architecture fixes")
+    print("    All advanced features (to be added)")
     print("\\n🚀 This will be a full-featured notebook!")
 
     return output_path

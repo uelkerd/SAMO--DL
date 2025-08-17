@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""
+""""
 Summarize Comprehensive Notebook
 ===============================
 
 This script provides a detailed summary of the comprehensive notebook
 and all its features.
-"""
+""""
 
 import json
 
@@ -24,38 +24,38 @@ def summarize_comprehensive_notebook():
     markdown_cells = [cell for cell in notebook['cells'] if cell['cell_type'] == 'markdown']
     code_cells = [cell for cell in notebook['cells'] if cell['cell_type'] == 'code']
 
-    print("📊 NOTEBOOK STATISTICS:")
-    print("   Total cells: {len(notebook["cells'])}")
+    print(" NOTEBOOK STATISTICS:")
+    print("   Total cells: {len(notebook["cells'])}")"
     print(f"   Markdown cells: {len(markdown_cells)}")
     print(f"   Code cells: {len(code_cells)}")
     print()
 
-    print("🎯 ALL FEATURES INCLUDED:")
+    print(" ALL FEATURES INCLUDED:")
     print("=" * 40)
 
     features = [
-        "✅ Configuration preservation (prevents 8.3% vs 75% discrepancy)",
-        "✅ Focal loss (handles class imbalance)",
-        "✅ Class weighting (WeightedLossTrainer)",
-        "✅ Data augmentation (sophisticated techniques)",
-        "✅ Advanced validation (proper testing)",
-        "✅ WandB integration with secrets",
-        "✅ Model architecture fixes",
-        "✅ Comprehensive dataset (240 base + augmentation)",
-        "✅ Advanced data preprocessing",
-        "✅ Custom WeightedLossTrainer",
-        "✅ Bias analysis and validation",
-        "✅ Model saving with verification",
-        "✅ Complete training pipeline",
-        "✅ Evaluation and metrics",
-        "✅ Unseen data testing"
+        " Configuration preservation (prevents 8.3% vs 75% discrepancy)",
+        " Focal loss (handles class imbalance)",
+        " Class weighting (WeightedLossTrainer)",
+        " Data augmentation (sophisticated techniques)",
+        " Advanced validation (proper testing)",
+        " WandB integration with secrets",
+        " Model architecture fixes",
+        " Comprehensive dataset (240 base + augmentation)",
+        " Advanced data preprocessing",
+        " Custom WeightedLossTrainer",
+        " Bias analysis and validation",
+        " Model saving with verification",
+        " Complete training pipeline",
+        " Evaluation and metrics",
+        " Unseen data testing"
     ]
 
     for feature in features:
         print(f"   {feature}")
 
     print()
-    print("📋 CELL BREAKDOWN:")
+    print(" CELL BREAKDOWN:")
     print("=" * 30)
 
     cell_titles = [
@@ -83,17 +83,17 @@ def summarize_comprehensive_notebook():
         print(f"   {i:2d}. {title}")
 
     print()
-    print("🎯 KEY ADVANTAGES:")
+    print(" KEY ADVANTAGES:")
     print("=" * 30)
     advantages = [
         "🔧 FIXES the 8.3% vs 75% discrepancy issue",
         "📈 Includes ALL gains from previous iterations",
         "⚖️ Advanced focal loss + class weighting",
-        "📊 Comprehensive dataset with sophisticated augmentation",
-        "🔍 Advanced validation and bias analysis",
+        " Comprehensive dataset with sophisticated augmentation",
+        " Advanced validation and bias analysis",
         "💾 Proper model saving with configuration verification",
         "🚀 Ready for production deployment",
-        "📋 Complete training pipeline from start to finish"
+        " Complete training pipeline from start to finish"
     ]
 
     for advantage in advantages:
@@ -106,5 +106,5 @@ def summarize_comprehensive_notebook():
     print("🚀 READY TO USE!")
     print("   Download, upload to Colab, set GPU runtime, and run!")
 
-if __name__ == "__main__":
+    if __name__ == "__main__":
     summarize_comprehensive_notebook()

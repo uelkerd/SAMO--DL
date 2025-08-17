@@ -29,10 +29,10 @@ from torch import nn
 
 
 
-"""
+""""
 Minimal Working Training Script
 Uses only working modules to avoid environment issues
-"""
+""""
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -56,7 +56,7 @@ class SimpleBERTClassifier(nn.Module):
         return {"logits": logits}
 
 
-class FocalLoss(nn.Module):
+    class FocalLoss(nn.Module):
     """Focal Loss for handling class imbalance."""
 
     def __init__(self, alpha=0.25, gamma=2.0, reduction="mean"):
@@ -78,7 +78,7 @@ class FocalLoss(nn.Module):
             return focal_loss
 
 
-def create_synthetic_data(num_samples=1000, seq_length=128):
+        def create_synthetic_data(num_samples=1000, seq_length=128):
     """Create synthetic training data to avoid dataset loading issues."""
     logger.info("Creating synthetic data: {num_samples} samples")
 
@@ -89,7 +89,7 @@ def create_synthetic_data(num_samples=1000, seq_length=128):
     return input_ids, attention_mask, labels
 
 
-def train_minimal_model():
+        def train_minimal_model():
     """Train a minimal BERT model with synthetic data."""
 
     logger.info("🚀 Starting Minimal Working Training")
@@ -165,11 +165,11 @@ def train_minimal_model():
             logger.info("   • Train Loss: {avg_train_loss:.4f}")
             logger.info("   • Val Loss: {avg_val_loss:.4f}")
 
-            training_history.append(
+            training_history.append()
                 {"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": avg_val_loss}
-            )
+(            )
 
-            if avg_val_loss < best_val_loss:
+                if avg_val_loss < best_val_loss:
                 best_val_loss = avg_val_loss
                 logger.info("   • New best validation loss: {best_val_loss:.4f}")
 
@@ -177,7 +177,7 @@ def train_minimal_model():
                 os.makedirs(output_dir, exist_ok=True)
                 model_path = Path(output_dir, "minimal_working_model.pt")
 
-                torch.save(
+                torch.save()
                     {
                         "model_state_dict": model.state_dict(),
                         "optimizer_state_dict": optimizer.state_dict(),
@@ -186,11 +186,11 @@ def train_minimal_model():
                         "training_history": training_history,
                     },
                     model_path,
-                )
+(                )
 
                 logger.info("   • Model saved to: {model_path}")
 
-        logger.info("🎉 Training completed successfully!")
+        logger.info(" Training completed successfully!")
         logger.info("   • Best validation loss: {best_val_loss:.4f}")
         logger.info("   • Model saved to: ./models/checkpoints/minimal_working_model.pt")
 
@@ -202,20 +202,20 @@ def train_minimal_model():
         return False
 
 
-def main():
+                def main():
     """Main function."""
     logger.info("🧪 Minimal Working Training Script")
     logger.info("This script uses only working modules to avoid environment issues")
 
     success = train_minimal_model()
 
-    if success:
-        logger.info("✅ Training completed successfully!")
+                if success:
+        logger.info(" Training completed successfully!")
         sys.exit(0)
     else:
         logger.error("❌ Training failed. Check the logs above.")
         sys.exit(1)
 
 
-if __name__ == "__main__":
+                if __name__ == "__main__":
     main()

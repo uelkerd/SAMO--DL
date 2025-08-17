@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""
+""""
 Model Loading Health Check
 Check if the model is loading properly in the container.
-"""
+""""
 
 import json
 import requests
@@ -16,14 +16,14 @@ def check_model_health(base_url=None):
         config.base_url = base_url.rstrip('/')
     client = create_api_client()
 
-    print("🔍 Model Health Check")
+    print(" Model Health Check")
     print("=" * 30)
     print(f"Testing URL: {config.base_url}")
 
     # Test health endpoint
     try:
         data = client.get("/")
-        print("✅ Health: {data.get("status')}")
+        print(" Health: {data.get("status')}")"
     except requests.exceptions.RequestException as e:
         print(f"❌ Health check error: {e}")
         return False
@@ -32,7 +32,7 @@ def check_model_health(base_url=None):
     try:
         data = client.get("/")
         emotions_count = data.get('emotions_supported', 0)
-        print(f"✅ Emotions: {emotions_count} emotions available")
+        print(f" Emotions: {emotions_count} emotions available")
     except requests.exceptions.RequestException as e:
         print(f"❌ Emotions check error: {e}")
         return False
@@ -51,7 +51,7 @@ def check_model_health(base_url=None):
         else:
             confidence_str = "N/A"
 
-        print(f"✅ Prediction: {emotion} (confidence: {confidence_str})")
+        print(f" Prediction: {emotion} (confidence: {confidence_str})")
         return True
 
     except requests.exceptions.RequestException as e:
@@ -62,7 +62,7 @@ def check_model_health(base_url=None):
         return False
 
 
-if __name__ == "__main__":
+        if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Check Model Health")

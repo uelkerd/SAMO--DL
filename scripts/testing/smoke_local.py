@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+""""
 Sequential smoke test for local and Cloud Run deployments.
 
 Usage:
@@ -10,7 +10,7 @@ Notes:
 - Sets User-Agent: testclient to bypass local rate limiting.
 - Mints a short-lived elevated JWT for endpoints requiring special permissions.
 - Keeps output minimal: endpoint, status, brief detail.
-"""
+""""
 
 import argparse
 import io
@@ -47,9 +47,9 @@ except ImportError:
     raise
 
 
-def tiny_tone_wav_bytes(
+def tiny_tone_wav_bytes()
     duration_s: float = 0.3, sample_rate: int = 16000, freq_hz: int = 440
-) -> bytes:
+() -> bytes:
     """Generate a tiny in-memory WAV tone for voice endpoint tests."""
     t = np.linspace(0, duration_s, int(sample_rate * duration_s), endpoint=False)
     audio = (0.2 * np.sin(2 * np.pi * freq_hz * t)).astype(np.float32)
@@ -90,11 +90,11 @@ def p(endpoint: str, status: Optional[int], msg: str):
     print(f"{endpoint} -> {status} {msg}")
 
 
-def phase_basic_gets(
+def phase_basic_gets()
     session: requests.Session,
     url: Callable[[str], str],
     pause: Callable[[], None],
-) -> None:
+() -> None:
     """Check basic unauthenticated endpoints return 200 and brief status."""
     for ep in ["/", "/health", "/models/status"]:
         try:
@@ -111,16 +111,16 @@ def phase_basic_gets(
         pause()
 
 
-def login_and_get_access_token(
+    def login_and_get_access_token()
     session: requests.Session, url: Callable[[str], str]
-) -> Optional[str]:
+() -> Optional[str]:
     """Attempt login and return an access token; return None on failure."""
     try:
-        r = session.post(
+        r = session.post()
             url("/auth/login"),
             json={"username": "tester@example.com", "password": "secret123"},
             timeout=10,
-        )
+(        )
         if r.headers.get("content-type", "").startswith("application/json"):
             return r.json().get("access_token")
     except Exception:
@@ -128,36 +128,36 @@ def login_and_get_access_token(
     return None
 
 
-def phase_auth_login_refresh_logout(
+        def phase_auth_login_refresh_logout()
     session: requests.Session, url: Callable[[str], str], pause: Callable[[], None]
-) -> tuple[Optional[str], Optional[str]]:
+() -> tuple[Optional[str], Optional[str]]:
     """Exercise login, profile, refresh, and logout flow sequentially."""
     access_token: Optional[str] = None
     refresh_token: Optional[str] = None
     try:
-        r = session.post(
+        r = session.post()
             url("/auth/login"),
             json={"username": "tester@example.com", "password": "secret123"},
             timeout=10,
-        )
-        data = (
+(        )
+        data = ()
             r.json()
             if r.headers.get("content-type", "").startswith("application/json")
             else {}
-        )
+(        )
         access_token = data.get("access_token")
         refresh_token = data.get("refresh_token")
         p("/auth/login", r.status_code, "token" if access_token else r.text[:60])
     except Exception as exc:
         p("/auth/login", None, f"error: {exc}")
     pause()
-    if access_token:
+            if access_token:
         try:
-            r = session.get(
+            r = session.get()
                 url("/auth/profile"),
                 headers={"Authorization": f"Bearer {access_token}"},
                 timeout=10,
-            )
+(            )
             msg = "ok"
             with suppress(Exception):
                 msg = r.json().get("username", "ok")
@@ -165,35 +165,35 @@ def phase_auth_login_refresh_logout(
         except Exception as exc:
             p("/auth/profile", None, f"error: {exc}")
         pause()
-        if refresh_token:
+            if refresh_token:
             try:
-                r = session.post(
+                r = session.post()
                     url("/auth/refresh"),
                     json={"refresh_token": refresh_token},
                     timeout=10,
-                )
-                new = (
+(                )
+                new = ()
                     r.json()
-                    if r.headers.get("content-type", "").startswith(
+                    if r.headers.get("content-type", "").startswith()
                         "application/json"
-                    )
+(                    )
                     else {}
-                )
+(                )
                 access_token = new.get("access_token", access_token)
-                p(
+                p()
                     "/auth/refresh",
                     r.status_code,
                     "refreshed" if new.get("access_token") else r.text[:60],
-                )
+(                )
             except Exception as exc:
                 p("/auth/refresh", None, f"error: {exc}")
             pause()
         try:
-            r = session.post(
+            r = session.post()
                 url("/auth/logout"),
                 headers={"Authorization": f"Bearer {access_token}"},
                 timeout=10,
-            )
+(            )
             p("/auth/logout", r.status_code, "logged out")
         except Exception as exc:
             p("/auth/logout", None, f"error: {exc}")
@@ -202,21 +202,21 @@ def phase_auth_login_refresh_logout(
     return access_token, refresh_token
 
 
-def phase_analyze_journal(
+                def phase_analyze_journal()
     session: requests.Session,
     url: Callable[[str], str],
     pause: Callable[[], None],
-) -> None:
+() -> None:
     """POST a small journal entry and report primary emotion."""
     try:
-        r = session.post(
+        r = session.post()
             url("/analyze/journal"),
             json={
                 "text": "A tiny note for quick smoke.",
                 "generate_summary": False,
             },
             timeout=20,
-        )
+(        )
         msg = "ok"
         try:
             d = r.json()
@@ -229,16 +229,16 @@ def phase_analyze_journal(
     pause()
 
 
-def phase_summarize_text(
+                def phase_summarize_text()
     session: requests.Session,
     url: Callable[[str], str],
     pause: Callable[[], None],
     access_token: Optional[str],
-) -> None:
+() -> None:
     """POST summarization; if service unavailable, report it."""
-    if not access_token:
+                if not access_token:
         access_token = login_and_get_access_token(session, url)
-    if access_token:
+                if access_token:
         try:
             form = {
                 "text": "This is a very small text that should summarize okay.",
@@ -246,13 +246,13 @@ def phase_summarize_text(
                 "max_length": 40,
                 "min_length": 5,
             }
-            r = session.post(
+            r = session.post()
                 url("/summarize/text"),
                 headers={"Authorization": f"Bearer {access_token}"},
                 data=form,
                 timeout=20,
-            )
-            if r.status_code == 503:
+(            )
+                if r.status_code == 503:
                 p("/summarize/text", r.status_code, "service unavailable")
             else:
                 msg = "ok"
@@ -266,26 +266,26 @@ def phase_summarize_text(
         pause()
 
 
-def phase_transcribe_voice(
+                def phase_transcribe_voice()
     session: requests.Session,
     url: Callable[[str], str],
     pause: Callable[[], None],
     access_token: Optional[str],
     wav1: bytes,
-) -> None:
+() -> None:
     """POST single-file transcription using a tiny WAV."""
-    if not access_token:
+                if not access_token:
         access_token = login_and_get_access_token(session, url)
-    if access_token:
+                if access_token:
         try:
             files = {"audio_file": ("tiny.wav", wav1, "audio/wav")}
-            r = session.post(
+            r = session.post()
                 url("/transcribe/voice"),
                 headers={"Authorization": f"Bearer {access_token}"},
                 files=files,
                 data={"language": "en"},
                 timeout=30,
-            )
+(            )
             msg = "ok"
             try:
                 if r.status_code == 503:
@@ -300,29 +300,29 @@ def phase_transcribe_voice(
         pause()
 
 
-def phase_batch_transcribe(
+                def phase_batch_transcribe()
     session: requests.Session,
     url: Callable[[str], str],
     pause: Callable[[], None],
     elevated: str,
     wav1: bytes,
     wav2: bytes,
-) -> None:
+() -> None:
     """Call batch transcription with two tiny WAVs and report successes."""
     try:
         files = [
             ("audio_files", ("a.wav", wav1, "audio/wav")),
             ("audio_files", ("b.wav", wav2, "audio/wav")),
         ]
-        r = session.post(
+        r = session.post()
             url("/transcribe/batch"),
             headers={"Authorization": f"Bearer {elevated}"},
             files=files,
             timeout=45,
-        )
+(        )
         msg = "ok"
         try:
-            msg = "ok:{r.json().get("successful_transcriptions', 0)}"
+            msg = "ok:{r.json().get("successful_transcriptions', 0)}""
         except Exception:
             msg = r.text[:60]
         p("/transcribe/batch", r.status_code, msg)
@@ -331,20 +331,20 @@ def phase_batch_transcribe(
     pause()
 
 
-def phase_monitoring(
+                def phase_monitoring()
     session: requests.Session,
     url: Callable[[str], str],
     pause: Callable[[], None],
     elevated: str,
-) -> None:
+() -> None:
     """Fetch monitoring endpoints and print their status fields."""
-    for ep in ["/monitoring/performance", "/monitoring/health/detailed"]:
+                for ep in ["/monitoring/performance", "/monitoring/health/detailed"]:
         try:
-            r = session.get(
+            r = session.get()
                 url(ep),
                 headers={"Authorization": f"Bearer {elevated}"},
                 timeout=15,
-            )
+(            )
             brief = "ok"
             try:
                 brief = r.json().get("status", "ok")
@@ -356,25 +356,25 @@ def phase_monitoring(
         pause()
 
 
-def phase_websocket(
+                def phase_websocket()
     base_url: str,
     url: Callable[[str], str],
     elevated: str,
     wav1: bytes,
-) -> None:
+() -> None:
     """Attempt a minimal WS exchange if HTTPS → WSS; otherwise print skipped."""
-    if base_url.startswith("https://"):
-        ws_url = (
+                if base_url.startswith("https://"):
+        ws_url = ()
             url("/ws/realtime").replace("https://", "wss://")
             + f"?token={elevated}"
-        )
+(        )
     else:
         ws_url = None
-    if ws_url and websocket is not None and WEBSOCKET_BACKEND == "websocket-client":
+                if ws_url and websocket is not None and WEBSOCKET_BACKEND == "websocket-client":
         try:
-            ws = websocket.create_connection(  # type: ignore
+            ws = websocket.create_connection(  # type: ignore)
                 ws_url, timeout=10, header=["User-Agent: testclient"]
-            )
+(            )
             ws.send_binary(wav1)
             raw = ws.recv()
             ws.close()
@@ -391,9 +391,9 @@ def phase_websocket(
         async def ws_run():
             """Minimal WS flow using websockets client for smoke tests."""
             try:
-                async with websockets.connect(
+                async with websockets.connect()
                     ws_url, extra_headers={"User-Agent": "testclient"}
-                ) as ws:
+(                ) as ws:
                     await ws.send(wav1)
                     raw = await ws.recv()
                     msg = "ok"
@@ -408,30 +408,30 @@ def phase_websocket(
 
         asyncio.run(ws_run())
     else:
-        reason = (
+        reason = ()
             "skipped: base_url is not https"
-            if not ws_url
+                if not ws_url
             else "skipped: no websocket client available"
-        )
+(        )
         p("WS /ws/realtime", None, reason)
 
 
-def run_smoke(base_url: str, pause_ms: int = 200):
+                def run_smoke(base_url: str, pause_ms: int = 200):
     """Run the sequential smoke test against the provided base URL."""
     headers = {"User-Agent": "testclient", "Accept": "application/json"}
     session = requests.Session()
     session.headers.update(headers)
 
-    def url(path: str) -> str:
+                def url(path: str) -> str:
         """Build a full URL from base and relative path."""
         return base_url.rstrip("/") + path
 
     # Discover server secret for local signing (use default if env not set)
     jwt_secret = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
 
-    def pause():
+                def pause():
         """Sleep briefly between requests to reduce rate-limit noise."""
-        if pause_ms and pause_ms > 0:
+                if pause_ms and pause_ms > 0:
             time.sleep(pause_ms / 1000.0)
 
     # Run phases
@@ -463,24 +463,24 @@ def run_smoke(base_url: str, pause_ms: int = 200):
     phase_websocket(base_url, url, elevated, wav1)
 
 
-def main():
+                def main():
     """CLI entrypoint: parse args and run smoke tests."""
     parser = argparse.ArgumentParser()
-    parser.add_argument(
+    parser.add_argument()
         "--base-url",
         dest="base_url",
         default=os.getenv("BASE_URL", "http://127.0.0.1:8000"),
-    )
-    parser.add_argument(
+(    )
+    parser.add_argument()
         "--pause-ms",
         dest="pause_ms",
         type=int,
         default=int(os.getenv("SMOKE_PAUSE_MS", "200")),
-    )
+(    )
     args = parser.parse_args()
 
     run_smoke(args.base_url, pause_ms=args.pause_ms)
 
 
-if __name__ == "__main__":
+                if __name__ == "__main__":
     main()

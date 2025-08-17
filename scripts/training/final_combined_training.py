@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+""""
 🚀 FINAL COMBINED TRAINING - JOURNAL + CMU-MOSEI
 ================================================
 
@@ -11,11 +11,11 @@ Strategy:
 2. Add CMU-MOSEI samples for diversity
 3. Train with optimal hyperparameters
 4. Achieve 75-85% F1 score
-"""
+""""
 
 import json
 import warnings
-)
+()
     AutoModelForSequenceClassification,
     AutoTokenizer,
     EarlyStoppingCallback
@@ -28,14 +28,14 @@ from sklearn.metrics import f1_score, accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from torch.utils.data import Dataset
-from transformers import (
+from transformers import ()
 
 print("🚀 FINAL COMBINED TRAINING - JOURNAL + CMU-MOSEI")
 print("=" * 60)
 
 def load_combined_dataset():
     """Load and combine journal and CMU-MOSEI datasets"""
-    print("📊 Loading combined dataset...")
+    print(" Loading combined dataset...")
 
     combined_samples = []
 
@@ -45,12 +45,12 @@ def load_combined_dataset():
             journal_data = json.load(f)
 
         for item in journal_data:
-            combined_samples.append({
+            combined_samples.append({)
                 'text': item['text'],
                 'emotion': item['emotion'],
                 'source': 'journal'
-            })
-        print(f"✅ Loaded {len(journal_data)} journal samples")
+(            })
+        print(f" Loaded {len(journal_data)} journal samples")
     except Exception as e:
         print(f"⚠️ Could not load journal data: {e}")
 
@@ -60,12 +60,12 @@ def load_combined_dataset():
             cmu_data = json.load(f)
 
         for item in cmu_data:
-            combined_samples.append({
+            combined_samples.append({)
                 'text': item['text'],
                 'emotion': item['emotion'],
                 'source': 'cmu_mosei'
-            })
-        print(f"✅ Loaded {len(cmu_data)} CMU-MOSEI samples")
+(            })
+        print(f" Loaded {len(cmu_data)} CMU-MOSEI samples")
     except Exception as e:
         print(f"⚠️ Could not load CMU-MOSEI data: {e}")
 
@@ -79,52 +79,52 @@ def load_combined_dataset():
         selected_samples = np.random.choice(expanded_data, size=subset_size, replace=False)
 
         for item in selected_samples:
-            combined_samples.append({
+            combined_samples.append({)
                 'text': item['text'],
                 'emotion': item['emotion'],
                 'source': 'expanded_journal'
-            })
-        print(f"✅ Loaded {subset_size} expanded journal samples")
+(            })
+        print(f" Loaded {subset_size} expanded journal samples")
     except Exception as e:
         print(f"⚠️ Could not load expanded journal data: {e}")
 
-    print(f"📊 Total combined samples: {len(combined_samples)}")
+    print(f" Total combined samples: {len(combined_samples)}")
 
     # Show emotion distribution
     emotion_counts = {}
-    for sample in combined_samples:
+        for sample in combined_samples:
         emotion = sample['emotion']
         emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
 
-    print("📊 Emotion distribution:")
-    for emotion, count in sorted(emotion_counts.items()):
+    print(" Emotion distribution:")
+        for emotion, count in sorted(emotion_counts.items()):
         print(f"  {emotion}: {count} samples")
 
     return combined_samples
 
-class EmotionDataset(Dataset):
+        class EmotionDataset(Dataset):
     """Custom dataset for emotion classification"""
 
-    def __init__(self, texts, labels, tokenizer, max_length=128):
+        def __init__(self, texts, labels, tokenizer, max_length=128):
         self.texts = texts
         self.labels = labels
         self.tokenizer = tokenizer
         self.max_length = max_length
 
-    def __len__(self):
+        def __len__(self):
         return len(self.texts)
 
-    def __getitem__(self, idx):
+        def __getitem__(self, idx):
         text = str(self.texts[idx])
         label = self.labels[idx]
 
-        encoding = self.tokenizer(
+        encoding = self.tokenizer()
             text,
             truncation=True,
             padding='max_length',
             max_length=self.max_length,
             return_tensors='pt'
-        )
+(        )
 
         return {
             'input_ids': encoding['input_ids'].flatten(),
@@ -132,7 +132,7 @@ class EmotionDataset(Dataset):
             'labels': torch.tensor(label, dtype=torch.long)
         }
 
-def compute_metrics(eval_pred):
+        def compute_metrics(eval_pred):
     """Compute F1 score and accuracy"""
     predictions, labels = eval_pred
     predictions = np.argmax(predictions, axis=1)
@@ -145,9 +145,9 @@ def compute_metrics(eval_pred):
         'accuracy': accuracy
     }
 
-def main():
+        def main():
     """Main training function"""
-    print("🎯 Target F1 Score: 75-85%")
+    print(" Target F1 Score: 75-85%")
     print("🔧 Current Best: 67%")
     print("📈 Expected Improvement: 8-18%")
     print()
@@ -155,7 +155,7 @@ def main():
     # Load combined dataset
     samples = load_combined_dataset()
 
-    if not samples:
+        if not samples:
         print("❌ No samples loaded!")
         return
 
@@ -167,13 +167,13 @@ def main():
     label_encoder = LabelEncoder()
     labels = label_encoder.fit_transform(emotions)
 
-    print(f"🎯 Number of labels: {len(label_encoder.classes_)}")
-    print(f"📊 Labels: {list(label_encoder.classes_)}")
+    print(f" Number of labels: {len(label_encoder.classes_)}")
+    print(f" Labels: {list(label_encoder.classes_)}")
 
     # Split data
-    train_texts, test_texts, train_labels, test_labels = train_test_split(
+    train_texts, test_texts, train_labels, test_labels = train_test_split()
         texts, labels, test_size=0.2, random_state=42, stratify=labels
-    )
+(    )
 
     print(f"📈 Training samples: {len(train_texts)}")
     print(f"🧪 Test samples: {len(test_labels)}")
@@ -183,18 +183,18 @@ def main():
     model_name = "bert-base-uncased"
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-    model = AutoModelForSequenceClassification.from_pretrained(
+    model = AutoModelForSequenceClassification.from_pretrained()
         model_name,
         num_labels=len(label_encoder.classes_),
         problem_type="single_label_classification"
-    )
+(    )
 
     # Create datasets
     train_dataset = EmotionDataset(train_texts, train_labels, tokenizer)
     test_dataset = EmotionDataset(test_texts, test_labels, tokenizer)
 
     # Training arguments optimized for performance
-    training_args = TrainingArguments(
+    training_args = TrainingArguments()
         output_dir="./emotion_model_combined",
         num_train_epochs=8,  # More epochs for better performance
         per_device_train_batch_size=16,
@@ -215,28 +215,28 @@ def main():
         report_to=None,  # Disable wandb
         learning_rate=2e-5,  # Optimal learning rate
         gradient_accumulation_steps=2,  # Effective batch size = 32
-    )
+(    )
 
     # Initialize trainer
-    trainer = Trainer(
+    trainer = Trainer()
         model=model,
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=test_dataset,
         compute_metrics=compute_metrics,
         callbacks=[EarlyStoppingCallback(early_stopping_patience=3)]
-    )
+(    )
 
     # Train model
     print("🚀 Starting training...")
     trainer.train()
 
     # Evaluate final model
-    print("📊 Evaluating final model...")
+    print(" Evaluating final model...")
     results = trainer.evaluate()
 
-    print("🏆 Final F1 Score: {results["eval_f1']:.4f} ({results['eval_f1']*100:.2f}%)")
-    print("🎯 Target achieved: {"✅ YES!' if results['eval_f1'] >= 0.75 else '❌ Not yet'}")
+    print("🏆 Final F1 Score: {results["eval_f1']:.4f} ({results['eval_f1']*100:.2f}%)")"
+    print(" Target achieved: {" YES!' if results['eval_f1'] >= 0.75 else '❌ Not yet'}")"
 
     # Save model
     trainer.save_model("./emotion_model_final_combined")
@@ -245,11 +245,11 @@ def main():
     # Test on sample texts
     print("\n🧪 Testing on sample texts...")
     test_texts = [
-        "I'm feeling really happy today!",
+        "I'm feeling really happy today!",'
         "This is so frustrating, nothing works.",
-        "I'm anxious about the presentation.",
-        "I'm grateful for all the support.",
-        "I'm tired and need some rest."
+        "I'm anxious about the presentation.",'
+        "I'm grateful for all the support.",'
+        "I'm tired and need some rest."'
     ]
 
     model.eval()
@@ -266,10 +266,10 @@ def main():
             print(f"Predicted: {predicted_emotion} (confidence: {confidence:.3f})")
             print()
 
-    print("🎉 Training completed!")
-    print("📈 Final F1 Score: {results["eval_f1']*100:.2f}%")
-    print("🎯 Target: 75-85%")
-    print("📊 Improvement: {((results["eval_f1'] - 0.67) / 0.67 * 100):.1f}% from baseline")
+    print(" Training completed!")
+    print("📈 Final F1 Score: {results["eval_f1']*100:.2f}%")"
+    print(" Target: 75-85%")
+    print(" Improvement: {((results["eval_f1'] - 0.67) / 0.67 * 100):.1f}% from baseline")"
 
-if __name__ == "__main__":
+        if __name__ == "__main__":
     main()

@@ -20,11 +20,11 @@ from src.models.emotion_detection.training_pipeline import EmotionDetectionTrain
 
 
 
-"""
+""""
 Quick F1 Score Test and Improvement
 
 Simple script to test current F1 performance and apply basic improvements.
-"""
+""""
 
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
@@ -34,14 +34,14 @@ logger = logging.getLogger(__name__)
 
 def main():
     """Test F1 performance with different configurations."""
-    logger.info("🎯 Quick F1 Score Test and Improvement")
+    logger.info(" Quick F1 Score Test and Improvement")
 
     try:
         logger.info("=" * 50)
         logger.info("Testing Configuration 1: Full Dataset Training")
         logger.info("=" * 50)
 
-        trainer = EmotionDetectionTrainer(
+        trainer = EmotionDetectionTrainer()
             model_name="bert-base-uncased",
             cache_dir="./data/cache",
             output_dir="./models/checkpoints",
@@ -50,7 +50,7 @@ def main():
             num_epochs=3,  # Quick test with 3 epochs
             freeze_initial_layers=4,  # Less freezing for better learning
             device="cuda" if torch.cuda.is_available() else "cpu",
-        )
+(        )
 
         logger.info("Loading full GoEmotions dataset...")
         trainer.prepare_data(dev_mode=False)
@@ -71,9 +71,9 @@ def main():
         logger.info("Target F1: 0.7500 (75.0%)")
 
         if metrics["micro_f1"] >= 0.75:
-            logger.info("🎉 TARGET F1 SCORE ACHIEVED!")
+            logger.info(" TARGET F1 SCORE ACHIEVED!")
         elif metrics["micro_f1"] >= 0.50:
-            logger.info("✅ Good improvement! Close to target.")
+            logger.info(" Good improvement! Close to target.")
         elif metrics["micro_f1"] >= 0.25:
             logger.info("📈 Moderate improvement. Consider additional techniques.")
         else:
@@ -82,7 +82,7 @@ def main():
         checkpoint_path = Path("models/checkpoints/bert_emotion_classifier_quick_test.pt")
         checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
 
-        torch.save(
+        torch.save()
             {
                 "model_state_dict": trainer.model.state_dict(),
                 "metrics": metrics,
@@ -91,7 +91,7 @@ def main():
                 "macro_f1": metrics["macro_f1"],
             },
             checkpoint_path,
-        )
+(        )
 
         logger.info("Model saved to: {checkpoint_path}")
 
@@ -103,14 +103,14 @@ def main():
         return 0.0
 
 
-if __name__ == "__main__":
+    if __name__ == "__main__":
     f1_score = main()
-    print("\n🎯 FINAL F1 SCORE: {f1_score:.4f} ({f1_score:.1%})")
+    print("\n FINAL F1 SCORE: {f1_score:.4f} ({f1_score:.1%})")
 
     if f1_score >= 0.75:
-        print("🎉 SUCCESS: Target achieved!")
+        print(" SUCCESS: Target achieved!")
         sys.exit(0)
     else:
-        print("📊 PROGRESS: {f1_score/0.75:.1%} of target achieved")
+        print(" PROGRESS: {f1_score/0.75:.1%} of target achieved")
         print("Next steps: Try focal loss or ensemble techniques")
         sys.exit(1)

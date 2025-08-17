@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+""""
 CRITICAL SECURITY DEPLOYMENT FIX
 ===================================
 Emergency deployment script to fix critical security vulnerabilities in Cloud Run.
@@ -9,7 +9,7 @@ This script:
 2. Uses static configuration files with environment variables
 3. Deploys to Cloud Run with proper security headers
 4. Tests the deployment for security compliance
-"""
+""""
 
 import os
 import requests
@@ -24,8 +24,8 @@ from typing import Dict, List, Optional
 def get_project_id():
     """Get current GCP project ID dynamically"""
     try:
-        result = subprocess.run(['gcloud', 'config', 'get-value', 'project'],
-                              capture_output=True, text=True, check=True)
+        result = subprocess.run(['gcloud', 'config', 'get-value', 'project'],)
+(                              capture_output=True, text=True, check=True)
         return result.stdout.strip()
     except subprocess.CalledProcessError:
         # Fallback to environment variable or default
@@ -70,7 +70,7 @@ class SecurityDeploymentFix:
             else:
                 sanitized_command.append(str(arg))
 
-        self.log("Running: {" '.join(sanitized_command)}")
+        self.log("Running: {" '.join(sanitized_command)}")"
         try:
             # Use the sanitized command to prevent command injection
             result = subprocess.run(sanitized_command, capture_output=True, text=True, check=check)
@@ -83,7 +83,7 @@ class SecurityDeploymentFix:
                 raise
             return e
 
-    def verify_static_files_exist(self):
+            def verify_static_files_exist(self):
         """Verify that all required static files exist"""
         required_files = [
             self.secure_requirements,
@@ -94,20 +94,20 @@ class SecurityDeploymentFix:
         ]
 
         missing_files = []
-        for file_path in required_files:
+            for file_path in required_files:
             if not file_path.exists():
                 missing_files.append(str(file_path))
 
-        if missing_files:
-            raise FileNotFoundError("Missing required static files: {", '.join(missing_files)}")
+            if missing_files:
+            raise FileNotFoundError("Missing required static files: {", '.join(missing_files)}")"
 
-        self.log("✅ All static files verified")
+        self.log(" All static files verified")
 
-    def create_secure_requirements(self):
+            def create_secure_requirements(self):
         """Create secure requirements.txt with latest secure versions"""
         self.log("Creating secure requirements.txt...")
 
-        secure_requirements = """# Secure requirements for Cloud Run deployment
+        secure_requirements = """# Secure requirements for Cloud Run deployment"
 # All versions verified with safety-mcp for security and Python 3.9 compatibility
 
 # Web framework - latest secure version
@@ -133,14 +133,14 @@ prometheus-client==0.20.0
 
 # Security and validation
 cryptography>=41.0.0,<42.0.0
-"""
+""""
 
         with open(self.secure_requirements, 'w') as f:
             f.write(secure_requirements)
 
-        self.log("✅ Secure requirements.txt created")
+        self.log(" Secure requirements.txt created")
 
-    def build_and_deploy(self):
+            def build_and_deploy(self):
         """Build and deploy secure container to Cloud Run"""
         self.log("Building and deploying secure container...")
 
@@ -149,30 +149,30 @@ cryptography>=41.0.0,<42.0.0
 
         # Create a temporary cloudbuild.yaml file
         cloudbuild_path = self.deployment_dir / "cloudbuild.yaml"
-        cloudbuild_content = ""'steps:
+        cloudbuild_content = ""'steps:'
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', '{ARTIFACT_REGISTRY}/{SERVICE_NAME}', '-", "Dockerfile.secure', '.']
 images:
   - '{ARTIFACT_REGISTRY}/{SERVICE_NAME}'
-'''
+''''
 
         with open(cloudbuild_path, 'w') as f:
             f.write(cloudbuild_content)
 
         # Build container
         self.log("Building secure container...")
-        build_result = self.run_command([
+        build_result = self.run_command([)
             'gcloud', 'builds', 'submit',
             str(self.deployment_dir),
             '--config', str(cloudbuild_path)
-        ])
+(        ])
 
-        if build_result.returncode != 0:
+            if build_result.returncode != 0:
             raise RuntimeError("Container build failed")
 
         # Deploy to Cloud Run
         self.log("Deploying to Cloud Run...")
-        deploy_result = self.run_command([
+        deploy_result = self.run_command([)
             'gcloud', 'run', 'deploy', SERVICE_NAME,
             '--image', f'{ARTIFACT_REGISTRY}/{SERVICE_NAME}',
             '--region', REGION,
@@ -186,30 +186,30 @@ images:
             '--concurrency', '80',
             '--timeout', '300',
             '--set-env-vars', f'ADMIN_API_KEY={ADMIN_API_KEY},MAX_INPUT_LENGTH={MAX_INPUT_LENGTH},RATE_LIMIT_PER_MINUTE={RATE_LIMIT_PER_MINUTE},MODEL_PATH={MODEL_PATH}'
-        ])
+(        ])
 
-        if deploy_result.returncode != 0:
+            if deploy_result.returncode != 0:
             raise RuntimeError("Cloud Run deployment failed")
 
-        self.log("✅ Secure deployment completed successfully")
+        self.log(" Secure deployment completed successfully")
 
-    def test_deployment(self):
+            def test_deployment(self):
         """Test the deployed service for security compliance"""
         self.log("Testing deployment for security compliance...")
 
         # Get service URL
         try:
-            result = self.run_command([
+            result = self.run_command([)
                 'gcloud', 'run', 'services', 'describe', SERVICE_NAME,
                 '--region', REGION,
                 '--format', 'value(status.url)'
-            ])
+(            ])
             service_url = result.stdout.strip()
         except Exception as e:
             self.log(f"Failed to get service URL: {e}", "ERROR")
             return False
 
-        if not service_url:
+            if not service_url:
             self.log("No service URL found", "ERROR")
             return False
 
@@ -221,7 +221,7 @@ images:
             if response.status_code != 200:
                 self.log(f"Health check failed: {response.status_code}", "ERROR")
                 return False
-            self.log("✅ Health check passed")
+            self.log(" Health check passed")
         except Exception as e:
             self.log(f"Health check failed: {e}", "ERROR")
             return False
@@ -244,10 +244,10 @@ images:
                 if header not in headers:
                     missing_headers.append(header)
 
-            if missing_headers:
+                if missing_headers:
                 self.log(f"Missing security headers: {missing_headers}", "WARNING")
             else:
-                self.log("✅ Security headers present")
+                self.log(" Security headers present")
 
         except Exception as e:
             self.log(f"Security headers test failed: {e}", "ERROR")
@@ -256,10 +256,10 @@ images:
         # Test API key protection
         try:
             response = requests.get(f"{service_url}/model_status", timeout=30)
-            if response.status_code != 401:
+                if response.status_code != 401:
                 self.log("API key protection not working", "ERROR")
                 return False
-            self.log("✅ API key protection working")
+            self.log(" API key protection working")
         except Exception as e:
             self.log(f"API key test failed: {e}", "ERROR")
             return False
@@ -267,37 +267,37 @@ images:
         # Test rate limiting
         try:
             responses = []
-            for i in range(105):  # Exceed rate limit
-                response = requests.post(
+                for i in range(105):  # Exceed rate limit
+                response = requests.post()
                     f"{service_url}/predict",
                     json={"text": f"Test text {i}"},
                     timeout=30
-                )
+(                )
                 responses.append(response.status_code)
 
             # Should get 429 after rate limit exceeded
-            if 429 not in responses:
+                if 429 not in responses:
                 self.log("Rate limiting not working", "ERROR")
                 return False
-            self.log("✅ Rate limiting working")
+            self.log(" Rate limiting working")
         except Exception as e:
             self.log(f"Rate limiting test failed: {e}", "ERROR")
             return False
 
-        self.log("✅ All security tests passed")
+        self.log(" All security tests passed")
         return True
 
-    def cleanup_old_deployment(self):
+                def cleanup_old_deployment(self):
         """Clean up old deployment artifacts"""
         self.log("Cleaning up old deployment artifacts...")
 
         # Remove temporary cloudbuild.yaml
         cloudbuild_path = self.deployment_dir / "cloudbuild.yaml"
-        if cloudbuild_path.exists():
+                if cloudbuild_path.exists():
             cloudbuild_path.unlink()
-            self.log("✅ Cleaned up temporary cloudbuild.yaml")
+            self.log(" Cleaned up temporary cloudbuild.yaml")
 
-    def run(self):
+                def run(self):
         """Run the complete security deployment fix"""
         try:
             self.log("🚀 Starting security deployment fix...")
@@ -309,20 +309,20 @@ images:
             self.build_and_deploy()
 
             # Test deployment
-            if not self.test_deployment():
+                if not self.test_deployment():
                 raise RuntimeError("Deployment tests failed")
 
             # Cleanup
             self.cleanup_old_deployment()
 
-            self.log("🎉 Security deployment fix completed successfully!")
+            self.log(" Security deployment fix completed successfully!")
             return True
 
         except Exception as e:
             self.log(f"❌ Security deployment fix failed: {e}", "ERROR")
             return False
 
-if __name__ == "__main__":
+                if __name__ == "__main__":
     fixer = SecurityDeploymentFix()
     success = fixer.run()
     sys.exit(0 if success else 1)

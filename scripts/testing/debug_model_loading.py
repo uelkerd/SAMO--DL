@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""
+""""
 Debug Model Loading Issues
 Get detailed information about why the model is not loading properly.
-"""
+""""
 
 import argparse
 import json
@@ -16,7 +16,7 @@ def debug_model_loading():
     config = create_test_config()
     client = create_api_client()
 
-    print("🔍 Debugging Model Loading Issues")
+    print(" Debugging Model Loading Issues")
     print("=" * 50)
     print(f"Testing URL: {config.base_url}")
     print(f"API Key: {config.api_key[:20]}...")
@@ -25,7 +25,7 @@ def debug_model_loading():
     print("\n1. Testing model status with API key...")
     try:
         data = client.get("/model_status")
-        print(f"   ✅ Model Status: {json.dumps(data, indent=2)}")
+        print(f"    Model Status: {json.dumps(data, indent=2)}")
     except requests.exceptions.RequestException as e:
         if "401" in str(e):
             print("   🔐 Unauthorized - API key mismatch")
@@ -36,7 +36,7 @@ def debug_model_loading():
     print("\n2. Testing security status...")
     try:
         data = client.get("/security_status")
-        print(f"   ✅ Security Status: {json.dumps(data, indent=2)}")
+        print(f"    Security Status: {json.dumps(data, indent=2)}")
     except requests.exceptions.RequestException as e:
         print(f"   ❌ Security status error: {e}")
 
@@ -45,7 +45,7 @@ def debug_model_loading():
     try:
         payload = {"text": "I am happy"}
         data = client.post("/predict", payload)
-        print(f"   ✅ Prediction successful: {json.dumps(data, indent=2)}")
+        print(f"    Prediction successful: {json.dumps(data, indent=2)}")
     except requests.exceptions.RequestException as e:
         print(f"   ❌ Prediction error: {e}")
     except ValueError as e:
@@ -56,7 +56,7 @@ def debug_model_loading():
     try:
         payload = {"texts": ["I am happy", "I am sad", "I am excited"]}
         data = client.post("/predict_batch", payload)
-        print(f"   ✅ Batch prediction successful: {json.dumps(data, indent=2)}")
+        print(f"    Batch prediction successful: {json.dumps(data, indent=2)}")
     except requests.exceptions.RequestException as e:
         print(f"   ❌ Batch prediction error: {e}")
     except ValueError as e:
@@ -76,12 +76,12 @@ def debug_model_loading():
         print(f"   Test case {i+1}: {test_case}")
         try:
             data = client.post("/predict", test_case)
-            print("     ✅ Success: {data.get("emotion', 'Unknown')}")
+            print("      Success: {data.get("emotion', 'Unknown')}")"
         except requests.exceptions.RequestException as e:
             print(f"     ❌ Request failed: {e}")
         except ValueError as e:
             print(f"     ❌ Invalid response: {e}")
 
 
-if __name__ == "__main__":
+    if __name__ == "__main__":
     debug_model_loading()

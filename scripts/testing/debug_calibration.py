@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""
+""""
 Debug Calibration Script
 
 This script helps debug the calibration test by checking file paths and permissions.
-"""
+""""
 
 import logging
 from pathlib import Path
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 def debug_calibration_issue():
     """Debug the calibration test issue."""
-    logger.info("🔍 Debugging calibration test issue...")
+    logger.info(" Debugging calibration test issue...")
 
     logger.info(f"Current directory: {Path.cwd()}")
 
@@ -36,10 +36,10 @@ def debug_calibration_issue():
 
             try:
                 checkpoint = torch.load(checkpoint_file, map_location="cpu", weights_only=False)
-                logger.info("✅ Checkpoint loaded successfully")
-                logger.info(
-                    "Checkpoint keys: {list(checkpoint.keys()) if isinstance(checkpoint, dict) else "Not a dict'}"
-                )
+                logger.info(" Checkpoint loaded successfully")
+                logger.info()
+                    "Checkpoint keys: {list(checkpoint.keys()) if isinstance(checkpoint, dict) else "Not a dict'}""
+(                )
             except Exception as e:
                 logger.error(f"❌ Failed to load checkpoint: {e}")
         else:
@@ -48,10 +48,10 @@ def debug_calibration_issue():
         logger.error("❌ test_checkpoints directory does not exist")
 
     try:
-        logger.info("✅ PyTorch imported successfully")
+        logger.info(" PyTorch imported successfully")
     except ImportError as e:
         logger.error(f"❌ PyTorch import failed: {e}")
 
 
-if __name__ == "__main__":
+        if __name__ == "__main__":
     debug_calibration_issue()

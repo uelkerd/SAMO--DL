@@ -21,12 +21,12 @@ from sklearn.preprocessing import LabelEncoder
 from torch.utils.data import Dataset, DataLoader
 from transformers import AutoModel, AutoTokenizer
 
-print("✅ Imports successful")
+print(" Imports successful")
 
 # Clear GPU memory
 if torch.cuda.is_available():
     torch.cuda.empty_cache()
-    print(f"✅ GPU memory cleared: {torch.cuda.get_device_name()}")
+    print(f" GPU memory cleared: {torch.cuda.get_device_name()}")
 else:
     print("⚠️ CUDA not available, using CPU")
 
@@ -35,7 +35,7 @@ try:
     test_tensor = torch.randn(2, 3)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     test_tensor.to(device)
-    print("✅ Basic tensor operations work")
+    print(" Basic tensor operations work")
 except Exception as e:
     print(f"❌ Basic tensor operations failed: {e}")
     raise
@@ -62,14 +62,14 @@ journal_labels = set(journal_df['emotion'].unique())
 
 # Find common labels
 common_labels = sorted(list(go_labels.intersection(journal_labels)))
-if not common_labels:
+    if not common_labels:
     print("⚠️ No common labels found! Using all labels...")
     # FIX: Convert to strings before union to avoid type comparison issues
     all_go_labels = [str(label) for label in go_labels]
     all_journal_labels = [str(label) for label in journal_labels]
     common_labels = sorted(list(set(all_go_labels + all_journal_labels)))
 
-print(f"📊 Using {len(common_labels)} labels: {common_labels}")
+print(f" Using {len(common_labels)} labels: {common_labels}")
 
 # Create encoder
 label_encoder = LabelEncoder()
@@ -77,17 +77,17 @@ label_encoder.fit(common_labels)
 label_to_id = {label: idx for idx, label in enumerate(label_encoder.classes_)}
 id_to_label = {idx: label for label, idx in label_to_id.items()}
 
-print(f"✅ Label encoder created with {len(label_encoder.classes_)} classes")
+print(f" Label encoder created with {len(label_encoder.classes_)} classes")
 
 # Step 4: Prepare filtered data
-print("\n📊 Preparing filtered data...")
+print("\n Preparing filtered data...")
 
 valid_labels = set(label_encoder.classes_)
 
 # Filter GoEmotions data
 go_texts = []
 go_labels = []
-for example in go_emotions['train']:
+    for example in go_emotions['train']:
     if example['labels']:
         for label in example['labels']:
             if label in valid_labels:
@@ -98,34 +98,34 @@ for example in go_emotions['train']:
 # Filter journal data
 journal_texts = []
 journal_labels = []
-for _, row in journal_df.iterrows():
-    if row['emotion'] in valid_labels:
+        for _, row in journal_df.iterrows():
+        if row['emotion'] in valid_labels:
         journal_texts.append(row['content'])
         journal_labels.append(label_to_id[row['emotion']])
 
-print(f"📊 Filtered GoEmotions: {len(go_texts)} samples")
-print(f"📊 Filtered Journal: {len(journal_texts)} samples")
+print(f" Filtered GoEmotions: {len(go_texts)} samples")
+print(f" Filtered Journal: {len(journal_texts)} samples")
 
 # Validate label ranges
 go_label_range = (min(go_labels), max(go_labels)) if go_labels else (0, 0)
 journal_label_range = (min(journal_labels), max(journal_labels)) if journal_labels else (0, 0)
 expected_range = (0, len(label_encoder.classes_) - 1)
 
-print(f"📊 GoEmotions label range: {go_label_range}")
-print(f"📊 Journal label range: {journal_label_range}")
-print(f"📊 Expected range: {expected_range}")
+print(f" GoEmotions label range: {go_label_range}")
+print(f" Journal label range: {journal_label_range}")
+print(f" Expected range: {expected_range}")
 
-if go_label_range[0] < expected_range[0] or go_label_range[1] > expected_range[1]:
+        if go_label_range[0] < expected_range[0] or go_label_range[1] > expected_range[1]:
     raise ValueError("❌ GoEmotions labels out of range!")
 
-if journal_label_range[0] < expected_range[0] or journal_label_range[1] > expected_range[1]:
+        if journal_label_range[0] < expected_range[0] or journal_label_range[1] > expected_range[1]:
     raise ValueError("❌ Journal labels out of range!")
 
-print("✅ All labels within expected range")
+print(" All labels within expected range")
 
 # Step 5: Create simple dataset class
-class SimpleEmotionDataset(Dataset):
-    def __init__(self, texts, labels, tokenizer, max_length=128):
+        class SimpleEmotionDataset(Dataset):
+        def __init__(self, texts, labels, tokenizer, max_length=128):
         self.texts = texts
         self.labels = labels
         self.tokenizer = tokenizer
@@ -140,27 +140,27 @@ class SimpleEmotionDataset(Dataset):
             if not isinstance(label, int) or label < 0:
                 raise ValueError(f"Invalid label at index {i}: {label}")
 
-    def __len__(self):
+            def __len__(self):
         return len(self.texts)
 
-    def __getitem__(self, idx):
+            def __getitem__(self, idx):
         text = self.texts[idx]
         label = self.labels[idx]
 
         # Validate inputs
-        if not isinstance(text, str) or not text.strip():
+            if not isinstance(text, str) or not text.strip():
             raise ValueError(f"Invalid text at index {idx}")
 
-        if not isinstance(label, int) or label < 0:
+            if not isinstance(label, int) or label < 0:
             raise ValueError(f"Invalid label at index {idx}: {label}")
 
-        encoding = self.tokenizer(
+        encoding = self.tokenizer()
             text,
             truncation=True,
             padding='max_length',
             max_length=self.max_length,
             return_tensors='pt'
-        )
+(        )
 
         return {
             'input_ids': encoding['input_ids'].flatten(),
@@ -169,11 +169,11 @@ class SimpleEmotionDataset(Dataset):
         }
 
 # Step 6: Create simple model
-class SimpleEmotionClassifier(nn.Module):
-    def __init__(self, model_name="bert-base-uncased", num_labels=None):
+            class SimpleEmotionClassifier(nn.Module):
+            def __init__(self, model_name="bert-base-uncased", num_labels=None):
         super().__init__()
 
-        if num_labels is None or num_labels <= 0:
+            if num_labels is None or num_labels <= 0:
             raise ValueError(f"Invalid num_labels: {num_labels}")
 
         self.num_labels = num_labels
@@ -181,14 +181,14 @@ class SimpleEmotionClassifier(nn.Module):
         self.dropout = nn.Dropout(0.3)
         self.classifier = nn.Linear(self.bert.config.hidden_size, num_labels)
 
-        print(f"✅ Model initialized with {num_labels} labels")
+        print(f" Model initialized with {num_labels} labels")
 
-    def forward(self, input_ids, attention_mask):
+            def forward(self, input_ids, attention_mask):
         # Validate inputs
-        if input_ids.dim() != 2:
+            if input_ids.dim() != 2:
             raise ValueError(f"Expected input_ids to be 2D, got {input_ids.dim()}D")
 
-        if attention_mask.dim() != 2:
+            if attention_mask.dim() != 2:
             raise ValueError(f"Expected attention_mask to be 2D, got {attention_mask.dim()}D")
 
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
@@ -196,7 +196,7 @@ class SimpleEmotionClassifier(nn.Module):
         logits = self.classifier(self.dropout(pooled_output))
 
         # Validate outputs
-        if logits.shape[-1] != self.num_labels:
+            if logits.shape[-1] != self.num_labels:
             raise ValueError(f"Expected {self.num_labels} output classes, got {logits.shape[-1]}")
 
         return logits
@@ -205,7 +205,7 @@ class SimpleEmotionClassifier(nn.Module):
 print("\n🚀 Setting up training...")
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"✅ Using device: {device}")
+print(f" Using device: {device}")
 
 # Initialize tokenizer and model
 tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
@@ -218,9 +218,9 @@ go_dataset = SimpleEmotionDataset(go_texts, go_labels, tokenizer)
 journal_dataset = SimpleEmotionDataset(journal_texts, journal_labels, tokenizer)
 
 # Split journal data
-journal_train_texts, journal_val_texts, journal_train_labels, journal_val_labels = train_test_split(
+journal_train_texts, journal_val_texts, journal_train_labels, journal_val_labels = train_test_split()
     journal_texts, journal_labels, test_size=0.3, random_state=42, stratify=journal_labels
-)
+()
 
 journal_train_dataset = SimpleEmotionDataset(journal_train_texts, journal_train_labels, tokenizer)
 journal_val_dataset = SimpleEmotionDataset(journal_val_texts, journal_val_labels, tokenizer)
@@ -230,8 +230,8 @@ go_loader = DataLoader(go_dataset, batch_size=8, shuffle=True)
 journal_train_loader = DataLoader(journal_train_dataset, batch_size=8, shuffle=True)
 journal_val_loader = DataLoader(journal_val_dataset, batch_size=8, shuffle=False)
 
-print(f"✅ Training samples: {len(go_dataset)} GoEmotions + {len(journal_train_dataset)} Journal")
-print(f"✅ Validation samples: {len(journal_val_dataset)} Journal")
+print(f" Training samples: {len(go_dataset)} GoEmotions + {len(journal_train_dataset)} Journal")
+print(f" Validation samples: {len(journal_val_dataset)} Journal")
 
 # Step 8: Training loop
 print("\n🚀 Starting training...")
@@ -242,7 +242,7 @@ criterion = nn.CrossEntropyLoss()
 num_epochs = 3  # Reduced for testing
 best_f1 = 0.0
 
-for epoch in range(num_epochs):
+            for epoch in range(num_epochs):
     print(f"\n🔄 Epoch {epoch + 1}/{num_epochs}")
 
     # Training
@@ -252,7 +252,7 @@ for epoch in range(num_epochs):
 
     # Train on GoEmotions
     print("  📚 Training on GoEmotions...")
-    for i, batch in enumerate(go_loader):
+            for i, batch in enumerate(go_loader):
         try:
             # Validate batch
             if 'input_ids' not in batch or 'attention_mask' not in batch or 'labels' not in batch:
@@ -288,7 +288,7 @@ for epoch in range(num_epochs):
 
     # Train on journal data
     print("  📝 Training on journal data...")
-    for i, batch in enumerate(journal_train_loader):
+            for i, batch in enumerate(journal_train_loader):
         try:
             input_ids = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
@@ -314,13 +314,13 @@ for epoch in range(num_epochs):
             continue
 
     # Validation
-    print("  🎯 Validating...")
+    print("   Validating...")
     model.eval()
     all_preds = []
     all_labels = []
 
     with torch.no_grad():
-        for batch in journal_val_loader:
+            for batch in journal_val_loader:
             try:
                 input_ids = batch['input_ids'].to(device)
                 attention_mask = batch['attention_mask'].to(device)
@@ -337,13 +337,13 @@ for epoch in range(num_epochs):
                 continue
 
     # Calculate metrics
-    if all_preds and all_labels:
+        if all_preds and all_labels:
         f1_macro = f1_score(all_labels, all_preds, average='macro')
         accuracy = accuracy_score(all_labels, all_preds)
 
         avg_loss = total_loss / num_batches if num_batches > 0 else 0
 
-        print(f"  📊 Epoch {epoch + 1} Results:")
+        print(f"   Epoch {epoch + 1} Results:")
         print(f"    Average Loss: {avg_loss:.4f}")
         print(f"    Validation F1 (Macro): {f1_macro:.4f}")
         print(f"    Validation Accuracy: {accuracy:.4f}")
@@ -355,7 +355,7 @@ for epoch in range(num_epochs):
             print(f"    💾 New best model saved! F1: {best_f1:.4f}")
 
     # Clear GPU cache
-    if torch.cuda.is_available():
+        if torch.cuda.is_available():
         torch.cuda.empty_cache()
 
 print(f"\n🏆 Training completed! Best F1 Score: {best_f1:.4f}")
@@ -372,14 +372,14 @@ results = {
 with open('simple_training_results.json', 'w') as f:
     json.dump(results, f, indent=2)
 
-print("\n✅ Training completed successfully!")
-print(f"📊 Final F1 Score: {best_f1:.4f}")
-print("🎯 Target Met: {"✅' if best_f1 >= 0.7 else '❌'}")
+print("\n Training completed successfully!")
+print(f" Final F1 Score: {best_f1:.4f}")
+print(" Target Met: {"' if best_f1 >= 0.7 else '❌'}")"
 
 # Download results
 from google.colab import files
 files.download('best_simple_model.pth')
 files.download('simple_training_results.json')
 
-print("\n🎉 BULLETPROOF TRAINING COMPLETED!")
+print("\n BULLETPROOF TRAINING COMPLETED!")
 print("📁 Files downloaded: best_simple_model.pth, simple_training_results.json")
