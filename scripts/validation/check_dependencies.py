@@ -6,10 +6,12 @@ This script checks if all dependencies listed in requirements.txt are actually
 used in the codebase to avoid unnecessary bloat.
 """
 
+
 import re
 import sys
 from pathlib import Path
 from typing import Set, List, Dict
+
 
 class DependencyChecker:
     """Checker for dependency usage in the codebase."""

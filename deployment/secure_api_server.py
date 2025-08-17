@@ -14,9 +14,12 @@ Security Features:
 - Request correlation and tracing
 """
 
+
 import sys
 import os
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+
 
 from flask import Flask, request, jsonify, g
 import werkzeug
@@ -29,10 +32,13 @@ import threading
 from functools import wraps
 import functools
 
+
 # Import security components
+
 from api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
 from input_sanitizer import InputSanitizer, SanitizationConfig
 from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
+
 
 # Configure logging
 logging.basicConfig(
@@ -237,8 +243,10 @@ class SecureEmotionDetectionModel:
 
         try:
             # Lazy import heavy deps only when not in stub mode and path checks passed
+
             from transformers import AutoTokenizer, AutoModelForSequenceClassification  # type: ignore
             import torch  # type: ignore
+
 
             self.tokenizer = AutoTokenizer.from_pretrained(str(self.model_path), local_files_only=True)
             self.model = AutoModelForSequenceClassification.from_pretrained(str(self.model_path), local_files_only=True)
@@ -272,7 +280,9 @@ class SecureEmotionDetectionModel:
                 raise RuntimeError("SecureEmotionDetectionModel is not loaded; prediction unavailable.")
             # Ensure torch is available within function scope for linter/runtime
             try:
+
                 import torch  # type: ignore
+
             except Exception as e:  # pragma: no cover
                 logger.error("Torch import failed during prediction: %s", e)
                 raise

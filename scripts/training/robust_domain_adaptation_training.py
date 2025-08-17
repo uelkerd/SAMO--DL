@@ -8,12 +8,14 @@ that avoids dependency hell and provides comprehensive error handling.
 Target: Achieve 70% F1 score on journal entries through domain adaptation from GoEmotions
 """
 
+
 import os
 import json
 import warnings
 import subprocess
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
+
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings('ignore')
@@ -28,7 +30,9 @@ def setup_environment():
     
     # Check if we're in Colab
     try:
+
         import google.colab
+
         print("✅ Running in Google Colab")
         is_colab = True
     except ImportError:
@@ -69,8 +73,10 @@ def verify_installation():
     print("🔍 Verifying installation...")
     
     try:
+
         import torch
         import transformers
+
         print(f"  PyTorch: {torch.__version__}")
         print(f"  Transformers: {transformers.__version__}")
         print(f"  CUDA Available: {torch.cuda.is_available()}")
@@ -84,7 +90,9 @@ def verify_installation():
             print("⚠️ No GPU available. Training will be slow on CPU.")
         
         # Test critical imports
+
         from transformers import AutoModel, AutoTokenizer
+
         print("  ✅ Transformers imports successful")
         
         return True
@@ -126,7 +134,9 @@ def setup_repository():
 def safe_load_dataset(dataset_name: str, config: Optional[str] = None, split: Optional[str] = None):
     """Safely load dataset with error handling."""
     try:
+
         from datasets import load_dataset
+
         if config:
             dataset = load_dataset(dataset_name, config, split=split)
         else:
@@ -161,8 +171,10 @@ def analyze_writing_style(texts: List[str], domain_name: str) -> Optional[Dict[s
         print(f"⚠️ No valid texts found for {domain_name}")
         return None
     
+
     import numpy as np
     
+
     avg_length = np.mean([len(text.split()) for text in valid_texts])
     personal_pronouns = sum(['I ' in text or 'my ' in text or 'me ' in text for text in valid_texts]) / len(valid_texts)
     reflection_words = sum(['think' in text.lower() or 'feel' in text.lower() or 'believe' in text.lower()
@@ -193,7 +205,9 @@ def perform_domain_analysis():
     # Load journal dataset
     journal_entries = safe_load_json('data/journal_test_dataset.json')
     if journal_entries:
+
         import pandas as pd
+
         journal_df = pd.DataFrame(journal_entries)
         journal_texts = journal_df['content'].tolist()
     else:
@@ -220,8 +234,10 @@ class FocalLoss:
     """Focal Loss for addressing class imbalance in emotion detection."""
     
     def __init__(self, alpha=1, gamma=2, reduction='mean'):
+
         import torch.nn as nn
         import torch.nn.functional as F
+
         self.alpha = alpha
         self.gamma = gamma
         self.reduction = reduction
@@ -243,9 +259,11 @@ class DomainAdaptedEmotionClassifier:
     """BERT-based emotion classifier with domain adaptation capabilities."""
     
     def __init__(self, model_name="bert-base-uncased", num_labels=None, dropout=0.3):
+
         import torch.nn as nn
         from transformers import AutoModel
         
+
         # ROBUST: Validate num_labels
         if num_labels is None:
             print("⚠️ num_labels not provided, using default value of 12")
@@ -299,7 +317,9 @@ def safe_model_initialization(model_name: str, num_labels: int, device: str):
         print(f"🏗️ Initializing model with {model_name}...")
         
         # Initialize tokenizer
+
         from transformers import AutoTokenizer
+
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         print(f"✅ Tokenizer loaded: {model_name}")
         
@@ -307,7 +327,9 @@ def safe_model_initialization(model_name: str, num_labels: int, device: str):
         model = DomainAdaptedEmotionClassifier(model_name=model_name, num_labels=num_labels)
         
         # Move to device
+
         import torch
+
         model = model.to(device)
         print(f"✅ Model moved to {device}")
         
@@ -345,7 +367,9 @@ def main():
         return
     
     # Step 5: Initialize model (example)
+
     import torch
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     # This would be called when we have the label encoder ready

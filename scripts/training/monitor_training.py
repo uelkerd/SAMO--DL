@@ -14,6 +14,7 @@
     # Training time analysis
 # Add src to path for imports
 #!/usr/bin/env python3
+
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -22,6 +23,7 @@ import logging
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
+
 
 
 

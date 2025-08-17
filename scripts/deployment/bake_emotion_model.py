@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
+
 import os
 import sys
 
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
+
 try:
+
     from huggingface_hub import login  # type: ignore
+
 except Exception:  # pragma: no cover
     login = None  # optional
 

@@ -1,5 +1,6 @@
 # Configure logging
 # Suppress warnings from audio processing
+
 from dataclasses import dataclass
 from pathlib import Path
 from pydub import AudioSegment
@@ -13,6 +14,7 @@ import time
 import torch
 import warnings
 import whisper
+
 """OpenAI Whisper Transcriber for SAMO Deep Learning.
 
 This module implements OpenAI Whisper for high-accuracy voice-to-text transcription

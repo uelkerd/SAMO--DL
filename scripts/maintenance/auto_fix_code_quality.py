@@ -13,11 +13,13 @@ Auto-fixes:
 - PTC-W0027: f-strings without expressions
 - Basic import organization
 """
+
 import sys
 import re
 from pathlib import Path
 from typing import Dict, List, Set, Tuple, Any, Optional
 import logging
+
 
 # Configure logging
 logging.basicConfig(
@@ -415,7 +417,9 @@ class CodeQualityAutoFixer:
 
 def main():
     """Main function for command-line usage."""
+
     import argparse
+
 
     parser = argparse.ArgumentParser(
         description='Automatically fix common code quality issues'

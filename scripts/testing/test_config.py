@@ -4,10 +4,12 @@ Centralized Test Configuration
 Provides consistent configuration for all testing scripts.
 """
 
+
 import os
 import argparse
 import secrets
 from typing import Optional
+
 
 
 class TestConfig:
@@ -76,8 +78,10 @@ class APIClient:
     
     def get(self, endpoint: str, **kwargs) -> dict:
         """Make GET request with consistent error handling"""
+
         import requests
         
+
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
         headers = {**self.headers, **kwargs.get('headers', {})}
         
@@ -92,8 +96,10 @@ class APIClient:
     
     def post(self, endpoint: str, data: dict, **kwargs) -> dict:
         """Make POST request with consistent error handling"""
+
         import requests
         
+
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
         headers = {**self.headers, **kwargs.get('headers', {})}
         

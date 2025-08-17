@@ -11,6 +11,7 @@ Key Features:
 - Domain adaptation preparation for journal entries
 """
 
+
 import logging
 import re
 from collections import Counter
@@ -22,12 +23,15 @@ from datasets import load_dataset
 from torch.utils.data import Dataset
 from transformers import AutoTokenizer
 
+
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 from .labels import GOEMOTIONS_EMOTIONS, EMOTION_ID_TO_LABEL, EMOTION_LABEL_TO_ID
+
 
 
 class GoEmotionsDataset(Dataset):

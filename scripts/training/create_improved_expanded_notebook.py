@@ -4,7 +4,9 @@ Create Improved Expanded Training Notebook
 Generates a new notebook with proper JSON escaping and GPU optimizations
 """
 
+
 import json
+
 
 def create_improved_notebook():
     """Create an improved version of the expanded training notebook."""

@@ -6,7 +6,9 @@ Summarize Ultimate Notebook
 This script provides a comprehensive summary of what the ultimate notebook contains.
 """
 
+
 import json
+
 
 def summarize_notebook():
     """Summarize the ultimate notebook contents."""

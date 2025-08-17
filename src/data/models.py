@@ -4,11 +4,13 @@
 These models correspond to the tables in the PostgreSQL schema.
 """
 
+
 import uuid
 from datetime import datetime
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
+
     Boolean,
     Column,
     DateTime,
@@ -20,8 +22,10 @@ from sqlalchemy import (
     Table,
     Text,
 )
+
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, relationship
+
 
 
 class Base(DeclarativeBase):

@@ -5,9 +5,12 @@
 Tests for refined anomaly detection and user agent analysis.
 """
 
+
 import sys
 import os
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
 
 import unittest
 import time
@@ -15,12 +18,15 @@ import time
 from api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
 from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
 
+
 class TestAnomalyDetection(unittest.TestCase):
     """Test anomaly detection and user agent analysis."""
     
     def setUp(self):
         """Set up test fixtures."""
+
         from flask import Flask
+
         self.app = Flask(__name__)
         
         # Rate limiter with enhanced anomaly detection
@@ -234,8 +240,10 @@ class TestAnomalyDetection(unittest.TestCase):
     
     def test_anomaly_detection_performance(self):
         """Test that anomaly detection doesn't significantly impact performance."""
+
         import time
         
+
         client_ip = "192.168.1.1"
         user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         

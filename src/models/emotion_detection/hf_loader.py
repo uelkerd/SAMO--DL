@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -12,6 +13,7 @@ import torch
 import requests
 from transformers import AutoConfig, AutoTokenizer, AutoModelForSequenceClassification
 from huggingface_hub import snapshot_download
+
 
 
 @dataclass
@@ -170,7 +172,9 @@ def load_emotion_model_multi_source(
                 with tarfile.open(archive_path, "r:gz") as tar:
                     tar.extractall(path=extract_dir)
             elif archive_path.endswith(".zip"):
+
                 import zipfile
+
                 with zipfile.ZipFile(archive_path, "r") as zf:
                     zf.extractall(path=extract_dir)
             else:

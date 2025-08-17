@@ -3,15 +3,19 @@
 Minimal test to isolate the API setup issue
 """
 
+
 import os
+
 os.environ['ADMIN_API_KEY'] = 'test123'
 
 print("🔍 Starting minimal API setup test...")
 
 try:
     print("1. Importing modules...")
+
     from flask import Flask
     from flask_restx import Api, Resource, fields, Namespace
+
     print("✅ Imports successful")
 except Exception as e:
     print(f"❌ Imports failed: {e}")

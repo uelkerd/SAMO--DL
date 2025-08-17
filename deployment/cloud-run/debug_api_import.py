@@ -3,8 +3,10 @@
 Debug script to isolate the 'int' object is not callable error
 """
 
+
 import sys
 import os
+
 
 # Add current directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -13,7 +15,9 @@ print("🔍 Starting API import debug...")
 
 try:
     print("1. Importing Flask...")
+
     from flask import Flask
+
     print("✅ Flask imported successfully")
 except Exception as e:
     print(f"❌ Flask import failed: {e}")
@@ -21,7 +25,9 @@ except Exception as e:
 
 try:
     print("2. Importing Flask-RESTX...")
+
     from flask_restx import Api, Resource, fields, Namespace
+
     print("✅ Flask-RESTX imported successfully")
 except Exception as e:
     print(f"❌ Flask-RESTX import failed: {e}")
@@ -75,21 +81,27 @@ print("🎉 All tests passed! The issue is not with basic Flask-RESTX functional
 # Now let's test the actual imports from secure_api_server.py
 try:
     print("\n7. Testing security_headers import...")
+
     from security_headers import add_security_headers
+
     print("✅ security_headers imported successfully")
 except Exception as e:
     print(f"❌ security_headers import failed: {e}")
 
 try:
     print("8. Testing rate_limiter import...")
+
     from rate_limiter import rate_limit
+
     print("✅ rate_limiter imported successfully")
 except Exception as e:
     print(f"❌ rate_limiter import failed: {e}")
 
 try:
     print("9. Testing model_utils import...")
+
     from model_utils import ensure_model_loaded, predict_emotions, get_model_status, validate_text_input
+
     print("✅ model_utils imported successfully")
 except Exception as e:
     print(f"❌ model_utils import failed: {e}")

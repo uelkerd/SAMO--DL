@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Test FastAPI HTTP exception handler contract to bump coverage."""
 
+
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
 from src.unified_ai_api import app
+
 
 
 def test_http_exception_handler_400_detail_shape():

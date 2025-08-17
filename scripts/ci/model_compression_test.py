@@ -11,12 +11,14 @@
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
+
 from pathlib import Path
 from torch import nn
 import logging
 import sys
 import tempfile
 import torch
+
 
 
 
@@ -32,7 +34,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 from .validation_utils import ensure
+
 
 
 class SimpleBERTClassifier(nn.Module):

@@ -3,6 +3,7 @@
 Simplified ONNX-Based Emotion Detection API Server
 Uses simple string tokenization - no complex dependencies
 """
+
 import logging
 import os
 import time
@@ -15,6 +16,7 @@ import onnxruntime as ort
 from flask import Flask, request, jsonify
 import psutil
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -328,7 +330,9 @@ def root():
 if __name__ == '__main__':
     # Production WSGI server
     try:
+
         import gunicorn.app.base
+
 
         class StandaloneApplication(gunicorn.app.base.BaseApplication):
             def init(self, parser, opts, args):

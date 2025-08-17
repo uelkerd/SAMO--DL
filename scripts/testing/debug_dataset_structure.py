@@ -5,14 +5,18 @@ Debug Dataset Structure Script
 This script helps understand the structure of the GoEmotions dataset.
 """
 
+
 import logging
 import sys
 from pathlib import Path
 
+
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -71,7 +75,9 @@ def debug_dataset_structure():
 
     except Exception as e:
         logger.error(f"❌ Debug failed: {e}")
+
         import traceback
+
         traceback.print_exc()
         return False
 

@@ -3,14 +3,18 @@
 Detailed debug script to understand the errorhandler issue
 """
 
+
 import os
+
 os.environ['ADMIN_API_KEY'] = 'test123'
 
 print("🔍 Starting detailed errorhandler debug...")
 
 try:
+
     from flask import Flask
     from flask_restx import Api
+
     print("✅ Imports successful")
 except Exception as e:
     print(f"❌ Import failed: {e}")
@@ -70,7 +74,9 @@ print(f"Global errorhandler: {globals().get('errorhandler', 'Not found')}")
 
 # Let's check if there's a version issue
 try:
+
     import flask_restx
+
     print(f"\n🔍 Flask-RESTX version: {flask_restx.__version__}")
     print(f"Flask version: {flask.__version__}")
 except Exception as e:

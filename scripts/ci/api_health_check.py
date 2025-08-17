@@ -6,16 +6,20 @@ This script validates that all API components are working correctly
 and can be imported without errors.
 """
 
+
 import logging
 import sys
 from pathlib import Path
+
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 # Test imports
+
 from api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
 from pydantic import BaseModel, ValidationError, Field
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import os
 import json
 import time
@@ -6,6 +7,7 @@ import sys
 from typing import List, Tuple
 
 import requests
+
 
 HF_REPO = os.getenv("HF_REPO", "0xmnrv/samo")
 HF_TOKEN = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_TOKEN")

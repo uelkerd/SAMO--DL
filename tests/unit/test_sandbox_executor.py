@@ -5,15 +5,19 @@
 Tests for the refactored sandbox executor with safe builtins.
 """
 
+
 import sys
 import os
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'models', 'secure_loader'))
+
 
 import unittest
 import threading
 import time
 
 from sandbox_executor import SandboxExecutor
+
 
 class TestSandboxExecutor(unittest.TestCase):
     """Test sandbox executor functionality."""
@@ -50,8 +54,10 @@ class TestSandboxExecutor(unittest.TestCase):
     
     def test_no_global_builtins_modification(self):
         """Test that global __builtins__ is not modified."""
+
         import builtins
         
+
         # Store original builtins
         original_builtins = builtins.__dict__.copy()
         
@@ -69,7 +75,9 @@ class TestSandboxExecutor(unittest.TestCase):
     
     def test_sandbox_context_no_global_changes(self):
         """Test that sandbox context doesn't modify global state."""
+
         import builtins
+
         original_builtins = builtins.__dict__.copy()
         
         with self.executor.sandbox_context():
@@ -168,7 +176,9 @@ class TestSandboxExecutor(unittest.TestCase):
     def test_network_access_blocking(self):
         """Test that network access is blocked when not allowed."""
         def network_function():
+
             import socket
+
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect(('localhost', 80))
             return "Network access"

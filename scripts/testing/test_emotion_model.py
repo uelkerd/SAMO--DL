@@ -3,12 +3,14 @@
 Test the trained emotion detection model with sample journal entries.
 """
 
+
 import json
 import torch
 import torch.nn as nn
 from transformers import AutoModel, AutoTokenizer
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
+
 
 def load_trained_model():
     """Load the trained emotion detection model."""

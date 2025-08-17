@@ -4,9 +4,11 @@ TEST NEW TRAINED MODEL
 ======================
 Tests the newly trained model from Colab with proper verification
 """
+
 import torch
 from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
 
 def test_new_trained_model():
     """Test the newly trained model from Colab"""

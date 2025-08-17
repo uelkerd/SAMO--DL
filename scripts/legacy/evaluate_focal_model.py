@@ -9,6 +9,7 @@ Usage:
     python3 evaluate_focal_model.py
 """
 
+
 import json
 import logging
 import numpy as np
@@ -19,6 +20,7 @@ from sklearn.metrics import f1_score, precision_score, recall_score
 from torch import nn
 from tqdm import tqdm
 from transformers import AutoModel, AutoTokenizer
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")

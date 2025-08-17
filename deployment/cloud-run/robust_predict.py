@@ -5,6 +5,7 @@
 Robust Flask API optimized for Cloud Run deployment.
 """
 
+
 import os
 import time
 import logging
@@ -14,6 +15,7 @@ from flask import Flask, request, jsonify
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
+
 
 # Configure logging for Cloud Run
 logging.basicConfig(
@@ -271,8 +273,10 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', '8080'))
     
     # Use production WSGI server for better performance and reliability
+
     import gunicorn.app.base
     
+
     class StandaloneApplication(gunicorn.app.base.BaseApplication):
         def __init__(self, app, options=None):
             self.options = options or {}

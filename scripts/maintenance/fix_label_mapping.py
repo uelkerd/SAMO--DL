@@ -3,8 +3,10 @@
 Fix the label mapping issue between GoEmotions and Journal datasets.
 """
 
+
 import subprocess
 import sys
+
 
 def install_dependencies():
     """Install required dependencies."""
@@ -22,9 +24,11 @@ if not install_dependencies():
     print("❌ Cannot proceed without dependencies")
     sys.exit(1)
 
+
 import json
 import pandas as pd
 from datasets import load_dataset
+
 
 def analyze_label_mapping():
     """Analyze the label mapping issue."""
@@ -119,6 +123,7 @@ print("🚀 BULLETPROOF TRAINING FOR REQ-DL-012 - FIXED LABEL MAPPING")
 print("=" * 60)
 
 # Step 1: Clear everything and validate environment
+
 import os
 import sys
 import json
@@ -133,6 +138,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, accuracy_score
 from sklearn.preprocessing import LabelEncoder
 from transformers import AutoModel, AutoTokenizer
+
 
 print("✅ Imports successful")
 
@@ -499,7 +505,9 @@ print(f"📊 Final F1 Score: {best_f1:.4f}")
 print(f"🎯 Target Met: {'✅' if best_f1 >= 0.7 else '❌'}")
 
 # Download results
+
 from google.colab import files
+
 files.download('best_simple_model.pth')
 files.download('simple_training_results.json')
 

@@ -4,10 +4,12 @@ Final Inference Test Script for Emotion Detection Model
 Uses public RoBERTa tokenizer to avoid authentication issues
 """
 
+
 import torch
 import json
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
+
 
 def test_final_inference():
     """Test inference with public RoBERTa tokenizer"""
@@ -132,7 +134,9 @@ def test_final_inference():
         
     except Exception as e:
         print(f"❌ Error during inference: {e}")
+
         import traceback
+
         traceback.print_exc()
         return False
 

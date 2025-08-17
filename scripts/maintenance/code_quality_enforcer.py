@@ -19,12 +19,14 @@ Prevents:
 - PY-D0003: Missing docstrings
 - PY-R1000: High cyclomatic complexity
 """
+
 import sys
 import ast
 import re
 from pathlib import Path
 from typing import Dict, List, Set, Tuple, Any, Optional
 import logging
+
 
 # Configure logging
 logging.basicConfig(

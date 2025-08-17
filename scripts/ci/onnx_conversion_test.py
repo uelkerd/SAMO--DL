@@ -6,20 +6,26 @@ This script validates that ONNX dependencies are available
 and basic functionality works without complex imports.
 """
 
+
 import logging
 import numpy as np
 import os
 import sys
 import tempfile
 
+
 # Test imports
 try:
+
     from onnx import helper
+
 except ImportError:
     print("ONNX not available, skipping ONNX conversion test")
     sys.exit(0)
+
 import onnx
 import onnxruntime as ort
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -91,7 +97,9 @@ def test_onnx_dependencies():
                 logger.info(f"✅ ONNX Runtime inference successful, output shape: {outputs[0].shape}")
 
             finally:
+
                 from contextlib import suppress
+
                 with suppress(BaseException):
                     os.unlink(temp_path)
 

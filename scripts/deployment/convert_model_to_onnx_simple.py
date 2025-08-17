@@ -3,17 +3,21 @@
 Simple ONNX Conversion for Current Model
 Handles the actual model architecture we have
 """
+
 import sys
 import torch
 import logging
 import argparse
 from pathlib import Path
 
+
 # Add src to path
 sys.path.append(str(Path(__file__).parent.parent.parent / 'src'))
 
+
 from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from transformers import AutoTokenizer
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -107,7 +111,9 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
 
         # Test ONNX model with ONNX Runtime
         try:
+
             import onnxruntime as ort
+
             session = ort.InferenceSession(onnx_output_path)
             logger.info("✅ ONNX model test successful")
         except ImportError:

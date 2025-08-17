@@ -11,6 +11,7 @@ Usage:
     python scripts/optimize_performance.py --benchmark --target-latency 500
 """
 
+
 import argparse
 import logging
 import statistics
@@ -25,6 +26,7 @@ import torch
 from transformers import AutoTokenizer
 
 from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+
 
 # Add project root to Python path - more robust for CI environments
 script_dir = Path(__file__).resolve().parent

@@ -4,8 +4,10 @@ Local Inference Test Script for Emotion Detection Model
 Tests the downloaded model files directly without API server
 """
 
+
 import sys
 from pathlib import Path
+
 
 # Add the deployment directory to the path
 sys.path.insert(0, str(Path(__file__).parent.parent / 'deployment'))
@@ -54,8 +56,10 @@ def test_local_inference():
     
     try:
         # Import the inference module
+
         from inference import EmotionDetector
         
+
         print(f"\n🔧 Loading model...")
         detector = EmotionDetector()
         print(f"✅ Model loaded successfully!")
@@ -95,10 +99,12 @@ def test_simple_inference():
     print("=" * 50)
     
     try:
+
         import torch
         from transformers import AutoTokenizer, AutoModelForSequenceClassification
         import numpy as np
         
+
         model_dir = Path(__file__).parent.parent / 'deployment' / 'model'
         
         print(f"🔧 Loading tokenizer and model from: {model_dir}")

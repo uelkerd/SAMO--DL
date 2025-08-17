@@ -6,12 +6,14 @@ This script validates that the security configurations and documentation
 implemented in PR #4 are properly integrated and functional.
 """
 
+
 import sys
 import yaml
 import subprocess
 import shutil
 from pathlib import Path
 from typing import Dict, Any
+
 
 class PR4IntegrationTester:
     """Integration tester for PR #4 security and documentation enhancements."""

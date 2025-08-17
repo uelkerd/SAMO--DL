@@ -6,10 +6,12 @@ This script validates the security configuration file to ensure all required
 settings are present and valid according to the security schema.
 """
 
+
 import yaml
 import sys
 from pathlib import Path
 from typing import Dict, Any, List
+
 
 class SecurityConfigValidator:
     """Validator for security configuration files."""

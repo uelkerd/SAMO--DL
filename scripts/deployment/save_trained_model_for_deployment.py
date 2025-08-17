@@ -6,10 +6,12 @@ Save the trained emotion detection model in deployment-ready format.
 This includes model files, tokenizer, and label encoder.
 """
 
+
 import os
 import json
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from sklearn.preprocessing import LabelEncoder
+
 
 def save_model_for_deployment():
     """Save the trained model for deployment"""
@@ -120,8 +122,10 @@ def save_model_for_deployment():
 def test_saved_model(model_dir):
     """Test the saved model"""
     try:
+
         from inference import EmotionDetector
         
+
         # Initialize detector with saved model
         detector = EmotionDetector(model_dir)
         

@@ -5,6 +5,7 @@ This module provides sandboxed execution capabilities for model loading,
 preventing potential RCE vulnerabilities and malicious code execution.
 """
 
+
 import logging
 import resource
 import signal
@@ -12,6 +13,7 @@ from contextlib import contextmanager
 from typing import Any, Callable, Dict, Optional, Tuple
 
 import torch
+
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +97,9 @@ class SandboxExecutor:
 
     def _get_safe_builtins(self):
         """Return a safe builtins dictionary for sandboxed execution."""
+
         import builtins as py_builtins
+
         allowed_names = [
             'abs', 'all', 'any', 'bool', 'bytes', 'chr', 'dict', 'divmod', 'enumerate', 'filter',
             'float', 'format', 'frozenset', 'getattr', 'hasattr', 'hash', 'hex', 'id', 'int',
@@ -112,7 +116,9 @@ class SandboxExecutor:
 
     def _is_main_thread(self) -> bool:
         """Check if current thread is the main thread."""
+
         import threading
+
         return threading.current_thread() is threading.main_thread()
 
     def _set_timeout_safe(self):
@@ -150,7 +156,9 @@ class SandboxExecutor:
     def _disable_network(self):
         """Disable network access in the sandbox."""
         try:
+
             import socket
+
             original_socket = socket.socket
 
             def blocked_socket(*args, **kwargs):
@@ -171,7 +179,9 @@ class SandboxExecutor:
                     exec(func, safe_globals)
                     return None, {"status": "exec completed"}
                 # If func is a callable, pass safe_globals if it accepts globals
+
                 import inspect
+
                 sig = inspect.signature(func)
                 if 'globals' in sig.parameters:
                     result = func(*args, globals=safe_globals, **kwargs)
@@ -198,7 +208,9 @@ class SandboxExecutor:
             model_data = torch.load(model_path, map_location='cpu', weights_only=True)
 
             # Filter kwargs to only include valid constructor parameters
+
             import inspect
+
             constructor_params = inspect.signature(model_class.__init__).parameters
             valid_params = {k: v for k, v in kwargs.items() if k in constructor_params}
 
@@ -254,7 +266,9 @@ class SandboxExecutor:
             Dictionary with resource usage information
         """
         try:
+
             import psutil
+
 
             process = psutil.Process()
             memory_info = process.memory_info()

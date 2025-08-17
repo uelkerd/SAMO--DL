@@ -16,7 +16,9 @@
             # Load model
             # Move to device
             # Tokenize
+
             import psutil
+
         # Calculate degradation
         # Calculate overall drift score
         # Calculate trends
@@ -43,6 +45,7 @@
 # Configure logging
 # Constants
 #!/usr/bin/env python3
+
 from collections import deque
 from dataclasses import dataclass, asdict
 from datetime import datetime, timedelta
@@ -60,6 +63,7 @@ import threading
 import time
 import torch
 import yaml
+
 
 
 

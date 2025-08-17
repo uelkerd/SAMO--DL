@@ -13,6 +13,7 @@ Arguments:
     --output_model: Path to save ONNX model (default: models/checkpoints/bert_emotion_classifier.onnx)
 """
 
+
 import argparse
 import logging
 import sys
@@ -22,6 +23,7 @@ from pathlib import Path
 import torch
 
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+
 
 # Add src to path
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
@@ -157,7 +159,9 @@ def benchmark_pytorch_inference(model, input_ids, attention_mask, num_runs=50):
 
 def benchmark_onnx_inference(model_path, input_ids, attention_mask, token_type_ids, num_runs=50):
     """Benchmark ONNX model inference time."""
+
     import onnxruntime as ort
+
 
     # Create ONNX session
     session = ort.InferenceSession(model_path)

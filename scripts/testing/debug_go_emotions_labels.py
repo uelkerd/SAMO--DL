@@ -3,8 +3,10 @@
 Debug the actual GoEmotions label structure to understand the mapping.
 """
 
+
 import subprocess
 import sys
+
 
 def install_dependencies():
     """Install required dependencies."""
@@ -22,7 +24,9 @@ if not install_dependencies():
     print("❌ Cannot proceed without dependencies")
     sys.exit(1)
 
+
 from datasets import load_dataset
+
 
 def debug_go_emotions():
     """Debug the actual GoEmotions dataset structure."""

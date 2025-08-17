@@ -5,7 +5,9 @@
 Test the trained model with various examples.
 """
 
+
 from inference import EmotionDetector
+
 
 def test_model():
     """Test the emotion detection model"""

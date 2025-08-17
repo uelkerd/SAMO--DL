@@ -1,3 +1,4 @@
+
 import io
 import numpy as np
 import pytest
@@ -6,6 +7,7 @@ from fastapi.testclient import TestClient
 from src.unified_ai_api import app, get_current_user
 from src.security.jwt_manager import TokenPayload
 import src.unified_ai_api as api
+
 
 
 @pytest.fixture(autouse=True)
@@ -38,7 +40,9 @@ def tiny_tone_wav_bytes(duration_s: float = 0.3, sample_rate: int = 16000, freq_
 
     # Minimal WAV header
     with io.BytesIO() as buf:
+
         import wave
+
 
         with wave.open(buf, "wb") as wf:
             wf.setnchannels(1)
@@ -79,7 +83,9 @@ def test_summarize_returns_503_when_model_unavailable(monkeypatch, client: TestC
             return M
         return orig_import(name, *args, **kwargs)
 
+
     import builtins
+
     orig_import = builtins.__import__
     monkeypatch.setattr(builtins, "__import__", _mock_import)
 
@@ -117,7 +123,9 @@ def test_summarize_returns_200_when_lazy_load_succeeds(monkeypatch, client: Test
             return M
         return orig_import(name, *args, **kwargs)
 
+
     import builtins
+
     orig_import = builtins.__import__
     monkeypatch.setattr(builtins, "__import__", _mock_import)
 
@@ -147,7 +155,9 @@ def test_voice_returns_503_when_transcriber_unavailable(monkeypatch, client: Tes
             return M
         return orig_import(name, *args, **kwargs)
 
+
     import builtins
+
     orig_import = builtins.__import__
     monkeypatch.setattr(builtins, "__import__", _mock_import)
 
@@ -190,7 +200,9 @@ def test_voice_returns_200_when_lazy_load_succeeds(monkeypatch, client: TestClie
             return M
         return orig_import(name, *args, **kwargs)
 
+
     import builtins
+
     orig_import = builtins.__import__
     monkeypatch.setattr(builtins, "__import__", _mock_import)
 

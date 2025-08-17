@@ -16,8 +16,10 @@
         # Replace os.path with pathlib
         # Sort imports
 #!/usr/bin/env python3
+
 from pathlib import Path
 import re
+
 """
 Comprehensive Linting Fix Script for SAMO Deep Learning.
 

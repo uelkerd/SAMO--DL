@@ -9,6 +9,7 @@ This module tests all the Priority 1 Features implemented:
 5. Comprehensive Monitoring Dashboard
 """
 
+
 import asyncio
 import json
 import os
@@ -23,6 +24,7 @@ from unittest.mock import Mock, patch
 from src.unified_ai_api import app
 from src.security.jwt_manager import JWTManager
 from src.monitoring.dashboard import MonitoringDashboard
+
 
 # Test client with test user agent to bypass rate limiting
 client = TestClient(app, headers={"User-Agent": "pytest-testclient"})
@@ -61,7 +63,9 @@ def reset_state():
         app.state.rate_limiter.reset_state()
     
     # Reset JWT manager blacklist
+
     from src.unified_ai_api import jwt_manager
+
     jwt_manager.blacklisted_tokens.clear()
     # Enable test-only permission injection path for batch endpoints
     os.environ["PYTEST_CURRENT_TEST"] = "1"
@@ -960,9 +964,11 @@ class TestJWTManager:
         }
         
         # Manually create an expired token
+
         import jwt
         from datetime import datetime, timedelta
         
+
         payload = {
             "user_id": user_data["user_id"],
             "username": user_data["username"],

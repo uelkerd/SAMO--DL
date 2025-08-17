@@ -5,7 +5,9 @@ Reusable validation helpers for CI scripts.
 These helpers reduce boilerplate and provide clearer failure semantics
 using specific exception types.
 """
+
 from typing import Any, Iterable
+
 
 
 def validate_metric_ranges(metrics: dict[str, Any], fields: Iterable[str]) -> None:

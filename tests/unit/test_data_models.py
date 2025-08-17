@@ -3,9 +3,11 @@
 Tests data models, schemas, and validation.
 """
 
+
 from datetime import datetime, timezone
 
 from src.data.models import (
+
     Base,
     Embedding,
     JournalEntry,

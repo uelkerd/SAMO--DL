@@ -9,10 +9,12 @@ This script reorganizes the deployment model directory to:
 3. Create clear versioning and documentation
 """
 
+
 import os
 import shutil
 import json
 from datetime import datetime
+
 
 def reorganize_model_directory():
     """Reorganize the model directory with versioning."""

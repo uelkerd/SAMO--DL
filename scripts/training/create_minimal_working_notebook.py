@@ -7,7 +7,9 @@ This script creates a minimal working notebook with the most basic
 training arguments that should work in any transformers version.
 """
 
+
 import json
+
 
 def create_minimal_notebook():
     """Create a minimal working notebook."""

@@ -9,9 +9,11 @@ Usage:
     python scripts/debug_colab_compatibility.py
 """
 
+
 import sys
 import subprocess
 import warnings
+
 
 warnings.filterwarnings('ignore')
 
@@ -48,7 +50,9 @@ def check_gpu_availability():
     print("🖥️ Checking GPU availability...")
     
     try:
+
         import torch
+
         print(f"PyTorch version: {torch.__version__}")
         
         if torch.cuda.is_available():
@@ -69,7 +73,9 @@ def check_pytorch_installation():
     print("🔍 Checking PyTorch installation...")
     
     try:
+
         import torch
+
         print(f"PyTorch: {torch.__version__}")
         
         # Test basic operations
@@ -95,11 +101,15 @@ def check_transformers_installation():
     print("🤗 Checking Transformers installation...")
     
     try:
+
         import transformers
+
         print(f"Transformers: {transformers.__version__}")
         
         # Test basic imports
+
         from transformers import AutoModel, AutoTokenizer
+
         print("✅ Transformers imports successful")
         
         # Test model loading
@@ -117,8 +127,10 @@ def check_triton_compatibility():
     print("🔧 Checking Triton compatibility...")
     
     try:
+
         import torch
         
+
         # Check if Triton is available
         if hasattr(torch, 'sparse') and hasattr(torch.sparse, '_triton_ops_meta'):
             print("✅ Triton ops available")
@@ -128,7 +140,9 @@ def check_triton_compatibility():
             
             # Try to import triton directly
             try:
+
                 import triton
+
                 print(f"Triton version: {triton.__version__}")
                 return True
             except ImportError:
@@ -195,9 +209,11 @@ def test_model_initialization():
     print("🧪 Testing model initialization...")
     
     try:
+
         import torch
         from transformers import AutoModel, AutoTokenizer
         
+
         # Test tokenizer
         tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
         print("✅ Tokenizer loaded")
@@ -221,7 +237,9 @@ def test_model_initialization():
         return True
     except Exception as e:
         print(f"❌ Model initialization failed: {e}")
+
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -230,14 +248,18 @@ def check_dataset_loading():
     print("📊 Checking dataset loading...")
     
     try:
+
         from datasets import load_dataset
         
+
         # Test loading GoEmotions
         dataset = load_dataset("go_emotions", "simplified")
         print(f"✅ GoEmotions dataset loaded: {len(dataset['train'])} samples")
         
         # Test journal dataset
+
         import json
+
         with open('data/journal_test_dataset.json', 'r') as f:
             journal_data = json.load(f)
         print(f"✅ Journal dataset loaded: {len(journal_data)} samples")
@@ -290,7 +312,9 @@ def main():
     
     # Check if we're in Colab
     try:
+
         import google.colab
+
         print("✅ Running in Google Colab")
     except ImportError:
         print("⚠️ Not running in Google Colab")

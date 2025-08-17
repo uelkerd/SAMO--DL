@@ -9,6 +9,7 @@ Usage:
     python scripts/run_api_rate_limiter_tests.py
 """
 
+
 import contextlib
 import logging
 import os
@@ -16,6 +17,7 @@ import pytest
 import sys
 import tempfile
 from pathlib import Path
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

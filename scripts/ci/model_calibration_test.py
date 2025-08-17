@@ -13,11 +13,13 @@ Returns:
     1 if test fails
 """
 
+
 import logging
 import sys
 import torch
 from sklearn.metrics import f1_score
 from transformers import AutoTokenizer, AutoModel
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")

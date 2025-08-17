@@ -6,6 +6,7 @@ This module provides a BERT-based multi-label emotion classification model
 trained on the GoEmotions dataset for journal entry analysis.
 """
 
+
 import logging
 import warnings
 from typing import Optional, Union, List, Dict, Tuple
@@ -19,6 +20,7 @@ from torch.utils.data import Dataset, DataLoader
 from transformers import AutoConfig, AutoModel, AutoTokenizer
 
 from .labels import GOEMOTIONS_EMOTIONS
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

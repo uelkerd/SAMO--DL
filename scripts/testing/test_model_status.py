@@ -4,9 +4,11 @@ Test Model Status Endpoint
 Get detailed information about model loading status and any errors.
 """
 
+
 import requests
 import argparse
 from test_config import create_api_client, create_test_config
+
 
 
 def test_health_endpoint(client):

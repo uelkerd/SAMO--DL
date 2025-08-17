@@ -4,9 +4,11 @@ Model Loading Health Check
 Check if the model is loading properly in the container.
 """
 
+
 import requests
 import json
 from test_config import create_api_client, create_test_config
+
 
 
 def check_model_health(base_url=None):
@@ -63,8 +65,10 @@ def check_model_health(base_url=None):
 
 
 if __name__ == "__main__":
+
     import argparse
     
+
     parser = argparse.ArgumentParser(description="Check Model Health")
     parser.add_argument("--base-url", help="API base URL")
     args = parser.parse_args()

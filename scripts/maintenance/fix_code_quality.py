@@ -6,10 +6,12 @@ This script automatically fixes common code quality issues
 identified by Ruff linter.
 """
 
+
 import logging
 import re
 from pathlib import Path
 from typing import List, Set
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")

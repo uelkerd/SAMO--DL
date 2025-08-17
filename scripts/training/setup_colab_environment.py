@@ -7,10 +7,12 @@ It installs all required dependencies and configures the environment
 for optimal performance in the Colab environment.
 """
 
+
 import os
 import sys
 import subprocess
 import logging
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -80,8 +82,10 @@ def setup_gpu_environment():
     logger.info("🖥️ Setting up GPU environment...")
     
     try:
+
         import torch
         
+
         if torch.cuda.is_available():
             logger.info(f"🎮 GPU detected: {torch.cuda.get_device_name(0)}")
             logger.info(f"🎮 GPU count: {torch.cuda.device_count()}")

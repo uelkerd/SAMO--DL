@@ -2,7 +2,9 @@
 """SAMO Deep Learning - Text Summarization Module.
 
 This module implements T5/BART-based summarization for extracting emotional core
+
 from journal conversations and providing intelligent summaries for users.
+
 
 Key Components:
 - T5SummarizationModel: Core T5/BART implementation
@@ -16,9 +18,11 @@ Performance Targets:
 - ROUGE Score: >0.4 for extractive quality
 """
 
+
 from .dataset_loader import SummarizationDataset, create_summarization_loader
 from .t5_summarizer import T5SummarizationModel, create_t5_summarizer
 from .training_pipeline import SummarizationTrainer, train_summarization_model
+
 
 __version__ = "0.1.0"
 __author__ = "SAMO Deep Learning Team"

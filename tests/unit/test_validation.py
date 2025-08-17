@@ -3,9 +3,11 @@
 Unit tests for data validation functionality.
 """
 
+
 import pandas as pd
 
 from src.data.validation import DataValidator, validate_text_input
+
 
 
 class TestDataValidator:

@@ -12,6 +12,7 @@ This script runs the complete CI pipeline end-to-end, including:
 Designed to work in both local and Colab environments.
 """
 
+
 import logging
 import os
 import sys
@@ -20,9 +21,12 @@ import subprocess
 from pathlib import Path
 from typing import Dict, List, Tuple
 
+
 # Use shared truthy parsing
 try:
+
     from src.common.env import is_truthy
+
 except Exception:  # Fallback to local helper if import path not available
     def is_truthy(value: str | None) -> bool:
         return bool(value) and value.strip().lower() in {"1", "true", "yes"}
@@ -84,7 +88,9 @@ class CIPipelineRunner:
         
         # Check for GPU
         try:
+
             import torch
+
             env_info["gpu_available"] = torch.cuda.is_available()
             if env_info["gpu_available"]:
                 env_info["gpu_count"] = torch.cuda.device_count()
@@ -216,8 +222,10 @@ class CIPipelineRunner:
         logger.info("🖥️ Testing GPU compatibility...")
         
         try:
+
             import torch
             
+
             if not torch.cuda.is_available():
                 logger.info("ℹ️ No GPU available, skipping GPU tests")
                 return True
@@ -228,19 +236,27 @@ class CIPipelineRunner:
             device = torch.device("cuda")
             
             # Add src to path for imports
+
             import sys
             from pathlib import Path
+
             sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
             
             # Test BERT on GPU
             try:
+
                 from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+
             except ImportError:
+
                 from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+
             model = BERTEmotionClassifier().to(device)
             
             # Test forward pass
+
             import torch
+
             dummy_input = torch.randint(0, 1000, (2, 512)).to(device)
             with torch.no_grad():
                 output = model(dummy_input, torch.ones_like(dummy_input))
@@ -258,22 +274,30 @@ class CIPipelineRunner:
         
         try:
             # Simple performance test - model loading speed
+
             import time
             import torch
             
+
             # Test BERT model loading speed
             start_time = time.time()
             
             # Add src to path
+
             import sys
             from pathlib import Path
+
             sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
             
             try:
+
                 from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+
             except ImportError:
+
                 from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
             
+
             model = BERTEmotionClassifier()
             loading_time = time.time() - start_time
             

@@ -18,6 +18,7 @@ Arguments:
     --batch_size: Training batch size (default: 16)
 """
 
+
 import argparse
 import logging
 import sys
@@ -30,13 +31,18 @@ from sklearn.metrics import f1_score, precision_recall_fscore_support
 from torch import nn
 from transformers import AutoTokenizer
 
+
 # Add src to path
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
+
 from src.models.emotion_detection.bert_classifier import (
+
     create_bert_emotion_classifier,
     )
+
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)

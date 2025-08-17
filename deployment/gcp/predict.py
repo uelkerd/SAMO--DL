@@ -6,10 +6,12 @@ Vertex AI Custom Container Prediction Server
 This script runs a Flask server for the emotion detection model on Vertex AI.
 """
 
+
 import os
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from flask import Flask, request, jsonify
+
 
 app = Flask(__name__)
 

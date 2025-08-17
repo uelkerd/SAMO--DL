@@ -2,9 +2,11 @@
 """
 Unit tests for API rate limiter functionality.
 """
+
 from fastapi import FastAPI
 
 from src.api_rate_limiter import (
+
     TokenBucketRateLimiter,
     RateLimitConfig,
     add_rate_limiting,

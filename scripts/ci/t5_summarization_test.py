@@ -6,25 +6,33 @@ This script validates that the T5 text summarization model
 can be loaded and initialized correctly.
 """
 
+
 import logging
 import sys
 from pathlib import Path
+
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 # Test imports
 try:
+
     from models.summarization.t5_summarizer import create_t5_summarizer
+
 except ImportError:
     # Fallback for different import paths
+
     from src.models.summarization.t5_summarizer import create_t5_summarizer
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 from .validation_utils import validate_hasattrs, ensure
+
 
 def test_t5_model_loading():
     """Test T5 model initialization."""

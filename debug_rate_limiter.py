@@ -3,11 +3,15 @@
 Debug script for rate limiter issue.
 """
 
+
 import sys
 import os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
+
 from src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
+
 
 def debug_rate_limiter():
     """Debug the rate limiter behavior."""

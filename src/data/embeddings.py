@@ -3,6 +3,7 @@
         # Create DataFrame with IDs and embeddings
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
+
 from gensim.models import FastText, Word2Vec
 from gensim.utils import simple_preprocess
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -10,6 +11,7 @@ import logging
 import numpy as np
 import pandas as pd
 from typing import List, Optional
+
 
 
 

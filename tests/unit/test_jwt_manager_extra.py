@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Extra unit tests for JWTManager to increase coverage."""
 
+
 from datetime import datetime, timedelta
 import time
 
 from src.security.jwt_manager import JWTManager
+
 
 
 def test_create_token_pair_structure():
@@ -46,7 +48,9 @@ def test_blacklist_and_cleanup_flow(monkeypatch):
     assert mgr.is_token_blacklisted(token) is True
 
     # Determine the stored expiration timestamp by decoding without verifying
+
     import jwt
+
     payload = jwt.decode(token, options={"verify_signature": False, "verify_exp": False})
     exp_ts = payload.get("exp")
 
@@ -81,7 +85,9 @@ def test_refresh_access_token_success_and_failure():
     assert isinstance(new_access, str) and len(new_access) > 10
 
     # Expired refresh token should fail (re-sign with manager's secret to keep signature valid)
+
     import jwt
+
     payload = jwt.decode(refresh, options={"verify_signature": False, "verify_exp": False})
     payload["exp"] = int(time.time()) - 10
     expired_refresh = jwt.encode(payload, mgr.secret_key, algorithm=mgr.algorithm)

@@ -18,6 +18,7 @@ Features:
 - Performance optimization
 """
 
+
 import os
 import sys
 import json
@@ -27,6 +28,7 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any, Union
 from dataclasses import dataclass
+
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings('ignore')
@@ -75,7 +77,9 @@ class EnvironmentManager:
     def _detect_colab(self) -> bool:
         """Detect if running in Google Colab."""
         try:
+
             import google.colab
+
             logger.info("✅ Running in Google Colab")
             return True
         except ImportError:
@@ -158,7 +162,9 @@ class EnvironmentManager:
             # Step 5: Apply numpy compatibility fix proactively
             logger.info("🔧 Applying numpy compatibility fix...")
             try:
+
                 import numpy as np
+
                 if not hasattr(np.lib.stride_tricks, 'broadcast_to'):
                     def broadcast_to(array, shape):
                         return np.broadcast_arrays(array, np.empty(shape))[0]
@@ -183,10 +189,12 @@ class EnvironmentManager:
         logger.info("🔍 Verifying installation...")
         
         try:
+
             import torch
             import transformers
             import datasets
             
+
             logger.info(f"  PyTorch: {torch.__version__}")
             logger.info(f"  Transformers: {transformers.__version__}")
             logger.info(f"  Datasets: {datasets.__version__}")
@@ -202,13 +210,17 @@ class EnvironmentManager:
             
             # Test critical imports with numpy compatibility fix
             try:
+
                 from transformers import AutoModel, AutoTokenizer
+
                 logger.info("  ✅ Transformers imports successful")
             except ImportError as e:
                 if "broadcast_to" in str(e):
                     logger.warning("⚠️ Numpy compatibility issue detected. Applying workaround...")
                     # Apply numpy compatibility fix
+
                     import numpy as np
+
                     if not hasattr(np.lib.stride_tricks, 'broadcast_to'):
                         # Add broadcast_to to numpy if missing
                         def broadcast_to(array, shape):
@@ -217,7 +229,9 @@ class EnvironmentManager:
                         logger.info("  ✅ Numpy compatibility fix applied")
                     
                     # Try imports again
+
                     from transformers import AutoModel, AutoTokenizer
+
                     logger.info("  ✅ Transformers imports successful after fix")
                 else:
                     raise e
@@ -231,7 +245,9 @@ class EnvironmentManager:
             if "broadcast_to" in str(e):
                 logger.info("🔄 Attempting to fix numpy compatibility issue...")
                 try:
+
                     import numpy as np
+
                     if not hasattr(np.lib.stride_tricks, 'broadcast_to'):
                         def broadcast_to(array, shape):
                             return np.broadcast_arrays(array, np.empty(shape))[0]
@@ -239,7 +255,9 @@ class EnvironmentManager:
                         logger.info("✅ Numpy compatibility fix applied")
                         
                         # Try verification again
+
                         from transformers import AutoModel, AutoTokenizer
+
                         logger.info("✅ Transformers imports successful after fix")
                         return True
                 except Exception as fix_error:
@@ -326,7 +344,9 @@ class DataManager:
         
         try:
             # Load GoEmotions dataset
+
             from datasets import load_dataset
+
             self.go_emotions = load_dataset("go_emotions", "simplified")
             logger.info("✅ GoEmotions dataset loaded")
             
@@ -334,7 +354,9 @@ class DataManager:
             with open('data/journal_test_dataset.json', 'r', encoding='utf-8') as f:
                 journal_entries = json.load(f)
             
+
             import pandas as pd
+
             self.journal_df = pd.DataFrame(journal_entries)
             logger.info(f"✅ Journal dataset loaded ({len(journal_entries)} entries)")
             
@@ -349,8 +371,10 @@ class DataManager:
         logger.info("🧬 Preparing label encoder...")
         
         try:
+
             from sklearn.preprocessing import LabelEncoder
             
+
             # Get GoEmotions labels
             go_train = self.go_emotions['train']
             go_label_names = go_train.features['labels'].feature.names
@@ -380,8 +404,10 @@ class DataManager:
         logger.info("🔍 Analyzing domain gap...")
         
         try:
+
             import numpy as np
             
+
             # Get sample texts
             go_texts = self.go_emotions['train']['text'][:1000]
             journal_texts = self.journal_df['content'].tolist()
@@ -442,7 +468,9 @@ class ModelManager:
     def setup_device(self) -> bool:
         """Setup device (GPU/CPU) with optimization."""
         try:
+
             import torch
+
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             
             if torch.cuda.is_available():
@@ -464,10 +492,12 @@ class ModelManager:
         logger.info(f"🏗️ Initializing model with {num_labels} labels...")
         
         try:
+
             import torch
             import torch.nn as nn
             from transformers import AutoModel, AutoTokenizer
             
+
             # Initialize tokenizer
             self.tokenizer = AutoTokenizer.from_pretrained(self.config.model_name)
             logger.info(f"✅ Tokenizer loaded: {self.config.model_name}")
@@ -498,14 +528,18 @@ class FocalLoss:
     """Focal Loss for addressing class imbalance in emotion detection."""
     
     def __init__(self, alpha=1, gamma=2, reduction='mean'):
+
         import torch.nn as nn
+
         self.alpha = alpha
         self.gamma = gamma
         self.reduction = reduction
     
     def __call__(self, inputs, targets):
+
         import torch
         import torch.nn.functional as F
+
         ce_loss = F.cross_entropy(inputs, targets, reduction='none')
         pt = torch.exp(-ce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * ce_loss
@@ -531,9 +565,11 @@ class DomainAdaptedEmotionClassifier:
         logger.info(f"🏗️ Initializing DomainAdaptedEmotionClassifier with num_labels = {num_labels}")
         
         try:
+
             import torch.nn as nn
             from transformers import AutoModel
             
+
             self.bert = AutoModel.from_pretrained(model_name)
             self.dropout = nn.Dropout(dropout)
             self.classifier = nn.Linear(self.bert.config.hidden_size, num_labels)
@@ -589,10 +625,12 @@ class TrainingManager:
         logger.info("🎯 Setting up training components...")
         
         try:
+
             import torch
             from torch.optim import AdamW
             from transformers import get_linear_schedule_with_warmup
             
+
             # Setup optimizer
             self.optimizer = AdamW(
                 self.model_manager.model.parameters(),

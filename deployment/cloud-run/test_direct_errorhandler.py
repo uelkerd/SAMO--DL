@@ -3,14 +3,18 @@
 Test direct error handler registration
 """
 
+
 import os
+
 os.environ['ADMIN_API_KEY'] = 'test123'
 
 print("🔍 Testing direct error handler registration...")
 
 try:
+
     from flask import Flask
     from flask_restx import Api
+
     print("✅ Imports successful")
 except Exception as e:
     print(f"❌ Import failed: {e}")

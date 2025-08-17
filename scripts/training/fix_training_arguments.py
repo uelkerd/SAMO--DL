@@ -7,7 +7,9 @@ This script fixes the training arguments in the simple notebook to remove
 unsupported parameters like evaluation_strategy.
 """
 
+
 import json
+
 
 def fix_training_arguments():
     """Fix the training arguments in the simple notebook."""

@@ -3,9 +3,11 @@
 Quick script to fix common Ruff linting issues
 """
 
+
 import logging
 import re
 from pathlib import Path
+
 
 
 def fix_file(file_path: str) -> None:

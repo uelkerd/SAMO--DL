@@ -7,7 +7,9 @@ This script provides a detailed summary of the comprehensive notebook
 and all its features.
 """
 
+
 import json
+
 
 def summarize_comprehensive_notebook():
     """Summarize the comprehensive notebook."""

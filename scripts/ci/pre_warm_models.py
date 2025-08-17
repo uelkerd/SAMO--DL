@@ -3,8 +3,10 @@
 Pre-warm models for CI pipeline to avoid download delays during testing.
 This script downloads and caches commonly used models for faster CI execution.
 """
+
 import sys
 from pathlib import Path
+
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
@@ -14,8 +16,10 @@ def pre_warm_models():
     print("Pre-warming models for CI pipeline...")
 
     try:
+
         import os
         from src.common.env import is_truthy
+
         # Respect offline mode in CI to avoid failing when network is unavailable.
         offline = (
             is_truthy(os.getenv("HF_HUB_OFFLINE"))
@@ -24,7 +28,9 @@ def pre_warm_models():
         if offline:
             print("Offline mode detected. Skipping pre-warm.")
             return True
+
         from transformers import AutoTokenizer, AutoModel, AutoModelForSeq2SeqLM
+
 
         # Pre-download BERT models
         print("Downloading BERT base...")
