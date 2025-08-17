@@ -424,7 +424,7 @@ class CodeQualityEnforcer:
         """Run all quality checks and return success status."""
         logger.info("Starting code quality enforcement...")
 
-        results = self.check_directory(directory)
+        self.check_directory(directory)
 
         # Generate and display report
         report = self.generate_report()
