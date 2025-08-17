@@ -10,7 +10,7 @@ import json
 
 def create_fixed_colab_notebook():
     """Create the fixed Colab notebook content"""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -74,7 +74,10 @@ def create_fixed_colab_notebook():
                     ")\n",
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.preprocessing import LabelEncoder\n",
-                    "from sklearn.metrics import f1_score, accuracy_score, classification_report\n",
+                    "from sklearn.metrics import                    "from sklearn.metrics import f1_score,
+                         accuracy_score,
+                         classification_report\n",
+                        
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",
@@ -439,11 +442,11 @@ def create_fixed_colab_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     # Write notebook to file
     with open('notebooks/FIXED_COMBINED_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook_content, f, indent=2)
-    
+
     print("✅ Fixed notebook created: notebooks/FIXED_COMBINED_TRAINING_COLAB.ipynb")
     print("📋 Instructions:")
     print("  1. Download the notebook file")
@@ -453,4 +456,4 @@ def create_fixed_colab_notebook():
     print("  5. Expect 75-85% F1 score!")
 
 if __name__ == "__main__":
-    create_fixed_colab_notebook() 
+    create_fixed_colab_notebook()

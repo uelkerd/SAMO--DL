@@ -11,11 +11,11 @@ import json
 
 def add_comprehensive_features():
     """Add all advanced features to the comprehensive notebook."""
-    
+
     # Read the existing notebook
     with open('notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb', 'r') as f:
         notebook = json.load(f)
-    
+
     # Add all the advanced features as new cells
     advanced_cells = [
         {
@@ -354,10 +354,10 @@ def add_comprehensive_features():
                 "# Start training\n",
                 "print('🚀 STARTING COMPREHENSIVE TRAINING')\n",
                 "print('=' * 60)\n",
-                "print(f'🎯 Target: 75-85% F1 score')\n",
+                "print("🎯 Target: 75-85% F1 score")\n",
                 "print(f'📊 Training samples: {len(train_texts)}')\n",
                 "print(f'🧪 Validation samples: {len(val_texts)}')\n",
-                "print(f'⚖️ Using focal loss + class weighting')\n",
+                "print("⚖️ Using focal loss + class weighting")\n",
                 "print(f'🔧 Model: {model_name}')\n",
                 "print(f'📈 Data augmentation: {len(augmented_data)} samples added')\n",
                 "\n",
@@ -509,8 +509,8 @@ def add_comprehensive_features():
                 "    predicted_label = torch.argmax(test_output.logits, dim=1).item()\n",
                 "    confidence = torch.softmax(test_output.logits, dim=1)[0][predicted_label].item()\n",
                 "\n",
-                "print(f'\\n🧪 SAVED MODEL TEST:')\n",
-                "print(f'Input: \"I feel happy today\"')\n",
+                "print("\\n🧪 SAVED MODEL TEST:")\n",
+                "print("Input: \"I feel happy today\"')\n",
                 "print(f'Predicted: {saved_model.config.id2label[predicted_label]} (confidence: {confidence:.3f})')\n",
                 "\n",
                 "# Verify configuration persistence\n",
@@ -528,21 +528,21 @@ def add_comprehensive_features():
                 "    print('\\n❌ CONFIGURATION PERSISTENCE FAILED!')\n",
                 "    print('❌ Model may have issues in deployment')\n",
                 "\n",
-                "print(f'\\n🎉 COMPREHENSIVE TRAINING COMPLETED!')\n",
+                "print("\\n🎉 COMPREHENSIVE TRAINING COMPLETED!")\n",
                 "print(f'📁 Model saved to: {model_save_path}')\n",
-                "print(f'📊 Final F1 Score: {eval_results.get(\"eval_f1\", \"N/A\"):.4f}')\n",
-                "print(f'📊 Final Accuracy: {eval_results.get(\"eval_accuracy\", \"N/A\"):.4f}')"
+                "print("📊 Final F1 Score: {eval_results.get(\"eval_f1\", \"N/A\"):.4f}')\n",
+                "print("📊 Final Accuracy: {eval_results.get(\"eval_accuracy\", \"N/A\"):.4f}')"
             ]
         }
     ]
-    
+
     # Add all the advanced cells to the notebook
     notebook['cells'].extend(advanced_cells)
-    
+
     # Save the updated notebook
     with open('notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook, f, indent=2)
-    
+
     print('✅ Added all comprehensive features!')
     print('📋 Advanced features added:')
     print('   ✅ Model setup with architecture fixes')
@@ -559,4 +559,4 @@ def add_comprehensive_features():
     print('\\n🚀 COMPREHENSIVE NOTEBOOK IS NOW COMPLETE!')
 
 if __name__ == "__main__":
-    add_comprehensive_features() 
+    add_comprehensive_features()

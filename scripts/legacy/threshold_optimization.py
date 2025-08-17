@@ -6,21 +6,21 @@
         # Optimize thresholds
         # Save optimized thresholds
         # Try different thresholds
+import logging
+import os
+import sys
         import traceback
-    # Setup device
+import traceback
 # Add project root to path
 # Configure logging
+    # Setup device
 #!/usr/bin/env python3
+import numpy as np
+import torch
 from pathlib import Path
 from sklearn.metrics import f1_score
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-import logging
-import numpy as np
-import os
-import sys
-import torch
-import traceback
 
 
 

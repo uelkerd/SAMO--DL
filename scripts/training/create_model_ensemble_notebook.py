@@ -10,7 +10,7 @@ import json
 
 def create_model_ensemble_notebook():
     """Create the model ensemble notebook content"""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -65,7 +65,10 @@ def create_model_ensemble_notebook():
                     ")\n",
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.preprocessing import LabelEncoder\n",
-                    "from sklearn.metrics import f1_score, accuracy_score, classification_report\n",
+                    "from sklearn.metrics import                    "from sklearn.metrics import f1_score,
+                         accuracy_score,
+                         classification_report\n",
+                        
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",
@@ -403,7 +406,7 @@ def create_model_ensemble_notebook():
                     "        \n",
                     "        # Training arguments\n",
                     "        training_args = TrainingArguments(\n",
-                    "            output_dir=f'./model_test_{model_name.split(\"/\")[-1]}',\n",
+                    "            output_dir="./model_test_{model_name.split(\"/\")[-1]}',\n",
                     "            num_train_epochs=5,  # Quick test\n",
                     "            per_device_train_batch_size=4,\n",
                     "            per_device_eval_batch_size=4,\n",
@@ -473,7 +476,7 @@ def create_model_ensemble_notebook():
                     "\n",
                     "print(f'🎯 Using best model: {best_model}')\n",
                     "print(f'🎯 Best F1 score: {best_f1:.4f} ({best_f1*100:.2f}%)')\n",
-                    "print(f'🎯 Target: 75-85%')\n",
+                    "print("🎯 Target: 75-85%")\n",
                     "print(f'📈 Gap to target: {75 - best_f1*100:.1f}% - {85 - best_f1*100:.1f}%')\n",
                     "\n",
                     "# Load the best model\n",
@@ -491,7 +494,7 @@ def create_model_ensemble_notebook():
                     "\n",
                     "print(f'✅ Best model loaded: {best_model}')\n",
                     "print(f'✅ Model initialized with {len(label_encoder.classes_)} labels')\n",
-                    "print(f'✅ Datasets created successfully')"
+                    "print("✅ Datasets created successfully")"
                 ]
             },
             {
@@ -559,10 +562,10 @@ def create_model_ensemble_notebook():
                     "print('📊 Evaluating final model...')\n",
                     "results = trainer.evaluate()\n",
                     "\n",
-                    "print(f'🏆 Final F1 Score: {results[\"eval_f1\"]:.4f} ({results[\"eval_f1\"]*100:.2f}%)')\n",
-                    "print(f'🎯 Target achieved: {\"✅ YES!\" if results[\"eval_f1\"] >= 0.75 else \"❌ Not yet\"}')\n",
-                    "print(f'📈 Improvement from baseline: {((results[\"eval_f1\"] - 0.052) / 0.052 * 100):.1f}%')\n",
-                    "print(f'📈 Improvement from specialized: {((results[\"eval_f1\"] - 0.3273) / 0.3273 * 100):.1f}%')\n",
+                    "print("🏆 Final F1 Score: {results[\"eval_f1\"]:.4f} ({results[\"eval_f1\"]*100:.2f}%)')\n",
+                    "print("🎯 Target achieved: {\"✅ YES!\" if results[\"eval_f1\"] >= 0.75 else \"❌ Not yet\"}')\n",
+                    "print("📈 Improvement from baseline: {((results[\"eval_f1\"] - 0.052) / 0.052 * 100):.1f}%')\n",
+                    "print("📈 Improvement from specialized: {((results[\"eval_f1\"] - 0.3273) / 0.3273 * 100):.1f}%')\n",
                     "\n",
                     "# Save model\n",
                     "trainer.save_model('./emotion_model_ensemble_final')\n",
@@ -656,10 +659,10 @@ def create_model_ensemble_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     with open('notebooks/MODEL_ENSEMBLE_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook_content, f, indent=2)
-    
+
     print("✅ Model ensemble notebook created: notebooks/MODEL_ENSEMBLE_TRAINING_COLAB.ipynb")
     print("📋 Instructions:")
     print("  1. Download the notebook file")
@@ -674,4 +677,4 @@ def create_model_ensemble_notebook():
     print("  - Optimized hyperparameters")
 
 if __name__ == "__main__":
-    create_model_ensemble_notebook() 
+    create_model_ensemble_notebook()

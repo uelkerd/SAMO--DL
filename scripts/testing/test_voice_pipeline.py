@@ -11,20 +11,20 @@
         # Test with sample audio (simulated)
         # Test with sample text
         import librosa
+import logging
         import pyaudio
+import sys
         import wave
         import whisper
-    # Summary
-    # Test individual components
 # Add project root to path
 # Configure logging
+    # Summary
+    # Test individual components
 #!/usr/bin/env python3
+import numpy as np
+import torch
 from pathlib import Path
 from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-import logging
-import numpy as np
-import sys
-import torch
 
 
 

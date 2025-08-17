@@ -1,14 +1,14 @@
         # Start training
         # Training configuration with debugging
-        from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
+import logging
+import sys
         import traceback
+import traceback
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
 from pathlib import Path
-import logging
-import sys
-import traceback
+        from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
 
 
 

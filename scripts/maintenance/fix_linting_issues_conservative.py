@@ -97,7 +97,7 @@ class ConservativeLintingFixer:
             result.extend(import_lines)
             result.append('')  # Add blank line after imports
         result.extend(other_lines)
-        
+
         return '\n'.join(result)
 
     def fix_ruf022_all_sorting(self, content: str) -> str:
@@ -114,8 +114,8 @@ class ConservativeLintingFixer:
             items = [item.strip().strip('"\'') for item in all_content.split(',')]
             items = [item for item in items if item]  # Remove empty items
             items.sort()
-            formatted_items = [f'"{item}"' for item in items]
-            return f'__all__ = [\n    {",\n    ".join(formatted_items)},\n]'
+            formatted_items = [""{item}"' for item in items]
+            return "__all__ = [\n    {",\n    ".join(formatted_items)},\n]'
 
         pattern = r'__all__\s*=\s*\[(.*?)\]'
         return re.sub(pattern, sort_all_list, content, flags=re.DOTALL)

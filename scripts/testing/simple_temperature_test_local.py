@@ -9,7 +9,9 @@
         # Run evaluation
         # Set temperature
         # Show some predictions
-        from sklearn.metrics import f1_score
+import json
+import logging
+import sys
     # Create dataset
     # Create emotion labels (simplified for testing)
     # Create simple test data
@@ -20,13 +22,11 @@
     # Set device
     # Test different temperatures
 #!/usr/bin/env python3
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
-from pathlib import Path
-from torch.utils.data import DataLoader
-import json
-import logging
-import sys
 import torch
+from pathlib import Path
+        from sklearn.metrics import f1_score
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
+from torch.utils.data import DataLoader
 
 
 

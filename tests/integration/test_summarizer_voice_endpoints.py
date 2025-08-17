@@ -1,6 +1,6 @@
 import io
-import numpy as np
 import pytest
+import numpy as np
 from fastapi.testclient import TestClient
 
 from src.unified_ai_api import app, get_current_user

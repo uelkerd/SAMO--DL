@@ -11,8 +11,8 @@ Usage:
 
 import json
 import logging
-import numpy as np
 import sys
+import numpy as np
 import torch
 from pathlib import Path
 from sklearn.metrics import f1_score, precision_score, recall_score
@@ -50,11 +50,11 @@ def load_trained_model(model_path):
     model.load_state_dict(checkpoint["model_state_dict"])
 
     logger.info("✅ Model loaded successfully")
-    logger.info(f"   • Final loss: {checkpoint['final_loss']:.4f}")
-    logger.info(f"   • Focal loss alpha: {checkpoint['focal_loss_alpha']}")
-    logger.info(f"   • Focal loss gamma: {checkpoint['focal_loss_gamma']}")
-    logger.info(f"   • Learning rate: {checkpoint['learning_rate']}")
-    logger.info(f"   • Epochs trained: {checkpoint['epochs']}")
+    logger.info("   • Final loss: {checkpoint["final_loss']:.4f}")
+    logger.info("   • Focal loss alpha: {checkpoint["focal_loss_alpha']}")
+    logger.info("   • Focal loss gamma: {checkpoint["focal_loss_gamma']}")
+    logger.info("   • Learning rate: {checkpoint["learning_rate']}")
+    logger.info("   • Epochs trained: {checkpoint["epochs']}")
 
     return model
 
@@ -265,9 +265,9 @@ def main():
         # Compare results
         logger.info("=" * 50)
         logger.info("📋 Comparison:")
-        logger.info(f"   Default threshold (0.5): F1 = {default_results['f1_macro']:.4f}")
+        logger.info("   Default threshold (0.5): F1 = {default_results["f1_macro']:.4f}")
         logger.info(f"   Optimized threshold ({best_threshold:.2f}): F1 = {optimized_results['f1_macro']:.4f}")
-        logger.info(f"   Improvement: {optimized_results['f1_macro'] - default_results['f1_macro']:.4f}")
+        logger.info("   Improvement: {optimized_results["f1_macro'] - default_results['f1_macro']:.4f}")
 
         # Save results
         results = {

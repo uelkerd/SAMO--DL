@@ -1,6 +1,6 @@
-from typing import List
-from torch.utils.data import Dataset
 import logging
+from torch.utils.data import Dataset
+from typing import List
 
 
 

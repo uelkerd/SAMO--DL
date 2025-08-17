@@ -1,10 +1,10 @@
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
+import logging
+import tempfile
 from pathlib import Path
 from pydub import AudioSegment
 from typing import Optional, Union, Tuple, Dict
-import logging
-import tempfile
 
 
 

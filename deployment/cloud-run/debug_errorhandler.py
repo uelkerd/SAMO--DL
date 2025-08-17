@@ -3,8 +3,8 @@
 Debug script to investigate the errorhandler issue
 """
 
-import sys
 import os
+import sys
 
 # Add current directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -33,10 +33,10 @@ except Exception as e:
     sys.exit(1)
 
 # Let's inspect the API object in detail
-print(f"\n🔍 API object details:")
+print("\n🔍 API object details:")
 print(f"Type: {type(api)}")
-print(f"Dir: {[attr for attr in dir(api) if not attr.startswith('_')]}")
-print(f"Has errorhandler: {'errorhandler' in dir(api)}")
+print("Dir: {[attr for attr in dir(api) if not attr.startswith("_')]}")
+print("Has errorhandler: {"errorhandler' in dir(api)}")
 
 try:
     errorhandler_method = getattr(api, 'errorhandler')
@@ -46,13 +46,13 @@ except Exception as e:
     print(f"❌ errorhandler method access failed: {e}")
 
 # Let's check if there are any global variables that might be interfering
-print(f"\n🔍 Checking for global variable conflicts...")
-print(f"Built-in errorhandler: {getattr(__builtins__, 'errorhandler', 'Not found')}")
-print(f"Global errorhandler: {globals().get('errorhandler', 'Not found')}")
+print("\n🔍 Checking for global variable conflicts...")
+print("Built-in errorhandler: {getattr(__builtins__, "errorhandler', 'Not found')}")
+print("Global errorhandler: {globals().get("errorhandler', 'Not found')}")
 
 # Let's try to call errorhandler directly
 try:
-    print(f"\n🔍 Testing errorhandler call...")
+    print("\n🔍 Testing errorhandler call...")
     result = api.errorhandler(429)
     print(f"✅ errorhandler(429) call successful: {type(result)}")
 except Exception as e:
@@ -67,4 +67,4 @@ try:
 except Exception as e:
     print(f"❌ Could not get Flask-RESTX version: {e}")
 
-print("\n🔍 Debug complete.") 
+print("\n🔍 Debug complete.")

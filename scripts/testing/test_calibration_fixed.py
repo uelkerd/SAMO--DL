@@ -15,13 +15,13 @@
 # Configure logging
 # Constants
 #!/usr/bin/env python3
+import logging
+import sys
+import numpy as np
+import torch
 from pathlib import Path
 from sklearn.metrics import f1_score
 from transformers import AutoTokenizer, AutoModel
-import logging
-import numpy as np
-import sys
-import torch
 
 
 

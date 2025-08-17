@@ -4,8 +4,8 @@ Provides environment-specific settings for development, staging, and production
 """
 
 import os
-from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
+from typing import Dict, Any, Optional, List
 
 @dataclass
 class CloudRunConfig:
@@ -123,7 +123,7 @@ class EnvironmentConfig:
     def get_gunicorn_config(self) -> Dict[str, Any]:
         """Get Gunicorn configuration for Cloud Run"""
         return {
-            'bind': f':{os.getenv("PORT", "8080")}',
+            'bind': ":{os.getenv("PORT", "8080")}',
             'workers': 1,  # Cloud Run best practice
             'threads': 8,
             'timeout': 0,  # Cloud Run handles timeouts
@@ -216,4 +216,4 @@ config = EnvironmentConfig()
 
 def get_config() -> EnvironmentConfig:
     """Get the global configuration instance"""
-    return config 
+    return config

@@ -14,19 +14,27 @@
         # Test on CPU
         # Test on GPU
         # Tokenize
+import argparse
+import json
+import logging
         import onnx
         import onnxruntime as ort
+import sys
+import time
+# Add src to path
     # Apply dynamic quantization to linear layers
     # Apply optimizations
     # Apply quantization
     # Benchmark for different batch sizes
     # Calculate size reduction
-    # Check if CUDA is available
-    # Check if ONNX Runtime is available
     # Check if all requirements are met
+    # Check if CUDA is available
     # Check if model exists
+    # Check if ONNX Runtime is available
     # Check if target size is achieved
     # Collect all metrics
+# Configure logging
+# Constants
     # Convert to ONNX
     # Create dummy input for ONNX export
     # Create model
@@ -55,22 +63,14 @@
     # Set models to evaluation mode
     # Verify GPU compatibility
     # Verify ONNX model
-# Add src to path
-# Configure logging
-# Constants
 #!/usr/bin/env python3
+import numpy as np
+import torch
 from pathlib import Path
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from tqdm import tqdm
 from transformers import AutoTokenizer
 from typing import Any, Union, Optional
-import argparse
-import json
-import logging
-import numpy as np
-import sys
-import time
-import torch
 
 
 

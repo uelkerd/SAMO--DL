@@ -11,7 +11,7 @@ import json
 
 def create_minimal_notebook():
     """Create a minimal working notebook."""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -49,9 +49,16 @@ def create_minimal_notebook():
                     "import torch\n",
                     "import numpy as np\n",
                     "import pandas as pd\n",
-                    "from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer\n",
+                    "from transformers import                    "from transformers import AutoTokenizer,
+                         AutoModelForSequenceClassification,
+                         TrainingArguments,
+                         Trainer\n",
+                        
                     "from sklearn.model_selection import train_test_split\n",
-                    "from sklearn.metrics import classification_report, f1_score, accuracy_score\n",
+                    "from sklearn.metrics import                    "from sklearn.metrics import classification_report,
+                         f1_score,
+                         accuracy_score\n",
+                        
                     "import json\n",
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
@@ -297,8 +304,8 @@ def create_minimal_notebook():
                     "\n",
                     "results = trainer.evaluate()\n",
                     "print('\\n📊 FINAL RESULTS:')\n",
-                    "print(f'F1 Score: {results[\"eval_f1\"]:.4f}')\n",
-                    "print(f'Accuracy: {results[\"eval_accuracy\"]:.4f}')\n",
+                    "print("F1 Score: {results[\"eval_f1\"]:.4f}')\n",
+                    "print("Accuracy: {results[\"eval_accuracy\"]:.4f}')\n",
                     "\n",
                     "print('✅ Evaluation completed!')"
                 ]
@@ -331,10 +338,10 @@ def create_minimal_notebook():
                     "with open(config_path, 'r') as f:\n",
                     "    config = json.load(f)\n",
                     "\n",
-                    "print(f'\\n🔍 SAVED CONFIGURATION:')\n",
-                    "print(f'Model type: {config.get(\"model_type\", \"NOT SET\")}')\n",
-                    "print(f'Number of labels: {config.get(\"num_labels\", \"NOT SET\")}')\n",
-                    "print(f'id2label: {config.get(\"id2label\", \"NOT SET\")}')\n",
+                    "print("\\n🔍 SAVED CONFIGURATION:")\n",
+                    "print("Model type: {config.get(\"model_type\", \"NOT SET\")}')\n",
+                    "print("Number of labels: {config.get(\"num_labels\", \"NOT SET\")}')\n",
+                    "print("id2label: {config.get(\"id2label\", \"NOT SET\")}')\n",
                     "\n",
                     "print('\\n✅ Model saving completed!')"
                 ]
@@ -362,12 +369,12 @@ def create_minimal_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     # Save the notebook
     output_path = "notebooks/MINIMAL_WORKING_TRAINING_COLAB.ipynb"
     with open(output_path, 'w') as f:
         json.dump(notebook_content, f, indent=2)
-    
+
     print(f"✅ Created minimal working notebook: {output_path}")
     print("📋 Features:")
     print("   ✅ Ultra-minimal training arguments")
@@ -375,8 +382,8 @@ def create_minimal_notebook():
     print("   ✅ Basic training and evaluation")
     print("   ✅ Model saving with verification")
     print("\\n🚀 This should work in ANY transformers version!")
-    
+
     return output_path
 
 if __name__ == "__main__":
-    create_minimal_notebook() 
+    create_minimal_notebook()

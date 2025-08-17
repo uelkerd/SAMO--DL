@@ -42,7 +42,7 @@ def simple_vertex_training():
         with open(config_dir / "training_config.json", "w") as f:
             json.dump(config, f, indent=2)
 
-        logger.info(f"✅ Configuration saved to {config_dir / 'training_config.json'}")
+        logger.info("✅ Configuration saved to {config_dir / "training_config.json'}")
         logger.info("✅ Simple Vertex AI training setup completed!")
 
     except Exception as e:

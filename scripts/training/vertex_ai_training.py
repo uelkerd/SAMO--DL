@@ -28,33 +28,33 @@
         # Test different scenarios
         # Test edge cases
         # Test forward pass
-        from google.cloud import aiplatform
-        from src.models.emotion_detection.bert_classifier import WeightedBCELoss
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-        from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-        import torch
-        import torch
-        import torch
-        import torch.nn.functional as F
+import argparse
+import logging
+import os
+import sys
         import traceback
-        import transformers
+import traceback
+# Add src to path
+# Configure logging
     # Model configuration
     # Parse arguments
     # Run validation if requested
     # Training configuration
     # Validate environment
     # Validation configuration
-# Add src to path
-# Configure logging
 #!/usr/bin/env python3
+        import torch
+        import torch
+        import torch
+        import torch.nn.functional as F
+        import transformers
+        from google.cloud import aiplatform
 from pathlib import Path
+        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+        from src.models.emotion_detection.bert_classifier import WeightedBCELoss
+        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+        from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 from typing import Dict, Any, Optional
-import argparse
-import logging
-import os
-import sys
-import traceback
 
 
 

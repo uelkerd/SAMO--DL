@@ -73,7 +73,7 @@ class User(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<User(id='{self.id}', email='{self.email}')>"
+        return "<User(id="{self.id}', email='{self.email}')>"
 
 
 class JournalEntry(Base):
@@ -106,7 +106,7 @@ class JournalEntry(Base):
     tags = relationship("Tag", secondary=journal_entry_tags, back_populates="entries")
 
     def __repr__(self) -> str:
-        return f"<JournalEntry(id='{self.id}', title='{self.title}')>"
+        return "<JournalEntry(id="{self.id}', title='{self.title}')>"
 
 
 class Embedding(Base):
@@ -128,7 +128,7 @@ class Embedding(Base):
     journal_entry = relationship("JournalEntry", back_populates="embeddings")
 
     def __repr__(self) -> str:
-        return f"<Embedding(id='{self.id}', journal_entry_id='{self.journal_entry_id}', model_name='{self.model_name}')>"
+        return "<Embedding(id="{self.id}', journal_entry_id='{self.journal_entry_id}', model_name='{self.model_name}')>"
 
 
 class Prediction(Base):
@@ -152,7 +152,7 @@ class Prediction(Base):
     journal_entry = relationship("JournalEntry", back_populates="predictions")
 
     def __repr__(self) -> str:
-        return f"<Prediction(id='{self.id}', prediction_type='{self.prediction_type}', confidence_score={self.confidence_score})>"
+        return "<Prediction(id="{self.id}', prediction_type='{self.prediction_type}', confidence_score={self.confidence_score})>"
 
 
 class VoiceTranscription(Base):
@@ -176,7 +176,7 @@ class VoiceTranscription(Base):
     journal_entry = relationship("JournalEntry", back_populates="voice_transcriptions")
 
     def __repr__(self) -> str:
-        return f"<VoiceTranscription(id='{self.id}', transcription_text='{self.transcription_text[:50]}...')>"
+        return "<VoiceTranscription(id="{self.id}', transcription_text='{self.transcription_text[:50]}...')>"
 
 
 class Tag(Base):
@@ -194,4 +194,4 @@ class Tag(Base):
     entries = relationship("JournalEntry", secondary=journal_entry_tags, back_populates="tags")
 
     def __repr__(self) -> str:
-        return f"<Tag(id='{self.id}', name='{self.name}')>"
+        return "<Tag(id="{self.id}', name='{self.name}')>"

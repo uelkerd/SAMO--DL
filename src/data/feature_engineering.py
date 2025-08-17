@@ -31,14 +31,14 @@
         # Words per sentence
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
+import logging
+import nltk
+import re
+import numpy as np
+import pandas as pd
 from nltk.sentiment import SentimentIntensityAnalyzer
 from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
-import logging
-import nltk
-import numpy as np
-import pandas as pd
-import re
 
 
 

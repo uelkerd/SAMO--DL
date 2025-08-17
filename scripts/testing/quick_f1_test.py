@@ -5,16 +5,16 @@
         # Report results
         # Save the model
         # Train model
+import logging
+import sys
         import traceback
+import traceback
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
+import torch
 from pathlib import Path
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-import logging
-import sys
-import torch
-import traceback
 
 
 

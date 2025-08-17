@@ -4,8 +4,8 @@ Test Model Status Endpoint
 Get detailed information about model loading status and any errors.
 """
 
-import requests
 import argparse
+import requests
 from test_config import create_api_client, create_test_config
 
 
@@ -14,9 +14,9 @@ def test_health_endpoint(client):
     print("1. Testing health endpoint...")
     try:
         data = client.get("/")
-        print(f"   ✅ Health: {data.get('status')}")
-        print(f"   📊 Version: {data.get('version')}")
-        print(f"   🔒 Security: {data.get('security')}")
+        print("   ✅ Health: {data.get("status')}")
+        print("   📊 Version: {data.get("version')}")
+        print("   🔒 Security: {data.get("security')}")
         return True
     except requests.exceptions.RequestException as e:
         print(f"   ❌ Health failed: {e}")
@@ -70,24 +70,24 @@ def test_model_status(base_url=None):
     if base_url:
         config.base_url = base_url.rstrip('/')
     client = create_api_client()
-    
+
     print("🔍 Testing Model Status")
     print("=" * 40)
     print(f"Testing URL: {config.base_url}")
-    
+
     # Run all tests
     health_success = test_health_endpoint(client)
     emotions_success = test_emotions_endpoint(client)
     model_status_success = test_model_status_endpoint(client)
     prediction_success = test_prediction_endpoint(client)
-    
+
     # Summary
     print("\n📊 Test Summary:")
-    print(f"   Health: {'✅' if health_success else '❌'}")
-    print(f"   Emotions: {'✅' if emotions_success else '❌'}")
-    print(f"   Model Status: {'✅' if model_status_success else '❌'}")
-    print(f"   Prediction: {'✅' if prediction_success else '❌'}")
-    
+    print("   Health: {"✅' if health_success else '❌'}")
+    print("   Emotions: {"✅' if emotions_success else '❌'}")
+    print("   Model Status: {"✅' if model_status_success else '❌'}")
+    print("   Prediction: {"✅' if prediction_success else '❌'}")
+
     return health_success and emotions_success and prediction_success
 
 
@@ -96,10 +96,10 @@ def main():
     parser = argparse.ArgumentParser(description="Test Model Status Endpoint")
     parser.add_argument("--base-url", help="API base URL")
     args = parser.parse_args()
-    
+
     success = test_model_status(args.base_url)
     exit(0 if success else 1)
 
 
 if __name__ == "__main__":
-    main() 
+    main()

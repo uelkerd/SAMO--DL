@@ -588,8 +588,8 @@ class EmotionDetectionTrainer:
 
         logger.info("✅ Training completed!")
         logger.info(f"Best validation Macro F1: {self.best_score:.4f}")
-        logger.info(f"Final test Macro F1: {test_metrics['macro_f1']:.4f}")
-        logger.info(f"Final test Micro F1: {test_metrics['micro_f1']:.4f}")
+        logger.info("Final test Macro F1: {test_metrics["macro_f1']:.4f}")
+        logger.info("Final test Micro F1: {test_metrics["micro_f1']:.4f}")
 
         return results
 

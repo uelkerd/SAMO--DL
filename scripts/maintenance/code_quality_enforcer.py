@@ -19,12 +19,12 @@ Prevents:
 - PY-D0003: Missing docstrings
 - PY-R1000: High cyclomatic complexity
 """
-import sys
 import ast
+import logging
 import re
+import sys
 from pathlib import Path
 from typing import Dict, List, Set, Tuple, Any, Optional
-import logging
 
 # Configure logging
 logging.basicConfig(
@@ -197,7 +197,7 @@ class CodeQualityEnforcer:
 
         # Check for f-strings without expressions
         if (
-            (line.strip().startswith('f"') or line.strip().startswith("f'"))
+            (line.strip().startswith('f"') or line.strip().startswith('f\''))
             and not re.search(r'\{[^}]*\}', line)
         ):
             issues.append({
@@ -272,7 +272,7 @@ class CodeQualityEnforcer:
                             'rule': 'PY-R1000',
                             'line': getattr(node, 'lineno', 0),
                             'message': (
-                                f'Function/class has high cyclomatic complexity '
+                                "Function/class has high cyclomatic complexity "
                                 f'({complexity})'
                             ),
                             'severity': 'warning'
@@ -460,14 +460,14 @@ class CodeQualityEnforcer:
             # Show first few examples
             for issue in issues[:3]:
                 report += (
-                    f"\n    - {issue['file']}:{issue['line']} - "
-                    f"{issue['message']}"
+                    "\n    - {issue["file']}:{issue['line']} - "
+                    "{issue["message']}"
                 )
 
             if len(issues) > 3:
                 report += f"\n    ... and {len(issues) - 3} more issues"
 
-        report += f"""
+        report += """
 
 📋 DETAILED ISSUES:
 {'-'*50}

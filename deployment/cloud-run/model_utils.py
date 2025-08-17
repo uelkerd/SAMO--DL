@@ -5,9 +5,9 @@ This module provides common functionality for model loading, inference,
 and error handling to eliminate code duplication between API servers.
 """
 
+import json
 import logging
 import os
-import json
 import threading
 import time
 from pathlib import Path
@@ -156,7 +156,7 @@ def ensure_model_loaded() -> bool:
         logger.info("✅ Model loaded successfully!")
         logger.info("🎯 Active labels (%d): %s", len(emotion_labels_runtime), emotion_labels_runtime)
         logger.info("🧮 Inference mode: %s", 'multi-label (sigmoid)' if is_multi_label_runtime else 'single-label (softmax)')
-        logger.info("🔧 Prediction threshold: %.2f", PREDICTION_THRESHOLD)
+        logger.info("🔧 Prediction threshold: %.2", PREDICTION_THRESHOLD)
         return True
 
     except Exception as e:
@@ -300,4 +300,4 @@ def validate_text_input(text: str) -> Tuple[bool, str]:
         return False, 'Text must be a non-empty string'
     if len(text) > MAX_TEXT_LENGTH:
         return False, f'Text too long (max {MAX_TEXT_LENGTH} characters)'
-    return True, '' 
+    return True, ''

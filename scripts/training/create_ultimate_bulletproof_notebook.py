@@ -7,7 +7,7 @@ This script generates the ultimate training notebook that combines ALL gains fro
 previous iterations:
 
 ✅ Configuration preservation (from current notebook)
-✅ Focal loss (from previous iterations)  
+✅ Focal loss (from previous iterations)
 ✅ Class weighting (from previous iterations)
 ✅ Data augmentation (from previous iterations)
 ✅ Advanced validation (from previous iterations)
@@ -19,7 +19,7 @@ import json
 
 def create_ultimate_notebook():
     """Create the ultimate bulletproof training notebook."""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -58,7 +58,11 @@ def create_ultimate_notebook():
                     "import torch\n",
                     "import numpy as np\n",
                     "import pandas as pd\n",
-                    "from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer\n",
+                    "from transformers import                    "from transformers import AutoTokenizer,
+                         AutoModelForSequenceClassification,
+                         TrainingArguments,
+                         Trainer\n",
+                        
                     "from datasets import Dataset\n",
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.metrics import classification_report, confusion_matrix\n",
@@ -400,12 +404,12 @@ def create_ultimate_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     # Save the notebook
     output_path = "notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb"
     with open(output_path, 'w') as f:
         json.dump(notebook_content, f, indent=2)
-    
+
     print(f"✅ Created ultimate bulletproof notebook: {output_path}")
     print("📋 Features included:")
     print("   ✅ Configuration preservation")
@@ -413,8 +417,8 @@ def create_ultimate_notebook():
     print("   ✅ Class weighting (to be added)")
     print("   ✅ Data augmentation")
     print("   ✅ Advanced validation (to be added)")
-    
+
     return output_path
 
 if __name__ == "__main__":
-    create_ultimate_notebook() 
+    create_ultimate_notebook()

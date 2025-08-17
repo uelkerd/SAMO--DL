@@ -13,11 +13,11 @@ Auto-fixes:
 - PTC-W0027: f-strings without expressions
 - Basic import organization
 """
-import sys
+import logging
 import re
+import sys
 from pathlib import Path
 from typing import Dict, List, Set, Tuple, Any, Optional
-import logging
 
 # Configure logging
 logging.basicConfig(
@@ -177,7 +177,7 @@ class CodeQualityAutoFixer:
                         f'Converted f-string to regular string: {match.group(0)}'
                     )
                 })
-                return f'"{string_content}"'
+                return ""{string_content}"'
             return match.group(0)
 
         content = re.sub(pattern, replace_f_string, content)
@@ -362,7 +362,7 @@ class CodeQualityAutoFixer:
     @staticmethod
     def generate_report(results: Dict[str, Any]) -> str:
         """Generate a comprehensive fix report."""
-        report = f"""
+        report = """
 🔧 CODE QUALITY AUTO-FIX REPORT
 {'='*50}
 
@@ -377,7 +377,7 @@ class CodeQualityAutoFixer:
         for fix_type, count in sorted(results['fixes_by_type'].items()):
             report += f"- {fix_type}: {count} fixes\n"
 
-        report += f"""
+        report += """
 
 📋 DETAILED RESULTS:
 {'-'*50}
@@ -385,13 +385,13 @@ class CodeQualityAutoFixer:
 
         for result in results['results']:
             if result.get('modified', False):
-                report += f"✅ {result['file']}: {len(result['fixes'])} fixes applied\n"
+                report += "✅ {result["file']}: {len(result['fixes'])} fixes applied\n"
                 for fix in result['fixes']:
-                    report += f"   - {fix['type']}: {fix['description']}\n"
+                    report += "   - {fix["type']}: {fix['description']}\n"
             elif 'error' in result:
-                report += f"❌ {result['file']}: Error - {result['error']}\n"
+                report += "❌ {result["file']}: Error - {result['error']}\n"
             else:
-                report += f"⏭️ {result['file']}: No fixes needed\n"
+                report += "⏭️ {result["file']}: No fixes needed\n"
 
         return report
 

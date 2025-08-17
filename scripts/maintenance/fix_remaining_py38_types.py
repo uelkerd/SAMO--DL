@@ -123,7 +123,7 @@ def _add_typing_imports(content: str, imports_to_add: set, dry_run: bool) -> str
         # Parse existing imports to avoid duplicates
         existing_set = {imp.strip() for imp in existing_imports.split(',')}
         combined_imports = sorted(existing_set | imports_to_add)
-        new_import_line = f'from typing import {", ".join(combined_imports)}'
+        new_import_line = "from typing import {", ".join(combined_imports)}'
 
         # Replace the existing import line
         content = re.sub(
@@ -142,12 +142,12 @@ def _add_typing_imports(content: str, imports_to_add: set, dry_run: bool) -> str
 
         if last_import_line >= 0:
             import_line = (
-                f"from typing import {', '.join(sorted(imports_to_add))}"
+                "from typing import {", '.join(sorted(imports_to_add))}"
             )
             lines.insert(last_import_line + 1, import_line)
         else:
             import_line = (
-                f"from typing import {', '.join(sorted(imports_to_add))}"
+                "from typing import {", '.join(sorted(imports_to_add))}"
             )
             lines.insert(0, import_line)
         content = '\n'.join(lines)
@@ -225,10 +225,10 @@ def _process_single_file(file_path: Path, dry_run: bool) -> Dict[str, Any]:
     result = fix_file(file_path, dry_run=dry_run)
 
     if 'error' in result:
-        print(f"  ❌ Error: {result['error']}")
+        print("  ❌ Error: {result["error']}")
     elif result['modified']:
-        print(f"  ✅ Modified: {', '.join(result['changes'])}")
-        print(f"     Imports added: {', '.join(result['imports_added'])}")
+        print("  ✅ Modified: {", '.join(result['changes'])}")
+        print("     Imports added: {", '.join(result['imports_added'])}")
     else:
         print("  ⏭️  No changes needed")
     print()
@@ -260,7 +260,7 @@ def _print_summary(results: List[Dict[str, Any]], total_changes: int, dry_run: b
     modified = [r for r in results if r.get('modified', False)]
     errors = [r for r in results if 'error' in r]
     no_changes = [
-        r for r in results 
+        r for r in results
         if not r.get('modified', False) and 'error' not in r
     ]
 
@@ -273,7 +273,7 @@ def _print_summary(results: List[Dict[str, Any]], total_changes: int, dry_run: b
     if errors:
         print("\nFiles with errors:")
         for result in errors:
-            print(f"  {result['file']}: {result['error']}")
+            print("  {result["file']}: {result['error']}")
 
     if dry_run and total_changes > 0:
         print("\nTo apply these changes, run without --dry-run")

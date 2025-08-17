@@ -5,12 +5,12 @@
 Comprehensive input sanitization and validation for API security.
 """
 
-import re
 import html
 import logging
-from typing import Any, Dict, List, Optional, Union, Tuple
-from dataclasses import dataclass
+import re
 import unicodedata
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Union, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -66,8 +66,8 @@ class InputSanitizer:
                 # Path traversal patterns
                 r'\.\./',
                 r'\.\.\\',
-                r'%2e%2e%2f',
-                r'%2e%2e%5c',
+                r'%2e%2e%2",
+                r"%2e%2e%5c',
 
                 # Command injection patterns
                 r'(\b(cmd|command|exec|system|eval|exec)\b)',

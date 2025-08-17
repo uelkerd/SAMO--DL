@@ -16,13 +16,25 @@
             # Load model
             # Move to device
             # Tokenize
+import argparse
+import json
+import logging
             import psutil
+import sys
+import threading
+import time
+import yaml
+# Add src to path
         # Calculate degradation
         # Calculate overall drift score
         # Calculate trends
         # Check each feature for drift
         # Check if degradation exceeds threshold
         # Combined drift score
+# Configure logging
+# Constants
+    # Create directory if needed
+    # Create monitor
         # Extract metrics arrays
         # For now, return mock drift metrics
         # Get recent alerts
@@ -33,16 +45,14 @@
         # Normalize by reference statistics
         # Print final status
         # Save alert to file
-        # Set baseline if not set
-        # Use Wasserstein distance as drift measure
-    # Create directory if needed
-    # Create monitor
     # Save configuration
+        # Set baseline if not set
     # Start monitoring
-# Add src to path
-# Configure logging
-# Constants
+        # Use Wasserstein distance as drift measure
 #!/usr/bin/env python3
+import numpy as np
+import pandas as pd
+import torch
 from collections import deque
 from dataclasses import dataclass, asdict
 from datetime import datetime, timedelta
@@ -50,16 +60,6 @@ from pathlib import Path
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from transformers import AutoTokenizer
 from typing import Any, Optional
-import argparse
-import json
-import logging
-import numpy as np
-import pandas as pd
-import sys
-import threading
-import time
-import torch
-import yaml
 
 
 

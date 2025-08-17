@@ -7,26 +7,26 @@ This script trains the emotion detection model using the expanded dataset
 to achieve the target 75-85% F1 score.
 
 Target: 75-85% F1 Score
-Current: 67% F1 Score  
+Current: 67% F1 Score
 Expected: 8-18% improvement
 """
 
 import json
+import warnings
+)
+    AutoModelForSequenceClassification,
+    AutoTokenizer,
+    EarlyStoppingCallback
+    Trainer,
+    TrainingArguments,
+warnings.filterwarnings('ignore')
 import numpy as np
 import torch
-from torch.utils.data import Dataset
-from transformers import (
-    AutoTokenizer, 
-    AutoModelForSequenceClassification, 
-    TrainingArguments, 
-    Trainer,
-    EarlyStoppingCallback
-)
+from sklearn.metrics import f1_score, accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import f1_score, accuracy_score
-import warnings
-warnings.filterwarnings('ignore')
+from torch.utils.data import Dataset
+from transformers import (
 
 print("🚀 FINAL EXPANDED DATASET TRAINING")
 print("=" * 50)
@@ -65,14 +65,14 @@ class EmotionDataset(Dataset):
         self.labels = labels
         self.tokenizer = tokenizer
         self.max_length = max_length
-    
+
     def __len__(self):
         return len(self.texts)
-    
+
     def __getitem__(self, idx):
         text = str(self.texts[idx])
         label = self.labels[idx]
-        
+
         encoding = self.tokenizer(
             text,
             truncation=True,
@@ -80,7 +80,7 @@ class EmotionDataset(Dataset):
             max_length=self.max_length,
             return_tensors='pt'
         )
-        
+
         return {
             'input_ids': encoding['input_ids'].flatten(),
             'attention_mask': encoding['attention_mask'].flatten(),
@@ -92,7 +92,7 @@ print("🔧 Initializing model...")
 model_name = "bert-base-uncased"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSequenceClassification.from_pretrained(
-    model_name, 
+    model_name,
     num_labels=num_labels,
     problem_type="single_label_classification"
 )
@@ -128,10 +128,10 @@ training_args = TrainingArguments(
 def compute_metrics(eval_pred):
     predictions, labels = eval_pred
     predictions = np.argmax(predictions, axis=1)
-    
+
     f1 = f1_score(labels, predictions, average='weighted')
     accuracy = accuracy_score(labels, predictions)
-    
+
     return {
         'f1': f1,
         'accuracy': accuracy
@@ -154,9 +154,9 @@ trainer.train()
 # Evaluate on test set
 print("🧪 Evaluating model...")
 results = trainer.evaluate()
-print(f"📊 Final Results:")
-print(f"   F1 Score: {results['eval_f1']:.4f} ({results['eval_f1']*100:.1f}%)")
-print(f"   Accuracy: {results['eval_accuracy']:.4f} ({results['eval_accuracy']*100:.1f}%)")
+print("📊 Final Results:")
+print("   F1 Score: {results["eval_f1']:.4f} ({results['eval_f1']*100:.1f}%)")
+print("   Accuracy: {results["eval_accuracy']:.4f} ({results['eval_accuracy']*100:.1f}%)")
 
 # Save the model
 print("💾 Saving model...")
@@ -180,7 +180,7 @@ test_samples = [
     "I'm content with how things are going."
 ]
 
-expected_emotions = ['happy', 'frustrated', 'anxious', 'grateful', 'overwhelmed', 
+expected_emotions = ['happy', 'frustrated', 'anxious', 'grateful', 'overwhelmed',
                     'proud', 'sad', 'excited', 'calm', 'hopeful', 'tired', 'content']
 
 print("📊 Testing Results:")
@@ -190,7 +190,7 @@ correct_predictions = 0
 for i, (text, expected) in enumerate(zip(test_samples, expected_emotions), 1):
     # Tokenize
     inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=128)
-    
+
     # Predict
     with torch.no_grad():
         outputs = model(**inputs)
@@ -198,22 +198,22 @@ for i, (text, expected) in enumerate(zip(test_samples, expected_emotions), 1):
         predicted_idx = torch.argmax(probabilities, dim=1).item()
         confidence = probabilities[0][predicted_idx].item()
         predicted_emotion = label_encoder.inverse_transform([predicted_idx])[0]
-    
+
     # Get top 3 predictions
     top_3_indices = torch.topk(probabilities[0], 3).indices
     top_3_emotions = label_encoder.inverse_transform(top_3_indices.cpu().numpy())
     top_3_probs = torch.topk(probabilities[0], 3).values.cpu().numpy()
-    
+
     # Check if correct
     is_correct = predicted_emotion == expected
     if is_correct:
         correct_predictions += 1
-    
+
     print(f"{i}. Text: {text}")
     print(f"   Predicted: {predicted_emotion} (confidence: {confidence:.3f})")
     print(f"   Expected: {expected}")
-    print(f"   {'✅ CORRECT' if is_correct else '❌ WRONG'}")
-    print(f"   Top 3 predictions:")
+    print("   {"✅ CORRECT' if is_correct else '❌ WRONG'}")
+    print("   Top 3 predictions:")
     for emotion, prob in zip(top_3_emotions, top_3_probs):
         print(f"     - {emotion}: {prob:.3f}")
     print()
@@ -221,17 +221,17 @@ for i, (text, expected) in enumerate(zip(test_samples, expected_emotions), 1):
 test_accuracy = correct_predictions / len(test_samples)
 final_f1 = results['eval_f1']
 
-print(f"\n📈 FINAL RESULTS:")
+print("\n📈 FINAL RESULTS:")
 print(f"   Test Accuracy: {test_accuracy:.2%} ({correct_predictions}/{len(test_samples)})")
 print(f"   F1 Score: {final_f1:.4f} ({final_f1*100:.1f}%)")
-print(f"   Target Achieved: {'✅ YES!' if final_f1 >= 0.75 else '❌ Not yet'}")
+print("   Target Achieved: {"✅ YES!' if final_f1 >= 0.75 else '❌ Not yet'}")
 
 if final_f1 >= 0.75:
     print(f"\n🎉 SUCCESS! Model achieved {final_f1*100:.1f}% F1 score!")
-    print(f"🚀 Ready for production deployment!")
+    print("🚀 Ready for production deployment!")
 else:
     print(f"\n📈 Good progress! Current F1: {final_f1*100:.1f}%")
-    print(f"💡 Consider: more data, hyperparameter tuning, or different model architecture")
+    print("💡 Consider: more data, hyperparameter tuning, or different model architecture")
 
-print(f"\n💾 Model saved to: ./best_emotion_model_final")
-print(f"📊 Training completed successfully!") 
+print("\n💾 Model saved to: ./best_emotion_model_final")
+print("📊 Training completed successfully!")

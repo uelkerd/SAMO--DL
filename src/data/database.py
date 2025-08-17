@@ -5,14 +5,14 @@
 # Create sessionmaker
 # Create the database URL
 # Get database connection details from environment variables
-from sqlalchemy import create_engine
-from sqlalchemy.pool import NullPool
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import scoped_session, sessionmaker
 import os
 from pathlib import Path
-from urllib.parse import quote_plus
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.pool import NullPool
 from src.common.env import is_truthy
+from urllib.parse import quote_plus
 
 
 
@@ -56,7 +56,7 @@ else:
     try:
         sqlite_dir.mkdir(parents=True, exist_ok=True)
     except Exception as exc:
-        raise RuntimeError(f"Failed to create SQLite directory '{sqlite_dir}': {exc}")
+        raise RuntimeError("Failed to create SQLite directory "{sqlite_dir}': {exc}")
     DATABASE_URL = f"sqlite:///{default_sqlite_path}"
 
 if DATABASE_URL.startswith("sqlite"):

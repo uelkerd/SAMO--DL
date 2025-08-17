@@ -4,10 +4,10 @@ Debug Model Loading Issues
 Get detailed information about why the model is not loading properly.
 """
 
-import requests
-import json
-import time
 import argparse
+import json
+import requests
+import time
 from test_config import create_api_client, create_test_config
 
 
@@ -15,12 +15,12 @@ def debug_model_loading():
     """Debug the model loading issues"""
     config = create_test_config()
     client = create_api_client()
-    
+
     print("🔍 Debugging Model Loading Issues")
     print("=" * 50)
     print(f"Testing URL: {config.base_url}")
     print(f"API Key: {config.api_key[:20]}...")
-    
+
     # Test model status with API key
     print("\n1. Testing model status with API key...")
     try:
@@ -31,7 +31,7 @@ def debug_model_loading():
             print("   🔐 Unauthorized - API key mismatch")
         else:
             print(f"   ❌ Model status error: {e}")
-    
+
     # Test security status
     print("\n2. Testing security status...")
     try:
@@ -50,7 +50,7 @@ def debug_model_loading():
         print(f"   ❌ Prediction error: {e}")
     except ValueError as e:
         print(f"   ❌ Invalid response format: {e}")
-    
+
     # Test batch prediction
     print("\n4. Testing batch prediction...")
     try:
@@ -61,7 +61,7 @@ def debug_model_loading():
         print(f"   ❌ Batch prediction error: {e}")
     except ValueError as e:
         print(f"   ❌ Invalid response format: {e}")
-    
+
     # Test with different input formats
     print("\n5. Testing different input formats...")
     test_cases = [
@@ -76,7 +76,7 @@ def debug_model_loading():
         print(f"   Test case {i+1}: {test_case}")
         try:
             data = client.post("/predict", test_case)
-            print(f"     ✅ Success: {data.get('emotion', 'Unknown')}")
+            print("     ✅ Success: {data.get("emotion', 'Unknown')}")
         except requests.exceptions.RequestException as e:
             print(f"     ❌ Request failed: {e}")
         except ValueError as e:

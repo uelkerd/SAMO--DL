@@ -12,10 +12,10 @@ This script:
 """
 
 import os
-import subprocess
-import shlex
-import time
 import requests
+import shlex
+import subprocess
+import time
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -31,7 +31,7 @@ class IntegratedSecurityOptimization:
     def get_project_id():
         """Get current GCP project ID dynamically"""
         try:
-            result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], 
+            result = subprocess.run(['gcloud', 'config', 'get-value', 'project'],
                                   capture_output=True, text=True, check=True)
             return result.stdout.strip()
         except subprocess.CalledProcessError:
@@ -52,7 +52,7 @@ class IntegratedSecurityOptimization:
             else:
                 sanitized_command.append(str(arg))
 
-        self.log(f"Running: {' '.join(sanitized_command)}")
+        self.log("Running: {" '.join(sanitized_command)}")
         try:
             result = subprocess.run(command, capture_output=True, text=True, check=check)
             if result.stdout:
@@ -109,15 +109,15 @@ fastapi==0.104.1
         """Enhance cloudbuild.yaml with security features"""
         self.log("Enhancing Cloud Build configuration with security...")
 
-        enhanced_cloudbuild = f"""timeout: '3600s'
+        enhanced_cloudbuild = """timeout: '3600s'
 
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/{self.project_id}/samo-dl/{self.service_name}', '-f', 'Dockerfile.secure', '.']
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/{self.project_id}/samo-dl/{self.service_name}', '-", "Dockerfile.secure', '.']
     timeout: '1800s'
     env:
       - 'PROJECT_ID={self.project_id}'
-  
+
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     args:
       - 'gcloud'
@@ -242,7 +242,7 @@ substitutions:
         if prediction_response.status_code == 200:
             result = prediction_response.json()
             if 'emotion' in result and 'confidence' in result:
-                self.log(f"✅ Prediction working: {result['emotion']} ({result['confidence']:.2f})")
+                self.log("✅ Prediction working: {result["emotion']} ({result['confidence']:.2f})")
             else:
                 self.log("⚠️ Prediction response format unexpected")
         else:
@@ -293,4 +293,4 @@ substitutions:
 
 if __name__ == "__main__":
     integrator = IntegratedSecurityOptimization()
-    integrator.run() 
+    integrator.run()

@@ -12,11 +12,11 @@ This script:
 """
 
 import os
-import sys
-import subprocess
-import shlex
-import time
 import requests
+import shlex
+import subprocess
+import sys
+import time
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -24,7 +24,7 @@ from typing import Dict, List, Optional
 def get_project_id():
     """Get current GCP project ID dynamically"""
     try:
-        result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], 
+        result = subprocess.run(['gcloud', 'config', 'get-value', 'project'],
                               capture_output=True, text=True, check=True)
         return result.stdout.strip()
     except subprocess.CalledProcessError:
@@ -70,7 +70,7 @@ class SecurityDeploymentFix:
             else:
                 sanitized_command.append(str(arg))
 
-        self.log(f"Running: {' '.join(sanitized_command)}")
+        self.log("Running: {" '.join(sanitized_command)}")
         try:
             # Use the sanitized command to prevent command injection
             result = subprocess.run(sanitized_command, capture_output=True, text=True, check=check)
@@ -99,7 +99,7 @@ class SecurityDeploymentFix:
                 missing_files.append(str(file_path))
 
         if missing_files:
-            raise FileNotFoundError(f"Missing required static files: {', '.join(missing_files)}")
+            raise FileNotFoundError("Missing required static files: {", '.join(missing_files)}")
 
         self.log("✅ All static files verified")
 
@@ -149,9 +149,9 @@ cryptography>=41.0.0,<42.0.0
 
         # Create a temporary cloudbuild.yaml file
         cloudbuild_path = self.deployment_dir / "cloudbuild.yaml"
-        cloudbuild_content = f'''steps:
+        cloudbuild_content = ""'steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', '{ARTIFACT_REGISTRY}/{SERVICE_NAME}', '-f', 'Dockerfile.secure', '.']
+    args: ['build', '-t', '{ARTIFACT_REGISTRY}/{SERVICE_NAME}', '-", "Dockerfile.secure', '.']
 images:
   - '{ARTIFACT_REGISTRY}/{SERVICE_NAME}'
 '''
@@ -162,7 +162,7 @@ images:
         # Build container
         self.log("Building secure container...")
         build_result = self.run_command([
-            'gcloud', 'builds', 'submit', 
+            'gcloud', 'builds', 'submit',
             str(self.deployment_dir),
             '--config', str(cloudbuild_path)
         ])
@@ -325,4 +325,4 @@ images:
 if __name__ == "__main__":
     fixer = SecurityDeploymentFix()
     success = fixer.run()
-    sys.exit(0 if success else 1) 
+    sys.exit(0 if success else 1)

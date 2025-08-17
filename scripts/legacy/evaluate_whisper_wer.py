@@ -142,7 +142,7 @@ def evaluate_wer(api: TranscriptionAPI, samples: list[dict], model_size: str) ->
     if results:
         avg_wer = sum(r["wer"] for r in results) / len(results)
         avg_time = total_time / len(results)
-        
+
         return {
             "model_size": model_size,
             "num_samples": len(results),
@@ -166,25 +166,25 @@ def main():
     """Main evaluation function."""
     parser = argparse.ArgumentParser(description="Evaluate Whisper WER on LibriSpeech")
     parser.add_argument(
-        "--output-dir", 
-        type=str, 
+        "--output-dir",
+        type=str,
         help="Directory to save results and audio files"
     )
     parser.add_argument(
-        "--max-samples", 
-        type=int, 
-        default=50, 
+        "--max-samples",
+        type=int,
+        default=50,
         help="Maximum number of samples to evaluate"
     )
     parser.add_argument(
-        "--model-size", 
-        type=str, 
-        default="base", 
+        "--model-size",
+        type=str,
+        default="base",
         help="Whisper model size (tiny, base, small, medium, large)"
     )
     parser.add_argument(
-        "--save-results", 
-        action="store_true", 
+        "--save-results",
+        action="store_true",
         help="Save detailed results to JSON file"
     )
 
@@ -199,7 +199,7 @@ def main():
 
     # Download or load LibriSpeech samples
     samples = download_librispeech_sample(
-        output_dir=args.output_dir, 
+        output_dir=args.output_dir,
         max_samples=args.max_samples
     )
 
@@ -217,11 +217,11 @@ def main():
     logger.info("=" * 50)
     logger.info("EVALUATION SUMMARY")
     logger.info("=" * 50)
-    logger.info(f"Model: {results['model_size']}")
-    logger.info(f"Samples: {results['num_samples']}")
-    logger.info(f"Average WER: {results['average_wer']:.4f}")
-    logger.info(f"Average Processing Time: {results['average_processing_time']:.3f}s")
-    logger.info(f"Total Processing Time: {results['total_processing_time']:.3f}s")
+    logger.info("Model: {results["model_size']}")
+    logger.info("Samples: {results["num_samples']}")
+    logger.info("Average WER: {results["average_wer']:.4f}")
+    logger.info("Average Processing Time: {results["average_processing_time']:.3f}s")
+    logger.info("Total Processing Time: {results["total_processing_time']:.3f}s")
 
     # Save results if output directory provided
     if args.save_results and output_dir:

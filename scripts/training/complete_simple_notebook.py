@@ -11,11 +11,11 @@ import json
 
 def complete_simple_notebook():
     """Add all missing components to the simple notebook."""
-    
+
     # Read the existing notebook
     with open('notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'r') as f:
         notebook = json.load(f)
-    
+
     # Add all the missing cells
     new_cells = [
         {
@@ -319,10 +319,10 @@ def complete_simple_notebook():
                 "# Start training\n",
                 "print('🚀 STARTING ULTIMATE TRAINING')\n",
                 "print('=' * 50)\n",
-                "print(f'🎯 Target: 75-85% F1 score')\n",
+                "print("🎯 Target: 75-85% F1 score")\n",
                 "print(f'📊 Training samples: {len(train_dataset)}')\n",
                 "print(f'🧪 Validation samples: {len(val_dataset)}')\n",
-                "print(f'⚖️ Using focal loss + class weighting')\n",
+                "print("⚖️ Using focal loss + class weighting")\n",
                 "print(f'🔧 Model: {specialized_model_name}')\n",
                 "\n",
                 "# Train the model\n",
@@ -350,10 +350,10 @@ def complete_simple_notebook():
                 "\n",
                 "results = trainer.evaluate()\n",
                 "print('\\n📊 FINAL RESULTS:')\n",
-                "print(f'F1 Score: {results[\"eval_f1\"]:.4f}')\n",
-                "print(f'Accuracy: {results[\"eval_accuracy\"]:.4f}')\n",
-                "print(f'Precision: {results[\"eval_precision\"]:.4f}')\n",
-                "print(f'Recall: {results[\"eval_recall\"]:.4f}')\n",
+                "print("F1 Score: {results[\"eval_f1\"]:.4f}')\n",
+                "print("Accuracy: {results[\"eval_accuracy\"]:.4f}')\n",
+                "print("Precision: {results[\"eval_precision\"]:.4f}')\n",
+                "print("Recall: {results[\"eval_recall\"]:.4f}')\n",
                 "\n",
                 "print('✅ Evaluation completed!')"
             ]
@@ -437,10 +437,10 @@ def complete_simple_notebook():
                 "with open(config_path, 'r') as f:\n",
                 "    config = json.load(f)\n",
                 "\n",
-                "print(f'Model type: {config.get(\"model_type\", \"NOT SET\")}')\n",
-                "print(f'Number of labels: {config.get(\"num_labels\", \"NOT SET\")}')\n",
-                "print(f'id2label: {config.get(\"id2label\", \"NOT SET\")}')\n",
-                "print(f'label2id: {config.get(\"label2id\", \"NOT SET\")}')\n",
+                "print("Model type: {config.get(\"model_type\", \"NOT SET\")}')\n",
+                "print("Number of labels: {config.get(\"num_labels\", \"NOT SET\")}')\n",
+                "print("id2label: {config.get(\"id2label\", \"NOT SET\")}')\n",
+                "print("label2id: {config.get(\"label2id\", \"NOT SET\")}')\n",
                 "\n",
                 "# Test loading the saved model\n",
                 "print('\\n🧪 TESTING SAVED MODEL:')\n",
@@ -457,7 +457,7 @@ def complete_simple_notebook():
                 "    test_predicted_class = torch.argmax(test_predictions, dim=-1).item()\n",
                 "    test_confidence = test_predictions[0][test_predicted_class].item()\n",
                 "\n",
-                "print(f'Test input: \"{test_input}\"')\n",
+                "print("Test input: \"{test_input}\"')\n",
                 "print(f'Predicted emotion: {test_model.config.id2label[test_predicted_class]}')\n",
                 "print(f'Confidence: {test_confidence:.3f}')\n",
                 "\n",
@@ -465,14 +465,14 @@ def complete_simple_notebook():
             ]
         }
     ]
-    
+
     # Add all new cells
     notebook['cells'].extend(new_cells)
-    
+
     # Save the completed notebook
     with open('notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook, f, indent=2)
-    
+
     print('✅ Completed simple notebook with ALL components!')
     print('📋 Added components:')
     print('   ✅ Focal Loss implementation')
@@ -488,4 +488,4 @@ def complete_simple_notebook():
     print('\\n🚀 The notebook is now COMPLETE and ready to use!')
 
 if __name__ == "__main__":
-    complete_simple_notebook() 
+    complete_simple_notebook()

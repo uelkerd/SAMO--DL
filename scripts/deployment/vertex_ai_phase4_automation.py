@@ -8,20 +8,20 @@ A/B testing support, performance monitoring, and cost optimization.
 
 Features:
 - Automated model versioning and deployment
-- Rollback capabilities and A/B testing support  
+- Rollback capabilities and A/B testing support
 - Model performance monitoring and alerting
 - Cost optimization and resource management
 - Comprehensive testing and validation
 """
 
-import os
 import json
+import logging
+import os
 import subprocess
 import sys
-import logging
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass
 
 # Configure logging
 logging.basicConfig(
@@ -97,7 +97,7 @@ class VertexAIPhase4Automation:
     def _check_authentication() -> bool:
         """Check if user is authenticated."""
         try:
-            result = subprocess.run(['gcloud', 'auth', 'list', '--filter=status:ACTIVE'], 
+            result = subprocess.run(['gcloud', 'auth', 'list', '--filter=status:ACTIVE'],
                                   capture_output=True, text=True, check=True)
             return result.returncode == 0 and 'ACTIVE' in result.stdout
         except Exception:
@@ -106,7 +106,7 @@ class VertexAIPhase4Automation:
     def _check_project(self) -> bool:
         """Check if project is properly configured."""
         try:
-            result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], 
+            result = subprocess.run(['gcloud', 'config', 'get-value', 'project'],
                                   capture_output=True, text=True, check=True)
             return result.returncode == 0 and result.stdout.strip() == self.config.project_id
         except Exception:
@@ -116,8 +116,8 @@ class VertexAIPhase4Automation:
     def _check_vertex_ai_api() -> bool:
         """Check if Vertex AI API is enabled."""
         try:
-            result = subprocess.run(['gcloud', 'services', 'list', '--enabled', 
-                                   '--filter=name:aiplatform.googleapis.com'], 
+            result = subprocess.run(['gcloud', 'services', 'list', '--enabled',
+                                   '--filter=name:aiplatform.googleapis.com'],
                                   capture_output=True, text=True, check=True)
             return result.returncode == 0 and 'aiplatform.googleapis.com' in result.stdout
         except Exception:
@@ -127,8 +127,8 @@ class VertexAIPhase4Automation:
     def _check_monitoring_api() -> bool:
         """Check if Cloud Monitoring API is enabled."""
         try:
-            result = subprocess.run(['gcloud', 'services', 'list', '--enabled', 
-                                   '--filter=name:monitoring.googleapis.com'], 
+            result = subprocess.run(['gcloud', 'services', 'list', '--enabled',
+                                   '--filter=name:monitoring.googleapis.com'],
                                   capture_output=True, text=True, check=True)
             return result.returncode == 0 and 'monitoring.googleapis.com' in result.stdout
         except Exception:
@@ -138,8 +138,8 @@ class VertexAIPhase4Automation:
     def _check_logging_api() -> bool:
         """Check if Cloud Logging API is enabled."""
         try:
-            result = subprocess.run(['gcloud', 'services', 'list', '--enabled', 
-                                   '--filter=name:logging.googleapis.com'], 
+            result = subprocess.run(['gcloud', 'services', 'list', '--enabled',
+                                   '--filter=name:logging.googleapis.com'],
                                   capture_output=True, text=True, check=True)
             return result.returncode == 0 and 'logging.googleapis.com' in result.stdout
         except Exception:
@@ -149,8 +149,8 @@ class VertexAIPhase4Automation:
     def _check_artifact_registry() -> bool:
         """Check if Artifact Registry is enabled."""
         try:
-            result = subprocess.run(['gcloud', 'services', 'list', '--enabled', 
-                                   '--filter=name:artifactregistry.googleapis.com'], 
+            result = subprocess.run(['gcloud', 'services', 'list', '--enabled',
+                                   '--filter=name:artifactregistry.googleapis.com'],
                                   capture_output=True, text=True, check=True)
             return result.returncode == 0 and 'artifactregistry.googleapis.com' in result.stdout
         except Exception:
@@ -166,11 +166,11 @@ class VertexAIPhase4Automation:
         ]
 
         try:
-            result = subprocess.run(['gcloud', 'projects', 'get-iam-policy', self.config.project_id, 
-                                   '--flatten=bindings[].members', 
-                                   '--format=value(bindings.role)'], 
+            result = subprocess.run(['gcloud', 'projects', 'get-iam-policy', self.config.project_id,
+                                   '--flatten=bindings[].members',
+                                   '--format=value(bindings.role)'],
                                   capture_output=True, text=True, check=True)
-            user_email = subprocess.run(['gcloud', 'config', 'get-value', 'account'], 
+            user_email = subprocess.run(['gcloud', 'config', 'get-value', 'account'],
                                       capture_output=True, text=True, check=True).stdout.strip(check=True)
 
             user_roles = result.stdout.split('\n')
@@ -184,7 +184,7 @@ class VertexAIPhase4Automation:
 
         # Get git commit hash if available
         try:
-            result = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], 
+            result = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'],
                                   capture_output=True, text=True, check=True)
             git_hash = result.stdout.strip() if result.returncode == 0 else "unknown"
         except Exception:
@@ -209,7 +209,7 @@ class VertexAIPhase4Automation:
             raise FileNotFoundError(f"Source model not found: {source_model_path}")
 
         # Create Dockerfile with versioning
-        dockerfile_content = f"""
+        dockerfile_content = """
 FROM python:3.9-slim
 
 WORKDIR /app
@@ -424,7 +424,7 @@ CMD ["python", "predict.py"]
                 {
                     "displayName": "High Error Rate",
                     "conditionThreshold": {
-                        "filter": f'resource.type="aiplatform.googleapis.com/Endpoint" AND resource.labels.endpoint_id="{endpoint_id}"',
+                        "filter": "resource.type="aiplatform.googleapis.com/Endpoint" AND resource.labels.endpoint_id="{endpoint_id}"',
                         "comparison": "COMPARISON_GREATER_THAN",
                         "thresholdValue": 0.05,  # 5% error rate
                         "duration": "300s"
@@ -433,7 +433,7 @@ CMD ["python", "predict.py"]
                 {
                     "displayName": "High Latency",
                     "conditionThreshold": {
-                        "filter": f'resource.type="aiplatform.googleapis.com/Endpoint" AND resource.labels.endpoint_id="{endpoint_id}"',
+                        "filter": "resource.type="aiplatform.googleapis.com/Endpoint" AND resource.labels.endpoint_id="{endpoint_id}"',
                         "comparison": "COMPARISON_GREATER_THAN",
                         "thresholdValue": 5000,  # 5 seconds
                         "duration": "300s"
@@ -649,8 +649,8 @@ CMD ["python", "predict.py"]
 
         # Sort by deployment time and keep only the latest versions
         sorted_deployments = sorted(
-            self.deployment_history, 
-            key=lambda x: x["deployed_at"], 
+            self.deployment_history,
+            key=lambda x: x["deployed_at"],
             reverse=True
         )
 
@@ -665,10 +665,10 @@ CMD ["python", "predict.py"]
                     '--model', deployment["model_id"]
                 ], check=True)
 
-                print(f"✅ Deleted model version: {deployment['version']}")
+                print("✅ Deleted model version: {deployment["version']}")
 
             except subprocess.CalledProcessError as e:
-                logger.warning(f"Could not delete model {deployment['version']}: {e}")
+                logger.warning("Could not delete model {deployment["version']}: {e}")
 
     def run_full_deployment(self) -> bool:
         """Run the complete Phase 4 deployment process."""
@@ -749,7 +749,7 @@ def main():
 
     # Get project ID
     try:
-        result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], 
+        result = subprocess.run(['gcloud', 'config', 'get-value', 'project'],
                               capture_output=True, text=True, check=True)
         project_id = result.stdout.strip()
     except Exception:
@@ -790,4 +790,4 @@ def main():
         sys.exit(1)
 
 if __name__ == "__main__":
-    main() 
+    main()

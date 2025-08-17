@@ -7,7 +7,7 @@ import json
 
 def create_final_bulletproof_notebook():
     """Create a Colab notebook that handles all dependency and path issues"""
-    
+
     notebook = {
         "cells": [
             {
@@ -175,9 +175,16 @@ def create_final_bulletproof_notebook():
                     "from sklearn.preprocessing import LabelEncoder\n",
                     "from torch.utils.data import Dataset, DataLoader\n",
                     "import torch\n",
-                    "from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer\n",
+                    "from transformers import                    "from transformers import AutoTokenizer,
+                         AutoModelForSequenceClassification,
+                         TrainingArguments,
+                         Trainer\n",
+                        
                     "import numpy as np\n",
-                    "from sklearn.metrics import f1_score, accuracy_score, classification_report\n",
+                    "from sklearn.metrics import                    "from sklearn.metrics import f1_score,
+                         accuracy_score,
+                         classification_report\n",
+                        
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",
@@ -280,14 +287,14 @@ def create_final_bulletproof_notebook():
                     "    'excitement': 'excited',\n",
                     "    'fear': 'anxious',\n",
                     "    'gratitude': 'grateful',\n",
-                    "    'grief': 'sad',\n",
+                    "    'grie": "sad',\n",
                     "    'joy': 'happy',\n",
                     "    'love': 'content',\n",
                     "    'nervousness': 'anxious',\n",
                     "    'optimism': 'hopeful',\n",
                     "    'pride': 'proud',\n",
                     "    'realization': 'content',\n",
-                    "    'relief': 'calm',\n",
+                    "    'relie": "calm',\n",
                     "    'remorse': 'sad',\n",
                     "    'sadness': 'sad',\n",
                     "    'surprise': 'excited',\n",
@@ -712,12 +719,12 @@ def create_final_bulletproof_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     # Save notebook
     output_path = 'notebooks/expanded_dataset_training_final.ipynb'
     with open(output_path, 'w') as f:
         json.dump(notebook, f, indent=2)
-    
+
     print(f"✅ Created final bulletproof notebook: {output_path}")
     print("🔧 All issues fixed:")
     print("   - Fixed NumPy installation command (removed extra quotes)")
@@ -733,4 +740,4 @@ def create_final_bulletproof_notebook():
     print("\n🎯 This should work perfectly now!")
 
 if __name__ == "__main__":
-    create_final_bulletproof_notebook() 
+    create_final_bulletproof_notebook()

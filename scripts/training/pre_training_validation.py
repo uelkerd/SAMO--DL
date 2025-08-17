@@ -25,30 +25,30 @@
             # Validate first batch
             # Validate labels
             # Validate outputs
+import logging
+            import shutil
+import sys
+# Add src to path
+# Configure logging
+        # Critical issues
+    # Exit with appropriate code
+        # Final recommendation
+    # Generate report
+    # Run all validations
+        # Summary
+        # Warnings
+#!/usr/bin/env python3
+import numpy as np
+            import pandas as pd
+            import torch
+import torch
+            import transformers
+# Import torch early for validation
+from pathlib import Path
             from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
             from src.models.emotion_detection.dataset_loader import create_goemotions_loader
             from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
             from torch.optim import AdamW
-            import pandas as pd
-            import shutil
-            import torch
-            import transformers
-        # Critical issues
-        # Final recommendation
-        # Summary
-        # Warnings
-    # Exit with appropriate code
-    # Generate report
-    # Run all validations
-# Add src to path
-# Configure logging
-# Import torch early for validation
-#!/usr/bin/env python3
-from pathlib import Path
-import logging
-import numpy as np
-import sys
-import torch
 
 
 

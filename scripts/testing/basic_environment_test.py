@@ -56,7 +56,7 @@ def main():
             logging.info("\n🚨 STOPPED: {description} caused KeyboardInterrupt")
             break
 
-    logging.info(f"\n{'=' * 50}")
+    logging.info("\n{"=' * 50}")
     logging.info("📊 TEST SUMMARY:")
     working = sum(results)
     total = len(results)

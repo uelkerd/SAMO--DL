@@ -36,7 +36,7 @@ except Exception as e:
 try:
     print("4. Testing API methods...")
     print(f"API type: {type(api)}")
-    print(f"Has errorhandler: {'errorhandler' in dir(api)}")
+    print("Has errorhandler: {"errorhandler' in dir(api)}")
     print(f"errorhandler type: {type(api.errorhandler)}")
     print("✅ API methods check successful")
 except Exception as e:
@@ -52,4 +52,4 @@ except Exception as e:
     print(f"Error type: {type(e)}")
     exit(1)
 
-print("🎉 All tests passed!") 
+print("🎉 All tests passed!")

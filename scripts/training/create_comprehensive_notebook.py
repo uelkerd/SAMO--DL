@@ -11,7 +11,7 @@ import json
 
 def create_comprehensive_notebook():
     """Create a comprehensive notebook with all advanced features."""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -53,9 +53,20 @@ def create_comprehensive_notebook():
                     "import torch\n",
                     "import numpy as np\n",
                     "import pandas as pd\n",
-                    "from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer, DataCollatorWithPadding\n",
+                    "from transformers import                    "from transformers import AutoTokenizer,
+                         AutoModelForSequenceClassification,
+                         TrainingArguments,
+                         Trainer,
+                         DataCollatorWithPadding\n",
+                        
                     "from sklearn.model_selection import train_test_split\n",
-                    "from sklearn.metrics import classification_report, confusion_matrix, f1_score, accuracy_score, precision_score, recall_score\n",
+                    "from sklearn.metrics import                    "from sklearn.metrics import classification_report,
+                         confusion_matrix,
+                         f1_score,
+                         accuracy_score,
+                         precision_score,
+                         recall_score\n",
+                        
                     "from sklearn.utils.class_weight import compute_class_weight\n",
                     "import json\n",
                     "import warnings\n",
@@ -582,12 +593,12 @@ def create_comprehensive_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     # Save the notebook
     output_path = "notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb"
     with open(output_path, 'w') as f:
         json.dump(notebook_content, f, indent=2)
-    
+
     print(f"✅ Created comprehensive notebook: {output_path}")
     print("📋 Features included:")
     print("   ✅ Comprehensive dataset (240 base + augmentation)")
@@ -596,8 +607,8 @@ def create_comprehensive_notebook():
     print("   ✅ Model architecture fixes")
     print("   ✅ All advanced features (to be added)")
     print("\\n🚀 This will be a full-featured notebook!")
-    
+
     return output_path
 
 if __name__ == "__main__":
-    create_comprehensive_notebook() 
+    create_comprehensive_notebook()

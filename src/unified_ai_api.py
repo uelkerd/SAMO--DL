@@ -380,7 +380,7 @@ def require_permission(permission: str):
         if permission not in current_user.permissions:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Permission '{permission}' required"
+                detail="Permission "{permission}' required"
             )
         return current_user
     return permission_checker
@@ -718,7 +718,7 @@ def _get_request_scoped_summarizer(model: str):
             raise HTTPException(
                 status_code=400,
                 detail=(
-                    f"Requested summarizer model '{model}' unavailable"
+                    "Requested summarizer model "{model}' unavailable"
                 ),
             ) from exc
     return text_summarizer

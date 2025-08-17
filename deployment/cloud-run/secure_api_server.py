@@ -5,12 +5,12 @@
 Production-ready Flask API with comprehensive security features and Swagger documentation.
 """
 
-import os
-import time
-import logging
-import uuid
-import threading
 import hmac
+import logging
+import os
+import threading
+import time
+import uuid
 from flask import Flask, request, jsonify, g
 from flask_restx import Api, Resource, fields, Namespace
 from functools import wraps
@@ -22,7 +22,7 @@ from rate_limiter import rate_limit
 # Import shared model utilities
 from model_utils import (
     ensure_model_loaded, predict_emotions, get_model_status,
-    validate_text_input, 
+    validate_text_input,
 )
 
 # Configure logging for Cloud Run
@@ -219,17 +219,17 @@ def before_request():
     """Add request ID and timing to all requests"""
     g.start_time = time.time()
     g.request_id = str(uuid.uuid4())
-    
+
     # Lazy model initialization on first request
     if not check_model_loaded():
         logger.info("🔄 Lazy initializing model on first request...")
         initialize_model()
-    
+
     # Log incoming requests for debugging
     logger.info(f"📥 Request: {request.method} {request.path} from {request.remote_addr} (ID: {g.request_id})")
-    
+
     # Log request headers for debugging (excluding sensitive ones)
-    headers_to_log = {k: v for k, v in request.headers.items() 
+    headers_to_log = {k: v for k, v in request.headers.items()
                       if k.lower() not in ['authorization', 'x-api-key', 'cookie']}
     logger.debug(f"📋 Request headers: {headers_to_log}")
 
@@ -241,11 +241,11 @@ def after_request(response):
         response.headers['X-Request-Duration'] = str(duration)
     if hasattr(g, 'request_id'):
         response.headers['X-Request-ID'] = g.request_id
-    
+
     # Log response for debugging
     logger.info(f"📤 Response: {response.status_code} for {request.method} {request.path} "
                 f"from {request.remote_addr} (ID: {g.request_id}, Duration: {duration:.3f}s)")
-    
+
     return response
 
 
@@ -261,7 +261,7 @@ class Health(Resource):
         try:
             logger.info(f"Health check from {request.remote_addr}")
             model_status = check_model_loaded()
-            
+
             if model_status:
                 logger.info("Health check passed - model is ready")
                 return {
@@ -274,7 +274,7 @@ class Health(Resource):
             else:
                 logger.warning("Health check failed - model not ready")
                 return create_error_response('Service unavailable - model not ready', 503)
-                
+
         except Exception as e:
             logger.error(f"Health check error for {request.remote_addr}: {str(e)}")
             return create_error_response('Internal server error', 500)
@@ -295,7 +295,7 @@ class Predict(Resource):
         try:
             # Log rate limiting info for debugging
             log_rate_limit_info()
-            
+
             # Get and validate input
             data = request.get_json()
             if not data or 'text' not in data:
@@ -344,7 +344,7 @@ class PredictBatch(Resource):
         try:
             # Log rate limiting info for debugging
             log_rate_limit_info()
-            
+
             # Get and validate input
             data = request.get_json()
             if not data or 'texts' not in data:
@@ -371,7 +371,7 @@ class PredictBatch(Resource):
             for text in texts:
                 if not text or not isinstance(text, str):
                     continue
-                
+
                 try:
                     text = sanitize_input(text)
                     result = predict_emotion(text)
@@ -484,16 +484,16 @@ def initialize_model():
     try:
         logger.info("🚀 Initializing emotion detection API server...")
         logger.info(f"📊 Configuration: MAX_INPUT_LENGTH={MAX_INPUT_LENGTH}, RATE_LIMIT={RATE_LIMIT_PER_MINUTE}/min")
-        logger.info(f"🔐 Security: API key protection enabled, Admin API key configured")
+        logger.info("🔐 Security: API key protection enabled, Admin API key configured")
         logger.info(f"🌐 Server: Port {PORT}, Model path: {MODEL_PATH}")
         logger.info(f"🔄 Rate limiting: {RATE_LIMIT_PER_MINUTE} requests per minute")
-        
+
         # Load the emotion detection model
         logger.info("🔄 Loading emotion detection model...")
         load_model()
         logger.info("✅ Model initialization completed successfully")
         logger.info("🚀 API server ready to handle requests")
-        
+
     except Exception as e:
         logger.error(f"❌ Failed to initialize API server: {str(e)}")
         raise

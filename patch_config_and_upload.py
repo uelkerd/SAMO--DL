@@ -1,8 +1,8 @@
 # patch_config_and_upload.py
 # pip install -U transformers huggingface_hub
 import os, json, tempfile
-from transformers import AutoConfig
 from huggingface_hub import HfApi, HfFolder
+from transformers import AutoConfig
 
 MODEL_ID = os.getenv("MODEL_ID", "0xmnrv/samo")
 
@@ -18,8 +18,8 @@ if not TOKEN:
 new_labels = [
     "admiration","amusement","anger","annoyance","approval","caring","confusion",
     "curiosity","desire","disappointment","disapproval","disgust","embarrassment",
-    "excitement","fear","gratitude","grief","joy","love","nervousness","optimism",
-    "pride","realization","relief","remorse","sadness","surprise","neutral"
+    "excitement","fear","gratitude","grie","joy","love","nervousness","optimism",
+    "pride","realization","relie","remorse","sadness","surprise","neutral"
 ]
 
 print("Token configured successfully")
@@ -27,14 +27,14 @@ print(f"Model ID: {MODEL_ID}")
 
 # Load current config
 cfg = AutoConfig.from_pretrained(MODEL_ID, token=TOKEN)
-print(f"Current model has {getattr(cfg, 'num_labels', 'unknown')} labels")
+print("Current model has {getattr(cfg, "num_labels', 'unknown')} labels")
 
 # Check if labels need updating
 if hasattr(cfg, 'id2label') and cfg.id2label:
     print("Current labels:")
     for i, label in cfg.id2label.items():
         print(f"  {i}: {label}")
-    
+
     print(f"\nNew labels ({len(new_labels)} total):")
     for i, label in enumerate(new_labels):
         print(f"  {i}: {label}")
@@ -51,7 +51,7 @@ print(f"\nUpdated config: num_labels={cfg.num_labels}")
 with tempfile.TemporaryDirectory() as tmpdir:
     cfg.save_pretrained(tmpdir)
     path = os.path.join(tmpdir, "config.json")
-    
+
     api = HfApi()
     try:
         api.upload_file(

@@ -55,7 +55,7 @@ except ImportError:
             return f"{value}[{slice_str}]"
         if isinstance(node, ast.Tuple):
             elts = [ast_to_source(elt) for elt in node.elts]
-            return f"({', '.join(elts)})"
+            return "({", '.join(elts)})"
         if isinstance(node, ast.Constant):
             if node.value is None:
                 return "None"
@@ -206,7 +206,7 @@ def _log_changes(visitor: TypeHintVisitor, verbose: bool) -> None:
         new_code = ast_to_source(change['new'])
 
         if verbose:
-            print(f"    {change['type'].title()}: {old_code} -> {new_code}")
+            print("    {change["type'].title()}: {old_code} -> {new_code}")
 
 
 def _add_typing_imports_to_lines(lines: List[str], imports_to_add: set) -> None:
@@ -244,12 +244,12 @@ def _add_typing_imports_to_lines(lines: List[str], imports_to_add: set) -> None:
         # Add new typing import after last import
         if last_import_line >= 0:
             import_line = (
-                f"from typing import {', '.join(sorted(imports_to_add))}"
+                "from typing import {", '.join(sorted(imports_to_add))}"
             )
             lines.insert(last_import_line + 1, import_line)
         else:
             import_line = (
-                f"from typing import {', '.join(sorted(imports_to_add))}"
+                "from typing import {", '.join(sorted(imports_to_add))}"
             )
             lines.insert(0, import_line)
 
@@ -356,16 +356,16 @@ def _process_single_file(file_path: Path, dry_run: bool, verbose: bool) -> Dict[
     if result['status'] == 'success' and result['changes'] > 0:
         if verbose:
             print(
-                f"  ✅ {result['changes']} changes, "
-                f"imports: {result['imports_added']}"
+                "  ✅ {result["changes']} changes, "
+                "imports: {result["imports_added']}"
             )
     elif result['status'] == 'no_changes':
         if verbose:
             print("  ⏭️  No changes needed")
     elif result['status'] == 'error':
-        print(f"  ❌ Error: {result['error']}")
+        print("  ❌ Error: {result["error']}")
     elif result['status'] == 'syntax_error':
-        print(f"  ⚠️  Syntax error: {result['error']}")
+        print("  ⚠️  Syntax error: {result["error']}")
 
     if verbose:
         print()
@@ -394,12 +394,12 @@ def _print_summary(results: List[Dict[str, Any]], total_changes: int, dry_run: b
     if errors:
         print("\nFiles with errors:")
         for result in errors:
-            print(f"  {result['file']}: {result['error']}")
+            print("  {result["file']}: {result['error']}")
 
     if syntax_errors:
         print("\nFiles with syntax errors:")
         for result in syntax_errors:
-            print(f"  {result['file']}: {result['error']}")
+            print("  {result["file']}: {result['error']}")
 
     if dry_run and total_changes > 0:
         print("\nTo apply these changes, run without --dry-run")

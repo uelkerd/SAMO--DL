@@ -19,26 +19,26 @@
         # Scenario 1: Mixed labels
         # Test different scenarios
         # Test forward pass
-        from src.models.emotion_detection.bert_classifier import WeightedBCELoss
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+import logging
+import sys
+# Add src to path
+# Configure logging
+    # Run all validations
+    # Run validations
+    # Summary
+#!/usr/bin/env python3
+import numpy as np
         import pandas as pd
         import torch
         import torch
         import torch
         import torch.nn.functional as F
         import transformers
-    # Run all validations
-    # Run validations
-    # Summary
-# Add src to path
-# Configure logging
-#!/usr/bin/env python3
 from pathlib import Path
-import logging
-import numpy as np
-import sys
+        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+        from src.models.emotion_detection.bert_classifier import WeightedBCELoss
+        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 
 
 

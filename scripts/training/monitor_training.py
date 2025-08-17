@@ -14,14 +14,14 @@
     # Training time analysis
 # Add src to path for imports
 #!/usr/bin/env python3
-from datetime import datetime
-from pathlib import Path
-from typing import Optional
 import json
 import logging
 import matplotlib.pyplot as plt
-import numpy as np
 import sys
+import numpy as np
+from datetime import datetime
+from pathlib import Path
+from typing import Optional
 
 
 
@@ -109,14 +109,14 @@ def generate_training_report(analysis: dict) -> str:
     report.append("=" * 60)
     report.append("🧠 SAMO Emotion Detection Training Report")
     report.append("=" * 60)
-    report.append(f"📅 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    report.append("📅 Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S')}")
     report.append("")
 
     report.append("📊 TRAINING PROGRESS")
     report.append("-" * 30)
-    report.append(f"Total Epochs: {analysis['total_epochs']}")
-    report.append(f"Latest Epoch: {analysis['latest_epoch']}")
-    report.append(f"Convergence Status: {analysis['convergence_status'].upper()}")
+    report.append("Total Epochs: {analysis["total_epochs']}")
+    report.append("Latest Epoch: {analysis["latest_epoch']}")
+    report.append("Convergence Status: {analysis["convergence_status'].upper()}")
     report.append("")
 
     if analysis["loss_progress"]:
@@ -134,7 +134,7 @@ def generate_training_report(analysis: dict) -> str:
             latest_f1 = analysis["f1_progress"][-1]
             report.append(f"Latest F1 Score: {latest_f1:.4f}")
 
-        report.append(f"Average Epoch Time: {analysis['avg_epoch_time_minutes']:.1f} minutes")
+        report.append("Average Epoch Time: {analysis["avg_epoch_time_minutes']:.1f} minutes")
         report.append("")
 
     report.append("💡 RECOMMENDATIONS")
@@ -255,10 +255,10 @@ def main():
     logging.info("\n📈 Generating training curves...")
     plots_dir = Path("logs/plots")
     plots_dir.mkdir(exist_ok=True)
-    plot_path = plots_dir / f"training_curves_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+    plot_path = plots_dir / "training_curves_{datetime.now().strftime("%Y%m%d_%H%M%S')}.png"
     plot_training_curves(history, str(plot_path))
 
-    report_path = plots_dir / f"training_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+    report_path = plots_dir / "training_report_{datetime.now().strftime("%Y%m%d_%H%M%S')}.txt"
     with open(report_path, 'w') as f:
         f.write(report)
 

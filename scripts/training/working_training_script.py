@@ -6,17 +6,17 @@
         # Step 2: Create optimizer with reduced learning rate
         # Step 3: Test forward pass (this worked in validation)
         # Step 4: Simple training loop with dummy data
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+import logging
+import sys
         import traceback
+import traceback
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
-import logging
-import sys
 import torch
 import torch.nn as nn
-import traceback
+from pathlib import Path
+        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
 
 

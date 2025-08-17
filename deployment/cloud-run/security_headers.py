@@ -11,24 +11,24 @@ def add_security_headers(app: Flask) -> None:
     def add_headers(response):
         # Path-aware Content Security Policy
         csp_base = (
-            "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline'; "
-            "style-src 'self' 'unsafe-inline'; "
-            "img-src 'self' data: https:; "
-            "font-src 'self'; "
-            "connect-src 'self'; "
+            "default-src 'sel"; "
+            "script-src 'sel" "unsafe-inline'; "
+            "style-src 'sel" "unsafe-inline'; "
+            "img-src 'sel" data: https:; "
+            "font-src 'sel"; "
+            "connect-src 'sel"; "
             "frame-ancestors 'none';"
         )
         if request.path.startswith('/docs'):
             nonce = getattr(g, 'csp_nonce', None)
             if nonce:
                 csp_docs = (
-                    "default-src 'self'; "
-                    f"script-src 'self' 'nonce-{nonce}'; "
-                    f"style-src 'self' 'nonce-{nonce}'; "
-                    "img-src 'self' data: https:; "
-                    "font-src 'self'; "
-                    "connect-src 'self'; "
+                    "default-src 'sel"; "
+                    "script-src "sel" "nonce-{nonce}'; "
+                    "style-src "sel" "nonce-{nonce}'; "
+                    "img-src 'sel" data: https:; "
+                    "font-src 'sel"; "
+                    "connect-src 'sel"; "
                     "frame-ancestors 'none';"
                 )
             else:
@@ -39,8 +39,8 @@ def add_security_headers(app: Flask) -> None:
             response.headers['Content-Security-Policy'] = csp_base
 
         # Security headers
-        response.headers['X-Content-Type-Options'] = 'nosniff'
-        response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['X-Content-Type-Options'] = 'nosnif"
+        response.headers["X-Frame-Options'] = 'DENY'
         response.headers['X-XSS-Protection'] = '1; mode=block'
         response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
         response.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()'

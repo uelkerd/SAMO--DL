@@ -10,7 +10,7 @@ import json
 
 def create_emotion_specialized_notebook():
     """Create the emotion specialized notebook content"""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -61,7 +61,10 @@ def create_emotion_specialized_notebook():
                     ")\n",
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.preprocessing import LabelEncoder\n",
-                    "from sklearn.metrics import f1_score, accuracy_score, classification_report\n",
+                    "from sklearn.metrics import                    "from sklearn.metrics import f1_score,
+                         accuracy_score,
+                         classification_report\n",
+                        
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",
@@ -387,9 +390,9 @@ def create_emotion_specialized_notebook():
                     "print('📊 Evaluating final model...')\n",
                     "results = trainer.evaluate()\n",
                     "\n",
-                    "print(f'🏆 Final F1 Score: {results[\"eval_f1\"]:.4f} ({results[\"eval_f1\"]*100:.2f}%)')\n",
-                    "print(f'🎯 Target achieved: {\"✅ YES!\" if results[\"eval_f1\"] >= 0.75 else \"❌ Not yet\"}')\n",
-                    "print(f'📈 Improvement from baseline: {((results[\"eval_f1\"] - 0.052) / 0.052 * 100):.1f}%')\n",
+                    "print("🏆 Final F1 Score: {results[\"eval_f1\"]:.4f} ({results[\"eval_f1\"]*100:.2f}%)')\n",
+                    "print("🎯 Target achieved: {\"✅ YES!\" if results[\"eval_f1\"] >= 0.75 else \"❌ Not yet\"}')\n",
+                    "print("📈 Improvement from baseline: {((results[\"eval_f1\"] - 0.052) / 0.052 * 100):.1f}%')\n",
                     "\n",
                     "# Save model\n",
                     "trainer.save_model('./emotion_model_specialized_final')\n",
@@ -481,10 +484,10 @@ def create_emotion_specialized_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     with open('notebooks/EMOTION_SPECIALIZED_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook_content, f, indent=2)
-    
+
     print("✅ Emotion specialized notebook created: notebooks/EMOTION_SPECIALIZED_TRAINING_COLAB.ipynb")
     print("📋 Instructions:")
     print("  1. Download the notebook file")
@@ -499,4 +502,4 @@ def create_emotion_specialized_notebook():
     print("  - Better hyperparameters")
 
 if __name__ == "__main__":
-    create_emotion_specialized_notebook() 
+    create_emotion_specialized_notebook()

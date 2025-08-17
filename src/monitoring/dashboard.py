@@ -13,10 +13,10 @@ import asyncio
 import json
 import logging
 import time
+from collections import defaultdict, deque
+from dataclasses import dataclass, asdict
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, asdict
-from collections import defaultdict, deque
 
 import psutil
 
