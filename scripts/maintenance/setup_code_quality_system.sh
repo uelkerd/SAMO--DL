@@ -59,16 +59,10 @@ else
 fi
 
 # Install additional quality tools
-print_status "Installing code quality tools..."
+print_status "Installing development and code quality tools..."
 
-# Core formatting and linting tools
-pip install black isort ruff mypy
-
-# Security scanning tools
-pip install bandit safety
-
-# Documentation and string formatting tools
-pip install docformatter flynt
+# Install from pyproject.toml for consistent dependency management
+pip install .[dev]
 
 print_success "All code quality tools installed successfully"
 
