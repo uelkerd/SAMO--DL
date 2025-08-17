@@ -10,7 +10,6 @@ import os
 import pytest
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, Mock
 
 from tests.test_utils import (
     create_temp_audio_file,
@@ -25,7 +24,8 @@ from tests.test_utils import (
 class TestCreateTempAudioFile:
     """Test audio file creation utility."""
     
-    def test_create_temp_audio_file_success(self):
+    @staticmethod
+    def test_create_temp_audio_file_success():
         """Test successful audio file creation."""
         temp_file = create_temp_audio_file(duration=1.0, sample_rate=8000)
         
@@ -36,7 +36,8 @@ class TestCreateTempAudioFile:
         # Cleanup
         temp_file.unlink()
     
-    def test_create_temp_audio_file_invalid_duration(self):
+    @staticmethod
+    def test_create_temp_audio_file_invalid_duration():
         """Test error handling for invalid duration."""
         with pytest.raises(ValueError, match="Duration must be positive"):
             create_temp_audio_file(duration=-1.0, sample_rate=16000)
@@ -44,7 +45,8 @@ class TestCreateTempAudioFile:
         with pytest.raises(ValueError, match="Duration must be positive"):
             create_temp_audio_file(duration=0.0, sample_rate=16000)
     
-    def test_create_temp_audio_file_invalid_sample_rate(self):
+    @staticmethod
+    def test_create_temp_audio_file_invalid_sample_rate():
         """Test error handling for invalid sample rate."""
         with pytest.raises(ValueError, match="Sample rate must be positive"):
             create_temp_audio_file(duration=1.0, sample_rate=0)
@@ -52,7 +54,8 @@ class TestCreateTempAudioFile:
         with pytest.raises(ValueError, match="Sample rate must be positive"):
             create_temp_audio_file(duration=1.0, sample_rate=-8000)
     
-    def test_create_temp_audio_file_cleanup_error(self):
+    @staticmethod
+    def test_create_temp_audio_file_cleanup_error():
         """Test cleanup error handling."""
         temp_file = create_temp_audio_file(duration=0.5, sample_rate=8000)
         
@@ -71,7 +74,8 @@ class TestCreateTempAudioFile:
 class TestCreateTempJsonFile:
     """Test JSON file creation utility."""
     
-    def test_create_temp_json_file_success(self):
+    @staticmethod
+    def test_create_temp_json_file_success():
         """Test successful JSON file creation."""
         test_data = {"key": "value", "number": 42}
         temp_file = create_temp_json_file(test_data)
@@ -88,7 +92,8 @@ class TestCreateTempJsonFile:
         # Cleanup
         temp_file.unlink()
     
-    def test_create_temp_json_file_empty_data(self):
+    @staticmethod
+    def test_create_temp_json_file_empty_data():
         """Test JSON file creation with empty data."""
         temp_file = create_temp_json_file({})
         
@@ -102,7 +107,8 @@ class TestCreateTempJsonFile:
 class TestCreateSampleTextData:
     """Test sample text data creation utility."""
     
-    def test_create_sample_text_data_default(self):
+    @staticmethod
+    def test_create_sample_text_data_default():
         """Test default sample data creation."""
         data = create_sample_text_data()
         
@@ -113,7 +119,8 @@ class TestCreateSampleTextData:
         assert all('user_id' in item for item in data)
         assert all('is_private' in item for item in data)
     
-    def test_create_sample_text_data_custom_count(self):
+    @staticmethod
+    def test_create_sample_text_data_custom_count():
         """Test sample data creation with custom count."""
         data = create_sample_text_data(num_samples=3)
         
@@ -122,7 +129,8 @@ class TestCreateSampleTextData:
         assert data[1]['id'] == 1
         assert data[2]['id'] == 2
     
-    def test_create_sample_text_data_zero_count(self):
+    @staticmethod
+    def test_create_sample_text_data_zero_count():
         """Test sample data creation with zero count."""
         data = create_sample_text_data(num_samples=0)
         
@@ -133,7 +141,8 @@ class TestCreateSampleTextData:
 class TestAssertDictStructure:
     """Test dictionary structure validation utility."""
     
-    def test_assert_dict_structure_success(self):
+    @staticmethod
+    def test_assert_dict_structure_success():
         """Test successful structure validation."""
         data = {"a": 1, "b": 2, "c": 3}
         expected_keys = ["a", "b", "c"]
@@ -141,7 +150,8 @@ class TestAssertDictStructure:
         # Should not raise any exception
         assert_dict_structure(data, expected_keys)
     
-    def test_assert_dict_structure_missing_keys(self):
+    @staticmethod
+    def test_assert_dict_structure_missing_keys():
         """Test structure validation with missing keys."""
         data = {"a": 1, "b": 2}
         expected_keys = ["a", "b", "c"]
@@ -149,7 +159,8 @@ class TestAssertDictStructure:
         with pytest.raises(AssertionError, match="Missing expected keys"):
             assert_dict_structure(data, expected_keys)
     
-    def test_assert_dict_structure_extra_keys(self):
+    @staticmethod
+    def test_assert_dict_structure_extra_keys():
         """Test structure validation with extra keys."""
         data = {"a": 1, "b": 2, "c": 3, "d": 4}
         expected_keys = ["a", "b", "c"]
@@ -157,7 +168,8 @@ class TestAssertDictStructure:
         with pytest.raises(AssertionError, match="Unexpected extra keys"):
             assert_dict_structure(data, expected_keys)
     
-    def test_assert_dict_structure_empty_expected(self):
+    @staticmethod
+    def test_assert_dict_structure_empty_expected():
         """Test structure validation with empty expected keys."""
         data = {"a": 1, "b": 2}
         expected_keys = []
@@ -169,7 +181,8 @@ class TestAssertDictStructure:
 class TestCleanupTempFiles:
     """Test temporary file cleanup utility."""
     
-    def test_cleanup_temp_files_success(self):
+    @staticmethod
+    def test_cleanup_temp_files_success():
         """Test successful file cleanup."""
         # Create temporary files
         temp_files = []
@@ -187,14 +200,16 @@ class TestCleanupTempFiles:
         # Verify files are gone
         assert not any(f.exists() for f in temp_files)
     
-    def test_cleanup_temp_files_nonexistent(self):
+    @staticmethod
+    def test_cleanup_temp_files_nonexistent():
         """Test cleanup with nonexistent files."""
         nonexistent_files = [Path("/nonexistent/file1"), Path("/nonexistent/file2")]
         
         # Should not raise any exception
         cleanup_temp_files(nonexistent_files)
     
-    def test_cleanup_temp_files_empty_list(self):
+    @staticmethod
+    def test_cleanup_temp_files_empty_list():
         """Test cleanup with empty list."""
         # Should not raise any exception
         cleanup_temp_files([])
@@ -203,7 +218,8 @@ class TestCleanupTempFiles:
 class TestCreateMockResponse:
     """Test mock response creation utility."""
     
-    def test_create_mock_response_default(self):
+    @staticmethod
+    def test_create_mock_response_default():
         """Test default mock response creation."""
         response = create_mock_response()
         
@@ -212,14 +228,16 @@ class TestCreateMockResponse:
         assert response["headers"]["Content-Type"] == "application/json"
         assert response["success"] is True
     
-    def test_create_mock_response_custom_status(self):
+    @staticmethod
+    def test_create_mock_response_custom_status():
         """Test mock response with custom status code."""
         response = create_mock_response(status_code=404)
         
         assert response["status_code"] == 404
         assert response["success"] is False
     
-    def test_create_mock_response_custom_data(self):
+    @staticmethod
+    def test_create_mock_response_custom_data():
         """Test mock response with custom data."""
         custom_data = {"error": "Not found"}
         response = create_mock_response(status_code=404, data=custom_data)
@@ -227,7 +245,8 @@ class TestCreateMockResponse:
         assert response["data"] == custom_data
         assert response["success"] is False
     
-    def test_create_mock_response_success_codes(self):
+    @staticmethod
+    def test_create_mock_response_success_codes():
         """Test success flag for different status codes."""
         # Success codes
         assert create_mock_response(200)["success"] is True
