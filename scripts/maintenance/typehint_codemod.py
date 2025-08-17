@@ -256,7 +256,7 @@ def process_file(
                     if line.strip().startswith('from typing import'):
                         typing_import_found = True
                         last_import_line = i
-                    elif (line.strip().startswith('import ') or 
+                    elif (line.strip().startswith('import ') or
                           line.strip().startswith('from ')):
                         last_import_line = i
 
