@@ -7,7 +7,7 @@ Keeps scope small and focused on common training tasks.
 """
 import logging
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Dict, List
 import json
 
 
@@ -58,7 +58,7 @@ def setup_training_logging(log_file: str = "training.log") -> logging.Logger:
     return logger
 
 
-def save_training_config(config: dict[str, Any], output_dir: str) -> Path:
+def save_training_config(config: Dict[str, Any], output_dir: str) -> Path:
     """Save training configuration to JSON file.
 
     Args:
@@ -78,7 +78,7 @@ def save_training_config(config: dict[str, Any], output_dir: str) -> Path:
     return config_file
 
 
-def load_training_config(config_file: str) -> dict[str, Any]:
+def load_training_config(config_file: str) -> Dict[str, Any]:
     """Load training configuration from JSON file.
 
     Args:
@@ -113,7 +113,7 @@ def load_training_config(config_file: str) -> dict[str, Any]:
     return config
 
 
-def create_output_dirs(base_dir: str, experiment_name: str) -> dict[str, Path]:
+def create_output_dirs(base_dir: str, experiment_name: str) -> Dict[str, Path]:
     """Create standard output directory structure for training.
 
     Args:
@@ -140,7 +140,7 @@ def create_output_dirs(base_dir: str, experiment_name: str) -> dict[str, Path]:
     return dirs
 
 
-def get_gpu_info() -> dict[str, Any]:
+def get_gpu_info() -> Dict[str, Any]:
     """Get basic GPU information for training setup.
 
     Returns:
@@ -163,7 +163,7 @@ def get_gpu_info() -> dict[str, Any]:
 
 def validate_training_data(
     data_path: str,
-    expected_columns: list,
+    expected_columns: List[str],
     logger: Optional[logging.Logger] = None
 ) -> bool:
     """Basic validation of training data structure.
