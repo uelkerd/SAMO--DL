@@ -197,8 +197,7 @@ class CodeQualityEnforcer:
 
         # Check for f-strings without expressions
         if (
-            line.strip().startswith('f"')
-            or line.strip().startswith("f'")
+            (line.strip().startswith('f"') or line.strip().startswith("f'"))
             and not re.search(r'\{[^}]*\}', line)
         ):
             issues.append({
