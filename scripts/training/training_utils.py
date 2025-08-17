@@ -87,24 +87,24 @@ def load_training_config(config_file: str) -> Dict[str, Any]:
 
     Returns:
         Training configuration dictionary
-        
+
     Raises:
         ValueError: If config_file path is not safe
         FileNotFoundError: If config file doesn't exist
     """
     # Security: Validate file path to prevent path traversal attacks
     config_path = Path(config_file)
-    
+
     # Ensure path is safe (no parent directory traversal)
     if ".." in str(config_path) or config_path.is_absolute():
         raise ValueError(f"Invalid config file path: {config_file}")
-    
+
     # Ensure file exists and is a file
     if not config_path.exists():
         raise FileNotFoundError(f"Config file not found: {config_file}")
     if not config_path.is_file():
         raise ValueError(f"Path is not a file: {config_file}")
-    
+
     with open(config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
     return config
@@ -167,16 +167,16 @@ def validate_training_data(data_path: str, expected_columns: list, logger: Optio
         logger: Optional logger instance, falls back to root logger if not provided
     Returns:
         True if validation passes, False otherwise
-        
+
     Raises:
         ValueError: If data_path is not safe
     """
     # Use provided logger or fall back to root logger
     logger = logger or logging.getLogger(__name__)
-    
+
     # Security: Validate file path to prevent path traversal attacks
     data_path_obj = Path(data_path)
-    
+
     # Ensure path is safe (no parent directory traversal)
     if ".." in str(data_path_obj) or data_path_obj.is_absolute():
         raise ValueError(f"Invalid data file path: {data_path}")
