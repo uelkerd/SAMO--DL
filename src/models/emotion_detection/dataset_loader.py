@@ -19,6 +19,7 @@ from typing import Any, Dict, List, Union
 import numpy as np
 import torch
 from datasets import load_dataset
+from torch.utils.data import Dataset
 from transformers import AutoTokenizer
 
 # Configure logging
@@ -27,6 +28,55 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 from .labels import GOEMOTIONS_EMOTIONS, EMOTION_ID_TO_LABEL, EMOTION_LABEL_TO_ID
+
+
+class GoEmotionsDataset(Dataset):
+    """PyTorch Dataset for GoEmotions emotion classification."""
+
+    def __init__(
+        self,
+        texts: List[str],
+        labels: List[List[int]],
+        tokenizer: AutoTokenizer,
+        max_length: int = 512
+    ):
+        """Initialize the dataset.
+
+        Args:
+            texts: List of text strings
+            labels: List of label lists (multi-label)
+            tokenizer: BERT tokenizer
+            max_length: Maximum sequence length
+        """
+        self.texts = texts
+        self.labels = labels
+        self.tokenizer = tokenizer
+        self.max_length = max_length
+
+    def __len__(self) -> int:
+        return len(self.texts)
+
+    def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
+        text = self.texts[idx]
+        label = self.labels[idx]
+
+        # Tokenize text
+        encoding = self.tokenizer(
+            text,
+            truncation=True,
+            padding='max_length',
+            max_length=self.max_length,
+            return_tensors='pt'
+        )
+
+        # Convert label to tensor
+        label_tensor = torch.tensor(label, dtype=torch.float)
+
+        return {
+            'input_ids': encoding['input_ids'].squeeze(0),
+            'attention_mask': encoding['attention_mask'].squeeze(0),
+            'labels': label_tensor
+        }
 
 
 class GoEmotionsPreprocessor:
@@ -199,7 +249,10 @@ class GoEmotionsDataLoader:
         # Handle zero counts
         class_weights[emotion_counts == 0] = 1.0
 
-        logger.info(f"Computed class weights: min={class_weights.min():.3f}, max={class_weights.max():.3f}")
+        logger.info(
+            f"Computed class weights: min={class_weights.min():.3f}, "
+            f"max={class_weights.max():.3f}"
+        )
         return class_weights
 
     def create_train_val_test_splits(self) -> tuple:
@@ -227,7 +280,10 @@ class GoEmotionsDataLoader:
         val_data = val_test["train"]
         test_data = val_test["test"]
 
-        logger.info(f"Created splits - Train: {len(train_data)}, Val: {len(val_data)}, Test: {len(test_data)}")
+        logger.info(
+            f"Created splits - Train: {len(train_data)}, "
+            f"Val: {len(val_data)}, Test: {len(test_data)}"
+        )
 
         return train_data, val_data, test_data
 

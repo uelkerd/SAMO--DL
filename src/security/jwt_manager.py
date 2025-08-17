@@ -13,7 +13,7 @@ import logging
 import os
 import time
 from datetime import datetime, timedelta
-from typing import List, Optional, Union, Any
+from typing import Dict, List, Optional, Union, Any
 
 import jwt
 from pydantic import BaseModel, Field
@@ -52,9 +52,10 @@ class JWTManager:
     def __init__(self, secret_key: str = SECRET_KEY, algorithm: str = ALGORITHM):
         self.secret_key = secret_key
         self.algorithm = algorithm
-        self.blacklisted_tokens: dict = {}  # Changed to dict: {token: exp_datetime}
+        # Changed to dict: {token: exp_datetime}
+        self.blacklisted_tokens: dict = {}
 
-    def create_access_token(self, user_data: dict[str, Any]) -> str:
+    def create_access_token(self, user_data: Dict[str, Any]) -> str:
         """Create a new access token"""
         payload = {
             "user_id": user_data["user_id"],
@@ -66,7 +67,7 @@ class JWTManager:
         }
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
 
-    def create_refresh_token(self, user_data: dict[str, Any]) -> str:
+    def create_refresh_token(self, user_data: Dict[str, Any]) -> str:
         """Create a new refresh token"""
         payload = {
             "user_id": user_data["user_id"],
@@ -79,7 +80,7 @@ class JWTManager:
         }
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
 
-    def create_token_pair(self, user_data: dict[str, Any]) -> TokenResponse:
+    def create_token_pair(self, user_data: Dict[str, Any]) -> TokenResponse:
         """Create both access and refresh tokens and return as a TokenResponse model."""
         access_token = self.create_access_token(user_data)
         refresh_token = self.create_refresh_token(user_data)

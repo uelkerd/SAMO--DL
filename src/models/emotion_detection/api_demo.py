@@ -8,7 +8,7 @@ models and provides a preview of the API interface for Web Dev integration.
 import logging
 import time
 import traceback
-from typing import Optional
+from typing import List, Optional
 
 import torch
 import uvicorn
@@ -95,13 +95,13 @@ class EmotionResponse(BaseModel):
     confidence: float = Field(
         ..., description="Confidence score for primary emotion", ge=0.0, le=1.0, example=0.85
     )
-    predicted_emotions: list[str] = Field(
+    predicted_emotions: List[str] = Field(
         ..., description="Emotions above threshold", example=["joy", "gratitude", "optimism"]
     )
-    emotion_scores: list[float] = Field(
+    emotion_scores: List[float] = Field(
         ..., description="Scores for predicted emotions", example=[0.85, 0.72, 0.64]
     )
-    all_probabilities: list[float] = Field(
+    all_probabilities: List[float] = Field(
         ..., description="Probabilities for all emotions", example=[0.85, 0.72, 0.64, 0.0, 0.0]
     )
     processing_time_ms: float = Field(
@@ -323,7 +323,7 @@ async def analyze_emotion(
     description="Analyze emotions in multiple texts in a single request",
 )
 async def analyze_emotions_batch(
-    texts: list[str],
+    texts: List[str],
     threshold: float = 0.5,
     x_api_key: Optional[str] = Header(None, description="API key for authentication"),
 ):

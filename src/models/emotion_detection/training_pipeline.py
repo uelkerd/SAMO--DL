@@ -7,13 +7,16 @@ emotion detection model with advanced features like focal loss, temperature
 scaling, and ensemble methods.
 """
 
+import json
 import logging
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
 import torch.nn.functional as F
+from torch.optim import AdamW
 from torch.utils.data import DataLoader
 from transformers import (
     AutoTokenizer,
@@ -26,6 +29,7 @@ from .bert_classifier import (
 )
 from .dataset_loader import (
     create_goemotions_loader,
+    GoEmotionsDataset,
 )
 
 # Configure logging
@@ -49,7 +53,7 @@ class EmotionDetectionTrainer:
         warmup_steps: int = 500,
         weight_decay: float = 0.01,
         freeze_initial_layers: int = 6,
-        unfreeze_schedule: Optional[list[int]] = None,
+        unfreeze_schedule: Optional[List[int]] = None,
         save_best_only: bool = True,
         early_stopping_patience: int = 3,
         evaluation_strategy: str = "epoch",
@@ -639,8 +643,13 @@ def train_emotion_detection_model(
     return trainer.train()
 
 
-if __name__ == "__main__":
-
+def main():
+    """Main function to run emotion detection training."""
     results = train_emotion_detection_model(
         batch_size=8, num_epochs=1, output_dir="./test_checkpoints"
     )
+    return results
+
+
+if __name__ == "__main__":
+    main()
