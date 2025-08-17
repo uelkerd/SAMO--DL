@@ -7,6 +7,7 @@ Eliminates hardcoded values and provides consistent configuration across all tes
 import os
 import argparse
 import time
+import requests
 from typing import Optional
 
 
@@ -28,8 +29,8 @@ class TestConfig:
 
         # Check multiple environment variables for flexibility
         env_url = (os.environ.get("API_BASE_URL") or
-                      os.environ.get("CLOUD_RUN_API_URL") or
-                  os.environ.get("MODEL_API_BASE_URL"))
+                   os.environ.get("CLOUD_RUN_API_URL") or
+                   os.environ.get("MODEL_API_BASE_URL"))
         if env_url:
             return env_url
 
@@ -108,7 +109,6 @@ def get_test_config() -> TestConfig:
 
 def create_api_client():
     """Create a reusable API client with common functionality."""
-    import requests
     from requests.adapters import HTTPAdapter
     from urllib3.util.retry import Retry
 
