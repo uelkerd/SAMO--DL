@@ -1,4 +1,4 @@
-[![CircleCI](https://dl.circleci.com/status-badge/img/circleci/FSXowV52GpBGpAqYmKsFET/8tGsuAsXwe7SbvmqisuxA8/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/FSXowV52GpBGpAqYmKsFET/8tGsuAsXwe7SbvmqisuxA8/tree/main)
+[![CircleCI](https://dl.circleci.com/status-badge/img/circleci/FSXowV52GpBGpAqYmKsFET/8tGsuAsXwe7SbvmqisuxA8/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/FSXowV52GpBGpAqYmKsFET/8tGsuAsXwe7SbvmqisuxA8/tree/main)[![CodeScene Average Code Health](https://codescene.io/projects/70411/status-badges/average-code-health)](https://codescene.io/projects/70411)[![CodeScene Hotspot Code Health](https://codescene.io/projects/70411/status-badges/hotspot-code-health)](https://codescene.io/projects/70411)[![CodeScene System Mastery](https://codescene.io/projects/70411/status-badges/system-mastery)](https://codescene.io/projects/70411)[![CodeScene general](https://codescene.io/images/analyzed-by-codescene-badge.svg)](https://codescene.io/projects/70411)
 
 # SAMO Deep Learning - Production Emotion Detection API
 
