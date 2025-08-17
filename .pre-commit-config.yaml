@@ -1,0 +1,77 @@
+# Comprehensive Pre-commit Configuration for SAMO-DL
+# This will PREVENT code quality issues from being committed in the first place
+
+repos:
+  # 1. BLACK - Code formatting (prevents E501, W291, W292, W293)
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        language_version: python3.8
+        args: [--line-length=88, --target-version=py38]
+        types: [python]
+
+  # 2. RUFF - Fast Python linter (catches most issues before they happen)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.11
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        types: [python]
+      - id: ruff-format
+        types: [python]
+
+  # 3. ISORT - Import sorting (prevents unused imports, import order issues)
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: [--profile=black, --line-length=88]
+        types: [python]
+
+  # 4. FLYNT - Convert % and .format() to f-strings (prevents W0027)
+  - repo: https://github.com/ikamensh/flynt
+    rev: v0.78
+    hooks:
+      - id: flynt
+        args: [--line-length=88]
+        types: [python]
+
+  # 5. DOCFORMATTER - Docstring formatting (prevents W505, D0003)
+  - repo: https://github.com/myint/docformatter
+    rev: v1.7.5
+    hooks:
+      - id: docformatter
+        args: [--in-place, --wrap-summaries=88, --wrap-descriptions=88]
+        types: [python]
+
+  # 6. TRAILING-WHITESPACE - Prevents W291, W292, W293
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+
+  # 7. PYTHON IMPORTS - Prevents unused imports
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-ast
+      - id: check-docstring-first
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-toml
+
+  # 8. CUSTOM HOOKS - SAMO-DL specific rules
+  - repo: local
+    hooks:
+      - id: samo-code-quality
+        name: SAMO Code Quality Check
+        entry: python scripts/maintenance/code_quality_enforcer.py
+        language: python
+        types: [python]
+        pass_filenames: false
+        always_run: true
