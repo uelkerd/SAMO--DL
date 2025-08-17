@@ -147,11 +147,12 @@ repos:
           )$
 
   # Security scanning with Bandit
+  # Note: Bandit now reports to stdout and fails commit if issues found
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.5
     hooks:
       - id: bandit
-        args: [-r, ., -f, json, -o, bandit-report.json]
+        args: [-r, .]
         types: [python]
         exclude: |
           (?x)^(
@@ -178,11 +179,13 @@ repos:
           )$
 
   # Security vulnerability scanning with Safety
+  # Note: Consider moving this to CI/CD pipeline for performance
+  # Safety checks installed dependencies and can be slow
   - repo: https://github.com/PyCQA/safety
     rev: 3.1.1
     hooks:
       - id: safety
-        args: [check, --json, --output, safety-report.json]
+        args: [check]
 
   # Documentation formatting
   - repo: https://github.com/myint/docformatter
