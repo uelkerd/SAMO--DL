@@ -25,9 +25,12 @@
             # Validate first batch
             # Validate labels
             # Validate outputs
-            from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-            from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-            from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+            from src
+    .models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+            from src
+    .models.emotion_detection.dataset_loader import create_goemotions_loader
+            from src
+    .models.emotion_detection.training_pipeline import EmotionDetectionTrainer
             from torch.optim import AdamW
             import pandas as pd
             import shutil
@@ -67,7 +70,10 @@ issues like 0.0000 loss, data problems, model issues, etc.
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+                    level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s"
+                   )
 logger = logging.getLogger(__name__)
 
 
@@ -92,7 +98,8 @@ class PreTrainingValidator:
             if torch.cuda.is_available():
                 logger.info("✅ CUDA available: {torch.cuda.get_device_name(0)}")
                 logger.info(
-                    "✅ CUDA memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
+                    "✅ CUDA memory: {torch.cuda.get_device_properties(
+                                                                      0).total_memory / 1e9:.1f} GB"
                 )
             else:
                 logger.warning("⚠️  CUDA not available, using CPU")
@@ -172,7 +179,9 @@ class PreTrainingValidator:
                 logger.info("✅ Class weights max: {class_weights.max():.6f}")
 
                 if class_weights.min() <= 0:
-                    logger.error("❌ CRITICAL: Class weights contain zero or negative values!")
+                    logger.error(
+                                 "❌ CRITICAL: Class weights contain zero or negative values!"
+                                )
                     self.critical_issues.append("Invalid class weights")
                     return False
 
@@ -293,11 +302,15 @@ class PreTrainingValidator:
 
             if trainer.learning_rate <= 0:
                 logger.error("❌ Invalid learning rate: {trainer.learning_rate}")
-                self.critical_issues.append("Invalid learning rate: {trainer.learning_rate}")
+                self.critical_issues.append(
+                                            "Invalid learning rate: {trainer.learning_rate}"
+                                           )
                 return False
 
             if trainer.learning_rate > 1e-3:
-                logger.warning("⚠️  Learning rate might be too high: {trainer.learning_rate}")
+                logger.warning(
+                               "⚠️  Learning rate might be too high: {trainer.learning_rate}"
+                              )
                 self.warnings.append("High learning rate: {trainer.learning_rate}")
 
             batch = next(iter(trainer.train_dataloader))
@@ -446,7 +459,8 @@ class PreTrainingValidator:
 
         if self.critical_issues:
             logger.error(
-                "\n🚫 TRAINING BLOCKED: {len(self.critical_issues)} critical issues found!"
+                "\n🚫 TRAINING BLOCKED: {len(
+                                            self.critical_issues)} critical issues found!"
             )
             logger.error("   Please fix all critical issues before starting training.")
         elif self.warnings:

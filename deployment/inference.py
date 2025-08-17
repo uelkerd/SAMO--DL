@@ -27,14 +27,21 @@ class EmotionDetector:
         self.model.eval()
         
         # Define emotion mapping based on training order
-        self.emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+self.emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated',
+'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
         
         print(f"✅ Model loaded successfully on {self.device}")
     
     def predict(self, text):
         """Predict emotion for given text"""
         # Tokenize
-        inputs = self.tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+        inputs = self.tokenizer(
+                                text,
+                                return_tensors="pt",
+                                truncation=True,
+                                max_length=512,
+                                padding=True
+                               )
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
         
         # Predict

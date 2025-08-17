@@ -21,7 +21,8 @@ It's a simple wrapper that allows Python code to execute Prisma commands.
 class PrismaClient:
     """A simple wrapper class for Prisma client operations.
 
-    This class allows executing Prisma operations from Python by running Node.js scripts.
+    This class allows executing Prisma operations from Python by running Node
+    .js scripts.
     """
 
     @staticmethod
@@ -156,7 +157,11 @@ main();
         result = self.execute_prisma_command(script)
         return result if result else None
 
-    def get_journal_entries_by_user(self, user_id: str, limit: int = 10) -> List[Dict[str, Any]]:
+    def get_journal_entries_by_user(
+                                    self,
+                                    user_id: str,
+                                    limit: int = 10) -> List[Dict[str,
+                                    Any]]:
         """Get journal entries for a specific user.
 
         Args:

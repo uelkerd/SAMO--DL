@@ -44,7 +44,10 @@ to solve the 0.0000 loss issue and provide managed ML training.
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+                    level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s"
+                   )
 logger = logging.getLogger(__name__)
 
 
@@ -88,7 +91,7 @@ class VertexAISetupFixed:
             job = aiplatform.CustomTrainingJob(
                 display_name="samo-emotion-detection-training",
                 container_uri="gcr.io/cloud-aiplatform/training/pytorch-gpu.2-0:latest",
-                model_serving_container_image_uri="gcr.io/cloud-aiplatform/prediction/pytorch-gpu.2-0:latest",
+model_serving_container_image_uri="gcr.io/cloud-aiplatform/prediction/pytorch-gpu.2-0:latest",
                 machine_type="n1-standard-4",
                 accelerator_type="NVIDIA_TESLA_T4",
                 accelerator_count=1,
@@ -214,7 +217,11 @@ class VertexAISetupFixed:
 
             logger.info("✅ Automated pipeline configuration created")
             logger.info("   Schedule: Daily at 2 AM")
-            logger.info("   Trigger conditions: data drift, performance degradation, new data")
+            logger.info(
+                        "   Trigger conditions: data drift,
+                        performance degradation,
+                        new data"
+                       )
 
             return {"config": pipeline_config, "success": True}
 
@@ -305,7 +312,9 @@ def main():
             logger.error("❌ {component.title()}: FAILED")
 
     logger.info("\n🎯 NEXT STEPS:")
-    logger.info("   1. Check Vertex AI console: https://console.cloud.google.com/vertex-ai")
+    logger.info(
+                "   1. Check Vertex AI console: https://console.cloud.google.com/vertex-ai"
+               )
     logger.info("   2. Run validation job to identify 0.0000 loss root cause")
     logger.info("   3. Start training job with optimized configuration")
     logger.info("   4. Monitor training progress and results")

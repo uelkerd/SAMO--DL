@@ -18,7 +18,8 @@
 #!/usr/bin/env python3
 from pathlib import Path
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
+from src
+    .models.emotion_detection.training_pipeline import create_bert_emotion_classifier
 from torch import nn
 import logging
 import os
@@ -41,7 +42,10 @@ and potentially boost F1 score by 5-10%.
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+                    level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s"
+                   )
 logger = logging.getLogger(__name__)
 
 
@@ -82,7 +86,11 @@ def calibrate_temperature(model, val_loader, device):
     all_logits = torch.cat(all_logits, dim=0)
     all_labels = torch.cat(all_labels, dim=0)
 
-    optimizer = torch.optim.LBFGS([temperature_scaling.temperature], lr=0.01, max_iter=50)
+    optimizer = torch.optim.LBFGS(
+                                  [temperature_scaling.temperature],
+                                  lr=0.01,
+                                  max_iter=50
+                                 )
 
     def eval():
         optimizer.zero_grad()
@@ -121,7 +129,11 @@ def apply_temperature_scaling():
 
         tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
         val_dataset = EmotionDataset(val_texts, val_labels, tokenizer, max_length=512)
-        val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
+        val_loader = torch.utils.data.DataLoader(
+                                                 val_dataset,
+                                                 batch_size=16,
+                                                 shuffle=False
+                                                )
 
         model_path = "./models/checkpoints/focal_loss_best_model.pt"
         if not Path(model_path):

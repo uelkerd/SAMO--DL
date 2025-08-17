@@ -72,13 +72,20 @@ class EmotionDetectionModel:
         else:
             print("⚠️ CUDA not available, using CPU")
         
-        self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
         print("✅ Model loaded successfully")
         
     def predict(self, text):
         """Make a prediction."""
         # Tokenize input
-        inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
+        inputs = self.tokenizer(
+                                text,
+                                return_tensors='pt',
+                                truncation=True,
+                                padding=True,
+                                max_length=512
+                               )
         
         if torch.cuda.is_available():
             inputs = {k: v.to('cuda') for k, v in inputs.items()}
@@ -192,7 +199,9 @@ def home():
             'GET /': 'This documentation',
             'GET /health': 'Health check',
             'POST /predict': 'Single prediction (send {"text": "your text"})',
-            'POST /predict_batch': 'Batch prediction (send {"texts": ["text1", "text2"]})'
+            'POST /predict_batch': 'Batch prediction (
+                                                      send {"texts": ["text1",
+                                                      "text2"]})'
         },
         'model_info': {
             'emotions': model.emotions,
@@ -301,7 +310,9 @@ def test_api():
             
             if response.status_code == 200:
                 result = response.json()
-                print(f"✅ Test {i}: '{text}' → {result['predicted_emotion']} (conf: {result['confidence']:.3f})")
+                print(
+                      f"✅ Test {i}: '{text}' → {result['predicted_emotion']} (conf: {result['confidence']:.3f})"
+                     )
             else:
                 print(f"❌ Test {i} failed: {response.status_code}")
                 
@@ -321,7 +332,9 @@ def test_api():
             result = response.json()
             print(f"✅ Batch prediction successful: {result['count']} predictions")
             for i, pred in enumerate(result['predictions']):
-                print(f"   {i+1}. '{pred['text']}' → {pred['predicted_emotion']} (conf: {pred['confidence']:.3f})")
+                print(
+                      f"   {i+1}. '{pred['text']}' → {pred['predicted_emotion']} (conf: {pred['confidence']:.3f})"
+                     )
         else:
             print(f"❌ Batch prediction failed: {response.status_code}")
             
@@ -383,7 +396,8 @@ python api_server.py
         'usage': {
             'start_server': './start.sh',
             'test_api': 'python test_api.py',
-            'manual_test': 'curl -X POST http://localhost:5000/predict -H "Content-Type: application/json" -d \'{"text": "I am happy"}\''
+'manual_test': 'curl -X POST http://localhost:5000/predict -H "Content-Type:
+application/json" -d \'{"text": "I am happy"}\''
         }
     }
     

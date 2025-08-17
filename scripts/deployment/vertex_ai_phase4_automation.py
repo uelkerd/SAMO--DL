@@ -88,7 +88,13 @@ class VertexAIPhase4Automation:
     def _check_gcloud() -> bool:
         """Check if gcloud CLI is installed and working."""
         try:
-            result = subprocess.run(['gcloud', '--version'], capture_output=True, text=True, check=True)
+            result = subprocess.run(
+                                    ['gcloud',
+                                    '--version'],
+                                    capture_output=True,
+                                    text=True,
+                                    check=True
+                                   )
             return result.returncode == 0
         except FileNotFoundError:
             return False
@@ -97,7 +103,7 @@ class VertexAIPhase4Automation:
     def _check_authentication() -> bool:
         """Check if user is authenticated."""
         try:
-            result = subprocess.run(['gcloud', 'auth', 'list', '--filter=status:ACTIVE'], 
+result = subprocess.run(['gcloud', 'auth', 'list', '--filter=status:ACTIVE'],
                                   capture_output=True, text=True, check=True)
             return result.returncode == 0 and 'ACTIVE' in result.stdout
         except Exception:
@@ -108,7 +114,8 @@ class VertexAIPhase4Automation:
         try:
             result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], 
                                   capture_output=True, text=True, check=True)
-            return result.returncode == 0 and result.stdout.strip() == self.config.project_id
+            return result.returncode == 0 and result.stdout.strip(
+                                                                  ) == self.config.project_id
         except Exception:
             return False
 
@@ -119,7 +126,7 @@ class VertexAIPhase4Automation:
             result = subprocess.run(['gcloud', 'services', 'list', '--enabled', 
                                    '--filter=name:aiplatform.googleapis.com'], 
                                   capture_output=True, text=True, check=True)
-            return result.returncode == 0 and 'aiplatform.googleapis.com' in result.stdout
+return result.returncode == 0 and 'aiplatform.googleapis.com' in result.stdout
         except Exception:
             return False
 
@@ -130,7 +137,7 @@ class VertexAIPhase4Automation:
             result = subprocess.run(['gcloud', 'services', 'list', '--enabled', 
                                    '--filter=name:monitoring.googleapis.com'], 
                                   capture_output=True, text=True, check=True)
-            return result.returncode == 0 and 'monitoring.googleapis.com' in result.stdout
+return result.returncode == 0 and 'monitoring.googleapis.com' in result.stdout
         except Exception:
             return False
 
@@ -152,7 +159,7 @@ class VertexAIPhase4Automation:
             result = subprocess.run(['gcloud', 'services', 'list', '--enabled', 
                                    '--filter=name:artifactregistry.googleapis.com'], 
                                   capture_output=True, text=True, check=True)
-            return result.returncode == 0 and 'artifactregistry.googleapis.com' in result.stdout
+return result.returncode == 0 and 'artifactregistry.googleapis.com' in result.stdout
         except Exception:
             return False
 
@@ -166,12 +173,12 @@ class VertexAIPhase4Automation:
         ]
 
         try:
-            result = subprocess.run(['gcloud', 'projects', 'get-iam-policy', self.config.project_id, 
+result = subprocess.run(['gcloud', 'projects', 'get-iam-policy', self.config.project_id,
                                    '--flatten=bindings[].members', 
                                    '--format=value(bindings.role)'], 
                                   capture_output=True, text=True, check=True)
             user_email = subprocess.run(['gcloud', 'config', 'get-value', 'account'], 
-                                      capture_output=True, text=True, check=True).stdout.strip(check=True)
+capture_output=True, text=True, check=True).stdout.strip(check=True)
 
             user_roles = result.stdout.split('\n')
             return any(role in user_roles for role in required_roles)
@@ -243,13 +250,29 @@ CMD ["python", "predict.py"]
             f.write(dockerfile_content)
 
         # Copy model files
-        subprocess.run(['cp', '-r', source_model_path, f"{deployment_dir}/model"], check=True)
+        subprocess.run(
+                       ['cp',
+                       '-r',
+                       source_model_path,
+                       f"{deployment_dir}/model"],
+                       check=True
+                      )
 
         # Copy requirements
-        subprocess.run(['cp', 'deployment/gcp/requirements.txt', f"{deployment_dir}/"], check=True)
+        subprocess.run(
+                       ['cp',
+                       'deployment/gcp/requirements.txt',
+                       f"{deployment_dir}/"],
+                       check=True
+                      )
 
         # Copy prediction code
-        subprocess.run(['cp', 'deployment/gcp/predict.py', f"{deployment_dir}/"], check=True)
+        subprocess.run(
+                       ['cp',
+                       'deployment/gcp/predict.py',
+                       f"{deployment_dir}/"],
+                       check=True
+                      )
 
         # Create version metadata
         metadata = {
@@ -257,7 +280,7 @@ CMD ["python", "predict.py"]
             "created_at": datetime.now().isoformat(),
             "model_info": {
                 "name": self.config.model_name,
-                "description": "Comprehensive emotion detection model with Phase 4 enhancements"
+"description": "Comprehensive emotion detection model with Phase 4 enhancements"
             },
             "deployment_config": {
                 "machine_type": self.config.machine_type,
@@ -282,11 +305,18 @@ CMD ["python", "predict.py"]
         subprocess.run(['gcloud', 'auth', 'configure-docker'], check=True)
 
         # Create image URI with version
-        image_uri = f"gcr.io/{self.config.project_id}/{self.config.repository_name}:{version}"
+image_uri = f"gcr.io/{self.config.project_id}/{self.config.repository_name}:{version}"
 
         try:
             # Build image
-            subprocess.run(['docker', 'build', '-t', image_uri, deployment_dir], check=True)
+            subprocess.run(
+                           ['docker',
+                           'build',
+                           '-t',
+                           image_uri,
+                           deployment_dir],
+                           check=True
+                          )
             print("✅ Docker image built")
 
             # Push image
@@ -351,7 +381,10 @@ CMD ["python", "predict.py"]
                 '--region', self.config.region,
                 '--endpoint', endpoint_id,
                 '--model', model_id,
-                '--traffic-split', ','.join([f"{k}={v}" for k, v in traffic_split.items()]),
+                '--traffic-split', ','.join(
+                                            [f"{k}={v}" for k,
+                                            v in traffic_split.items()]),
+                                            
                 '--machine-type', self.config.machine_type,
                 '--min-replica-count', str(self.config.min_replicas),
                 '--max-replica-count', str(self.config.max_replicas)
@@ -424,7 +457,8 @@ CMD ["python", "predict.py"]
                 {
                     "displayName": "High Error Rate",
                     "conditionThreshold": {
-                        "filter": f'resource.type="aiplatform.googleapis.com/Endpoint" AND resource.labels.endpoint_id="{endpoint_id}"',
+"filter": f'resource.type="aiplatform.googleapis.com/Endpoint" AND
+resource.labels.endpoint_id="{endpoint_id}"',
                         "comparison": "COMPARISON_GREATER_THAN",
                         "thresholdValue": 0.05,  # 5% error rate
                         "duration": "300s"
@@ -433,7 +467,8 @@ CMD ["python", "predict.py"]
                 {
                     "displayName": "High Latency",
                     "conditionThreshold": {
-                        "filter": f'resource.type="aiplatform.googleapis.com/Endpoint" AND resource.labels.endpoint_id="{endpoint_id}"',
+"filter": f'resource.type="aiplatform.googleapis.com/Endpoint" AND
+resource.labels.endpoint_id="{endpoint_id}"',
                         "comparison": "COMPARISON_GREATER_THAN",
                         "thresholdValue": 5000,  # 5 seconds
                         "duration": "300s"
@@ -446,7 +481,7 @@ CMD ["python", "predict.py"]
         }
 
         # Write policy to file
-        policy_file = f"deployment/vertex_ai/{self.current_version}/monitoring_policy.json"
+policy_file = f"deployment/vertex_ai/{self.current_version}/monitoring_policy.json"
         with open(policy_file, "w") as f:
             json.dump(policy_config, f, indent=2)
 
@@ -460,7 +495,9 @@ CMD ["python", "predict.py"]
 
         except subprocess.CalledProcessError as e:
             logger.warning(f"Could not create monitoring policy: {e}")
-            print("⚠️  Monitoring policy creation failed (may need additional permissions)")
+            print(
+                  "⚠️  Monitoring policy creation failed (may need additional permissions)"
+                 )
 
     def setup_cost_monitoring(self) -> None:
         """Setup cost monitoring and budget alerts."""
@@ -538,7 +575,9 @@ CMD ["python", "predict.py"]
                 break
 
         if not target_deployment:
-            logger.error(f"Target version {target_version} not found in deployment history")
+            logger.error(
+                         f"Target version {target_version} not found in deployment history"
+                        )
             return False
 
         try:
@@ -561,7 +600,12 @@ CMD ["python", "predict.py"]
             logger.error(f"Error during rollback: {e}")
             return False
 
-    def setup_ab_testing(self, version_a: str, version_b: str, traffic_split: Dict[str, float]) -> bool:
+    def setup_ab_testing(
+                         self,
+                         version_a: str,
+                         version_b: str,
+                         traffic_split: Dict[str,
+                         float]) -> bool:
         """Setup A/B testing between two versions."""
         logger.info(f"🧪 SETTING UP A/B TESTING: {version_a} vs {version_b}")
         print("=" * 60)
@@ -628,7 +672,8 @@ CMD ["python", "predict.py"]
                 "endpoint_id": endpoint_id,
                 "timestamp": datetime.now().isoformat(),
                 "logging_enabled": result.stdout.strip() == "True",
-                "models": result.stdout.strip().split('\n') if result.stdout.strip() else []
+                "models": result.stdout.strip(
+                                              ).split('\n') if result.stdout.strip() else []
             }
 
             print("✅ Performance metrics retrieved")
@@ -719,7 +764,11 @@ CMD ["python", "predict.py"]
             logger.error(f"Deployment failed: {e}")
             return False
 
-    def _save_deployment_summary(self, version: str, endpoint_id: str, metrics: Dict) -> None:
+    def _save_deployment_summary(
+                                 self,
+                                 version: str,
+                                 endpoint_id: str,
+                                 metrics: Dict) -> None:
         """Save deployment summary for future reference."""
         summary = {
             "version": version,
@@ -753,7 +802,9 @@ def main():
                               capture_output=True, text=True, check=True)
         project_id = result.stdout.strip()
     except Exception:
-        print("❌ Could not get project ID. Please run: gcloud config set project YOUR_PROJECT_ID")
+        print(
+              "❌ Could not get project ID. Please run: gcloud config set project YOUR_PROJECT_ID"
+             )
         sys.exit(1)
 
     # Create configuration

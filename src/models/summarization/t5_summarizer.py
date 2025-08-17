@@ -143,7 +143,7 @@ class T5SummarizationModel(nn.Module):
             self.device = torch.device(self.config.device)
 
         logger.info(
-            "Initializing {self.model_name} summarization model...", extra={"format_args": True}
+"Initializing {self.model_name} summarization model...", extra={"format_args": True}
         )
 
         if "bart" in self.model_name.lower():
@@ -172,7 +172,11 @@ class T5SummarizationModel(nn.Module):
         labels: Optional[torch.Tensor] = None,
     ) -> Dict[str, torch.Tensor]:
         """Forward pass for training."""
-        outputs = self.model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+        outputs = self.model(
+                             input_ids=input_ids,
+                             attention_mask=attention_mask,
+                             labels=labels
+                            )
 
         return {
             "loss": outputs.loss if labels is not None else None,
@@ -388,21 +392,46 @@ def test_summarization_model() -> None:
     model = create_t5_summarizer("t5-small")
 
     test_texts = [
-        """Today was such a rollercoaster of emotions. I started the morning feeling anxious about my job interview, but I tried to stay positive. The interview actually went really well - I felt confident and articulate. The interviewer seemed impressed with my experience. After that, I met up with Sarah for coffee and we talked about everything that's been going on in our lives. She's been struggling with her relationship, and I tried to be supportive. By evening, I was exhausted but also proud of myself for handling a stressful day so well. I'm learning to trust myself more and not overthink everything.""",
-        """Had a difficult conversation with mom today about dad's health. The doctors want to run more tests, and we're all worried. I hate feeling so helpless when someone I love is suffering. But I'm grateful that our family is pulling together during this time. My sister and I are planning to visit next weekend to help out. Sometimes I wonder if I'm strong enough to handle these kinds of challenges, but I know I have to be there for the people who matter most. Love really is everything.""",
-        """Work has been incredibly stressful lately. My boss keeps piling on more projects, and I'm starting to feel overwhelmed. I've been staying late almost every night this week. On the positive side, I finally finished that big presentation I've been working on for months. It felt amazing to see it come together. I think I need to have a conversation with my manager about workload balance. I love my job, but I also need to take care of my mental health. Maybe it's time to set some boundaries.""",
+"""Today was such a rollercoaster of emotions. I started the morning feeling anxious
+about my job interview, but I tried to stay positive. The interview actually went really
+well - I felt confident and articulate. The interviewer seemed impressed with my
+experience. After that, I met up with Sarah for coffee and we talked about everything
+that's been going on in our lives. She's been struggling with her relationship, and I
+tried to be supportive. By evening, I was exhausted but also proud of myself for
+handling a stressful day so well. I'm learning to trust myself more and not overthink
+everything.""",
+"""Had a difficult conversation with mom today about dad's health. The doctors want to
+run more tests, and we're all worried. I hate feeling so helpless when someone I love is
+suffering. But I'm grateful that our family is pulling together during this time. My
+sister and I are planning to visit next weekend to help out. Sometimes I wonder if I'm
+strong enough to handle these kinds of challenges, but I know I have to be there for the
+people who matter most. Love really is everything.""",
+"""Work has been incredibly stressful lately. My boss keeps piling on more projects, and
+I'm starting to feel overwhelmed. I've been staying late almost every night this week.
+On the positive side, I finally finished that big presentation I've been working on for
+months. It felt amazing to see it come together. I think I need to have a conversation
+with my manager about workload balance. I love my job, but I also need to take care of
+my mental health. Maybe it's time to set some boundaries.""",
     ]
 
     logger.info(
-        "Generating summaries for {len(test_texts)} journal entries...", extra={"format_args": True}
+        "Generating summaries for {len(
+                                       test_texts)} journal entries...",
+                                       extra={"format_args": True}
     )
 
     for _i, text in enumerate(test_texts, 1):
         model.generate_summary(text)
 
         logger.info("\n--- Journal Entry {i} ---", extra={"format_args": True})
-        logger.info("Original ({len(text)} chars): {text[:100]}...", extra={"format_args": True})
-        logger.info("Summary ({len(summary)} chars): {summary}", extra={"format_args": True})
+        logger.info(
+                    "Original ({len(text)} chars): {text[:100]}...",
+                    extra={"format_args": True}
+                   )
+        logger.info(
+                    "Summary ({len(summary)} chars): {summary}",
+                    extra={"format_args": True}
+                   )
 
     logger.info("\nTesting batch summarization...")
     batch_summaries = model.generate_batch_summaries(test_texts, batch_size=2)

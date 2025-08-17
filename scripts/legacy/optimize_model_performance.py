@@ -55,7 +55,8 @@ import torch
 
 """SAMO Model Performance Optimization Script.
 
-This script implements the critical optimizations needed to achieve production performance:
+This script implements the critical optimizations needed to achieve production
+performance:
 1. Model compression (JPQD) for 5.24x speedup
 2. ONNX Runtime conversion for faster inference
 3. Quantization for reduced memory usage
@@ -92,7 +93,10 @@ class ModelOptimizer:
 
         checkpoint = torch.load(self.model_path, map_location=self.device)
 
-        self.model = BERTEmotionClassifier(model_name="bert-base-uncased", num_emotions=28)
+        self.model = BERTEmotionClassifier(
+                                           model_name="bert-base-uncased",
+                                           num_emotions=28
+                                          )
 
         self.model.load_state_dict(checkpoint["model_state_dict"])
         self.model.to(self.device)
@@ -100,7 +104,10 @@ class ModelOptimizer:
 
         self.tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
-        logger.info("Model loaded successfully. Parameters: {self.model.count_parameters():,}")
+        logger.info(
+                    "Model loaded successfully. Parameters: {self.model.count_parameters():,
+                    }"
+                   )
 
     def compress_model(self) -> None:
         """Apply model compression techniques."""
@@ -132,7 +139,11 @@ class ModelOptimizer:
         """Apply quantization to reduce precision."""
         logger.info("  Applying dynamic quantization...")
 
-        self.model = torch.quantization.quantize_dynamic(self.model, {nn.Linear}, dtype=torch.qint8)
+        self.model = torch.quantization.quantize_dynamic(
+                                                         self.model,
+                                                         {nn.Linear},
+                                                         dtype=torch.qint8
+                                                        )
 
         logger.info("  Dynamic quantization applied")
 
@@ -224,7 +235,8 @@ class ModelOptimizer:
                 best_batch_size = batch_size
 
         logger.info(
-            "  Optimal batch size: {best_batch_size} (throughput: {best_throughput:.1f} samples/sec)"
+            "  Optimal batch size: {best_batch_size} (
+                                                      throughput: {best_throughput:.1f} samples/sec)"
         )
         return best_batch_size
 
@@ -264,7 +276,10 @@ class ModelOptimizer:
         logger.info("  Memory optimization applied")
         return optimizations
 
-    def benchmark_performance(self, test_texts: list[str] | None = None) -> dict[str, float]:
+    def benchmark_performance(
+                              self,
+                              test_texts: list[str] | None = None) -> dict[str,
+                              float]:
         """Benchmark model performance."""
         logger.info("📊 Benchmarking model performance...")
 
@@ -300,7 +315,8 @@ class ModelOptimizer:
             latencies.append(latency)
 
             predictions = (probabilities >= 0.2).float()
-            accuracies.append(predictions.sum().item() > 0)  # At least one emotion predicted
+            accuracies.append(
+                              predictions.sum().item() > 0)  # At least one emotion predicted
 
         avg_latency = np.mean(latencies)
         p95_latency = np.percentile(latencies, 95)
@@ -320,7 +336,9 @@ class ModelOptimizer:
         logger.info("  95th percentile latency: {p95_latency:.2f}ms")
         logger.info("  99th percentile latency: {p99_latency:.2f}ms")
         logger.info("  Accuracy: {accuracy:.2%}")
-        logger.info("  Throughput: {results['throughput_samples_per_sec']:.1f} samples/sec")
+        logger.info(
+                    "  Throughput: {results['throughput_samples_per_sec']:.1f} samples/sec"
+                   )
 
         return results
 
@@ -338,7 +356,7 @@ class ModelOptimizer:
                     "num_emotions": 28,
                     "optimized": True,
                 },
-                "tokenizer_config": {"vocab_size": self.tokenizer.vocab_size, "max_length": 512},
+"tokenizer_config": {"vocab_size": self.tokenizer.vocab_size, "max_length": 512},
             },
             optimized_path,
         )
@@ -375,7 +393,7 @@ def main():
         success_criteria = {
             "p95_latency_under_500ms": performance_results["p95_latency_ms"] < 500,
             "accuracy_above_50%": performance_results["accuracy"] > 0.5,
-            "throughput_above_1_sample_per_sec": performance_results["throughput_samples_per_sec"]
+"throughput_above_1_sample_per_sec": performance_results["throughput_samples_per_sec"]
             > 1,
         }
 
@@ -387,13 +405,15 @@ def main():
         total_criteria = len(success_criteria)
 
         if passed_criteria == total_criteria:
-            logger.info("🎉 OPTIMIZATION SUCCESSFUL! Model meets all performance targets.")
+            logger.info(
+                        "🎉 OPTIMIZATION SUCCESSFUL! Model meets all performance targets."
+                       )
             logger.info("📁 Optimized model saved to: {optimized_path}")
             logger.info("📁 ONNX model saved to: {onnx_path}")
             return 0
         else:
             logger.warning(
-                "⚠️  {passed_criteria}/{total_criteria} criteria met. Some optimizations needed."
+"⚠️ {passed_criteria}/{total_criteria} criteria met. Some optimizations needed."
             )
             return 1
 

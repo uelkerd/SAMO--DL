@@ -19,7 +19,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name="bert-base-uncased"):
+def convert_model_to_onnx(
+                          model_path=None,
+                          onnx_output_path=None,
+                          tokenizer_name="bert-base-uncased"):
     """Convert PyTorch model to ONNX format."""
     try:
         # Default paths if not provided
@@ -78,7 +81,10 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
                 max_length=128,
                 return_token_type_ids=True  # Explicitly request token_type_ids
             )
-            token_type_ids = tokenizer_output.get("token_type_ids", torch.zeros_like(inputs["input_ids"]))
+            token_type_ids = tokenizer_output.get(
+                                                  "token_type_ids",
+                                                  torch.zeros_like(inputs["input_ids"])
+                                                 )
 
         # Export to ONNX
         logger.info("🔄 Converting to ONNX format...")
@@ -111,7 +117,9 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
             session = ort.InferenceSession(onnx_output_path)
             logger.info("✅ ONNX model test successful")
         except ImportError:
-            logger.error("❌ ONNX Runtime is required for ONNX model validation. Please install it with 'pip install onnxruntime'.")
+            logger.error(
+                         "❌ ONNX Runtime is required for ONNX model validation. Please install it with 'pip install onnxruntime'."
+                        )
             return False
         except Exception as e:
             logger.error(f"❌ ONNX model validation failed: {e}")
@@ -126,7 +134,9 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
 
 def main():
     """Main function with command-line argument parsing."""
-    parser = argparse.ArgumentParser(description="Convert PyTorch model to ONNX format (simple version)")
+    parser = argparse.ArgumentParser(
+                                     description="Convert PyTorch model to ONNX format (simple version)"
+                                    )
     parser.add_argument(
         "--model-path",
         type=str,
@@ -137,7 +147,8 @@ def main():
         "--onnx-output-path",
         type=str,
         default="deployment/cloud-run/model/bert_emotion_classifier.onnx",
-        help="Path for ONNX output file (default: deployment/cloud-run/model/bert_emotion_classifier.onnx)"
+        help="Path for ONNX output file (
+                                         default: deployment/cloud-run/model/bert_emotion_classifier.onnx)"
     )
     parser.add_argument(
         "--tokenizer-name",

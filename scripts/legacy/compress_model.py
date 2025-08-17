@@ -46,7 +46,9 @@ Usage:
 
 Arguments:
     --input_model: Path to input model (default: test_checkpoints/best_model.pt)
-    --output_model: Path to save compressed model (default: models/checkpoints/bert_emotion_classifier_quantized.pt)
+    --output_model: Path to save compressed model (
+                                                   default: models/checkpoints/bert_emotion_classifier_quantized.pt
+                                                  )
 """
 
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
@@ -201,7 +203,9 @@ def benchmark_inference(model: torch.nn.Module, num_runs: int = 50) -> float:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Compress BERT emotion classifier model")
+    parser = argparse.ArgumentParser(
+                                     description="Compress BERT emotion classifier model"
+                                    )
     parser.add_argument(
         "--input_model",
         type=str,

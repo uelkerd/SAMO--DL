@@ -48,7 +48,9 @@ def debug_dataset_structure():
             if hasattr(first_item, 'keys'):
                 logger.info(f"📊 First item keys: {list(first_item.keys())}")
             elif hasattr(first_item, '__dict__'):
-                logger.info(f"📊 First item attributes: {list(first_item.__dict__.keys())}")
+                logger.info(
+                            f"📊 First item attributes: {list(first_item.__dict__.keys())}"
+                           )
 
         # Check train data structure
         train_data = datasets["train_data"]

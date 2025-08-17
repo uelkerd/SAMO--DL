@@ -60,7 +60,10 @@ class SecurityDeploymentFix:
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
         print(f"[{timestamp}] [{level}] {message}")
 
-    def run_command(self, command: List[str], check: bool = True) -> subprocess.CompletedProcess:
+    def run_command(
+                    self,
+                    command: List[str],
+                    check: bool = True) -> subprocess.CompletedProcess:
         """Run shell command with error handling"""
         # Sanitize command for security
         sanitized_command = []
@@ -73,7 +76,12 @@ class SecurityDeploymentFix:
         self.log(f"Running: {' '.join(sanitized_command)}")
         try:
             # Use the sanitized command to prevent command injection
-            result = subprocess.run(sanitized_command, capture_output=True, text=True, check=check)
+            result = subprocess.run(
+                                    sanitized_command,
+                                    capture_output=True,
+                                    text=True,
+                                    check=check
+                                   )
             if result.stdout:
                 self.log(f"STDOUT: {result.stdout.strip()}")
             return result
@@ -99,7 +107,10 @@ class SecurityDeploymentFix:
                 missing_files.append(str(file_path))
 
         if missing_files:
-            raise FileNotFoundError(f"Missing required static files: {', '.join(missing_files)}")
+            raise FileNotFoundError(
+                                    f"Missing required static files: {',
+                                    '.join(missing_files)}"
+                                   )
 
         self.log("✅ All static files verified")
 
@@ -151,7 +162,8 @@ cryptography>=41.0.0,<42.0.0
         cloudbuild_path = self.deployment_dir / "cloudbuild.yaml"
         cloudbuild_content = f'''steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', '{ARTIFACT_REGISTRY}/{SERVICE_NAME}', '-f', 'Dockerfile.secure', '.']
+args: ['build', '-t', '{ARTIFACT_REGISTRY}/{SERVICE_NAME}', '-f', 'Dockerfile.secure',
+'.']
 images:
   - '{ARTIFACT_REGISTRY}/{SERVICE_NAME}'
 '''
@@ -185,7 +197,8 @@ images:
             '--min-instances', '0',
             '--concurrency', '80',
             '--timeout', '300',
-            '--set-env-vars', f'ADMIN_API_KEY={ADMIN_API_KEY},MAX_INPUT_LENGTH={MAX_INPUT_LENGTH},RATE_LIMIT_PER_MINUTE={RATE_LIMIT_PER_MINUTE},MODEL_PATH={MODEL_PATH}'
+'--set-env-vars',
+f'ADMIN_API_KEY={ADMIN_API_KEY},MAX_INPUT_LENGTH={MAX_INPUT_LENGTH},RATE_LIMIT_PER_MINUTE={RATE_LIMIT_PER_MINUTE},MODEL_PATH={MODEL_PATH}'
         ])
 
         if deploy_result.returncode != 0:

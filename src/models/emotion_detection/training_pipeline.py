@@ -159,14 +159,26 @@ class EmotionDetectionTrainer:
             original_batch_size = self.batch_size
             self.batch_size = min(128, self.batch_size * 8)  # Much larger batch size
             logger.info(
-                "🔧 DEVELOPMENT MODE: Using {len(train_texts)} training examples, batch_size={self.batch_size} (was {original_batch_size})"
+                "🔧 DEVELOPMENT MODE: Using {len(
+                                                train_texts)} training examples,
+                                                batch_size={self.batch_size} (was {original_batch_size})"
             )
 
         self.train_dataset = GoEmotionsDataset(
             train_texts, train_labels, self.tokenizer, self.max_length
         )
-        self.val_dataset = GoEmotionsDataset(val_texts, val_labels, self.tokenizer, self.max_length)
-        self.test_dataset = GoEmotionsDataset(test_texts, test_labels, self.tokenizer, self.max_length)
+        self.val_dataset = GoEmotionsDataset(
+                                             val_texts,
+                                             val_labels,
+                                             self.tokenizer,
+                                             self.max_length
+                                            )
+        self.test_dataset = GoEmotionsDataset(
+                                              test_texts,
+                                              test_labels,
+                                              self.tokenizer,
+                                              self.max_length
+                                             )
 
         self.train_dataloader = DataLoader(
             self.train_dataset,
@@ -211,7 +223,9 @@ class EmotionDetectionTrainer:
         logger.info("🔍 DEBUG: Loss Function Analysis")
         logger.info("   Loss function type: {type(self.loss_fn).__name__}")
 
-        if hasattr(self.loss_fn, "class_weights") and self.loss_fn.class_weights is not None:
+        if hasattr(
+                   self.loss_fn,
+                   "class_weights") and self.loss_fn.class_weights is not None:
             weights = self.loss_fn.class_weights
             logger.info("   Class weights shape: {weights.shape}")
             logger.info("   Class weights min: {weights.min().item():.6f}")
@@ -219,7 +233,9 @@ class EmotionDetectionTrainer:
             logger.info("   Class weights mean: {weights.mean().item():.6f}")
 
             if weights.min() <= 0:
-                logger.error("❌ CRITICAL: Class weights contain zero or negative values!")
+                logger.error(
+                             "❌ CRITICAL: Class weights contain zero or negative values!"
+                            )
             if weights.max() > 100:
                 logger.error("❌ CRITICAL: Class weights contain very large values!")
         else:
@@ -242,7 +258,9 @@ class EmotionDetectionTrainer:
         )
 
         logger.info(
-            "Model initialized with {self.model.count_parameters():,} trainable parameters"
+            "Model initialized with {self.model.count_parameters(
+                                                                 ):,
+                                                                 } trainable parameters"
         )
         logger.info("Total training steps: {total_steps}")
 
@@ -285,7 +303,7 @@ class EmotionDetectionTrainer:
             layers_to_unfreeze = 2  # Unfreeze 2 layers at a time
             self.model.unfreeze_bert_layers(layers_to_unfreeze)
             logger.info(
-                "Epoch {epoch}: Applied progressive unfreezing", extra={"format_args": True}
+"Epoch {epoch}: Applied progressive unfreezing", extra={"format_args": True}
             )
 
         val_frequency = max(500, num_batches // 5)
@@ -381,9 +399,14 @@ class EmotionDetectionTrainer:
                     if total_norm > 10:
                         logger.warning("⚠️  WARNING: Large gradient norm detected!")
                     if total_norm < 1e-6:
-                        logger.warning("⚠️  WARNING: Very small gradient norm detected!")
+                        logger.warning(
+                                       "⚠️  WARNING: Very small gradient norm detected!"
+                                      )
 
-            clip_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
+            clip_norm = torch.nn.utils.clip_grad_norm_(
+                                                       self.model.parameters(),
+                                                       max_norm=1.0
+                                                      )
 
             if batch_idx == 0:
                 logger.info("   Gradient norm after clipping: {clip_norm:.6f}")
@@ -393,7 +416,8 @@ class EmotionDetectionTrainer:
 
             total_loss += loss.item()
 
-            if batch_idx < 5 or (batch_idx + 1) % 100 == 0:  # First 5 batches + every 100
+            if batch_idx < 5 or (
+                                 batch_idx + 1) % 100 == 0:  # First 5 batches + every 100
                 avg_loss = total_loss / (batch_idx + 1)
                 current_lr = self.scheduler.get_last_lr()[0]
 
@@ -403,9 +427,13 @@ class EmotionDetectionTrainer:
                 )
 
                 if avg_loss < 1e-8:
-                    logger.error("❌ CRITICAL: Average loss is suspiciously small: {avg_loss:.8f}")
+                    logger.error(
+                                 "❌ CRITICAL: Average loss is suspiciously small: {avg_loss:.8f}"
+                                )
                 if avg_loss > 100:
-                    logger.error("❌ CRITICAL: Average loss is suspiciously large: {avg_loss:.8f}")
+                    logger.error(
+                                 "❌ CRITICAL: Average loss is suspiciously large: {avg_loss:.8f}"
+                                )
 
             if (batch_idx + 1) % val_frequency == 0:
                 logger.info("🔍 Validating at batch {batch_idx + 1}...")
@@ -431,7 +459,10 @@ class EmotionDetectionTrainer:
             "learning_rate": self.scheduler.get_last_lr()[0],
         }
 
-        logger.info("Epoch {epoch} completed - Loss: {avg_loss:.4f}, Time: {epoch_time:.1f}s")
+        logger.info(
+                    "Epoch {epoch} completed - Loss: {avg_loss:.4f},
+                    Time: {epoch_time:.1f}s"
+                   )
 
         return metrics
 
@@ -463,7 +494,7 @@ class EmotionDetectionTrainer:
         else:
             self.patience_counter += 1
             logger.info(
-                "No improvement. Patience: {self.patience_counter}/{self.early_stopping_patience}"
+"No improvement. Patience: {self.patience_counter}/{self.early_stopping_patience}"
             )
 
         return val_metrics
@@ -472,7 +503,12 @@ class EmotionDetectionTrainer:
         """Check if training should stop early."""
         return self.patience_counter >= self.early_stopping_patience
 
-    def save_checkpoint(self, epoch: int, metrics: Dict[str, float], is_best: bool = False) -> None:
+    def save_checkpoint(
+                        self,
+                        epoch: int,
+                        metrics: Dict[str,
+                        float],
+                        is_best: bool = False) -> None:
         """Save model checkpoint.
 
         Args:

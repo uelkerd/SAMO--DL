@@ -234,9 +234,11 @@ class CIPipelineRunner:
             
             # Test BERT on GPU
             try:
-                from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+                from models
+    .emotion_detection.bert_classifier import BERTEmotionClassifier
             except ImportError:
-                from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+                from src
+    .models.emotion_detection.bert_classifier import BERTEmotionClassifier
             model = BERTEmotionClassifier().to(device)
             
             # Test forward pass
@@ -270,9 +272,11 @@ class CIPipelineRunner:
             sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
             
             try:
-                from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+                from models
+    .emotion_detection.bert_classifier import BERTEmotionClassifier
             except ImportError:
-                from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+                from src
+    .models.emotion_detection.bert_classifier import BERTEmotionClassifier
             
             model = BERTEmotionClassifier()
             loading_time = time.time() - start_time
@@ -288,11 +292,15 @@ class CIPipelineRunner:
             logger.info(f"✅ Inference time: {inference_time:.2f}s")
             
             # Check if times are reasonable
-            if loading_time < 10.0 and inference_time < 5.0:  # Increased threshold for CPU environments
+            if loading_time < 10
+    .0 and inference_time < 5.0:  # Increased threshold for CPU environments
                 logger.info("✅ Performance benchmarks passed")
                 return True
             else:
-                logger.error(f"❌ Performance too slow - loading: {loading_time:.2f}s, inference: {inference_time:.2f}s")
+                logger.error(
+                             f"❌ Performance too slow - loading: {loading_time:.2f}s,
+                             inference: {inference_time:.2f}s"
+                            )
                 return False
                 
         except Exception as e:

@@ -52,7 +52,8 @@ def create_large_training_data():
     """Create large training dataset for full-scale training."""
     logger.info("Creating large training dataset...")
 
-    emotions = ["joy", "sadness", "anger", "fear", "surprise", "disgust", "trust", "anticipation"]
+emotions = ["joy", "sadness", "anger", "fear", "surprise", "disgust", "trust",
+"anticipation"]
     base_texts = [
         "I am feeling happy today!",
         "This makes me very sad.",

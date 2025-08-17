@@ -37,7 +37,9 @@ def save_model_for_deployment():
         print("❌ No trained model found!")
         print("📋 Available paths checked:")
         for path in model_paths:
-            print(f"  - {path}: {'✅ EXISTS' if os.path.exists(path) else '❌ NOT FOUND'}")
+            print(
+                  f"  - {path}: {'✅ EXISTS' if os.path.exists(path) else '❌ NOT FOUND'}"
+                 )
         return False
     
     print(f"🎯 Using model: {best_model_path}")
@@ -140,7 +142,9 @@ def test_saved_model(model_dir):
         for text in test_texts:
             result = detector.predict(text)
             print(f"Text: {text}")
-            print(f"Emotion: {result['emotion']} (confidence: {result['confidence']:.3f})")
+            print(
+                  f"Emotion: {result['emotion']} (confidence: {result['confidence']:.3f})"
+                 )
             print()
         
         print("✅ Saved model test completed!")

@@ -21,7 +21,9 @@ class EmotionDetectionModel:
         
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
-            self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path)
+            self.model = AutoModelForSequenceClassification.from_pretrained(
+                                                                            self.model_path
+                                                                           )
             
             # Move to GPU if available
             if torch.cuda.is_available():
@@ -30,7 +32,8 @@ class EmotionDetectionModel:
             else:
                 print("⚠️ CUDA not available, using CPU")
             
-            self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
             print("✅ Model loaded successfully")
             
         except Exception as e:
@@ -41,7 +44,13 @@ class EmotionDetectionModel:
         """Make a prediction."""
         try:
             # Tokenize input
-            inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
+            inputs = self.tokenizer(
+                                    text,
+                                    return_tensors='pt',
+                                    truncation=True,
+                                    padding=True,
+                                    max_length=512
+                                   )
             
             if torch.cuda.is_available():
                 inputs = {k: v.to('cuda') for k, v in inputs.items()}
@@ -70,7 +79,11 @@ class EmotionDetectionModel:
                 'predicted_emotion': predicted_emotion,
                 'confidence': float(confidence),
                 'probabilities': {
-                    emotion: float(prob) for emotion, prob in zip(self.emotions, all_probs)
+                    emotion: float(
+                                   prob) for emotion,
+                                   prob in zip(self.emotions,
+                                   all_probs
+                                  )
                 },
                 'model_version': '2.0',
                 'model_type': 'comprehensive_emotion_detection',

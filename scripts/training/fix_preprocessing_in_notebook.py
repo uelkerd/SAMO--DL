@@ -18,7 +18,8 @@ def fix_preprocessing():
     
     # Find and replace the preprocessing cell
     for i, cell in enumerate(notebook['cells']):
-        if cell['cell_type'] == 'code' and 'def preprocess_function' in ''.join(cell['source']):
+        if cell['cell_type'] == 'code' and 'def preprocess_function' in ''.join(
+                                                                                cell['source']):
             # Replace with fixed preprocessing
             cell['source'] = [
                 "# Data preprocessing function\n",
@@ -50,7 +51,10 @@ def fix_preprocessing():
                 ")\n",
                 "\n",
                 "# Split into train/validation\n",
-                "train_val_dataset = tokenized_dataset.train_test_split(test_size=0.2, seed=42)\n",
+                "train_val_dataset = tokenized_dataset.train_test_split(
+                                                                        test_size=0.2,
+                                                                        seed=42)\n",
+                                                                        
                 "train_dataset = train_val_dataset['train']\n",
                 "val_dataset = train_val_dataset['test']\n",
                 "\n",
@@ -98,7 +102,8 @@ def fix_preprocessing():
     
     # Find the training arguments cell and add the data collator after it
     for i, cell in enumerate(notebook['cells']):
-        if cell['cell_type'] == 'code' and 'TrainingArguments(' in ''.join(cell['source']):
+        if cell['cell_type'] == 'code' and 'TrainingArguments(
+                                                              ' in ''.join(cell['source']):
             # Insert data collator after training arguments
             notebook['cells'].insert(i + 2, data_collator_cell)
             notebook['cells'].insert(i + 3, data_collator_code)
@@ -106,7 +111,8 @@ def fix_preprocessing():
     
     # Update the trainer initialization to include the data collator
     for cell in notebook['cells']:
-        if cell['cell_type'] == 'code' and 'WeightedLossTrainer(' in ''.join(cell['source']):
+        if cell['cell_type'] == 'code' and 'WeightedLossTrainer(
+                                                                ' in ''.join(cell['source']):
             # Update the trainer initialization
             cell['source'] = [
                 "# Initialize trainer with focal loss and class weighting\n",

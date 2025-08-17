@@ -69,7 +69,9 @@ def load_entries_from_prisma(
         filters["user_id"] = user_id
 
     entries = (
-        prisma.get_journal_entries_by_user(user_id=user_id, limit=limit or 10) if user_id else []
+        prisma.get_journal_entries_by_user(
+                                           user_id=user_id,
+                                           limit=limit or 10) if user_id else []
     )
 
     return pd.DataFrame(entries)

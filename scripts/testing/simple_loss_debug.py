@@ -24,7 +24,10 @@ Simple Loss Debug Script for SAMO Deep Learning.
 This script investigates the 0.0000 loss issue with minimal dependencies.
 """
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+                    level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s"
+                   )
 logger = logging.getLogger(__name__)
 
 
@@ -34,7 +37,7 @@ def analyze_loss_pattern():
 
     causes = [
         "1. **All labels are zero** - If all target labels are 0, BCE loss can be 0",
-        "2. **All labels are one** - If all target labels are 1, and predictions are perfect",
+"2. **All labels are one** - If all target labels are 1, and predictions are perfect",
         "3. **Learning rate too high** - Model converges to trivial solution",
         "4. **Gradient explosion** - Loss becomes NaN/Inf, then gets clipped to 0",
         "5. **Loss function bug** - Incorrect loss calculation",

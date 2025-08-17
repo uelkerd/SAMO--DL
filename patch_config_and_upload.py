@@ -12,7 +12,9 @@ if not TOKEN:
     # Try to get token from local storage
     TOKEN = HfFolder.get_token()
     if not TOKEN:
-        raise ValueError("No Hugging Face token found. Please run 'hf auth login' first or set HF_TOKEN environment variable.")
+        raise ValueError(
+                         "No Hugging Face token found. Please run 'hf auth login' first or set HF_TOKEN environment variable."
+                        )
 
 # Define the new labels we want to use
 new_labels = [

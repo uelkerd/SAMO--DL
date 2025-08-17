@@ -65,7 +65,8 @@ def main():
             logger.info("🔍 Threshold: {threshold}")
 
             metrics = evaluate_emotion_classifier(
-                trainer.model, trainer.val_dataloader, trainer.device, threshold=threshold
+trainer.model, trainer.val_dataloader, trainer.device, threshold =
+    threshold
             )
 
             macro_f1 = metrics["macro_f1"]
@@ -89,7 +90,7 @@ def main():
             return 0
         else:
             logger.warning(
-                "⚠️  Model still needs improvement, but evaluation is now working correctly"
+"⚠️ Model still needs improvement, but evaluation is now working correctly"
             )
             return 1
 

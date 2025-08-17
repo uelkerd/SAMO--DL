@@ -13,7 +13,10 @@ import subprocess
 import logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+                    level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s'
+                   )
 logger = logging.getLogger(__name__)
 
 
@@ -136,10 +139,13 @@ def create_colab_notebook():
       "outputs": [],
       "source": [
         "# Install dependencies\\n",
-        "!pip install torch>=2.1.0,<2.2.0 torchvision>=0.16.0,<0.17.0 torchaudio>=2.1.0,<2.2.0\\n",
-        "!pip install transformers>=4.30.0,<5.0.0 datasets>=2.10.0,<3.0.0 tokenizers>=0.13.0,<1.0.0\\n",
-        "!pip install fastapi>=0.100.0,<1.0.0 uvicorn>=0.20.0,<1.0.0 pydantic>=2.0.0,<3.0.0\\n",
-        "!pip install sentencepiece>=0.1.99 openai-whisper>=20231117 pydub>=0.25.1 jiwer>=3.0.3\\n",
+"!pip install torch>=2.1.0,<2.2.0 torchvision>=0.16.0,<0.17.0
+torchaudio>=2.1.0,<2.2.0\\n",
+"!pip install transformers>=4.30.0,<5.0.0 datasets>=2.10.0,<3.0.0
+tokenizers>=0.13.0,<1.0.0\\n",
+"!pip install fastapi>=0.100.0,<1.0.0 uvicorn>=0.20.0,<1.0.0 pydantic>=2.0.0,<3.0.0\\n",
+"!pip install sentencepiece>=0.1.99 openai-whisper>=20231117 pydub>=0.25.1
+jiwer>=3.0.3\\n",
         "!pip install onnx>=1.14.0,<2.0.0 onnxruntime>=1.15.0,<2.0.0\\n",
         "!pip install pytest>=7.0.0,<8.0.0 black>=23.0.0,<24.0.0 ruff>=0.1.0,<1.0.0"
       ]

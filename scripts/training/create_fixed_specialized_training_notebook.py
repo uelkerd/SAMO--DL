@@ -22,12 +22,15 @@ def create_fixed_notebook():
                 "metadata": {},
                 "source": [
                     "# FIXED EMOTION DETECTION TRAINING - CONFIGURATION PRESERVATION\n",
-                    "## Using j-hartmann/emotion-english-distilroberta-base with Proper Label Mapping\n",
+"## Using j-hartmann/emotion-english-distilroberta-base with Proper Label Mapping\n",
                     "\n",
-                    "**CRITICAL FIX**: This notebook ensures emotion label mappings are properly preserved\n",
-                    "in the saved model configuration to prevent the 8.3% vs 75% performance discrepancy.\n",
+"**CRITICAL FIX**: This notebook ensures emotion label mappings are properly
+preserved\n",
+"in the saved model configuration to prevent the 8.3% vs 75% performance
+discrepancy.\n",
                     "\n",
-                    "**Target**: Reliable 75-85% F1 score with consistent performance between Colab and local deployment"
+"**Target**: Reliable 75-85% F1 score with consistent performance between Colab and
+local deployment"
                 ]
             },
             {
@@ -37,7 +40,7 @@ def create_fixed_notebook():
                 "outputs": [],
                 "source": [
                     "# Install required packages\n",
-                    "!pip install transformers datasets torch scikit-learn numpy pandas huggingface_hub"
+"!pip install transformers datasets torch scikit-learn numpy pandas huggingface_hub"
                 ]
             },
             {
@@ -49,10 +52,11 @@ def create_fixed_notebook():
                     "import torch\n",
                     "import numpy as np\n",
                     "import pandas as pd\n",
-                    "from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer\n",
+"from transformers import AutoTokenizer, AutoModelForSequenceClassification,
+TrainingArguments, Trainer\n",
                     "from datasets import Dataset\n",
                     "from sklearn.model_selection import train_test_split\n",
-                    "from sklearn.metrics import classification_report, confusion_matrix\n",
+"from sklearn.metrics import classification_report, confusion_matrix\n",
                     "import json\n",
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
@@ -70,33 +74,51 @@ def create_fixed_notebook():
                     "print('🔍 VERIFYING SPECIALIZED MODEL ACCESS')\n",
                     "print('=' * 50)\n",
                     "\n",
-                    "specialized_model_name = 'j-hartmann/emotion-english-distilroberta-base'\n",
+"specialized_model_name = 'j-hartmann/emotion-english-distilroberta-base'\n",
                     "\n",
                     "try:\n",
                     "    print(f'Testing access to: {specialized_model_name}')\n",
-                    "    test_tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\n",
-                    "    test_model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name)\n",
+                    "    test_tokenizer = AutoTokenizer.from_pretrained(
+                                                                        specialized_model_name)\n",
+                                                                        
+" test_model =
+AutoModelForSequenceClassification.from_pretrained(specialized_model_name)\n",
                     "    \n",
                     "    print('✅ SUCCESS: Specialized model loaded!')\n",
                     "    print(f'Model type: {test_model.config.model_type}')\n",
-                    "    print(f'Architecture: {test_model.config.architectures[0]}')\n",
-                    "    print(f'Hidden layers: {test_model.config.num_hidden_layers}')\n",
+                    "    print(
+                               f'Architecture: {test_model.config.architectures[0]}')\n",
+                               
+                    "    print(
+                               f'Hidden layers: {test_model.config.num_hidden_layers}')\n",
+                               
                     "    print(f'Hidden size: {test_model.config.hidden_size}')\n",
                     "    print(f'Number of labels: {test_model.config.num_labels}')\n",
                     "    print(f'Original labels: {test_model.config.id2label}')\n",
                     "    \n",
                     "    # Verify it's actually DistilRoBERTa\n",
-                    "    if test_model.config.num_hidden_layers == 6 and 'distil' in test_model.config.model_type.lower():\n",
-                    "        print('✅ CONFIRMED: This is DistilRoBERTa architecture')\n",
+" if test_model.config.num_hidden_layers == 6 and 'distil' in
+test_model.config.model_type.lower():\n",
+                    "        print(
+                                   '✅ CONFIRMED: This is DistilRoBERTa architecture')\n",
+                                   
                     "    else:\n",
-                    "        print('⚠️  WARNING: This may not be the expected DistilRoBERTa model')\n",
+                    "        print(
+                                   '⚠️  WARNING: This may not be the expected DistilRoBERTa model')\n",
+                                   
                     "    \n",
                     "except Exception as e:\n",
-                    "    print(f'❌ ERROR: Cannot access specialized model: {str(e)}')\n",
+                    "    print(
+                               f'❌ ERROR: Cannot access specialized model: {str(e)}')\n",
+                               
                     "    print('\\n🔧 FALLBACK: Using roberta-base instead')\n",
                     "    specialized_model_name = 'roberta-base'\n",
-                    "    test_tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\n",
-                    "    test_model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name, num_labels=12)\n",
+                    "    test_tokenizer = AutoTokenizer.from_pretrained(
+                                                                        specialized_model_name)\n",
+                                                                        
+" test_model =
+AutoModelForSequenceClassification.from_pretrained(specialized_model_name,
+num_labels=12)\n",
                     "    print(f'✅ Fallback model loaded: {specialized_model_name}')"
                 ]
             },
@@ -107,7 +129,8 @@ def create_fixed_notebook():
                 "outputs": [],
                 "source": [
                     "# Define our emotion classes\n",
-                    "emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\n",
+"emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy',
+'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\n",
                     "print(f'🎯 Our emotion classes: {emotions}')\n",
                     "print(f'📊 Number of emotions: {len(emotions)}')"
                 ]
@@ -124,13 +147,13 @@ def create_fixed_notebook():
                     "\n",
                     "balanced_data = [\n",
                     "    # anxious (12 samples)\n",
-                    "    {'text': 'I feel anxious about the presentation.', 'label': 0},\n",
+" {'text': 'I feel anxious about the presentation.', 'label': 0},\n",
                     "    {'text': 'I am anxious about the future.', 'label': 0},\n",
                     "    {'text': 'This makes me feel anxious.', 'label': 0},\n",
                     "    {'text': 'I am feeling anxious today.', 'label': 0},\n",
                     "    {'text': 'The uncertainty makes me anxious.', 'label': 0},\n",
                     "    {'text': 'I feel anxious about the results.', 'label': 0},\n",
-                    "    {'text': 'This situation is making me anxious.', 'label': 0},\n",
+" {'text': 'This situation is making me anxious.', 'label': 0},\n",
                     "    {'text': 'I am anxious about the meeting.', 'label': 0},\n",
                     "    {'text': 'The pressure is making me anxious.', 'label': 0},\n",
                     "    {'text': 'I feel anxious about the decision.', 'label': 0},\n",
@@ -166,7 +189,7 @@ def create_fixed_notebook():
                     "    {'text': 'This creates contentment in me.', 'label': 2},\n",
                     "    \n",
                     "    # excited (12 samples)\n",
-                    "    {'text': 'I am excited about the new opportunity.', 'label': 3},\n",
+" {'text': 'I am excited about the new opportunity.', 'label': 3},\n",
                     "    {'text': 'I feel excited about the future.', 'label': 3},\n",
                     "    {'text': 'This makes me feel excited.', 'label': 3},\n",
                     "    {'text': 'I am feeling excited today.', 'label': 3},\n",
@@ -175,13 +198,13 @@ def create_fixed_notebook():
                     "    {'text': 'I am excited about the project.', 'label': 3},\n",
                     "    {'text': 'I feel excited and motivated.', 'label': 3},\n",
                     "    {'text': 'This brings me excitement.', 'label': 3},\n",
-                    "    {'text': 'I am excited about the possibilities.', 'label': 3},\n",
+" {'text': 'I am excited about the possibilities.', 'label': 3},\n",
                     "    {'text': 'I feel excited and energized.', 'label': 3},\n",
                     "    {'text': 'This creates excitement in me.', 'label': 3},\n",
                     "    \n",
                     "    # frustrated (12 samples)\n",
-                    "    {'text': 'I am so frustrated with this project.', 'label': 4},\n",
-                    "    {'text': 'I feel frustrated about the situation.', 'label': 4},\n",
+" {'text': 'I am so frustrated with this project.', 'label': 4},\n",
+" {'text': 'I feel frustrated about the situation.', 'label': 4},\n",
                     "    {'text': 'This makes me feel frustrated.', 'label': 4},\n",
                     "    {'text': 'I am feeling frustrated today.', 'label': 4},\n",
                     "    {'text': 'I feel frustrated and annoyed.', 'label': 4},\n",
@@ -195,7 +218,7 @@ def create_fixed_notebook():
                     "    \n",
                     "    # grateful (12 samples)\n",
                     "    {'text': 'I am grateful for all the support.', 'label': 5},\n",
-                    "    {'text': 'I feel grateful for the opportunity.', 'label': 5},\n",
+" {'text': 'I feel grateful for the opportunity.', 'label': 5},\n",
                     "    {'text': 'This makes me feel grateful.', 'label': 5},\n",
                     "    {'text': 'I am feeling grateful today.', 'label': 5},\n",
                     "    {'text': 'I feel grateful and thankful.', 'label': 5},\n",
@@ -231,21 +254,21 @@ def create_fixed_notebook():
                     "    {'text': 'I am hopeful about the changes.', 'label': 7},\n",
                     "    {'text': 'I feel hopeful and positive.', 'label': 7},\n",
                     "    {'text': 'This brings me hope.', 'label': 7},\n",
-                    "    {'text': 'I am hopeful about the possibilities.', 'label': 7},\n",
+" {'text': 'I am hopeful about the possibilities.', 'label': 7},\n",
                     "    {'text': 'I feel hopeful and confident.', 'label': 7},\n",
                     "    {'text': 'This creates hope in me.', 'label': 7},\n",
                     "    \n",
                     "    # overwhelmed (12 samples)\n",
-                    "    {'text': 'I am feeling overwhelmed with tasks.', 'label': 8},\n",
-                    "    {'text': 'I feel overwhelmed by the workload.', 'label': 8},\n",
+" {'text': 'I am feeling overwhelmed with tasks.', 'label': 8},\n",
+" {'text': 'I feel overwhelmed by the workload.', 'label': 8},\n",
                     "    {'text': 'This makes me feel overwhelmed.', 'label': 8},\n",
                     "    {'text': 'I am feeling overwhelmed today.', 'label': 8},\n",
                     "    {'text': 'I feel overwhelmed and stressed.', 'label': 8},\n",
                     "    {'text': 'This gives me overwhelm.', 'label': 8},\n",
-                    "    {'text': 'I am overwhelmed with responsibilities.', 'label': 8},\n",
+" {'text': 'I am overwhelmed with responsibilities.', 'label': 8},\n",
                     "    {'text': 'I feel overwhelmed and exhausted.', 'label': 8},\n",
                     "    {'text': 'This brings me overwhelm.', 'label': 8},\n",
-                    "    {'text': 'I am overwhelmed with the situation.', 'label': 8},\n",
+" {'text': 'I am overwhelmed with the situation.', 'label': 8},\n",
                     "    {'text': 'I feel overwhelmed and anxious.', 'label': 8},\n",
                     "    {'text': 'This creates overwhelm in me.', 'label': 8},\n",
                     "    \n",
@@ -293,11 +316,18 @@ def create_fixed_notebook():
                     "]\n",
                     "\n",
                     "print(f'📊 Total samples: {len(balanced_data)}')\n",
-                    "print(f'📊 Samples per emotion: {len(balanced_data) // len(emotions)}')\n",
+                    "print(
+                           f'📊 Samples per emotion: {len(balanced_data) // len(emotions)}')\n",
+                           
                     "\n",
                     "# Convert to DataFrame and then to Dataset\n",
                     "df = pd.DataFrame(balanced_data)\n",
-                    "train_data, val_data = train_test_split(df, test_size=0.2, random_state=42, stratify=df['label'])\n",
+                    "train_data, val_data = train_test_split(
+                                                             df,
+                                                             test_size=0.2,
+                                                             random_state=42,
+                                                             stratify=df['label'])\n",
+                                                             
                     "\n",
                     "train_dataset = Dataset.from_pandas(train_data)\n",
                     "val_dataset = Dataset.from_pandas(val_data)\n",
@@ -316,14 +346,22 @@ def create_fixed_notebook():
                     "print('🔧 LOADING MODEL WITH PROPER CONFIGURATION')\n",
                     "print('=' * 50)\n",
                     "\n",
-                    "tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\n",
+                    "tokenizer = AutoTokenizer.from_pretrained(
+                                                               specialized_model_name)\n",
+                                                               
                     "\n",
                     "# CRITICAL FIX: Load model and immediately set configuration\n",
                     "try:\n",
-                    "    model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name, num_labels=12)\n",
+                    "    model = AutoModelForSequenceClassification.from_pretrained(
+                                                                                    specialized_model_name,
+                                                                                    num_labels=12)\n",
+                                                                                    
                     "    print('✅ Loaded specialized model for 12 emotions')\n",
                     "except:\n",
-                    "    model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name, num_labels=12)\n",
+                    "    model = AutoModelForSequenceClassification.from_pretrained(
+                                                                                    specialized_model_name,
+                                                                                    num_labels=12)\n",
+                                                                                    
                     "    print('✅ Loaded fallback model for 12 emotions')\n",
                     "\n",
                     "# CRITICAL: Set emotion label mappings BEFORE training\n",
@@ -331,8 +369,12 @@ def create_fixed_notebook():
                     "print('=' * 40)\n",
                     "\n",
                     "# Set the emotion label mappings\n",
-                    "model.config.id2label = {i: emotion for i, emotion in enumerate(emotions)}\n",
-                    "model.config.label2id = {emotion: i for i, emotion in enumerate(emotions)}\n",
+                    "model.config.id2label = {i: emotion for i, emotion in enumerate(
+                                                                                     emotions)}\n",
+                                                                                     
+                    "model.config.label2id = {emotion: i for i, emotion in enumerate(
+                                                                                     emotions)}\n",
+                                                                                     
                     "\n",
                     "# Verify configuration is set correctly\n",
                     "print(f'Model type: {model.config.model_type}')\n",
@@ -344,7 +386,7 @@ def create_fixed_notebook():
                     "print(f'Our label mappings: {model.config.label2id}')\n",
                     "\n",
                     "# CRITICAL: Verify the configuration is actually set\n",
-                    "if model.config.id2label == {i: emotion for i, emotion in enumerate(emotions)}:\n",
+"if model.config.id2label == {i: emotion for i, emotion in enumerate(emotions)}:\n",
                     "    print('✅ CONFIRMED: Emotion label mappings set correctly')\n",
                     "else:\n",
                     "    print('❌ ERROR: Emotion label mappings not set correctly')\n",
@@ -359,9 +401,17 @@ def create_fixed_notebook():
                 "source": [
                     "# Tokenization function\n",
                     "def tokenize_function(examples):\n",
-                    "    return tokenizer(examples['text'], padding='max_length', truncation=True, max_length=128)\n",
+                    "    return tokenizer(
+                                          examples['text'],
+                                          padding='max_length',
+                                          truncation=True,
+                                          max_length=128)\n",
+                                          
                     "\n",
-                    "train_dataset = train_dataset.map(tokenize_function, batched=True)\n",
+                    "train_dataset = train_dataset.map(
+                                                       tokenize_function,
+                                                       batched=True)\n",
+                                                       
                     "val_dataset = val_dataset.map(tokenize_function, batched=True)\n",
                     "\n",
                     "print('✅ Data tokenized successfully')"
@@ -413,7 +463,12 @@ def create_fixed_notebook():
                     "    predictions = np.argmax(predictions, axis=1)\n",
                     "    \n",
                     "    # Calculate metrics\n",
-                    "    report = classification_report(labels, predictions, target_names=emotions, output_dict=True)\n",
+                    "    report = classification_report(
+                                                        labels,
+                                                        predictions,
+                                                        target_names=emotions,
+                                                        output_dict=True)\n",
+                                                        
                     "    \n",
                     "    return {\n",
                     "        'f1': report['weighted avg']['f1-score'],\n",
@@ -507,11 +562,19 @@ def create_fixed_notebook():
                     "predictions_by_emotion = {emotion: 0 for emotion in emotions}\n",
                     "\n",
                     "for text in test_examples:\n",
-                    "    inputs = tokenizer(text, return_tensors='pt', truncation=True, max_length=128)\n",
+                    "    inputs = tokenizer(
+                                            text,
+                                            return_tensors='pt',
+                                            truncation=True,
+                                            max_length=128)\n",
+                                            
                     "    with torch.no_grad():\n",
                     "        outputs = model(**inputs)\n",
                     "        predictions = torch.softmax(outputs.logits, dim=1)\n",
-                    "        predicted_class = torch.argmax(predictions, dim=1).item()\n",
+                    "        predicted_class = torch.argmax(
+                                                            predictions,
+                                                            dim=1).item()\n",
+                                                            
                     "        confidence = predictions[0][predicted_class].item()\n",
                     "    \n",
                     "    predicted_emotion = emotions[predicted_class]\n",
@@ -523,13 +586,16 @@ def create_fixed_notebook():
                     "            expected_emotion = emotion\n",
                     "            break\n",
                     "    \n",
-                    "    if expected_emotion and predicted_emotion == expected_emotion:\n",
+" if expected_emotion and predicted_emotion == expected_emotion:\n",
                     "        correct += 1\n",
                     "        status = '✅'\n",
                     "    else:\n",
                     "        status = '❌'\n",
                     "    \n",
-                    "    print(f'{status} {text} → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})')\n",
+                    "    print(
+                               f'{status} {text} → {predicted_emotion} (expected: {expected_emotion},
+                               confidence: {confidence:.3f})')\n",
+                               
                     "\n",
                     "accuracy = correct / len(test_examples)\n",
                     "print(f'\\n📊 Test Accuracy: {accuracy:.1%}')\n",
@@ -538,10 +604,14 @@ def create_fixed_notebook():
                     "print('\\n🎯 Bias Analysis:')\n",
                     "for emotion, count in predictions_by_emotion.items():\n",
                     "    percentage = count / len(test_examples) * 100\n",
-                    "    print(f'  {emotion}: {count} predictions ({percentage:.1f}%)')\n",
+                    "    print(
+                               f'  {emotion}: {count} predictions ({percentage:.1f}%)')\n",
+                               
                     "\n",
                     "# Determine if model is reliable\n",
-                    "max_bias = max(predictions_by_emotion.values()) / len(test_examples)\n",
+                    "max_bias = max(
+                                    predictions_by_emotion.values()) / len(test_examples)\n",
+                                    
                     "\n",
                     "if accuracy >= 0.8 and max_bias <= 0.3:\n",
                     "    print('\\n🎉 MODEL PASSES RELIABILITY TEST!')\n",
@@ -549,7 +619,9 @@ def create_fixed_notebook():
                     "else:\n",
                     "    print('\\n⚠️  MODEL NEEDS IMPROVEMENT')\n",
                     "    if accuracy < 0.8:\n",
-                    "        print(f'❌ Accuracy too low: {accuracy:.1%} (need >80%)')\n",
+                    "        print(
+                                   f'❌ Accuracy too low: {accuracy:.1%} (need >80%)')\n",
+                                   
                     "    if max_bias > 0.3:\n",
                     "        print(f'❌ Too much bias: {max_bias:.1%} (need <30%)')"
                 ]
@@ -560,7 +632,7 @@ def create_fixed_notebook():
                 "metadata": {},
                 "outputs": [],
                 "source": [
-                    "# CRITICAL: Save the model with proper configuration verification\n",
+"# CRITICAL: Save the model with proper configuration verification\n",
                     "print('💾 SAVING MODEL WITH CONFIGURATION VERIFICATION')\n",
                     "print('=' * 50)\n",
                     "\n",
@@ -568,8 +640,12 @@ def create_fixed_notebook():
                     "\n",
                     "# CRITICAL: Ensure configuration is still set before saving\n",
                     "print('🔧 Verifying configuration before saving...')\n",
-                    "model.config.id2label = {i: emotion for i, emotion in enumerate(emotions)}\n",
-                    "model.config.label2id = {emotion: i for i, emotion in enumerate(emotions)}\n",
+                    "model.config.id2label = {i: emotion for i, emotion in enumerate(
+                                                                                     emotions)}\n",
+                                                                                     
+                    "model.config.label2id = {emotion: i for i, emotion in enumerate(
+                                                                                     emotions)}\n",
+                                                                                     
                     "\n",
                     "print(f'Final id2label: {model.config.id2label}')\n",
                     "print(f'Final label2id: {model.config.label2id}')\n",
@@ -588,30 +664,54 @@ def create_fixed_notebook():
                     "    with open(f'{output_dir}/config.json', 'r') as f:\n",
                     "        saved_config = json.load(f)\n",
                     "    \n",
-                    "    print(f'Saved model type: {saved_config.get(\"model_type\", \"NOT FOUND\")}')\n",
-                    "    print(f'Saved id2label: {saved_config.get(\"id2label\", \"NOT FOUND\")}')\n",
-                    "    print(f'Saved label2id: {saved_config.get(\"label2id\", \"NOT FOUND\")}')\n",
+                    "    print(
+                               f'Saved model type: {saved_config.get(\"model_type\",
+                               \"NOT FOUND\")}')\n",
+                               
+                    "    print(
+                               f'Saved id2label: {saved_config.get(\"id2label\",
+                               \"NOT FOUND\")}')\n",
+                               
+                    "    print(
+                               f'Saved label2id: {saved_config.get(\"label2id\",
+                               \"NOT FOUND\")}')\n",
+                               
                     "    \n",
                     "    # Verify the emotion labels are saved correctly\n",
-                    "    expected_id2label = {str(i): emotion for i, emotion in enumerate(emotions)}\n",
-                    "    expected_label2id = {emotion: i for i, emotion in enumerate(emotions)}\n",
+                    "    expected_id2label = {str(
+                                                  i): emotion for i,
+                                                  emotion in enumerate(emotions)}\n",
+                                                  
+                    "    expected_label2id = {emotion: i for i, emotion in enumerate(
+                                                                                     emotions)}\n",
+                                                                                     
                     "    \n",
                     "    if saved_config.get('id2label') == expected_id2label:\n",
-                    "        print('✅ CONFIRMED: Emotion labels saved correctly in config.json')\n",
+                    "        print(
+                                   '✅ CONFIRMED: Emotion labels saved correctly in config.json')\n",
+                                   
                     "    else:\n",
-                    "        print('❌ ERROR: Emotion labels not saved correctly in config.json')\n",
+                    "        print(
+                                   '❌ ERROR: Emotion labels not saved correctly in config.json')\n",
+                                   
                     "        print(f'Expected: {expected_id2label}')\n",
                     "        print(f'Got: {saved_config.get(\"id2label\")}')\n",
                     "    \n",
                     "    if saved_config.get('label2id') == expected_label2id:\n",
-                    "        print('✅ CONFIRMED: Label mappings saved correctly in config.json')\n",
+                    "        print(
+                                   '✅ CONFIRMED: Label mappings saved correctly in config.json')\n",
+                                   
                     "    else:\n",
-                    "        print('❌ ERROR: Label mappings not saved correctly in config.json')\n",
+                    "        print(
+                                   '❌ ERROR: Label mappings not saved correctly in config.json')\n",
+                                   
                     "        print(f'Expected: {expected_label2id}')\n",
                     "        print(f'Got: {saved_config.get(\"label2id\")}')\n",
                     "    \n",
                     "except Exception as e:\n",
-                    "    print(f'❌ ERROR: Could not verify saved configuration: {str(e)}')\n",
+                    "    print(
+                               f'❌ ERROR: Could not verify saved configuration: {str(e)}')\n",
+                               
                     "\n",
                     "# Save training info\n",
                     "training_info = {\n",
@@ -633,7 +733,9 @@ def create_fixed_notebook():
                     "    json.dump(training_info, f, indent=2)\n",
                     "\n",
                     "print(f'\\n✅ Model saved to: {output_dir}')\n",
-                    "print(f'✅ Training info saved: {output_dir}/training_info.json')\n",
+                    "print(
+                           f'✅ Training info saved: {output_dir}/training_info.json')\n",
+                           
                     "print('\\n📋 Next steps:')\n",
                     "print('1. Download the model files')\n",
                     "print('2. Test locally with validation script')\n",

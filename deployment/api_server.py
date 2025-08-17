@@ -87,7 +87,10 @@ if __name__ == '__main__':
     print("🚀 Starting Emotion Detection API Server")
     print("=" * 50)
     print("📊 Model Performance: 99.48% F1 Score")
-    print("🎯 Supported Emotions:", list(detector.label_encoder.classes_) if detector else "None")
+    print(
+          "🎯 Supported Emotions:",
+          list(detector.label_encoder.classes_) if detector else "None"
+         )
     print("🌐 API Endpoints:")
     print("  - GET  /health - Health check")
     print("  - POST /predict - Single text prediction")

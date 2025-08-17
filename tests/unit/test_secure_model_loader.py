@@ -110,7 +110,10 @@ class TestIntegrityChecker(unittest.TestCase):
         """Test comprehensive validation."""
         # Create a test file with known checksum for validation
         test_checksum = self.checker.calculate_checksum(self.test_file)
-        is_valid, results = self.checker.comprehensive_validation(self.test_file, expected_checksum=test_checksum)
+        is_valid, results = self.checker.comprehensive_validation(
+                                                                  self.test_file,
+                                                                  expected_checksum=test_checksum
+                                                                 )
         self.assertTrue(is_valid)
         self.assertIn('file_path', results)
         self.assertIn('size_valid', results)
@@ -154,7 +157,11 @@ class TestSandboxExecutor(unittest.TestCase):
             }, f.name)
             
             try:
-                result, info = self.executor.load_model_safely(f.name, TestModel)  # Now returns (model, info)
+                result, info = self.executor.load_model_safely(
+                                                               f.name,
+                                                               TestModel)  # Now returns (model,
+                                                               info
+                                                              )
                 self.assertIsInstance(result, TestModel)
                 self.assertIn('status', info)
                 # Note: load_model_safely now returns both model and info dict
@@ -235,7 +242,10 @@ class TestModelValidator(unittest.TestCase):
     def test_validate_model_performance(self):
         """Test model performance validation."""
         test_input = torch.randn(1, 768)  # BERT hidden size
-        is_valid, info = self.validator.validate_model_performance(self.test_model, test_input)
+        is_valid, info = self.validator.validate_model_performance(
+                                                                   self.test_model,
+                                                                   test_input
+                                                                  )
         self.assertTrue(is_valid)
         self.assertIn('forward_pass_time', info)
         self.assertIn('output_shape', info)

@@ -43,7 +43,10 @@ class IntegratedSecurityOptimization:
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
         print(f"[{timestamp}] [{level}] {message}")
 
-    def run_command(self, command: List[str], check: bool = True) -> subprocess.CompletedProcess:
+    def run_command(
+                    self,
+                    command: List[str],
+                    check: bool = True) -> subprocess.CompletedProcess:
         """Run shell command with error handling"""
         sanitized_command = []
         for arg in command:
@@ -54,7 +57,12 @@ class IntegratedSecurityOptimization:
 
         self.log(f"Running: {' '.join(sanitized_command)}")
         try:
-            result = subprocess.run(command, capture_output=True, text=True, check=check)
+            result = subprocess.run(
+                                    command,
+                                    capture_output=True,
+                                    text=True,
+                                    check=check
+                                   )
             if result.stdout:
                 self.log(f"STDOUT: {result.stdout.strip()}")
             return result
@@ -68,7 +76,7 @@ class IntegratedSecurityOptimization:
         """Update requirements with latest secure versions"""
         self.log("Updating requirements with security fixes...")
 
-        secure_requirements = """# Integrated Secure & Optimized Requirements for Cloud Run
+secure_requirements = """# Integrated Secure & Optimized Requirements for Cloud Run
 # All versions verified with safety-mcp for security and Python 3.9 compatibility
 
 # Web framework - latest secure version
@@ -113,7 +121,9 @@ fastapi==0.104.1
 
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/{self.project_id}/samo-dl/{self.service_name}', '-f', 'Dockerfile.secure', '.']
+args: ['build', '-t',
+'us-central1-docker.pkg.dev/{self.project_id}/samo-dl/{self.service_name}', '-f',
+'Dockerfile.secure', '.']
     timeout: '1800s'
     env:
       - 'PROJECT_ID={self.project_id}'
@@ -124,7 +134,7 @@ steps:
       - 'run'
       - 'deploy'
       - '{self.service_name}'
-      - '--image=us-central1-docker.pkg.dev/{self.project_id}/samo-dl/{self.service_name}'
+- '--image=us-central1-docker.pkg.dev/{self.project_id}/samo-dl/{self.service_name}'
       - '--region={self.region}'
       - '--platform=managed'
       - '--allow-unauthenticated'
@@ -135,7 +145,8 @@ steps:
       - '--min-instances=1'
       - '--concurrency=80'
       - '--timeout=300'
-      - '--set-env-vars=ENVIRONMENT=production,HEALTH_CHECK_INTERVAL=30,GRACEFUL_SHUTDOWN_TIMEOUT=30'
+-
+'--set-env-vars=ENVIRONMENT=production,HEALTH_CHECK_INTERVAL=30,GRACEFUL_SHUTDOWN_TIMEOUT=30'
       - '--set-env-vars=ENABLE_MONITORING=true,ENABLE_HEALTH_CHECKS=true'
       - '--set-env-vars=MAX_INPUT_LENGTH=512,RATE_LIMIT_PER_MINUTE=100'
       - '--set-env-vars=ADMIN_API_KEY=$_ADMIN_API_KEY'
@@ -163,7 +174,9 @@ substitutions:
         build_command = [
             'gcloud', 'builds', 'submit',
             '--config', str(self.deployment_dir / 'cloudbuild.yaml'),
-            '--substitutions', f'_ADMIN_API_KEY=samo-admin-key-2024-secure-{int(time.time())}',
+            '--substitutions', f'_ADMIN_API_KEY=samo-admin-key-2024-secure-{int(
+                                                                                time.time())}',
+                                                                                
             str(self.deployment_dir)
         ]
 
@@ -242,11 +255,15 @@ substitutions:
         if prediction_response.status_code == 200:
             result = prediction_response.json()
             if 'emotion' in result and 'confidence' in result:
-                self.log(f"✅ Prediction working: {result['emotion']} ({result['confidence']:.2f})")
+                self.log(
+                         f"✅ Prediction working: {result['emotion']} ({result['confidence']:.2f})"
+                        )
             else:
                 self.log("⚠️ Prediction response format unexpected")
         else:
-            self.log(f"⚠️ Prediction endpoint failed: {prediction_response.status_code}")
+            self.log(
+                     f"⚠️ Prediction endpoint failed: {prediction_response.status_code}"
+                    )
 
         self.log("✅ Integrated deployment testing completed")
 
@@ -285,7 +302,9 @@ substitutions:
             self.log("✅ Graceful shutdown enabled")
             self.log("")
             self.log("🔗 Service URL: Check Cloud Run console or run:")
-            self.log(f"   gcloud run services describe {self.service_name} --region={self.region} --format='value(status.url)'")
+            self.log(
+                     f"   gcloud run services describe {self.service_name} --region={self.region} --format='value(status.url)'"
+                    )
 
         except Exception as e:
             self.log(f"❌ Integration failed: {str(e)}", "ERROR")

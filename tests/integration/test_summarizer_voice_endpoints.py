@@ -28,7 +28,10 @@ def client() -> TestClient:
     return TestClient(app)
 
 
-def tiny_tone_wav_bytes(duration_s: float = 0.3, sample_rate: int = 16000, freq_hz: int = 440) -> bytes:
+def tiny_tone_wav_bytes(
+                        duration_s: float = 0.3,
+                        sample_rate: int = 16000,
+                        freq_hz: int = 440) -> bytes:
     """Generate a very small WAV tone (16-bit PCM) for upload tests."""
     t = np.linspace(0, duration_s, int(sample_rate * duration_s), endpoint=False)
     audio = (0.2 * np.sin(2 * np.pi * freq_hz * t)).astype(np.float32)
@@ -48,7 +51,10 @@ def tiny_tone_wav_bytes(duration_s: float = 0.3, sample_rate: int = 16000, freq_
         return buf.getvalue()
 
 
-def test_summarize_returns_503_when_model_unavailable(monkeypatch, client: TestClient, tmp_path):
+def test_summarize_returns_503_when_model_unavailable(
+                                                      monkeypatch,
+                                                      client: TestClient,
+                                                      tmp_path):
     """Force summarizer lazy-load to fail and expect 503."""
     # Ensure global is None
     api.text_summarizer = None
@@ -85,7 +91,8 @@ def test_summarize_returns_503_when_model_unavailable(monkeypatch, client: TestC
 
     resp = client.post(
         "/summarize/text",
-        data={"text": "short text to summarize", "model": "t5-small", "max_length": 40, "min_length": 5},
+data={"text": "short text to summarize", "model": "t5-small", "max_length": 40,
+"min_length": 5},
     )
     assert resp.status_code == 503
 
@@ -123,14 +130,17 @@ def test_summarize_returns_200_when_lazy_load_succeeds(monkeypatch, client: Test
 
     resp = client.post(
         "/summarize/text",
-        data={"text": "short text to summarize", "model": "t5-small", "max_length": 40, "min_length": 5},
+data={"text": "short text to summarize", "model": "t5-small", "max_length": 40,
+"min_length": 5},
     )
     assert resp.status_code == 200
     data = resp.json()
     assert data.get("summary") == "fake summary"
 
 
-def test_voice_returns_503_when_transcriber_unavailable(monkeypatch, client: TestClient):
+def test_voice_returns_503_when_transcriber_unavailable(
+                                                        monkeypatch,
+                                                        client: TestClient):
     """Force transcriber lazy-load to fail and expect 503."""
     api.voice_transcriber = None
 

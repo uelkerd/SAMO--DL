@@ -21,7 +21,10 @@ from tqdm import tqdm
 from transformers import AutoModel, AutoTokenizer
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+                    level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s"
+                   )
 logger = logging.getLogger(__name__)
 
 
@@ -67,23 +70,28 @@ def create_test_data():
     test_data = [
         {
             "text": "I am extremely happy today!",
-            "labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # joy
+"labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0] # joy
         },
         {
             "text": "This makes me so angry!",
-            "labels": [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # anger
+"labels": [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0] # anger
         },
         {
             "text": "I feel sad and disappointed.",
-            "labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]  # disappointment, sadness
+"labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+0, 0] # disappointment, sadness
         },
         {
             "text": "This is amazing and exciting!",
-            "labels": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # admiration, excitement
+"labels": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0] # admiration, excitement
         },
         {
             "text": "I'm neutral about this.",
-            "labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]  # neutral
+"labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 1] # neutral
         }
     ]
 
@@ -221,7 +229,9 @@ def optimize_threshold(model, test_data):
     results.sort(key=lambda x: x['f1'], reverse=True)
     logger.info("📊 Top 5 thresholds:")
     for i, result in enumerate(results[:5]):
-        logger.info(f"   {i+1}. Threshold {result['threshold']:.2f}: F1 = {result['f1']:.4f}")
+        logger.info(
+                    f"   {i+1}. Threshold {result['threshold']:.2f}: F1 = {result['f1']:.4f}"
+                   )
 
     logger.info(f"🎯 Best threshold: {best_threshold:.2f} (F1 = {best_f1:.4f})")
 
@@ -265,9 +275,15 @@ def main():
         # Compare results
         logger.info("=" * 50)
         logger.info("📋 Comparison:")
-        logger.info(f"   Default threshold (0.5): F1 = {default_results['f1_macro']:.4f}")
-        logger.info(f"   Optimized threshold ({best_threshold:.2f}): F1 = {optimized_results['f1_macro']:.4f}")
-        logger.info(f"   Improvement: {optimized_results['f1_macro'] - default_results['f1_macro']:.4f}")
+        logger.info(
+                    f"   Default threshold (0.5): F1 = {default_results['f1_macro']:.4f}"
+                   )
+        logger.info(
+                    f"   Optimized threshold ({best_threshold:.2f}): F1 = {optimized_results['f1_macro']:.4f}"
+                   )
+        logger.info(
+                    f"   Improvement: {optimized_results['f1_macro'] - default_results['f1_macro']:.4f}"
+                   )
 
         # Save results
         results = {

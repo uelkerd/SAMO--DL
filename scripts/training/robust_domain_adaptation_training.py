@@ -2,10 +2,12 @@
 """
 SAMO Deep Learning - Robust Domain Adaptation Training Script
 
-This script provides a robust implementation for REQ-DL-012: Domain-Adapted Emotion Detection
+This script provides a robust implementation for REQ-DL-012: Domain-Adapted Emotion
+Detection
 that avoids dependency hell and provides comprehensive error handling.
 
-Target: Achieve 70% F1 score on journal entries through domain adaptation from GoEmotions
+Target: Achieve 70% F1 score on journal entries through domain adaptation from
+GoEmotions
 """
 
 import os
@@ -77,7 +79,9 @@ def verify_installation():
         
         if torch.cuda.is_available():
             print(f"  GPU: {torch.cuda.get_device_name(0)}")
-            print(f"  Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
+            print(
+                  f"  Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
+                 )
             torch.backends.cudnn.benchmark = True
             print("  ✅ GPU optimized for training")
         else:
@@ -114,7 +118,10 @@ def setup_repository():
     
     # Clone repository if not exists
     if not Path('SAMO--DL').exists():
-        run_command('git clone https://github.com/uelkerd/SAMO--DL.git', 'Cloning repository')
+        run_command(
+                    'git clone https://github.com/uelkerd/SAMO--DL.git',
+                    'Cloning repository'
+                   )
     
     # Change to project directory
     os.chdir('SAMO--DL')
@@ -123,7 +130,10 @@ def setup_repository():
     # Pull latest changes
     run_command('git pull origin main', 'Pulling latest changes')
 
-def safe_load_dataset(dataset_name: str, config: Optional[str] = None, split: Optional[str] = None):
+def safe_load_dataset(
+                      dataset_name: str,
+                      config: Optional[str] = None,
+                      split: Optional[str] = None):
     """Safely load dataset with error handling."""
     try:
         from datasets import load_dataset
@@ -148,7 +158,10 @@ def safe_load_json(file_path: str):
         print(f"❌ Failed to load {file_path}: {e}")
         return None
 
-def analyze_writing_style(texts: List[str], domain_name: str) -> Optional[Dict[str, float]]:
+def analyze_writing_style(
+                          texts: List[str],
+                          domain_name: str) -> Optional[Dict[str,
+                          float]]:
     """Analyze writing style characteristics of a domain."""
     if not texts:
         print(f"⚠️ No texts provided for {domain_name}")
@@ -164,8 +177,12 @@ def analyze_writing_style(texts: List[str], domain_name: str) -> Optional[Dict[s
     import numpy as np
     
     avg_length = np.mean([len(text.split()) for text in valid_texts])
-    personal_pronouns = sum(['I ' in text or 'my ' in text or 'me ' in text for text in valid_texts]) / len(valid_texts)
-    reflection_words = sum(['think' in text.lower() or 'feel' in text.lower() or 'believe' in text.lower()
+    personal_pronouns = sum(
+                            ['I ' in text or 'my ' in text or 'me ' in text for text in valid_texts]) / len(valid_texts
+                           )
+    reflection_words = sum(
+                           ['think' in text.lower() or 'feel' in text.lower() or 'believe' in text.lower(
+                          )
                            for text in valid_texts]) / len(valid_texts)
 
     print(f"{domain_name} Style Analysis:")
@@ -207,9 +224,15 @@ def perform_domain_analysis():
         
         if go_analysis and journal_analysis:
             print("\n🎯 Key Insights:")
-            print(f"- Journal entries are {journal_analysis['avg_length']/go_analysis['avg_length']:.1f}x longer")
-            print(f"- Journal entries use {journal_analysis['personal_pronouns']/go_analysis['personal_pronouns']:.1f}x more personal pronouns")
-            print(f"- Journal entries contain {journal_analysis['reflection_words']/go_analysis['reflection_words']:.1f}x more reflection words")
+            print(
+                  f"- Journal entries are {journal_analysis['avg_length']/go_analysis['avg_length']:.1f}x longer"
+                 )
+            print(
+                  f"- Journal entries use {journal_analysis['personal_pronouns']/go_analysis['personal_pronouns']:.1f}x more personal pronouns"
+                 )
+            print(
+                  f"- Journal entries contain {journal_analysis['reflection_words']/go_analysis['reflection_words']:.1f}x more reflection words"
+                 )
             
             return go_emotions, journal_df
     else:
@@ -253,7 +276,9 @@ class DomainAdaptedEmotionClassifier:
         elif num_labels <= 0:
             raise ValueError(f"num_labels must be positive, got {num_labels}")
         
-        print(f"🏗️ Initializing DomainAdaptedEmotionClassifier with num_labels = {num_labels}")
+        print(
+              f"🏗️ Initializing DomainAdaptedEmotionClassifier with num_labels = {num_labels}"
+             )
         
         try:
             self.bert = AutoModel.from_pretrained(model_name)
@@ -304,7 +329,10 @@ def safe_model_initialization(model_name: str, num_labels: int, device: str):
         print(f"✅ Tokenizer loaded: {model_name}")
         
         # Initialize model
-        model = DomainAdaptedEmotionClassifier(model_name=model_name, num_labels=num_labels)
+        model = DomainAdaptedEmotionClassifier(
+                                               model_name=model_name,
+                                               num_labels=num_labels
+                                              )
         
         # Move to device
         import torch
@@ -349,7 +377,11 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     # This would be called when we have the label encoder ready
-    # model, tokenizer = safe_model_initialization("bert-base-uncased", num_labels, device)
+    # model, tokenizer = safe_model_initialization(
+                                                   "bert-base-uncased",
+                                                   num_labels,
+                                                   device
+                                                  )
     
     print("\n✅ Setup completed successfully!")
     print("🎯 Ready for domain adaptation training")

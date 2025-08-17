@@ -31,7 +31,9 @@ def test_comprehensive_model():
     
     try:
         tokenizer = AutoTokenizer.from_pretrained(comprehensive_model_path)
-        model = AutoModelForSequenceClassification.from_pretrained(comprehensive_model_path)
+        model = AutoModelForSequenceClassification.from_pretrained(
+                                                                   comprehensive_model_path
+                                                                  )
         
         if torch.cuda.is_available():
             model = model.to('cuda')
@@ -50,7 +52,9 @@ def test_comprehensive_model():
     print("-" * 40)
     
     print(f"Model type: {model.config.model_type}")
-    print(f"Architecture: {model.config.architectures[0] if model.config.architectures else 'Unknown'}")
+    print(
+          f"Architecture: {model.config.architectures[0] if model.config.architectures else 'Unknown'}"
+         )
     print(f"Hidden layers: {model.config.num_hidden_layers}")
     print(f"Hidden size: {model.config.hidden_size}")
     print(f"Number of labels: {model.config.num_labels}")
@@ -65,7 +69,8 @@ def test_comprehensive_model():
     print(f"\n🎯 EMOTION CLASSES VERIFICATION")
     print("-" * 40)
     
-    expected_emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+expected_emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
     
     if model.config.id2label:
         actual_emotions = []
@@ -93,7 +98,12 @@ def test_comprehensive_model():
     print(f"\n🏗️ MODEL ARCHITECTURE TEST")
     print("-" * 40)
     
-    test_input = tokenizer("I feel happy today", return_tensors='pt', truncation=True, padding=True)
+    test_input = tokenizer(
+                           "I feel happy today",
+                           return_tensors='pt',
+                           truncation=True,
+                           padding=True
+                          )
     if torch.cuda.is_available():
         test_input = {k: v.to('cuda') for k, v in test_input.items()}
     
@@ -106,7 +116,9 @@ def test_comprehensive_model():
         if output_shape[1] == len(expected_emotions):
             print("✅ Model architecture is correct!")
         else:
-            print(f"❌ Model architecture mismatch: {output_shape[1]} != {len(expected_emotions)}")
+            print(
+                  f"❌ Model architecture mismatch: {output_shape[1]} != {len(expected_emotions)}"
+                 )
             return
     
     # 5. Comprehensive inference test
@@ -205,7 +217,9 @@ def test_comprehensive_model():
         confidence_scores.append(confidence)
         
         print(f"{status} {i:2d}. \"{text}\"")
-        print(f"    Expected: {expected_emotion:<12} | Predicted: {predicted_emotion:<12} | Confidence: {confidence:.3f}")
+        print(
+              f"    Expected: {expected_emotion:<12} | Predicted: {predicted_emotion:<12} | Confidence: {confidence:.3f}"
+             )
         print()
     
     # 6. Performance analysis
@@ -220,9 +234,15 @@ def test_comprehensive_model():
     print(f"Accuracy: {accuracy:.2f}% ({correct_predictions}/{len(test_cases)})")
     print(f"Average confidence: {average_confidence:.3f}")
     print(f"Confidence range: {min_confidence:.3f} - {max_confidence:.3f}")
-    print(f"High confidence predictions (≥0.8): {sum(1 for c in confidence_scores if c >= 0.8)}/{len(test_cases)}")
-    print(f"Medium confidence predictions (0.5-0.8): {sum(1 for c in confidence_scores if 0.5 <= c < 0.8)}/{len(test_cases)}")
-    print(f"Low confidence predictions (<0.5): {sum(1 for c in confidence_scores if c < 0.5)}/{len(test_cases)}")
+    print(
+          f"High confidence predictions (≥0.8): {sum(1 for c in confidence_scores if c >= 0.8)}/{len(test_cases)}"
+         )
+    print(
+          f"Medium confidence predictions (0.5-0.8): {sum(1 for c in confidence_scores if 0.5 <= c < 0.8)}/{len(test_cases)}"
+         )
+    print(
+          f"Low confidence predictions (<0.5): {sum(1 for c in confidence_scores if c < 0.5)}/{len(test_cases)}"
+         )
     
     # 7. Compare with fallback model
     print(f"\n🔄 COMPARISON WITH FALLBACK MODEL")
@@ -230,7 +250,9 @@ def test_comprehensive_model():
     
     try:
         fallback_tokenizer = AutoTokenizer.from_pretrained(fallback_model_path)
-        fallback_model = AutoModelForSequenceClassification.from_pretrained(fallback_model_path)
+        fallback_model = AutoModelForSequenceClassification.from_pretrained(
+                                                                            fallback_model_path
+                                                                           )
         
         if torch.cuda.is_available():
             fallback_model = fallback_model.to('cuda')
@@ -240,7 +262,12 @@ def test_comprehensive_model():
         fallback_confidence = 0.0
         
         for text, expected_emotion in test_cases[:12]:  # Test first 12 cases
-            inputs = fallback_tokenizer(text, return_tensors='pt', truncation=True, padding=True)
+            inputs = fallback_tokenizer(
+                                        text,
+                                        return_tensors='pt',
+                                        truncation=True,
+                                        padding=True
+                                       )
             if torch.cuda.is_available():
                 inputs = {k: v.to('cuda') for k, v in inputs.items()}
             
@@ -275,15 +302,23 @@ def test_comprehensive_model():
         
         if accuracy > fallback_accuracy:
             improvement = accuracy - fallback_accuracy
-            print(f"✅ Comprehensive model shows {improvement:.2f}% improvement in accuracy!")
+            print(
+                  f"✅ Comprehensive model shows {improvement:.2f}% improvement in accuracy!"
+                 )
         else:
-            print(f"⚠️ Fallback model performed better by {fallback_accuracy - accuracy:.2f}%")
+            print(
+                  f"⚠️ Fallback model performed better by {fallback_accuracy - accuracy:.2f}%"
+                 )
         
         if average_confidence > fallback_avg_confidence:
             conf_improvement = average_confidence - fallback_avg_confidence
-            print(f"✅ Comprehensive model shows {conf_improvement:.3f} improvement in confidence!")
+            print(
+                  f"✅ Comprehensive model shows {conf_improvement:.3f} improvement in confidence!"
+                 )
         else:
-            print(f"⚠️ Fallback model has higher confidence by {fallback_avg_confidence - average_confidence:.3f}")
+            print(
+                  f"⚠️ Fallback model has higher confidence by {fallback_avg_confidence - average_confidence:.3f}"
+                 )
         
     except Exception as e:
         print(f"⚠️ Could not compare with fallback model: {e}")
@@ -376,9 +411,11 @@ def test_comprehensive_model():
             metadata["created_date"] = datetime.now().isoformat()
             metadata["performance"]["test_accuracy"] = f"{accuracy:.2f}%"
             metadata["performance"]["average_confidence"] = f"{average_confidence:.3f}"
-            metadata["performance"]["confidence_range"] = f"{min_confidence:.3f} - {max_confidence:.3f}"
+metadata["performance"]["confidence_range"] = f"{min_confidence:.3f} -
+{max_confidence:.3f}"
             metadata["status"] = "ready"
-            metadata["notes"] = f"Comprehensive model tested successfully. Accuracy: {accuracy:.2f}%, Confidence: {average_confidence:.3f}"
+metadata["notes"] = f"Comprehensive model tested successfully. Accuracy:
+{accuracy:.2f}%, Confidence: {average_confidence:.3f}"
             
             with open(metadata_path, 'w') as f:
                 json.dump(metadata, f, indent=2)

@@ -57,7 +57,8 @@ def comprehensive_validation():
     print(f"Vocab Size: {config.get('vocab_size', 'unknown')}")
     
     # Define emotion mapping
-    emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
     print(f"Emotion Classes: {len(emotion_mapping)}")
     
     # Load model and tokenizer
@@ -109,7 +110,13 @@ def comprehensive_validation():
     for text, expected_emotion in test_cases:
         try:
             # Tokenize
-            inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+            inputs = tokenizer(
+                               text,
+                               return_tensors="pt",
+                               truncation=True,
+                               max_length=512,
+                               padding=True
+                              )
             inputs = {k: v.to(device) for k, v in inputs.items()}
             
             # Predict
@@ -128,7 +135,10 @@ def comprehensive_validation():
             else:
                 status = "❌"
             
-            print(f"{status} '{text}' → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})")
+            print(
+                  f"{status} '{text}' → {predicted_emotion} (expected: {expected_emotion},
+                  confidence: {confidence:.3f})"
+                 )
             
         except Exception as e:
             print(f"❌ Error predicting '{text}': {str(e)}")
@@ -149,7 +159,13 @@ def comprehensive_validation():
     
     confidence_scores = []
     for text, _ in test_cases:
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+        inputs = tokenizer(
+                           text,
+                           return_tensors="pt",
+                           truncation=True,
+                           max_length=512,
+                           padding=True
+                          )
         inputs = {k: v.to(device) for k, v in inputs.items()}
         
         with torch.no_grad():
@@ -187,7 +203,13 @@ def comprehensive_validation():
     edge_case_success = 0
     for text in edge_cases:
         try:
-            inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+            inputs = tokenizer(
+                               text,
+                               return_tensors="pt",
+                               truncation=True,
+                               max_length=512,
+                               padding=True
+                              )
             inputs = {k: v.to(device) for k, v in inputs.items()}
             
             with torch.no_grad():
@@ -198,7 +220,9 @@ def comprehensive_validation():
             
             predicted_emotion = emotion_mapping[predicted_class]
             edge_case_success += 1
-            print(f"✅ Edge case handled: '{text[:30]}...' → {predicted_emotion} ({confidence:.3f})")
+            print(
+                  f"✅ Edge case handled: '{text[:30]}...' → {predicted_emotion} ({confidence:.3f})"
+                 )
             
         except Exception as e:
             print(f"❌ Edge case failed: '{text[:30]}...' - {str(e)}")
@@ -214,7 +238,13 @@ def comprehensive_validation():
     
     start_time = time.time()
     for _ in range(num_iterations):
-        inputs = tokenizer(benchmark_text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+        inputs = tokenizer(
+                           benchmark_text,
+                           return_tensors="pt",
+                           truncation=True,
+                           max_length=512,
+                           padding=True
+                          )
         inputs = {k: v.to(device) for k, v in inputs.items()}
         
         with torch.no_grad():
@@ -240,7 +270,13 @@ def comprehensive_validation():
     predictions = []
     
     for _ in range(10):
-        inputs = tokenizer(consistency_text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+        inputs = tokenizer(
+                           consistency_text,
+                           return_tensors="pt",
+                           truncation=True,
+                           max_length=512,
+                           padding=True
+                          )
         inputs = {k: v.to(device) for k, v in inputs.items()}
         
         with torch.no_grad():
@@ -256,7 +292,10 @@ def comprehensive_validation():
     is_consistent = len(unique_predictions) == 1
     
     if is_consistent:
-        emotion, avg_conf = unique_predictions.pop(), np.mean([p[1] for p in predictions])
+        emotion, avg_conf = unique_predictions.pop(
+                                                   ),
+                                                   np.mean([p[1] for p in predictions]
+                                                  )
         print(f"✅ Consistent predictions: {emotion} (avg confidence: {avg_conf:.3f})")
     else:
         print(f"❌ Inconsistent predictions: {unique_predictions}")

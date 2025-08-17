@@ -24,7 +24,9 @@ from datasets import load_dataset
 # Add src directory to path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from src.models.voice_processing.transcription_api import TranscriptionAPI, create_transcription_api
+from src
+    .models.voice_processing
+    .transcription_api import TranscriptionAPI, create_transcription_api
 
 # Configure logging
 logging.basicConfig(

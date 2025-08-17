@@ -87,7 +87,9 @@ def diagnose_model_outputs():
             logger.info("  Logits std: {logits.std():.4f}")
 
             logger.info(
-                "  Probabilities range: [{probabilities.min():.4f}, {probabilities.max():.4f}]"
+                "  Probabilities range: [{probabilities.min(
+                                                            ):.4f},
+                                                            {probabilities.max():.4f}]"
             )
             logger.info("  Probabilities mean: {probabilities.mean():.4f}")
             logger.info("  Probabilities std: {probabilities.std():.4f}")
@@ -96,7 +98,8 @@ def diagnose_model_outputs():
             probabilities.numel()
 
             logger.info(
-                "  Predictions > 0.5: {high_prob_count}/{total_predictions} ({100*high_prob_count/total_predictions:.1f}%)"
+                "  Predictions > 0.5: {high_prob_count}/{total_predictions} (
+                                                                             {100*high_prob_count/total_predictions:.1f}%)"
             )
 
             for i in range(min(3, input_ids.shape[0])):
@@ -142,7 +145,8 @@ def diagnose_loss_function():
 
         logger.info("BCE Loss: {loss.item():.4f}")
 
-        pos_weight = torch.ones(num_emotions) * 2.0  # Give more weight to positive class
+        pos_weight = torch.ones(
+                                num_emotions) * 2.0  # Give more weight to positive class
         weighted_bce = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
         weighted_bce(logits, labels)
 

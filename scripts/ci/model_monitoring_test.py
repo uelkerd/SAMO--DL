@@ -140,9 +140,11 @@ def test_model_drift_detection():
         model = SimpleBERTClassifier(num_emotions=28)
         model.eval()
 
-        baseline_input_ids, baseline_attention_mask, baseline_labels = create_synthetic_data(100, 28)
+baseline_input_ids, baseline_attention_mask, baseline_labels =
+create_synthetic_data(100, 28)
 
-        current_input_ids, current_attention_mask, current_labels = create_synthetic_data(100, 28)
+current_input_ids, current_attention_mask, current_labels = create_synthetic_data(100,
+28)
 
         with torch.no_grad():
             baseline_logits = model(baseline_input_ids, baseline_attention_mask)
@@ -194,7 +196,14 @@ def test_monitoring_logging():
 
         logger.info("Monitoring log entry: {log_entry}")
 
-        validate_required_keys(log_entry, ["timestamp", "model_version", "metrics", "status"], label="Log entry")
+        validate_required_keys(
+                               log_entry,
+                               ["timestamp",
+                               "model_version",
+                               "metrics",
+                               "status"],
+                               label="Log entry"
+                              )
 
         logger.info("✅ Monitoring logging test passed")
         return True

@@ -66,9 +66,14 @@ class TestRateLimiter(unittest.TestCase):
         client_ip = "192.168.1.2"
         user_agent = "test-agent"
         
-        # Consume all tokens (release each request immediately to avoid concurrent limit)
+        # Consume all tokens (
+                              release each request immediately to avoid concurrent limit
+                             )
         for i in range(6):  # burst_size + 1
-            allowed, reason, meta = self.rate_limiter.allow_request(client_ip, user_agent)
+            allowed, reason, meta = self.rate_limiter.allow_request(
+                                                                    client_ip,
+                                                                    user_agent
+                                                                   )
             if i < 5:
                 self.assertTrue(allowed)
                 # Release immediately to avoid hitting concurrent request limit
@@ -84,7 +89,10 @@ class TestRateLimiter(unittest.TestCase):
         
         # Make max concurrent requests
         for i in range(3):
-            allowed, reason, meta = self.rate_limiter.allow_request(client_ip, user_agent)
+            allowed, reason, meta = self.rate_limiter.allow_request(
+                                                                    client_ip,
+                                                                    user_agent
+                                                                   )
             self.assertTrue(allowed)
         
         # Next request should be blocked
@@ -109,7 +117,10 @@ class TestRateLimiter(unittest.TestCase):
         user_agent = "test-agent"
         
         # Request from blacklisted IP should be blocked
-        allowed, reason, meta = self.rate_limiter.allow_request(blacklisted_ip, user_agent)
+        allowed, reason, meta = self.rate_limiter.allow_request(
+                                                                blacklisted_ip,
+                                                                user_agent
+                                                               )
         self.assertFalse(allowed)
         self.assertEqual(reason, "IP not allowed")
     
@@ -120,7 +131,10 @@ class TestRateLimiter(unittest.TestCase):
         
         # Simulate rapid-fire requests
         for i in range(11):  # More than 10 requests in 1 second
-            self.rate_limiter.request_history[self.rate_limiter._get_client_key(client_ip, user_agent)].append(time.time())
+            self.rate_limiter.request_history[self.rate_limiter._get_client_key(
+                                                                                client_ip,
+                                                                                user_agent)].append(time.time()
+                                                                               )
         
         # Next request should trigger abuse detection
         allowed, reason, meta = self.rate_limiter.allow_request(client_ip, user_agent)
@@ -144,7 +158,8 @@ class TestRateLimiter(unittest.TestCase):
         
         # Simulate time passing (1 minute) by directly modifying the last refill time
         original_last_refill = self.rate_limiter.last_refill[client_key]
-        self.rate_limiter.last_refill[client_key] = original_last_refill - 60  # Go back 60 seconds
+self.rate_limiter.last_refill[client_key] =
+    original_last_refill - 60  # Go back 60 seconds
         self.rate_limiter._refill_bucket(client_key)
         
         # Bucket should be refilled
@@ -316,7 +331,8 @@ class TestInputSanitizer(unittest.TestCase):
         self.assertGreater(len(warnings), 0)
 
     def test_deeply_nested_json_sanitization(self):
-        """Test that deeply nested JSON triggers max_depth logic and does not cause stack overflow."""
+"""Test that deeply nested JSON triggers max_depth logic and does not cause stack
+overflow."""
         # Construct a deeply nested JSON object
         max_depth = getattr(self.sanitizer, "max_depth", 10)
         deep_data = current = {}
@@ -329,7 +345,8 @@ class TestInputSanitizer(unittest.TestCase):
         sanitized_data, warnings = self.sanitizer.sanitize_json(deep_data)
         # The sanitizer should block or warn about excessive depth
         self.assertTrue(
-            any("max depth" in str(w).lower() or "depth" in str(w).lower() for w in warnings) or
+            any(
+                "max depth" in str(w).lower() or "depth" in str(w).lower() for w in warnings) or
             "[BLOCKED]" in str(sanitized_data)
         )
 
@@ -381,7 +398,9 @@ class TestSecurityHeaders(unittest.TestCase):
             'User-Agent': 'sqlmap'
         }):
             patterns = self.middleware._detect_suspicious_patterns()
-            # Check that patterns are detected (may be empty if no suspicious patterns found)
+            # Check that patterns are detected (
+                                                may be empty if no suspicious patterns found
+                                               )
             if len(patterns) > 0:
                 # If patterns are found, they should contain suspicious indicators
                 self.assertIsInstance(patterns[0], str)
@@ -418,7 +437,10 @@ class TestSecurityIntegration(unittest.TestCase):
         user_agent = "test-agent"
         
         # Step 1: Rate limiting
-        allowed, reason, rate_limit_meta = self.rate_limiter.allow_request(client_ip, user_agent)
+        allowed, reason, rate_limit_meta = self.rate_limiter.allow_request(
+                                                                           client_ip,
+                                                                           user_agent
+                                                                          )
         self.assertTrue(allowed)
         
         # Step 2: Input sanitization
@@ -442,7 +464,10 @@ class TestSecurityIntegration(unittest.TestCase):
         
         # Simulate abuse
         for i in range(15):  # Trigger abuse detection
-            self.rate_limiter.request_history[self.rate_limiter._get_client_key(client_ip, user_agent)].append(time.time())
+            self.rate_limiter.request_history[self.rate_limiter._get_client_key(
+                                                                                client_ip,
+                                                                                user_agent)].append(time.time()
+                                                                               )
         
         # Next request should be blocked
         allowed, reason, meta = self.rate_limiter.allow_request(client_ip, user_agent)

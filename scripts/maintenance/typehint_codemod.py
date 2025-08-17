@@ -260,7 +260,10 @@ def _read_file_content(file_path: Path) -> str:
         return f.read()
 
 
-def _parse_ast_safely(content: str, file_path: Path, verbose: bool) -> Optional[ast.AST]:
+def _parse_ast_safely(
+                      content: str,
+                      file_path: Path,
+                      verbose: bool) -> Optional[ast.AST]:
     """Parse AST safely, returning None on syntax error."""
     try:
         return ast.parse(content)
@@ -270,7 +273,11 @@ def _parse_ast_safely(content: str, file_path: Path, verbose: bool) -> Optional[
         return None
 
 
-def _apply_changes_and_save(file_path: Path, content: str, visitor: TypeHintVisitor, verbose: bool) -> None:
+def _apply_changes_and_save(
+                            file_path: Path,
+                            content: str,
+                            visitor: TypeHintVisitor,
+                            verbose: bool) -> None:
     """Apply changes and save the file."""
     # Sort changes by line number (reverse order to avoid offset issues)
     visitor.changes.sort(
@@ -346,7 +353,11 @@ def process_file(
         return _create_error_result(file_path, str(e))
 
 
-def _process_single_file(file_path: Path, dry_run: bool, verbose: bool) -> Dict[str, Any]:
+def _process_single_file(
+                         file_path: Path,
+                         dry_run: bool,
+                         verbose: bool) -> Dict[str,
+                         Any]:
     """Process a single file and return the result."""
     if verbose:
         print(f"Processing: {file_path}")
@@ -373,7 +384,11 @@ def _process_single_file(file_path: Path, dry_run: bool, verbose: bool) -> Dict[
     return result
 
 
-def _print_summary(results: List[Dict[str, Any]], total_changes: int, dry_run: bool) -> None:
+def _print_summary(
+                   results: List[Dict[str,
+                   Any]],
+                   total_changes: int,
+                   dry_run: bool) -> None:
     """Print summary of processing results."""
     print("=" * 50)
     print("SUMMARY")
@@ -422,7 +437,11 @@ def _parse_arguments() -> argparse.Namespace:
         )
     )
     parser.add_argument('directory', help='Directory to process')
-    parser.add_argument('--dry-run', action='store_true', help='Show what would be changed without making changes')
+    parser.add_argument(
+                        '--dry-run',
+                        action='store_true',
+                        help='Show what would be changed without making changes'
+                       )
     parser.add_argument('--verbose', action='store_true', help='Show detailed output')
     return parser.parse_args()
 
@@ -446,7 +465,12 @@ def _print_processing_info(directory: Path, dry_run: bool) -> None:
     print()
 
 
-def _process_all_files(python_files: List[Path], dry_run: bool, verbose: bool) -> Tuple[List[Dict[str, Any]], int]:
+def _process_all_files(
+                       python_files: List[Path],
+                       dry_run: bool,
+                       verbose: bool) -> Tuple[List[Dict[str,
+                       Any]],
+                       int]:
     """Process all Python files and return results and total changes."""
     results = []
     total_changes = 0
@@ -476,7 +500,11 @@ def main():
     print(f"Found {len(python_files)} Python files")
     print()
 
-    results, total_changes = _process_all_files(python_files, args.dry_run, args.verbose)
+    results, total_changes = _process_all_files(
+                                                python_files,
+                                                args.dry_run,
+                                                args.verbose
+                                               )
 
     # Print summary
     _print_summary(results, total_changes, args.dry_run)

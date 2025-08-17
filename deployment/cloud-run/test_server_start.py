@@ -53,7 +53,9 @@ try:
     # Test docs endpoint
     try:
         response = requests.get(f"{base_url}/docs", timeout=5)
-        print(f"✅ Docs endpoint: {response.status_code} - Content length: {len(response.text)}")
+        print(
+              f"✅ Docs endpoint: {response.status_code} - Content length: {len(response.text)}"
+             )
     except Exception as e:
         print(f"❌ Docs endpoint failed: {e}")
     

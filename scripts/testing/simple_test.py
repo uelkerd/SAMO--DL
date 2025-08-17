@@ -49,7 +49,11 @@ def main():
             logging.info("❌ Cannot access labels: {e}")
 
         try:
-            logging.info("✅ Labels attr: {getattr(first_example, 'labels', 'No labels attr')}")
+            logging.info(
+                         "✅ Labels attr: {getattr(first_example,
+                         'labels',
+                         'No labels attr')}"
+                        )
         except Exception as e:
             logging.info("❌ Cannot get labels attr: {e}")
 

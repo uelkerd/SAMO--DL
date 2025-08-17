@@ -34,7 +34,9 @@ class RateLimitConfig:
     rapid_fire_threshold: int = 10  # Max requests per second
     sustained_rate_threshold: int = 200  # Max requests per minute
     rapid_fire_window: float = 1.0  # Time window for rapid-fire detection (seconds)
-    sustained_rate_window: float = 60.0  # Time window for sustained rate detection (seconds)
+    sustained_rate_window: float = 60.0  # Time window for sustained rate detection (
+                                                                                     seconds
+                                                                                    )
     # Enhanced anomaly detection
     enable_user_agent_analysis: bool = True
     enable_request_pattern_analysis: bool = True

@@ -68,10 +68,11 @@ class TestAPIEndpoints:
     def test_journal_analysis_endpoint(self, mock_bert, api_client):
         """Test /analyze/journal endpoint with text input."""
         mock_model = mock_bert.return_value
-        mock_model.predict_emotions.return_value = [0, 13, 17]  # joy, excitement, gratitude
+mock_model.predict_emotions.return_value =
+    [0, 13, 17]  # joy, excitement, gratitude
 
         test_data = {
-            "text": "I had an amazing day today! I completed my project and felt so proud.",
+"text": "I had an amazing day today! I completed my project and felt so proud.",
             "generate_summary": True,
             "confidence_threshold": 0.5,
         }
@@ -194,7 +195,8 @@ class TestAPIEndpoints:
             assert response.status_code == 200
             responses.append(response.json())
 
-        required_fields = ["emotion_analysis", "summary", "processing_time_ms", "pipeline_status", "insights"]
+required_fields = ["emotion_analysis", "summary", "processing_time_ms",
+"pipeline_status", "insights"]
 
         for response_data in responses:
             for field in required_fields:

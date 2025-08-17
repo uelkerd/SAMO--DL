@@ -71,7 +71,12 @@ def test_api_validation():
 
         class TestRequest(BaseModel):
             text: str = Field(..., min_length=1, description="Text cannot be empty")
-            threshold: float = Field(0.2, ge=0.0, le=1.0, description="Threshold between 0 and 1")
+            threshold: float = Field(
+                                     0.2,
+                                     ge=0.0,
+                                     le=1.0,
+                                     description="Threshold between 0 and 1"
+                                    )
 
         try:
             TestRequest(text="")  # Invalid: empty text

@@ -58,7 +58,11 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
-    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(
+                        DateTime(timezone=True),
+                        default=datetime.utcnow,
+                        onupdate=datetime.utcnow
+                       )
     consent_version = Column(String(50))
     consent_given_at = Column(DateTime(timezone=True))
     data_retention_policy = Column(String(50), default="standard")
@@ -67,7 +71,12 @@ class User(Base):
     journal_entries = relationship(
         "JournalEntry", back_populates="user", cascade="all, delete-orphan"
     )
-    predictions = relationship("Prediction", back_populates="user", cascade="all, delete-orphan")
+    predictions = relationship(
+                               "Prediction",
+                               back_populates="user",
+                               cascade="all,
+                               delete-orphan"
+                              )
     voice_transcriptions = relationship(
         "VoiceTranscription", back_populates="user", cascade="all, delete-orphan"
     )
@@ -82,12 +91,21 @@ class JournalEntry(Base):
     __tablename__ = "journal_entries"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(
+                     UUID(as_uuid=True),
+                     ForeignKey("users.id",
+                     ondelete="CASCADE"),
+                     nullable=False
+                    )
     title = Column(String(255))
     content = Column(Text, nullable=False)
     encrypted_content = Column(LargeBinary)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
-    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(
+                        DateTime(timezone=True),
+                        default=datetime.utcnow,
+                        onupdate=datetime.utcnow
+                       )
     sentiment_score = Column(Float)
     mood_category = Column(String(50))
     is_private = Column(Boolean, default=True)
@@ -101,7 +119,7 @@ class JournalEntry(Base):
         "Prediction", back_populates="journal_entry", cascade="all, delete-orphan"
     )
     voice_transcriptions = relationship(
-        "VoiceTranscription", back_populates="journal_entry", cascade="all, delete-orphan"
+"VoiceTranscription", back_populates="journal_entry", cascade="all, delete-orphan"
     )
     tags = relationship("Tag", secondary=journal_entry_tags, back_populates="entries")
 
@@ -128,17 +146,30 @@ class Embedding(Base):
     journal_entry = relationship("JournalEntry", back_populates="embeddings")
 
     def __repr__(self) -> str:
-        return f"<Embedding(id='{self.id}', journal_entry_id='{self.journal_entry_id}', model_name='{self.model_name}')>"
+        return f"<Embedding(
+                            id='{self.id}',
+                            journal_entry_id='{self.journal_entry_id}',
+                            model_name='{self.model_name}')>"
 
 
 class Prediction(Base):
-    """Prediction model storing AI-generated predictions about user mood, topics, etc."""
+"""Prediction model storing AI-generated predictions about user mood, topics, etc."""
 
     __tablename__ = "predictions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    journal_entry_id = Column(UUID(as_uuid=True), ForeignKey("journal_entries.id", ondelete="CASCADE"), nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    journal_entry_id = Column(
+                              UUID(as_uuid=True),
+                              ForeignKey("journal_entries.id",
+                              ondelete="CASCADE"),
+                              nullable=False
+                             )
+    user_id = Column(
+                     UUID(as_uuid=True),
+                     ForeignKey("users.id",
+                     ondelete="CASCADE"),
+                     nullable=False
+                    )
     prediction_type = Column(String(100), nullable=False)
     prediction_value = Column(JSONB, nullable=False)
     confidence_score = Column(Float)
@@ -152,7 +183,10 @@ class Prediction(Base):
     journal_entry = relationship("JournalEntry", back_populates="predictions")
 
     def __repr__(self) -> str:
-        return f"<Prediction(id='{self.id}', prediction_type='{self.prediction_type}', confidence_score={self.confidence_score})>"
+        return f"<Prediction(
+                             id='{self.id}',
+                             prediction_type='{self.prediction_type}',
+                             confidence_score={self.confidence_score})>"
 
 
 class VoiceTranscription(Base):
@@ -161,8 +195,18 @@ class VoiceTranscription(Base):
     __tablename__ = "voice_transcriptions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    journal_entry_id = Column(UUID(as_uuid=True), ForeignKey("journal_entries.id", ondelete="CASCADE"), nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    journal_entry_id = Column(
+                              UUID(as_uuid=True),
+                              ForeignKey("journal_entries.id",
+                              ondelete="CASCADE"),
+                              nullable=False
+                             )
+    user_id = Column(
+                     UUID(as_uuid=True),
+                     ForeignKey("users.id",
+                     ondelete="CASCADE"),
+                     nullable=False
+                    )
     audio_file_path = Column(String(255))
     transcription_text = Column(Text, nullable=False)
     duration_seconds = Column(Integer)
@@ -176,7 +220,9 @@ class VoiceTranscription(Base):
     journal_entry = relationship("JournalEntry", back_populates="voice_transcriptions")
 
     def __repr__(self) -> str:
-        return f"<VoiceTranscription(id='{self.id}', transcription_text='{self.transcription_text[:50]}...')>"
+        return f"<VoiceTranscription(
+                                     id='{self.id}',
+                                     transcription_text='{self.transcription_text[:50]}...')>"
 
 
 class Tag(Base):
@@ -191,7 +237,11 @@ class Tag(Base):
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
 
     # Relationships
-    entries = relationship("JournalEntry", secondary=journal_entry_tags, back_populates="tags")
+    entries = relationship(
+                           "JournalEntry",
+                           secondary=journal_entry_tags,
+                           back_populates="tags"
+                          )
 
     def __repr__(self) -> str:
         return f"<Tag(id='{self.id}', name='{self.name}')>"

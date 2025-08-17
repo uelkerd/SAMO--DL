@@ -26,7 +26,9 @@ def fix_model_architecture():
                 "print(f'🔧 Loading model: {model_name}')\n",
                 "\n",
                 "tokenizer = AutoTokenizer.from_pretrained(model_name)\n",
-                "model = AutoModelForSequenceClassification.from_pretrained(model_name)\n",
+                "model = AutoModelForSequenceClassification.from_pretrained(
+                                                                            model_name)\n",
+                                                                            
                 "\n",
                 "print(f'Original model labels: {model.config.num_labels}')\n",
                 "print(f'Original id2label: {model.config.id2label}')\n",
@@ -38,8 +40,12 @@ def fix_model_architecture():
                 "\n",
                 "# Configure for our emotions\n",
                 "model.config.num_labels = len(emotions)\n",
-                "model.config.id2label = {i: emotion for i, emotion in enumerate(emotions)}\n",
-                "model.config.label2id = {emotion: i for i, emotion in enumerate(emotions)}\n",
+                "model.config.id2label = {i: emotion for i, emotion in enumerate(
+                                                                                 emotions)}\n",
+                                                                                 
+                "model.config.label2id = {emotion: i for i, emotion in enumerate(
+                                                                                 emotions)}\n",
+                                                                                 
                 "\n",
                 "# CRITICAL: Recreate the classifier layer for 12 emotions\n",
                 "from transformers import RobertaClassificationHead\n",
@@ -55,7 +61,9 @@ def fix_model_architecture():
                 "\n",
                 "print(f'✅ Model reconfigured for {len(emotions)} emotions')\n",
                 "print(f'✅ New id2label: {model.config.id2label}')\n",
-                "print(f'✅ Classifier layer: {model.classifier.out_proj.out_features} outputs')\n",
+                "print(
+                       f'✅ Classifier layer: {model.classifier.out_proj.out_features} outputs')\n",
+                       
                 "\n",
                 "# Move model to GPU\n",
                 "if torch.cuda.is_available():\n",

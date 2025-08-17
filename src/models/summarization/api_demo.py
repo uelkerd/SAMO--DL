@@ -73,9 +73,24 @@ app = FastAPI(
 class SummarizeRequest(BaseModel):
     """Request model for single text summarization."""
 
-    text: str = Field(..., description="Text to summarize", min_length=10, max_length=2000)
-    max_length: Optional[int] = Field(128, description="Maximum summary length", ge=30, le=256)
-    min_length: Optional[int] = Field(30, description="Minimum summary length", ge=10, le=100)
+    text: str = Field(
+                      ...,
+                      description="Text to summarize",
+                      min_length=10,
+                      max_length=2000
+                     )
+    max_length: Optional[int] = Field(
+                                      128,
+                                      description="Maximum summary length",
+                                      ge=30,
+                                      le=256
+                                     )
+    min_length: Optional[int] = Field(
+                                      30,
+                                      description="Minimum summary length",
+                                      ge=10,
+                                      le=100
+                                     )
     focus_emotional: Optional[bool] = Field(
         False, description="Focus on emotional content in summary"
     )
@@ -113,16 +128,28 @@ class SummarizationResponse(BaseModel):
     original_length: int = Field(..., description="Original text character count")
     summary_length: int = Field(..., description="Summary character count")
     compression_ratio: float = Field(..., description="Length reduction ratio")
-    processing_time_ms: float = Field(..., description="Processing time in milliseconds")
+    processing_time_ms: float = Field(
+                                      ...,
+                                      description="Processing time in milliseconds"
+                                     )
     model_info: dict = Field(..., description="Model metadata")
 
 
 class BatchSummarizationResponse(BaseModel):
     """Response model for batch summarization."""
 
-    summaries: List[SummarizationResponse] = Field(..., description="List of summarization results")
-    total_processing_time_ms: float = Field(..., description="Total batch processing time")
-    average_processing_time_ms: float = Field(..., description="Average per-item processing time")
+    summaries: List[SummarizationResponse] = Field(
+                                                   ...,
+                                                   description="List of summarization results"
+                                                  )
+    total_processing_time_ms: float = Field(
+                                            ...,
+                                            description="Total batch processing time"
+                                           )
+    average_processing_time_ms: float = Field(
+                                              ...,
+                                              description="Average per-item processing time"
+                                             )
 
 
 @app.get("/health")
@@ -152,17 +179,19 @@ async def summarize_text(request: SummarizeRequest):
         start_time = time.time()
 
         summary = summarization_model.generate_summary(
-            text=request.text, max_length=request.max_length, min_length=request.min_length
+text =
+    request.text, max_length=request.max_length, min_length=request.min_length
         )
 
         processing_time = (time.time() - start_time) * 1000  # Convert to ms
 
         original_length = len(request.text)
         summary_length = len(summary)
-        compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
+        compression_ratio = 1 - (
+                                 summary_length / original_length) if original_length > 0 else 0
 
         logger.info(
-            "Summarized text: {original_length}→{summary_length} chars in {processing_time:.2f}ms",
+"Summarized text: {original_length}→{summary_length} chars in {processing_time:.2f}ms",
             extra={"format_args": True},
         )
 
@@ -177,7 +206,10 @@ async def summarize_text(request: SummarizeRequest):
 
     except Exception:
         logger.exception("Summarization error")
-        raise HTTPException(status_code=500, detail="Summarization processing failed. Please try again later.")
+        raise HTTPException(
+                            status_code=500,
+                            detail="Summarization processing failed. Please try again later."
+                           )
 
 
 @app.post("/summarize/batch", response_model=BatchSummarizationResponse)
@@ -193,7 +225,8 @@ async def summarize_batch(request: BatchSummarizationRequest):
     try:
         start_time = time.time()
 
-        summaries = [summarization_model.generate_summary(text) for text in request.texts]
+        summaries = [summarization_model.generate_summary(
+                                                          text) for text in request.texts]
 
         total_processing_time = (time.time() - start_time) * 1000
 
@@ -201,7 +234,8 @@ async def summarize_batch(request: BatchSummarizationRequest):
         for text, summary in zip(request.texts, summaries):
             original_length = len(text)
             summary_length = len(summary)
-            compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
+            compression_ratio = 1 - (
+                                     summary_length / original_length) if original_length > 0 else 0
 
             detailed_responses.append(
                 SummarizationResponse(
@@ -209,7 +243,9 @@ async def summarize_batch(request: BatchSummarizationRequest):
                     original_length=original_length,
                     summary_length=summary_length,
                     compression_ratio=compression_ratio,
-                    processing_time_ms=total_processing_time / len(request.texts),  # Average
+                    processing_time_ms=total_processing_time / len(
+                                                                   request.texts),
+                                                                   # Average
                     model_info=summarization_model.get_model_info(),
                 )
             )
@@ -217,7 +253,9 @@ async def summarize_batch(request: BatchSummarizationRequest):
         average_time = total_processing_time / len(request.texts)
 
         logger.info(
-            "Batch summarized {len(request.texts)} texts in {total_processing_time:.2f}ms (avg: {average_time:.2f}ms)",
+            "Batch summarized {len(
+                                   request.texts)} texts in {total_processing_time:.2f}ms (avg: {average_time:.2f}ms)",
+                                   
             extra={"format_args": True},
         )
 
@@ -229,7 +267,10 @@ async def summarize_batch(request: BatchSummarizationRequest):
 
     except Exception:
         logger.exception("Batch summarization error")
-        raise HTTPException(status_code=500, detail="Batch summarization processing failed. Please try again later.")
+        raise HTTPException(
+                            status_code=500,
+                            detail="Batch summarization processing failed. Please try again later."
+                           )
 
 
 @app.get("/model/info")
@@ -259,7 +300,8 @@ async def warm_up_model(background_tasks: BackgroundTasks):
         raise HTTPException(status_code=503, detail="Model not loaded")
 
     def warm_up() -> None:
-        sample_text = """Today was a great day filled with positive emotions and meaningful conversations.
+sample_text = """Today was a great day filled with positive emotions and meaningful
+conversations.
         I felt grateful for the opportunities and connections in my life."""
 
         try:

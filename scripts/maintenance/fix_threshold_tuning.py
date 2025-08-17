@@ -63,7 +63,8 @@ def main():
             logger.info("🔍 Testing threshold: {threshold}")
 
             metrics = evaluate_emotion_classifier(
-                trainer.model, trainer.val_dataloader, trainer.device, threshold=threshold
+trainer.model, trainer.val_dataloader, trainer.device, threshold =
+    threshold
             )
 
             macro_f1 = metrics["macro_f1"]

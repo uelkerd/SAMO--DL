@@ -19,7 +19,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name="bert-base-uncased"):
+def convert_model_to_onnx(
+                          model_path=None,
+                          onnx_output_path=None,
+                          tokenizer_name="bert-base-uncased"):
     """Convert PyTorch model to ONNX format."""
     try:
         # Default paths if not provided
@@ -70,7 +73,7 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
             max_length=128
         )
 
-        # Handle token_type_ids properly - use actual values if available, otherwise zeros
+# Handle token_type_ids properly - use actual values if available, otherwise zeros
         if "token_type_ids" in inputs:
             token_type_ids = inputs["token_type_ids"]
         else:
@@ -120,7 +123,9 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
             session = ort.InferenceSession(onnx_output_path)
             logger.info("✅ ONNX Runtime test successful")
         except ImportError:
-            logger.error("❌ ONNX Runtime is required for ONNX model validation. Please install it with 'pip install onnxruntime'.")
+            logger.error(
+                         "❌ ONNX Runtime is required for ONNX model validation. Please install it with 'pip install onnxruntime'."
+                        )
             return False
         except Exception as e:
             logger.error(f"❌ ONNX Runtime test failed: {e}")
@@ -146,7 +151,8 @@ def main():
         "--onnx-output-path",
         type=str,
         default="deployment/cloud-run/model/bert_emotion_classifier.onnx",
-        help="Path for ONNX output file (default: deployment/cloud-run/model/bert_emotion_classifier.onnx)"
+        help="Path for ONNX output file (
+                                         default: deployment/cloud-run/model/bert_emotion_classifier.onnx)"
     )
     parser.add_argument(
         "--tokenizer-name",

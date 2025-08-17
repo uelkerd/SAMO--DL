@@ -31,7 +31,9 @@ def get_model_base_directory() -> str:
 
     for _ in range(max_levels):
         indicators = ['deployment', 'src']
-        if all(os.path.exists(os.path.join(search_dir, indicator)) for indicator in indicators):
+        if all(
+               os.path.exists(os.path.join(search_dir,
+               indicator)) for indicator in indicators):
             return os.path.join(search_dir, "deployment", "models")
         parent_dir = os.path.dirname(search_dir)
         if parent_dir == search_dir:
@@ -138,7 +140,7 @@ def find_best_trained_model() -> Optional[str]:
                 has_tokenizer = any(os.path.exists(p) for p in tokenizer_candidates)
                 weight_files = [
                     os.path.join(path, f) for f in [
-                        "pytorch_model.bin", "model.safetensors", "pytorch_model.safetensors",
+"pytorch_model.bin", "model.safetensors", "pytorch_model.safetensors",
                         "model.bin", "tf_model.h5", "flax_model.msgpack"
                     ] if os.path.exists(os.path.join(path, f))
                 ]
@@ -146,7 +148,12 @@ def find_best_trained_model() -> Optional[str]:
                 if has_config and has_tokenizer and has_weights:
                     size = _calculate_directory_size(path)
                     found_models.append((path, size, "huggingface_dir"))
-                    logging.info("Found complete HF model: %s (%s bytes)", path, f"{size:,}")
+                    logging.info(
+                                 "Found complete HF model: %s (%s bytes)",
+                                 path,
+                                 f"{size:,
+                                 }"
+                                )
                 elif has_config:
                     size = sum(
                         os.path.getsize(os.path.join(path, f))
@@ -158,16 +165,31 @@ def find_best_trained_model() -> Optional[str]:
                         missing_components.append("tokenizer")
                     if not has_weights:
                         missing_components.append("model weights")
-                    logging.warning("Incomplete HF model: %s (%s bytes) missing: %s", path, f"{size:,}", ', '.join(missing_components))
+                    logging.warning(
+                                    "Incomplete HF model: %s (%s bytes) missing: %s",
+                                    path,
+                                    f"{size:,
+                                    }",
+                                    ',
+                                    '.join(missing_components)
+                                   )
             else:
                 size = os.path.getsize(path)
                 found_models.append((path, size, "model_file"))
                 logging.info("Found model file: %s (%s bytes)", path, f"{size:,}")
 
     if not found_models:
-        logging.error("No trained models found. Place your model in: %s", primary_model_dir)
+        logging.error(
+                      "No trained models found. Place your model in: %s",
+                      primary_model_dir
+                     )
         return None
 
     best_model = max(found_models, key=lambda x: x[1])
-    logging.info("Selected best model: %s (%s bytes)", best_model[0], f"{best_model[1]:,}")
+    logging.info(
+                 "Selected best model: %s (%s bytes)",
+                 best_model[0],
+                 f"{best_model[1]:,
+                 }"
+                )
     return best_model[0]

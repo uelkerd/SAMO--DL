@@ -156,7 +156,9 @@ print("🧪 Evaluating model...")
 results = trainer.evaluate()
 print(f"📊 Final Results:")
 print(f"   F1 Score: {results['eval_f1']:.4f} ({results['eval_f1']*100:.1f}%)")
-print(f"   Accuracy: {results['eval_accuracy']:.4f} ({results['eval_accuracy']*100:.1f}%)")
+print(
+      f"   Accuracy: {results['eval_accuracy']:.4f} ({results['eval_accuracy']*100:.1f}%)"
+     )
 
 # Save the model
 print("💾 Saving model...")
@@ -189,7 +191,13 @@ print("=" * 80)
 correct_predictions = 0
 for i, (text, expected) in enumerate(zip(test_samples, expected_emotions), 1):
     # Tokenize
-    inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=128)
+    inputs = tokenizer(
+                       text,
+                       return_tensors='pt',
+                       truncation=True,
+                       padding=True,
+                       max_length=128
+                      )
     
     # Predict
     with torch.no_grad():
@@ -222,7 +230,9 @@ test_accuracy = correct_predictions / len(test_samples)
 final_f1 = results['eval_f1']
 
 print(f"\n📈 FINAL RESULTS:")
-print(f"   Test Accuracy: {test_accuracy:.2%} ({correct_predictions}/{len(test_samples)})")
+print(
+      f"   Test Accuracy: {test_accuracy:.2%} ({correct_predictions}/{len(test_samples)})"
+     )
 print(f"   F1 Score: {final_f1:.4f} ({final_f1*100:.1f}%)")
 print(f"   Target Achieved: {'✅ YES!' if final_f1 >= 0.75 else '❌ Not yet'}")
 
@@ -231,7 +241,11 @@ if final_f1 >= 0.75:
     print(f"🚀 Ready for production deployment!")
 else:
     print(f"\n📈 Good progress! Current F1: {final_f1*100:.1f}%")
-    print(f"💡 Consider: more data, hyperparameter tuning, or different model architecture")
+    print(
+          f"💡 Consider: more data,
+          hyperparameter tuning,
+          or different model architecture"
+         )
 
 print(f"\n💾 Model saved to: ./best_emotion_model_final")
 print(f"📊 Training completed successfully!") 

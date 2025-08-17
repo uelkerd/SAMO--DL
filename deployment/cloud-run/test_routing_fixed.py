@@ -32,7 +32,8 @@ try:
         print("❌ Root endpoint (/) missing")
     
     # Check if health endpoint exists
-    health_routes = [rule for rule in app.url_map.iter_rules() if '/health' in rule.rule]
+    health_routes = [rule for rule in app.url_map.iter_rules(
+                                                             ) if '/health' in rule.rule]
     if health_routes:
         print("✅ Health endpoint exists")
         for route in health_routes:

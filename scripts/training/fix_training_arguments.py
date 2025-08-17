@@ -18,7 +18,8 @@ def fix_training_arguments():
     
     # Find and replace the training arguments cell
     for cell in notebook['cells']:
-        if cell['cell_type'] == 'code' and 'TrainingArguments(' in ''.join(cell['source']):
+        if cell['cell_type'] == 'code' and 'TrainingArguments(
+                                                              ' in ''.join(cell['source']):
             # Replace with fixed training arguments
             cell['source'] = [
                 "# Training arguments\n",

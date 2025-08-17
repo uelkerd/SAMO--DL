@@ -81,8 +81,15 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         # Test health monitor initialization
         monitor = HealthMonitor()
         self.assertIsNotNone(monitor, "Health monitor should initialize")
-        self.assertFalse(monitor.is_shutting_down, "Should not be shutting down initially")
-        self.assertEqual(monitor.active_requests, 0, "Should start with 0 active requests")
+        self.assertFalse(
+                         monitor.is_shutting_down,
+                         "Should not be shutting down initially"
+                        )
+        self.assertEqual(
+                         monitor.active_requests,
+                         0,
+                         "Should start with 0 active requests"
+                        )
         
         print("✅ Health monitor initialization passed")
     
@@ -106,10 +113,30 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         self.assertIn('uptime_seconds', metrics, "Missing metric: uptime_seconds")
         
         # Validate metric types
-        self.assertIsInstance(metrics['memory_usage_mb'], (int, float), "memory_usage_mb should be numeric")
-        self.assertIsInstance(metrics['cpu_usage_percent'], (int, float), "cpu_usage_percent should be numeric")
-        self.assertIsInstance(metrics['memory_percent'], (int, float), "memory_percent should be numeric")
-        self.assertIsInstance(metrics['uptime_seconds'], (int, float), "uptime_seconds should be numeric")
+        self.assertIsInstance(
+                              metrics['memory_usage_mb'],
+                              (int,
+                              float),
+                              "memory_usage_mb should be numeric"
+                             )
+        self.assertIsInstance(
+                              metrics['cpu_usage_percent'],
+                              (int,
+                              float),
+                              "cpu_usage_percent should be numeric"
+                             )
+        self.assertIsInstance(
+                              metrics['memory_percent'],
+                              (int,
+                              float),
+                              "memory_percent should be numeric"
+                             )
+        self.assertIsInstance(
+                              metrics['uptime_seconds'],
+                              (int,
+                              float),
+                              "uptime_seconds should be numeric"
+                             )
         
         print("✅ System metrics structure validation passed")
     
@@ -127,10 +154,18 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         
         # Test single request tracking
         monitor.request_started()
-        self.assertEqual(monitor.active_requests, 1, "Should track single request start")
+        self.assertEqual(
+                         monitor.active_requests,
+                         1,
+                         "Should track single request start"
+                        )
         
         monitor.request_completed()
-        self.assertEqual(monitor.active_requests, 0, "Should track single request completion")
+        self.assertEqual(
+                         monitor.active_requests,
+                         0,
+                         "Should track single request completion"
+                        )
         
         print("✅ Request tracking validation passed")
     
@@ -157,7 +192,11 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         self.assertIn('class Config', content, "Missing Config class")
         self.assertIn('def __init__', content, "Missing __init__ method")
         self.assertIn('environment', content, "Missing environment configuration")
-        self.assertIn('memory_limit_mb', content, "Missing memory_limit_mb configuration")
+        self.assertIn(
+                      'memory_limit_mb',
+                      content,
+                      "Missing memory_limit_mb configuration"
+                     )
         self.assertIn('cpu_limit', content, "Missing cpu_limit configuration")
         
         print("✅ Environment configuration validation passed")
@@ -185,7 +224,11 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         # Individual assertions instead of loop
         self.assertIn('FROM python:3.9-slim', content, "Missing Python base image")
         self.assertIn('WORKDIR /app', content, "Missing working directory")
-        self.assertIn('COPY requirements_secure.txt', content, "Missing requirements copy")
+        self.assertIn(
+                      'COPY requirements_secure.txt',
+                      content,
+                      "Missing requirements copy"
+                     )
         self.assertIn('RUN pip install', content, "Missing pip install")
         self.assertIn('EXPOSE 8080', content, "Missing port exposure")
         self.assertIn('HEALTHCHECK', content, "Missing health check")
@@ -197,7 +240,10 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         print("🔍 Testing requirements security...")
         
         requirements_path = self.cloud_run_dir / 'requirements_secure.txt'
-        self.assertTrue(requirements_path.exists(), "requirements_secure.txt should exist")
+        self.assertTrue(
+                        requirements_path.exists(),
+                        "requirements_secure.txt should exist"
+                       )
         
         with open(requirements_path, 'r') as f:
             content = f.read()
@@ -230,7 +276,11 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         self.assertIn('bcrypt', content, "Missing bcrypt dependency")
         self.assertIn('redis', content, "Missing Redis dependency")
         self.assertIn('psutil', content, "Missing psutil dependency")
-        self.assertIn('prometheus-client', content, "Missing prometheus-client dependency")
+        self.assertIn(
+                      'prometheus-client',
+                      content,
+                      "Missing prometheus-client dependency"
+                     )
         self.assertIn('requests', content, "Missing requests dependency")
         self.assertIn('fastapi', content, "Missing FastAPI dependency")
         
@@ -290,10 +340,22 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         args_str = ' '.join(args)
         
         # Check for health and monitoring environment variables
-        self.assertIn('HEALTH_CHECK_INTERVAL', args_str, "Missing health check interval")
-        self.assertIn('GRACEFUL_SHUTDOWN_TIMEOUT', args_str, "Missing graceful shutdown timeout")
+        self.assertIn(
+                      'HEALTH_CHECK_INTERVAL',
+                      args_str,
+                      "Missing health check interval"
+                     )
+        self.assertIn(
+                      'GRACEFUL_SHUTDOWN_TIMEOUT',
+                      args_str,
+                      "Missing graceful shutdown timeout"
+                     )
         self.assertIn('ENABLE_MONITORING', args_str, "Missing monitoring enablement")
-        self.assertIn('ENABLE_HEALTH_CHECKS', args_str, "Missing health checks enablement")
+        self.assertIn(
+                      'ENABLE_HEALTH_CHECKS',
+                      args_str,
+                      "Missing health checks enablement"
+                     )
         
         print("✅ Health check integration validation passed")
     

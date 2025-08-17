@@ -76,7 +76,11 @@ def load_combined_dataset():
         
         # Only use a subset to avoid synthetic data issues
         subset_size = min(200, len(expanded_data))
-        selected_samples = np.random.choice(expanded_data, size=subset_size, replace=False)
+        selected_samples = np.random.choice(
+                                            expanded_data,
+                                            size=subset_size,
+                                            replace=False
+                                           )
         
         for item in selected_samples:
             combined_samples.append({
@@ -236,7 +240,9 @@ def main():
     results = trainer.evaluate()
     
     print(f"🏆 Final F1 Score: {results['eval_f1']:.4f} ({results['eval_f1']*100:.2f}%)")
-    print(f"🎯 Target achieved: {'✅ YES!' if results['eval_f1'] >= 0.75 else '❌ Not yet'}")
+    print(
+          f"🎯 Target achieved: {'✅ YES!' if results['eval_f1'] >= 0.75 else '❌ Not yet'}"
+         )
     
     # Save model
     trainer.save_model("./emotion_model_final_combined")
@@ -255,7 +261,12 @@ def main():
     model.eval()
     with torch.no_grad():
         for text in test_texts:
-            inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=128)
+            inputs = tokenizer(
+                               text,
+                               return_tensors="pt",
+                               truncation=True,
+                               max_length=128
+                              )
             outputs = model(**inputs)
             probs = torch.softmax(outputs.logits, dim=1)
             predicted_label = torch.argmax(probs, dim=1).item()
@@ -269,7 +280,9 @@ def main():
     print("🎉 Training completed!")
     print(f"📈 Final F1 Score: {results['eval_f1']*100:.2f}%")
     print(f"🎯 Target: 75-85%")
-    print(f"📊 Improvement: {((results['eval_f1'] - 0.67) / 0.67 * 100):.1f}% from baseline")
+    print(
+          f"📊 Improvement: {((results['eval_f1'] - 0.67) / 0.67 * 100):.1f}% from baseline"
+         )
 
 if __name__ == "__main__":
     main() 

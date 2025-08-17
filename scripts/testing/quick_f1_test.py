@@ -79,7 +79,9 @@ def main():
         else:
             logger.info("⚠️ Need more optimization techniques.")
 
-        checkpoint_path = Path("models/checkpoints/bert_emotion_classifier_quick_test.pt")
+        checkpoint_path = Path(
+                               "models/checkpoints/bert_emotion_classifier_quick_test.pt"
+                              )
         checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
 
         torch.save(

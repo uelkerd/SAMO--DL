@@ -51,15 +51,27 @@ def test_model():
         result = detector.predict(text)
         
         print(f"{i:2d}. Text: {text}")
-        print(f"    Predicted: {result['emotion']} (confidence: {result['confidence']:.3f})")
+        print(
+              f"    Predicted: {result['emotion']} (confidence: {result['confidence']:.3f})"
+             )
         
         # Show top 3 predictions
-        sorted_probs = sorted(result['probabilities'].items(), key=lambda x: x[1], reverse=True)
-        print(f"    Top 3: {', '.join([f'{emotion}({prob:.3f})' for emotion, prob in sorted_probs[:3]])}")
+        sorted_probs = sorted(
+                              result['probabilities'].items(),
+                              key=lambda x: x[1],
+                              reverse=True
+                             )
+        print(
+              f"    Top 3: {',
+              '.join([f'{emotion}({prob:.3f})' for emotion,
+              prob in sorted_probs[:3]])}"
+             )
         print()
     
     print("🎉 Testing completed!")
-    print(f"📊 Model confidence range: {min([detector.predict(text)['confidence'] for text in test_cases]):.3f} - {max([detector.predict(text)['confidence'] for text in test_cases]):.3f}")
+    print(
+          f"📊 Model confidence range: {min([detector.predict(text)['confidence'] for text in test_cases]):.3f} - {max([detector.predict(text)['confidence'] for text in test_cases]):.3f}"
+         )
 
 if __name__ == "__main__":
     test_model()

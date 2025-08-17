@@ -28,7 +28,8 @@ import torch
 """
 Fixed Model Calibration Test
 
-This script tests the BERT emotion classifier with optimal temperature and threshold settings.
+This script tests the BERT emotion classifier with optimal temperature and threshold settings
+    .
 It handles missing checkpoints gracefully and uses the latest trained models.
 
 Usage:
@@ -156,7 +157,11 @@ def test_calibration():
         model.to(device)
 
         try:
-            checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
+            checkpoint = torch.load(
+                                    checkpoint_path,
+                                    map_location=device,
+                                    weights_only=False
+                                   )
             if "model_state_dict" in checkpoint:
                 model.load_state_dict(checkpoint["model_state_dict"])
                 logger.info("✅ Model loaded successfully")

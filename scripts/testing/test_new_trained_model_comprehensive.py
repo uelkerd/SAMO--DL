@@ -45,7 +45,9 @@ def test_new_trained_model():
     print("-" * 40)
     
     print(f"Model type: {model.config.model_type}")
-    print(f"Architecture: {model.config.architectures[0] if model.config.architectures else 'Not specified'}")
+    print(
+          f"Architecture: {model.config.architectures[0] if model.config.architectures else 'Not specified'}"
+         )
     print(f"Hidden layers: {model.config.num_hidden_layers}")
     print(f"Hidden size: {model.config.hidden_size}")
     print(f"Number of labels: {getattr(model.config, 'num_labels', 'NOT SET')}")
@@ -57,7 +59,8 @@ def test_new_trained_model():
     print("\n🎯 EMOTION CLASSES VERIFICATION")
     print("-" * 40)
     
-    expected_emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+expected_emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
     
     if model.config.id2label:
         # Handle both string and integer keys
@@ -85,7 +88,12 @@ def test_new_trained_model():
     print("-" * 40)
     
     # Test with a sample input
-    test_input = tokenizer("I feel happy today", return_tensors='pt', truncation=True, padding=True)
+    test_input = tokenizer(
+                           "I feel happy today",
+                           return_tensors='pt',
+                           truncation=True,
+                           padding=True
+                          )
     
     with torch.no_grad():
         outputs = model(**test_input)
@@ -96,7 +104,10 @@ def test_new_trained_model():
         if logits.shape[1] == len(expected_emotions):
             print("✅ Model architecture is correct!")
         else:
-            print(f"❌ Model architecture mismatch! Expected {len(expected_emotions)}, got {logits.shape[1]}")
+            print(
+                  f"❌ Model architecture mismatch! Expected {len(expected_emotions)},
+                  got {logits.shape[1]}"
+                 )
     
     # 5. Comprehensive inference test
     print("\n🧪 COMPREHENSIVE INFERENCE TEST")
@@ -122,7 +133,12 @@ def test_new_trained_model():
     
     results = []
     for i, test_case in enumerate(test_cases):
-        inputs = tokenizer(test_case, return_tensors='pt', truncation=True, padding=True)
+        inputs = tokenizer(
+                           test_case,
+                           return_tensors='pt',
+                           truncation=True,
+                           padding=True
+                          )
         
         with torch.no_grad():
             outputs = model(**inputs)
@@ -149,8 +165,12 @@ def test_new_trained_model():
             results.append(result)
             
             status = "✅" if result['correct'] else "❌"
-            print(f"{status} {i+1:2d}. \"{test_case[:50]}{'...' if len(test_case) > 50 else ''}\"")
-            print(f"    Expected: {expected_emotion:12s} | Predicted: {predicted_emotion:12s} | Confidence: {confidence:.3f}")
+            print(
+                  f"{status} {i+1:2d}. \"{test_case[:50]}{'...' if len(test_case) > 50 else ''}\""
+                 )
+            print(
+                  f"    Expected: {expected_emotion:12s} | Predicted: {predicted_emotion:12s} | Confidence: {confidence:.3f}"
+                 )
             print()
     
     # 6. Performance analysis
@@ -183,13 +203,17 @@ def test_new_trained_model():
     if not model.config.id2label:
         config_issues.append("id2label is missing")
     elif len(model.config.id2label) != len(expected_emotions):
-        config_issues.append(f"id2label has wrong length: {len(model.config.id2label)} vs {len(expected_emotions)}")
+        config_issues.append(
+                             f"id2label has wrong length: {len(model.config.id2label)} vs {len(expected_emotions)}"
+                            )
     
     # Check if label2id is properly formatted
     if not model.config.label2id:
         config_issues.append("label2id is missing")
     elif len(model.config.label2id) != len(expected_emotions):
-        config_issues.append(f"label2id has wrong length: {len(model.config.label2id)} vs {len(expected_emotions)}")
+        config_issues.append(
+                             f"label2id has wrong length: {len(model.config.label2id)} vs {len(expected_emotions)}"
+                            )
     
     if config_issues:
         print("❌ Configuration issues found:")
@@ -239,7 +263,9 @@ def test_new_trained_model():
     
     if config_issues:
         print(f"⚠️ Configuration issues: {len(config_issues)}")
-        print("   Consider using the comprehensive notebook for better configuration persistence")
+        print(
+              "   Consider using the comprehensive notebook for better configuration persistence"
+             )
     else:
         print(f"✅ Configuration persistence verified")
         print("✅ Model ready for deployment!")

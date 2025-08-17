@@ -73,8 +73,12 @@ def test_development_mode():
 
         logger.info("📊 Training Results Analysis:")
         logger.info("⏱️  Total training time: {training_minutes:.1f} minutes")
-        logger.info("📈 Final test Macro F1: {results['final_test_metrics']['macro_f1']:.4f}")
-        logger.info("📈 Final test Micro F1: {results['final_test_metrics']['micro_f1']:.4f}")
+        logger.info(
+                    "📈 Final test Macro F1: {results['final_test_metrics']['macro_f1']:.4f}"
+                   )
+        logger.info(
+                    "📈 Final test Micro F1: {results['final_test_metrics']['micro_f1']:.4f}"
+                   )
         logger.info("🏆 Best validation score: {results['best_validation_score']:.4f}")
         logger.info("🔄 Total epochs completed: {results['total_epochs']}")
 
@@ -100,7 +104,7 @@ def test_development_mode():
             return True
         else:
             logger.warning(
-                "⚠️  {passed_criteria}/{total_criteria} tests passed. Some issues remain."
+"⚠️ {passed_criteria}/{total_criteria} tests passed. Some issues remain."
             )
             return False
 
@@ -140,11 +144,12 @@ def test_threshold_tuning():
         for threshold in thresholds:
             logger.info("Testing threshold: {threshold}")
             metrics = evaluate_emotion_classifier(
-                trainer.model, trainer.val_dataloader, trainer.device, threshold=threshold
+trainer.model, trainer.val_dataloader, trainer.device, threshold =
+    threshold
             )
-            results[threshold] = {"macro_f1": metrics["macro_f1"], "micro_f1": metrics["micro_f1"]}
+results[threshold] = {"macro_f1": metrics["macro_f1"], "micro_f1": metrics["micro_f1"]}
             logger.info(
-                "  Macro F1: {metrics['macro_f1']:.4f}, Micro F1: {metrics['micro_f1']:.4f}"
+" Macro F1: {metrics['macro_f1']:.4f}, Micro F1: {metrics['micro_f1']:.4f}"
             )
 
         best_threshold = max(results.keys(), key=lambda t: results[t]["macro_f1"])

@@ -81,7 +81,9 @@ def add_wandb_setup():
             "        print('\\n📋 TO SET UP WANDB SECRET:')\n",
             "        print('1. Go to Colab → Settings → Secrets')\n",
             "        print('2. Add a new secret with name: WANDB_API_KEY')\n",
-            "        print('3. Value: Your WandB API key from https://wandb.ai/authorize')\n",
+            "        print(
+                           '3. Value: Your WandB API key from https://wandb.ai/authorize')\n",
+                           
             "        print('4. Restart runtime and run this cell again')\n",
             "        print('\\n⚠️ Continuing without WandB logging...')\n",
             "        \n",
@@ -107,7 +109,8 @@ def add_wandb_setup():
     
     # Also update the training arguments to disable wandb if no API key
     for cell in notebook['cells']:
-        if cell['cell_type'] == 'code' and 'TrainingArguments(' in ''.join(cell['source']):
+        if cell['cell_type'] == 'code' and 'TrainingArguments(
+                                                              ' in ''.join(cell['source']):
             # Update training arguments to handle wandb properly
             cell['source'] = [
                 "# Minimal training arguments - only essential parameters\n",
@@ -120,7 +123,7 @@ def add_wandb_setup():
                 "    save_steps=50,\n",
                 "    eval_steps=50,\n",
                 "    # Disable wandb if no API key is set\n",
-                "    report_to=None if 'WANDB_API_KEY' not in os.environ else ['wandb']\n",
+" report_to=None if 'WANDB_API_KEY' not in os.environ else ['wandb']\n",
                 ")\n",
                 "\n",
                 "print('✅ Minimal training arguments configured')\n",

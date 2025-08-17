@@ -126,7 +126,8 @@ class JWTManager:
         """Add a token to the blacklist"""
         try:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
-            exp_datetime = datetime.fromtimestamp(payload["exp"]) if payload.get("exp") else None
+            exp_datetime = datetime.fromtimestamp(
+                                                  payload["exp"]) if payload.get("exp") else None
             self.blacklisted_tokens[token] = exp_datetime
             return True
         except jwt.InvalidTokenError:

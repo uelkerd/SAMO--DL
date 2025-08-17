@@ -33,7 +33,10 @@ SAMO Vertex AI AutoML Training Pipeline
 Trains an AutoML model for emotion detection with F1 score optimization
 """
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+                    level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s"
+                   )
 logger = logging.getLogger(__name__)
 
 
@@ -148,14 +151,15 @@ class SAMOVertexAutoMLTraining:
         evaluation = model.evaluate()
         logger.info("Model evaluation: {evaluation}")
 
-        return {"model_id": model_id, "evaluation": evaluation, "training_complete": True}
+return {"model_id": model_id, "evaluation": evaluation, "training_complete": True}
 
     def deploy_model(self, model_id: str) -> str:
         """Deploy model to endpoint"""
         endpoint_display_name = "samo-emotion-endpoint-{int(time.time())}"
 
         endpoint = aiplatform.Endpoint.create(
-            display_name=endpoint_display_name, project=self.project_id, location=self.region
+display_name =
+    endpoint_display_name, project=self.project_id, location=self.region
         )
 
         model = aiplatform.Model(model_id)
@@ -223,7 +227,9 @@ class SAMOVertexAutoMLTraining:
 def main():
     """Main function"""
     if len(sys.argv) != 3:
-        logging.info("Usage: python vertex_automl_training.py <project_id> <bucket_name>")
+        logging.info(
+                     "Usage: python vertex_automl_training.py <project_id> <bucket_name>"
+                    )
         sys.exit(1)
 
     project_id = sys.argv[1]

@@ -65,7 +65,8 @@ This script fixes the checkpoint loading issues and implements F1 score improvem
 techniques that can work with or without existing checkpoints.
 
 Usage:
-    python scripts/improve_model_f1_fixed.py [--technique TECHNIQUE] [--output_model PATH]
+    python scripts/improve_model_f1_fixed
+    .py [--technique TECHNIQUE] [--output_model PATH]
 
 Arguments:
     --technique: Improvement technique to apply (ensemble, focal_loss, full_training)
@@ -121,7 +122,9 @@ def find_valid_checkpoint() -> Optional[str]:
                     logger.info("✅ Found valid checkpoint: {checkpoint_path}")
                     return str(path)
                 else:
-                    logger.warning("⚠️ Checkpoint {checkpoint_path} has unexpected format")
+                    logger.warning(
+                                   "⚠️ Checkpoint {checkpoint_path} has unexpected format"
+                                  )
             except Exception:
                 logger.warning("⚠️ Checkpoint {checkpoint_path} is corrupted: {e}")
 
@@ -161,7 +164,8 @@ def train_fresh_model(epochs: int = 3, batch_size: int = 16) -> tuple[nn.Module,
     metrics = trainer.evaluate(datasets["test"])
 
     logger.info(
-        "Fresh model results - Micro F1: {metrics['micro_f1']:.4f}, Macro F1: {metrics['macro_f1']:.4f}"
+"Fresh model results - Micro F1: {metrics['micro_f1']:.4f}, Macro F1:
+{metrics['macro_f1']:.4f}"
     )
 
     return model, metrics
@@ -182,12 +186,19 @@ def improve_with_focal_loss(checkpoint_path: Optional[str] = None) -> bool:
         if checkpoint_path and Path(checkpoint_path).exists():
             logger.info("Loading model from checkpoint: {checkpoint_path}")
             model, _ = create_bert_emotion_classifier()
-            checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
+            checkpoint = torch.load(
+                                    checkpoint_path,
+                                    map_location="cpu",
+                                    weights_only=False
+                                   )
             model.load_state_dict(checkpoint["model_state_dict"])
         else:
             logger.info("Training fresh model with Focal Loss...")
             model, initial_metrics = train_fresh_model(epochs=5, batch_size=32)
-            logger.info("Fresh model baseline - F1: {initial_metrics.get('micro_f1', 0):.4f}")
+            logger.info(
+                        "Fresh model baseline - F1: {initial_metrics.get('micro_f1',
+                        0):.4f}"
+                       )
 
         focal_loss = FocalLoss(gamma=2.0, alpha=class_weights_tensor)
 
@@ -211,7 +222,8 @@ def improve_with_focal_loss(checkpoint_path: Optional[str] = None) -> bool:
         metrics = trainer.evaluate(datasets["test"])
 
         logger.info(
-            "Focal Loss results - Micro F1: {metrics['micro_f1']:.4f}, Macro F1: {metrics['macro_f1']:.4f}"
+"Focal Loss results - Micro F1: {metrics['micro_f1']:.4f}, Macro F1:
+{metrics['macro_f1']:.4f}"
         )
 
         output_path = Path(DEFAULT_OUTPUT_MODEL)

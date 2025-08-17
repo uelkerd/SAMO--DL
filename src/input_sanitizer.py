@@ -58,7 +58,9 @@ class InputSanitizer:
                 r'<embed[^>]*>',
 
                 # SQL injection patterns
-                r'(\b(union|select|insert|update|delete|drop|create|alter|exec|execute)\b)',
+                r'(
+                   \b(union|select|insert|update|delete|drop|create|alter|exec|execute)\b)',
+                   
                 r'(\b(or|and)\b\s+\d+\s*=\s*\d+)',
                 r'(\b(union|select)\b.*?\bfrom\b)',
                 r'(\b(insert|update|delete)\b.*?\binto\b)',
@@ -88,7 +90,11 @@ class InputSanitizer:
                 'p', 'br', 'strong', 'em', 'u', 'i', 'b', 'span', 'div'
             }
 
-    def sanitize_text(self, text: str, context: str = "general") -> Tuple[str, List[str]]:
+    def sanitize_text(
+                      self,
+                      text: str,
+                      context: str = "general") -> Tuple[str,
+                      List[str]]:
         """
         Sanitize text input.
 
@@ -106,7 +112,9 @@ class InputSanitizer:
 
         # Check length
         if len(text) > self.config.max_text_length:
-            warnings.append(f"Text truncated from {len(text)} to {self.config.max_text_length} characters")
+            warnings.append(
+                            f"Text truncated from {len(text)} to {self.config.max_text_length} characters"
+                           )
             text = text[:self.config.max_text_length]
 
         # Unicode normalization
@@ -114,7 +122,8 @@ class InputSanitizer:
             text = unicodedata.normalize('NFKC', text)
 
         # Check for blocked patterns
-        if self.config.enable_xss_protection or self.config.enable_sql_injection_protection:
+        if self
+    .config.enable_xss_protection or self.config.enable_sql_injection_protection:
             for pattern in self.config.blocked_patterns:
                 if re.search(pattern, text, re.IGNORECASE):
                     warnings.append(f"Blocked pattern detected: {pattern}")
@@ -228,7 +237,9 @@ class InputSanitizer:
 
         # Check batch size
         if len(texts) > self.config.max_batch_size:
-            warnings.append(f"Batch size {len(texts)} exceeds maximum {self.config.max_batch_size}")
+            warnings.append(
+                            f"Batch size {len(texts)} exceeds maximum {self.config.max_batch_size}"
+                           )
             texts = texts[:self.config.max_batch_size]
 
         # Sanitize each text
@@ -276,7 +287,12 @@ class InputSanitizer:
 
         return True
 
-    def sanitize_headers(self, headers: Dict[str, str]) -> Tuple[Dict[str, str], List[str]]:
+    def sanitize_headers(
+                         self,
+                         headers: Dict[str,
+                         str]) -> Tuple[Dict[str,
+                         str],
+                         List[str]]:
         """
         Sanitize HTTP headers.
 
@@ -325,7 +341,10 @@ class InputSanitizer:
                 if re.search(r'[<>"\']', obj):
                     anomalies.append(f"Potential HTML/script content at {path}")
 
-                if re.search(r'\b(union|select|insert|update|delete)\b', obj, re.IGNORECASE):
+                if re.search(
+                             r'\b(union|select|insert|update|delete)\b',
+                             obj,
+                             re.IGNORECASE):
                     anomalies.append(f"Potential SQL injection at {path}")
 
             elif isinstance(obj, dict):
@@ -345,11 +364,11 @@ class InputSanitizer:
                 "max_text_length": self.config.max_text_length,
                 "max_batch_size": self.config.max_batch_size,
                 "enable_xss_protection": self.config.enable_xss_protection,
-                "enable_sql_injection_protection": self.config.enable_sql_injection_protection,
-                "enable_path_traversal_protection": self.config.enable_path_traversal_protection,
-                "enable_command_injection_protection": self.config.enable_command_injection_protection,
-                "enable_unicode_normalization": self.config.enable_unicode_normalization,
-                "enable_content_type_validation": self.config.enable_content_type_validation,
+"enable_sql_injection_protection": self.config.enable_sql_injection_protection,
+"enable_path_traversal_protection": self.config.enable_path_traversal_protection,
+"enable_command_injection_protection": self.config.enable_command_injection_protection,
+"enable_unicode_normalization": self.config.enable_unicode_normalization,
+"enable_content_type_validation": self.config.enable_content_type_validation,
             },
             "blocked_patterns_count": len(self.config.blocked_patterns),
             "allowed_html_tags_count": len(self.config.allowed_html_tags)

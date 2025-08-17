@@ -41,8 +41,12 @@ def test_health_check():
             print(f"   Model Version: {data['model_version']}")
             print(f"   Uptime: {data['uptime_seconds']:.1f} seconds")
             print(f"   Total Requests: {data['metrics']['total_requests']}")
-            print(f"   Success Rate: {data['metrics']['successful_requests']}/{data['metrics']['total_requests']}")
-            print(f"   Avg Response Time: {data['metrics']['average_response_time_ms']}ms")
+            print(
+                  f"   Success Rate: {data['metrics']['successful_requests']}/{data['metrics']['total_requests']}"
+                 )
+            print(
+                  f"   Avg Response Time: {data['metrics']['average_response_time_ms']}ms"
+                 )
             return True
         else:
             print(f"❌ Health check failed: {response.status_code}")
@@ -60,8 +64,12 @@ def test_metrics_endpoint():
             data = response.json()
             print(f"✅ Metrics endpoint working")
             print(f"   Success Rate: {data['server_metrics']['success_rate']}")
-            print(f"   Requests/Minute: {data['server_metrics']['requests_per_minute']:.2f}")
-            print(f"   Rate Limiting: {data['rate_limiting']['max_requests']} req/{data['rate_limiting']['window_seconds']}s")
+            print(
+                  f"   Requests/Minute: {data['server_metrics']['requests_per_minute']:.2f}"
+                 )
+            print(
+                  f"   Rate Limiting: {data['rate_limiting']['max_requests']} req/{data['rate_limiting']['window_seconds']}s"
+                 )
             return True
         else:
             print(f"❌ Metrics endpoint failed: {response.status_code}")
@@ -92,7 +100,10 @@ def test_single_predictions():
                 prediction_time = data.get('prediction_time_ms', 0)
                 total_time = (end_time - start_time) * 1000
                 
-                print(f"✅ Test {i}: '{text[:30]}...' → {emotion} (conf: {confidence:.3f}, time: {prediction_time}ms)")
+                print(
+                      f"✅ Test {i}: '{text[:30]}...' → {emotion} (conf: {confidence:.3f},
+                      time: {prediction_time}ms)"
+                     )
                 results.append({
                     'text': text,
                     'emotion': emotion,
@@ -141,7 +152,8 @@ def test_batch_predictions():
             for i, pred in enumerate(predictions, 1):
                 emotion = pred['predicted_emotion']
                 confidence = pred['confidence']
-                text = pred['text'][:30] + "..." if len(pred['text']) > 30 else pred['text']
+                text = pred['text'][:30] + "..." if len(
+                                                        pred['text']) > 30 else pred['text']
                 print(f"   {i}. '{text}' → {emotion} (conf: {confidence:.3f})")
             
             return True
@@ -183,7 +195,11 @@ def test_rate_limiting():
     failed = sum(1 for code in results if code not in [200, 429])
     
     print(f"   ✅ Rate limiting test completed in {end_time - start_time:.2f}s")
-    print(f"   📊 Successful: {successful}, Rate limited: {rate_limited}, Failed: {failed}")
+    print(
+          f"   📊 Successful: {successful},
+          Rate limited: {rate_limited},
+          Failed: {failed}"
+         )
     
     if rate_limited > 0:
         print(f"   ✅ Rate limiting is working (blocked {rate_limited} requests)")
@@ -280,14 +296,18 @@ def test_performance():
     failed = [r for r in results if r['status_code'] != 200]
     
     if successful:
-        avg_response_time = sum(r['response_time'] for r in successful) / len(successful)
+        avg_response_time = sum(
+                                r['response_time'] for r in successful) / len(successful
+                               )
         min_response_time = min(r['response_time'] for r in successful)
         max_response_time = max(r['response_time'] for r in successful)
         
         print(f"   ✅ Performance test completed in {end_time - start_time:.2f}s")
         print(f"   📊 Successful requests: {len(successful)}/{len(results)}")
         print(f"   📊 Average response time: {avg_response_time:.1f}ms")
-        print(f"   📊 Response time range: {min_response_time:.1f}ms - {max_response_time:.1f}ms")
+        print(
+              f"   📊 Response time range: {min_response_time:.1f}ms - {max_response_time:.1f}ms"
+             )
         
         if avg_response_time < 1000:  # Less than 1 second
             print("   ✅ Performance is acceptable")

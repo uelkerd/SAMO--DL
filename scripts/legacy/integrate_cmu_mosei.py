@@ -97,7 +97,8 @@ def map_sentiment_to_emotions(samples):
     print("🗺️ Mapping sentiments to emotions...")
     
     # CMU-MOSEI sentiment range: [-3, 3]
-    # Our target emotions: anxious, calm, content, excited, frustrated, grateful, happy, hopeful, overwhelmed, proud, sad, tired
+# Our target emotions: anxious, calm, content, excited, frustrated, grateful, happy,
+hopeful, overwhelmed, proud, sad, tired
     
     emotion_mapping = {
         # Very negative sentiments
@@ -186,7 +187,11 @@ def save_cmu_mosei_dataset(samples):
     balanced_samples = []
     for emotion, samples_list in emotion_samples.items():
         # Randomly sample min_samples from each emotion
-        selected_samples = np.random.choice(samples_list, size=min_samples, replace=False)
+        selected_samples = np.random.choice(
+                                            samples_list,
+                                            size=min_samples,
+                                            replace=False
+                                           )
         balanced_samples.extend(selected_samples)
     
     balanced_file = 'data/cmu_mosei_balanced_dataset.json'
@@ -203,14 +208,21 @@ def main():
     print("=" * 50)
     
     # Step 1: Download dataset
-    mosei_emb, mosei_words, sentiments, train_ids, valid_ids, test_ids = download_cmu_mosei()
+mosei_emb, mosei_words, sentiments, train_ids, valid_ids, test_ids =
+download_cmu_mosei()
     
     if mosei_words is None:
         print("❌ Failed to download CMU-MOSEI dataset")
         return
     
     # Step 2: Extract text and emotions
-    samples = extract_text_and_emotions(mosei_words, sentiments, train_ids, valid_ids, test_ids)
+    samples = extract_text_and_emotions(
+                                        mosei_words,
+                                        sentiments,
+                                        train_ids,
+                                        valid_ids,
+                                        test_ids
+                                       )
     
     if not samples:
         print("❌ No samples extracted")

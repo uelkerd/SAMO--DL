@@ -2,7 +2,8 @@
 """
 🚀 SECURE EMOTION DETECTION API FOR CLOUD RUN
 ============================================
-Production-ready Flask API with comprehensive security features and Swagger documentation.
+Production-ready Flask API with comprehensive security features and Swagger documentation
+    .
 """
 
 import os
@@ -60,7 +61,8 @@ api = Api(
     app,
     version='2.0.0',
     title='SAMO Emotion Detection API',
-    description='Secure, production-ready emotion detection API with comprehensive security features',
+description='Secure, production-ready emotion detection API with comprehensive security
+features',
     # Temporarily disable Swagger docs to avoid 500 errors
     # doc='/docs',
     authorizations={
@@ -74,7 +76,9 @@ api = Api(
 )
 
 # Create namespaces for better organization
-main_ns = Namespace('api', description='Main API operations')  # Removed leading slash to avoid double slashes
+main_ns = Namespace(
+                    'api',
+                    description='Main API operations')  # Removed leading slash to avoid double slashes
 admin_ns = Namespace('/admin', description='Admin operations', authorizations={
     'apikey': {
         'type': 'apiKey',
@@ -89,7 +93,11 @@ api.add_namespace(admin_ns)
 
 # Define request/response models for Swagger
 text_input_model = api.model('TextInput', {
-    'text': fields.String(required=True, description='Text to analyze for emotion', example='I am feeling happy today!')
+    'text': fields.String(
+                          required=True,
+                          description='Text to analyze for emotion',
+                          example='I am feeling happy today!'
+                         )
 })
 
 emotion_response_model = api.model('EmotionResponse', {
@@ -104,7 +112,13 @@ emotion_response_model = api.model('EmotionResponse', {
 })
 
 batch_input_model = api.model('BatchInput', {
-    'texts': fields.List(fields.String, required=True, description='List of texts to analyze', example=['I am happy', 'I am sad'])
+    'texts': fields.List(
+                         fields.String,
+                         required=True,
+                         description='List of texts to analyze',
+                         example=['I am happy',
+                         'I am sad']
+                        )
 })
 
 batch_response_model = api.model('BatchResponse', {
@@ -136,7 +150,8 @@ model_loaded = False
 model_lock = threading.Lock()
 
 # Emotion mapping based on training order
-EMOTION_MAPPING = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+EMOTION_MAPPING = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
 
 def require_api_key(f):
     """Decorator to require API key via X-API-Key header"""
@@ -161,7 +176,11 @@ def sanitize_input(text: str) -> str:
         raise ValueError("Input must be a string")
 
     # Remove potentially dangerous characters
-    dangerous_chars = ['<', '>', '"', "'", '&', ';', '|', '`', '$', '(', ')', '{{', '}}']
+    dangerous_chars = ['<', '>', '"', "'", '&', ';', '|', '`', '$', '(
+                                                                      ',
+                                                                      ')',
+                                                                      '{{',
+                                                                      '}}']
     for char in dangerous_chars:
         text = text.replace(char, '')
 
@@ -211,7 +230,9 @@ def handle_rate_limit_exceeded():
 
 def log_rate_limit_info():
     """Log rate limiting information for debugging"""
-    logger.debug(f"Rate limiting configured: {RATE_LIMIT_PER_MINUTE} requests per minute")
+    logger.debug(
+                 f"Rate limiting configured: {RATE_LIMIT_PER_MINUTE} requests per minute"
+                )
     logger.debug(f"Current request from: {request.remote_addr}")
 
 @app.before_request
@@ -226,7 +247,9 @@ def before_request():
         initialize_model()
     
     # Log incoming requests for debugging
-    logger.info(f"📥 Request: {request.method} {request.path} from {request.remote_addr} (ID: {g.request_id})")
+    logger.info(
+                f"📥 Request: {request.method} {request.path} from {request.remote_addr} (ID: {g.request_id})"
+               )
     
     # Log request headers for debugging (excluding sensitive ones)
     headers_to_log = {k: v for k, v in request.headers.items() 
@@ -243,8 +266,11 @@ def after_request(response):
         response.headers['X-Request-ID'] = g.request_id
     
     # Log response for debugging
-    logger.info(f"📤 Response: {response.status_code} for {request.method} {request.path} "
-                f"from {request.remote_addr} (ID: {g.request_id}, Duration: {duration:.3f}s)")
+logger.info(f"📤 Response: {response.status_code} for {request.method} {request.path} "
+                f"from {request.remote_addr} (
+                                              ID: {g.request_id},
+                                              Duration: {duration:.3f}s)"
+                                             )
     
     return response
 
@@ -273,7 +299,10 @@ class Health(Resource):
                 }
             else:
                 logger.warning("Health check failed - model not ready")
-                return create_error_response('Service unavailable - model not ready', 503)
+                return create_error_response(
+                                             'Service unavailable - model not ready',
+                                             503
+                                            )
                 
         except Exception as e:
             logger.error(f"Health check error for {request.remote_addr}: {str(e)}")
@@ -299,19 +328,25 @@ class Predict(Resource):
             # Get and validate input
             data = request.get_json()
             if not data or 'text' not in data:
-                logger.warning(f"Missing text field in request from {request.remote_addr}")
+                logger.warning(
+                               f"Missing text field in request from {request.remote_addr}"
+                              )
                 return create_error_response('Missing text field', 400)
 
             text = data['text']
             if not text or not isinstance(text, str):
-                logger.warning(f"Invalid text input from {request.remote_addr}: {type(text)}")
+                logger.warning(
+                               f"Invalid text input from {request.remote_addr}: {type(text)}"
+                              )
                 return create_error_response('Text must be a non-empty string', 400)
 
             # Sanitize input
             try:
                 text = sanitize_input(text)
             except ValueError as e:
-                logger.warning(f"Input sanitization failed for {request.remote_addr}: {str(e)}")
+                logger.warning(
+                               f"Input sanitization failed for {request.remote_addr}: {str(e)}"
+                              )
                 return create_error_response(str(e), 400)
 
             # Ensure model is loaded
@@ -348,16 +383,22 @@ class PredictBatch(Resource):
             # Get and validate input
             data = request.get_json()
             if not data or 'texts' not in data:
-                logger.warning(f"Missing texts field in batch request from {request.remote_addr}")
+                logger.warning(
+                               f"Missing texts field in batch request from {request.remote_addr}"
+                              )
                 return create_error_response('Missing texts field', 400)
 
             texts = data['texts']
             if not isinstance(texts, list) or len(texts) == 0:
-                logger.warning(f"Invalid texts input from {request.remote_addr}: {type(texts)}")
+                logger.warning(
+                               f"Invalid texts input from {request.remote_addr}: {type(texts)}"
+                              )
                 return create_error_response('Texts must be a non-empty list', 400)
 
             if len(texts) > 100:  # Limit batch size
-                logger.warning(f"Batch size too large from {request.remote_addr}: {len(texts)}")
+                logger.warning(
+                               f"Batch size too large from {request.remote_addr}: {len(texts)}"
+                              )
                 return create_error_response('Batch size too large (max 100)', 400)
 
             # Ensure model is loaded
@@ -366,7 +407,9 @@ class PredictBatch(Resource):
                 return create_error_response('Model not ready', 503)
 
             # Process each text
-            logger.info(f"Processing batch prediction request for {request.remote_addr} with {len(texts)} texts")
+            logger.info(
+                        f"Processing batch prediction request for {request.remote_addr} with {len(texts)} texts"
+                       )
             results = []
             for text in texts:
                 if not text or not isinstance(text, str):
@@ -377,7 +420,9 @@ class PredictBatch(Resource):
                     result = predict_emotion(text)
                     results.append(result)
                 except Exception as e:
-                    logger.warning(f"Failed to process text in batch from {request.remote_addr}: {str(e)}")
+                    logger.warning(
+                                   f"Failed to process text in batch from {request.remote_addr}: {str(e)}"
+                                  )
                     continue
 
             return {'results': results}
@@ -446,7 +491,8 @@ class SecurityStatus(Resource):
             logger.error(f"Security status error for {request.remote_addr}: {str(e)}")
             return create_error_response('Internal server error', 500)
 
-# Error handlers for Flask-RESTX - using direct registration due to decorator compatibility issue
+# Error handlers for Flask-RESTX - using direct registration due to decorator
+compatibility issue
 def rate_limit_exceeded(error):
     """Handle rate limit exceeded errors"""
     logger.warning(f"Rate limit exceeded for {request.remote_addr}")
@@ -464,7 +510,9 @@ def not_found(error):
 
 def method_not_allowed(error):
     """Handle method not allowed errors"""
-    logger.warning(f"Method not allowed for {request.remote_addr}: {request.method} {request.url}")
+    logger.warning(
+                   f"Method not allowed for {request.remote_addr}: {request.method} {request.url}"
+                  )
     return create_error_response('Method not allowed', 405)
 
 def handle_unexpected_error(error):
@@ -483,7 +531,10 @@ def initialize_model():
     """Initialize the emotion detection model"""
     try:
         logger.info("🚀 Initializing emotion detection API server...")
-        logger.info(f"📊 Configuration: MAX_INPUT_LENGTH={MAX_INPUT_LENGTH}, RATE_LIMIT={RATE_LIMIT_PER_MINUTE}/min")
+        logger.info(
+                    f"📊 Configuration: MAX_INPUT_LENGTH={MAX_INPUT_LENGTH},
+                    RATE_LIMIT={RATE_LIMIT_PER_MINUTE}/min"
+                   )
         logger.info(f"🔐 Security: API key protection enabled, Admin API key configured")
         logger.info(f"🌐 Server: Port {PORT}, Model path: {MODEL_PATH}")
         logger.info(f"🔄 Rate limiting: {RATE_LIMIT_PER_MINUTE} requests per minute")
@@ -506,7 +557,9 @@ if __name__ == '__main__':
 else:
     # For production deployment - don't initialize during import
     # Model will be initialized when the app actually starts
-    logger.info("🚀 Production deployment detected - model will be initialized on first request")
+    logger.info(
+                "🚀 Production deployment detected - model will be initialized on first request"
+               )
 
 # Root endpoint is now registered BEFORE Flask-RESTX initialization to avoid conflicts
 

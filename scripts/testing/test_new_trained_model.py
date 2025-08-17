@@ -50,7 +50,8 @@ def test_new_trained_model():
         print(f"  Labels: {model.config.id2label}")
         
         # Define emotion mapping
-        emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy',
+'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
         
         print(f"\n🎯 Testing predictions...")
         
@@ -75,7 +76,12 @@ def test_new_trained_model():
         
         for text in test_examples:
             # Tokenize
-            inputs = tokenizer(text, return_tensors='pt', truncation=True, max_length=128)
+            inputs = tokenizer(
+                               text,
+                               return_tensors='pt',
+                               truncation=True,
+                               max_length=128
+                              )
             
             # Predict
             with torch.no_grad():
@@ -99,7 +105,10 @@ def test_new_trained_model():
             else:
                 status = "❌"
             
-            print(f"{status} \"{text}\" → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})")
+            print(
+                  f"{status} \"{text}\" → {predicted_emotion} (expected: {expected_emotion},
+                  confidence: {confidence:.3f})"
+                 )
         
         accuracy = correct / len(test_examples)
         print(f"\n📊 Test Accuracy: {accuracy:.1%} ({correct}/{len(test_examples)})")
@@ -115,7 +124,12 @@ def test_new_trained_model():
         ]
         
         for text in edge_cases:
-            inputs = tokenizer(text, return_tensors='pt', truncation=True, max_length=128)
+            inputs = tokenizer(
+                               text,
+                               return_tensors='pt',
+                               truncation=True,
+                               max_length=128
+                              )
             with torch.no_grad():
                 outputs = model(**inputs)
                 predictions = torch.softmax(outputs.logits, dim=1)

@@ -20,7 +20,8 @@
 # Configure logging
 #!/usr/bin/env python3
 from pathlib import Path
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
+from src
+    .models.emotion_detection.training_pipeline import create_bert_emotion_classifier
 import logging
 import numpy as np
 import sys
@@ -42,7 +43,10 @@ audio recording, transcription, and emotion detection.
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+                    level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s"
+                   )
 logger = logging.getLogger(__name__)
 
 
@@ -59,7 +63,8 @@ def test_voice_recording():
 
         p = pyaudio.PyAudio()
         stream = p.open(
-            format=format, channels=channels, rate=rate, input=True, frames_per_buffer=chunk
+format =
+    format, channels=channels, rate=rate, input=True, frames_per_buffer=chunk
         )
 
         logger.info("✅ PyAudio initialized successfully")
@@ -160,7 +165,10 @@ def test_voice_emotion_features():
         audio_data = np.random.randn(samples).astype(np.float32)
 
         mfccs = librosa.feature.mfcc(y=audio_data, sr=sample_rate, n_mfcc=13)
-        spectral_centroids = librosa.feature.spectral_centroid(y=audio_data, sr=sample_rate)
+        spectral_centroids = librosa.feature.spectral_centroid(
+                                                               y=audio_data,
+                                                               sr=sample_rate
+                                                              )
         zero_crossing_rate = librosa.feature.zero_crossing_rate(audio_data)
 
         logger.info("✅ Voice emotion features extracted successfully")

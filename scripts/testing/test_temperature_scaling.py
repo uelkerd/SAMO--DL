@@ -69,7 +69,11 @@ def test_temperature_scaling():
             trainer.model, trainer.val_loader, trainer.device, threshold=threshold
         )
 
-        predictions_per_sample = metrics.get("predictions_sum", 0) / metrics.get("num_samples", 1)
+        predictions_per_sample = metrics.get(
+                                             "predictions_sum",
+                                             0) / metrics.get("num_samples",
+                                             1
+                                            )
 
         result = {
             "temperature": temp,
@@ -125,13 +129,16 @@ def test_temperature_scaling():
 
     if best_f1 > 0.15:  # Significant improvement
         logger.info(
-            "🎉 SUCCESS! Temperature scaling improved F1 by {(best_f1 / 0.076 - 1) * 100:.1f}%"
+            "🎉 SUCCESS! Temperature scaling improved F1 by {(
+                                                             best_f1 / 0.076 - 1) * 100:.1f}%"
         )
-        logger.info("💡 RECOMMENDATION: Use temperature={best_temp} with threshold={threshold}")
+        logger.info(
+                    "💡 RECOMMENDATION: Use temperature={best_temp} with threshold={threshold}"
+                   )
     else:
         logger.info("⚠️ Temperature scaling provided modest improvement")
         logger.info(
-            "💡 RECOMMENDATION: Consider higher thresholds or additional calibration methods"
+"💡 RECOMMENDATION: Consider higher thresholds or additional calibration methods"
         )
 
     return best_temp, best_f1

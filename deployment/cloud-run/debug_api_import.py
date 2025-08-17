@@ -89,7 +89,8 @@ except Exception as e:
 
 try:
     print("9. Testing model_utils import...")
-    from model_utils import ensure_model_loaded, predict_emotions, get_model_status, validate_text_input
+from model_utils import ensure_model_loaded, predict_emotions, get_model_status,
+validate_text_input
     print("✅ model_utils imported successfully")
 except Exception as e:
     print(f"❌ model_utils import failed: {e}")

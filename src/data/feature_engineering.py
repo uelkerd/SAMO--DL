@@ -86,10 +86,14 @@ class FeatureEngineer:
         df["word_count"] = df[text_column].apply(lambda x: len(x.split()))
 
         df["avg_word_length"] = df[text_column].apply(
-            lambda x: np.mean([len(word) for word in x.split()]) if len(x.split()) > 0 else 0
+            lambda x: np.mean(
+                              [len(word) for word in x.split()]) if len(x.split()) > 0 else 0
         )
 
-        df["sentence_count"] = df[text_column].apply(lambda x: len(re.split(r"[.!?]+", x)) - 1)
+        df["sentence_count"] = df[text_column].apply(
+                                                     lambda x: len(re.split(r"[.!?]+",
+                                                     x)) - 1
+                                                    )
 
         df["words_per_sentence"] = df.apply(
             lambda row: row["word_count"] / row["sentence_count"]
@@ -124,7 +128,7 @@ class FeatureEngineer:
         """
         if self.sentiment_analyzer is None:
             logger.warning(
-                "Sentiment analyzer not available. Skipping sentiment feature extraction."
+"Sentiment analyzer not available. Skipping sentiment feature extraction."
             )
             return df
 
@@ -222,7 +226,9 @@ class FeatureEngineer:
         df = df.copy()
 
         if timestamp_column not in df.columns:
-            logger.warning("Timestamp column '{timestamp_column}' not found in DataFrame")
+            logger.warning(
+                           "Timestamp column '{timestamp_column}' not found in DataFrame"
+                          )
             return df
 
         try:

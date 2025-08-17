@@ -51,16 +51,20 @@ def create_improved_notebook():
                 "outputs": [],
                 "source": [
                     "# Install dependencies with compatibility fixes\n",
-                    "print(\"📦 Installing dependencies with compatibility fixes...\")\n",
+                    "print(
+                           \"📦 Installing dependencies with compatibility fixes...\")\n",
+                           
                     "\n",
                     "# Step 1: Uninstall existing PyTorch to avoid conflicts\n",
                     "!pip uninstall torch torchvision torchaudio -y\n",
                     "\n",
                     "# Step 2: Install PyTorch with compatible CUDA version\n",
-                    "!pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu118\n",
+"!pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url
+https://download.pytorch.org/whl/cu118\n",
                     "\n",
                     "# Step 3: Install Transformers with compatible version\n",
-                    "!pip install transformers==4.30.0 datasets==2.13.0 evaluate scikit-learn pandas numpy matplotlib seaborn\n",
+"!pip install transformers==4.30.0 datasets==2.13.0 evaluate scikit-learn pandas numpy
+matplotlib seaborn\n",
                     "\n",
                     "# Step 4: Verify installation\n",
                     "print(\"🔍 Verifying installation...\")\n",
@@ -258,16 +262,36 @@ def create_improved_notebook():
                     "    }\n",
                     "    \n",
                     "    # Get templates for this emotion\n",
-                    "    templates = emotion_templates.get(emotion, [f\"I'm feeling {emotion}.\"])\n",
+                    "    templates = emotion_templates.get(
+                                                           emotion,
+                                                           [f\"I'm feeling {emotion}.\"])\n",
+                                                           
                     "    \n",
                     "    # Create variation\n",
                     "    template = random.choice(templates)\n",
                     "    \n",
                     "    # Add some variety to the content\n",
                     "    variations = [\n",
-                    "        f\"{template} {random.choice(['It\\'s been a long day.', 'Things are going well.', 'I need to process this.', 'This is important to me.'])}\",\n",
-                    "        f\"{template} {random.choice(['I hope this continues.', 'I wonder what\\'s next.', 'This feels right.', 'I\\'m processing this.'])}\",\n",
-                    "        f\"{template} {random.choice(['I should reflect on this.', 'This is meaningful.', 'I appreciate this moment.', 'I\\'m learning from this.'])}\"\n",
+                    "        f\"{template} {random.choice(
+                                                          ['It\\'s been a long day.',
+                                                          'Things are going well.',
+                                                          'I need to process this.',
+                                                          'This is important to me.'])}\",
+                                                          \n",
+                                                          
+                    "        f\"{template} {random.choice(
+                                                          ['I hope this continues.',
+                                                          'I wonder what\\'s next.',
+                                                          'This feels right.',
+                                                          'I\\'m processing this.'])}\",
+                                                          \n",
+                                                          
+                    "        f\"{template} {random.choice(
+                                                          ['I should reflect on this.',
+                                                          'This is meaningful.',
+                                                          'I appreciate this moment.',
+                                                          'I\\'m learning from this.'])}\"\n",
+                                                          
                     "    ]\n",
                     "    \n",
                     "    content = random.choice(variations)\n",
@@ -275,7 +299,10 @@ def create_improved_notebook():
                     "    return {\n",
                     "        'content': content,\n",
                     "        'emotion': emotion,\n",
-                    "        'id': f\"expanded_{emotion}_{random.randint(1000, 9999)}\"\n",
+                    "        'id': f\"expanded_{emotion}_{random.randint(
+                                                                         1000,
+                                                                         9999)}\"\n",
+                                                                         
                     "    }\n",
                     "\n",
                     "def create_balanced_dataset(target_size=1000):\n",
@@ -289,7 +316,10 @@ def create_improved_notebook():
                     "    emotion_counts = {}\n",
                     "    for entry in current_data:\n",
                     "        emotion = entry['emotion']\n",
-                    "        emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1\n",
+                    "        emotion_counts[emotion] = emotion_counts.get(
+                                                                          emotion,
+                                                                          0) + 1\n",
+                                                                          
                     "    \n",
                     "    print(f\"📊 Current emotion distribution:\")\n",
                     "    for emotion, count in sorted(emotion_counts.items()):\n",
@@ -297,17 +327,22 @@ def create_improved_notebook():
                     "    \n",
                     "    # Calculate target per emotion\n",
                     "    target_per_emotion = target_size // len(emotion_counts)\n",
-                    "    print(f\"\\n🎯 Target: {target_per_emotion} samples per emotion\")\n",
+                    "    print(
+                               f\"\\n🎯 Target: {target_per_emotion} samples per emotion\")\n",
+                               
                     "    \n",
                     "    # Create expanded dataset\n",
                     "    expanded_data = []\n",
                     "    \n",
                     "    for emotion in emotion_counts.keys():\n",
                     "        # Get existing samples for this emotion\n",
-                    "        existing_samples = [entry for entry in current_data if entry['emotion'] == emotion]\n",
+" existing_samples = [entry for entry in current_data if entry['emotion'] ==
+emotion]\n",
                     "        current_count = len(existing_samples)\n",
                     "        \n",
-                    "        print(f\"\\n📝 Expanding '{emotion}' from {current_count} to {target_per_emotion} samples...\")\n",
+                    "        print(
+                                   f\"\\n📝 Expanding '{emotion}' from {current_count} to {target_per_emotion} samples...\")\n",
+                                   
                     "        \n",
                     "        # Add existing samples\n",
                     "        expanded_data.extend(existing_samples)\n",
@@ -318,11 +353,14 @@ def create_improved_notebook():
                     "        if needed_samples > 0:\n",
                     "            # Create variations of existing samples\n",
                     "            for i in range(needed_samples):\n",
-                    "                # Pick a random existing sample to base variation on\n",
+" # Pick a random existing sample to base variation on\n",
                     "                base_sample = random.choice(existing_samples)\n",
                     "                \n",
                     "                # Create variation\n",
-                    "                variation = create_variation(base_sample, emotion)\n",
+                    "                variation = create_variation(
+                                                                  base_sample,
+                                                                  emotion)\n",
+                                                                  
                     "                expanded_data.append(variation)\n",
                     "    \n",
                     "    print(f\"\\n✅ Expanded dataset created:\")\n",
@@ -339,13 +377,18 @@ def create_improved_notebook():
                     "with open('data/expanded_journal_dataset.json', 'w') as f:\n",
                     "    json.dump(expanded_data, f, indent=2)\n",
                     "\n",
-                    "print(\"✅ Expanded dataset saved to data/expanded_journal_dataset.json\")\n",
+                    "print(
+                           \"✅ Expanded dataset saved to data/expanded_journal_dataset.json\")\n",
+                           
                     "\n",
                     "# Analyze expanded dataset\n",
                     "emotion_counts = {}\n",
                     "for entry in expanded_data:\n",
                     "    emotion = entry['emotion']\n",
-                    "    emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1\n",
+                    "    emotion_counts[emotion] = emotion_counts.get(
+                                                                      emotion,
+                                                                      0) + 1\n",
+                                                                      
                     "\n",
                     "print(\"\\n📊 Expanded Dataset Analysis:\")\n",
                     "print(\"=\" * 40)\n",
@@ -370,7 +413,7 @@ def create_improved_notebook():
                 "metadata": {"id": "expanded_training"},
                 "outputs": [],
                 "source": [
-                    "# Complete training script with expanded dataset and GPU optimizations\n",
+"# Complete training script with expanded dataset and GPU optimizations\n",
                     "import torch\n",
                     "import torch.nn as nn\n",
                     "from torch.utils.data import Dataset, DataLoader\n",
@@ -382,7 +425,13 @@ def create_improved_notebook():
                     "from torch.cuda.amp import autocast, GradScaler\n",
                     "\n",
                     "class ExpandedEmotionDataset(Dataset):\n",
-                    "    def __init__(self, texts, labels, tokenizer, max_length=128):\n",
+                    "    def __init__(
+                                      self,
+                                      texts,
+                                      labels,
+                                      tokenizer,
+                                      max_length=128):\n",
+                                      
                     "        self.texts = texts\n",
                     "        self.labels = labels\n",
                     "        self.tokenizer = tokenizer\n",
@@ -405,26 +454,39 @@ def create_improved_notebook():
                     "        \n",
                     "        return {\n",
                     "            'input_ids': encoding['input_ids'].flatten(),\n",
-                    "            'attention_mask': encoding['attention_mask'].flatten(),\n",
+                    "            'attention_mask': encoding['attention_mask'].flatten(
+                                                                                      ),
+                                                                                      \n",
+                                                                                      
                     "            'labels': torch.tensor(label, dtype=torch.long)\n",
                     "        }\n",
                     "\n",
                     "class ExpandedEmotionClassifier(nn.Module):\n",
-                    "    def __init__(self, model_name=\"bert-base-uncased\", num_labels=12):\n",
+                    "    def __init__(
+                                      self,
+                                      model_name=\"bert-base-uncased\",
+                                      num_labels=12):\n",
+                                      
                     "        super().__init__()\n",
                     "        self.num_labels = num_labels\n",
                     "        self.bert = AutoModel.from_pretrained(model_name)\n",
                     "        self.dropout = nn.Dropout(0.3)\n",
-                    "        self.classifier = nn.Linear(self.bert.config.hidden_size, num_labels)\n",
+                    "        self.classifier = nn.Linear(
+                                                         self.bert.config.hidden_size,
+                                                         num_labels)\n",
+                                                         
                     "    \n",
                     "    def forward(self, input_ids, attention_mask):\n",
-                    "        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)\n",
+                    "        outputs = self.bert(
+                                                 input_ids=input_ids,
+                                                 attention_mask=attention_mask)\n",
+                                                 
                     "        pooled_output = outputs.pooler_output\n",
                     "        logits = self.classifier(self.dropout(pooled_output))\n",
                     "        return logits\n",
                     "\n",
                     "def prepare_expanded_data(data, test_size=0.2, val_size=0.1):\n",
-                    "    \"\"\"Prepare data for training with expanded dataset.\"\"\"\n",
+" \"\"\"Prepare data for training with expanded dataset.\"\"\"\n",
                     "    print(\"🔧 Preparing expanded data...\")\n",
                     "    \n",
                     "    # Extract texts and emotions\n",
@@ -435,16 +497,22 @@ def create_improved_notebook():
                     "    label_encoder = LabelEncoder()\n",
                     "    labels = label_encoder.fit_transform(emotions)\n",
                     "    \n",
-                    "    print(f\"✅ Label encoder created with {len(label_encoder.classes_)} classes\")\n",
+                    "    print(
+                               f\"✅ Label encoder created with {len(label_encoder.classes_)} classes\")\n",
+                               
                     "    print(f\"📊 Classes: {list(label_encoder.classes_)}\")\n",
                     "    \n",
                     "    # Split data\n",
                     "    X_temp, X_test, y_temp, y_test = train_test_split(\n",
-                    "        texts, labels, test_size=test_size, random_state=42, stratify=labels\n",
+" texts, labels, test_size=test_size, random_state=42, stratify=labels\n",
                     "    )\n",
                     "    \n",
                     "    X_train, X_val, y_train, y_val = train_test_split(\n",
-                    "        X_temp, y_temp, test_size=val_size/(1-test_size), random_state=42, stratify=y_temp\n",
+                    "        X_temp, y_temp, test_size=val_size/(
+                                                                 1-test_size),
+                                                                 random_state=42,
+                                                                 stratify=y_temp\n",
+                                                                 
                     "    )\n",
                     "    \n",
                     "    print(f\"📊 Data split:\")\n",
@@ -452,14 +520,30 @@ def create_improved_notebook():
                     "    print(f\"  Validation: {len(X_val)} samples\")\n",
                     "    print(f\"  Test: {len(X_test)} samples\")\n",
                     "    \n",
-                    "    return (X_train, y_train), (X_val, y_val), (X_test, y_test), label_encoder\n",
+                    "    return (
+                                 X_train,
+                                 y_train),
+                                 (X_val,
+                                 y_val),
+                                 (X_test,
+                                 y_test),
+                                 label_encoder\n",
+                                 
                     "\n",
-                    "def train_expanded_model(train_data, val_data, label_encoder, epochs=5, batch_size=16):\n",
-                    "    \"\"\"Train the model with expanded dataset and GPU optimizations.\"\"\"\n",
+                    "def train_expanded_model(
+                                              train_data,
+                                              val_data,
+                                              label_encoder,
+                                              epochs=5,
+                                              batch_size=16):\n",
+                                              
+" \"\"\"Train the model with expanded dataset and GPU optimizations.\"\"\"\n",
                     "    print(\"🚀 Training with expanded dataset...\")\n",
                     "    \n",
                     "    # Setup\n",
-                    "    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')\n",
+                    "    device = torch.device(
+                                               'cuda' if torch.cuda.is_available() else 'cpu')\n",
+                                               
                     "    print(f\"✅ Using device: {device}\")\n",
                     "    \n",
                     "    # GPU optimizations\n",
@@ -467,33 +551,67 @@ def create_improved_notebook():
                     "        print(\"🔧 Applying GPU optimizations...\")\n",
                     "        torch.backends.cudnn.benchmark = True\n",
                     "        torch.backends.cudnn.deterministic = False\n",
-                    "        print(f\"📊 GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB\")\n",
-                    "        print(f\"📊 Available Memory: {torch.cuda.memory_allocated(0) / 1e9:.1f} GB\")\n",
+                    "        print(
+                                   f\"📊 GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB\")\n",
+                                   
+                    "        print(
+                                   f\"📊 Available Memory: {torch.cuda.memory_allocated(0) / 1e9:.1f} GB\")\n",
+                                   
                     "    \n",
                     "    # Clear GPU cache\n",
                     "    if torch.cuda.is_available():\n",
                     "        torch.cuda.empty_cache()\n",
                     "    \n",
                     "    # Load tokenizer\n",
-                    "    tokenizer = AutoTokenizer.from_pretrained(\"bert-base-uncased\")\n",
+                    "    tokenizer = AutoTokenizer.from_pretrained(
+                                                                   \"bert-base-uncased\")\n",
+                                                                   
                     "    \n",
                     "    # Create datasets\n",
                     "    X_train, y_train = train_data\n",
                     "    X_val, y_val = val_data\n",
                     "    \n",
-                    "    train_dataset = ExpandedEmotionDataset(X_train, y_train, tokenizer)\n",
-                    "    val_dataset = ExpandedEmotionDataset(X_val, y_val, tokenizer)\n",
+                    "    train_dataset = ExpandedEmotionDataset(
+                                                                X_train,
+                                                                y_train,
+                                                                tokenizer)\n",
+                                                                
+                    "    val_dataset = ExpandedEmotionDataset(
+                                                              X_val,
+                                                              y_val,
+                                                              tokenizer)\n",
+                                                              
                     "    \n",
-                    "    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2, pin_memory=True)\n",
-                    "    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=2, pin_memory=True)\n",
+                    "    train_loader = DataLoader(
+                                                   train_dataset,
+                                                   batch_size=batch_size,
+                                                   shuffle=True,
+                                                   num_workers=2,
+                                                   pin_memory=True)\n",
+                                                   
+                    "    val_loader = DataLoader(
+                                                 val_dataset,
+                                                 batch_size=batch_size,
+                                                 shuffle=False,
+                                                 num_workers=2,
+                                                 pin_memory=True)\n",
+                                                 
                     "    \n",
                     "    # Initialize model\n",
-                    "    model = ExpandedEmotionClassifier(num_labels=len(label_encoder.classes_))\n",
+                    "    model = ExpandedEmotionClassifier(
+                                                           num_labels=len(label_encoder.classes_))\n",
+                                                           
                     "    model.to(device)\n",
                     "    \n",
                     "    # Setup training with optimizations\n",
                     "    optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)\n",
-                    "    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=2, verbose=True)\n",
+                    "    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+                                                                                optimizer,
+                                                                                mode='max',
+                                                                                factor=0.5,
+                                                                                patience=2,
+                                                                                verbose=True)\n",
+                                                                                
                     "    criterion = nn.CrossEntropyLoss()\n",
                     "    scaler = GradScaler()\n",
                     "    \n",
@@ -509,15 +627,27 @@ def create_improved_notebook():
                     "        total_loss = 0\n",
                     "        \n",
                     "        for i, batch in enumerate(train_loader):\n",
-                    "            input_ids = batch['input_ids'].to(device, non_blocking=True)\n",
-                    "            attention_mask = batch['attention_mask'].to(device, non_blocking=True)\n",
-                    "            labels = batch['labels'].to(device, non_blocking=True)\n",
+                    "            input_ids = batch['input_ids'].to(
+                                                                   device,
+                                                                   non_blocking=True)\n",
+                                                                   
+                    "            attention_mask = batch['attention_mask'].to(
+                                                                             device,
+                                                                             non_blocking=True)\n",
+                                                                             
+                    "            labels = batch['labels'].to(
+                                                             device,
+                                                             non_blocking=True)\n",
+                                                             
                     "            \n",
                     "            optimizer.zero_grad()\n",
                     "            \n",
                     "            # Mixed precision training\n",
                     "            with autocast():\n",
-                    "                outputs = model(input_ids=input_ids, attention_mask=attention_mask)\n",
+                    "                outputs = model(
+                                                     input_ids=input_ids,
+                                                     attention_mask=attention_mask)\n",
+                                                     
                     "                loss = criterion(outputs, labels)\n",
                     "            \n",
                     "            scaler.scale(loss).backward()\n",
@@ -527,7 +657,10 @@ def create_improved_notebook():
                     "            total_loss += loss.item()\n",
                     "            \n",
                     "            if i % 50 == 0:\n",
-                    "                print(f\"  Batch {i}/{len(train_loader)}, Loss: {loss.item():.4f}\")\n",
+                    "                print(
+                                           f\"  Batch {i}/{len(train_loader)},
+                                           Loss: {loss.item():.4f}\")\n",
+                                           
                     "        \n",
                     "        # Validation\n",
                     "        model.eval()\n",
@@ -537,11 +670,23 @@ def create_improved_notebook():
                     "        \n",
                     "        with torch.no_grad():\n",
                     "            for batch in val_loader:\n",
-                    "                input_ids = batch['input_ids'].to(device, non_blocking=True)\n",
-                    "                attention_mask = batch['attention_mask'].to(device, non_blocking=True)\n",
-                    "                labels = batch['labels'].to(device, non_blocking=True)\n",
+                    "                input_ids = batch['input_ids'].to(
+                                                                       device,
+                                                                       non_blocking=True)\n",
+                                                                       
+                    "                attention_mask = batch['attention_mask'].to(
+                                                                                 device,
+                                                                                 non_blocking=True)\n",
+                                                                                 
+                    "                labels = batch['labels'].to(
+                                                                 device,
+                                                                 non_blocking=True)\n",
+                                                                 
                     "                \n",
-                    "                outputs = model(input_ids=input_ids, attention_mask=attention_mask)\n",
+                    "                outputs = model(
+                                                     input_ids=input_ids,
+                                                     attention_mask=attention_mask)\n",
+                                                     
                     "                loss = criterion(outputs, labels)\n",
                     "                val_loss += loss.item()\n",
                     "                \n",
@@ -552,7 +697,11 @@ def create_improved_notebook():
                     "        # Calculate metrics\n",
                     "        avg_train_loss = total_loss / len(train_loader)\n",
                     "        avg_val_loss = val_loss / len(val_loader)\n",
-                    "        f1_macro = f1_score(all_labels, all_preds, average='macro')\n",
+                    "        f1_macro = f1_score(
+                                                 all_labels,
+                                                 all_preds,
+                                                 average='macro')\n",
+                                                 
                     "        accuracy = accuracy_score(all_labels, all_preds)\n",
                     "        \n",
                     "        print(f\"📊 Epoch {epoch + 1} Results:\")\n",
@@ -563,14 +712,21 @@ def create_improved_notebook():
                     "        \n",
                     "        # Early stopping check\n",
                     "        if epoch > 2 and f1_macro < best_f1 * 0.95:\n",
-                    "            print(f\"🛑 Early stopping triggered. F1 dropped below 95% of best.\")\n",
+                    "            print(
+                                       f\"🛑 Early stopping triggered. F1 dropped below 95% of best.\")\n",
+                                       
                     "            break\n",
                     "        \n",
                     "        # Save best model\n",
                     "        if f1_macro > best_f1:\n",
                     "            best_f1 = f1_macro\n",
-                    "            torch.save(model.state_dict(), 'best_expanded_model.pth')\n",
-                    "            print(f\"💾 New best model saved! F1: {best_f1:.4f}\")\n",
+                    "            torch.save(
+                                            model.state_dict(),
+                                            'best_expanded_model.pth')\n",
+                                            
+                    "            print(
+                                       f\"💾 New best model saved! F1: {best_f1:.4f}\")\n",
+                                       
                     "            scheduler.step(f1_macro)\n",
                     "        \n",
                     "        training_history.append({\n",
@@ -590,10 +746,15 @@ def create_improved_notebook():
                     "print(f\"📊 Loaded {len(expanded_data)} expanded samples\")\n",
                     "\n",
                     "# Prepare data\n",
-                    "train_data, val_data, test_data, label_encoder = prepare_expanded_data(expanded_data)\n",
+"train_data, val_data, test_data, label_encoder =
+prepare_expanded_data(expanded_data)\n",
                     "\n",
                     "# Train model\n",
-                    "model, training_history, best_f1 = train_expanded_model(train_data, val_data, label_encoder)\n",
+                    "model, training_history, best_f1 = train_expanded_model(
+                                                                             train_data,
+                                                                             val_data,
+                                                                             label_encoder)\n",
+                                                                             
                     "\n",
                     "print(f\"\\n🎉 Training completed!\")\n",
                     "print(f\"📊 Best F1 Score: {best_f1:.4f}\")\n",
@@ -619,19 +780,27 @@ def create_improved_notebook():
                     "    print(\"🧪 Testing new expanded model...\")\n",
                     "    \n",
                     "    # Load best model\n",
-                    "    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')\n",
-                    "    model = ExpandedEmotionClassifier(num_labels=len(label_encoder.classes_))\n",
-                    "    model.load_state_dict(torch.load('best_expanded_model.pth'))\n",
+                    "    device = torch.device(
+                                               'cuda' if torch.cuda.is_available() else 'cpu')\n",
+                                               
+                    "    model = ExpandedEmotionClassifier(
+                                                           num_labels=len(label_encoder.classes_))\n",
+                                                           
+                    "    model.load_state_dict(
+                                               torch.load('best_expanded_model.pth'))\n",
+                                               
                     "    model.to(device)\n",
                     "    model.eval()\n",
                     "    \n",
                     "    # Load tokenizer\n",
-                    "    tokenizer = AutoTokenizer.from_pretrained(\"bert-base-uncased\")\n",
+                    "    tokenizer = AutoTokenizer.from_pretrained(
+                                                                   \"bert-base-uncased\")\n",
+                                                                   
                     "    \n",
                     "    # Sample test entries\n",
                     "    test_entries = [\n",
-                    "        \"I'm feeling really happy today! Everything is going well.\",\n",
-                    "        \"I'm so frustrated with this project. Nothing is working.\",\n",
+" \"I'm feeling really happy today! Everything is going well.\",\n",
+" \"I'm so frustrated with this project. Nothing is working.\",\n",
                     "        \"I feel anxious about the upcoming presentation.\",\n",
                     "        \"I'm grateful for all the support I've received.\",\n",
                     "        \"I'm feeling overwhelmed with all these tasks.\",\n",
@@ -660,17 +829,31 @@ def create_improved_notebook():
                     "        # Predict\n",
                     "        with torch.no_grad():\n",
                     "            input_ids = encoding['input_ids'].to(device)\n",
-                    "            attention_mask = encoding['attention_mask'].to(device)\n",
-                    "            outputs = model(input_ids=input_ids, attention_mask=attention_mask)\n",
+                    "            attention_mask = encoding['attention_mask'].to(
+                                                                                device)\n",
+                                                                                
+                    "            outputs = model(
+                                                 input_ids=input_ids,
+                                                 attention_mask=attention_mask)\n",
+                                                 
                     "            probabilities = torch.softmax(outputs, dim=1)\n",
-                    "            predicted_class = torch.argmax(probabilities, dim=1).item()\n",
-                    "            confidence = probabilities[0][predicted_class].item()\n",
+                    "            predicted_class = torch.argmax(
+                                                                probabilities,
+                                                                dim=1).item()\n",
+                                                                
+                    "            confidence = probabilities[0][predicted_class].item(
+                                                                                     )\n",
+                                                                                     
                     "        \n",
                     "        # Get emotion label\n",
-                    "        emotion = label_encoder.inverse_transform([predicted_class])[0]\n",
+                    "        emotion = label_encoder.inverse_transform(
+                                                                       [predicted_class])[0]\n",
+                                                                       
                     "        \n",
                     "        print(f\"\\n{i}. Text: {text}\")\n",
-                    "        print(f\"   Predicted: {emotion} (confidence: {confidence:.3f})\")\n",
+                    "        print(
+                                   f\"   Predicted: {emotion} (confidence: {confidence:.3f})\")\n",
+                                   
                     "        \n",
                     "        # Show top 3 predictions\n",
                     "        all_probs = probabilities[0].cpu().numpy()\n",
@@ -678,7 +861,9 @@ def create_improved_notebook():
                     "        print(\"   Top 3 predictions:\")\n",
                     "        for idx in top_indices:\n",
                     "            prob = all_probs[idx]\n",
-                    "            emotion_name = label_encoder.inverse_transform([idx])[0]\n",
+                    "            emotion_name = label_encoder.inverse_transform(
+                                                                                [idx])[0]\n",
+                                                                                
                     "            print(f\"     - {emotion_name}: {prob:.3f}\")\n",
                     "    \n",
                     "    print(\"\\n✅ Model testing completed!\")\n",
@@ -753,7 +938,9 @@ def create_improved_notebook():
     with open('notebooks/expanded_dataset_training_improved.ipynb', 'w') as f:
         json.dump(notebook, f, indent=2)
     
-    print("✅ Improved notebook created: 'notebooks/expanded_dataset_training_improved.ipynb'")
+    print(
+          "✅ Improved notebook created: 'notebooks/expanded_dataset_training_improved.ipynb'"
+         )
     print("📋 Key improvements:")
     print("  - Fixed JSON syntax errors")
     print("  - Added GPU optimizations (cudnn benchmark, memory management)")

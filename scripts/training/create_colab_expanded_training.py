@@ -239,16 +239,36 @@ def create_colab_notebook():
         "    }\\n",
         "    \\n",
         "    # Get templates for this emotion\\n",
-        "    templates = emotion_templates.get(emotion, [f\"I'm feeling {emotion}.\"])\\n",
+        "    templates = emotion_templates.get(
+                                               emotion,
+                                               [f\"I'm feeling {emotion}.\"])\\n",
+                                               
         "    \\n",
         "    # Create variation\\n",
         "    template = random.choice(templates)\\n",
         "    \\n",
         "    # Add some variety to the content\\n",
         "    variations = [\\n",
-        "        f\"{template} {random.choice(['It\\\\'s been a long day.', 'Things are going well.', 'I need to process this.', 'This is important to me.'])}\",\\n",
-        "        f\"{template} {random.choice(['I hope this continues.', 'I wonder what\\\\'s next.', 'This feels right.', 'I\\\\'m processing this.'])}\",\\n",
-        "        f\"{template} {random.choice(['I should reflect on this.', 'This is meaningful.', 'I appreciate this moment.', 'I\\\\'m learning from this.'])}\"\\n",
+        "        f\"{template} {random.choice(
+                                              ['It\\\\'s been a long day.',
+                                              'Things are going well.',
+                                              'I need to process this.',
+                                              'This is important to me.'])}\",
+                                              \\n",
+                                              
+        "        f\"{template} {random.choice(
+                                              ['I hope this continues.',
+                                              'I wonder what\\\\'s next.',
+                                              'This feels right.',
+                                              'I\\\\'m processing this.'])}\",
+                                              \\n",
+                                              
+        "        f\"{template} {random.choice(
+                                              ['I should reflect on this.',
+                                              'This is meaningful.',
+                                              'I appreciate this moment.',
+                                              'I\\\\'m learning from this.'])}\"\\n",
+                                              
         "    ]\\n",
         "    \\n",
         "    content = random.choice(variations)\\n",
@@ -285,10 +305,13 @@ def create_colab_notebook():
         "    \\n",
         "    for emotion in emotion_counts.keys():\\n",
         "        # Get existing samples for this emotion\\n",
-        "        existing_samples = [entry for entry in current_data if entry['emotion'] == emotion]\\n",
+" existing_samples = [entry for entry in current_data if entry['emotion'] ==
+emotion]\\n",
         "        current_count = len(existing_samples)\\n",
         "        \\n",
-        "        print(f\"\\n📝 Expanding '{emotion}' from {current_count} to {target_per_emotion} samples...\")\\n",
+        "        print(
+                       f\"\\n📝 Expanding '{emotion}' from {current_count} to {target_per_emotion} samples...\")\\n",
+                       
         "        \\n",
         "        # Add existing samples\\n",
         "        expanded_data.extend(existing_samples)\\n",
@@ -399,10 +422,16 @@ def create_colab_notebook():
         "        self.num_labels = num_labels\\n",
         "        self.bert = AutoModel.from_pretrained(model_name)\\n",
         "        self.dropout = nn.Dropout(0.3)\\n",
-        "        self.classifier = nn.Linear(self.bert.config.hidden_size, num_labels)\\n",
+        "        self.classifier = nn.Linear(
+                                             self.bert.config.hidden_size,
+                                             num_labels)\\n",
+                                             
         "    \\n",
         "    def forward(self, input_ids, attention_mask):\\n",
-        "        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)\\n",
+        "        outputs = self.bert(
+                                     input_ids=input_ids,
+                                     attention_mask=attention_mask)\\n",
+                                     
         "        pooled_output = outputs.pooler_output\\n",
         "        logits = self.classifier(self.dropout(pooled_output))\\n",
         "        return logits\\n",
@@ -419,16 +448,22 @@ def create_colab_notebook():
         "    label_encoder = LabelEncoder()\\n",
         "    labels = label_encoder.fit_transform(emotions)\\n",
         "    \\n",
-        "    print(f\"✅ Label encoder created with {len(label_encoder.classes_)} classes\")\\n",
+        "    print(
+                   f\"✅ Label encoder created with {len(label_encoder.classes_)} classes\")\\n",
+                   
         "    print(f\"📊 Classes: {list(label_encoder.classes_)}\")\\n",
         "    \\n",
         "    # Split data\\n",
         "    X_temp, X_test, y_temp, y_test = train_test_split(\\n",
-        "        texts, labels, test_size=test_size, random_state=42, stratify=labels\\n",
+" texts, labels, test_size=test_size, random_state=42, stratify=labels\\n",
         "    )\\n",
         "    \\n",
         "    X_train, X_val, y_train, y_val = train_test_split(\\n",
-        "        X_temp, y_temp, test_size=val_size/(1-test_size), random_state=42, stratify=y_temp\\n",
+        "        X_temp, y_temp, test_size=val_size/(
+                                                     1-test_size),
+                                                     random_state=42,
+                                                     stratify=y_temp\\n",
+                                                     
         "    )\\n",
         "    \\n",
         "    print(f\"📊 Data split:\")\\n",
@@ -436,9 +471,23 @@ def create_colab_notebook():
         "    print(f\"  Validation: {len(X_val)} samples\")\\n",
         "    print(f\"  Test: {len(X_test)} samples\")\\n",
         "    \\n",
-        "    return (X_train, y_train), (X_val, y_val), (X_test, y_test), label_encoder\\n",
+        "    return (
+                     X_train,
+                     y_train),
+                     (X_val,
+                     y_val),
+                     (X_test,
+                     y_test),
+                     label_encoder\\n",
+                     
         "\\n",
-        "def train_expanded_model(train_data, val_data, label_encoder, epochs=5, batch_size=16):\\n",
+        "def train_expanded_model(
+                                  train_data,
+                                  val_data,
+                                  label_encoder,
+                                  epochs=5,
+                                  batch_size=16):\\n",
+                                  
         "    \"\"\"Train the model with expanded dataset.\"\"\"\\n",
         "    print(\"🚀 Training with expanded dataset...\")\\n",
         "    \\n",
@@ -456,11 +505,21 @@ def create_colab_notebook():
         "    train_dataset = ExpandedEmotionDataset(X_train, y_train, tokenizer)\\n",
         "    val_dataset = ExpandedEmotionDataset(X_val, y_val, tokenizer)\\n",
         "    \\n",
-        "    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)\\n",
-        "    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)\\n",
+        "    train_loader = DataLoader(
+                                       train_dataset,
+                                       batch_size=batch_size,
+                                       shuffle=True)\\n",
+                                       
+        "    val_loader = DataLoader(
+                                     val_dataset,
+                                     batch_size=batch_size,
+                                     shuffle=False)\\n",
+                                     
         "    \\n",
         "    # Initialize model\\n",
-        "    model = ExpandedEmotionClassifier(num_labels=len(label_encoder.classes_))\\n",
+        "    model = ExpandedEmotionClassifier(
+                                               num_labels=len(label_encoder.classes_))\\n",
+                                               
         "    model.to(device)\\n",
         "    \\n",
         "    # Setup training\\n",
@@ -484,7 +543,10 @@ def create_colab_notebook():
         "            labels = batch['labels'].to(device)\\n",
         "            \\n",
         "            optimizer.zero_grad()\\n",
-        "            outputs = model(input_ids=input_ids, attention_mask=attention_mask)\\n",
+        "            outputs = model(
+                                     input_ids=input_ids,
+                                     attention_mask=attention_mask)\\n",
+                                     
         "            loss = criterion(outputs, labels)\\n",
         "            loss.backward()\\n",
         "            optimizer.step()\\n",
@@ -492,7 +554,10 @@ def create_colab_notebook():
         "            total_loss += loss.item()\\n",
         "            \\n",
         "            if i % 50 == 0:\\n",
-        "                print(f\"  Batch {i}/{len(train_loader)}, Loss: {loss.item():.4f}\")\\n",
+        "                print(
+                               f\"  Batch {i}/{len(train_loader)},
+                               Loss: {loss.item():.4f}\")\\n",
+                               
         "        \\n",
         "        # Validation\\n",
         "        model.eval()\\n",
@@ -506,7 +571,10 @@ def create_colab_notebook():
         "                attention_mask = batch['attention_mask'].to(device)\\n",
         "                labels = batch['labels'].to(device)\\n",
         "                \\n",
-        "                outputs = model(input_ids=input_ids, attention_mask=attention_mask)\\n",
+        "                outputs = model(
+                                         input_ids=input_ids,
+                                         attention_mask=attention_mask)\\n",
+                                         
         "                loss = criterion(outputs, labels)\\n",
         "                val_loss += loss.item()\\n",
         "                \\n",
@@ -549,10 +617,16 @@ def create_colab_notebook():
         "print(f\"📊 Loaded {len(expanded_data)} expanded samples\")\\n",
         "\\n",
         "# Prepare data\\n",
-        "train_data, val_data, test_data, label_encoder = prepare_expanded_data(expanded_data)\\n",
+        "train_data, val_data, test_data, label_encoder = prepare_expanded_data(
+                                                                                expanded_data)\\n",
+                                                                                
         "\\n",
         "# Train model\\n",
-        "model, training_history, best_f1 = train_expanded_model(train_data, val_data, label_encoder)\\n",
+        "model, training_history, best_f1 = train_expanded_model(
+                                                                 train_data,
+                                                                 val_data,
+                                                                 label_encoder)\\n",
+                                                                 
         "\\n",
         "print(f\"\\n🎉 Training completed!\")\\n",
         "print(f\"📊 Best F1 Score: {best_f1:.4f}\")\\n",
@@ -583,7 +657,9 @@ def create_colab_notebook():
         "    \\n",
         "    # Load best model\\n",
         "    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')\\n",
-        "    model = ExpandedEmotionClassifier(num_labels=len(label_encoder.classes_))\\n",
+        "    model = ExpandedEmotionClassifier(
+                                               num_labels=len(label_encoder.classes_))\\n",
+                                               
         "    model.load_state_dict(torch.load('best_expanded_model.pth'))\\n",
         "    model.to(device)\\n",
         "    model.eval()\\n",
@@ -624,7 +700,10 @@ def create_colab_notebook():
         "        with torch.no_grad():\\n",
         "            input_ids = encoding['input_ids'].to(device)\\n",
         "            attention_mask = encoding['attention_mask'].to(device)\\n",
-        "            outputs = model(input_ids=input_ids, attention_mask=attention_mask)\\n",
+        "            outputs = model(
+                                     input_ids=input_ids,
+                                     attention_mask=attention_mask)\\n",
+                                     
         "            probabilities = torch.softmax(outputs, dim=1)\\n",
         "            predicted_class = torch.argmax(probabilities, dim=1).item()\\n",
         "            confidence = probabilities[0][predicted_class].item()\\n",

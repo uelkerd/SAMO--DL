@@ -70,10 +70,13 @@ def debug_evaluation_step_by_step():
 
     logger.info("🔍 Model outputs:")
     logger.info("  📊 Logits shape: {logits.shape}")
-    logger.info("  📊 Logits min/max: {logits.min().item():.4f} / {logits.max().item():.4f}")
+    logger.info(
+                "  📊 Logits min/max: {logits.min().item():.4f} / {logits.max().item():.4f}"
+               )
     logger.info("  📊 Probabilities shape: {probabilities.shape}")
     logger.info(
-        "  📊 Probabilities min/max: {probabilities.min().item():.4f} / {probabilities.max().item():.4f}"
+        "  📊 Probabilities min/max: {probabilities.min(
+                                                       ).item():.4f} / {probabilities.max().item():.4f}"
     )
     logger.info("  📊 Probabilities mean: {probabilities.mean().item():.4f}")
 
@@ -88,10 +91,12 @@ def debug_evaluation_step_by_step():
         logger.info("    - Sum: {predictions_before_fallback.sum().item()}")
         logger.info("    - Mean: {predictions_before_fallback.mean().item():.4f}")
         logger.info(
-            "    - Samples with 0 predictions: {(predictions_before_fallback.sum(dim=1) == 0).sum().item()}"
+            "    - Samples with 0 predictions: {(
+                                                 predictions_before_fallback.sum(dim=1) == 0).sum().item()}"
         )
         logger.info(
-            "    - Samples with >0 predictions: {(predictions_before_fallback.sum(dim=1) > 0).sum().item()}"
+            "    - Samples with >0 predictions: {(
+                                                  predictions_before_fallback.sum(dim=1) > 0).sum().item()}"
         )
 
         samples_needing_fallback = predictions_before_fallback.sum(dim=1) == 0
@@ -100,27 +105,31 @@ def debug_evaluation_step_by_step():
         logger.info("  🔧 Fallback analysis:")
         logger.info("    - Samples needing fallback: {num_samples_needing_fallback}")
         logger.info(
-            "    - Percentage needing fallback: {100 * num_samples_needing_fallback / predictions_before_fallback.shape[0]:.1f}%"
+" - Percentage needing fallback: {100 * num_samples_needing_fallback /
+predictions_before_fallback.shape[0]:.1f}%"
         )
 
         predictions_after_fallback = predictions_before_fallback.clone()
 
         if num_samples_needing_fallback > 0:
-            logger.info("  🔧 Applying fallback to {num_samples_needing_fallback} samples...")
+            logger.info(
+                        "  🔧 Applying fallback to {num_samples_needing_fallback} samples..."
+                       )
 
             for sample_idx in range(predictions_after_fallback.shape[0]):
                 if predictions_after_fallback[sample_idx].sum() == 0:
                     top_idx = torch.topk(probabilities[sample_idx], k=1, dim=0)[1]
                     predictions_after_fallback[sample_idx, top_idx] = 1.0
                     logger.info(
-                        "    - Sample {sample_idx}: Applied fallback to emotion {top_idx.item()}"
+" - Sample {sample_idx}: Applied fallback to emotion {top_idx.item()}"
                     )
 
         logger.info("  📊 Predictions after fallback:")
         logger.info("    - Sum: {predictions_after_fallback.sum().item()}")
         logger.info("    - Mean: {predictions_after_fallback.mean().item():.4f}")
         logger.info(
-            "    - Samples with 0 predictions: {(predictions_after_fallback.sum(dim=1) == 0).sum().item()}"
+            "    - Samples with 0 predictions: {(
+                                                 predictions_after_fallback.sum(dim=1) == 0).sum().item()}"
         )
 
         predictions_np = predictions_after_fallback.cpu().numpy()

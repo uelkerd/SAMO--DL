@@ -3,7 +3,9 @@
     # --- Load Model ---
     # --- Report Results ---
 #!/usr/bin/env python3
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
+from src
+    .models.emotion_detection
+    .bert_classifier import create_bert_emotion_classifier, EmotionDataset
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from pathlib import Path
 from sklearn.metrics import f1_score
@@ -95,7 +97,12 @@ def calibrate_model():
 
         for thresh in thresholds:
             predictions = (all_probs > thresh).astype(int)
-            micro_f1 = f1_score(all_labels, predictions, average="micro", zero_division=0)
+            micro_f1 = f1_score(
+                                all_labels,
+                                predictions,
+                                average="micro",
+                                zero_division=0
+                               )
 
             results.append((temp, thresh, micro_f1))
 

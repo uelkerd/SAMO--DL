@@ -9,8 +9,12 @@ Usage:
     python scripts/convert_to_onnx.py [--input_model PATH] [--output_model PATH]
 
 Arguments:
-    --input_model: Path to input model (default: models/checkpoints/bert_emotion_classifier_quantized.pt)
-    --output_model: Path to save ONNX model (default: models/checkpoints/bert_emotion_classifier.onnx)
+    --input_model: Path to input model (
+                                        default: models/checkpoints/bert_emotion_classifier_quantized.pt
+                                       )
+    --output_model: Path to save ONNX model (
+                                             default: models/checkpoints/bert_emotion_classifier.onnx
+                                            )
 """
 
 import argparse
@@ -155,7 +159,12 @@ def benchmark_pytorch_inference(model, input_ids, attention_mask, num_runs=50):
     return (end_time - start_time) / num_runs
 
 
-def benchmark_onnx_inference(model_path, input_ids, attention_mask, token_type_ids, num_runs=50):
+def benchmark_onnx_inference(
+                             model_path,
+                             input_ids,
+                             attention_mask,
+                             token_type_ids,
+                             num_runs=50):
     """Benchmark ONNX model inference time."""
     import onnxruntime as ort
 
@@ -184,7 +193,9 @@ def benchmark_onnx_inference(model_path, input_ids, attention_mask, token_type_i
 
 def main():
     """Main function."""
-    parser = argparse.ArgumentParser(description="Convert BERT emotion classifier to ONNX")
+    parser = argparse.ArgumentParser(
+                                     description="Convert BERT emotion classifier to ONNX"
+                                    )
     parser.add_argument(
         "--input_model",
         type=str,

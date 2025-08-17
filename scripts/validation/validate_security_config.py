@@ -25,7 +25,9 @@ class SecurityConfigValidator:
         
         # Check if file exists
         if not self.config_path.exists():
-            self.errors.append(f"Security configuration file not found: {self.config_path}")
+            self.errors.append(
+                               f"Security configuration file not found: {self.config_path}"
+                              )
             return False
         
         try:
@@ -211,7 +213,9 @@ class SecurityConfigValidator:
         
         container = deploy_config.get('container', {})
         if not container.get('run_as_non_root', False):
-            self.errors.append("Container not configured to run as non-root - security risk")
+            self.errors.append(
+                               "Container not configured to run as non-root - security risk"
+                              )
         
         network = deploy_config.get('network', {})
         if not network.get('use_https', False):
@@ -235,7 +239,9 @@ class SecurityConfigValidator:
         if not self.errors and not self.warnings:
             print("\n✅ Security configuration is valid!")
         elif not self.errors:
-            print(f"\n⚠️  Configuration has {len(self.warnings)} warnings but no errors")
+            print(
+                  f"\n⚠️  Configuration has {len(self.warnings)} warnings but no errors"
+                 )
         else:
             print(f"\n❌ Configuration has {len(self.errors)} errors that must be fixed")
 

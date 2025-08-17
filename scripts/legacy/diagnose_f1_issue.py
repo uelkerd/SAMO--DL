@@ -19,7 +19,10 @@ from transformers import AutoModel, AutoTokenizer
 import sys
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+                    level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s"
+                   )
 logger = logging.getLogger(__name__)
 
 
@@ -58,23 +61,28 @@ def create_test_data():
     test_data = [
         {
             "text": "I am so happy today!",
-            "labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # joy
+"labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0] # joy
         },
         {
             "text": "This makes me very angry!",
-            "labels": [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # anger
+"labels": [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0] # anger
         },
         {
             "text": "I feel sad and disappointed.",
-            "labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]  # disappointment, sadness
+"labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+0, 0] # disappointment, sadness
         },
         {
             "text": "This is amazing and exciting!",
-            "labels": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # admiration, excitement
+"labels": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0] # admiration, excitement
         },
         {
             "text": "I'm neutral about this.",
-            "labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]  # neutral
+"labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 1] # neutral
         }
     ]
 
@@ -117,7 +125,12 @@ def diagnose_predictions(model, test_data, device):
         # Calculate metrics
         f1_macro = f1_score(true_np, pred_np > 0.5, average='macro', zero_division=0)
         f1_micro = f1_score(true_np, pred_np > 0.5, average='micro', zero_division=0)
-        precision = precision_score(true_np, pred_np > 0.5, average='macro', zero_division=0)
+        precision = precision_score(
+                                    true_np,
+                                    pred_np > 0.5,
+                                    average='macro',
+                                    zero_division=0
+                                   )
         recall = recall_score(true_np, pred_np > 0.5, average='macro', zero_division=0)
 
         results.append({
@@ -164,19 +177,34 @@ def test_evaluation_logic():
 
     # All ones predictions
     all_ones_pred = np.ones((num_samples, num_classes))
-    all_ones_f1 = f1_score(perfect_true, all_ones_pred, average='macro', zero_division=0)
+    all_ones_f1 = f1_score(
+                           perfect_true,
+                           all_ones_pred,
+                           average='macro',
+                           zero_division=0
+                          )
     logger.info(f"📊 All ones predictions F1: {all_ones_f1:.4f}")
 
     # All zeros predictions
     all_zeros_pred = np.zeros((num_samples, num_classes))
-    all_zeros_f1 = f1_score(perfect_true, all_zeros_pred, average='macro', zero_division=0)
+    all_zeros_f1 = f1_score(
+                            perfect_true,
+                            all_zeros_pred,
+                            average='macro',
+                            zero_division=0
+                           )
     logger.info(f"📊 All zeros predictions F1: {all_zeros_f1:.4f}")
 
     # Test different thresholds
     thresholds = [0.1, 0.3, 0.5, 0.7, 0.9]
     for threshold in thresholds:
         threshold_pred = (perfect_pred > threshold).astype(int)
-        threshold_f1 = f1_score(perfect_true, threshold_pred, average='macro', zero_division=0)
+        threshold_f1 = f1_score(
+                                perfect_true,
+                                threshold_pred,
+                                average='macro',
+                                zero_division=0
+                               )
         logger.info(f"📊 Threshold {threshold} F1: {threshold_f1:.4f}")
 
     return True

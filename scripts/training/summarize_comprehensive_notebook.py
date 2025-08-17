@@ -21,7 +21,7 @@ def summarize_comprehensive_notebook():
     print()
     
     # Count cells by type
-    markdown_cells = [cell for cell in notebook['cells'] if cell['cell_type'] == 'markdown']
+markdown_cells = [cell for cell in notebook['cells'] if cell['cell_type'] == 'markdown']
     code_cells = [cell for cell in notebook['cells'] if cell['cell_type'] == 'code']
     
     print(f"📊 NOTEBOOK STATISTICS:")

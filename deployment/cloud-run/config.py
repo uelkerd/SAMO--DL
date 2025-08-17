@@ -64,14 +64,32 @@ class EnvironmentConfig:
                 min_instances=int(os.getenv('MIN_INSTANCES', '1') or '1'),
                 concurrency=int(os.getenv('CONCURRENCY', '80') or '80'),
                 timeout_seconds=int(os.getenv('TIMEOUT_SECONDS', '300') or '300'),
-                target_cpu_utilization=float(os.getenv('TARGET_CPU_UTILIZATION', '0.7') or '0.7'),
-                target_memory_utilization=float(os.getenv('TARGET_MEMORY_UTILIZATION', '0.8') or '0.8'),
-                health_check_interval_seconds=int(os.getenv('HEALTH_CHECK_INTERVAL', '30') or '30'),
-                graceful_shutdown_timeout_seconds=int(os.getenv('GRACEFUL_SHUTDOWN_TIMEOUT', '30') or '30'),
-                enable_monitoring=os.getenv('ENABLE_MONITORING', 'true').lower() == 'true',
+                target_cpu_utilization=float(
+                                             os.getenv('TARGET_CPU_UTILIZATION',
+                                             '0.7') or '0.7'),
+                                             
+                target_memory_utilization=float(
+                                                os.getenv('TARGET_MEMORY_UTILIZATION',
+                                                '0.8') or '0.8'),
+                                                
+                health_check_interval_seconds=int(
+                                                  os.getenv('HEALTH_CHECK_INTERVAL',
+                                                  '30') or '30'),
+                                                  
+                graceful_shutdown_timeout_seconds=int(
+                                                      os.getenv('GRACEFUL_SHUTDOWN_TIMEOUT',
+                                                      '30') or '30'),
+                                                      
+                enable_monitoring=os.getenv(
+                                            'ENABLE_MONITORING',
+                                            'true').lower() == 'true',
+                                            
                 enable_metrics=os.getenv('ENABLE_METRICS', 'true').lower() == 'true',
                 log_level=os.getenv('LOG_LEVEL', 'info'),
-                max_requests_per_minute=int(os.getenv('MAX_REQUESTS_PER_MINUTE', '1000') or '1000'),
+                max_requests_per_minute=int(
+                                            os.getenv('MAX_REQUESTS_PER_MINUTE',
+                                            '1000') or '1000'),
+                                            
                 enable_cors=True,
                 cors_origins=os.getenv('CORS_ORIGINS', '*').split(','),
                 enable_rate_limiting=True,
@@ -183,13 +201,17 @@ class EnvironmentConfig:
         if not 10 <= self.config.timeout_seconds <= 900:
             raise AssertionError("Timeout must be between 10 and 900 seconds")
         if not 5 <= self.config.health_check_interval_seconds <= 300:
-            raise AssertionError("Health check interval must be between 5 and 300 seconds")
+            raise AssertionError(
+                                 "Health check interval must be between 5 and 300 seconds"
+                                )
 
         # Validate utilization targets
         if not 0.1 <= self.config.target_cpu_utilization <= 0.9:
             raise AssertionError("CPU utilization target must be between 0.1 and 0.9")
         if not 0.1 <= self.config.target_memory_utilization <= 0.9:
-            raise AssertionError("Memory utilization target must be between 0.1 and 0.9")
+            raise AssertionError(
+                                 "Memory utilization target must be between 0.1 and 0.9"
+                                )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert configuration to dictionary"""
@@ -204,8 +226,8 @@ class EnvironmentConfig:
                 'timeout_seconds': self.config.timeout_seconds,
                 'target_cpu_utilization': self.config.target_cpu_utilization,
                 'target_memory_utilization': self.config.target_memory_utilization,
-                'health_check_interval_seconds': self.config.health_check_interval_seconds,
-                'graceful_shutdown_timeout_seconds': self.config.graceful_shutdown_timeout_seconds
+'health_check_interval_seconds': self.config.health_check_interval_seconds,
+'graceful_shutdown_timeout_seconds': self.config.graceful_shutdown_timeout_seconds
             },
             'monitoring': self.get_monitoring_config(),
             'security': self.get_security_config()

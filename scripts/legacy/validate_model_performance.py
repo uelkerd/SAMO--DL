@@ -49,7 +49,9 @@ def check_model_configuration(model_path):
             
             # Check if labels are emotion names or generic
             if all(label.startswith('LABEL_') for label in emotion_labels):
-                print("❌ WARNING: Model uses generic LABEL_X format instead of emotion names")
+                print(
+                      "❌ WARNING: Model uses generic LABEL_X format instead of emotion names"
+                     )
                 return False
             else:
                 print("✅ Model uses proper emotion labels")
@@ -70,9 +72,11 @@ def create_test_dataset():
     # Test examples that are DIFFERENT from training data
     test_examples = [
         # anxious - different phrasing
-        {'text': 'The upcoming deadline is causing me stress and worry.', 'expected': 'anxious'},
-        {'text': 'I have butterflies in my stomach about tomorrow.', 'expected': 'anxious'},
-        {'text': 'The uncertainty of the situation is making me nervous.', 'expected': 'anxious'},
+{'text': 'The upcoming deadline is causing me stress and worry.', 'expected':
+'anxious'},
+{'text': 'I have butterflies in my stomach about tomorrow.', 'expected': 'anxious'},
+{'text': 'The uncertainty of the situation is making me nervous.', 'expected':
+'anxious'},
         
         # calm - different phrasing
         {'text': 'I feel at peace with the world around me.', 'expected': 'calm'},
@@ -81,7 +85,7 @@ def create_test_dataset():
         
         # content - different phrasing
         {'text': 'I am satisfied with how things are going.', 'expected': 'content'},
-        {'text': 'Life feels complete and fulfilling at the moment.', 'expected': 'content'},
+{'text': 'Life feels complete and fulfilling at the moment.', 'expected': 'content'},
         {'text': 'I have a sense of inner satisfaction.', 'expected': 'content'},
         
         # excited - different phrasing
@@ -97,7 +101,7 @@ def create_test_dataset():
         # grateful - different phrasing
         {'text': 'I appreciate all the kindness shown to me.', 'expected': 'grateful'},
         {'text': 'My heart is full of thankfulness.', 'expected': 'grateful'},
-        {'text': 'I am blessed with wonderful people in my life.', 'expected': 'grateful'},
+{'text': 'I am blessed with wonderful people in my life.', 'expected': 'grateful'},
         
         # happy - different phrasing
         {'text': 'Joy fills my heart today.', 'expected': 'happy'},
@@ -110,8 +114,8 @@ def create_test_dataset():
         {'text': 'I believe better days are coming.', 'expected': 'hopeful'},
         
         # overwhelmed - different phrasing
-        {'text': 'I feel like I am drowning in responsibilities.', 'expected': 'overwhelmed'},
-        {'text': 'Everything is too much to handle right now.', 'expected': 'overwhelmed'},
+{'text': 'I feel like I am drowning in responsibilities.', 'expected': 'overwhelmed'},
+{'text': 'Everything is too much to handle right now.', 'expected': 'overwhelmed'},
         {'text': 'I am buried under a mountain of tasks.', 'expected': 'overwhelmed'},
         
         # proud - different phrasing
@@ -182,7 +186,10 @@ def evaluate_model_performance(model, tokenizer, test_examples, emotions):
             'correct': is_correct
         })
         
-        print(f"{status} {text[:50]}... → {predicted_emotion} (expected: {expected}, confidence: {confidence:.3f})")
+        print(
+              f"{status} {text[:50]}... → {predicted_emotion} (expected: {expected},
+              confidence: {confidence:.3f})"
+             )
     
     # Calculate metrics
     correct = sum(1 for r in results if r['correct'])
@@ -277,13 +284,19 @@ def main():
     config_ok = check_model_configuration(model_path)
     
     # Define emotions
-    emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy',
+'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
     
     # Create test dataset
     test_examples = create_test_dataset()
     
     # Evaluate performance
-    results, accuracy, max_bias = evaluate_model_performance(model, tokenizer, test_examples, emotions)
+    results, accuracy, max_bias = evaluate_model_performance(
+                                                             model,
+                                                             tokenizer,
+                                                             test_examples,
+                                                             emotions
+                                                            )
     
     # Check for data leakage (if training data is available)
     training_data_path = "./data/balanced_training_data.json"

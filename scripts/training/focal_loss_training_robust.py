@@ -101,7 +101,11 @@ def robust_focal_training():
         dataset = torch.utils.data.TensorDataset(
             inputs["input_ids"], inputs["attention_mask"], labels_tensor
         )
-        train_dataloader = torch.utils.data.DataLoader(dataset, batch_size=2, shuffle=True)
+        train_dataloader = torch.utils.data.DataLoader(
+                                                       dataset,
+                                                       batch_size=2,
+                                                       shuffle=True
+                                                      )
 
         # Setup optimizer and loss
         optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)

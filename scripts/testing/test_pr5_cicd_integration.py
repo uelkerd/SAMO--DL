@@ -174,15 +174,20 @@ def test_critical_fixes():
                 found_pythonpath = True
                 break
     if found_pythonpath:
-        print("✅ PYTHONPATH configuration (PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src found)")
+        print(
+              "✅ PYTHONPATH configuration (PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src found)"
+             )
     else:
-        print("❌ PYTHONPATH configuration (PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src NOT FOUND)")
+        print(
+              "❌ PYTHONPATH configuration (PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src NOT FOUND)"
+             )
         all_fixes_present = False
 
     return all_fixes_present
 
 def test_pipeline_structure():
-    """Test that the pipeline structure is correct, including handling malformed or incomplete configs."""
+"""Test that the pipeline structure is correct, including handling malformed or
+incomplete configs."""
     print("🔍 Testing pipeline structure...")
 
     config_path = Path(".circleci/config.yml")
@@ -235,15 +240,21 @@ def test_pipeline_structure_edge_cases():
     for component in required_components:
         if component not in incomplete_config:
             missing_count += 1
-    print(f"✅ Simulated missing sections test: {missing_count} components missing (expected: 2)")
+    print(
+          f"✅ Simulated missing sections test: {missing_count} components missing (expected: 2)"
+         )
 
     # Test 2: Malformed YAML types
     malformed_configs = [None, [], "not_a_dict"]
     for idx, malformed in enumerate(malformed_configs):
         if not isinstance(malformed, dict):
-            print(f"✅ Malformed config case {idx+1}: {repr(malformed)} correctly identified as invalid")
+            print(
+                  f"✅ Malformed config case {idx+1}: {repr(malformed)} correctly identified as invalid"
+                 )
         else:
-            print(f"❌ Malformed config case {idx+1}: {repr(malformed)} incorrectly identified as valid")
+            print(
+                  f"❌ Malformed config case {idx+1}: {repr(malformed)} incorrectly identified as valid"
+                 )
 
     return True
 

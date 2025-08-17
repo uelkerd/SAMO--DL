@@ -76,16 +76,22 @@ def analyze_training_progress(history: list[dict]) -> dict:
 
         if loss_improvement > 0.01:
             analysis["convergence_status"] = "excellent"
-            analysis["recommendations"].append("✅ Loss decreasing significantly - continue training")
+            analysis["recommendations"].append(
+                                               "✅ Loss decreasing significantly - continue training"
+                                              )
         elif loss_improvement > 0.001:
             analysis["convergence_status"] = "good"
             analysis["recommendations"].append("✅ Loss decreasing - continue training")
         elif loss_improvement > -0.001:
             analysis["convergence_status"] = "plateauing"
-            analysis["recommendations"].append("⚠️ Loss plateauing - consider learning rate adjustment")
+            analysis["recommendations"].append(
+                                               "⚠️ Loss plateauing - consider learning rate adjustment"
+                                              )
         else:
             analysis["convergence_status"] = "diverging"
-            analysis["recommendations"].append("❌ Loss increasing - check learning rate and data")
+            analysis["recommendations"].append(
+                                               "❌ Loss increasing - check learning rate and data"
+                                              )
 
     latest_f1 = analysis["f1_progress"][-1]
     if latest_f1 > 0.8:
@@ -93,13 +99,17 @@ def analyze_training_progress(history: list[dict]) -> dict:
     elif latest_f1 > 0.6:
         analysis["recommendations"].append("📈 Good F1 score - continue training")
     else:
-        analysis["recommendations"].append("📊 F1 score needs improvement - consider data augmentation")
+        analysis["recommendations"].append(
+                                           "📊 F1 score needs improvement - consider data augmentation"
+                                          )
 
     avg_epoch_time = np.mean(analysis["training_time"])
     analysis["avg_epoch_time_minutes"] = avg_epoch_time / 60
 
     if avg_epoch_time > 1200:  # 20 minutes
-        analysis["recommendations"].append("⏱️ Training time is high - consider GPU acceleration")
+        analysis["recommendations"].append(
+                                           "⏱️ Training time is high - consider GPU acceleration"
+                                          )
 
     return analysis
 
@@ -134,7 +144,9 @@ def generate_training_report(analysis: dict) -> str:
             latest_f1 = analysis["f1_progress"][-1]
             report.append(f"Latest F1 Score: {latest_f1:.4f}")
 
-        report.append(f"Average Epoch Time: {analysis['avg_epoch_time_minutes']:.1f} minutes")
+        report.append(
+                      f"Average Epoch Time: {analysis['avg_epoch_time_minutes']:.1f} minutes"
+                     )
         report.append("")
 
     report.append("💡 RECOMMENDATIONS")
@@ -255,10 +267,12 @@ def main():
     logging.info("\n📈 Generating training curves...")
     plots_dir = Path("logs/plots")
     plots_dir.mkdir(exist_ok=True)
-    plot_path = plots_dir / f"training_curves_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+    plot_path = plots_dir / f"training_curves_{datetime.now(
+                                                            ).strftime('%Y%m%d_%H%M%S')}.png"
     plot_training_curves(history, str(plot_path))
 
-    report_path = plots_dir / f"training_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+    report_path = plots_dir / f"training_report_{datetime.now(
+                                                              ).strftime('%Y%m%d_%H%M%S')}.txt"
     with open(report_path, 'w') as f:
         f.write(report)
 
