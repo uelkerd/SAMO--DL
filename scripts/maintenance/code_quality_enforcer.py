@@ -110,6 +110,15 @@ class CodeQualityEnforcer:
 
     def check_file(self, file_path: Path) -> List[Dict[str, Any]]:
         """Check a single Python file for quality issues."""
+        # Validate file path for security
+        if not self._is_safe_file_path(file_path):
+            return [{
+                'rule': 'SECURITY',
+                'line': 0,
+                'message': 'Unsafe file path detected',
+                'severity': 'error'
+            }]
+        
         issues = []
 
         try:
@@ -341,6 +350,34 @@ class CodeQualityEnforcer:
     def _contains_return(body: List[ast.stmt]) -> bool:
         """Check if a list of statements contains a return."""
         return any(isinstance(stmt, ast.Return) for stmt in body)
+
+    def _is_safe_file_path(self, file_path: Path) -> bool:
+        """Validate that file path is safe for processing."""
+        try:
+            # Resolve to absolute path to prevent path traversal
+            resolved_path = file_path.resolve()
+            
+            # Check if path contains suspicious patterns
+            path_str = str(resolved_path)
+            suspicious_patterns = [
+                '..',  # Path traversal
+                '~',   # Home directory
+                '/etc', '/var', '/usr', '/bin', '/sbin',  # System directories
+                'C:\\', 'D:\\',  # Windows system drives
+            ]
+            
+            for pattern in suspicious_patterns:
+                if pattern in path_str:
+                    return False
+            
+            # Ensure it's a Python file
+            if not path_str.endswith('.py'):
+                return False
+                
+            return True
+            
+        except Exception:
+            return False
 
     def check_directory(self, directory: Path) -> Dict[str, Any]:
         """Check all Python files in a directory for quality issues."""
