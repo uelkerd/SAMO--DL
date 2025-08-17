@@ -19,7 +19,16 @@ from typing import Dict, List, Optional, Tuple, Any
 warnings.filterwarnings('ignore')
 
 # Set environment variables for stability
-os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
+# CUDA_LAUNCH_BLOCKING=1 forces synchronous operations (hurts performance)
+# Only enable for debugging when explicitly requested
+if os.environ.get("DEBUG") or os.environ.get("FORCE_CUDA_SYNC"):
+    os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
+    print("🔍 Debug mode: CUDA_LAUNCH_BLOCKING=1 (synchronous operations)")
+else:
+    # Keep CUDA asynchronous for optimal performance in production
+    print("🚀 Production mode: CUDA operations remain asynchronous")
+
+# TOKENIZERS_PARALLELISM=false prevents tokenizer warnings
 os.environ['TOKENIZERS_PARALLELISM'] = "false"
 
 def setup_environment():
