@@ -13,7 +13,7 @@ This script uses regex patterns to fix remaining type hint issues:
 import re
 import sys
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 
 
 def _fix_generic_patterns(content: str, imports_to_add: set, changes_made: list) -> str:
@@ -193,24 +193,19 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
         return {'file': str(file_path), 'error': str(e), 'modified': False}
 
 
-def find_python_files(directory: Path) -> List[Path]:
-    """Find all Python files in a directory recursively."""
-    python_files = []
-    for item in directory.rglob('*.py'):
-        if not any(part.startswith('.') for part in item.parts):
-            python_files.append(item)
-    return python_files
-
-
-def main():
-    """Main function."""
+def _parse_arguments() -> Tuple[Path, bool]:
+    """Parse command line arguments."""
     if len(sys.argv) < 2:
         print("Usage: python fix_remaining_py38_types.py <directory> [--dry-run]")
         sys.exit(1)
         
     directory = Path(sys.argv[1])
     dry_run = '--dry-run' in sys.argv
-    
+    return directory, dry_run
+
+
+def _validate_directory(directory: Path) -> None:
+    """Validate that the directory exists and is a directory."""
     if not directory.exists():
         print(f"Error: Directory {directory} does not exist")
         sys.exit(1)
@@ -218,37 +213,50 @@ def main():
     if not directory.is_dir():
         print(f"Error: {directory} is not a directory")
         sys.exit(1)
-        
+
+
+def _print_processing_info(directory: Path, dry_run: bool) -> None:
+    """Print processing information."""
     print(f"Processing directory: {directory}")
     if dry_run:
         print("DRY RUN MODE - No changes will be made")
     print()
+
+
+def _process_single_file(file_path: Path, dry_run: bool) -> Dict[str, Any]:
+    """Process a single file and return the result."""
+    print(f"Processing: {file_path}")
+    result = fix_file(file_path, dry_run=dry_run)
     
-    # Find Python files
-    python_files = find_python_files(directory)
-    print(f"Found {len(python_files)} Python files")
+    if 'error' in result:
+        print(f"  ❌ Error: {result['error']}")
+    elif result['modified']:
+        print(f"  ✅ Modified: {', '.join(result['changes'])}")
+        print(f"     Imports added: {', '.join(result['imports_added'])}")
+    else:
+        print(f"  ⏭️  No changes needed")
     print()
     
-    # Process files
+    return result
+
+
+def _process_all_files(python_files: List[Path], dry_run: bool) -> Tuple[List[Dict[str, Any]], int]:
+    """Process all Python files and return results and total changes."""
     results = []
     total_changes = 0
     
     for file_path in python_files:
-        print(f"Processing: {file_path}")
-        result = fix_file(file_path, dry_run=dry_run)
+        result = _process_single_file(file_path, dry_run)
         results.append(result)
         
-        if 'error' in result:
-            print(f"  ❌ Error: {result['error']}")
-        elif result['modified']:
-            print(f"  ✅ Modified: {', '.join(result['changes'])}")
-            print(f"     Imports added: {', '.join(result['imports_added'])}")
-            total_changes += len(result['changes'])
-        else:
-            print(f"  ⏭️  No changes needed")
-        print()
+        if result.get('modified', False):
+            total_changes += len(result.get('changes', []))
     
-    # Summary
+    return results, total_changes
+
+
+def _print_summary(results: List[Dict[str, Any]], total_changes: int, dry_run: bool) -> None:
+    """Print summary of processing results."""
     print("=" * 50)
     print("SUMMARY")
     print("=" * 50)
@@ -275,6 +283,35 @@ def main():
         print(f"\nTo apply these changes, run without --dry-run")
         
     print()
+
+
+def find_python_files(directory: Path) -> List[Path]:
+    """Find all Python files in a directory recursively."""
+    python_files = []
+    for item in directory.rglob('*.py'):
+        if not any(part.startswith('.') for part in item.parts):
+            python_files.append(item)
+    return python_files
+
+
+def main():
+    """Main function."""
+    # Parse and validate arguments
+    directory, dry_run = _parse_arguments()
+    _validate_directory(directory)
+    
+    # Print processing info
+    _print_processing_info(directory, dry_run)
+    
+    # Find and process Python files
+    python_files = find_python_files(directory)
+    print(f"Found {len(python_files)} Python files")
+    print()
+    
+    results, total_changes = _process_all_files(python_files, dry_run)
+    
+    # Print summary
+    _print_summary(results, total_changes, dry_run)
 
 
 if __name__ == '__main__':
