@@ -25,7 +25,7 @@ def _fix_generic_patterns(content: str, imports_to_add: set, changes_made: list)
         content = re.sub(list_pattern, r'List[\1]', content)
         imports_to_add.add('List')
         changes_made.append(f"list[T] -> List[T] ({len(list_matches)} instances)")
-        
+
     # Fix dict[K, V] -> Dict[K, V]
     dict_pattern = r'\bdict\[([^\]]+)\]'
     dict_matches = re.findall(dict_pattern, content)
@@ -33,7 +33,7 @@ def _fix_generic_patterns(content: str, imports_to_add: set, changes_made: list)
         content = re.sub(dict_pattern, r'Dict[\1]', content)
         imports_to_add.add('Dict')
         changes_made.append(f"dict[T] -> Dict[T] ({len(dict_matches)} instances)")
-        
+
     # Fix set[T] -> Set[T]
     set_pattern = r'\bset\[([^\]]+)\]'
     set_matches = re.findall(set_pattern, content)
@@ -41,7 +41,7 @@ def _fix_generic_patterns(content: str, imports_to_add: set, changes_made: list)
         content = re.sub(set_pattern, r'Set[\1]', content)
         imports_to_add.add('Set')
         changes_made.append(f"set[T] -> Set[T] ({len(set_matches)} instances)")
-        
+
     # Fix tuple[T, ...] -> Tuple[T, ...]
     tuple_pattern = r'\btuple\[([^\]]+)\]'
     tuple_matches = re.findall(tuple_pattern, content)
@@ -51,7 +51,7 @@ def _fix_generic_patterns(content: str, imports_to_add: set, changes_made: list)
         changes_made.append(
             f"tuple[T] -> Tuple[T] ({len(tuple_matches)} instances)"
         )
-    
+
     return content
 
 
@@ -66,7 +66,7 @@ def _fix_optional_patterns(content: str, imports_to_add: set, changes_made: list
         changes_made.append(
             f"A | None -> Optional[A] ({len(optional_matches)} instances)"
         )
-        
+
     # Fix None | A -> Optional[A]
     optional_pattern2 = r'None\s*\|\s*([a-zA-Z_][a-zA-Z0-9_]*)'
     optional_matches2 = re.findall(optional_pattern2, content)
@@ -76,7 +76,7 @@ def _fix_optional_patterns(content: str, imports_to_add: set, changes_made: list
         changes_made.append(
             f"None | A -> Optional[A] ({len(optional_matches2)} instances)"
         )
-    
+
     return content
 
 
@@ -95,7 +95,7 @@ def _fix_union_patterns(content: str, imports_to_add: set, changes_made: list) -
             if not (left in type_names or right in type_names):
                 continue
             filtered_matches.append((left, right))
-        
+
         if filtered_matches:
             # Replace the filtered matches
             for left, right in filtered_matches:
@@ -107,7 +107,7 @@ def _fix_union_patterns(content: str, imports_to_add: set, changes_made: list) -
                     changes_made.append(
                         f"{left} | {right} -> Union[{left}, {right}]"
                     )
-    
+
     return content
 
 
@@ -160,31 +160,31 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
-            
+
         original_content = content
         changes_made = []
         imports_to_add = set()
-        
+
         # Apply all pattern fixes
         content = _fix_generic_patterns(content, imports_to_add, changes_made)
         content = _fix_optional_patterns(content, imports_to_add, changes_made)
         content = _fix_union_patterns(content, imports_to_add, changes_made)
-        
+
         # Add missing imports
         content = _add_typing_imports(content, imports_to_add, dry_run)
-        
+
         # Write back to file if changes were made
         if content != original_content and not dry_run:
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.write(content)
-                
+
         return {
             'file': str(file_path),
             'changes': changes_made,
             'imports_added': list(imports_to_add),
             'modified': content != original_content
         }
-        
+
     except Exception as e:
         return {'file': str(file_path), 'error': str(e), 'modified': False}
 
@@ -194,7 +194,7 @@ def _parse_arguments() -> Tuple[Path, bool]:
     if len(sys.argv) < 2:
         print("Usage: python fix_remaining_py38_types.py <directory> [--dry-run]")
         sys.exit(1)
-        
+
     directory = Path(sys.argv[1])
     dry_run = '--dry-run' in sys.argv
     return directory, dry_run
@@ -205,7 +205,7 @@ def _validate_directory(directory: Path) -> None:
     if not directory.exists():
         print(f"Error: Directory {directory} does not exist")
         sys.exit(1)
-        
+
     if not directory.is_dir():
         print(f"Error: {directory} is not a directory")
         sys.exit(1)
@@ -223,16 +223,16 @@ def _process_single_file(file_path: Path, dry_run: bool) -> Dict[str, Any]:
     """Process a single file and return the result."""
     print(f"Processing: {file_path}")
     result = fix_file(file_path, dry_run=dry_run)
-    
+
     if 'error' in result:
         print(f"  ❌ Error: {result['error']}")
     elif result['modified']:
         print(f"  ✅ Modified: {', '.join(result['changes'])}")
         print(f"     Imports added: {', '.join(result['imports_added'])}")
     else:
-        print(f"  ⏭️  No changes needed")
+        print("  ⏭️  No changes needed")
     print()
-    
+
     return result
 
 
@@ -240,14 +240,14 @@ def _process_all_files(python_files: List[Path], dry_run: bool) -> Tuple[List[Di
     """Process all Python files and return results and total changes."""
     results = []
     total_changes = 0
-    
+
     for file_path in python_files:
         result = _process_single_file(file_path, dry_run)
         results.append(result)
-        
+
         if result.get('modified', False):
             total_changes += len(result.get('changes', []))
-    
+
     return results, total_changes
 
 
@@ -256,28 +256,28 @@ def _print_summary(results: List[Dict[str, Any]], total_changes: int, dry_run: b
     print("=" * 50)
     print("SUMMARY")
     print("=" * 50)
-    
+
     modified = [r for r in results if r.get('modified', False)]
     errors = [r for r in results if 'error' in r]
     no_changes = [
         r for r in results 
         if not r.get('modified', False) and 'error' not in r
     ]
-    
+
     print(f"Files processed: {len(results)}")
     print(f"Modified: {len(modified)}")
     print(f"Errors: {len(errors)}")
     print(f"No changes needed: {len(no_changes)}")
     print(f"Total changes: {total_changes}")
-    
+
     if errors:
         print("\nFiles with errors:")
         for result in errors:
             print(f"  {result['file']}: {result['error']}")
-            
+
     if dry_run and total_changes > 0:
-        print(f"\nTo apply these changes, run without --dry-run")
-        
+        print("\nTo apply these changes, run without --dry-run")
+
     print()
 
 
@@ -295,17 +295,17 @@ def main():
     # Parse and validate arguments
     directory, dry_run = _parse_arguments()
     _validate_directory(directory)
-    
+
     # Print processing info
     _print_processing_info(directory, dry_run)
-    
+
     # Find and process Python files
     python_files = find_python_files(directory)
     print(f"Found {len(python_files)} Python files")
     print()
-    
+
     results, total_changes = _process_all_files(python_files, dry_run)
-    
+
     # Print summary
     _print_summary(results, total_changes, dry_run)
 
