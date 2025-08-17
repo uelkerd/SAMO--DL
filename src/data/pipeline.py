@@ -14,7 +14,12 @@ import pandas as pd
 from .feature_engineering import FeatureEngineer
 from .validation import DataValidator
 from .preprocessing import JournalEntryPreprocessor
-from .embeddings import TfidfEmbedder, Word2VecEmbedder, FastTextEmbedder, EmbeddingPipeline
+from .embeddings import (
+    TfidfEmbedder,
+    Word2VecEmbedder,
+    FastTextEmbedder,
+    EmbeddingPipeline
+)
 from .loaders import load_entries_from_db, load_entries_from_json, load_entries_from_csv
 
 # Configure logging
@@ -101,7 +106,8 @@ class DataPipeline:
 
         if not validation_passed:
             logger.warning(
-                "Data validation failed. Continuing with validated data, but results may be unreliable."
+                "Data validation failed. Continuing with validated data, "
+                "but results may be unreliable."
             )
 
         processed_df = self.preprocessor.preprocess(validated_df)

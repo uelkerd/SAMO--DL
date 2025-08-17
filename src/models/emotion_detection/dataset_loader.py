@@ -33,7 +33,13 @@ from .labels import GOEMOTIONS_EMOTIONS, EMOTION_ID_TO_LABEL, EMOTION_LABEL_TO_I
 class GoEmotionsDataset(Dataset):
     """PyTorch Dataset for GoEmotions emotion classification."""
     
-    def __init__(self, texts: List[str], labels: List[List[int]], tokenizer: AutoTokenizer, max_length: int = 512):
+    def __init__(
+        self,
+        texts: List[str],
+        labels: List[List[int]],
+        tokenizer: AutoTokenizer,
+        max_length: int = 512
+    ):
         """Initialize the dataset.
         
         Args:
@@ -243,7 +249,10 @@ class GoEmotionsDataLoader:
         # Handle zero counts
         class_weights[emotion_counts == 0] = 1.0
 
-        logger.info(f"Computed class weights: min={class_weights.min():.3f}, max={class_weights.max():.3f}")
+        logger.info(
+            f"Computed class weights: min={class_weights.min():.3f}, "
+            f"max={class_weights.max():.3f}"
+        )
         return class_weights
 
     def create_train_val_test_splits(self) -> tuple:
@@ -271,7 +280,10 @@ class GoEmotionsDataLoader:
         val_data = val_test["train"]
         test_data = val_test["test"]
 
-        logger.info(f"Created splits - Train: {len(train_data)}, Val: {len(val_data)}, Test: {len(test_data)}")
+        logger.info(
+            f"Created splits - Train: {len(train_data)}, "
+            f"Val: {len(val_data)}, Test: {len(test_data)}"
+        )
 
         return train_data, val_data, test_data
 
