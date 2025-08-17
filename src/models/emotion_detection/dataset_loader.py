@@ -32,7 +32,7 @@ from .labels import GOEMOTIONS_EMOTIONS, EMOTION_ID_TO_LABEL, EMOTION_LABEL_TO_I
 
 class GoEmotionsDataset(Dataset):
     """PyTorch Dataset for GoEmotions emotion classification."""
-    
+
     def __init__(
         self,
         texts: List[str],
@@ -41,7 +41,7 @@ class GoEmotionsDataset(Dataset):
         max_length: int = 512
     ):
         """Initialize the dataset.
-        
+
         Args:
             texts: List of text strings
             labels: List of label lists (multi-label)
@@ -52,14 +52,14 @@ class GoEmotionsDataset(Dataset):
         self.labels = labels
         self.tokenizer = tokenizer
         self.max_length = max_length
-        
+
     def __len__(self) -> int:
         return len(self.texts)
-        
+
     def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
         text = self.texts[idx]
         label = self.labels[idx]
-        
+
         # Tokenize text
         encoding = self.tokenizer(
             text,
@@ -68,10 +68,10 @@ class GoEmotionsDataset(Dataset):
             max_length=self.max_length,
             return_tensors='pt'
         )
-        
+
         # Convert label to tensor
         label_tensor = torch.tensor(label, dtype=torch.float)
-        
+
         return {
             'input_ids': encoding['input_ids'].squeeze(0),
             'attention_mask': encoding['attention_mask'].squeeze(0),

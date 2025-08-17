@@ -29,7 +29,6 @@ from .bert_classifier import (
 )
 from .dataset_loader import (
     create_goemotions_loader,
-    GoEmotionsDataLoader,
     GoEmotionsDataset,
 )
 
