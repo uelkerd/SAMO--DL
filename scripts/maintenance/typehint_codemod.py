@@ -199,32 +199,14 @@ class TypeHintVisitor(ast.NodeVisitor):
         )
 
 
-def _apply_changes_to_lines(lines: List[str], visitor: TypeHintVisitor, verbose: bool) -> None:
-    """Apply AST changes to the lines of code."""
+def _log_changes(visitor: TypeHintVisitor, verbose: bool) -> None:
+    """Log AST changes for debugging purposes."""
     for change in visitor.changes:
-        if change['type'] == 'annotation':
-            old_code = ast_to_source(change['old'])
-            new_code = ast_to_source(change['new'])
-            if verbose:
-                print(f"    Annotation: {old_code} -> {new_code}")
-
-        elif change['type'] == 'arg':
-            old_code = ast_to_source(change['old'])
-            new_code = ast_to_source(change['new'])
-            if verbose:
-                print(f"    Argument: {old_code} -> {new_code}")
-
-        elif change['type'] == 'returns':
-            old_code = ast_to_source(change['old'])
-            new_code = ast_to_source(change['new'])
-            if verbose:
-                print(f"    Returns: {old_code} -> {new_code}")
-
-        elif change['type'] == 'base':
-            old_code = ast_to_source(change['old'])
-            new_code = ast_to_source(change['new'])
-            if verbose:
-                print(f"    Base: {old_code} -> {new_code}")
+        old_code = ast_to_source(change['old'])
+        new_code = ast_to_source(change['new'])
+        
+        if verbose:
+            print(f"    {change['type'].title()}: {old_code} -> {new_code}")
 
 
 def _add_typing_imports_to_lines(lines: List[str], imports_to_add: set) -> None:
@@ -298,8 +280,8 @@ def _apply_changes_and_save(file_path: Path, content: str, visitor: TypeHintVisi
     # Convert content to lines for easier manipulation
     lines = content.splitlines()
 
-    # Apply AST changes
-    _apply_changes_to_lines(lines, visitor, verbose)
+    # Log AST changes for debugging
+    _log_changes(visitor, verbose)
 
     # Add missing imports
     _add_typing_imports_to_lines(lines, visitor.imports_to_add)
