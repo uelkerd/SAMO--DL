@@ -173,7 +173,7 @@ class TestCleanupTempFiles:
         """Test successful file cleanup."""
         # Create temporary files
         temp_files = []
-        for i in range(3):
+        for _ in range(3):
             temp_file = tempfile.NamedTemporaryFile(delete=False)
             temp_files.append(Path(temp_file.name))
             temp_file.close()
