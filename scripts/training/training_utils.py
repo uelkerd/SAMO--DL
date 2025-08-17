@@ -25,6 +25,10 @@ def setup_training_logging(log_file: str = "training.log") -> logging.Logger:
     logger = logging.getLogger("training")
     logger.setLevel(logging.INFO)
     
+    # Clear existing handlers to prevent duplication
+    if logger.handlers:
+        logger.handlers.clear()
+    
     # File handler
     file_handler = logging.FileHandler(log_file)
     file_handler.setLevel(logging.INFO)
@@ -130,16 +134,20 @@ def get_gpu_info() -> Dict[str, Any]:
         return {"available": False, "error": "PyTorch not available"}
 
 
-def validate_training_data(data_path: str, expected_columns: list) -> bool:
+def validate_training_data(data_path: str, expected_columns: list, logger: Optional[logging.Logger] = None) -> bool:
     """Basic validation of training data structure.
     
     Args:
         data_path: Path to training data file
         expected_columns: List of expected column names
+        logger: Optional logger instance, falls back to root logger if not provided
         
     Returns:
         True if validation passes, False otherwise
     """
+    # Use provided logger or fall back to root logger
+    logger = logger or logging.getLogger(__name__)
+    
     try:
         import pandas as pd
         df = pd.read_csv(data_path)
@@ -147,16 +155,16 @@ def validate_training_data(data_path: str, expected_columns: list) -> bool:
         # Check if all expected columns exist
         missing_columns = set(expected_columns) - set(df.columns)
         if missing_columns:
-            logging.warning(f"Missing columns: {missing_columns}")
+            logger.warning(f"Missing columns: {missing_columns}")
             return False
             
         # Check if data is not empty
         if len(df) == 0:
-            logging.warning("Training data is empty")
+            logger.warning("Training data is empty")
             return False
             
         return True
         
     except Exception as e:
-        logging.error(f"Data validation failed: {e}")
+        logger.error(f"Data validation failed: {e}")
         return False

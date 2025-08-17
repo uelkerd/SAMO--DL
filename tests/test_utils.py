@@ -22,7 +22,15 @@ def create_temp_audio_file(duration: float = 2.0, sample_rate: int = 16000) -> P
         
     Returns:
         Path to temporary audio file
+        
+    Raises:
+        ValueError: If duration or sample_rate are not positive
     """
+    if duration <= 0:
+        raise ValueError("Duration must be positive")
+    if sample_rate <= 0:
+        raise ValueError("Sample rate must be positive")
+    
     # Create simple sine wave
     t = np.linspace(0, duration, int(sample_rate * duration), False)
     audio_data = np.sin(440 * 2 * np.pi * t)  # 440 Hz tone

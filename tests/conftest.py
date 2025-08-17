@@ -108,13 +108,17 @@ def api_client():
     if hasattr(app.state, 'rate_limiter'):
         app.state.rate_limiter.reset_state()
     
-    # Set test headers to bypass rate limiting
-    client.headers.update({
+    return client
+
+
+@pytest.fixture
+def rate_limit_bypass_client(api_client):
+    """Test client with headers to bypass rate limiting."""
+    api_client.headers.update({
         "User-Agent": "pytest-testclient",
         "X-Test-Mode": "true"
     })
-    
-    return client
+    return api_client
 
 
 def pytest_configure(config):

@@ -57,8 +57,10 @@ def run_basic_test_discovery():
         return False
     
     try:
+        # Use static command list to prevent command injection
+        cmd = [sys.executable, "-m", "pytest", "--collect-only", "-q"]
         result = subprocess.run(
-            [sys.executable, "-m", "pytest", "--collect-only", "-q"],
+            cmd,
             capture_output=True,
             text=True,
             timeout=30
