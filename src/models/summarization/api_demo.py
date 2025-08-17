@@ -15,7 +15,7 @@ Key Features:
 import logging
 import time
 from contextlib import asynccontextmanager
-from typing import Optional, List
+from typing import List, Optional
 
 import uvicorn
 from fastapi import BackgroundTasks, FastAPI, HTTPException

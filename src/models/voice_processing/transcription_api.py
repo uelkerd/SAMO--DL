@@ -14,7 +14,7 @@
 from .audio_preprocessor import AudioPreprocessor
 from .whisper_transcriber import create_whisper_transcriber
 from pathlib import Path
-from typing import Optional, Union, List
+from typing import List, Optional, Union
 import jiwer
 import logging
 import time

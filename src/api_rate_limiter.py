@@ -9,7 +9,7 @@ Includes security features.
 import time
 import threading
 from collections import defaultdict, deque
-from typing import Dict, Deque, Optional, Tuple, Set
+from typing import Deque, Dict, Optional, Set, Tuple
 import logging
 import hashlib
 import ipaddress

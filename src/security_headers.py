@@ -6,7 +6,7 @@ Flask middleware for adding security headers and implementing security policies.
 """
 
 import logging
-from typing import Dict, List, Optional, Callable
+from typing import Callable, Dict, List, Optional
 from dataclasses import dataclass
 from flask import Flask, request, Response, g
 import time

@@ -37,7 +37,7 @@ from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadF
 from fastapi.responses import JSONResponse
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import Any, Optional, List, Dict
+from typing import Any, Dict, List, Optional
 import logging
 import os
 import tempfile
