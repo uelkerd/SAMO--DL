@@ -93,7 +93,7 @@ def load_training_config(config_file: str) -> Dict[str, Any]:
         FileNotFoundError: If config file doesn't exist
     """
     # Security: Validate file path to prevent path traversal attacks
-    config_path = Path(config_file)
+    config_path = Path(config_file).expanduser()
 
     # Ensure path is safe (no parent directory traversal)
     if ".." in str(config_path) or config_path.is_absolute():
@@ -105,12 +105,12 @@ def load_training_config(config_file: str) -> Dict[str, Any]:
     if not config_path.is_file():
         raise ValueError(f"Path is not a file: {config_file}")
 
-    with open(config_path, 'r', encoding='utf-8') as f:
+    with open(config_path, encoding='utf-8') as f:
         config = json.load(f)
     return config
 
 
-def create_output_dirs(base_dir: str, experiment_name: str) -> Dict[str, Path]:
+def create_output_dirs(base_dir: str, experiment_name: str) -> dict[str, Path]:
     """Create standard output directory structure for training.
 
     Args:
@@ -137,7 +137,7 @@ def create_output_dirs(base_dir: str, experiment_name: str) -> Dict[str, Path]:
     return dirs
 
 
-def get_gpu_info() -> Dict[str, Any]:
+def get_gpu_info() -> dict[str, Any]:
     """Get basic GPU information for training setup.
 
     Returns:
@@ -159,8 +159,8 @@ def get_gpu_info() -> Dict[str, Any]:
 
 
 def validate_training_data(
-    data_path: str, 
-    expected_columns: list, 
+    data_path: str,
+    expected_columns: list,
     logger: Optional[logging.Logger] = None
 ) -> bool:
     """Basic validation of training data structure.
@@ -179,15 +179,22 @@ def validate_training_data(
     logger = logger or logging.getLogger(__name__)
 
     # Security: Validate file path to prevent path traversal attacks
-    data_path_obj = Path(data_path)
+    data_path_obj = Path(data_path).expanduser()
 
     # Ensure path is safe (no parent directory traversal)
     if ".." in str(data_path_obj) or data_path_obj.is_absolute():
         raise ValueError(f"Invalid data file path: {data_path}")
 
+    # Ensure pandas is available
     try:
         import pandas as pd
-        df = pd.read_csv(data_path_obj)
+    except ImportError:
+        logger.error("pandas is required for data validation but is not installed")
+        return False
+
+    try:
+        # Read only the header to validate columns without loading the entire dataset
+        df = pd.read_csv(data_path_obj, nrows=0)
 
         # Check if all expected columns exist
         missing_columns = set(expected_columns) - set(df.columns)
@@ -195,13 +202,24 @@ def validate_training_data(
             logger.warning("Missing columns: %s", missing_columns)
             return False
 
-        # Check if data is not empty
-        if len(df) == 0:
+        # Quickly check if at least one row exists without loading everything
+        try:
+            next(pd.read_csv(data_path_obj, chunksize=1))
+        except StopIteration:
             logger.warning("Training data is empty")
             return False
 
         return True
 
+    except FileNotFoundError:
+        logger.error("Data validation failed: File not found at %s", data_path_obj)
+        return False
+    except pd.errors.EmptyDataError:
+        logger.error("Data validation failed: No data found in %s", data_path_obj)
+        return False
+    except pd.errors.ParserError as e:
+        logger.error("Data validation failed: Parser error: %s", e)
+        return False
     except Exception as e:
-        logger.error("Data validation failed: %s", e)
+        logger.exception("An unexpected error occurred during data validation: %s", e)
         return False
