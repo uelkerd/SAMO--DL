@@ -33,6 +33,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 class CodeQualityEnforcer:
     """Enforces comprehensive code quality standards for SAMO-DL."""
 
@@ -51,7 +52,9 @@ class CodeQualityEnforcer:
             'PTC-W0027': {
                 'name': 'f-string without expressions',
                 'severity': 'warning',
-                'description': 'Use regular strings instead of f-strings without expressions'
+                'description': (
+                    'Use regular strings instead of f-strings without expressions'
+                )
             },
             'PY-W2000': {
                 'name': 'Unused imports',
@@ -141,7 +144,7 @@ class CodeQualityEnforcer:
             issues.extend(control_flow_issues)
 
         except Exception as e:
-            logger.error(f"Error checking {file_path}: {e}")
+            logger.error("Error checking %s: %s", file_path, e)
             issues.append({
                 'rule': 'ERROR',
                 'line': 0,
@@ -223,7 +226,10 @@ class CodeQualityEnforcer:
             for node in import_nodes:
                 if isinstance(node, ast.Import):
                     for alias in node.names:
-                        if alias.name not in used_names and not alias.name.startswith('_'):
+                        if (
+                            alias.name not in used_names and 
+                            not alias.name.startswith('_')
+                        ):
                             issues.append({
                                 'rule': 'PY-W2000',
                                 'line': getattr(node, 'lineno', 0),
@@ -239,7 +245,9 @@ class CodeQualityEnforcer:
 
         return issues
 
-    def _check_cyclomatic_complexity(self, content: str, file_path: Path) -> List[Dict[str, Any]]:
+    def _check_cyclomatic_complexity(
+        self, content: str, file_path: Path
+    ) -> List[Dict[str, Any]]:
         """Check for high cyclomatic complexity."""
         issues = []
 
@@ -247,13 +255,18 @@ class CodeQualityEnforcer:
             tree = ast.parse(content)
 
             for node in ast.walk(tree):
-                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                if isinstance(
+                    node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
+                ):
                     complexity = self._calculate_complexity(node)
                     if complexity > 10:  # Threshold for high complexity
                         issues.append({
                             'rule': 'PY-R1000',
                             'line': getattr(node, 'lineno', 0),
-                            'message': f'Function/class has high cyclomatic complexity ({complexity})',
+                            'message': (
+                                f'Function/class has high cyclomatic complexity '
+                                f'({complexity})'
+                            ),
                             'severity': 'warning'
                         })
 
@@ -282,7 +295,9 @@ class CodeQualityEnforcer:
 
         return complexity
 
-    def _check_control_flow(self, content: str, file_path: Path) -> List[Dict[str, Any]]:
+    def _check_control_flow(
+        self, content: str, file_path: Path
+    ) -> List[Dict[str, Any]]:
         """Check for unnecessary else/elif after return."""
         issues = []
 
@@ -329,10 +344,10 @@ class CodeQualityEnforcer:
 
     def check_directory(self, directory: Path) -> Dict[str, Any]:
         """Check all Python files in a directory for quality issues."""
-        logger.info(f"Checking directory: {directory}")
+        logger.info("Checking directory: %s", directory)
 
         python_files = list(directory.rglob("*.py"))
-        logger.info(f"Found {len(python_files)} Python files")
+        logger.info("Found %d Python files", len(python_files))
 
         total_issues = 0
 
@@ -345,7 +360,7 @@ class CodeQualityEnforcer:
             ]):
                 continue
 
-            logger.info(f"Checking: {file_path}")
+            logger.info("Checking: %s", file_path)
             issues = self.check_file(file_path)
 
             if issues:
@@ -400,11 +415,17 @@ class CodeQualityEnforcer:
             rule_info = self.rules.get(rule, {'name': rule, 'severity': 'unknown'})
             report += f"\n{rule}: {rule_info['name']} ({len(issues)} issues)"
             report += f"\n  Severity: {rule_info['severity']}"
-            report += f"\n  Description: {rule_info.get('description', 'No description')}"
+            report += (
+                f"\n  Description: "
+                f"{rule_info.get('description', 'No description')}"
+            )
 
             # Show first few examples
             for issue in issues[:3]:
-                report += f"\n    - {issue['file']}:{issue['line']} - {issue['message']}"
+                report += (
+                    f"\n    - {issue['file']}:{issue['line']} - "
+                    f"{issue['message']}"
+                )
 
             if len(issues) > 3:
                 report += f"\n    ... and {len(issues) - 3} more issues"
@@ -416,7 +437,10 @@ class CodeQualityEnforcer:
 """
 
         for issue in self.issues_found:
-            report += f"{issue['file']}:{issue['line']} - {issue['rule']}: {issue['message']}\n"
+            report += (
+                f"{issue['file']}:{issue['line']} - "
+                f"{issue['rule']}: {issue['message']}\n"
+            )
 
         return report
 
@@ -433,6 +457,7 @@ class CodeQualityEnforcer:
         # Return success (True if no critical issues, False if any errors)
         critical_issues = [i for i in self.issues_found if i['severity'] == 'error']
         return len(critical_issues) == 0
+
 
 def main():
     """Main function for command-line usage."""
@@ -454,6 +479,7 @@ def main():
     else:
         print("\n❌ Critical quality issues found!")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
