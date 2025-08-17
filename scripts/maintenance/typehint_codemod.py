@@ -17,7 +17,7 @@ import argparse
 import ast
 import sys
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Tuple
 
 # Try to import astor for Python 3.8 compatibility
 try:
@@ -274,58 +274,96 @@ def _add_typing_imports_to_lines(lines: List[str], imports_to_add: set) -> None:
             lines.insert(0, import_line)
 
 
+def _read_file_content(file_path: Path) -> str:
+    """Read file content."""
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return f.read()
+
+
+def _parse_ast_safely(content: str, file_path: Path, verbose: bool) -> Optional[ast.AST]:
+    """Parse AST safely, returning None on syntax error."""
+    try:
+        return ast.parse(content)
+    except SyntaxError as e:
+        if verbose:
+            print(f"  ⚠️  Syntax error in {file_path}: {e}")
+        return None
+
+
+def _apply_changes_and_save(file_path: Path, content: str, visitor: TypeHintVisitor, verbose: bool) -> None:
+    """Apply changes and save the file."""
+    # Sort changes by line number (reverse order to avoid offset issues)
+    visitor.changes.sort(
+        key=lambda x: getattr(x['node'], 'lineno', 0), reverse=True
+    )
+
+    # Convert content to lines for easier manipulation
+    lines = content.splitlines()
+
+    # Apply AST changes
+    _apply_changes_to_lines(lines, visitor, verbose)
+
+    # Add missing imports
+    _add_typing_imports_to_lines(lines, visitor.imports_to_add)
+
+    # Write back to file
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(lines))
+
+
+def _create_success_result(file_path: Path, visitor: TypeHintVisitor) -> Dict[str, Any]:
+    """Create success result dictionary."""
+    return {
+        'file': str(file_path),
+        'status': 'success',
+        'changes': len(visitor.changes),
+        'imports_added': list(visitor.imports_to_add)
+    }
+
+
+def _create_error_result(file_path: Path, error: str) -> Dict[str, Any]:
+    """Create error result dictionary."""
+    return {'file': str(file_path), 'status': 'error', 'error': error}
+
+
+def _create_syntax_error_result(file_path: Path, error: str) -> Dict[str, Any]:
+    """Create syntax error result dictionary."""
+    return {'file': str(file_path), 'status': 'syntax_error', 'error': error}
+
+
+def _create_no_changes_result(file_path: Path) -> Dict[str, Any]:
+    """Create no changes result dictionary."""
+    return {'file': str(file_path), 'status': 'no_changes', 'changes': 0}
+
+
 def process_file(
     file_path: Path, dry_run: bool = False, verbose: bool = False
 ) -> Dict[str, Any]:
     """Process a single Python file for type hint conversions."""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
+        # Read file content
+        content = _read_file_content(file_path)
 
         # Parse the file
-        try:
-            tree = ast.parse(content)
-        except SyntaxError as e:
-            if verbose:
-                print(f"  ⚠️  Syntax error in {file_path}: {e}")
-            return {'file': str(file_path), 'status': 'syntax_error', 'error': str(e)}
+        tree = _parse_ast_safely(content, file_path, verbose)
+        if tree is None:
+            return _create_syntax_error_result(file_path, "Syntax error during parsing")
 
         # Visit the AST
         visitor = TypeHintVisitor()
         visitor.visit(tree)
 
         if not visitor.changes:
-            return {'file': str(file_path), 'status': 'no_changes', 'changes': 0}
+            return _create_no_changes_result(file_path)
 
-        # Apply changes
+        # Apply changes if not dry run
         if not dry_run:
-            # Sort changes by line number (reverse order to avoid offset issues)
-            visitor.changes.sort(
-                key=lambda x: getattr(x['node'], 'lineno', 0), reverse=True
-            )
+            _apply_changes_and_save(file_path, content, visitor, verbose)
 
-            # Convert content to lines for easier manipulation
-            lines = content.splitlines()
-
-            # Apply AST changes
-            _apply_changes_to_lines(lines, visitor, verbose)
-
-            # Add missing imports
-            _add_typing_imports_to_lines(lines, visitor.imports_to_add)
-
-            # Write back to file
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write('\n'.join(lines))
-
-        return {
-            'file': str(file_path),
-            'status': 'success',
-            'changes': len(visitor.changes),
-            'imports_added': list(visitor.imports_to_add)
-        }
+        return _create_success_result(file_path, visitor)
 
     except Exception as e:
-        return {'file': str(file_path), 'status': 'error', 'error': str(e)}
+        return _create_error_result(file_path, str(e))
 
 
 def _process_single_file(file_path: Path, dry_run: bool, verbose: bool) -> Dict[str, Any]:
@@ -396,8 +434,8 @@ def find_python_files(directory: Path) -> List[Path]:
     return python_files
 
 
-def main():
-    """Main function."""
+def _parse_arguments() -> argparse.Namespace:
+    """Parse command line arguments."""
     parser = argparse.ArgumentParser(
         description=(
             'Convert Python 3.9+ type hints to Python 3.8 compatible syntax'
@@ -406,10 +444,11 @@ def main():
     parser.add_argument('directory', help='Directory to process')
     parser.add_argument('--dry-run', action='store_true', help='Show what would be changed without making changes')
     parser.add_argument('--verbose', action='store_true', help='Show detailed output')
+    return parser.parse_args()
 
-    args = parser.parse_args()
 
-    directory = Path(args.directory)
+def _validate_directory(directory: Path) -> None:
+    """Validate that the directory exists and is a directory."""
     if not directory.exists():
         print(f"Error: Directory {directory} does not exist")
         sys.exit(1)
@@ -418,30 +457,49 @@ def main():
         print(f"Error: {directory} is not a directory")
         sys.exit(1)
 
+
+def _print_processing_info(directory: Path, dry_run: bool) -> None:
+    """Print processing information."""
     print(f"Processing directory: {directory}")
-    if args.dry_run:
+    if dry_run:
         print("DRY RUN MODE - No changes will be made")
     print()
 
-    # Find Python files
-    python_files = find_python_files(directory)
-    print(f"Found {len(python_files)} Python files")
-    print()
 
-    # Process files
+def _process_all_files(python_files: List[Path], dry_run: bool, verbose: bool) -> Tuple[List[Dict[str, Any]], int]:
+    """Process all Python files and return results and total changes."""
     results = []
     total_changes = 0
 
     for file_path in python_files:
-        result = _process_single_file(file_path, args.dry_run, args.verbose)
+        result = _process_single_file(file_path, dry_run, verbose)
         results.append(result)
 
         if result['status'] == 'success' and result['changes'] > 0:
             total_changes += result['changes']
 
+    return results, total_changes
+
+
+def main():
+    """Main function."""
+    # Parse and validate arguments
+    args = _parse_arguments()
+    directory = Path(args.directory)
+    _validate_directory(directory)
+    
+    # Print processing info
+    _print_processing_info(directory, args.dry_run)
+    
+    # Find and process Python files
+    python_files = find_python_files(directory)
+    print(f"Found {len(python_files)} Python files")
+    print()
+    
+    results, total_changes = _process_all_files(python_files, args.dry_run, args.verbose)
+    
     # Print summary
     _print_summary(results, total_changes, args.dry_run)
-
     print()
 
 
