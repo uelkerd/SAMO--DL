@@ -10,11 +10,10 @@ This script uses regex patterns to fix remaining type hint issues:
 - A | B -> Union[A, B] or Optional[A] for A | None
 """
 
-import os
 import re
 import sys
 from pathlib import Path
-from typing import List, Dict, Set, Tuple, Optional, Union, Any
+from typing import List, Dict, Any
 
 
 def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
@@ -84,8 +83,8 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
             filtered_matches = []
             for left, right in union_matches:
                 # Skip if it looks like a bitwise operation in code
-                if not (left in ['None', 'str', 'int', 'float', 'bool', 'list', 'dict', 'set', 'tuple'] or 
-                       right in ['None', 'str', 'int', 'float', 'bool', 'list', 'dict', 'set', 'tuple']):
+                if not (left in ['None', 'str', 'int', 'float', 'bool', 'list', 'dict', 'set', 'tuple'] or
+                        right in ['None', 'str', 'int', 'float', 'bool', 'list', 'dict', 'set', 'tuple']):
                     continue
                 filtered_matches.append((left, right))
             
@@ -93,8 +92,8 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
                 # Replace the filtered matches
                 for left, right in filtered_matches:
                     if left != 'None' and right != 'None':
-                        content = re.sub(f'\\b{re.escape(left)}\\s*\\|\\s*{re.escape(right)}\\b', 
-                                       f'Union[{left}, {right}]', content)
+                        content = re.sub(f'\\b{re.escape(left)}\\s*\\|\\s*{re.escape(right)}\\b',
+                                        f'Union[{left}, {right}]', content)
                         imports_to_add.add('Union')
                         changes_made.append(f"{left} | {right} -> Union[{left}, {right}]")
         
@@ -107,8 +106,8 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
                 new_imports = ', '.join(sorted(imports_to_add))
                 if existing_imports:
                     # Add to existing import
-                    content = re.sub(r'from typing import ([^\\n]+)', 
-                                   f'from typing import {existing_imports}, {new_imports}', content)
+                    content = re.sub(r'from typing import ([^\\n]+)',
+                                    f'from typing import {existing_imports}, {new_imports}', content)
                 else:
                     # Replace empty import
                     content = re.sub(r'from typing import', f'from typing import {new_imports}', content)
