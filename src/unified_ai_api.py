@@ -205,8 +205,8 @@ class WebSocketConnectionManager:
     """Enhanced WebSocket connection manager with pooling and heartbeat."""
 
     def __init__(self):
-        self.active_connections: dict[str, set[WebSocket]] = defaultdict(set)
-        self.connection_metadata: dict[WebSocket, dict[str, Any]] = {}
+        self.active_connections: Dict[str, Set[WebSocket]] = defaultdict(set)
+        self.connection_metadata: Dict[WebSocket, Dict[str, Any]] = {}
         self.heartbeat_interval = 30  # seconds
         self.max_connections_per_user = 5
         self.connection_timeout = 300  # 5 minutes
@@ -253,7 +253,7 @@ class WebSocketConnectionManager:
         logger.info("WebSocket disconnected for user %s", user_id)
 
     async def send_personal_message(
-        self, message: dict[str, Any], websocket: WebSocket
+        self, message: Dict[str, Any], websocket: WebSocket
     ):
         """Send message to specific WebSocket with error handling."""
         try:
@@ -264,7 +264,7 @@ class WebSocketConnectionManager:
             logger.error("Failed to send message to WebSocket: %s", e)
             await self.disconnect(websocket)
 
-    async def broadcast_to_user(self, message: dict[str, Any], user_id: str):
+    async def broadcast_to_user(self, message: Dict[str, Any], user_id: str):
         """Broadcast message to all connections of a specific user."""
         disconnected = set()
         for websocket in self.active_connections[user_id]:
@@ -301,7 +301,7 @@ class WebSocketConnectionManager:
             )
             await self.disconnect(websocket)
 
-    def get_connection_stats(self) -> dict[str, Any]:
+    def get_connection_stats(self) -> Dict[str, Any]:
         """Get connection statistics."""
         total_connections = sum(
             len(connections) for connections in self.active_connections.values()
@@ -346,7 +346,7 @@ class UserProfile(BaseModel):
     username: str = Field(..., description="Username")
     email: str = Field(..., description="Email address")
     full_name: str = Field(..., description="Full name")
-    permissions: list[str] = Field(
+    permissions: List[str] = Field(
         default_factory=list, description="User permissions"
     )
     created_at: str = Field(..., description="Account creation date")
@@ -529,7 +529,7 @@ async def metrics() -> Response:
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
-def _tx_to_dict(result: Any) -> dict[str, Any]:
+def _tx_to_dict(result: Any) -> Dict[str, Any]:
     """Normalize transcription result (dataclass or dict) to a plain dict."""
     if isinstance(result, dict):
         return result
@@ -876,7 +876,7 @@ class CompleteJournalAnalysis(BaseModel):
 
 # Unified API Endpoints
 @app.get("/health", tags=["System"])
-async def health_check() -> dict[str, Any]:
+async def health_check() -> Dict[str, Any]:
     """Health check endpoint."""
     return {
         "status": "healthy",

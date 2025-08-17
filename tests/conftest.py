@@ -101,7 +101,7 @@ def cpu_device():
 
 @pytest.fixture
 def api_client():
-    """Provide FastAPI test client."""
+    """Provide FastAPI test client with proper test configuration."""
     client = TestClient(app)
     
     # Reset rate limiter state before each test
@@ -111,15 +111,18 @@ def api_client():
     return client
 
 
-def pytest_configure(config):
-    """Register custom markers."""
-    config.addinivalue_line(
-        "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
-    )
-    config.addinivalue_line("markers", "gpu: marks tests that require GPU")
-    config.addinivalue_line("markers", "integration: marks integration tests")
-    config.addinivalue_line("markers", "e2e: marks end-to-end tests")
-    config.addinivalue_line("markers", "model: marks tests that load ML models")
+@pytest.fixture
+def rate_limit_bypass_client(api_client):
+    """Test client with headers to bypass rate limiting."""
+    api_client.headers.update({
+        "User-Agent": "pytest-testclient",
+        "X-Test-Mode": "true"
+    })
+    return api_client
+
+
+# Markers are now configured in pytest.ini at repository root
+# No need for duplicate registration here
 
 
 def pytest_collection_modifyitems(config, items):
