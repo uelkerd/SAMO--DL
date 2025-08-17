@@ -5,8 +5,6 @@ Unit tests for test utility functions.
 This module tests the utility functions in tests/test_utils.py
 to ensure they work correctly and handle edge cases properly.
 """
-
-import os
 import pytest
 import tempfile
 from pathlib import Path
