@@ -115,26 +115,22 @@ def _add_typing_imports(content: str, imports_to_add: set, dry_run: bool) -> str
     """Add missing typing imports to the file."""
     if not imports_to_add or dry_run:
         return content
-        
+
     # Find existing typing imports
-    typing_import_match = re.search(r'from typing import ([^\\n]+)', content)
+    typing_import_match = re.search(r'from typing import ([^\n]+)', content)
     if typing_import_match:
         existing_imports = typing_import_match.group(1).strip()
-        new_imports = ', '.join(sorted(imports_to_add))
-        if existing_imports:
-            # Add to existing import
-            content = re.sub(
-                r'from typing import ([^\\n]+)',
-                f'from typing import {existing_imports}, {new_imports}',
-                content
-            )
-        else:
-            # Replace empty import
-            content = re.sub(
-                r'from typing import', 
-                f'from typing import {new_imports}', 
-                content
-            )
+        # Parse existing imports to avoid duplicates
+        existing_set = set(imp.strip() for imp in existing_imports.split(','))
+        combined_imports = sorted(existing_set | imports_to_add)
+        new_import_line = f'from typing import {", ".join(combined_imports)}'
+        
+        # Replace the existing import line
+        content = re.sub(
+            r'from typing import ([^\n]+)',
+            new_import_line,
+            content
+        )
     else:
         # Find last import line
         lines = content.splitlines()
@@ -143,7 +139,7 @@ def _add_typing_imports(content: str, imports_to_add: set, dry_run: bool) -> str
             if (line.strip().startswith('import ') or
                 line.strip().startswith('from ')):
                 last_import_line = i
-        
+
         if last_import_line >= 0:
             import_line = (
                 f"from typing import {', '.join(sorted(imports_to_add))}"
@@ -155,7 +151,7 @@ def _add_typing_imports(content: str, imports_to_add: set, dry_run: bool) -> str
             )
             lines.insert(0, import_line)
         content = '\n'.join(lines)
-    
+
     return content
 
 
