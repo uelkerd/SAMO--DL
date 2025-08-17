@@ -113,7 +113,7 @@ def api_client():
         "User-Agent": "pytest-testclient",
         "X-Test-Mode": "true"
     })
-    
+
     return client
 
 
