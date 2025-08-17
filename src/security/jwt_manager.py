@@ -52,7 +52,8 @@ class JWTManager:
     def __init__(self, secret_key: str = SECRET_KEY, algorithm: str = ALGORITHM):
         self.secret_key = secret_key
         self.algorithm = algorithm
-        self.blacklisted_tokens: dict = {}  # Changed to dict: {token: exp_datetime}
+        # Changed to dict: {token: exp_datetime}
+        self.blacklisted_tokens: dict = {}
 
     def create_access_token(self, user_data: Dict[str, Any]) -> str:
         """Create a new access token"""

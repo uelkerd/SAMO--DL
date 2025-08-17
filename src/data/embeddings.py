@@ -9,6 +9,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import logging
 import numpy as np
 import pandas as pd
+from typing import List, Optio, List, Optionalnal
 
 
 
@@ -25,7 +26,7 @@ class BaseEmbedder:
     def __init__(self) -> None:
         self.model = None
 
-    def fit(self, texts: list[str]) -> "BaseEmbedder":
+    def fit(self, texts: List[str]) -> "BaseEmbedder":
         """Fit the embedding model on a list of texts.
 
         Args:
@@ -38,7 +39,7 @@ class BaseEmbedder:
         msg = "Subclasses must implement fit()"
         raise NotImplementedError(msg)
 
-    def transform(self, texts: list[str]) -> np.ndarray:
+    def transform(self, texts: List[str]) -> np.ndarray:
         """Transform texts into embeddings.
 
         Args:
@@ -51,7 +52,7 @@ class BaseEmbedder:
         msg = "Subclasses must implement transform()"
         raise NotImplementedError(msg)
 
-    def fit_transform(self, texts: list[str]) -> np.ndarray:
+    def fit_transform(self, texts: List[str]) -> np.ndarray:
         """Fit the model and transform texts into embeddings.
 
         Args:
@@ -69,7 +70,7 @@ class TfidfEmbedder(BaseEmbedder):
 
     def __init__(
         self,
-        max_features: int | None = 1000,
+        max_features: Optional[int] = 1000,
         min_df: int = 5,
         max_df: float = 0.8,
         ngram_range: tuple = (1, 2),
@@ -95,7 +96,7 @@ class TfidfEmbedder(BaseEmbedder):
             ngram_range=ngram_range,
         )
 
-    def fit(self, texts: list[str]) -> "TfidfEmbedder":
+    def fit(self, texts: List[str]) -> "TfidfEmbedder":
         """Fit the TF-IDF vectorizer on a list of texts.
 
         Args:
@@ -115,7 +116,7 @@ class TfidfEmbedder(BaseEmbedder):
         )
         return self
 
-    def transform(self, texts: list[str]) -> np.ndarray:
+    def transform(self, texts: List[str]) -> np.ndarray:
         """Transform texts into TF-IDF embeddings.
 
         Args:
@@ -164,7 +165,7 @@ class Word2VecEmbedder(BaseEmbedder):
         self.epochs = epochs
         self.model = None
 
-    def _preprocess_texts(self, texts: list[str]) -> list[list[str]]:
+    def _preprocess_texts(self, texts: List[str]) -> List[List[str]]:
         """Preprocess texts for Word2Vec training.
 
         Args:
@@ -176,7 +177,7 @@ class Word2VecEmbedder(BaseEmbedder):
         """
         return [simple_preprocess(text) for text in texts]
 
-    def fit(self, texts: list[str]) -> "Word2VecEmbedder":
+    def fit(self, texts: List[str]) -> "Word2VecEmbedder":
         """Fit Word2Vec model on a list of texts.
 
         Args:
@@ -207,7 +208,7 @@ class Word2VecEmbedder(BaseEmbedder):
         )
         return self
 
-    def transform(self, texts: list[str]) -> np.ndarray:
+    def transform(self, texts: List[str]) -> np.ndarray:
         """Transform texts into Word2Vec embeddings by averaging word vectors.
 
         Args:
@@ -237,7 +238,7 @@ class Word2VecEmbedder(BaseEmbedder):
 class FastTextEmbedder(Word2VecEmbedder):
     """FastText based text embedder."""
 
-    def fit(self, texts: list[str]) -> "FastTextEmbedder":
+    def fit(self, texts: List[str]) -> "FastTextEmbedder":
         """Fit FastText model on a list of texts.
 
         Args:
