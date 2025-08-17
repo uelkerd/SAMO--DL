@@ -101,12 +101,18 @@ def cpu_device():
 
 @pytest.fixture
 def api_client():
-    """Provide FastAPI test client."""
+    """Provide FastAPI test client with proper test configuration."""
     client = TestClient(app)
     
     # Reset rate limiter state before each test
     if hasattr(app.state, 'rate_limiter'):
         app.state.rate_limiter.reset_state()
+    
+    # Set test headers to bypass rate limiting
+    client.headers.update({
+        "User-Agent": "pytest-testclient",
+        "X-Test-Mode": "true"
+    })
     
     return client
 

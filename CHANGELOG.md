@@ -14,6 +14,13 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Improve logging and formatting in `scripts/database/check_pgvector.py`.
 - Tidy API rate limiter and testing config for readability.
+
+### Tests & Training
+- Refresh core tests (unit, integration, e2e) and minimal training helpers.
+- Keep scope small to validate core flows and CI signal without large refactors.
+- Add focused training utilities (`scripts/training/training_utils.py`)
+- Add test utility functions (`tests/test_utils.py`)
+- Improve test configuration with better fixtures and headers
 ### 🚀 **Priority 1 Features Implementation - Complete API Enhancement**
 
 #### **JWT-based Authentication System**
