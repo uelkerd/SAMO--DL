@@ -24,10 +24,10 @@ try:
     import astor
     def ast_to_source(node):
         """Convert AST node to source code using astor library.
-        
+
         Args:
             node: AST node to convert
-            
+
         Returns:
             str: Source code representation of the node
         """
@@ -36,32 +36,31 @@ except ImportError:
     # Fallback for Python 3.8 without astor
     def ast_to_source(node):
         """Convert AST node to source code using simple fallback.
-        
+
         This is a basic fallback when astor is not available.
         Only handles simple cases like ast.Name nodes.
-        
+
         Args:
             node: AST node to convert
-            
+
         Returns:
             str: Source code representation of the node (basic cases only)
         """
         # Simple fallback - this won't be perfect but will work for basic cases
         if isinstance(node, ast.Name):
             return node.id
-        elif isinstance(node, ast.Subscript):
+        if isinstance(node, ast.Subscript):
             value = ast_to_source(node.value)
             slice_str = ast_to_source(node.slice)
             return f"{value}[{slice_str}]"
-        elif isinstance(node, ast.Tuple):
+        if isinstance(node, ast.Tuple):
             elts = [ast_to_source(elt) for elt in node.elts]
             return f"({', '.join(elts)})"
-        elif isinstance(node, ast.Constant):
+        if isinstance(node, ast.Constant):
             if node.value is None:
                 return "None"
             return str(node.value)
-        else:
-            return str(node)
+        return str(node)
 
 
 class TypeHintVisitor(ast.NodeVisitor):
@@ -141,7 +140,7 @@ class TypeHintVisitor(ast.NodeVisitor):
         """Convert a type hint node to Python 3.8 compatible syntax."""
         if isinstance(node, ast.Subscript):
             return self._convert_subscript(node)
-        elif isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
             return self._convert_union(node)
         return node
 
@@ -181,24 +180,23 @@ class TypeHintVisitor(ast.NodeVisitor):
                 slice=node.left,
                 ctx=ast.Load()
             )
-        elif isinstance(node.left, ast.Constant) and node.left.value is None:
+        if isinstance(node.left, ast.Constant) and node.left.value is None:
             self.imports_to_add.add('Optional')
             return ast.Subscript(
                 value=ast.Name(id='Optional', ctx=ast.Load()),
                 slice=node.right,
                 ctx=ast.Load()
             )
-        else:
-            # General union case
-            self.imports_to_add.add('Union')
-            return ast.Subscript(
-                value=ast.Name(id='Union', ctx=ast.Load()),
-                slice=ast.Tuple(
-                    elts=[node.left, node.right],
-                    ctx=ast.Load()
-                ),
+        # General union case
+        self.imports_to_add.add('Union')
+        return ast.Subscript(
+            value=ast.Name(id='Union', ctx=ast.Load()),
+            slice=ast.Tuple(
+                elts=[node.left, node.right],
                 ctx=ast.Load()
-            )
+            ),
+            ctx=ast.Load()
+        )
 
 
 def _apply_changes_to_lines(lines: List[str], visitor: TypeHintVisitor, verbose: bool) -> None:
@@ -233,7 +231,7 @@ def _add_typing_imports_to_lines(lines: List[str], imports_to_add: set) -> None:
     """Add missing typing imports to the lines."""
     if not imports_to_add:
         return
-        
+
     # Find the last typing import or add after existing imports
     typing_import_found = False
     last_import_line = -1
@@ -372,7 +370,7 @@ def _process_single_file(file_path: Path, dry_run: bool, verbose: bool) -> Dict[
         print(f"Processing: {file_path}")
 
     result = process_file(file_path, dry_run=dry_run, verbose=verbose)
-    
+
     if result['status'] == 'success' and result['changes'] > 0:
         if verbose:
             print(
@@ -381,7 +379,7 @@ def _process_single_file(file_path: Path, dry_run: bool, verbose: bool) -> Dict[
             )
     elif result['status'] == 'no_changes':
         if verbose:
-            print(f"  ⏭️  No changes needed")
+            print("  ⏭️  No changes needed")
     elif result['status'] == 'error':
         print(f"  ❌ Error: {result['error']}")
     elif result['status'] == 'syntax_error':
@@ -389,7 +387,7 @@ def _process_single_file(file_path: Path, dry_run: bool, verbose: bool) -> Dict[
 
     if verbose:
         print()
-        
+
     return result
 
 
@@ -422,7 +420,7 @@ def _print_summary(results: List[Dict[str, Any]], total_changes: int, dry_run: b
             print(f"  {result['file']}: {result['error']}")
 
     if dry_run and total_changes > 0:
-        print(f"\nTo apply these changes, run without --dry-run")
+        print("\nTo apply these changes, run without --dry-run")
 
 
 def find_python_files(directory: Path) -> List[Path]:
@@ -487,17 +485,17 @@ def main():
     args = _parse_arguments()
     directory = Path(args.directory)
     _validate_directory(directory)
-    
+
     # Print processing info
     _print_processing_info(directory, args.dry_run)
-    
+
     # Find and process Python files
     python_files = find_python_files(directory)
     print(f"Found {len(python_files)} Python files")
     print()
-    
+
     results, total_changes = _process_all_files(python_files, args.dry_run, args.verbose)
-    
+
     # Print summary
     _print_summary(results, total_changes, args.dry_run)
     print()
