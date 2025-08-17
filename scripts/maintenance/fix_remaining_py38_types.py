@@ -80,7 +80,8 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
                 f"None | A -> Optional[A] ({len(optional_matches2)} instances)"
             )
             
-        # Fix general A | B -> Union[A, B] (but be careful not to catch bitwise operations)
+        # Fix general A | B -> Union[A, B] 
+        # (but be careful not to catch bitwise operations)
         # Look for type annotations specifically
         union_pattern = r'([a-zA-Z_][a-zA-Z0-9_]*)\s*\|\s*([a-zA-Z_][a-zA-Z0-9_]*)'
         union_matches = re.findall(union_pattern, content)
