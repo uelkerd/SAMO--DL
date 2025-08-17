@@ -58,8 +58,9 @@ def run_basic_test_discovery():
             cmd,
             capture_output=True,
             text=True,
-            timeout=30, 
-        check=True)
+            timeout=30,
+            check=True
+        )
         return result.returncode == 0
     except subprocess.TimeoutExpired:
         print("❌ Test discovery timed out")
