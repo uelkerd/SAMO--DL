@@ -73,7 +73,7 @@ def save_training_config(config: Dict[str, Any], output_dir: str) -> Path:
     output_path.mkdir(parents=True, exist_ok=True)
 
     config_file = output_path / "training_config.json"
-    with open(config_file, 'w') as f:
+    with open(config_file, 'w', encoding='utf-8') as f:
         json.dump(config, f, indent=2, default=str)
 
     return config_file
@@ -88,7 +88,7 @@ def load_training_config(config_file: str) -> Dict[str, Any]:
     Returns:
         Training configuration dictionary
     """
-    with open(config_file) as f:
+    with open(config_file, 'r', encoding='utf-8') as f:
         config = json.load(f)
     return config
 

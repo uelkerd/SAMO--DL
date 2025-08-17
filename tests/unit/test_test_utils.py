@@ -6,6 +6,7 @@ This module tests the utility functions in tests/test_utils.py
 to ensure they work correctly and handle edge cases properly.
 """
 
+import json
 import os
 import pytest
 import tempfile
@@ -84,8 +85,7 @@ class TestCreateTempJsonFile:
         assert temp_file.exists()
         
         # Verify content
-        with open(temp_file) as f:
-            import json
+        with open(temp_file, 'r', encoding='utf-8') as f:
             loaded_data = json.load(f)
             assert loaded_data == test_data
         
