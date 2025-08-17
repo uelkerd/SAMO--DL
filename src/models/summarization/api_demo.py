@@ -15,7 +15,7 @@ Key Features:
 import logging
 import time
 from contextlib import asynccontextmanager
-from typing import Optional
+from typing import Optio, Listnal, List
 
 import uvicorn
 from fastapi import BackgroundTasks, FastAPI, HTTPException
@@ -91,7 +91,7 @@ class SummarizeRequest(BaseModel):
 class BatchSummarizationRequest(BaseModel):
     """Request model for batch summarization."""
 
-    texts: list[str] = Field(..., description="List of texts to summarize")
+    texts: List[str] = Field(..., description="List of texts to summarize")
     max_length: Optional[int] = Field(128, ge=30, le=256)
     min_length: Optional[int] = Field(30, ge=10, le=100)
     focus_emotional: Optional[bool] = Field(True)
@@ -120,7 +120,7 @@ class SummarizationResponse(BaseModel):
 class BatchSummarizationResponse(BaseModel):
     """Response model for batch summarization."""
 
-    summaries: list[SummarizationResponse] = Field(..., description="List of summarization results")
+    summaries: List[SummarizationResponse] = Field(..., description="List of summarization results")
     total_processing_time_ms: float = Field(..., description="Total batch processing time")
     average_processing_time_ms: float = Field(..., description="Average per-item processing time")
 

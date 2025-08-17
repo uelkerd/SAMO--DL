@@ -167,7 +167,7 @@ where = ["src"]
 
 # Ruff Configuration (Linting & Formatting)
 [tool.ruff]
-target-version = "py39"
+target-version = "py38"
 line-length = 100
 indent-width = 4
 
@@ -257,6 +257,7 @@ ignore = [
     "I001",    # Import sorting (acceptable)
     "UP035",   # Import from collections.abc (acceptable)
     "PLW0603", # Global statement (acceptable for model caching)
+    "UP006",   # Use X instead of Y for type annotation (avoid churn in py38 target)
 ]
 
 # Per-file ignores
@@ -429,7 +430,7 @@ skips = [
 
 # Black Configuration (Code Formatting) - Fallback if Ruff format not used
 [tool.black]
-target-version = ['py39']
+target-version = ['py38']
 line-length = 100
 skip-string-normalization = false
 skip-magic-trailing-comma = false
