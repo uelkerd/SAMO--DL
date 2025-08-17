@@ -29,10 +29,9 @@ def setup_training_logging(log_file: str = "training.log") -> logging.Logger:
     logger.setLevel(logging.INFO)
 
     # Ensure log directory exists
-    import os
-    log_dir = os.path.dirname(log_file)
-    if log_dir:
-        os.makedirs(log_dir, exist_ok=True)
+    log_path = Path(log_file)
+    if log_path.parent:
+        log_path.parent.mkdir(parents=True, exist_ok=True)
 
     # File handler with explicit encoding
     file_handler = logging.FileHandler(log_file, encoding='utf-8')

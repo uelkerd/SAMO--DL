@@ -5,6 +5,7 @@ Simple Test Health Check Script
 This script provides basic test health information without complex analysis.
 Keeps scope small and focused on essential metrics.
 """
+import ast
 import importlib.util
 import subprocess
 import sys
@@ -30,11 +31,12 @@ def count_test_functions():
     count = 0
     for test_file in tests_dir.rglob("test_*.py"):
         try:
-            with open(test_file, 'r') as f:
-                content = f.read()
-                # Simple count of test_ functions
-                count += content.count("def test_")
-        except Exception:
+            content = test_file.read_text(encoding="utf-8")
+            tree = ast.parse(content)
+            count += sum(1 for node in ast.walk(tree) 
+                        if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"))
+        except (OSError, SyntaxError):
+            # Handle cases where file can't be read or parsed
             continue
 
     return count
