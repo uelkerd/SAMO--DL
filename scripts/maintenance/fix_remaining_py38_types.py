@@ -121,10 +121,10 @@ def _add_typing_imports(content: str, imports_to_add: set, dry_run: bool) -> str
     if typing_import_match:
         existing_imports = typing_import_match.group(1).strip()
         # Parse existing imports to avoid duplicates
-        existing_set = set(imp.strip() for imp in existing_imports.split(','))
+        existing_set = {imp.strip() for imp in existing_imports.split(',')}
         combined_imports = sorted(existing_set | imports_to_add)
         new_import_line = f'from typing import {", ".join(combined_imports)}'
-        
+
         # Replace the existing import line
         content = re.sub(
             r'from typing import ([^\n]+)',
