@@ -121,15 +121,8 @@ def rate_limit_bypass_client(api_client):
     return api_client
 
 
-def pytest_configure(config):
-    """Register custom markers."""
-    config.addinivalue_line(
-        "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
-    )
-    config.addinivalue_line("markers", "gpu: marks tests that require GPU")
-    config.addinivalue_line("markers", "integration: marks integration tests")
-    config.addinivalue_line("markers", "e2e: marks end-to-end tests")
-    config.addinivalue_line("markers", "model: marks tests that load ML models")
+# Markers are now configured in pytest.ini at repository root
+# No need for duplicate registration here
 
 
 def pytest_collection_modifyitems(config, items):
