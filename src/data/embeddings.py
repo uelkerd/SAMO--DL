@@ -9,7 +9,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import logging
 import numpy as np
 import pandas as pd
-from typing import List, Optio, List, Optionalnal
+from typing import List, Optional
 
 
 

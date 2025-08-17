@@ -6,14 +6,16 @@ This module provides data processing pipelines for text and audio data,
 including preprocessing, feature extraction, and dataset management.
 """
 
-import datetime
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 import pandas as pd
 from .feature_engineering import FeatureEngineer
 from .validation import DataValidator
+from .preprocessing import JournalEntryPreprocessor
+from .embeddings import TfidfEmbedder, Word2VecEmbedder, FastTextEmbedder, EmbeddingPipeline
+from .loaders import load_entries_from_db, load_entries_from_json, load_entries_from_csv
 
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
@@ -61,7 +63,7 @@ class DataPipeline:
 
     def run(
         self,
-        data_source: Union[str, pd].DataFrame,
+        data_source: Union[str, pd.DataFrame],
         source_type: str = "db",
         output_dir: Optional[str] = None,
         user_id: Optional[int] = None,
@@ -147,7 +149,7 @@ class DataPipeline:
 
     def _load_data(
         self,
-        data_source: Union[str, pd].DataFrame,
+        data_source: Union[str, pd.DataFrame],
         source_type: str,
         user_id: Optional[int],
         limit: Optional[int],
@@ -198,7 +200,7 @@ class DataPipeline:
         processed_df: pd.DataFrame,
         featured_df: pd.DataFrame,
         embeddings_df: pd.DataFrame,
-        topics_df: pd.Optional[DataFrame] = None,
+        topics_df: Optional[pd.DataFrame] = None,
         save_intermediates: bool = False,
     ) -> None:
         """Save pipeline results to output directory.

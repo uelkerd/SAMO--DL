@@ -14,7 +14,7 @@
 # Title templates
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional
 import json
 import pandas as pd
 import random
