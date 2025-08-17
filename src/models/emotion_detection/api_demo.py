@@ -8,7 +8,7 @@ models and provides a preview of the API interface for Web Dev integration.
 import logging
 import time
 import traceback
-from typing import Optio, Listnal, List
+from typing import List, Optional
 
 import torch
 import uvicorn

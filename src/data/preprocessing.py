@@ -6,7 +6,7 @@ This module provides comprehensive text preprocessing functionality
 for journal entries and other text data.
 """
 import string
-from typing import List, Optio, Optionalnal
+from typing import Optional
 
 import nltk
 import numpy as np
