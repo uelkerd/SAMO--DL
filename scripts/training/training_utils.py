@@ -22,7 +22,7 @@ def setup_training_logging(log_file: str = "training.log") -> logging.Logger:
     """
     logger = logging.getLogger("training")
     logger.setLevel(logging.INFO)
-    
+
     # Clear existing handlers to prevent duplication
     if logger.handlers:
         logger.handlers.clear()
@@ -142,7 +142,7 @@ def validate_training_data(data_path: str, expected_columns: list, logger: Optio
     """
     # Use provided logger or fall back to root logger
     logger = logger or logging.getLogger(__name__)
-    
+
     try:
         import pandas as pd
         df = pd.read_csv(data_path)
