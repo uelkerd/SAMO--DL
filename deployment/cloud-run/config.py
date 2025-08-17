@@ -216,4 +216,4 @@ config = EnvironmentConfig()
 
 def get_config() -> EnvironmentConfig:
     """Get the global configuration instance"""
-    return config 
+    return config

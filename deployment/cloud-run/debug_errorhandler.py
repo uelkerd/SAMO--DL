@@ -67,4 +67,4 @@ try:
 except Exception as e:
     print(f"❌ Could not get Flask-RESTX version: {e}")
 
-print("\n🔍 Debug complete.") 
+print("\n🔍 Debug complete.")

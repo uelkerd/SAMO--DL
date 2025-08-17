@@ -11,7 +11,7 @@ from pathlib import Path
 
 def create_fixed_notebook():
     """Create a fixed notebook with proper JSON escaping"""
-    
+
     # Create the notebook structure
     notebook = {
         "cells": [
@@ -623,12 +623,12 @@ def create_fixed_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     # Save the notebook with proper JSON formatting
     notebook_path = Path(__file__).parent.parent / 'notebooks' / 'FIXED_SPECIALIZED_TRAINING.ipynb'
     with open(notebook_path, 'w') as f:
         json.dump(notebook, f, indent=1)
-    
+
     print(f"✅ Created fixed specialized notebook: {notebook_path}")
     print(f"📋 Key improvements:")
     print(f"   1. Proper JSON formatting (no syntax errors)")
@@ -646,4 +646,4 @@ def create_fixed_notebook():
 
 if __name__ == "__main__":
     create_fixed_notebook()
-    print("✅ Fixed specialized notebook created successfully!") 
+    print("✅ Fixed specialized notebook created successfully!")

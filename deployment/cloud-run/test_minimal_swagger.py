@@ -37,11 +37,11 @@ if __name__ == '__main__':
     print("=== Routes ===")
     for rule in app.url_map.iter_rules():
         print(f"{rule.rule} -> {rule.endpoint}")
-    
+
     print("\n=== Starting test server ===")
     print("Test these endpoints:")
     print("- http://localhost:5003/ (should work)")
     print("- http://localhost:5003/docs (should work)")
     print("- http://localhost:5003/api/health (should work)")
-    
-    app.run(host='0.0.0.0', port=5003, debug=True) 
+
+    app.run(host='0.0.0.0', port=5003, debug=True)
