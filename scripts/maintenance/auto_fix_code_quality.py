@@ -13,8 +13,6 @@ Auto-fixes:
 - PTC-W0027: f-strings without expressions
 - Basic import organization
 """
-
-import os
 import sys
 import re
 from pathlib import Path
@@ -30,60 +28,60 @@ logger = logging.getLogger(__name__)
 
 class CodeQualityAutoFixer:
     """Automatically fixes common code quality issues."""
-    
+
     def __init__(self, dry_run: bool = False):
         self.dry_run = dry_run
         self.fixes_applied = 0
         self.files_modified = 0
         self.fixes_by_type = {}
-        
+
     def fix_file(self, file_path: Path) -> Dict[str, Any]:
         """Fix quality issues in a single Python file."""
         logger.info(f"Fixing: {file_path}")
-        
+
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
-            
+
             original_content = content
             fixes = []
-            
+
             # Apply various fixes
             content, file_fixes = self._fix_trailing_whitespace(content)
             fixes.extend(file_fixes)
-            
+
             content, file_fixes = self._fix_missing_newlines(content)
             fixes.extend(file_fixes)
-            
+
             content, file_fixes = self._fix_blank_line_whitespace(content)
             fixes.extend(file_fixes)
-            
+
             content, file_fixes = self._fix_f_strings_without_expressions(content)
             fixes.extend(file_fixes)
-            
+
             content, file_fixes = self._fix_basic_line_length(content)
             fixes.extend(file_fixes)
-            
+
             content, file_fixes = self._fix_import_organization(content)
             fixes.extend(file_fixes)
-            
+
             # Apply fixes if not dry run
             if content != original_content and not self.dry_run:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(content)
                 self.files_modified += 1
-            
+
             # Update statistics
             self.fixes_applied += len(fixes)
             for fix_type in [f['type'] for f in fixes]:
                 self.fixes_by_type[fix_type] = self.fixes_by_type.get(fix_type, 0) + 1
-            
+
             return {
                 'file': str(file_path),
                 'fixes': fixes,
                 'modified': content != original_content
             }
-            
+
         except Exception as e:
             logger.error(f"Error fixing {file_path}: {e}")
             return {
@@ -91,13 +89,14 @@ class CodeQualityAutoFixer:
                 'error': str(e),
                 'modified': False
             }
-    
-    def _fix_trailing_whitespace(self, content: str) -> Tuple[str, List[Dict[str, Any]]]:
+
+    @staticmethod
+    def _fix_trailing_whitespace(content: str) -> Tuple[str, List[Dict[str, Any]]]:
         """Fix trailing whitespace issues."""
         fixes = []
         lines = content.splitlines()
         modified = False
-        
+
         for i, line in enumerate(lines):
             if line.rstrip() != line:
                 lines[i] = line.rstrip()
@@ -107,16 +106,17 @@ class CodeQualityAutoFixer:
                     'line': i + 1,
                     'description': 'Removed trailing whitespace'
                 })
-        
+
         if modified:
             content = '\n'.join(lines) + ('\n' if content.endswith('\n') else '')
-        
+
         return content, fixes
-    
-    def _fix_missing_newlines(self, content: str) -> Tuple[str, List[Dict[str, Any]]]:
+
+    @staticmethod
+    def _fix_missing_newlines(content: str) -> Tuple[str, List[Dict[str, Any]]]:
         """Fix missing newlines at end of file."""
         fixes = []
-        
+
         if content and not content.endswith('\n'):
             content += '\n'
             fixes.append({
@@ -124,15 +124,16 @@ class CodeQualityAutoFixer:
                 'line': len(content.splitlines()),
                 'description': 'Added missing newline at end of file'
             })
-        
+
         return content, fixes
-    
-    def _fix_blank_line_whitespace(self, content: str) -> Tuple[str, List[Dict[str, Any]]]:
+
+    @staticmethod
+    def _fix_blank_line_whitespace(content: str) -> Tuple[str, List[Dict[str, Any]]]:
         """Fix blank lines containing whitespace."""
         fixes = []
         lines = content.splitlines()
         modified = False
-        
+
         for i, line in enumerate(lines):
             if line.strip() == '' and line != '':
                 lines[i] = ''
@@ -142,19 +143,20 @@ class CodeQualityAutoFixer:
                     'line': i + 1,
                     'description': 'Removed whitespace from blank line'
                 })
-        
+
         if modified:
             content = '\n'.join(lines) + ('\n' if content.endswith('\n') else '')
-        
+
         return content, fixes
-    
-    def _fix_f_strings_without_expressions(self, content: str) -> Tuple[str, List[Dict[str, Any]]]:
+
+    @staticmethod
+    def _fix_f_strings_without_expressions(content: str) -> Tuple[str, List[Dict[str, Any]]]:
         """Fix f-strings without expressions."""
         fixes = []
-        
+
         # Pattern to find f-strings without expressions
         pattern = r'f["\']([^"\']*?)["\']'
-        
+
         def replace_f_string(match):
             string_content = match.group(1)
             if not re.search(r'\{[^}]*\}', string_content):
@@ -165,17 +167,18 @@ class CodeQualityAutoFixer:
                 })
                 return f'"{string_content}"'
             return match.group(0)
-        
+
         content = re.sub(pattern, replace_f_string, content)
-        
+
         return content, fixes
-    
-    def _fix_basic_line_length(self, content: str) -> Tuple[str, List[Dict[str, Any]]]:
+
+    @staticmethod
+    def _fix_basic_line_length(content: str) -> Tuple[str, List[Dict[str, Any]]]:
         """Fix basic line length violations (simple cases)."""
         fixes = []
         lines = content.splitlines()
         modified = False
-        
+
         for i, line in enumerate(lines):
             if len(line) > 88:
                 # Try to break long lines at common break points
@@ -186,12 +189,12 @@ class CodeQualityAutoFixer:
                         # Split into multiple lines
                         import_start = line[:line.find('import') + 6]
                         indent = len(line) - len(line.lstrip())
-                        
+
                         new_lines = [import_start + parts[0] + ',']
                         for part in parts[1:-1]:
                             new_lines.append(' ' * (indent + 4) + part + ',')
                         new_lines.append(' ' * (indent + 4) + parts[-1])
-                        
+
                         lines[i:i+1] = new_lines
                         modified = True
                         fixes.append({
@@ -199,7 +202,7 @@ class CodeQualityAutoFixer:
                             'line': i + 1,
                             'description': 'Broke long import line into multiple lines'
                         })
-                
+
                 elif 'def ' in line and line.count('(') > 0 and line.count(')') == 0:
                     # Break long function definitions
                     if line.count(',') > 2:
@@ -207,16 +210,15 @@ class CodeQualityAutoFixer:
                         func_start = line[:line.find('(') + 1]
                         params_part = line[line.find('(') + 1:]
                         indent = len(line) - len(line.lstrip())
-                        
+
                         # Find the last parameter
                         last_comma = params_part.rfind(',')
                         if last_comma > 0:
                             first_params = params_part[:last_comma + 1]
                             last_param = params_part[last_comma + 1:]
-                            
-                            new_lines = [func_start + first_params]
-                            new_lines.append(' ' * (indent + 4) + last_param)
-                            
+
+                            new_lines = [func_start + first_params, ' ' * (indent + 4) + last_param]
+
                             lines[i:i+1] = new_lines
                             modified = True
                             fixes.append({
@@ -224,22 +226,23 @@ class CodeQualityAutoFixer:
                                 'line': i + 1,
                                 'description': 'Broke long function definition into multiple lines'
                             })
-        
+
         if modified:
             content = '\n'.join(lines) + ('\n' if content.endswith('\n') else '')
-        
+
         return content, fixes
-    
-    def _fix_import_organization(self, content: str) -> Tuple[str, List[Dict[str, Any]]]:
+
+    @staticmethod
+    def _fix_import_organization(content: str) -> Tuple[str, List[Dict[str, Any]]]:
         """Fix basic import organization issues."""
         fixes = []
         lines = content.splitlines()
         modified = False
-        
+
         # Find import sections
         import_start = -1
         import_end = -1
-        
+
         for i, line in enumerate(lines):
             if line.strip().startswith(('import ', 'from ')):
                 if import_start == -1:
@@ -248,7 +251,7 @@ class CodeQualityAutoFixer:
             elif import_start != -1 and line.strip() == '':
                 import_end = i - 1
                 break
-        
+
         if import_start != -1 and import_end != -1:
             # Sort imports within the section
             import_lines = lines[import_start:import_end + 1]
@@ -260,7 +263,7 @@ class CodeQualityAutoFixer:
                 # Then alphabetically
                 x.strip().lower()
             ))
-            
+
             if sorted_imports != import_lines:
                 lines[import_start:import_end + 1] = sorted_imports
                 modified = True
@@ -269,21 +272,21 @@ class CodeQualityAutoFixer:
                     'line': import_start + 1,
                     'description': 'Reorganized imports alphabetically'
                 })
-        
+
         if modified:
             content = '\n'.join(lines) + ('\n' if content.endswith('\n') else '')
-        
+
         return content, fixes
-    
+
     def fix_directory(self, directory: Path) -> Dict[str, Any]:
         """Fix quality issues in all Python files in a directory."""
         logger.info(f"Fixing directory: {directory}")
-        
+
         python_files = list(directory.rglob("*.py"))
         logger.info(f"Found {len(python_files)} Python files")
-        
+
         results = []
-        
+
         for file_path in python_files:
             # Skip certain directories
             if any(part in str(file_path) for part in [
@@ -292,10 +295,10 @@ class CodeQualityAutoFixer:
                 '.logs', 'results', 'samples', 'notebooks', 'website'
             ]):
                 continue
-            
+
             result = self.fix_file(file_path)
             results.append(result)
-        
+
         return {
             'files_processed': len(results),
             'files_modified': self.files_modified,
@@ -303,8 +306,9 @@ class CodeQualityAutoFixer:
             'fixes_by_type': self.fixes_by_type,
             'results': results
         }
-    
-    def generate_report(self, results: Dict[str, Any]) -> str:
+
+    @staticmethod
+    def generate_report(results: Dict[str, Any]) -> str:
         """Generate a comprehensive fix report."""
         report = f"""
 🔧 CODE QUALITY AUTO-FIX REPORT
@@ -317,16 +321,16 @@ class CodeQualityAutoFixer:
 
 🛠️ FIXES BY TYPE:
 """
-        
+
         for fix_type, count in sorted(results['fixes_by_type'].items()):
             report += f"- {fix_type}: {count} fixes\n"
-        
+
         report += f"""
 
 📋 DETAILED RESULTS:
 {'-'*50}
 """
-        
+
         for result in results['results']:
             if result.get('modified', False):
                 report += f"✅ {result['file']}: {len(result['fixes'])} fixes applied\n"
@@ -336,22 +340,22 @@ class CodeQualityAutoFixer:
                 report += f"❌ {result['file']}: Error - {result['error']}\n"
             else:
                 report += f"⏭️ {result['file']}: No fixes needed\n"
-        
+
         return report
-    
+
     def run_fixes(self, directory: Path) -> bool:
         """Run all auto-fixes and return success status."""
         logger.info("Starting code quality auto-fixes...")
-        
+
         if self.dry_run:
             logger.info("DRY RUN MODE - No files will be modified")
-        
+
         results = self.fix_directory(directory)
-        
+
         # Generate and display report
         report = self.generate_report(results)
         print(report)
-        
+
         # Return success (True if no errors, False if any errors occurred)
         errors = [r for r in results['results'] if 'error' in r]
         return len(errors) == 0
@@ -359,7 +363,7 @@ class CodeQualityAutoFixer:
 def main():
     """Main function for command-line usage."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(
         description='Automatically fix common code quality issues'
     )
@@ -372,17 +376,17 @@ def main():
         action='store_true',
         help='Show what would be fixed without making changes'
     )
-    
+
     args = parser.parse_args()
-    
+
     directory = Path(args.directory)
     if not directory.exists():
         print(f"Error: Directory {directory} does not exist")
         sys.exit(1)
-    
+
     fixer = CodeQualityAutoFixer(dry_run=args.dry_run)
     success = fixer.run_fixes(directory)
-    
+
     if success:
         print("\n✅ All auto-fixes completed successfully!")
         sys.exit(0)
