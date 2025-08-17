@@ -182,7 +182,9 @@ class TypeHintVisitor(ast.NodeVisitor):
             )
 
 
-def process_file(file_path: Path, dry_run: bool = False, verbose: bool = False) -> Dict[str, Any]:
+def process_file(
+    file_path: Path, dry_run: bool = False, verbose: bool = False
+) -> Dict[str, Any]:
     """Process a single Python file for type hint conversions."""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -265,7 +267,9 @@ def process_file(file_path: Path, dry_run: bool = False, verbose: bool = False) 
                             existing_imports = line.replace('from typing import ', '').strip()
                             new_imports = ', '.join(sorted(visitor.imports_to_add))
                             if existing_imports:
-                                new_import_line = f"from typing import {existing_imports}, {new_imports}"
+                                new_import_line = (
+                                f"from typing import {existing_imports}, {new_imports}"
+                            )
                             lines[i] = new_import_line
                         else:
                             lines[i] = f"from typing import {new_imports}"
@@ -273,10 +277,14 @@ def process_file(file_path: Path, dry_run: bool = False, verbose: bool = False) 
                 else:
                     # Add new typing import after last import
                     if last_import_line >= 0:
-                        import_line = f"from typing import {', '.join(sorted(visitor.imports_to_add))}"
+                        import_line = (
+                            f"from typing import {', '.join(sorted(visitor.imports_to_add))}"
+                        )
                         lines.insert(last_import_line + 1, import_line)
                     else:
-                        import_line = f"from typing import {', '.join(sorted(visitor.imports_to_add))}"
+                        import_line = (
+                            f"from typing import {', '.join(sorted(visitor.imports_to_add))}"
+                        )
                         lines.insert(0, import_line)
 
                 # Write back to file
@@ -306,7 +314,9 @@ def find_python_files(directory: Path) -> List[Path]:
 def main():
     """Main function."""
     parser = argparse.ArgumentParser(
-        description='Convert Python 3.9+ type hints to Python 3.8 compatible syntax'
+        description=(
+            'Convert Python 3.9+ type hints to Python 3.8 compatible syntax'
+        )
     )
     parser.add_argument('directory', help='Directory to process')
     parser.add_argument('--dry-run', action='store_true', help='Show what would be changed without making changes')

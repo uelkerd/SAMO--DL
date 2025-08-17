@@ -56,7 +56,9 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
         if tuple_matches:
             content = re.sub(tuple_pattern, r'Tuple[\1]', content)
             imports_to_add.add('Tuple')
-            changes_made.append(f"tuple[T] -> Tuple[T] ({len(tuple_matches)} instances)")
+            changes_made.append(
+                f"tuple[T] -> Tuple[T] ({len(tuple_matches)} instances)"
+            )
             
         # Fix A | None -> Optional[A] (most common case)
         optional_pattern = r'([a-zA-Z_][a-zA-Z0-9_]*)\s*\|\s*None'
@@ -64,7 +66,9 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
         if optional_matches:
             content = re.sub(optional_pattern, r'Optional[\1]', content)
             imports_to_add.add('Optional')
-            changes_made.append(f"A | None -> Optional[A] ({len(optional_matches)} instances)")
+            changes_made.append(
+                f"A | None -> Optional[A] ({len(optional_matches)} instances)"
+            )
             
         # Fix None | A -> Optional[A]
         optional_pattern2 = r'None\s*\|\s*([a-zA-Z_][a-zA-Z0-9_]*)'
@@ -72,7 +76,9 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
         if optional_matches2:
             content = re.sub(optional_pattern2, r'Optional[\1]', content)
             imports_to_add.add('Optional')
-            changes_made.append(f"None | A -> Optional[A] ({len(optional_matches2)} instances)")
+            changes_made.append(
+                f"None | A -> Optional[A] ({len(optional_matches2)} instances)"
+            )
             
         # Fix general A | B -> Union[A, B] (but be careful not to catch bitwise operations)
         # Look for type annotations specifically
@@ -83,7 +89,9 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
             filtered_matches = []
             for left, right in union_matches:
                 # Skip if it looks like a bitwise operation in code
-                type_names = ['None', 'str', 'int', 'float', 'bool', 'list', 'dict', 'set', 'tuple']
+                type_names = [
+                    'None', 'str', 'int', 'float', 'bool', 'list', 'dict', 'set', 'tuple'
+                ]
                 if not (left in type_names or right in type_names):
                     continue
                 filtered_matches.append((left, right))
@@ -96,7 +104,9 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
                         replacement = f'Union[{left}, {right}]'
                         content = re.sub(pattern, replacement, content)
                         imports_to_add.add('Union')
-                        changes_made.append(f"{left} | {right} -> Union[{left}, {right}]")
+                        changes_made.append(
+                            f"{left} | {right} -> Union[{left}, {right}]"
+                        )
         
         # Add missing imports
         if imports_to_add and not dry_run:
@@ -114,7 +124,11 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
                     )
                 else:
                     # Replace empty import
-                    content = re.sub(r'from typing import', f'from typing import {new_imports}', content)
+                    content = re.sub(
+                        r'from typing import', 
+                        f'from typing import {new_imports}', 
+                        content
+                    )
             else:
                 # Find last import line
                 lines = content.splitlines()
@@ -125,10 +139,14 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
                         last_import_line = i
                 
                 if last_import_line >= 0:
-                    import_line = f"from typing import {', '.join(sorted(imports_to_add))}"
+                    import_line = (
+                        f"from typing import {', '.join(sorted(imports_to_add))}"
+                    )
                     lines.insert(last_import_line + 1, import_line)
                 else:
-                    import_line = f"from typing import {', '.join(sorted(imports_to_add))}"
+                    import_line = (
+                        f"from typing import {', '.join(sorted(imports_to_add))}"
+                    )
                     lines.insert(0, import_line)
                 content = '\n'.join(lines)
         
@@ -210,7 +228,10 @@ def main():
     
     modified = [r for r in results if r.get('modified', False)]
     errors = [r for r in results if 'error' in r]
-    no_changes = [r for r in results if not r.get('modified', False) and 'error' not in r]
+    no_changes = [
+        r for r in results 
+        if not r.get('modified', False) and 'error' not in r
+    ]
     
     print(f"Files processed: {len(results)}")
     print(f"Modified: {len(modified)}")
