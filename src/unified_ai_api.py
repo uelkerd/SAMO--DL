@@ -253,7 +253,7 @@ class WebSocketConnectionManager:
         logger.info("WebSocket disconnected for user %s", user_id)
 
     async def send_personal_message(
-        self, message: dict[str, Any], websocket: WebSocket
+        self, message: Dict[str, Any], websocket: WebSocket
     ):
         """Send message to specific WebSocket with error handling."""
         try:
@@ -529,7 +529,7 @@ async def metrics() -> Response:
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
-def _tx_to_dict(result: Any) -> dict[str, Any]:
+def _tx_to_dict(result: Any) -> Dict[str, Any]:
     """Normalize transcription result (dataclass or dict) to a plain dict."""
     if isinstance(result, dict):
         return result
@@ -876,7 +876,7 @@ class CompleteJournalAnalysis(BaseModel):
 
 # Unified API Endpoints
 @app.get("/health", tags=["System"])
-async def health_check() -> dict[str, Any]:
+async def health_check() -> Dict[str, Any]:
     """Health check endpoint."""
     return {
         "status": "healthy",
