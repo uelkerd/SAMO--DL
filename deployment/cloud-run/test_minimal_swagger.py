@@ -44,4 +44,4 @@ if __name__ == '__main__':
     print("- http://localhost:5003/docs (should work)")
     print("- http://localhost:5003/api/health (should work)")
     
-    app.run(host='0.0.0.0', port=5003, debug=True) 
+    app.run(host='0.0.0.0', port=5003, debug=False) 

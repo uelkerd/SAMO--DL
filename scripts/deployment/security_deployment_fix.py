@@ -17,6 +17,7 @@ import subprocess
 import shlex
 import time
 import requests
+import re
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -55,10 +56,29 @@ class SecurityDeploymentFix:
         self.secure_api = self.deployment_dir / "secure_api_server.py"
 
     @staticmethod
-    def log(message: str, level: str = "INFO"):
+    def log(self, message: str, level: str = "INFO"):
         """Log messages with timestamp"""
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-        print(f"[{timestamp}] [{level}] {message}")
+        # Sanitize sensitive information before logging
+        sanitized_message = self._sanitize_log_message(message)
+        print(f"[{timestamp}] [{level}] {sanitized_message}")
+
+    def _sanitize_log_message(self, message: str) -> str:
+        """Sanitize log messages to remove sensitive information"""
+        # Remove API keys, tokens, and other sensitive data
+        sensitive_patterns = [
+            r'api[_-]?key[=:]\s*[^\s&]+',  # API keys
+            r'token[=:]\s*[^\s&]+',         # Tokens
+            r'password[=:]\s*[^\s&]+',      # Passwords
+            r'secret[=:]\s*[^\s&]+',        # Secrets
+            r'key[=:]\s*[^\s&]+',           # Generic keys
+        ]
+        
+        sanitized = message
+        for pattern in sensitive_patterns:
+            sanitized = re.sub(pattern, r'\1=***REDACTED***', sanitized, flags=re.IGNORECASE)
+        
+        return sanitized
 
     def run_command(self, command: List[str], check: bool = True) -> subprocess.CompletedProcess:
         """Run shell command with error handling"""

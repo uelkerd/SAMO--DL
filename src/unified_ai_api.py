@@ -51,6 +51,20 @@ logger = logging.getLogger(__name__)
 # Note: Avoid monkey-patching httpx internals. Tests should handle httpx.StreamConsumed
 # or public APIs directly when dealing with closed file objects.
 
+def sanitize_exception(exc: Exception) -> str:
+    """Sanitize exception messages to prevent information exposure."""
+    # Only expose safe, generic error messages
+    if isinstance(exc, ValidationError):
+        return "Validation error occurred"
+    elif isinstance(exc, ValueError):
+        return "Invalid value provided"
+    elif isinstance(exc, KeyError):
+        return "Missing required field"
+    elif isinstance(exc, TypeError):
+        return "Type mismatch error"
+    else:
+        return "Internal server error"
+
 # Global AI models (loaded on startup)
 emotion_detector = None
 text_summarizer = None
@@ -1237,7 +1251,7 @@ async def chat_websocket(websocket: WebSocket, token: str = Query(None)) -> None
                         exc,
                         exc_info=True,
                     )
-                    response["summary_error"] = str(exc)
+                    response["summary_error"] = sanitize_exception(exc)
 
             await websocket.send_json(response)
     except WebSocketDisconnect:
@@ -1717,7 +1731,7 @@ async def batch_transcribe_voice(
                     "file_index": i,
                     "filename": audio_file.filename,
                     "success": False,
-                    "error": str(exc)
+                    "error": sanitize_exception(exc)
                 })
 
         processing_time = (time.time() - start_time) * 1000
@@ -1921,7 +1935,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                 except Exception as exc:
                     await websocket.send_json({
                         "type": "error",
-                        "message": str(exc)
+                        "message": sanitize_exception(exc)
                     })
             else:
                 await websocket.send_json({
@@ -2031,7 +2045,7 @@ async def detailed_health_check(
         except Exception as exc:
             health_status = "degraded"
             issues.append(f"Emotion detection model error: {exc}")
-            model_checks["emotion_detection"] = {"status": "error", "error": str(exc)}
+            model_checks["emotion_detection"] = {"status": "error", "error": sanitize_exception(exc)}
 
     if text_summarizer is None:
         health_status = "degraded"
@@ -2045,7 +2059,7 @@ async def detailed_health_check(
         except Exception as exc:
             health_status = "degraded"
             issues.append(f"Text summarization model error: {exc}")
-            model_checks["text_summarization"] = {"status": "error", "error": str(exc)}
+            model_checks["text_summarization"] = {"status": "error", "error": sanitize_exception(exc)}
 
     if voice_transcriber is None:
         health_status = "degraded"
@@ -2074,9 +2088,9 @@ async def detailed_health_check(
             "status": "healthy" if cpu_percent < 90 and memory.percent < 90 else "warning"
         }
     except Exception as exc:
-        system_checks = {"status": "error", "error": str(exc)}
+        system_checks = {"status": "error", "error": sanitize_exception(exc)}
         health_status = "degraded"
-        issues.append(f"System check failed: {exc}")
+        issues.append("System check failed: Internal error")
 
     return {
         "status": health_status,
