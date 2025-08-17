@@ -23,10 +23,29 @@ from typing import List, Dict, Any
 try:
     import astor
     def ast_to_source(node):
+        """Convert AST node to source code using astor library.
+        
+        Args:
+            node: AST node to convert
+            
+        Returns:
+            str: Source code representation of the node
+        """
         return astor.to_source(node)
 except ImportError:
     # Fallback for Python 3.8 without astor
     def ast_to_source(node):
+        """Convert AST node to source code using simple fallback.
+        
+        This is a basic fallback when astor is not available.
+        Only handles simple cases like ast.Name nodes.
+        
+        Args:
+            node: AST node to convert
+            
+        Returns:
+            str: Source code representation of the node (basic cases only)
+        """
         # Simple fallback - this won't be perfect but will work for basic cases
         if isinstance(node, ast.Name):
             return node.id
