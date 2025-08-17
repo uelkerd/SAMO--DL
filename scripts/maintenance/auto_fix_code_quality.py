@@ -26,6 +26,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 class CodeQualityAutoFixer:
     """Automatically fixes common code quality issues."""
 
@@ -37,7 +38,7 @@ class CodeQualityAutoFixer:
 
     def fix_file(self, file_path: Path) -> Dict[str, Any]:
         """Fix quality issues in a single Python file."""
-        logger.info(f"Fixing: {file_path}")
+        logger.info("Fixing: %s", file_path)
 
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -83,7 +84,7 @@ class CodeQualityAutoFixer:
             }
 
         except Exception as e:
-            logger.error(f"Error fixing {file_path}: {e}")
+            logger.error("Error fixing %s: %s", file_path, e)
             return {
                 'file': str(file_path),
                 'error': str(e),
@@ -158,12 +159,15 @@ class CodeQualityAutoFixer:
         pattern = r'f["\']([^"\']*?)["\']'
 
         def replace_f_string(match):
+            """Replace f-string without expressions with regular string."""
             string_content = match.group(1)
             if not re.search(r'\{[^}]*\}', string_content):
                 fixes.append({
                     'type': 'PTC-W0027',
                     'line': content[:match.start()].count('\n') + 1,
-                    'description': f'Converted f-string to regular string: {match.group(0)}'
+                    'description': (
+                    f'Converted f-string to regular string: {match.group(0)}'
+                )
                 })
                 return f'"{string_content}"'
             return match.group(0)
@@ -217,7 +221,10 @@ class CodeQualityAutoFixer:
                             first_params = params_part[:last_comma + 1]
                             last_param = params_part[last_comma + 1:]
 
-                            new_lines = [func_start + first_params, ' ' * (indent + 4) + last_param]
+                            new_lines = [
+                                func_start + first_params, 
+                                ' ' * (indent + 4) + last_param
+                            ]
 
                             lines[i:i+1] = new_lines
                             modified = True
@@ -257,7 +264,13 @@ class CodeQualityAutoFixer:
             import_lines = lines[import_start:import_end + 1]
             sorted_imports = sorted(import_lines, key=lambda x: (
                 # Standard library first
-                0 if not x.strip().startswith('from ') and not any(pkg in x for pkg in ['django', 'flask', 'numpy', 'pandas', 'torch', 'transformers']) else 1,
+                0 if (
+                    not x.strip().startswith('from ') and 
+                    not any(pkg in x for pkg in [
+                        'django', 'flask', 'numpy', 'pandas', 
+                        'torch', 'transformers'
+                    ])
+                ) else 1,
                 # Then by import type
                 0 if x.strip().startswith('import ') else 1,
                 # Then alphabetically
@@ -280,10 +293,10 @@ class CodeQualityAutoFixer:
 
     def fix_directory(self, directory: Path) -> Dict[str, Any]:
         """Fix quality issues in all Python files in a directory."""
-        logger.info(f"Fixing directory: {directory}")
+        logger.info("Fixing directory: %s", directory)
 
         python_files = list(directory.rglob("*.py"))
-        logger.info(f"Found {len(python_files)} Python files")
+        logger.info("Found %d Python files", len(python_files))
 
         results = []
 
@@ -359,6 +372,7 @@ class CodeQualityAutoFixer:
         # Return success (True if no errors, False if any errors occurred)
         errors = [r for r in results['results'] if 'error' in r]
         return len(errors) == 0
+
 
 def main():
     """Main function for command-line usage."""
