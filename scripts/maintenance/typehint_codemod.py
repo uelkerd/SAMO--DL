@@ -205,7 +205,9 @@ def process_file(file_path: Path, dry_run: bool = False, verbose: bool = False) 
         # Apply changes
         if not dry_run:
             # Sort changes by line number (reverse order to avoid offset issues)
-            visitor.changes.sort(key=lambda x: getattr(x['node'], 'lineno', 0), reverse=True)
+            visitor.changes.sort(
+                key=lambda x: getattr(x['node'], 'lineno', 0), reverse=True
+            )
 
             # Convert content to lines for easier manipulation
             lines = content.splitlines()
@@ -251,7 +253,8 @@ def process_file(file_path: Path, dry_run: bool = False, verbose: bool = False) 
                     if line.strip().startswith('from typing import'):
                         typing_import_found = True
                         last_import_line = i
-                    elif line.strip().startswith('import ') or line.strip().startswith('from '):
+                    elif (line.strip().startswith('import ') or 
+                          line.strip().startswith('from ')):
                         last_import_line = i
 
                 if typing_import_found:
@@ -261,16 +264,19 @@ def process_file(file_path: Path, dry_run: bool = False, verbose: bool = False) 
                             existing_imports = line.replace('from typing import ', '').strip()
                             new_imports = ', '.join(sorted(visitor.imports_to_add))
                             if existing_imports:
-                                lines[i] = f"from typing import {existing_imports}, {new_imports}"
-                            else:
-                                lines[i] = f"from typing import {new_imports}"
+                                new_import_line = f"from typing import {existing_imports}, {new_imports}"
+                            lines[i] = new_import_line
+                        else:
+                            lines[i] = f"from typing import {new_imports}"
                             break
                 else:
                     # Add new typing import after last import
                     if last_import_line >= 0:
-                        lines.insert(last_import_line + 1, f"from typing import {', '.join(sorted(visitor.imports_to_add))}")
+                        import_line = f"from typing import {', '.join(sorted(visitor.imports_to_add))}"
+                        lines.insert(last_import_line + 1, import_line)
                     else:
-                        lines.insert(0, f"from typing import {', '.join(sorted(visitor.imports_to_add))}")
+                        import_line = f"from typing import {', '.join(sorted(visitor.imports_to_add))}"
+                        lines.insert(0, import_line)
 
                 # Write back to file
                 with open(file_path, 'w', encoding='utf-8') as f:
@@ -298,7 +304,9 @@ def find_python_files(directory: Path) -> List[Path]:
 
 def main():
     """Main function."""
-    parser = argparse.ArgumentParser(description='Convert Python 3.9+ type hints to Python 3.8 compatible syntax')
+    parser = argparse.ArgumentParser(
+        description='Convert Python 3.9+ type hints to Python 3.8 compatible syntax'
+    )
     parser.add_argument('directory', help='Directory to process')
     parser.add_argument('--dry-run', action='store_true', help='Show what would be changed without making changes')
     parser.add_argument('--verbose', action='store_true', help='Show detailed output')
@@ -338,7 +346,10 @@ def main():
         if result['status'] == 'success' and result['changes'] > 0:
             total_changes += result['changes']
             if args.verbose:
-                print(f"  ✅ {result['changes']} changes, imports: {result['imports_added']}")
+                print(
+                    f"  ✅ {result['changes']} changes, "
+                    f"imports: {result['imports_added']}"
+                )
         elif result['status'] == 'no_changes':
             if args.verbose:
                 print(f"  ⏭️  No changes needed")

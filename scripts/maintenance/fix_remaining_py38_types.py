@@ -83,8 +83,8 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
             filtered_matches = []
             for left, right in union_matches:
                 # Skip if it looks like a bitwise operation in code
-                if not (left in ['None', 'str', 'int', 'float', 'bool', 'list', 'dict', 'set', 'tuple'] or
-                        right in ['None', 'str', 'int', 'float', 'bool', 'list', 'dict', 'set', 'tuple']):
+                type_names = ['None', 'str', 'int', 'float', 'bool', 'list', 'dict', 'set', 'tuple']
+                if not (left in type_names or right in type_names):
                     continue
                 filtered_matches.append((left, right))
             
@@ -92,8 +92,9 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
                 # Replace the filtered matches
                 for left, right in filtered_matches:
                     if left != 'None' and right != 'None':
-                        content = re.sub(f'\\b{re.escape(left)}\\s*\\|\\s*{re.escape(right)}\\b',
-                                        f'Union[{left}, {right}]', content)
+                        pattern = f'\\b{re.escape(left)}\\s*\\|\\s*{re.escape(right)}\\b'
+                        replacement = f'Union[{left}, {right}]'
+                        content = re.sub(pattern, replacement, content)
                         imports_to_add.add('Union')
                         changes_made.append(f"{left} | {right} -> Union[{left}, {right}]")
         
@@ -116,13 +117,16 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
                 lines = content.splitlines()
                 last_import_line = -1
                 for i, line in enumerate(lines):
-                    if line.strip().startswith('import ') or line.strip().startswith('from '):
+                    if (line.strip().startswith('import ') or 
+                    line.strip().startswith('from ')):
                         last_import_line = i
                 
                 if last_import_line >= 0:
-                    lines.insert(last_import_line + 1, f"from typing import {', '.join(sorted(imports_to_add))}")
+                    import_line = f"from typing import {', '.join(sorted(imports_to_add))}"
+                    lines.insert(last_import_line + 1, import_line)
                 else:
-                    lines.insert(0, f"from typing import {', '.join(sorted(imports_to_add))}")
+                    import_line = f"from typing import {', '.join(sorted(imports_to_add))}"
+                    lines.insert(0, import_line)
                 content = '\n'.join(lines)
         
         # Write back to file if changes were made
