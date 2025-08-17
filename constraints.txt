@@ -5,9 +5,9 @@
 ############################################
 
 # Core problematic packages - pin to exact versions
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.10
 pgvector==0.3.6
-prometheus-client==0.21.0
+prometheus-client==0.20.0  # NOTE: pinned lower than 0.21.0 due to compatibility issues with exporter libraries
 
 # Google Cloud packages - often cause conflicts
 google-auth==2.35.0
@@ -17,9 +17,11 @@ google-api-core==2.21.0
 googleapis-common-protos==1.65.0
 
 # Common transitive dependencies that cause backtracking
-certifi>=2024.12.14,<2026.0.0
+# NOTE: certifi pinned to exact version for CI determinism; security updates handled via base image updates
+certifi==2024.12.14
 urllib3==2.2.3
-requests==2.32.3
+requests==2.32.4
+httpx>=0.25.0,<0.29.0  # Ensures compatibility with AnyIO 4.x and prevents breaking changes
 charset-normalizer==3.4.0
 idna==3.10
 

@@ -92,10 +92,10 @@ redis==5.2.0
 
 # Monitoring and health checks
 psutil==5.9.6
-prometheus-client==0.19.0
+prometheus-client==0.20.0
 
 # Additional security dependencies
-requests==2.31.0
+requests==2.32.4
 fastapi==0.104.1
 """
 
