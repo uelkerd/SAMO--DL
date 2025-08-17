@@ -7,6 +7,7 @@ Eliminates hardcoded values and provides consistent configuration across all tes
 import os
 import argparse
 import time
+import requests
 from typing import Optional
 import requests
 
