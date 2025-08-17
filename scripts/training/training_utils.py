@@ -158,7 +158,11 @@ def get_gpu_info() -> Dict[str, Any]:
         return {"available": False, "error": "PyTorch not available"}
 
 
-def validate_training_data(data_path: str, expected_columns: list, logger: Optional[logging.Logger] = None) -> bool:
+def validate_training_data(
+    data_path: str, 
+    expected_columns: list, 
+    logger: Optional[logging.Logger] = None
+) -> bool:
     """Basic validation of training data structure.
 
     Args:
