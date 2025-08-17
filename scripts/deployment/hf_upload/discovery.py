@@ -65,6 +65,29 @@ def _calculate_directory_size(directory: str) -> int:
 
 
 def find_best_trained_model() -> Optional[str]:
+
+def _check_condition_3():
+    return os.path.exists(path)
+
+def _check_condition_4():
+    return os.path.isdir(path)
+
+def _check_condition_5():
+    return has_config and has_tokenizer and has_weights
+
+def _check_condition_6():
+    return os.path.isfile(os.path.join(path, f))
+
+def _check_condition_7():
+    return not has_tokenizer
+
+def _check_condition_8():
+    return not has_weights
+
+def _check_condition_9():
+    return not found_models
+
+
     logging.info("Searching for trained models")
     primary_model_dir = get_model_base_directory()
     env_override = os.getenv('SAMO_DL_BASE_DIR') or os.getenv('MODEL_BASE_DIR')
@@ -125,8 +148,8 @@ def find_best_trained_model() -> Optional[str]:
     found_models: List[Tuple[str, int, str]] = []
 
     for path in model_search_paths:
-        if os.path.exists(path):
-            if os.path.isdir(path):
+    if _check_condition_3():
+    if _check_condition_4():
                 config_file = os.path.join(path, "config.json")
                 tokenizer_candidates = [
                     os.path.join(path, "tokenizer.json"),
@@ -143,7 +166,7 @@ def find_best_trained_model() -> Optional[str]:
                     ] if os.path.exists(os.path.join(path, f))
                 ]
                 has_weights = len(weight_files) > 0
-                if has_config and has_tokenizer and has_weights:
+    if _check_condition_5():
                     size = _calculate_directory_size(path)
                     found_models.append((path, size, "huggingface_dir"))
                     logging.info("Found complete HF model: %s (%s bytes)", path, f"{size:,}")
@@ -151,12 +174,12 @@ def find_best_trained_model() -> Optional[str]:
                     size = sum(
                         os.path.getsize(os.path.join(path, f))
                         for f in os.listdir(path)
-                        if os.path.isfile(os.path.join(path, f))
+    if _check_condition_6():
                     )
                     missing_components = []
-                    if not has_tokenizer:
+    if _check_condition_7():
                         missing_components.append("tokenizer")
-                    if not has_weights:
+    if _check_condition_8():
                         missing_components.append("model weights")
                     logging.warning("Incomplete HF model: %s (%s bytes) missing: %s", path, f"{size:,}", ', '.join(missing_components))
             else:
@@ -164,7 +187,7 @@ def find_best_trained_model() -> Optional[str]:
                 found_models.append((path, size, "model_file"))
                 logging.info("Found model file: %s (%s bytes)", path, f"{size:,}")
 
-    if not found_models:
+    if _check_condition_9():
         logging.error("No trained models found. Place your model in: %s", primary_model_dir)
         return None
 

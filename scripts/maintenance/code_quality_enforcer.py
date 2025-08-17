@@ -211,6 +211,14 @@ class CodeQualityEnforcer:
 
     @staticmethod
     def _check_unused_imports(content: str, file_path: Path) -> List[Dict[str, Any]]:
+
+def _check_condition_3():
+    return isinstance(node, ast.Import)
+
+def _check_condition_4():
+    return (
+
+
         """Check for unused imports using AST analysis."""
         issues = []
 
@@ -232,9 +240,9 @@ class CodeQualityEnforcer:
 
             # Check for unused imports
             for node in import_nodes:
-                if isinstance(node, ast.Import):
+    if _check_condition_3():
                     for alias in node.names:
-                        if (
+    if _check_condition_4():
                             alias.name not in used_names and
                             not alias.name.startswith('_')
                         ):

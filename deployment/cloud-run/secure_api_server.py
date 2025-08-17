@@ -340,6 +340,17 @@ class PredictBatch(Resource):
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
+
+def _check_condition_3():
+    return len(texts) > 100:  # Limit batch size
+
+def _check_condition_4():
+    return not check_model_loaded()
+
+def _check_condition_5():
+    return not text or not isinstance(text, str)
+
+
         """Predict emotions for multiple text inputs"""
         try:
             # Log rate limiting info for debugging
@@ -356,12 +367,12 @@ class PredictBatch(Resource):
                 logger.warning(f"Invalid texts input from {request.remote_addr}: {type(texts)}")
                 return create_error_response('Texts must be a non-empty list', 400)
 
-            if len(texts) > 100:  # Limit batch size
+    if _check_condition_3():
                 logger.warning(f"Batch size too large from {request.remote_addr}: {len(texts)}")
                 return create_error_response('Batch size too large (max 100)', 400)
 
             # Ensure model is loaded
-            if not check_model_loaded():
+    if _check_condition_4():
                 logger.error("Model not ready for batch prediction request")
                 return create_error_response('Model not ready', 503)
 
@@ -369,7 +380,7 @@ class PredictBatch(Resource):
             logger.info(f"Processing batch prediction request for {request.remote_addr} with {len(texts)} texts")
             results = []
             for text in texts:
-                if not text or not isinstance(text, str):
+    if _check_condition_5():
                     continue
                 
                 try:

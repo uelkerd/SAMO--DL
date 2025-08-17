@@ -264,6 +264,14 @@ class SecureEmotionDetectionModel:
             self.loaded = False
         
     def predict(self, text, confidence_threshold=None):
+
+def _check_condition_3():
+    return torch.cuda.is_available()
+
+def _check_condition_4():
+    return confidence_threshold and confidence < confidence_threshold
+
+
         """Make a secure prediction."""
         start_time = time.time()
         
@@ -284,7 +292,7 @@ class SecureEmotionDetectionModel:
             # Tokenize input
             inputs = self.tokenizer(sanitized_text, return_tensors='pt', truncation=True, padding=True, max_length=512)
             
-            if torch.cuda.is_available():
+    if _check_condition_3():
                 inputs = {k: v.to('cuda') for k, v in inputs.items()}
             
             # Get prediction
@@ -295,7 +303,7 @@ class SecureEmotionDetectionModel:
                 confidence = probabilities[0][predicted_label].item()
                 
                 # Apply confidence threshold if specified
-                if confidence_threshold and confidence < confidence_threshold:
+    if _check_condition_4():
                     predicted_emotion = "uncertain"
                     confidence = 0.0
                 elif predicted_label in self.model.config.id2label:

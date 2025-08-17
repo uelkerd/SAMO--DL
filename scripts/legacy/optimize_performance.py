@@ -339,6 +339,26 @@ def assess_performance(results: dict[str, any], target_latency: float) -> dict[s
 
 
 def main() -> None:
+
+def _check_condition_3():
+    return gpu_info["recommendations"]
+
+def _check_condition_4():
+    return args.convert_onnx
+
+def _check_condition_5():
+    return not Path(args.model_path).exists()
+
+def _check_condition_6():
+    return args.benchmark
+
+def _check_condition_7():
+    return not Path(args.model_path).exists()
+
+def _check_condition_8():
+    return "onnx_speedup" in results
+
+
     parser = argparse.ArgumentParser(description="SAMO Deep Learning Performance Optimization")
     parser.add_argument("--check-gpu", action="store_true", help="Check GPU setup")
     parser.add_argument("--convert-onnx", action="store_true", help="Convert model to ONNX")
@@ -363,21 +383,21 @@ def main() -> None:
             if key != "recommendations":
                 print(f"{key}: {value}")
 
-        if gpu_info["recommendations"]:
+    if _check_condition_3():
             print("\n💡 Recommendations:")
             for rec in gpu_info["recommendations"]:
                 print("   • {rec}")
 
-    if args.convert_onnx:
-        if not Path(args.model_path).exists():
+    if _check_condition_4():
+    if _check_condition_5():
             logger.error(f"Model not found: {args.model_path}")
             return
 
         onnx_path = convert_to_onnx(args.model_path, args.onnx_path)
         print(f"\n✅ ONNX conversion complete: {onnx_path}")
 
-    if args.benchmark:
-        if not Path(args.model_path).exists():
+    if _check_condition_6():
+    if _check_condition_7():
             logger.error(f"Model not found: {args.model_path}")
             return
 
@@ -392,7 +412,7 @@ def main() -> None:
         for model_type, assessment in results["assessment"].items():
             print(f"\n{model_type.upper()}: {assessment}")
 
-        if "onnx_speedup" in results:
+    if _check_condition_8():
             print(f"\n🚀 ONNX Optimization: {results['onnx_speedup']} faster")
 
         print(f"\nTarget: P95 ≤ {args.target_latency}ms")

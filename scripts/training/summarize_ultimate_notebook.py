@@ -9,6 +9,11 @@ This script provides a comprehensive summary of what the ultimate notebook conta
 import json
 
 def summarize_notebook():
+
+def _check_condition_3():
+    return 'FocalLoss' in code_text
+
+
     """Summarize the ultimate notebook contents."""
     
     print("🚀 ULTIMATE BULLETPROOF TRAINING NOTEBOOK SUMMARY")
@@ -46,7 +51,7 @@ def summarize_notebook():
         elif cell['cell_type'] == 'code':
             # Look for key functions/classes
             code_text = ''.join(cell['source'])
-            if 'FocalLoss' in code_text:
+    if _check_condition_3():
                 print(f"   {cell_count:2d}. 🎯 Focal Loss Implementation")
             elif 'WeightedLossTrainer' in code_text:
                 print(f"   {cell_count:2d}. ⚖️ Weighted Loss Trainer")

@@ -105,6 +105,23 @@ class ModelValidator:
             return False, validation_info
 
     def validate_model_config(self, config: Dict[str, Any]) -> Tuple[bool, Dict]:
+
+def _check_condition_3():
+    return not isinstance(num_emotions, int) or num_emotions <= 0
+
+def _check_condition_4():
+    return 'hidden_dropout_prob' in config
+
+def _check_condition_5():
+    return not isinstance(dropout, (int, float)) or dropout < 0 or dropout > 1
+
+def _check_condition_6():
+    return validation_info['missing_keys']
+
+def _check_condition_7():
+    return validation_info['invalid_values']
+
+
         """Validate model configuration.
 
         Args:
@@ -129,19 +146,19 @@ class ModelValidator:
             # Validate specific config values
             if 'num_emotions' in config:
                 num_emotions = config['num_emotions']
-                if not isinstance(num_emotions, int) or num_emotions <= 0:
+    if _check_condition_3():
                     validation_info['invalid_values'].append(f"num_emotions: {num_emotions}")
 
-            if 'hidden_dropout_prob' in config:
+    if _check_condition_4():
                 dropout = config['hidden_dropout_prob']
-                if not isinstance(dropout, (int, float)) or dropout < 0 or dropout > 1:
+    if _check_condition_5():
                     validation_info['invalid_values'].append(f"hidden_dropout_prob: {dropout}")
 
             # Check for issues
-            if validation_info['missing_keys']:
+    if _check_condition_6():
                 validation_info['issues'].append(f"Missing required keys: {validation_info['missing_keys']}")
 
-            if validation_info['invalid_values']:
+    if _check_condition_7():
                 validation_info['issues'].append(f"Invalid values: {validation_info['invalid_values']}")
 
             is_valid = len(validation_info['issues']) == 0
@@ -352,23 +369,23 @@ class ModelValidator:
             # 1. File validation
             file_valid, file_info = self.validate_model_file(model_path)
             comprehensive_info['file_validation'] = file_info
-            if not file_valid:
+    if _check_condition_3():
                 comprehensive_info['issues'].extend(file_info['issues'])
 
             # 2. Config validation
             config_valid, config_info = self.validate_model_config(model_config)
             comprehensive_info['config_validation'] = config_info
-            if not config_valid:
+    if _check_condition_4():
                 comprehensive_info['issues'].extend(config_info['issues'])
 
             # 3. Version validation
             version_valid, version_info = self.validate_version_compatibility(model_config)
             comprehensive_info['version_validation'] = version_info
-            if not version_valid:
+    if _check_condition_5():
                 comprehensive_info['issues'].extend(version_info['issues'])
 
             # 4. Structure validation (if file is valid)
-            if file_valid:
+    if _check_condition_6():
                 try:
                     model_data = torch.load(model_path, map_location='cpu', weights_only=True)
 
@@ -378,12 +395,12 @@ class ModelValidator:
                     valid_params = {k: v for k, v in model_config.items() if k in constructor_params}
                     model = model_class(**valid_params)
 
-                    if 'state_dict' in model_data:
+    if _check_condition_7():
                         model.load_state_dict(model_data['state_dict'])
 
                     structure_valid, structure_info = self.validate_model_structure(model)
                     comprehensive_info['structure_validation'] = structure_info
-                    if not structure_valid:
+    if _check_condition_8():
                         comprehensive_info['issues'].extend(structure_info['issues'])
 
                     # 5. Performance validation (if structure is valid and test input provided)

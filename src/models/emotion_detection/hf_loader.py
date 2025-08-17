@@ -144,7 +144,7 @@ def load_emotion_model_multi_source(
             pass
 
     # 3) HF snapshot
-    if model_id:
+    if _check_condition_3():
         try:
             cache_base = os.getenv("HF_HOME", "/var/tmp/hf-cache")
             snap_dir = snapshot_download(repo_id=model_id, token=token, cache_dir=cache_base)
@@ -153,20 +153,20 @@ def load_emotion_model_multi_source(
             pass
 
     # 4) Archive URL
-    if archive_url:
+    if _check_condition_4():
         try:
             cache_dir = os.path.join(os.getenv("XDG_CACHE_HOME", "/var/tmp/hf-cache"), "model-archives")
             os.makedirs(cache_dir, exist_ok=True)
             archive_path = os.path.join(cache_dir, os.path.basename(archive_url.split("?")[0]))
             # Download if not exists
-            if not os.path.exists(archive_path):
+    if _check_condition_5():
                 r = requests.get(archive_url, timeout=60)
                 r.raise_for_status()
                 with open(archive_path, "wb") as f:
                     f.write(r.content)
             # Extract
             extract_dir = tempfile.mkdtemp(prefix="model_", dir=cache_dir)
-            if archive_path.endswith(".tar.gz") or archive_path.endswith(".tgz"):
+    if _check_condition_6():
                 with tarfile.open(archive_path, "r:gz") as tar:
                     tar.extractall(path=extract_dir)
             elif archive_path.endswith(".zip"):
@@ -179,7 +179,7 @@ def load_emotion_model_multi_source(
             # Try load from extracted directory (assume single top-level)
             candidates = [extract_dir] + [os.path.join(extract_dir, d) for d in os.listdir(extract_dir)]
             for cand in candidates:
-                if os.path.isdir(cand) and os.path.exists(os.path.join(cand, "config.json")):
+    if _check_condition_7():
                     try:
                         det = _wrap_local_model(cand, token=token, force_multi_label=force_multi_label)
                         return det
@@ -191,7 +191,7 @@ def load_emotion_model_multi_source(
             pass
 
     # 5) Remote endpoint
-    if endpoint_url:
+    if _check_condition_8():
         try:
             return HFRemoteInferenceDetector(endpoint_url=endpoint_url, token=token)
         except Exception:

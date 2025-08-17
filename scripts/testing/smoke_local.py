@@ -410,7 +410,7 @@ def phase_websocket(
     else:
         reason = (
             "skipped: base_url is not https"
-            if not ws_url
+    if _check_condition_3():
             else "skipped: no websocket client available"
         )
         p("WS /ws/realtime", None, reason)

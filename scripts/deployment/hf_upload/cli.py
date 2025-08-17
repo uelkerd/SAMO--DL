@@ -39,6 +39,17 @@ def parse_args(argv: Optional[list] = None) -> argparse.Namespace:
 
 
 def main(argv: Optional[list] = None) -> int:
+
+def _check_condition_3():
+    return not args.no_lfs
+
+def _check_condition_4():
+    return not repo_id_uploaded
+
+def _check_condition_5():
+    return os.path.exists(temp_dir)
+
+
     args = parse_args(argv)
     configure_logging(args.verbose)
 
@@ -70,7 +81,7 @@ def main(argv: Optional[list] = None) -> int:
         return 1
 
     # Step 4: Upload
-    if not args.no_lfs:
+    if _check_condition_3():
         setup_git_lfs()
     is_private = choose_repository_privacy(args.private)
     commit_message = f"Upload custom emotion detection model - {model_info['num_labels']} classes"
@@ -83,7 +94,7 @@ def main(argv: Optional[list] = None) -> int:
         backoff_factor=args.backoff,
         initial_delay=args.initial_delay,
     )
-    if not repo_id_uploaded:
+    if _check_condition_4():
         return 1
 
     # Step 5: Update deployment configs
@@ -93,7 +104,7 @@ def main(argv: Optional[list] = None) -> int:
         logging.warning("Deployment config update failed: %s", e)
 
     # Cleanup
-    if os.path.exists(temp_dir):
+    if _check_condition_5():
         try:
             shutil.rmtree(temp_dir)
             logging.info("Cleaned up temporary files")

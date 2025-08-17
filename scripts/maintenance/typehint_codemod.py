@@ -210,6 +210,20 @@ def _log_changes(visitor: TypeHintVisitor, verbose: bool) -> None:
 
 
 def _add_typing_imports_to_lines(lines: List[str], imports_to_add: set) -> None:
+
+def _check_condition_3():
+    return typing_import_found
+
+def _check_condition_4():
+    return line.strip().startswith('from typing import')
+
+def _check_condition_5():
+    return existing_imports
+
+def _check_condition_6():
+    return last_import_line >= 0
+
+
     """Add missing typing imports to the lines."""
     if not imports_to_add:
         return
@@ -226,13 +240,13 @@ def _add_typing_imports_to_lines(lines: List[str], imports_to_add: set) -> None:
               line.strip().startswith('from ')):
             last_import_line = i
 
-    if typing_import_found:
+    if _check_condition_3():
         # Add to existing typing import
         for i, line in enumerate(lines):
-            if line.strip().startswith('from typing import'):
+    if _check_condition_4():
                 existing_imports = line.replace('from typing import ', '').strip()
                 new_imports = ', '.join(sorted(imports_to_add))
-                if existing_imports:
+    if _check_condition_5():
                     new_import_line = (
                         f"from typing import {existing_imports}, {new_imports}"
                     )
@@ -242,7 +256,7 @@ def _add_typing_imports_to_lines(lines: List[str], imports_to_add: set) -> None:
                 break
     else:
         # Add new typing import after last import
-        if last_import_line >= 0:
+    if _check_condition_6():
             import_line = (
                 f"from typing import {', '.join(sorted(imports_to_add))}"
             )

@@ -171,6 +171,23 @@ substitutions:
         self.log("✅ Integrated service deployed successfully")
 
     def test_integrated_deployment(self):
+
+def _check_condition_3():
+    return header not in headers_response.headers
+
+def _check_condition_4():
+    return missing_headers
+
+def _check_condition_5():
+    return 429 in responses
+
+def _check_condition_6():
+    return prediction_response.status_code == 200
+
+def _check_condition_7():
+    return 'emotion' in result and 'confidence' in result
+
+
         """Test both security and optimization features"""
         self.log("Testing integrated deployment...")
 
@@ -204,10 +221,10 @@ substitutions:
 
         missing_headers = []
         for header in security_headers:
-            if header not in headers_response.headers:
+    if _check_condition_3():
                 missing_headers.append(header)
 
-        if missing_headers:
+    if _check_condition_4():
             self.log(f"⚠️ Missing security headers: {missing_headers}")
         else:
             self.log("✅ All security headers present")
@@ -226,7 +243,7 @@ substitutions:
             except requests.exceptions.RequestException:
                 responses.append(0)
 
-        if 429 in responses:
+    if _check_condition_5():
             self.log("✅ Rate limiting working")
         else:
             self.log("⚠️ Rate limiting may not be working")
@@ -239,9 +256,9 @@ substitutions:
             timeout=10
         )
 
-        if prediction_response.status_code == 200:
+    if _check_condition_6():
             result = prediction_response.json()
-            if 'emotion' in result and 'confidence' in result:
+    if _check_condition_7():
                 self.log(f"✅ Prediction working: {result['emotion']} ({result['confidence']:.2f})")
             else:
                 self.log("⚠️ Prediction response format unexpected")

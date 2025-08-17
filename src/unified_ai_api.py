@@ -120,6 +120,20 @@ def normalize_emotion_results(raw: Any) -> dict:
         }
 
 def _run_emotion_predict(text: str, threshold: float = 0.5) -> dict:
+
+def _check_condition_3():
+    return hasattr(emotion_detector, "predict_emotions")
+
+def _check_condition_4():
+    return not probs_list
+
+def _check_condition_5():
+    return emotions_map
+
+def _check_condition_6():
+    return confidence >= 0.75
+
+
     """Run emotion prediction using available detector, adapting outputs to a
     common schema.
 
@@ -133,27 +147,27 @@ def _run_emotion_predict(text: str, threshold: float = 0.5) -> dict:
         if hasattr(emotion_detector, "predict"):
             return emotion_detector.predict(text, threshold=threshold) or {}
         # Adapter for BERTEmotionClassifier.predict_emotions
-        if hasattr(emotion_detector, "predict_emotions"):
+    if _check_condition_3():
             # Import labels lazily to avoid heavy deps at import time
             from src.models.emotion_detection.labels import (
                 GOEMOTIONS_EMOTIONS as _LABELS
             )
             result = emotion_detector.predict_emotions(text, threshold=threshold) or {}
             probs_list = result.get("probabilities") or []
-            if not probs_list:
+    if _check_condition_4():
                 return {}
             probs = probs_list[0]
             # Build label->prob mapping
             emotions_map = {label: float(prob) for label, prob in zip(_LABELS, probs)}
             # Determine primary emotion
-            if emotions_map:
+    if _check_condition_5():
                 primary_label = max(emotions_map.items(), key=lambda kv: kv[1])[0]
                 confidence = float(emotions_map[primary_label])
             else:
                 primary_label = "neutral"
                 confidence = 1.0
             # Simple intensity heuristic
-            if confidence >= 0.75:
+    if _check_condition_6():
                 intensity = "high"
             elif confidence >= 0.4:
                 intensity = "moderate"

@@ -20,6 +20,14 @@ from sklearn.metrics import f1_score
 
 
 def final_temperature_test():
+
+def _check_condition_3():
+    return isinstance(checkpoint, dict)
+
+def _check_condition_4():
+    return isinstance(state_dict, tuple)
+
+
     """Run final temperature scaling test."""
     logging.info("🌡️ FINAL Temperature Scaling Test")
 
@@ -53,9 +61,9 @@ def final_temperature_test():
     model, _ = create_bert_emotion_classifier()  # Unpack the model from the tuple
 
     try:
-        if isinstance(checkpoint, dict):
+    if _check_condition_3():
             state_dict = checkpoint["model_state_dict"]
-            if isinstance(state_dict, tuple):
+    if _check_condition_4():
                 actual_state_dict = state_dict[0]
                 logging.info("✅ Found tuple model_state_dict, using first element")
             else:

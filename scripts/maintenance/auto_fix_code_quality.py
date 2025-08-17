@@ -186,6 +186,20 @@ class CodeQualityAutoFixer:
 
     @staticmethod
     def _fix_basic_line_length(content: str) -> Tuple[str, List[Dict[str, Any]]]:
+
+def _check_condition_3():
+    return len(parts) > 3
+
+def _check_condition_4():
+    return line.count(',') > 2
+
+def _check_condition_5():
+    return last_comma > 0
+
+def _check_condition_6():
+    return modified
+
+
         """Fix basic line length violations (simple cases)."""
         fixes = []
         lines = content.splitlines()
@@ -197,7 +211,7 @@ class CodeQualityAutoFixer:
                 if 'import ' in line and line.count(',') > 2:
                     # Break long import lines
                     parts = line.split(',')
-                    if len(parts) > 3:
+    if _check_condition_3():
                         # Split into multiple lines
                         import_start = line[:line.find('import') + 6]
                         indent = len(line) - len(line.lstrip())
@@ -217,7 +231,7 @@ class CodeQualityAutoFixer:
 
                 elif 'def ' in line and line.count('(') > 0 and line.count(')') == 0:
                     # Break long function definitions
-                    if line.count(',') > 2:
+    if _check_condition_4():
                         # Split parameters
                         func_start = line[:line.find('(') + 1]
                         params_part = line[line.find('(') + 1:]
@@ -225,7 +239,7 @@ class CodeQualityAutoFixer:
 
                         # Find the last parameter
                         last_comma = params_part.rfind(',')
-                        if last_comma > 0:
+    if _check_condition_5():
                             first_params = params_part[:last_comma + 1]
                             last_param = params_part[last_comma + 1:]
 
@@ -244,13 +258,21 @@ class CodeQualityAutoFixer:
                                 )
                             })
 
-        if modified:
+    if _check_condition_6():
             content = '\n'.join(lines) + ('\n' if content.endswith('\n') else '')
 
         return content, fixes
 
     @staticmethod
     def _fix_import_organization(content: str) -> Tuple[str, List[Dict[str, Any]]]:
+
+def _check_condition_3():
+    return import_start == -1
+
+def _check_condition_4():
+    return import_start != -1 and import_end != -1
+
+
         """Fix basic import organization issues."""
         fixes = []
         lines = content.splitlines()
@@ -262,14 +284,14 @@ class CodeQualityAutoFixer:
 
         for i, line in enumerate(lines):
             if line.strip().startswith(('import ', 'from ')):
-                if import_start == -1:
+    if _check_condition_3():
                     import_start = i
                 import_end = i
             elif import_start != -1 and line.strip() == '':
                 import_end = i - 1
                 break
 
-        if import_start != -1 and import_end != -1:
+    if _check_condition_4():
             # Sort imports within the section
             import_lines = lines[import_start:import_end + 1]
             sorted_imports = sorted(import_lines, key=lambda x: (

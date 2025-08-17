@@ -19,6 +19,41 @@ def _render_template(path: str, context: Dict[str, Any]) -> str:
 
 
 def load_emotion_labels_from_model(model_path: str) -> List[str]:
+
+def _check_condition_3():
+    return 'id2label' in config
+
+def _check_condition_4():
+    return key in checkpoint
+
+def _check_condition_5():
+    return key == 'id2label' and isinstance(labels_data, dict)
+
+def _check_condition_6():
+    return key == 'label2id' and isinstance(labels_data, dict)
+
+def _check_condition_7():
+    return isinstance(labels_data, (list, tuple))
+
+def _check_condition_8():
+    return os.path.exists(labels_path)
+
+def _check_condition_9():
+    return isinstance(data, list)
+
+def _check_condition_10():
+    return isinstance(data, dict) and 'labels' in data
+
+def _check_condition_11():
+    return env_labels
+
+def _check_condition_12():
+    return isinstance(labels, list)
+
+def _check_condition_13():
+    return labels
+
+
     # Method 1: HF model dir
     if os.path.isdir(model_path):
         config_path = os.path.join(model_path, "config.json")
@@ -26,7 +61,7 @@ def load_emotion_labels_from_model(model_path: str) -> List[str]:
             try:
                 with open(config_path, 'r') as f:
                     config = json.load(f)
-                if 'id2label' in config:
+    if _check_condition_3():
                     id2label = config['id2label']
                     sorted_labels = [id2label[str(i)] for i in range(len(id2label))]
                     logging.info("Loaded %d labels from HF config.json", len(sorted_labels))
@@ -42,18 +77,18 @@ def load_emotion_labels_from_model(model_path: str) -> List[str]:
                 checkpoint = torch.load(model_path, map_location='cpu')
                 logging.info("Using legacy torch.load; consider upgrading PyTorch")
             for key in ['id2label', 'label2id', 'labels', 'emotion_labels', 'class_names']:
-                if key in checkpoint:
+    if _check_condition_4():
                     labels_data = checkpoint[key]
-                    if key == 'id2label' and isinstance(labels_data, dict):
+    if _check_condition_5():
                         sorted_labels = [labels_data[str(i)] for i in range(len(labels_data))]
                         logging.info("Loaded %d labels from checkpoint['%s']", len(sorted_labels), key)
                         return sorted_labels
-                    if key == 'label2id' and isinstance(labels_data, dict):
+    if _check_condition_6():
                         id2label = {v: k for k, v in labels_data.items()}
                         sorted_labels = [id2label[i] for i in range(len(id2label))]
                         logging.info("Loaded %d labels from checkpoint['%s']", len(sorted_labels), key)
                         return sorted_labels
-                    if isinstance(labels_data, (list, tuple)):
+    if _check_condition_7():
                         logging.info("Loaded %d labels from checkpoint['%s']", len(labels_data), key)
                         return list(labels_data)
         except Exception as e:
@@ -62,14 +97,14 @@ def load_emotion_labels_from_model(model_path: str) -> List[str]:
     model_dir = os.path.dirname(model_path) if os.path.isfile(model_path) else model_path
     for name in ["emotion_labels.json", "labels.json", "class_names.json"]:
         labels_path = os.path.join(model_dir, name)
-        if os.path.exists(labels_path):
+    if _check_condition_8():
             try:
                 with open(labels_path, 'r') as f:
                     data = json.load(f)
-                if isinstance(data, list):
+    if _check_condition_9():
                     logging.info("Loaded %d labels from %s", len(data), labels_path)
                     return data
-                if isinstance(data, dict) and 'labels' in data:
+    if _check_condition_3():
                     labels = data['labels']
                     logging.info("Loaded %d labels from %s", len(labels), labels_path)
                     return labels
@@ -77,15 +112,15 @@ def load_emotion_labels_from_model(model_path: str) -> List[str]:
                 logging.warning("Could not load labels from %s: %s", labels_path, e)
     # Method 4: env
     env_labels = os.getenv('EMOTION_LABELS')
-    if env_labels:
+    if _check_condition_4():
         try:
             labels = json.loads(env_labels)
-            if isinstance(labels, list):
+    if _check_condition_5():
                 logging.info("Loaded %d labels from EMOTION_LABELS", len(labels))
                 return labels
         except json.JSONDecodeError:
             labels = [s.strip() for s in env_labels.split(',') if s.strip()]
-            if labels:
+    if _check_condition_6():
                 logging.info("Loaded %d labels from EMOTION_LABELS (csv)", len(labels))
                 return labels
     # Default
@@ -110,12 +145,12 @@ def prepare_model_for_upload(
     id2label = dict(enumerate(emotion_labels))
     label2id = {label: i for i, label in enumerate(emotion_labels)}
 
-    if os.path.isdir(model_path):
+    if _check_condition_7():
         logging.info("Processing HuggingFace model directory...")
         for file in os.listdir(model_path):
             src = os.path.join(model_path, file)
             dst = os.path.join(temp_dir, file)
-            if os.path.isfile(src):
+    if _check_condition_8():
                 shutil.copy2(src, dst)
     else:
         logging.info("Converting .pth checkpoint to HuggingFace format...")
@@ -138,7 +173,7 @@ def prepare_model_for_upload(
             label2id=label2id,
         )
         try:
-            if 'model_state_dict' in checkpoint:
+    if _check_condition_9():
                 model.load_state_dict(checkpoint['model_state_dict'])
             else:
                 model.load_state_dict(checkpoint)

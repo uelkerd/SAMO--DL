@@ -30,6 +30,29 @@ def test_yaml_syntax():
         return False
 
 def test_conda_environment_setup():
+
+def _check_condition_3():
+    return not env_path.exists()
+
+def _check_condition_4():
+    return 'name' not in env_yaml
+
+def _check_condition_5():
+    return 'dependencies' not in env_yaml
+
+def _check_condition_6():
+    return not dependencies
+
+def _check_condition_7():
+    return isinstance(dep, str)
+
+def _check_condition_8():
+    return package_name != 'python'
+
+def _check_condition_9():
+    return not found_packages
+
+
     """Test that conda environment setup configuration is valid (FAST VERSION)."""
     print("🔍 Testing conda environment setup (fast validation)...")
 
@@ -49,7 +72,7 @@ def test_conda_environment_setup():
 
         # Test if environment file exists and is valid YAML
         env_path = Path("environment.yml")
-        if not env_path.exists():
+    if _check_condition_3():
             print("❌ environment.yml not found")
             return False
 
@@ -58,16 +81,16 @@ def test_conda_environment_setup():
             env_yaml = yaml.safe_load(f)
         
         # Check required fields
-        if 'name' not in env_yaml:
+    if _check_condition_4():
             print("❌ environment.yml missing 'name' field")
             return False
         
-        if 'dependencies' not in env_yaml:
+    if _check_condition_5():
             print("❌ environment.yml missing 'dependencies' field")
             return False
         
         dependencies = env_yaml.get('dependencies', [])
-        if not dependencies:
+    if _check_condition_6():
             print("❌ environment.yml has no dependencies")
             return False
         
@@ -75,12 +98,12 @@ def test_conda_environment_setup():
         import re
         found_packages = []
         for dep in dependencies:
-            if isinstance(dep, str):
+    if _check_condition_7():
                 package_name = re.split(r'[=<>~,]+', dep)[0].strip()
-                if package_name != 'python':
+    if _check_condition_8():
                     found_packages.append(package_name)
         
-        if not found_packages:
+    if _check_condition_3():
             print("❌ No valid packages found in environment.yml")
             return False
         
@@ -93,6 +116,53 @@ def test_conda_environment_setup():
         return False
 
 def test_critical_fixes():
+
+def _check_condition_3():
+    return _check_condition_9()
+
+def _check_condition_4():
+    return run_in_conda_cmd
+
+def _check_condition_5():
+    return "step_name" in parameters
+
+def _check_condition_6():
+    return found_step_name
+
+def _check_condition_7():
+    return isinstance(cmd_config, dict) and "steps" in cmd_config
+
+def _check_condition_8():
+    return isinstance(step, dict) and "run" in step
+
+def _check_condition_9():
+    return isinstance(run_val, dict)
+
+def _check_condition_10():
+    return "conda run -n samo-dl-stable" in command
+
+def _check_condition_11():
+    return found_conda_run
+
+def _check_condition_12():
+    return found_conda_run
+
+def _check_condition_13():
+    return isinstance(cmd_config, dict) and "steps" in cmd_config
+
+def _check_condition_14():
+    return isinstance(step, dict) and "run" in step
+
+def _check_condition_15():
+    return isinstance(run_val, dict)
+
+def _check_condition_16():
+    return shell == "/bin/bash"
+
+def _check_condition_17():
+    return found_shell_bash
+
+
     """Test that critical CircleCI fixes are applied using YAML parsing."""
     import yaml
 
@@ -112,11 +182,11 @@ def test_critical_fixes():
     found_step_name = False
     commands = config.get("commands", {})
     run_in_conda_cmd = commands.get("run_in_conda", {})
-    if run_in_conda_cmd:
+    if _check_condition_4():
         parameters = run_in_conda_cmd.get("parameters", {})
-        if "step_name" in parameters:
+    if _check_condition_5():
             found_step_name = True
-    if found_step_name:
+    if _check_condition_6():
         print("✅ Fixed restricted parameter issue (step_name parameter found)")
     else:
         print("❌ Fixed restricted parameter issue (step_name parameter NOT FOUND)")
@@ -125,20 +195,20 @@ def test_critical_fixes():
     # 2. Check for 'conda run -n samo-dl-stable' in commands
     found_conda_run = False
     for cmd_name, cmd_config in commands.items():
-        if isinstance(cmd_config, dict) and "steps" in cmd_config:
+    if _check_condition_7():
             for step in cmd_config["steps"]:
-                if isinstance(step, dict) and "run" in step:
+    if _check_condition_8():
                     run_val = step["run"]
-                    if isinstance(run_val, dict):
+    if _check_condition_9():
                         command = run_val.get("command", "")
                     else:
                         command = run_val
-                    if "conda run -n samo-dl-stable" in command:
+    if _check_condition_10():
                         found_conda_run = True
                         break
-            if found_conda_run:
+    if _check_condition_11():
                 break
-    if found_conda_run:
+    if _check_condition_12():
         print("✅ Standardized conda usage (conda run -n samo-dl-stable found)")
     else:
         print("❌ Standardized conda usage (conda run -n samo-dl-stable NOT FOUND)")
@@ -147,16 +217,16 @@ def test_critical_fixes():
     # 3. Check for 'shell: /bin/bash' in commands
     found_shell_bash = False
     for cmd_name, cmd_config in commands.items():
-        if isinstance(cmd_config, dict) and "steps" in cmd_config:
+    if _check_condition_13():
             for step in cmd_config["steps"]:
-                if isinstance(step, dict) and "run" in step:
+    if _check_condition_14():
                     run_val = step["run"]
-                    if isinstance(run_val, dict):
+    if _check_condition_15():
                         shell = run_val.get("shell", "")
-                        if shell == "/bin/bash":
+    if _check_condition_16():
                             found_shell_bash = True
                             break
-            if found_shell_bash:
+    if _check_condition_17():
                 break
     if found_shell_bash:
         print("✅ Explicit bash shell specification (shell: /bin/bash found)")
@@ -182,6 +252,14 @@ def test_critical_fixes():
     return all_fixes_present
 
 def test_pipeline_structure():
+
+def _check_condition_3():
+    return component not in incomplete_config
+
+def _check_condition_4():
+    return not isinstance(malformed, dict)
+
+
     """Test that the pipeline structure is correct, including handling malformed or incomplete configs."""
     print("🔍 Testing pipeline structure...")
 
@@ -233,14 +311,14 @@ def test_pipeline_structure_edge_cases():
     ]
     missing_count = 0
     for component in required_components:
-        if component not in incomplete_config:
+    if _check_condition_3():
             missing_count += 1
     print(f"✅ Simulated missing sections test: {missing_count} components missing (expected: 2)")
 
     # Test 2: Malformed YAML types
     malformed_configs = [None, [], "not_a_dict"]
     for idx, malformed in enumerate(malformed_configs):
-        if not isinstance(malformed, dict):
+    if _check_condition_4():
             print(f"✅ Malformed config case {idx+1}: {repr(malformed)} correctly identified as invalid")
         else:
             print(f"❌ Malformed config case {idx+1}: {repr(malformed)} incorrectly identified as valid")
@@ -270,12 +348,12 @@ def test_job_dependencies():
             main_workflow = workflow_config
             break
     
-    if not main_workflow:
+    if _check_condition_3():
         print("❌ Main workflow 'samo-ci-cd' not found")
         return False
     
     jobs = main_workflow.get('jobs', [])
-    if not jobs:
+    if _check_condition_4():
         print("❌ No jobs in main workflow")
         return False
     
@@ -286,14 +364,14 @@ def test_job_dependencies():
     job_dependencies = {}
     
     for job in jobs:
-        if isinstance(job, dict):
+    if _check_condition_5():
             # Job with configuration
             job_name = list(job.keys())[0]
             job_config = job[job_name]
             job_names.append(job_name)
             
             # Check for dependencies
-            if 'requires' in job_config:
+    if _check_condition_6():
                 job_dependencies[job_name] = job_config['requires']
                 print(f"✅ Job '{job_name}' has dependencies: {job_config['requires']}")
             else:

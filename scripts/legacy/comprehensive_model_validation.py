@@ -13,6 +13,26 @@ from pathlib import Path
 import time
 
 def comprehensive_validation():
+
+def _check_condition_3():
+    return is_correct
+
+def _check_condition_4():
+    return accuracy < 0.8
+
+def _check_condition_5():
+    return avg_confidence < 0.5
+
+def _check_condition_6():
+    return avg_time > 1.0
+
+def _check_condition_7():
+    return is_consistent
+
+def _check_condition_8():
+    return all_passed
+
+
     """Comprehensive validation of the emotion detection model"""
     
     print("🔬 COMPREHENSIVE MODEL VALIDATION")
@@ -122,7 +142,7 @@ def comprehensive_validation():
             predicted_emotion = emotion_mapping[predicted_class]
             is_correct = predicted_emotion == expected_emotion
             
-            if is_correct:
+    if _check_condition_3():
                 correct_predictions += 1
                 status = "✅"
             else:
@@ -139,7 +159,7 @@ def comprehensive_validation():
     print(f"   Correct: {correct_predictions}/{total_predictions}")
     print(f"   Accuracy: {accuracy:.1%}")
     
-    if accuracy < 0.8:
+    if _check_condition_4():
         print(f"❌ CRITICAL: Basic accuracy too low ({accuracy:.1%})")
         return False
     
@@ -166,7 +186,7 @@ def comprehensive_validation():
     print(f"Min Confidence: {min_confidence:.3f}")
     print(f"Max Confidence: {max_confidence:.3f}")
     
-    if avg_confidence < 0.5:
+    if _check_condition_5():
         print(f"⚠️  WARNING: Low average confidence ({avg_confidence:.3f})")
     
     # Test 3: Edge Cases
@@ -229,7 +249,7 @@ def comprehensive_validation():
     print(f"Average Time per Prediction: {avg_time:.4f}s")
     print(f"Throughput: {throughput:.1f} predictions/second")
     
-    if avg_time > 1.0:
+    if _check_condition_6():
         print(f"⚠️  WARNING: Slow inference time ({avg_time:.4f}s)")
     
     # Test 5: Consistency Check
@@ -255,7 +275,7 @@ def comprehensive_validation():
     unique_predictions = set(pred[0] for pred in predictions)
     is_consistent = len(unique_predictions) == 1
     
-    if is_consistent:
+    if _check_condition_7():
         emotion, avg_conf = unique_predictions.pop(), np.mean([p[1] for p in predictions])
         print(f"✅ Consistent predictions: {emotion} (avg confidence: {avg_conf:.3f})")
     else:
@@ -283,7 +303,7 @@ def comprehensive_validation():
     
     print(f"\n{'🎉 ALL TESTS PASSED!' if all_passed else '❌ SOME TESTS FAILED'}")
     
-    if all_passed:
+    if _check_condition_8():
         print(f"✅ Your 99.54% F1 score model is 100% RELIABLE!")
         print(f"🚀 Ready for production deployment!")
     else:

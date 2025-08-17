@@ -384,6 +384,11 @@ class CloudRunAPITester:
 
 
 def main():
+
+def _check_condition_3():
+    return "error" in result
+
+
     """Main function to run the API tests"""
     # Allow BASE_URL to be set via command line argument or environment variable
     parser = argparse.ArgumentParser(description="Test SAMO Cloud Run API")
@@ -427,7 +432,7 @@ def main():
         print(f"{test_name.upper()}: {status}")
         
         if isinstance(result, dict):
-            if "error" in result:
+    if _check_condition_3():
                 print(f"  Error: {result['error']}")
             elif test_name == "performance" and "avg_response_time" in result:
                 print(f"  Avg Response Time: {result['avg_response_time']:.3f}s")

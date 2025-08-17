@@ -14,6 +14,44 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 def debug_label_mismatch():
+
+def _check_condition_3():
+    return journal_only
+
+def _check_condition_4():
+    return len(common_labels) > 0
+
+def _check_condition_5():
+    return example['labels']
+
+def _check_condition_6():
+    return label in label_encoder.classes_
+
+def _check_condition_7():
+    return emotion in label_encoder.classes_
+
+def _check_condition_8():
+    return go_encoded
+
+def _check_condition_9():
+    return go_encoding_errors
+
+def _check_condition_10():
+    return journal_encoded
+
+def _check_condition_11():
+    return journal_encoding_errors
+
+def _check_condition_12():
+    return go_out_of_bounds
+
+def _check_condition_13():
+    return journal_out_of_bounds
+
+def _check_condition_14():
+    return go_encoding_errors or journal_encoding_errors
+
+
     """Debug the label mismatch causing CUDA errors."""
     logger.info("🔍 Debugging label mismatch issue...")
     
@@ -69,14 +107,14 @@ def debug_label_mismatch():
         
         if go_only:
             logger.warning(f"⚠️ {len(go_only)} labels only in GoEmotions - may cause issues")
-        if journal_only:
+    if _check_condition_3():
             logger.warning(f"⚠️ {len(journal_only)} labels only in Journal - may cause issues")
         
         # Step 5: Create unified label encoder
         logger.info("🧬 Creating unified label encoder...")
         
         # Option 1: Use only common labels (safer)
-        if len(common_labels) > 0:
+    if _check_condition_4():
             all_labels = sorted(list(common_labels))
             logger.info(f"📊 Using only common labels: {len(all_labels)} labels")
         else:
@@ -99,11 +137,11 @@ def debug_label_mismatch():
         go_encoding_errors = []
         
         for i, example in enumerate(go_emotions['train'][:100]):  # Test first 100
-            if example['labels']:
+    if _check_condition_5():
                 try:
                     # Take first label for simplicity
                     label = example['labels'][0]
-                    if label in label_encoder.classes_:
+    if _check_condition_6():
                         encoded = label_encoder.transform([label])[0]
                         go_encoded.append(encoded)
                     else:
@@ -117,7 +155,7 @@ def debug_label_mismatch():
         
         for i, emotion in enumerate(journal_df['emotion'][:100]):  # Test first 100
             try:
-                if emotion in label_encoder.classes_:
+    if _check_condition_7():
                     encoded = label_encoder.transform([emotion])[0]
                     journal_encoded.append(encoded)
                 else:
@@ -126,18 +164,18 @@ def debug_label_mismatch():
                 journal_encoding_errors.append(f"Error encoding label '{emotion}': {e}")
         
         # Report encoding results
-        if go_encoded:
+    if _check_condition_8():
             logger.info(f"✅ GoEmotions encoding successful: {len(go_encoded)} samples")
             logger.info(f"📊 GoEmotions label range: {min(go_encoded)} to {max(go_encoded)}")
-        if go_encoding_errors:
+    if _check_condition_9():
             logger.error(f"❌ GoEmotions encoding errors: {len(go_encoding_errors)}")
             for error in go_encoding_errors[:5]:  # Show first 5 errors
                 logger.error(f"  - {error}")
         
-        if journal_encoded:
+    if _check_condition_10():
             logger.info(f"✅ Journal encoding successful: {len(journal_encoded)} samples")
             logger.info(f"📊 Journal label range: {min(journal_encoded)} to {max(journal_encoded)}")
-        if journal_encoding_errors:
+    if _check_condition_11():
             logger.error(f"❌ Journal encoding errors: {len(journal_encoding_errors)}")
             for error in journal_encoding_errors[:5]:  # Show first 5 errors
                 logger.error(f"  - {error}")
@@ -157,15 +195,15 @@ def debug_label_mismatch():
         go_out_of_bounds = [label for label in go_encoded if label < 0 or label >= num_labels]
         journal_out_of_bounds = [label for label in journal_encoded if label < 0 or label >= num_labels]
         
-        if go_out_of_bounds:
+    if _check_condition_12():
             logger.error(f"❌ GoEmotions has {len(go_out_of_bounds)} out-of-bounds labels")
-        if journal_out_of_bounds:
+    if _check_condition_13():
             logger.error(f"❌ Journal has {len(journal_out_of_bounds)} out-of-bounds labels")
         
         # Step 8: Provide recommendations
         logger.info("💡 Recommendations:")
         
-        if go_encoding_errors or journal_encoding_errors:
+    if _check_condition_14():
             logger.info("1. 🔧 Use only common labels between datasets")
             logger.info("2. 🔧 Filter out samples with non-common labels")
             logger.info("3. 🔧 Create a more robust label mapping")

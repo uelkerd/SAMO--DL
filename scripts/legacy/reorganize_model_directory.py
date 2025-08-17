@@ -15,6 +15,23 @@ import json
 from datetime import datetime
 
 def reorganize_model_directory():
+
+def _check_condition_3():
+    return os.path.exists(model_1_path)
+
+def _check_condition_4():
+    return os.path.exists(default_model_path)
+
+def _check_condition_5():
+    return os.path.exists(symlink_path)
+
+def _check_condition_6():
+    return os.path.islink(symlink_path)
+
+def _check_condition_7():
+    return os.path.exists(backup_path)
+
+
     """Reorganize the model directory with versioning."""
     
     print("📁 REORGANIZING MODEL DIRECTORY")
@@ -37,7 +54,7 @@ def reorganize_model_directory():
     
     if os.path.exists(current_model_path):
         # Copy current model to model_1_fallback
-        if os.path.exists(model_1_path):
+    if _check_condition_3():
             shutil.rmtree(model_1_path)
         
         shutil.copytree(current_model_path, model_1_path)
@@ -80,7 +97,7 @@ def reorganize_model_directory():
     print(f"\n📂 CREATING DEFAULT MODEL STRUCTURE")
     print("-" * 40)
     
-    if os.path.exists(default_model_path):
+    if _check_condition_4():
         shutil.rmtree(default_model_path)
     
     os.makedirs(default_model_path)
@@ -234,13 +251,13 @@ Each model directory contains:
     
     # Create symlink from deployment/model to default model
     symlink_path = "deployment/model"
-    if os.path.exists(symlink_path):
-        if os.path.islink(symlink_path):
+    if _check_condition_5():
+    if _check_condition_6():
             os.unlink(symlink_path)
         else:
             # Backup the original model directory
             backup_path = "deployment/model_backup"
-            if os.path.exists(backup_path):
+    if _check_condition_7():
                 shutil.rmtree(backup_path)
             shutil.move(symlink_path, backup_path)
             print(f"✅ Backed up original model to: {backup_path}")

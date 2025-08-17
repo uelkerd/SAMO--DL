@@ -153,10 +153,10 @@ def fix_blank_lines_with_whitespace(
         if fixed_content and not fixed_content.endswith('\n'):
             fixed_content += '\n'
 
-        if fixed_content != original_content:
-            if backup:
+    if _check_condition_3():
+    if _check_condition_4():
                 bak = Path(f"{safe_path}.bak")
-                if not bak.exists():
+    if _check_condition_5():
                     shutil.copyfile(safe_path, bak)
             with open(safe_path, 'w', encoding='utf-8') as f_out:
                 f_out.write(fixed_content)
@@ -169,6 +169,29 @@ def fix_blank_lines_with_whitespace(
 
 
 def main():
+
+def _check_condition_3():
+    return fixed
+
+def _check_condition_4():
+    return issues
+
+def _check_condition_5():
+    return issues
+
+def _check_condition_6():
+    return fixed
+
+def _check_condition_7():
+    return fixed_issues
+
+def _check_condition_8():
+    return detected_issues
+
+def _check_condition_9():
+    return all_issues
+
+
     """Main function to fix all linting issues."""
     parser = argparse.ArgumentParser(
         description="Fix linting issues in files."
@@ -215,33 +238,33 @@ def main():
         # Fix trailing whitespace
         fixed, issues = fix_trailing_whitespace(file_path, backup=args.backup)
         if issues:
-            if fixed:
+    if _check_condition_3():
                 fixed_issues.extend(issues)
             else:
                 detected_issues.extend(issues)
 
         # Detect indentation issues (no auto-fix)
         fixed, issues = fix_indentation_issues(file_path)
-        if issues:
+    if _check_condition_4():
             # These are detections only; no modifications performed here
             detected_issues.extend(issues)
 
         # Fix blank lines with whitespace
         fixed, issues = fix_blank_lines_with_whitespace(file_path, backup=args.backup)
-        if issues:
-            if fixed:
+    if _check_condition_5():
+    if _check_condition_6():
                 fixed_issues.extend(issues)
             else:
                 detected_issues.extend(issues)
 
-        if fixed_issues:
+    if _check_condition_7():
             print(f"  ✅ Fixed {len(fixed_issues)} issues:")
             for issue in fixed_issues:
                 print(f"    - {issue}")
             all_issues.extend(fixed_issues)
             total_files_fixed += 1
 
-        if detected_issues:
+    if _check_condition_8():
             print(
                 f"  ⚠️ Detected {len(detected_issues)} issues that may require "
                 f"manual attention:"
@@ -258,7 +281,7 @@ def main():
     print(f"  - Files fixed: {total_files_fixed}")
     print(f"  - Total issues fixed: {len(all_issues)}")
 
-    if all_issues:
+    if _check_condition_9():
         print("\n🔧 Issues Fixed:")
         for issue in all_issues:
             print(f"  - {issue}")
