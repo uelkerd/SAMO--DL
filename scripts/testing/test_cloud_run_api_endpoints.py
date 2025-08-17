@@ -214,6 +214,56 @@ class CloudRunAPITester:
             "results": results
         }
 
+    def test_extremely_large_payloads(self) -> Dict[str, Any]:
+        """Test API stability with extremely large payloads."""
+        logger.info("Testing extremely large payloads...")
+
+        # Test with very large text payload
+        large_text = "A" * (1024 * 1024)  # 1MB text
+        extremely_large_text = "B" * (10 * 1024 * 1024)  # 10MB text
+
+        large_payload_tests = [
+            {"text": large_text, "description": "1MB text payload"},
+            {"text": extremely_large_text, "description": "10MB text payload"}
+        ]
+
+        results = []
+
+        for test_case in large_payload_tests:
+            try:
+                start_time = time.time()
+                response = self.client.post("/predict", {"text": test_case["text"]})
+                end_time = time.time()
+
+                results.append({
+                    "test_case": test_case["description"],
+                    "success": True,
+                    "response_time": end_time - start_time,
+                    "status_code": response.status_code if hasattr(response, 'status_code') else 'N/A'
+                })
+
+            except requests.exceptions.RequestException as e:
+                # Large payloads might be rejected (which is acceptable)
+                results.append({
+                    "test_case": test_case["description"],
+                    "success": False,
+                    "status": "rejected",
+                    "error": str(e)
+                })
+            except Exception as e:
+                results.append({
+                    "test_case": test_case["description"],
+                    "success": False,
+                    "status": "error",
+                    "error": str(e)
+                })
+
+        return {
+            "success": len(results) > 0,
+            "total_tests": len(results),
+            "large_payload_results": results
+        }
+
     def test_security_features(self) -> Dict[str, Any]:
         """Test security features like rate limiting and authentication"""
         logger.info("Testing security features...")

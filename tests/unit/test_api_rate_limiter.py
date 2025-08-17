@@ -72,6 +72,32 @@ class TestTokenBucketRateLimiter:
         assert allowed2 is False
         assert "rate limit" in reason.lower()
 
+    def test_allow_request_zero_rate_limits(self):
+        """Test that allow_request returns False when rate limits are zero."""
+        config = RateLimitConfig(
+            requests_per_minute=0,
+            burst_size=0,
+            enable_user_agent_analysis=False,
+            enable_request_pattern_analysis=False
+        )
+        rate_limiter = TokenBucketRateLimiter(config)
+        allowed, reason, _ = rate_limiter.allow_request("127.0.0.1")
+        assert allowed is False
+        assert "rate limit" in reason.lower()
+
+    def test_allow_request_negative_rate_limits(self):
+        """Test that allow_request returns False when rate limits are negative."""
+        config = RateLimitConfig(
+            requests_per_minute=-1,
+            burst_size=-5,
+            enable_user_agent_analysis=False,
+            enable_request_pattern_analysis=False
+        )
+        rate_limiter = TokenBucketRateLimiter(config)
+        allowed, reason, _ = rate_limiter.allow_request("127.0.0.1")
+        assert allowed is False
+        assert "rate limit" in reason.lower()
+
 
 class TestAddRateLimiting:
     """Test suite for add_rate_limiting function."""
