@@ -6,14 +6,21 @@ This module provides data processing pipelines for text and audio data,
 including preprocessing, feature extraction, and dataset management.
 """
 
-import datetime
 import logging
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 import pandas as pd
 from .feature_engineering import FeatureEngineer
 from .validation import DataValidator
+from .preprocessing import JournalEntryPreprocessor
+from .embeddings import (
+    TfidfEmbedder,
+    Word2VecEmbedder,
+    FastTextEmbedder,
+    EmbeddingPipeline
+)
+from .loaders import load_entries_from_db, load_entries_from_json, load_entries_from_csv
 
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
@@ -28,9 +35,9 @@ class DataPipeline:
 
     def __init__(
         self,
-        preprocessor: JournalEntryPreprocessor | None = None,
-        validator: DataValidator | None = None,
-        feature_engineer: FeatureEngineer | None = None,
+        preprocessor: Optional[JournalEntryPreprocessor] = None,
+        validator: Optional[DataValidator] = None,
+        feature_engineer: Optional[FeatureEngineer] = None,
         embedding_method: str = "tfid",
     ) -> None:
         """Initialize data pipeline.
@@ -61,11 +68,11 @@ class DataPipeline:
 
     def run(
         self,
-        data_source: str | pd.DataFrame,
+        data_source: Union[str, pd.DataFrame],
         source_type: str = "db",
-        output_dir: str | None = None,
-        user_id: int | None = None,
-        limit: int | None = None,
+        output_dir: Optional[str] = None,
+        user_id: Optional[int] = None,
+        limit: Optional[int] = None,
         extract_topics: bool = True,
         save_intermediates: bool = False,
     ) -> Dict[str, pd.DataFrame]:
@@ -99,7 +106,8 @@ class DataPipeline:
 
         if not validation_passed:
             logger.warning(
-                "Data validation failed. Continuing with validated data, but results may be unreliable."
+                "Data validation failed. Continuing with validated data, "
+                "but results may be unreliable."
             )
 
         processed_df = self.preprocessor.preprocess(validated_df)
@@ -147,10 +155,10 @@ class DataPipeline:
 
     def _load_data(
         self,
-        data_source: str | pd.DataFrame,
+        data_source: Union[str, pd.DataFrame],
         source_type: str,
-        user_id: int | None,
-        limit: int | None,
+        user_id: Optional[int],
+        limit: Optional[int],
     ) -> pd.DataFrame:
         """Load data from specified source.
 
@@ -198,7 +206,7 @@ class DataPipeline:
         processed_df: pd.DataFrame,
         featured_df: pd.DataFrame,
         embeddings_df: pd.DataFrame,
-        topics_df: pd.DataFrame | None = None,
+        topics_df: Optional[pd.DataFrame] = None,
         save_intermediates: bool = False,
     ) -> None:
         """Save pipeline results to output directory.
@@ -215,7 +223,7 @@ class DataPipeline:
         """
         Path(output_dir).mkdir(parents=True, exist_ok=True)
 
-        timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
 
         featured_df.to_csv(
             Path(output_dir, "journal_features_{timestamp}.csv").as_posix(),

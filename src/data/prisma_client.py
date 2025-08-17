@@ -4,7 +4,7 @@
         # Create a temporary JS file
         # Ensure we return a list, even if the result is a single dict
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional
 import json
 import subprocess
 
@@ -164,7 +164,7 @@ main();
             limit (int): Maximum number of entries to return
 
         Returns:
-            list[dict[str, Any]]: List of journal entries
+            List[Dict[str, Any]]: List of journal entries
 
         """
         script = """

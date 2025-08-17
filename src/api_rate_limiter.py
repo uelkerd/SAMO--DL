@@ -373,7 +373,7 @@ class TokenBucketRateLimiter:
         self,
         client_ip: str,
         user_agent: str = "",
-    ) -> tuple[bool, str, dict]:
+    ) -> Tuple[bool, str, dict]:
         """
         Check if request should be allowed.
 
