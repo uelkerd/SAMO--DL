@@ -19,14 +19,14 @@ redis==5.0.8
 # Utilities
 python-dotenv==1.0.1
 pyyaml==6.0.2
-requests==2.32.3
+requests==2.32.4
 certifi==2024.12.14
 click==8.1.8
 rich==13.9.4
 loguru==0.7.2
 
 # Production Dependencies (from prod extra)
-gunicorn==21.2.0
-prometheus-client==0.21.0
+gunicorn>=23.0.0,<24.0.0
+prometheus-client==0.20.0
 sentry-sdk[fastapi]==2.12.0
 

@@ -48,12 +48,12 @@ class TokenResponse(BaseModel):
 
 class JWTManager:
     """Comprehensive JWT token management system"""
-    
+
     def __init__(self, secret_key: str = SECRET_KEY, algorithm: str = ALGORITHM):
         self.secret_key = secret_key
         self.algorithm = algorithm
         self.blacklisted_tokens: dict = {}  # Changed to dict: {token: exp_datetime}
-    
+
     def create_access_token(self, user_data: dict[str, Any]) -> str:
         """Create a new access token"""
         payload = {
@@ -65,7 +65,7 @@ class JWTManager:
             "iat": datetime.utcnow()
         }
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
-    
+
     def create_refresh_token(self, user_data: dict[str, Any]) -> str:
         """Create a new refresh token"""
         payload = {
@@ -78,7 +78,7 @@ class JWTManager:
             "type": "refresh"
         }
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
-    
+
     def create_token_pair(self, user_data: dict[str, Any]) -> TokenResponse:
         """Create both access and refresh tokens and return as a TokenResponse model."""
         access_token = self.create_access_token(user_data)
@@ -88,13 +88,13 @@ class JWTManager:
             refresh_token=refresh_token,
             expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60
         )
-    
+
     def verify_token(self, token: str) -> Optional[TokenPayload]:
         """Verify and decode a token"""
         try:
             if token in self.blacklisted_tokens:
                 return None
-            
+
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
             return TokenPayload(**payload)
         except jwt.ExpiredSignatureError:
@@ -106,13 +106,13 @@ class JWTManager:
         except Exception as e:
             logger.error(f"Token verification error: {str(e)}")
             return None
-    
+
     def refresh_access_token(self, refresh_token: str) -> Optional[str]:
         """Refresh an access token using a valid refresh token"""
         payload = self.verify_token(refresh_token)
         if not payload or getattr(payload, "type", None) != "refresh":
             return None
-        
+
         user_data = {
             "user_id": payload.user_id,
             "username": payload.username,
@@ -120,7 +120,7 @@ class JWTManager:
             "permissions": payload.permissions
         }
         return self.create_access_token(user_data)
-    
+
     def blacklist_token(self, token: str) -> bool:
         """Add a token to the blacklist"""
         try:
@@ -130,35 +130,35 @@ class JWTManager:
             return True
         except jwt.InvalidTokenError:
             return False
-    
+
     def is_token_blacklisted(self, token: str) -> bool:
         """Check if a token is blacklisted"""
         return token in self.blacklisted_tokens
-    
+
     def get_user_permissions(self, token: str) -> List[str]:
         """Extract user permissions from token"""
         payload = self.verify_token(token)
         return payload.permissions if payload else []
-    
+
     def has_permission(self, token: str, required_permission: str) -> bool:
         """Check if user has a specific permission"""
         permissions = self.get_user_permissions(token)
         return required_permission in permissions
-    
+
     def cleanup_expired_tokens(self) -> int:
         """Clean up expired tokens from blacklist"""
         initial_count = len(self.blacklisted_tokens)
         current_time = datetime.utcnow()
-        
+
         tokens_to_remove = set()
         # self.blacklisted_tokens is now a dict: {token: exp_datetime}
         for token, exp_datetime in self.blacklisted_tokens.items():
             if exp_datetime and exp_datetime < current_time:
                 tokens_to_remove.add(token)
-        
+
         for token in tokens_to_remove:
             self.blacklisted_tokens.pop(token, None)
         return initial_count - len(self.blacklisted_tokens)
 
 # Global JWT manager instance
-jwt_manager = JWTManager() 
+jwt_manager = JWTManager()
