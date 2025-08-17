@@ -39,6 +39,10 @@ def create_temp_audio_file(duration: float = 2.0, sample_rate: int = 16000) -> P
     import wave
     temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
     
+    # Close the temporary file immediately to prevent file descriptor leaks
+    # and Windows file-lock issues
+    temp_file.close()
+    
     with wave.open(temp_file.name, 'wb') as wav_file:
         wav_file.setnchannels(1)  # Mono
         wav_file.setsampwidth(2)  # 16-bit

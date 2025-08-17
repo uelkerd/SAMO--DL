@@ -28,6 +28,7 @@ All notable changes to this project will be documented in this file.
 - Fix security issue in test health check script (command injection prevention)
 - Add input validation for audio file creation utility
 - Document test utility dependencies in requirements file
+- Fix file descriptor leak in test utilities (NamedTemporaryFile properly closed)
 ### 🚀 **Priority 1 Features Implementation - Complete API Enhancement**
 
 #### **JWT-based Authentication System**
