@@ -204,7 +204,7 @@ def _log_changes(visitor: TypeHintVisitor, verbose: bool) -> None:
     for change in visitor.changes:
         old_code = ast_to_source(change['old'])
         new_code = ast_to_source(change['new'])
-        
+
         if verbose:
             print(f"    {change['type'].title()}: {old_code} -> {new_code}")
 
