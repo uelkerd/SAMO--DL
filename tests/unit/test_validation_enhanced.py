@@ -33,6 +33,33 @@ class TestDataValidatorEnhanced:
         assert missing_stats['user_id'] == 0.0  # No missing values
         assert missing_stats['content'] == 0.0   # No missing content
 
+    def test_check_missing_values_all_columns(self):
+        """Test missing values check where every column has missing values."""
+        # Create DataFrame where every column has missing values
+        df_with_all_missing = pd.DataFrame({
+            'user_id': [1, 2, None, 4, None],
+            'title': ['Entry 1', None, 'Entry 3', None, 'Entry 5'],
+            'content': [None, 'Test entry', None, 'Valid content', None],
+            'created_at': [pd.to_datetime('2023-01-01'), None, pd.to_datetime('2023-01-03'), None, pd.to_datetime('2023-01-05')],
+            'is_private': [False, None, False, None, False]
+        })
+
+        missing_stats = self.validator.check_missing_values(df_with_all_missing)
+
+        # Verify all columns have missing values
+        assert missing_stats['user_id'] > 0.0  # Has missing values
+        assert missing_stats['title'] > 0.0    # Has missing values
+        assert missing_stats['content'] > 0.0  # Has missing values
+        assert missing_stats['created_at'] > 0.0  # Has missing values
+        assert missing_stats['is_private'] > 0.0  # Has missing values
+
+        # Verify the missing percentages are correct
+        assert missing_stats['user_id'] == 0.4   # 2 out of 5 missing (40%)
+        assert missing_stats['title'] == 0.4     # 2 out of 5 missing (40%)
+        assert missing_stats['content'] == 0.6   # 3 out of 5 missing (60%)
+        assert missing_stats['created_at'] == 0.4  # 2 out of 5 missing (40%)
+        assert missing_stats['is_private'] == 0.4  # 2 out of 5 missing (40%)
+
     def test_check_missing_values_with_required_columns(self):
         """Test missing values check with required columns."""
         missing_stats = self.validator.check_missing_values(

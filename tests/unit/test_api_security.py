@@ -61,6 +61,38 @@ class TestRateLimiter(unittest.TestCase):
         self.assertEqual(stats['active_buckets'], 1)
         self.assertEqual(stats['concurrent_requests'], 0)
 
+    def test_rate_limiting_multiple_user_agents(self):
+        """Test rate limiting with multiple user agents from the same IP."""
+        client_ip = "192.168.1.10"
+        user_agent_1 = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        user_agent_2 = "PostmanRuntime/7.32.3"
+        user_agent_3 = "curl/7.88.1"
+
+        # Each user agent should have its own rate limit bucket
+        # Test first user agent
+        allowed, reason, meta = self.rate_limiter.allow_request(client_ip, user_agent_1)
+        self.assertTrue(allowed)
+        self.rate_limiter.release_request(client_ip, user_agent_1)
+
+        # Test second user agent
+        allowed, reason, meta = self.rate_limiter.allow_request(client_ip, user_agent_2)
+        self.assertTrue(allowed)
+        self.rate_limiter.release_request(client_ip, user_agent_2)
+
+        # Test third user agent
+        allowed, reason, meta = self.rate_limiter.allow_request(client_ip, user_agent_3)
+        self.assertTrue(allowed)
+        self.rate_limiter.release_request(client_ip, user_agent_3)
+
+        # Verify each has separate buckets
+        client_key_1 = self.rate_limiter._get_client_key(client_ip, user_agent_1)
+        client_key_2 = self.rate_limiter._get_client_key(client_ip, user_agent_2)
+        client_key_3 = self.rate_limiter._get_client_key(client_ip, user_agent_3)
+        
+        self.assertNotEqual(client_key_1, client_key_2)
+        self.assertNotEqual(client_key_2, client_key_3)
+        self.assertNotEqual(client_key_1, client_key_3)
+
     def test_rate_limit_exceeded(self):
         """Test rate limit exceeded scenario."""
         client_ip = "192.168.1.2"
@@ -126,6 +158,28 @@ class TestRateLimiter(unittest.TestCase):
         allowed, reason, meta = self.rate_limiter.allow_request(client_ip, user_agent)
         self.assertFalse(allowed)
         self.assertEqual(reason, "Abuse detected")
+
+    def test_abuse_detection_reset_after_cooldown(self):
+        """Test that abuse detection resets after cooldown period."""
+        client_ip = "192.168.1.6"
+        user_agent = "test-agent"
+
+        # Simulate rapid-fire requests to trigger abuse detection
+        for i in range(11):  # More than 10 requests in 1 second
+            self.rate_limiter.request_history[self.rate_limiter._get_client_key(client_ip, user_agent)].append(time.time())
+
+        # Verify abuse detection is triggered
+        allowed, reason, meta = self.rate_limiter.allow_request(client_ip, user_agent)
+        self.assertFalse(allowed)
+        self.assertEqual(reason, "Abuse detected")
+
+        # Simulate cooldown period (e.g., 60 seconds) by clearing request history
+        client_key = self.rate_limiter._get_client_key(client_ip, user_agent)
+        self.rate_limiter.request_history[client_key] = []
+
+        # After cooldown, requests should be allowed again
+        allowed, reason, meta = self.rate_limiter.allow_request(client_ip, user_agent)
+        self.assertTrue(allowed, f"Request should be allowed after cooldown, but got: {reason}")
 
     def test_token_refill(self):
         """Test token bucket refill mechanism."""
