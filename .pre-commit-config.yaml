@@ -30,28 +30,7 @@ repos:
         args: [--line-length=88, --target-version=py38]
         types: [python]
         exclude: |
-          (?x)^(
-              \.git|
-              \.venv|
-              \.env|
-              __pycache__|
-              \.pytest_cache|
-              \.mypy_cache|
-              \.ruff_cache|
-              build|
-              dist|
-              \.eggs|
-              \.tox|
-              \.coverage|
-              htmlcov|
-              \.cache|
-              \.logs|
-              results|
-              samples|
-              notebooks|
-              website|
-              docs/diagrams
-          )$
+          (?x)^(\.git|\.venv|\.env|__pycache__|\.pytest_cache|\.mypy_cache|\.ruff_cache|build|dist|\.eggs|\.tox|\.coverage|htmlcov|\.cache|\.logs|results|samples|notebooks|website|docs/diagrams)$
 
   # Import sorting and organization
   - repo: https://github.com/pycqa/isort
