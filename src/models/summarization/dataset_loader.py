@@ -12,23 +12,23 @@ for training summarization models on journal entries.
 Placeholder implementation - will be expanded once we have real data.
 """
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger__name__
 
 
-class SummarizationDataset(Dataset):
+class SummarizationDatasetDataset:
     """Placeholder dataset class for summarization."""
 
-    def __init__(self, texts: List[str], summaries: List[str]) -> None:
+    def __init__self, texts: List[str], summaries: List[str] -> None:
         self.texts = texts
         self.summaries = summaries
 
-    def __len__(self) -> int:
-        return len(self.texts)
+    def __len__self -> int:
+        return lenself.texts
 
-    def __getitem__(self, idx):
+    def __getitem__self, idx:
         return {"text": self.texts[idx], "summary": self.summaries[idx]}
 
 
 def create_summarization_loader() -> None:
     """Placeholder function for creating summarization data loader."""
-    logger.info("Placeholder summarization loader - to be implemented")
+    logger.info"Placeholder summarization loader - to be implemented"

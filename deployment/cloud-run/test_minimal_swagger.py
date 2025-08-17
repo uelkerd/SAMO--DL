@@ -7,12 +7,12 @@ from flask import Flask, jsonify
 from flask_restx import Api, Resource, Namespace
 
 # Create Flask app
-app = Flask(__name__)
+app = Flask__name__
 
 # Register root endpoint first
-@app.route('/')
+@app.route'/'
 def root():
-    return jsonify({'message': 'Root endpoint'})
+    return jsonify{'message': 'Root endpoint'}
 
 # Initialize Flask-RESTX API
 api = Api(
@@ -24,24 +24,24 @@ api = Api(
 )
 
 # Create namespace
-main_ns = Namespace('api', description='Main operations')
-api.add_namespace(main_ns)
+main_ns = Namespace'api', description='Main operations'
+api.add_namespacemain_ns
 
 # Test endpoint
-@main_ns.route('/health')
-class Health(Resource):
-    def get(self):
+@main_ns.route'/health'
+class HealthResource:
+    def getself:
         return {'status': 'healthy'}
 
 if __name__ == '__main__':
-    print("=== Routes ===")
+    print"=== Routes ==="
     for rule in app.url_map.iter_rules():
-        print(f"{rule.rule} -> {rule.endpoint}")
+        printf"{rule.rule} -> {rule.endpoint}"
     
-    print("\n=== Starting test server ===")
-    print("Test these endpoints:")
-    print("- http://localhost:5003/ (should work)")
-    print("- http://localhost:5003/docs (should work)")
-    print("- http://localhost:5003/api/health (should work)")
+    print"\n=== Starting test server ==="
+    print"Test these endpoints:"
+    print("- http://localhost:5003/ should work")
+    print("- http://localhost:5003/docs should work")
+    print("- http://localhost:5003/api/health should work")
     
-    app.run(host='0.0.0.0', port=5003, debug=True) 
+    app.runhost='0.0.0.0', port=5003, debug=True 

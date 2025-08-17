@@ -131,38 +131,38 @@ TITLE_TEMPLATES = [
 ]
 
 
-def generate_title(topic: str, emotion: str) -> str:
+def generate_titletopic: str, emotion: str -> str:
     """Generate a journal entry title."""
-    template = random.choice(TITLE_TEMPLATES)
-    return template.format(topic=topic, emotion=emotion)
+    template = random.choiceTITLE_TEMPLATES
+    return template.formattopic=topic, emotion=emotion
 
 
-def generate_content(topic: str, emotion: str) -> str:
+def generate_contenttopic: str, emotion: str -> str:
     """Generate journal entry content."""
-    template = random.choice(ENTRY_TEMPLATES)
-    base_sentence = random.choice(ADDITIONAL_SENTENCES)
-    content = template.format(topic=topic, emotion=emotion, additional_sentence=base_sentence)
+    template = random.choiceENTRY_TEMPLATES
+    base_sentence = random.choiceADDITIONAL_SENTENCES
+    content = template.formattopic=topic, emotion=emotion, additional_sentence=base_sentence
 
     # Add more complexity with a chance of a second or third sentence
     if random.random() > 0.4:  # 60% chance of adding more detail
-        content += f" {random.choice(DETAIL_TEMPLATES).format(topic=topic)}"
+        content += f" {random.choiceDETAIL_TEMPLATES.formattopic=topic}"
     if random.random() > 0.6:  # 40% chance of adding a reflection
-        content += f" {random.choice(REFLECTION_TEMPLATES)}"
+        content += f" {random.choiceREFLECTION_TEMPLATES}"
     return content
 
-def generate_entry(user_id: int, created_at: datetime, id_start: int = 1) -> Dict[str, Any]:
+def generate_entryuser_id: int, created_at: datetime, id_start: int = 1 -> Dict[str, Any]:
     """Generate a single journal entry."""
-    topic = random.choice(TOPICS)
-    emotion = random.choice(EMOTIONS)
+    topic = random.choiceTOPICS
+    emotion = random.choiceEMOTIONS
 
     return {
         "id": id_start,
         "user_id": user_id,
-        "title": generate_title(topic, emotion),
-        "content": generate_content(topic, emotion),
+        "title": generate_titletopic, emotion,
+        "content": generate_contenttopic, emotion,
         "created_at": created_at,
         "updated_at": created_at,
-        "is_private": random.choice([True, False]),
+        "is_private": random.choice[True, False],
         "topic": topic,  # Additional metadata for testing
         "emotion": emotion,  # Additional metadata for testing
     }
@@ -179,40 +179,40 @@ def generate_entries(
     Args:
         num_entries: Number of entries to generate
         num_users: Number of unique users to create entries for
-        start_date: Start date for entries (defaults to 60 days ago)
-        end_date: End date for entries (defaults to today)
+        start_date: Start date for entries defaults to 60 days ago
+        end_date: End date for entries defaults to today
 
     Returns:
         List of dictionaries containing journal entries
 
     """
     if start_date is None:
-        start_date = datetime.now(timezone.utc) - timedelta(days=60)
+        start_date = datetime.nowtimezone.utc - timedeltadays=60
     if end_date is None:
-        end_date = datetime.now(timezone.utc)
+        end_date = datetime.nowtimezone.utc
 
-    date_range = (end_date - start_date).days
+    date_range = end_date - start_date.days
     entries = []
 
-    for i in range(num_entries):
-        user_id = random.randint(1, num_users)
+    for i in rangenum_entries:
+        user_id = random.randint1, num_users
 
-        days_offset = random.randint(0, date_range)
-        entry_date = start_date + timedelta(days=days_offset)
+        days_offset = random.randint0, date_range
+        entry_date = start_date + timedeltadays=days_offset
 
         entry_date = entry_date.replace(
-            hour=random.randint(7, 23),
-            minute=random.randint(0, 59),
-            second=random.randint(0, 59),
+            hour=random.randint7, 23,
+            minute=random.randint0, 59,
+            second=random.randint0, 59,
         )
 
-        entry = generate_entry(user_id, entry_date, id_start=i + 1)
-        entries.append(entry)
+        entry = generate_entryuser_id, entry_date, id_start=i + 1
+        entries.appendentry
 
     return entries
 
 
-def save_entries_to_json(entries: List[Dict[str, Any]], output_path: str) -> None:
+def save_entries_to_jsonentries: List[Dict[str, Any]], output_path: str -> None:
     """Save generated entries to a JSON file.
 
     Args:
@@ -220,20 +220,20 @@ def save_entries_to_json(entries: List[Dict[str, Any]], output_path: str) -> Non
         output_path: Path to save the JSON file
 
     """
-    Path(Path(output_path).parent).mkdir(parents=True, exist_ok=True)
+    Path(Pathoutput_path.parent).mkdirparents=True, exist_ok=True
 
     serializable_entries = []
     for entry in entries:
         serializable_entry = entry.copy()
         serializable_entry["created_at"] = entry["created_at"].isoformat()
         serializable_entry["updated_at"] = entry["updated_at"].isoformat()
-        serializable_entries.append(serializable_entry)
+        serializable_entries.appendserializable_entry
 
-    with Path(output_path).open("w") as f:
-        json.dump(serializable_entries, f, indent=2)
+    with Pathoutput_path.open"w" as f:
+        json.dumpserializable_entries, f, indent=2
 
 
-def load_sample_entries(json_path: str) -> pd.DataFrame:
+def load_sample_entriesjson_path: str -> pd.DataFrame:
     """Load sample entries from JSON file.
 
     Args:
@@ -243,26 +243,26 @@ def load_sample_entries(json_path: str) -> pd.DataFrame:
         DataFrame containing the entries
 
     """
-    with open(json_path) as f:
-        entries = json.load(f)
+    with openjson_path as f:
+        entries = json.loadf
 
-    df = pd.DataFrame(entries)
+    df = pd.DataFrameentries
 
-    df["created_at"] = pd.to_datetime(df["created_at"])
-    df["updated_at"] = pd.to_datetime(df["updated_at"])
+    df["created_at"] = pd.to_datetimedf["created_at"]
+    df["updated_at"] = pd.to_datetimedf["updated_at"]
 
     return df
 
 
 if __name__ == "__main__":
-    entries = generate_entries(num_entries=100, num_users=5)
+    entries = generate_entriesnum_entries=100, num_users=5
 
     output_dir = Path(
-        Path(__file__).parent.parent.parent,
+        Path__file__.parent.parent.parent,
         "data",
         "raw",
     )
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-    output_path = Path(output_dir, "sample_journal_entries.json").as_posix()
+    Pathoutput_dir.mkdirparents=True, exist_ok=True
+    output_path = Pathoutput_dir, "sample_journal_entries.json".as_posix()
 
-    save_entries_to_json(entries, output_path)
+    save_entries_to_jsonentries, output_path

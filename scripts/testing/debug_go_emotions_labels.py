@@ -8,95 +8,95 @@ import sys
 
 def install_dependencies():
     """Install required dependencies."""
-    print("🔧 Installing dependencies...")
+    print"🔧 Installing dependencies..."
     try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "datasets", "pandas"])
-        print("✅ Dependencies installed")
+        subprocess.check_call[sys.executable, "-m", "pip", "install", "datasets", "pandas"]
+        print"✅ Dependencies installed"
     except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to install dependencies: {e}")
+        printf"❌ Failed to install dependencies: {e}"
         return False
     return True
 
 # Install dependencies first
 if not install_dependencies():
-    print("❌ Cannot proceed without dependencies")
-    sys.exit(1)
+    print"❌ Cannot proceed without dependencies"
+    sys.exit1
 
 from datasets import load_dataset
 
 def debug_go_emotions():
     """Debug the actual GoEmotions dataset structure."""
-    print("🔍 Debugging GoEmotions dataset structure...")
+    print"🔍 Debugging GoEmotions dataset structure..."
     
     # Load the dataset
-    go_emotions = load_dataset("go_emotions", "simplified")
+    go_emotions = load_dataset"go_emotions", "simplified"
     
-    print(f"\n📊 Dataset structure:")
+    print"\n📊 Dataset structure:"
     print(f"Keys: {list(go_emotions.keys())}")
-    print(f"Train size: {len(go_emotions['train'])}")
-    print(f"Validation size: {len(go_emotions['validation'])}")
-    print(f"Test size: {len(go_emotions['test'])}")
+    print(f"Train size: {lengo_emotions['train']}")
+    print(f"Validation size: {lengo_emotions['validation']}")
+    print(f"Test size: {lengo_emotions['test']}")
     
     # Check first few examples
-    print(f"\n📊 First 5 examples:")
-    for i in range(min(5, len(go_emotions['train']))):
+    print"\n📊 First 5 examples:"
+    for i in range(min(5, lengo_emotions['train'])):
         example = go_emotions['train'][i]
-        print(f"Example {i}:")
-        print(f"  Text: {example['text'][:100]}...")
-        print(f"  Labels: {example['labels']}")
-        print(f"  Label types: {[type(label) for label in example['labels']]}")
+        printf"Example {i}:"
+        printf"  Text: {example['text'][:100]}..."
+        printf"  Labels: {example['labels']}"
+        print(f"  Label types: {[typelabel for label in example['labels']]}")
         print()
     
     # Check if there's a label mapping
-    print(f"\n🔍 Checking for label mapping...")
+    print"\n🔍 Checking for label mapping..."
     
     # Try to get the dataset info
     try:
         dataset_info = go_emotions['train'].info
-        print(f"Dataset info: {dataset_info}")
+        printf"Dataset info: {dataset_info}"
     except:
-        print("No dataset info available")
+        print"No dataset info available"
     
     # Check if there are features
     try:
         features = go_emotions['train'].features
-        print(f"Features: {features}")
+        printf"Features: {features}"
     except:
-        print("No features available")
+        print"No features available"
     
     # Look for label names in the dataset
-    print(f"\n🔍 Looking for label names...")
+    print"\n🔍 Looking for label names..."
     
     # Check if there's a label_names field
-    if hasattr(go_emotions, 'label_names'):
-        print(f"Label names: {go_emotions.label_names}")
+    if hasattrgo_emotions, 'label_names':
+        printf"Label names: {go_emotions.label_names}"
     else:
-        print("No label_names attribute")
+        print"No label_names attribute"
     
     # Check if there's a features attribute with label names
-    if hasattr(go_emotions['train'], 'features'):
+    if hasattrgo_emotions['train'], 'features':
         features = go_emotions['train'].features
-        print(f"Features: {features}")
+        printf"Features: {features}"
         if 'labels' in features:
-            print(f"Labels feature: {features['labels']}")
+            printf"Labels feature: {features['labels']}"
     
     # Try to get the original dataset
-    print(f"\n🔍 Trying original dataset...")
+    print"\n🔍 Trying original dataset..."
     try:
-        original_go_emotions = load_dataset("go_emotions")
+        original_go_emotions = load_dataset"go_emotions"
         print(f"Original dataset keys: {list(original_go_emotions.keys())}")
         
         if 'train' in original_go_emotions:
-            print(f"Original train size: {len(original_go_emotions['train'])}")
+            print(f"Original train size: {lenoriginal_go_emotions['train']}")
             example = original_go_emotions['train'][0]
-            print(f"Original example: {example}")
+            printf"Original example: {example}"
     except Exception as e:
-        print(f"Could not load original dataset: {e}")
+        printf"Could not load original dataset: {e}"
     
     # Check the dataset card
-    print(f"\n🔍 Checking dataset documentation...")
-    print("GoEmotions dataset should have emotion names like:")
-    print("['admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring', 'confusion', 'curiosity', 'desire', 'disappointment', 'disapproval', 'disgust', 'embarrassment', 'excitement', 'fear', 'gratitude', 'grief', 'joy', 'love', 'nervousness', 'optimism', 'pride', 'realization', 'relief', 'remorse', 'sadness', 'surprise', 'neutral']")
+    print"\n🔍 Checking dataset documentation..."
+    print"GoEmotions dataset should have emotion names like:"
+    print"['admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring', 'confusion', 'curiosity', 'desire', 'disappointment', 'disapproval', 'disgust', 'embarrassment', 'excitement', 'fear', 'gratitude', 'grie', 'joy', 'love', 'nervousness', 'optimism', 'pride', 'realization', 'relie', 'remorse', 'sadness', 'surprise', 'neutral']"
     
     return go_emotions
 

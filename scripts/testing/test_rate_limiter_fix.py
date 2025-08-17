@@ -20,15 +20,15 @@ import time
 
 
 
-sys.path.insert(0, str(Path(__file__).parent / ".."))
+sys.path.insert(0, str(Path__file__.parent / ".."))
 
 async def test_token_refill_logic():
     """Test the token refill logic manually."""
-    logging.info("🧪 Testing token refill logic...")
+    logging.info"🧪 Testing token refill logic..."
 
     mock_app = MagicMock()
 
-    rate_limiter = RateLimiter(app=mock_app, rate_limit=100, window_size=60)
+    rate_limiter = RateLimiterapp=mock_app, rate_limit=100, window_size=60
 
     request = MagicMock()
     request.url.path = "/api/test"
@@ -38,49 +38,49 @@ async def test_token_refill_logic():
     request.client.host = "192.168.1.1"
 
     call_next = AsyncMock()
-    call_next.return_value = Response(status_code=200)
+    call_next.return_value = Responsestatus_code=200
 
-    client_id = rate_limiter.get_client_id(request)
-    entry = rate_limiter.cache.get(client_id)
+    client_id = rate_limiter.get_client_idrequest
+    entry = rate_limiter.cache.getclient_id
 
-    logging.info("✅ Initial tokens: {entry.tokens}")
-    logging.info("✅ Initial requests in window: {len(entry.requests)}")
+    logging.info"✅ Initial tokens: {entry.tokens}"
+    logging.info("✅ Initial requests in window: {lenentry.requests}")
 
-    for i in range(100):
-        await rate_limiter.dispatch(request, call_next)
+    for i in range100:
+        await rate_limiter.dispatchrequest, call_next
         if i % 20 == 0:
             print(
-                "   Request {i+1}: tokens={entry.tokens}, requests_in_window={len(entry.requests)}"
+                "   Request {i+1}: tokens={entry.tokens}, requests_in_window={lenentry.requests}"
             )
 
     print(
-        "✅ After consuming all tokens: tokens={entry.tokens}, requests_in_window={len(entry.requests)}"
+        "✅ After consuming all tokens: tokens={entry.tokens}, requests_in_window={lenentry.requests}"
     )
 
     old_time = time.time() - rate_limiter.window_size - 1
     entry.last_refill = old_time
     entry.tokens = 0
     entry.requests.clear()
-    entry.requests.append(old_time)
+    entry.requests.appendold_time
 
     print(
-        "✅ After simulating time passing: tokens={entry.tokens}, requests_in_window={len(entry.requests)}"
+        "✅ After simulating time passing: tokens={entry.tokens}, requests_in_window={lenentry.requests}"
     )
 
-    response = await rate_limiter.dispatch(request, call_next)
+    response = await rate_limiter.dispatchrequest, call_next
 
-    logging.info("✅ Response status: {response.status_code}")
-    logging.info("✅ Final tokens: {entry.tokens}")
-    logging.info("✅ Final requests in window: {len(entry.requests)}")
+    logging.info"✅ Response status: {response.status_code}"
+    logging.info"✅ Final tokens: {entry.tokens}"
+    logging.info("✅ Final requests in window: {lenentry.requests}")
 
     if response.status_code == 200 and entry.tokens > 0:
-        logging.info("🎉 Test PASSED! Token refill is working correctly.")
+        logging.info"🎉 Test PASSED! Token refill is working correctly."
         return True
     else:
-        logging.info("❌ Test FAILED! Token refill is not working.")
+        logging.info"❌ Test FAILED! Token refill is not working."
         return False
 
 
 if __name__ == "__main__":
     success = asyncio.run(test_token_refill_logic())
-    sys.exit(0 if success else 1)
+    sys.exit0 if success else 1

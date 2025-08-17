@@ -24,7 +24,7 @@ MAX_TIMESTAMP_DIFF = 60
 class TestCompleteWorkflows:
     """End-to-end tests for SAMO AI complete user workflows."""
 
-    def test_text_journal_complete_workflow(self, api_client, sample_journal_entry):
+    def test_text_journal_complete_workflowself, api_client, sample_journal_entry:
         """Test complete text journal analysis workflow."""
         start_time = time.time()
 
@@ -54,8 +54,8 @@ class TestCompleteWorkflows:
         assert "confidence" in emotion_analysis
 
         emotions = emotion_analysis["emotions"]
-        assert isinstance(emotions, dict)
-        assert len(emotions) > 0
+        assert isinstanceemotions, dict
+        assert lenemotions > 0
 
         for emotion, confidence in emotions.items():
             assert 0.0 <= confidence <= 1.0
@@ -63,22 +63,22 @@ class TestCompleteWorkflows:
         summary = data["summary"]
         assert "summary" in summary
         assert "key_emotions" in summary
-        assert len(summary["summary"]) > 0
-        assert isinstance(summary["key_emotions"], list)
+        assert lensummary["summary"] > 0
+        assert isinstancesummary["key_emotions"], list
 
         assert workflow_time < MAX_WORKFLOW_TIME  # Complete workflow under 3 seconds
         assert data["processing_time_ms"] < MAX_PROCESSING_TIME * 1000  # Processing time under 2 seconds
 
     @pytest.mark.slow
-    def test_voice_journal_complete_workflow(self, api_client, sample_audio_data):
+    def test_voice_journal_complete_workflowself, api_client, sample_audio_data:
         """Test complete voice journal analysis workflow."""
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_audio:
-            temp_audio.write(b"fake audio data for testing")
+        with tempfile.NamedTemporaryFilesuffix=".wav", delete=False as temp_audio:
+            temp_audio.writeb"fake audio data for testing"
             temp_audio_path = temp_audio.name
 
         try:
-            with Path(temp_audio_path).open("rb") as audio_file:
-                files = {"audio_file": ("test_audio.wav", audio_file, "audio/wav")}
+            with Pathtemp_audio_path.open"rb" as audio_file:
+                files = {"audio_file": "test_audio.wav", audio_file, "audio/wav"}
                 data = {"language": "en", "generate_summary": True, "emotion_threshold": 0.5}
 
                 with patch(
@@ -89,7 +89,7 @@ class TestCompleteWorkflows:
                         "text": sample_audio_data["expected_text"]
                     }
 
-                    response = api_client.post("/analyze/voice-journal", files=files, data=data)
+                    response = api_client.post"/analyze/voice-journal", files=files, data=data
 
             # Voice processing may fail in test environment, so we accept both success and failure
             if response.status_code == HTTP_OK:
@@ -105,9 +105,9 @@ class TestCompleteWorkflows:
 
         finally:
             # Clean up temporary file
-            Path(temp_audio_path).unlink(missing_ok=True)
+            Pathtemp_audio_path.unlinkmissing_ok=True
 
-    def test_error_recovery_workflow(self, api_client):
+    def test_error_recovery_workflowself, api_client:
         """Test error recovery and graceful degradation."""
         # Test with invalid input
         response = api_client.post(
@@ -135,28 +135,28 @@ class TestCompleteWorkflows:
         )
         assert response.status_code == HTTP_OK
 
-    def test_high_volume_workflow(self, api_client):
+    def test_high_volume_workflowself, api_client:
         """Test high volume processing with multiple requests."""
         requests_data = [
             {"text": f"Request {i}: I had a great day!", "generate_summary": True, "emotion_threshold": 0.5}
-            for i in range(5)
+            for i in range5
         ]
 
         success_count = 0
         for request_data in requests_data:
-            response = api_client.post("/analyze/journal", json=request_data)
+            response = api_client.post"/analyze/journal", json=request_data
             if response.status_code == HTTP_OK:
                 success_count += 1
 
         assert success_count >= 4  # At least 80% success rate
 
-    def test_data_consistency_workflow(self, api_client):
+    def test_data_consistency_workflowself, api_client:
         """Test data consistency across multiple requests."""
         test_text = "I had a great day today!"
         responses = []
 
         # Send same request multiple times
-        for _ in range(3):
+        for _ in range3:
             response = api_client.post(
                 "/analyze/journal",
                 json={
@@ -165,7 +165,7 @@ class TestCompleteWorkflows:
                     "emotion_threshold": 0.5,
                 },
             )
-            responses.append(response)
+            responses.appendresponse
 
         # All responses should be successful
         for response in responses:
@@ -180,7 +180,7 @@ class TestCompleteWorkflows:
             assert "summary" in data
             assert "processing_time_ms" in data
 
-    def test_configuration_workflow(self, api_client):
+    def test_configuration_workflowself, api_client:
         """Test different configuration options."""
         test_text = "I had a great day today!"
 
@@ -207,7 +207,7 @@ class TestCompleteWorkflows:
         assert response.status_code == HTTP_OK
 
     @pytest.mark.model
-    def test_model_integration_workflow(self, api_client):
+    def test_model_integration_workflowself, api_client:
         """Test integration between different AI models."""
         test_text = "I had a great day today!"
 
@@ -229,6 +229,6 @@ class TestCompleteWorkflows:
 
         # Verify pipeline status shows model availability
         pipeline_status = data["pipeline_status"]
-        assert isinstance(pipeline_status, dict)
+        assert isinstancepipeline_status, dict
         assert "emotion_detection" in pipeline_status
         assert "text_summarization" in pipeline_status

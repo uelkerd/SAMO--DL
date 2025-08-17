@@ -13,9 +13,9 @@ Usage:
     python scripts/finalize_emotion_model.py [--output_model PATH] [--epochs INT] [--batch_size INT]
 
 Arguments:
-    --output_model: Path to save the final model (default: models/checkpoints/bert_emotion_classifier_final.pt)
-    --epochs: Number of training epochs (default: 5)
-    --batch_size: Training batch size (default: 16)
+    --output_model: Path to save the final model default: models/checkpoints/bert_emotion_classifier_final.pt
+    --epochs: Number of training epochs default: 5
+    --batch_size: Training batch size default: 16
 """
 
 import argparse
@@ -31,24 +31,24 @@ from torch import nn
 from transformers import AutoTokenizer
 
 # Add src to path
-sys.path.append(str(Path(__file__).parent.parent.resolve()))
+sys.path.append(str(Path__file__.parent.parent.resolve()))
 
 from src.models.emotion_detection.bert_classifier import (
     create_bert_emotion_classifier,
     )
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%levelnames: %messages")
+logger = logging.getLogger__name__
 
 DEFAULT_OUTPUT_MODEL = "models/checkpoints/bert_emotion_classifier_final.pt"
 CHECKPOINT_PATH = "test_checkpoints/best_model.pt"
 OPTIMAL_TEMPERATURE = 1.0
 OPTIMAL_THRESHOLD = 0.6
-TARGET_F1_SCORE = 0.75  # Target F1 score (>75%)
+TARGET_F1_SCORE = 0.75  # Target F1 score >75%
 
 
-class FocalLoss(nn.Module):
+class FocalLossnn.Module:
     """Focal Loss for handling class imbalance.
 
     Focal Loss reduces the relative loss for well-classified examples,
@@ -57,36 +57,36 @@ class FocalLoss(nn.Module):
     Reference: https://arxiv.org/abs/1708.02002
     """
 
-    def __init__(self, gamma: float = 2.0, alpha: Optional[torch.Tensor] = None):
+    def __init__self, gamma: float = 2.0, alpha: Optional[torch.Tensor] = None:
         """Initialize Focal Loss.
 
         Args:
-            gamma: Focusing parameter (>= 0). Higher values focus more on hard examples.
-            alpha: Optional class weights. If provided, should be a tensor of shape (num_classes,).
+            gamma: Focusing parameter >= 0. Higher values focus more on hard examples.
+            alpha: Optional class weights. If provided, should be a tensor of shape num_classes,.
         """
         super().__init__()
         self.gamma = gamma
         self.alpha = alpha
 
-    def forward(self, inputs: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+    def forwardself, inputs: torch.Tensor, targets: torch.Tensor -> torch.Tensor:
         """Forward pass.
 
         Args:
-            inputs: Model predictions (logits) of shape (batch_size, num_classes)
-            targets: Ground truth labels of shape (batch_size, num_classes)
+            inputs: Model predictions logits of shape batch_size, num_classes
+            targets: Ground truth labels of shape batch_size, num_classes
 
         Returns:
             Focal loss value
         """
-        probs = torch.sigmoid(inputs)
+        probs = torch.sigmoidinputs
 
-        bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
+        bce_loss = F.binary_cross_entropy_with_logitsinputs, targets, reduction="none"
 
-        p_t = probs * targets + (1 - probs) * (1 - targets)
-        focal_weight = (1 - p_t) ** self.gamma
+        p_t = probs * targets + 1 - probs * 1 - targets
+        focal_weight = 1 - p_t ** self.gamma
 
         if self.alpha is not None:
-            alpha_t = self.alpha * targets + (1 - self.alpha) * (1 - targets)
+            alpha_t = self.alpha * targets + 1 - self.alpha * 1 - targets
             focal_weight = alpha_t * focal_weight
 
         focal_loss = focal_weight * bce_loss
@@ -94,7 +94,7 @@ class FocalLoss(nn.Module):
         return focal_loss.mean()
 
 
-class EnsembleModel(nn.Module):
+class EnsembleModelnn.Module:
     """Ensemble model combining multiple BERT emotion classifiers."""
 
     def __init__(
@@ -108,17 +108,17 @@ class EnsembleModel(nn.Module):
 
         Args:
             models: List of BERT emotion classifier models
-            weights: Optional weights for each model (default: equal weights)
+            weights: Optional weights for each model default: equal weights
             temperature: Temperature for softmax scaling
             threshold: Classification threshold
         """
         super().__init__()
-        self.models = nn.ModuleList(models)
-        self.weights = weights or [1.0 / len(models)] * len(models)
+        self.models = nn.ModuleListmodels
+        self.weights = weights or [1.0 / lenmodels] * lenmodels
         self.temperature = temperature
         self.threshold = threshold
 
-    def forward(self, **kwargs) -> torch.Tensor:
+    def forwardself, **kwargs -> torch.Tensor:
         """Forward pass through ensemble.
 
         Args:
@@ -129,18 +129,18 @@ class EnsembleModel(nn.Module):
         """
         predictions = []
         for model in self.models:
-            pred = model(**kwargs)
-            predictions.append(pred)
+            pred = model**kwargs
+            predictions.appendpred
 
         # Weighted average of predictions
-        weighted_pred = sum(w * p for w, p in zip(self.weights, predictions))
+        weighted_pred = sum(w * p for w, p in zipself.weights, predictions)
         
         # Apply temperature scaling
         scaled_pred = weighted_pred / self.temperature
         
         return scaled_pred
 
-    def set_temperature(self, temperature: float) -> None:
+    def set_temperatureself, temperature: float -> None:
         """Set temperature for ensemble predictions.
 
         Args:
@@ -149,7 +149,7 @@ class EnsembleModel(nn.Module):
         self.temperature = temperature
 
 
-def create_augmented_dataset(data_loader: GoEmotionsDataLoader, tokenizer: AutoTokenizer) -> dict:
+def create_augmented_datasetdata_loader: GoEmotionsDataLoader, tokenizer: AutoTokenizer -> dict:
     """Create augmented dataset using back-translation.
 
     Args:
@@ -159,7 +159,7 @@ def create_augmented_dataset(data_loader: GoEmotionsDataLoader, tokenizer: AutoT
     Returns:
         Augmented dataset
     """
-    logger.info("Creating augmented dataset with back-translation...")
+    logger.info"Creating augmented dataset with back-translation..."
     
     # For now, return the original dataset
     # TODO: Implement back-translation augmentation
@@ -179,32 +179,32 @@ def train_final_model(
     Returns:
         Training metrics
     """
-    logger.info(f"Training final model for {epochs} epochs with batch size {batch_size}")
+    logger.infof"Training final model for {epochs} epochs with batch size {batch_size}"
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Using device: {device}")
+    logger.infof"Using device: {device}"
 
     # Create model and data loader
     model, tokenizer = create_bert_emotion_classifier()
-    model.to(device)
+    model.todevice
 
     data_loader = GoEmotionsDataLoader()
     train_data = data_loader.get_train_data()
     val_data = data_loader.get_validation_data()
 
     # Create augmented dataset
-    augmented_data = create_augmented_dataset(data_loader, tokenizer)
+    augmented_data = create_augmented_datasetdata_loader, tokenizer
 
     # Initialize focal loss
-    focal_loss = FocalLoss(gamma=2.0)
+    focal_loss = FocalLossgamma=2.0
 
     # Initialize optimizer
     optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5, weight_decay=0.01)
 
     # Training loop
     best_f1 = 0.0
-    for epoch in range(epochs):
-        logger.info(f"Epoch {epoch + 1}/{epochs}")
+    for epoch in rangeepochs:
+        logger.infof"Epoch {epoch + 1}/{epochs}"
         
         # Training
         model.train()
@@ -214,8 +214,8 @@ def train_final_model(
             optimizer.zero_grad()
             
             # Forward pass
-            outputs = model(batch["input_ids"], batch["attention_mask"])
-            loss = focal_loss(outputs, batch["labels"])
+            outputs = modelbatch["input_ids"], batch["attention_mask"]
+            loss = focal_lossoutputs, batch["labels"]
             
             # Backward pass
             loss.backward()
@@ -230,19 +230,19 @@ def train_final_model(
         
         with torch.no_grad():
             for batch in val_data:
-                outputs = model(batch["input_ids"], batch["attention_mask"])
-                predictions = (torch.sigmoid(outputs) > OPTIMAL_THRESHOLD).float()
+                outputs = modelbatch["input_ids"], batch["attention_mask"]
+                predictions = (torch.sigmoidoutputs > OPTIMAL_THRESHOLD).float()
                 
                 val_predictions.append(predictions.cpu())
                 val_labels.append(batch["labels"].cpu())
         
         # Calculate F1 score
-        val_predictions = torch.cat(val_predictions, dim=0)
-        val_labels = torch.cat(val_labels, dim=0)
+        val_predictions = torch.catval_predictions, dim=0
+        val_labels = torch.catval_labels, dim=0
         
-        f1 = f1_score(val_labels, val_predictions, average='micro', zero_division=0)
+        f1 = f1_scoreval_labels, val_predictions, average='micro', zero_division=0
         
-        logger.info(f"Epoch {epoch + 1}: Loss = {total_loss:.4f}, F1 = {f1:.4f}")
+        logger.infof"Epoch {epoch + 1}: Loss = {total_loss:.4f}, F1 = {f1:.4f}"
         
         # Save best model
         if f1 > best_f1:
@@ -253,7 +253,7 @@ def train_final_model(
                 'epoch': epoch,
                 'f1_score': f1,
             }, output_model)
-            logger.info(f"New best model saved with F1 = {f1:.4f}")
+            logger.infof"New best model saved with F1 = {f1:.4f}"
 
     return {
         'best_f1': best_f1,
@@ -262,7 +262,7 @@ def train_final_model(
     }
 
 
-def create_ensemble_model(model_path: str, device: torch.device) -> EnsembleModel:
+def create_ensemble_modelmodel_path: str, device: torch.device -> EnsembleModel:
     """Create ensemble model from trained models.
 
     Args:
@@ -272,21 +272,21 @@ def create_ensemble_model(model_path: str, device: torch.device) -> EnsembleMode
     Returns:
         Ensemble model
     """
-    logger.info("Creating ensemble model...")
+    logger.info"Creating ensemble model..."
     
     # For now, create a single model ensemble
     # TODO: Implement multiple model ensemble
     model, _ = create_bert_emotion_classifier()
     
-    if Path(model_path).exists():
-        checkpoint = torch.load(model_path, map_location=device)
-        model.load_state_dict(checkpoint['model_state_dict'])
-        logger.info(f"Loaded model from {model_path}")
+    if Pathmodel_path.exists():
+        checkpoint = torch.loadmodel_path, map_location=device
+        model.load_state_dictcheckpoint['model_state_dict']
+        logger.infof"Loaded model from {model_path}"
     
-    model.to(device)
+    model.todevice
     model.eval()
     
-    return EnsembleModel([model])
+    return EnsembleModel[model]
 
 
 def evaluate_ensemble(
@@ -303,7 +303,7 @@ def evaluate_ensemble(
     Returns:
         Evaluation metrics
     """
-    logger.info("Evaluating ensemble model...")
+    logger.info"Evaluating ensemble model..."
     
     ensemble.eval()
     predictions = []
@@ -312,21 +312,21 @@ def evaluate_ensemble(
     with torch.no_grad():
         for batch in test_data:
             outputs = ensemble(
-                input_ids=batch["input_ids"].to(device),
-                attention_mask=batch["attention_mask"].to(device)
+                input_ids=batch["input_ids"].todevice,
+                attention_mask=batch["attention_mask"].todevice
             )
-            batch_predictions = (torch.sigmoid(outputs) > OPTIMAL_THRESHOLD).float()
+            batch_predictions = (torch.sigmoidoutputs > OPTIMAL_THRESHOLD).float()
             
             predictions.append(batch_predictions.cpu())
             labels.append(batch["labels"].cpu())
     
     # Concatenate results
-    predictions = torch.cat(predictions, dim=0)
-    labels = torch.cat(labels, dim=0)
+    predictions = torch.catpredictions, dim=0
+    labels = torch.catlabels, dim=0
     
     # Calculate metrics
-    micro_f1 = f1_score(labels, predictions, average='micro', zero_division=0)
-    macro_f1 = f1_score(labels, predictions, average='macro', zero_division=0)
+    micro_f1 = f1_scorelabels, predictions, average='micro', zero_division=0
+    macro_f1 = f1_scorelabels, predictions, average='macro', zero_division=0
     precision, recall, _, _ = precision_recall_fscore_support(
         labels, predictions, average='micro', zero_division=0
     )
@@ -349,10 +349,10 @@ def save_ensemble_model(
         metrics: Model performance metrics
         output_path: Path to save the model
     """
-    logger.info(f"Saving ensemble model to {output_path}")
+    logger.infof"Saving ensemble model to {output_path}"
     
     # Create output directory
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    Pathoutput_path.parent.mkdirparents=True, exist_ok=True
     
     # Save model
     torch.save({
@@ -362,13 +362,13 @@ def save_ensemble_model(
         'threshold': ensemble.threshold,
     }, output_path)
     
-    logger.info(f"Model saved successfully!")
-    logger.info(f"Final metrics: {metrics}")
+    logger.info"Model saved successfully!"
+    logger.infof"Final metrics: {metrics}"
 
 
 def main():
     """Main function."""
-    parser = argparse.ArgumentParser(description="Finalize emotion detection model")
+    parser = argparse.ArgumentParserdescription="Finalize emotion detection model"
     parser.add_argument(
         "--output_model",
         type=str,
@@ -390,7 +390,7 @@ def main():
     
     args = parser.parse_args()
     
-    logger.info("🚀 Starting emotion detection model finalization...")
+    logger.info"🚀 Starting emotion detection model finalization..."
     
     # Train final model
     training_results = train_final_model(
@@ -399,28 +399,28 @@ def main():
         batch_size=args.batch_size
     )
     
-    logger.info(f"Training completed! Best F1: {training_results['best_f1']:.4f}")
+    logger.infof"Training completed! Best F1: {training_results['best_f1']:.4f}"
     
     # Check if target F1 score is achieved
     if training_results['best_f1'] >= TARGET_F1_SCORE:
-        logger.info(f"🎉 Target F1 score of {TARGET_F1_SCORE} achieved!")
+        logger.infof"🎉 Target F1 score of {TARGET_F1_SCORE} achieved!"
         
         # Create and evaluate ensemble
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        ensemble = create_ensemble_model(args.output_model, device)
+        ensemble = create_ensemble_modelargs.output_model, device
         
         data_loader = GoEmotionsDataLoader()
         test_data = data_loader.get_test_data()
         _, tokenizer = create_bert_emotion_classifier()
         
-        metrics = evaluate_ensemble(ensemble, test_data, tokenizer, device)
+        metrics = evaluate_ensembleensemble, test_data, tokenizer, device
         
         # Save ensemble model
-        ensemble_path = args.output_model.replace('.pt', '_ensemble.pt')
-        save_ensemble_model(ensemble, metrics, ensemble_path)
+        ensemble_path = args.output_model.replace'.pt', '_ensemble.pt'
+        save_ensemble_modelensemble, metrics, ensemble_path
         
     else:
-        logger.warning(f"⚠️ Target F1 score of {TARGET_F1_SCORE} not achieved. Best: {training_results['best_f1']:.4f}")
+        logger.warningf"⚠️ Target F1 score of {TARGET_F1_SCORE} not achieved. Best: {training_results['best_f1']:.4f}"
 
 
 if __name__ == "__main__":

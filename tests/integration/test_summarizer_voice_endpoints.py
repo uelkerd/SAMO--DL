@@ -8,7 +8,7 @@ from src.security.jwt_manager import TokenPayload
 import src.unified_ai_api as api
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixtureautouse=True
 def auth_override():
     """Bypass JWT for these tests by overriding dependency."""
     app.dependency_overrides[get_current_user] = lambda: TokenPayload(
@@ -19,69 +19,69 @@ def auth_override():
     try:
         yield
     finally:
-        app.dependency_overrides.pop(get_current_user, None)
+        app.dependency_overrides.popget_current_user, None
 
 
 @pytest.fixture
 def client() -> TestClient:
     """Pytest TestClient fixture for the unified API app."""
-    return TestClient(app)
+    return TestClientapp
 
 
-def tiny_tone_wav_bytes(duration_s: float = 0.3, sample_rate: int = 16000, freq_hz: int = 440) -> bytes:
-    """Generate a very small WAV tone (16-bit PCM) for upload tests."""
-    t = np.linspace(0, duration_s, int(sample_rate * duration_s), endpoint=False)
-    audio = (0.2 * np.sin(2 * np.pi * freq_hz * t)).astype(np.float32)
+def tiny_tone_wav_bytesduration_s: float = 0.3, sample_rate: int = 16000, freq_hz: int = 440 -> bytes:
+    """Generate a very small WAV tone 16-bit PCM for upload tests."""
+    t = np.linspace(0, duration_s, intsample_rate * duration_s, endpoint=False)
+    audio = (0.2 * np.sin2 * np.pi * freq_hz * t).astypenp.float32
 
     # Convert float32 [-1,1] to int16
-    pcm = (np.clip(audio, -1.0, 1.0) * 32767.0).astype(np.int16)
+    pcm = (np.clipaudio, -1.0, 1.0 * 32767.0).astypenp.int16
 
     # Minimal WAV header
     with io.BytesIO() as buf:
         import wave
 
-        with wave.open(buf, "wb") as wf:
-            wf.setnchannels(1)
-            wf.setsampwidth(2)
-            wf.setframerate(sample_rate)
+        with wave.openbuf, "wb" as wf:
+            wf.setnchannels1
+            wf.setsampwidth2
+            wf.setframeratesample_rate
             wf.writeframes(pcm.tobytes())
         return buf.getvalue()
 
 
-def test_summarize_returns_503_when_model_unavailable(monkeypatch, client: TestClient, tmp_path):
+def test_summarize_returns_503_when_model_unavailablemonkeypatch, client: TestClient, tmp_path:
     """Force summarizer lazy-load to fail and expect 503."""
     # Ensure global is None
     api.text_summarizer = None
 
     # Patch creator to raise
-    def fail_create(_model: str):
+    def fail_create_model: str:
         """Raise to simulate summarizer model load failure."""
-        raise RuntimeError("simulated load failure")
+        raise RuntimeError"simulated load failure"
 
     cache_dir = tmp_path / "hf-cache-test"
-    monkeypatch.setenv("HF_HOME", str(cache_dir))
-    monkeypatch.setenv("TRANSFORMERS_CACHE", str(cache_dir))
+    monkeypatch.setenv("HF_HOME", strcache_dir)
+    monkeypatch.setenv("TRANSFORMERS_CACHE", strcache_dir)
     # ensure accidental attribute is absent
     if "create_t5_summarizer" in api.__dict__:
         del api.__dict__["create_t5_summarizer"]
-    monkeypatch.setenv("TOKENIZERS_PARALLELISM", "false")
+    monkeypatch.setenv"TOKENIZERS_PARALLELISM", "false"
 
-    def _mock_import(name: str, *args, **kwargs):  # type: ignore
+    def _mock_importname: str, *args, **kwargs:  # type: ignore
         """Mock import hook to replace t5 summarizer creator for testing."""
         if name == "src.models.summarization.t5_summarizer":
             class M:
                 """Module shim exposing a summarizer factory for tests."""
 
                 @staticmethod
-                def create_t5_summarizer(model: str):
+                def create_t5_summarizermodel: str:
                     """Proxy to the failing creator to simulate error paths."""
-                    return fail_create(model)
+                    return fail_createmodel
             return M
-        return orig_import(name, *args, **kwargs)
+        return orig_importname, *args, **kwargs
 
     import builtins
     orig_import = builtins.__import__
-    monkeypatch.setattr(builtins, "__import__", _mock_import)
+    monkeypatch.setattrbuiltins, "__import__", _mock_import
 
     resp = client.post(
         "/summarize/text",
@@ -90,7 +90,7 @@ def test_summarize_returns_503_when_model_unavailable(monkeypatch, client: TestC
     assert resp.status_code == 503
 
 
-def test_summarize_returns_200_when_lazy_load_succeeds(monkeypatch, client: TestClient):
+def test_summarize_returns_200_when_lazy_load_succeedsmonkeypatch, client: TestClient:
     """Mock summarizer to return a summary and expect 200."""
     api.text_summarizer = None
 
@@ -100,26 +100,26 @@ def test_summarize_returns_200_when_lazy_load_succeeds(monkeypatch, client: Test
         model_name = "t5-small"
 
         @staticmethod
-        def generate_summary(_text: str, _max_length: int, _min_length: int) -> str:
+        def generate_summary_text: str, _max_length: int, _min_length: int -> str:
             """Return a constant summary string for tests."""
             return "fake summary"
 
-    def _mock_import(name: str, *args, **kwargs):  # type: ignore
+    def _mock_importname: str, *args, **kwargs:  # type: ignore
         """Mock import hook to return a FakeSummarizer creator."""
         if name == "src.models.summarization.t5_summarizer":
             class M:
                 """Module shim exposing a summarizer factory for tests."""
 
                 @staticmethod
-                def create_t5_summarizer(_model: str):
+                def create_t5_summarizer_model: str:
                     """Create and return FakeSummarizer for tests."""
                     return FakeSummarizer()
             return M
-        return orig_import(name, *args, **kwargs)
+        return orig_importname, *args, **kwargs
 
     import builtins
     orig_import = builtins.__import__
-    monkeypatch.setattr(builtins, "__import__", _mock_import)
+    monkeypatch.setattrbuiltins, "__import__", _mock_import
 
     resp = client.post(
         "/summarize/text",
@@ -127,37 +127,37 @@ def test_summarize_returns_200_when_lazy_load_succeeds(monkeypatch, client: Test
     )
     assert resp.status_code == 200
     data = resp.json()
-    assert data.get("summary") == "fake summary"
+    assert data.get"summary" == "fake summary"
 
 
-def test_voice_returns_503_when_transcriber_unavailable(monkeypatch, client: TestClient):
+def test_voice_returns_503_when_transcriber_unavailablemonkeypatch, client: TestClient:
     """Force transcriber lazy-load to fail and expect 503."""
     api.voice_transcriber = None
 
-    def _mock_import(name: str, *args, **kwargs):  # type: ignore
+    def _mock_importname: str, *args, **kwargs:  # type: ignore
         """Mock import hook to raise when creating Whisper transcriber."""
         if name == "src.models.voice_processing.whisper_transcriber":
             class M:
                 """Module shim exposing a Whisper transcriber factory for tests."""
 
                 @staticmethod
-                def create_whisper_transcriber(_model: str):
+                def create_whisper_transcriber_model: str:
                     """Raise to simulate Whisper transcriber load failure."""
-                    raise RuntimeError("simulated whisper load failure")
+                    raise RuntimeError"simulated whisper load failure"
             return M
-        return orig_import(name, *args, **kwargs)
+        return orig_importname, *args, **kwargs
 
     import builtins
     orig_import = builtins.__import__
-    monkeypatch.setattr(builtins, "__import__", _mock_import)
+    monkeypatch.setattrbuiltins, "__import__", _mock_import
 
     wav = tiny_tone_wav_bytes()
-    files = {"audio_file": ("tiny.wav", wav, "audio/wav")}
-    resp = client.post("/transcribe/voice", files=files)
+    files = {"audio_file": "tiny.wav", wav, "audio/wav"}
+    resp = client.post"/transcribe/voice", files=files
     assert resp.status_code == 503
 
 
-def test_voice_returns_200_when_lazy_load_succeeds(monkeypatch, client: TestClient):
+def test_voice_returns_200_when_lazy_load_succeedsmonkeypatch, client: TestClient:
     """Mock transcriber to return a dict and expect 200."""
     api.voice_transcriber = None
 
@@ -165,7 +165,7 @@ def test_voice_returns_200_when_lazy_load_succeeds(monkeypatch, client: TestClie
         """Minimal fake transcriber used to test success paths."""
 
         @staticmethod
-        def transcribe(_path: str, _language=None):
+        def transcribe_path: str, _language=None:
             """Return a minimal fake transcription payload for tests."""
             return {
                 "text": "hello",
@@ -177,26 +177,26 @@ def test_voice_returns_200_when_lazy_load_succeeds(monkeypatch, client: TestClie
                 "audio_quality": "fair",
             }
 
-    def _mock_import(name: str, *args, **kwargs):  # type: ignore
+    def _mock_importname: str, *args, **kwargs:  # type: ignore
         """Mock import hook to return a FakeTranscriber creator."""
         if name == "src.models.voice_processing.whisper_transcriber":
             class M:
                 """Module shim exposing a Whisper transcriber factory for tests."""
 
                 @staticmethod
-                def create_whisper_transcriber(_model: str):
+                def create_whisper_transcriber_model: str:
                     """Create and return FakeTranscriber for tests."""
                     return FakeTranscriber()
             return M
-        return orig_import(name, *args, **kwargs)
+        return orig_importname, *args, **kwargs
 
     import builtins
     orig_import = builtins.__import__
-    monkeypatch.setattr(builtins, "__import__", _mock_import)
+    monkeypatch.setattrbuiltins, "__import__", _mock_import
 
     wav = tiny_tone_wav_bytes()
-    files = {"audio_file": ("tiny.wav", wav, "audio/wav")}
-    resp = client.post("/transcribe/voice", files=files)
+    files = {"audio_file": "tiny.wav", wav, "audio/wav"}
+    resp = client.post"/transcribe/voice", files=files
     assert resp.status_code == 200
     data = resp.json()
-    assert data.get("text") == "hello"
+    assert data.get"text" == "hello"

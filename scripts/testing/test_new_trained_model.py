@@ -11,11 +11,11 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 def test_new_trained_model():
     """Test the newly trained model from Colab"""
     
-    print("🧪 TESTING NEW TRAINED MODEL")
-    print("=" * 50)
+    print"🧪 TESTING NEW TRAINED MODEL"
+    print"=" * 50
     
     # Model directory
-    model_dir = Path(__file__).parent.parent / 'deployment' / 'model'
+    model_dir = Path__file__.parent.parent / 'deployment' / 'model'
     
     # Check for required files
     required_files = [
@@ -23,36 +23,36 @@ def test_new_trained_model():
         'tokenizer.json', 'tokenizer_config.json', 'vocab.json'
     ]
     
-    print("📁 Checking model files...")
+    print"📁 Checking model files..."
     for file in required_files:
         file_path = model_dir / file
         if file_path.exists():
-            print(f"✅ Found: {file}")
+            printf"✅ Found: {file}"
         else:
-            print(f"❌ Missing: {file}")
+            printf"❌ Missing: {file}"
             return False
     
-    print("\n🔧 Loading model...")
+    print"\n🔧 Loading model..."
     try:
         # Load tokenizer and model
-        tokenizer = AutoTokenizer.from_pretrained(str(model_dir))
-        model = AutoModelForSequenceClassification.from_pretrained(str(model_dir))
+        tokenizer = AutoTokenizer.from_pretrained(strmodel_dir)
+        model = AutoModelForSequenceClassification.from_pretrained(strmodel_dir)
         
-        print("✅ Model loaded successfully!")
+        print"✅ Model loaded successfully!"
         
         # Check model configuration
-        print(f"\n📊 Model Configuration:")
-        print(f"  Model type: {model.config.model_type}")
-        print(f"  Architecture: {model.config.architectures[0]}")
-        print(f"  Hidden layers: {model.config.num_hidden_layers}")
-        print(f"  Hidden size: {model.config.hidden_size}")
-        print(f"  Number of labels: {model.config.num_labels}")
-        print(f"  Labels: {model.config.id2label}")
+        print"\n📊 Model Configuration:"
+        printf"  Model type: {model.config.model_type}"
+        printf"  Architecture: {model.config.architectures[0]}"
+        printf"  Hidden layers: {model.config.num_hidden_layers}"
+        printf"  Hidden size: {model.config.hidden_size}"
+        printf"  Number of labels: {model.config.num_labels}"
+        printf"  Labels: {model.config.id2label}"
         
         # Define emotion mapping
         emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
         
-        print(f"\n🎯 Testing predictions...")
+        print"\n🎯 Testing predictions..."
         
         # Test examples
         test_examples = [
@@ -75,13 +75,13 @@ def test_new_trained_model():
         
         for text in test_examples:
             # Tokenize
-            inputs = tokenizer(text, return_tensors='pt', truncation=True, max_length=128)
+            inputs = tokenizertext, return_tensors='pt', truncation=True, max_length=128
             
             # Predict
             with torch.no_grad():
-                outputs = model(**inputs)
-                predictions = torch.softmax(outputs.logits, dim=1)
-                predicted_class = torch.argmax(predictions, dim=1).item()
+                outputs = model**inputs
+                predictions = torch.softmaxoutputs.logits, dim=1
+                predicted_class = torch.argmaxpredictions, dim=1.item()
                 confidence = predictions[0][predicted_class].item()
             
             predicted_emotion = emotions[predicted_class]
@@ -99,13 +99,13 @@ def test_new_trained_model():
             else:
                 status = "❌"
             
-            print(f"{status} \"{text}\" → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})")
+            print(f"{status} \"{text}\" → {predicted_emotion} expected: {expected_emotion}, confidence: {confidence:.3f}")
         
-        accuracy = correct / len(test_examples)
-        print(f"\n📊 Test Accuracy: {accuracy:.1%} ({correct}/{len(test_examples)})")
+        accuracy = correct / lentest_examples
+        print(f"\n📊 Test Accuracy: {accuracy:.1%} ({correct}/{lentest_examples})")
         
         # Test on some edge cases
-        print(f"\n🧪 Testing edge cases...")
+        print"\n🧪 Testing edge cases..."
         edge_cases = [
             "I'm not sure how I feel.",
             "This is amazing!",
@@ -115,41 +115,41 @@ def test_new_trained_model():
         ]
         
         for text in edge_cases:
-            inputs = tokenizer(text, return_tensors='pt', truncation=True, max_length=128)
+            inputs = tokenizertext, return_tensors='pt', truncation=True, max_length=128
             with torch.no_grad():
-                outputs = model(**inputs)
-                predictions = torch.softmax(outputs.logits, dim=1)
-                predicted_class = torch.argmax(predictions, dim=1).item()
+                outputs = model**inputs
+                predictions = torch.softmaxoutputs.logits, dim=1
+                predicted_class = torch.argmaxpredictions, dim=1.item()
                 confidence = predictions[0][predicted_class].item()
             
             predicted_emotion = emotions[predicted_class]
-            print(f"  \"{text}\" → {predicted_emotion} (confidence: {confidence:.3f})")
+            print(f"  \"{text}\" → {predicted_emotion} confidence: {confidence:.3f}")
         
         # Overall assessment
-        print(f"\n🎯 MODEL ASSESSMENT:")
+        print"\n🎯 MODEL ASSESSMENT:"
         if accuracy >= 0.8:
-            print("✅ EXCELLENT: Model ready for deployment!")
+            print"✅ EXCELLENT: Model ready for deployment!"
         elif accuracy >= 0.7:
-            print("✅ GOOD: Model is working well, can be deployed!")
+            print"✅ GOOD: Model is working well, can be deployed!"
         elif accuracy >= 0.6:
-            print("⚠️  FAIR: Model needs improvement but is functional")
+            print"⚠️  FAIR: Model needs improvement but is functional"
         else:
-            print("❌ POOR: Model needs significant improvement")
+            print"❌ POOR: Model needs significant improvement"
         
-        print(f"\n📋 Next steps:")
-        print(f"  1. Model is ready for local testing")
-        print(f"  2. Can be deployed to API server")
-        print(f"  3. Consider retraining tomorrow for better results")
+        print"\n📋 Next steps:"
+        print"  1. Model is ready for local testing"
+        print"  2. Can be deployed to API server"
+        print"  3. Consider retraining tomorrow for better results"
         
         return True
         
     except Exception as e:
-        print(f"❌ Error testing model: {str(e)}")
+        print(f"❌ Error testing model: {stre}")
         return False
 
 if __name__ == "__main__":
     success = test_new_trained_model()
     if success:
-        print("\n🎉 Model testing completed successfully!")
+        print"\n🎉 Model testing completed successfully!"
     else:
-        print("\n❌ Model testing failed!") 
+        print"\n❌ Model testing failed!" 

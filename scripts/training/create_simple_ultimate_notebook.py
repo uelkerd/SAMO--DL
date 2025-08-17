@@ -22,12 +22,12 @@ def create_simple_notebook():
                     "## Avoiding Datasets Library Issues\n",
                     "\n",
                     "**FEATURES INCLUDED:**\n",
-                    "✅ Configuration preservation (prevents 8.3% vs 75% discrepancy)\n",
-                    "✅ Focal loss (handles class imbalance)\n",
-                    "✅ Class weighting (WeightedLossTrainer)\n",
-                    "✅ Data augmentation (sophisticated techniques)\n",
-                    "✅ Advanced validation (proper testing)\n",
-                    "✅ Simple, direct approach (no datasets library issues)\n",
+                    "✅ Configuration preservation prevents 8.3% vs 75% discrepancy\n",
+                    "✅ Focal loss handles class imbalance\n",
+                    "✅ Class weighting WeightedLossTrainer\n",
+                    "✅ Data augmentation sophisticated techniques\n",
+                    "✅ Advanced validation proper testing\n",
+                    "✅ Simple, direct approach no datasets library issues\n",
                     "\n",
                     "**Target**: Reliable 75-85% F1 score with consistent performance"
                 ]
@@ -57,10 +57,10 @@ def create_simple_notebook():
                     "from sklearn.utils.class_weight import compute_class_weight\n",
                     "import json\n",
                     "import warnings\n",
-                    "warnings.filterwarnings('ignore')\n",
+                    "warnings.filterwarnings'ignore'\n",
                     "\n",
-                    "print('✅ All packages imported successfully')\n",
-                    "print(f'PyTorch version: {torch.__version__}')\n",
+                    "print'✅ All packages imported successfully'\n",
+                    "printf'PyTorch version: {torch.__version__}'\n",
                     "print(f'CUDA available: {torch.cuda.is_available()}')"
                 ]
             },
@@ -77,37 +77,37 @@ def create_simple_notebook():
                 "metadata": {},
                 "outputs": [],
                 "source": [
-                    "print('🔍 VERIFYING SPECIALIZED MODEL ACCESS')\n",
-                    "print('=' * 50)\n",
+                    "print'🔍 VERIFYING SPECIALIZED MODEL ACCESS'\n",
+                    "print'=' * 50\n",
                     "\n",
                     "specialized_model_name = 'j-hartmann/emotion-english-distilroberta-base'\n",
                     "\n",
                     "try:\n",
-                    "    print(f'Testing access to: {specialized_model_name}')\n",
-                    "    test_tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\n",
-                    "    test_model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name)\n",
+                    "    printf'Testing access to: {specialized_model_name}'\n",
+                    "    test_tokenizer = AutoTokenizer.from_pretrainedspecialized_model_name\n",
+                    "    test_model = AutoModelForSequenceClassification.from_pretrainedspecialized_model_name\n",
                     "    \n",
-                    "    print('✅ SUCCESS: Specialized model loaded!')\n",
-                    "    print(f'Model type: {test_model.config.model_type}')\n",
-                    "    print(f'Architecture: {test_model.config.architectures[0]}')\n",
-                    "    print(f'Hidden layers: {test_model.config.num_hidden_layers}')\n",
-                    "    print(f'Hidden size: {test_model.config.hidden_size}')\n",
-                    "    print(f'Number of labels: {test_model.config.num_labels}')\n",
-                    "    print(f'Original labels: {test_model.config.id2label}')\n",
+                    "    print'✅ SUCCESS: Specialized model loaded!'\n",
+                    "    printf'Model type: {test_model.config.model_type}'\n",
+                    "    printf'Architecture: {test_model.config.architectures[0]}'\n",
+                    "    printf'Hidden layers: {test_model.config.num_hidden_layers}'\n",
+                    "    printf'Hidden size: {test_model.config.hidden_size}'\n",
+                    "    printf'Number of labels: {test_model.config.num_labels}'\n",
+                    "    printf'Original labels: {test_model.config.id2label}'\n",
                     "    \n",
                     "    # Verify it's actually DistilRoBERTa\n",
                     "    if test_model.config.num_hidden_layers == 6:\n",
-                    "        print('✅ CONFIRMED: This is DistilRoBERTa architecture')\n",
+                    "        print'✅ CONFIRMED: This is DistilRoBERTa architecture'\n",
                     "    else:\n",
-                    "        print('⚠️  WARNING: This may not be the expected DistilRoBERTa model')\n",
+                    "        print'⚠️  WARNING: This may not be the expected DistilRoBERTa model'\n",
                     "    \n",
                     "except Exception as e:\n",
-                    "    print(f'❌ ERROR: Cannot access specialized model: {str(e)}')\n",
-                    "    print('\\n🔧 FALLBACK: Using roberta-base instead')\n",
+                    "    print(f'❌ ERROR: Cannot access specialized model: {stre}')\n",
+                    "    print'\\n🔧 FALLBACK: Using roberta-base instead'\n",
                     "    specialized_model_name = 'roberta-base'\n",
-                    "    test_tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\n",
-                    "    test_model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name, num_labels=12)\n",
-                    "    print(f'✅ Fallback model loaded: {specialized_model_name}')"
+                    "    test_tokenizer = AutoTokenizer.from_pretrainedspecialized_model_name\n",
+                    "    test_model = AutoModelForSequenceClassification.from_pretrainedspecialized_model_name, num_labels=12\n",
+                    "    printf'✅ Fallback model loaded: {specialized_model_name}'"
                 ]
             },
             {
@@ -125,8 +125,8 @@ def create_simple_notebook():
                 "source": [
                     "# Define our emotion classes\n",
                     "emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\n",
-                    "print(f'🎯 Our emotion classes: {emotions}')\n",
-                    "print(f'📊 Number of emotions: {len(emotions)}')"
+                    "printf'🎯 Our emotion classes: {emotions}'\n",
+                    "print(f'📊 Number of emotions: {lenemotions}')"
                 ]
             },
             {
@@ -142,12 +142,12 @@ def create_simple_notebook():
                 "metadata": {},
                 "outputs": [],
                 "source": [
-                    "print('📊 CREATING ENHANCED DATASET WITH AUGMENTATION')\n",
-                    "print('=' * 50)\n",
+                    "print'📊 CREATING ENHANCED DATASET WITH AUGMENTATION'\n",
+                    "print'=' * 50\n",
                     "\n",
                     "# Base balanced dataset\n",
                     "base_data = [\n",
-                    "    # anxious (12 samples)\n",
+                    "    # anxious 12 samples\n",
                     "    {'text': 'I feel anxious about the presentation.', 'label': 0},\n",
                     "    {'text': 'I am anxious about the future.', 'label': 0},\n",
                     "    {'text': 'This makes me feel anxious.', 'label': 0},\n",
@@ -161,7 +161,7 @@ def create_simple_notebook():
                     "    {'text': 'This is causing me anxiety.', 'label': 0},\n",
                     "    {'text': 'I am anxious about the changes.', 'label': 0},\n",
                     "    \n",
-                    "    # calm (12 samples)\n",
+                    "    # calm 12 samples\n",
                     "    {'text': 'I feel calm and peaceful.', 'label': 1},\n",
                     "    {'text': 'I am feeling calm today.', 'label': 1},\n",
                     "    {'text': 'This makes me feel calm.', 'label': 1},\n",
@@ -175,7 +175,7 @@ def create_simple_notebook():
                     "    {'text': 'This creates a feeling of calm.', 'label': 1},\n",
                     "    {'text': 'I feel calm and collected.', 'label': 1},\n",
                     "    \n",
-                    "    # content (12 samples)\n",
+                    "    # content 12 samples\n",
                     "    {'text': 'I feel content with my life.', 'label': 2},\n",
                     "    {'text': 'I am content with the results.', 'label': 2},\n",
                     "    {'text': 'This makes me feel content.', 'label': 2},\n",
@@ -189,7 +189,7 @@ def create_simple_notebook():
                     "    {'text': 'I feel content and at ease.', 'label': 2},\n",
                     "    {'text': 'This creates contentment in me.', 'label': 2},\n",
                     "    \n",
-                    "    # excited (12 samples)\n",
+                    "    # excited 12 samples\n",
                     "    {'text': 'I am excited about the new opportunity.', 'label': 3},\n",
                     "    {'text': 'I feel excited about the future.', 'label': 3},\n",
                     "    {'text': 'This makes me feel excited.', 'label': 3},\n",
@@ -203,7 +203,7 @@ def create_simple_notebook():
                     "    {'text': 'I feel excited and energized.', 'label': 3},\n",
                     "    {'text': 'This creates excitement in me.', 'label': 3},\n",
                     "    \n",
-                    "    # frustrated (12 samples)\n",
+                    "    # frustrated 12 samples\n",
                     "    {'text': 'I am so frustrated with this project.', 'label': 4},\n",
                     "    {'text': 'I feel frustrated about the situation.', 'label': 4},\n",
                     "    {'text': 'This makes me feel frustrated.', 'label': 4},\n",
@@ -217,7 +217,7 @@ def create_simple_notebook():
                     "    {'text': 'I feel frustrated and upset.', 'label': 4},\n",
                     "    {'text': 'This creates frustration in me.', 'label': 4},\n",
                     "    \n",
-                    "    # grateful (12 samples)\n",
+                    "    # grateful 12 samples\n",
                     "    {'text': 'I am grateful for all the support.', 'label': 5},\n",
                     "    {'text': 'I feel grateful for the opportunity.', 'label': 5},\n",
                     "    {'text': 'This makes me feel grateful.', 'label': 5},\n",
@@ -231,7 +231,7 @@ def create_simple_notebook():
                     "    {'text': 'I feel grateful and blessed.', 'label': 5},\n",
                     "    {'text': 'This creates gratitude in me.', 'label': 5},\n",
                     "    \n",
-                    "    # happy (12 samples)\n",
+                    "    # happy 12 samples\n",
                     "    {'text': 'I am feeling really happy today!', 'label': 6},\n",
                     "    {'text': 'I feel happy about the news.', 'label': 6},\n",
                     "    {'text': 'This makes me feel happy.', 'label': 6},\n",
@@ -245,7 +245,7 @@ def create_simple_notebook():
                     "    {'text': 'I feel happy and cheerful.', 'label': 6},\n",
                     "    {'text': 'This creates happiness in me.', 'label': 6},\n",
                     "    \n",
-                    "    # hopeful (12 samples)\n",
+                    "    # hopeful 12 samples\n",
                     "    {'text': 'I am hopeful for the future.', 'label': 7},\n",
                     "    {'text': 'I feel hopeful about the outcome.', 'label': 7},\n",
                     "    {'text': 'This makes me feel hopeful.', 'label': 7},\n",
@@ -259,7 +259,7 @@ def create_simple_notebook():
                     "    {'text': 'I feel hopeful and confident.', 'label': 7},\n",
                     "    {'text': 'This creates hope in me.', 'label': 7},\n",
                     "    \n",
-                    "    # overwhelmed (12 samples)\n",
+                    "    # overwhelmed 12 samples\n",
                     "    {'text': 'I am feeling overwhelmed with tasks.', 'label': 8},\n",
                     "    {'text': 'I feel overwhelmed by the workload.', 'label': 8},\n",
                     "    {'text': 'This makes me feel overwhelmed.', 'label': 8},\n",
@@ -273,7 +273,7 @@ def create_simple_notebook():
                     "    {'text': 'I feel overwhelmed and drained.', 'label': 8},\n",
                     "    {'text': 'This creates overwhelm in me.', 'label': 8},\n",
                     "    \n",
-                    "    # proud (12 samples)\n",
+                    "    # proud 12 samples\n",
                     "    {'text': 'I am proud of my accomplishments.', 'label': 9},\n",
                     "    {'text': 'I feel proud of the results.', 'label': 9},\n",
                     "    {'text': 'This makes me feel proud.', 'label': 9},\n",
@@ -287,7 +287,7 @@ def create_simple_notebook():
                     "    {'text': 'I feel proud and confident.', 'label': 9},\n",
                     "    {'text': 'This creates pride in me.', 'label': 9},\n",
                     "    \n",
-                    "    # sad (12 samples)\n",
+                    "    # sad 12 samples\n",
                     "    {'text': 'I feel sad about the loss.', 'label': 10},\n",
                     "    {'text': 'I am sad about the situation.', 'label': 10},\n",
                     "    {'text': 'This makes me feel sad.', 'label': 10},\n",
@@ -301,7 +301,7 @@ def create_simple_notebook():
                     "    {'text': 'I feel sad and heartbroken.', 'label': 10},\n",
                     "    {'text': 'This creates sadness in me.', 'label': 10},\n",
                     "    \n",
-                    "    # tired (12 samples)\n",
+                    "    # tired 12 samples\n",
                     "    {'text': 'I am tired from working all day.', 'label': 11},\n",
                     "    {'text': 'I feel tired of the routine.', 'label': 11},\n",
                     "    {'text': 'This makes me feel tired.', 'label': 11},\n",
@@ -316,10 +316,10 @@ def create_simple_notebook():
                     "    {'text': 'This creates fatigue in me.', 'label': 11}\n",
                     "]\n",
                     "\n",
-                    "print(f'📊 Base dataset size: {len(base_data)} samples')\n",
+                    "print(f'📊 Base dataset size: {lenbase_data} samples')\n",
                     "\n",
                     "# Data augmentation function\n",
-                    "def augment_text(text, emotion):\n",
+                    "def augment_texttext, emotion:\n",
                     "    \"\"\"Create augmented versions of the text.\"\"\"\n",
                     "    augmented = []\n",
                     "    \n",
@@ -340,17 +340,17 @@ def create_simple_notebook():
                     "    }\n",
                     "    \n",
                     "    # Create variations with synonyms\n",
-                    "    for synonym in synonyms.get(emotion, [emotion])[:2]:  # Use first 2 synonyms\n",
-                    "        new_text = text.replace(emotion, synonym)\n",
+                    "    for synonym in synonyms.getemotion, [emotion][:2]:  # Use first 2 synonyms\n",
+                    "        new_text = text.replaceemotion, synonym\n",
                     "        if new_text != text:\n",
-                    "            augmented.append({'text': new_text, 'label': emotions.index(emotion)})\n",
+                    "            augmented.append({'text': new_text, 'label': emotions.indexemotion})\n",
                     "    \n",
                     "    # Add intensity variations\n",
                     "    intensity_words = ['really', 'very', 'extremely', 'quite', 'somewhat']\n",
                     "    for intensity in intensity_words[:2]:\n",
                     "        if intensity not in text.lower():\n",
                     "            new_text = f'I am {intensity} {emotion}.'\n",
-                    "            augmented.append({'text': new_text, 'label': emotions.index(emotion)})\n",
+                    "            augmented.append({'text': new_text, 'label': emotions.indexemotion})\n",
                     "    \n",
                     "    return augmented\n",
                     "\n",
@@ -358,19 +358,19 @@ def create_simple_notebook():
                     "augmented_data = []\n",
                     "for item in base_data:\n",
                     "    emotion = emotions[item['label']]\n",
-                    "    augmented = augment_text(item['text'], emotion)\n",
-                    "    augmented_data.extend(augmented)\n",
+                    "    augmented = augment_textitem['text'], emotion\n",
+                    "    augmented_data.extendaugmented\n",
                     "\n",
                     "# Combine base and augmented data\n",
                     "enhanced_data = base_data + augmented_data\n",
-                    "print(f'📊 Enhanced dataset size: {len(enhanced_data)} samples')\n",
-                    "print(f'📊 Augmentation added: {len(augmented_data)} samples')\n",
+                    "print(f'📊 Enhanced dataset size: {lenenhanced_data} samples')\n",
+                    "print(f'📊 Augmentation added: {lenaugmented_data} samples')\n",
                     "\n",
                     "# Convert to lists for simple processing\n",
                     "texts = [item['text'] for item in enhanced_data]\n",
                     "labels = [item['label'] for item in enhanced_data]\n",
                     "\n",
-                    "print(f'✅ Dataset prepared with {len(texts)} samples')"
+                    "print(f'✅ Dataset prepared with {lentexts} samples')"
                 ]
             }
         ],
@@ -399,17 +399,17 @@ def create_simple_notebook():
     
     # Save the notebook
     output_path = "notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb"
-    with open(output_path, 'w') as f:
-        json.dump(notebook_content, f, indent=2)
+    with openoutput_path, 'w' as f:
+        json.dumpnotebook_content, f, indent=2
     
-    print(f"✅ Created simple ultimate notebook: {output_path}")
-    print("📋 Features included:")
-    print("   ✅ Configuration preservation")
-    print("   ✅ Focal loss (to be added)")
-    print("   ✅ Class weighting (to be added)")
-    print("   ✅ Data augmentation")
-    print("   ✅ Simple approach (no datasets library)")
-    print("   ✅ Advanced validation (to be added)")
+    printf"✅ Created simple ultimate notebook: {output_path}"
+    print"📋 Features included:"
+    print"   ✅ Configuration preservation"
+    print("   ✅ Focal loss to be added")
+    print("   ✅ Class weighting to be added")
+    print"   ✅ Data augmentation"
+    print("   ✅ Simple approach no datasets library")
+    print("   ✅ Advanced validation to be added")
     
     return output_path
 

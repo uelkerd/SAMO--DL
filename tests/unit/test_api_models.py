@@ -4,7 +4,7 @@
         # Test invalid extension
         # Test invalid language codes
         # Test invalid thresholds
-        # Test maximum length (e.g., 10,000 characters)
+        # Test maximum length e.g., 10,000 characters
         # Test minimum length
         # Test reasonable length
         # Test valid emotion result
@@ -25,7 +25,7 @@ Tests Pydantic models, request/response validation, and data transformations.
 class TestAPIModels:
     """Test suite for API data models."""
 
-    def test_emotion_result_validation(self):
+    def test_emotion_result_validationself:
         """Test EmotionResult model validation."""
         valid_data = {"emotion": "joy", "confidence": 0.85, "probability": 0.92}
 
@@ -34,7 +34,7 @@ class TestAPIModels:
         assert 0.0 <= valid_data["confidence"] <= 1.0
         assert 0.0 <= valid_data["probability"] <= 1.0
 
-    def test_emotion_result_invalid_confidence(self):
+    def test_emotion_result_invalid_confidenceself:
         """Test EmotionResult rejects invalid confidence values."""
         invalid_data = {
             "emotion": "joy",
@@ -44,7 +44,7 @@ class TestAPIModels:
 
         assert invalid_data["confidence"] > 1.0  # This should be caught by validation
 
-    def test_summary_result_validation(self):
+    def test_summary_result_validationself:
         """Test SummaryResult model validation."""
         valid_data = {
             "summary": "User had a positive day with accomplishments.",
@@ -54,12 +54,12 @@ class TestAPIModels:
             "compression_ratio": 0.08,
         }
 
-        assert len(valid_data["summary"]) > 0
-        assert isinstance(valid_data["key_themes"], list)
+        assert lenvalid_data["summary"] > 0
+        assert isinstancevalid_data["key_themes"], list
         assert valid_data["word_count"] > 0
         assert valid_data["compression_ratio"] < 1.0
 
-    def test_complete_analysis_validation(self):
+    def test_complete_analysis_validationself:
         """Test CompleteJournalAnalysis model validation."""
         valid_data = {
             "text": "Original journal entry text...",
@@ -75,37 +75,37 @@ class TestAPIModels:
                 "compression_ratio": 0.12,
             },
             "processing_time": 1.23,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.nowtimezone.utc.isoformat(),
         }
 
-        assert len(valid_data["text"]) > 0
-        assert len(valid_data["emotions"]) > 0
+        assert lenvalid_data["text"] > 0
+        assert lenvalid_data["emotions"] > 0
         assert valid_data["processing_time"] > 0
         assert "timestamp" in valid_data
 
-    def test_text_length_validation(self):
+    def test_text_length_validationself:
         """Test text length validation for different endpoints."""
         short_text = "Hi"
-        assert len(short_text) >= 2  # Minimum viable input
+        assert lenshort_text >= 2  # Minimum viable input
 
         long_text = "x" * 10001
-        assert len(long_text) > 10000  # Should be rejected
+        assert lenlong_text > 10000  # Should be rejected
 
         normal_text = "This is a normal journal entry with reasonable length."
-        assert 10 <= len(normal_text) <= 10000
+        assert 10 <= lennormal_text <= 10000
 
-    def test_audio_file_validation(self):
+    def test_audio_file_validationself:
         """Test audio file validation for voice endpoints."""
         valid_extensions = [".mp3", ".wav", ".m4a", ".flac", ".ogg"]
 
         for ext in valid_extensions:
             filename = f"audio{ext}"
-            assert any(filename.endswith(e) for e in valid_extensions)
+            assert any(filename.endswithe for e in valid_extensions)
 
         invalid_filename = "audio.txt"
-        assert not any(invalid_filename.endswith(e) for e in valid_extensions)
+        assert not any(invalid_filename.endswithe for e in valid_extensions)
 
-    def test_confidence_threshold_validation(self):
+    def test_confidence_threshold_validationself:
         """Test confidence threshold validation."""
         valid_thresholds = [0.1, 0.5, 0.7, 0.9]
 
@@ -114,22 +114,22 @@ class TestAPIModels:
 
         invalid_thresholds = [-0.1, 1.5, 2.0]
         for threshold in invalid_thresholds:
-            assert not (0.0 <= threshold <= 1.0)
+            assert not 0.0 <= threshold <= 1.0
 
-    def test_language_code_validation(self):
+    def test_language_code_validationself:
         """Test language code validation for voice processing."""
         valid_languages = ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh"]
 
         for lang in valid_languages:
-            assert len(lang) == 2
+            assert lenlang == 2
             assert lang.islower()
 
         invalid_languages = ["ENG", "english", "123", "x"]
         for lang in invalid_languages:
-            if len(lang) == 2:
+            if lenlang == 2:
                 assert not lang.islower() or not lang.isalpha()
 
-    def test_response_format_consistency(self):
+    def test_response_format_consistencyself:
         """Test API response format consistency."""
         required_fields = ["status", "data", "processing_time", "timestamp"]
 
@@ -137,17 +137,17 @@ class TestAPIModels:
             "status": "success",
             "data": {},
             "processing_time": 1.23,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.nowtimezone.utc.isoformat(),
         }
 
         for field in required_fields:
             assert field in mock_response
 
         assert mock_response["status"] in ["success", "error"]
-        assert isinstance(mock_response["processing_time"], (int, float))
+        assert isinstance(mock_response["processing_time"], int, float)
         assert mock_response["processing_time"] >= 0
 
-    def test_error_response_format(self):
+    def test_error_response_formatself:
         """Test error response format consistency."""
         error_response = {
             "status": "error",
@@ -156,7 +156,7 @@ class TestAPIModels:
                 "message": "Text too short for analysis",
                 "details": {},
             },
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.nowtimezone.utc.isoformat(),
         }
 
         assert error_response["status"] == "error"

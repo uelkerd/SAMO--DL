@@ -14,7 +14,7 @@ import requests
 class TestConfig:
     """Centralized configuration for all testing scripts."""
 
-    def __init__(self):
+    def __init__self:
         self.base_url = self._get_base_url()
         self.api_key = self._get_api_key()
         self.timeout = self._get_timeout()
@@ -24,14 +24,14 @@ class TestConfig:
     def _get_base_url() -> str:
         """Get base URL with priority: CLI args > env vars > explicit configuration."""
         # Check command line arguments first
-        if len(os.sys.argv) > 1 and os.sys.argv[1].startswith('http'):
+        if lenos.sys.argv > 1 and os.sys.argv[1].startswith'http':
             return os.sys.argv[1]
 
         # Check multiple environment variables for flexibility
         if env_url := (
-            os.environ.get("API_BASE_URL")
-            or os.environ.get("CLOUD_RUN_API_URL")
-            or os.environ.get("MODEL_API_BASE_URL")
+            os.environ.get"API_BASE_URL"
+            or os.environ.get"CLOUD_RUN_API_URL"
+            or os.environ.get"MODEL_API_BASE_URL"
         ):
             return env_url
 
@@ -41,7 +41,7 @@ class TestConfig:
             "  - API_BASE_URL environment variable\n"
             "  - CLOUD_RUN_API_URL environment variable\n"
             "  - MODEL_API_BASE_URL environment variable\n"
-            "  - Command line argument (first positional argument)"
+            "  - Command line argument first positional argument"
         )
 
     @staticmethod
@@ -53,14 +53,14 @@ class TestConfig:
     @staticmethod
     def _get_timeout() -> int:
         """Get request timeout from environment or default."""
-        return int(os.environ.get("REQUEST_TIMEOUT", "30"))
+        return int(os.environ.get"REQUEST_TIMEOUT", "30")
 
     @staticmethod
     def _get_rate_limit_requests() -> int:
         """Get number of rapid requests for rate limiting tests."""
-        return int(os.environ.get("RATE_LIMIT_REQUESTS", "10"))
+        return int(os.environ.get"RATE_LIMIT_REQUESTS", "10")
 
-    def get_headers(self, include_auth: bool = True) -> dict:
+    def get_headersself, include_auth: bool = True -> dict:
         """Get request headers with optional authentication."""
         headers = {
             "Content-Type": "application/json",
@@ -72,9 +72,9 @@ class TestConfig:
 
         return headers
 
-    def get_parser(self, description: str) -> argparse.ArgumentParser:
+    def get_parserself, description: str -> argparse.ArgumentParser:
         """Get argument parser with common options."""
-        parser = argparse.ArgumentParser(description=description)
+        parser = argparse.ArgumentParserdescription=description
         parser.add_argument(
             "--base-url",
             default=self.base_url,
@@ -120,9 +120,9 @@ def create_api_client():
         backoff_factor=1,
         status_forcelist=[429, 500, 502, 503, 504],
     )
-    adapter = HTTPAdapter(max_retries=retry_strategy)
-    session.mount("http://", adapter)
-    session.mount("https://", adapter)
+    adapter = HTTPAdaptermax_retries=retry_strategy
+    session.mount"http://", adapter
+    session.mount"https://", adapter
 
     return session
 
@@ -130,22 +130,22 @@ def create_api_client():
 class APIClient:
     """Reusable API client with common request patterns."""
 
-    def __init__(self, base_url: Optional[str] = None, include_auth: bool = True):
+    def __init__self, base_url: Optional[str] = None, include_auth: bool = True:
         self.base_url = base_url or config.base_url
         self.session = create_api_client()
-        self.headers = config.get_headers(include_auth)
+        self.headers = config.get_headersinclude_auth
         self.timeout = config.timeout
 
-    def get(self, endpoint: str, **kwargs) -> requests.Response:
+    def getself, endpoint: str, **kwargs -> requests.Response:
         """Make GET request with common configuration."""
         url = f"{self.base_url}{endpoint}"
-        headers = {**self.headers, **kwargs.get('headers', {})}
-        return self.session.get(url, headers=headers, timeout=self.timeout, **kwargs)
+        headers = {**self.headers, **kwargs.get'headers', {}}
+        return self.session.geturl, headers=headers, timeout=self.timeout, **kwargs
 
-    def post(self, endpoint: str, json_data: dict, **kwargs) -> requests.Response:
+    def postself, endpoint: str, json_data: dict, **kwargs -> requests.Response:
         """Make POST request with common configuration."""
         url = f"{self.base_url}{endpoint}"
-        headers = {**self.headers, **kwargs.get('headers', {})}
+        headers = {**self.headers, **kwargs.get'headers', {}}
         return self.session.post(
             url,
             json=json_data,
@@ -154,10 +154,10 @@ class APIClient:
             **kwargs,
         )
 
-    def test_health(self) -> dict:
+    def test_healthself -> dict:
         """Test health endpoint."""
         try:
-            response = self.get("/health")
+            response = self.get"/health"
             return {
                 "success": response.status_code == 200,
                 "status_code": response.status_code,
@@ -169,13 +169,13 @@ class APIClient:
                 "success": False,
                 "status_code": None,
                 "data": None,
-                "error": str(e)
+                "error": stre
             }
 
-    def test_prediction(self, text: str) -> dict:
+    def test_predictionself, text: str -> dict:
         """Test prediction endpoint."""
         try:
-            response = self.post("/predict", {"text": text})
+            response = self.post"/predict", {"text": text}
             return {
                 "success": response.status_code == 200,
                 "status_code": response.status_code,
@@ -187,13 +187,13 @@ class APIClient:
                 "success": False,
                 "status_code": None,
                 "data": None,
-                "error": str(e)
+                "error": stre
             }
 
-    def test_batch_prediction(self, texts: list) -> dict:
+    def test_batch_predictionself, texts: list -> dict:
         """Test batch prediction endpoint."""
         try:
-            response = self.post("/predict_batch", {"texts": texts})
+            response = self.post"/predict_batch", {"texts": texts}
             return {
                 "success": response.status_code == 200,
                 "status_code": response.status_code,
@@ -205,5 +205,5 @@ class APIClient:
                 "success": False,
                 "status_code": None,
                 "data": None,
-                "error": str(e)
+                "error": stre
             }

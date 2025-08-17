@@ -9,18 +9,18 @@ from typing import List, Dict
 
 def load_current_dataset():
     """Load the current journal dataset."""
-    with open('data/journal_test_dataset.json', 'r') as f:
-        return json.load(f)
+    with open'data/journal_test_dataset.json', 'r' as f:
+        return json.loadf
 
-def save_expanded_dataset(data, filename='data/expanded_journal_dataset.json'):
+def save_expanded_datasetdata, filename='data/expanded_journal_dataset.json':
     """Save the expanded dataset."""
-    with open(filename, 'w') as f:
-        json.dump(data, f, indent=2)
-    print(f"✅ Expanded dataset saved to {filename}")
+    with openfilename, 'w' as f:
+        json.dumpdata, f, indent=2
+    printf"✅ Expanded dataset saved to {filename}"
 
-def create_balanced_dataset(target_size=1000):
+def create_balanced_datasettarget_size=1000:
     """Create a balanced expanded dataset."""
-    print("🔧 Creating balanced expanded dataset...")
+    print"🔧 Creating balanced expanded dataset..."
     
     # Load current data
     current_data = load_current_dataset()
@@ -29,15 +29,15 @@ def create_balanced_dataset(target_size=1000):
     emotion_counts = {}
     for entry in current_data:
         emotion = entry['emotion']
-        emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
+        emotion_counts[emotion] = emotion_counts.getemotion, 0 + 1
     
-    print(f"📊 Current emotion distribution:")
+    print"📊 Current emotion distribution:"
     for emotion, count in sorted(emotion_counts.items()):
-        print(f"  {emotion}: {count} samples")
+        printf"  {emotion}: {count} samples"
     
     # Calculate target per emotion
-    target_per_emotion = target_size // len(emotion_counts)
-    print(f"\n🎯 Target: {target_per_emotion} samples per emotion")
+    target_per_emotion = target_size // lenemotion_counts
+    printf"\n🎯 Target: {target_per_emotion} samples per emotion"
     
     # Create expanded dataset
     expanded_data = []
@@ -45,34 +45,34 @@ def create_balanced_dataset(target_size=1000):
     for emotion in emotion_counts.keys():
         # Get existing samples for this emotion
         existing_samples = [entry for entry in current_data if entry['emotion'] == emotion]
-        current_count = len(existing_samples)
+        current_count = lenexisting_samples
         
-        print(f"\n📝 Expanding '{emotion}' from {current_count} to {target_per_emotion} samples...")
+        printf"\n📝 Expanding '{emotion}' from {current_count} to {target_per_emotion} samples..."
         
         # Add existing samples
-        expanded_data.extend(existing_samples)
+        expanded_data.extendexisting_samples
         
         # Generate additional samples
         needed_samples = target_per_emotion - current_count
         
         if needed_samples > 0:
             # Create variations of existing samples
-            for i in range(needed_samples):
+            for i in rangeneeded_samples:
                 # Pick a random existing sample to base variation on
-                base_sample = random.choice(existing_samples)
+                base_sample = random.choiceexisting_samples
                 
                 # Create variation
-                variation = create_variation(base_sample, emotion)
-                expanded_data.append(variation)
+                variation = create_variationbase_sample, emotion
+                expanded_data.appendvariation
     
-    print(f"\n✅ Expanded dataset created:")
-    print(f"  Original samples: {len(current_data)}")
-    print(f"  Expanded samples: {len(expanded_data)}")
-    print(f"  Target size: {target_size}")
+    print"\n✅ Expanded dataset created:"
+    print(f"  Original samples: {lencurrent_data}")
+    print(f"  Expanded samples: {lenexpanded_data}")
+    printf"  Target size: {target_size}"
     
     return expanded_data
 
-def create_variation(base_sample: Dict, emotion: str) -> Dict:
+def create_variationbase_sample: Dict, emotion: str -> Dict:
     """Create a variation of a base sample."""
     
     # Templates for different emotions
@@ -224,62 +224,62 @@ def create_variation(base_sample: Dict, emotion: str) -> Dict:
     }
     
     # Get templates for this emotion
-    templates = emotion_templates.get(emotion, [f"I'm feeling {emotion}."])
+    templates = emotion_templates.getemotion, [f"I'm feeling {emotion}."]
     
     # Create variation
-    template = random.choice(templates)
+    template = random.choicetemplates
     
     # Add some variety to the content
     variations = [
-        f"{template} {random.choice(['It\'s been a long day.', 'Things are going well.', 'I need to process this.', 'This is important to me.'])}",
-        f"{template} {random.choice(['I hope this continues.', 'I wonder what\'s next.', 'This feels right.', 'I\'m processing this.'])}",
-        f"{template} {random.choice(['I should reflect on this.', 'This is meaningful.', 'I appreciate this moment.', 'I\'m learning from this.'])}"
+        f"{template} {random.choice['It\'s been a long day.', 'Things are going well.', 'I need to process this.', 'This is important to me.']}",
+        f"{template} {random.choice['I hope this continues.', 'I wonder what\'s next.', 'This feels right.', 'I\'m processing this.']}",
+        f"{template} {random.choice['I should reflect on this.', 'This is meaningful.', 'I appreciate this moment.', 'I\'m learning from this.']}"
     ]
     
-    content = random.choice(variations)
+    content = random.choicevariations
     
     return {
         'content': content,
         'emotion': emotion,
-        'id': f"expanded_{emotion}_{random.randint(1000, 9999)}"
+        'id': f"expanded_{emotion}_{random.randint1000, 9999}"
     }
 
-def analyze_expanded_dataset(data):
+def analyze_expanded_datasetdata:
     """Analyze the expanded dataset."""
-    print("\n📊 Expanded Dataset Analysis:")
-    print("=" * 40)
+    print"\n📊 Expanded Dataset Analysis:"
+    print"=" * 40
     
     emotion_counts = {}
     for entry in data:
         emotion = entry['emotion']
-        emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
+        emotion_counts[emotion] = emotion_counts.getemotion, 0 + 1
     
-    print("Emotion distribution:")
+    print"Emotion distribution:"
     for emotion, count in sorted(emotion_counts.items()):
-        print(f"  {emotion}: {count} samples")
+        printf"  {emotion}: {count} samples"
     
-    print(f"\nTotal samples: {len(data)}")
-    print(f"Unique emotions: {len(emotion_counts)}")
+    print(f"\nTotal samples: {lendata}")
+    print(f"Unique emotions: {lenemotion_counts}")
 
 def main():
     """Main function to expand the dataset."""
-    print("🚀 JOURNAL DATASET EXPANSION")
-    print("=" * 50)
+    print"🚀 JOURNAL DATASET EXPANSION"
+    print"=" * 50
     
     # Create expanded dataset
-    expanded_data = create_balanced_dataset(target_size=1000)
+    expanded_data = create_balanced_datasettarget_size=1000
     
     # Analyze expanded dataset
-    analyze_expanded_dataset(expanded_data)
+    analyze_expanded_datasetexpanded_data
     
     # Save expanded dataset
-    save_expanded_dataset(expanded_data)
+    save_expanded_datasetexpanded_data
     
-    print("\n🎉 Dataset expansion completed!")
-    print("📋 Next steps:")
-    print("  1. Review expanded dataset")
-    print("  2. Retrain model with larger dataset")
-    print("  3. Expect 75-85% F1 score!")
+    print"\n🎉 Dataset expansion completed!"
+    print"📋 Next steps:"
+    print"  1. Review expanded dataset"
+    print"  2. Retrain model with larger dataset"
+    print"  3. Expect 75-85% F1 score!"
 
 if __name__ == "__main__":
     main() 

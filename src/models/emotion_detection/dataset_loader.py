@@ -5,7 +5,7 @@ This module implements comprehensive GoEmotions dataset loading and preprocessin
 following the data documentation strategies for BERT fine-tuning.
 
 Key Features:
-- Multi-label emotion support (27 categories)
+- Multi-label emotion support 27 categories
 - Class imbalance handling through weighted sampling
 - Text preprocessing optimized for emotional understanding
 - Domain adaptation preparation for journal entries
@@ -24,13 +24,13 @@ from transformers import AutoTokenizer
 
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logging.basicConfiglevel=logging.INFO
+logger = logging.getLogger__name__
 
 from .labels import GOEMOTIONS_EMOTIONS, EMOTION_ID_TO_LABEL, EMOTION_LABEL_TO_ID
 
 
-class GoEmotionsDataset(Dataset):
+class GoEmotionsDatasetDataset:
     """PyTorch Dataset for GoEmotions emotion classification."""
 
     def __init__(
@@ -44,7 +44,7 @@ class GoEmotionsDataset(Dataset):
 
         Args:
             texts: List of text strings
-            labels: List of label lists (multi-label)
+            labels: List of label lists multi-label
             tokenizer: BERT tokenizer
             max_length: Maximum sequence length
         """
@@ -53,10 +53,10 @@ class GoEmotionsDataset(Dataset):
         self.tokenizer = tokenizer
         self.max_length = max_length
 
-    def __len__(self) -> int:
-        return len(self.texts)
+    def __len__self -> int:
+        return lenself.texts
 
-    def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
+    def __getitem__self, idx: int -> Dict[str, torch.Tensor]:
         text = self.texts[idx]
         label = self.labels[idx]
 
@@ -70,11 +70,11 @@ class GoEmotionsDataset(Dataset):
         )
 
         # Convert label to tensor
-        label_tensor = torch.tensor(label, dtype=torch.float)
+        label_tensor = torch.tensorlabel, dtype=torch.float
 
         return {
-            'input_ids': encoding['input_ids'].squeeze(0),
-            'attention_mask': encoding['attention_mask'].squeeze(0),
+            'input_ids': encoding['input_ids'].squeeze0,
+            'attention_mask': encoding['attention_mask'].squeeze0,
             'labels': label_tensor
         }
 
@@ -82,18 +82,18 @@ class GoEmotionsDataset(Dataset):
 class GoEmotionsPreprocessor:
     """Preprocessing pipeline for GoEmotions dataset following SAMO requirements."""
 
-    def __init__(self, model_name: str = "bert-base-uncased", max_length: int = 512) -> None:
+    def __init__self, model_name: str = "bert-base-uncased", max_length: int = 512 -> None:
         """Initialize preprocessor with BERT tokenizer.
 
         Args:
             model_name: Hugging Face model name for tokenizer
             max_length: Maximum sequence length for BERT processing
         """
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.tokenizer = AutoTokenizer.from_pretrainedmodel_name
         self.max_length = max_length
-        logger.info(f"Initialized preprocessor with {model_name}, max_length={max_length}")
+        logger.infof"Initialized preprocessor with {model_name}, max_length={max_length}"
 
-    def clean_text(self, text: str) -> str:
+    def clean_textself, text: str -> str:
         """Clean and normalize text while preserving emotional signals.
 
         Following data documentation strategies for emotional understanding.
@@ -104,7 +104,7 @@ class GoEmotionsPreprocessor:
         Returns:
             Cleaned text preserving emotional context
         """
-        if not isinstance(text, str):
+        if not isinstancetext, str:
             return ""
 
         # Remove excessive whitespace while preserving structure
@@ -116,7 +116,7 @@ class GoEmotionsPreprocessor:
 
         return text
 
-    def tokenize_batch(self, texts: List[str]) -> Dict[str, torch.Tensor]:
+    def tokenize_batchself, texts: List[str] -> Dict[str, torch.Tensor]:
         """Tokenize a batch of texts for BERT processing.
 
         Args:
@@ -126,7 +126,7 @@ class GoEmotionsPreprocessor:
             Dictionary with tokenized inputs
         """
         # Clean texts first
-        cleaned_texts = [self.clean_text(text) for text in texts]
+        cleaned_texts = [self.clean_texttext for text in texts]
 
         # Tokenize with BERT tokenizer
         encoded = self.tokenizer(
@@ -169,13 +169,13 @@ class GoEmotionsDataLoader:
         self.val_size = val_size
         self.random_state = random_state
 
-        self.preprocessor = GoEmotionsPreprocessor(model_name, max_length)
+        self.preprocessor = GoEmotionsPreprocessormodel_name, max_length
         self.dataset = None
         self.train_dataset = None
         self.val_dataset = None
         self.test_dataset = None
 
-    def download_dataset(self) -> None:
+    def download_datasetself -> None:
         """Download and load GoEmotions dataset from HuggingFace."""
         try:
             self.dataset = load_dataset(
@@ -184,12 +184,12 @@ class GoEmotionsDataLoader:
                 cache_dir=self.cache_dir,
                 trust_remote_code=True,
             )
-            logger.info("Successfully loaded GoEmotions dataset")
+            logger.info"Successfully loaded GoEmotions dataset"
         except Exception as e:
-            logger.error(f"Failed to load GoEmotions dataset: {e}")
+            logger.errorf"Failed to load GoEmotions dataset: {e}"
             raise
 
-    def analyze_dataset_statistics(self) -> Dict[str, Any]:
+    def analyze_dataset_statisticsself -> Dict[str, Any]:
         """Analyze dataset statistics for understanding data distribution.
 
         Returns:
@@ -201,31 +201,31 @@ class GoEmotionsDataLoader:
         stats = {}
 
         # Basic statistics
-        stats["total_samples"] = len(self.dataset["train"])
-        stats["num_emotions"] = len(GOEMOTIONS_EMOTIONS)
+        stats["total_samples"] = lenself.dataset["train"]
+        stats["num_emotions"] = lenGOEMOTIONS_EMOTIONS
 
         # Emotion distribution
         emotion_counts = Counter()
         for example in self.dataset["train"]:
             labels = example["labels"]
             for label in labels:
-                if 0 <= label < len(GOEMOTIONS_EMOTIONS):
+                if 0 <= label < lenGOEMOTIONS_EMOTIONS:
                     emotion_counts[label] += 1
 
-        stats["emotion_distribution"] = dict(emotion_counts)
-        stats["most_common_emotions"] = emotion_counts.most_common(10)
+        stats["emotion_distribution"] = dictemotion_counts
+        stats["most_common_emotions"] = emotion_counts.most_common10
         stats["least_common_emotions"] = emotion_counts.most_common()[:-11:-1]
 
         # Text length statistics
-        text_lengths = [len(example["text"]) for example in self.dataset["train"]]
-        stats["avg_text_length"] = np.mean(text_lengths)
-        stats["max_text_length"] = np.max(text_lengths)
-        stats["min_text_length"] = np.min(text_lengths)
+        text_lengths = [lenexample["text"] for example in self.dataset["train"]]
+        stats["avg_text_length"] = np.meantext_lengths
+        stats["max_text_length"] = np.maxtext_lengths
+        stats["min_text_length"] = np.mintext_lengths
 
-        logger.info(f"Dataset statistics: {stats}")
+        logger.infof"Dataset statistics: {stats}"
         return stats
 
-    def compute_class_weights(self) -> np.ndarray:
+    def compute_class_weightsself -> np.ndarray:
         """Compute class weights to handle imbalanced emotion distribution.
 
         Returns:
@@ -235,16 +235,16 @@ class GoEmotionsDataLoader:
             self.download_dataset()
 
         # Count emotion occurrences
-        emotion_counts = np.zeros(len(GOEMOTIONS_EMOTIONS))
+        emotion_counts = np.zeros(lenGOEMOTIONS_EMOTIONS)
         for example in self.dataset["train"]:
             labels = example["labels"]
             for label in labels:
-                if 0 <= label < len(GOEMOTIONS_EMOTIONS):
+                if 0 <= label < lenGOEMOTIONS_EMOTIONS:
                     emotion_counts[label] += 1
 
         # Compute inverse frequency weights
-        total_samples = len(self.dataset["train"])
-        class_weights = total_samples / (len(GOEMOTIONS_EMOTIONS) * emotion_counts)
+        total_samples = lenself.dataset["train"]
+        class_weights = total_samples / (lenGOEMOTIONS_EMOTIONS * emotion_counts)
 
         # Handle zero counts
         class_weights[emotion_counts == 0] = 1.0
@@ -255,11 +255,11 @@ class GoEmotionsDataLoader:
         )
         return class_weights
 
-    def create_train_val_test_splits(self) -> tuple:
+    def create_train_val_test_splitsself -> tuple:
         """Create train/validation/test splits from the dataset.
 
         Returns:
-            Tuple of (train, validation, test) datasets
+            Tuple of train, validation, test datasets
         """
         if self.dataset is None:
             self.download_dataset()
@@ -272,7 +272,7 @@ class GoEmotionsDataLoader:
 
         # Split validation from test
         val_test = train_val_test["test"].train_test_split(
-            test_size=self.val_size / (self.test_size + self.val_size),
+            test_size=self.val_size / self.test_size + self.val_size,
             seed=self.random_state,
         )
 
@@ -281,13 +281,13 @@ class GoEmotionsDataLoader:
         test_data = val_test["test"]
 
         logger.info(
-            f"Created splits - Train: {len(train_data)}, "
-            f"Val: {len(val_data)}, Test: {len(test_data)}"
+            f"Created splits - Train: {lentrain_data}, "
+            f"Val: {lenval_data}, Test: {lentest_data}"
         )
 
         return train_data, val_data, test_data
 
-    def prepare_datasets(self, force_download: bool = False) -> dict:
+    def prepare_datasetsself, force_download: bool = False -> dict:
         """Prepare datasets for training with preprocessing.
 
         Args:
@@ -330,11 +330,11 @@ def create_goemotions_loader(
     Returns:
         Configured GoEmotionsDataLoader instance
     """
-    return GoEmotionsDataLoader(cache_dir=cache_dir, model_name=model_name)
+    return GoEmotionsDataLoadercache_dir=cache_dir, model_name=model_name
 
 
 # Test the data loader
 if __name__ == "__main__":
     loader = create_goemotions_loader()
     datasets = loader.prepare_datasets()
-    logger.info(f"Dataset prepared successfully: {len(datasets['train_data'])} training samples")
+    logger.info(f"Dataset prepared successfully: {lendatasets['train_data']} training samples")

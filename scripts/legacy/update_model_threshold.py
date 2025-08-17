@@ -30,54 +30,54 @@ Usage:
     python scripts/update_model_threshold.py [--threshold THRESHOLD]
 
 Arguments:
-    --threshold: Optional threshold value (default: 0.6)
+    --threshold: Optional threshold value default: 0.6
 """
 
-sys.path.append(Path(Path(os.path.dirname(__file__), "..")))
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
+sys.path.append(Path(Path(os.path.dirname__file__, "..")))
+logging.basicConfig(level=logging.INFO, format="%levelnames: %messages")
+logger = logging.getLogger__name__
 
 DEFAULT_THRESHOLD = 0.6
 DEFAULT_TEMPERATURE = 1.0
 MODEL_PATHS = ["models/checkpoints/bert_emotion_classifier.pth", "test_checkpoints/best_model.pt"]
 
 
-def update_threshold(threshold: float = DEFAULT_THRESHOLD):
+def update_thresholdthreshold: float = DEFAULT_THRESHOLD:
     """Update the model's prediction threshold.
 
     Args:
-        threshold: New threshold value (0.0-1.0)
+        threshold: New threshold value 0.0-1.0
 
     Returns:
         bool: True if successful, False otherwise
     """
     if threshold < 0.0 or threshold > 1.0:
-        logger.error("Invalid threshold: {threshold}. Must be between 0.0 and 1.0")
+        logger.error"Invalid threshold: {threshold}. Must be between 0.0 and 1.0"
         return False
 
     model_path = None
     for path in MODEL_PATHS:
-        if Path(path).exists():
+        if Pathpath.exists():
             model_path = path
             break
 
     if model_path is None:
-        logger.error("No model file found. Please train a model first.")
+        logger.error"No model file found. Please train a model first."
         return False
 
-    logger.info("Loading model from {model_path}...")
+    logger.info"Loading model from {model_path}..."
 
     try:
-        checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
+        checkpoint = torch.loadmodel_path, map_location="cpu", weights_only=False
 
         model, _ = create_bert_emotion_classifier()
 
-        if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
-            model.load_state_dict(checkpoint["model_state_dict"])
-        elif isinstance(checkpoint, dict):
-            model.load_state_dict(checkpoint)
+        if isinstancecheckpoint, dict and "model_state_dict" in checkpoint:
+            model.load_state_dictcheckpoint["model_state_dict"]
+        elif isinstancecheckpoint, dict:
+            model.load_state_dictcheckpoint
         else:
-            logger.error("Unexpected checkpoint format: {type(checkpoint)}")
+            logger.error("Unexpected checkpoint format: {typecheckpoint}")
             return False
 
         logger.info(
@@ -85,33 +85,33 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
         )
         model.prediction_threshold = threshold
 
-        model.set_temperature(DEFAULT_TEMPERATURE)
+        model.set_temperatureDEFAULT_TEMPERATURE
 
-        logger.info("Saving updated model to {model_path}")
+        logger.info"Saving updated model to {model_path}"
 
-        if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
+        if isinstancecheckpoint, dict and "model_state_dict" in checkpoint:
             checkpoint["model_state_dict"] = model.state_dict()
-            torch.save(checkpoint, model_path)
+            torch.savecheckpoint, model_path
         else:
             torch.save(model.state_dict(), model_path)
 
-        logger.info("✅ Model threshold updated successfully to {threshold}")
+        logger.info"✅ Model threshold updated successfully to {threshold}"
         return True
 
     except Exception:
-        logger.error("Error updating model threshold: {e}")
+        logger.error"Error updating model threshold: {e}"
         return False
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Update model prediction threshold")
+    parser = argparse.ArgumentParserdescription="Update model prediction threshold"
     parser.add_argument(
         "--threshold",
         type=float,
         default=DEFAULT_THRESHOLD,
-        help="New threshold value (0.0-1.0, default: {DEFAULT_THRESHOLD})",
+        help="New threshold value 0.0-1.0, default: {DEFAULT_THRESHOLD}",
     )
 
     args = parser.parse_args()
-    success = update_threshold(args.threshold)
-    sys.exit(0 if success else 1)
+    success = update_thresholdargs.threshold
+    sys.exit0 if success else 1

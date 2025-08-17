@@ -26,39 +26,39 @@ from torch.utils.data import DataLoader, TensorDataset
 from transformers import AutoTokenizer, get_linear_schedule_with_warmup
 
 # Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+sys.path.insert(0, str(Path__file__.parent.parent.parent / "src"))
 
 from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%levelnames: %messages")
+logger = logging.getLogger__name__
 
 
-class FocalLoss(nn.Module):
+class FocalLossnn.Module:
     """Focal Loss for handling class imbalance."""
     
-    def __init__(self, alpha=0.25, gamma=2.0, class_weights=None):
+    def __init__self, alpha=0.25, gamma=2.0, class_weights=None:
         super().__init__()
         self.alpha = alpha
         self.gamma = gamma
         self.class_weights = class_weights
     
-    def forward(self, inputs, targets):
-        bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction='none')
-        pt = torch.exp(-bce_loss)
-        focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
+    def forwardself, inputs, targets:
+        bce_loss = F.binary_cross_entropy_with_logitsinputs, targets, reduction='none'
+        pt = torch.exp-bce_loss
+        focal_loss = self.alpha * 1 - pt ** self.gamma * bce_loss
         
         if self.class_weights is not None:
-            focal_loss = focal_loss * self.class_weights.unsqueeze(0)
+            focal_loss = focal_loss * self.class_weights.unsqueeze0
         
         return focal_loss.mean()
 
 
-def create_optimized_model(class_weights):
+def create_optimized_modelclass_weights:
     """Create model with optimal settings for F1 improvement."""
-    logger.info("🤖 Creating optimized BERT model...")
+    logger.info"🤖 Creating optimized BERT model..."
     
     model = BERTEmotionClassifier(
         model_name="bert-base-uncased",
@@ -67,20 +67,20 @@ def create_optimized_model(class_weights):
         classifier_dropout_prob=0.2,  # Reduced dropout
         freeze_bert_layers=0,  # Don't freeze initially
         temperature=1.0,
-        class_weights=torch.tensor(class_weights, dtype=torch.float32) if class_weights is not None else None
+        class_weights=torch.tensorclass_weights, dtype=torch.float32 if class_weights is not None else None
     )
     
     return model
 
 
-def prepare_training_data(datasets, tokenizer, batch_size=16):
+def prepare_training_datadatasets, tokenizer, batch_size=16:
     """Prepare training data with proper tokenization."""
-    logger.info("📊 Preparing training data...")
+    logger.info"📊 Preparing training data..."
     
     train_data = datasets["train_data"]
     val_data = datasets["val_data"]
     
-    def tokenize_dataset(dataset):
+    def tokenize_datasetdataset:
         texts = dataset["text"]
         labels = dataset["labels"]
         
@@ -101,24 +101,24 @@ def prepare_training_data(datasets, tokenizer, batch_size=16):
             for label_idx in label_list:
                 if 0 <= label_idx < num_classes:
                     label_vector[label_idx] = 1
-            label_vectors.append(label_vector)
+            label_vectors.appendlabel_vector
         
         return TensorDataset(
             inputs["input_ids"],
             inputs["attention_mask"],
-            torch.tensor(label_vectors, dtype=torch.float32)
+            torch.tensorlabel_vectors, dtype=torch.float32
         )
     
-    train_dataset = tokenize_dataset(train_data)
-    val_dataset = tokenize_dataset(val_data)
+    train_dataset = tokenize_datasettrain_data
+    val_dataset = tokenize_datasetval_data
     
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoadertrain_dataset, batch_size=batch_size, shuffle=True
+    val_loader = DataLoaderval_dataset, batch_size=batch_size, shuffle=False
     
     return train_loader, val_loader
 
 
-def evaluate_model(model, dataloader, device, threshold=0.3):
+def evaluate_modelmodel, dataloader, device, threshold=0.3:
     """Evaluate model with optimized threshold."""
     model.eval()
     all_predictions = []
@@ -127,22 +127,22 @@ def evaluate_model(model, dataloader, device, threshold=0.3):
     with torch.no_grad():
         for batch in dataloader:
             input_ids, attention_mask, labels = batch
-            input_ids = input_ids.to(device)
-            attention_mask = attention_mask.to(device)
-            labels = labels.to(device)
+            input_ids = input_ids.todevice
+            attention_mask = attention_mask.todevice
+            labels = labels.todevice
             
-            outputs = model(input_ids, attention_mask)
-            predictions = torch.sigmoid(outputs) > threshold
+            outputs = modelinput_ids, attention_mask
+            predictions = torch.sigmoidoutputs > threshold
             
             all_predictions.extend(predictions.cpu().numpy())
             all_labels.extend(labels.cpu().numpy())
     
     # Calculate metrics
-    all_predictions = np.array(all_predictions)
-    all_labels = np.array(all_labels)
+    all_predictions = np.arrayall_predictions
+    all_labels = np.arrayall_labels
     
-    micro_f1 = f1_score(all_labels, all_predictions, average='micro', zero_division=0)
-    macro_f1 = f1_score(all_labels, all_predictions, average='macro', zero_division=0)
+    micro_f1 = f1_scoreall_labels, all_predictions, average='micro', zero_division=0
+    macro_f1 = f1_scoreall_labels, all_predictions, average='macro', zero_division=0
     
     return {
         'micro_f1': micro_f1,
@@ -152,15 +152,15 @@ def evaluate_model(model, dataloader, device, threshold=0.3):
     }
 
 
-def train_with_focal_loss(model, train_loader, val_loader, device, epochs=5):
+def train_with_focal_lossmodel, train_loader, val_loader, device, epochs=5:
     """Train model with focal loss and optimization."""
-    logger.info("🚀 Starting Focal Loss training...")
+    logger.info"🚀 Starting Focal Loss training..."
     
     # Optimizer with lower learning rate
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5, weight_decay=0.01)
     
     # Learning rate scheduler
-    total_steps = len(train_loader) * epochs
+    total_steps = lentrain_loader * epochs
     scheduler = get_linear_schedule_with_warmup(
         optimizer, 
         num_warmup_steps=total_steps // 10,
@@ -168,29 +168,29 @@ def train_with_focal_loss(model, train_loader, val_loader, device, epochs=5):
     )
     
     # Focal loss
-    class_weights = model.class_weights.to(device) if model.class_weights is not None else None
-    focal_loss = FocalLoss(alpha=0.25, gamma=2.0, class_weights=class_weights)
+    class_weights = model.class_weights.todevice if model.class_weights is not None else None
+    focal_loss = FocalLossalpha=0.25, gamma=2.0, class_weights=class_weights
     
     best_f1 = 0.0
     patience = 3
     patience_counter = 0
     
-    for epoch in range(epochs):
-        logger.info(f"📈 Epoch {epoch + 1}/{epochs}")
+    for epoch in rangeepochs:
+        logger.infof"📈 Epoch {epoch + 1}/{epochs}"
         
         # Training
         model.train()
         total_loss = 0
-        for batch_idx, batch in enumerate(train_loader):
+        for batch_idx, batch in enumeratetrain_loader:
             input_ids, attention_mask, labels = batch
-            input_ids = input_ids.to(device)
-            attention_mask = attention_mask.to(device)
-            labels = labels.to(device)
+            input_ids = input_ids.todevice
+            attention_mask = attention_mask.todevice
+            labels = labels.todevice
             
             optimizer.zero_grad()
             
-            outputs = model(input_ids, attention_mask)
-            loss = focal_loss(outputs, labels)
+            outputs = modelinput_ids, attention_mask
+            loss = focal_lossoutputs, labels
             
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
@@ -202,14 +202,14 @@ def train_with_focal_loss(model, train_loader, val_loader, device, epochs=5):
             if batch_idx % 50 == 0:
                 logger.info(f"   Batch {batch_idx}: Loss = {loss.item():.4f}")
         
-        avg_loss = total_loss / len(train_loader)
-        logger.info(f"   Average Loss: {avg_loss:.4f}")
+        avg_loss = total_loss / lentrain_loader
+        logger.infof"   Average Loss: {avg_loss:.4f}"
         
         # Validation
-        val_results = evaluate_model(model, val_loader, device, threshold=0.3)
+        val_results = evaluate_modelmodel, val_loader, device, threshold=0.3
         val_f1 = val_results['micro_f1']
         
-        logger.info(f"   Validation F1: {val_f1:.4f} ({val_f1*100:.2f}%)")
+        logger.info(f"   Validation F1: {val_f1:.4f} {val_f1*100:.2f}%")
         
         # Save best model
         if val_f1 > best_f1:
@@ -217,8 +217,8 @@ def train_with_focal_loss(model, train_loader, val_loader, device, epochs=5):
             patience_counter = 0
             
             # Save checkpoint
-            checkpoint_path = Path("models/checkpoints/emergency_f1_fix.pt")
-            checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
+            checkpoint_path = Path"models/checkpoints/emergency_f1_fix.pt"
+            checkpoint_path.parent.mkdirparents=True, exist_ok=True
             
             torch.save({
                 'model_state_dict': model.state_dict(),
@@ -227,19 +227,19 @@ def train_with_focal_loss(model, train_loader, val_loader, device, epochs=5):
                 'optimizer_state_dict': optimizer.state_dict(),
             }, checkpoint_path)
             
-            logger.info(f"   ✅ New best model saved! F1: {val_f1:.4f}")
+            logger.infof"   ✅ New best model saved! F1: {val_f1:.4f}"
         else:
             patience_counter += 1
             if patience_counter >= patience:
-                logger.info(f"   ⏹️ Early stopping at epoch {epoch + 1}")
+                logger.infof"   ⏹️ Early stopping at epoch {epoch + 1}"
                 break
     
     return best_f1
 
 
-def optimize_threshold(model, val_loader, device):
+def optimize_thresholdmodel, val_loader, device:
     """Optimize prediction threshold for maximum F1."""
-    logger.info("🎯 Optimizing prediction threshold...")
+    logger.info"🎯 Optimizing prediction threshold..."
     
     model.eval()
     all_outputs = []
@@ -248,46 +248,46 @@ def optimize_threshold(model, val_loader, device):
     with torch.no_grad():
         for batch in val_loader:
             input_ids, attention_mask, labels = batch
-            input_ids = input_ids.to(device)
-            attention_mask = attention_mask.to(device)
-            labels = labels.to(device)
+            input_ids = input_ids.todevice
+            attention_mask = attention_mask.todevice
+            labels = labels.todevice
             
-            outputs = model(input_ids, attention_mask)
-            probabilities = torch.sigmoid(outputs)
+            outputs = modelinput_ids, attention_mask
+            probabilities = torch.sigmoidoutputs
             
             all_outputs.extend(probabilities.cpu().numpy())
             all_labels.extend(labels.cpu().numpy())
     
-    all_outputs = np.array(all_outputs)
-    all_labels = np.array(all_labels)
+    all_outputs = np.arrayall_outputs
+    all_labels = np.arrayall_labels
     
     # Test different thresholds
-    thresholds = np.arange(0.1, 0.6, 0.05)
+    thresholds = np.arange0.1, 0.6, 0.05
     best_threshold = 0.3
     best_f1 = 0.0
     
     for threshold in thresholds:
         predictions = all_outputs > threshold
-        f1 = f1_score(all_labels, predictions, average='micro', zero_division=0)
+        f1 = f1_scoreall_labels, predictions, average='micro', zero_division=0
         
         if f1 > best_f1:
             best_f1 = f1
             best_threshold = threshold
     
-    logger.info(f"   Best threshold: {best_threshold:.2f} (F1: {best_f1:.4f})")
+    logger.info(f"   Best threshold: {best_threshold:.2f} F1: {best_f1:.4f}")
     return best_threshold
 
 
 def emergency_f1_fix():
     """Main function to fix F1 score emergency."""
-    logger.info("🚨 EMERGENCY F1 FIX - SENIOR ENGINEER APPROACH")
-    logger.info("=" * 60)
+    logger.info"🚨 EMERGENCY F1 FIX - SENIOR ENGINEER APPROACH"
+    logger.info"=" * 60
     
     start_time = time.time()
     
     try:
         # Load dataset
-        logger.info("📊 Loading GoEmotions dataset...")
+        logger.info"📊 Loading GoEmotions dataset..."
         data_loader = GoEmotionsDataLoader()
         data_loader.download_dataset()
         datasets = data_loader.prepare_datasets()
@@ -297,26 +297,26 @@ def emergency_f1_fix():
         logger.info(f"📊 Class weights computed: min={class_weights.min():.3f}, max={class_weights.max():.3f}")
         
         # Create model
-        model = create_optimized_model(class_weights)
+        model = create_optimized_modelclass_weights
         
         # Create tokenizer
-        tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+        tokenizer = AutoTokenizer.from_pretrained"bert-base-uncased"
         
         # Prepare data
-        train_loader, val_loader = prepare_training_data(datasets, tokenizer, batch_size=16)
+        train_loader, val_loader = prepare_training_datadatasets, tokenizer, batch_size=16
         
         # Set device
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model.to(device)
+        model.todevice
         
         # Train with focal loss
-        best_val_f1 = train_with_focal_loss(model, train_loader, val_loader, device, epochs=5)
+        best_val_f1 = train_with_focal_lossmodel, train_loader, val_loader, device, epochs=5
         
         # Optimize threshold
-        best_threshold = optimize_threshold(model, val_loader, device)
+        best_threshold = optimize_thresholdmodel, val_loader, device
         
         # Final evaluation on test set
-        logger.info("🧪 Final evaluation on test set...")
+        logger.info"🧪 Final evaluation on test set..."
         test_data = datasets["test_data"]
         
         # Create test loader
@@ -339,45 +339,45 @@ def emergency_f1_fix():
             for label_idx in label_list:
                 if 0 <= label_idx < num_classes:
                     label_vector[label_idx] = 1
-            test_label_vectors.append(label_vector)
+            test_label_vectors.appendlabel_vector
         
         test_dataset = TensorDataset(
             inputs["input_ids"],
             inputs["attention_mask"],
-            torch.tensor(test_label_vectors, dtype=torch.float32)
+            torch.tensortest_label_vectors, dtype=torch.float32
         )
-        test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+        test_loader = DataLoadertest_dataset, batch_size=32, shuffle=False
         
         # Evaluate with optimized threshold
-        test_results = evaluate_model(model, test_loader, device, threshold=best_threshold)
+        test_results = evaluate_modelmodel, test_loader, device, threshold=best_threshold
         
         # Display results
-        logger.info("📊 FINAL RESULTS:")
-        logger.info("=" * 60)
-        logger.info(f"Micro F1 Score:     {test_results['micro_f1']:.4f} ({test_results['micro_f1']*100:.2f}%)")
-        logger.info(f"Macro F1 Score:     {test_results['macro_f1']:.4f} ({test_results['macro_f1']*100:.2f}%)")
-        logger.info(f"Best Threshold:     {best_threshold:.2f}")
+        logger.info"📊 FINAL RESULTS:"
+        logger.info"=" * 60
+        logger.info(f"Micro F1 Score:     {test_results['micro_f1']:.4f} {test_results['micro_f1']*100:.2f}%")
+        logger.info(f"Macro F1 Score:     {test_results['macro_f1']:.4f} {test_results['macro_f1']*100:.2f}%")
+        logger.infof"Best Threshold:     {best_threshold:.2f}"
         logger.info(f"Training Time:      {time.time() - start_time:.1f}s")
-        logger.info("=" * 60)
+        logger.info"=" * 60
         
         # Assessment
         target_f1 = 0.60  # 60% target for emergency fix
-        progress = (test_results['micro_f1'] / target_f1) * 100
+        progress = test_results['micro_f1'] / target_f1 * 100
         
-        logger.info(f"🎯 TARGET F1: {target_f1*100:.0f}%")
-        logger.info(f"📊 ACHIEVED F1: {test_results['micro_f1']*100:.2f}%")
-        logger.info(f"📈 PROGRESS: {progress:.1f}% of target")
+        logger.infof"🎯 TARGET F1: {target_f1*100:.0f}%"
+        logger.infof"📊 ACHIEVED F1: {test_results['micro_f1']*100:.2f}%"
+        logger.infof"📈 PROGRESS: {progress:.1f}% of target"
         
         if test_results['micro_f1'] >= target_f1:
-            logger.info("🎉 EMERGENCY TARGET ACHIEVED!")
+            logger.info"🎉 EMERGENCY TARGET ACHIEVED!"
         else:
             gap = target_f1 - test_results['micro_f1']
-            logger.info(f"📉 GAP: {gap*100:.2f} percentage points needed")
+            logger.infof"📉 GAP: {gap*100:.2f} percentage points needed"
         
         return test_results['micro_f1']
         
     except Exception as e:
-        logger.error(f"❌ Emergency F1 fix failed: {e}")
+        logger.errorf"❌ Emergency F1 fix failed: {e}"
         import traceback
         traceback.print_exc()
         return None
@@ -386,7 +386,7 @@ def emergency_f1_fix():
 if __name__ == "__main__":
     f1_score = emergency_f1_fix()
     if f1_score is not None:
-        logger.info("✅ Emergency F1 fix completed successfully")
+        logger.info"✅ Emergency F1 fix completed successfully"
     else:
-        logger.error("❌ Emergency F1 fix failed")
-        sys.exit(1) 
+        logger.error"❌ Emergency F1 fix failed"
+        sys.exit1 

@@ -7,7 +7,7 @@ from flask import Flask, jsonify
 from flask_restx import Api, Resource, Namespace
 
 # Create Flask app
-app = Flask(__name__)
+app = Flask__name__
 
 # Initialize Flask-RESTX API
 api = Api(
@@ -19,38 +19,38 @@ api = Api(
 )
 
 # Create namespace with a different path to avoid conflicts
-main_ns = Namespace('/api', description='Main operations')  # Changed from '/' to '/api'
-api.add_namespace(main_ns)
+main_ns = Namespace'/api', description='Main operations'  # Changed from '/' to '/api'
+api.add_namespacemain_ns
 
 # Test endpoint in namespace
-@main_ns.route('/health')
-class Health(Resource):
-    def get(self):
+@main_ns.route'/health'
+class HealthResource:
+    def getself:
         return {'status': 'healthy'}
 
 # Test direct Flask route BEFORE API setup
-@app.route('/test_before')
+@app.route'/test_before'
 def test_before():
-    return jsonify({'message': 'This route was added before API setup'})
+    return jsonify{'message': 'This route was added before API setup'}
 
 # Test direct Flask route AFTER API setup
-@app.route('/test_after')
+@app.route'/test_after'
 def test_after():
-    return jsonify({'message': 'This route was added after API setup'})
+    return jsonify{'message': 'This route was added after API setup'}
 
 # Test root endpoint - this should work now
-@app.route('/')
+@app.route'/'
 def root():
-    return jsonify({'message': 'Root endpoint'})
+    return jsonify{'message': 'Root endpoint'}
 
 if __name__ == '__main__':
-    print("=== Flask App Routes ===")
+    print"=== Flask App Routes ==="
     for rule in app.url_map.iter_rules():
-        print(f"App: {rule.rule} -> {rule.endpoint}")
+        printf"App: {rule.rule} -> {rule.endpoint}"
     
-    print("\n=== Flask-RESTX API Routes ===")
+    print"\n=== Flask-RESTX API Routes ==="
     for rule in api.url_map.iter_rules():
-        print(f"API: {rule.rule} -> {rule.endpoint}")
+        printf"API: {rule.rule} -> {rule.endpoint}"
     
-    print("\n=== Starting test server ===")
-    app.run(host='0.0.0.0', port=5000, debug=True) 
+    print"\n=== Starting test server ==="
+    app.runhost='0.0.0.0', port=5000, debug=True 

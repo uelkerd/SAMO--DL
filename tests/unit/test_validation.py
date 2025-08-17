@@ -11,16 +11,16 @@ from src.data.validation import DataValidator, validate_text_input
 class TestDataValidator:
     """Test suite for DataValidator class."""
 
-    def test_data_validator_initialization(self):
+    def test_data_validator_initializationself:
         """Test DataValidator initialization."""
         validator = DataValidator()
 
-        assert hasattr(validator, 'check_missing_values')
-        assert hasattr(validator, 'check_data_types')
-        assert hasattr(validator, 'check_text_quality')
-        assert hasattr(validator, 'validate_journal_entries')
+        assert hasattrvalidator, 'check_missing_values'
+        assert hasattrvalidator, 'check_data_types'
+        assert hasattrvalidator, 'check_text_quality'
+        assert hasattrvalidator, 'validate_journal_entries'
 
-    def test_check_missing_values(self):
+    def test_check_missing_valuesself:
         """Test check_missing_values method."""
         validator = DataValidator()
 
@@ -31,14 +31,14 @@ class TestDataValidator:
             'optional_field': ['a', 'b', 'c', 'd']
         })
 
-        result = validator.check_missing_values(df, required_columns=['user_id', 'content'])
+        result = validator.check_missing_valuesdf, required_columns=['user_id', 'content']
 
         assert 'user_id' in result
         assert 'content' in result
         assert result['user_id'] == 25.0  # 1 out of 4 is missing
         assert result['content'] == 25.0  # 1 out of 4 is missing
 
-    def test_check_data_types(self):
+    def test_check_data_typesself:
         """Test check_data_types method."""
         validator = DataValidator()
 
@@ -55,13 +55,13 @@ class TestDataValidator:
             'is_private': bool
         }
 
-        result = validator.check_data_types(df, expected_types)
+        result = validator.check_data_typesdf, expected_types
 
         assert result['user_id'] is True
         assert result['content'] is True
         assert result['is_private'] is True
 
-    def test_check_text_quality(self):
+    def test_check_text_qualityself:
         """Test check_text_quality method."""
         validator = DataValidator()
 
@@ -70,14 +70,14 @@ class TestDataValidator:
             'content': ['This is a test', '', '   ', 'Another test with more words']
         })
 
-        result = validator.check_text_quality(df, text_column='content')
+        result = validator.check_text_qualitydf, text_column='content'
 
         assert 'text_length' in result.columns
         assert 'word_count' in result.columns
         assert 'is_empty' in result.columns
         assert 'is_very_short' in result.columns
 
-    def test_validate_journal_entries(self):
+    def test_validate_journal_entriesself:
         """Test validate_journal_entries method."""
         validator = DataValidator()
 
@@ -86,7 +86,7 @@ class TestDataValidator:
             'user_id': [1, 2, 3, 4],
             'content': ['text1', 'text2', 'text3', 'text4'],
             'title': ['title1', 'title2', 'title3', 'title4'],
-            'created_at': pd.to_datetime(['2023-01-01', '2023-01-02', '2023-01-03', '2023-01-04']),
+            'created_at': pd.to_datetime['2023-01-01', '2023-01-02', '2023-01-03', '2023-01-04'],
             'is_private': [True, False, True, False]
         })
 
@@ -99,7 +99,7 @@ class TestDataValidator:
             'is_private': bool
         }
 
-        result = validator.validate_journal_entries(df, required_columns, expected_types)
+        result = validator.validate_journal_entriesdf, required_columns, expected_types
 
         assert 'missing_values' in result
         assert 'data_types' in result
@@ -111,50 +111,50 @@ class TestDataValidator:
 class TestValidateTextInput:
     """Test suite for validate_text_input function."""
 
-    def test_validate_text_input_valid(self):
+    def test_validate_text_input_validself:
         """Test validate_text_input with valid input."""
         text = "This is a valid text input with reasonable length."
-        result = validate_text_input(text)
+        result = validate_text_inputtext
         assert result['is_valid'] is True
         assert result['error'] is None
 
-    def test_validate_text_input_empty(self):
+    def test_validate_text_input_emptyself:
         """Test validate_text_input with empty string."""
         text = ""
-        result = validate_text_input(text)
+        result = validate_text_inputtext
         assert result['is_valid'] is False
         assert "empty" in result['error'].lower()
 
-    def test_validate_text_input_none(self):
+    def test_validate_text_input_noneself:
         """Test validate_text_input with None."""
-        result = validate_text_input(None)
+        result = validate_text_inputNone
         assert result['is_valid'] is False
         assert "none" in result['error'].lower()
 
-    def test_validate_text_input_too_short(self):
+    def test_validate_text_input_too_shortself:
         """Test validate_text_input with too short text."""
         text = "Hi"
-        result = validate_text_input(text, min_length=10)
+        result = validate_text_inputtext, min_length=10
         assert result['is_valid'] is False
         assert "short" in result['error'].lower()
 
-    def test_validate_text_input_too_long(self):
+    def test_validate_text_input_too_longself:
         """Test validate_text_input with too long text."""
         text = "A" * 10001  # 10,001 characters
-        result = validate_text_input(text, max_length=10000)
+        result = validate_text_inputtext, max_length=10000
         assert result['is_valid'] is False
         assert "long" in result['error'].lower()
 
-    def test_validate_text_input_invalid_characters(self):
+    def test_validate_text_input_invalid_charactersself:
         """Test validate_text_input with invalid characters."""
         text = "Text with invalid chars: \x00\x01\x02"
-        result = validate_text_input(text)
+        result = validate_text_inputtext
         assert result['is_valid'] is False
         assert "invalid" in result['error'].lower()
 
-    def test_validate_text_input_whitespace_only(self):
+    def test_validate_text_input_whitespace_onlyself:
         """Test validate_text_input with whitespace-only text."""
         text = "   \n\t   "
-        result = validate_text_input(text)
+        result = validate_text_inputtext
         assert result['is_valid'] is False
         assert "whitespace" in result['error'].lower()

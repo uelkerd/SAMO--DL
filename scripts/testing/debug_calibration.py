@@ -11,17 +11,17 @@ from pathlib import Path
 import torch
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%levelnames: %messages")
+logger = logging.getLogger__name__
 
 
 def debug_calibration_issue():
     """Debug the calibration test issue."""
-    logger.info("🔍 Debugging calibration test issue...")
+    logger.info"🔍 Debugging calibration test issue..."
 
     logger.info(f"Current directory: {Path.cwd()}")
 
-    checkpoint_dir = Path("test_checkpoints")
+    checkpoint_dir = Path"test_checkpoints"
     logger.info(f"test_checkpoints directory exists: {checkpoint_dir.exists()}")
 
     if checkpoint_dir.exists():
@@ -35,22 +35,22 @@ def debug_calibration_issue():
             logger.info(f"File permissions: {oct(checkpoint_file.stat().st_mode)}")
 
             try:
-                checkpoint = torch.load(checkpoint_file, map_location="cpu", weights_only=False)
-                logger.info("✅ Checkpoint loaded successfully")
+                checkpoint = torch.loadcheckpoint_file, map_location="cpu", weights_only=False
+                logger.info"✅ Checkpoint loaded successfully"
                 logger.info(
-                    f"Checkpoint keys: {list(checkpoint.keys()) if isinstance(checkpoint, dict) else 'Not a dict'}"
+                    f"Checkpoint keys: {list(checkpoint.keys()) if isinstancecheckpoint, dict else 'Not a dict'}"
                 )
             except Exception as e:
-                logger.error(f"❌ Failed to load checkpoint: {e}")
+                logger.errorf"❌ Failed to load checkpoint: {e}"
         else:
-            logger.error("❌ best_model.pt does not exist")
+            logger.error"❌ best_model.pt does not exist"
     else:
-        logger.error("❌ test_checkpoints directory does not exist")
+        logger.error"❌ test_checkpoints directory does not exist"
 
     try:
-        logger.info("✅ PyTorch imported successfully")
+        logger.info"✅ PyTorch imported successfully"
     except ImportError as e:
-        logger.error(f"❌ PyTorch import failed: {e}")
+        logger.errorf"❌ PyTorch import failed: {e}"
 
 
 if __name__ == "__main__":

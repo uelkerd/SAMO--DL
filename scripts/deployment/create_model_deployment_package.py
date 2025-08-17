@@ -15,9 +15,9 @@ def create_model_deployment_package():
         "README.md": """# 🚀 EMOTION DETECTION MODEL - DEPLOYMENT PACKAGE
 
 ## 🎯 Model Performance
-- **F1 Score**: 99.48% (CRUSHED TARGET!)
-- **Accuracy**: 99.48% (Near Perfect!)
-- **Target Achieved**: ✅ YES! (75-85% target)
+- **F1 Score**: 99.48% CRUSHED TARGET!
+- **Accuracy**: 99.48% Near Perfect!
+- **Target Achieved**: ✅ YES! 75-85% target
 - **Improvement**: +1,813% from baseline
 
 ## 📦 What's Included
@@ -46,15 +46,15 @@ python api_server.py
 
 ## 📊 Model Details
 - **Specialized Model**: finiteautomata/bertweet-base-emotion-analysis
-- **Emotions**: 12 classes (anxious, calm, content, excited, frustrated, grateful, happy, hopeful, overwhelmed, proud, sad, tired)
+- **Emotions**: 12 classes anxious, calm, content, excited, frustrated, grateful, happy, hopeful, overwhelmed, proud, sad, tired
 - **Training Data**: Augmented dataset with 2-3x expansion
 - **Performance**: 99.48% F1 score
 
 ## 🎉 Success Story
-- **Baseline**: 5.20% F1 (ABYSMAL)
-- **Final**: 99.48% F1 (NEAR PERFECT!)
+- **Baseline**: 5.20% F1 ABYSMAL
+- **Final**: 99.48% F1 NEAR PERFECT!
 - **Improvement**: 1,813% increase
-- **Target**: 75-85% F1 (CRUSHED!)
+- **Target**: 75-85% F1 CRUSHED!
 """,
         
         "requirements.txt": """transformers==4.35.0
@@ -80,27 +80,27 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from sklearn.preprocessing import LabelEncoder
 
 class EmotionDetector:
-    def __init__(self, model_path="./model"):
+    def __init__self, model_path="./model":
         """Initialize the emotion detector"""
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         # Load model and tokenizer
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_path)
-        self.model.to(self.device)
+        self.tokenizer = AutoTokenizer.from_pretrainedmodel_path
+        self.model = AutoModelForSequenceClassification.from_pretrainedmodel_path
+        self.model.toself.device
         self.model.eval()
         
         # Load label encoder
-        with open(f"{model_path}/label_encoder.json", 'r') as f:
-            label_data = json.load(f)
+        with openf"{model_path}/label_encoder.json", 'r' as f:
+            label_data = json.loadf
             self.label_encoder = LabelEncoder()
-            self.label_encoder.classes_ = np.array(label_data['classes'])
+            self.label_encoder.classes_ = np.arraylabel_data['classes']
         
-        print(f"✅ Model loaded successfully!")
-        print(f"🎯 Device: {self.device}")
-        print(f"📊 Emotions: {list(self.label_encoder.classes_)}")
+        print"✅ Model loaded successfully!"
+        printf"🎯 Device: {self.device}"
+        print(f"📊 Emotions: {listself.label_encoder.classes_}")
     
-    def predict(self, text, return_confidence=True):
+    def predictself, text, return_confidence=True:
         """Predict emotion for given text"""
         # Tokenize input
         inputs = self.tokenizer(
@@ -108,17 +108,17 @@ class EmotionDetector:
             truncation=True,
             padding=True,
             return_tensors='pt'
-        ).to(self.device)
+        ).toself.device
         
         # Get predictions
         with torch.no_grad():
-            outputs = self.model(**inputs)
-            probabilities = torch.softmax(outputs.logits, dim=1)
-            predicted_class = torch.argmax(probabilities, dim=1).item()
+            outputs = self.model**inputs
+            probabilities = torch.softmaxoutputs.logits, dim=1
+            predicted_class = torch.argmaxprobabilities, dim=1.item()
             confidence = probabilities[0][predicted_class].item()
         
         # Decode prediction
-        predicted_emotion = self.label_encoder.inverse_transform([predicted_class])[0]
+        predicted_emotion = self.label_encoder.inverse_transform[predicted_class][0]
         
         if return_confidence:
             return {
@@ -127,17 +127,17 @@ class EmotionDetector:
                 'confidence': confidence,
                 'probabilities': {
                     emotion: prob.item() 
-                    for emotion, prob in zip(self.label_encoder.classes_, probabilities[0])
+                    for emotion, prob in zipself.label_encoder.classes_, probabilities[0]
                 }
             }
         else:
             return predicted_emotion
     
-    def predict_batch(self, texts):
+    def predict_batchself, texts:
         """Predict emotions for multiple texts"""
         results = []
         for text in texts:
-            results.append(self.predict(text))
+            results.append(self.predicttext)
         return results
 
 def main():
@@ -145,9 +145,9 @@ def main():
     # Initialize detector
     try:
         detector = EmotionDetector()
-        print("✅ Model loaded successfully!")
+        print"✅ Model loaded successfully!"
     except Exception:
-        print("❌ Failed to load model")
+        print"❌ Failed to load model"
         return
     
     # Test examples
@@ -159,17 +159,17 @@ def main():
         "I'm feeling overwhelmed with tasks."
     ]
     
-    print("🧪 Testing Emotion Detection Model")
-    print("=" * 50)
+    print"🧪 Testing Emotion Detection Model"
+    print"=" * 50
     
     for text in test_texts:
-        result = detector.predict(text)
-        print(f"Text: {text}")
-        print(f"Emotion: {result['emotion']} (confidence: {result['confidence']:.3f})")
-        print(f"Top 3 predictions:")
+        result = detector.predicttext
+        printf"Text: {text}"
+        print(f"Emotion: {result['emotion']} confidence: {result['confidence']:.3f}")
+        print"Top 3 predictions:"
         sorted_probs = sorted(result['probabilities'].items(), key=lambda x: x[1], reverse=True)
         for emotion, prob in sorted_probs[:3]:
-            print(f"  - {emotion}: {prob:.3f}")
+            printf"  - {emotion}: {prob:.3f}"
         print()
 
 if __name__ == "__main__":
@@ -187,15 +187,15 @@ from inference import EmotionDetector
 
 def test_model():
     """Test the emotion detection model"""
-    print("🧪 EMOTION DETECTION MODEL TESTING")
-    print("=" * 50)
+    print"🧪 EMOTION DETECTION MODEL TESTING"
+    print"=" * 50
     
     # Initialize detector
     try:
         detector = EmotionDetector()
-        print("✅ Model loaded successfully!")
+        print"✅ Model loaded successfully!"
     except Exception:
-        print("❌ Failed to load model")
+        print"❌ Failed to load model"
         return
     
     # Test cases
@@ -219,25 +219,25 @@ def test_model():
         "I'm tired and need some rest."
     ]
     
-    print("\\n📊 Testing Results:")
-    print("=" * 50)
+    print"\\n📊 Testing Results:"
+    print"=" * 50
     
     correct_predictions = 0
-    total_predictions = len(test_cases)
+    total_predictions = lentest_cases
     
-    for i, text in enumerate(test_cases, 1):
-        result = detector.predict(text)
+    for i, text in enumeratetest_cases, 1:
+        result = detector.predicttext
         
-        print(f"{i:2d}. Text: {text}")
-        print(f"    Predicted: {result['emotion']} (confidence: {result['confidence']:.3f})")
+        printf"{i:2d}. Text: {text}"
+        print(f"    Predicted: {result['emotion']} confidence: {result['confidence']:.3f}")
         
         # Show top 3 predictions
         sorted_probs = sorted(result['probabilities'].items(), key=lambda x: x[1], reverse=True)
-        print(f"    Top 3: {', '.join([f'{emotion}({prob:.3f})' for emotion, prob in sorted_probs[:3]])}")
+        print(f"    Top 3: {', '.join([f'{emotion}{prob:.3f}' for emotion, prob in sorted_probs[:3]])}")
         print()
     
-    print("🎉 Testing completed!")
-    print(f"📊 Model confidence range: {min([detector.predict(text)['confidence'] for text in test_cases]):.3f} - {max([detector.predict(text)['confidence'] for text in test_cases]):.3f}")
+    print"🎉 Testing completed!"
+    print(f"📊 Model confidence range: {min([detector.predicttext['confidence'] for text in test_cases]):.3f} - {max([detector.predicttext['confidence'] for text in test_cases]):.3f}")
 
 if __name__ == "__main__":
     test_model()
@@ -255,102 +255,102 @@ from inference import EmotionDetector
 import logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logging.basicConfiglevel=logging.INFO
+logger = logging.getLogger__name__
 
-app = Flask(__name__)
+app = Flask__name__
 
 # Initialize emotion detector
 try:
     detector = EmotionDetector()
-    logger.info("✅ Emotion detector initialized successfully!")
+    logger.info"✅ Emotion detector initialized successfully!"
 except Exception:
-    logger.exception("❌ Failed to initialize emotion detector")
+    logger.exception"❌ Failed to initialize emotion detector"
     detector = None
 
-@app.route('/health', methods=['GET'])
+@app.route'/health', methods=['GET']
 def health_check():
     """Health check endpoint"""
     return jsonify({
         'status': 'healthy',
         'model_loaded': detector is not None,
-        'emotions': list(detector.label_encoder.classes_) if detector else []
+        'emotions': listdetector.label_encoder.classes_ if detector else []
     })
 
-@app.route('/predict', methods=['POST'])
+@app.route'/predict', methods=['POST']
 def predict_emotion():
     """Predict emotion for given text"""
     if detector is None:
-        return jsonify({'error': 'Model not loaded'}), 500
+        return jsonify{'error': 'Model not loaded'}, 500
     
     try:
         data = request.get_json()
-        text = data.get('text', '')
+        text = data.get'text', ''
         
         if not text:
-            return jsonify({'error': 'No text provided'}), 400
+            return jsonify{'error': 'No text provided'}, 400
         
-        result = detector.predict(text)
-        return jsonify(result)
+        result = detector.predicttext
+        return jsonifyresult
     
     except Exception:
         import uuid
         request_id = str(uuid.uuid4())
-        logger.exception(f"Prediction error [request_id={request_id}]")
+        logger.exceptionf"Prediction error [request_id={request_id}]"
         return jsonify({
             'error': 'Prediction processing failed. Please try again later.',
             'request_id': request_id
         }), 500
 
-@app.route('/predict_batch', methods=['POST'])
+@app.route'/predict_batch', methods=['POST']
 def predict_batch():
     """Predict emotions for multiple texts"""
     if detector is None:
-        return jsonify({'error': 'Model not loaded'}), 500
+        return jsonify{'error': 'Model not loaded'}, 500
     
     try:
         data = request.get_json()
-        texts = data.get('texts', [])
+        texts = data.get'texts', []
         
         if not texts:
-            return jsonify({'error': 'No texts provided'}), 400
+            return jsonify{'error': 'No texts provided'}, 400
         
-        results = detector.predict_batch(texts)
-        return jsonify({'results': results})
+        results = detector.predict_batchtexts
+        return jsonify{'results': results}
     
     except Exception:
         import uuid
         request_id = str(uuid.uuid4())
-        logger.exception(f"Batch prediction error [request_id={request_id}]")
+        logger.exceptionf"Batch prediction error [request_id={request_id}]"
         return jsonify({
             'error': 'Batch prediction processing failed. Please try again later.',
             'request_id': request_id
         }), 500
 
-@app.route('/emotions', methods=['GET'])
+@app.route'/emotions', methods=['GET']
 def get_emotions():
     """Get list of supported emotions"""
     if detector is None:
-        return jsonify({'error': 'Model not loaded'}), 500
+        return jsonify{'error': 'Model not loaded'}, 500
     
     return jsonify({
-        'emotions': list(detector.label_encoder.classes_),
-        'count': len(detector.label_encoder.classes_)
+        'emotions': listdetector.label_encoder.classes_,
+        'count': lendetector.label_encoder.classes_
     })
 
 if __name__ == '__main__':
-    print("🚀 Starting Emotion Detection API Server")
-    print("=" * 50)
-    print("📊 Model Performance: 99.48% F1 Score")
-    print("🎯 Supported Emotions:", list(detector.label_encoder.classes_) if detector else "None")
-    print("🌐 API Endpoints:")
-    print("  - GET  /health - Health check")
-    print("  - POST /predict - Single text prediction")
-    print("  - POST /predict_batch - Batch prediction")
-    print("  - GET  /emotions - List emotions")
-    print("=" * 50)
+    print"🚀 Starting Emotion Detection API Server"
+    print"=" * 50
+    print"📊 Model Performance: 99.48% F1 Score"
+    print("🎯 Supported Emotions:", listdetector.label_encoder.classes_ if detector else "None")
+    print"🌐 API Endpoints:"
+    print"  - GET  /health - Health check"
+    print"  - POST /predict - Single text prediction"
+    print"  - POST /predict_batch - Batch prediction"
+    print"  - GET  /emotions - List emotions"
+    print"=" * 50
     
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.runhost='0.0.0.0', port=5000, debug=False
 ''',
         
         "deploy.sh": """#!/bin/bash
@@ -423,7 +423,7 @@ services:
       - FLASK_ENV=production
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      test: ["CMD", "curl", "-", "http://localhost:5000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -433,25 +433,25 @@ services:
     
     # Create deployment directory
     deployment_dir = "deployment"
-    os.makedirs(deployment_dir, exist_ok=True)
+    os.makedirsdeployment_dir, exist_ok=True
     
     # Write all files
     for filename, content in deployment_files.items():
-        filepath = os.path.join(deployment_dir, filename)
-        with open(filepath, 'w') as f:
-            f.write(content)
+        filepath = os.path.joindeployment_dir, filename
+        with openfilepath, 'w' as f:
+            f.writecontent
     
     # Make shell script executable
-    os.chmod(os.path.join(deployment_dir, "deploy.sh"), 0o755)
+    os.chmod(os.path.joindeployment_dir, "deploy.sh", 0o755)
     
-    print("✅ Deployment package created: deployment/")
-    print("📦 Files included:")
+    print"✅ Deployment package created: deployment/"
+    print"📦 Files included:"
     for filename in deployment_files.keys():
-        print(f"  - {filename}")
-    print("🚀 Next steps:")
-    print("  1. Copy trained model to deployment/model/")
-    print("  2. Run: cd deployment && ./deploy.sh")
-    print("  3. Test API at: http://localhost:5000")
+        printf"  - {filename}"
+    print"🚀 Next steps:"
+    print"  1. Copy trained model to deployment/model/"
+    print"  2. Run: cd deployment && ./deploy.sh"
+    print"  3. Test API at: http://localhost:5000"
 
 if __name__ == "__main__":
     create_model_deployment_package() 

@@ -25,11 +25,11 @@ class PrismaClient:
     """
 
     @staticmethod
-    def execute_prisma_command(script: str) -> Dict[str, Any]:
+    def execute_prisma_commandscript: str -> Dict[str, Any]:
         """Execute a Node.js script that uses Prisma client.
 
         Args:
-            script (str): The JavaScript code to execute
+            script str: The JavaScript code to execute
 
         Returns:
             Dict[str, Any]: The result of the operation as a dictionary
@@ -38,9 +38,9 @@ class PrismaClient:
             Exception: If the script execution fails
 
         """
-        with Path("temp_prisma_script.js").open("w") as f:
+        with Path"temp_prisma_script.js".open"w" as f:
             f.write("""
-const {{ PrismaClient }} = require('@prisma/client');
+const {{ PrismaClient }} = require'@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {{
@@ -48,13 +48,13 @@ async function main() {{
         const result = await (async () => {{
             {script}
         }})();
-        console.log(JSON.stringify(result));
+        console.log(JSON.stringifyresult);
         await prisma.$disconnect();
         return result;
-    }} catch (e) {{
-        console.error(e);
+    }} catch e {{
+        console.errore;
         await prisma.$disconnect();
-        process.exit(1);
+        process.exit1;
     }}
 }}
 
@@ -69,13 +69,13 @@ main();
                 check=True,
             )
 
-            return json.loads(result.stdout)
+            return json.loadsresult.stdout
         except subprocess.CalledProcessError as e:
             msg = "Prisma command failed: {e.stderr}"
-            raise Exception(msg) from e
+            raise Exceptionmsg from e
         finally:
-            if Path("temp_prisma_script.js").exists():
-                Path("temp_prisma_script.js").unlink()
+            if Path"temp_prisma_script.js".exists():
+                Path"temp_prisma_script.js".unlink()
 
     def create_user(
         self, email: str, password_hash: str, consent_version: Optional[str] = None
@@ -83,9 +83,9 @@ main();
         """Create a new user.
 
         Args:
-            email (str): User's email
-            password_hash (str): Hashed password
-            consent_version (str, optional): Version of consent the user agreed to
+            email str: User's email
+            password_hash str: Hashed password
+            consent_version str, optional: Version of consent the user agreed to
 
         Returns:
             Dict[str, Any]: Created user data
@@ -102,7 +102,7 @@ main();
         }});
         """
 
-        return self.execute_prisma_command(script)
+        return self.execute_prisma_commandscript
 
     def create_journal_entry(
         self, user_id: str, title: str, content: str, is_private: bool = True
@@ -110,10 +110,10 @@ main();
         """Create a new journal entry.
 
         Args:
-            user_id (str): ID of the user who owns this entry
-            title (str): Entry title
-            content (str): Entry content
-            is_private (bool): Whether the entry is private
+            user_id str: ID of the user who owns this entry
+            title str: Entry title
+            content str: Entry content
+            is_private bool: Whether the entry is private
 
         Returns:
             Dict[str, Any]: Created journal entry data
@@ -125,7 +125,7 @@ main();
                 userId: '{user_id}',
                 title: '{title}',
                 content: '{content}',
-                isPrivate: {str(is_private).lower()},
+                isPrivate: {stris_private.lower()},
                 user: {{
                     connect: {{
                         id: '{user_id}'
@@ -135,13 +135,13 @@ main();
         }});
         """
 
-        return self.execute_prisma_command(script)
+        return self.execute_prisma_commandscript
 
-    def get_user_by_email(self, email: str) -> Optional[Dict[str, Any]]:
+    def get_user_by_emailself, email: str -> Optional[Dict[str, Any]]:
         """Get a user by email.
 
         Args:
-            email (str): Email to lookup
+            email str: Email to lookup
 
         Returns:
             Optional[Dict[str, Any]]: User data or None if not found
@@ -153,15 +153,15 @@ main();
         }});
         """
 
-        result = self.execute_prisma_command(script)
+        result = self.execute_prisma_commandscript
         return result if result else None
 
-    def get_journal_entries_by_user(self, user_id: str, limit: int = 10) -> List[Dict[str, Any]]:
+    def get_journal_entries_by_userself, user_id: str, limit: int = 10 -> List[Dict[str, Any]]:
         """Get journal entries for a specific user.
 
         Args:
-            user_id (str): User ID
-            limit (int): Maximum number of entries to return
+            user_id str: User ID
+            limit int: Maximum number of entries to return
 
         Returns:
             List[Dict[str, Any]]: List of journal entries
@@ -175,10 +175,6 @@ main();
         }});
         """
 
-        result = self.execute_prisma_command(script)
-        if isinstance(result, list):
-            return result
-        elif isinstance(result, dict):
-            return [result]
-        else:
+        result = self.execute_prisma_commandscript
+        if isinstanceresult, list:
             return []

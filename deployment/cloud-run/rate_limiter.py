@@ -8,54 +8,54 @@ from flask import request, jsonify
 from functools import wraps
 
 class RateLimiter:
-    def __init__(self, requests_per_minute: int = 100):
+    def __init__self, requests_per_minute: int = 100:
         self.requests_per_minute = requests_per_minute
-        self.requests = defaultdict(lambda: deque(maxlen=requests_per_minute))
+        self.requests = defaultdict(lambda: dequemaxlen=requests_per_minute)
         self.lock = threading.Lock()
 
-    def is_allowed(self, client_id: str) -> bool:
+    def is_allowedself, client_id: str -> bool:
         """Check if request is allowed"""
         current_time = time.time()
 
         with self.lock:
-            # Clean old requests (older than 1 minute)
+            # Clean old requests older than 1 minute
             while (self.requests[client_id] and
                    current_time - self.requests[client_id][0] > 60):
                 self.requests[client_id].popleft()
 
             # Check if under limit
-            if len(self.requests[client_id]) < self.requests_per_minute:
-                self.requests[client_id].append(current_time)
+            if lenself.requests[client_id] < self.requests_per_minute:
+                self.requests[client_id].appendcurrent_time
                 return True
 
             return False
 
     @staticmethod
-    def get_client_id(request) -> str:
+    def get_client_idrequest -> str:
         """Get client identifier"""
         # Try API key first
-        api_key = request.headers.get('X-API-Key')
+        api_key = request.headers.get'X-API-Key'
         if api_key:
             return f"api_key:{api_key}"
 
         # Fall back to IP address
         return f"ip:{request.remote_addr}"
 
-def rate_limit(requests_per_minute: int = 100):
+def rate_limitrequests_per_minute: int = 100:
     """Rate limiting decorator"""
-    limiter = RateLimiter(requests_per_minute)
+    limiter = RateLimiterrequests_per_minute
 
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            client_id = limiter.get_client_id(request)
+    def decoratorf:
+        @wrapsf
+        def decorated_function*args, **kwargs:
+            client_id = limiter.get_client_idrequest
 
-            if not limiter.is_allowed(client_id):
+            if not limiter.is_allowedclient_id:
                 return jsonify({
                     'error': 'Rate limit exceeded',
                     'retry_after': 60
                 }), 429
 
-            return f(*args, **kwargs)
+            return f*args, **kwargs
         return decorated_function
     return decorator

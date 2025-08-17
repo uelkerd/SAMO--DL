@@ -24,50 +24,50 @@ Usage:
     python3 scripts/fixed_focal_training.py
 """
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%asctimes - %levelnames - %messages")
+logger = logging.getLogger__name__
 
 
-class FocalLoss(nn.Module):
+class FocalLossnn.Module:
     """Focal Loss for handling class imbalance."""
 
-    def __init__(self, alpha=0.25, gamma=2.0):
+    def __init__self, alpha=0.25, gamma=2.0:
         super().__init__()
         self.alpha = alpha
         self.gamma = gamma
 
-    def forward(self, inputs, targets):
-        bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
-        pt = torch.exp(-bce_loss)
-        focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
+    def forwardself, inputs, targets:
+        bce_loss = F.binary_cross_entropy_with_logitsinputs, targets, reduction="none"
+        pt = torch.exp-bce_loss
+        focal_loss = self.alpha * 1 - pt ** self.gamma * bce_loss
         return focal_loss.mean()
 
 
-class SimpleBERTClassifier(nn.Module):
+class SimpleBERTClassifiernn.Module:
     """Simple BERT classifier for emotion detection."""
 
-    def __init__(self, model_name="bert-base-uncased", num_classes=28):
+    def __init__self, model_name="bert-base-uncased", num_classes=28:
         super().__init__()
-        self.bert = AutoModel.from_pretrained(model_name)
-        self.classifier = nn.Linear(self.bert.config.hidden_size, num_classes)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.bert = AutoModel.from_pretrainedmodel_name
+        self.classifier = nn.Linearself.bert.config.hidden_size, num_classes
+        self.tokenizer = AutoTokenizer.from_pretrainedmodel_name
 
-    def forward(self, input_ids, attention_mask):
-        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
-        logits = self.classifier(outputs.last_hidden_state[:, 0, :])  # Use [CLS] token
+    def forwardself, input_ids, attention_mask:
+        outputs = self.bertinput_ids=input_ids, attention_mask=attention_mask
+        logits = self.classifieroutputs.last_hidden_state[:, 0, :]  # Use [CLS] token
         return logits
 
 
 def create_proper_training_data():
     """Create proper training data with diverse emotion labels."""
-    logger.info("📊 Creating proper training data with diverse emotion labels...")
+    logger.info"📊 Creating proper training data with diverse emotion labels..."
 
     emotion_names = [
         "admiration", "amusement", "anger", "annoyance", "approval", "caring",
         "confusion", "curiosity", "desire", "disappointment", "disapproval",
-        "disgust", "embarrassment", "excitement", "fear", "gratitude", "grief",
+        "disgust", "embarrassment", "excitement", "fear", "gratitude", "grie",
         "joy", "love", "nervousness", "optimism", "pride", "realization",
-        "relief", "remorse", "sadness", "surprise", "neutral"
+        "relie", "remorse", "sadness", "surprise", "neutral"
     ]
 
     # Create diverse training data with proper emotion labels
@@ -188,66 +188,66 @@ def create_proper_training_data():
     # Create labeled data
     for text in joy_examples:
         labels = [0] * 28
-        labels[emotion_names.index("joy")] = 1
-        training_data.append({"text": text, "labels": labels})
+        labels[emotion_names.index"joy"] = 1
+        training_data.append{"text": text, "labels": labels}
     
     for text in sadness_examples:
         labels = [0] * 28
-        labels[emotion_names.index("sadness")] = 1
-        training_data.append({"text": text, "labels": labels})
+        labels[emotion_names.index"sadness"] = 1
+        training_data.append{"text": text, "labels": labels}
     
     for text in anger_examples:
         labels = [0] * 28
-        labels[emotion_names.index("anger")] = 1
-        training_data.append({"text": text, "labels": labels})
+        labels[emotion_names.index"anger"] = 1
+        training_data.append{"text": text, "labels": labels}
     
     for text in fear_examples:
         labels = [0] * 28
-        labels[emotion_names.index("fear")] = 1
-        training_data.append({"text": text, "labels": labels})
+        labels[emotion_names.index"fear"] = 1
+        training_data.append{"text": text, "labels": labels}
     
     for text in love_examples:
         labels = [0] * 28
-        labels[emotion_names.index("love")] = 1
-        training_data.append({"text": text, "labels": labels})
+        labels[emotion_names.index"love"] = 1
+        training_data.append{"text": text, "labels": labels}
     
     for text in disgust_examples:
         labels = [0] * 28
-        labels[emotion_names.index("disgust")] = 1
-        training_data.append({"text": text, "labels": labels})
+        labels[emotion_names.index"disgust"] = 1
+        training_data.append{"text": text, "labels": labels}
     
     for text in surprise_examples:
         labels = [0] * 28
-        labels[emotion_names.index("surprise")] = 1
-        training_data.append({"text": text, "labels": labels})
+        labels[emotion_names.index"surprise"] = 1
+        training_data.append{"text": text, "labels": labels}
     
     for text in neutral_examples:
         labels = [0] * 28
-        labels[emotion_names.index("neutral")] = 1
-        training_data.append({"text": text, "labels": labels})
+        labels[emotion_names.index"neutral"] = 1
+        training_data.append{"text": text, "labels": labels}
 
     # Shuffle the data
-    random.shuffle(training_data)
+    random.shuffletraining_data
     
     # Split into train/val/test
-    total_samples = len(training_data)
-    train_size = int(0.7 * total_samples)
-    val_size = int(0.15 * total_samples)
+    total_samples = lentraining_data
+    train_size = int0.7 * total_samples
+    val_size = int0.15 * total_samples
     
     train_data = training_data[:train_size]
     val_data = training_data[train_size:train_size + val_size]
     test_data = training_data[train_size + val_size:]
     
-    logger.info(f"✅ Created {len(train_data)} training, {len(val_data)} validation, {len(test_data)} test samples")
+    logger.info(f"✅ Created {lentrain_data} training, {lenval_data} validation, {lentest_data} test samples")
     
     return train_data, val_data, test_data
 
 
-def create_dataloader(data, model, batch_size=8):
+def create_dataloaderdata, model, batch_size=8:
     """Create a simple dataloader for the data."""
     dataloader = []
     
-    for i in range(0, len(data), batch_size):
+    for i in range(0, lendata, batch_size):
         batch = data[i:i + batch_size]
         
         texts = [item["text"] for item in batch]
@@ -265,34 +265,34 @@ def create_dataloader(data, model, batch_size=8):
         dataloader.append({
             "input_ids": tokenized["input_ids"],
             "attention_mask": tokenized["attention_mask"],
-            "labels": torch.tensor(labels, dtype=torch.float32)
+            "labels": torch.tensorlabels, dtype=torch.float32
         })
     
     return dataloader
 
 
-def train_model(model, train_data, val_data, device, epochs=10):
+def train_modelmodel, train_data, val_data, device, epochs=10:
     """Train the model with focal loss."""
-    logger.info("🚀 Starting model training...")
+    logger.info"🚀 Starting model training..."
     
-    model.to(device)
+    model.todevice
     optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
     criterion = FocalLoss()
     
-    best_val_loss = float('inf')
+    best_val_loss = float'in'
     
-    for epoch in range(epochs):
+    for epoch in rangeepochs:
         model.train()
         total_loss = 0
         
-        for batch in tqdm(train_data, desc=f"Epoch {epoch + 1}/{epochs}"):
-            input_ids = batch["input_ids"].to(device)
-            attention_mask = batch["attention_mask"].to(device)
-            labels = batch["labels"].to(device)
+        for batch in tqdmtrain_data, desc=f"Epoch {epoch + 1}/{epochs}":
+            input_ids = batch["input_ids"].todevice
+            attention_mask = batch["attention_mask"].todevice
+            labels = batch["labels"].todevice
             
             optimizer.zero_grad()
-            outputs = model(input_ids, attention_mask)
-            loss = criterion(outputs, labels)
+            outputs = modelinput_ids, attention_mask
+            loss = criterionoutputs, labels
             loss.backward()
             optimizer.step()
             
@@ -303,31 +303,31 @@ def train_model(model, train_data, val_data, device, epochs=10):
         val_loss = 0
         with torch.no_grad():
             for batch in val_data:
-                input_ids = batch["input_ids"].to(device)
-                attention_mask = batch["attention_mask"].to(device)
-                labels = batch["labels"].to(device)
+                input_ids = batch["input_ids"].todevice
+                attention_mask = batch["attention_mask"].todevice
+                labels = batch["labels"].todevice
                 
-                outputs = model(input_ids, attention_mask)
-                loss = criterion(outputs, labels)
+                outputs = modelinput_ids, attention_mask
+                loss = criterionoutputs, labels
                 val_loss += loss.item()
         
-        avg_train_loss = total_loss / len(train_data)
-        avg_val_loss = val_loss / len(val_data)
+        avg_train_loss = total_loss / lentrain_data
+        avg_val_loss = val_loss / lenval_data
         
-        logger.info(f"Epoch {epoch + 1}: Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}")
+        logger.infof"Epoch {epoch + 1}: Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}"
         
         # Save best model
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
             torch.save(model.state_dict(), "best_focal_model.pth")
-            logger.info(f"✅ Saved best model with val loss: {best_val_loss:.4f}")
+            logger.infof"✅ Saved best model with val loss: {best_val_loss:.4f}"
     
     return model
 
 
-def evaluate_model(model, test_data, device):
+def evaluate_modelmodel, test_data, device:
     """Evaluate the model with different thresholds."""
-    logger.info("📊 Evaluating model with different thresholds...")
+    logger.info"📊 Evaluating model with different thresholds..."
     
     model.eval()
     all_predictions = []
@@ -335,18 +335,18 @@ def evaluate_model(model, test_data, device):
     
     with torch.no_grad():
         for batch in test_data:
-            input_ids = batch["input_ids"].to(device)
-            attention_mask = batch["attention_mask"].to(device)
-            labels = batch["labels"].to(device)
+            input_ids = batch["input_ids"].todevice
+            attention_mask = batch["attention_mask"].todevice
+            labels = batch["labels"].todevice
             
-            outputs = model(input_ids, attention_mask)
-            predictions = torch.sigmoid(outputs)
+            outputs = modelinput_ids, attention_mask
+            predictions = torch.sigmoidoutputs
             
             all_predictions.append(predictions.cpu().numpy())
             all_labels.append(labels.cpu().numpy())
     
-    all_predictions = np.concatenate(all_predictions, axis=0)
-    all_labels = np.concatenate(all_labels, axis=0)
+    all_predictions = np.concatenateall_predictions, axis=0
+    all_labels = np.concatenateall_labels, axis=0
     
     # Test different thresholds
     thresholds = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
@@ -354,28 +354,28 @@ def evaluate_model(model, test_data, device):
     best_threshold = 0.5
     
     for threshold in thresholds:
-        binary_predictions = (all_predictions > threshold).astype(int)
+        binary_predictions = all_predictions > threshold.astypeint
         
         # Calculate metrics
-        f1 = f1_score(all_labels, binary_predictions, average='weighted', zero_division=0)
-        precision = precision_score(all_labels, binary_predictions, average='weighted', zero_division=0)
-        recall = recall_score(all_labels, binary_predictions, average='weighted', zero_division=0)
+        f1 = f1_scoreall_labels, binary_predictions, average='weighted', zero_division=0
+        precision = precision_scoreall_labels, binary_predictions, average='weighted', zero_division=0
+        recall = recall_scoreall_labels, binary_predictions, average='weighted', zero_division=0
         
-        logger.info(f"Threshold {threshold}: F1={f1:.4f}, Precision={precision:.4f}, Recall={recall:.4f}")
+        logger.infof"Threshold {threshold}: F1={f1:.4f}, Precision={precision:.4f}, Recall={recall:.4f}"
         
         if f1 > best_f1:
             best_f1 = f1
             best_threshold = threshold
     
-    logger.info(f"🎯 Best threshold: {best_threshold} with F1: {best_f1:.4f}")
+    logger.infof"🎯 Best threshold: {best_threshold} with F1: {best_f1:.4f}"
     
     # Final evaluation with best threshold
-    binary_predictions = (all_predictions > best_threshold).astype(int)
-    final_f1 = f1_score(all_labels, binary_predictions, average='weighted', zero_division=0)
-    final_precision = precision_score(all_labels, binary_predictions, average='weighted', zero_division=0)
-    final_recall = recall_score(all_labels, binary_predictions, average='weighted', zero_division=0)
+    binary_predictions = all_predictions > best_threshold.astypeint
+    final_f1 = f1_scoreall_labels, binary_predictions, average='weighted', zero_division=0
+    final_precision = precision_scoreall_labels, binary_predictions, average='weighted', zero_division=0
+    final_recall = recall_scoreall_labels, binary_predictions, average='weighted', zero_division=0
     
-    logger.info(f"🏆 Final Results - F1: {final_f1:.4f}, Precision: {final_precision:.4f}, Recall: {final_recall:.4f}")
+    logger.infof"🏆 Final Results - F1: {final_f1:.4f}, Precision: {final_precision:.4f}, Recall: {final_recall:.4f}"
     
     return {
         "f1": final_f1,
@@ -387,15 +387,15 @@ def evaluate_model(model, test_data, device):
 
 def main():
     """Main training function."""
-    logger.info("🎯 Starting Fixed Focal Loss Training")
+    logger.info"🎯 Starting Fixed Focal Loss Training"
     
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"🖥️ Using device: {device}")
+    logger.infof"🖥️ Using device: {device}"
     
     # Create directories
-    Path("models").mkdir(exist_ok=True)
-    Path("results").mkdir(exist_ok=True)
+    Path"models".mkdirexist_ok=True
+    Path"results".mkdirexist_ok=True
     
     # Create proper training data
     train_data, val_data, test_data = create_proper_training_data()
@@ -405,28 +405,28 @@ def main():
     logger.info(f"🤖 Created model with {sum(p.numel() for p in model.parameters())} parameters")
     
     # Create dataloaders
-    train_dataloader = create_dataloader(train_data, model, batch_size=8)
-    val_dataloader = create_dataloader(val_data, model, batch_size=8)
-    test_dataloader = create_dataloader(test_data, model, batch_size=8)
+    train_dataloader = create_dataloadertrain_data, model, batch_size=8
+    val_dataloader = create_dataloaderval_data, model, batch_size=8
+    test_dataloader = create_dataloadertest_data, model, batch_size=8
     
     # Train model
-    trained_model = train_model(model, train_dataloader, val_dataloader, device, epochs=5)
+    trained_model = train_modelmodel, train_dataloader, val_dataloader, device, epochs=5
     
     # Load best model
-    trained_model.load_state_dict(torch.load("best_focal_model.pth"))
+    trained_model.load_state_dict(torch.load"best_focal_model.pth")
     
     # Evaluate model
-    results = evaluate_model(trained_model, test_dataloader, device)
+    results = evaluate_modeltrained_model, test_dataloader, device
     
     # Save results
-    with open("results/focal_training_results.json", "w") as f:
-        json.dump(results, f, indent=2)
+    with open"results/focal_training_results.json", "w" as f:
+        json.dumpresults, f, indent=2
     
     # Final summary
-    logger.info("🎉 Training completed successfully!")
-    logger.info(f"📊 Final F1 Score: {results['f1']:.4f}")
-    logger.info(f"🎯 Best Threshold: {results['best_threshold']}")
-    logger.info("💾 Results saved to results/focal_training_results.json")
+    logger.info"🎉 Training completed successfully!"
+    logger.infof"📊 Final F1 Score: {results['f1']:.4f}"
+    logger.infof"🎯 Best Threshold: {results['best_threshold']}"
+    logger.info"💾 Results saved to results/focal_training_results.json"
 
 
 if __name__ == "__main__":

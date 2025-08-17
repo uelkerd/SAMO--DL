@@ -17,13 +17,13 @@ sys.path.append(str(Path.cwd() / "src"))
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, evaluate_emotion_classifier
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%levelnames: %messages")
+logger = logging.getLogger__name__
 
 
 def create_test_data():
     """Create test data for temperature scaling."""
-    logger.info("Creating test data...")
+    logger.info"Creating test data..."
 
     test_texts = [
         "I am feeling happy today!",
@@ -46,14 +46,14 @@ def create_test_data():
 
 def simple_temperature_test():
     """Run simple temperature scaling test."""
-    logger.info("🚀 Starting Simple Temperature Test")
+    logger.info"🚀 Starting Simple Temperature Test"
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Using device: {device}")
+    logger.infof"Using device: {device}"
 
     # Create model and tokenizer
     model, tokenizer = create_bert_emotion_classifier()
-    model.to(device)
+    model.todevice
 
     # Create test data
     test_texts, test_labels = create_test_data()
@@ -62,7 +62,7 @@ def simple_temperature_test():
     temperatures = [0.5, 1.0, 1.5, 2.0]
     
     for temp in temperatures:
-        logger.info(f"📊 Testing temperature: {temp}")
+        logger.infof"📊 Testing temperature: {temp}"
         
         # Set model temperature
         model.temperature = temp
@@ -77,12 +77,12 @@ def simple_temperature_test():
                 device=device
             )
             
-            logger.info(f"   Temperature {temp}: F1 = {results.get('f1_score', 'N/A'):.4f}")
+            logger.info(f"   Temperature {temp}: F1 = {results.get'f1_score', 'N/A':.4f}")
             
         except Exception as e:
-            logger.warning(f"   Temperature {temp}: Error - {e}")
+            logger.warningf"   Temperature {temp}: Error - {e}"
 
-    logger.info("✅ Simple temperature test completed!")
+    logger.info"✅ Simple temperature test completed!"
 
 
 if __name__ == "__main__":

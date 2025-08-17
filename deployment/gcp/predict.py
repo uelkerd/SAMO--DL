@@ -11,46 +11,46 @@ import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from flask import Flask, request, jsonify
 
-app = Flask(__name__)
+app = Flask__name__
 
 class EmotionDetectionModel:
-    def __init__(self):
+    def __init__self:
         """Initialize the model."""
         self.model_path = os.path.join(os.getcwd(), "model")
-        print(f"Loading model from: {self.model_path}")
+        printf"Loading model from: {self.model_path}"
         
         try:
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
-            self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path)
+            self.tokenizer = AutoTokenizer.from_pretrainedself.model_path
+            self.model = AutoModelForSequenceClassification.from_pretrainedself.model_path
             
             # Move to GPU if available
             if torch.cuda.is_available():
-                self.model = self.model.to('cuda')
-                print("✅ Model moved to GPU")
+                self.model = self.model.to'cuda'
+                print"✅ Model moved to GPU"
             else:
-                print("⚠️ CUDA not available, using CPU")
+                print"⚠️ CUDA not available, using CPU"
             
             self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
-            print("✅ Model loaded successfully")
+            print"✅ Model loaded successfully"
             
         except Exception as e:
-            print(f"❌ Failed to load model: {str(e)}")
+            print(f"❌ Failed to load model: {stre}")
             raise
         
-    def predict(self, text):
+    def predictself, text:
         """Make a prediction."""
         try:
             # Tokenize input
-            inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
+            inputs = self.tokenizertext, return_tensors='pt', truncation=True, padding=True, max_length=512
             
             if torch.cuda.is_available():
-                inputs = {k: v.to('cuda') for k, v in inputs.items()}
+                inputs = {k: v.to'cuda' for k, v in inputs.items()}
             
             # Get prediction
             with torch.no_grad():
-                outputs = self.model(**inputs)
-                probabilities = torch.softmax(outputs.logits, dim=1)
-                predicted_label = torch.argmax(probabilities, dim=1).item()
+                outputs = self.model**inputs
+                probabilities = torch.softmaxoutputs.logits, dim=1
+                predicted_label = torch.argmaxprobabilities, dim=1.item()
                 confidence = probabilities[0][predicted_label].item()
                 
                 # Get all probabilities
@@ -59,8 +59,8 @@ class EmotionDetectionModel:
             # Get predicted emotion
             if predicted_label in self.model.config.id2label:
                 predicted_emotion = self.model.config.id2label[predicted_label]
-            elif str(predicted_label) in self.model.config.id2label:
-                predicted_emotion = self.model.config.id2label[str(predicted_label)]
+            elif strpredicted_label in self.model.config.id2label:
+                predicted_emotion = self.model.config.id2label[strpredicted_label]
             else:
                 predicted_emotion = f"unknown_{predicted_label}"
             
@@ -68,9 +68,9 @@ class EmotionDetectionModel:
             response = {
                 'text': text,
                 'predicted_emotion': predicted_emotion,
-                'confidence': float(confidence),
+                'confidence': floatconfidence,
                 'probabilities': {
-                    emotion: float(prob) for emotion, prob in zip(self.emotions, all_probs)
+                    emotion: floatprob for emotion, prob in zipself.emotions, all_probs
                 },
                 'model_version': '2.0',
                 'model_type': 'comprehensive_emotion_detection',
@@ -84,14 +84,14 @@ class EmotionDetectionModel:
             return response
             
         except Exception as e:
-            print(f"Prediction error: {str(e)}")
+            print(f"Prediction error: {stre}")
             raise
 
 # Initialize model
-print("🔧 Loading emotion detection model...")
+print"🔧 Loading emotion detection model..."
 model = EmotionDetectionModel()
 
-@app.route('/health', methods=['GET'])
+@app.route'/health', methods=['GET']
 def health_check():
     """Health check endpoint."""
     return jsonify({
@@ -100,29 +100,29 @@ def health_check():
         'model_type': 'comprehensive_emotion_detection'
     })
 
-@app.route('/predict', methods=['POST'])
+@app.route'/predict', methods=['POST']
 def predict():
     """Prediction endpoint."""
     try:
         data = request.get_json()
         
         if not data or 'text' not in data:
-            return jsonify({'error': 'No text provided'}), 400
+            return jsonify{'error': 'No text provided'}, 400
         
         text = data['text']
         if not text.strip():
-            return jsonify({'error': 'Empty text provided'}), 400
+            return jsonify{'error': 'Empty text provided'}, 400
         
         # Make prediction
-        result = model.predict(text)
+        result = model.predicttext
         
-        return jsonify(result)
+        return jsonifyresult
         
     except Exception as e:
-        print(f"Prediction endpoint error: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        print(f"Prediction endpoint error: {stre}")
+        return jsonify({'error': stre}), 500
 
-@app.route('/', methods=['GET'])
+@app.route'/', methods=['GET']
 def home():
     """Home endpoint."""
     return jsonify({
@@ -131,7 +131,7 @@ def home():
         'endpoints': {
             'GET /': 'This documentation',
             'GET /health': 'Health check',
-            'POST /predict': 'Single prediction (send {"text": "your text"})'
+            'POST /predict': 'Single prediction send {"text": "your text"}'
         },
         'model_info': {
             'emotions': model.emotions,
@@ -144,14 +144,14 @@ def home():
     })
 
 if __name__ == '__main__':
-    print("🌐 Starting Vertex AI prediction server...")
-    print("📋 Available endpoints:")
-    print("   GET  / - API documentation")
-    print("   GET  /health - Health check")
-    print("   POST /predict - Single prediction")
-    print("")
-    print("🚀 Server starting on http://0.0.0.0:8080")
-    print("")
+    print"🌐 Starting Vertex AI prediction server..."
+    print"📋 Available endpoints:"
+    print"   GET  / - API documentation"
+    print"   GET  /health - Health check"
+    print"   POST /predict - Single prediction"
+    print""
+    print"🚀 Server starting on http://0.0.0.0:8080"
+    print""
     
     # Run the Flask app
-    app.run(host='0.0.0.0', port=8080, debug=False)
+    app.runhost='0.0.0.0', port=8080, debug=False

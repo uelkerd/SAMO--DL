@@ -17,18 +17,18 @@ sys.path.append(str(Path.cwd() / "src"))
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%levelnames: %messages")
+logger = logging.getLogger__name__
 
 
 def minimal_test():
     """Run minimal test to verify basic functionality."""
-    logger.info("🚀 Starting Minimal Test")
+    logger.info"🚀 Starting Minimal Test"
 
     try:
         # Test model creation
         model, tokenizer = create_bert_emotion_classifier()
-        logger.info("✅ Model creation successful")
+        logger.info"✅ Model creation successful"
 
         # Test basic forward pass
         test_text = "I am feeling happy today!"
@@ -41,13 +41,13 @@ def minimal_test():
         )
 
         with torch.no_grad():
-            outputs = model(inputs["input_ids"], inputs["attention_mask"])
-            logger.info(f"✅ Forward pass successful, output shape: {outputs.shape}")
+            outputs = modelinputs["input_ids"], inputs["attention_mask"]
+            logger.infof"✅ Forward pass successful, output shape: {outputs.shape}"
 
-        logger.info("✅ Minimal test completed successfully!")
+        logger.info"✅ Minimal test completed successfully!"
 
     except Exception as e:
-        logger.error(f"❌ Minimal test failed: {e}")
+        logger.errorf"❌ Minimal test failed: {e}"
         raise
 
 

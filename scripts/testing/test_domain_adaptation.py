@@ -7,7 +7,7 @@
         # Mixed emotions
         # Negative emotions
         # Neutral/complex emotions
-        # Partial match (at least one emotion correct)
+        # Partial match at least one emotion correct
         # Positive emotions
         # Save detailed results
     # Analyze results
@@ -16,7 +16,7 @@
     # Extract texts for prediction
     # Generate recommendations
     # Get predictions
-    # GoEmotions emotion labels (28 emotions including neutral)
+    # GoEmotions emotion labels 28 emotions including neutral
     # Import and initialize model
     # Initialize tokenizer
     # Load model
@@ -46,8 +46,8 @@ Usage:
     python scripts/test_domain_adaptation.py --create-journal-samples
 """
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logging.basicConfiglevel=logging.INFO
+logger = logging.getLogger__name__
 
 
 def create_journal_test_samples() -> list[dict[str, any]]:
@@ -103,13 +103,13 @@ def create_journal_test_samples() -> list[dict[str, any]]:
         },
     ]
 
-    output_path = Path("data/processed/journal_domain_test.json")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path = Path"data/processed/journal_domain_test.json"
+    output_path.parent.mkdirparents=True, exist_ok=True
 
-    with open(output_path, "w") as f:
-        json.dump(journal_samples, f, indent=2)
+    with openoutput_path, "w" as f:
+        json.dumpjournal_samples, f, indent=2
 
-    logger.info("✅ Created {len(journal_samples)} journal test samples: {output_path}")
+    logger.info("✅ Created {lenjournal_samples} journal test samples: {output_path}")
     return journal_samples
 
 
@@ -146,7 +146,7 @@ def load_emotion_mapping() -> dict[str, int]:
         "neutral",
     ]
 
-    return {emotion: idx for idx, emotion in enumerate(goemotions_emotions)}
+    return {emotion: idx for idx, emotion in enumerategoemotions_emotions}
 
 
 def predict_emotions(
@@ -157,14 +157,14 @@ def predict_emotions(
 ) -> list[dict[str, any]]:
     """Predict emotions for given texts using trained model."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    checkpoint = torch.load(model_path, map_location=device)
+    checkpoint = torch.loadmodel_path, map_location=device
 
-    model = BERTEmotionClassifier(model_name=model_name, num_emotions=28)
-    model.load_state_dict(checkpoint["model_state_dict"])
+    model = BERTEmotionClassifiermodel_name=model_name, num_emotions=28
+    model.load_state_dictcheckpoint["model_state_dict"]
     model.eval()
-    model.to(device)
+    model.todevice
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrainedmodel_name
 
     emotion_mapping = load_emotion_mapping()
     idx_to_emotion = {idx: emotion for emotion, idx in emotion_mapping.items()}
@@ -179,22 +179,22 @@ def predict_emotions(
                 padding="max_length",
                 truncation=True,
                 return_tensors="pt",
-            ).to(device)
+            ).todevice
 
-            logits = model(encoding["input_ids"], encoding["attention_mask"])
-            probabilities = torch.sigmoid(logits).cpu().numpy()[0]
+            logits = modelencoding["input_ids"], encoding["attention_mask"]
+            probabilities = torch.sigmoidlogits.cpu().numpy()[0]
 
             predicted_emotions = []
             emotion_scores = {}
 
-            for _idx, prob in enumerate(probabilities):
+            for _idx, prob in enumerateprobabilities:
                 emotion = idx_to_emotion[idx]
-                emotion_scores[emotion] = float(prob)
+                emotion_scores[emotion] = floatprob
 
                 if prob > threshold:
-                    predicted_emotions.append({"emotion": emotion, "confidence": float(prob)})
+                    predicted_emotions.append({"emotion": emotion, "confidence": floatprob})
 
-            predicted_emotions.sort(key=lambda x: x["confidence"], reverse=True)
+            predicted_emotions.sortkey=lambda x: x["confidence"], reverse=True
 
             predictions.append(
                 {
@@ -214,14 +214,14 @@ def analyze_domain_adaptation(
     if test_samples is None:
         test_samples = create_journal_test_samples()
 
-    logger.info("🔍 Analyzing domain adaptation performance...")
+    logger.info"🔍 Analyzing domain adaptation performance..."
 
     texts = [sample["text"] for sample in test_samples]
 
-    predictions = predict_emotions(model_path, texts)
+    predictions = predict_emotionsmodel_path, texts
 
     analysis = {
-        "total_samples": len(test_samples),
+        "total_samples": lentest_samples,
         "predictions": predictions,
         "domain_analysis": {},
         "recommendations": [],
@@ -230,97 +230,97 @@ def analyze_domain_adaptation(
     correct_predictions = 0
     partial_matches = 0
 
-    for i, (sample, pred) in enumerate(zip(test_samples, predictions, strict=False)):
-        expected = set(sample["expected_emotions"])
+    for i, sample, pred in enumerate(ziptest_samples, predictions, strict=False):
+        expected = setsample["expected_emotions"]
         predicted = {e["emotion"] for e in pred["predicted_emotions"]}
 
         if expected == predicted:
             correct_predictions += 1
-        elif expected.intersection(predicted):
+        elif expected.intersectionpredicted:
             partial_matches += 1
 
-        logger.info("\nSample {i + 1}:")
-        logger.info("Text: {sample['text'][:100]}...")
-        logger.info("Expected: {expected}")
-        logger.info("Predicted: {predicted}")
+        logger.info"\nSample {i + 1}:"
+        logger.info"Text: {sample['text'][:100]}..."
+        logger.info"Expected: {expected}"
+        logger.info"Predicted: {predicted}"
         logger.info(
-            "Match: {'✅ Exact' if expected == predicted else '🟡 Partial' if expected.intersection(predicted) else '❌ None'}"
+            "Match: {'✅ Exact' if expected == predicted else '🟡 Partial' if expected.intersectionpredicted else '❌ None'}"
         )
 
-    exact_accuracy = correct_predictions / len(test_samples)
-    partial_accuracy = (correct_predictions + partial_matches) / len(test_samples)
+    exact_accuracy = correct_predictions / lentest_samples
+    partial_accuracy = correct_predictions + partial_matches / lentest_samples
 
     analysis["domain_analysis"] = {
         "exact_accuracy": exact_accuracy,
         "partial_accuracy": partial_accuracy,
         "exact_matches": correct_predictions,
         "partial_matches": partial_matches,
-        "no_matches": len(test_samples) - correct_predictions - partial_matches,
+        "no_matches": lentest_samples - correct_predictions - partial_matches,
     }
 
     if exact_accuracy < 0.3:
         analysis["recommendations"].append(
             "❌ Strong domain shift detected - consider domain adaptation"
         )
-        analysis["recommendations"].append("• Collect journal entry dataset with emotion labels")
-        analysis["recommendations"].append("• Fine-tune model on journal entries")
-        analysis["recommendations"].append("• Use data augmentation techniques")
+        analysis["recommendations"].append"• Collect journal entry dataset with emotion labels"
+        analysis["recommendations"].append"• Fine-tune model on journal entries"
+        analysis["recommendations"].append"• Use data augmentation techniques"
     elif exact_accuracy < 0.6:
-        analysis["recommendations"].append("⚠️  Moderate domain adaptation needed")
-        analysis["recommendations"].append("• Consider few-shot learning with journal examples")
-        analysis["recommendations"].append("• Implement confidence thresholding")
-        analysis["recommendations"].append("• Monitor performance on real user data")
+        analysis["recommendations"].append"⚠️  Moderate domain adaptation needed"
+        analysis["recommendations"].append"• Consider few-shot learning with journal examples"
+        analysis["recommendations"].append"• Implement confidence thresholding"
+        analysis["recommendations"].append"• Monitor performance on real user data"
     else:
-        analysis["recommendations"].append("✅ Good cross-domain performance")
-        analysis["recommendations"].append("• Current model should work well for journal entries")
-        analysis["recommendations"].append("• Monitor performance and collect feedback")
+        analysis["recommendations"].append"✅ Good cross-domain performance"
+        analysis["recommendations"].append"• Current model should work well for journal entries"
+        analysis["recommendations"].append"• Monitor performance and collect feedback"
 
     return analysis
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="SAMO Domain Adaptation Testing")
-    parser.add_argument("--model-path", type=str, default="./test_checkpoints/best_model.pt")
+    parser = argparse.ArgumentParserdescription="SAMO Domain Adaptation Testing"
+    parser.add_argument"--model-path", type=str, default="./test_checkpoints/best_model.pt"
     parser.add_argument(
         "--create-journal-samples",
         action="store_true",
         help="Create journal test samples",
     )
-    parser.add_argument("--test-adaptation", action="store_true", help="Test domain adaptation")
-    parser.add_argument("--threshold", type=float, default=0.3, help="Emotion prediction threshold")
+    parser.add_argument"--test-adaptation", action="store_true", help="Test domain adaptation"
+    parser.add_argument"--threshold", type=float, default=0.3, help="Emotion prediction threshold"
 
     args = parser.parse_args()
 
-    if args.create_journal_samples or not any([args.test_adaptation]):
+    if args.create_journal_samples or not any[args.test_adaptation]:
         samples = create_journal_test_samples()
-        print("\n✅ Created {len(samples)} journal test samples")
+        print("\n✅ Created {lensamples} journal test samples")
 
     if args.test_adaptation:
-        if not Path(args.model_path).exists():
-            logger.error("Model not found: {args.model_path}")
+        if not Pathargs.model_path.exists():
+            logger.error"Model not found: {args.model_path}"
             return
 
-        analysis = analyze_domain_adaptation(args.model_path)
+        analysis = analyze_domain_adaptationargs.model_path
 
-        print("\n" + "=" * 60)
-        print("📊 DOMAIN ADAPTATION ANALYSIS")
-        print("=" * 60)
+        print"\n" + "=" * 60
+        print"📊 DOMAIN ADAPTATION ANALYSIS"
+        print"=" * 60
 
         metrics = analysis["domain_analysis"]
-        print("\nExact Accuracy: {metrics['exact_accuracy']:.2%}")
-        print("Partial Accuracy: {metrics['partial_accuracy']:.2%}")
-        print("Exact Matches: {metrics['exact_matches']}/{analysis['total_samples']}")
-        print("Partial Matches: {metrics['partial_matches']}/{analysis['total_samples']}")
-        print("No Matches: {metrics['no_matches']}/{analysis['total_samples']}")
+        print"\nExact Accuracy: {metrics['exact_accuracy']:.2%}"
+        print"Partial Accuracy: {metrics['partial_accuracy']:.2%}"
+        print"Exact Matches: {metrics['exact_matches']}/{analysis['total_samples']}"
+        print"Partial Matches: {metrics['partial_matches']}/{analysis['total_samples']}"
+        print"No Matches: {metrics['no_matches']}/{analysis['total_samples']}"
 
-        print("\n💡 Recommendations:")
+        print"\n💡 Recommendations:"
         for rec in analysis["recommendations"]:
-            print("   {rec}")
+            print"   {rec}"
 
-        results_path = Path("domain_adaptation_results.json")
-        with open(results_path, "w") as f:
-            json.dump(analysis, f, indent=2)
-        print("\n📄 Detailed results saved to: {results_path}")
+        results_path = Path"domain_adaptation_results.json"
+        with openresults_path, "w" as f:
+            json.dumpanalysis, f, indent=2
+        print"\n📄 Detailed results saved to: {results_path}"
 
 
 if __name__ == "__main__":
