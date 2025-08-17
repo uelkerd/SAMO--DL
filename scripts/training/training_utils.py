@@ -13,21 +13,29 @@ import json
 
 def setup_training_logging(log_file: str = "training.log") -> logging.Logger:
     """Setup basic training logging configuration.
-
+    
     Args:
         log_file: Path to log file
-
+        
     Returns:
         Configured logger instance
     """
     logger = logging.getLogger("training")
-    logger.setLevel(logging.INFO)
-
-    # Clear existing handlers to prevent duplication
+    
+    # Return early if logger is already configured (idempotent)
     if logger.handlers:
-        logger.handlers.clear()
-    # File handler
-    file_handler = logging.FileHandler(log_file)
+        return logger
+        
+    logger.setLevel(logging.INFO)
+    
+    # Ensure log directory exists
+    import os
+    log_dir = os.path.dirname(log_file)
+    if log_dir:
+        os.makedirs(log_dir, exist_ok=True)
+    
+    # File handler with explicit encoding
+    file_handler = logging.FileHandler(log_file, encoding='utf-8')
     file_handler.setLevel(logging.INFO)
 
     # Console handler
@@ -44,6 +52,9 @@ def setup_training_logging(log_file: str = "training.log") -> logging.Logger:
     # Add handlers
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
+    
+    # Prevent duplicate console output via root handlers
+    logger.propagate = False
 
     return logger
 
