@@ -169,29 +169,6 @@ def _run_emotion_predict(text: str, threshold: float = 0.5) -> dict:
     except Exception:
         return {}
 
-# ------------------------------
-# Helpers: test-only permission injection
-# ------------------------------
-def _has_injected_permission(request: Request, permission: str) -> bool:
-    """Check for test-only injected permissions via headers when enabled.
-
-    Active only when both PYTEST_CURRENT_TEST is set and
-    ENABLE_TEST_PERMISSION_INJECTION is "true".
-    """
-    try:
-        if (
-            os.environ.get("PYTEST_CURRENT_TEST")
-            and (os.environ.get("ENABLE_TEST_PERMISSION_INJECTION", "false")
-                 .lower() == "true")
-        ):
-            header_val = request.headers.get("X-User-Permissions")
-            if header_val:
-                perms = {p.strip() for p in header_val.split(",") if p.strip()}
-                return permission in perms
-    except Exception:
-        # Defensive: never fail permission checks due to header parsing issues
-        return False
-    return False
 
 # Application startup time
 app_start_time = time.time()
@@ -373,10 +350,6 @@ def require_permission(permission: str):
         request: Request,
         current_user: TokenPayload = Depends(get_current_user)
     ):
-        # Allow tests to inject permissions via header only during pytest runs and
-        # explicit toggle
-        if _has_injected_permission(request, permission):
-            return current_user
         if permission not in current_user.permissions:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -483,13 +456,18 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Add CORS middleware
+# Add CORS middleware with secure defaults
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
+if not allowed_origins or allowed_origins == [""]:
+    # Secure default - only allow same origin in production
+    allowed_origins = ["https://samo-project.com", "https://app.samo-project.com"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure appropriately for production
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-API-Key"],
 )
 
 # Add rate limiting middleware (1000 requests/minute per user for testing)
@@ -556,7 +534,6 @@ async def general_exception_handler(request: Request, exc: Exception):
         content={
             "error": "Internal server error",
             "message": "An unexpected error occurred",
-            "type": type(exc).__name__,
         },
     )
 
@@ -1663,9 +1640,8 @@ async def batch_transcribe_voice(
     results = []
 
     try:
-        # Enforce permission always; allow pytest header override for tests only
-        if (not _has_injected_permission(request, "batch_processing") and
-                "batch_processing" not in current_user.permissions):
+        # Enforce permission validation
+        if "batch_processing" not in current_user.permissions:
             raise HTTPException(
                 status_code=403,
                 detail="Permission 'batch_processing' required"
