@@ -3,6 +3,8 @@
 [![CodeScene Hotspot Code Health](https://codescene.io/projects/70411/status-badges/hotspot-code-health)](https://codescene.io/projects/70411)
 [![CodeScene System Mastery](https://codescene.io/projects/70411/status-badges/system-mastery)](https://codescene.io/projects/70411)
 [![CodeScene general](https://codescene.io/images/analyzed-by-codescene-badge.svg)](https://codescene.io/projects/70411)
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/uelkerd/SAMO--DL?style=flat&color=purple)
+
 
 # SAMO Deep Learning - Production Emotion Detection API
 
