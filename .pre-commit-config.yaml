@@ -115,11 +115,12 @@ repos:
   # Security vulnerability scanning with Safety
   # Note: Consider moving this to CI/CD pipeline for performance
   # Safety checks installed dependencies and can be slow
-  - repo: https://github.com/PyCQA/safety
-    rev: 3.1.1
-    hooks:
-      - id: safety
-        args: [check]
+  # Temporarily disabled due to repository access issues
+  # - repo: https://github.com/PyCQA/safety
+  #   rev: 3.1.1
+  #   hooks:
+  #     - id: safety
+  #       args: [check]
 
   # Documentation formatting
   - repo: https://github.com/myint/docformatter
