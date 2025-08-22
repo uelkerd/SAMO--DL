@@ -53,8 +53,11 @@ if hasattr(cfg, 'id2label') and cfg.id2label:
 orig_num_labels = getattr(cfg, "num_labels", None)
 if orig_num_labels not in (None, len(new_labels)):
     print(
-        f"⚠️  Existing cfg.num_labels={orig_num_labels}, new_labels={len(new_labels)}. "
-        f"Ensure the classifier head out_features matches {len(new_labels)} before publishing."
+        f"⚠️  Existing cfg.num_labels={orig_num_labels}, new_labels={len(new_labels)}."
+    )
+    print(
+        f"Ensure the classifier head out_features matches {len(new_labels)} "
+        "before publishing."
     )
 
 # Update config with new labels
