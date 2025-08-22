@@ -52,7 +52,7 @@ def list_all_files() -> List[Path]:
             p = Path(dirpath) / fname
             try:
                 rel_parts = p.relative_to(ROOT).parts
-            except Exception:
+            except (ValueError, RuntimeError):
                 continue
             if any(part in IGNORES for part in rel_parts):
                 continue
@@ -73,7 +73,7 @@ def gather_metadata(p: Path) -> Dict[str, Any]:
         size = 0
     try:
         rel = str(p.relative_to(ROOT))
-    except Exception:
+    except ValueError:
         rel = str(p)
     return {
         "path": rel,
@@ -96,7 +96,7 @@ def gather_top_level() -> Dict[str, Any]:
                         fp = Path(dp) / f
                         try:
                             size += fp.stat().st_size
-                        except Exception:
+                        except (FileNotFoundError, OSError, PermissionError):
                             pass
                 top[entry.name] = {"type": "dir", "size_bytes": size}
             else:
@@ -104,7 +104,7 @@ def gather_top_level() -> Dict[str, Any]:
                     "type": "file",
                     "size_bytes": entry.stat().st_size,
                 }
-        except Exception:
+        except OSError:
             # Best effort
             top[entry.name] = {"type": "unknown", "size_bytes": 0}
     return top
@@ -132,7 +132,7 @@ def find_references(paths: List[str]) -> Dict[str, List[str]]:
             if rg.returncode in (0, 1):  # 0 found, 1 not found
                 lines = [ln for ln in rg.stdout.splitlines() if ln.strip()]
                 refs[p] = lines[:200]
-        except Exception:
+        except (FileNotFoundError, OSError):
             pass
     return refs
 
