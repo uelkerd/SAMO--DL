@@ -27,7 +27,9 @@ def debug_rate_limiter():
 
     # Test first request
     print("\n🚀 Testing First Request...")
-    allowed1, reason1, meta1 = rate_limiter.allow_request("127.0.0.1")
+    client_ip = "127.0.0.1"
+    user_agent = ""
+    allowed1, reason1, meta1 = rate_limiter.allow_request(client_ip, user_agent)
     print(f"First request - Allowed: {allowed1}, Reason: {reason1}")
     print(f"Meta: {meta1}")
     print(f"Buckets after first request: {rate_limiter.buckets}")
@@ -35,13 +37,13 @@ def debug_rate_limiter():
 
     # Test second request
     print("\n🚀 Testing Second Request...")
-    allowed2, reason2, meta2 = rate_limiter.allow_request("127.0.0.1")
+    allowed2, reason2, meta2 = rate_limiter.allow_request(client_ip, user_agent)
     print(f"Second request - Allowed: {allowed2}, Reason: {reason2}")
     print(f"Meta: {meta2}")
     print(f"Buckets after second request: {rate_limiter.buckets}")
 
     # Check what's in the bucket for this client
-    client_key = rate_limiter._get_client_key("127.0.0.1")
+    client_key = rate_limiter._get_client_key(client_ip, user_agent)
     print(f"\n🔑 Client key: {client_key}")
     print(f"Bucket value for client: {rate_limiter.buckets[client_key]}")
     print(f"Last refill time for client: {rate_limiter.last_refill[client_key]}")
@@ -55,6 +57,11 @@ def debug_rate_limiter():
 
     # Check request history
     print(f"Request history: {list(rate_limiter.request_history[client_key])}")
+
+    # Release the concurrent slots to keep metrics accurate across runs
+    rate_limiter.release_request(client_ip, user_agent)
+    rate_limiter.release_request(client_ip, user_agent)
+    print(f"After release - concurrent requests: {rate_limiter.concurrent_requests}")
 
 
 if __name__ == "__main__":
