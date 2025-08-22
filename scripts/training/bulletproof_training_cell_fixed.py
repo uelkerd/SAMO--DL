@@ -131,10 +131,10 @@ print(f"📊 Journal label range: {min(journal_label_ids)} to {max(journal_label
 
 # Step 5: Create simple dataset class
 class SimpleEmotionDataset(Dataset):
-    def __init__(self, texts, labels, tokenizer, max_length=128):
+    def __init__(self, texts, y_labels, hf_tokenizer, max_length=128):
         self.texts = texts
-        self.labels = labels
-        self.tokenizer = tokenizer
+        self.labels = y_labels
+        self.tokenizer = hf_tokenizer
         self.max_length = max_length
 
         # Validate data
@@ -176,18 +176,18 @@ class SimpleEmotionDataset(Dataset):
 
 # Step 6: Create simple model
 class SimpleEmotionClassifier(nn.Module):
-    def __init__(self, model_name="bert-base-uncased", num_labels=None):
+    def __init__(self, model_name="bert-base-uncased", n_labels=None):
         super().__init__()
 
-        if num_labels is None or num_labels <= 0:
-            raise ValueError(f"Invalid num_labels: {num_labels}")
+        if n_labels is None or n_labels <= 0:
+            raise ValueError(f"Invalid num_labels: {n_labels}")
 
-        self.num_labels = num_labels
+        self.num_labels = n_labels
         self.bert = AutoModel.from_pretrained(model_name)
         self.dropout = nn.Dropout(0.3)
-        self.classifier = nn.Linear(self.bert.config.hidden_size, num_labels)
+        self.classifier = nn.Linear(self.bert.config.hidden_size, n_labels)
 
-        print(f"✅ Model initialized with {num_labels} labels")
+        print(f"✅ Model initialized with {n_labels} labels")
 
     def forward(self, input_ids_tensor, attention_mask_tensor):
         # Validate inputs
@@ -197,8 +197,8 @@ class SimpleEmotionClassifier(nn.Module):
         if attention_mask_tensor.dim() != 2:
             raise ValueError(f"Expected attention_mask to be 2D, got {attention_mask_tensor.dim()}D")
 
-        outputs = self.bert(input_ids=input_ids_tensor, attention_mask=attention_mask_tensor)
-        pooled_output = outputs.pooler_output
+        bert_outputs = self.bert(input_ids=input_ids_tensor, attention_mask=attention_mask_tensor)
+        pooled_output = bert_outputs.pooler_output
         logits = self.classifier(self.dropout(pooled_output))
 
         # Validate outputs
