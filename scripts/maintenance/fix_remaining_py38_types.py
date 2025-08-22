@@ -260,7 +260,7 @@ def _print_summary(results: List[Dict[str, Any]], total_changes: int, dry_run: b
     modified = [r for r in results if r.get('modified', False)]
     errors = [r for r in results if 'error' in r]
     no_changes = [
-        r for r in results 
+        r for r in results
         if not r.get('modified', False) and 'error' not in r
     ]
 

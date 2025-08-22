@@ -97,7 +97,7 @@ class ConservativeLintingFixer:
             result.extend(import_lines)
             result.append('')  # Add blank line after imports
         result.extend(other_lines)
-        
+
         return '\n'.join(result)
 
     def fix_ruf022_all_sorting(self, content: str) -> str:

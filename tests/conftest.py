@@ -103,11 +103,11 @@ def cpu_device():
 def api_client():
     """Provide FastAPI test client."""
     client = TestClient(app)
-    
+
     # Reset rate limiter state before each test
     if hasattr(app.state, 'rate_limiter'):
         app.state.rate_limiter.reset_state()
-    
+
     return client
 
 
