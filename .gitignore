@@ -362,10 +362,15 @@ wheels/
 yarn-debug.log*
 yarn-error.log*
 # Artifacts (ignored)
-artifacts/
+artifacts/*
+!artifacts/.gitkeep
+!artifacts/coverage/.gitkeep
+!artifacts/test-reports/.gitkeep
+!artifacts/results/.gitkeep
 
 # Local logs (ignored)
-.logs/
+.logs/*
+!.logs/.gitkeep
 
 # Coverage and reports (for tools that may recreate)
 htmlcov/
@@ -375,4 +380,11 @@ coverage.xml
 # Large generated reports
 bandit-report.json
 ci_pipeline.log
+
+# Track .gitkeep inside ignored dirs
+!artifacts/.gitkeep
+!artifacts/coverage/.gitkeep
+!artifacts/test-reports/.gitkeep
+!artifacts/results/.gitkeep
+!.logs/.gitkeep
 
