@@ -3,7 +3,6 @@ from pathlib import Path
 import logging
 import sys
 import torch
-import torch.nn as nn
 import traceback
 from scripts.bootstrap import add_repo_src_to_path, find_repo_root
 

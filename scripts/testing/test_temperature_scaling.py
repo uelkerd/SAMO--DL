@@ -17,7 +17,6 @@ from src.models.emotion_detection.training_pipeline import EmotionDetectionTrain
 from pathlib import Path
 import json
 import logging
-import sys
 
 
 

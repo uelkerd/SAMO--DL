@@ -20,7 +20,6 @@ from src.models.emotion_detection.bert_classifier import create_bert_emotion_cla
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from transformers import AutoTokenizer
 import logging
-import os
 import sys
 import torch
 
