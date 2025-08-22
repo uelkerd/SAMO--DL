@@ -2,6 +2,7 @@
 import os
 import sys
 import json
+import argparse
 import subprocess
 from pathlib import Path
 from typing import List, Dict, Any
@@ -9,6 +10,7 @@ from typing import List, Dict, Any
 ROOT = Path(__file__).resolve().parents[2]
 LOGS = ROOT / ".logs"
 REPORT = LOGS / "repo_inventory.json"
+CONFIG_PATH = ROOT / "configs" / "repo_inventory.json"
 
 IGNORES = {
     ".git",
@@ -135,8 +137,46 @@ def find_references(paths: List[str]) -> Dict[str, List[str]]:
     return refs
 
 
+def load_config(config_path: Path) -> Dict[str, Any]:
+    if config_path.exists():
+        try:
+            return json.loads(config_path.read_text())
+        except Exception:
+            return {}
+    return {}
+
+
+def parse_args(default_candidates: List[str], default_cap: int) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Repo inventory and reference scout")
+    parser.add_argument(
+        "--candidates",
+        nargs="*",
+        default=default_candidates,
+        help="List of candidate paths to search references for (overrides config)",
+    )
+    parser.add_argument(
+        "--cap",
+        type=int,
+        default=default_cap,
+        help="Cap on number of file entries in report (for readability)",
+    )
+    parser.add_argument(
+        "--report",
+        type=str,
+        default=str(REPORT),
+        help="Path to write JSON report",
+    )
+    return parser.parse_args()
+
+
 def main() -> int:
     LOGS.mkdir(parents=True, exist_ok=True)
+
+    cfg = load_config(CONFIG_PATH)
+    default_candidates = list(cfg.get("candidates", []))
+    default_cap = int(cfg.get("file_inventory_cap", 2000))
+
+    args = parse_args(default_candidates, default_cap)
 
     all_files = list_all_files()
     files_meta = [gather_metadata(p) for p in all_files]
@@ -144,31 +184,23 @@ def main() -> int:
 
     top_level = gather_top_level()
 
-    # Candidates we plan to move in phase-1
-    candidates = [
-        "demo.html",
-        "index.html",
-        "integration.html",
-        "test_report.txt",
-        "website/",
-        "logs/",
-        "results/",
-        "PR_DESCRIPTION.md",
-        "bandit-report.json",
-        "ci_pipeline.log",
-    ]
+    candidates = args.candidates
     refs = find_references(candidates)
 
     report = {
         "root": str(ROOT),
         "top_level_summary": top_level,
-        "file_inventory": files_meta[:2000],  # cap for readability
+        "file_inventory_cap": args.cap,
+        "file_inventory": files_meta[: args.cap],
         "candidates": candidates,
         "references": refs,
+        "config_path": str(CONFIG_PATH),
     }
 
-    REPORT.write_text(json.dumps(report, indent=2))
-    print(f"Wrote inventory report to {REPORT}")
+    # Allow overriding report path
+    report_path = Path(args.report)
+    report_path.write_text(json.dumps(report, indent=2))
+    print(f"Wrote inventory report to {report_path}")
     return 0
 
 
