@@ -1,27 +1,26 @@
 # Comprehensive Code Quality Prevention System for SAMO-DL
 # This configuration prevents ALL recurring DeepSource issues from ever happening again
-
-# Comprehensive Code Quality Prevention System for SAMO-DL
-# This configuration prevents ALL recurring DeepSource issues from ever happening again
 #
 # TODO: Re-enable all disabled hooks once configuration issues are resolved
 # Issue: https://github.com/uelkerd/SAMO--DL/issues/106
 #
 # Disabled hooks and their status:
-# ✅ Bandit: RE-ENABLED - Working correctly with B101 skip and global exclude pattern
-# ⚠️ Safety: Repository access issues (PyCQA/safety not found) - Need to find correct repository
+# ✅ Bandit: RE-ENABLED - Split into targeted hooks: changed files + tests (B101 skipped)
+# ✅ Safety: RE-ENABLED - Local hook with pinned dependency (safety==3.6.0)
 # ⚠️ Docformatter: Pre-commit hook language compatibility issues (python_venv not supported)
-# ✅ Flynt: RE-ENABLED - Working correctly with global exclude pattern
+# ✅ Flynt: RE-ENABLED - Working correctly with global exclude pattern and consistent config
 # - Local hooks: Configuration format issues (exclude field format) - FIXED: Updated to single-line format
 #
 # IMPROVEMENTS IMPLEMENTED:
 # ✅ Global exclude pattern implemented - all hooks now inherit from top-level exclude
 # ✅ Individual exclude patterns removed from active hooks (black, isort, ruff, mypy)
-# ✅ Bandit and Flynt successfully re-enabled and working
+# ✅ Bandit split into targeted hooks: changed files (all rules) + tests (B101 skipped)
+# ✅ Safety implemented as local hook with pinned dependency for reliability
+# ✅ Flynt configuration made consistent with Bandit (always_run, pass_filenames)
 # ✅ Configuration is now much more maintainable and follows best practices
 #
 # Next steps:
-# 1. Find correct Safety repository URL or alternative security scanning hook
+# 1. Test Safety hook with local implementation
 # 2. Find Docformatter alternative or fix language compatibility issues
 # 3. Test and re-enable local hooks
 # 4. Update this TODO section as hooks are re-enabled
@@ -105,29 +104,36 @@ repos:
         args: [--ignore-missing-imports, --python-version=3.8]
         types: [python]
 
-  # Security scanning with Bandit
-  # Note: Bandit now reports to stdout and fails commit if issues found
+  # Security scanning with Bandit (optimized for performance)
+  # Split into targeted hooks: changed files (all rules) + tests (B101 skipped)
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.5
     hooks:
       - id: bandit
-        args: [-r, ., -s, B101]  # Skip assert_used for test files
+        name: bandit (changed files)
+        # Scan only changed Python files, enforce all rules
         types: [python]
+        exclude: '^(tests/|.*_test\.py$)'
+
+      - id: bandit
+        name: bandit (tests, B101 skipped)
+        # Scan test files with B101 (assert_used) disabled
+        args: [-s, B101]
+        types: [python]
+        files: '^(tests/|.*_test\.py$)'
+
+  # Security vulnerability scanning with Safety (local hook)
+  # Custom local hook with pinned dependency for reliability
+  - repo: local
+    hooks:
+      - id: safety-scan
+        name: Safety (dependency vulnerability scan)
+        entry: safety
+        language: python
+        additional_dependencies: [safety==3.6.0]
+        args: [scan, --full-report, --file, pyproject.toml]
         pass_filenames: false
         always_run: true
-
-  # Security vulnerability scanning with Safety
-  # Note: Consider moving this to CI/CD pipeline for performance
-  # Safety checks installed dependencies and can be slow
-  # TODO: Repository URL has changed - need to find correct pre-commit hook
-  # Issue: https://github.com/uelkerd/SAMO--DL/issues/106
-  # - repo: https://github.com/PyCQA/safety
-  #   rev: 3.6.0
-  #   hooks:
-  #     - id: safety
-  #       args: [scan]
-  #       pass_filenames: false
-  #       always_run: true
 
   # Documentation formatting
   # TODO: Pre-commit hook has language compatibility issues (python_venv not supported)
@@ -145,12 +151,14 @@ repos:
     rev: "0.78"
     hooks:
       - id: flynt
-        args: [--line-length=88]
+        args: [--line-length=88, .]
         types: [python]
+        pass_filenames: false
+        always_run: true
 
   # Custom SAMO-DL code quality enforcer
   # TODO: Re-enable once configuration issues are resolved
-  # Issue: https://github.com/uelkerd/SAMO--DL/issues/ (to be created)
+  # Issue: https://github.com/uelkerd/SAMO--DL/issues/106
   # - repo: local
   #   hooks:
   #     - id: samo-code-quality-enforcer
@@ -160,12 +168,33 @@ repos:
   #       types: [python]
   #       pass_filenames: false
   #       always_run: true
-  #       stages: commit
-  #       exclude: "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
+  #       exclude: |
+  #         (?x)^(
+  #             \.git|
+  #             \.venv|
+  #             \.env|
+  #             __pycache__|
+  #             \.pytest_cache|
+  #             \.mypy_cache|
+  #             \.ruff_cache|
+  #             build|
+  #             dist|
+  #             \.eggs|
+  #             \.tox|
+  #             \.coverage|
+  #             htmlcov|
+  #             \.cache|
+  #             \.logs|
+  #             results|
+  #             samples|
+  #             notebooks|
+  #             website|
+  #             docs/diagrams
+  #         )$
 
   # Auto-fix common code quality issues
   # TODO: Re-enable once configuration issues are resolved
-  # Issue: https://github.com/uelkerd/SAMO--DL/issues/ (to be created)
+  # Issue: https://github.com/uelkerd/SAMO--DL/issues/106
   # - repo: local
   #   hooks:
   #     - id: samo-auto-fix-code-quality
@@ -175,8 +204,29 @@ repos:
   #       types: [python]
   #       pass_filenames: false
   #       always_run: true
-  #       stages: commit
-  #       exclude: "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
+  #       exclude: |
+  #         (?x)^(
+  #             \.git|
+  #             \.venv|
+  #             \.env|
+  #             __pycache__|
+  #             \.pytest_cache|
+  #             \.mypy_cache|
+  #             \.ruff_cache|
+  #             build|
+  #             dist|
+  #             \.eggs|
+  #             \.tox|
+  #             \.coverage|
+  #             htmlcov|
+  #             \.cache|
+  #             \.logs|
+  #             results|
+  #             samples|
+  #             notebooks|
+  #             website|
+  #             docs/diagrams
+  #         )$
 
 # Global configuration
 default_language_version:
