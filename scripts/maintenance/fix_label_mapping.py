@@ -13,7 +13,15 @@ def install_dependencies() -> bool:
     print("🔧 Installing dependencies...")
     try:
         subprocess.check_call(
-            [sys.executable, "-m", "pip", "install", "datasets", "pandas", "transformers"]
+            [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                "datasets",
+                "pandas",
+                "transformers",
+            ]
         )
         print("✅ Dependencies installed")
     except subprocess.CalledProcessError as e:
@@ -48,7 +56,9 @@ def analyze_label_mapping():
     for example in go_emotions['train']:
         if example['labels']:
             for label_val in example['labels']:
-                go_label_counts_map[label_val] = go_label_counts_map.get(label_val, 0) + 1
+                go_label_counts_map[label_val] = go_label_counts_map.get(
+                    label_val, 0
+                ) + 1
     
     print(f"GoEmotions unique labels: {len(go_label_counts_map)}")
     print(f"GoEmotions labels: {sorted(list(go_label_counts_map.keys()))}")
@@ -170,7 +180,11 @@ start_path = Path(__file__).resolve() if "__file__" in globals() else Path.cwd()
 
 def _find_repo_root(start: Path) -> Path:
     for d in [start] + list(start.parents):
-        if (d / "src").exists() or (d / ".git").exists() or (d / "pyproject.toml").exists():
+        if (
+            (d / "src").exists()
+            or (d / ".git").exists()
+            or (d / "pyproject.toml").exists()
+        ):
             return d
     return start
 

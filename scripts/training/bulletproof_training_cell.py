@@ -255,7 +255,9 @@ model = model.to(device)
 
 # Create datasets
 go_dataset = SimpleEmotionDataset(go_texts, go_labels, tokenizer)
-journal_dataset = SimpleEmotionDataset(journal_texts, journal_labels, tokenizer)
+journal_dataset = SimpleEmotionDataset(
+    journal_texts, journal_labels, tokenizer
+)
 
 # Split journal data
 journal_train_texts, journal_val_texts, journal_train_labels, journal_val_labels = train_test_split(

@@ -291,10 +291,14 @@ journal_train_texts, journal_val_texts, journal_train_labels, journal_val_labels
 )
 
 journal_train_dataset = SimpleEmotionDataset(
-    journal_train_texts, journal_train_labels, tokenizer
+    journal_train_texts,
+    journal_train_labels,
+    tokenizer,
 )
 journal_val_dataset = SimpleEmotionDataset(
-    journal_val_texts, journal_val_labels, tokenizer
+    journal_val_texts,
+    journal_val_labels,
+    tokenizer,
 )
 
 # Create dataloaders
