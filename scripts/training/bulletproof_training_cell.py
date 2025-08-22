@@ -140,11 +140,13 @@ class SimpleEmotionDataset(Dataset):
         self.max_length = max_length
 
         # Validate data
-        if len(texts) != len(labels):
-            raise ValueError(f"Texts and labels have different lengths: {len(texts)} vs {len(labels)}")
+        if len(self.texts) != len(self.labels):
+            raise ValueError(
+                f"Texts and labels have different lengths: {len(self.texts)} vs {len(self.labels)}"
+            )
 
         # Validate labels
-        for idx_pos, label_val in enumerate(labels):
+        for idx_pos, label_val in enumerate(self.labels):
             if not isinstance(label_val, int) or label_val < 0:
                 raise ValueError(f"Invalid label at index {idx_pos}: {label_val}")
 
@@ -178,8 +180,13 @@ class SimpleEmotionDataset(Dataset):
 
 # Step 6: Create simple model
 class SimpleEmotionClassifier(nn.Module):
-    def __init__(self, model_name="bert-base-uncased", n_labels=None):
+    def __init__(self, model_name="bert-base-uncased", n_labels=None, num_labels=None):
         super().__init__()
+        # Resolve labels: prefer n_labels; accept legacy num_labels
+        if n_labels is None and num_labels is not None:
+            n_labels = num_labels
+        elif n_labels is not None and num_labels is not None and n_labels != num_labels:
+            raise ValueError("Conflicting n_labels and num_labels provided; use n_labels")
 
         if n_labels is None or n_labels <= 0:
             raise ValueError(f"Invalid num_labels: {n_labels}")

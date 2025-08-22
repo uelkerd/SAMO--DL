@@ -186,8 +186,13 @@ class SimpleEmotionDataset(Dataset):
 
 # Step 6: Create simple model
 class SimpleEmotionClassifier(nn.Module):
-    def __init__(self, model_name="bert-base-uncased", n_labels=None):
+    def __init__(self, model_name="bert-base-uncased", n_labels=None, num_labels=None):
         super().__init__()
+        # Resolve label count
+        if n_labels is None and num_labels is not None:
+            n_labels = num_labels
+        elif n_labels is not None and num_labels is not None and n_labels != num_labels:
+            raise ValueError("Conflicting n_labels and num_labels provided; use n_labels")
 
         if n_labels is None or n_labels <= 0:
             raise ValueError(f"Invalid num_labels: {n_labels}")
@@ -195,9 +200,9 @@ class SimpleEmotionClassifier(nn.Module):
         self.num_labels = n_labels
         self.bert = AutoModel.from_pretrained(model_name)
         self.dropout = nn.Dropout(0.3)
-        self.classifier = nn.Linear(self.bert.config.hidden_size, n_labels)
+        self.classifier = nn.Linear(self.bert.config.hidden_size, self.num_labels)
 
-        print(f"✅ Model initialized with {n_labels} labels")
+        print(f"✅ Model initialized with {self.num_labels} labels")
 
     def forward(self, input_ids_tensor, attention_mask_tensor):
         # Validate inputs
