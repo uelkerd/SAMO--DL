@@ -8,11 +8,11 @@ from pathlib import Path
 from scripts.bootstrap import add_repo_src_to_path, find_repo_root
 repo_root = find_repo_root(Path(__file__))
 add_repo_src_to_path(Path(__file__))
-from src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
 
 
 def debug_rate_limiter():
     """Debug the rate limiter behavior."""
+    from src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
     print("🔍 Debugging Rate Limiter Issue")
     print("=" * 50)
 
