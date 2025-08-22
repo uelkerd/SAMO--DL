@@ -1,15 +1,3 @@
-                # Backward pass
-                # Check for 0.0000 loss
-                # Create dummy batch
-                # Forward pass
-        # Step 1: Create model (this worked in validation)
-        # Step 2: Create optimizer with reduced learning rate
-        # Step 3: Test forward pass (this worked in validation)
-        # Step 4: Simple training loop with dummy data
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-        import traceback
-# Add src to path
-# Configure logging
 #!/usr/bin/env python3
 from pathlib import Path
 import logging
@@ -17,13 +5,15 @@ import sys
 import torch
 import torch.nn as nn
 import traceback
-
-
-
+from scripts.bootstrap import add_repo_src_to_path, find_repo_root
 
 """
 Working Training Script based on the successful local validation approach.
 """
+
+# Ensure src is importable
+repo_root = find_repo_root(Path(__file__))
+add_repo_src_to_path(Path(__file__))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -37,6 +27,7 @@ def main():
 
     try:
         logger.info("🔧 Step 1: Creating model...")
+        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
         model, loss_fn = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
             class_weights=None,  # We'll handle this differently
