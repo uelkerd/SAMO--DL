@@ -6,7 +6,6 @@ Fix the label mapping issue between GoEmotions and Journal datasets.
 import subprocess
 import sys
 import json
-from pathlib import Path
 
 
 def install_dependencies() -> bool:
