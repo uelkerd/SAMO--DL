@@ -381,10 +381,4 @@ coverage.xml
 bandit-report.json
 ci_pipeline.log
 
-# Track .gitkeep inside ignored dirs
-!artifacts/.gitkeep
-!artifacts/coverage/.gitkeep
-!artifacts/test-reports/.gitkeep
-!artifacts/results/.gitkeep
-!.logs/.gitkeep
 

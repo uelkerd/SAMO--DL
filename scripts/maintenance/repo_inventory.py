@@ -4,7 +4,7 @@ import json
 import argparse
 import subprocess
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 ROOT = Path(__file__).resolve().parents[2]
 LOGS = ROOT / ".logs"
@@ -21,28 +21,44 @@ IGNORES = {
     "htmlcov",
 }
 
-TRACKED_CACHE: Dict[str, bool] = {}
+_TRACKED_FILES: Optional[set[str]] = None
+
+
+def _load_tracked_files() -> set[str]:
+    """Load all git-tracked files once and cache them in memory."""
+    global _TRACKED_FILES
+    if _TRACKED_FILES is not None:
+        return _TRACKED_FILES
+    try:
+        result = subprocess.run(
+            ["git", "ls-files"],
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        _TRACKED_FILES = set(result.stdout.splitlines())
+    except (subprocess.CalledProcessError, FileNotFoundError, OSError):
+        _TRACKED_FILES = set()
+    return _TRACKED_FILES
 
 
 def is_git_tracked(path: Path) -> bool:
-    p = str(path.relative_to(ROOT))
-    if p in TRACKED_CACHE:
-        return TRACKED_CACHE[p]
+    """Return True if the given path is tracked by git (O(1) set lookup)."""
+    tracked = _load_tracked_files()
     try:
-        subprocess.run(
-            ["git", "ls-files", "--error-unmatch", p],
-            cwd=str(ROOT),
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            check=True,
-        )
-        TRACKED_CACHE[p] = True
-    except subprocess.CalledProcessError:
-        TRACKED_CACHE[p] = False
-    return TRACKED_CACHE[p]
+        p = str(path.relative_to(ROOT))
+    except ValueError:
+        return False
+    return p in tracked
 
 
 def list_all_files() -> List[Path]:
+    """Walk the repository and return a list of files, skipping ignored dirs.
+
+    Follows neither symlinks nor ignored directories to keep traversal fast and
+    avoid accidental recursion into large caches.
+    """
     files: List[Path] = []
     for dirpath, dirnames, filenames in os.walk(ROOT, followlinks=False):
         # Prune ignored directories early
@@ -65,6 +81,7 @@ def list_all_files() -> List[Path]:
 
 
 def gather_metadata(p: Path) -> Dict[str, Any]:
+    """Collect lightweight metadata for a file for reporting purposes."""
     try:
         stat = p.stat()
         size = stat.st_size
@@ -82,6 +99,7 @@ def gather_metadata(p: Path) -> Dict[str, Any]:
 
 
 def gather_top_level() -> Dict[str, Any]:
+    """Summarize first-level entries under repo root with approximate sizes."""
     top = {}
     for entry in ROOT.iterdir():
         if entry.name in IGNORES:
@@ -110,6 +128,11 @@ def gather_top_level() -> Dict[str, Any]:
 
 
 def find_references(paths: List[str]) -> Dict[str, List[str]]:
+    """Search for textual references to provided paths using ripgrep.
+
+    Returns a mapping from candidate path string to a list of example matches
+    (capped) to help update docs/CI after moves.
+    """
     refs: Dict[str, List[str]] = {p: [] for p in paths}
     # Use ripgrep to find textual references for moved/deprecated candidates
     for p in paths:
@@ -137,6 +160,7 @@ def find_references(paths: List[str]) -> Dict[str, List[str]]:
 
 
 def load_config(config_path: Path) -> Dict[str, Any]:
+    """Load JSON configuration for candidates and defaults; return {} on error."""
     if config_path.exists():
         try:
             return json.loads(config_path.read_text())
@@ -146,6 +170,7 @@ def load_config(config_path: Path) -> Dict[str, Any]:
 
 
 def parse_args(default_candidates: List[str], default_cap: int) -> argparse.Namespace:
+    """Parse CLI arguments, defaulting to values loaded from config."""
     parser = argparse.ArgumentParser(description="Repo inventory and reference scout")
     parser.add_argument(
         "--candidates",
@@ -169,6 +194,12 @@ def parse_args(default_candidates: List[str], default_cap: int) -> argparse.Name
 
 
 def main() -> int:
+    """Generate a JSON inventory report for the repository structure.
+
+    - Loads defaults from configs/repo_inventory.json
+    - Allows CLI overrides for candidates, cap, and report path
+    - Produces a summary suitable for cleanup planning
+    """
     LOGS.mkdir(parents=True, exist_ok=True)
 
     cfg = load_config(CONFIG_PATH)
