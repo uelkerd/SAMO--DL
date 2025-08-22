@@ -112,8 +112,8 @@ def predict_probs(batch_texts):
     enc = tok(batch_texts, padding=True, truncation=True, max_length=512, return_tensors="pt")
     enc = {k: v.to(DEVICE) for k, v in enc.items()}
     with torch.no_grad():
-        logits = mdl(**enc).logits
-        batch_probs = torch.sigmoid(logits).cpu().numpy()   # (B, num_labels)
+        batch_logits = mdl(**enc).logits
+        batch_probs = torch.sigmoid(batch_logits).cpu().numpy()   # (B, num_labels)
     return batch_probs
 
 
