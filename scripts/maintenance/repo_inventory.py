@@ -13,7 +13,6 @@ import time
 from functools import lru_cache
 from pathlib import Path
 from shutil import which
-from contextlib import suppress
 from typing import List, Dict, Any
 
 ROOT = Path(__file__).resolve().parents[2]
