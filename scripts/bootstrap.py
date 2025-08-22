@@ -4,7 +4,10 @@ import sys
 from pathlib import Path
 
 
-def find_repo_root(start_path: Path, markers: tuple[str, ...] = ("pyproject.toml", "setup.py", ".git", "src")) -> Path:
+def find_repo_root(
+    start_path: Path,
+    markers: tuple[str, ...] = ("pyproject.toml", "setup.py", ".git", "src"),
+) -> Path:
     """Find repository root by walking parents looking for a marker.
 
     Raises FileNotFoundError if no marker is found.

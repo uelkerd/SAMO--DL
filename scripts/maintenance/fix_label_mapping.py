@@ -53,7 +53,10 @@ def analyze_label_mapping():
     
     print(f"GoEmotions unique labels: {len(go_label_counts_map)}")
     print(f"GoEmotions labels: {sorted(list(go_label_counts_map.keys()))}")
-    print(f"Top 10 GoEmotions labels: {dict(sorted(go_label_counts_map.items(), key=lambda x: x[1], reverse=True)[:10])}")
+    top10 = dict(
+        sorted(go_label_counts_map.items(), key=lambda x: x[1], reverse=True)[:10]
+    )
+    print(f"Top 10 GoEmotions labels: {top10}")
     
     # Analyze Journal labels
     print("\n📊 Journal Analysis:")

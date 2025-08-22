@@ -14,7 +14,8 @@ Working Training Script based on the successful local validation approach.
 repo_root = find_repo_root(Path(__file__))
 add_repo_src_to_path(Path(__file__))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
+logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
 logger = logging.getLogger(__name__)
 
 
@@ -26,7 +27,9 @@ def main():
 
     try:
         logger.info("🔧 Step 1: Creating model...")
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+        from src.models.emotion_detection.bert_classifier import (
+            create_bert_emotion_classifier,
+        )
         model, loss_fn = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
             class_weights=None,  # We'll handle this differently
