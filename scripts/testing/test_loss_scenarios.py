@@ -17,36 +17,36 @@ Simple Test Script for Loss Debugging
 
 def test_bce_loss():
     """Test BCE loss with different scenarios."""
-    logging.info("🧪 Testing BCE Loss Scenarios...")
+    logging.info"🧪 Testing BCE Loss Scenarios..."
 
-    logits = torch.randn(4, 28)  # 4 samples, 28 classes
-    labels = torch.randint(0, 2, (4, 28)).float()  # Random binary labels
+    logits = torch.randn4, 28  # 4 samples, 28 classes
+    labels = torch.randint(0, 2, 4, 28).float()  # Random binary labels
 
-    F.binary_cross_entropy_with_logits(logits, labels)
+    F.binary_cross_entropy_with_logitslogits, labels
     logging.info("Normal case - Loss: {loss.item():.6f}")
 
-    logits = torch.randn(4, 28)
-    labels = torch.zeros(4, 28)
+    logits = torch.randn4, 28
+    labels = torch.zeros4, 28
 
-    F.binary_cross_entropy_with_logits(logits, labels)
+    F.binary_cross_entropy_with_logitslogits, labels
     logging.info("All zeros - Loss: {loss.item():.6f}")
 
-    logits = torch.randn(4, 28)
-    labels = torch.ones(4, 28)
+    logits = torch.randn4, 28
+    labels = torch.ones4, 28
 
-    F.binary_cross_entropy_with_logits(logits, labels)
+    F.binary_cross_entropy_with_logitslogits, labels
     logging.info("All ones - Loss: {loss.item():.6f}")
 
-    logits = torch.tensor([[10.0, -10.0, 10.0, -10.0]] * 4)  # Strong predictions
-    labels = torch.tensor([[1.0, 0.0, 1.0, 0.0]] * 4)  # Perfect targets
+    logits = torch.tensor[[10.0, -10.0, 10.0, -10.0]] * 4  # Strong predictions
+    labels = torch.tensor[[1.0, 0.0, 1.0, 0.0]] * 4  # Perfect targets
 
-    F.binary_cross_entropy_with_logits(logits, labels)
+    F.binary_cross_entropy_with_logitslogits, labels
     logging.info("Perfect predictions - Loss: {loss.item():.6f}")
 
-    logits = torch.tensor([[0.001, -0.001, 0.001, -0.001]] * 4)
-    labels = torch.tensor([[1.0, 0.0, 1.0, 0.0]] * 4)
+    logits = torch.tensor[[0.001, -0.001, 0.001, -0.001]] * 4
+    labels = torch.tensor[[1.0, 0.0, 1.0, 0.0]] * 4
 
-    F.binary_cross_entropy_with_logits(logits, labels)
+    F.binary_cross_entropy_with_logitslogits, labels
     logging.info("Small logits - Loss: {loss.item():.6f}")
 
 if __name__ == "__main__":

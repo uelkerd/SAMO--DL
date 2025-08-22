@@ -41,9 +41,9 @@ Returns:
     1 if F1 score is below minimum threshold
 """
 
-sys.path.append(Path(Path(os.path.dirname(__file__), "..")))
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
+sys.path.append(Path(Path(os.path.dirname__file__, "..")))
+logging.basicConfig(level=logging.INFO, format="%levelnames: %messages")
+logger = logging.getLogger__name__
 
 CHECKPOINT_PATH = "test_checkpoints/best_model.pt"
 TARGET_F1_SCORE = 0.10  # Minimum acceptable F1 score
@@ -54,69 +54,69 @@ OPTIMAL_THRESHOLD = 0.6
 def test_calibration():
     """Test model with optimal calibration settings."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info("Using device: {device}")
+    logger.info"Using device: {device}"
 
-    logger.info("Loading model...")
-    checkpoint_path = Path(CHECKPOINT_PATH)
+    logger.info"Loading model..."
+    checkpoint_path = PathCHECKPOINT_PATH
     if not checkpoint_path.exists():
-        logger.error("Checkpoint not found at {checkpoint_path}")
+        logger.error"Checkpoint not found at {checkpoint_path}"
         return 1
 
     model, _ = create_bert_emotion_classifier()
-    model.to(device)
+    model.todevice
 
-    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
-    model.load_state_dict(checkpoint["model_state_dict"])
+    checkpoint = torch.loadcheckpoint_path, map_location=device, weights_only=False
+    model.load_state_dictcheckpoint["model_state_dict"]
     model.eval()
 
-    logger.info("Setting temperature to {OPTIMAL_TEMPERATURE}")
-    model.set_temperature(OPTIMAL_TEMPERATURE)
+    logger.info"Setting temperature to {OPTIMAL_TEMPERATURE}"
+    model.set_temperatureOPTIMAL_TEMPERATURE
 
-    logger.info("Loading validation data...")
+    logger.info"Loading validation data..."
     data_loader = GoEmotionsDataLoader()
     datasets = data_loader.prepare_datasets()
     val_dataset = datasets["validation"]
 
-    tokenizer = AutoTokenizer.from_pretrained(model.model_name)
+    tokenizer = AutoTokenizer.from_pretrainedmodel.model_name
 
-    logger.info("Processing validation data...")
+    logger.info"Processing validation data..."
     all_labels = []
     all_predictions = []
 
     batch_size = 32
-    for i in range(0, len(val_dataset), batch_size):
+    for i in range(0, lenval_dataset, batch_size):
         batch = val_dataset[i : i + batch_size]
 
         inputs = tokenizer(
             batch["text"], padding=True, truncation=True, max_length=512, return_tensors="pt"
-        ).to(device)
+        ).todevice
 
         with torch.no_grad():
-            outputs = model(**inputs)
-            probabilities = torch.sigmoid(outputs / model.temperature)
-            predictions = (probabilities > OPTIMAL_THRESHOLD).float().cpu().numpy()
+            outputs = model**inputs
+            probabilities = torch.sigmoidoutputs / model.temperature
+            predictions = probabilities > OPTIMAL_THRESHOLD.float().cpu().numpy()
 
-        labels = torch.zeros((len(batch["labels"]), model.num_labels))
-        for j, label_ids in enumerate(batch["labels"]):
+        labels = torch.zeros((lenbatch["labels"], model.num_labels))
+        for j, label_ids in enumeratebatch["labels"]:
             labels[j, label_ids] = 1
 
         all_labels.extend(labels.numpy())
-        all_predictions.extend(predictions)
+        all_predictions.extendpredictions
 
         if i % 500 == 0:
-            logger.info("Processed {i}/{len(val_dataset)} samples...")
+            logger.info("Processed {i}/{lenval_dataset} samples...")
 
-    micro_f1 = f1_score(all_labels, all_predictions, average="micro")
-    f1_score(all_labels, all_predictions, average="macro")
+    micro_f1 = f1_scoreall_labels, all_predictions, average="micro"
+    f1_scoreall_labels, all_predictions, average="macro"
 
-    logger.info("Micro F1: {micro_f1:.4f}")
-    logger.info("Macro F1: {macro_f1:.4f}")
+    logger.info"Micro F1: {micro_f1:.4f}"
+    logger.info"Macro F1: {macro_f1:.4f}"
 
     if micro_f1 >= TARGET_F1_SCORE:
-        logger.info("✅ F1 score {micro_f1:.4f} meets target of {TARGET_F1_SCORE}")
+        logger.info"✅ F1 score {micro_f1:.4f} meets target of {TARGET_F1_SCORE}"
         return 0
     else:
-        logger.error("❌ F1 score {micro_f1:.4f} below target of {TARGET_F1_SCORE}")
+        logger.error"❌ F1 score {micro_f1:.4f} below target of {TARGET_F1_SCORE}"
         return 1
 
 

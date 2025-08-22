@@ -14,8 +14,8 @@ from sklearn.preprocessing import LabelEncoder
 def save_model_for_deployment():
     """Save the trained model for deployment"""
     
-    print("🚀 SAVING TRAINED MODEL FOR DEPLOYMENT")
-    print("=" * 50)
+    print"🚀 SAVING TRAINED MODEL FOR DEPLOYMENT"
+    print"=" * 50
     
     # Define model paths
     model_paths = [
@@ -28,59 +28,59 @@ def save_model_for_deployment():
     # Find the best model
     best_model_path = None
     for path in model_paths:
-        if os.path.exists(path):
-            print(f"✅ Found model at: {path}")
+        if os.path.existspath:
+            printf"✅ Found model at: {path}"
             best_model_path = path
             break
     
     if not best_model_path:
-        print("❌ No trained model found!")
-        print("📋 Available paths checked:")
+        print"❌ No trained model found!"
+        print"📋 Available paths checked:"
         for path in model_paths:
-            print(f"  - {path}: {'✅ EXISTS' if os.path.exists(path) else '❌ NOT FOUND'}")
+            print(f"  - {path}: {'✅ EXISTS' if os.path.existspath else '❌ NOT FOUND'}")
         return False
     
-    print(f"🎯 Using model: {best_model_path}")
+    printf"🎯 Using model: {best_model_path}"
     
     # Create deployment model directory
     deployment_model_dir = "deployment/model"
-    os.makedirs(deployment_model_dir, exist_ok=True)
+    os.makedirsdeployment_model_dir, exist_ok=True
     
     try:
         # Load the model and tokenizer
-        print("🔧 Loading model and tokenizer...")
-        tokenizer = AutoTokenizer.from_pretrained(best_model_path)
-        model = AutoModelForSequenceClassification.from_pretrained(best_model_path)
+        print"🔧 Loading model and tokenizer..."
+        tokenizer = AutoTokenizer.from_pretrainedbest_model_path
+        model = AutoModelForSequenceClassification.from_pretrainedbest_model_path
         
         # Save model and tokenizer
-        print("💾 Saving model and tokenizer...")
-        model.save_pretrained(deployment_model_dir)
-        tokenizer.save_pretrained(deployment_model_dir)
+        print"💾 Saving model and tokenizer..."
+        model.save_pretraineddeployment_model_dir
+        tokenizer.save_pretraineddeployment_model_dir
         
-        # Create label encoder (12 emotions)
-        print("🏷️ Creating label encoder...")
+        # Create label encoder 12 emotions
+        print"🏷️ Creating label encoder..."
         emotions = [
             'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
             'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
         ]
         
         label_encoder = LabelEncoder()
-        label_encoder.fit(emotions)
+        label_encoder.fitemotions
         
         # Save label encoder
         label_encoder_data = {
             'classes': label_encoder.classes_.tolist(),
-            'n_classes': len(label_encoder.classes_)
+            'n_classes': lenlabel_encoder.classes_
         }
         
-        with open(f"{deployment_model_dir}/label_encoder.json", 'w') as f:
-            json.dump(label_encoder_data, f, indent=2)
+        with openf"{deployment_model_dir}/label_encoder.json", 'w' as f:
+            json.dumplabel_encoder_data, f, indent=2
         
         # Create model info file
         model_info = {
             'model_name': best_model_path,
             'emotions': emotions,
-            'n_emotions': len(emotions),
+            'n_emotions': lenemotions,
             'performance': {
                 'f1_score': 0.9948,  # 99.48%
                 'accuracy': 0.9948,  # 99.48%
@@ -97,33 +97,33 @@ def save_model_for_deployment():
             'created_at': '2025-08-03'
         }
         
-        with open(f"{deployment_model_dir}/model_info.json", 'w') as f:
-            json.dump(model_info, f, indent=2)
+        with openf"{deployment_model_dir}/model_info.json", 'w' as f:
+            json.dumpmodel_info, f, indent=2
         
-        print("✅ Model saved successfully!")
-        print(f"📁 Deployment directory: {deployment_model_dir}")
-        print(f"📊 Model info:")
-        print(f"  - Emotions: {len(emotions)} classes")
-        print(f"  - F1 Score: 99.48%")
-        print(f"  - Target Achieved: ✅ YES!")
+        print"✅ Model saved successfully!"
+        printf"📁 Deployment directory: {deployment_model_dir}"
+        print"📊 Model info:"
+        print(f"  - Emotions: {lenemotions} classes")
+        print"  - F1 Score: 99.48%"
+        print"  - Target Achieved: ✅ YES!"
         
         # Test the saved model
-        print("🧪 Testing saved model...")
-        test_saved_model(deployment_model_dir)
+        print"🧪 Testing saved model..."
+        test_saved_modeldeployment_model_dir
         
         return True
         
     except Exception as e:
-        print(f"❌ Error saving model: {e}")
+        printf"❌ Error saving model: {e}"
         return False
 
-def test_saved_model(model_dir):
+def test_saved_modelmodel_dir:
     """Test the saved model"""
     try:
         from inference import EmotionDetector
         
         # Initialize detector with saved model
-        detector = EmotionDetector(model_dir)
+        detector = EmotionDetectormodel_dir
         
         # Test cases
         test_texts = [
@@ -134,19 +134,19 @@ def test_saved_model(model_dir):
             "I'm feeling overwhelmed with tasks."
         ]
         
-        print("📊 Testing saved model:")
-        print("-" * 30)
+        print"📊 Testing saved model:"
+        print"-" * 30
         
         for text in test_texts:
-            result = detector.predict(text)
-            print(f"Text: {text}")
-            print(f"Emotion: {result['emotion']} (confidence: {result['confidence']:.3f})")
+            result = detector.predicttext
+            printf"Text: {text}"
+            print(f"Emotion: {result['emotion']} confidence: {result['confidence']:.3f}")
             print()
         
-        print("✅ Saved model test completed!")
+        print"✅ Saved model test completed!"
         
     except Exception as e:
-        print(f"⚠️ Could not test saved model: {e}")
+        printf"⚠️ Could not test saved model: {e}"
 
 def create_deployment_script():
     """Create a deployment script"""
@@ -187,32 +187,32 @@ echo "Press Ctrl+C to stop the server"
 python api_server.py
 """
     
-    with open("deployment/deploy.sh", 'w') as f:
-        f.write(deployment_script)
+    with open"deployment/deploy.sh", 'w' as f:
+        f.writedeployment_script
     
     # Make executable
-    os.chmod("deployment/deploy.sh", 0o755)
-    print("✅ Deployment script updated!")
+    os.chmod"deployment/deploy.sh", 0o755
+    print"✅ Deployment script updated!"
 
 if __name__ == "__main__":
     success = save_model_for_deployment()
     
     if success:
         create_deployment_script()
-        print("\n🎉 DEPLOYMENT PACKAGE READY!")
-        print("=" * 40)
-        print("📁 Files created:")
-        print("  - deployment/model/ (model files)")
-        print("  - deployment/inference.py (inference script)")
-        print("  - deployment/api_server.py (API server)")
-        print("  - deployment/test_examples.py (test script)")
-        print("  - deployment/deploy.sh (deployment script)")
-        print("\n🚀 Next steps:")
-        print("  1. cd deployment")
-        print("  2. ./deploy.sh")
-        print("  3. Test API at: http://localhost:5000")
-        print("\n🎯 Model Performance: 99.48% F1 Score!")
-        print("🏆 Target Achieved: ✅ YES!")
+        print"\n🎉 DEPLOYMENT PACKAGE READY!"
+        print"=" * 40
+        print"📁 Files created:"
+        print("  - deployment/model/ model files")
+        print("  - deployment/inference.py inference script")
+        print("  - deployment/api_server.py API server")
+        print("  - deployment/test_examples.py test script")
+        print("  - deployment/deploy.sh deployment script")
+        print"\n🚀 Next steps:"
+        print"  1. cd deployment"
+        print"  2. ./deploy.sh"
+        print"  3. Test API at: http://localhost:5000"
+        print"\n🎯 Model Performance: 99.48% F1 Score!"
+        print"🏆 Target Achieved: ✅ YES!"
     else:
-        print("\n❌ Failed to create deployment package!")
-        print("Please ensure you have a trained model available.") 
+        print"\n❌ Failed to create deployment package!"
+        print"Please ensure you have a trained model available." 

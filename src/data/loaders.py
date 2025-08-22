@@ -23,13 +23,13 @@ def load_entries_from_db(
         DataFrame containing journal entries
 
     """
-    query = db_session.query(JournalEntry)
+    query = db_session.queryJournalEntry
 
     if user_id is not None:
-        query = query.filter(JournalEntry.user_id == user_id)
+        query = query.filterJournalEntry.user_id == user_id
 
     if limit is not None:
-        query = query.limit(limit)
+        query = query.limitlimit
 
     entries = query.all()
 
@@ -46,7 +46,7 @@ def load_entries_from_db(
         for entry in entries
     ]
 
-    return pd.DataFrame(data)
+    return pd.DataFramedata
 
 
 def load_entries_from_prisma(
@@ -69,13 +69,13 @@ def load_entries_from_prisma(
         filters["user_id"] = user_id
 
     entries = (
-        prisma.get_journal_entries_by_user(user_id=user_id, limit=limit or 10) if user_id else []
+        prisma.get_journal_entries_by_useruser_id=user_id, limit=limit or 10 if user_id else []
     )
 
-    return pd.DataFrame(entries)
+    return pd.DataFrameentries
 
 
-def load_entries_from_json(file_path: str) -> pd.DataFrame:
+def load_entries_from_jsonfile_path: str -> pd.DataFrame:
     """Load journal entries from a JSON file.
 
     Args:
@@ -85,13 +85,13 @@ def load_entries_from_json(file_path: str) -> pd.DataFrame:
         DataFrame containing journal entries
 
     """
-    with open(file_path) as f:
-        data = json.load(f)
+    with openfile_path as f:
+        data = json.loadf
 
-    return pd.DataFrame(data)
+    return pd.DataFramedata
 
 
-def load_entries_from_csv(file_path: str) -> pd.DataFrame:
+def load_entries_from_csvfile_path: str -> pd.DataFrame:
     """Load journal entries from a CSV file.
 
     Args:
@@ -101,10 +101,10 @@ def load_entries_from_csv(file_path: str) -> pd.DataFrame:
         DataFrame containing journal entries
 
     """
-    return pd.read_csv(file_path)
+    return pd.read_csvfile_path
 
 
-def save_entries_to_csv(df: pd.DataFrame, output_path: str) -> None:
+def save_entries_to_csvdf: pd.DataFrame, output_path: str -> None:
     """Save journal entries DataFrame to CSV.
 
     Args:
@@ -112,10 +112,10 @@ def save_entries_to_csv(df: pd.DataFrame, output_path: str) -> None:
         output_path: Path to save the CSV file
 
     """
-    df.to_csv(output_path, index=False)
+    df.to_csvoutput_path, index=False
 
 
-def save_entries_to_json(df: pd.DataFrame, output_path: str) -> None:
+def save_entries_to_jsondf: pd.DataFrame, output_path: str -> None:
     """Save journal entries DataFrame to JSON.
 
     Args:
@@ -123,4 +123,4 @@ def save_entries_to_json(df: pd.DataFrame, output_path: str) -> None:
         output_path: Path to save the JSON file
 
     """
-    df.to_json(output_path, orient="records")
+    df.to_jsonoutput_path, orient="records"

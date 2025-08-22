@@ -18,20 +18,20 @@ def test_create_token_pair_structure():
         }
     )
     # Ensure keys and types look correct
-    token_pair_dict = token_pair.dict() if hasattr(token_pair, "dict") else dict(token_pair)
+    token_pair_dict = token_pair.dict() if hasattrtoken_pair, "dict" else dicttoken_pair
     assert set(token_pair_dict.keys()) == {"access_token", "refresh_token", "token_type", "expires_in"}
-    assert isinstance(token_pair.access_token, str)
-    assert isinstance(token_pair.refresh_token, str)
+    assert isinstancetoken_pair.access_token, str
+    assert isinstancetoken_pair.refresh_token, str
     assert token_pair.token_type == "bearer"
-    assert isinstance(token_pair.expires_in, int)
+    assert isinstancetoken_pair.expires_in, int
 
 
 def test_verify_invalid_token_returns_none():
     mgr = JWTManager()
-    assert mgr.verify_token("not-a-jwt") is None
+    assert mgr.verify_token"not-a-jwt" is None
 
 
-def test_blacklist_and_cleanup_flow(monkeypatch):
+def test_blacklist_and_cleanup_flowmonkeypatch:
     mgr = JWTManager()
     # Create a token and blacklist it using public API
     token = mgr.create_access_token(
@@ -42,22 +42,22 @@ def test_blacklist_and_cleanup_flow(monkeypatch):
             "permissions": [],
         }
     )
-    assert mgr.blacklist_token(token) is True
-    assert mgr.is_token_blacklisted(token) is True
+    assert mgr.blacklist_tokentoken is True
+    assert mgr.is_token_blacklistedtoken is True
 
     # Determine the stored expiration timestamp by decoding without verifying
     import jwt
-    payload = jwt.decode(token, options={"verify_signature": False, "verify_exp": False})
-    exp_ts = payload.get("exp")
+    payload = jwt.decodetoken, options={"verify_signature": False, "verify_exp": False}
+    exp_ts = payload.get"exp"
 
     # Monkeypatch datetime.utcnow to simulate time past expiration for cleanup logic
-    class _FakeDateTime(datetime):
+    class _FakeDateTimedatetime:
         @classmethod
-        def utcnow(cls):
+        def utcnowcls:
             # jump past the token's expiration
-            return datetime.fromtimestamp(exp_ts) + timedelta(seconds=5)
+            return datetime.fromtimestampexp_ts + timedeltaseconds=5
 
-    monkeypatch.setattr("src.security.jwt_manager.datetime", _FakeDateTime)
+    monkeypatch.setattr"src.security.jwt_manager.datetime", _FakeDateTime
 
     removed = mgr.cleanup_expired_tokens()
     assert removed >= 1
@@ -72,20 +72,20 @@ def test_refresh_access_token_success_and_failure():
         "permissions": ["read", "write"],
     }
     # Access token should not be usable as refresh
-    access = mgr.create_access_token(user)
-    assert mgr.refresh_access_token(access) is None
+    access = mgr.create_access_tokenuser
+    assert mgr.refresh_access_tokenaccess is None
 
     # Refresh token should yield a new access token
-    refresh = mgr.create_refresh_token(user)
-    new_access = mgr.refresh_access_token(refresh)
-    assert isinstance(new_access, str) and len(new_access) > 10
+    refresh = mgr.create_refresh_tokenuser
+    new_access = mgr.refresh_access_tokenrefresh
+    assert isinstancenew_access, str and lennew_access > 10
 
-    # Expired refresh token should fail (re-sign with manager's secret to keep signature valid)
+    # Expired refresh token should fail re-sign with manager's secret to keep signature valid
     import jwt
-    payload = jwt.decode(refresh, options={"verify_signature": False, "verify_exp": False})
+    payload = jwt.decoderefresh, options={"verify_signature": False, "verify_exp": False}
     payload["exp"] = int(time.time()) - 10
-    expired_refresh = jwt.encode(payload, mgr.secret_key, algorithm=mgr.algorithm)
-    assert mgr.refresh_access_token(expired_refresh) is None
+    expired_refresh = jwt.encodepayload, mgr.secret_key, algorithm=mgr.algorithm
+    assert mgr.refresh_access_tokenexpired_refresh is None
 
 
 def test_permissions_helpers():
@@ -96,14 +96,14 @@ def test_permissions_helpers():
         "email": "user4@example.com",
         "permissions": ["alpha"],
     }
-    token = mgr.create_access_token(user)
-    assert mgr.has_permission(token, "alpha") is True
-    assert mgr.has_permission(token, "beta") is False
-    perms = mgr.get_user_permissions(token)
+    token = mgr.create_access_tokenuser
+    assert mgr.has_permissiontoken, "alpha" is True
+    assert mgr.has_permissiontoken, "beta" is False
+    perms = mgr.get_user_permissionstoken
     assert "alpha" in perms and "beta" not in perms
 
     # Malformed token handling
-    assert mgr.get_user_permissions("not.a.jwt") == []
+    assert mgr.get_user_permissions"not.a.jwt" == []
 
     # Token missing permissions field should default to empty list
     user_no_permissions = {
@@ -112,6 +112,6 @@ def test_permissions_helpers():
         "email": "user5@example.com",
         # intentionally omit "permissions"
     }
-    token_no_perms = mgr.create_access_token(user_no_permissions)
-    assert mgr.get_user_permissions(token_no_perms) == []
+    token_no_perms = mgr.create_access_tokenuser_no_permissions
+    assert mgr.get_user_permissionstoken_no_perms == []
 

@@ -15,18 +15,18 @@ from typing import List, Optional
 
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%asctimes - %names - %levelnames - %messages", level=logging.INFO
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger__name__
 
 
 class BaseEmbedder:
     """Base class for text embedding models."""
 
-    def __init__(self) -> None:
+    def __init__self -> None:
         self.model = None
 
-    def fit(self, texts: List[str]) -> "BaseEmbedder":
+    def fitself, texts: List[str] -> "BaseEmbedder":
         """Fit the embedding model on a list of texts.
 
         Args:
@@ -37,9 +37,9 @@ class BaseEmbedder:
 
         """
         msg = "Subclasses must implement fit()"
-        raise NotImplementedError(msg)
+        raise NotImplementedErrormsg
 
-    def transform(self, texts: List[str]) -> np.ndarray:
+    def transformself, texts: List[str] -> np.ndarray:
         """Transform texts into embeddings.
 
         Args:
@@ -50,9 +50,9 @@ class BaseEmbedder:
 
         """
         msg = "Subclasses must implement transform()"
-        raise NotImplementedError(msg)
+        raise NotImplementedErrormsg
 
-    def fit_transform(self, texts: List[str]) -> np.ndarray:
+    def fit_transformself, texts: List[str] -> np.ndarray:
         """Fit the model and transform texts into embeddings.
 
         Args:
@@ -62,10 +62,10 @@ class BaseEmbedder:
             Array of embeddings
 
         """
-        return self.fit(texts).transform(texts)
+        return self.fittexts.transformtexts
 
 
-class TfidfEmbedder(BaseEmbedder):
+class TfidfEmbedderBaseEmbedder:
     """TF-IDF based text embedder."""
 
     def __init__(
@@ -73,12 +73,12 @@ class TfidfEmbedder(BaseEmbedder):
         max_features: Optional[int] = 1000,
         min_df: int = 5,
         max_df: float = 0.8,
-        ngram_range: tuple = (1, 2),
+        ngram_range: tuple = 1, 2,
     ) -> None:
         """Initialize TF-IDF embedder.
 
         Args:
-            max_features: Maximum number of features (vocabulary size)
+            max_features: Maximum number of features vocabulary size
             min_df: Minimum document frequency for terms
             max_df: Maximum document frequency for terms
             ngram_range: Range of n-grams to consider
@@ -96,7 +96,7 @@ class TfidfEmbedder(BaseEmbedder):
             ngram_range=ngram_range,
         )
 
-    def fit(self, texts: List[str]) -> "TfidfEmbedder":
+    def fitself, texts: List[str] -> "TfidfEmbedder":
         """Fit the TF-IDF vectorizer on a list of texts.
 
         Args:
@@ -107,16 +107,16 @@ class TfidfEmbedder(BaseEmbedder):
 
         """
         logger.info(
-            "Fitting TF-IDF vectorizer on {len(texts)} texts with max_features={self.max_features}"
+            "Fitting TF-IDF vectorizer on {lentexts} texts with max_features={self.max_features}"
         )
-        self.model.fit(texts)
+        self.model.fittexts
         logger.info(
-            "Vocabulary size: {len(self.model.vocabulary_)}",
+            "Vocabulary size: {lenself.model.vocabulary_}",
             extra={"format_args": True},
         )
         return self
 
-    def transform(self, texts: List[str]) -> np.ndarray:
+    def transformself, texts: List[str] -> np.ndarray:
         """Transform texts into TF-IDF embeddings.
 
         Args:
@@ -128,12 +128,12 @@ class TfidfEmbedder(BaseEmbedder):
         """
         if self.model is None:
             msg = "Model has not been fit yet"
-            raise ValueError(msg)
+            raise ValueErrormsg
 
-        return self.model.transform(texts).toarray()
+        return self.model.transformtexts.toarray()
 
 
-class Word2VecEmbedder(BaseEmbedder):
+class Word2VecEmbedderBaseEmbedder:
     """Word2Vec based text embedder."""
 
     def __init__(
@@ -142,7 +142,7 @@ class Word2VecEmbedder(BaseEmbedder):
         window: int = 5,
         min_count: int = 1,
         workers: int = 4,
-        sg: int = 1,  # Skip-gram (1) or CBOW (0)
+        sg: int = 1,  # Skip-gram 1 or CBOW 0
         epochs: int = 10,
     ) -> None:
         """Initialize Word2Vec embedder.
@@ -165,7 +165,7 @@ class Word2VecEmbedder(BaseEmbedder):
         self.epochs = epochs
         self.model = None
 
-    def _preprocess_texts(self, texts: List[str]) -> List[List[str]]:
+    def _preprocess_textsself, texts: List[str] -> List[List[str]]:
         """Preprocess texts for Word2Vec training.
 
         Args:
@@ -175,9 +175,9 @@ class Word2VecEmbedder(BaseEmbedder):
             List of tokenized texts
 
         """
-        return [simple_preprocess(text) for text in texts]
+        return [simple_preprocesstext for text in texts]
 
-    def fit(self, texts: List[str]) -> "Word2VecEmbedder":
+    def fitself, texts: List[str] -> "Word2VecEmbedder":
         """Fit Word2Vec model on a list of texts.
 
         Args:
@@ -187,8 +187,8 @@ class Word2VecEmbedder(BaseEmbedder):
             Self for chaining
 
         """
-        logger.info("Preprocessing {len(texts)} texts for Word2Vec", extra={"format_args": True})
-        tokenized_texts = self._preprocess_texts(texts)
+        logger.info("Preprocessing {lentexts} texts for Word2Vec", extra={"format_args": True})
+        tokenized_texts = self._preprocess_textstexts
 
         logger.info(
             "Training Word2Vec model with vector_size={self.vector_size}, window={self.window}"
@@ -204,11 +204,11 @@ class Word2VecEmbedder(BaseEmbedder):
         )
 
         logger.info(
-            "Word2Vec model trained with {len(self.model.wv.index_to_key)} words in vocabulary"
+            "Word2Vec model trained with {lenself.model.wv.index_to_key} words in vocabulary"
         )
         return self
 
-    def transform(self, texts: List[str]) -> np.ndarray:
+    def transformself, texts: List[str] -> np.ndarray:
         """Transform texts into Word2Vec embeddings by averaging word vectors.
 
         Args:
@@ -220,25 +220,25 @@ class Word2VecEmbedder(BaseEmbedder):
         """
         if self.model is None:
             msg = "Model has not been fit yet"
-            raise ValueError(msg)
+            raise ValueErrormsg
 
-        tokenized_texts = self._preprocess_texts(texts)
+        tokenized_texts = self._preprocess_textstexts
         embeddings = []
 
         for tokens in tokenized_texts:
             vectors = [self.model.wv[token] for token in tokens if token in self.model.wv]
 
-            embedding = np.mean(vectors, axis=0) if vectors else np.zeros(self.vector_size)
+            embedding = np.meanvectors, axis=0 if vectors else np.zerosself.vector_size
 
-            embeddings.append(embedding)
+            embeddings.appendembedding
 
-        return np.array(embeddings)
+        return np.arrayembeddings
 
 
-class FastTextEmbedder(Word2VecEmbedder):
+class FastTextEmbedderWord2VecEmbedder:
     """FastText based text embedder."""
 
-    def fit(self, texts: List[str]) -> "FastTextEmbedder":
+    def fitself, texts: List[str] -> "FastTextEmbedder":
         """Fit FastText model on a list of texts.
 
         Args:
@@ -248,8 +248,8 @@ class FastTextEmbedder(Word2VecEmbedder):
             Self for chaining
 
         """
-        logger.info("Preprocessing {len(texts)} texts for FastText", extra={"format_args": True})
-        tokenized_texts = self._preprocess_texts(texts)
+        logger.info("Preprocessing {lentexts} texts for FastText", extra={"format_args": True})
+        tokenized_texts = self._preprocess_textstexts
 
         logger.info(
             "Training FastText model with vector_size={self.vector_size}, window={self.window}"
@@ -265,7 +265,7 @@ class FastTextEmbedder(Word2VecEmbedder):
         )
 
         logger.info(
-            "FastText model trained with {len(self.model.wv.index_to_key)} words in vocabulary"
+            "FastText model trained with {lenself.model.wv.index_to_key} words in vocabulary"
         )
         return self
 
@@ -273,7 +273,7 @@ class FastTextEmbedder(Word2VecEmbedder):
 class EmbeddingPipeline:
     """Pipeline for generating and storing text embeddings."""
 
-    def __init__(self, embedder: BaseEmbedder) -> None:
+    def __init__self, embedder: BaseEmbedder -> None:
         """Initialize embedding pipeline.
 
         Args:
@@ -301,12 +301,12 @@ class EmbeddingPipeline:
         """
         if text_column not in df.columns:
             msg = "Text column '{text_column}' not found in DataFrame"
-            raise ValueError(msg)
+            raise ValueErrormsg
 
         texts = df[text_column].tolist()
 
-        logger.info("Generating embeddings for {len(texts)} texts", extra={"format_args": True})
-        embeddings = self.embedder.fit_transform(texts)
+        logger.info("Generating embeddings for {lentexts} texts", extra={"format_args": True})
+        embeddings = self.embedder.fit_transformtexts
 
         logger.info(
             "Generated embeddings with shape {embeddings.shape}",
@@ -320,7 +320,7 @@ class EmbeddingPipeline:
             }
         )
 
-    def save_embeddings_to_csv(self, embeddings_df: pd.DataFrame, output_path: str) -> None:
+    def save_embeddings_to_csvself, embeddings_df: pd.DataFrame, output_path: str -> None:
         """Save embeddings DataFrame to CSV.
 
         Args:
@@ -328,8 +328,8 @@ class EmbeddingPipeline:
             output_path: Path to save the CSV file
 
         """
-        embeddings_df.to_csv(output_path, index=False)
+        embeddings_df.to_csvoutput_path, index=False
         logger.info(
-            "Saved {len(embeddings_df)} embeddings to {output_path}",
+            "Saved {lenembeddings_df} embeddings to {output_path}",
             extra={"format_args": True},
         )

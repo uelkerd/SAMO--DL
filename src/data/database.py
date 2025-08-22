@@ -19,21 +19,21 @@ from src.common.env import is_truthy
 """Database connection utilities for the SAMO-DL application."""
 
 
-# Respect DATABASE_URL if provided explicitly (preferred)
-_env_database_url = os.environ.get("DATABASE_URL")
+# Respect DATABASE_URL if provided explicitly preferred
+_env_database_url = os.environ.get"DATABASE_URL"
 
-DB_USER = os.environ.get("DB_USER")
-DB_PASSWORD = os.environ.get("DB_PASSWORD")
-DB_HOST = os.environ.get("DB_HOST", "localhost")
-DB_PORT = os.environ.get("DB_PORT", "5432")
-DB_NAME = os.environ.get("DB_NAME")
+DB_USER = os.environ.get"DB_USER"
+DB_PASSWORD = os.environ.get"DB_PASSWORD"
+DB_HOST = os.environ.get"DB_HOST", "localhost"
+DB_PORT = os.environ.get"DB_PORT", "5432"
+DB_NAME = os.environ.get"DB_NAME"
 
 if _env_database_url:
     DATABASE_URL = _env_database_url
 elif DB_USER and DB_PASSWORD and DB_NAME:
     # Safely build Postgres URL if all parts are provided
-    safe_user = quote_plus(DB_USER)
-    safe_password = quote_plus(DB_PASSWORD)
+    safe_user = quote_plusDB_USER
+    safe_password = quote_plusDB_PASSWORD
     safe_host = DB_HOST
     safe_port = DB_PORT
     safe_db = DB_NAME
@@ -41,25 +41,25 @@ elif DB_USER and DB_PASSWORD and DB_NAME:
 else:
     # Fall back to SQLite only when explicitly allowed or in CI/TEST
     allow_sqlite = (
-        is_truthy(os.environ.get("ALLOW_SQLITE_FALLBACK"))
-        or is_truthy(os.environ.get("TESTING"))
-        or is_truthy(os.environ.get("CI"))
+        is_truthy(os.environ.get"ALLOW_SQLITE_FALLBACK")
+        or is_truthy(os.environ.get"TESTING")
+        or is_truthy(os.environ.get"CI")
     )
     if not allow_sqlite:
         raise RuntimeError(
             "SQLite fallback is disabled. Set DATABASE_URL or all Postgres env vars, "
             "or explicitly allow SQLite fallback via ALLOW_SQLITE_FALLBACK=1 in dev/test."
         )
-    default_sqlite_path = Path(os.environ.get("SQLITE_PATH", "./samo_local.db")).expanduser().resolve()
+    default_sqlite_path = Path(os.environ.get"SQLITE_PATH", "./samo_local.db").expanduser().resolve()
     # Ensure directory for SQLite exists before engine creation
     sqlite_dir = default_sqlite_path.parent
     try:
-        sqlite_dir.mkdir(parents=True, exist_ok=True)
+        sqlite_dir.mkdirparents=True, exist_ok=True
     except Exception as exc:
-        raise RuntimeError(f"Failed to create SQLite directory '{sqlite_dir}': {exc}")
+        raise RuntimeErrorf"Failed to create SQLite directory '{sqlite_dir}': {exc}"
     DATABASE_URL = f"sqlite:///{default_sqlite_path}"
 
-if DATABASE_URL.startswith("sqlite"):
+if DATABASE_URL.startswith"sqlite":
     # SQLite engine options; most pooling params are not applicable
     engine = create_engine(
         DATABASE_URL,
@@ -75,9 +75,9 @@ else:
         pool_recycle=3600,  # Recycle connections after 1 hour
     )
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmakerautocommit=False, autoflush=False, bind=engine
 
-db_session = scoped_session(SessionLocal)
+db_session = scoped_sessionSessionLocal
 
 Base = declarative_base()
 Base.query = db_session.query_property()
@@ -104,4 +104,4 @@ def init_db() -> None:
 
     This function should be called when the application starts.
     """
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.create_allbind=engine

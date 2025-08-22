@@ -10,38 +10,38 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
 
 class EmotionDetector:
-    def __init__(self, model_path=None):
+    def __init__self, model_path=None:
         """Initialize the emotion detector"""
         if model_path is None:
             # Use the model directory relative to this script
-            model_path = Path(__file__).parent / "model"
+            model_path = Path__file__.parent / "model"
         
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
-        print(f"🔧 Loading model from: {model_path}")
+        printf"🔧 Loading model from: {model_path}"
         
         # Load model and tokenizer
-        self.tokenizer = AutoTokenizer.from_pretrained("roberta-base")
-        self.model = AutoModelForSequenceClassification.from_pretrained(str(model_path))
-        self.model.to(self.device)
+        self.tokenizer = AutoTokenizer.from_pretrained"roberta-base"
+        self.model = AutoModelForSequenceClassification.from_pretrained(strmodel_path)
+        self.model.toself.device
         self.model.eval()
         
         # Define emotion mapping based on training order
         self.emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
         
-        print(f"✅ Model loaded successfully on {self.device}")
+        printf"✅ Model loaded successfully on {self.device}"
     
-    def predict(self, text):
+    def predictself, text:
         """Predict emotion for given text"""
         # Tokenize
-        inputs = self.tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
-        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+        inputs = self.tokenizertext, return_tensors="pt", truncation=True, max_length=512, padding=True
+        inputs = {k: v.toself.device for k, v in inputs.items()}
         
         # Predict
         with torch.no_grad():
-            outputs = self.model(**inputs)
-            probabilities = torch.softmax(outputs.logits, dim=1)
-            predicted_class = torch.argmax(probabilities, dim=1).item()
+            outputs = self.model**inputs
+            probabilities = torch.softmaxoutputs.logits, dim=1
+            predicted_class = torch.argmaxprobabilities, dim=1.item()
             confidence = probabilities[0][predicted_class].item()
         
         # Map to emotion name
@@ -53,21 +53,21 @@ class EmotionDetector:
             "text": text
         }
     
-    def predict_batch(self, texts):
+    def predict_batchself, texts:
         """Predict emotions for multiple texts"""
         results = []
         for text in texts:
-            result = self.predict(text)
-            results.append(result)
+            result = self.predicttext
+            results.appendresult
         return results
 
 def main():
     """Main function for command line usage"""
     import sys
     
-    if len(sys.argv) < 2:
-        print("Usage: python inference.py 'Your text here'")
-        print("Example: python inference.py 'I am feeling happy today!'")
+    if lensys.argv < 2:
+        print"Usage: python inference.py 'Your text here'"
+        print"Example: python inference.py 'I am feeling happy today!'"
         return
     
     text = sys.argv[1]
@@ -76,13 +76,13 @@ def main():
     detector = EmotionDetector()
     
     # Make prediction
-    result = detector.predict(text)
+    result = detector.predicttext
     
-    print(f"\n🎯 EMOTION DETECTION RESULT")
-    print(f"=" * 40)
-    print(f"Text: {result['text']}")
-    print(f"Emotion: {result['emotion']}")
-    print(f"Confidence: {result['confidence']:.3f}")
+    print"\n🎯 EMOTION DETECTION RESULT"
+    print"=" * 40
+    printf"Text: {result['text']}"
+    printf"Emotion: {result['emotion']}"
+    printf"Confidence: {result['confidence']:.3f}"
 
 if __name__ == "__main__":
     main()

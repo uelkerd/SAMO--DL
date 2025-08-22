@@ -27,18 +27,18 @@ from transformers import AutoTokenizer
 from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 
 # Add project root to Python path - more robust for CI environments
-script_dir = Path(__file__).resolve().parent
+script_dir = Path__file__.resolve().parent
 project_root = script_dir.parent
-sys.path.insert(0, str(project_root))
+sys.path.insert(0, strproject_root)
 
 # Debugging: Print current working directory and sys.path
 logging.info(f"Current working directory: {Path.cwd()}")
-logging.info(f"sys.path: {sys.path}")
-logging.info(f"Project root added to path: {project_root}")
+logging.infof"sys.path: {sys.path}"
+logging.infof"Project root added to path: {project_root}"
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%asctimes - %levelnames - %messages')
+logger = logging.getLogger__name__
 
 
 def check_gpu_setup() -> dict[str, any]:
@@ -48,7 +48,7 @@ def check_gpu_setup() -> dict[str, any]:
         Dictionary with GPU setup information
 
     """
-    logger.info("🔍 Checking GPU Setup...")
+    logger.info"🔍 Checking GPU Setup..."
 
     gpu_info = {
         "cuda_available": torch.cuda.is_available(),
@@ -63,8 +63,8 @@ def check_gpu_setup() -> dict[str, any]:
 
     if torch.cuda.is_available():
         device_name = torch.cuda.get_device_name()
-        memory_total = torch.cuda.get_device_properties(0).total_memory
-        memory_free = torch.cuda.memory_reserved(0)
+        memory_total = torch.cuda.get_device_properties0.total_memory
+        memory_free = torch.cuda.memory_reserved0
 
         gpu_info.update(
             {
@@ -74,15 +74,15 @@ def check_gpu_setup() -> dict[str, any]:
             }
         )
 
-        logger.info(f"✅ GPU Available: {device_name}")
-        logger.info(f"   CUDA Version: {torch.version.cuda}")
-        logger.info(f"   Memory: {memory_total / 1e9:.1f} GB total")
+        logger.infof"✅ GPU Available: {device_name}"
+        logger.infof"   CUDA Version: {torch.version.cuda}"
+        logger.infof"   Memory: {memory_total / 1e9:.1f} GB total"
 
         if memory_total < 8e9:  # Less than 8GB
             gpu_info["recommendations"].append(
-                "Consider using mixed precision training (fp16) to save memory"
+                "Consider using mixed precision training fp16 to save memory"
             )
-            gpu_info["recommendations"].append("Reduce batch size if encountering OOM errors")
+            gpu_info["recommendations"].append"Reduce batch size if encountering OOM errors"
 
         if "T4" in device_name or "V100" in device_name:
             gpu_info["recommendations"].append(
@@ -90,7 +90,7 @@ def check_gpu_setup() -> dict[str, any]:
             )
 
     else:
-        logger.warning("⚠️  No GPU available - training will use CPU")
+        logger.warning"⚠️  No GPU available - training will use CPU"
         gpu_info["recommendations"].extend(
             [
                 "Install CUDA-compatible PyTorch for GPU acceleration",
@@ -112,7 +112,7 @@ def convert_to_onnx(
 
     Args:
         model_path: Path to the saved PyTorch model
-        output_path: Path to save ONNX model (auto-generated if None)
+        output_path: Path to save ONNX model auto-generated if None
         model_name: Tokenizer model name
         max_length: Maximum sequence length
 
@@ -120,17 +120,17 @@ def convert_to_onnx(
         Path to the converted ONNX model
 
     """
-    logger.info("🔄 Converting model to ONNX format...")
+    logger.info"🔄 Converting model to ONNX format..."
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    checkpoint = torch.load(model_path, map_location=device)
+    checkpoint = torch.loadmodel_path, map_location=device
 
-    model = BERTEmotionClassifier(model_name=model_name, num_emotions=28)
-    model.load_state_dict(checkpoint["model_state_dict"])
+    model = BERTEmotionClassifiermodel_name=model_name, num_emotions=28
+    model.load_state_dictcheckpoint["model_state_dict"]
     model.eval()
-    model.to(device)
+    model.todevice
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrainedmodel_name
     dummy_text = "This is a sample text for ONNX conversion."
     dummy_encoding = tokenizer(
         dummy_text,
@@ -138,14 +138,14 @@ def convert_to_onnx(
         padding="max_length",
         truncation=True,
         return_tensors="pt",
-    ).to(device)
+    ).todevice
 
     if output_path is None:
-        output_path = model_path.replace(".pt", ".onnx")
+        output_path = model_path.replace".pt", ".onnx"
 
     torch.onnx.export(
         model,
-        (dummy_encoding["input_ids"], dummy_encoding["attention_mask"]),
+        dummy_encoding["input_ids"], dummy_encoding["attention_mask"],
         output_path,
         export_params=True,
         opset_version=14,
@@ -159,10 +159,10 @@ def convert_to_onnx(
         },
     )
 
-    onnx_model = onnx.load(output_path)
-    onnx.checker.check_model(onnx_model)
+    onnx_model = onnx.loadoutput_path
+    onnx.checker.check_modelonnx_model
 
-    logger.info(f"✅ ONNX model saved to: {output_path}")
+    logger.infof"✅ ONNX model saved to: {output_path}"
     return output_path
 
 
@@ -177,7 +177,7 @@ def benchmark_model_performance(
 
     Args:
         model_path: Path to PyTorch model
-        onnx_path: Path to ONNX model (optional)
+        onnx_path: Path to ONNX model optional
         num_samples: Number of samples for benchmarking
         target_latency: Target P95 latency in milliseconds
         model_name: Tokenizer model name
@@ -186,10 +186,10 @@ def benchmark_model_performance(
         Dictionary with benchmark results
 
     """
-    logger.info("📊 Starting performance benchmark...")
+    logger.info"📊 Starting performance benchmark..."
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrainedmodel_name
 
     sample_texts = [
         "I'm feeling great today, everything is going well!",
@@ -200,28 +200,28 @@ def benchmark_model_performance(
         "Feeling grateful for all the support from friends.",
         "This is the most boring meeting I've ever attended.",
         "I'm so excited about the weekend trip we planned!",
-    ] * (num_samples // 8 + 1)
+    ] * num_samples // 8 + 1
     sample_texts = sample_texts[:num_samples]
 
     results = {}
 
-    if Path(model_path).exists():
-        logger.info("Testing PyTorch model performance...")
-        pytorch_latencies = benchmark_pytorch_model(model_path, sample_texts, tokenizer, device)
-        results["pytorch"] = analyze_latencies(pytorch_latencies, "PyTorch")
+    if Pathmodel_path.exists():
+        logger.info"Testing PyTorch model performance..."
+        pytorch_latencies = benchmark_pytorch_modelmodel_path, sample_texts, tokenizer, device
+        results["pytorch"] = analyze_latenciespytorch_latencies, "PyTorch"
 
-    if onnx_path and Path(onnx_path).exists():
-        logger.info("Testing ONNX model performance...")
-        onnx_latencies = benchmark_onnx_model(onnx_path, sample_texts, tokenizer)
-        results["onnx"] = analyze_latencies(onnx_latencies, "ONNX")
+    if onnx_path and Pathonnx_path.exists():
+        logger.info"Testing ONNX model performance..."
+        onnx_latencies = benchmark_onnx_modelonnx_path, sample_texts, tokenizer
+        results["onnx"] = analyze_latenciesonnx_latencies, "ONNX"
 
         if "pytorch" in results:
             speedup = results["pytorch"]["mean_latency"] / results["onnx"]["mean_latency"]
             results["onnx_speedup"] = f"{speedup:.2f}x"
-            logger.info(f"🚀 ONNX Speedup: {speedup:.2f}x")
+            logger.infof"🚀 ONNX Speedup: {speedup:.2f}x"
 
     results["target_latency"] = target_latency
-    results["assessment"] = assess_performance(results, target_latency)
+    results["assessment"] = assess_performanceresults, target_latency
 
     return results
 
@@ -230,12 +230,12 @@ def benchmark_pytorch_model(
     model_path: str, texts: list[str], tokenizer, device: torch.device
 ) -> list[float]:
     """Benchmark PyTorch model inference times."""
-    checkpoint = torch.load(model_path, map_location=device)
+    checkpoint = torch.loadmodel_path, map_location=device
 
-    model = BERTEmotionClassifier(model_name="bert-base-uncased", num_emotions=28)
-    model.load_state_dict(checkpoint["model_state_dict"])
+    model = BERTEmotionClassifiermodel_name="bert-base-uncased", num_emotions=28
+    model.load_state_dictcheckpoint["model_state_dict"]
     model.eval()
-    model.to(device)
+    model.todevice
 
     latencies = []
 
@@ -249,22 +249,22 @@ def benchmark_pytorch_model(
                 padding="max_length",
                 truncation=True,
                 return_tensors="pt",
-            ).to(device)
+            ).todevice
 
-            model(encoding["input_ids"], encoding["attention_mask"])
+            modelencoding["input_ids"], encoding["attention_mask"]
 
             if device.type == "cuda":
                 torch.cuda.synchronize()
 
             end_time = time.time()
-            latencies.append((end_time - start_time) * 1000)  # Convert to ms
+            latencies.append(end_time - start_time * 1000)  # Convert to ms
 
     return latencies
 
 
-def benchmark_onnx_model(model_path: str, texts: list[str], tokenizer) -> list[float]:
+def benchmark_onnx_modelmodel_path: str, texts: list[str], tokenizer -> list[float]:
     """Benchmark ONNX model inference times."""
-    session = ort.InferenceSession(model_path)
+    session = ort.InferenceSessionmodel_path
 
     latencies = []
 
@@ -280,41 +280,41 @@ def benchmark_onnx_model(model_path: str, texts: list[str], tokenizer) -> list[f
         )
 
         inputs = {
-            "input_ids": encoding["input_ids"].astype(np.int64),
-            "attention_mask": encoding["attention_mask"].astype(np.int64),
+            "input_ids": encoding["input_ids"].astypenp.int64,
+            "attention_mask": encoding["attention_mask"].astypenp.int64,
         }
 
-        session.run(None, inputs)
+        session.runNone, inputs
 
         end_time = time.time()
-        latencies.append((end_time - start_time) * 1000)  # Convert to ms
+        latencies.append(end_time - start_time * 1000)  # Convert to ms
 
     return latencies
 
 
-def analyze_latencies(latencies: list[float], model_type: str) -> dict[str, float]:
+def analyze_latencieslatencies: list[float], model_type: str -> dict[str, float]:
     """Analyze latency statistics."""
-    latencies_sorted = sorted(latencies)
+    latencies_sorted = sortedlatencies
 
     stats = {
-        "mean_latency": statistics.mean(latencies),
-        "median_latency": statistics.median(latencies),
-        "p95_latency": latencies_sorted[int(0.95 * len(latencies))],
-        "p99_latency": latencies_sorted[int(0.99 * len(latencies))],
-        "min_latency": min(latencies),
-        "max_latency": max(latencies),
-        "std_latency": statistics.stdev(latencies) if len(latencies) > 1 else 0,
+        "mean_latency": statistics.meanlatencies,
+        "median_latency": statistics.medianlatencies,
+        "p95_latency": latencies_sorted[int(0.95 * lenlatencies)],
+        "p99_latency": latencies_sorted[int(0.99 * lenlatencies)],
+        "min_latency": minlatencies,
+        "max_latency": maxlatencies,
+        "std_latency": statistics.stdevlatencies if lenlatencies > 1 else 0,
     }
 
-    logger.info(f"{model_type} Performance:")
-    logger.info(f"  Mean: {stats['mean_latency']:.1f}ms")
-    logger.info(f"  P95:  {stats['p95_latency']:.1f}ms")
-    logger.info(f"  P99:  {stats['p99_latency']:.1f}ms")
+    logger.infof"{model_type} Performance:"
+    logger.infof"  Mean: {stats['mean_latency']:.1f}ms"
+    logger.infof"  P95:  {stats['p95_latency']:.1f}ms"
+    logger.infof"  P99:  {stats['p99_latency']:.1f}ms"
 
     return stats
 
 
-def assess_performance(results: dict[str, any], target_latency: float) -> dict[str, str]:
+def assess_performanceresults: dict[str, any], target_latency: float -> dict[str, str]:
     """Assess whether performance meets targets."""
     assessment = {}
 
@@ -324,78 +324,78 @@ def assess_performance(results: dict[str, any], target_latency: float) -> dict[s
 
             if p95_latency <= target_latency:
                 assessment[model_type] = (
-                    f"✅ MEETS TARGET ({p95_latency:.1f}ms ≤ {target_latency}ms)"
+                    f"✅ MEETS TARGET {p95_latency:.1f}ms ≤ {target_latency}ms"
                 )
             elif p95_latency <= target_latency * 1.2:  # Within 20%
                 assessment[model_type] = (
-                    f"⚠️  CLOSE TO TARGET ({p95_latency:.1f}ms vs {target_latency}ms)"
+                    f"⚠️  CLOSE TO TARGET {p95_latency:.1f}ms vs {target_latency}ms"
                 )
             else:
                 assessment[model_type] = (
-                    f"❌ EXCEEDS TARGET ({p95_latency:.1f}ms > {target_latency}ms)"
+                    f"❌ EXCEEDS TARGET {p95_latency:.1f}ms > {target_latency}ms"
                 )
 
     return assessment
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="SAMO Deep Learning Performance Optimization")
-    parser.add_argument("--check-gpu", action="store_true", help="Check GPU setup")
-    parser.add_argument("--convert-onnx", action="store_true", help="Convert model to ONNX")
-    parser.add_argument("--benchmark", action="store_true", help="Benchmark model performance")
-    parser.add_argument("--model-path", type=str, default="./models/checkpoints/best_model.pt")
-    parser.add_argument("--onnx-path", type=str, default=None)
+    parser = argparse.ArgumentParserdescription="SAMO Deep Learning Performance Optimization"
+    parser.add_argument"--check-gpu", action="store_true", help="Check GPU setup"
+    parser.add_argument"--convert-onnx", action="store_true", help="Convert model to ONNX"
+    parser.add_argument"--benchmark", action="store_true", help="Benchmark model performance"
+    parser.add_argument"--model-path", type=str, default="./models/checkpoints/best_model.pt"
+    parser.add_argument"--onnx-path", type=str, default=None
     parser.add_argument(
-        "--target-latency", type=float, default=500.0, help="Target P95 latency (ms)"
+        "--target-latency", type=float, default=500.0, help="Target P95 latency ms"
     )
-    parser.add_argument("--num-samples", type=int, default=100, help="Number of benchmark samples")
+    parser.add_argument"--num-samples", type=int, default=100, help="Number of benchmark samples"
 
     args = parser.parse_args()
 
     if args.check_gpu:
         gpu_info = check_gpu_setup()
 
-        print("\n" + "=" * 50)
-        print("🔍 GPU SETUP ASSESSMENT")
-        print("=" * 50)
+        print"\n" + "=" * 50
+        print"🔍 GPU SETUP ASSESSMENT"
+        print"=" * 50
 
         for key, value in gpu_info.items():
             if key != "recommendations":
-                print(f"{key}: {value}")
+                printf"{key}: {value}"
 
         if gpu_info["recommendations"]:
-            print("\n💡 Recommendations:")
+            print"\n💡 Recommendations:"
             for rec in gpu_info["recommendations"]:
-                print("   • {rec}")
+                print"   • {rec}"
 
     if args.convert_onnx:
-        if not Path(args.model_path).exists():
-            logger.error(f"Model not found: {args.model_path}")
+        if not Pathargs.model_path.exists():
+            logger.errorf"Model not found: {args.model_path}"
             return
 
-        onnx_path = convert_to_onnx(args.model_path, args.onnx_path)
-        print(f"\n✅ ONNX conversion complete: {onnx_path}")
+        onnx_path = convert_to_onnxargs.model_path, args.onnx_path
+        printf"\n✅ ONNX conversion complete: {onnx_path}"
 
     if args.benchmark:
-        if not Path(args.model_path).exists():
-            logger.error(f"Model not found: {args.model_path}")
+        if not Pathargs.model_path.exists():
+            logger.errorf"Model not found: {args.model_path}"
             return
 
         results = benchmark_model_performance(
             args.model_path, args.onnx_path, args.num_samples, args.target_latency
         )
 
-        print("\n" + "=" * 60)
-        print("📊 PERFORMANCE BENCHMARK RESULTS")
-        print("=" * 60)
+        print"\n" + "=" * 60
+        print"📊 PERFORMANCE BENCHMARK RESULTS"
+        print"=" * 60
 
         for model_type, assessment in results["assessment"].items():
             print(f"\n{model_type.upper()}: {assessment}")
 
         if "onnx_speedup" in results:
-            print(f"\n🚀 ONNX Optimization: {results['onnx_speedup']} faster")
+            printf"\n🚀 ONNX Optimization: {results['onnx_speedup']} faster"
 
-        print(f"\nTarget: P95 ≤ {args.target_latency}ms")
+        printf"\nTarget: P95 ≤ {args.target_latency}ms"
 
 
 if __name__ == "__main__":

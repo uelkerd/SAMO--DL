@@ -40,7 +40,7 @@ def create_bulletproof_colab_notebook():
                 "source": [
                     "# Install dependencies\n",
                     "!pip install transformers torch scikit-learn pandas numpy\n",
-                    "print(\"✅ All dependencies installed!\")"
+                    "print\"✅ All dependencies installed!\""
                 ]
             },
             {
@@ -51,7 +51,7 @@ def create_bulletproof_colab_notebook():
                 "source": [
                     "# Clone repository\n",
                     "!git clone https://github.com/uelkerd/SAMO--DL.git\n",
-                    "print(\"📂 Repository cloned successfully!\")"
+                    "print\"📂 Repository cloned successfully!\""
                 ]
             },
             {
@@ -79,9 +79,9 @@ def create_bulletproof_colab_notebook():
                     "from sklearn.preprocessing import LabelEncoder\n",
                     "from sklearn.metrics import f1_score, accuracy_score, classification_report\n",
                     "import warnings\n",
-                    "warnings.filterwarnings('ignore')\n",
+                    "warnings.filterwarnings'ignore'\n",
                     "\n",
-                    "print(\"✅ All libraries imported!\")"
+                    "print\"✅ All libraries imported!\""
                 ]
             },
             {
@@ -91,7 +91,7 @@ def create_bulletproof_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# BULLETPROOF: Auto-detect repository path and data files\n",
-                    "print(\"🔍 Auto-detecting repository structure...\")\n",
+                    "print\"🔍 Auto-detecting repository structure...\"\n",
                     "\n",
                     "# Find the repository directory\n",
                     "possible_paths = [\n",
@@ -104,29 +104,29 @@ def create_bulletproof_colab_notebook():
                     "\n",
                     "repo_path = None\n",
                     "for path in possible_paths:\n",
-                    "    if os.path.exists(path):\n",
+                    "    if os.path.existspath:\n",
                     "        repo_path = path\n",
-                    "        print(f\"✅ Found repository at: {repo_path}\")\n",
+                    "        printf\"✅ Found repository at: {repo_path}\"\n",
                     "        break\n",
                     "\n",
                     "if repo_path is None:\n",
-                    "    print(\"❌ Could not find repository! Listing /content:\")\n",
+                    "    print\"❌ Could not find repository! Listing /content:\"\n",
                     "    !ls -la /content/\n",
-                    "    raise Exception(\"Repository not found!\")\n",
+                    "    raise Exception\"Repository not found!\"\n",
                     "\n",
                     "# List contents to verify structure\n",
-                    "print(f\"📂 Repository contents:\")\n",
+                    "printf\"📂 Repository contents:\"\n",
                     "!ls -la {repo_path}/\n",
                     "\n",
                     "# Check if data directory exists\n",
-                    "data_path = os.path.join(repo_path, 'data')\n",
-                    "if os.path.exists(data_path):\n",
-                    "    print(f\"✅ Data directory found at: {data_path}\")\n",
-                    "    print(f\"📂 Data directory contents:\")\n",
+                    "data_path = os.path.joinrepo_path, 'data'\n",
+                    "if os.path.existsdata_path:\n",
+                    "    printf\"✅ Data directory found at: {data_path}\"\n",
+                    "    printf\"📂 Data directory contents:\"\n",
                     "    !ls -la {data_path}/\n",
                     "else:\n",
-                    "    print(f\"❌ Data directory not found at: {data_path}\")\n",
-                    "    raise Exception(\"Data directory not found!\")"
+                    "    printf\"❌ Data directory not found at: {data_path}\"\n",
+                    "    raise Exception\"Data directory not found!\""
                 ]
             },
             {
@@ -136,23 +136,23 @@ def create_bulletproof_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# BULLETPROOF: Load combined dataset with automatic path detection\n",
-                    "print(\"📊 Loading combined dataset...\")\n",
+                    "print\"📊 Loading combined dataset...\"\n",
                     "\n",
                     "combined_samples = []\n",
                     "\n",
                     "# Load journal data with multiple fallback paths\n",
                     "journal_paths = [\n",
-                    "    os.path.join(repo_path, 'data', 'journal_test_dataset.json'),\n",
-                    "    os.path.join(repo_path, 'data', 'journal_dataset.json'),\n",
-                    "    os.path.join(repo_path, 'data', 'expanded_journal_dataset.json')\n",
+                    "    os.path.joinrepo_path, 'data', 'journal_test_dataset.json',\n",
+                    "    os.path.joinrepo_path, 'data', 'journal_dataset.json',\n",
+                    "    os.path.joinrepo_path, 'data', 'expanded_journal_dataset.json'\n",
                     "]\n",
                     "\n",
                     "journal_loaded = False\n",
                     "for journal_path in journal_paths:\n",
                     "    try:\n",
-                    "        if os.path.exists(journal_path):\n",
-                    "            with open(journal_path, 'r') as f:\n",
-                    "                journal_data = json.load(f)\n",
+                    "        if os.path.existsjournal_path:\n",
+                    "            with openjournal_path, 'r' as f:\n",
+                    "                journal_data = json.loadf\n",
                     "            \n",
                     "            # Handle different data structures\n",
                     "            for item in journal_data:\n",
@@ -167,28 +167,28 @@ def create_bulletproof_colab_notebook():
                     "                        'emotion': item['emotion']\n",
                     "                    })\n",
                     "            \n",
-                    "            print(f\"✅ Loaded {len(journal_data)} journal samples from {journal_path}\")\n",
+                    "            print(f\"✅ Loaded {lenjournal_data} journal samples from {journal_path}\")\n",
                     "            journal_loaded = True\n",
                     "            break\n",
                     "    except Exception as e:\n",
-                    "        print(f\"⚠️ Could not load from {journal_path}: {e}\")\n",
+                    "        printf\"⚠️ Could not load from {journal_path}: {e}\"\n",
                     "        continue\n",
                     "\n",
                     "if not journal_loaded:\n",
-                    "    print(\"❌ Could not load any journal data!\")\n",
+                    "    print\"❌ Could not load any journal data!\"\n",
                     "\n",
                     "# Load CMU-MOSEI data\n",
                     "cmu_paths = [\n",
-                    "    os.path.join(repo_path, 'data', 'cmu_mosei_balanced_dataset.json'),\n",
-                    "    os.path.join(repo_path, 'data', 'cmu_mosei_emotion_dataset.json')\n",
+                    "    os.path.joinrepo_path, 'data', 'cmu_mosei_balanced_dataset.json',\n",
+                    "    os.path.joinrepo_path, 'data', 'cmu_mosei_emotion_dataset.json'\n",
                     "]\n",
                     "\n",
                     "cmu_loaded = False\n",
                     "for cmu_path in cmu_paths:\n",
                     "    try:\n",
-                    "        if os.path.exists(cmu_path):\n",
-                    "            with open(cmu_path, 'r') as f:\n",
-                    "                cmu_data = json.load(f)\n",
+                    "        if os.path.existscmu_path:\n",
+                    "            with opencmu_path, 'r' as f:\n",
+                    "                cmu_data = json.loadf\n",
                     "            \n",
                     "            for item in cmu_data:\n",
                     "                if 'text' in item and 'emotion' in item:\n",
@@ -197,30 +197,30 @@ def create_bulletproof_colab_notebook():
                     "                        'emotion': item['emotion']\n",
                     "                    })\n",
                     "            \n",
-                    "            print(f\"✅ Loaded {len(cmu_data)} CMU-MOSEI samples from {cmu_path}\")\n",
+                    "            print(f\"✅ Loaded {lencmu_data} CMU-MOSEI samples from {cmu_path}\")\n",
                     "            cmu_loaded = True\n",
                     "            break\n",
                     "    except Exception as e:\n",
-                    "        print(f\"⚠️ Could not load from {cmu_path}: {e}\")\n",
+                    "        printf\"⚠️ Could not load from {cmu_path}: {e}\"\n",
                     "        continue\n",
                     "\n",
                     "if not cmu_loaded:\n",
-                    "    print(\"❌ Could not load any CMU-MOSEI data!\")\n",
+                    "    print\"❌ Could not load any CMU-MOSEI data!\"\n",
                     "\n",
-                    "print(f\"📊 Total combined samples: {len(combined_samples)}\")\n",
+                    "print(f\"📊 Total combined samples: {lencombined_samples}\")\n",
                     "\n",
                     "# Show emotion distribution\n",
                     "if combined_samples:\n",
                     "    emotion_counts = {}\n",
                     "    for sample in combined_samples:\n",
                     "        emotion = sample['emotion']\n",
-                    "        emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1\n",
+                    "        emotion_counts[emotion] = emotion_counts.getemotion, 0 + 1\n",
                     "    \n",
-                    "    print(\"📊 Emotion distribution:\")\n",
+                    "    print\"📊 Emotion distribution:\"\n",
                     "    for emotion, count in sorted(emotion_counts.items()):\n",
-                    "        print(f\"  {emotion}: {count} samples\")\n",
+                    "        printf\"  {emotion}: {count} samples\"\n",
                     "else:\n",
-                    "    print(\"❌ No data loaded! Check file paths.\")"
+                    "    print\"❌ No data loaded! Check file paths.\""
                 ]
             },
             {
@@ -230,8 +230,8 @@ def create_bulletproof_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# BULLETPROOF: Create comprehensive fallback dataset if needed\n",
-                    "if len(combined_samples) < 50:\n",
-                    "    print(f\"⚠️ Only {len(combined_samples)} samples loaded! Creating comprehensive fallback dataset...\")\n",
+                    "if lencombined_samples < 50:\n",
+                    "    print(f\"⚠️ Only {lencombined_samples} samples loaded! Creating comprehensive fallback dataset...\")\n",
                     "    \n",
                     "    # Create comprehensive fallback dataset with 12 samples per emotion\n",
                     "    fallback_samples = [\n",
@@ -405,13 +405,13 @@ def create_bulletproof_colab_notebook():
                     "    ]\n",
                     "    \n",
                     "    combined_samples = fallback_samples\n",
-                    "    print(f\"✅ Created {len(combined_samples)} comprehensive fallback samples\")\n",
+                    "    print(f\"✅ Created {lencombined_samples} comprehensive fallback samples\")\n",
                     "\n",
-                    "print(f\"📊 Final dataset size: {len(combined_samples)} samples\")\n",
+                    "print(f\"📊 Final dataset size: {lencombined_samples} samples\")\n",
                     "\n",
                     "# Verify we have enough data\n",
-                    "if len(combined_samples) < 50:\n",
-                    "    raise Exception(f\"Insufficient data! Only {len(combined_samples)} samples. Need at least 50.\")"
+                    "if lencombined_samples < 50:\n",
+                    "    raise Exception(f\"Insufficient data! Only {lencombined_samples} samples. Need at least 50.\")"
                 ]
             },
             {
@@ -421,18 +421,18 @@ def create_bulletproof_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Custom dataset class\n",
-                    "class EmotionDataset(Dataset):\n",
-                    "    def __init__(self, texts, labels, tokenizer, max_length=128):\n",
+                    "class EmotionDatasetDataset:\n",
+                    "    def __init__self, texts, labels, tokenizer, max_length=128:\n",
                     "        self.texts = texts\n",
                     "        self.labels = labels\n",
                     "        self.tokenizer = tokenizer\n",
                     "        self.max_length = max_length\n",
                     "    \n",
-                    "    def __len__(self):\n",
-                    "        return len(self.texts)\n",
+                    "    def __len__self:\n",
+                    "        return lenself.texts\n",
                     "    \n",
-                    "    def __getitem__(self, idx):\n",
-                    "        text = str(self.texts[idx])\n",
+                    "    def __getitem__self, idx:\n",
+                    "        text = strself.texts[idx]\n",
                     "        label = self.labels[idx]\n",
                     "        \n",
                     "        encoding = self.tokenizer(\n",
@@ -446,7 +446,7 @@ def create_bulletproof_colab_notebook():
                     "        return {\n",
                     "            'input_ids': encoding['input_ids'].flatten(),\n",
                     "            'attention_mask': encoding['attention_mask'].flatten(),\n",
-                    "            'labels': torch.tensor(label, dtype=torch.long)\n",
+                    "            'labels': torch.tensorlabel, dtype=torch.long\n",
                     "        }"
                 ]
             },
@@ -462,18 +462,18 @@ def create_bulletproof_colab_notebook():
                     "\n",
                     "# Encode labels\n",
                     "label_encoder = LabelEncoder()\n",
-                    "labels = label_encoder.fit_transform(emotions)\n",
+                    "labels = label_encoder.fit_transformemotions\n",
                     "\n",
-                    "print(f\"🎯 Number of labels: {len(label_encoder.classes_)}\")\n",
-                    "print(f\"📊 Labels: {list(label_encoder.classes_)}\")\n",
+                    "print(f\"🎯 Number of labels: {lenlabel_encoder.classes_}\")\n",
+                    "print(f\"📊 Labels: {listlabel_encoder.classes_}\")\n",
                     "\n",
                     "# Split data\n",
                     "train_texts, test_texts, train_labels, test_labels = train_test_split(\n",
                     "    texts, labels, test_size=0.2, random_state=42, stratify=labels\n",
                     ")\n",
                     "\n",
-                    "print(f\"📈 Training samples: {len(train_texts)}\")\n",
-                    "print(f\"🧪 Test samples: {len(test_labels)}\")"
+                    "print(f\"📈 Training samples: {lentrain_texts}\")\n",
+                    "print(f\"🧪 Test samples: {lentest_labels}\")"
                 ]
             },
             {
@@ -484,15 +484,15 @@ def create_bulletproof_colab_notebook():
                 "source": [
                     "# Load model and tokenizer\n",
                     "model_name = \"bert-base-uncased\"\n",
-                    "tokenizer = AutoTokenizer.from_pretrained(model_name)\n",
+                    "tokenizer = AutoTokenizer.from_pretrainedmodel_name\n",
                     "model = AutoModelForSequenceClassification.from_pretrained(\n",
                     "    model_name, \n",
-                    "    num_labels=len(label_encoder.classes_),\n",
+                    "    num_labels=lenlabel_encoder.classes_,\n",
                     "    problem_type=\"single_label_classification\"\n",
                     ")\n",
                     "\n",
-                    "print(f\"✅ Model loaded: {model_name}\")\n",
-                    "print(f\"📊 Number of classes: {len(label_encoder.classes_)}\")"
+                    "printf\"✅ Model loaded: {model_name}\"\n",
+                    "print(f\"📊 Number of classes: {lenlabel_encoder.classes_}\")"
                 ]
             },
             {
@@ -502,12 +502,12 @@ def create_bulletproof_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Create datasets\n",
-                    "train_dataset = EmotionDataset(train_texts, train_labels, tokenizer)\n",
-                    "test_dataset = EmotionDataset(test_texts, test_labels, tokenizer)\n",
+                    "train_dataset = EmotionDatasettrain_texts, train_labels, tokenizer\n",
+                    "test_dataset = EmotionDatasettest_texts, test_labels, tokenizer\n",
                     "\n",
-                    "print(f\"✅ Datasets created\")\n",
-                    "print(f\"📈 Train dataset: {len(train_dataset)} samples\")\n",
-                    "print(f\"🧪 Test dataset: {len(test_dataset)} samples\")"
+                    "printf\"✅ Datasets created\"\n",
+                    "print(f\"📈 Train dataset: {lentrain_dataset} samples\")\n",
+                    "print(f\"🧪 Test dataset: {lentest_dataset} samples\")"
                 ]
             },
             {
@@ -517,12 +517,12 @@ def create_bulletproof_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Define metrics function\n",
-                    "def compute_metrics(eval_pred):\n",
+                    "def compute_metricseval_pred:\n",
                     "    predictions, labels = eval_pred\n",
-                    "    predictions = np.argmax(predictions, axis=1)\n",
+                    "    predictions = np.argmaxpredictions, axis=1\n",
                     "    \n",
-                    "    f1 = f1_score(labels, predictions, average='weighted')\n",
-                    "    accuracy = accuracy_score(labels, predictions)\n",
+                    "    f1 = f1_scorelabels, predictions, average='weighted'\n",
+                    "    accuracy = accuracy_scorelabels, predictions\n",
                     "    \n",
                     "    return {'f1': f1, 'accuracy': accuracy}"
                 ]
@@ -557,7 +557,7 @@ def create_bulletproof_colab_notebook():
                     "    gradient_accumulation_steps=4,  # Increased for stability\n",
                     ")\n",
                     "\n",
-                    "print(\"✅ Training arguments configured\")"
+                    "print\"✅ Training arguments configured\""
                 ]
             },
             {
@@ -573,10 +573,10 @@ def create_bulletproof_colab_notebook():
                     "    train_dataset=train_dataset,\n",
                     "    eval_dataset=test_dataset,\n",
                     "    compute_metrics=compute_metrics,\n",
-                    "    callbacks=[EarlyStoppingCallback(early_stopping_patience=2)]  # Shorter patience\n",
+                    "    callbacks=[EarlyStoppingCallbackearly_stopping_patience=2]  # Shorter patience\n",
                     ")\n",
                     "\n",
-                    "print(\"✅ Trainer created with early stopping\")"
+                    "print\"✅ Trainer created with early stopping\""
                 ]
             },
             {
@@ -586,16 +586,16 @@ def create_bulletproof_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Start training\n",
-                    "print(\"🚀 Starting BULLETPROOF training...\")\n",
-                    "print(\"🎯 Target F1 Score: 75-85%\")\n",
-                    "print(\"📊 Current Best: 67%\")\n",
-                    "print(\"📈 Expected Improvement: 8-18%\")\n",
-                    "print(f\"📊 Training on {len(train_dataset)} samples\")\n",
-                    "print(f\"🧪 Evaluating on {len(test_dataset)} samples\")\n",
+                    "print\"🚀 Starting BULLETPROOF training...\"\n",
+                    "print\"🎯 Target F1 Score: 75-85%\"\n",
+                    "print\"📊 Current Best: 67%\"\n",
+                    "print\"📈 Expected Improvement: 8-18%\"\n",
+                    "print(f\"📊 Training on {lentrain_dataset} samples\")\n",
+                    "print(f\"🧪 Evaluating on {lentest_dataset} samples\")\n",
                     "\n",
                     "trainer.train()\n",
                     "\n",
-                    "print(\"✅ Training completed!\")"
+                    "print\"✅ Training completed!\""
                 ]
             },
             {
@@ -605,15 +605,15 @@ def create_bulletproof_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Evaluate final model\n",
-                    "print(\"📊 Evaluating final model...\")\n",
+                    "print\"📊 Evaluating final model...\"\n",
                     "results = trainer.evaluate()\n",
                     "\n",
-                    "print(f\"🏆 Final F1 Score: {results['eval_f1']:.4f} ({results['eval_f1']*100:.2f}%)\")\n",
-                    "print(f\"🎯 Target achieved: {'✅ YES!' if results['eval_f1'] >= 0.75 else '❌ Not yet'}\")\n",
+                    "print(f\"🏆 Final F1 Score: {results['eval_f1']:.4f} {results['eval_f1']*100:.2f}%\")\n",
+                    "printf\"🎯 Target achieved: {'✅ YES!' if results['eval_f1'] >= 0.75 else '❌ Not yet'}\"\n",
                     "\n",
                     "# Save model\n",
-                    "trainer.save_model(\"./emotion_model_bulletproof_final\")\n",
-                    "print(\"💾 Model saved to ./emotion_model_bulletproof_final\")"
+                    "trainer.save_model\"./emotion_model_bulletproof_final\"\n",
+                    "print\"💾 Model saved to ./emotion_model_bulletproof_final\""
                 ]
             },
             {
@@ -623,7 +623,7 @@ def create_bulletproof_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Test on sample texts\n",
-                    "print(\"🧪 Testing on sample texts...\")\n",
+                    "print\"🧪 Testing on sample texts...\"\n",
                     "\n",
                     "test_texts = [\n",
                     "    \"I'm feeling really happy today!\",\n",
@@ -635,16 +635,16 @@ def create_bulletproof_colab_notebook():
                     "\n",
                     "model.eval()\n",
                     "with torch.no_grad():\n",
-                    "    for i, text in enumerate(test_texts, 1):\n",
-                    "        inputs = tokenizer(text, return_tensors=\"pt\", truncation=True, padding=True)\n",
-                    "        outputs = model(**inputs)\n",
-                    "        probabilities = torch.softmax(outputs.logits, dim=1)\n",
-                    "        predicted_class = torch.argmax(probabilities, dim=1).item()\n",
+                    "    for i, text in enumeratetest_texts, 1:\n",
+                    "        inputs = tokenizertext, return_tensors=\"pt\", truncation=True, padding=True\n",
+                    "        outputs = model**inputs\n",
+                    "        probabilities = torch.softmaxoutputs.logits, dim=1\n",
+                    "        predicted_class = torch.argmaxprobabilities, dim=1.item()\n",
                     "        confidence = probabilities[0][predicted_class].item()\n",
                     "        predicted_emotion = label_encoder.classes_[predicted_class]\n",
                     "        \n",
-                    "        print(f\"{i}. Text: {text}\")\n",
-                    "        print(f\"   Predicted: {predicted_emotion} (confidence: {confidence:.3f})\")\n",
+                    "        printf\"{i}. Text: {text}\"\n",
+                    "        print(f\"   Predicted: {predicted_emotion} confidence: {confidence:.3f}\")\n",
                     "        print()"
                 ]
             },
@@ -697,21 +697,21 @@ def create_bulletproof_colab_notebook():
     }
     
     # Write notebook to file
-    with open('notebooks/BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb', 'w') as f:
-        json.dump(notebook_content, f, indent=2)
+    with open'notebooks/BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb', 'w' as f:
+        json.dumpnotebook_content, f, indent=2
     
-    print("✅ Bulletproof notebook created: notebooks/BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb")
-    print("📋 Instructions:")
-    print("  1. Download the notebook file")
-    print("  2. Upload to Google Colab")
-    print("  3. Set Runtime → GPU")
-    print("  4. Run all cells")
-    print("  5. Expect 75-85% F1 score!")
-    print("\n🔧 Key Features:")
-    print("  - Automatic path detection")
-    print("  - Comprehensive fallback dataset (144 samples)")
-    print("  - Optimized hyperparameters")
-    print("  - Robust error handling")
+    print"✅ Bulletproof notebook created: notebooks/BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb"
+    print"📋 Instructions:"
+    print"  1. Download the notebook file"
+    print"  2. Upload to Google Colab"
+    print"  3. Set Runtime → GPU"
+    print"  4. Run all cells"
+    print"  5. Expect 75-85% F1 score!"
+    print"\n🔧 Key Features:"
+    print"  - Automatic path detection"
+    print("  - Comprehensive fallback dataset 144 samples")
+    print"  - Optimized hyperparameters"
+    print"  - Robust error handling"
 
 if __name__ == "__main__":
     create_bulletproof_colab_notebook() 

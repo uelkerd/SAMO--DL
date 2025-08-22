@@ -13,12 +13,12 @@ def fix_training_arguments():
     """Fix the training arguments in the simple notebook."""
     
     # Read the existing notebook
-    with open('notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'r') as f:
-        notebook = json.load(f)
+    with open'notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'r' as f:
+        notebook = json.loadf
     
     # Find and replace the training arguments cell
     for cell in notebook['cells']:
-        if cell['cell_type'] == 'code' and 'TrainingArguments(' in ''.join(cell['source']):
+        if cell['cell_type'] == 'code' and 'TrainingArguments(' in ''.joincell['source']:
             # Replace with fixed training arguments
             cell['source'] = [
                 "# Training arguments\n",
@@ -40,19 +40,19 @@ def fix_training_arguments():
                 "    run_name='ultimate_emotion_model'\n",
                 ")\n",
                 "\n",
-                "print('✅ Training arguments configured')"
+                "print'✅ Training arguments configured'"
             ]
             break
     
     # Save the updated notebook
-    with open('notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'w') as f:
-        json.dump(notebook, f, indent=2)
+    with open'notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'w' as f:
+        json.dumpnotebook, f, indent=2
     
-    print('✅ Fixed training arguments in simple notebook!')
-    print('📋 Changes made:')
-    print('   ✅ Removed evaluation_strategy parameter')
-    print('   ✅ Removed save_strategy parameter')
-    print('   ✅ Kept all other parameters intact')
+    print'✅ Fixed training arguments in simple notebook!'
+    print'📋 Changes made:'
+    print'   ✅ Removed evaluation_strategy parameter'
+    print'   ✅ Removed save_strategy parameter'
+    print'   ✅ Kept all other parameters intact'
 
 if __name__ == "__main__":
     fix_training_arguments() 

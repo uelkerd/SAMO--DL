@@ -18,24 +18,24 @@ import tempfile
 from pathlib import Path
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%asctimes - %levelnames - %messages')
+logger = logging.getLogger__name__
 
 # Add project root to path
-project_root = Path(__file__).parent.parent.parent.resolve()
-sys.path.append(str(project_root))
+project_root = Path__file__.parent.parent.parent.resolve()
+sys.path.append(strproject_root)
 
 if __name__ == "__main__":
-    logger.info("🧪 Running API Rate Limiter Tests...")
+    logger.info"🧪 Running API Rate Limiter Tests..."
 
     test_file = project_root / "tests" / "unit" / "test_api_rate_limiter.py"
 
     if not test_file.exists():
-        logger.error(f"❌ Test file not found: {test_file}")
-        sys.exit(1)
+        logger.errorf"❌ Test file not found: {test_file}"
+        sys.exit1
 
     # Create a temporary pytest configuration to avoid conflicts with pyproject.toml
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.ini', delete=False) as f:
+    with tempfile.NamedTemporaryFilemode='w', suffix='.ini', delete=False as f:
         f.write("""[pytest]
 addopts = --cov=src.api_rate_limiter --cov-report=term-missing --cov-fail-under=50 -v --tb=short
 """)
@@ -44,22 +44,22 @@ addopts = --cov=src.api_rate_limiter --cov-report=term-missing --cov-fail-under=
     try:
         # Get the path to the test file
         args = [
-            str(test_file),
+            strtest_file,
             f"--config-file={temp_config}",
         ]
 
         # Run pytest with the temporary configuration
-        result = pytest.main(args)
+        result = pytest.mainargs
 
         # Run the tests
         if result == 0:
-            logger.info("✅ API Rate Limiter tests passed!")
+            logger.info"✅ API Rate Limiter tests passed!"
         else:
-            logger.error(f"❌ API Rate Limiter tests failed with exit code: {result}")
+            logger.errorf"❌ API Rate Limiter tests failed with exit code: {result}"
 
-        sys.exit(result)
+        sys.exitresult
 
     finally:
         # Clean up temporary file
-        with contextlib.suppress(OSError):
-            os.unlink(temp_config)
+        with contextlib.suppressOSError:
+            os.unlinktemp_config

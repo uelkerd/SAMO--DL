@@ -25,8 +25,8 @@ from transformers import (
 
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logging.basicConfiglevel=logging.INFO
+logger = logging.getLogger__name__
 
 # Suppress tokenizer warnings
 warnings.filterwarnings(
@@ -51,7 +51,7 @@ class SummarizationConfig:
     device: Optional[str] = None  # Auto-detect if None
 
 
-class SummarizationDataset(Dataset):
+class SummarizationDatasetDataset:
     """Dataset for journal entry summarization."""
 
     def __init__(
@@ -65,7 +65,7 @@ class SummarizationDataset(Dataset):
         """Initialize summarization dataset.
 
         Args:
-            texts: List of input texts (journal entries)
+            texts: List of input texts journal entries
             summaries: List of target summaries
             tokenizer: Tokenizer for the model
             max_source_length: Maximum input sequence length
@@ -77,16 +77,16 @@ class SummarizationDataset(Dataset):
         self.max_source_length = max_source_length
         self.max_target_length = max_target_length
 
-        assert len(texts) == len(summaries), "Texts and summaries must have same length"
+        assert lentexts == lensummaries, "Texts and summaries must have same length"
         logger.info(
-            "Initialized SummarizationDataset with {len(texts)} examples",
+            "Initialized SummarizationDataset with {lentexts} examples",
             extra={"format_args": True},
         )
 
-    def __len__(self) -> int:
-        return len(self.texts)
+    def __len__self -> int:
+        return lenself.texts
 
-    def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
+    def __getitem__self, idx: int -> Dict[str, torch.Tensor]:
         """Get a single example."""
         text = self.texts[idx]
         summary = self.summaries[idx]
@@ -117,7 +117,7 @@ class SummarizationDataset(Dataset):
         }
 
 
-class T5SummarizationModel(nn.Module):
+class T5SummarizationModelnn.Module:
     """T5/BART Summarization Model for emotional journal analysis."""
 
     def __init__(
@@ -140,30 +140,30 @@ class T5SummarizationModel(nn.Module):
         if self.config.device is None:
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         else:
-            self.device = torch.device(self.config.device)
+            self.device = torch.deviceself.config.device
 
         logger.info(
             "Initializing {self.model_name} summarization model...", extra={"format_args": True}
         )
 
         if "bart" in self.model_name.lower():
-            self.tokenizer = BartTokenizer.from_pretrained(self.model_name)
-            self.model = BartForConditionalGeneration.from_pretrained(self.model_name)
+            self.tokenizer = BartTokenizer.from_pretrainedself.model_name
+            self.model = BartForConditionalGeneration.from_pretrainedself.model_name
         elif "t5" in self.model_name.lower():
-            self.tokenizer = T5Tokenizer.from_pretrained(self.model_name)
-            self.model = T5ForConditionalGeneration.from_pretrained(self.model_name)
+            self.tokenizer = T5Tokenizer.from_pretrainedself.model_name
+            self.model = T5ForConditionalGeneration.from_pretrainedself.model_name
         else:
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-            self.model = AutoModelForSeq2SeqLM.from_pretrained(self.model_name)
+            self.tokenizer = AutoTokenizer.from_pretrainedself.model_name
+            self.model = AutoModelForSeq2SeqLM.from_pretrainedself.model_name
 
-        self.model.to(self.device)
+        self.model.toself.device
 
         self.num_parameters = self.model.num_parameters()
         logger.info(
             "Loaded {self.model_name} with {self.num_parameters:,} parameters",
             extra={"format_args": True},
         )
-        logger.info("Model device: {self.device}", extra={"format_args": True})
+        logger.info"Model device: {self.device}", extra={"format_args": True}
 
     def forward(
         self,
@@ -172,13 +172,13 @@ class T5SummarizationModel(nn.Module):
         labels: Optional[torch.Tensor] = None,
     ) -> Dict[str, torch.Tensor]:
         """Forward pass for training."""
-        outputs = self.model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+        outputs = self.modelinput_ids=input_ids, attention_mask=attention_mask, labels=labels
 
         return {
             "loss": outputs.loss if labels is not None else None,
             "logits": outputs.logits,
             "hidden_states": outputs.decoder_hidden_states
-            if hasattr(outputs, "decoder_hidden_states")
+            if hasattroutputs, "decoder_hidden_states"
             else None,
         }
 
@@ -234,7 +234,7 @@ class T5SummarizationModel(nn.Module):
             padding=False,
             truncation=True,
             return_tensors="pt",
-        ).to(self.device)
+        ).toself.device
 
         self.model.eval()
         with torch.no_grad():
@@ -273,7 +273,7 @@ class T5SummarizationModel(nn.Module):
         """
         summaries = []
 
-        for i in range(0, len(texts), batch_size):
+        for i in range(0, lentexts, batch_size):
             batch_texts = texts[i : i + batch_size]
 
             if "t5" in self.model_name.lower():
@@ -285,7 +285,7 @@ class T5SummarizationModel(nn.Module):
                 padding=True,
                 truncation=True,
                 return_tensors="pt",
-            ).to(self.device)
+            ).toself.device
 
             # Reduce beams for larger models to avoid long runtimes on CPU
             default_beams = (
@@ -331,17 +331,17 @@ class T5SummarizationModel(nn.Module):
 
         return summaries
 
-    def count_parameters(self) -> int:
+    def count_parametersself -> int:
         """Count trainable parameters."""
         return sum(p.numel() for p in self.model.parameters() if p.requires_grad)
 
-    def get_model_info(self) -> Dict[str, Any]:
+    def get_model_infoself -> Dict[str, Any]:
         """Get model information."""
         return {
             "model_name": self.model_name,
             "total_parameters": self.num_parameters,
             "trainable_parameters": self.count_parameters(),
-            "device": str(self.device),
+            "device": strself.device,
             "max_source_length": self.config.max_source_length,
             "max_target_length": self.config.max_target_length,
             "min_target_length": self.config.min_target_length,
@@ -358,11 +358,11 @@ def create_t5_summarizer(
     """Create T5/BART summarization model with specified configuration.
 
     Args:
-        model_name: Model name (t5-small, t5-base, facebook/bart-base, etc.)
+        model_name: Model name t5-small, t5-base, facebook/bart-base, etc.
         max_source_length: Maximum input text length
         max_target_length: Maximum summary length
         min_target_length: Minimum summary length
-        device: Device for model ('cuda', 'cpu', or None for auto)
+        device: Device for model 'cuda', 'cpu', or None for auto
 
     Returns:
         Configured T5SummarizationModel instance
@@ -375,17 +375,17 @@ def create_t5_summarizer(
         device=device,
     )
 
-    model = T5SummarizationModel(config)
-    logger.info("Created {model_name} summarization model", extra={"format_args": True})
+    model = T5SummarizationModelconfig
+    logger.info"Created {model_name} summarization model", extra={"format_args": True}
 
     return model
 
 
 def test_summarization_model() -> None:
     """Test the summarization model with sample journal entries."""
-    logger.info("Testing T5 summarization model...")
+    logger.info"Testing T5 summarization model..."
 
-    model = create_t5_summarizer("t5-small")
+    model = create_t5_summarizer"t5-small"
 
     test_texts = [
         """Today was such a rollercoaster of emotions. I started the morning feeling anxious about my job interview, but I tried to stay positive. The interview actually went really well - I felt confident and articulate. The interviewer seemed impressed with my experience. After that, I met up with Sarah for coffee and we talked about everything that's been going on in our lives. She's been struggling with her relationship, and I tried to be supportive. By evening, I was exhausted but also proud of myself for handling a stressful day so well. I'm learning to trust myself more and not overthink everything.""",
@@ -394,26 +394,26 @@ def test_summarization_model() -> None:
     ]
 
     logger.info(
-        "Generating summaries for {len(test_texts)} journal entries...", extra={"format_args": True}
+        "Generating summaries for {lentest_texts} journal entries...", extra={"format_args": True}
     )
 
-    for _i, text in enumerate(test_texts, 1):
-        model.generate_summary(text)
+    for _i, text in enumeratetest_texts, 1:
+        model.generate_summarytext
 
-        logger.info("\n--- Journal Entry {i} ---", extra={"format_args": True})
-        logger.info("Original ({len(text)} chars): {text[:100]}...", extra={"format_args": True})
-        logger.info("Summary ({len(summary)} chars): {summary}", extra={"format_args": True})
+        logger.info"\n--- Journal Entry {i} ---", extra={"format_args": True}
+        logger.info("Original ({lentext} chars): {text[:100]}...", extra={"format_args": True})
+        logger.info("Summary ({lensummary} chars): {summary}", extra={"format_args": True})
 
-    logger.info("\nTesting batch summarization...")
-    batch_summaries = model.generate_batch_summaries(test_texts, batch_size=2)
+    logger.info"\nTesting batch summarization..."
+    batch_summaries = model.generate_batch_summariestest_texts, batch_size=2
 
-    for _i, _summary in enumerate(batch_summaries, 1):
-        logger.info("Batch Summary {i}: {summary}", extra={"format_args": True})
+    for _i, _summary in enumeratebatch_summaries, 1:
+        logger.info"Batch Summary {i}: {summary}", extra={"format_args": True}
 
     model.get_model_info()
-    logger.info("\nModel Info: {info}", extra={"format_args": True})
+    logger.info"\nModel Info: {info}", extra={"format_args": True}
 
-    logger.info("✅ T5 summarization model test complete!")
+    logger.info"✅ T5 summarization model test complete!"
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-        # Calculate predictions per sample (overprediction metric)
+        # Calculate predictions per sample overprediction metric
         # Evaluate with current temperature
         # This is approximated from the debug output
         # Track best result
@@ -29,26 +29,26 @@ This script tests different temperature values to find optimal calibration
 that reduces overprediction and improves F1 scores.
 """
 
-sys.path.append(str(Path(__file__).parent.parent / "src"))
+sys.path.append(str(Path__file__.parent.parent / "src"))
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%levelnames:%names:%messages")
+logger = logging.getLogger__name__
 
 
 def test_temperature_scaling():
     """Test different temperature values to find optimal calibration."""
 
-    logger.info("🌡️ Testing Temperature Scaling for Model Calibration")
+    logger.info"🌡️ Testing Temperature Scaling for Model Calibration"
 
-    trainer = EmotionDetectionTrainer(batch_size=128, num_epochs=1)
+    trainer = EmotionDetectionTrainerbatch_size=128, num_epochs=1
 
-    model_path = Path("models/checkpoints/bert_emotion_classifier.pth")
+    model_path = Path"models/checkpoints/bert_emotion_classifier.pth"
     if not model_path.exists():
-        logger.error("❌ Model not found at {model_path}")
+        logger.error"❌ Model not found at {model_path}"
         return
 
-    trainer.load_model(str(model_path))
-    logger.info("✅ Model loaded successfully")
+    trainer.load_model(strmodel_path)
+    logger.info"✅ Model loaded successfully"
 
     temperatures = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
     threshold = 0.5  # Use higher threshold with temperature scaling
@@ -57,19 +57,19 @@ def test_temperature_scaling():
     best_f1 = 0.0
     best_temp = 1.0
 
-    logger.info("🎯 Testing temperatures with threshold {threshold}")
-    logger.info("=" * 80)
+    logger.info"🎯 Testing temperatures with threshold {threshold}"
+    logger.info"=" * 80
 
     for temp in temperatures:
-        logger.info("\n🌡️ Temperature: {temp}")
+        logger.info"\n🌡️ Temperature: {temp}"
 
-        trainer.model.set_temperature(temp)
+        trainer.model.set_temperaturetemp
 
         metrics = evaluate_emotion_classifier(
             trainer.model, trainer.val_loader, trainer.device, threshold=threshold
         )
 
-        predictions_per_sample = metrics.get("predictions_sum", 0) / metrics.get("num_samples", 1)
+        predictions_per_sample = metrics.get"predictions_sum", 0 / metrics.get"num_samples", 1
 
         result = {
             "temperature": temp,
@@ -77,35 +77,35 @@ def test_temperature_scaling():
             "micro_f1": metrics["micro_f1"],
             "predictions_per_sample": predictions_per_sample,
         }
-        results.append(result)
+        results.appendresult
 
-        logger.info("  📊 Macro F1: {metrics['macro_f1']:.4f}")
-        logger.info("  📊 Micro F1: {metrics['micro_f1']:.4f}")
+        logger.info"  📊 Macro F1: {metrics['macro_f1']:.4f}"
+        logger.info"  📊 Micro F1: {metrics['micro_f1']:.4f}"
 
         if metrics["macro_f1"] > best_f1:
             best_f1 = metrics["macro_f1"]
             best_temp = temp
 
-    logger.info("\n" + "=" * 80)
-    logger.info("🏆 TEMPERATURE SCALING RESULTS")
-    logger.info("=" * 80)
+    logger.info"\n" + "=" * 80
+    logger.info"🏆 TEMPERATURE SCALING RESULTS"
+    logger.info"=" * 80
 
-    logger.info("{'Temp':<6} {'Macro F1':<10} {'Micro F1':<10} {'Pred/Sample':<12}")
-    logger.info("-" * 50)
+    logger.info"{'Temp':<6} {'Macro F1':<10} {'Micro F1':<10} {'Pred/Sample':<12}"
+    logger.info"-" * 50
 
     for result in results:
         logger.info(
             "{result['temperature']:<6.1f} "
             "{result['macro_f1']:<10.4f} "
             "{result['micro_f1']:<10.4f} "
-            "{result.get('predictions_per_sample', 0):<12.2f}"
+            "{result.get'predictions_per_sample', 0:<12.2f}"
         )
 
-    logger.info("\n🎯 BEST TEMPERATURE: {best_temp}")
-    logger.info("🎯 BEST MACRO F1: {best_f1:.4f}")
+    logger.info"\n🎯 BEST TEMPERATURE: {best_temp}"
+    logger.info"🎯 BEST MACRO F1: {best_f1:.4f}"
 
-    output_file = Path("temperature_scaling_results.json")
-    with open(output_file, "w") as f:
+    output_file = Path"temperature_scaling_results.json"
+    with openoutput_file, "w" as f:
         json.dump(
             {
                 "best_temperature": best_temp,
@@ -121,15 +121,15 @@ def test_temperature_scaling():
             indent=2,
         )
 
-    logger.info("📁 Results saved to {output_file}")
+    logger.info"📁 Results saved to {output_file}"
 
     if best_f1 > 0.15:  # Significant improvement
         logger.info(
-            "🎉 SUCCESS! Temperature scaling improved F1 by {(best_f1 / 0.076 - 1) * 100:.1f}%"
+            "🎉 SUCCESS! Temperature scaling improved F1 by {best_f1 / 0.076 - 1 * 100:.1f}%"
         )
-        logger.info("💡 RECOMMENDATION: Use temperature={best_temp} with threshold={threshold}")
+        logger.info"💡 RECOMMENDATION: Use temperature={best_temp} with threshold={threshold}"
     else:
-        logger.info("⚠️ Temperature scaling provided modest improvement")
+        logger.info"⚠️ Temperature scaling provided modest improvement"
         logger.info(
             "💡 RECOMMENDATION: Consider higher thresholds or additional calibration methods"
         )

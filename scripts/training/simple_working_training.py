@@ -37,56 +37,52 @@ import traceback
 Simple Working Training Script - FIXES ALL ISSUES
 
 This script addresses the critical issues:
-1. Method name mismatch (prepare_data vs prepare_datasets)
+1. Method name mismatch prepare_data vs prepare_datasets
 2. Missing model files
 3. Proper error handling
 """
 
-project_root = Path(__file__).parent.parent.resolve()
-sys.path.append(str(project_root))
+project_root = Path__file__.parent.parent.resolve()
+sys.path.append(strproject_root)
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%asctimes - %levelnames - %messages")
+logger = logging.getLogger__name__
 
 
-class FocalLoss(nn.Module):
+class FocalLossnn.Module:
     """Focal Loss for handling class imbalance."""
 
-    def __init__(self, alpha: float = 0.25, gamma: float = 2.0, reduction: str = "mean"):
+    def __init__self, alpha: float = 0.25, gamma: float = 2.0, reduction: str = "mean":
         super().__init__()
         self.alpha = alpha
         self.gamma = gamma
         self.reduction = reduction
 
-    def forward(self, inputs, targets):
+    def forwardself, inputs, targets:
         """Forward pass with focal loss calculation."""
-        bce_loss = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
+        bce_loss = nn.functional.binary_cross_entropy_with_logitsinputs, targets, reduction="none"
 
-        pt = torch.exp(-bce_loss)
-        focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
+        pt = torch.exp-bce_loss
+        focal_loss = self.alpha * 1 - pt ** self.gamma * bce_loss
 
         if self.reduction == "mean":
-            return focal_loss.mean()
-        elif self.reduction == "sum":
-            return focal_loss.sum()
-        else:
             return focal_loss
 
 
 def train_simple_model():
     """Train a simple BERT model with focal loss."""
 
-    logger.info("🚀 Starting Simple Working Training")
-    logger.info("   • Focal Loss: alpha=0.25, gamma=2.0")
-    logger.info("   • Learning Rate: 2e-05")
-    logger.info("   • Epochs: 2 (quick training)")
-    logger.info("   • Batch Size: 16")
+    logger.info"🚀 Starting Simple Working Training"
+    logger.info"   • Focal Loss: alpha=0.25, gamma=2.0"
+    logger.info"   • Learning Rate: 2e-05"
+    logger.info("   • Epochs: 2 quick training")
+    logger.info"   • Batch Size: 16"
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info("Using device: {device}")
+    logger.info"Using device: {device}"
 
     try:
-        logger.info("Loading GoEmotions dataset...")
+        logger.info"Loading GoEmotions dataset..."
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()  # Use correct method name
 
@@ -95,45 +91,45 @@ def train_simple_model():
         test_dataset = datasets["test_dataset"]
         datasets["class_weights"]
 
-        logger.info("Dataset loaded successfully:")
-        logger.info("   • Train: {len(train_dataset)} examples")
-        logger.info("   • Validation: {len(val_dataset)} examples")
-        logger.info("   • Test: {len(test_dataset)} examples")
+        logger.info"Dataset loaded successfully:"
+        logger.info("   • Train: {lentrain_dataset} examples")
+        logger.info("   • Validation: {lenval_dataset} examples")
+        logger.info("   • Test: {lentest_dataset} examples")
 
-        logger.info("Creating BERT model...")
+        logger.info"Creating BERT model..."
         model, _ = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
             class_weights=None,  # Use focal loss instead
             freeze_bert_layers=4,
         )
-        model.to(device)
+        model.todevice
 
-        focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
+        focal_loss = FocalLossalpha=0.25, gamma=2.0
 
         optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
 
-        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=16, shuffle=True)
-        val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
+        train_loader = torch.utils.data.DataLoadertrain_dataset, batch_size=16, shuffle=True
+        val_loader = torch.utils.data.DataLoaderval_dataset, batch_size=16, shuffle=False
 
-        best_val_loss = float("in")
+        best_val_loss = float"in"
         training_history = []
 
-        for epoch in range(2):  # Quick 2 epochs
-            logger.info("\nEpoch {epoch + 1}/2")
+        for epoch in range2:  # Quick 2 epochs
+            logger.info"\nEpoch {epoch + 1}/2"
 
             model.train()
             train_loss = 0.0
             num_batches = 0
 
             for batch in train_loader:
-                input_ids = batch["input_ids"].to(device)
-                attention_mask = batch["attention_mask"].to(device)
-                labels = batch["labels"].float().to(device)
+                input_ids = batch["input_ids"].todevice
+                attention_mask = batch["attention_mask"].todevice
+                labels = batch["labels"].float().todevice
 
                 optimizer.zero_grad()
 
-                outputs = model(input_ids, attention_mask=attention_mask)
-                loss = focal_loss(outputs["logits"], labels)
+                outputs = modelinput_ids, attention_mask=attention_mask
+                loss = focal_lossoutputs["logits"], labels
 
                 loss.backward()
                 optimizer.step()
@@ -152,20 +148,20 @@ def train_simple_model():
 
             with torch.no_grad():
                 for batch in val_loader:
-                    input_ids = batch["input_ids"].to(device)
-                    attention_mask = batch["attention_mask"].to(device)
-                    labels = batch["labels"].float().to(device)
+                    input_ids = batch["input_ids"].todevice
+                    attention_mask = batch["attention_mask"].todevice
+                    labels = batch["labels"].float().todevice
 
-                    outputs = model(input_ids, attention_mask=attention_mask)
-                    loss = focal_loss(outputs["logits"], labels)
+                    outputs = modelinput_ids, attention_mask=attention_mask
+                    loss = focal_lossoutputs["logits"], labels
 
                     val_loss += loss.item()
                     val_batches += 1
 
             avg_val_loss = val_loss / val_batches
 
-            logger.info("   • Train Loss: {avg_train_loss:.4f}")
-            logger.info("   • Val Loss: {avg_val_loss:.4f}")
+            logger.info"   • Train Loss: {avg_train_loss:.4f}"
+            logger.info"   • Val Loss: {avg_val_loss:.4f}"
 
             training_history.append(
                 {"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": avg_val_loss}
@@ -173,11 +169,11 @@ def train_simple_model():
 
             if avg_val_loss < best_val_loss:
                 best_val_loss = avg_val_loss
-                logger.info("   • New best validation loss: {best_val_loss:.4f}")
+                logger.info"   • New best validation loss: {best_val_loss:.4f}"
 
                 output_dir = "./models/checkpoints"
-                os.makedirs(output_dir, exist_ok=True)
-                model_path = Path(output_dir, "simple_working_model.pt")
+                os.makedirsoutput_dir, exist_ok=True
+                model_path = Pathoutput_dir, "simple_working_model.pt"
 
                 torch.save(
                     {
@@ -190,33 +186,33 @@ def train_simple_model():
                     model_path,
                 )
 
-                logger.info("   • Model saved to: {model_path}")
+                logger.info"   • Model saved to: {model_path}"
 
-        logger.info("🎉 Training completed successfully!")
-        logger.info("   • Best validation loss: {best_val_loss:.4f}")
-        logger.info("   • Model saved to: ./models/checkpoints/simple_working_model.pt")
+        logger.info"🎉 Training completed successfully!"
+        logger.info"   • Best validation loss: {best_val_loss:.4f}"
+        logger.info"   • Model saved to: ./models/checkpoints/simple_working_model.pt"
 
         return True
 
     except Exception as e:
-        logger.error("❌ Training failed: {e}")
+        logger.error"❌ Training failed: {e}"
         traceback.print_exc()
         return False
 
 
 def main():
     """Main function."""
-    logger.info("🧪 Simple Working Training Script")
-    logger.info("This script fixes all the critical issues from previous attempts")
+    logger.info"🧪 Simple Working Training Script"
+    logger.info"This script fixes all the critical issues from previous attempts"
 
     success = train_simple_model()
 
     if success:
-        logger.info("✅ All issues resolved! Training completed successfully.")
-        sys.exit(0)
+        logger.info"✅ All issues resolved! Training completed successfully."
+        sys.exit0
     else:
-        logger.error("❌ Training failed. Check the logs above.")
-        sys.exit(1)
+        logger.error"❌ Training failed. Check the logs above."
+        sys.exit1
 
 
 if __name__ == "__main__":

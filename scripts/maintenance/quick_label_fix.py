@@ -12,60 +12,60 @@ import pickle
 
 def quick_label_fix():
     """Quick fix for label mismatch issues."""
-    print("🔧 Applying quick label fix...")
+    print"🔧 Applying quick label fix..."
     
     # Load datasets
-    go_emotions = load_dataset("go_emotions", "simplified")
+    go_emotions = load_dataset"go_emotions", "simplified"
     
-    with open('data/journal_test_dataset.json', 'r') as f:
-        journal_entries = json.load(f)
-    journal_df = pd.DataFrame(journal_entries)
+    with open'data/journal_test_dataset.json', 'r' as f:
+        journal_entries = json.loadf
+    journal_df = pd.DataFramejournal_entries
     
     # Get all unique labels
     go_labels = set()
     for example in go_emotions['train']:
         if example['labels']:
-            go_labels.update(example['labels'])
+            go_labels.updateexample['labels']
     
     journal_labels = set(journal_df['emotion'].unique())
     
     # Use only common labels to avoid mismatches
-    common_labels = sorted(list(go_labels.intersection(journal_labels)))
+    common_labels = sorted(list(go_labels.intersectionjournal_labels))
     
     if not common_labels:
-        print("⚠️ No common labels found! Using all labels...")
-        common_labels = sorted(list(go_labels.union(journal_labels)))
+        print"⚠️ No common labels found! Using all labels..."
+        common_labels = sorted(list(go_labels.unionjournal_labels))
     
-    print(f"📊 Using {len(common_labels)} labels: {common_labels}")
+    print(f"📊 Using {lencommon_labels} labels: {common_labels}")
     
     # Create label encoder
     label_encoder = LabelEncoder()
-    label_encoder.fit(common_labels)
+    label_encoder.fitcommon_labels
     
     # Create mappings
-    label_to_id = {label: idx for idx, label in enumerate(label_encoder.classes_)}
+    label_to_id = {label: idx for idx, label in enumeratelabel_encoder.classes_}
     id_to_label = {idx: label for label, idx in label_to_id.items()}
     
     # Save fixed encoder
-    with open('fixed_label_encoder.pkl', 'wb') as f:
-        pickle.dump(label_encoder, f)
+    with open'fixed_label_encoder.pkl', 'wb' as f:
+        pickle.dumplabel_encoder, f
     
     # Save mappings
-    with open('label_mappings.json', 'w') as f:
+    with open'label_mappings.json', 'w' as f:
         json.dump({
             'label_to_id': label_to_id,
             'id_to_label': id_to_label,
-            'num_labels': len(label_encoder.classes_),
+            'num_labels': lenlabel_encoder.classes_,
             'classes': label_encoder.classes_.tolist()
         }, f, indent=2)
     
-    print(f"✅ Fixed label encoder saved!")
-    print(f"📊 Use num_labels={len(label_encoder.classes_)} in your model")
-    print(f"📊 Label encoder: fixed_label_encoder.pkl")
-    print(f"📊 Mappings: label_mappings.json")
+    print"✅ Fixed label encoder saved!"
+    print(f"📊 Use num_labels={lenlabel_encoder.classes_} in your model")
+    print"📊 Label encoder: fixed_label_encoder.pkl"
+    print"📊 Mappings: label_mappings.json"
     
-    return len(label_encoder.classes_)
+    return lenlabel_encoder.classes_
 
 if __name__ == "__main__":
     num_labels = quick_label_fix()
-    print(f"\n🎉 Quick fix completed! Use num_labels={num_labels}") 
+    printf"\n🎉 Quick fix completed! Use num_labels={num_labels}" 

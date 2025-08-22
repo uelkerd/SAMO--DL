@@ -18,19 +18,19 @@ import torch
 
 """Fix Threshold Tuning for Better F1 Scores.
 
-The current model is getting low F1 scores (7-8%) because the evaluation
-threshold (0.2) is still too high. This script tests lower thresholds.
+The current model is getting low F1 scores 7-8% because the evaluation
+threshold 0.2 is still too high. This script tests lower thresholds.
 """
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+sys.path.insert(0, str(Path__file__.parent.parent.parent / "src"))
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logging.basicConfiglevel=logging.INFO
+logger = logging.getLogger__name__
 
 
 def main():
     """Test different thresholds to improve F1 scores."""
-    logger.info("🎯 Testing Lower Thresholds for Better F1 Scores")
+    logger.info"🎯 Testing Lower Thresholds for Better F1 Scores"
 
     try:
         trainer = EmotionDetectionTrainer(
@@ -42,25 +42,25 @@ def main():
             device="cpu",
         )
 
-        trainer.prepare_data(dev_mode=True)
+        trainer.prepare_datadev_mode=True
 
-        trainer.initialize_model(class_weights=trainer.data_loader.class_weights)
+        trainer.initialize_modelclass_weights=trainer.data_loader.class_weights
 
-        model_path = Path("./test_checkpoints_dev/best_model.pt")
+        model_path = Path"./test_checkpoints_dev/best_model.pt"
         if not model_path.exists():
-            logger.error("❌ No trained model found. Run test_quick_training.py first.")
+            logger.error"❌ No trained model found. Run test_quick_training.py first."
             return 1
 
-        checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
-        trainer.model.load_state_dict(checkpoint["model_state_dict"])
+        checkpoint = torch.loadmodel_path, map_location="cpu", weights_only=False
+        trainer.model.load_state_dictcheckpoint["model_state_dict"]
 
         thresholds = [0.01, 0.05, 0.1, 0.15, 0.2]
         best_f1 = 0.0
 
-        logger.info("Testing lower thresholds...")
+        logger.info"Testing lower thresholds..."
 
         for threshold in thresholds:
-            logger.info("🔍 Testing threshold: {threshold}")
+            logger.info"🔍 Testing threshold: {threshold}"
 
             metrics = evaluate_emotion_classifier(
                 trainer.model, trainer.val_dataloader, trainer.device, threshold=threshold
@@ -69,23 +69,23 @@ def main():
             macro_f1 = metrics["macro_f1"]
             metrics["micro_f1"]
 
-            logger.info("  Macro F1: {macro_f1:.4f}, Micro F1: {micro_f1:.4f}")
+            logger.info"  Macro F1: {macro_f1:.4f}, Micro F1: {micro_f1:.4f}"
 
-            best_f1 = max(best_f1, macro_f1)
+            best_f1 = maxbest_f1, macro_f1
 
-        logger.info("=" * 50)
-        logger.info("🎯 BEST THRESHOLD: {best_threshold}")
-        logger.info("🏆 BEST MACRO F1: {best_f1:.4f}")
+        logger.info"=" * 50
+        logger.info"🎯 BEST THRESHOLD: {best_threshold}"
+        logger.info"🏆 BEST MACRO F1: {best_f1:.4f}"
 
         if best_f1 > 0.15:  # 15% is reasonable for this dataset
-            logger.info("🎉 Found good threshold! Model is working well.")
+            logger.info"🎉 Found good threshold! Model is working well."
             return 0
         else:
-            logger.warning("⚠️  F1 scores still low. Model may need more training.")
+            logger.warning"⚠️  F1 scores still low. Model may need more training."
             return 1
 
     except Exception:
-        logger.error("❌ Threshold tuning failed: {e}")
+        logger.error"❌ Threshold tuning failed: {e}"
         return 1
 
 

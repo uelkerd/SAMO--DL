@@ -7,9 +7,9 @@ from flask import Flask, jsonify
 from flask_restx import Api, Resource, Namespace
 
 # Create Flask app
-app = Flask(__name__)
+app = Flask__name__
 
-print("=== After Flask app creation ===")
+print"=== After Flask app creation ==="
 print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
 
 # Initialize Flask-RESTX API
@@ -21,64 +21,64 @@ api = Api(
     doc='/docs'
 )
 
-print("\n=== After API creation ===")
+print"\n=== After API creation ==="
 print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
 
 # Create namespace
-main_ns = Namespace('/api', description='Main operations')
-api.add_namespace(main_ns)
+main_ns = Namespace'/api', description='Main operations'
+api.add_namespacemain_ns
 
-print("\n=== After adding namespace ===")
+print"\n=== After adding namespace ==="
 print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
 
 # Test endpoint in namespace
-@main_ns.route('/health')
-class Health(Resource):
-    def get(self):
+@main_ns.route'/health'
+class HealthResource:
+    def getself:
         return {'status': 'healthy'}
 
-print("\n=== After adding namespace route ===")
+print"\n=== After adding namespace route ==="
 print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
 
 # Test direct Flask route
-@app.route('/test')
+@app.route'/test'
 def test():
-    return jsonify({'message': 'Test route'})
+    return jsonify{'message': 'Test route'}
 
-print("\n=== After adding Flask route ===")
+print"\n=== After adding Flask route ==="
 print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
 
 # Now try to add root endpoint
-print("\n=== Trying to add root endpoint ===")
+print"\n=== Trying to add root endpoint ==="
 try:
-    @app.route('/')
+    @app.route'/'
     def root():
-        return jsonify({'message': 'Root endpoint'})
-    print("✅ Root endpoint added successfully")
+        return jsonify{'message': 'Root endpoint'}
+    print"✅ Root endpoint added successfully"
 except Exception as e:
-    print(f"❌ Failed to add root endpoint: {e}")
+    printf"❌ Failed to add root endpoint: {e}"
 
-print("\n=== Final state ===")
+print"\n=== Final state ==="
 print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
 
 # Check for endpoint name conflicts
 endpoints = {}
 for rule in app.url_map.iter_rules():
     if rule.endpoint in endpoints:
-        print(f"⚠️  CONFLICT: Endpoint '{rule.endpoint}' appears multiple times:")
-        print(f"   - {endpoints[rule.endpoint]} -> {rule.rule}")
-        print(f"   - {rule.endpoint} -> {rule.rule}")
+        printf"⚠️  CONFLICT: Endpoint '{rule.endpoint}' appears multiple times:"
+        printf"   - {endpoints[rule.endpoint]} -> {rule.rule}"
+        printf"   - {rule.endpoint} -> {rule.rule}"
     else:
         endpoints[rule.endpoint] = rule.rule
 
-print("\n=== All endpoints ===")
+print"\n=== All endpoints ==="
 for endpoint, rule in endpoints.items():
-    print(f"{endpoint} -> {rule}")
+    printf"{endpoint} -> {rule}"
 
 # Check what Flask-RESTX created for the root route
-print("\n=== Flask-RESTX root route details ===")
+print"\n=== Flask-RESTX root route details ==="
 for rule in app.url_map.iter_rules():
     if rule.rule == '/':
-        print(f"Root route: {rule.rule} -> {rule.endpoint}")
-        print(f"  Methods: {rule.methods}")
-        print(f"  View function: {rule.endpoint}") 
+        printf"Root route: {rule.rule} -> {rule.endpoint}"
+        printf"  Methods: {rule.methods}"
+        printf"  View function: {rule.endpoint}" 

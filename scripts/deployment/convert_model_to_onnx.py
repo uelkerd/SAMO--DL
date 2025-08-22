@@ -10,16 +10,16 @@ import argparse
 from pathlib import Path
 
 # Add src to path
-sys.path.append(str(Path(__file__).parent.parent.parent / 'src'))
+sys.path.append(str(Path__file__.parent.parent.parent / 'src'))
 
 from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from transformers import AutoTokenizer
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logging.basicConfiglevel=logging.INFO
+logger = logging.getLogger__name__
 
 
-def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name="bert-base-uncased"):
+def convert_model_to_onnxmodel_path=None, onnx_output_path=None, tokenizer_name="bert-base-uncased":
     """Convert PyTorch model to ONNX format."""
     try:
         # Default paths if not provided
@@ -29,38 +29,38 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
             onnx_output_path = "deployment/cloud-run/model/bert_emotion_classifier.onnx"
 
         # Create output directory
-        output_dir = Path(onnx_output_path).parent
-        output_dir.mkdir(parents=True, exist_ok=True)
+        output_dir = Pathonnx_output_path.parent
+        output_dir.mkdirparents=True, exist_ok=True
 
         # Load model
-        logger.info("🔄 Loading PyTorch model...")
-        device = torch.device("cpu")
-        checkpoint = torch.load(model_path, map_location=device)
+        logger.info"🔄 Loading PyTorch model..."
+        device = torch.device"cpu"
+        checkpoint = torch.loadmodel_path, map_location=device
 
         model, _ = create_bert_emotion_classifier()
 
         # Handle different checkpoint formats
-        if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
-            model.load_state_dict(checkpoint["model_state_dict"])
-        elif isinstance(checkpoint, dict):
-            model.load_state_dict(checkpoint)
+        if isinstancecheckpoint, dict and "model_state_dict" in checkpoint:
+            model.load_state_dictcheckpoint["model_state_dict"]
+        elif isinstancecheckpoint, dict:
+            model.load_state_dictcheckpoint
         else:
             # Direct model state dict
-            model.load_state_dict(checkpoint)
+            model.load_state_dictcheckpoint
 
         model.eval()
 
         # Load tokenizer
-        logger.info("🔄 Loading tokenizer...")
-        tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
+        logger.info"🔄 Loading tokenizer..."
+        tokenizer = AutoTokenizer.from_pretrainedtokenizer_name
 
         # Save tokenizer
         tokenizer_dir = output_dir / "tokenizer"
-        tokenizer.save_pretrained(str(tokenizer_dir))
-        logger.info(f"✅ Tokenizer saved to {tokenizer_dir}")
+        tokenizer.save_pretrained(strtokenizer_dir)
+        logger.infof"✅ Tokenizer saved to {tokenizer_dir}"
 
         # Create dummy input
-        logger.info("🔄 Creating dummy input for ONNX export...")
+        logger.info"🔄 Creating dummy input for ONNX export..."
         dummy_text = "This is a test sentence for ONNX conversion."
         inputs = tokenizer(
             dummy_text,
@@ -75,10 +75,10 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
             token_type_ids = inputs["token_type_ids"]
         else:
             # For models that don't use token_type_ids, create zeros
-            token_type_ids = torch.zeros_like(inputs["input_ids"])
+            token_type_ids = torch.zeros_likeinputs["input_ids"]
 
         # Export to ONNX
-        logger.info("🔄 Converting to ONNX format...")
+        logger.info"🔄 Converting to ONNX format..."
         torch.onnx.export(
             model,
             (
@@ -100,59 +100,59 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
             },
         )
 
-        logger.info(f"✅ ONNX model saved to {onnx_output_path}")
+        logger.infof"✅ ONNX model saved to {onnx_output_path}"
 
         # Verify ONNX model
         try:
             import onnx
-            onnx_model = onnx.load(onnx_output_path)
-            onnx.checker.check_model(onnx_model)
-            logger.info("✅ ONNX model validation successful")
+            onnx_model = onnx.loadonnx_output_path
+            onnx.checker.check_modelonnx_model
+            logger.info"✅ ONNX model validation successful"
         except ImportError:
-            logger.warning("⚠️ ONNX not available for validation")
+            logger.warning"⚠️ ONNX not available for validation"
         except Exception as e:
-            logger.error(f"❌ ONNX model validation failed: {e}")
+            logger.errorf"❌ ONNX model validation failed: {e}"
             return False
 
         # Test ONNX model with ONNX Runtime
         try:
             import onnxruntime as ort
-            session = ort.InferenceSession(onnx_output_path)
-            logger.info("✅ ONNX Runtime test successful")
+            session = ort.InferenceSessiononnx_output_path
+            logger.info"✅ ONNX Runtime test successful"
         except ImportError:
-            logger.error("❌ ONNX Runtime is required for ONNX model validation. Please install it with 'pip install onnxruntime'.")
+            logger.error"❌ ONNX Runtime is required for ONNX model validation. Please install it with 'pip install onnxruntime'."
             return False
         except Exception as e:
-            logger.error(f"❌ ONNX Runtime test failed: {e}")
+            logger.errorf"❌ ONNX Runtime test failed: {e}"
             return False
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ ONNX conversion failed: {e}")
+        logger.errorf"❌ ONNX conversion failed: {e}"
         return False
 
 
 def main():
     """Main function with command-line argument parsing."""
-    parser = argparse.ArgumentParser(description="Convert PyTorch model to ONNX format")
+    parser = argparse.ArgumentParserdescription="Convert PyTorch model to ONNX format"
     parser.add_argument(
         "--model-path",
         type=str,
         default="models/best_simple_model.pth",
-        help="Path to PyTorch model file (default: models/best_simple_model.pth)"
+        help="Path to PyTorch model file default: models/best_simple_model.pth"
     )
     parser.add_argument(
         "--onnx-output-path",
         type=str,
         default="deployment/cloud-run/model/bert_emotion_classifier.onnx",
-        help="Path for ONNX output file (default: deployment/cloud-run/model/bert_emotion_classifier.onnx)"
+        help="Path for ONNX output file default: deployment/cloud-run/model/bert_emotion_classifier.onnx"
     )
     parser.add_argument(
         "--tokenizer-name",
         type=str,
         default="bert-base-uncased",
-        help="Tokenizer name to use (default: bert-base-uncased)"
+        help="Tokenizer name to use default: bert-base-uncased"
     )
 
     args = parser.parse_args()
@@ -162,11 +162,11 @@ def main():
         onnx_output_path=args.onnx_output_path,
         tokenizer_name=args.tokenizer_name
     ):
-        logger.info("🎉 ONNX conversion completed successfully!")
-        sys.exit(0)
+        logger.info"🎉 ONNX conversion completed successfully!"
+        sys.exit0
     else:
-        logger.error("💥 ONNX conversion failed!")
-        sys.exit(1)
+        logger.error"💥 ONNX conversion failed!"
+        sys.exit1
 
 
 if __name__ == "__main__":

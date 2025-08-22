@@ -16,35 +16,35 @@ import tempfile
 try:
     from onnx import helper
 except ImportError:
-    print("ONNX not available, skipping ONNX conversion test")
-    sys.exit(0)
+    print"ONNX not available, skipping ONNX conversion test"
+    sys.exit0
 import onnx
 import onnxruntime as ort
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logging.basicConfiglevel=logging.INFO
+logger = logging.getLogger__name__
 
 
 def test_onnx_dependencies():
     """Test that ONNX dependencies are available and basic functionality works."""
     try:
-        logger.info("🔄 Testing ONNX dependencies...")
+        logger.info"🔄 Testing ONNX dependencies..."
 
         try:
-            logger.info(f"✅ ONNX version: {onnx.__version__}")
+            logger.infof"✅ ONNX version: {onnx.__version__}"
         except ImportError as _:
-            logger.warning("⚠️ ONNX not available: {e}")
-            logger.info("⏭️ Skipping ONNX test - ONNX not installed")
+            logger.warning"⚠️ ONNX not available: {e}"
+            logger.info"⏭️ Skipping ONNX test - ONNX not installed"
             return True  # Skip test but don't fail
 
         try:
-            logger.info(f"✅ ONNX Runtime version: {ort.__version__}")
+            logger.infof"✅ ONNX Runtime version: {ort.__version__}"
         except ImportError as _:
-            logger.warning("⚠️ ONNX Runtime not available: {e}")
-            logger.info("⏭️ Skipping ONNX Runtime test - not installed")
+            logger.warning"⚠️ ONNX Runtime not available: {e}"
+            logger.info"⏭️ Skipping ONNX Runtime test - not installed"
             return True  # Skip test but don't fail
 
-        logger.info("Testing basic ONNX functionality...")
+        logger.info"Testing basic ONNX functionality..."
 
         try:
 
@@ -71,77 +71,77 @@ def test_onnx_dependencies():
                 [output_tensor]
             )
 
-            onnx_model = helper.make_model(graph)
-            logger.info("✅ Basic ONNX model creation successful")
+            onnx_model = helper.make_modelgraph
+            logger.info"✅ Basic ONNX model creation successful"
 
-            logger.info("Testing ONNX Runtime with simple model...")
+            logger.info"Testing ONNX Runtime with simple model..."
 
-            with tempfile.NamedTemporaryFile(suffix=".onnx", delete=False) as temp_file:
+            with tempfile.NamedTemporaryFilesuffix=".onnx", delete=False as temp_file:
                 temp_path = temp_file.name
 
             try:
-                onnx.save(onnx_model, temp_path)
-                logger.info(f"✅ ONNX model saved to {temp_path}")
+                onnx.saveonnx_model, temp_path
+                logger.infof"✅ ONNX model saved to {temp_path}"
 
-                session = ort.InferenceSession(temp_path)
-                logger.info("✅ ONNX Runtime session created")
+                session = ort.InferenceSessiontemp_path
+                logger.info"✅ ONNX Runtime session created"
 
-                test_input = np.random.default_rng().standard_normal((1, 768)).astype(np.float32)
-                outputs = session.run(None, {'input_ids': test_input})
-                logger.info(f"✅ ONNX Runtime inference successful, output shape: {outputs[0].shape}")
+                test_input = np.random.default_rng().standard_normal(1, 768).astypenp.float32
+                outputs = session.runNone, {'input_ids': test_input}
+                logger.infof"✅ ONNX Runtime inference successful, output shape: {outputs[0].shape}"
 
             finally:
                 from contextlib import suppress
-                with suppress(BaseException):
-                    os.unlink(temp_path)
+                with suppressBaseException:
+                    os.unlinktemp_path
 
         except Exception as e:
-            logger.warning(f"⚠️ Basic ONNX functionality test failed: {e}")
-            logger.info("⏭️ Skipping complex ONNX conversion test")
+            logger.warningf"⚠️ Basic ONNX functionality test failed: {e}"
+            logger.info"⏭️ Skipping complex ONNX conversion test"
             return True  # Skip test but don't fail
 
-        logger.info("✅ ONNX dependencies test passed")
+        logger.info"✅ ONNX dependencies test passed"
         return True
 
     except Exception as e:
-        logger.error(f"❌ ONNX dependencies test failed: {e}")
+        logger.errorf"❌ ONNX dependencies test failed: {e}"
         return False
 
 
 def main():
     """Run ONNX conversion tests."""
-    logger.info("🚀 Starting ONNX Conversion Tests...")
+    logger.info"🚀 Starting ONNX Conversion Tests..."
 
     tests = [
-        ("ONNX Dependencies", test_onnx_dependencies),
+        "ONNX Dependencies", test_onnx_dependencies,
     ]
 
     passed = 0
-    total = len(tests)
+    total = lentests
 
     for test_name, test_func in tests:
-        logger.info(f"\n{'='*40}")
-        logger.info(f"Running: {test_name}")
-        logger.info(f"{'='*40}")
+        logger.infof"\n{'='*40}"
+        logger.infof"Running: {test_name}"
+        logger.infof"{'='*40}"
 
         if test_func():
             passed += 1
-            logger.info(f"✅ {test_name}: PASSED")
+            logger.infof"✅ {test_name}: PASSED"
         else:
-            logger.error(f"❌ {test_name}: FAILED")
+            logger.errorf"❌ {test_name}: FAILED"
 
-    logger.info(f"\n{'='*40}")
-    logger.info(f"ONNX Conversion Tests Results: {passed}/{total} tests passed")
-    logger.info(f"{'='*40}")
+    logger.infof"\n{'='*40}"
+    logger.infof"ONNX Conversion Tests Results: {passed}/{total} tests passed"
+    logger.infof"{'='*40}"
 
     if passed == total:
-        logger.info("🎉 All ONNX conversion tests passed!")
+        logger.info"🎉 All ONNX conversion tests passed!"
         return True
     else:
-        logger.error("💥 Some ONNX conversion tests failed!")
+        logger.error"💥 Some ONNX conversion tests failed!"
         return False
 
 
 if __name__ == "__main__":
     success = main()
-    sys.exit(0 if success else 1)
+    sys.exit0 if success else 1

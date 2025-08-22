@@ -44,10 +44,10 @@ class TextPreprocessor:
         self.lemmatization = lemmatization
 
         try:
-            nltk.download("punkt", quiet=True)
-            nltk.download("stopwords", quiet=True)
-            nltk.download("wordnet", quiet=True)
-            self.stop_words = set(stopwords.words("english"))
+            nltk.download"punkt", quiet=True
+            nltk.download"stopwords", quiet=True
+            nltk.download"wordnet", quiet=True
+            self.stop_words = set(stopwords.words"english")
             self.stemmer = PorterStemmer()
             self.lemmatizer = WordNetLemmatizer()
         except ImportError:
@@ -55,7 +55,7 @@ class TextPreprocessor:
             self.stemmer = None
             self.lemmatizer = None
 
-    def preprocess_text(self, text: str) -> str:
+    def preprocess_textself, text: str -> str:
         """Apply full preprocessing pipeline to text.
 
         Args:
@@ -65,27 +65,27 @@ class TextPreprocessor:
             Preprocessed text
 
         """
-        if not text or not isinstance(text, str):
+        if not text or not isinstancetext, str:
             return ""
 
         if self.lowercase:
             text = text.lower()
 
         if self.remove_punctuation:
-            text = text.translate(str.maketrans("", "", string.punctuation))
+            text = text.translate(str.maketrans"", "", string.punctuation)
 
-        tokens = word_tokenize(text)
+        tokens = word_tokenizetext
 
         if self.remove_stopwords:
             tokens = [token for token in tokens if token not in self.stop_words]
 
         if self.stemming:
-            tokens = [self.stemmer.stem(token) for token in tokens]
+            tokens = [self.stemmer.stemtoken for token in tokens]
 
         if self.lemmatization:
-            tokens = [self.lemmatizer.lemmatize(token) for token in tokens]
+            tokens = [self.lemmatizer.lemmatizetoken for token in tokens]
 
-        return " ".join(tokens)
+        return " ".jointokens
 
     def preprocess_df(
         self,
@@ -105,7 +105,7 @@ class TextPreprocessor:
 
         """
         df = df.copy()
-        df[output_column] = df[text_column].astype(str).apply(self.preprocess_text)
+        df[output_column] = df[text_column].astypestr.applyself.preprocess_text
         return df
 
     def extract_features(
@@ -123,16 +123,16 @@ class TextPreprocessor:
         """
         df = df.copy()
 
-        df["char_count"] = df[text_column].apply(len)
+        df["char_count"] = df[text_column].applylen
 
         df["word_count"] = df[text_column].apply(lambda x: len(x.split()))
 
         df["sentence_count"] = df[text_column].apply(
-            lambda x: x.count(".") + x.count("!") + x.count("?") + 1
+            lambda x: x.count"." + x.count"!" + x.count"?" + 1
         )
 
         df["avg_word_length"] = df[text_column].apply(
-            lambda x: np.mean([len(word) for word in x.split()]) if len(x.split()) > 0 else 0
+            lambda x: np.mean([lenword for word in x.split()]) if len(x.split()) > 0 else 0
         )
 
         return df
@@ -141,7 +141,7 @@ class TextPreprocessor:
 class JournalEntryPreprocessor:
     """Preprocessing pipeline for journal entries."""
 
-    def __init__(self, text_preprocessor: Optional[TextPreprocessor] = None) -> None:
+    def __init__self, text_preprocessor: Optional[TextPreprocessor] = None -> None:
         """Initialize journal entry preprocessor.
 
         Args:
@@ -169,11 +169,11 @@ class JournalEntryPreprocessor:
         """
         df = df.copy()
 
-        df[text_column] = df[text_column].fillna("")
-        df[title_column] = df[title_column].fillna("")
+        df[text_column] = df[text_column].fillna""
+        df[title_column] = df[title_column].fillna""
 
         df["full_text"] = df[title_column] + " " + df[text_column]
 
-        df = self.text_preprocessor.preprocess_df(df, text_column=text_column)
+        df = self.text_preprocessor.preprocess_dfdf, text_column=text_column
 
-        return self.text_preprocessor.extract_features(df, text_column="processed_text")
+        return self.text_preprocessor.extract_featuresdf, text_column="processed_text"

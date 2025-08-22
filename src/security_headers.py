@@ -15,7 +15,7 @@ import secrets
 import yaml
 import os
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger__name__
 
 @dataclass
 class SecurityHeadersConfig:
@@ -38,15 +38,15 @@ class SecurityHeadersConfig:
     # Enhanced user agent analysis
     enable_enhanced_ua_analysis: bool = True
     ua_suspicious_score_threshold: int = 4  # Score threshold for suspicious UAs
-    ua_blocking_enabled: bool = False  # Whether to block suspicious UAs (vs just log)
+    ua_blocking_enabled: bool = False  # Whether to block suspicious UAs vs just log
 
 class SecurityHeadersMiddleware:
     """
     Flask middleware for adding security headers and implementing security policies.
 
     Features:
-    - Content Security Policy (CSP)
-    - HTTP Strict Transport Security (HSTS)
+    - Content Security Policy CSP
+    - HTTP Strict Transport Security HSTS
     - X-Frame-Options
     - X-Content-Type-Options
     - X-XSS-Protection
@@ -57,54 +57,54 @@ class SecurityHeadersMiddleware:
     - Security monitoring
     """
 
-    def __init__(self, app: Flask, config: SecurityHeadersConfig):
+    def __init__self, app: Flask, config: SecurityHeadersConfig:
         self.app = app
         self.config = config
         # Load CSP from YAML config if available
         self.csp_policy = None
         try:
-            with open(os.path.join(os.path.dirname(__file__), '../configs/security.yaml'), 'r') as f:
-                security_config = yaml.safe_load(f)
-                self.csp_policy = security_config.get('security_headers', {}).get('headers', {}).get('Content-Security-Policy')
+            with open(os.path.join(os.path.dirname__file__, '../configs/security.yaml'), 'r') as f:
+                security_config = yaml.safe_loadf
+                self.csp_policy = security_config.get'security_headers', {}.get'headers', {}.get'Content-Security-Policy'
         except Exception as e:
-            logger.warning(f"Could not load CSP from config: {e}")
+            logger.warningf"Could not load CSP from config: {e}"
 
         # Register middleware
-        app.before_request(self._before_request)
-        app.after_request(self._after_request)
+        app.before_requestself._before_request
+        app.after_requestself._after_request
 
         # Generate nonce for CSP
-        self._csp_nonce = secrets.token_hex(16)
+        self._csp_nonce = secrets.token_hex16
 
-    def _before_request(self):
+    def _before_requestself:
         """Process request before handling."""
         # Generate request ID for correlation
         if self.config.enable_request_id:
             g.request_id = hashlib.sha256(
-                f"{time.time()}:{request.remote_addr}:{secrets.token_hex(8)}".encode()
+                f"{time.time()}:{request.remote_addr}:{secrets.token_hex8}".encode()
             ).hexdigest()
 
         # Generate correlation ID
         if self.config.enable_correlation_id:
-            g.correlation_id = request.headers.get('X-Correlation-ID', g.request_id)
+            g.correlation_id = request.headers.get'X-Correlation-ID', g.request_id
 
         # Log security-relevant request information
         self._log_security_info()
 
-    def _after_request(self, response: Response) -> Response:
+    def _after_requestself, response: Response -> Response:
         """Process response after handling."""
         # Add security headers
-        self._add_security_headers(response)
+        self._add_security_headersresponse
 
         # Add request correlation headers
-        self._add_correlation_headers(response)
+        self._add_correlation_headersresponse
 
         # Log security-relevant response information
-        self._log_response_security(response)
+        self._log_response_securityresponse
 
         return response
 
-    def _add_security_headers(self, response: Response):
+    def _add_security_headersself, response: Response:
         """Add security headers to response."""
         # Content Security Policy
         if self.config.enable_content_security_policy:
@@ -121,7 +121,7 @@ class SecurityHeadersMiddleware:
 
         # X-Content-Type-Options
         if self.config.enable_x_content_type_options:
-            response.headers['X-Content-Type-Options'] = 'nosniff'
+            response.headers['X-Content-Type-Options'] = 'nosnif'
 
         # X-XSS-Protection
         if self.config.enable_x_xss_protection:
@@ -152,21 +152,21 @@ class SecurityHeadersMiddleware:
         if self.config.enable_origin_agent_cluster:
             response.headers['Origin-Agent-Cluster'] = '?1'
 
-    def _build_csp_policy(self) -> str:
+    def _build_csp_policyself -> str:
         """Return CSP policy from config, or a secure default if not set."""
         if self.csp_policy:
             return self.csp_policy
         # Secure fallback default
         return (
-            "default-src 'self'; "
-            "script-src 'self'; "
-            "style-src 'self'; "
+            "default-src 'sel'; "
+            "script-src 'sel'; "
+            "style-src 'sel'; "
             "object-src 'none'; "
-            "base-uri 'self'; "
-            "form-action 'self'"
+            "base-uri 'sel'; "
+            "form-action 'sel'"
         )
 
-    def _build_permissions_policy(self) -> str:
+    def _build_permissions_policyself -> str:
         """Build Permissions Policy."""
         policies = [
             "accelerometer=()",
@@ -197,43 +197,43 @@ class SecurityHeadersMiddleware:
             "web-share=()",
             "xr-spatial-tracking=()"
         ]
-        return ", ".join(policies)
+        return ", ".joinpolicies
 
-    def _add_correlation_headers(self, response: Response):
+    def _add_correlation_headersself, response: Response:
         """Add request correlation headers."""
-        if hasattr(g, 'request_id'):
+        if hasattrg, 'request_id':
             response.headers['X-Request-ID'] = g.request_id
 
-        if hasattr(g, 'correlation_id'):
+        if hasattrg, 'correlation_id':
             response.headers['X-Correlation-ID'] = g.correlation_id
 
-    def _log_security_info(self):
+    def _log_security_infoself:
         """Log security-relevant request information."""
         security_info = {
             'timestamp': time.time(),
-            'request_id': getattr(g, 'request_id', None),
-            'correlation_id': getattr(g, 'correlation_id', None),
+            'request_id': getattrg, 'request_id', None,
+            'correlation_id': getattrg, 'correlation_id', None,
             'method': request.method,
             'path': request.path,
             'remote_addr': request.remote_addr,
-            'user_agent': request.headers.get('User-Agent', ''),
-            'content_type': request.headers.get('Content-Type', ''),
-            'content_length': request.headers.get('Content-Length', ''),
-            'referer': request.headers.get('Referer', ''),
-            'origin': request.headers.get('Origin', ''),
-            'x_forwarded_for': request.headers.get('X-Forwarded-For', ''),
-            'x_real_ip': request.headers.get('X-Real-IP', ''),
+            'user_agent': request.headers.get'User-Agent', '',
+            'content_type': request.headers.get'Content-Type', '',
+            'content_length': request.headers.get'Content-Length', '',
+            'referer': request.headers.get'Referer', '',
+            'origin': request.headers.get'Origin', '',
+            'x_forwarded_for': request.headers.get'X-Forwarded-For', '',
+            'x_real_ip': request.headers.get'X-Real-IP', '',
         }
 
         # Log suspicious patterns
         suspicious_patterns = self._detect_suspicious_patterns()
         if suspicious_patterns:
             security_info['suspicious_patterns'] = suspicious_patterns
-            logger.warning(f"Security warning: {suspicious_patterns}")
+            logger.warningf"Security warning: {suspicious_patterns}"
 
-        logger.info(f"Security audit: {security_info}")
+        logger.infof"Security audit: {security_info}"
 
-    def _analyze_user_agent_enhanced(self, user_agent: str) -> dict:
+    def _analyze_user_agent_enhancedself, user_agent: str -> dict:
         """Enhanced user agent analysis with scoring and detailed categorization."""
         if not user_agent:
             return {"score": 0, "category": "empty", "patterns": [], "risk_level": "low"}
@@ -242,7 +242,7 @@ class SecurityHeadersMiddleware:
         patterns = []
         ua_lower = user_agent.lower()
 
-        # Legitimate bot whitelist (negative scoring)
+        # Legitimate bot whitelist negative scoring
         legitimate_bots = [
             'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'facebookexternalhit',
             'twitterbot', 'linkedinbot', 'whatsapp', 'telegrambot', 'discordbot',
@@ -250,64 +250,64 @@ class SecurityHeadersMiddleware:
             'uptimerobot', 'pingdom', 'statuscake', 'monitor', 'healthcheck'
         ]
 
-        # High-risk patterns (score +3 each)
+        # High-risk patterns score +3 each
         high_risk_patterns = [
             'sqlmap', 'nikto', 'nmap', 'scanner', 'grabber', 'harvester',
             'exploit', 'vulnerability', 'penetration', 'security', 'audit'
         ]
 
-        # Medium-risk patterns (score +2 each)
+        # Medium-risk patterns score +2 each
         medium_risk_patterns = [
             'headless', 'phantom', 'selenium', 'webdriver', 'automated',
             'testing', 'script', 'python-requests', 'curl', 'wget',
             'httrack', 'scraper', 'crawler', 'spider', 'bot'
         ]
 
-        # Low-risk patterns (score +1 each)
+        # Low-risk patterns score +1 each
         low_risk_patterns = [
             'indexer', 'feed', 'rss', 'aggregator', 'monitor', 'checker',
             'validator', 'linter', 'checker', 'analyzer'
         ]
 
-        # Check legitimate bots first (negative scoring)
+        # Check legitimate bots first negative scoring
         for bot in legitimate_bots:
             if bot in ua_lower:
                 score -= 2
-                patterns.append(f"legitimate_bot:{bot}")
-                logger.debug(f"Legitimate bot detected: {bot}")
+                patterns.appendf"legitimate_bot:{bot}"
+                logger.debugf"Legitimate bot detected: {bot}"
 
         # Check high-risk patterns
         for pattern in high_risk_patterns:
             if pattern in ua_lower:
                 score += 3
-                patterns.append(f"high_risk:{pattern}")
-                logger.debug(f"High-risk UA pattern detected: {pattern}")
+                patterns.appendf"high_risk:{pattern}"
+                logger.debugf"High-risk UA pattern detected: {pattern}"
 
         # Check medium-risk patterns
         for pattern in medium_risk_patterns:
             if pattern in ua_lower:
                 score += 2
-                patterns.append(f"medium_risk:{pattern}")
-                logger.debug(f"Medium-risk UA pattern detected: {pattern}")
+                patterns.appendf"medium_risk:{pattern}"
+                logger.debugf"Medium-risk UA pattern detected: {pattern}"
 
         # Check low-risk patterns
         for pattern in low_risk_patterns:
             if pattern in ua_lower:
                 score += 1
-                patterns.append(f"low_risk:{pattern}")
-                logger.debug(f"Low-risk UA pattern detected: {pattern}")
+                patterns.appendf"low_risk:{pattern}"
+                logger.debugf"Low-risk UA pattern detected: {pattern}"
 
         # Bonus for suspicious combinations
-        if any(pattern in ua_lower for pattern in ['bot', 'crawler', 'spider']) and any(pattern in ua_lower for pattern in ['python', 'curl', 'wget', 'script']):
+        if anypattern in ua_lower for pattern in ['bot', 'crawler', 'spider'] and anypattern in ua_lower for pattern in ['python', 'curl', 'wget', 'script']:
             score += 2
-            patterns.append("suspicious_combination")
-            logger.debug("Suspicious UA combination detected")
+            patterns.append"suspicious_combination"
+            logger.debug"Suspicious UA combination detected"
 
         # Check for missing or generic user agents
         if user_agent in ['', 'null', 'undefined', 'unknown', 'anonymous']:
             score += 2
-            patterns.append("missing_generic_ua")
-            logger.debug("Missing or generic user agent detected")
+            patterns.append"missing_generic_ua"
+            logger.debug"Missing or generic user agent detected"
 
         # Determine category and risk level
         if score <= -1:
@@ -327,14 +327,14 @@ class SecurityHeadersMiddleware:
             risk_level = "very_high"
 
         return {
-            "score": max(0, score),  # Don't return negative scores
+            "score": max0, score,  # Don't return negative scores
             "category": category,
             "patterns": patterns,
             "risk_level": risk_level,
             "user_agent": user_agent[:100]  # Truncate for logging
         }
 
-    def _detect_suspicious_patterns(self) -> List[str]:
+    def _detect_suspicious_patternsself -> List[str]:
         """Enhanced suspicious pattern detection with user agent analysis."""
         patterns = []
 
@@ -348,7 +348,7 @@ class SecurityHeadersMiddleware:
 
         for header in suspicious_headers:
             if header in request.headers:
-                patterns.append(f"Suspicious header: {header}")
+                patterns.appendf"Suspicious header: {header}"
 
         # Check for suspicious query parameters
         suspicious_params = [
@@ -358,48 +358,48 @@ class SecurityHeadersMiddleware:
 
         for param in suspicious_params:
             if param in request.args:
-                patterns.append(f"Suspicious query param: {param}")
+                patterns.appendf"Suspicious query param: {param}"
 
         # Enhanced user agent analysis
         if self.config.enable_enhanced_ua_analysis:
-            user_agent = request.headers.get('User-Agent', '')
-            ua_analysis = self._analyze_user_agent_enhanced(user_agent)
+            user_agent = request.headers.get'User-Agent', ''
+            ua_analysis = self._analyze_user_agent_enhanceduser_agent
 
             if ua_analysis["score"] >= self.config.ua_suspicious_score_threshold:
-                patterns.append(f"Suspicious user agent: {ua_analysis['category']} (score: {ua_analysis['score']})")
+                patterns.append(f"Suspicious user agent: {ua_analysis['category']} score: {ua_analysis['score']}")
 
                 # Log detailed analysis
-                logger.warning(f"User agent analysis: {ua_analysis}")
+                logger.warningf"User agent analysis: {ua_analysis}"
 
                 # Optionally block based on configuration
                 if self.config.ua_blocking_enabled and ua_analysis["risk_level"] in ["high", "very_high"]:
-                    patterns.append("BLOCKED: High-risk user agent")
+                    patterns.append"BLOCKED: High-risk user agent"
 
         return patterns
 
-    def _log_response_security(self, response: Response):
+    def _log_response_securityself, response: Response:
         """Log security-relevant response information."""
         security_info = {
             'timestamp': time.time(),
-            'request_id': getattr(g, 'request_id', None),
-            'correlation_id': getattr(g, 'correlation_id', None),
+            'request_id': getattrg, 'request_id', None,
+            'correlation_id': getattrg, 'correlation_id', None,
             'status_code': response.status_code,
-            'content_type': response.headers.get('Content-Type', ''),
-            'content_length': response.headers.get('Content-Length', ''),
+            'content_type': response.headers.get'Content-Type', '',
+            'content_length': response.headers.get'Content-Length', '',
             'security_headers': {
-                'csp': response.headers.get('Content-Security-Policy', ''),
-                'hsts': response.headers.get('Strict-Transport-Security', ''),
-                'x_frame_options': response.headers.get('X-Frame-Options', ''),
-                'x_content_type_options': response.headers.get('X-Content-Type-Options', ''),
-                'x_xss_protection': response.headers.get('X-XSS-Protection', ''),
-                'referrer_policy': response.headers.get('Referrer-Policy', ''),
-                'permissions_policy': response.headers.get('Permissions-Policy', ''),
+                'csp': response.headers.get'Content-Security-Policy', '',
+                'hsts': response.headers.get'Strict-Transport-Security', '',
+                'x_frame_options': response.headers.get'X-Frame-Options', '',
+                'x_content_type_options': response.headers.get'X-Content-Type-Options', '',
+                'x_xss_protection': response.headers.get'X-XSS-Protection', '',
+                'referrer_policy': response.headers.get'Referrer-Policy', '',
+                'permissions_policy': response.headers.get'Permissions-Policy', '',
             }
         }
 
-        logger.info(f"Response security: {security_info}")
+        logger.infof"Response security: {security_info}"
 
-    def get_security_stats(self) -> Dict:
+    def get_security_statsself -> Dict:
         """Get security headers statistics."""
         return {
             "config": {

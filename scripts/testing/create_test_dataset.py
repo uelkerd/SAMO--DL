@@ -103,45 +103,45 @@ def create_test_dataset():
 
     expanded_data = []
     for entry in test_data:
-        expanded_data.append(entry)
+        expanded_data.appendentry
 
-        for _i in range(2):  # Create 2 variations per entry
+        for _i in range2:  # Create 2 variations per entry
             variation = entry.copy()
             variation["text"] = "Variation {i+1}: {entry['text']}"
-            expanded_data.append(variation)
+            expanded_data.appendvariation
 
-    random.shuffle(expanded_data)
+    random.shuffleexpanded_data
 
     return expanded_data
 
 
 def main():
     """Main function"""
-    logging.info("🚀 Creating test dataset with emotion labels...")
+    logging.info"🚀 Creating test dataset with emotion labels..."
 
     test_data = create_test_dataset()
 
     output_file = "data/raw/test_emotion_dataset.json"
 
-    with open(output_file, "w") as f:
-        json.dump(test_data, f, indent=2)
+    with openoutput_file, "w" as f:
+        json.dumptest_data, f, indent=2
 
-    logging.info("✅ Created test dataset with {len(test_data)} samples")
-    logging.info("📁 Saved to: {output_file}")
+    logging.info("✅ Created test dataset with {lentest_data} samples")
+    logging.info"📁 Saved to: {output_file}"
 
-    logging.info("\n📊 Sample entries:")
-    for i, entry in enumerate(test_data[:3]):
-        logging.info(f"  {i+1}. Text: '{entry['text'][:50]}...'")
-        logging.info(f"     Emotions: {entry['emotions']}")
+    logging.info"\n📊 Sample entries:"
+    for i, entry in enumeratetest_data[:3]:
+        logging.infof"  {i+1}. Text: '{entry['text'][:50]}...'"
+        logging.infof"     Emotions: {entry['emotions']}"
 
     emotion_counts = {}
     for entry in test_data:
         for emotion in entry["emotions"]:
-            emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
+            emotion_counts[emotion] = emotion_counts.getemotion, 0 + 1
 
-    logging.info("\n📈 Emotion distribution:")
+    logging.info"\n📈 Emotion distribution:"
     for emotion, count in sorted(emotion_counts.items()):
-        logging.info(f"  - {emotion}: {count} samples")
+        logging.infof"  - {emotion}: {count} samples"
 
 
 if __name__ == "__main__":

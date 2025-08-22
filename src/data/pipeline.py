@@ -25,9 +25,9 @@ from .loaders import load_entries_from_db, load_entries_from_json, load_entries_
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%asctimes - %names - %levelnames - %messages", level=logging.INFO
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger__name__
 
 
 class DataPipeline:
@@ -46,7 +46,7 @@ class DataPipeline:
             preprocessor: Journal entry preprocessor
             validator: Data validator
             feature_engineer: Feature engineer
-            embedding_method: Method for generating embeddings ('tfid', 'word2vec', or 'fasttext')
+            embedding_method: Method for generating embeddings 'tfid', 'word2vec', or 'fasttext'
 
         """
         self.preprocessor = preprocessor or JournalEntryPreprocessor()
@@ -54,16 +54,16 @@ class DataPipeline:
         self.feature_engineer = feature_engineer or FeatureEngineer()
 
         if embedding_method == "tfid":
-            embedder = TfidfEmbedder(max_features=1000)
+            embedder = TfidfEmbeddermax_features=1000
         elif embedding_method == "word2vec":
-            embedder = Word2VecEmbedder(vector_size=100)
+            embedder = Word2VecEmbeddervector_size=100
         elif embedding_method == "fasttext":
-            embedder = FastTextEmbedder(vector_size=100)
+            embedder = FastTextEmbeddervector_size=100
         else:
-            logger.warning(f"Unknown embedding method '{embedding_method}'. Defaulting to TF-IDF.")
-            embedder = TfidfEmbedder(max_features=1000)
+            logger.warningf"Unknown embedding method '{embedding_method}'. Defaulting to TF-IDF."
+            embedder = TfidfEmbeddermax_features=1000
 
-        self.embedding_pipeline = EmbeddingPipeline(embedder)
+        self.embedding_pipeline = EmbeddingPipelineembedder
         self.embedding_method = embedding_method
 
     def run(
@@ -79,8 +79,8 @@ class DataPipeline:
         """Run the complete data processing pipeline.
 
         Args:
-            data_source: Source of journal entries (DataFrame or path to file/DB identifier)
-            source_type: Type of data source ('db', 'json', 'csv', or 'dataframe')
+            data_source: Source of journal entries DataFrame or path to file/DB identifier
+            source_type: Type of data source 'db', 'json', 'csv', or 'dataframe'
             output_dir: Directory to save output files
             user_id: Filter entries by user_id
             limit: Maximum number of entries to process
@@ -91,18 +91,18 @@ class DataPipeline:
             Dictionary of DataFrames with raw, processed, featured and embeddings data
 
         """
-        raw_df = self._load_data(data_source, source_type, user_id, limit)
+        raw_df = self._load_datadata_source, source_type, user_id, limit
 
         if raw_df.empty:
-            logger.warning("No data loaded. Exiting pipeline.")
+            logger.warning"No data loaded. Exiting pipeline."
             return {"raw": raw_df}
 
         logger.info(
-            "Pipeline processing {len(raw_df)} journal entries",
+            "Pipeline processing {lenraw_df} journal entries",
             extra={"format_args": True},
         )
 
-        validation_passed, validated_df = self.validator.validate_journal_entries(raw_df)
+        validation_passed, validated_df = self.validator.validate_journal_entriesraw_df
 
         if not validation_passed:
             logger.warning(
@@ -110,25 +110,25 @@ class DataPipeline:
                 "but results may be unreliable."
             )
 
-        processed_df = self.preprocessor.preprocess(validated_df)
-        logger.info("Preprocessing completed")
+        processed_df = self.preprocessor.preprocessvalidated_df
+        logger.info"Preprocessing completed"
 
         if extract_topics:
             featured_df, topics_df = self.feature_engineer.extract_all_features(
                 processed_df, extract_topics=True
             )
-            logger.info("Feature extraction completed (including topics)")
+            logger.info("Feature extraction completed including topics")
         else:
             featured_df = self.feature_engineer.extract_all_features(
                 processed_df, extract_topics=False
             )
             topics_df = None
-            logger.info("Feature extraction completed (without topics)")
+            logger.info("Feature extraction completed without topics")
 
         embeddings_df = self.embedding_pipeline.generate_embeddings(
             featured_df, text_column="processed_text", id_column="id"
         )
-        logger.info("Generated {len(embeddings_df)} embeddings using {self.embedding_method}")
+        logger.info("Generated {lenembeddings_df} embeddings using {self.embedding_method}")
 
         if output_dir:
             self._save_results(
@@ -163,8 +163,8 @@ class DataPipeline:
         """Load data from specified source.
 
         Args:
-            data_source: Source of journal entries (DataFrame or path to file/DB identifier)
-            source_type: Type of data source ('db', 'json', 'csv', or 'dataframe')
+            data_source: Source of journal entries DataFrame or path to file/DB identifier
+            source_type: Type of data source 'db', 'json', 'csv', or 'dataframe'
             user_id: Filter entries by user_id
             limit: Maximum number of entries to process
 
@@ -172,31 +172,31 @@ class DataPipeline:
             DataFrame containing raw journal entries
 
         """
-        if source_type == "dataframe" and isinstance(data_source, pd.DataFrame):
+        if source_type == "dataframe" and isinstancedata_source, pd.DataFrame:
             logger.info(
-                "Using provided DataFrame with {len(data_source)} entries",
+                "Using provided DataFrame with {lendata_source} entries",
                 extra={"format_args": True},
             )
             return data_source
 
         if source_type == "db":
             user_info = " for user {user_id}" if user_id else ""
-            limit_info = " (limit: {limit})" if limit else ""
-            logger.info("Loading data from database{user_info}{limit_info}")
-            return load_entries_from_db(limit=limit, user_id=user_id)
+            limit_info = " limit: {limit}" if limit else ""
+            logger.info"Loading data from database{user_info}{limit_info}"
+            return load_entries_from_dblimit=limit, user_id=user_id
 
-        if source_type == "json" and isinstance(data_source, str):
+        if source_type == "json" and isinstancedata_source, str:
             logger.info(
                 "Loading data from JSON file: {data_source}",
                 extra={"format_args": True},
             )
-            return load_entries_from_json(data_source)
+            return load_entries_from_jsondata_source
 
-        if source_type == "csv" and isinstance(data_source, str):
-            logger.info("Loading data from CSV file: {data_source}", extra={"format_args": True})
-            return load_entries_from_csv(data_source)
+        if source_type == "csv" and isinstancedata_source, str:
+            logger.info"Loading data from CSV file: {data_source}", extra={"format_args": True}
+            return load_entries_from_csvdata_source
 
-        logger.error("Invalid data source type: {source_type}", extra={"format_args": True})
+        logger.error"Invalid data source type: {source_type}", extra={"format_args": True}
         return pd.DataFrame()
 
     def _save_results(
@@ -221,35 +221,35 @@ class DataPipeline:
             save_intermediates: Whether to save intermediate DataFrames
 
         """
-        Path(output_dir).mkdir(parents=True, exist_ok=True)
+        Pathoutput_dir.mkdirparents=True, exist_ok=True
 
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.nowtimezone.utc.strftime"%Y%m%d_%H%M%S"
 
         featured_df.to_csv(
-            Path(output_dir, "journal_features_{timestamp}.csv").as_posix(),
+            Pathoutput_dir, "journal_features_{timestamp}.csv".as_posix(),
             index=False,
         )
-        logger.info("Saved featured data to {output_dir}/journal_features_{timestamp}.csv")
+        logger.info"Saved featured data to {output_dir}/journal_features_{timestamp}.csv"
 
-        embeddings_path = Path(output_dir, "journal_embeddings_{timestamp}.csv").as_posix()
-        self.embedding_pipeline.save_embeddings_to_csv(embeddings_df, embeddings_path)
+        embeddings_path = Pathoutput_dir, "journal_embeddings_{timestamp}.csv".as_posix()
+        self.embedding_pipeline.save_embeddings_to_csvembeddings_df, embeddings_path
 
         if topics_df is not None:
             topics_df.to_csv(
-                Path(output_dir, "journal_topics_{timestamp}.csv").as_posix(),
+                Pathoutput_dir, "journal_topics_{timestamp}.csv".as_posix(),
                 index=False,
             )
-            logger.info("Saved topic data to {output_dir}/journal_topics_{timestamp}.csv")
+            logger.info"Saved topic data to {output_dir}/journal_topics_{timestamp}.csv"
 
         if save_intermediates:
-            raw_df.to_csv(Path(output_dir, "journal_raw_{timestamp}.csv").as_posix(), index=False)
+            raw_df.to_csv(Pathoutput_dir, "journal_raw_{timestamp}.csv".as_posix(), index=False)
             logger.info(
                 "Saved raw data to {output_dir}/journal_raw_{timestamp}.csv",
                 extra={"format_args": True},
             )
 
             processed_df.to_csv(
-                Path(output_dir, "journal_processed_{timestamp}.csv").as_posix(),
+                Pathoutput_dir, "journal_processed_{timestamp}.csv".as_posix(),
                 index=False,
             )
-            logger.info("Saved processed data to {output_dir}/journal_processed_{timestamp}.csv")
+            logger.info"Saved processed data to {output_dir}/journal_processed_{timestamp}.csv"

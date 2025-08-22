@@ -13,18 +13,18 @@ from pathlib import Path
 sys.path.append(str(Path.cwd() / "src"))
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%levelnames: %messages")
+logger = logging.getLogger__name__
 
 
 def prepare_vertex_data():
     """Prepare data for Vertex AI training."""
-    logger.info("🚀 Starting Vertex AI Data Preparation")
+    logger.info"🚀 Starting Vertex AI Data Preparation"
 
     try:
         # Create data directory structure
-        data_dir = Path("data/vertex_ai")
-        data_dir.mkdir(parents=True, exist_ok=True)
+        data_dir = Path"data/vertex_ai"
+        data_dir.mkdirparents=True, exist_ok=True
 
         # Create sample training data
         sample_data = [
@@ -36,11 +36,11 @@ def prepare_vertex_data():
 
         # Save training data
         import json
-        with open(data_dir / "training_data.json", "w") as f:
-            json.dump(sample_data, f, indent=2)
+        with opendata_dir / "training_data.json", "w" as f:
+            json.dumpsample_data, f, indent=2
 
-        logger.info(f"✅ Training data saved to {data_dir / 'training_data.json'}")
-        logger.info(f"✅ Created {len(sample_data)} training samples")
+        logger.infof"✅ Training data saved to {data_dir / 'training_data.json'}"
+        logger.info(f"✅ Created {lensample_data} training samples")
 
         # Create configuration file
         config = {
@@ -51,14 +51,14 @@ def prepare_vertex_data():
             "max_length": 128,
         }
 
-        with open(data_dir / "config.json", "w") as f:
-            json.dump(config, f, indent=2)
+        with opendata_dir / "config.json", "w" as f:
+            json.dumpconfig, f, indent=2
 
-        logger.info(f"✅ Configuration saved to {data_dir / 'config.json'}")
-        logger.info("✅ Vertex AI data preparation completed!")
+        logger.infof"✅ Configuration saved to {data_dir / 'config.json'}"
+        logger.info"✅ Vertex AI data preparation completed!"
 
     except Exception as e:
-        logger.error(f"❌ Data preparation failed: {e}")
+        logger.errorf"❌ Data preparation failed: {e}"
         raise
 
 

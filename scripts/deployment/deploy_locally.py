@@ -14,30 +14,30 @@ from datetime import datetime
 
 def deploy_locally():
     """Deploy the model locally for testing."""
-    print("🚀 LOCAL DEPLOYMENT")
-    print("=" * 50)
-    print(f"⏰ Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print"🚀 LOCAL DEPLOYMENT"
+    print"=" * 50
+    print(f"⏰ Started at: {datetime.now().strftime'%Y-%m-%d %H:%M:%S'}")
     print()
     
     # Check if model exists
     model_path = "deployment/models/default"
-    if not os.path.exists(model_path):
-        print(f"❌ Model not found at: {model_path}")
+    if not os.path.existsmodel_path:
+        printf"❌ Model not found at: {model_path}"
         return False
     
-    print("✅ Model found")
+    print"✅ Model found"
     
     # Create local deployment directory
     local_deployment_dir = "local_deployment"
-    if os.path.exists(local_deployment_dir):
+    if os.path.existslocal_deployment_dir:
         import shutil
-        shutil.rmtree(local_deployment_dir)
-    os.makedirs(local_deployment_dir)
+        shutil.rmtreelocal_deployment_dir
+    os.makedirslocal_deployment_dir
     
     # Copy model files
     import shutil
-    shutil.copytree(model_path, os.path.join(local_deployment_dir, "model"))
-    print("✅ Model files copied")
+    shutil.copytree(model_path, os.path.joinlocal_deployment_dir, "model")
+    print"✅ Model files copied"
     
     # Create local API server
     api_server_script = '''#!/usr/bin/env python3
@@ -54,40 +54,40 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import numpy as np
 import os
 
-app = Flask(__name__)
+app = Flask__name__
 
 class EmotionDetectionModel:
-    def __init__(self):
+    def __init__self:
         """Initialize the model."""
         self.model_path = os.path.join(os.getcwd(), "model")
-        print(f"Loading model from: {self.model_path}")
+        printf"Loading model from: {self.model_path}"
         
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
-        self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path)
+        self.tokenizer = AutoTokenizer.from_pretrainedself.model_path
+        self.model = AutoModelForSequenceClassification.from_pretrainedself.model_path
         
         # Move to GPU if available
         if torch.cuda.is_available():
-            self.model = self.model.to('cuda')
-            print("✅ Model moved to GPU")
+            self.model = self.model.to'cuda'
+            print"✅ Model moved to GPU"
         else:
-            print("⚠️ CUDA not available, using CPU")
+            print"⚠️ CUDA not available, using CPU"
         
         self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
-        print("✅ Model loaded successfully")
+        print"✅ Model loaded successfully"
         
-    def predict(self, text):
+    def predictself, text:
         """Make a prediction."""
         # Tokenize input
-        inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
+        inputs = self.tokenizertext, return_tensors='pt', truncation=True, padding=True, max_length=512
         
         if torch.cuda.is_available():
-            inputs = {k: v.to('cuda') for k, v in inputs.items()}
+            inputs = {k: v.to'cuda' for k, v in inputs.items()}
         
         # Get prediction
         with torch.no_grad():
-            outputs = self.model(**inputs)
-            probabilities = torch.softmax(outputs.logits, dim=1)
-            predicted_label = torch.argmax(probabilities, dim=1).item()
+            outputs = self.model**inputs
+            probabilities = torch.softmaxoutputs.logits, dim=1
+            predicted_label = torch.argmaxprobabilities, dim=1.item()
             confidence = probabilities[0][predicted_label].item()
             
             # Get all probabilities
@@ -96,8 +96,8 @@ class EmotionDetectionModel:
         # Get predicted emotion
         if predicted_label in self.model.config.id2label:
             predicted_emotion = self.model.config.id2label[predicted_label]
-        elif str(predicted_label) in self.model.config.id2label:
-            predicted_emotion = self.model.config.id2label[str(predicted_label)]
+        elif strpredicted_label in self.model.config.id2label:
+            predicted_emotion = self.model.config.id2label[strpredicted_label]
         else:
             predicted_emotion = f"unknown_{predicted_label}"
         
@@ -105,9 +105,9 @@ class EmotionDetectionModel:
         response = {
             'text': text,
             'predicted_emotion': predicted_emotion,
-            'confidence': float(confidence),
+            'confidence': floatconfidence,
             'probabilities': {
-                emotion: float(prob) for emotion, prob in zip(self.emotions, all_probs)
+                emotion: floatprob for emotion, prob in zipself.emotions, all_probs
             },
             'model_version': '2.0',
             'model_type': 'comprehensive_emotion_detection',
@@ -121,10 +121,10 @@ class EmotionDetectionModel:
         return response
 
 # Initialize model
-print("🔧 Loading emotion detection model...")
+print"🔧 Loading emotion detection model..."
 model = EmotionDetectionModel()
 
-@app.route('/health', methods=['GET'])
+@app.route'/health', methods=['GET']
 def health_check():
     """Health check endpoint."""
     return jsonify({
@@ -134,55 +134,55 @@ def health_check():
         'emotions': model.emotions
     })
 
-@app.route('/predict', methods=['POST'])
+@app.route'/predict', methods=['POST']
 def predict():
     """Prediction endpoint."""
     try:
         data = request.get_json()
         
         if not data or 'text' not in data:
-            return jsonify({'error': 'No text provided'}), 400
+            return jsonify{'error': 'No text provided'}, 400
         
         text = data['text']
         if not text.strip():
-            return jsonify({'error': 'Empty text provided'}), 400
+            return jsonify{'error': 'Empty text provided'}, 400
         
         # Make prediction
-        result = model.predict(text)
+        result = model.predicttext
         
-        return jsonify(result)
+        return jsonifyresult
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': stre}), 500
 
-@app.route('/predict_batch', methods=['POST'])
+@app.route'/predict_batch', methods=['POST']
 def predict_batch():
     """Batch prediction endpoint."""
     try:
         data = request.get_json()
         
         if not data or 'texts' not in data:
-            return jsonify({'error': 'No texts provided'}), 400
+            return jsonify{'error': 'No texts provided'}, 400
         
         texts = data['texts']
-        if not isinstance(texts, list):
-            return jsonify({'error': 'Texts must be a list'}), 400
+        if not isinstancetexts, list:
+            return jsonify{'error': 'Texts must be a list'}, 400
         
         results = []
         for text in texts:
             if text.strip():
-                result = model.predict(text)
-                results.append(result)
+                result = model.predicttext
+                results.appendresult
         
         return jsonify({
             'predictions': results,
-            'count': len(results)
+            'count': lenresults
         })
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': stre}), 500
 
-@app.route('/', methods=['GET'])
+@app.route'/', methods=['GET']
 def home():
     """Home endpoint with API documentation."""
     return jsonify({
@@ -191,8 +191,8 @@ def home():
         'endpoints': {
             'GET /': 'This documentation',
             'GET /health': 'Health check',
-            'POST /predict': 'Single prediction (send {"text": "your text"})',
-            'POST /predict_batch': 'Batch prediction (send {"texts": ["text1", "text2"]})'
+            'POST /predict': 'Single prediction send {"text": "your text"}',
+            'POST /predict_batch': 'Batch prediction send {"texts": ["text1", "text2"]}'
         },
         'model_info': {
             'emotions': model.emotions,
@@ -215,26 +215,26 @@ def home():
     })
 
 if __name__ == '__main__':
-    print("🌐 Starting local API server...")
-    print("📋 Available endpoints:")
-    print("   GET  / - API documentation")
-    print("   GET  /health - Health check")
-    print("   POST /predict - Single prediction")
-    print("   POST /predict_batch - Batch prediction")
+    print"🌐 Starting local API server..."
+    print"📋 Available endpoints:"
+    print"   GET  / - API documentation"
+    print"   GET  /health - Health check"
+    print"   POST /predict - Single prediction"
+    print"   POST /predict_batch - Batch prediction"
     print()
-    print("🚀 Server starting on http://localhost:5000")
-    print("📝 Example usage:")
-    print("   curl -X POST http://localhost:5000/predict \\")
-    print("        -H 'Content-Type: application/json' \\")
-    print("        -d '{\\"text\\": \\"I am feeling happy today!\\"}'")
+    print"🚀 Server starting on http://localhost:5000"
+    print"📝 Example usage:"
+    print"   curl -X POST http://localhost:5000/predict \\"
+    print"        -H 'Content-Type: application/json' \\"
+    print"        -d '{\\"text\\": \\"I am feeling happy today!\\"}'"
     print()
     
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.runhost='0.0.0.0', port=5000, debug=False
 '''
     
-    with open(os.path.join(local_deployment_dir, "api_server.py"), 'w') as f:
-        f.write(api_server_script)
-    print("✅ API server script created")
+    with open(os.path.joinlocal_deployment_dir, "api_server.py", 'w') as f:
+        f.writeapi_server_script
+    print"✅ API server script created"
     
     # Create requirements.txt
     requirements = '''flask>=2.0.0
@@ -243,9 +243,9 @@ transformers>=4.30.0
 numpy>=1.21.0
 '''
     
-    with open(os.path.join(local_deployment_dir, "requirements.txt"), 'w') as f:
-        f.write(requirements)
-    print("✅ Requirements file created")
+    with open(os.path.joinlocal_deployment_dir, "requirements.txt", 'w') as f:
+        f.writerequirements
+    print"✅ Requirements file created"
     
     # Create test script
     test_script = '''#!/usr/bin/env python3
@@ -264,25 +264,25 @@ def test_api():
     """Test the local API server."""
     base_url = "http://localhost:5000"
     
-    print("🧪 TESTING LOCAL API SERVER")
-    print("=" * 50)
+    print"🧪 TESTING LOCAL API SERVER"
+    print"=" * 50
     
     # Test health check
-    print("1. Testing health check...")
+    print"1. Testing health check..."
     try:
-        response = requests.get(f"{base_url}/health")
+        response = requests.getf"{base_url}/health"
         if response.status_code == 200:
-            print("✅ Health check passed")
+            print"✅ Health check passed"
             print(f"   Response: {response.json()}")
         else:
-            print(f"❌ Health check failed: {response.status_code}")
+            printf"❌ Health check failed: {response.status_code}"
             return False
     except Exception as e:
-        print(f"❌ Health check error: {e}")
+        printf"❌ Health check error: {e}"
         return False
     
     # Test single prediction
-    print("\\n2. Testing single prediction...")
+    print"\\n2. Testing single prediction..."
     test_cases = [
         "I am feeling happy today!",
         "I feel sad about the news",
@@ -291,7 +291,7 @@ def test_api():
         "I am calm and relaxed"
     ]
     
-    for i, text in enumerate(test_cases, 1):
+    for i, text in enumeratetest_cases, 1:
         try:
             response = requests.post(
                 f"{base_url}/predict",
@@ -301,15 +301,15 @@ def test_api():
             
             if response.status_code == 200:
                 result = response.json()
-                print(f"✅ Test {i}: '{text}' → {result['predicted_emotion']} (conf: {result['confidence']:.3f})")
+                print(f"✅ Test {i}: '{text}' → {result['predicted_emotion']} conf: {result['confidence']:.3f}")
             else:
-                print(f"❌ Test {i} failed: {response.status_code}")
+                printf"❌ Test {i} failed: {response.status_code}"
                 
         except Exception as e:
-            print(f"❌ Test {i} error: {e}")
+            printf"❌ Test {i} error: {e}"
     
     # Test batch prediction
-    print("\\n3. Testing batch prediction...")
+    print"\\n3. Testing batch prediction..."
     try:
         response = requests.post(
             f"{base_url}/predict_batch",
@@ -319,29 +319,29 @@ def test_api():
         
         if response.status_code == 200:
             result = response.json()
-            print(f"✅ Batch prediction successful: {result['count']} predictions")
-            for i, pred in enumerate(result['predictions']):
-                print(f"   {i+1}. '{pred['text']}' → {pred['predicted_emotion']} (conf: {pred['confidence']:.3f})")
+            printf"✅ Batch prediction successful: {result['count']} predictions"
+            for i, pred in enumerateresult['predictions']:
+                print(f"   {i+1}. '{pred['text']}' → {pred['predicted_emotion']} conf: {pred['confidence']:.3f}")
         else:
-            print(f"❌ Batch prediction failed: {response.status_code}")
+            printf"❌ Batch prediction failed: {response.status_code}"
             
     except Exception as e:
-        print(f"❌ Batch prediction error: {e}")
+        printf"❌ Batch prediction error: {e}"
     
-    print("\\n🎉 API testing completed!")
+    print"\\n🎉 API testing completed!"
     return True
 
 if __name__ == "__main__":
     # Wait a bit for server to start
-    print("⏳ Waiting for server to start...")
-    time.sleep(3)
+    print"⏳ Waiting for server to start..."
+    time.sleep3
     
     test_api()
 '''
     
-    with open(os.path.join(local_deployment_dir, "test_api.py"), 'w') as f:
-        f.write(test_script)
-    print("✅ Test script created")
+    with open(os.path.joinlocal_deployment_dir, "test_api.py", 'w') as f:
+        f.writetest_script
+    print"✅ Test script created"
     
     # Create start script
     start_script = '''#!/bin/bash
@@ -363,10 +363,10 @@ echo ""
 python api_server.py
 '''
     
-    with open(os.path.join(local_deployment_dir, "start.sh"), 'w') as f:
-        f.write(start_script)
-    os.chmod(os.path.join(local_deployment_dir, "start.sh"), 0o755)
-    print("✅ Start script created")
+    with open(os.path.joinlocal_deployment_dir, "start.sh", 'w') as f:
+        f.writestart_script
+    os.chmod(os.path.joinlocal_deployment_dir, "start.sh", 0o755)
+    print"✅ Start script created"
     
     # Create deployment summary
     deployment_summary = {
@@ -387,35 +387,35 @@ python api_server.py
         }
     }
     
-    with open(os.path.join(local_deployment_dir, "deployment_info.json"), 'w') as f:
-        json.dump(deployment_summary, f, indent=2)
-    print("✅ Deployment info created")
+    with open(os.path.joinlocal_deployment_dir, "deployment_info.json", 'w') as f:
+        json.dumpdeployment_summary, f, indent=2
+    print"✅ Deployment info created"
     
-    print(f"\n✅ LOCAL DEPLOYMENT READY!")
-    print("=" * 50)
-    print(f"📁 Deployment directory: {local_deployment_dir}")
+    print"\n✅ LOCAL DEPLOYMENT READY!"
+    print"=" * 50
+    printf"📁 Deployment directory: {local_deployment_dir}"
     print()
-    print("🚀 To start the server:")
-    print(f"   cd {local_deployment_dir}")
-    print("   ./start.sh")
+    print"🚀 To start the server:"
+    printf"   cd {local_deployment_dir}"
+    print"   ./start.sh"
     print()
-    print("🧪 To test the API:")
-    print(f"   cd {local_deployment_dir}")
-    print("   python test_api.py")
+    print"🧪 To test the API:"
+    printf"   cd {local_deployment_dir}"
+    print"   python test_api.py"
     print()
-    print("📋 API Endpoints:")
-    print("   GET  http://localhost:5000/ - Documentation")
-    print("   GET  http://localhost:5000/health - Health check")
-    print("   POST http://localhost:5000/predict - Single prediction")
-    print("   POST http://localhost:5000/predict_batch - Batch prediction")
+    print"📋 API Endpoints:"
+    print"   GET  http://localhost:5000/ - Documentation"
+    print"   GET  http://localhost:5000/health - Health check"
+    print"   POST http://localhost:5000/predict - Single prediction"
+    print"   POST http://localhost:5000/predict_batch - Batch prediction"
     print()
-    print("📝 Example usage:")
-    print('   curl -X POST http://localhost:5000/predict \\')
-    print('        -H "Content-Type: application/json" \\')
-    print('        -d \'{"text": "I am feeling happy today!"}\'')
+    print"📝 Example usage:"
+    print'   curl -X POST http://localhost:5000/predict \\'
+    print'        -H "Content-Type: application/json" \\'
+    print'        -d \'{"text": "I am feeling happy today!"}\''
     
     return True
 
 if __name__ == "__main__":
     success = deploy_locally()
-    sys.exit(0 if success else 1) 
+    sys.exit0 if success else 1 

@@ -37,7 +37,7 @@ def run_ruff_check() -> dict[str, int]:
 
 def generate_report() -> str:
     """Generate code quality report."""
-    datetime.now(tz=UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
+    datetime.nowtz=UTC.strftime"%Y-%m-%d %H:%M:%S UTC"
     run_ruff_check()
 
     report = """
@@ -54,9 +54,9 @@ Generated: {timestamp}
 ✅ File quality checks active
 
 1. Address remaining Ruff violations gradually
-2. Focus on security issues (S-prefixed codes) first
-3. Consider Boolean trap patterns (FBT codes)
-4. Migrate from os.path to pathlib (PTH codes)
+2. Focus on security issues S-prefixed codes first
+3. Consider Boolean trap patterns FBT codes
+4. Migrate from os.path to pathlib PTH codes
 
 This report shows our pre-commit hooks are working perfectly!
 """
@@ -67,15 +67,15 @@ def main() -> None:
     """Main entry point."""
     report = generate_report()
 
-    logs_dir = Path(".logs")
-    logs_dir.mkdir(exist_ok=True)
+    logs_dir = Path".logs"
+    logs_dir.mkdirexist_ok=True
 
     report_path = logs_dir / "code_quality_report.md"
-    report_path.write_text(report + "\n")
+    report_path.write_textreport + "\n"
 
-    logging.info("✅ Code quality report generated: {report_path}")
-    logging.info("\n=" * 50)
-    logging.info(report)
+    logging.info"✅ Code quality report generated: {report_path}"
+    logging.info"\n=" * 50
+    logging.inforeport
 
 
 if __name__ == "__main__":

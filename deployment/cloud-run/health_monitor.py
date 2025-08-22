@@ -14,8 +14,8 @@ from datetime import datetime
 import psutil
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logging.basicConfiglevel=logging.INFO
+logger = logging.getLogger__name__
 
 @dataclass
 class HealthMetrics:
@@ -31,38 +31,38 @@ class HealthMetrics:
 class HealthMonitor:
     """Comprehensive health monitoring for Cloud Run"""
 
-    def __init__(self):
+    def __init__self:
         self.start_time = datetime.now()
         self.is_shutting_down = False
         self.active_requests = 0
         self.health_metrics: Dict[str, HealthMetrics] = {}
-        self.shutdown_timeout = int(os.getenv('GRACEFUL_SHUTDOWN_TIMEOUT', '30') or '30')
+        self.shutdown_timeout = int(os.getenv'GRACEFUL_SHUTDOWN_TIMEOUT', '30' or '30')
 
         # Register graceful shutdown handlers
-        signal.signal(signal.SIGTERM, self._graceful_shutdown)
-        signal.signal(signal.SIGINT, self._graceful_shutdown)
+        signal.signalsignal.SIGTERM, self._graceful_shutdown
+        signal.signalsignal.SIGINT, self._graceful_shutdown
 
-        logger.info(f"Health monitor initialized with {self.shutdown_timeout}s shutdown timeout")
+        logger.infof"Health monitor initialized with {self.shutdown_timeout}s shutdown timeout"
 
-    def _graceful_shutdown(self, signum, frame):
+    def _graceful_shutdownself, signum, frame:
         """Handle graceful shutdown"""
-        logger.info(f"Received shutdown signal {signum}, starting graceful shutdown...")
+        logger.infof"Received shutdown signal {signum}, starting graceful shutdown..."
         self.is_shutting_down = True
 
         # Wait for active requests to complete
         start_wait = time.time()
         while self.active_requests > 0 and (time.time() - start_wait) < self.shutdown_timeout:
-            logger.info(f"Waiting for {self.active_requests} active requests to complete...")
-            time.sleep(1)
+            logger.infof"Waiting for {self.active_requests} active requests to complete..."
+            time.sleep1
 
         if self.active_requests > 0:
-            logger.warning(f"Force shutdown after {self.shutdown_timeout}s timeout with {self.active_requests} active requests")
+            logger.warningf"Force shutdown after {self.shutdown_timeout}s timeout with {self.active_requests} active requests"
         else:
-            logger.info("Graceful shutdown completed successfully")
+            logger.info"Graceful shutdown completed successfully"
 
-        sys.exit(0)
+        sys.exit0
 
-    def get_system_metrics(self) -> Dict[str, float]:
+    def get_system_metricsself -> Dict[str, float]:
         """Get current system resource usage"""
         try:
             process = psutil.Process()
@@ -75,7 +75,7 @@ class HealthMonitor:
                 'uptime_seconds': (datetime.now() - self.start_time).total_seconds()
             }
         except Exception as e:
-            logger.error(f"Error getting system metrics: {e}")
+            logger.errorf"Error getting system metrics: {e}"
             return {
                 'memory_usage_mb': 0.0,
                 'cpu_usage_percent': 0.0,
@@ -87,7 +87,7 @@ class HealthMonitor:
     def check_model_health() -> Dict[str, Any]:
         """Check if ML models are loaded and responding"""
         try:
-            # Import models (this will fail if models aren't loaded)
+            # Import models this will fail if models aren't loaded
             from secure_api_server import app
 
             # Test model loading
@@ -103,7 +103,7 @@ class HealthMonitor:
 
             for module_name in modules_to_check:
                 try:
-                    importlib.import_module(module_name)
+                    importlib.import_modulemodule_name
                 except ImportError as e:
                     return {
                         'status': 'unhealthy',
@@ -114,7 +114,7 @@ class HealthMonitor:
             return {
                 'status': 'healthy',
                 'response_time_ms': (time.time() - start_time) * 1000,
-                'models_loaded': len(modules_to_check)
+                'models_loaded': lenmodules_to_check
             }
 
         except Exception as e:
@@ -135,7 +135,7 @@ class HealthMonitor:
 
             # Use Flask test client instead of FastAPI TestClient
             with app.test_client() as client:
-                response = client.get("/health")
+                response = client.get"/health"
 
             response_time = (time.time() - start_time) * 1000
 
@@ -158,7 +158,7 @@ class HealthMonitor:
                 'response_time_ms': 0
             }
 
-    def get_comprehensive_health(self) -> Dict[str, Any]:
+    def get_comprehensive_healthself -> Dict[str, Any]:
         """Get comprehensive health status"""
         if self.is_shutting_down:
             return {
@@ -194,45 +194,45 @@ class HealthMonitor:
             'timestamp': datetime.now().isoformat(),
             'uptime_seconds': system_metrics['uptime_seconds'],
             'system': {
-                'memory_usage_mb': round(system_metrics['memory_usage_mb'], 2),
-                'cpu_usage_percent': round(system_metrics['cpu_usage_percent'], 2),
-                'memory_percent': round(system_metrics['memory_percent'], 2)
+                'memory_usage_mb': roundsystem_metrics['memory_usage_mb'], 2,
+                'cpu_usage_percent': roundsystem_metrics['cpu_usage_percent'], 2,
+                'memory_percent': roundsystem_metrics['memory_percent'], 2
             },
             'models': model_health,
             'api': api_health,
             'requests': {
                 'active': self.active_requests,
-                'total_processed': len(self.health_metrics)
+                'total_processed': lenself.health_metrics
             }
         }
 
         # Store metrics for trend analysis
         self.health_metrics[datetime.now().isoformat()] = HealthMetrics(
             status=overall_status,
-            response_time_ms=api_health.get('response_time_ms', 0),
+            response_time_ms=api_health.get'response_time_ms', 0,
             memory_usage_mb=system_metrics['memory_usage_mb'],
             cpu_usage_percent=system_metrics['cpu_usage_percent'],
             active_requests=self.active_requests,
             timestamp=datetime.now(),
-            error_message=model_health.get('error') or api_health.get('error')
+            error_message=model_health.get'error' or api_health.get'error'
         )
 
         # Keep only last 100 metrics
-        if len(self.health_metrics) > 100:
+        if lenself.health_metrics > 100:
             oldest_key = min(self.health_metrics.keys())
             del self.health_metrics[oldest_key]
 
         return health_data
 
-    def request_started(self):
+    def request_startedself:
         """Track request start"""
         with self.lock:
             self.active_requests += 1
 
-    def request_completed(self):
+    def request_completedself:
         """Track request completion"""
         with self.lock:
-            self.active_requests = max(0, self.active_requests - 1)
+            self.active_requests = max0, self.active_requests - 1
 
 # Global health monitor instance
 health_monitor = HealthMonitor()

@@ -12,46 +12,46 @@ import numpy as np
 
 def load_trained_model():
     """Load the trained emotion detection model."""
-    print("🔧 Loading trained model...")
+    print"🔧 Loading trained model..."
     
     # Load model weights
     model_path = 'best_simple_model.pth'
-    model = SimpleEmotionClassifier(model_name="bert-base-uncased", num_labels=12)
-    model.load_state_dict(torch.load(model_path, map_location='cpu'))
+    model = SimpleEmotionClassifiermodel_name="bert-base-uncased", num_labels=12
+    model.load_state_dict(torch.loadmodel_path, map_location='cpu')
     model.eval()
     
     # Load tokenizer
-    tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+    tokenizer = AutoTokenizer.from_pretrained"bert-base-uncased"
     
     # Load label encoder
-    with open('simple_training_results.json', 'r') as f:
-        results = json.load(f)
+    with open'simple_training_results.json', 'r' as f:
+        results = json.loadf
     
     # Create label encoder from results
-    all_emotions = results.get('all_emotions', [])
+    all_emotions = results.get'all_emotions', []
     label_encoder = LabelEncoder()
-    label_encoder.fit(all_emotions)
+    label_encoder.fitall_emotions
     
-    print(f"✅ Model loaded with {len(label_encoder.classes_)} emotions: {label_encoder.classes_}")
+    print(f"✅ Model loaded with {lenlabel_encoder.classes_} emotions: {label_encoder.classes_}")
     return model, tokenizer, label_encoder
 
-class SimpleEmotionClassifier(nn.Module):
-    def __init__(self, model_name="bert-base-uncased", num_labels=None):
+class SimpleEmotionClassifiernn.Module:
+    def __init__self, model_name="bert-base-uncased", num_labels=None:
         super().__init__()
         self.num_labels = num_labels
-        self.bert = AutoModel.from_pretrained(model_name)
-        self.dropout = nn.Dropout(0.3)
-        self.classifier = nn.Linear(self.bert.config.hidden_size, num_labels)
+        self.bert = AutoModel.from_pretrainedmodel_name
+        self.dropout = nn.Dropout0.3
+        self.classifier = nn.Linearself.bert.config.hidden_size, num_labels
     
-    def forward(self, input_ids, attention_mask):
-        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
+    def forwardself, input_ids, attention_mask:
+        outputs = self.bertinput_ids=input_ids, attention_mask=attention_mask
         pooled_output = outputs.pooler_output
-        logits = self.classifier(self.dropout(pooled_output))
+        logits = self.classifier(self.dropoutpooled_output)
         return logits
 
-def predict_emotion(text, model, tokenizer, label_encoder, device='cpu'):
+def predict_emotiontext, model, tokenizer, label_encoder, device='cpu':
     """Predict emotion for a given text."""
-    model.to(device)
+    model.todevice
     
     # Tokenize input
     encoding = tokenizer(
@@ -63,24 +63,24 @@ def predict_emotion(text, model, tokenizer, label_encoder, device='cpu'):
     )
     
     # Move to device
-    input_ids = encoding['input_ids'].to(device)
-    attention_mask = encoding['attention_mask'].to(device)
+    input_ids = encoding['input_ids'].todevice
+    attention_mask = encoding['attention_mask'].todevice
     
     # Predict
     with torch.no_grad():
-        outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-        probabilities = torch.softmax(outputs, dim=1)
-        predicted_class = torch.argmax(probabilities, dim=1).item()
+        outputs = modelinput_ids=input_ids, attention_mask=attention_mask
+        probabilities = torch.softmaxoutputs, dim=1
+        predicted_class = torch.argmaxprobabilities, dim=1.item()
         confidence = probabilities[0][predicted_class].item()
     
     # Get emotion label
-    emotion = label_encoder.inverse_transform([predicted_class])[0]
+    emotion = label_encoder.inverse_transform[predicted_class][0]
     
     return emotion, confidence, probabilities[0].cpu().numpy()
 
 def test_model():
     """Test the model with sample journal entries."""
-    print("🧪 Testing emotion detection model...")
+    print"🧪 Testing emotion detection model..."
     
     # Load model
     model, tokenizer, label_encoder = load_trained_model()
@@ -101,44 +101,44 @@ def test_model():
         "I'm content with how things are going."
     ]
     
-    print("\n📊 Testing Results:")
-    print("=" * 80)
+    print"\n📊 Testing Results:"
+    print"=" * 80
     
-    for i, text in enumerate(test_entries, 1):
-        emotion, confidence, all_probs = predict_emotion(text, model, tokenizer, label_encoder)
+    for i, text in enumeratetest_entries, 1:
+        emotion, confidence, all_probs = predict_emotiontext, model, tokenizer, label_encoder
         
-        print(f"\n{i}. Text: {text}")
-        print(f"   Predicted: {emotion} (confidence: {confidence:.3f})")
+        printf"\n{i}. Text: {text}"
+        print(f"   Predicted: {emotion} confidence: {confidence:.3f}")
         
         # Show top 3 predictions
-        top_indices = np.argsort(all_probs)[-3:][::-1]
-        print("   Top 3 predictions:")
+        top_indices = np.argsortall_probs[-3:][::-1]
+        print"   Top 3 predictions:"
         for idx in top_indices:
             prob = all_probs[idx]
-            emotion_name = label_encoder.inverse_transform([idx])[0]
-            print(f"     - {emotion_name}: {prob:.3f}")
+            emotion_name = label_encoder.inverse_transform[idx][0]
+            printf"     - {emotion_name}: {prob:.3f}"
     
-    print("\n✅ Model testing completed!")
+    print"\n✅ Model testing completed!"
 
 def analyze_performance():
     """Analyze model performance on validation data."""
-    print("\n📈 Performance Analysis:")
-    print("=" * 40)
+    print"\n📈 Performance Analysis:"
+    print"=" * 40
     
     # Load results
-    with open('simple_training_results.json', 'r') as f:
-        results = json.load(f)
+    with open'simple_training_results.json', 'r' as f:
+        results = json.loadf
     
-    print(f"Final F1 Score: {results['best_f1']:.4f}")
-    print(f"Target Achieved: {results['target_achieved']}")
-    print(f"Number of Labels: {results['num_labels']}")
-    print(f"GoEmotions Samples: {results['go_samples']}")
-    print(f"Journal Samples: {results['journal_samples']}")
+    printf"Final F1 Score: {results['best_f1']:.4f}"
+    printf"Target Achieved: {results['target_achieved']}"
+    printf"Number of Labels: {results['num_labels']}"
+    printf"GoEmotions Samples: {results['go_samples']}"
+    printf"Journal Samples: {results['journal_samples']}"
     
     # Show emotion mapping
-    print(f"\nEmotion Mapping Used:")
+    print"\nEmotion Mapping Used:"
     for go_emotion, journal_emotion in results['emotion_mapping'].items():
-        print(f"  {go_emotion} → {journal_emotion}")
+        printf"  {go_emotion} → {journal_emotion}"
 
 if __name__ == "__main__":
     test_model()

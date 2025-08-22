@@ -26,9 +26,9 @@ from dataclasses import dataclass
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%asctimes - %names - %levelnames - %messages'
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger__name__
 
 @dataclass
 class DeploymentConfig:
@@ -49,37 +49,37 @@ class DeploymentConfig:
 class VertexAIPhase4Automation:
     """Enhanced Vertex AI deployment automation with Phase 4 features."""
 
-    def __init__(self, config: DeploymentConfig):
+    def __init__self, config: DeploymentConfig:
         self.config = config
         self.current_version = None
         self.deployment_history = []
 
-    def check_prerequisites(self) -> bool:
+    def check_prerequisitesself -> bool:
         """Enhanced prerequisites checking for Phase 4 features."""
-        logger.info("🔍 CHECKING PHASE 4 DEPLOYMENT PREREQUISITES")
-        print("=" * 60)
+        logger.info"🔍 CHECKING PHASE 4 DEPLOYMENT PREREQUISITES"
+        print"=" * 60
 
         checks = [
-            ("gcloud CLI", self._check_gcloud),
-            ("Authentication", self._check_authentication),
-            ("Project Configuration", self._check_project),
-            ("Vertex AI API", self._check_vertex_ai_api),
-            ("Cloud Monitoring API", self._check_monitoring_api),
-            ("Cloud Logging API", self._check_logging_api),
-            ("Artifact Registry", self._check_artifact_registry),
-            ("IAM Permissions", self._check_iam_permissions),
+            "gcloud CLI", self._check_gcloud,
+            "Authentication", self._check_authentication,
+            "Project Configuration", self._check_project,
+            "Vertex AI API", self._check_vertex_ai_api,
+            "Cloud Monitoring API", self._check_monitoring_api,
+            "Cloud Logging API", self._check_logging_api,
+            "Artifact Registry", self._check_artifact_registry,
+            "IAM Permissions", self._check_iam_permissions,
         ]
 
         all_passed = True
         for check_name, check_func in checks:
             try:
                 if check_func():
-                    print(f"✅ {check_name}")
+                    printf"✅ {check_name}"
                 else:
-                    print(f"❌ {check_name}")
+                    printf"❌ {check_name}"
                     all_passed = False
             except Exception as e:
-                print(f"❌ {check_name}: {e}")
+                printf"❌ {check_name}: {e}"
                 all_passed = False
 
         return all_passed
@@ -88,7 +88,7 @@ class VertexAIPhase4Automation:
     def _check_gcloud() -> bool:
         """Check if gcloud CLI is installed and working."""
         try:
-            result = subprocess.run(['gcloud', '--version'], capture_output=True, text=True, check=True)
+            result = subprocess.run['gcloud', '--version'], capture_output=True, text=True, check=True
             return result.returncode == 0
         except FileNotFoundError:
             return False
@@ -103,7 +103,7 @@ class VertexAIPhase4Automation:
         except Exception:
             return False
 
-    def _check_project(self) -> bool:
+    def _check_projectself -> bool:
         """Check if project is properly configured."""
         try:
             result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], 
@@ -156,7 +156,7 @@ class VertexAIPhase4Automation:
         except Exception:
             return False
 
-    def _check_iam_permissions(self) -> bool:
+    def _check_iam_permissionsself -> bool:
         """Check if user has required IAM permissions."""
         required_roles = [
             'roles/aiplatform.admin',
@@ -168,19 +168,19 @@ class VertexAIPhase4Automation:
         try:
             result = subprocess.run(['gcloud', 'projects', 'get-iam-policy', self.config.project_id, 
                                    '--flatten=bindings[].members', 
-                                   '--format=value(bindings.role)'], 
+                                   '--format=valuebindings.role'], 
                                   capture_output=True, text=True, check=True)
             user_email = subprocess.run(['gcloud', 'config', 'get-value', 'account'], 
-                                      capture_output=True, text=True, check=True).stdout.strip(check=True)
+                                      capture_output=True, text=True, check=True).stdout.stripcheck=True
 
-            user_roles = result.stdout.split('\n')
-            return any(role in user_roles for role in required_roles)
+            user_roles = result.stdout.split'\n'
+            return anyrole in user_roles for role in required_roles
         except Exception:
             return False
 
-    def generate_model_version(self) -> str:
+    def generate_model_versionself -> str:
         """Generate a unique model version based on timestamp and git commit."""
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now().strftime"%Y%m%d_%H%M%S"
 
         # Get git commit hash if available
         try:
@@ -194,22 +194,22 @@ class VertexAIPhase4Automation:
         self.current_version = version
         return version
 
-    def create_deployment_package(self, version: str) -> str:
+    def create_deployment_packageself, version: str -> str:
         """Create deployment package with versioning."""
-        logger.info(f"📦 CREATING DEPLOYMENT PACKAGE FOR VERSION {version}")
-        print("=" * 60)
+        logger.infof"📦 CREATING DEPLOYMENT PACKAGE FOR VERSION {version}"
+        print"=" * 60
 
         # Create versioned deployment directory
         deployment_dir = f"deployment/vertex_ai/{version}"
-        os.makedirs(deployment_dir, exist_ok=True)
+        os.makedirsdeployment_dir, exist_ok=True
 
         # Copy model files
         source_model_path = "deployment/models/default"
-        if not os.path.exists(source_model_path):
-            raise FileNotFoundError(f"Source model not found: {source_model_path}")
+        if not os.path.existssource_model_path:
+            raise FileNotFoundErrorf"Source model not found: {source_model_path}"
 
         # Create Dockerfile with versioning
-        dockerfile_content = f"""
+        dockerfile_content = """
 FROM python:3.9-slim
 
 WORKDIR /app
@@ -239,17 +239,17 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \\
 CMD ["python", "predict.py"]
 """
 
-        with open(f"{deployment_dir}/Dockerfile", "w") as f:
-            f.write(dockerfile_content)
+        with openf"{deployment_dir}/Dockerfile", "w" as f:
+            f.writedockerfile_content
 
         # Copy model files
-        subprocess.run(['cp', '-r', source_model_path, f"{deployment_dir}/model"], check=True)
+        subprocess.run['cp', '-r', source_model_path, f"{deployment_dir}/model"], check=True
 
         # Copy requirements
-        subprocess.run(['cp', 'deployment/gcp/requirements.txt', f"{deployment_dir}/"], check=True)
+        subprocess.run['cp', 'deployment/gcp/requirements.txt', f"{deployment_dir}/"], check=True
 
         # Copy prediction code
-        subprocess.run(['cp', 'deployment/gcp/predict.py', f"{deployment_dir}/"], check=True)
+        subprocess.run['cp', 'deployment/gcp/predict.py', f"{deployment_dir}/"], check=True
 
         # Create version metadata
         metadata = {
@@ -267,42 +267,42 @@ CMD ["python", "predict.py"]
             }
         }
 
-        with open(f"{deployment_dir}/version_metadata.json", "w") as f:
-            json.dump(metadata, f, indent=2)
+        with openf"{deployment_dir}/version_metadata.json", "w" as f:
+            json.dumpmetadata, f, indent=2
 
-        print(f"✅ Deployment package created: {deployment_dir}")
+        printf"✅ Deployment package created: {deployment_dir}"
         return deployment_dir
 
-    def build_and_push_image(self, deployment_dir: str, version: str) -> str:
+    def build_and_push_imageself, deployment_dir: str, version: str -> str:
         """Build and push Docker image with versioning."""
-        logger.info(f"🐳 BUILDING AND PUSHING DOCKER IMAGE FOR VERSION {version}")
-        print("=" * 60)
+        logger.infof"🐳 BUILDING AND PUSHING DOCKER IMAGE FOR VERSION {version}"
+        print"=" * 60
 
         # Configure Docker for gcloud
-        subprocess.run(['gcloud', 'auth', 'configure-docker'], check=True)
+        subprocess.run['gcloud', 'auth', 'configure-docker'], check=True
 
         # Create image URI with version
         image_uri = f"gcr.io/{self.config.project_id}/{self.config.repository_name}:{version}"
 
         try:
             # Build image
-            subprocess.run(['docker', 'build', '-t', image_uri, deployment_dir], check=True)
-            print("✅ Docker image built")
+            subprocess.run['docker', 'build', '-t', image_uri, deployment_dir], check=True
+            print"✅ Docker image built"
 
             # Push image
-            subprocess.run(['docker', 'push', image_uri], check=True)
-            print("✅ Docker image pushed to Container Registry")
+            subprocess.run['docker', 'push', image_uri], check=True
+            print"✅ Docker image pushed to Container Registry"
 
             return image_uri
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"Error building/pushing Docker image: {e}")
+            logger.errorf"Error building/pushing Docker image: {e}"
             raise
 
-    def create_vertex_ai_model(self, image_uri: str, version: str) -> str:
+    def create_vertex_ai_modelself, image_uri: str, version: str -> str:
         """Create Vertex AI model with versioning."""
-        logger.info(f"🤖 CREATING VERTEX AI MODEL FOR VERSION {version}")
-        print("=" * 60)
+        logger.infof"🤖 CREATING VERTEX AI MODEL FOR VERSION {version}"
+        print"=" * 60
 
         model_display_name = f"{self.config.model_name}-{version}"
 
@@ -317,27 +317,27 @@ CMD ["python", "predict.py"]
                 '--container-health-route', '/health',
                 '--container-env-vars', f'MODEL_VERSION={version}'
             ], check=True)
-            print("✅ Vertex AI model created")
+            print"✅ Vertex AI model created"
 
             # Get model ID
             result = subprocess.run([
                 'gcloud', 'ai', 'models', 'list',
                 '--region', self.config.region,
                 '--filter', f'displayName={model_display_name}',
-                '--format', 'value(name)'
+                '--format', 'valuename'
             ], capture_output=True, text=True, check=True)
 
             model_id = result.stdout.strip()
             return model_id
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"Error creating Vertex AI model: {e}")
+            logger.errorf"Error creating Vertex AI model: {e}"
             raise
 
-    def deploy_model_to_endpoint(self, model_id: str, version: str) -> str:
+    def deploy_model_to_endpointself, model_id: str, version: str -> str:
         """Deploy model to endpoint with traffic management."""
-        logger.info(f"🚀 DEPLOYING MODEL TO ENDPOINT FOR VERSION {version}")
-        print("=" * 60)
+        logger.infof"🚀 DEPLOYING MODEL TO ENDPOINT FOR VERSION {version}"
+        print"=" * 60
 
         try:
             # Get or create endpoint
@@ -353,11 +353,11 @@ CMD ["python", "predict.py"]
                 '--model', model_id,
                 '--traffic-split', ','.join([f"{k}={v}" for k, v in traffic_split.items()]),
                 '--machine-type', self.config.machine_type,
-                '--min-replica-count', str(self.config.min_replicas),
-                '--max-replica-count', str(self.config.max_replicas)
+                '--min-replica-count', strself.config.min_replicas,
+                '--max-replica-count', strself.config.max_replicas
             ], check=True)
 
-            print("✅ Model deployed to endpoint")
+            print"✅ Model deployed to endpoint"
 
             # Record deployment
             deployment_record = {
@@ -367,15 +367,15 @@ CMD ["python", "predict.py"]
                 "deployed_at": datetime.now().isoformat(),
                 "traffic_split": traffic_split
             }
-            self.deployment_history.append(deployment_record)
+            self.deployment_history.appenddeployment_record
 
             return endpoint_id
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"Error deploying model to endpoint: {e}")
+            logger.errorf"Error deploying model to endpoint: {e}"
             raise
 
-    def _get_or_create_endpoint(self) -> str:
+    def _get_or_create_endpointself -> str:
         """Get existing endpoint or create new one."""
         try:
             # Try to get existing endpoint
@@ -383,7 +383,7 @@ CMD ["python", "predict.py"]
                 'gcloud', 'ai', 'endpoints', 'list',
                 '--region', self.config.region,
                 '--filter', f'displayName={self.config.endpoint_name}',
-                '--format', 'value(name)'
+                '--format', 'valuename'
             ], capture_output=True, text=True, check=True)
 
             if result.returncode == 0 and result.stdout.strip():
@@ -401,19 +401,19 @@ CMD ["python", "predict.py"]
                 'gcloud', 'ai', 'endpoints', 'list',
                 '--region', self.config.region,
                 '--filter', f'displayName={self.config.endpoint_name}',
-                '--format', 'value(name)'
+                '--format', 'valuename'
             ], capture_output=True, text=True, check=True)
 
             return result.stdout.strip()
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"Error getting/creating endpoint: {e}")
+            logger.errorf"Error getting/creating endpoint: {e}"
             raise
 
-    def setup_monitoring_and_alerting(self, endpoint_id: str) -> None:
+    def setup_monitoring_and_alertingself, endpoint_id: str -> None:
         """Setup monitoring and alerting for the deployment."""
-        logger.info("📊 SETTING UP MONITORING AND ALERTING")
-        print("=" * 60)
+        logger.info"📊 SETTING UP MONITORING AND ALERTING"
+        print"=" * 60
 
         # Create monitoring policy
         policy_name = f"emotion-detection-monitoring-{self.current_version}"
@@ -447,8 +447,8 @@ CMD ["python", "predict.py"]
 
         # Write policy to file
         policy_file = f"deployment/vertex_ai/{self.current_version}/monitoring_policy.json"
-        with open(policy_file, "w") as f:
-            json.dump(policy_config, f, indent=2)
+        with openpolicy_file, "w" as f:
+            json.dumppolicy_config, f, indent=2
 
         try:
             # Create monitoring policy
@@ -456,16 +456,16 @@ CMD ["python", "predict.py"]
                 'gcloud', 'alpha', 'monitoring', 'policies', 'create',
                 '--policy-from-file', policy_file
             ], check=True)
-            print("✅ Monitoring policy created")
+            print"✅ Monitoring policy created"
 
         except subprocess.CalledProcessError as e:
-            logger.warning(f"Could not create monitoring policy: {e}")
-            print("⚠️  Monitoring policy creation failed (may need additional permissions)")
+            logger.warningf"Could not create monitoring policy: {e}"
+            print("⚠️  Monitoring policy creation failed may need additional permissions")
 
-    def setup_cost_monitoring(self) -> None:
+    def setup_cost_monitoringself -> None:
         """Setup cost monitoring and budget alerts."""
-        logger.info("💰 SETTING UP COST MONITORING")
-        print("=" * 60)
+        logger.info"💰 SETTING UP COST MONITORING"
+        print"=" * 60
 
         budget_name = f"emotion-detection-budget-{self.current_version}"
 
@@ -477,7 +477,7 @@ CMD ["python", "predict.py"]
             "amount": {
                 "specifiedAmount": {
                     "currencyCode": "USD",
-                    "units": str(int(self.config.cost_budget))
+                    "units": str(intself.config.cost_budget)
                 }
             },
             "thresholdRules": [
@@ -498,8 +498,8 @@ CMD ["python", "predict.py"]
 
         # Write budget to file
         budget_file = f"deployment/vertex_ai/{self.current_version}/budget_config.json"
-        with open(budget_file, "w") as f:
-            json.dump(budget_config, f, indent=2)
+        with openbudget_file, "w" as f:
+            json.dumpbudget_config, f, indent=2
 
         try:
             # Create budget
@@ -508,27 +508,27 @@ CMD ["python", "predict.py"]
                 '--billing-account', self._get_billing_account(),
                 '--budget-file', budget_file
             ], check=True)
-            print("✅ Cost budget created")
+            print"✅ Cost budget created"
 
         except subprocess.CalledProcessError as e:
-            logger.warning(f"Could not create budget: {e}")
-            print("⚠️  Budget creation failed (may need billing permissions)")
+            logger.warningf"Could not create budget: {e}"
+            print("⚠️  Budget creation failed may need billing permissions")
 
-    def _get_billing_account(self) -> str:
+    def _get_billing_accountself -> str:
         """Get the billing account for the project."""
         try:
             result = subprocess.run([
                 'gcloud', 'billing', 'projects', 'describe', self.config.project_id,
-                '--format', 'value(billingAccountName)'
+                '--format', 'valuebillingAccountName'
             ], capture_output=True, text=True, check=True)
             return result.stdout.strip()
         except subprocess.CalledProcessError:
             return ""
 
-    def rollback_deployment(self, target_version: str) -> bool:
+    def rollback_deploymentself, target_version: str -> bool:
         """Rollback to a previous version."""
-        logger.info(f"🔄 ROLLING BACK TO VERSION {target_version}")
-        print("=" * 60)
+        logger.infof"🔄 ROLLING BACK TO VERSION {target_version}"
+        print"=" * 60
 
         # Find the target deployment
         target_deployment = None
@@ -538,7 +538,7 @@ CMD ["python", "predict.py"]
                 break
 
         if not target_deployment:
-            logger.error(f"Target version {target_version} not found in deployment history")
+            logger.errorf"Target version {target_version} not found in deployment history"
             return False
 
         try:
@@ -550,21 +550,21 @@ CMD ["python", "predict.py"]
                 '--model', target_deployment["model_id"],
                 '--traffic-split', '100=1.0',
                 '--machine-type', self.config.machine_type,
-                '--min-replica-count', str(self.config.min_replicas),
-                '--max-replica-count', str(self.config.max_replicas)
+                '--min-replica-count', strself.config.min_replicas,
+                '--max-replica-count', strself.config.max_replicas
             ], check=True)
 
-            print(f"✅ Successfully rolled back to version {target_version}")
+            printf"✅ Successfully rolled back to version {target_version}"
             return True
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"Error during rollback: {e}")
+            logger.errorf"Error during rollback: {e}"
             return False
 
-    def setup_ab_testing(self, version_a: str, version_b: str, traffic_split: Dict[str, float]) -> bool:
+    def setup_ab_testingself, version_a: str, version_b: str, traffic_split: Dict[str, float] -> bool:
         """Setup A/B testing between two versions."""
-        logger.info(f"🧪 SETTING UP A/B TESTING: {version_a} vs {version_b}")
-        print("=" * 60)
+        logger.infof"🧪 SETTING UP A/B TESTING: {version_a} vs {version_b}"
+        print"=" * 60
 
         # Find both versions in deployment history
         version_a_deployment = None
@@ -577,7 +577,7 @@ CMD ["python", "predict.py"]
                 version_b_deployment = deployment
 
         if not version_a_deployment or not version_b_deployment:
-            logger.error("Both versions must be deployed before A/B testing")
+            logger.error"Both versions must be deployed before A/B testing"
             return False
 
         try:
@@ -591,21 +591,21 @@ CMD ["python", "predict.py"]
                 '--model', version_a_deployment["model_id"],
                 '--traffic-split', traffic_config,
                 '--machine-type', self.config.machine_type,
-                '--min-replica-count', str(self.config.min_replicas),
-                '--max-replica-count', str(self.config.max_replicas)
+                '--min-replica-count', strself.config.min_replicas,
+                '--max-replica-count', strself.config.max_replicas
             ], check=True)
 
-            print("✅ A/B testing setup completed")
+            print"✅ A/B testing setup completed"
             return True
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"Error setting up A/B testing: {e}")
+            logger.errorf"Error setting up A/B testing: {e}"
             return False
 
-    def get_performance_metrics(self, endpoint_id: str) -> Dict:
+    def get_performance_metricsself, endpoint_id: str -> Dict:
         """Get performance metrics for the deployment."""
-        logger.info("📈 GETTING PERFORMANCE METRICS")
-        print("=" * 60)
+        logger.info"📈 GETTING PERFORMANCE METRICS"
+        print"=" * 60
 
         try:
             # Get prediction latency
@@ -613,7 +613,7 @@ CMD ["python", "predict.py"]
                 'gcloud', 'ai', 'endpoints', 'describe',
                 '--region', self.config.region,
                 '--endpoint', endpoint_id,
-                '--format', 'value(predictRequestResponseLoggingConfig.enabled)'
+                '--format', 'valuepredictRequestResponseLoggingConfig.enabled'
             ], capture_output=True, text=True, check=True)
 
             # Get model performance metrics
@@ -621,30 +621,30 @@ CMD ["python", "predict.py"]
                 'gcloud', 'ai', 'models', 'list',
                 '--region', self.config.region,
                 '--filter', f'endpointId={endpoint_id}',
-                '--format', 'value(displayName,createTime)'
+                '--format', 'valuedisplayName,createTime'
             ], capture_output=True, text=True, check=True)
 
             metrics = {
                 "endpoint_id": endpoint_id,
                 "timestamp": datetime.now().isoformat(),
                 "logging_enabled": result.stdout.strip() == "True",
-                "models": result.stdout.strip().split('\n') if result.stdout.strip() else []
+                "models": result.stdout.strip().split'\n' if result.stdout.strip() else []
             }
 
-            print("✅ Performance metrics retrieved")
+            print"✅ Performance metrics retrieved"
             return metrics
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"Error getting performance metrics: {e}")
+            logger.errorf"Error getting performance metrics: {e}"
             return {}
 
-    def cleanup_old_versions(self, keep_versions: int = 3) -> None:
+    def cleanup_old_versionsself, keep_versions: int = 3 -> None:
         """Clean up old model versions to save costs."""
-        logger.info(f"🧹 CLEANING UP OLD VERSIONS (keeping {keep_versions})")
-        print("=" * 60)
+        logger.info(f"🧹 CLEANING UP OLD VERSIONS keeping {keep_versions}")
+        print"=" * 60
 
-        if len(self.deployment_history) <= keep_versions:
-            print("✅ No cleanup needed")
+        if lenself.deployment_history <= keep_versions:
+            print"✅ No cleanup needed"
             return
 
         # Sort by deployment time and keep only the latest versions
@@ -665,61 +665,61 @@ CMD ["python", "predict.py"]
                     '--model', deployment["model_id"]
                 ], check=True)
 
-                print(f"✅ Deleted model version: {deployment['version']}")
+                printf"✅ Deleted model version: {deployment['version']}"
 
             except subprocess.CalledProcessError as e:
-                logger.warning(f"Could not delete model {deployment['version']}: {e}")
+                logger.warningf"Could not delete model {deployment['version']}: {e}"
 
-    def run_full_deployment(self) -> bool:
+    def run_full_deploymentself -> bool:
         """Run the complete Phase 4 deployment process."""
-        logger.info("🚀 STARTING PHASE 4 VERTEX AI DEPLOYMENT")
-        print("=" * 60)
+        logger.info"🚀 STARTING PHASE 4 VERTEX AI DEPLOYMENT"
+        print"=" * 60
 
         try:
             # 1. Check prerequisites
             if not self.check_prerequisites():
-                logger.error("Prerequisites check failed")
+                logger.error"Prerequisites check failed"
                 return False
 
             # 2. Generate version
             version = self.generate_model_version()
-            print(f"📋 Generated version: {version}")
+            printf"📋 Generated version: {version}"
 
             # 3. Create deployment package
-            deployment_dir = self.create_deployment_package(version)
+            deployment_dir = self.create_deployment_packageversion
 
             # 4. Build and push image
-            image_uri = self.build_and_push_image(deployment_dir, version)
+            image_uri = self.build_and_push_imagedeployment_dir, version
 
             # 5. Create Vertex AI model
-            model_id = self.create_vertex_ai_model(image_uri, version)
+            model_id = self.create_vertex_ai_modelimage_uri, version
 
             # 6. Deploy to endpoint
-            endpoint_id = self.deploy_model_to_endpoint(model_id, version)
+            endpoint_id = self.deploy_model_to_endpointmodel_id, version
 
             # 7. Setup monitoring and alerting
-            self.setup_monitoring_and_alerting(endpoint_id)
+            self.setup_monitoring_and_alertingendpoint_id
 
             # 8. Setup cost monitoring
             self.setup_cost_monitoring()
 
             # 9. Get performance metrics
-            metrics = self.get_performance_metrics(endpoint_id)
+            metrics = self.get_performance_metricsendpoint_id
 
             # 10. Cleanup old versions
             self.cleanup_old_versions()
 
             # 11. Save deployment summary
-            self._save_deployment_summary(version, endpoint_id, metrics)
+            self._save_deployment_summaryversion, endpoint_id, metrics
 
-            logger.info("✅ Phase 4 deployment completed successfully!")
+            logger.info"✅ Phase 4 deployment completed successfully!"
             return True
 
         except Exception as e:
-            logger.error(f"Deployment failed: {e}")
+            logger.errorf"Deployment failed: {e}"
             return False
 
-    def _save_deployment_summary(self, version: str, endpoint_id: str, metrics: Dict) -> None:
+    def _save_deployment_summaryself, version: str, endpoint_id: str, metrics: Dict -> None:
         """Save deployment summary for future reference."""
         summary = {
             "version": version,
@@ -737,15 +737,15 @@ CMD ["python", "predict.py"]
         }
 
         summary_file = f"deployment/vertex_ai/{version}/deployment_summary.json"
-        with open(summary_file, "w") as f:
-            json.dump(summary, f, indent=2)
+        with opensummary_file, "w" as f:
+            json.dumpsummary, f, indent=2
 
-        print(f"📄 Deployment summary saved: {summary_file}")
+        printf"📄 Deployment summary saved: {summary_file}"
 
 def main():
     """Main function for Phase 4 Vertex AI deployment."""
-    print("🎯 PHASE 4: VERTEX AI DEPLOYMENT AUTOMATION")
-    print("=" * 60)
+    print"🎯 PHASE 4: VERTEX AI DEPLOYMENT AUTOMATION"
+    print"=" * 60
 
     # Get project ID
     try:
@@ -753,8 +753,8 @@ def main():
                               capture_output=True, text=True, check=True)
         project_id = result.stdout.strip()
     except Exception:
-        print("❌ Could not get project ID. Please run: gcloud config set project YOUR_PROJECT_ID")
-        sys.exit(1)
+        print"❌ Could not get project ID. Please run: gcloud config set project YOUR_PROJECT_ID"
+        sys.exit1
 
     # Create configuration
     config = DeploymentConfig(
@@ -769,25 +769,25 @@ def main():
     )
 
     # Create automation instance
-    automation = VertexAIPhase4Automation(config)
+    automation = VertexAIPhase4Automationconfig
 
     # Run deployment
     if automation.run_full_deployment():
-        print("\n🎉 PHASE 4 DEPLOYMENT COMPLETED SUCCESSFULLY!")
-        print("=" * 60)
-        print("✅ Automated model versioning and deployment")
-        print("✅ Rollback capabilities and A/B testing support")
-        print("✅ Model performance monitoring and alerting")
-        print("✅ Cost optimization and resource management")
-        print("✅ Comprehensive testing and validation")
-        print("\n📊 Next steps:")
-        print("   - Monitor performance metrics")
-        print("   - Set up additional alerting if needed")
-        print("   - Configure A/B testing for new versions")
-        print("   - Review cost optimization opportunities")
+        print"\n🎉 PHASE 4 DEPLOYMENT COMPLETED SUCCESSFULLY!"
+        print"=" * 60
+        print"✅ Automated model versioning and deployment"
+        print"✅ Rollback capabilities and A/B testing support"
+        print"✅ Model performance monitoring and alerting"
+        print"✅ Cost optimization and resource management"
+        print"✅ Comprehensive testing and validation"
+        print"\n📊 Next steps:"
+        print"   - Monitor performance metrics"
+        print"   - Set up additional alerting if needed"
+        print"   - Configure A/B testing for new versions"
+        print"   - Review cost optimization opportunities"
     else:
-        print("\n❌ PHASE 4 DEPLOYMENT FAILED!")
-        sys.exit(1)
+        print"\n❌ PHASE 4 DEPLOYMENT FAILED!"
+        sys.exit1
 
 if __name__ == "__main__":
     main() 

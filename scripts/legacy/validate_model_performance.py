@@ -12,60 +12,60 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import json
 import os
 import warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings'ignore'
 
-def load_model_and_tokenizer(model_path):
+def load_model_and_tokenizermodel_path:
     """Load the trained model and tokenizer."""
     try:
-        tokenizer = AutoTokenizer.from_pretrained(model_path)
-        model = AutoModelForSequenceClassification.from_pretrained(model_path)
+        tokenizer = AutoTokenizer.from_pretrainedmodel_path
+        model = AutoModelForSequenceClassification.from_pretrainedmodel_path
         return tokenizer, model
     except Exception as e:
-        print(f"❌ Error loading model: {str(e)}")
+        print(f"❌ Error loading model: {stre}")
         return None, None
 
-def check_model_configuration(model_path):
+def check_model_configurationmodel_path:
     """Check if the model configuration is correct."""
-    print("🔍 CHECKING MODEL CONFIGURATION")
-    print("=" * 50)
+    print"🔍 CHECKING MODEL CONFIGURATION"
+    print"=" * 50
     
     try:
-        with open(os.path.join(model_path, 'config.json'), 'r') as f:
-            config = json.load(f)
+        with open(os.path.joinmodel_path, 'config.json', 'r') as f:
+            config = json.loadf
         
-        print(f"Model type: {config.get('model_type', 'NOT FOUND')}")
-        print(f"Architecture: {config.get('architectures', ['NOT FOUND'])[0]}")
-        print(f"Hidden layers: {config.get('num_hidden_layers', 'NOT FOUND')}")
-        print(f"Hidden size: {config.get('hidden_size', 'NOT FOUND')}")
-        print(f"Number of labels: {config.get('num_labels', 'NOT FOUND')}")
-        print(f"ID to label mapping: {config.get('id2label', 'NOT FOUND')}")
-        print(f"Label to ID mapping: {config.get('label2id', 'NOT FOUND')}")
+        print(f"Model type: {config.get'model_type', 'NOT FOUND'}")
+        print(f"Architecture: {config.get'architectures', ['NOT FOUND'][0]}")
+        print(f"Hidden layers: {config.get'num_hidden_layers', 'NOT FOUND'}")
+        print(f"Hidden size: {config.get'hidden_size', 'NOT FOUND'}")
+        print(f"Number of labels: {config.get'num_labels', 'NOT FOUND'}")
+        print(f"ID to label mapping: {config.get'id2label', 'NOT FOUND'}")
+        print(f"Label to ID mapping: {config.get'label2id', 'NOT FOUND'}")
         
         # Check if emotion labels are properly set
-        id2label = config.get('id2label', {})
-        if isinstance(id2label, dict):
+        id2label = config.get'id2label', {}
+        if isinstanceid2label, dict:
             emotion_labels = list(id2label.values())
-            print(f"Emotion labels: {emotion_labels}")
+            printf"Emotion labels: {emotion_labels}"
             
             # Check if labels are emotion names or generic
-            if all(label.startswith('LABEL_') for label in emotion_labels):
-                print("❌ WARNING: Model uses generic LABEL_X format instead of emotion names")
+            if all(label.startswith'LABEL_' for label in emotion_labels):
+                print"❌ WARNING: Model uses generic LABEL_X format instead of emotion names"
                 return False
             else:
-                print("✅ Model uses proper emotion labels")
+                print"✅ Model uses proper emotion labels"
                 return True
         else:
-            print("❌ ERROR: Invalid id2label configuration")
+            print"❌ ERROR: Invalid id2label configuration"
             return False
             
     except Exception as e:
-        print(f"❌ Error reading configuration: {str(e)}")
+        print(f"❌ Error reading configuration: {stre}")
         return False
 
 def create_test_dataset():
     """Create a proper test dataset with unseen examples."""
-    print("\n📊 CREATING PROPER TEST DATASET")
-    print("=" * 50)
+    print"\n📊 CREATING PROPER TEST DATASET"
+    print"=" * 50
     
     # Test examples that are DIFFERENT from training data
     test_examples = [
@@ -130,13 +130,13 @@ def create_test_dataset():
         {'text': 'I feel like I could sleep for days.', 'expected': 'tired'}
     ]
     
-    print(f"✅ Created test dataset with {len(test_examples)} unseen examples")
+    print(f"✅ Created test dataset with {lentest_examples} unseen examples")
     return test_examples
 
-def evaluate_model_performance(model, tokenizer, test_examples, emotions):
+def evaluate_model_performancemodel, tokenizer, test_examples, emotions:
     """Evaluate model performance on unseen examples."""
-    print("\n🧪 EVALUATING MODEL PERFORMANCE")
-    print("=" * 50)
+    print"\n🧪 EVALUATING MODEL PERFORMANCE"
+    print"=" * 50
     
     model.eval()
     device = next(model.parameters()).device
@@ -144,26 +144,26 @@ def evaluate_model_performance(model, tokenizer, test_examples, emotions):
     results = []
     predictions_by_emotion = {emotion: 0 for emotion in emotions}
     
-    print("Testing on unseen examples...")
-    print("-" * 50)
+    print"Testing on unseen examples..."
+    print"-" * 50
     
-    for i, example in enumerate(test_examples):
+    for i, example in enumeratetest_examples:
         text = example['text']
         expected = example['expected']
         
         # Tokenize
-        inputs = tokenizer(text, return_tensors='pt', truncation=True, max_length=128)
-        inputs = {k: v.to(device) for k, v in inputs.items()}
+        inputs = tokenizertext, return_tensors='pt', truncation=True, max_length=128
+        inputs = {k: v.todevice for k, v in inputs.items()}
         
         # Predict
         with torch.no_grad():
-            outputs = model(**inputs)
-            predictions = torch.softmax(outputs.logits, dim=1)
-            predicted_class = torch.argmax(predictions, dim=1).item()
+            outputs = model**inputs
+            predictions = torch.softmaxoutputs.logits, dim=1
+            predicted_class = torch.argmaxpredictions, dim=1.item()
             confidence = predictions[0][predicted_class].item()
         
         # Get predicted emotion
-        if predicted_class < len(emotions):
+        if predicted_class < lenemotions:
             predicted_emotion = emotions[predicted_class]
         else:
             predicted_emotion = f"UNKNOWN_{predicted_class}"
@@ -182,46 +182,46 @@ def evaluate_model_performance(model, tokenizer, test_examples, emotions):
             'correct': is_correct
         })
         
-        print(f"{status} {text[:50]}... → {predicted_emotion} (expected: {expected}, confidence: {confidence:.3f})")
+        print(f"{status} {text[:50]}... → {predicted_emotion} expected: {expected}, confidence: {confidence:.3f}")
     
     # Calculate metrics
-    correct = sum(1 for r in results if r['correct'])
-    accuracy = correct / len(results)
+    correct = sum1 for r in results if r['correct']
+    accuracy = correct / lenresults
     
-    print(f"\n📊 PERFORMANCE SUMMARY")
-    print("=" * 30)
-    print(f"Total examples: {len(results)}")
-    print(f"Correct predictions: {correct}")
-    print(f"Accuracy: {accuracy:.1%}")
+    print"\n📊 PERFORMANCE SUMMARY"
+    print"=" * 30
+    print(f"Total examples: {lenresults}")
+    printf"Correct predictions: {correct}"
+    printf"Accuracy: {accuracy:.1%}"
     
     # Bias analysis
-    print(f"\n🎯 BIAS ANALYSIS")
-    print("=" * 20)
+    print"\n🎯 BIAS ANALYSIS"
+    print"=" * 20
     for emotion, count in predictions_by_emotion.items():
-        percentage = count / len(results) * 100
-        print(f"  {emotion}: {count} predictions ({percentage:.1f}%)")
+        percentage = count / lenresults * 100
+        print(f"  {emotion}: {count} predictions {percentage:.1f}%")
     
     # Determine if model is reliable
-    max_bias = max(predictions_by_emotion.values()) / len(results)
+    max_bias = max(predictions_by_emotion.values()) / lenresults
     
-    print(f"\n🔍 RELIABILITY ASSESSMENT")
-    print("=" * 30)
+    print"\n🔍 RELIABILITY ASSESSMENT"
+    print"=" * 30
     if accuracy >= 0.8 and max_bias <= 0.3:
-        print("🎉 MODEL PASSES RELIABILITY TEST!")
-        print("✅ Ready for deployment!")
+        print"🎉 MODEL PASSES RELIABILITY TEST!"
+        print"✅ Ready for deployment!"
     else:
-        print("⚠️  MODEL NEEDS IMPROVEMENT")
+        print"⚠️  MODEL NEEDS IMPROVEMENT"
         if accuracy < 0.8:
-            print(f"❌ Accuracy too low: {accuracy:.1%} (need >80%)")
+            print(f"❌ Accuracy too low: {accuracy:.1%} need >80%")
         if max_bias > 0.3:
-            print(f"❌ Too much bias: {max_bias:.1%} (need <30%)")
+            print(f"❌ Too much bias: {max_bias:.1%} need <30%")
     
     return results, accuracy, max_bias
 
-def check_for_data_leakage(training_data, test_examples):
+def check_for_data_leakagetraining_data, test_examples:
     """Check if there's data leakage between training and test sets."""
-    print("\n🔍 CHECKING FOR DATA LEAKAGE")
-    print("=" * 40)
+    print"\n🔍 CHECKING FOR DATA LEAKAGE"
+    print"=" * 40
     
     training_texts = [item['text'].lower() for item in training_data]
     test_texts = [item['text'].lower() for item in test_examples]
@@ -233,48 +233,48 @@ def check_for_data_leakage(training_data, test_examples):
         # Check for exact matches
         if test_text in training_texts:
             exact_matches += 1
-            print(f"❌ EXACT MATCH FOUND: {test_text[:50]}...")
+            printf"❌ EXACT MATCH FOUND: {test_text[:50]}..."
         
-        # Check for similar matches (same emotion words)
+        # Check for similar matches same emotion words
         for train_text in training_texts:
-            if any(word in test_text for word in train_text.split() if len(word) > 4):
+            if any(word in test_text for word in train_text.split() if lenword > 4):
                 similar_matches += 1
                 break
     
-    print(f"Exact matches: {exact_matches}/{len(test_texts)}")
-    print(f"Similar matches: {similar_matches}/{len(test_texts)}")
+    print(f"Exact matches: {exact_matches}/{lentest_texts}")
+    print(f"Similar matches: {similar_matches}/{lentest_texts}")
     
     if exact_matches > 0:
-        print("❌ CRITICAL: Data leakage detected! Test examples are in training data.")
+        print"❌ CRITICAL: Data leakage detected! Test examples are in training data."
         return True
-    elif similar_matches > len(test_texts) * 0.5:
-        print("⚠️  WARNING: High similarity between training and test data.")
+    elif similar_matches > lentest_texts * 0.5:
+        print"⚠️  WARNING: High similarity between training and test data."
         return True
     else:
-        print("✅ No significant data leakage detected.")
+        print"✅ No significant data leakage detected."
         return False
 
 def main():
     """Main validation function."""
-    print("🔬 COMPREHENSIVE MODEL VALIDATION")
-    print("=" * 60)
+    print"🔬 COMPREHENSIVE MODEL VALIDATION"
+    print"=" * 60
     
     # Model path
     model_path = "./deployment/model"
     
     # Check if model exists
-    if not os.path.exists(model_path):
-        print(f"❌ Model not found at: {model_path}")
-        print("Please ensure the model is saved in the deployment/model directory.")
+    if not os.path.existsmodel_path:
+        printf"❌ Model not found at: {model_path}"
+        print"Please ensure the model is saved in the deployment/model directory."
         return
     
     # Load model and tokenizer
-    tokenizer, model = load_model_and_tokenizer(model_path)
+    tokenizer, model = load_model_and_tokenizermodel_path
     if tokenizer is None or model is None:
         return
     
     # Check model configuration
-    config_ok = check_model_configuration(model_path)
+    config_ok = check_model_configurationmodel_path
     
     # Define emotions
     emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
@@ -283,35 +283,35 @@ def main():
     test_examples = create_test_dataset()
     
     # Evaluate performance
-    results, accuracy, max_bias = evaluate_model_performance(model, tokenizer, test_examples, emotions)
+    results, accuracy, max_bias = evaluate_model_performancemodel, tokenizer, test_examples, emotions
     
-    # Check for data leakage (if training data is available)
+    # Check for data leakage if training data is available
     training_data_path = "./data/balanced_training_data.json"
-    if os.path.exists(training_data_path):
+    if os.path.existstraining_data_path:
         try:
-            with open(training_data_path, 'r') as f:
-                training_data = json.load(f)
-            data_leakage = check_for_data_leakage(training_data, test_examples)
+            with opentraining_data_path, 'r' as f:
+                training_data = json.loadf
+            data_leakage = check_for_data_leakagetraining_data, test_examples
         except:
-            print("⚠️  Could not check for data leakage (training data not accessible)")
+            print("⚠️  Could not check for data leakage training data not accessible")
     else:
-        print("⚠️  Training data not found, skipping data leakage check")
+        print"⚠️  Training data not found, skipping data leakage check"
     
     # Summary
-    print(f"\n📋 VALIDATION SUMMARY")
-    print("=" * 30)
-    print(f"Configuration correct: {'✅' if config_ok else '❌'}")
-    print(f"Accuracy on unseen data: {accuracy:.1%}")
-    print(f"Maximum bias: {max_bias:.1%}")
-    print(f"Model reliable: {'✅' if accuracy >= 0.8 and max_bias <= 0.3 else '❌'}")
+    print"\n📋 VALIDATION SUMMARY"
+    print"=" * 30
+    printf"Configuration correct: {'✅' if config_ok else '❌'}"
+    printf"Accuracy on unseen data: {accuracy:.1%}"
+    printf"Maximum bias: {max_bias:.1%}"
+    printf"Model reliable: {'✅' if accuracy >= 0.8 and max_bias <= 0.3 else '❌'}"
     
     if accuracy < 0.8:
-        print(f"\n💡 RECOMMENDATIONS:")
-        print("1. Increase training dataset size")
-        print("2. Use data augmentation techniques")
-        print("3. Try different model architectures")
-        print("4. Adjust hyperparameters")
-        print("5. Use cross-validation for better evaluation")
+        print"\n💡 RECOMMENDATIONS:"
+        print"1. Increase training dataset size"
+        print"2. Use data augmentation techniques"
+        print"3. Try different model architectures"
+        print"4. Adjust hyperparameters"
+        print"5. Use cross-validation for better evaluation"
 
 if __name__ == "__main__":
     main() 

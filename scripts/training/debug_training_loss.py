@@ -17,20 +17,20 @@ import torch
 from torch import nn
 
 # Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+sys.path.insert(0, str(Path__file__.parent.parent.parent / "src"))
 
 from src.models.emotion_detection.bert_classifier import WeightedBCELoss
 from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%asctimes - %levelnames - %messages")
+logger = logging.getLogger__name__
 
 
 def debug_data_loading():
     """Debug data loading and label distribution."""
-    logger.info("🔍 Debugging data loading...")
+    logger.info"🔍 Debugging data loading..."
 
     try:
         trainer = EmotionDetectionTrainer(
@@ -40,58 +40,58 @@ def debug_data_loading():
             dev_mode=True
         )
 
-        datasets = trainer.prepare_data(dev_mode=True)
+        datasets = trainer.prepare_datadev_mode=True
 
         train_dataloader = datasets["train_dataloader"]
         val_dataloader = datasets["val_dataloader"]
 
-        logger.info(f"✅ Train dataloader: {len(train_dataloader)} batches")
-        logger.info(f"✅ Val dataloader: {len(val_dataloader)} batches")
+        logger.info(f"✅ Train dataloader: {lentrain_dataloader} batches")
+        logger.info(f"✅ Val dataloader: {lenval_dataloader} batches")
 
-        for batch_idx, batch in enumerate(train_dataloader):
+        for batch_idx, batch in enumeratetrain_dataloader:
             if batch_idx >= 2:  # Only check first 2 batches
                 break
 
             input_ids = batch["input_ids"]
             labels = batch["labels"]
 
-            logger.info(f"📊 Batch {batch_idx + 1} Statistics:")
-            logger.info(f"   Input shape: {input_ids.shape}")
-            logger.info(f"   Labels shape: {labels.shape}")
-            logger.info(f"   Labels dtype: {labels.dtype}")
+            logger.infof"📊 Batch {batch_idx + 1} Statistics:"
+            logger.infof"   Input shape: {input_ids.shape}"
+            logger.infof"   Labels shape: {labels.shape}"
+            logger.infof"   Labels dtype: {labels.dtype}"
             logger.info(f"   Labels min: {labels.min().item()}")
             logger.info(f"   Labels max: {labels.max().item()}")
             logger.info(f"   Labels mean: {labels.float().mean().item():.4f}")
-            logger.info(f"   Non-zero labels: {(labels > 0).sum().item()}")
+            logger.info(f"   Non-zero labels: {labels > 0.sum().item()}")
             logger.info(f"   Total labels: {labels.numel()}")
 
             # Check for all-zero or all-one labels
             if labels.sum() == 0:
-                logger.warning("⚠️ All labels are zero!")
+                logger.warning"⚠️ All labels are zero!"
             elif labels.sum() == labels.numel():
-                logger.warning("⚠️ All labels are one!")
+                logger.warning"⚠️ All labels are one!"
 
             # Check for extreme values
             if labels.max() > 1.0 or labels.min() < 0.0:
                 logger.warning(f"⚠️ Labels outside [0,1] range: min={labels.min().item()}, max={labels.max().item()}")
 
             # Check label distribution per class
-            for class_idx in range(labels.shape[1]):
+            for class_idx in rangelabels.shape[1]:
                 class_labels = labels[:, class_idx]
-                positive_count = (class_labels > 0).sum().item()
+                positive_count = class_labels > 0.sum().item()
                 total_count = class_labels.numel()
-                logger.info(f"   Class {class_idx}: {positive_count}/{total_count} positive ({positive_count/total_count:.2%})")
+                logger.info(f"   Class {class_idx}: {positive_count}/{total_count} positive {positive_count/total_count:.2%}")
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ Data loading debug failed: {e}")
+        logger.errorf"❌ Data loading debug failed: {e}"
         return False
 
 
-def debug_model_outputs(datasets):
+def debug_model_outputsdatasets:
     """Debug model outputs and predictions."""
-    logger.info("🤖 Debugging model outputs...")
+    logger.info"🤖 Debugging model outputs..."
 
     try:
         trainer = EmotionDetectionTrainer(
@@ -107,7 +107,7 @@ def debug_model_outputs(datasets):
 
         # Get first batch
         train_dataloader = datasets["train_dataloader"]
-        batch = next(iter(train_dataloader))
+        batch = next(itertrain_dataloader)
 
         input_ids = batch["input_ids"]
         attention_mask = batch["attention_mask"]
@@ -116,12 +116,12 @@ def debug_model_outputs(datasets):
         # Forward pass
         model.eval()
         with torch.no_grad():
-            logits = model(input_ids=input_ids, attention_mask=attention_mask)
-            predictions = torch.sigmoid(logits)
+            logits = modelinput_ids=input_ids, attention_mask=attention_mask
+            predictions = torch.sigmoidlogits
 
-        logger.info("📊 Model Output Statistics:")
-        logger.info(f"   Logits shape: {logits.shape}")
-        logger.info(f"   Predictions shape: {predictions.shape}")
+        logger.info"📊 Model Output Statistics:"
+        logger.infof"   Logits shape: {logits.shape}"
+        logger.infof"   Predictions shape: {predictions.shape}"
         logger.info(f"   Logits min: {logits.min().item():.4f}")
         logger.info(f"   Logits max: {logits.max().item():.4f}")
         logger.info(f"   Logits mean: {logits.mean().item():.4f}")
@@ -134,22 +134,22 @@ def debug_model_outputs(datasets):
             logger.warning(f"⚠️ Predictions near extremes: min={predictions.min().item():.4f}, max={predictions.max().item():.4f}")
 
         # Examine first batch
-        logger.info("📋 First batch details:")
-        for i in range(min(3, predictions.shape[0])):
-            logger.info(f"   Sample {i}:")
+        logger.info"📋 First batch details:"
+        for i in range(min3, predictions.shape[0]):
+            logger.infof"   Sample {i}:"
             logger.info(f"     Labels: {labels[i][:5].tolist()}...")
             logger.info(f"     Predictions: {predictions[i][:5].tolist()}...")
 
         return logits, predictions, labels
 
     except Exception as e:
-        logger.error(f"❌ Model output debug failed: {e}")
+        logger.errorf"❌ Model output debug failed: {e}"
         return None, None, None
 
 
-def debug_loss_calculation(logits, predictions, labels):
+def debug_loss_calculationlogits, predictions, labels:
     """Debug loss function calculation."""
-    logger.info("💔 Debugging loss calculation...")
+    logger.info"💔 Debugging loss calculation..."
 
     try:
         # 1. Standard BCE loss
@@ -159,48 +159,48 @@ def debug_loss_calculation(logits, predictions, labels):
 
         # 2. Manual BCE calculation
         epsilon = 1e-7
-        predictions_clipped = torch.clamp(predictions, epsilon, 1 - epsilon)
+        predictions_clipped = torch.clamppredictions, epsilon, 1 - epsilon
         manual_loss = -torch.mean(
-            labels * torch.log(predictions_clipped) +
-            (1 - labels) * torch.log(1 - predictions_clipped)
+            labels * torch.logpredictions_clipped +
+            1 - labels * torch.log1 - predictions_clipped
         )
         logger.info(f"📊 Manual BCE Loss: {manual_loss.item():.6f}")
 
-        # 3. Weighted BCE loss (no weights)
+        # 3. Weighted BCE loss no weights
         weighted_bce = WeightedBCELoss()
         loss_weighted = weighted_bce(logits, labels.float())
         logger.info(f"📊 Weighted BCE Loss: {loss_weighted.item():.6f}")
 
         # 4. Check individual components
-        logger.info("📊 Individual Loss Components:")
-        for i in range(min(5, logits.shape[1])):
+        logger.info"📊 Individual Loss Components:"
+        for i in range(min5, logits.shape[1]):
             class_logits = logits[:, i]
             class_labels = labels[:, i].float()
-            class_loss = bce_loss(class_logits.unsqueeze(1), class_labels.unsqueeze(1))
+            class_loss = bce_loss(class_logits.unsqueeze1, class_labels.unsqueeze1)
             logger.info(f"   Class {i}: {class_loss.item():.6f}")
 
         # 5. Check for numerical precision issues
         if loss_bce.item() < 1e-10:
-            logger.warning("⚠️ Loss is extremely small (< 1e-10)")
+            logger.warning("⚠️ Loss is extremely small < 1e-10")
 
         # 6. Test with small epsilon
-        predictions_eps = torch.clamp(predictions, 1e-10, 1 - 1e-10)
+        predictions_eps = torch.clamppredictions, 1e-10, 1 - 1e-10
         loss_eps = -torch.mean(
-            labels * torch.log(predictions_eps) +
-            (1 - labels) * torch.log(1 - predictions_eps)
+            labels * torch.logpredictions_eps +
+            1 - labels * torch.log1 - predictions_eps
         )
         logger.info(f"📊 Loss with epsilon: {loss_eps.item():.6f}")
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ Loss calculation debug failed: {e}")
+        logger.errorf"❌ Loss calculation debug failed: {e}"
         return False
 
 
 def debug_class_weights():
     """Debug class weights calculation."""
-    logger.info("⚖️ Debugging class weights...")
+    logger.info"⚖️ Debugging class weights..."
 
     try:
         loader = create_goemotions_loader()
@@ -209,20 +209,20 @@ def debug_class_weights():
 
         # Calculate class weights
         num_classes = 28
-        class_counts = torch.zeros(num_classes)
+        class_counts = torch.zerosnum_classes
 
         for example in train_data[:1000]:  # Sample first 1000 examples
             if "labels" in example:
-                labels = torch.tensor(example["labels"])
+                labels = torch.tensorexample["labels"]
                 class_counts += labels
 
         # Show first 10 class weights
         logger.info(f"📊 First 10 class counts: {class_counts[:10].tolist()}")
-        logger.info(f"📊 Total samples: {len(train_data)}")
+        logger.info(f"📊 Total samples: {lentrain_data}")
 
         # Calculate weights
-        total_samples = len(train_data)
-        class_weights = total_samples / (num_classes * class_counts + 1)  # Add 1 to avoid division by zero
+        total_samples = lentrain_data
+        class_weights = total_samples / num_classes * class_counts + 1  # Add 1 to avoid division by zero
 
         logger.info(f"📊 First 10 class weights: {class_weights[:10].tolist()}")
         logger.info(f"📊 Weight range: {class_weights.min().item():.2f} - {class_weights.max().item():.2f}")
@@ -230,13 +230,13 @@ def debug_class_weights():
         return True
 
     except Exception as e:
-        logger.error(f"❌ Class weights debug failed: {e}")
+        logger.errorf"❌ Class weights debug failed: {e}"
         return False
 
 
 def main():
     """Main debug function."""
-    logger.info("🚀 Starting Training Loss Debug...")
+    logger.info"🚀 Starting Training Loss Debug..."
 
     # Debug data loading
     if not debug_data_loading():
@@ -253,22 +253,22 @@ def main():
         num_epochs=1,
         dev_mode=True
     )
-    datasets = trainer.prepare_data(dev_mode=True)
+    datasets = trainer.prepare_datadev_mode=True
     
-    logits, predictions, labels = debug_model_outputs(datasets)
+    logits, predictions, labels = debug_model_outputsdatasets
     if logits is None:
         return False
 
     # Debug loss calculation
-    if not debug_loss_calculation(logits, predictions, labels):
+    if not debug_loss_calculationlogits, predictions, labels:
         return False
 
     # Summary
-    logger.info("🎉 Training Loss Debug Complete!")
+    logger.info"🎉 Training Loss Debug Complete!"
     return True
 
 
 if __name__ == "__main__":
     success = main()
     if not success:
-        sys.exit(1)
+        sys.exit1

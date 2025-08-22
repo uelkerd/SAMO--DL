@@ -188,7 +188,7 @@ def create_unique_fallback_dataset():
     unique_samples = []
     
     for emotion, templates in emotion_templates.items():
-        for i, template in enumerate(templates):
+        for i, template in enumeratetemplates:
             unique_samples.append({
                 'text': template,
                 'emotion': emotion,
@@ -196,42 +196,42 @@ def create_unique_fallback_dataset():
             })
     
     # Shuffle the samples for better training
-    random.shuffle(unique_samples)
+    random.shuffleunique_samples
     
-    print(f"✅ Created {len(unique_samples)} UNIQUE samples")
-    print(f"📊 Samples per emotion: {len(unique_samples) // 12}")
+    print(f"✅ Created {lenunique_samples} UNIQUE samples")
+    print(f"📊 Samples per emotion: {lenunique_samples // 12}")
     
     # Verify no duplicates
     texts = [sample['text'] for sample in unique_samples]
-    unique_texts = set(texts)
-    print(f"🔍 Duplicate check: {len(texts)} total, {len(unique_texts)} unique")
+    unique_texts = settexts
+    print(f"🔍 Duplicate check: {lentexts} total, {lenunique_texts} unique")
     
-    if len(texts) != len(unique_texts):
-        print("❌ WARNING: DUPLICATES FOUND!")
+    if lentexts != lenunique_texts:
+        print"❌ WARNING: DUPLICATES FOUND!"
         return None
     
-    print("✅ All samples are unique!")
+    print"✅ All samples are unique!"
     
     # Save the dataset
-    with open('data/unique_fallback_dataset.json', 'w') as f:
-        json.dump(unique_samples, f, indent=2)
+    with open'data/unique_fallback_dataset.json', 'w' as f:
+        json.dumpunique_samples, f, indent=2
     
-    print("💾 Saved unique fallback dataset to data/unique_fallback_dataset.json")
+    print"💾 Saved unique fallback dataset to data/unique_fallback_dataset.json"
     
     # Show emotion distribution
     emotion_counts = {}
     for sample in unique_samples:
         emotion = sample['emotion']
-        emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
+        emotion_counts[emotion] = emotion_counts.getemotion, 0 + 1
     
-    print("\n📊 Emotion Distribution:")
+    print"\n📊 Emotion Distribution:"
     for emotion, count in sorted(emotion_counts.items()):
-        print(f"  {emotion}: {count} samples")
+        printf"  {emotion}: {count} samples"
     
     return unique_samples
 
 if __name__ == "__main__":
-    print("🚀 CREATE UNIQUE FALLBACK DATASET")
-    print("=" * 40)
+    print"🚀 CREATE UNIQUE FALLBACK DATASET"
+    print"=" * 40
     create_unique_fallback_dataset()
-    print("\n🎉 Unique fallback dataset created successfully!") 
+    print"\n🎉 Unique fallback dataset created successfully!" 

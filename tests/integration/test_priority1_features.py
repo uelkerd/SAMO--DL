@@ -25,27 +25,27 @@ from src.security.jwt_manager import JWTManager
 from src.monitoring.dashboard import MonitoringDashboard
 
 # Test client with test user agent to bypass rate limiting
-client = TestClient(app, headers={"User-Agent": "pytest-testclient"})
+client = TestClientapp, headers={"User-Agent": "pytest-testclient"}
 
 
 class to_uploads:
-    def __init__(self, paths, name_prefix: str):
-        self.paths = list(paths)
+    def __init__self, paths, name_prefix: str:
+        self.paths = listpaths
         self.name_prefix = name_prefix
         self._opened = []
 
-    def __enter__(self):
-        self._opened = [open(p, "rb") for p in self.paths]
+    def __enter__self:
+        self._opened = [openp, "rb" for p in self.paths]
         files = [
             (
                 "audio_files",
-                (f"{self.name_prefix}{i+1}.wav", fh, "audio/wav"),
+                f"{self.name_prefix}{i+1}.wav", fh, "audio/wav",
             )
-            for i, fh in enumerate(self._opened)
+            for i, fh in enumerateself._opened
         ]
         return files
 
-    def __exit__(self, exc_type, exc, tb):
+    def __exit__self, exc_type, exc, tb:
         for fh in self._opened:
             try:
                 fh.close()
@@ -53,11 +53,11 @@ class to_uploads:
                 pass
         self._opened = []
 
-@pytest.fixture(autouse=True)
+@pytest.fixtureautouse=True
 def reset_state():
     """Reset rate limiter and JWT manager state between tests."""
     # Reset rate limiter state
-    if hasattr(app.state, 'rate_limiter'):
+    if hasattrapp.state, 'rate_limiter':
         app.state.rate_limiter.reset_state()
     
     # Reset JWT manager blacklist
@@ -72,7 +72,7 @@ def reset_state():
 class TestJWTAuthentication:
     """Test JWT-based authentication system."""
     
-    def test_user_registration(self):
+    def test_user_registrationself:
         """Test user registration endpoint."""
         user_data = {
             "username": "testuser@example.com",
@@ -81,7 +81,7 @@ class TestJWTAuthentication:
             "full_name": "Test User"
         }
         
-        response = client.post("/auth/register", json=user_data)
+        response = client.post"/auth/register", json=user_data
         assert response.status_code == 200
         
         data = response.json()
@@ -90,56 +90,56 @@ class TestJWTAuthentication:
         assert data["token_type"] == "bearer"
         assert data["expires_in"] > 0
     
-    def test_user_login(self):
+    def test_user_loginself:
         """Test user login endpoint."""
         login_data = {
             "username": "testuser@example.com",
             "password": "testpassword123"
         }
         
-        response = client.post("/auth/login", json=login_data)
+        response = client.post"/auth/login", json=login_data
         assert response.status_code == 200
         
         data = response.json()
         assert "access_token" in data
         assert "refresh_token" in data
     
-    def test_token_refresh(self):
+    def test_token_refreshself:
         """Test token refresh endpoint."""
         # First login to get tokens
         login_data = {
             "username": "testuser@example.com",
             "password": "testpassword123"
         }
-        login_response = client.post("/auth/login", json=login_data)
+        login_response = client.post"/auth/login", json=login_data
         refresh_token = login_response.json()["refresh_token"]
         
         # Test refresh with proper request body
-        response = client.post("/auth/refresh", json={"refresh_token": refresh_token})
+        response = client.post"/auth/refresh", json={"refresh_token": refresh_token}
         assert response.status_code == 200
         
         data = response.json()
         assert "access_token" in data
         assert "refresh_token" in data
     
-    def test_token_refresh_invalid_token(self):
+    def test_token_refresh_invalid_tokenself:
         """Test token refresh with invalid refresh token."""
-        response = client.post("/auth/refresh", json={"refresh_token": "invalid_token"})
+        response = client.post"/auth/refresh", json={"refresh_token": "invalid_token"}
         assert response.status_code == 401  # Unauthorized
     
-    def test_protected_endpoint_with_auth(self):
+    def test_protected_endpoint_with_authself:
         """Test accessing protected endpoint with valid token."""
         # Login to get token
         login_data = {
             "username": "testuser@example.com",
             "password": "testpassword123"
         }
-        login_response = client.post("/auth/login", json=login_data)
+        login_response = client.post"/auth/login", json=login_data
         access_token = login_response.json()["access_token"]
         
         # Test protected endpoint
         headers = {"Authorization": f"Bearer {access_token}"}
-        response = client.get("/auth/profile", headers=headers)
+        response = client.get"/auth/profile", headers=headers
         assert response.status_code == 200
         
         data = response.json()
@@ -147,22 +147,22 @@ class TestJWTAuthentication:
         assert "username" in data
         assert "email" in data
     
-    def test_protected_endpoint_without_auth(self):
+    def test_protected_endpoint_without_authself:
         """Test accessing protected endpoint without authentication."""
-        response = client.get("/auth/profile")
+        response = client.get"/auth/profile"
         assert response.status_code == 403  # Forbidden - FastAPI returns 403 for missing authentication
     
-    def test_invalid_token(self):
+    def test_invalid_tokenself:
         """Test accessing protected endpoint with invalid token."""
         headers = {"Authorization": "Bearer invalid_token"}
-        response = client.get("/auth/profile", headers=headers)
+        response = client.get"/auth/profile", headers=headers
         assert response.status_code == 403  # Forbidden - FastAPI returns 403 for invalid tokens
 
 class TestEnhancedVoiceTranscription:
     """Test enhanced voice transcription features."""
     
-    @patch('src.unified_ai_api.voice_transcriber')
-    def test_voice_transcription_endpoint(self, mock_transcriber):
+    @patch'src.unified_ai_api.voice_transcriber'
+    def test_voice_transcription_endpointself, mock_transcriber:
         """Test enhanced voice transcription endpoint."""
         # Mock transcription result
         mock_transcriber.return_value.transcribe.return_value = {
@@ -174,57 +174,57 @@ class TestEnhancedVoiceTranscription:
     
     # Removed duplicate early definitions; see patched versions below
     
-    @patch('src.unified_ai_api.voice_transcriber')
-    def test_voice_transcription_missing_file(self, mock_transcriber):
+    @patch'src.unified_ai_api.voice_transcriber'
+    def test_voice_transcription_missing_fileself, mock_transcriber:
         """Test voice transcription with missing audio file."""
         # Login to get token
         login_data = {
             "username": "testuser@example.com",
             "password": "testpassword123"
         }
-        login_response = client.post("/auth/login", json=login_data)
+        login_response = client.post"/auth/login", json=login_data
         access_token = login_response.json()["access_token"]
         
         # Test transcription endpoint without file
         headers = {"Authorization": f"Bearer {access_token}"}
-        response = client.post("/transcribe/voice", headers=headers)
+        response = client.post"/transcribe/voice", headers=headers
         
         assert response.status_code == 422  # Validation error
     
-    @patch('src.unified_ai_api.voice_transcriber')
-    def test_voice_transcription_invalid_format(self, mock_transcriber):
+    @patch'src.unified_ai_api.voice_transcriber'
+    def test_voice_transcription_invalid_formatself, mock_transcriber:
         """Test voice transcription with invalid audio format."""
         # Mock transcription to raise exception
-        mock_transcriber.transcribe.side_effect = Exception("Invalid audio format")
+        mock_transcriber.transcribe.side_effect = Exception"Invalid audio format"
         
         # Login to get token
         login_data = {
             "username": "testuser@example.com",
             "password": "testpassword123"
         }
-        login_response = client.post("/auth/login", json=login_data)
+        login_response = client.post"/auth/login", json=login_data
         access_token = login_response.json()["access_token"]
         
         # Create test file with invalid content
-        with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as temp_file:
-            temp_file.write(b"not audio data")
+        with tempfile.NamedTemporaryFilesuffix=".txt", delete=False as temp_file:
+            temp_file.writeb"not audio data"
             temp_file_path = temp_file.name
         
         try:
             # Test transcription endpoint
             headers = {"Authorization": f"Bearer {access_token}"}
-            with open(temp_file_path, "rb") as audio_file:
-                files = {"audio_file": ("test.txt", audio_file, "text/plain")}
+            with opentemp_file_path, "rb" as audio_file:
+                files = {"audio_file": "test.txt", audio_file, "text/plain"}
                 data = {"language": "en", "model_size": "base"}
-                response = client.post("/transcribe/voice", files=files, data=data, headers=headers)
+                response = client.post"/transcribe/voice", files=files, data=data, headers=headers
             
             assert response.status_code == 500  # Internal server error
             
         finally:
-            Path(temp_file_path).unlink(missing_ok=True)
+            Pathtemp_file_path.unlinkmissing_ok=True
     
-    @patch('src.unified_ai_api.voice_transcriber')
-    def test_batch_transcription(self, mock_transcriber):
+    @patch'src.unified_ai_api.voice_transcriber'
+    def test_batch_transcriptionself, mock_transcriber:
         """Test batch transcription endpoint."""
         # Mock transcription result
         mock_transcriber.return_value.transcribe.return_value = {
@@ -239,18 +239,18 @@ class TestEnhancedVoiceTranscription:
         # Create test audio files
         temp_files = []
         try:
-            for _ in range(2):
-                temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-                temp_file.write(b"fake audio data")
+            for _ in range2:
+                temp_file = tempfile.NamedTemporaryFilesuffix=".wav", delete=False
+                temp_file.writeb"fake audio data"
                 temp_file.close()
-                temp_files.append(temp_file.name)
+                temp_files.appendtemp_file.name
             
             # Login to get token
             login_data = {
                 "username": "testuser@example.com",
                 "password": "testpassword123"
             }
-            login_response = client.post("/auth/login", json=login_data)
+            login_response = client.post"/auth/login", json=login_data
             access_token = login_response.json()["access_token"]
             
             # Test batch transcription endpoint with proper permission
@@ -259,12 +259,12 @@ class TestEnhancedVoiceTranscription:
                 "X-User-Permissions": "batch_processing"
             }
             files = []
-            for i, temp_file_path in enumerate(temp_files):
-                with open(temp_file_path, "rb") as audio_file:
-                    files.append(("audio_files", (f"test{i}.wav", audio_file, "audio/wav")))
+            for i, temp_file_path in enumeratetemp_files:
+                with opentemp_file_path, "rb" as audio_file:
+                    files.append(("audio_files", f"test{i}.wav", audio_file, "audio/wav"))
             
             data = {"language": "en"}
-            response = client.post("/transcribe/batch", files=files, data=data, headers=headers)
+            response = client.post"/transcribe/batch", files=files, data=data, headers=headers
             
             assert response.status_code == 200
             
@@ -277,24 +277,24 @@ class TestEnhancedVoiceTranscription:
 
             # Negative cases: missing and incorrect permissions
             missing_headers = {"Authorization": f"Bearer {access_token}"}
-            response_missing = client.post("/transcribe/batch", files=files, data=data, headers=missing_headers)
+            response_missing = client.post"/transcribe/batch", files=files, data=data, headers=missing_headers
             assert response_missing.status_code == 403
 
             wrong_headers = {
                 "Authorization": f"Bearer {access_token}",
                 "X-User-Permissions": "wrong_permission"
             }
-            response_wrong = client.post("/transcribe/batch", files=files, data=data, headers=wrong_headers)
+            response_wrong = client.post"/transcribe/batch", files=files, data=data, headers=wrong_headers
             assert response_wrong.status_code == 403
             
         finally:
             for temp_file_path in temp_files:
-                Path(temp_file_path).unlink(missing_ok=True)
+                Pathtemp_file_path.unlinkmissing_ok=True
     
-    @patch('src.unified_ai_api.voice_transcriber')
-    def test_batch_transcription_partial_failures(self, mock_transcriber):
+    @patch'src.unified_ai_api.voice_transcriber'
+    def test_batch_transcription_partial_failuresself, mock_transcriber:
         """Test batch transcription with partial failures."""
-        # Deterministic side effect (no conditionals): first success, then failure
+        # Deterministic side effect no conditionals: first success, then failure
         mock_transcriber.transcribe.side_effect = [
             {
                 "text": "Successfully transcribed",
@@ -302,32 +302,32 @@ class TestEnhancedVoiceTranscription:
                 "confidence": 0.95,
                 "duration": 10.0,
             },
-            RuntimeError("Transcription failed"),
+            RuntimeError"Transcription failed",
         ]
         
         # Create test audio files
         temp_files = []
         try:
             # Permission injection enabled globally by reset_state fixture
-            for _ in range(2):
-                temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-                temp_file.write(b"fake audio data")
+            for _ in range2:
+                temp_file = tempfile.NamedTemporaryFilesuffix=".wav", delete=False
+                temp_file.writeb"fake audio data"
                 temp_file.close()
-                temp_files.append(temp_file.name)
+                temp_files.appendtemp_file.name
             
             # Login to get token
             login_data = {
                 "username": "testuser@example.com",
                 "password": "testpassword123"
             }
-            login_response = client.post("/auth/login", json=login_data)
+            login_response = client.post"/auth/login", json=login_data
             access_token = login_response.json()["access_token"]
             
             # Test batch transcription endpoint
             headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
             data = {"language": "en"}
-            with to_uploads(temp_files, "file") as files:
-                response = client.post("/transcribe/batch", files=files, data=data, headers=headers)
+            with to_uploadstemp_files, "file" as files:
+                response = client.post"/transcribe/batch", files=files, data=data, headers=headers
             
             assert response.status_code == 200
             data = response.json()
@@ -335,81 +335,81 @@ class TestEnhancedVoiceTranscription:
             # Deterministic outcome: first succeeds, second fails
             assert data["successful_transcriptions"] == 1
             assert data["failed_transcriptions"] == 1
-            assert len(data["results"]) == 2
+            assert lendata["results"] == 2
 
         finally:
             for temp_file_path in temp_files:
-                Path(temp_file_path).unlink(missing_ok=True)
-    @patch('src.unified_ai_api.voice_transcriber')
-    def test_batch_transcription_all_failures(self, mock_transcriber):
+                Pathtemp_file_path.unlinkmissing_ok=True
+    @patch'src.unified_ai_api.voice_transcriber'
+    def test_batch_transcription_all_failuresself, mock_transcriber:
         """Test batch transcription where all transcriptions fail."""
-        mock_transcriber.transcribe.side_effect = RuntimeError("Transcription failed")
+        mock_transcriber.transcribe.side_effect = RuntimeError"Transcription failed"
 
         # Prepare files
         temp_files = []
         try:
-            for _ in range(2):
-                tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-                tmp.write(b"fake audio data")
+            for _ in range2:
+                tmp = tempfile.NamedTemporaryFilesuffix=".wav", delete=False
+                tmp.writeb"fake audio data"
                 tmp.close()
-                temp_files.append(tmp.name)
+                temp_files.appendtmp.name
 
             # Login and headers with permission override for tests
             login_data = {"username": "testuser@example.com", "password": "testpassword123"}
-            login_response = client.post("/auth/login", json=login_data)
+            login_response = client.post"/auth/login", json=login_data
             access_token = login_response.json()["access_token"]
             headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
 
-            with to_uploads(temp_files, "f") as files:
-                response = client.post("/transcribe/batch", files=files, headers=headers)
+            with to_uploadstemp_files, "" as files:
+                response = client.post"/transcribe/batch", files=files, headers=headers
 
             assert response.status_code == 200
             data = response.json()
             assert data["successful_transcriptions"] == 0
-            assert data["failed_transcriptions"] == len(temp_files)
+            assert data["failed_transcriptions"] == lentemp_files
 
         finally:
             for temp_file_path in temp_files:
-                Path(temp_file_path).unlink(missing_ok=True)
+                Pathtemp_file_path.unlinkmissing_ok=True
 
-    @patch('src.unified_ai_api.voice_transcriber')
-    def test_batch_transcription_all_success(self, mock_transcriber):
+    @patch'src.unified_ai_api.voice_transcriber'
+    def test_batch_transcription_all_successself, mock_transcriber:
         """Test batch transcription where all transcriptions succeed."""
-        def ok_side_effect(file_path, language=None):
+        def ok_side_effectfile_path, language=None:
             return {"text": "ok", "language": "en", "confidence": 0.9, "duration": 1.0}
         mock_transcriber.transcribe.side_effect = ok_side_effect
 
         temp_files = []
         try:
-            for _ in range(3):
-                tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-                tmp.write(b"fake audio data")
+            for _ in range3:
+                tmp = tempfile.NamedTemporaryFilesuffix=".wav", delete=False
+                tmp.writeb"fake audio data"
                 tmp.close()
-                temp_files.append(tmp.name)
+                temp_files.appendtmp.name
 
             login_data = {"username": "testuser@example.com", "password": "testpassword123"}
-            login_response = client.post("/auth/login", json=login_data)
+            login_response = client.post"/auth/login", json=login_data
             access_token = login_response.json()["access_token"]
             headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
 
-            with to_uploads(temp_files, "f") as files:
-                response = client.post("/transcribe/batch", files=files, headers=headers)
+            with to_uploadstemp_files, "" as files:
+                response = client.post"/transcribe/batch", files=files, headers=headers
 
             assert response.status_code == 200
             data = response.json()
-            assert data["successful_transcriptions"] == len(temp_files)
+            assert data["successful_transcriptions"] == lentemp_files
             assert data["failed_transcriptions"] == 0
-            assert len(data["results"]) == len(temp_files)
+            assert lendata["results"] == lentemp_files
 
         finally:
             for temp_file_path in temp_files:
-                Path(temp_file_path).unlink(missing_ok=True)
+                Pathtemp_file_path.unlinkmissing_ok=True
 
 class TestEnhancedTextSummarization:
     """Test enhanced text summarization features."""
     
-    @patch('src.unified_ai_api.text_summarizer')
-    def test_text_summarization_endpoint(self, mock_summarizer):
+    @patch'src.unified_ai_api.text_summarizer'
+    def test_text_summarization_endpointself, mock_summarizer:
         """Test enhanced text summarization endpoint."""
         # Mock summarization result
         mock_summarizer.return_value.summarize.return_value = {
@@ -420,57 +420,57 @@ class TestEnhancedTextSummarization:
     
     # Removed duplicate early summarization tests; consolidated versions follow
     
-    @patch('src.unified_ai_api.text_summarizer')
-    def test_text_summarization_empty_input(self, mock_summarizer):
+    @patch'src.unified_ai_api.text_summarizer'
+    def test_text_summarization_empty_inputself, mock_summarizer:
         """Test summarization endpoint with empty input."""
         # Login to get token
         login_data = {
             "username": "testuser@example.com",
             "password": "testpassword123"
         }
-        login_response = client.post("/auth/login", json=login_data)
+        login_response = client.post"/auth/login", json=login_data
         access_token = login_response.json()["access_token"]
         
         # Test with empty text
         headers = {"Authorization": f"Bearer {access_token}"}
         data = {"text": "", "model": "t5-small"}
-        response = client.post("/summarize/text", data=data, headers=headers)
+        response = client.post"/summarize/text", data=data, headers=headers
         
         assert response.status_code == 422  # Validation error
     
-    @patch('src.unified_ai_api.text_summarizer')
-    def test_text_summarization_too_short_input(self, mock_summarizer):
+    @patch'src.unified_ai_api.text_summarizer'
+    def test_text_summarization_too_short_inputself, mock_summarizer:
         """Test summarization endpoint with too-short input."""
         # Login to get token
         login_data = {
             "username": "testuser@example.com",
             "password": "testpassword123"
         }
-        login_response = client.post("/auth/login", json=login_data)
+        login_response = client.post"/auth/login", json=login_data
         access_token = login_response.json()["access_token"]
         
-        # Test with too short text (less than min_length=10)
+        # Test with too short text less than min_length=10
         headers = {"Authorization": f"Bearer {access_token}"}
         data = {"text": "Hi.", "model": "t5-small"}
-        response = client.post("/summarize/text", data=data, headers=headers)
+        response = client.post"/summarize/text", data=data, headers=headers
         
         assert response.status_code == 422  # Validation error
     
-    @patch('src.unified_ai_api.text_summarizer')
-    def test_text_summarization_unsupported_model(self, mock_summarizer):
+    @patch'src.unified_ai_api.text_summarizer'
+    def test_text_summarization_unsupported_modelself, mock_summarizer:
         """Test summarization endpoint with unsupported model name."""
         # Login to get token
         login_data = {
             "username": "testuser@example.com",
             "password": "testpassword123"
         }
-        login_response = client.post("/auth/login", json=login_data)
+        login_response = client.post"/auth/login", json=login_data
         access_token = login_response.json()["access_token"]
         
         # Test with unsupported model
         headers = {"Authorization": f"Bearer {access_token}"}
         data = {"text": "This is a valid input text for summarization.", "model": "nonexistent-model"}
-        response = client.post("/summarize/text", data=data, headers=headers)
+        response = client.post"/summarize/text", data=data, headers=headers
         
         # Should either return 400 or 422 depending on validation
         assert response.status_code in [400, 422]
@@ -478,13 +478,13 @@ class TestEnhancedTextSummarization:
 class TestWebSocketAuthentication:
     """Test WebSocket authentication and real-time processing."""
     
-    def test_websocket_authentication_required(self):
+    def test_websocket_authentication_requiredself:
         """Test that WebSocket requires authentication."""
         # This would require a WebSocket client test
         # For now, we'll test the authentication logic
         pass
     
-    def test_websocket_with_valid_token(self):
+    def test_websocket_with_valid_tokenself:
         """Test WebSocket connection with valid token."""
         # This would require a WebSocket client test
         # For now, we'll test the authentication logic
@@ -493,70 +493,70 @@ class TestWebSocketAuthentication:
 class TestAPIValidation:
     """Test API endpoint validation and error handling."""
     
-    def test_voice_transcription_file_size_validation(self):
+    def test_voice_transcription_file_size_validationself:
         """Test file size validation for voice transcription."""
         # Login to get token
         login_data = {
             "username": "testuser@example.com",
             "password": "testpassword123"
         }
-        login_response = client.post("/auth/login", json=login_data)
+        login_response = client.post"/auth/login", json=login_data
         access_token = login_response.json()["access_token"]
         
-        # Create a large file (simulate > 50MB)
-        large_content = b"fake audio data" * (50 * 1024 * 1024 // 16 + 1)  # > 50MB
+        # Create a large file simulate > 50MB
+        large_content = b"fake audio data" * 50 * 1024 * 1024 // 16 + 1  # > 50MB
         
         headers = {"Authorization": f"Bearer {access_token}"}
-        files = {"audio_file": ("large.wav", large_content, "audio/wav")}
+        files = {"audio_file": "large.wav", large_content, "audio/wav"}
         data = {"language": "en", "model_size": "base"}
         
-        response = client.post("/transcribe/voice", files=files, data=data, headers=headers)
+        response = client.post"/transcribe/voice", files=files, data=data, headers=headers
         assert response.status_code == 400
         assert "too large" in response.json()["detail"].lower()
     
-    def test_text_summarization_length_validation(self):
+    def test_text_summarization_length_validationself:
         """Test text length validation for summarization."""
         # Login to get token
         login_data = {
             "username": "testuser@example.com",
             "password": "testpassword123"
         }
-        login_response = client.post("/auth/login", json=login_data)
+        login_response = client.post"/auth/login", json=login_data
         access_token = login_response.json()["access_token"]
         
         # Test with text that's too short
         headers = {"Authorization": f"Bearer {access_token}"}
         data = {"text": "Hi", "model": "t5-small"}  # Too short
         
-        response = client.post("/summarize/text", data=data, headers=headers)
+        response = client.post"/summarize/text", data=data, headers=headers
         assert response.status_code == 422  # Validation error
     
-    def test_batch_processing_permission_validation(self):
+    def test_batch_processing_permission_validationself:
         """Test that batch processing requires proper permissions."""
         # Login to get token
         login_data = {
             "username": "testuser@example.com",
             "password": "testpassword123"
         }
-        login_response = client.post("/auth/login", json=login_data)
+        login_response = client.post"/auth/login", json=login_data
         access_token = login_response.json()["access_token"]
         
         # Test batch endpoint without batch_processing permission
         headers = {"Authorization": f"Bearer {access_token}"}
-        files = [("audio_files", ("test.wav", b"fake audio", "audio/wav"))]
+        files = [("audio_files", "test.wav", b"fake audio", "audio/wav")]
         data = {"language": "en"}
         
-        response = client.post("/transcribe/batch", files=files, data=data, headers=headers)
+        response = client.post"/transcribe/batch", files=files, data=data, headers=headers
         # Should return 403 if user doesn't have batch_processing permission
         assert response.status_code == 403
 
 class TestCompleteWorkflow:
     """Test complete end-to-end workflow scenarios."""
     
-    @patch('src.unified_ai_api.voice_transcriber')
-    @patch('src.unified_ai_api.text_summarizer')
-    @patch('src.unified_ai_api.emotion_detector')
-    def test_complete_voice_journal_analysis(self, mock_emotion_detector, mock_summarizer, mock_transcriber):
+    @patch'src.unified_ai_api.voice_transcriber'
+    @patch'src.unified_ai_api.text_summarizer'
+    @patch'src.unified_ai_api.emotion_detector'
+    def test_complete_voice_journal_analysisself, mock_emotion_detector, mock_summarizer, mock_transcriber:
         """Test complete voice journal analysis workflow."""
         # Mock all the AI components
         mock_transcriber.transcribe.return_value = {
@@ -585,25 +585,25 @@ class TestCompleteWorkflow:
             "username": "testuser@example.com",
             "password": "testpassword123"
         }
-        login_response = client.post("/auth/login", json=login_data)
+        login_response = client.post"/auth/login", json=login_data
         access_token = login_response.json()["access_token"]
         
         # Create test audio file
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
-            temp_file.write(b"fake audio data")
+        with tempfile.NamedTemporaryFilesuffix=".wav", delete=False as temp_file:
+            temp_file.writeb"fake audio data"
             temp_file_path = temp_file.name
         
         try:
             # Test complete voice journal analysis
             headers = {"Authorization": f"Bearer {access_token}"}
-            with open(temp_file_path, "rb") as audio_file:
-                files = {"audio_file": ("test.wav", audio_file, "audio/wav")}
+            with opentemp_file_path, "rb" as audio_file:
+                files = {"audio_file": "test.wav", audio_file, "audio/wav"}
                 data = {
                     "language": "en",
                     "generate_summary": True,
                     "emotion_threshold": 0.1
                 }
-                response = client.post("/analyze/voice-journal", files=files, data=data, headers=headers)
+                response = client.post"/analyze/voice-journal", files=files, data=data, headers=headers
             
             assert response.status_code == 200
             data = response.json()
@@ -622,9 +622,9 @@ class TestCompleteWorkflow:
             assert data["pipeline_status"]["text_summarization"] is True
             
         finally:
-            Path(temp_file_path).unlink(missing_ok=True)
+            Pathtemp_file_path.unlinkmissing_ok=True
     
-    def test_authentication_workflow(self):
+    def test_authentication_workflowself:
         """Test complete authentication workflow."""
         # 1. Register new user
         user_data = {
@@ -634,7 +634,7 @@ class TestCompleteWorkflow:
             "full_name": "New User"
         }
         
-        register_response = client.post("/auth/register", json=user_data)
+        register_response = client.post"/auth/register", json=user_data
         assert register_response.status_code == 200
         register_data = register_response.json()
         assert "access_token" in register_data
@@ -646,7 +646,7 @@ class TestCompleteWorkflow:
             "password": "newpassword123"
         }
         
-        login_response = client.post("/auth/login", json=login_data)
+        login_response = client.post"/auth/login", json=login_data
         assert login_response.status_code == 200
         login_data = login_response.json()
         access_token = login_data["access_token"]
@@ -654,35 +654,35 @@ class TestCompleteWorkflow:
         
         # 3. Access protected endpoint
         headers = {"Authorization": f"Bearer {access_token}"}
-        profile_response = client.get("/auth/profile", headers=headers)
+        profile_response = client.get"/auth/profile", headers=headers
         assert profile_response.status_code == 200
         
         # 4. Refresh token
-        refresh_response = client.post("/auth/refresh", json={"refresh_token": refresh_token})
+        refresh_response = client.post"/auth/refresh", json={"refresh_token": refresh_token}
         assert refresh_response.status_code == 200
         new_access_token = refresh_response.json()["access_token"]
         
         # 5. Use new token
         headers = {"Authorization": f"Bearer {new_access_token}"}
-        profile_response = client.get("/auth/profile", headers=headers)
+        profile_response = client.get"/auth/profile", headers=headers
         assert profile_response.status_code == 200
 
 class TestMonitoringDashboard:
     """Test comprehensive monitoring dashboard."""
     
-    def test_performance_metrics_endpoint(self):
+    def test_performance_metrics_endpointself:
         """Test performance monitoring endpoint."""
         # Login to get token
         login_data = {
             "username": "testuser@example.com",
             "password": "testpassword123"
         }
-        login_response = client.post("/auth/login", json=login_data)
+        login_response = client.post"/auth/login", json=login_data
         access_token = login_response.json()["access_token"]
         
         # Test performance metrics endpoint
         headers = {"Authorization": f"Bearer {access_token}"}
-        response = client.get("/monitoring/performance", headers=headers)
+        response = client.get"/monitoring/performance", headers=headers
         
         # The endpoint should return 403 if user doesn't have monitoring permission
         # This is expected behavior for users without proper permissions
@@ -699,24 +699,24 @@ class TestMonitoringDashboard:
         assert "models" in data
         assert "api" in data
     
-    def test_detailed_health_check(self):
+    def test_detailed_health_checkself:
         """Test detailed health check endpoint."""
         # Login to get token
         login_data = {
             "username": "testuser@example.com",
             "password": "testpassword123"
         }
-        login_response = client.post("/auth/login", json=login_data)
+        login_response = client.post"/auth/login", json=login_data
         access_token = login_response.json()["access_token"]
         
         # Test detailed health check endpoint
         headers = {"Authorization": f"Bearer {access_token}"}
-        response = client.get("/monitoring/health/detailed", headers=headers)
+        response = client.get"/monitoring/health/detailed", headers=headers
         
         # Note: This might fail if user doesn't have monitoring permission
         # In a real test, we'd set up proper permissions
         if response.status_code == 403:
-            pytest.skip("User doesn't have monitoring permission")
+            pytest.skip"User doesn't have monitoring permission"
         
         # If user has permission, check the response structure
         assert response.status_code == 200
@@ -731,13 +731,13 @@ class TestMonitoringDashboard:
 class TestMonitoringDashboardClass:
     """Test the MonitoringDashboard class directly."""
     
-    def test_dashboard_initialization(self):
+    def test_dashboard_initializationself:
         """Test dashboard initialization."""
         dashboard = MonitoringDashboard()
         assert dashboard.start_time > 0
         assert dashboard.history_size == 1000
     
-    def test_system_metrics_update(self):
+    def test_system_metrics_updateself:
         """Test system metrics update."""
         dashboard = MonitoringDashboard()
         metrics = dashboard.update_system_metrics()
@@ -750,14 +750,14 @@ class TestMonitoringDashboardClass:
         assert 0 <= metrics.disk_percent <= 100
         assert metrics.disk_free_gb >= 0
     
-    def test_model_metrics_recording(self):
+    def test_model_metrics_recordingself:
         """Test model metrics recording."""
         dashboard = MonitoringDashboard()
         
         # Record some model requests
-        dashboard.record_model_request("test_model", True, 150.0)
-        dashboard.record_model_request("test_model", False, 200.0)
-        dashboard.record_model_request("test_model", True, 100.0)
+        dashboard.record_model_request"test_model", True, 150.0
+        dashboard.record_model_request"test_model", False, 200.0
+        dashboard.record_model_request"test_model", True, 100.0
         
         metrics = dashboard.model_metrics["test_model"]
         assert metrics.total_requests == 3
@@ -766,27 +766,27 @@ class TestMonitoringDashboardClass:
         assert metrics.error_count == 1
         assert metrics.average_response_time_ms > 0
     
-    def test_api_metrics_recording(self):
+    def test_api_metrics_recordingself:
         """Test API metrics recording."""
         dashboard = MonitoringDashboard()
         
         # Record some API requests
-        dashboard.record_api_request(150.0, True)
-        dashboard.record_api_request(200.0, False)
-        dashboard.record_api_request(100.0, True)
+        dashboard.record_api_request150.0, True
+        dashboard.record_api_request200.0, False
+        dashboard.record_api_request100.0, True
         
         assert dashboard.api_metrics.total_requests == 3
-        assert len(dashboard.response_times) == 3
-        assert len(dashboard.error_log) == 1
+        assert lendashboard.response_times == 3
+        assert lendashboard.error_log == 1
     
-    def test_comprehensive_metrics(self):
+    def test_comprehensive_metricsself:
         """Test comprehensive metrics generation."""
         dashboard = MonitoringDashboard()
         
         # Add some data
         dashboard.update_system_metrics()
-        dashboard.record_model_request("test_model", True, 150.0)
-        dashboard.record_api_request(150.0, True)
+        dashboard.record_model_request"test_model", True, 150.0
+        dashboard.record_api_request150.0, True
         
         metrics = dashboard.get_comprehensive_metrics()
         
@@ -798,7 +798,7 @@ class TestMonitoringDashboardClass:
         assert "trends" in metrics
         assert "alerts" in metrics
     
-    def test_health_status_calculation(self):
+    def test_health_status_calculationself:
         """Test health status calculation."""
         dashboard = MonitoringDashboard()
         
@@ -811,25 +811,25 @@ class TestMonitoringDashboardClass:
         status = dashboard._calculate_health_status()
         assert status in ["healthy", "warning", "critical"]
     
-    def test_error_rate_calculation_accuracy(self):
+    def test_error_rate_calculation_accuracyself:
         """Test that error rate calculation is accurate with total_errors tracking."""
         dashboard = MonitoringDashboard()
         
         # Record some requests
-        dashboard.record_api_request(100.0, True)   # Success
-        dashboard.record_api_request(150.0, True)   # Success
-        dashboard.record_api_request(200.0, False)  # Failure
-        dashboard.record_api_request(120.0, True)   # Success
-        dashboard.record_api_request(180.0, False)  # Failure
+        dashboard.record_api_request100.0, True   # Success
+        dashboard.record_api_request150.0, True   # Success
+        dashboard.record_api_request200.0, False  # Failure
+        dashboard.record_api_request120.0, True   # Success
+        dashboard.record_api_request180.0, False  # Failure
         
         # Update metrics
         dashboard._update_api_metrics()
         
-        # Should be 2 errors out of 5 requests = 0.4 (40%)
+        # Should be 2 errors out of 5 requests = 0.4 40%
         assert dashboard.api_metrics.error_rate == 0.4
         assert dashboard.total_errors == 2
     
-    def test_system_metrics_non_blocking(self):
+    def test_system_metrics_non_blockingself:
         """Test that system metrics update doesn't block."""
         dashboard = MonitoringDashboard()
         
@@ -838,21 +838,21 @@ class TestMonitoringDashboardClass:
         metrics = dashboard.update_system_metrics()
         end_time = time.time()
         
-        # Should complete quickly (less than 100ms)
-        assert (end_time - start_time) < 0.1
+        # Should complete quickly less than 100ms
+        assert end_time - start_time < 0.1
         assert metrics is not None
 
 class TestJWTManager:
     """Test JWT manager functionality."""
     
-    def test_jwt_manager_initialization(self):
+    def test_jwt_manager_initializationself:
         """Test JWT manager initialization."""
         jwt_manager = JWTManager()
         assert jwt_manager.secret_key is not None
         assert jwt_manager.algorithm == "HS256"
-        assert isinstance(jwt_manager.blacklisted_tokens, dict)  # Changed to dict for performance
+        assert isinstancejwt_manager.blacklisted_tokens, dict  # Changed to dict for performance
     
-    def test_token_creation(self):
+    def test_token_creationself:
         """Test token creation."""
         jwt_manager = JWTManager()
         
@@ -864,23 +864,23 @@ class TestJWTManager:
         }
         
         # Test access token creation
-        access_token = jwt_manager.create_access_token(user_data)
+        access_token = jwt_manager.create_access_tokenuser_data
         assert access_token is not None
-        assert isinstance(access_token, str)
+        assert isinstanceaccess_token, str
         
         # Test refresh token creation
-        refresh_token = jwt_manager.create_refresh_token(user_data)
+        refresh_token = jwt_manager.create_refresh_tokenuser_data
         assert refresh_token is not None
-        assert isinstance(refresh_token, str)
+        assert isinstancerefresh_token, str
         
         # Test token pair creation
-        token_pair = jwt_manager.create_token_pair(user_data)
-        assert hasattr(token_pair, "access_token")
-        assert hasattr(token_pair, "refresh_token")
-        assert getattr(token_pair, "token_type", "bearer") == "bearer"
-        assert isinstance(token_pair.expires_in, int) and token_pair.expires_in > 0
+        token_pair = jwt_manager.create_token_pairuser_data
+        assert hasattrtoken_pair, "access_token"
+        assert hasattrtoken_pair, "refresh_token"
+        assert getattrtoken_pair, "token_type", "bearer" == "bearer"
+        assert isinstancetoken_pair.expires_in, int and token_pair.expires_in > 0
     
-    def test_token_verification(self):
+    def test_token_verificationself:
         """Test token verification."""
         jwt_manager = JWTManager()
         
@@ -892,8 +892,8 @@ class TestJWTManager:
         }
         
         # Create and verify token
-        access_token = jwt_manager.create_access_token(user_data)
-        payload = jwt_manager.verify_token(access_token)
+        access_token = jwt_manager.create_access_tokenuser_data
+        payload = jwt_manager.verify_tokenaccess_token
         
         assert payload is not None
         assert payload.user_id == "test_user_123"
@@ -902,7 +902,7 @@ class TestJWTManager:
         assert "read" in payload.permissions
         assert "write" in payload.permissions
     
-    def test_token_blacklisting(self):
+    def test_token_blacklistingself:
         """Test token blacklisting."""
         jwt_manager = JWTManager()
         
@@ -914,21 +914,21 @@ class TestJWTManager:
         }
         
         # Create token
-        access_token = jwt_manager.create_access_token(user_data)
+        access_token = jwt_manager.create_access_tokenuser_data
         
         # Verify token is valid
-        payload = jwt_manager.verify_token(access_token)
+        payload = jwt_manager.verify_tokenaccess_token
         assert payload is not None
         
         # Blacklist token
-        success = jwt_manager.blacklist_token(access_token)
+        success = jwt_manager.blacklist_tokenaccess_token
         assert success is True
         
         # Verify token is now invalid
-        payload = jwt_manager.verify_token(access_token)
+        payload = jwt_manager.verify_tokenaccess_token
         assert payload is None
     
-    def test_permission_checking(self):
+    def test_permission_checkingself:
         """Test permission checking."""
         jwt_manager = JWTManager()
         
@@ -939,15 +939,15 @@ class TestJWTManager:
             "permissions": ["read", "write", "admin"]
         }
         
-        access_token = jwt_manager.create_access_token(user_data)
+        access_token = jwt_manager.create_access_tokenuser_data
         
         # Test permission checking
-        assert jwt_manager.has_permission(access_token, "read") is True
-        assert jwt_manager.has_permission(access_token, "write") is True
-        assert jwt_manager.has_permission(access_token, "admin") is True
-        assert jwt_manager.has_permission(access_token, "delete") is False
+        assert jwt_manager.has_permissionaccess_token, "read" is True
+        assert jwt_manager.has_permissionaccess_token, "write" is True
+        assert jwt_manager.has_permissionaccess_token, "admin" is True
+        assert jwt_manager.has_permissionaccess_token, "delete" is False
     
-    def test_token_verification_with_expired_token(self):
+    def test_token_verification_with_expired_tokenself:
         """Test token verification with expired token."""
         jwt_manager = JWTManager()
         
@@ -968,29 +968,29 @@ class TestJWTManager:
             "username": user_data["username"],
             "email": user_data["email"],
             "permissions": user_data["permissions"],
-            "exp": datetime.utcnow() - timedelta(hours=1),  # Expired 1 hour ago
-            "iat": datetime.utcnow() - timedelta(hours=2)
+            "exp": datetime.utcnow() - timedeltahours=1,  # Expired 1 hour ago
+            "iat": datetime.utcnow() - timedeltahours=2
         }
         
-        expired_token = jwt.encode(payload, jwt_manager.secret_key, algorithm=jwt_manager.algorithm)
+        expired_token = jwt.encodepayload, jwt_manager.secret_key, algorithm=jwt_manager.algorithm
         
         # Verify expired token returns None
-        result = jwt_manager.verify_token(expired_token)
+        result = jwt_manager.verify_tokenexpired_token
         assert result is None
     
-    def test_token_verification_with_invalid_token(self):
+    def test_token_verification_with_invalid_tokenself:
         """Test token verification with invalid token."""
         jwt_manager = JWTManager()
         
         # Test with completely invalid token
-        result = jwt_manager.verify_token("invalid_token_string")
+        result = jwt_manager.verify_token"invalid_token_string"
         assert result is None
         
         # Test with malformed token
-        result = jwt_manager.verify_token("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid")
+        result = jwt_manager.verify_token"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid"
         assert result is None
     
-    def test_blacklist_token_cleanup(self):
+    def test_blacklist_token_cleanupself:
         """Test blacklist token cleanup functionality."""
         jwt_manager = JWTManager()
         
@@ -1002,15 +1002,15 @@ class TestJWTManager:
             "permissions": ["read"]
         }
         
-        token = jwt_manager.create_access_token(user_data)
-        assert jwt_manager.blacklist_token(token) is True
+        token = jwt_manager.create_access_tokenuser_data
+        assert jwt_manager.blacklist_tokentoken is True
         
         # Verify token is blacklisted
-        assert jwt_manager.is_token_blacklisted(token) is True
+        assert jwt_manager.is_token_blacklistedtoken is True
         
-        # Test cleanup (should remove expired tokens)
+        # Test cleanup should remove expired tokens
         cleaned_count = jwt_manager.cleanup_expired_tokens()
         assert cleaned_count >= 0  # May or may not have expired tokens
 
 if __name__ == "__main__":
-    pytest.main([__file__]) 
+    pytest.main[__file__] 

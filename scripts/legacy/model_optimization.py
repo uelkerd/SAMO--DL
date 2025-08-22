@@ -91,14 +91,14 @@ Usage:
     python scripts/model_optimization.py [--model_path PATH] [--output_dir PATH] [--benchmark]
 
 Arguments:
-    --model_path: Path to input model (default: models/checkpoints/bert_emotion_classifier_final.pt)
-    --output_dir: Directory to save optimized models (default: models/optimized)
+    --model_path: Path to input model default: models/checkpoints/bert_emotion_classifier_final.pt
+    --output_dir: Directory to save optimized models default: models/optimized
     --benchmark: Run performance benchmarks on optimized models
 """
 
-sys.path.append(str(Path(__file__).parent.parent.resolve()))
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-logger = logging.getLogger(__name__)
+sys.path.append(str(Path__file__.parent.parent.resolve()))
+logging.basicConfig(level=logging.INFO, format="%levelnames: %messages")
+logger = logging.getLogger__name__
 
 DEFAULT_MODEL_PATH = "models/checkpoints/bert_emotion_classifier_final.pt"
 DEFAULT_OUTPUT_DIR = "models/optimized"
@@ -119,12 +119,12 @@ def apply_dynamic_quantization(
     Returns:
         Dictionary with optimization metrics
     """
-    logger.info("Applying dynamic quantization...")
+    logger.info"Applying dynamic quantization..."
 
     model.eval()
 
-    original_size = get_model_size_mb(model_path)
-    logger.info("Original model size: {original_size:.2f} MB")
+    original_size = get_model_size_mbmodel_path
+    logger.info"Original model size: {original_size:.2f} MB"
 
     quantized_model = torch.quantization.quantize_dynamic(
         model, {torch.nn.Linear}, dtype=torch.qint8
@@ -140,16 +140,16 @@ def apply_dynamic_quantization(
         output_path,
     )
 
-    quantized_size = get_model_size_mb(output_path)
-    logger.info("Quantized model size: {quantized_size:.2f} MB")
+    quantized_size = get_model_size_mboutput_path
+    logger.info"Quantized model size: {quantized_size:.2f} MB"
 
-    size_reduction = (original_size - quantized_size) / original_size * 100
-    logger.info("Size reduction: {size_reduction:.2f}%")
+    size_reduction = original_size - quantized_size / original_size * 100
+    logger.info"Size reduction: {size_reduction:.2f}%"
 
     if quantized_size <= TARGET_SIZE_MB:
-        logger.info("✅ Target size achieved: {quantized_size:.2f} MB <= {TARGET_SIZE_MB} MB")
+        logger.info"✅ Target size achieved: {quantized_size:.2f} MB <= {TARGET_SIZE_MB} MB"
     else:
-        logger.warning("⚠️ Target size not achieved: {quantized_size:.2f} MB > {TARGET_SIZE_MB} MB")
+        logger.warning"⚠️ Target size not achieved: {quantized_size:.2f} MB > {TARGET_SIZE_MB} MB"
 
     return {
         "original_size_mb": original_size,
@@ -158,7 +158,7 @@ def apply_dynamic_quantization(
     }
 
 
-def convert_to_onnx(model: torch.nn.Module, output_path: str, opset_version: int = 12) -> str:
+def convert_to_onnxmodel: torch.nn.Module, output_path: str, opset_version: int = 12 -> str:
     """Convert PyTorch model to ONNX format.
 
     Args:
@@ -169,11 +169,11 @@ def convert_to_onnx(model: torch.nn.Module, output_path: str, opset_version: int
     Returns:
         Path to saved ONNX model
     """
-    logger.info("Converting model to ONNX format...")
+    logger.info"Converting model to ONNX format..."
 
     model.eval()
 
-    tokenizer = AutoTokenizer.from_pretrained(model.model_name)
+    tokenizer = AutoTokenizer.from_pretrainedmodel.model_name
     dummy_text = "This is a test sentence for ONNX conversion."
     dummy_inputs = tokenizer(
         dummy_text, return_tensors="pt", padding=True, truncation=True, max_length=128
@@ -194,7 +194,7 @@ def convert_to_onnx(model: torch.nn.Module, output_path: str, opset_version: int
         (
             dummy_inputs["input_ids"],
             dummy_inputs["attention_mask"],
-            dummy_inputs.get("token_type_ids", torch.zeros_like(dummy_inputs["input_ids"])),
+            dummy_inputs.get("token_type_ids", torch.zeros_likedummy_inputs["input_ids"]),
         ),
         output_path,
         input_names=input_names,
@@ -205,17 +205,17 @@ def convert_to_onnx(model: torch.nn.Module, output_path: str, opset_version: int
         verbose=False,
     )
 
-    logger.info("Model converted to ONNX format: {output_path}")
+    logger.info"Model converted to ONNX format: {output_path}"
 
     try:
-        onnx_model = onnx.load(output_path)
-        onnx.checker.check_model(onnx_model)
-        logger.info("✅ ONNX model verified successfully")
+        onnx_model = onnx.loadoutput_path
+        onnx.checker.check_modelonnx_model
+        logger.info"✅ ONNX model verified successfully"
     except ImportError:
-        logger.warning("⚠️ ONNX package not installed, skipping verification")
-        logger.info("To install: pip install onnx")
+        logger.warning"⚠️ ONNX package not installed, skipping verification"
+        logger.info"To install: pip install onnx"
     except Exception as e:
-        logger.error("❌ ONNX model verification failed: {e}")
+        logger.error"❌ ONNX model verification failed: {e}"
 
     return output_path
 
@@ -241,46 +241,46 @@ def benchmark_models(
     """
     if batch_sizes is None:
         batch_sizes = [1, 4, 16]
-    logger.info("Running performance benchmarks...")
+    logger.info"Running performance benchmarks..."
 
     original_model.eval()
     quantized_model.eval()
 
-    tokenizer = AutoTokenizer.from_pretrained(original_model.model_name)
+    tokenizer = AutoTokenizer.from_pretrainedoriginal_model.model_name
 
     results = {"pytorch_original": {}, "pytorch_quantized": {}, "onnx": {}}
 
     onnx_available = False
     try:
-        onnx_session = ort.InferenceSession(onnx_path)
+        onnx_session = ort.InferenceSessiononnx_path
         onnx_available = True
     except ImportError:
-        logger.warning("⚠️ ONNX Runtime not installed, skipping ONNX benchmarks")
-        logger.info("To install: pip install onnxruntime")
+        logger.warning"⚠️ ONNX Runtime not installed, skipping ONNX benchmarks"
+        logger.info"To install: pip install onnxruntime"
     except Exception as e:
-        logger.error("❌ Error loading ONNX model: {e}")
+        logger.error"❌ Error loading ONNX model: {e}"
 
     for batch_size in batch_sizes:
-        logger.info("Benchmarking with batch_size={batch_size}...")
+        logger.info"Benchmarking with batch_size={batch_size}..."
 
-        texts = ["This is test sentence {i} for benchmarking." for i in range(batch_size)]
+        texts = ["This is test sentence {i} for benchmarking." for i in rangebatch_size]
 
         inputs = tokenizer(
             texts, return_tensors="pt", padding=True, truncation=True, max_length=128
         )
 
         original_times = []
-        for _ in tqdm(range(num_runs), desc="Original PyTorch"):
+        for _ in tqdm(rangenum_runs, desc="Original PyTorch"):
             start_time = time.time()
             with torch.no_grad():
-                _ = original_model(**inputs)
+                _ = original_model**inputs
             original_times.append(time.time() - start_time)
 
         quantized_times = []
-        for _ in tqdm(range(num_runs), desc="Quantized PyTorch"):
+        for _ in tqdm(rangenum_runs, desc="Quantized PyTorch"):
             start_time = time.time()
             with torch.no_grad():
-                _ = quantized_model(**inputs)
+                _ = quantized_model**inputs
             quantized_times.append(time.time() - start_time)
 
         onnx_times = []
@@ -289,52 +289,52 @@ def benchmark_models(
                 "input_ids": inputs["input_ids"].numpy(),
                 "attention_mask": inputs["attention_mask"].numpy(),
                 "token_type_ids": inputs.get(
-                    "token_type_ids", torch.zeros_like(inputs["input_ids"])
+                    "token_type_ids", torch.zeros_likeinputs["input_ids"]
                 ).numpy(),
             }
 
-            for _ in tqdm(range(num_runs), desc="ONNX Runtime"):
+            for _ in tqdm(rangenum_runs, desc="ONNX Runtime"):
                 start_time = time.time()
-                _ = onnx_session.run(None, onnx_inputs)
+                _ = onnx_session.runNone, onnx_inputs
                 onnx_times.append(time.time() - start_time)
 
         results["pytorch_original"]["batch_{batch_size}"] = {
-            "mean_ms": np.mean(original_times) * 1000,
-            "median_ms": np.median(original_times) * 1000,
-            "p95_ms": np.percentile(original_times, 95) * 1000,
-            "p99_ms": np.percentile(original_times, 99) * 1000,
+            "mean_ms": np.meanoriginal_times * 1000,
+            "median_ms": np.medianoriginal_times * 1000,
+            "p95_ms": np.percentileoriginal_times, 95 * 1000,
+            "p99_ms": np.percentileoriginal_times, 99 * 1000,
         }
 
         results["pytorch_quantized"]["batch_{batch_size}"] = {
-            "mean_ms": np.mean(quantized_times) * 1000,
-            "median_ms": np.median(quantized_times) * 1000,
-            "p95_ms": np.percentile(quantized_times, 95) * 1000,
-            "p99_ms": np.percentile(quantized_times, 99) * 1000,
-            "speedup": np.mean(original_times) / np.mean(quantized_times),
+            "mean_ms": np.meanquantized_times * 1000,
+            "median_ms": np.medianquantized_times * 1000,
+            "p95_ms": np.percentilequantized_times, 95 * 1000,
+            "p99_ms": np.percentilequantized_times, 99 * 1000,
+            "speedup": np.meanoriginal_times / np.meanquantized_times,
         }
 
         if onnx_available:
             results["onnx"]["batch_{batch_size}"] = {
-                "mean_ms": np.mean(onnx_times) * 1000,
-                "median_ms": np.median(onnx_times) * 1000,
-                "p95_ms": np.percentile(onnx_times, 95) * 1000,
-                "p99_ms": np.percentile(onnx_times, 99) * 1000,
-                "speedup": np.mean(original_times) / np.mean(onnx_times),
+                "mean_ms": np.meanonnx_times * 1000,
+                "median_ms": np.medianonnx_times * 1000,
+                "p95_ms": np.percentileonnx_times, 95 * 1000,
+                "p99_ms": np.percentileonnx_times, 99 * 1000,
+                "speedup": np.meanoriginal_times / np.meanonnx_times,
             }
 
-        logger.info("Batch size: {batch_size}")
+        logger.info"Batch size: {batch_size}"
         logger.info(
             "Original PyTorch: {results['pytorch_original']['batch_{batch_size}']['mean_ms']:.2f} ms"
         )
         logger.info(
             "Quantized PyTorch: {results['pytorch_quantized']['batch_{batch_size}']['mean_ms']:.2f} ms "
-            + "(speedup: {results['pytorch_quantized']['batch_{batch_size}']['speedup']:.2f}x)"
+            + "speedup: {results['pytorch_quantized']['batch_{batch_size}']['speedup']:.2f}x"
         )
 
         if onnx_available:
             logger.info(
                 "ONNX Runtime: {results['onnx']['batch_{batch_size}']['mean_ms']:.2f} ms "
-                + "(speedup: {results['onnx']['batch_{batch_size}']['speedup']:.2f}x)"
+                + "speedup: {results['onnx']['batch_{batch_size}']['speedup']:.2f}x"
             )
 
             if results["onnx"]["batch_{batch_size}"]["speedup"] >= TARGET_SPEEDUP:
@@ -349,7 +349,7 @@ def benchmark_models(
     return results
 
 
-def get_model_size_mb(model_path: Union[str, Path]) -> float:
+def get_model_size_mbmodel_path: Union[str, Path] -> float:
     """Get model file size in MB.
 
     Args:
@@ -358,11 +358,11 @@ def get_model_size_mb(model_path: Union[str, Path]) -> float:
     Returns:
         Model size in MB
     """
-    path = Path(model_path)
-    return path.stat().st_size / (1024 * 1024)
+    path = Pathmodel_path
+    return path.stat().st_size / 1024 * 1024
 
 
-def verify_gpu_compatibility(model: torch.nn.Module) -> bool:
+def verify_gpu_compatibilitymodel: torch.nn.Module -> bool:
     """Verify model compatibility with both CPU and GPU.
 
     Args:
@@ -371,45 +371,45 @@ def verify_gpu_compatibility(model: torch.nn.Module) -> bool:
     Returns:
         True if compatible with both CPU and GPU, False otherwise
     """
-    logger.info("Verifying GPU compatibility...")
+    logger.info"Verifying GPU compatibility..."
 
     if not torch.cuda.is_available():
-        logger.warning("⚠️ CUDA not available, skipping GPU compatibility check")
+        logger.warning"⚠️ CUDA not available, skipping GPU compatibility check"
         return True
 
     try:
-        tokenizer = AutoTokenizer.from_pretrained(model.model_name)
+        tokenizer = AutoTokenizer.from_pretrainedmodel.model_name
         dummy_text = "This is a test sentence for GPU compatibility."
         dummy_inputs = tokenizer(
             dummy_text, return_tensors="pt", padding=True, truncation=True, max_length=128
         )
 
-        model.to("cpu")
+        model.to"cpu"
         with torch.no_grad():
-            cpu_output = model(**dummy_inputs)
+            cpu_output = model**dummy_inputs
 
-        model.to("cuda")
-        dummy_inputs_gpu = {k: v.to("cuda") for k, v in dummy_inputs.items()}
+        model.to"cuda"
+        dummy_inputs_gpu = {k: v.to"cuda" for k, v in dummy_inputs.items()}
         with torch.no_grad():
-            gpu_output = model(**dummy_inputs_gpu)
+            gpu_output = model**dummy_inputs_gpu
 
         gpu_output_cpu = gpu_output.cpu()
 
-        if torch.allclose(cpu_output, gpu_output_cpu, rtol=1e-3, atol=1e-3):
-            logger.info("✅ Model is compatible with both CPU and GPU")
+        if torch.allclosecpu_output, gpu_output_cpu, rtol=1e-3, atol=1e-3:
+            logger.info"✅ Model is compatible with both CPU and GPU"
             return True
         else:
-            logger.error("❌ Model outputs differ between CPU and GPU")
+            logger.error"❌ Model outputs differ between CPU and GPU"
             return False
 
     except Exception as e:
-        logger.error("❌ Error during GPU compatibility check: {e}")
+        logger.error"❌ Error during GPU compatibility check: {e}"
         return False
     finally:
-        model.to("cpu")
+        model.to"cpu"
 
 
-def optimize_model(model_path: str, output_dir: str, run_benchmark: bool = False) -> dict[str, Any]:
+def optimize_modelmodel_path: str, output_dir: str, run_benchmark: bool = False -> dict[str, Any]:
     """Apply all optimization techniques to model.
 
     Args:
@@ -420,27 +420,27 @@ def optimize_model(model_path: str, output_dir: str, run_benchmark: bool = False
     Returns:
         Dictionary with optimization results
     """
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir = Pathoutput_dir
+    output_dir.mkdirparents=True, exist_ok=True
 
-    logger.info("Loading model from {model_path}...")
-    device = torch.device("cpu")  # Use CPU for optimization
+    logger.info"Loading model from {model_path}..."
+    device = torch.device"cpu"  # Use CPU for optimization
 
-    if not Path(model_path).exists():
-        logger.error("Model not found: {model_path}")
+    if not Pathmodel_path.exists():
+        logger.error"Model not found: {model_path}"
         return {}
 
-    checkpoint = torch.load(model_path, map_location=device)
+    checkpoint = torch.loadmodel_path, map_location=device
 
     model, _ = create_bert_emotion_classifier()
-    model.to(device)
+    model.todevice
 
-    if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
-        model.load_state_dict(checkpoint["model_state_dict"])
-    elif isinstance(checkpoint, dict):
-        model.load_state_dict(checkpoint)
+    if isinstancecheckpoint, dict and "model_state_dict" in checkpoint:
+        model.load_state_dictcheckpoint["model_state_dict"]
+    elif isinstancecheckpoint, dict:
+        model.load_state_dictcheckpoint
     else:
-        logger.error("Unexpected checkpoint format: {type(checkpoint)}")
+        logger.error("Unexpected checkpoint format: {typecheckpoint}")
         return {}
 
     model.eval()
@@ -448,48 +448,48 @@ def optimize_model(model_path: str, output_dir: str, run_benchmark: bool = False
     quantized_path = output_dir / "bert_emotion_classifier_quantized.pt"
     onnx_path = output_dir / "bert_emotion_classifier.onnx"
 
-    quantization_metrics = apply_dynamic_quantization(model, model_path, quantized_path)
+    quantization_metrics = apply_dynamic_quantizationmodel, model_path, quantized_path
 
-    quantized_checkpoint = torch.load(quantized_path, map_location=device)
+    quantized_checkpoint = torch.loadquantized_path, map_location=device
     quantized_model, _ = create_bert_emotion_classifier()
-    quantized_model.to(device)
-    quantized_model.load_state_dict(quantized_checkpoint["model_state_dict"])
+    quantized_model.todevice
+    quantized_model.load_state_dictquantized_checkpoint["model_state_dict"]
     quantized_model.eval()
 
-    onnx_model_path = convert_to_onnx(model, onnx_path)
+    onnx_model_path = convert_to_onnxmodel, onnx_path
 
-    gpu_compatible = verify_gpu_compatibility(model)
+    gpu_compatible = verify_gpu_compatibilitymodel
 
     benchmark_results = {}
     if run_benchmark:
-        benchmark_results = benchmark_models(model, quantized_model, onnx_model_path)
+        benchmark_results = benchmark_modelsmodel, quantized_model, onnx_model_path
 
         benchmark_path = output_dir / "benchmark_results.json"
-        with open(benchmark_path, "w") as f:
-            json.dump(benchmark_results, f, indent=2)
-        logger.info("Benchmark results saved to {benchmark_path}")
+        with openbenchmark_path, "w" as f:
+            json.dumpbenchmark_results, f, indent=2
+        logger.info"Benchmark results saved to {benchmark_path}"
 
     results = {
         "quantization": quantization_metrics,
-        "onnx_conversion": {"path": str(onnx_path)},
+        "onnx_conversion": {"path": stronnx_path},
         "gpu_compatible": gpu_compatible,
         "benchmark": benchmark_results if run_benchmark else "Not run",
     }
 
     results_path = output_dir / "optimization_results.json"
-    with open(results_path, "w") as f:
-        json.dump(results, f, indent=2)
-    logger.info("Optimization results saved to {results_path}")
+    with openresults_path, "w" as f:
+        json.dumpresults, f, indent=2
+    logger.info"Optimization results saved to {results_path}"
 
-    logger.info("\n=== Optimization Summary ===")
-    logger.info("Original model size: {quantization_metrics['original_size_mb']:.2f} MB")
-    logger.info("Quantized model size: {quantization_metrics['quantized_size_mb']:.2f} MB")
-    logger.info("Size reduction: {quantization_metrics['size_reduction_percent']:.2f}%")
-    logger.info("ONNX model path: {onnx_path}")
-    logger.info("GPU compatible: {'Yes' if gpu_compatible else 'No'}")
+    logger.info"\n=== Optimization Summary ==="
+    logger.info"Original model size: {quantization_metrics['original_size_mb']:.2f} MB"
+    logger.info"Quantized model size: {quantization_metrics['quantized_size_mb']:.2f} MB"
+    logger.info"Size reduction: {quantization_metrics['size_reduction_percent']:.2f}%"
+    logger.info"ONNX model path: {onnx_path}"
+    logger.info"GPU compatible: {'Yes' if gpu_compatible else 'No'}"
 
     if run_benchmark and "onnx" in benchmark_results and "batch_1" in benchmark_results["onnx"]:
-        logger.info("ONNX speedup: {benchmark_results['onnx']['batch_1']['speedup']:.2f}x")
+        logger.info"ONNX speedup: {benchmark_results['onnx']['batch_1']['speedup']:.2f}x"
 
     all_requirements_met = (
         quantization_metrics["quantized_size_mb"] <= TARGET_SIZE_MB
@@ -505,26 +505,26 @@ def optimize_model(model_path: str, output_dir: str, run_benchmark: bool = False
     )
 
     if all_requirements_met:
-        logger.info("✅ All optimization requirements met!")
+        logger.info"✅ All optimization requirements met!"
     else:
-        logger.warning("⚠️ Some optimization requirements not met. Check logs for details.")
+        logger.warning"⚠️ Some optimization requirements not met. Check logs for details."
 
     return results
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Model Optimization for REQ-DL-008")
+    parser = argparse.ArgumentParserdescription="Model Optimization for REQ-DL-008"
     parser.add_argument(
         "--model_path",
         type=str,
         default=DEFAULT_MODEL_PATH,
-        help="Path to input model (default: {DEFAULT_MODEL_PATH})",
+        help="Path to input model default: {DEFAULT_MODEL_PATH}",
     )
     parser.add_argument(
         "--output_dir",
         type=str,
         default=DEFAULT_OUTPUT_DIR,
-        help="Directory to save optimized models (default: {DEFAULT_OUTPUT_DIR})",
+        help="Directory to save optimized models default: {DEFAULT_OUTPUT_DIR}",
     )
     parser.add_argument(
         "--benchmark", action="store_true", help="Run performance benchmarks on optimized models"
@@ -536,4 +536,4 @@ if __name__ == "__main__":
         model_path=args.model_path, output_dir=args.output_dir, run_benchmark=args.benchmark
     )
 
-    sys.exit(0)
+    sys.exit0

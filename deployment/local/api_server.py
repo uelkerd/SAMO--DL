@@ -21,20 +21,20 @@ from functools import wraps
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%asctimes - %names - %levelnames - %messages',
     handlers=[
-        logging.FileHandler('api_server.log'),
+        logging.FileHandler'api_server.log',
         logging.StreamHandler()
     ]
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger__name__
 
-app = Flask(__name__)
+app = Flask__name__
 
 # Rate limiting configuration
 RATE_LIMIT_WINDOW = 60  # seconds
 RATE_LIMIT_MAX_REQUESTS = 100  # requests per window
-rate_limit_data = defaultdict(lambda: deque(maxlen=RATE_LIMIT_MAX_REQUESTS))
+rate_limit_data = defaultdict(lambda: dequemaxlen=RATE_LIMIT_MAX_REQUESTS)
 rate_limit_lock = threading.Lock()
 
 # Monitoring metrics
@@ -43,18 +43,18 @@ metrics = {
     'successful_requests': 0,
     'failed_requests': 0,
     'average_response_time': 0.0,
-    'response_times': deque(maxlen=1000),
-    'emotion_distribution': defaultdict(int),
-    'error_counts': defaultdict(int),
+    'response_times': dequemaxlen=1000,
+    'emotion_distribution': defaultdictint,
+    'error_counts': defaultdictint,
     'start_time': datetime.now()
 }
 
 metrics_lock = threading.Lock()
 
-def rate_limit(f):
+def rate_limitf:
     """Rate limiting decorator."""
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
+    @wrapsf
+    def decorated_function*args, **kwargs:
         client_ip = request.remote_addr
         current_time = time.time()
         
@@ -64,24 +64,24 @@ def rate_limit(f):
                 rate_limit_data[client_ip].popleft()
             
             # Check rate limit
-            if len(rate_limit_data[client_ip]) >= RATE_LIMIT_MAX_REQUESTS:
-                logger.warning(f"Rate limit exceeded for IP: {client_ip}")
+            if lenrate_limit_data[client_ip] >= RATE_LIMIT_MAX_REQUESTS:
+                logger.warningf"Rate limit exceeded for IP: {client_ip}"
                 return jsonify({
                     'error': 'Rate limit exceeded',
                     'message': f'Maximum {RATE_LIMIT_MAX_REQUESTS} requests per {RATE_LIMIT_WINDOW} seconds'
                 }), 429
             
             # Add current request
-            rate_limit_data[client_ip].append(current_time)
+            rate_limit_data[client_ip].appendcurrent_time
         
-        return f(*args, **kwargs)
+        return f*args, **kwargs
     return decorated_function
 
-def update_metrics(response_time, success=True, emotion=None, error_type=None):
+def update_metricsresponse_time, success=True, emotion=None, error_type=None:
     """Update monitoring metrics."""
     with metrics_lock:
         metrics['total_requests'] += 1
-        metrics['response_times'].append(response_time)
+        metrics['response_times'].appendresponse_time
         
         if success:
             metrics['successful_requests'] += 1
@@ -94,48 +94,48 @@ def update_metrics(response_time, success=True, emotion=None, error_type=None):
         
         # Update average response time
         if metrics['response_times']:
-            metrics['average_response_time'] = sum(metrics['response_times']) / len(metrics['response_times'])
+            metrics['average_response_time'] = summetrics['response_times'] / lenmetrics['response_times']
 
 class EmotionDetectionModel:
-    def __init__(self):
+    def __init__self:
         """Initialize the model."""
         self.model_path = os.path.join(os.getcwd(), "model")
-        logger.info(f"Loading model from: {self.model_path}")
+        logger.infof"Loading model from: {self.model_path}"
         
         try:
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
-            self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path)
+            self.tokenizer = AutoTokenizer.from_pretrainedself.model_path
+            self.model = AutoModelForSequenceClassification.from_pretrainedself.model_path
             
             # Move to GPU if available
             if torch.cuda.is_available():
-                self.model = self.model.to('cuda')
-                logger.info("✅ Model moved to GPU")
+                self.model = self.model.to'cuda'
+                logger.info"✅ Model moved to GPU"
             else:
-                logger.info("⚠️ CUDA not available, using CPU")
+                logger.info"⚠️ CUDA not available, using CPU"
             
             self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
-            logger.info("✅ Model loaded successfully")
+            logger.info"✅ Model loaded successfully"
             
         except Exception as e:
-            logger.error(f"❌ Failed to load model: {str(e)}")
+            logger.error(f"❌ Failed to load model: {stre}")
             raise
         
-    def predict(self, text):
+    def predictself, text:
         """Make a prediction."""
         start_time = time.time()
         
         try:
             # Tokenize input
-            inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
+            inputs = self.tokenizertext, return_tensors='pt', truncation=True, padding=True, max_length=512
             
             if torch.cuda.is_available():
-                inputs = {k: v.to('cuda') for k, v in inputs.items()}
+                inputs = {k: v.to'cuda' for k, v in inputs.items()}
             
             # Get prediction
             with torch.no_grad():
-                outputs = self.model(**inputs)
-                probabilities = torch.softmax(outputs.logits, dim=1)
-                predicted_label = torch.argmax(probabilities, dim=1).item()
+                outputs = self.model**inputs
+                probabilities = torch.softmaxoutputs.logits, dim=1
+                predicted_label = torch.argmaxprobabilities, dim=1.item()
                 confidence = probabilities[0][predicted_label].item()
                 
                 # Get all probabilities
@@ -144,21 +144,21 @@ class EmotionDetectionModel:
             # Get predicted emotion
             if predicted_label in self.model.config.id2label:
                 predicted_emotion = self.model.config.id2label[predicted_label]
-            elif str(predicted_label) in self.model.config.id2label:
-                predicted_emotion = self.model.config.id2label[str(predicted_label)]
+            elif strpredicted_label in self.model.config.id2label:
+                predicted_emotion = self.model.config.id2label[strpredicted_label]
             else:
                 predicted_emotion = f"unknown_{predicted_label}"
             
             prediction_time = time.time() - start_time
-            logger.info(f"Prediction completed in {prediction_time:.3f}s: '{text[:50]}...' → {predicted_emotion} (conf: {confidence:.3f})")
+            logger.info(f"Prediction completed in {prediction_time:.3f}s: '{text[:50]}...' → {predicted_emotion} conf: {confidence:.3f}")
             
             # Create response
             response = {
                 'text': text,
                 'predicted_emotion': predicted_emotion,
-                'confidence': float(confidence),
+                'confidence': floatconfidence,
                 'probabilities': {
-                    emotion: float(prob) for emotion, prob in zip(self.emotions, all_probs)
+                    emotion: floatprob for emotion, prob in zipself.emotions, all_probs
                 },
                 'model_version': '2.0',
                 'model_type': 'comprehensive_emotion_detection',
@@ -167,21 +167,21 @@ class EmotionDetectionModel:
                     'real_world_accuracy': '93.75%',
                     'average_confidence': '83.9%'
                 },
-                'prediction_time_ms': round(prediction_time * 1000, 2)
+                'prediction_time_ms': roundprediction_time * 1000, 2
             }
             
             return response
             
         except Exception as e:
             prediction_time = time.time() - start_time
-            logger.error(f"Prediction failed after {prediction_time:.3f}s: {str(e)}")
+            logger.error(f"Prediction failed after {prediction_time:.3f}s: {stre}")
             raise
 
 # Initialize model
-logger.info("🔧 Loading emotion detection model...")
+logger.info"🔧 Loading emotion detection model..."
 model = EmotionDetectionModel()
 
-@app.route('/health', methods=['GET'])
+@app.route'/health', methods=['GET']
 @rate_limit
 def health_check():
     """Health check endpoint."""
@@ -198,22 +198,22 @@ def health_check():
                 'total_requests': metrics['total_requests'],
                 'successful_requests': metrics['successful_requests'],
                 'failed_requests': metrics['failed_requests'],
-                'average_response_time_ms': round(metrics['average_response_time'] * 1000, 2)
+                'average_response_time_ms': roundmetrics['average_response_time'] * 1000, 2
             }
         }
         
         response_time = time.time() - start_time
-        update_metrics(response_time, success=True)
+        update_metricsresponse_time, success=True
         
-        return jsonify(response)
+        return jsonifyresponse
         
     except Exception as e:
         response_time = time.time() - start_time
-        update_metrics(response_time, success=False, error_type='health_check_error')
-        logger.error(f"Health check failed: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        update_metricsresponse_time, success=False, error_type='health_check_error'
+        logger.error(f"Health check failed: {stre}")
+        return jsonify({'error': stre}), 500
 
-@app.route('/predict', methods=['POST'])
+@app.route'/predict', methods=['POST']
 @rate_limit
 def predict():
     """Prediction endpoint."""
@@ -224,35 +224,35 @@ def predict():
         
         if not data or 'text' not in data:
             response_time = time.time() - start_time
-            update_metrics(response_time, success=False, error_type='missing_text')
-            return jsonify({'error': 'No text provided'}), 400
+            update_metricsresponse_time, success=False, error_type='missing_text'
+            return jsonify{'error': 'No text provided'}, 400
         
         text = data['text']
         if not text.strip():
             response_time = time.time() - start_time
-            update_metrics(response_time, success=False, error_type='empty_text')
-            return jsonify({'error': 'Empty text provided'}), 400
+            update_metricsresponse_time, success=False, error_type='empty_text'
+            return jsonify{'error': 'Empty text provided'}, 400
         
         # Make prediction
-        result = model.predict(text)
+        result = model.predicttext
         
         response_time = time.time() - start_time
-        update_metrics(response_time, success=True, emotion=result['predicted_emotion'])
+        update_metricsresponse_time, success=True, emotion=result['predicted_emotion']
         
-        return jsonify(result)
+        return jsonifyresult
         
     except werkzeug.exceptions.BadRequest:
         response_time = time.time() - start_time
-        update_metrics(response_time, success=False, error_type='invalid_json')
-        logger.error(f"Invalid JSON in request")
-        return jsonify({'error': 'Invalid JSON format'}), 400
+        update_metricsresponse_time, success=False, error_type='invalid_json'
+        logger.error"Invalid JSON in request"
+        return jsonify{'error': 'Invalid JSON format'}, 400
     except Exception as e:
         response_time = time.time() - start_time
-        update_metrics(response_time, success=False, error_type='prediction_error')
-        logger.error(f"Prediction endpoint error: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        update_metricsresponse_time, success=False, error_type='prediction_error'
+        logger.error(f"Prediction endpoint error: {stre}")
+        return jsonify({'error': stre}), 500
 
-@app.route('/predict_batch', methods=['POST'])
+@app.route'/predict_batch', methods=['POST']
 @rate_limit
 def predict_batch():
     """Batch prediction endpoint."""
@@ -263,42 +263,42 @@ def predict_batch():
         
         if not data or 'texts' not in data:
             response_time = time.time() - start_time
-            update_metrics(response_time, success=False, error_type='missing_texts')
-            return jsonify({'error': 'No texts provided'}), 400
+            update_metricsresponse_time, success=False, error_type='missing_texts'
+            return jsonify{'error': 'No texts provided'}, 400
         
         texts = data['texts']
-        if not isinstance(texts, list):
+        if not isinstancetexts, list:
             response_time = time.time() - start_time
-            update_metrics(response_time, success=False, error_type='invalid_texts_format')
-            return jsonify({'error': 'Texts must be a list'}), 400
+            update_metricsresponse_time, success=False, error_type='invalid_texts_format'
+            return jsonify{'error': 'Texts must be a list'}, 400
         
         results = []
         for text in texts:
             if text.strip():
-                result = model.predict(text)
-                results.append(result)
+                result = model.predicttext
+                results.appendresult
         
         response_time = time.time() - start_time
-        update_metrics(response_time, success=True)
+        update_metricsresponse_time, success=True
         
         return jsonify({
             'predictions': results,
-            'count': len(results),
-            'batch_processing_time_ms': round(response_time * 1000, 2)
+            'count': lenresults,
+            'batch_processing_time_ms': roundresponse_time * 1000, 2
         })
         
     except werkzeug.exceptions.BadRequest:
         response_time = time.time() - start_time
-        update_metrics(response_time, success=False, error_type='invalid_json')
-        logger.error(f"Invalid JSON in batch request")
-        return jsonify({'error': 'Invalid JSON format'}), 400
+        update_metricsresponse_time, success=False, error_type='invalid_json'
+        logger.error"Invalid JSON in batch request"
+        return jsonify{'error': 'Invalid JSON format'}, 400
     except Exception as e:
         response_time = time.time() - start_time
-        update_metrics(response_time, success=False, error_type='batch_prediction_error')
-        logger.error(f"Batch prediction endpoint error: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        update_metricsresponse_time, success=False, error_type='batch_prediction_error'
+        logger.error(f"Batch prediction endpoint error: {stre}")
+        return jsonify({'error': stre}), 500
 
-@app.route('/metrics', methods=['GET'])
+@app.route'/metrics', methods=['GET']
 def get_metrics():
     """Get detailed metrics endpoint."""
     with metrics_lock:
@@ -308,19 +308,19 @@ def get_metrics():
                 'total_requests': metrics['total_requests'],
                 'successful_requests': metrics['successful_requests'],
                 'failed_requests': metrics['failed_requests'],
-                'success_rate': f"{(metrics['successful_requests'] / max(metrics['total_requests'], 1)) * 100:.2f}%",
-                'average_response_time_ms': round(metrics['average_response_time'] * 1000, 2),
+                'success_rate': f"{(metrics['successful_requests'] / maxmetrics['total_requests'], 1) * 100:.2f}%",
+                'average_response_time_ms': roundmetrics['average_response_time'] * 1000, 2,
                 'requests_per_minute': metrics['total_requests'] / max((datetime.now() - metrics['start_time']).total_seconds() / 60, 1)
             },
-            'emotion_distribution': dict(metrics['emotion_distribution']),
-            'error_counts': dict(metrics['error_counts']),
+            'emotion_distribution': dictmetrics['emotion_distribution'],
+            'error_counts': dictmetrics['error_counts'],
             'rate_limiting': {
                 'window_seconds': RATE_LIMIT_WINDOW,
                 'max_requests': RATE_LIMIT_MAX_REQUESTS
             }
         })
 
-@app.route('/', methods=['GET'])
+@app.route'/', methods=['GET']
 @rate_limit
 def home():
     """Home endpoint with API documentation."""
@@ -334,8 +334,8 @@ def home():
                 'GET /': 'This documentation',
                 'GET /health': 'Health check with basic metrics',
                 'GET /metrics': 'Detailed server metrics',
-                'POST /predict': 'Single prediction (send {"text": "your text"})',
-                'POST /predict_batch': 'Batch prediction (send {"texts": ["text1", "text2"]})'
+                'POST /predict': 'Single prediction send {"text": "your text"}',
+                'POST /predict_batch': 'Batch prediction send {"texts": ["text1", "text2"]}'
             },
             'model_info': {
                 'emotions': model.emotions,
@@ -364,40 +364,40 @@ def home():
         }
         
         response_time = time.time() - start_time
-        update_metrics(response_time, success=True)
+        update_metricsresponse_time, success=True
         
-        return jsonify(response)
+        return jsonifyresponse
         
     except Exception as e:
         response_time = time.time() - start_time
-        update_metrics(response_time, success=False, error_type='documentation_error')
-        logger.error(f"Documentation endpoint error: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        update_metricsresponse_time, success=False, error_type='documentation_error'
+        logger.error(f"Documentation endpoint error: {stre}")
+        return jsonify({'error': stre}), 500
 
-@app.errorhandler(werkzeug.exceptions.BadRequest)
-def handle_bad_request(e):
-    """Handle BadRequest exceptions (invalid JSON, etc.)."""
-    logger.error(f"BadRequest error: {str(e)}")
-    update_metrics(0.0, success=False, error_type='invalid_json')
-    return jsonify({'error': 'Invalid JSON format'}), 400
+@app.errorhandlerwerkzeug.exceptions.BadRequest
+def handle_bad_requeste:
+    """Handle BadRequest exceptions invalid JSON, etc.."""
+    logger.error(f"BadRequest error: {stre}")
+    update_metrics0.0, success=False, error_type='invalid_json'
+    return jsonify{'error': 'Invalid JSON format'}, 400
 
 if __name__ == '__main__':
-    logger.info("🌐 Starting enhanced local API server...")
-    logger.info("📋 Available endpoints:")
-    logger.info("   GET  / - API documentation")
-    logger.info("   GET  /health - Health check with metrics")
-    logger.info("   GET  /metrics - Detailed server metrics")
-    logger.info("   POST /predict - Single prediction")
-    logger.info("   POST /predict_batch - Batch prediction")
-    logger.info("")
-    logger.info("🚀 Server starting on http://localhost:8000")
-    logger.info("📝 Example usage:")
-    logger.info("   curl -X POST http://localhost:8000/predict \\")
-    logger.info("        -H 'Content-Type: application/json' \\")
-    logger.info("        -d '{\"text\": \"I am feeling happy today!\"}'")
-    logger.info("")
-    logger.info(f"🔒 Rate limiting: {RATE_LIMIT_MAX_REQUESTS} requests per {RATE_LIMIT_WINDOW} seconds")
-    logger.info("📊 Monitoring: Comprehensive metrics and logging enabled")
-    logger.info("")
+    logger.info"🌐 Starting enhanced local API server..."
+    logger.info"📋 Available endpoints:"
+    logger.info"   GET  / - API documentation"
+    logger.info"   GET  /health - Health check with metrics"
+    logger.info"   GET  /metrics - Detailed server metrics"
+    logger.info"   POST /predict - Single prediction"
+    logger.info"   POST /predict_batch - Batch prediction"
+    logger.info""
+    logger.info"🚀 Server starting on http://localhost:8000"
+    logger.info"📝 Example usage:"
+    logger.info"   curl -X POST http://localhost:8000/predict \\"
+    logger.info"        -H 'Content-Type: application/json' \\"
+    logger.info"        -d '{\"text\": \"I am feeling happy today!\"}'"
+    logger.info""
+    logger.infof"🔒 Rate limiting: {RATE_LIMIT_MAX_REQUESTS} requests per {RATE_LIMIT_WINDOW} seconds"
+    logger.info"📊 Monitoring: Comprehensive metrics and logging enabled"
+    logger.info""
     
-    app.run(host='0.0.0.0', port=8000, debug=False)
+    app.runhost='0.0.0.0', port=8000, debug=False

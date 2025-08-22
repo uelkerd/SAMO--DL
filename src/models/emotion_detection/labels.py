@@ -18,19 +18,19 @@ GOEMOTIONS_EMOTIONS = [
     "excitement",
     "fear",
     "gratitude",
-    "grief",
+    "grie",
     "joy",
     "love",
     "nervousness",
     "optimism",
     "pride",
     "realization",
-    "relief",
+    "relie",
     "remorse",
     "sadness",
     "surprise",
     "neutral",
 ]
 
-EMOTION_ID_TO_LABEL = dict(enumerate(GOEMOTIONS_EMOTIONS))
-EMOTION_LABEL_TO_ID = {emotion: i for i, emotion in enumerate(GOEMOTIONS_EMOTIONS)}
+EMOTION_ID_TO_LABEL = dict(enumerateGOEMOTIONS_EMOTIONS)
+EMOTION_LABEL_TO_ID = {emotion: i for i, emotion in enumerateGOEMOTIONS_EMOTIONS}

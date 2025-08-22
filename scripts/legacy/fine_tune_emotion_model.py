@@ -38,27 +38,27 @@ This script fine-tunes the BERT model on the GoEmotions dataset
 to improve emotion detection performance.
 """
 
-project_root = Path(__file__).parent.parent.resolve()
-sys.path.append(str(project_root))
+project_root = Path__file__.parent.parent.resolve()
+sys.path.append(strproject_root)
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%asctimes - %levelnames - %messages")
+logger = logging.getLogger__name__
 
 
 def fine_tune_model():
     """Fine-tune the emotion detection model on GoEmotions dataset."""
 
-    logger.info("🎯 Starting Model Fine-tuning")
-    logger.info("   • Dataset: GoEmotions")
-    logger.info("   • Model: BERT-base-uncased")
-    logger.info("   • Epochs: 5")
-    logger.info("   • Learning Rate: 1e-05")
+    logger.info"🎯 Starting Model Fine-tuning"
+    logger.info"   • Dataset: GoEmotions"
+    logger.info"   • Model: BERT-base-uncased"
+    logger.info"   • Epochs: 5"
+    logger.info"   • Learning Rate: 1e-05"
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info("Using device: {device}")
+    logger.info"Using device: {device}"
 
     try:
-        logger.info("Loading GoEmotions dataset...")
+        logger.info"Loading GoEmotions dataset..."
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()
 
@@ -67,45 +67,45 @@ def fine_tune_model():
         test_dataset = datasets["test"]  # Fixed key name
         class_weights = datasets["class_weights"]
 
-        logger.info("Dataset loaded successfully:")
-        logger.info("   • Train: {len(train_dataset)} examples")
-        logger.info("   • Validation: {len(val_dataset)} examples")
-        logger.info("   • Test: {len(test_dataset)} examples")
+        logger.info"Dataset loaded successfully:"
+        logger.info("   • Train: {lentrain_dataset} examples")
+        logger.info("   • Validation: {lenval_dataset} examples")
+        logger.info("   • Test: {lentest_dataset} examples")
 
-        logger.info("Creating BERT model...")
+        logger.info"Creating BERT model..."
         model, _ = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
             class_weights=class_weights,  # Use class weights for imbalance
             freeze_bert_layers=2,  # Freeze fewer layers for fine-tuning
         )
-        model.to(device)
+        model.todevice
 
         criterion = nn.BCEWithLogitsLoss()
         optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5, weight_decay=0.01)
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=5)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLRoptimizer, T_max=5
 
-        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=16, shuffle=True)
-        val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
+        train_loader = torch.utils.data.DataLoadertrain_dataset, batch_size=16, shuffle=True
+        val_loader = torch.utils.data.DataLoaderval_dataset, batch_size=16, shuffle=False
 
-        best_val_loss = float("in")
+        best_val_loss = float"in"
         training_history = []
 
-        for epoch in range(5):  # 5 epochs for fine-tuning
-            logger.info("\nEpoch {epoch + 1}/5")
+        for epoch in range5:  # 5 epochs for fine-tuning
+            logger.info"\nEpoch {epoch + 1}/5"
 
             model.train()
             train_loss = 0.0
             num_batches = 0
 
             for batch in train_loader:
-                input_ids = batch["input_ids"].to(device)
-                attention_mask = batch["attention_mask"].to(device)
-                labels = batch["labels"].float().to(device)
+                input_ids = batch["input_ids"].todevice
+                attention_mask = batch["attention_mask"].todevice
+                labels = batch["labels"].float().todevice
 
                 optimizer.zero_grad()
 
-                outputs = model(input_ids, attention_mask=attention_mask)
-                loss = criterion(outputs["logits"], labels)
+                outputs = modelinput_ids, attention_mask=attention_mask
+                loss = criterionoutputs["logits"], labels
 
                 loss.backward()
                 optimizer.step()
@@ -124,12 +124,12 @@ def fine_tune_model():
 
             with torch.no_grad():
                 for batch in val_loader:
-                    input_ids = batch["input_ids"].to(device)
-                    attention_mask = batch["attention_mask"].to(device)
-                    labels = batch["labels"].float().to(device)
+                    input_ids = batch["input_ids"].todevice
+                    attention_mask = batch["attention_mask"].todevice
+                    labels = batch["labels"].float().todevice
 
-                    outputs = model(input_ids, attention_mask=attention_mask)
-                    loss = criterion(outputs["logits"], labels)
+                    outputs = modelinput_ids, attention_mask=attention_mask
+                    loss = criterionoutputs["logits"], labels
 
                     val_loss += loss.item()
                     val_batches += 1
@@ -139,9 +139,9 @@ def fine_tune_model():
             scheduler.step()
             current_lr = scheduler.get_last_lr()[0]
 
-            logger.info("   • Train Loss: {avg_train_loss:.4f}")
-            logger.info("   • Val Loss: {avg_val_loss:.4f}")
-            logger.info("   • Learning Rate: {current_lr:.2e}")
+            logger.info"   • Train Loss: {avg_train_loss:.4f}"
+            logger.info"   • Val Loss: {avg_val_loss:.4f}"
+            logger.info"   • Learning Rate: {current_lr:.2e}"
 
             training_history.append(
                 {
@@ -154,11 +154,11 @@ def fine_tune_model():
 
             if avg_val_loss < best_val_loss:
                 best_val_loss = avg_val_loss
-                logger.info("   • New best validation loss: {best_val_loss:.4f}")
+                logger.info"   • New best validation loss: {best_val_loss:.4f}"
 
                 output_dir = "./models/checkpoints"
-                os.makedirs(output_dir, exist_ok=True)
-                model_path = Path(output_dir, "fine_tuned_model.pt")
+                os.makedirsoutput_dir, exist_ok=True
+                model_path = Pathoutput_dir, "fine_tuned_model.pt"
 
                 torch.save(
                     {
@@ -173,33 +173,33 @@ def fine_tune_model():
                     model_path,
                 )
 
-                logger.info("   • Model saved to: {model_path}")
+                logger.info"   • Model saved to: {model_path}"
 
-        logger.info("🎉 Fine-tuning completed successfully!")
-        logger.info("   • Best validation loss: {best_val_loss:.4f}")
-        logger.info("   • Model saved to: ./models/checkpoints/fine_tuned_model.pt")
+        logger.info"🎉 Fine-tuning completed successfully!"
+        logger.info"   • Best validation loss: {best_val_loss:.4f}"
+        logger.info"   • Model saved to: ./models/checkpoints/fine_tuned_model.pt"
 
         return True
 
     except Exception as e:
-        logger.error("❌ Fine-tuning failed: {e}")
+        logger.error"❌ Fine-tuning failed: {e}"
         traceback.print_exc()
         return False
 
 
 def main():
     """Main function."""
-    logger.info("🎯 Fine-tuning Script")
-    logger.info("This script fine-tunes the emotion detection model on GoEmotions")
+    logger.info"🎯 Fine-tuning Script"
+    logger.info"This script fine-tunes the emotion detection model on GoEmotions"
 
     success = fine_tune_model()
 
     if success:
-        logger.info("✅ Fine-tuning completed successfully!")
-        sys.exit(0)
+        logger.info"✅ Fine-tuning completed successfully!"
+        sys.exit0
     else:
-        logger.error("❌ Fine-tuning failed. Check the logs above.")
-        sys.exit(1)
+        logger.error"❌ Fine-tuning failed. Check the logs above."
+        sys.exit1
 
 
 if __name__ == "__main__":

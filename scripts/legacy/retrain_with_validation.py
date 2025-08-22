@@ -9,41 +9,41 @@ from pathlib import Path
 def create_improved_training_plan():
     """Create an improved training plan with proper validation"""
     
-    print("🔄 IMPROVED TRAINING PLAN")
-    print("=" * 50)
-    print("🎯 Goal: Retrain model to achieve reliable 75-85% F1 score")
-    print("=" * 50)
+    print"🔄 IMPROVED TRAINING PLAN"
+    print"=" * 50
+    print"🎯 Goal: Retrain model to achieve reliable 75-85% F1 score"
+    print"=" * 50
     
-    print(f"\n❌ CURRENT ISSUES IDENTIFIED:")
-    print("-" * 40)
-    print("1. Model bias towards 'grateful' and 'happy' emotions")
-    print("2. Poor generalization (58.3% accuracy on basic tests)")
-    print("3. Overfitting to specific training patterns")
-    print("4. Label mapping inconsistencies")
+    print"\n❌ CURRENT ISSUES IDENTIFIED:"
+    print"-" * 40
+    print"1. Model bias towards 'grateful' and 'happy' emotions"
+    print("2. Poor generalization 58.3% accuracy on basic tests")
+    print"3. Overfitting to specific training patterns"
+    print"4. Label mapping inconsistencies"
     
-    print(f"\n✅ IMPROVED TRAINING STRATEGY:")
-    print("-" * 40)
-    print("1. Use balanced dataset with equal emotion distribution")
-    print("2. Implement proper cross-validation")
-    print("3. Add regularization to prevent overfitting")
-    print("4. Use early stopping based on validation performance")
-    print("5. Test on diverse, realistic examples")
+    print"\n✅ IMPROVED TRAINING STRATEGY:"
+    print"-" * 40
+    print"1. Use balanced dataset with equal emotion distribution"
+    print"2. Implement proper cross-validation"
+    print"3. Add regularization to prevent overfitting"
+    print"4. Use early stopping based on validation performance"
+    print"5. Test on diverse, realistic examples"
     
-    print(f"\n📊 VALIDATION REQUIREMENTS:")
-    print("-" * 40)
-    print("✅ Basic functionality test: >80% accuracy")
-    print("✅ Training-like data test: >80% accuracy")
-    print("✅ Edge case handling: >70% success rate")
-    print("✅ No emotion bias: <30% predictions for any single emotion")
-    print("✅ Consistent predictions: 100% consistency for same input")
+    print"\n📊 VALIDATION REQUIREMENTS:"
+    print"-" * 40
+    print"✅ Basic functionality test: >80% accuracy"
+    print"✅ Training-like data test: >80% accuracy"
+    print"✅ Edge case handling: >70% success rate"
+    print"✅ No emotion bias: <30% predictions for any single emotion"
+    print"✅ Consistent predictions: 100% consistency for same input"
     
-    print(f"\n🚀 RECOMMENDED ACTIONS:")
-    print("-" * 40)
-    print("1. Create balanced training dataset")
-    print("2. Implement proper validation split")
-    print("3. Use regularization techniques")
-    print("4. Test extensively before deployment")
-    print("5. Monitor for bias and overfitting")
+    print"\n🚀 RECOMMENDED ACTIONS:"
+    print"-" * 40
+    print"1. Create balanced training dataset"
+    print"2. Implement proper validation split"
+    print"3. Use regularization techniques"
+    print"4. Test extensively before deployment"
+    print"5. Monitor for bias and overfitting"
     
     # Create improved training notebook
     create_improved_notebook()
@@ -95,9 +95,9 @@ def create_improved_notebook():
     "from sklearn.metrics import classification_report, confusion_matrix\\n",
     "import json\\n",
     "import warnings\\n",
-    "warnings.filterwarnings('ignore')\\n",
+    "warnings.filterwarnings'ignore'\\n",
     "\\n",
-    "print('✅ Packages imported successfully')"
+    "print'✅ Packages imported successfully'"
    ]
   },
   {
@@ -109,7 +109,7 @@ def create_improved_notebook():
     "# Create balanced dataset\\n",
     "emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\\n",
     "\\n",
-    "# Balanced training data (12 samples per emotion)\\n",
+    "# Balanced training data 12 samples per emotion\\n",
     "balanced_data = [\\n",
     "    # anxious\\n",
     "    {'text': 'I feel anxious about the presentation.', 'label': 0},\\n",
@@ -140,10 +140,10 @@ def create_improved_notebook():
     "    {'text': 'I feel calm and collected.', 'label': 1},\\n",
     "    \\n",
     "    # Continue for all emotions...\\n",
-    "    # (Add 12 samples for each emotion)\\n",
+    "    # Add 12 samples for each emotion\\n",
     "]\\n",
     "\\n",
-    "print(f'✅ Created balanced dataset with {len(balanced_data)} samples')"
+    "print(f'✅ Created balanced dataset with {lenbalanced_data} samples')"
    ]
   },
   {
@@ -153,14 +153,14 @@ def create_improved_notebook():
    "outputs": [],
    "source": [
     "# Split data with proper validation\\n",
-    "train_data, val_data = train_test_split(balanced_data, test_size=0.2, random_state=42, stratify=[d['label'] for d in balanced_data])\\n",
+    "train_data, val_data = train_test_splitbalanced_data, test_size=0.2, random_state=42, stratify=[d['label'] for d in balanced_data]\\n",
     "\\n",
-    "print(f'Training samples: {len(train_data)}')\\n",
-    "print(f'Validation samples: {len(val_data)}')\\n",
+    "print(f'Training samples: {lentrain_data}')\\n",
+    "print(f'Validation samples: {lenval_data}')\\n",
     "\\n",
     "# Convert to datasets\\n",
-    "train_dataset = Dataset.from_list(train_data)\\n",
-    "val_dataset = Dataset.from_list(val_data)"
+    "train_dataset = Dataset.from_listtrain_data\\n",
+    "val_dataset = Dataset.from_listval_data"
    ]
   },
   {
@@ -171,14 +171,14 @@ def create_improved_notebook():
    "source": [
     "# Load model and tokenizer\\n",
     "model_name = 'roberta-base'\\n",
-    "tokenizer = AutoTokenizer.from_pretrained(model_name)\\n",
-    "model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=12)\\n",
+    "tokenizer = AutoTokenizer.from_pretrainedmodel_name\\n",
+    "model = AutoModelForSequenceClassification.from_pretrainedmodel_name, num_labels=12\\n",
     "\\n",
     "# Update model config with emotion labels\\n",
-    "model.config.id2label = {i: emotion for i, emotion in enumerate(emotions)}\\n",
-    "model.config.label2id = {emotion: i for i, emotion in enumerate(emotions)}\\n",
+    "model.config.id2label = {i: emotion for i, emotion in enumerateemotions}\\n",
+    "model.config.label2id = {emotion: i for i, emotion in enumerateemotions}\\n",
     "\\n",
-    "print('✅ Model and tokenizer loaded')"
+    "print'✅ Model and tokenizer loaded'"
    ]
   },
   {
@@ -188,13 +188,13 @@ def create_improved_notebook():
    "outputs": [],
    "source": [
     "# Tokenization function\\n",
-    "def tokenize_function(examples):\\n",
-    "    return tokenizer(examples['text'], padding='max_length', truncation=True, max_length=128)\\n",
+    "def tokenize_functionexamples:\\n",
+    "    return tokenizerexamples['text'], padding='max_length', truncation=True, max_length=128\\n",
     "\\n",
-    "train_dataset = train_dataset.map(tokenize_function, batched=True)\\n",
-    "val_dataset = val_dataset.map(tokenize_function, batched=True)\\n",
+    "train_dataset = train_dataset.maptokenize_function, batched=True\\n",
+    "val_dataset = val_dataset.maptokenize_function, batched=True\\n",
     "\\n",
-    "print('✅ Data tokenized')"
+    "print'✅ Data tokenized'"
    ]
   },
   {
@@ -223,7 +223,7 @@ def create_improved_notebook():
     "    dataloader_num_workers=0\\n",
     ")\\n",
     "\\n",
-    "print('✅ Training arguments configured')"
+    "print'✅ Training arguments configured'"
    ]
   },
   {
@@ -233,12 +233,12 @@ def create_improved_notebook():
    "outputs": [],
    "source": [
     "# Custom metrics function\\n",
-    "def compute_metrics(eval_pred):\\n",
+    "def compute_metricseval_pred:\\n",
     "    predictions, labels = eval_pred\\n",
-    "    predictions = np.argmax(predictions, axis=1)\\n",
+    "    predictions = np.argmaxpredictions, axis=1\\n",
     "    \\n",
     "    # Calculate metrics\\n",
-    "    report = classification_report(labels, predictions, target_names=emotions, output_dict=True)\\n",
+    "    report = classification_reportlabels, predictions, target_names=emotions, output_dict=True\\n",
     "    \\n",
     "    return {\\n",
     "        'f1': report['weighted avg']['f1-score'],\\n",
@@ -263,7 +263,7 @@ def create_improved_notebook():
     "    compute_metrics=compute_metrics\\n",
     ")\\n",
     "\\n",
-    "print('✅ Trainer initialized')"
+    "print'✅ Trainer initialized'"
    ]
   },
   {
@@ -273,9 +273,9 @@ def create_improved_notebook():
    "outputs": [],
    "source": [
     "# Train the model\\n",
-    "print('🚀 Starting training...')\\n",
+    "print'🚀 Starting training...'\\n",
     "trainer.train()\\n",
-    "print('✅ Training completed')"
+    "print'✅ Training completed'"
    ]
   },
   {
@@ -285,10 +285,10 @@ def create_improved_notebook():
    "outputs": [],
    "source": [
     "# Evaluate the model\\n",
-    "print('📊 Evaluating model...')\\n",
+    "print'📊 Evaluating model...'\\n",
     "results = trainer.evaluate()\\n",
-    "print(f'Final F1 Score: {results[\"eval_f1\"]:.3f}')\\n",
-    "print(f'Final Accuracy: {results[\"eval_accuracy\"]:.3f}')"
+    "printf'Final F1 Score: {results[\"eval_f1\"]:.3f}'\\n",
+    "printf'Final Accuracy: {results[\"eval_accuracy\"]:.3f}'"
    ]
   },
   {
@@ -313,14 +313,14 @@ def create_improved_notebook():
     "    'I am hopeful for the future.'\\n",
     "]\\n",
     "\\n",
-    "print('🧪 Testing on diverse examples...')\\n",
+    "print'🧪 Testing on diverse examples...'\\n",
     "correct = 0\\n",
     "for text in test_examples:\\n",
-    "    inputs = tokenizer(text, return_tensors='pt', truncation=True, max_length=128)\\n",
+    "    inputs = tokenizertext, return_tensors='pt', truncation=True, max_length=128\\n",
     "    with torch.no_grad():\\n",
-    "        outputs = model(**inputs)\\n",
-    "        predictions = torch.softmax(outputs.logits, dim=1)\\n",
-    "        predicted_class = torch.argmax(predictions, dim=1).item()\\n",
+    "        outputs = model**inputs\\n",
+    "        predictions = torch.softmaxoutputs.logits, dim=1\\n",
+    "        predicted_class = torch.argmaxpredictions, dim=1.item()\\n",
     "        confidence = predictions[0][predicted_class].item()\\n",
     "    \\n",
     "    predicted_emotion = emotions[predicted_class]\\n",
@@ -336,15 +336,15 @@ def create_improved_notebook():
     "    else:\\n",
     "        status = '❌'\\n",
     "    \\n",
-    "    print(f'{status} \"{text}\" → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})')\\n",
+    "    print(f'{status} \"{text}\" → {predicted_emotion} expected: {expected_emotion}, confidence: {confidence:.3f}')\\n",
     "\\n",
-    "accuracy = correct / len(test_examples)\\n",
-    "print(f'\\n📊 Test Accuracy: {accuracy:.1%}')\\n",
+    "accuracy = correct / lentest_examples\\n",
+    "printf'\\n📊 Test Accuracy: {accuracy:.1%}'\\n",
     "\\n",
     "if accuracy >= 0.8:\\n",
-    "    print('🎉 Model passes reliability test!')\\n",
+    "    print'🎉 Model passes reliability test!'\\n",
     "else:\\n",
-    "    print('⚠️  Model needs further improvement')"
+    "    print'⚠️  Model needs further improvement'"
    ]
   },
   {
@@ -354,9 +354,9 @@ def create_improved_notebook():
    "outputs": [],
    "source": [
     "# Save the model\\n",
-    "model.save_pretrained('./improved_emotion_model_final')\\n",
-    "tokenizer.save_pretrained('./improved_emotion_model_final')\\n",
-    "print('💾 Model saved successfully')"
+    "model.save_pretrained'./improved_emotion_model_final'\\n",
+    "tokenizer.save_pretrained'./improved_emotion_model_final'\\n",
+    "print'💾 Model saved successfully'"
    ]
   }
  ],
@@ -384,18 +384,18 @@ def create_improved_notebook():
 }'''
     
     # Save the notebook
-    notebook_path = Path(__file__).parent.parent / 'notebooks' / 'IMPROVED_TRAINING_WITH_VALIDATION.ipynb'
-    with open(notebook_path, 'w') as f:
-        f.write(notebook_content)
+    notebook_path = Path__file__.parent.parent / 'notebooks' / 'IMPROVED_TRAINING_WITH_VALIDATION.ipynb'
+    with opennotebook_path, 'w' as f:
+        f.writenotebook_content
     
-    print(f"✅ Created improved training notebook: {notebook_path}")
-    print(f"📋 Instructions:")
-    print(f"   1. Download the notebook file")
-    print(f"   2. Upload to Google Colab")
-    print(f"   3. Set Runtime → GPU")
-    print(f"   4. Run all cells")
-    print(f"   5. Verify reliability before deployment")
+    printf"✅ Created improved training notebook: {notebook_path}"
+    print"📋 Instructions:"
+    print"   1. Download the notebook file"
+    print"   2. Upload to Google Colab"
+    print"   3. Set Runtime → GPU"
+    print"   4. Run all cells"
+    print"   5. Verify reliability before deployment"
 
 if __name__ == "__main__":
     success = create_improved_training_plan()
-    exit(0 if success else 1) 
+    exit0 if success else 1 

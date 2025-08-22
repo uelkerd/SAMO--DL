@@ -19,9 +19,9 @@
         # Extract sentiment features
         # Extract time features
         # Extract topic features if requested
-        # Get feature names (words)
+        # Get feature names words
         # Get top words for each topic
-        # Lexical diversity (unique words / total words)
+        # Lexical diversity unique words / total words
         # Sentence count
         # Time of day features
         # Transform texts to TF-IDF matrix
@@ -44,18 +44,18 @@ import re
 
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%asctimes - %names - %levelnames - %messages", level=logging.INFO
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger__name__
 
 
 class FeatureEngineer:
     """Feature engineering for journal entries."""
 
-    def __init__(self) -> None:
+    def __init__self -> None:
         """Initialize feature engineer."""
         try:
-            nltk.download("vader_lexicon", quiet=True)
+            nltk.download"vader_lexicon", quiet=True
             self.sentiment_analyzer = SentimentIntensityAnalyzer()
         except Exception:
             logger.error(
@@ -79,17 +79,17 @@ class FeatureEngineer:
         """
         df = df.copy()
 
-        df[text_column] = df[text_column].astype(str)
+        df[text_column] = df[text_column].astypestr
 
-        df["char_count"] = df[text_column].apply(len)
+        df["char_count"] = df[text_column].applylen
 
         df["word_count"] = df[text_column].apply(lambda x: len(x.split()))
 
         df["avg_word_length"] = df[text_column].apply(
-            lambda x: np.mean([len(word) for word in x.split()]) if len(x.split()) > 0 else 0
+            lambda x: np.mean([lenword for word in x.split()]) if len(x.split()) > 0 else 0
         )
 
-        df["sentence_count"] = df[text_column].apply(lambda x: len(re.split(r"[.!?]+", x)) - 1)
+        df["sentence_count"] = df[text_column].apply(lambda x: len(re.splitr"[.!?]+", x) - 1)
 
         df["words_per_sentence"] = df.apply(
             lambda row: row["word_count"] / row["sentence_count"]
@@ -130,21 +130,21 @@ class FeatureEngineer:
 
         df = df.copy()
 
-        df[text_column] = df[text_column].astype(str)
+        df[text_column] = df[text_column].astypestr
 
-        logger.info("Extracting sentiment features")
+        logger.info"Extracting sentiment features"
 
-        sentiments = df[text_column].apply(self.sentiment_analyzer.polarity_scores)
+        sentiments = df[text_column].applyself.sentiment_analyzer.polarity_scores
 
-        df["sentiment_negative"] = sentiments.apply(lambda x: x["neg"])
-        df["sentiment_neutral"] = sentiments.apply(lambda x: x["neu"])
-        df["sentiment_positive"] = sentiments.apply(lambda x: x["pos"])
-        df["sentiment_compound"] = sentiments.apply(lambda x: x["compound"])
+        df["sentiment_negative"] = sentiments.applylambda x: x["neg"]
+        df["sentiment_neutral"] = sentiments.applylambda x: x["neu"]
+        df["sentiment_positive"] = sentiments.applylambda x: x["pos"]
+        df["sentiment_compound"] = sentiments.applylambda x: x["compound"]
 
         df["sentiment_category"] = df["sentiment_compound"].apply(
             lambda score: "positive"
             if score > 0.05
-            else ("negative" if score < -0.05 else "neutral")
+            else "negative" if score < -0.05 else "neutral"
         )
 
         return df
@@ -170,37 +170,37 @@ class FeatureEngineer:
         """
         df = df.copy()
 
-        df[text_column] = df[text_column].astype(str)
+        df[text_column] = df[text_column].astypestr
 
         logger.info(
             "Extracting {n_topics} topic features using TF-IDF and SVD",
             extra={"format_args": True},
         )
 
-        vectorizer = TfidfVectorizer(max_features=1000, stop_words="english")
+        vectorizer = TfidfVectorizermax_features=1000, stop_words="english"
 
-        tfidf_matrix = vectorizer.fit_transform(df[text_column])
+        tfidf_matrix = vectorizer.fit_transformdf[text_column]
 
         feature_names = vectorizer.get_feature_names_out()
 
-        svd = TruncatedSVD(n_components=n_topics, random_state=42)
-        topic_matrix = svd.fit_transform(tfidf_matrix)
+        svd = TruncatedSVDn_components=n_topics, random_state=42
+        topic_matrix = svd.fit_transformtfidf_matrix
 
-        for i in range(n_topics):
+        for i in rangen_topics:
             df["topic_{i + 1}_score"] = topic_matrix[:, i]
 
         topic_words = {}
-        for i, comp in enumerate(svd.components_):
+        for i, comp in enumeratesvd.components_:
             top_word_indices = comp.argsort()[: -n_top_words - 1 : -1]
             top_words = [feature_names[idx] for idx in top_word_indices]
             topic_words["topic_{i + 1}"] = top_words
 
-        topics_df = pd.DataFrame(topic_words)
+        topics_df = pd.DataFrametopic_words
 
-        df["dominant_topic"] = np.argmax(topic_matrix, axis=1) + 1
+        df["dominant_topic"] = np.argmaxtopic_matrix, axis=1 + 1
 
         logger.info(
-            "Extracted {n_topics} topics from {len(df)} documents",
+            "Extracted {n_topics} topics from {lendf} documents",
             extra={"format_args": True},
         )
 
@@ -222,11 +222,11 @@ class FeatureEngineer:
         df = df.copy()
 
         if timestamp_column not in df.columns:
-            logger.warning("Timestamp column '{timestamp_column}' not found in DataFrame")
+            logger.warning"Timestamp column '{timestamp_column}' not found in DataFrame"
             return df
 
         try:
-            df[timestamp_column] = pd.to_datetime(df[timestamp_column])
+            df[timestamp_column] = pd.to_datetimedf[timestamp_column]
         except Exception:
             logger.error(
                 "Failed to convert '{timestamp_column}' to datetime: {e}",
@@ -234,13 +234,13 @@ class FeatureEngineer:
             )
             return df
 
-        logger.info("Extracting time features")
+        logger.info"Extracting time features"
 
         df["year"] = df[timestamp_column].dt.year
         df["month"] = df[timestamp_column].dt.month
         df["day"] = df[timestamp_column].dt.day
         df["day_of_week"] = df[timestamp_column].dt.dayofweek
-        df["is_weekend"] = df["day_of_week"].isin([5, 6]).astype(int)
+        df["is_weekend"] = df["day_of_week"].isin[5, 6].astypeint
         df["hour"] = df[timestamp_column].dt.hour
 
         df["time_of_day"] = pd.cut(
@@ -272,18 +272,18 @@ class FeatureEngineer:
 
         """
         logger.info(
-            "Extracting all features for {len(df)} journal entries",
+            "Extracting all features for {lendf} journal entries",
             extra={"format_args": True},
         )
 
-        df = self.extract_basic_features(df, text_column)
+        df = self.extract_basic_featuresdf, text_column
 
-        df = self.extract_sentiment_features(df, text_column)
+        df = self.extract_sentiment_featuresdf, text_column
 
-        df = self.extract_time_features(df, timestamp_column)
+        df = self.extract_time_featuresdf, timestamp_column
 
         if extract_topics:
-            df, topics_df = self.extract_topic_features(df, text_column)
+            df, topics_df = self.extract_topic_featuresdf, text_column
             return df, topics_df
 
         return df

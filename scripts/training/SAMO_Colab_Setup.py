@@ -25,8 +25,8 @@ def check_gpu() -> Optional[bool]:
         gpu_available = torch.cuda.is_available()
         
         if gpu_available:
-            torch.cuda.get_device_name(0)
-            torch.cuda.get_device_properties(0).total_memory / 1e9
+            torch.cuda.get_device_name0
+            torch.cuda.get_device_properties0.total_memory / 1e9
         else:
             pass
         
@@ -43,7 +43,7 @@ def clone_repository() -> Optional[bool]:
         ], check=True)
         
         # Change to repository directory
-        os.chdir("SAMO--DL")
+        os.chdir"SAMO--DL"
         return True
     except subprocess.CalledProcessError:
         return False
@@ -52,7 +52,7 @@ def install_dependencies() -> bool:
     """Install all dependencies."""
     # Install SAMO package
     try:
-        subprocess.run(["pip", "install", "-e", "."], check=True)
+        subprocess.run["pip", "install", "-e", "."], check=True
     except subprocess.CalledProcessError:
         return False
     
@@ -67,7 +67,7 @@ def install_dependencies() -> bool:
     
     for package in voice_packages:
         try:
-            subprocess.run(["pip", "install", package], check=True)
+            subprocess.run["pip", "install", package], check=True
         except subprocess.CalledProcessError:
             return False
     
@@ -87,7 +87,7 @@ def test_audio_libraries() -> bool:
     
     try:
         import whisper
-        whisper.load_model("base")
+        whisper.load_model"base"
     except ImportError:
         return False
     
@@ -103,7 +103,7 @@ import numpy as np
 import librosa
 import whisper
 
-def record_audio(duration=5, sample_rate=16000):
+def record_audioduration=5, sample_rate=16000:
     """Record audio from microphone."""
     chunk = 1024
     format = pyaudio.paInt16
@@ -116,14 +116,14 @@ def record_audio(duration=5, sample_rate=16000):
                    input=True,
                    frames_per_buffer=chunk)
     
-    print("🎤 Recording... Speak now!")
+    print"🎤 Recording... Speak now!"
     frames = []
     
-    for i in range(0, int(sample_rate / chunk * duration)):
-        data = stream.read(chunk)
-        frames.append(data)
+    for i in range(0, intsample_rate / chunk * duration):
+        data = stream.readchunk
+        frames.appenddata
     
-    print("✅ Recording complete!")
+    print"✅ Recording complete!"
     
     stream.stop_stream()
     stream.close()
@@ -131,38 +131,38 @@ def record_audio(duration=5, sample_rate=16000):
     
     return frames
 
-def voice_to_text(audio_frames, sample_rate=16000):
+def voice_to_textaudio_frames, sample_rate=16000:
     """Convert voice to text using Whisper."""
     # Save audio to temporary file
-    with wave.open("temp_audio.wav", "wb") as wf:
-        wf.setnchannels(1)
-        wf.setsampwidth(2)
-        wf.setframerate(sample_rate)
-        wf.writeframes(b''.join(audio_frames))
+    with wave.open"temp_audio.wav", "wb" as wf:
+        wf.setnchannels1
+        wf.setsampwidth2
+        wf.setframeratesample_rate
+        wf.writeframes(b''.joinaudio_frames)
     
     # Transcribe with Whisper
-    model = whisper.load_model("base")
-    result = model.transcribe("temp_audio.wav")
+    model = whisper.load_model"base"
+    result = model.transcribe"temp_audio.wav"
     
     return result["text"]
 
-def detect_emotion_from_voice(audio_frames, sample_rate=16000):
+def detect_emotion_from_voiceaudio_frames, sample_rate=16000:
     """Detect emotion from voice using audio features."""
     # Convert audio frames to numpy array
-    audio_data = np.frombuffer(b''.join(audio_frames), dtype=np.int16)
-    audio_data = audio_data.astype(np.float32) / 32768.0
+    audio_data = np.frombuffer(b''.joinaudio_frames, dtype=np.int16)
+    audio_data = audio_data.astypenp.float32 / 32768.0
     
     # Extract audio features
-    mfccs = librosa.feature.mfcc(y=audio_data, sr=sample_rate, n_mfcc=13)
-    spectral_centroids = librosa.feature.spectral_centroid(y=audio_data, sr=sample_rate)
-    zero_crossing_rate = librosa.feature.zero_crossing_rate(audio_data)
+    mfccs = librosa.feature.mfccy=audio_data, sr=sample_rate, n_mfcc=13
+    spectral_centroids = librosa.feature.spectral_centroidy=audio_data, sr=sample_rate
+    zero_crossing_rate = librosa.feature.zero_crossing_rateaudio_data
     
     # Calculate statistics
     features = {
-        'mfcc_mean': np.mean(mfccs),
-        'mfcc_std': np.std(mfccs),
-        'spectral_centroid_mean': np.mean(spectral_centroids),
-        'zero_crossing_rate_mean': np.mean(zero_crossing_rate)
+        'mfcc_mean': np.meanmfccs,
+        'mfcc_std': np.stdmfccs,
+        'spectral_centroid_mean': np.meanspectral_centroids,
+        'zero_crossing_rate_mean': np.meanzero_crossing_rate
     }
     
     # Simple emotion mapping
@@ -176,18 +176,18 @@ def detect_emotion_from_voice(audio_frames, sample_rate=16000):
     return emotion, features
 
 # Test voice processing
-print("🎤 Testing voice processing...")
-audio_frames = record_audio(duration=3)
-text = voice_to_text(audio_frames)
-emotion, features = detect_emotion_from_voice(audio_frames)
+print"🎤 Testing voice processing..."
+audio_frames = record_audioduration=3
+text = voice_to_textaudio_frames
+emotion, features = detect_emotion_from_voiceaudio_frames
 
-print(f"🎤 You said: {text}")
-print(f"😊 Detected emotion: {emotion}")
-print(f"📊 Audio features: {features}")
+printf"🎤 You said: {text}"
+printf"😊 Detected emotion: {emotion}"
+printf"📊 Audio features: {features}"
 '''
     
-    with open("voice_demo.py", "w") as f:
-        f.write(demo_code)
+    with open"voice_demo.py", "w" as f:
+        f.writedemo_code
     
     return True
 
@@ -201,40 +201,36 @@ import numpy as np
 from pathlib import Path
 
 # Add project root to path
-project_root = Path(__file__).parent
-sys.path.append(str(project_root))
+project_root = Path__file__.parent
+sys.path.append(strproject_root)
 
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 
-class FocalLoss(nn.Module):
+class FocalLossnn.Module:
     """Focal Loss for handling class imbalance."""
     
-    def __init__(self, alpha=0.25, gamma=2.0, reduction="mean"):
+    def __init__self, alpha=0.25, gamma=2.0, reduction="mean":
         super().__init__()
         self.alpha = alpha
         self.gamma = gamma
         self.reduction = reduction
     
-    def forward(self, inputs, targets):
-        bce_loss = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction='none')
-        pt = torch.exp(-bce_loss)
-        focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
+    def forwardself, inputs, targets:
+        bce_loss = nn.functional.binary_cross_entropy_with_logitsinputs, targets, reduction='none'
+        pt = torch.exp-bce_loss
+        focal_loss = self.alpha * 1 - pt ** self.gamma * bce_loss
         
         if self.reduction == "mean":
-            return focal_loss.mean()
-        elif self.reduction == "sum":
-            return focal_loss.sum()
-        else:
             return focal_loss
 
 def optimize_f1_score():
     """Optimize F1 score using focal loss and other techniques."""
-    print("🚀 Starting F1 optimization...")
+    print"🚀 Starting F1 optimization..."
     
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
+    printf"Using device: {device}"
     
     # Load dataset
     data_loader = GoEmotionsDataLoader()
@@ -242,16 +238,16 @@ def optimize_f1_score():
     
     # Create model
     model = BERTEmotionClassifier()
-    model.to(device)
+    model.todevice
     
     # Create focal loss
-    focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
+    focal_loss = FocalLossalpha=0.25, gamma=2.0
     
     # Setup optimizer
     optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
     
-    print("✅ F1 optimization setup complete!")
-    print("🎯 Expected improvement: 13.2% → 50%+ F1 score")
+    print"✅ F1 optimization setup complete!"
+    print"🎯 Expected improvement: 13.2% → 50%+ F1 score"
     
     return model, focal_loss, optimizer
 
@@ -260,8 +256,8 @@ if __name__ == "__main__":
     model, focal_loss, optimizer = optimize_f1_score()
 '''
     
-    with open("f1_optimization.py", "w") as f:
-        f.write(f1_code)
+    with open"f1_optimization.py", "w" as f:
+        f.writef1_code
     
     return True
 
@@ -302,4 +298,4 @@ if __name__ == "__main__":
     if success:
         pass
     else:
-        sys.exit(1)
+        sys.exit1

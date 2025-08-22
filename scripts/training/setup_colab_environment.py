@@ -13,25 +13,25 @@ import subprocess
 import logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%asctimes - %levelnames - %messages')
+logger = logging.getLogger__name__
 
 
 def detect_colab_environment():
     """Detect if running in Google Colab."""
     is_colab = "COLAB_GPU" in os.environ
     if is_colab:
-        logger.info("🎯 Detected Google Colab environment")
-        logger.info(f"📊 Colab GPU: {os.environ.get('COLAB_GPU', 'unknown')}")
+        logger.info"🎯 Detected Google Colab environment"
+        logger.info(f"📊 Colab GPU: {os.environ.get'COLAB_GPU', 'unknown'}")
         return True
     else:
-        logger.info("💻 Running in local environment")
+        logger.info"💻 Running in local environment"
         return False
 
 
 def install_dependencies():
     """Install all required dependencies."""
-    logger.info("📦 Installing dependencies...")
+    logger.info"📦 Installing dependencies..."
     
     # Core ML dependencies
     packages = [
@@ -64,12 +64,12 @@ def install_dependencies():
     
     for package in packages:
         try:
-            logger.info(f"📦 Installing {package}...")
+            logger.infof"📦 Installing {package}..."
             subprocess.run([sys.executable, "-m", "pip", "install", package], 
                          check=True, capture_output=True, text=True)
-            logger.info(f"✅ {package} installed successfully")
+            logger.infof"✅ {package} installed successfully"
         except subprocess.CalledProcessError as e:
-            logger.error(f"❌ Failed to install {package}: {e}")
+            logger.errorf"❌ Failed to install {package}: {e}"
             return False
     
     return True
@@ -77,42 +77,42 @@ def install_dependencies():
 
 def setup_gpu_environment():
     """Set up GPU environment for optimal performance."""
-    logger.info("🖥️ Setting up GPU environment...")
+    logger.info"🖥️ Setting up GPU environment..."
     
     try:
         import torch
         
         if torch.cuda.is_available():
-            logger.info(f"🎮 GPU detected: {torch.cuda.get_device_name(0)}")
+            logger.info(f"🎮 GPU detected: {torch.cuda.get_device_name0}")
             logger.info(f"🎮 GPU count: {torch.cuda.device_count()}")
-            logger.info(f"🎮 CUDA version: {torch.version.cuda}")
+            logger.infof"🎮 CUDA version: {torch.version.cuda}"
             
             # Set environment variables for optimal GPU performance
             os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
             os.environ["TOKENIZERS_PARALLELISM"] = "false"
             
             # Test GPU functionality
-            device = torch.device("cuda")
-            test_tensor = torch.randn(100, 100).to(device)
-            result = torch.matmul(test_tensor, test_tensor.T)
-            logger.info(f"✅ GPU test successful, result shape: {result.shape}")
+            device = torch.device"cuda"
+            test_tensor = torch.randn100, 100.todevice
+            result = torch.matmultest_tensor, test_tensor.T
+            logger.infof"✅ GPU test successful, result shape: {result.shape}"
             
             return True
         else:
-            logger.warning("⚠️ No GPU available, using CPU")
+            logger.warning"⚠️ No GPU available, using CPU"
             return True
             
     except ImportError:
-        logger.error("❌ PyTorch not available for GPU setup")
+        logger.error"❌ PyTorch not available for GPU setup"
         return False
     except Exception as e:
-        logger.error(f"❌ GPU setup failed: {e}")
+        logger.errorf"❌ GPU setup failed: {e}"
         return False
 
 
 def create_colab_notebook():
     """Create a Colab-ready notebook template."""
-    logger.info("📓 Creating Colab notebook template...")
+    logger.info"📓 Creating Colab notebook template..."
     
     notebook_content = '''{
   "cells": [
@@ -169,7 +169,7 @@ def create_colab_notebook():
         "import torch\\n",
         "print(f\"CUDA available: {torch.cuda.is_available()}\")\\n",
         "if torch.cuda.is_available():\\n",
-        "    print(f\"GPU: {torch.cuda.get_device_name(0)}\")\\n",
+        "    print(f\"GPU: {torch.cuda.get_device_name0}\")\\n",
         "    print(f\"GPU count: {torch.cuda.device_count()}\")"
       ]
     },
@@ -212,16 +212,16 @@ def create_colab_notebook():
   "nbformat_minor": 4
 }'''
     
-    with open("samo_dl_colab_setup.ipynb", "w") as f:
-        f.write(notebook_content)
+    with open"samo_dl_colab_setup.ipynb", "w" as f:
+        f.writenotebook_content
     
-    logger.info("✅ Colab notebook template created: samo_dl_colab_setup.ipynb")
+    logger.info"✅ Colab notebook template created: samo_dl_colab_setup.ipynb"
     return True
 
 
 def run_ci_pipeline():
     """Run the CI pipeline to verify everything is working."""
-    logger.info("🚀 Running CI pipeline verification...")
+    logger.info"🚀 Running CI pipeline verification..."
     
     try:
         result = subprocess.run(
@@ -232,40 +232,40 @@ def run_ci_pipeline():
         )
         
         if result.returncode == 0:
-            logger.info("✅ CI pipeline verification passed")
-            logger.info("📊 CI Results:")
-            logger.info(result.stdout)
+            logger.info"✅ CI pipeline verification passed"
+            logger.info"📊 CI Results:"
+            logger.inforesult.stdout
             return True
         else:
-            logger.error("❌ CI pipeline verification failed")
-            logger.error(result.stderr)
+            logger.error"❌ CI pipeline verification failed"
+            logger.errorresult.stderr
             return False
             
     except subprocess.TimeoutExpired:
-        logger.error("⏰ CI pipeline verification timed out")
+        logger.error"⏰ CI pipeline verification timed out"
         return False
     except Exception as e:
-        logger.error(f"💥 CI pipeline verification error: {e}")
+        logger.errorf"💥 CI pipeline verification error: {e}"
         return False
 
 
 def main():
     """Main setup function."""
-    logger.info("🚀 Starting Colab Environment Setup")
-    logger.info("=" * 50)
+    logger.info"🚀 Starting Colab Environment Setup"
+    logger.info"=" * 50
     
     # Detect environment
     is_colab = detect_colab_environment()
     
     # Install dependencies
     if not install_dependencies():
-        logger.error("❌ Dependency installation failed")
-        sys.exit(1)
+        logger.error"❌ Dependency installation failed"
+        sys.exit1
     
     # Setup GPU environment
     if not setup_gpu_environment():
-        logger.error("❌ GPU environment setup failed")
-        sys.exit(1)
+        logger.error"❌ GPU environment setup failed"
+        sys.exit1
     
     # Create Colab notebook
     if is_colab:
@@ -273,18 +273,18 @@ def main():
     
     # Run CI pipeline verification
     if not run_ci_pipeline():
-        logger.error("❌ CI pipeline verification failed")
-        sys.exit(1)
+        logger.error"❌ CI pipeline verification failed"
+        sys.exit1
     
-    logger.info("🎉 Colab environment setup completed successfully!")
-    logger.info("=" * 50)
-    logger.info("📋 Next steps:")
-    logger.info("1. Upload the repository to Colab")
-    logger.info("2. Run the CI pipeline: python scripts/ci/run_full_ci_pipeline.py")
-    logger.info("3. Start developing with GPU acceleration!")
+    logger.info"🎉 Colab environment setup completed successfully!"
+    logger.info"=" * 50
+    logger.info"📋 Next steps:"
+    logger.info"1. Upload the repository to Colab"
+    logger.info"2. Run the CI pipeline: python scripts/ci/run_full_ci_pipeline.py"
+    logger.info"3. Start developing with GPU acceleration!"
     
     if is_colab:
-        logger.info("📓 Colab notebook template created: samo_dl_colab_setup.ipynb")
+        logger.info"📓 Colab notebook template created: samo_dl_colab_setup.ipynb"
 
 
 if __name__ == "__main__":
