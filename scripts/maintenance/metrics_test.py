@@ -108,14 +108,14 @@ def predict_probs(batch_texts):
     enc = {k: v.to(DEVICE) for k, v in enc.items()}
     with torch.no_grad():
         logits = mdl(**enc).logits
-        probs = torch.sigmoid(logits).cpu().numpy()   # (B, num_labels)
-    return probs
+        batch_probs = torch.sigmoid(logits).cpu().numpy()   # (B, num_labels)
+    return batch_probs
 
 all_probs_full, all_true = [], []
 for i in tqdm(range(0, len(val), BATCH)):
-    batch = val[i:i+BATCH]
-    probs = predict_probs(batch["text"])
-    all_probs_full.append(probs)
+    batch = val[i:i + BATCH]
+    batch_probs = predict_probs(batch["text"])
+    all_probs_full.append(batch_probs)
     all_true.append(np.stack(batch["y"]))
 all_probs_full = np.concatenate(all_probs_full, axis=0)
 all_true = np.concatenate(all_true, axis=0)
