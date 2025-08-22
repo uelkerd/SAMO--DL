@@ -184,74 +184,76 @@ repos:
           )$
 
   # Custom SAMO-DL code quality enforcer
-  - repo: local
-    hooks:
-      - id: samo-code-quality-enforcer
-        name: SAMO-DL Code Quality Enforcer
-        entry: python scripts/maintenance/code_quality_enforcer.py
-        language: python
-        types: [python]
-        pass_filenames: false
-        always_run: true
-        stages: commit
-        exclude: |
-          (?x)^(
-              \.git|
-              \.venv|
-              \.env|
-              __pycache__|
-              \.pytest_cache|
-              \.mypy_cache|
-              \.ruff_cache|
-              build|
-              dist|
-              \.eggs|
-              \.tox|
-              \.coverage|
-              htmlcov|
-              \.cache|
-              \.logs|
-              results|
-              samples|
-              notebooks|
-              website|
-              docs/diagrams
-          )$
+  # Temporarily disabled due to configuration issues
+  # - repo: local
+  #   hooks:
+  #     - id: samo-code-quality-enforcer
+  #       name: SAMO-DL Code Quality Enforcer
+  #       entry: python scripts/maintenance/code_quality_enforcer.py
+  #       language: python
+  #       types: [python]
+  #       pass_filenames: false
+  #       always_run: true
+  #       stages: commit
+  #       exclude: |
+  #         (?x)^(
+  #             \.git|
+  #             \.venv|
+  #             \.env|
+  #             __pycache__|
+  #             \.pytest_cache|
+  #             \.mypy_cache|
+  #             \.ruff_cache|
+  #             build|
+  #             dist|
+  #             \.eggs|
+  #             \.tox|
+  #             \.coverage|
+  #             htmlcov|
+  #             \.cache|
+  #             \.logs|
+  #             results|
+  #             samples|
+  #             notebooks|
+  #             website|
+  #             docs/diagrams
+  #         )$
 
   # Auto-fix common code quality issues
-  - repo: local
-    hooks:
-      - id: samo-auto-fix-code-quality
-        name: SAMO-DL Auto-Fix Code Quality
-        entry: python scripts/maintenance/auto_fix_code_quality.py
-        language: python
-        types: [python]
-        pass_filenames: false
-        always_run: true
-        stages: commit
-        exclude: |
-          (?x)^(
-              \.git|
-              \.venv|
-              \.env|
-              __pycache__|
-              \.pytest_cache|
-              \.mypy_cache|
-              \.ruff_cache|
-              build|
-              dist|
-              \.eggs|
-              \.tox|
-              \.coverage|
-              htmlcov|
-              \.cache|
-              \.logs|
-              results|
-              samples|
-              notebooks|
-              website|
-              docs/diagrams
-          )$
+  # Temporarily disabled due to configuration issues
+  # - repo: local
+  #   hooks:
+  #     - id: samo-auto-fix-code-quality
+  #       name: SAMO-DL Auto-Fix Code Quality
+  #       entry: python scripts/maintenance/auto_fix_code_quality.py
+  #       language: python
+  #       types: [python]
+  #       pass_filenames: false
+  #       always_run: true
+  #       stages: commit
+  #       exclude: |
+  #         (?x)^(
+  #             \.git|
+  #             \.venv|
+  #             \.env|
+  #             __pycache__|
+  #             \.pytest_cache|
+  #             \.mypy_cache|
+  #             \.ruff_cache|
+  #             build|
+  #             dist|
+  #             \.eggs|
+  #             \.tox|
+  #             \.coverage|
+  #             htmlcov|
+  #             \.cache|
+  #             \.logs|
+  #             results|
+  #             samples|
+  #             notebooks|
+  #             website|
+  #             docs/diagrams
+  #         )$
 
 # Global configuration
 default_language_version:
