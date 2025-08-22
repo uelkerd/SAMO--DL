@@ -32,7 +32,6 @@ This script monitors the training progress of the emotion detection model
 and provides insights on performance, convergence, and next steps.
 """
 
-sys.path.append(str(Path(__file__).parent.parent / "src"))
 repo_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(repo_root / "src"))
 

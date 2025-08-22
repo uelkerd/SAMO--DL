@@ -39,11 +39,6 @@ This script tests the complete voice-first pipeline including
 audio recording, transcription, and emotion detection.
 """
 
-project_root = Path(__file__).parent.parent.resolve()
-sys.path.append(str(project_root))
-repo_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(repo_root / "src"))
-
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 

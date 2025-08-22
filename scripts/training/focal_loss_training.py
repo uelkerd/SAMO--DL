@@ -47,11 +47,6 @@ Focal Loss Training Script for SAMO Emotion Detection
 This script implements focal loss training to improve F1 score
 """
 
-project_root = Path(__file__).parent.parent.resolve()
-sys.path.append(str(project_root))
-repo_root = find_repo_root(Path(__file__))
-add_repo_src_to_path(Path(__file__))
-
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 

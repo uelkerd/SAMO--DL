@@ -41,9 +41,6 @@ Returns:
     1 if F1 score is below minimum threshold
 """
 
-sys.path.append(Path(Path(os.path.dirname(__file__), "..")))
-repo_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(repo_root / "src"))
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 

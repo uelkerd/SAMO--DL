@@ -42,11 +42,6 @@ This script addresses the critical issues:
 3. Proper error handling
 """
 
-project_root = Path(__file__).parent.parent.resolve()
-sys.path.append(str(project_root))
-repo_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(repo_root / "src"))
-
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 

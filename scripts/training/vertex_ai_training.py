@@ -70,7 +70,6 @@ This script runs training on Vertex AI with optimized configuration
 to solve the 0.0000 loss issue and achieve >75% F1 score.
 """
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 repo_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(repo_root / "src"))
 
