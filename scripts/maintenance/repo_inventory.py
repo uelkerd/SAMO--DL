@@ -110,7 +110,10 @@ def gather_metadata(p: Path) -> Dict[str, Any]:
 
 
 def gather_top_level(files_meta: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Summarize first-level entries under repo root with sizes aggregated from files_meta."""
+    """Summarize first-level entries under the repository root.
+
+    Sizes are aggregated from files_meta.
+    """
     # Initialize entries and types from a shallow scan
     top: Dict[str, Dict[str, Any]] = {}
     for entry in ROOT.iterdir():
