@@ -1,6 +1,25 @@
 # Comprehensive Code Quality Prevention System for SAMO-DL
 # This configuration prevents ALL recurring DeepSource issues from ever happening again
 
+# YAML anchors for common exclude patterns to avoid duplication
+# TODO: Re-enable all disabled hooks once configuration issues are resolved
+# Issue: https://github.com/uelkerd/SAMO--DL/issues/ (to be created)
+#
+# Disabled hooks and their status:
+# - Bandit: Configuration format issues (exclude field format)
+# - Safety: Repository access issues (PyCQA/safety not found)
+# - Docformatter: Configuration format issues (exclude field format)
+# - Flynt: Configuration format issues (exclude field format)
+# - Local hooks: Configuration format issues (exclude field format)
+#
+# Next steps:
+# 1. Fix exclude field formats for all hooks
+# 2. Verify repository URLs and access
+# 3. Test each hook individually
+# 4. Re-enable hooks one by one
+# 5. Update this TODO section as hooks are re-enabled
+x-common-excludes: &common-excludes "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
+
 repos:
   # Basic pre-commit hooks (run first)
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -29,7 +48,7 @@ repos:
         language_version: python3
         args: [--line-length=88, --target-version=py38]
         types: [python]
-        exclude: "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
+        exclude: *common-excludes
 
   # Import sorting and organization
   - repo: https://github.com/pycqa/isort
@@ -38,7 +57,7 @@ repos:
       - id: isort
         args: [--profile=black, --line-length=88, --py=38]
         types: [python]
-        exclude: "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
+        exclude: *common-excludes
 
   # Python linting with Ruff (super fast)
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -47,7 +66,7 @@ repos:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
         types: [python]
-        exclude: "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
+        exclude: *common-excludes
 
   # Type checking with MyPy
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -56,45 +75,25 @@ repos:
       - id: mypy
         args: [--ignore-missing-imports, --python-version=3.8]
         types: [python]
-        exclude: |
-          (?x)^(
-              \.git|
-              \.venv|
-              \.env|
-              __pycache__|
-              \.pytest_cache|
-              \.mypy_cache|
-              \.ruff_cache|
-              build|
-              dist|
-              \.eggs|
-              \.tox|
-              \.coverage|
-              htmlcov|
-              \.cache|
-              \.logs|
-              results|
-              samples|
-              notebooks|
-              website|
-              docs/diagrams
-          )$
+        exclude: *common-excludes
 
   # Security scanning with Bandit
   # Note: Bandit now reports to stdout and fails commit if issues found
-  # Temporarily disabled due to configuration issues
+  # TODO: Re-enable once configuration issues are resolved
+  # Issue: https://github.com/uelkerd/SAMO--DL/issues/ (to be created)
   # - repo: https://github.com/PyCQA/bandit
   #   rev: 1.7.5
   #   hooks:
   #     - id: bandit
   #       args: [-r, .]
   #       types: [python]
-  #       exclude: "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
+  #       exclude: *common-excludes
 
   # Security vulnerability scanning with Safety
   # Note: Consider moving this to CI/CD pipeline for performance
   # Safety checks installed dependencies and can be slow
-  # Temporarily disabled due to repository access issues
+  # TODO: Re-enable once repository access issues are resolved
+  # Issue: https://github.com/uelkerd/SAMO--DL/issues/ (to be created)
   # - repo: https://github.com/PyCQA/safety
   #   rev: 3.1.1
   #   hooks:
@@ -102,27 +101,30 @@ repos:
   #       args: [check]
 
   # Documentation formatting
-  # Temporarily disabled due to configuration issues
+  # TODO: Re-enable once configuration issues are resolved
+  # Issue: https://github.com/uelkerd/SAMO--DL/issues/ (to be created)
   # - repo: https://github.com/myint/docformatter
   #   rev: v1.7.5
   #   hooks:
   #     - id: docformatter
   #       args: [--in-place, --wrap-summaries=88, --wrap-descriptions=88]
   #       types: [python]
-  #       exclude: "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
+  #       exclude: *common-excludes
 
   # String formatting with flynt
-  # Temporarily disabled due to configuration issues
+  # TODO: Re-enable once configuration issues are resolved
+  # Issue: https://github.com/uelkerd/SAMO--DL/issues/ (to be created)
   # - repo: https://github.com/ikamensh/flynt
-  #   rev: "0.78"
+  #   rev: 0.78
   #   hooks:
   #     - id: flynt
   #       args: [--line-length=88]
   #       types: [python]
-  #       exclude: "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
+  #       exclude: *common-excludes
 
   # Custom SAMO-DL code quality enforcer
-  # Temporarily disabled due to configuration issues
+  # TODO: Re-enable once configuration issues are resolved
+  # Issue: https://github.com/uelkerd/SAMO--DL/issues/ (to be created)
   # - repo: local
   #   hooks:
   #     - id: samo-code-quality-enforcer
@@ -133,32 +135,11 @@ repos:
   #       pass_filenames: false
   #       always_run: true
   #       stages: commit
-  #       exclude: |
-  #         (?x)^(
-  #             \.git|
-  #             \.venv|
-  #             \.env|
-  #             __pycache__|
-  #             \.pytest_cache|
-  #             \.mypy_cache|
-  #             \.ruff_cache|
-  #             build|
-  #             dist|
-  #             \.eggs|
-  #             \.tox|
-  #             \.coverage|
-  #             htmlcov|
-  #             \.cache|
-  #             \.logs|
-  #             results|
-  #             samples|
-  #             notebooks|
-  #             website|
-  #             docs/diagrams
-  #         )$
+  #       exclude: *common-excludes
 
   # Auto-fix common code quality issues
-  # Temporarily disabled due to configuration issues
+  # TODO: Re-enable once configuration issues are resolved
+  # Issue: https://github.com/uelkerd/SAMO--DL/issues/ (to be created)
   # - repo: local
   #   hooks:
   #     - id: samo-auto-fix-code-quality
@@ -169,29 +150,7 @@ repos:
   #       pass_filenames: false
   #       always_run: true
   #       stages: commit
-  #       exclude: |
-  #         (?x)^(
-  #             \.git|
-  #             \.venv|
-  #             \.env|
-  #             __pycache__|
-  #             \.pytest_cache|
-  #             \.mypy_cache|
-  #             \.ruff_cache|
-  #             build|
-  #             dist|
-  #             \.eggs|
-  #             \.tox|
-  #             \.coverage|
-  #             htmlcov|
-  #             \.cache|
-  #             \.logs|
-  #             results|
-  #             samples|
-  #             notebooks|
-  #             website|
-  #             docs/diagrams
-  #         )$
+  #       exclude: *common-excludes
 
 # Global configuration
 default_language_version:
