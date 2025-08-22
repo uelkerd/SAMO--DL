@@ -59,7 +59,9 @@ def evaluate_current_f1():
                         logger.info("✅ Checkpoint loaded successfully")
                         break
                 except Exception as e:
-                    logger.warning(f"⚠️ Failed to load checkpoint {checkpoint_path}: {e}")
+                    logger.warning(
+                                   f"⚠️ Failed to load checkpoint {checkpoint_path}: {e}"
+                                  )
                     continue
         
         if not checkpoint_loaded:
@@ -130,13 +132,38 @@ def evaluate_current_f1():
         all_labels = np.array(all_labels)
         
         # Calculate F1 scores
-        micro_f1 = f1_score(all_labels, all_predictions, average='micro', zero_division=0)
-        macro_f1 = f1_score(all_labels, all_predictions, average='macro', zero_division=0)
-        weighted_f1 = f1_score(all_labels, all_predictions, average='weighted', zero_division=0)
+        micro_f1 = f1_score(
+                            all_labels,
+                            all_predictions,
+                            average='micro',
+                            zero_division=0
+                           )
+        macro_f1 = f1_score(
+                            all_labels,
+                            all_predictions,
+                            average='macro',
+                            zero_division=0
+                           )
+        weighted_f1 = f1_score(
+                               all_labels,
+                               all_predictions,
+                               average='weighted',
+                               zero_division=0
+                              )
         
         # Calculate precision and recall
-        micro_precision = precision_score(all_labels, all_predictions, average='micro', zero_division=0)
-        micro_recall = recall_score(all_labels, all_predictions, average='micro', zero_division=0)
+        micro_precision = precision_score(
+                                          all_labels,
+                                          all_predictions,
+                                          average='micro',
+                                          zero_division=0
+                                         )
+        micro_recall = recall_score(
+                                    all_labels,
+                                    all_predictions,
+                                    average='micro',
+                                    zero_division=0
+                                   )
         
         # Display results
         logger.info("📊 EVALUATION RESULTS:")
@@ -144,7 +171,9 @@ def evaluate_current_f1():
         logger.info(f"Micro F1 Score:     {micro_f1:.4f} ({micro_f1*100:.2f}%)")
         logger.info(f"Macro F1 Score:     {macro_f1:.4f} ({macro_f1*100:.2f}%)")
         logger.info(f"Weighted F1 Score:  {weighted_f1:.4f} ({weighted_f1*100:.2f}%)")
-        logger.info(f"Micro Precision:    {micro_precision:.4f} ({micro_precision*100:.2f}%)")
+        logger.info(
+                    f"Micro Precision:    {micro_precision:.4f} ({micro_precision*100:.2f}%)"
+                   )
         logger.info(f"Micro Recall:       {micro_recall:.4f} ({micro_recall*100:.2f}%)")
         logger.info("=" * 50)
         

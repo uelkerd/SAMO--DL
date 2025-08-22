@@ -86,9 +86,15 @@ def test_onnx_dependencies():
                 session = ort.InferenceSession(temp_path)
                 logger.info("✅ ONNX Runtime session created")
 
-                test_input = np.random.default_rng().standard_normal((1, 768)).astype(np.float32)
+                test_input = np.random.default_rng(
+                                                   ).standard_normal((1,
+                                                   768)).astype(np.float32
+                                                  )
                 outputs = session.run(None, {'input_ids': test_input})
-                logger.info(f"✅ ONNX Runtime inference successful, output shape: {outputs[0].shape}")
+                logger.info(
+                            f"✅ ONNX Runtime inference successful,
+                            output shape: {outputs[0].shape}"
+                           )
 
             finally:
                 from contextlib import suppress

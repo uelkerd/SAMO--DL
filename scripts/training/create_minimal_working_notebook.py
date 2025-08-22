@@ -49,9 +49,10 @@ def create_minimal_notebook():
                     "import torch\n",
                     "import numpy as np\n",
                     "import pandas as pd\n",
-                    "from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer\n",
+"from transformers import AutoTokenizer, AutoModelForSequenceClassification,
+TrainingArguments, Trainer\n",
                     "from sklearn.model_selection import train_test_split\n",
-                    "from sklearn.metrics import classification_report, f1_score, accuracy_score\n",
+"from sklearn.metrics import classification_report, f1_score, accuracy_score\n",
                     "import json\n",
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
@@ -75,15 +76,16 @@ def create_minimal_notebook():
                 "outputs": [],
                 "source": [
                     "# Define emotion classes\n",
-                    "emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\n",
+"emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy',
+'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\n",
                     "print(f'🎯 Emotion classes: {emotions}')\n",
                     "\n",
                     "# Simple dataset\n",
                     "data = [\n",
-                    "    {'text': 'I feel anxious about the presentation.', 'label': 0},\n",
+" {'text': 'I feel anxious about the presentation.', 'label': 0},\n",
                     "    {'text': 'I am feeling calm today.', 'label': 1},\n",
                     "    {'text': 'I feel content with my life.', 'label': 2},\n",
-                    "    {'text': 'I am excited about the opportunity.', 'label': 3},\n",
+" {'text': 'I am excited about the opportunity.', 'label': 3},\n",
                     "    {'text': 'I feel frustrated with the issues.', 'label': 4},\n",
                     "    {'text': 'I am grateful for the support.', 'label': 5},\n",
                     "    {'text': 'I feel happy about the success.', 'label': 6},\n",
@@ -101,9 +103,9 @@ def create_minimal_notebook():
                     "    {'text': 'I feel thankful for the help.', 'label': 5},\n",
                     "    {'text': 'I am joyful about the completion.', 'label': 6},\n",
                     "    {'text': 'I feel optimistic about tomorrow.', 'label': 7},\n",
-                    "    {'text': 'I am stressed with responsibilities.', 'label': 8},\n",
+" {'text': 'I am stressed with responsibilities.', 'label': 8},\n",
                     "    {'text': 'I feel accomplished and confident.', 'label': 9},\n",
-                    "    {'text': 'I am depressed about the situation.', 'label': 10},\n",
+" {'text': 'I am depressed about the situation.', 'label': 10},\n",
                     "    {'text': 'I feel exhausted from the work.', 'label': 11}\n",
                     "]\n",
                     "\n",
@@ -128,12 +130,18 @@ def create_minimal_notebook():
                     "print(f'🔧 Loading model: {model_name}')\n",
                     "\n",
                     "tokenizer = AutoTokenizer.from_pretrained(model_name)\n",
-                    "model = AutoModelForSequenceClassification.from_pretrained(model_name)\n",
+                    "model = AutoModelForSequenceClassification.from_pretrained(
+                                                                                model_name)\n",
+                                                                                
                     "\n",
                     "# Configure for our emotions\n",
                     "model.config.num_labels = len(emotions)\n",
-                    "model.config.id2label = {i: emotion for i, emotion in enumerate(emotions)}\n",
-                    "model.config.label2id = {emotion: i for i, emotion in enumerate(emotions)}\n",
+                    "model.config.id2label = {i: emotion for i, emotion in enumerate(
+                                                                                     emotions)}\n",
+                                                                                     
+                    "model.config.label2id = {emotion: i for i, emotion in enumerate(
+                                                                                     emotions)}\n",
+                                                                                     
                     "\n",
                     "print(f'✅ Model configured for {len(emotions)} emotions')\n",
                     "print(f'✅ id2label: {model.config.id2label}')"
@@ -157,16 +165,26 @@ def create_minimal_notebook():
                     "labels = [item['label'] for item in data]\n",
                     "\n",
                     "# Split data\n",
-                    "train_texts, val_texts, train_labels, val_labels = train_test_split(\n",
-                    "    texts, labels, test_size=0.2, random_state=42, stratify=labels\n",
+"train_texts, val_texts, train_labels, val_labels = train_test_split(\n",
+" texts, labels, test_size=0.2, random_state=42, stratify=labels\n",
                     ")\n",
                     "\n",
                     "print(f'📊 Training samples: {len(train_texts)}')\n",
                     "print(f'📊 Validation samples: {len(val_texts)}')\n",
                     "\n",
                     "# Tokenize\n",
-                    "train_encodings = tokenizer(train_texts, truncation=True, padding=True, return_tensors='pt')\n",
-                    "val_encodings = tokenizer(val_texts, truncation=True, padding=True, return_tensors='pt')\n",
+                    "train_encodings = tokenizer(
+                                                 train_texts,
+                                                 truncation=True,
+                                                 padding=True,
+                                                 return_tensors='pt')\n",
+                                                 
+                    "val_encodings = tokenizer(
+                                               val_texts,
+                                               truncation=True,
+                                               padding=True,
+                                               return_tensors='pt')\n",
+                                               
                     "\n",
                     "# Create dataset class\n",
                     "class SimpleDataset(torch.utils.data.Dataset):\n",
@@ -175,7 +193,10 @@ def create_minimal_notebook():
                     "        self.labels = labels\n",
                     "    \n",
                     "    def __getitem__(self, idx):\n",
-                    "        item = {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}\n",
+                    "        item = {key: torch.tensor(
+                                                       val[idx]) for key,
+                                                       val in self.encodings.items()}\n",
+                                                       
                     "        item['labels'] = torch.tensor(self.labels[idx])\n",
                     "        return item\n",
                     "    \n",
@@ -234,7 +255,12 @@ def create_minimal_notebook():
                     "    predictions = np.argmax(predictions, axis=1)\n",
                     "    \n",
                     "    return {\n",
-                    "        'f1': f1_score(labels, predictions, average='weighted'),\n",
+                    "        'f1': f1_score(
+                                            labels,
+                                            predictions,
+                                            average='weighted'),
+                                            \n",
+                                            
                     "        'accuracy': accuracy_score(labels, predictions)\n",
                     "    }\n",
                     "\n",
@@ -333,7 +359,10 @@ def create_minimal_notebook():
                     "\n",
                     "print(f'\\n🔍 SAVED CONFIGURATION:')\n",
                     "print(f'Model type: {config.get(\"model_type\", \"NOT SET\")}')\n",
-                    "print(f'Number of labels: {config.get(\"num_labels\", \"NOT SET\")}')\n",
+                    "print(
+                           f'Number of labels: {config.get(\"num_labels\",
+                           \"NOT SET\")}')\n",
+                           
                     "print(f'id2label: {config.get(\"id2label\", \"NOT SET\")}')\n",
                     "\n",
                     "print('\\n✅ Model saving completed!')"

@@ -20,7 +20,8 @@
         # Test different scenarios
         # Test forward pass
         from src.models.emotion_detection.bert_classifier import WeightedBCELoss
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+        from src
+    .models.emotion_detection.bert_classifier import create_bert_emotion_classifier
         from src.models.emotion_detection.dataset_loader import create_goemotions_loader
         from src.models.emotion_detection.dataset_loader import create_goemotions_loader
         import pandas as pd
@@ -50,13 +51,17 @@ import sys
 """
 Local Validation and Debug Script for SAMO Deep Learning.
 
-This script performs targeted validation to identify the root cause of the 0.0000 loss issue.
+This script performs targeted validation to identify the root cause of the 0
+    .0000 loss issue.
 It can be run locally to diagnose problems before deploying to GCP.
 """
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+                    level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s"
+                   )
 logger = logging.getLogger(__name__)
 
 
@@ -104,7 +109,10 @@ def check_data_loading():
 
         stats = datasets["statistics"]
         logger.info("✅ Total examples: {stats.get('total_examples', 'N/A')}")
-        logger.info("✅ Emotion distribution: {len(stats.get('emotion_counts', {}))} emotions")
+        logger.info(
+                    "✅ Emotion distribution: {len(stats.get('emotion_counts',
+                    {}))} emotions"
+                   )
 
         return True
 
@@ -176,11 +184,23 @@ def check_loss_function():
         loss_fn = WeightedBCELoss()
         loss1 = loss_fn(logits, labels)
 
-        bce_manual = F.binary_cross_entropy_with_logits(logits, labels, reduction="mean")
+        bce_manual = F.binary_cross_entropy_with_logits(
+                                                        logits,
+                                                        labels,
+                                                        reduction="mean"
+                                                       )
 
         logger.info("✅ Mixed labels loss: {loss1.item():.8f}")
-        logger.info("✅ All positive loss: {loss_fn(logits, torch.ones(batch_size, num_classes)).item():.8f}")
-        logger.info("✅ All negative loss: {loss_fn(logits, torch.zeros(batch_size, num_classes)).item():.8f}")
+        logger.info(
+                    "✅ All positive loss: {loss_fn(logits,
+                    torch.ones(batch_size,
+                    num_classes)).item():.8f}"
+                   )
+        logger.info(
+                    "✅ All negative loss: {loss_fn(logits,
+                    torch.zeros(batch_size,
+                    num_classes)).item():.8f}"
+                   )
         logger.info("✅ Manual BCE loss: {bce_manual.item():.8f}")
 
         if loss1.item() <= 0:

@@ -5,7 +5,8 @@ SAMO Deep Learning - Comprehensive Domain Adaptation Training Script
 SENIOR-LEVEL IMPLEMENTATION for REQ-DL-012: Domain-Adapted Emotion Detection
 that completely avoids dependency hell and provides production-ready code.
 
-Target: Achieve 70% F1 score on journal entries through domain adaptation from GoEmotions
+Target: Achieve 70% F1 score on journal entries through domain adaptation from
+GoEmotions
 
 Features:
 - Comprehensive error handling and validation
@@ -152,7 +153,9 @@ class EnvironmentManager:
             ], capture_output=True, text=True, timeout=300)
             
             if result.returncode != 0:
-                logger.error(f"❌ Additional dependencies installation failed: {result.stderr}")
+                logger.error(
+                             f"❌ Additional dependencies installation failed: {result.stderr}"
+                            )
                 return False
             
             # Step 5: Apply numpy compatibility fix proactively
@@ -194,7 +197,9 @@ class EnvironmentManager:
             
             if torch.cuda.is_available():
                 logger.info(f"  GPU: {torch.cuda.get_device_name(0)}")
-                logger.info(f"  Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
+                logger.info(
+                            f"  Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
+                           )
                 torch.backends.cudnn.benchmark = True
                 logger.info("  ✅ GPU optimized for training")
             else:
@@ -206,7 +211,9 @@ class EnvironmentManager:
                 logger.info("  ✅ Transformers imports successful")
             except ImportError as e:
                 if "broadcast_to" in str(e):
-                    logger.warning("⚠️ Numpy compatibility issue detected. Applying workaround...")
+                    logger.warning(
+                                   "⚠️ Numpy compatibility issue detected. Applying workaround..."
+                                  )
                     # Apply numpy compatibility fix
                     import numpy as np
                     if not hasattr(np.lib.stride_tricks, 'broadcast_to'):
@@ -261,7 +268,13 @@ class RepositoryManager:
             """Execute command with comprehensive error handling."""
             logger.info(f"🔄 {description}...")
             try:
-                result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=300)
+                result = subprocess.run(
+                                        command,
+                                        shell=True,
+                                        capture_output=True,
+                                        text=True,
+                                        timeout=300
+                                       )
                 if result.returncode == 0:
                     logger.info(f"  ✅ {description} completed")
                     return True
@@ -277,7 +290,9 @@ class RepositoryManager:
         
         # Clone repository if not exists
         if not Path('SAMO--DL').exists():
-            if not run_command_safe('git clone https://github.com/uelkerd/SAMO--DL.git', 'Cloning repository'):
+            if not run_command_safe(
+                                    'git clone https://github.com/uelkerd/SAMO--DL.git',
+                                    'Cloning repository'):
                 return False
         
         # Change to project directory
@@ -354,7 +369,7 @@ class DataManager:
             # Get GoEmotions labels
             go_train = self.go_emotions['train']
             go_label_names = go_train.features['labels'].feature.names
-            go_single_labels_int = [label[0] if label else 0 for label in go_train['labels'][:1000]]
+go_single_labels_int = [label[0] if label else 0 for label in go_train['labels'][:1000]]
             go_single_labels_str = [go_label_names[i] for i in go_single_labels_int]
             
             # Get journal labels
@@ -388,15 +403,21 @@ class DataManager:
             
             # Analyze writing styles
             def analyze_style(texts, domain_name):
-                valid_texts = [text for text in texts if text and isinstance(text, str) and len(text.strip()) > 0]
+                valid_texts = [text for text in texts if text and isinstance(
+                                                                             text,
+                                                                             str) and len(text.strip()) > 0]
                 
                 if not valid_texts:
                     logger.warning(f"⚠️ No valid texts for {domain_name}")
                     return None
                 
                 avg_length = np.mean([len(text.split()) for text in valid_texts])
-                personal_pronouns = sum(['I ' in text or 'my ' in text or 'me ' in text for text in valid_texts]) / len(valid_texts)
-                reflection_words = sum(['think' in text.lower() or 'feel' in text.lower() or 'believe' in text.lower()
+                personal_pronouns = sum(
+                                        ['I ' in text or 'my ' in text or 'me ' in text for text in valid_texts]) / len(valid_texts
+                                       )
+                reflection_words = sum(
+                                       ['think' in text.lower() or 'feel' in text.lower() or 'believe' in text.lower(
+                                      )
                                        for text in valid_texts]) / len(valid_texts)
                 
                 logger.info(f"{domain_name} Style Analysis:")
@@ -417,9 +438,15 @@ class DataManager:
             
             if go_analysis and journal_analysis:
                 logger.info("🎯 Key Insights:")
-                logger.info(f"- Journal entries are {journal_analysis['avg_length']/go_analysis['avg_length']:.1f}x longer")
-                logger.info(f"- Journal entries use {journal_analysis['personal_pronouns']/go_analysis['personal_pronouns']:.1f}x more personal pronouns")
-                logger.info(f"- Journal entries contain {journal_analysis['reflection_words']/go_analysis['reflection_words']:.1f}x more reflection words")
+                logger.info(
+                            f"- Journal entries are {journal_analysis['avg_length']/go_analysis['avg_length']:.1f}x longer"
+                           )
+                logger.info(
+                            f"- Journal entries use {journal_analysis['personal_pronouns']/go_analysis['personal_pronouns']:.1f}x more personal pronouns"
+                           )
+                logger.info(
+                            f"- Journal entries contain {journal_analysis['reflection_words']/go_analysis['reflection_words']:.1f}x more reflection words"
+                           )
                 
                 return True
             else:
@@ -447,7 +474,9 @@ class ModelManager:
             
             if torch.cuda.is_available():
                 logger.info(f"🚀 Using GPU: {torch.cuda.get_device_name(0)}")
-                logger.info(f"💾 GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
+                logger.info(
+                            f"💾 GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
+                           )
                 torch.backends.cudnn.benchmark = True
                 torch.backends.cudnn.deterministic = False
             else:
@@ -485,8 +514,14 @@ class ModelManager:
             
             # Verify model parameters
             total_params = sum(p.numel() for p in self.model.parameters())
-            trainable_params = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
-            logger.info(f"📊 Model parameters: {total_params:,} (trainable: {trainable_params:,})")
+            trainable_params = sum(
+                                   p.numel() for p in self.model.parameters() if p.requires_grad
+                                  )
+            logger.info(
+                        f"📊 Model parameters: {total_params:,
+                        } (trainable: {trainable_params:,
+                        })"
+                       )
             
             return True
             
@@ -528,7 +563,9 @@ class DomainAdaptedEmotionClassifier:
         elif num_labels <= 0:
             raise ValueError(f"num_labels must be positive, got {num_labels}")
         
-        logger.info(f"🏗️ Initializing DomainAdaptedEmotionClassifier with num_labels = {num_labels}")
+        logger.info(
+                    f"🏗️ Initializing DomainAdaptedEmotionClassifier with num_labels = {num_labels}"
+                   )
         
         try:
             import torch.nn as nn
@@ -574,7 +611,11 @@ class DomainAdaptedEmotionClassifier:
 class TrainingManager:
     """Manages the complete training pipeline."""
     
-    def __init__(self, config: TrainingConfig, model_manager: ModelManager, data_manager: DataManager):
+    def __init__(
+                 self,
+                 config: TrainingConfig,
+                 model_manager: ModelManager,
+                 data_manager: DataManager):
         self.config = config
         self.model_manager = model_manager
         self.data_manager = data_manager
@@ -601,7 +642,8 @@ class TrainingManager:
             )
             
             # Setup scheduler
-            total_steps = len(self.data_manager.go_emotions['train']) // self.config.batch_size * self.config.num_epochs
+            total_steps = len(
+                              self.data_manager.go_emotions['train']) // self.config.batch_size * self.config.num_epochs
             self.scheduler = get_linear_schedule_with_warmup(
                 self.optimizer,
                 num_warmup_steps=self.config.warmup_steps,
@@ -637,7 +679,9 @@ class TrainingManager:
 
 def main():
     """Main execution function with comprehensive error handling."""
-    logger.info("🚀 Starting SAMO Deep Learning - Comprehensive Domain Adaptation Training")
+    logger.info(
+                "🚀 Starting SAMO Deep Learning - Comprehensive Domain Adaptation Training"
+               )
     logger.info("=" * 80)
     
     # Initialize configuration

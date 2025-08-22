@@ -253,27 +253,34 @@ class SecureModelLoader:
 
             # 1. Integrity check
             logger.info(f"Performing integrity check for {model_path}")
-            integrity_valid, integrity_info = self.integrity_checker.comprehensive_validation(
+integrity_valid, integrity_info =
+    self.integrity_checker.comprehensive_validation(
                 model_path, expected_checksum
             )
             loading_info['integrity_check'] = integrity_info
 
             if not integrity_valid:
                 loading_info['issues'].extend(integrity_info['findings'])
-                raise ValueError(f"Integrity check failed: {integrity_info['findings']}")
+                raise ValueError(
+                                 f"Integrity check failed: {integrity_info['findings']}"
+                                )
 
             # 2. Model validation
             logger.info(f"Validating model {model_path}")
             # Filter out non-model-config parameters
-            model_config = {k: v for k, v in kwargs.items() if k not in ['expected_checksum']}
-            validation_valid, validation_info = self.model_validator.comprehensive_validation(
+            model_config = {k: v for k, v in kwargs.items(
+                                                          ) if k not in ['expected_checksum']}
+validation_valid, validation_info =
+    self.model_validator.comprehensive_validation(
                 model_path, model_class, model_config, test_input
             )
             loading_info['validation'] = validation_info
 
             if not validation_valid:
                 loading_info['issues'].extend(validation_info['issues'])
-                raise ValueError(f"Model validation failed: {validation_info['issues']}")
+                raise ValueError(
+                                 f"Model validation failed: {validation_info['issues']}"
+                                )
 
             # 3. Load model (with or without sandbox)
             logger.info(f"Loading model {model_path}")
@@ -284,12 +291,17 @@ class SecureModelLoader:
                 loading_info['sandbox_execution'] = sandbox_info
             else:
                 # Load without sandbox (less secure but faster)
-                model_data = torch.load(model_path, map_location='cpu', weights_only=True)
+                model_data = torch.load(
+                                        model_path,
+                                        map_location='cpu',
+                                        weights_only=True
+                                       )
 
                 # Filter kwargs to only include valid constructor parameters
                 import inspect
                 constructor_params = inspect.signature(model_class.__init__).parameters
-                valid_params = {k: v for k, v in kwargs.items() if k in constructor_params}
+                valid_params = {k: v for k, v in kwargs.items(
+                                                              ) if k in constructor_params}
                 model = model_class(**valid_params)
 
                 if 'state_dict' in model_data:
@@ -311,7 +323,9 @@ class SecureModelLoader:
                 'model_type': type(model).__name__
             })
 
-            logger.info(f"Model loaded successfully in {loading_info['loading_time']:.2f}s")
+            logger.info(
+                        f"Model loaded successfully in {loading_info['loading_time']:.2f}s"
+                       )
             return model, loading_info
 
         except Exception as e:
@@ -354,7 +368,8 @@ class SecureModelLoader:
 
         try:
             # Integrity check
-            integrity_valid, integrity_info = self.integrity_checker.comprehensive_validation(
+integrity_valid, integrity_info =
+    self.integrity_checker.comprehensive_validation(
                 model_path, expected_checksum
             )
             validation_info['integrity_check'] = integrity_info
@@ -363,8 +378,10 @@ class SecureModelLoader:
                 validation_info['issues'].extend(integrity_info['findings'])
 
             # Model validation - filter out non-model-config parameters
-            model_config = {k: v for k, v in kwargs.items() if k not in ['expected_checksum']}
-            validation_valid, model_validation_info = self.model_validator.comprehensive_validation(
+            model_config = {k: v for k, v in kwargs.items(
+                                                          ) if k not in ['expected_checksum']}
+validation_valid, model_validation_info =
+    self.model_validator.comprehensive_validation(
                 model_path, model_class, model_config, test_input
             )
             validation_info['validation'] = model_validation_info

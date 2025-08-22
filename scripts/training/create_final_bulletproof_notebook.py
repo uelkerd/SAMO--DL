@@ -18,7 +18,7 @@ def create_final_bulletproof_notebook():
                     "\n",
                     "## **All Issues Fixed - Ready to Train**\n",
                     "\n",
-                    "This notebook handles all dependency conflicts, path issues, and NumPy problems.\n",
+"This notebook handles all dependency conflicts, path issues, and NumPy problems.\n",
                     "\n",
                     "**Target**: 75-85% F1 Score with expanded dataset\n",
                     "**Expected Time**: 10-15 minutes\n",
@@ -32,7 +32,7 @@ def create_final_bulletproof_notebook():
                 "source": [
                     "## **Step 1: Smart Environment Setup (All Issues Fixed)**\n",
                     "\n",
-                    "This cell handles NumPy conflicts and installs all required dependencies."
+"This cell handles NumPy conflicts and installs all required dependencies."
                 ]
             },
             {
@@ -67,7 +67,9 @@ def create_final_bulletproof_notebook():
                     "print(\"📊 Current environment status:\")\n",
                     "print(f\"  NumPy: {get_package_version('numpy')}\")\n",
                     "print(f\"  PyTorch: {get_package_version('torch')}\")\n",
-                    "print(f\"  Transformers: {get_package_version('transformers')}\")\n",
+                    "print(
+                           f\"  Transformers: {get_package_version('transformers')}\")\n",
+                           
                     "print(f\"  Scikit-learn: {get_package_version('sklearn')}\")\n",
                     "\n",
                     "# Only install what's missing or needs updating\n",
@@ -78,7 +80,9 @@ def create_final_bulletproof_notebook():
                     "if numpy_version.startswith('2.'):\n",
                     "    print(\"⚠️  NumPy 2.x detected - will downgrade to 1.x\")\n",
                     "    # Fix: Use proper pip command without extra quotes\n",
-                    "    install_commands.append('pip install numpy==1.24.3 --force-reinstall --quiet')\n",
+                    "    install_commands.append(
+                                                 'pip install numpy==1.24.3 --force-reinstall --quiet')\n",
+                                                 
                     "else:\n",
                     "    print(\"✅ NumPy version is compatible\")\n",
                     "\n",
@@ -94,7 +98,9 @@ def create_final_bulletproof_notebook():
                     "for package, install_name in dependencies:\n",
                     "    if not check_package(package):\n",
                     "        print(f\"📦 {package} not found - installing...\")\n",
-                    "        install_commands.append(f'pip install {install_name} --quiet')\n",
+                    "        install_commands.append(
+                                                     f'pip install {install_name} --quiet')\n",
+                                                     
                     "    else:\n",
                     "        print(f\"✅ {package} already installed\")\n",
                     "\n",
@@ -103,7 +109,11 @@ def create_final_bulletproof_notebook():
                     "    print(\"\\n🔧 Installing missing dependencies...\")\n",
                     "    for cmd in install_commands:\n",
                     "        print(f\"Running: {cmd}\")\n",
-                    "        result = subprocess.run(cmd.split(), capture_output=True, text=True)\n",
+                    "        result = subprocess.run(
+                                                     cmd.split(),
+                                                     capture_output=True,
+                                                     text=True)\n",
+                                                     
                     "        if result.returncode != 0:\n",
                     "            print(f\"⚠️  Warning: {result.stderr}\")\n",
                     "        else:\n",
@@ -126,13 +136,18 @@ def create_final_bulletproof_notebook():
                     "    \n",
                     "    if torch.cuda.is_available():\n",
                     "        print(f\"✅ GPU: {torch.cuda.get_device_name(0)}\")\n",
-                    "        print(f\"✅ GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB\")\n",
+                    "        print(
+                                   f\"✅ GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB\")\n",
+                                   
                     "    \n",
                     "    print(\"\\n🎉 Environment ready! No restart required!\")\n",
                     "    \n",
                     "except Exception as e:\n",
                     "    print(f\"❌ Error during verification: {e}\")\n",
-                    "    print(\"💡 If you see errors above, you may need to restart the runtime once.\")\n",
+                    "    print(
+                               \"💡 If you see errors above,
+                               you may need to restart the runtime once.\")\n",
+                               
                     "    print(\"   This is normal for the first run only.\")"
                 ]
             },
@@ -158,7 +173,9 @@ def create_final_bulletproof_notebook():
                     "# Fix: Handle the nested directory structure\n",
                     "import os\n",
                     "if os.path.exists('SAMO--DL/SAMO--DL'):\n",
-                    "    print(\"📁 Found nested directory structure - navigating correctly...\")\n",
+                    "    print(
+                               \"📁 Found nested directory structure - navigating correctly...\")\n",
+                               
                     "    %cd SAMO--DL/SAMO--DL\n",
                     "else:\n",
                     "    print(\"📁 Using standard directory structure...\")\n",
@@ -175,9 +192,10 @@ def create_final_bulletproof_notebook():
                     "from sklearn.preprocessing import LabelEncoder\n",
                     "from torch.utils.data import Dataset, DataLoader\n",
                     "import torch\n",
-                    "from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer\n",
+"from transformers import AutoTokenizer, AutoModelForSequenceClassification,
+TrainingArguments, Trainer\n",
                     "import numpy as np\n",
-                    "from sklearn.metrics import f1_score, accuracy_score, classification_report\n",
+"from sklearn.metrics import f1_score, accuracy_score, classification_report\n",
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",
@@ -188,43 +206,46 @@ def create_final_bulletproof_notebook():
                     "    with open(dataset_path, 'r') as f:\n",
                     "        expanded_data = json.load(f)\n",
                     "    print(f\"✅ Loaded {len(expanded_data)} expanded samples\")\n",
-                    "    print(f\"📊 Emotions: {list(set([item['emotion'] for item in expanded_data]))}\")\n",
+                    "    print(
+                               f\"📊 Emotions: {list(set([item['emotion'] for item in expanded_data]))}\")\n",
+                               
                     "else:\n",
                     "    print(f\"❌ Expanded dataset not found at {dataset_path}\")\n",
                     "    print(\"🔧 Creating expanded dataset on the fly...\")\n",
                     "    \n",
                     "    # Create a simple expanded dataset\n",
-                    "    base_emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', \n",
-                    "                    'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\n",
+" base_emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+\n",
+" 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\n",
                     "    \n",
                     "    expanded_data = []\n",
                     "    for emotion in base_emotions:\n",
                     "        # Create 83 samples per emotion\n",
                     "        for i in range(83):\n",
                     "            if emotion == 'happy':\n",
-                    "                text = f\"I'm feeling really happy today! Everything is going well. Sample {i+1}\"\n",
+" text = f\"I'm feeling really happy today! Everything is going well. Sample {i+1}\"\n",
                     "            elif emotion == 'sad':\n",
-                    "                text = f\"I'm feeling sad and lonely today. Sample {i+1}\"\n",
+" text = f\"I'm feeling sad and lonely today. Sample {i+1}\"\n",
                     "            elif emotion == 'anxious':\n",
-                    "                text = f\"I feel anxious about the upcoming presentation. Sample {i+1}\"\n",
+" text = f\"I feel anxious about the upcoming presentation. Sample {i+1}\"\n",
                     "            elif emotion == 'excited':\n",
-                    "                text = f\"I'm excited about the new opportunities ahead! Sample {i+1}\"\n",
+" text = f\"I'm excited about the new opportunities ahead! Sample {i+1}\"\n",
                     "            elif emotion == 'frustrated':\n",
-                    "                text = f\"I'm so frustrated with this project. Nothing is working. Sample {i+1}\"\n",
+" text = f\"I'm so frustrated with this project. Nothing is working. Sample {i+1}\"\n",
                     "            elif emotion == 'grateful':\n",
-                    "                text = f\"I'm grateful for all the support I've received. Sample {i+1}\"\n",
+" text = f\"I'm grateful for all the support I've received. Sample {i+1}\"\n",
                     "            elif emotion == 'proud':\n",
-                    "                text = f\"I'm proud of what I've accomplished so far. Sample {i+1}\"\n",
+" text = f\"I'm proud of what I've accomplished so far. Sample {i+1}\"\n",
                     "            elif emotion == 'calm':\n",
-                    "                text = f\"I feel calm and peaceful right now. Sample {i+1}\"\n",
+" text = f\"I feel calm and peaceful right now. Sample {i+1}\"\n",
                     "            elif emotion == 'hopeful':\n",
-                    "                text = f\"I'm hopeful that things will get better. Sample {i+1}\"\n",
+" text = f\"I'm hopeful that things will get better. Sample {i+1}\"\n",
                     "            elif emotion == 'tired':\n",
-                    "                text = f\"I'm tired and need some rest. Sample {i+1}\"\n",
+" text = f\"I'm tired and need some rest. Sample {i+1}\"\n",
                     "            elif emotion == 'content':\n",
-                    "                text = f\"I'm content with how things are going. Sample {i+1}\"\n",
+" text = f\"I'm content with how things are going. Sample {i+1}\"\n",
                     "            elif emotion == 'overwhelmed':\n",
-                    "                text = f\"I'm feeling overwhelmed with all these tasks. Sample {i+1}\"\n",
+" text = f\"I'm feeling overwhelmed with all these tasks. Sample {i+1}\"\n",
                     "            \n",
                     "            expanded_data.append({\n",
                     "                'text': text,\n",
@@ -232,7 +253,8 @@ def create_final_bulletproof_notebook():
                     "            })\n",
                     "    \n",
                     "    print(f\"✅ Created {len(expanded_data)} expanded samples\")\n",
-                    "    print(f\"📊 Emotions: {list(set([item['emotion'] for item in expanded_data]))}\")"
+                    "    print(
+                               f\"📊 Emotions: {list(set([item['emotion'] for item in expanded_data]))}\")"
                 ]
             },
             {
@@ -258,8 +280,10 @@ def create_final_bulletproof_notebook():
                     "go_emotions = load_dataset('go_emotions', 'simplified')\n",
                     "\n",
                     "# Get emotion names\n",
-                    "emotion_names = go_emotions['train'].features['labels'].feature.names\n",
-                    "print(f\"✅ Loaded GoEmotions with {len(emotion_names)} emotions\")\n",
+"emotion_names = go_emotions['train'].features['labels'].feature.names\n",
+                    "print(
+                           f\"✅ Loaded GoEmotions with {len(emotion_names)} emotions\")\n",
+                           
                     "print(f\"📊 Total samples: {len(go_emotions['train'])}\")\n",
                     "\n",
                     "# Define emotion mapping (GoEmotions → Journal emotions)\n",
@@ -294,7 +318,8 @@ def create_final_bulletproof_notebook():
                     "    'neutral': 'calm'\n",
                     "}\n",
                     "\n",
-                    "print(f\"✅ Emotion mapping defined with {len(emotion_mapping)} mappings\")"
+                    "print(
+                           f\"✅ Emotion mapping defined with {len(emotion_mapping)} mappings\")"
                 ]
             },
             {
@@ -373,7 +398,13 @@ def create_final_bulletproof_notebook():
                     "tokenizer = AutoTokenizer.from_pretrained(model_name)\n",
                     "\n",
                     "class EmotionDataset(Dataset):\n",
-                    "    def __init__(self, texts, labels, tokenizer, max_length=128):\n",
+                    "    def __init__(
+                                      self,
+                                      texts,
+                                      labels,
+                                      tokenizer,
+                                      max_length=128):\n",
+                                      
                     "        self.texts = texts\n",
                     "        self.labels = labels\n",
                     "        self.tokenizer = tokenizer\n",
@@ -396,24 +427,43 @@ def create_final_bulletproof_notebook():
                     "        \n",
                     "        return {\n",
                     "            'input_ids': encoding['input_ids'].flatten(),\n",
-                    "            'attention_mask': encoding['attention_mask'].flatten(),\n",
+                    "            'attention_mask': encoding['attention_mask'].flatten(
+                                                                                      ),
+                                                                                      \n",
+                                                                                      
                     "            'labels': torch.tensor(label, dtype=torch.long)\n",
                     "        }\n",
                     "\n",
                     "# Split data\n",
-                    "train_texts, val_texts, train_labels, val_labels = train_test_split(\n",
+"train_texts, val_texts, train_labels, val_labels = train_test_split(\n",
                     "    df['text'].values, df['label'].values, \n",
                     "    test_size=0.2, random_state=42, stratify=df['label']\n",
                     ")\n",
                     "\n",
                     "# Create datasets\n",
-                    "train_dataset = EmotionDataset(train_texts, train_labels, tokenizer)\n",
+                    "train_dataset = EmotionDataset(
+                                                    train_texts,
+                                                    train_labels,
+                                                    tokenizer)\n",
+                                                    
                     "val_dataset = EmotionDataset(val_texts, val_labels, tokenizer)\n",
                     "\n",
                     "# Create data loaders with GPU optimizations\n",
                     "batch_size = 16\n",
-                    "train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2, pin_memory=True)\n",
-                    "val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=2, pin_memory=True)\n",
+                    "train_loader = DataLoader(
+                                               train_dataset,
+                                               batch_size=batch_size,
+                                               shuffle=True,
+                                               num_workers=2,
+                                               pin_memory=True)\n",
+                                               
+                    "val_loader = DataLoader(
+                                             val_dataset,
+                                             batch_size=batch_size,
+                                             shuffle=False,
+                                             num_workers=2,
+                                             pin_memory=True)\n",
+                                             
                     "\n",
                     "print(f\"✅ Created datasets:\")\n",
                     "print(f\"   Training: {len(train_dataset)} samples\")\n",
@@ -428,7 +478,8 @@ def create_final_bulletproof_notebook():
                 "source": [
                     "## **Step 6: Train Model with GPU Optimizations**\n",
                     "\n",
-                    "Train the model with all optimizations: mixed precision, early stopping, and learning rate scheduling."
+"Train the model with all optimizations: mixed precision, early stopping, and learning
+rate scheduling."
                 ]
             },
             {
@@ -445,15 +496,21 @@ def create_final_bulletproof_notebook():
                     "    print(\"🔧 Applying GPU optimizations...\")\n",
                     "    torch.backends.cudnn.benchmark = True\n",
                     "    torch.backends.cudnn.deterministic = False\n",
-                    "    print(f\"📊 GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB\")\n",
-                    "    print(f\"📊 Available Memory: {torch.cuda.memory_allocated(0) / 1e9:.1f} GB\")\n",
+                    "    print(
+                               f\"📊 GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB\")\n",
+                               
+                    "    print(
+                               f\"📊 Available Memory: {torch.cuda.memory_allocated(0) / 1e9:.1f} GB\")\n",
+                               
                     "\n",
                     "# Clear GPU cache\n",
                     "if torch.cuda.is_available():\n",
                     "    torch.cuda.empty_cache()\n",
                     "\n",
                     "# Initialize model\n",
-                    "device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')\n",
+                    "device = torch.device(
+                                           'cuda' if torch.cuda.is_available() else 'cpu')\n",
+                                           
                     "num_labels = len(label_encoder.classes_)\n",
                     "\n",
                     "model = AutoModelForSequenceClassification.from_pretrained(\n",
@@ -464,7 +521,11 @@ def create_final_bulletproof_notebook():
                     "model.to(device)\n",
                     "\n",
                     "# Training setup\n",
-                    "optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5, weight_decay=0.01)\n",
+                    "optimizer = torch.optim.AdamW(
+                                                   model.parameters(),
+                                                   lr=2e-5,
+                                                   weight_decay=0.01)\n",
+                                                   
                     "criterion = torch.nn.CrossEntropyLoss()\n",
                     "scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(\n",
                     "    optimizer, mode='max', factor=0.5, patience=2, verbose=True\n",
@@ -480,7 +541,9 @@ def create_final_bulletproof_notebook():
                     "patience_counter = 0\n",
                     "patience = 3\n",
                     "\n",
-                    "print(f\"🎯 Training for {num_epochs} epochs with early stopping (patience={patience})\")\n",
+                    "print(
+                           f\"🎯 Training for {num_epochs} epochs with early stopping (patience={patience})\")\n",
+                           
                     "print(f\"📊 Target F1 Score: 75-85%\")\n",
                     "\n",
                     "for epoch in range(num_epochs):\n",
@@ -491,14 +554,23 @@ def create_final_bulletproof_notebook():
                     "    train_total = 0\n",
                     "    \n",
                     "    for batch in train_loader:\n",
-                    "        input_ids = batch['input_ids'].to(device, non_blocking=True)\n",
-                    "        attention_mask = batch['attention_mask'].to(device, non_blocking=True)\n",
+                    "        input_ids = batch['input_ids'].to(
+                                                               device,
+                                                               non_blocking=True)\n",
+                                                               
+                    "        attention_mask = batch['attention_mask'].to(
+                                                                         device,
+                                                                         non_blocking=True)\n",
+                                                                         
                     "        labels = batch['labels'].to(device, non_blocking=True)\n",
                     "        \n",
                     "        optimizer.zero_grad()\n",
                     "        \n",
                     "        with autocast():\n",
-                    "            outputs = model(input_ids=input_ids, attention_mask=attention_mask)\n",
+                    "            outputs = model(
+                                                 input_ids=input_ids,
+                                                 attention_mask=attention_mask)\n",
+                                                 
                     "            loss = criterion(outputs.logits, labels)\n",
                     "        \n",
                     "        scaler.scale(loss).backward()\n",
@@ -518,11 +590,23 @@ def create_final_bulletproof_notebook():
                     "    \n",
                     "    with torch.no_grad():\n",
                     "        for batch in val_loader:\n",
-                    "            input_ids = batch['input_ids'].to(device, non_blocking=True)\n",
-                    "            attention_mask = batch['attention_mask'].to(device, non_blocking=True)\n",
-                    "            labels = batch['labels'].to(device, non_blocking=True)\n",
+                    "            input_ids = batch['input_ids'].to(
+                                                                   device,
+                                                                   non_blocking=True)\n",
+                                                                   
+                    "            attention_mask = batch['attention_mask'].to(
+                                                                             device,
+                                                                             non_blocking=True)\n",
+                                                                             
+                    "            labels = batch['labels'].to(
+                                                             device,
+                                                             non_blocking=True)\n",
+                                                             
                     "            \n",
-                    "            outputs = model(input_ids=input_ids, attention_mask=attention_mask)\n",
+                    "            outputs = model(
+                                                 input_ids=input_ids,
+                                                 attention_mask=attention_mask)\n",
+                                                 
                     "            loss = criterion(outputs.logits, labels)\n",
                     "            \n",
                     "            val_loss += loss.item()\n",
@@ -533,29 +617,49 @@ def create_final_bulletproof_notebook():
                     "    # Calculate metrics\n",
                     "    train_acc = train_correct / train_total\n",
                     "    val_acc = accuracy_score(all_labels, all_predictions)\n",
-                    "    f1_macro = f1_score(all_labels, all_predictions, average='macro')\n",
+                    "    f1_macro = f1_score(
+                                             all_labels,
+                                             all_predictions,
+                                             average='macro')\n",
+                                             
                     "    \n",
                     "    # Learning rate scheduling\n",
                     "    scheduler.step(f1_macro)\n",
                     "    \n",
                     "    print(f\"Epoch {epoch+1}/{num_epochs}:\")\n",
-                    "    print(f\"  Train Loss: {train_loss/len(train_loader):.4f}, Train Acc: {train_acc:.4f}\")\n",
-                    "    print(f\"  Val Loss: {val_loss/len(val_loader):.4f}, Val Acc: {val_acc:.4f}, F1: {f1_macro:.4f}\")\n",
+                    "    print(
+                               f\"  Train Loss: {train_loss/len(train_loader):.4f},
+                               Train Acc: {train_acc:.4f}\")\n",
+                               
+                    "    print(
+                               f\"  Val Loss: {val_loss/len(val_loader):.4f},
+                               Val Acc: {val_acc:.4f},
+                               F1: {f1_macro:.4f}\")\n",
+                               
                     "    \n",
                     "    # Early stopping check\n",
                     "    if f1_macro > best_f1:\n",
                     "        best_f1 = f1_macro\n",
                     "        patience_counter = 0\n",
                     "        # Save best model\n",
-                    "        torch.save(model.state_dict(), 'best_emotion_model.pth')\n",
-                    "        print(f\"  🎉 New best F1: {best_f1:.4f} - Model saved!\")\n",
+                    "        torch.save(
+                                        model.state_dict(),
+                                        'best_emotion_model.pth')\n",
+                                        
+                    "        print(
+                                   f\"  🎉 New best F1: {best_f1:.4f} - Model saved!\")\n",
+                                   
                     "    else:\n",
                     "        patience_counter += 1\n",
-                    "        print(f\"  ⏳ No improvement for {patience_counter} epochs\")\n",
+                    "        print(
+                                   f\"  ⏳ No improvement for {patience_counter} epochs\")\n",
+                                   
                     "    \n",
                     "    # Early stopping\n",
                     "    if patience_counter >= patience:\n",
-                    "        print(f\"🛑 Early stopping triggered after {epoch+1} epochs\")\n",
+                    "        print(
+                                   f\"🛑 Early stopping triggered after {epoch+1} epochs\")\n",
+                                   
                     "        break\n",
                     "    \n",
                     "    # Clear GPU cache periodically\n",
@@ -564,7 +668,8 @@ def create_final_bulletproof_notebook():
                     "\n",
                     "print(f\"\\n🎉 Training completed!\")\n",
                     "print(f\"🏆 Best F1 Score: {best_f1:.4f} ({best_f1*100:.1f}%)\")\n",
-                    "print(f\"🎯 Target achieved: {'✅ YES!' if best_f1 >= 0.75 else '❌ Not yet'}\")"
+                    "print(
+                           f\"🎯 Target achieved: {'✅ YES!' if best_f1 >= 0.75 else '❌ Not yet'}\")"
                 ]
             },
             {
@@ -591,8 +696,8 @@ def create_final_bulletproof_notebook():
                     "\n",
                     "# Test samples\n",
                     "test_samples = [\n",
-                    "    \"I'm feeling really happy today! Everything is going well.\",\n",
-                    "    \"I'm so frustrated with this project. Nothing is working.\",\n",
+" \"I'm feeling really happy today! Everything is going well.\",\n",
+" \"I'm so frustrated with this project. Nothing is working.\",\n",
                     "    \"I feel anxious about the upcoming presentation.\",\n",
                     "    \"I'm grateful for all the support I've received.\",\n",
                     "    \"I'm feeling overwhelmed with all these tasks.\",\n",
@@ -609,27 +714,51 @@ def create_final_bulletproof_notebook():
                     "print(\"=\" * 80)\n",
                     "\n",
                     "correct_predictions = 0\n",
-                    "expected_emotions = ['happy', 'frustrated', 'anxious', 'grateful', 'overwhelmed', \n",
-                    "                    'proud', 'sad', 'excited', 'calm', 'hopeful', 'tired', 'content']\n",
+"expected_emotions = ['happy', 'frustrated', 'anxious', 'grateful', 'overwhelmed', \n",
+" 'proud', 'sad', 'excited', 'calm', 'hopeful', 'tired', 'content']\n",
                     "\n",
-                    "for i, (text, expected) in enumerate(zip(test_samples, expected_emotions), 1):\n",
+                    "for i, (
+                             text,
+                             expected) in enumerate(zip(test_samples,
+                             expected_emotions),
+                             1):\n",
+                             
                     "    # Tokenize\n",
-                    "    inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=128)\n",
+                    "    inputs = tokenizer(
+                                            text,
+                                            return_tensors='pt',
+                                            truncation=True,
+                                            padding=True,
+                                            max_length=128)\n",
+                                            
                     "    input_ids = inputs['input_ids'].to(device)\n",
                     "    attention_mask = inputs['attention_mask'].to(device)\n",
                     "    \n",
                     "    # Predict\n",
                     "    with torch.no_grad():\n",
-                    "        outputs = model(input_ids=input_ids, attention_mask=attention_mask)\n",
+                    "        outputs = model(
+                                             input_ids=input_ids,
+                                             attention_mask=attention_mask)\n",
+                                             
                     "        probabilities = torch.softmax(outputs.logits, dim=1)\n",
-                    "        predicted_idx = torch.argmax(probabilities, dim=1).item()\n",
+                    "        predicted_idx = torch.argmax(
+                                                          probabilities,
+                                                          dim=1).item()\n",
+                                                          
                     "        confidence = probabilities[0][predicted_idx].item()\n",
-                    "        predicted_emotion = label_encoder.inverse_transform([predicted_idx])[0]\n",
+                    "        predicted_emotion = label_encoder.inverse_transform(
+                                                                                 [predicted_idx])[0]\n",
+                                                                                 
                     "    \n",
                     "    # Get top 3 predictions\n",
                     "    top_3_indices = torch.topk(probabilities[0], 3).indices\n",
-                    "    top_3_emotions = label_encoder.inverse_transform(top_3_indices.cpu().numpy())\n",
-                    "    top_3_probs = torch.topk(probabilities[0], 3).values.cpu().numpy()\n",
+                    "    top_3_emotions = label_encoder.inverse_transform(
+                                                                          top_3_indices.cpu().numpy())\n",
+                                                                          
+                    "    top_3_probs = torch.topk(
+                                                  probabilities[0],
+                                                  3).values.cpu().numpy()\n",
+                                                  
                     "    \n",
                     "    # Check if correct\n",
                     "    is_correct = predicted_emotion == expected\n",
@@ -637,7 +766,9 @@ def create_final_bulletproof_notebook():
                     "        correct_predictions += 1\n",
                     "    \n",
                     "    print(f\"{i}. Text: {text}\")\n",
-                    "    print(f\"   Predicted: {predicted_emotion} (confidence: {confidence:.3f})\")\n",
+                    "    print(
+                               f\"   Predicted: {predicted_emotion} (confidence: {confidence:.3f})\")\n",
+                               
                     "    print(f\"   Expected: {expected}\")\n",
                     "    print(f\"   {'✅ CORRECT' if is_correct else '❌ WRONG'}\")\n",
                     "    print(f\"   Top 3 predictions:\")\n",
@@ -647,16 +778,29 @@ def create_final_bulletproof_notebook():
                     "\n",
                     "accuracy = correct_predictions / len(test_samples)\n",
                     "print(f\"\\n📈 Final Results:\")\n",
-                    "print(f\"   Test Accuracy: {accuracy:.2%} ({correct_predictions}/{len(test_samples)})\")\n",
-                    "print(f\"   Best F1 Score: {best_f1:.4f} ({best_f1*100:.1f}%)\")\n",
-                    "print(f\"   Target Achieved: {'✅ YES!' if best_f1 >= 0.75 else '❌ Not yet'}\")\n",
+                    "print(
+                           f\"   Test Accuracy: {accuracy:.2%} ({correct_predictions}/{len(test_samples)})\")\n",
+                           
+                    "print(
+                           f\"   Best F1 Score: {best_f1:.4f} ({best_f1*100:.1f}%)\")\n",
+                           
+                    "print(
+                           f\"   Target Achieved: {'✅ YES!' if best_f1 >= 0.75 else '❌ Not yet'}\")\n",
+                           
                     "\n",
                     "if best_f1 >= 0.75:\n",
-                    "    print(f\"\\n🎉 SUCCESS! Model achieved {best_f1*100:.1f}% F1 score!\")\n",
+                    "    print(
+                               f\"\\n🎉 SUCCESS! Model achieved {best_f1*100:.1f}% F1 score!\")\n",
+                               
                     "    print(f\"🚀 Ready for production deployment!\")\n",
                     "else:\n",
-                    "    print(f\"\\n📈 Good progress! Current F1: {best_f1*100:.1f}%\")\n",
-                    "    print(f\"💡 Consider: more data, hyperparameter tuning, or different model architecture\")"
+                    "    print(
+                               f\"\\n📈 Good progress! Current F1: {best_f1*100:.1f}%\")\n",
+                               
+                    "    print(
+                               f\"💡 Consider: more data,
+                               hyperparameter tuning,
+                               or different model architecture\")"
                 ]
             },
             {
@@ -670,7 +814,7 @@ def create_final_bulletproof_notebook():
                     "2. ✅ **Fixed path issues** - Handles nested directories\n",
                     "3. ✅ **Fixed dataset loading** - Creates dataset if missing\n",
                     "4. ✅ **Expanded dataset** - 996 samples for better performance\n",
-                    "5. ✅ **GPU optimizations** - Mixed precision, early stopping, LR scheduling\n",
+"5. ✅ **GPU optimizations** - Mixed precision, early stopping, LR scheduling\n",
                     "6. ✅ **Achieved target F1 score** - 75-85% expected\n",
                     "\n",
                     "### **Key Fixes Applied:**\n",

@@ -6,7 +6,9 @@ from typing import Optional
 
 from . import discovery
 from .prepare import prepare_model_for_upload
-from .upload import setup_huggingface_auth, choose_repository_privacy, setup_git_lfs, resolve_repo_id, upload_to_huggingface
+from 
+    
+    .upload import setup_huggingface_auth, choose_repository_privacy, setup_git_lfs, resolve_repo_id, upload_to_huggingface
 from .config_update import update_deployment_config
 
 
@@ -22,19 +24,55 @@ def configure_logging(verbosity: int) -> None:
 def parse_args(argv: Optional[list] = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Upload a custom model to HuggingFace Hub")
     p.add_argument('--model-path', help='Path to trained model (.pth or HF dir)')
-    p.add_argument('--base-model', help='Base model to reconstruct HF weights (if checkpoint)')
+    p.add_argument(
+                   '--base-model',
+                   help='Base model to reconstruct HF weights (if checkpoint)'
+                  )
     p.add_argument('--repo-id', help='Target repo id (username/model)')
-    p.add_argument('--repo-name', help='Target repo name (defaults to samo-dl-emotion-model)')
-    p.add_argument('--private', dest='private', action='store_true', help='Force private repository')
-    p.add_argument('--public', dest='private', action='store_false', help='Force public repository')
+    p.add_argument(
+                   '--repo-name',
+                   help='Target repo name (defaults to samo-dl-emotion-model)'
+                  )
+    p.add_argument(
+                   '--private',
+                   dest='private',
+                   action='store_true',
+                   help='Force private repository'
+                  )
+    p.add_argument(
+                   '--public',
+                   dest='private',
+                   action='store_false',
+                   help='Force public repository'
+                  )
     p.set_defaults(private=None)
-    p.add_argument('--allow-missing-files', action='store_true', help='Allow upload when critical files are missing')
-    p.add_argument('--temp-dir', default='./temp_model_upload', help='Temporary working directory')
+    p.add_argument(
+                   '--allow-missing-files',
+                   action='store_true',
+                   help='Allow upload when critical files are missing'
+                  )
+    p.add_argument(
+                   '--temp-dir',
+                   default='./temp_model_upload',
+                   help='Temporary working directory'
+                  )
     p.add_argument('--no-lfs', action='store_true', help='Skip Git LFS setup')
     p.add_argument('--retries', type=int, default=5, help='Max upload retries')
     p.add_argument('--backoff', type=int, default=2, help='Exponential backoff factor')
-    p.add_argument('--initial-delay', type=int, default=2, help='Initial backoff delay (seconds)')
-    p.add_argument('-v', '--verbose', action='count', default=1, help='Increase verbosity (-v, -vv)')
+    p.add_argument(
+                   '--initial-delay',
+                   type=int,
+                   default=2,
+                   help='Initial backoff delay (seconds)'
+                  )
+    p.add_argument(
+                   '-v',
+                   '--verbose',
+                   action='count',
+                   default=1,
+                   help='Increase verbosity (-v,
+                   -vv)'
+                  )
     return p.parse_args(argv)
 
 
@@ -45,7 +83,9 @@ def main(argv: Optional[list] = None) -> int:
     # Step 1: Find or use provided model path
     model_path = args.model_path or discovery.find_best_trained_model()
     if not model_path:
-        logging.error("No model found. Provide --model-path or place model in the expected directory.")
+        logging.error(
+                      "No model found. Provide --model-path or place model in the expected directory."
+                     )
         return 1
 
     # Step 2: HuggingFace auth
@@ -61,7 +101,12 @@ def main(argv: Optional[list] = None) -> int:
             model_path=model_path,
             temp_dir=temp_dir,
             templates_dir=templates_dir,
-            allow_missing=args.allow_missing_files or os.getenv('ALLOW_UPLOAD_WITH_MISSING_FILES', '').lower() in ('1', 'true', 'yes'),
+            allow_missing=args.allow_missing_files or os.getenv(
+                                                                'ALLOW_UPLOAD_WITH_MISSING_FILES',
+                                                                '').lower() in ('1',
+                                                                'true',
+                                                                'yes'),
+                                                                
             base_model_override=args.base_model,
             repo_id=repo_id_resolved,
         )
@@ -73,7 +118,8 @@ def main(argv: Optional[list] = None) -> int:
     if not args.no_lfs:
         setup_git_lfs()
     is_private = choose_repository_privacy(args.private)
-    commit_message = f"Upload custom emotion detection model - {model_info['num_labels']} classes"
+commit_message = f"Upload custom emotion detection model - {model_info['num_labels']}
+classes"
     repo_id_uploaded = upload_to_huggingface(
         temp_dir=temp_dir,
         repo_id=repo_id_resolved,

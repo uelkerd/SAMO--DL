@@ -76,15 +76,20 @@ def test_direct_evaluation():
 
         logger.info("📊 Model output type: {type(model_output)}")
 
-        logits = model_output["logits"] if isinstance(model_output, dict) else model_output
+        logits = model_output["logits"] if isinstance(
+                                                      model_output,
+                                                      dict) else model_output
 
         logger.info("📊 Logits shape: {logits.shape}")
-        logger.info("📊 Logits min/max: {logits.min().item():.4f}/{logits.max().item():.4f}")
+        logger.info(
+                    "📊 Logits min/max: {logits.min().item():.4f}/{logits.max().item():.4f}"
+                   )
 
         probabilities = torch.sigmoid(logits)
         logger.info("📊 Probabilities shape: {probabilities.shape}")
         logger.info(
-            "📊 Probabilities min/max/mean: {probabilities.min().item():.4f}/{probabilities.max().item():.4f}/{probabilities.mean().item():.4f}"
+            "📊 Probabilities min/max/mean: {probabilities.min(
+                                                              ).item():.4f}/{probabilities.max().item():.4f}/{probabilities.mean().item():.4f}"
         )
 
         threshold = 0.2
@@ -94,7 +99,8 @@ def test_direct_evaluation():
         probabilities.numel()
 
         logger.info(
-            "📊 Expected predictions: {expected_predictions}/{total_positions} ({100*expected_predictions/total_positions:.1f}%)"
+            "📊 Expected predictions: {expected_predictions}/{total_positions} (
+                                                                               {100*expected_predictions/total_positions:.1f}%)"
         )
 
         predictions = (probabilities >= threshold).float()
@@ -103,7 +109,8 @@ def test_direct_evaluation():
         logger.info("  - Sum: {predictions.sum().item()}")
         logger.info("  - Mean: {predictions.mean().item():.4f}")
         logger.info(
-            "  - Match expected: {'✅' if predictions.sum().item() == expected_predictions else '❌'}"
+            "  - Match expected: {'✅' if predictions.sum(
+                                                         ).item() == expected_predictions else '❌'}"
         )
 
         predictions.shape[0]
@@ -113,7 +120,7 @@ def test_direct_evaluation():
         logger.info("  - Total samples: {samples_per_batch}")
         logger.info("  - Samples with zero predictions: {samples_with_zero}")
         logger.info(
-            "  - Percentage needing fallback: {100*samples_with_zero/samples_per_batch:.1f}%"
+" - Percentage needing fallback: {100*samples_with_zero/samples_per_batch:.1f}%"
         )
 
         if samples_with_zero > 0:
@@ -133,7 +140,8 @@ def test_direct_evaluation():
             logger.info("  - Final sum: {predictions_with_fallback.sum().item()}")
             logger.info("  - Final mean: {predictions_with_fallback.mean().item():.4f}")
             logger.info(
-                "  - Samples with zero: {(predictions_with_fallback.sum(dim=1) == 0).sum().item()}"
+                "  - Samples with zero: {(
+                                          predictions_with_fallback.sum(dim=1) == 0).sum().item()}"
             )
 
             predictions = predictions_with_fallback

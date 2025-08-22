@@ -32,8 +32,17 @@ from docs_blueprint import docs_bp
 app.register_blueprint(docs_bp)
 
 # Prometheus metrics
-REQUEST_COUNT = Counter('emotion_api_requests_total', 'Total requests', ['endpoint', 'status'])
-REQUEST_DURATION = Histogram('emotion_api_request_duration_seconds', 'Request duration', ['endpoint'])
+REQUEST_COUNT = Counter(
+                        'emotion_api_requests_total',
+                        'Total requests',
+                        ['endpoint',
+                        'status']
+                       )
+REQUEST_DURATION = Histogram(
+                             'emotion_api_request_duration_seconds',
+                             'Request duration',
+                             ['endpoint']
+                            )
 MODEL_LOAD_TIME = Histogram('emotion_model_load_time_seconds', 'Model load time')
 
 
@@ -53,7 +62,9 @@ def health_check():
     try:
         # Check model status using shared utilities
         model_status_info = get_model_status()
-        model_status = "ready" if model_status_info.get('model_loaded', False) else "loading"
+        model_status = "ready" if model_status_info.get(
+                                                        'model_loaded',
+                                                        False) else "loading"
 
         # System metrics
         cpu_percent = psutil.cpu_percent()
@@ -99,7 +110,9 @@ def predict():
 
         if len(text) > MAX_TEXT_LENGTH:
             REQUEST_COUNT.labels(endpoint='/predict', status='error').inc()
-            return jsonify({'error': f'Text too long (max {MAX_TEXT_LENGTH} characters)'}), 400
+            return jsonify(
+                           {'error': f'Text too long (max {MAX_TEXT_LENGTH} characters)'}),
+                           400
 
         # Ensure model is loaded
         initialize_model()

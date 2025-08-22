@@ -135,7 +135,11 @@ class MonitoringDashboard:
             logger.error(f"Failed to update system metrics: {exc}")
             return None
 
-    def record_model_request(self, model_name: str, success: bool, response_time_ms: float):
+    def record_model_request(
+                             self,
+                             model_name: str,
+                             success: bool,
+                             response_time_ms: float):
         """Record a model request for metrics tracking."""
         metrics = self.model_metrics[model_name]
         metrics.model_name = model_name
@@ -152,7 +156,9 @@ class MonitoringDashboard:
             metrics.average_response_time_ms = response_time_ms
         else:
             metrics.average_response_time_ms = (
-                (metrics.average_response_time_ms * (metrics.total_requests - 1) + response_time_ms)
+                (
+                 metrics.average_response_time_ms * (metrics.total_requests - 1) + response_time_ms
+                )
                 / metrics.total_requests
             )
 
@@ -185,11 +191,14 @@ class MonitoringDashboard:
 
         # Calculate average response time
         if self.response_times:
-            self.api_metrics.average_response_time_ms = sum(self.response_times) / len(self.response_times)
+            self.api_metrics.average_response_time_ms = sum(
+                                                            self.response_times) / len(self.response_times
+                                                           )
 
         # Calculate error rate
         if self.api_metrics.total_requests > 0:
-            self.api_metrics.error_rate = self.total_errors / self.api_metrics.total_requests
+self.api_metrics.error_rate =
+    self.total_errors / self.api_metrics.total_requests
 
         # Update uptime
         self.api_metrics.uptime_seconds = current_time - self.start_time
@@ -208,7 +217,9 @@ class MonitoringDashboard:
         self._update_api_metrics()
 
         # Prepare model metrics
-        model_metrics_dict = {model_name: asdict(metrics) for model_name, metrics in self.model_metrics.items()}
+        model_metrics_dict = {model_name: asdict(
+                                                 metrics) for model_name,
+                                                 metrics in self.model_metrics.items()}
 
         # Calculate trends
         trends = self._calculate_trends()
@@ -257,7 +268,7 @@ class MonitoringDashboard:
         return {
             "cpu_trend": cpu_trend,
             "memory_trend": memory_trend,
-            "response_time_trend": "stable"  # Could be enhanced with more sophisticated analysis
+"response_time_trend": "stable" # Could be enhanced with more sophisticated analysis
         }
 
     def _calculate_health_status(self) -> str:
@@ -309,7 +320,7 @@ class MonitoringDashboard:
         if current_metrics.disk_percent > CRITICAL_DISK_THRESHOLD:
             alerts.append({
                 "level": "critical",
-                "message": f"Low disk space: {100 - current_metrics.disk_percent:.1f}% free",
+"message": f"Low disk space: {100 - current_metrics.disk_percent:.1f}% free",
                 "timestamp": current_metrics.timestamp
             })
 
@@ -326,7 +337,7 @@ class MonitoringDashboard:
             if metrics.error_count > MODEL_ERROR_COUNT_THRESHOLD:
                 alerts.append({
                     "level": "warning",
-                    "message": f"High error count for {model_name}: {metrics.error_count} errors",
+"message": f"High error count for {model_name}: {metrics.error_count} errors",
                     "timestamp": time.time()
                 })
 

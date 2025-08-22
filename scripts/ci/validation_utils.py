@@ -27,7 +27,11 @@ def validate_metric_ranges(metrics: dict[str, Any], fields: Iterable[str]) -> No
             raise ValueError(f"{pretty} should be between 0 and 1")
 
 
-def validate_required_keys(obj: dict[str, Any], keys: Iterable[str], label: str = "object") -> None:
+def validate_required_keys(
+                           obj: dict[str,
+                           Any],
+                           keys: Iterable[str],
+                           label: str = "object") -> None:
     """Validate that all keys exist in obj.
 
     Raises:
@@ -39,7 +43,10 @@ def validate_required_keys(obj: dict[str, Any], keys: Iterable[str], label: str 
             raise KeyError(f"{label} should have {pretty}")
 
 
-def validate_hasattrs(instance: Any, attrs: Iterable[str], label: str = "object") -> None:
+def validate_hasattrs(
+                      instance: Any,
+                      attrs: Iterable[str],
+                      label: str = "object") -> None:
     """Validate that instance has all attributes in attrs.
 
     Raises:

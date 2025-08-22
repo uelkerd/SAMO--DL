@@ -42,7 +42,12 @@ def _post_with_retries(payload: dict) -> requests.Response:
     last_exc = None
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            r = requests.post(API_URL, headers=HEADERS, data=json.dumps(payload), timeout=60)
+            r = requests.post(
+                              API_URL,
+                              headers=HEADERS,
+                              data=json.dumps(payload),
+                              timeout=60
+                             )
         except Exception as e:
             last_exc = e
             r = None
@@ -74,7 +79,8 @@ def main() -> int:
             print("Raw:", r.text)
             obj = None
 
-        # Status expectations: 200 is success. 503 acceptable only during warm-up (we retried above).
+        # Status expectations: 200 is success. 503 acceptable only during warm-up (
+                                                                                   we retried above).
         if r.status_code != 200:
             print(f"❌ Unexpected status: {r.status_code}; body={obj}")
             all_ok = False

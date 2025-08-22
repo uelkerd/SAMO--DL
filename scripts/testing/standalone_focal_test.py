@@ -24,14 +24,18 @@ import torch.nn.functional as F
 """
 Standalone Focal Loss Test
 
-This script tests focal loss implementation without depending on the src module structure.
+This script tests focal loss implementation without depending on the src module structure
+    .
 It will download and use the GoEmotions dataset directly.
 
 Usage:
     python3 standalone_focal_test.py
 """
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+                    level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s"
+                   )
 logger = logging.getLogger(__name__)
 
 

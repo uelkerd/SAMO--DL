@@ -38,7 +38,8 @@ with optimal settings for performance and memory efficiency.
 
 Usage:
     python scripts/setup_gpu_training.py --check
-    python scripts/setup_gpu_training.py --resume-training --checkpoint ./test_checkpoints/best_model.pt
+    python scripts/setup_gpu_training
+    .py --resume-training --checkpoint ./test_checkpoints/best_model.pt
 """
 
 logging.basicConfig(level=logging.INFO)
@@ -62,7 +63,8 @@ def check_gpu_availability() -> bool:
     if not torch.cuda.is_available():
         logger.error("❌ CUDA not available. Install PyTorch with CUDA support:")
         print(
-            "   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118"
+" pip install torch torchvision torchaudio --index-url
+https://download.pytorch.org/whl/cu118"
         )
         return False
 
@@ -77,7 +79,9 @@ def check_gpu_availability() -> bool:
     if memory_total >= 12:  # 12GB+ GPU
         logging.info("   • Use batch_size=32 (you have {memory_total:.1f}GB memory)")
         logging.info("   • Enable mixed precision training (fp16)")
-        logging.info("   • Consider gradient accumulation for larger effective batch sizes")
+        logging.info(
+                     "   • Consider gradient accumulation for larger effective batch sizes"
+                    )
     elif memory_total >= 8:  # 8-12GB GPU
         logging.info("   • Use batch_size=16-24 (you have {memory_total:.1f}GB memory)")
         logging.info("   • Enable mixed precision training (fp16)")
@@ -169,7 +173,9 @@ trainer = EmotionDetectionTrainer(
 )
 
 logging.info("Resuming training on GPU from checkpoint...")
-logging.info("Note: You may need to manually implement checkpoint loading in the trainer")
+logging.info(
+             "Note: You may need to manually implement checkpoint loading in the trainer"
+            )
 logging.info("Checkpoint path: {checkpoint_path}")
 
 results = trainer.train()
@@ -191,8 +197,16 @@ logging.info("Best validation score: {{results['best_validation_score']:.4f}}")
 def main() -> None:
     parser = argparse.ArgumentParser(description="SAMO GPU Training Setup")
     parser.add_argument("--check", action="store_true", help="Check GPU availability")
-    parser.add_argument("--create-config", action="store_true", help="Create GPU training config")
-    parser.add_argument("--resume-training", action="store_true", help="Resume training on GPU")
+    parser.add_argument(
+                        "--create-config",
+                        action="store_true",
+                        help="Create GPU training config"
+                       )
+    parser.add_argument(
+                        "--resume-training",
+                        action="store_true",
+                        help="Resume training on GPU"
+                       )
     parser.add_argument("--checkpoint", type=str, help="Checkpoint path for resuming")
 
     args = parser.parse_args()

@@ -14,11 +14,13 @@ def test_permission_override_header_active_under_pytest(monkeypatch):
     # login to get token
     login_data = {"username": "testuser@example.com", "password": "testpassword123"}
     login_resp = client.post("/auth/login", json=login_data)
-    assert login_resp.status_code == 200, f"Login failed: {login_resp.status_code} {login_resp.text}"
+assert login_resp.status_code == 200, f"Login failed: {login_resp.status_code}
+{login_resp.text}"
     access = login_resp.json().get("access_token")
     assert access and isinstance(access, str), "Missing access_token in login response"
 
-    # Call an endpoint that checks permissions: batch transcription requires 'batch_processing'
+# Call an endpoint that checks permissions: batch transcription requires
+'batch_processing'
     headers = {
         "Authorization": f"Bearer {access}",
         "X-User-Permissions": "batch_processing",

@@ -33,7 +33,14 @@ def check_prerequisites():
     
     # Check if user is authenticated
     try:
-        result = subprocess.run(['gcloud', 'auth', 'list', '--filter=status:ACTIVE'], capture_output=True, text=True)
+        result = subprocess.run(
+                                ['gcloud',
+                                'auth',
+                                'list',
+                                '--filter=status:ACTIVE'],
+                                capture_output=True,
+                                text=True
+                               )
         if result.returncode == 0 and 'ACTIVE' in result.stdout:
             print("✅ User is authenticated with gcloud")
         else:
@@ -46,7 +53,14 @@ def check_prerequisites():
     
     # Check if project is set
     try:
-        result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], capture_output=True, text=True)
+        result = subprocess.run(
+                                ['gcloud',
+                                'config',
+                                'get-value',
+                                'project'],
+                                capture_output=True,
+                                text=True
+                               )
         if result.returncode == 0 and result.stdout.strip():
             project_id = result.stdout.strip()
             print(f"✅ Project is set: {project_id}")
@@ -60,7 +74,15 @@ def check_prerequisites():
     
     # Check if Vertex AI API is enabled
     try:
-        result = subprocess.run(['gcloud', 'services', 'list', '--enabled', '--filter=name:aiplatform.googleapis.com'], capture_output=True, text=True)
+        result = subprocess.run(
+                                ['gcloud',
+                                'services',
+                                'list',
+                                '--enabled',
+                                '--filter=name:aiplatform.googleapis.com'],
+                                capture_output=True,
+                                text=True
+                               )
         if result.returncode == 0 and 'aiplatform.googleapis.com' in result.stdout:
             print("✅ Vertex AI API is enabled")
         else:
@@ -86,7 +108,7 @@ def prepare_model_for_deployment():
         return False
     
     # Check model files
-    required_files = ['config.json', 'model.safetensors', 'tokenizer.json', 'vocab.json']
+required_files = ['config.json', 'model.safetensors', 'tokenizer.json', 'vocab.json']
     missing_files = []
     
     for file in required_files:
@@ -105,7 +127,11 @@ def prepare_model_for_deployment():
         with open(metadata_path, 'r') as f:
             metadata = json.load(f)
         print(f"✅ Model metadata: {metadata.get('version', 'Unknown')}")
-        print(f"   Performance: {metadata.get('performance', {}).get('test_accuracy', 'Unknown')}")
+        print(
+              f"   Performance: {metadata.get('performance',
+              {}).get('test_accuracy',
+              'Unknown')}"
+             )
     else:
         print("⚠️ No model metadata found")
     
@@ -157,12 +183,19 @@ class EmotionDetectionModel:
         if torch.cuda.is_available():
             self.model = self.model.to('cuda')
         
-        self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
         
     def predict(self, text):
         """Make a prediction."""
         # Tokenize input
-        inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
+        inputs = self.tokenizer(
+                                text,
+                                return_tensors='pt',
+                                truncation=True,
+                                padding=True,
+                                max_length=512
+                               )
         
         if torch.cuda.is_available():
             inputs = {k: v.to('cuda') for k, v in inputs.items()}
@@ -278,7 +311,8 @@ CMD ["python", "predict.py"]
         'model_info': {
             'name': 'comprehensive_emotion_detection',
             'version': '2.0',
-            'description': 'Comprehensive emotion detection model with focal loss, class weighting, and advanced data augmentation',
+'description': 'Comprehensive emotion detection model with focal loss, class weighting,
+and advanced data augmentation',
             'performance': {
                 'basic_accuracy': '100.00%',
                 'real_world_accuracy': '93.75%',
@@ -305,7 +339,14 @@ def deploy_to_vertex_ai(deployment_dir):
     print("=" * 50)
     
     # Get project ID
-    result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], capture_output=True, text=True)
+    result = subprocess.run(
+                            ['gcloud',
+                            'config',
+                            'get-value',
+                            'project'],
+                            capture_output=True,
+                            text=True
+                           )
     project_id = result.stdout.strip()
     
     # Set region
@@ -477,7 +518,9 @@ def main():
     
     print("\n🎉 DEPLOYMENT SUCCESSFUL!")
     print("=" * 60)
-    print("Your comprehensive emotion detection model is now deployed on GCP/Vertex AI!")
+    print(
+          "Your comprehensive emotion detection model is now deployed on GCP/Vertex AI!"
+         )
     print("You can now make predictions using the Vertex AI endpoint.")
     
     return True

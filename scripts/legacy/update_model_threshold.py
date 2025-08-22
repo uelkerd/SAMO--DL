@@ -39,7 +39,8 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_THRESHOLD = 0.6
 DEFAULT_TEMPERATURE = 1.0
-MODEL_PATHS = ["models/checkpoints/bert_emotion_classifier.pth", "test_checkpoints/best_model.pt"]
+MODEL_PATHS = ["models/checkpoints/bert_emotion_classifier.pth",
+"test_checkpoints/best_model.pt"]
 
 
 def update_threshold(threshold: float = DEFAULT_THRESHOLD):
@@ -81,7 +82,7 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
             return False
 
         logger.info(
-            "Updating prediction threshold from {model.prediction_threshold} to {threshold}"
+"Updating prediction threshold from {model.prediction_threshold} to {threshold}"
         )
         model.prediction_threshold = threshold
 

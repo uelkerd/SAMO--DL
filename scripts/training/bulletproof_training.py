@@ -18,7 +18,10 @@ from transformers import AutoModel, AutoTokenizer
 import logging
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+                    level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s'
+                   )
 logger = logging.getLogger(__name__)
 
 def validate_environment():
@@ -33,7 +36,9 @@ def validate_environment():
     # Check CUDA
     if torch.cuda.is_available():
         logger.info(f"✅ CUDA available: {torch.cuda.get_device_name()}")
-        logger.info(f"✅ CUDA memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
+        logger.info(
+                    f"✅ CUDA memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
+                   )
     else:
         logger.warning("⚠️ CUDA not available, using CPU")
     
@@ -152,7 +157,8 @@ def prepare_filtered_data(label_encoder, label_to_id):
         logger.error(f"❌ GoEmotions labels out of range!")
         return None, None, None, None
     
-    if journal_label_range[0] < expected_range[0] or journal_label_range[1] > expected_range[1]:
+if journal_label_range[0] < expected_range[0] or journal_label_range[1] >
+expected_range[1]:
         logger.error(f"❌ Journal labels out of range!")
         return None, None, None, None
     
@@ -169,7 +175,9 @@ class SimpleEmotionDataset(Dataset):
         
         # Validate data
         if len(texts) != len(labels):
-            raise ValueError(f"Texts and labels have different lengths: {len(texts)} vs {len(labels)}")
+            raise ValueError(
+                             f"Texts and labels have different lengths: {len(texts)} vs {len(labels)}"
+                            )
         
         # Validate labels
         for i, label in enumerate(labels):
@@ -225,7 +233,10 @@ class SimpleEmotionClassifier(nn.Module):
             raise ValueError(f"Expected input_ids to be 2D, got {input_ids.dim()}D")
         
         if attention_mask.dim() != 2:
-            raise ValueError(f"Expected attention_mask to be 2D, got {attention_mask.dim()}D")
+            raise ValueError(
+                             f"Expected attention_mask to be 2D,
+                             got {attention_mask.dim()}D"
+                            )
         
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
         pooled_output = outputs.pooler_output
@@ -233,7 +244,10 @@ class SimpleEmotionClassifier(nn.Module):
         
         # Validate outputs
         if logits.shape[-1] != self.num_labels:
-            raise ValueError(f"Expected {self.num_labels} output classes, got {logits.shape[-1]}")
+            raise ValueError(
+                             f"Expected {self.num_labels} output classes,
+                             got {logits.shape[-1]}"
+                            )
         
         return logits
 
@@ -247,7 +261,10 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
     
     # Initialize tokenizer and model
     tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
-    model = SimpleEmotionClassifier(model_name="bert-base-uncased", num_labels=num_labels)
+    model = SimpleEmotionClassifier(
+                                    model_name="bert-base-uncased",
+                                    num_labels=num_labels
+                                   )
     model = model.to(device)
     
     # Create datasets
@@ -255,19 +272,31 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
     journal_dataset = SimpleEmotionDataset(journal_texts, journal_labels, tokenizer)
     
     # Split journal data
-    journal_train_texts, journal_val_texts, journal_train_labels, journal_val_labels = train_test_split(
-        journal_texts, journal_labels, test_size=0.3, random_state=42, stratify=journal_labels
+journal_train_texts, journal_val_texts, journal_train_labels, journal_val_labels =
+    train_test_split(
+journal_texts, journal_labels, test_size =
+    0.3, random_state=42, stratify=journal_labels
     )
     
-    journal_train_dataset = SimpleEmotionDataset(journal_train_texts, journal_train_labels, tokenizer)
-    journal_val_dataset = SimpleEmotionDataset(journal_val_texts, journal_val_labels, tokenizer)
+    journal_train_dataset = SimpleEmotionDataset(
+                                                 journal_train_texts,
+                                                 journal_train_labels,
+                                                 tokenizer
+                                                )
+    journal_val_dataset = SimpleEmotionDataset(
+                                               journal_val_texts,
+                                               journal_val_labels,
+                                               tokenizer
+                                              )
     
     # Create dataloaders
     go_loader = DataLoader(go_dataset, batch_size=8, shuffle=True)
     journal_train_loader = DataLoader(journal_train_dataset, batch_size=8, shuffle=True)
     journal_val_loader = DataLoader(journal_val_dataset, batch_size=8, shuffle=False)
     
-    logger.info(f"✅ Training samples: {len(go_dataset)} GoEmotions + {len(journal_train_dataset)} Journal")
+    logger.info(
+                f"✅ Training samples: {len(go_dataset)} GoEmotions + {len(journal_train_dataset)} Journal"
+               )
     logger.info(f"✅ Validation samples: {len(journal_val_dataset)} Journal")
     
     # Training setup
@@ -291,7 +320,7 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
         for i, batch in enumerate(go_loader):
             try:
                 # Validate batch
-                if 'input_ids' not in batch or 'attention_mask' not in batch or 'labels' not in batch:
+if 'input_ids' not in batch or 'attention_mask' not in batch or 'labels' not in batch:
                     logger.warning(f"⚠️ Invalid batch structure at batch {i}")
                     continue
                 
@@ -316,7 +345,10 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
                 num_batches += 1
                 
                 if i % 50 == 0:
-                    logger.info(f"    Batch {i}/{len(go_loader)}, Loss: {loss.item():.4f}")
+                    logger.info(
+                                f"    Batch {i}/{len(go_loader)},
+                                Loss: {loss.item():.4f}"
+                               )
                     
             except Exception as e:
                 logger.error(f"❌ Error in batch {i}: {e}")
@@ -343,7 +375,10 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
                 num_batches += 1
                 
                 if i % 10 == 0:
-                    logger.info(f"    Batch {i}/{len(journal_train_loader)}, Loss: {loss.item():.4f}")
+                    logger.info(
+                                f"    Batch {i}/{len(journal_train_loader)},
+                                Loss: {loss.item():.4f}"
+                               )
                     
             except Exception as e:
                 logger.error(f"❌ Error in journal batch {i}: {e}")
@@ -411,7 +446,10 @@ def main():
         label_encoder, label_to_id, id_to_label = create_unified_label_encoder()
         
         # Step 3: Prepare filtered data
-        go_texts, go_labels, journal_texts, journal_labels = prepare_filtered_data(label_encoder, label_to_id)
+        go_texts, go_labels, journal_texts, journal_labels = prepare_filtered_data(
+                                                                                   label_encoder,
+                                                                                   label_to_id
+                                                                                  )
         
         if go_texts is None:
             logger.error("❌ Data preparation failed")
@@ -419,7 +457,13 @@ def main():
         
         # Step 4: Train model
         num_labels = len(label_encoder.classes_)
-        best_f1 = train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_labels)
+        best_f1 = train_model_simple(
+                                     go_texts,
+                                     go_labels,
+                                     journal_texts,
+                                     journal_labels,
+                                     num_labels
+                                    )
         
         # Step 5: Save results
         results = {

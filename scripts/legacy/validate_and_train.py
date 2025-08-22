@@ -1,7 +1,8 @@
         # Import the validation module
         # Start training
         # Training configuration optimized for debugging
-        from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
+        from src
+    .models.emotion_detection.training_pipeline import train_emotion_detection_model
         from pre_training_validation import PreTrainingValidator
         import traceback
     # Ask for user confirmation
@@ -34,7 +35,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout), logging.FileHandler("training_session.log")],
+    handlers=[logging.StreamHandler(
+                                    sys.stdout),
+                                    logging.FileHandler("training_session.log")],
+                                    
 )
 logger = logging.getLogger(__name__)
 
@@ -113,7 +117,9 @@ def main():
             for i, warning in enumerate(warnings, 1):
                 logger.warning("   {i}. {warning}")
 
-        logger.error("\n🔧 Please fix all critical issues before running training again.")
+        logger.error(
+                     "\n🔧 Please fix all critical issues before running training again."
+                    )
         return False
 
     logger.info("\n✅ VALIDATION PASSED!")

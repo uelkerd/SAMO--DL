@@ -10,10 +10,13 @@ by combining multiple optimization techniques:
 4. Optimal temperature scaling and threshold calibration
 
 Usage:
-    python scripts/finalize_emotion_model.py [--output_model PATH] [--epochs INT] [--batch_size INT]
+    python scripts/finalize_emotion_model
+    .py [--output_model PATH] [--epochs INT] [--batch_size INT]
 
 Arguments:
-    --output_model: Path to save the final model (default: models/checkpoints/bert_emotion_classifier_final.pt)
+    --output_model: Path to save the final model (
+                                                  default: models/checkpoints/bert_emotion_classifier_final.pt
+                                                 )
     --epochs: Number of training epochs (default: 5)
     --batch_size: Training batch size (default: 16)
 """
@@ -62,7 +65,9 @@ class FocalLoss(nn.Module):
 
         Args:
             gamma: Focusing parameter (>= 0). Higher values focus more on hard examples.
-            alpha: Optional class weights. If provided, should be a tensor of shape (num_classes,).
+            alpha: Optional class weights. If provided, should be a tensor of shape (
+                                                                                     num_classes,
+                                                                                     ).
         """
         super().__init__()
         self.gamma = gamma
@@ -149,7 +154,9 @@ class EnsembleModel(nn.Module):
         self.temperature = temperature
 
 
-def create_augmented_dataset(data_loader: GoEmotionsDataLoader, tokenizer: AutoTokenizer) -> dict:
+def create_augmented_dataset(
+                             data_loader: GoEmotionsDataLoader,
+                             tokenizer: AutoTokenizer) -> dict:
     """Create augmented dataset using back-translation.
 
     Args:
@@ -179,7 +186,9 @@ def train_final_model(
     Returns:
         Training metrics
     """
-    logger.info(f"Training final model for {epochs} epochs with batch size {batch_size}")
+    logger.info(
+                f"Training final model for {epochs} epochs with batch size {batch_size}"
+               )
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info(f"Using device: {device}")
@@ -290,7 +299,8 @@ def create_ensemble_model(model_path: str, device: torch.device) -> EnsembleMode
 
 
 def evaluate_ensemble(
-    ensemble: EnsembleModel, test_data: dict, tokenizer: AutoTokenizer, device: torch.device
+    ensemble: EnsembleModel, test_data: dict, tokenizer: AutoTokenizer, device: torch
+    .device
 ) -> dict[str, float]:
     """Evaluate ensemble model performance.
 
@@ -420,7 +430,9 @@ def main():
         save_ensemble_model(ensemble, metrics, ensemble_path)
         
     else:
-        logger.warning(f"⚠️ Target F1 score of {TARGET_F1_SCORE} not achieved. Best: {training_results['best_f1']:.4f}")
+        logger.warning(
+                       f"⚠️ Target F1 score of {TARGET_F1_SCORE} not achieved. Best: {training_results['best_f1']:.4f}"
+                      )
 
 
 if __name__ == "__main__":

@@ -33,7 +33,7 @@ def add_security_headers(app: Flask) -> None:
                 )
             else:
                 # Reject request if no nonce is available for docs
-                return "Content Security Policy violation: nonce required for /docs", 403
+return "Content Security Policy violation: nonce required for /docs", 403
             response.headers['Content-Security-Policy'] = csp_docs
         else:
             response.headers['Content-Security-Policy'] = csp_base
@@ -43,8 +43,11 @@ def add_security_headers(app: Flask) -> None:
         response.headers['X-Frame-Options'] = 'DENY'
         response.headers['X-XSS-Protection'] = '1; mode=block'
         response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-        response.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()'
-        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+        response.headers['Permissions-Policy'] = 'geolocation=(
+                                                               ),
+                                                               microphone=(),
+                                                               camera=()'
+response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
 
         # Remove server information
         response.headers.pop('Server', None)

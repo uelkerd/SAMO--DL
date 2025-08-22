@@ -28,7 +28,8 @@
     # Load dataset
     # Set positive labels to 1
     # Use different learning rates for different layers
-    from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+    from src
+    .models.emotion_detection.bert_classifier import create_bert_emotion_classifier
     from src.models.emotion_detection.dataset_loader import create_goemotions_loader
     from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 # Add src to path
@@ -57,7 +58,10 @@ This script addresses the 0.0000 loss issue with:
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+                    level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s"
+                   )
 logger = logging.getLogger(__name__)
 
 
@@ -110,7 +114,9 @@ def create_optimized_model() -> Tuple[nn.Module, nn.Module]:
     datasets = loader.prepare_datasets()
     class_weights = torch.tensor(datasets["class_weights"], dtype=torch.float32)
 
-    logger.info("   Class weights range: {class_weights.min():.4f} - {class_weights.max():.4f}")
+    logger.info(
+                "   Class weights range: {class_weights.min():.4f} - {class_weights.max():.4f}"
+               )
 
     model, _ = create_bert_emotion_classifier(
         model_name="bert-base-uncased",
@@ -200,7 +206,12 @@ def convert_labels_to_tensor(label_list: list, num_classes: int = 28) -> torch.T
     return label_tensor
 
 
-def validate_model(model: nn.Module, loss_fn: nn.Module, val_data: Any, num_samples: int = 100) -> Dict[str, float]:
+def validate_model(
+                   model: nn.Module,
+                   loss_fn: nn.Module,
+                   val_data: Any,
+                   num_samples: int = 100) -> Dict[str,
+                   float]:
     """Validate model and check for 0.0000 loss."""
     logger.info("🔍 Validating model...")
 
@@ -261,7 +272,11 @@ def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Opt
         epoch_loss = 0.0
         num_batches = 0
 
-        for i in range(0, min(1000, len(train_data)), 16):  # Limit to 1000 examples for testing
+        for i in range(
+                       0,
+                       min(1000,
+                       len(train_data)),
+                       16):  # Limit to 1000 examples for testing
             batch_data = train_data[i:i+16]
             batch_size = len(batch_data)
 
@@ -283,7 +298,9 @@ def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Opt
             loss = loss_fn(logits, labels)
 
             if loss.item() <= 0:
-                logger.error("❌ CRITICAL: Training loss is zero at batch {num_batches}!")
+                logger.error(
+                             "❌ CRITICAL: Training loss is zero at batch {num_batches}!"
+                            )
                 logger.error("   Logits: {logits.mean().item():.6f}")
                 logger.error("   Labels: {labels.mean().item():.6f}")
                 return {"status": "failed", "reason": "zero_loss", "epoch": epoch}
@@ -353,7 +370,10 @@ def main():
             logger.info("   Ready for production deployment!")
             return True
         else:
-            logger.error("❌ Training failed: {training_results.get('reason', 'unknown')}")
+            logger.error(
+                         "❌ Training failed: {training_results.get('reason',
+                         'unknown')}"
+                        )
             return False
 
     except Exception as e:

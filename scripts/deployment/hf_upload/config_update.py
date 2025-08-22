@@ -16,7 +16,11 @@ def _write(path: str, content: str) -> None:
         f.write(content)
 
 
-def update_deployment_config(repo_id: str, model_info: Dict[str, Any], templates_dir: str) -> None:
+def update_deployment_config(
+                             repo_id: str,
+                             model_info: Dict[str,
+                             Any],
+                             templates_dir: str) -> None:
     logging.info("Writing deployment configuration files (config-driven)")
 
     # Create custom model config JSON (single source of truth)
@@ -44,7 +48,9 @@ def update_deployment_config(repo_id: str, model_info: Dict[str, Any], templates
                 "consistent_latency": True,
             },
             "self_hosted": {
-                "model_loading": f"AutoModelForSequenceClassification.from_pretrained('{repo_id}')",
+                "model_loading": f"AutoModelForSequenceClassification.from_pretrained(
+                                                                                      '{repo_id}')",
+                                                                                      
                 "cost": "infrastructure_costs",
                 "best_for": "maximum_control",
                 "requires": ["transformers", "torch"],

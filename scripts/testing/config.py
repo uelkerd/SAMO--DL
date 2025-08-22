@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Centralized Configuration for Testing Scripts
-Eliminates hardcoded values and provides consistent configuration across all test scripts.
+Eliminates hardcoded values and provides consistent configuration across all test scripts
+    .
 """
 
 import os

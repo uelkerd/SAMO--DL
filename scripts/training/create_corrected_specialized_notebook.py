@@ -19,7 +19,7 @@ def create_corrected_notebook():
     "# CORRECTED EMOTION DETECTION TRAINING\\n",
     "## Using j-hartmann/emotion-english-distilroberta-base with Verification\\n",
     "\\n",
-    "**CRITICAL**: This notebook ensures we use the correct specialized emotion model\\n",
+"**CRITICAL**: This notebook ensures we use the correct specialized emotion model\\n",
     "and verifies it's working properly before training.\\n",
     "\\n",
     "**Target**: Reliable 75-85% F1 score with proper emotion-specialized model"
@@ -44,7 +44,8 @@ def create_corrected_notebook():
     "import torch\\n",
     "import numpy as np\\n",
     "import pandas as pd\\n",
-    "from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer\\n",
+"from transformers import AutoTokenizer, AutoModelForSequenceClassification,
+TrainingArguments, Trainer\\n",
     "from datasets import Dataset\\n",
     "from sklearn.model_selection import train_test_split\\n",
     "from sklearn.metrics import classification_report, confusion_matrix\\n",
@@ -70,7 +71,9 @@ def create_corrected_notebook():
     "try:\\n",
     "    print(f'Testing access to: {specialized_model_name}')\\n",
     "    test_tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\\n",
-    "    test_model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name)\\n",
+    "    test_model = AutoModelForSequenceClassification.from_pretrained(
+                                                                         specialized_model_name)\\n",
+                                                                         
     "    \\n",
     "    print('✅ SUCCESS: Specialized model loaded!')\\n",
     "    print(f'Model type: {test_model.config.model_type}')\\n",
@@ -81,7 +84,8 @@ def create_corrected_notebook():
     "    print(f'Original labels: {test_model.config.id2label}')\\n",
     "    \\n",
     "    # Verify it's actually DistilRoBERTa\\n",
-    "    if test_model.config.num_hidden_layers == 6 and 'distil' in test_model.config.model_type.lower():\\n",
+" if test_model.config.num_hidden_layers == 6 and 'distil' in
+test_model.config.model_type.lower():\\n",
     "        print('✅ CONFIRMED: This is DistilRoBERTa architecture')\\n",
     "    else:\\n",
     "        print('⚠️  WARNING: This may not be the expected DistilRoBERTa model')\\n",
@@ -91,7 +95,10 @@ def create_corrected_notebook():
     "    print('\\n🔧 FALLBACK: Using roberta-base instead')\\n",
     "    specialized_model_name = 'roberta-base'\\n",
     "    test_tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\\n",
-    "    test_model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name, num_labels=12)\\n",
+    "    test_model = AutoModelForSequenceClassification.from_pretrained(
+                                                                         specialized_model_name,
+                                                                         num_labels=12)\\n",
+                                                                         
     "    print(f'✅ Fallback model loaded: {specialized_model_name}')"
    ]
   },
@@ -102,7 +109,8 @@ def create_corrected_notebook():
    "outputs": [],
    "source": [
     "# Define our emotion classes\\n",
-    "emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\\n",
+"emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy',
+'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\\n",
     "print(f'🎯 Our emotion classes: {emotions}')\\n",
     "print(f'📊 Number of emotions: {len(emotions)}')"
    ]
@@ -311,7 +319,12 @@ def create_corrected_notebook():
     "print('🔀 SPLITTING DATA WITH VALIDATION')\\n",
     "print('=' * 40)\\n",
     "\\n",
-    "train_data, val_data = train_test_split(balanced_data, test_size=0.2, random_state=42, stratify=[d['label'] for d in balanced_data])\\n",
+    "train_data, val_data = train_test_split(
+                                             balanced_data,
+                                             test_size=0.2,
+                                             random_state=42,
+                                             stratify=[d['label'] for d in balanced_data])\\n",
+                                             
     "\\n",
     "print(f'Training samples: {len(train_data)}')\\n",
     "print(f'Validation samples: {len(val_data)}')\\n",
@@ -337,10 +350,16 @@ def create_corrected_notebook():
     "\\n",
     "# For specialized model, we need to resize the classifier for our 12 emotions\\n",
     "if specialized_model_name == 'j-hartmann/emotion-english-distilroberta-base':\\n",
-    "    model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name, num_labels=12)\\n",
+    "    model = AutoModelForSequenceClassification.from_pretrained(
+                                                                    specialized_model_name,
+                                                                    num_labels=12)\\n",
+                                                                    
     "    print('✅ Loaded specialized emotion model and resized for 12 emotions')\\n",
     "else:\\n",
-    "    model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name, num_labels=12)\\n",
+    "    model = AutoModelForSequenceClassification.from_pretrained(
+                                                                    specialized_model_name,
+                                                                    num_labels=12)\\n",
+                                                                    
     "    print('✅ Loaded fallback model for 12 emotions')\\n",
     "\\n",
     "# Update model config with our emotion labels\\n",
@@ -363,7 +382,12 @@ def create_corrected_notebook():
    "source": [
     "# Tokenization function\\n",
     "def tokenize_function(examples):\\n",
-    "    return tokenizer(examples['text'], padding='max_length', truncation=True, max_length=128)\\n",
+    "    return tokenizer(
+                          examples['text'],
+                          padding='max_length',
+                          truncation=True,
+                          max_length=128)\\n",
+                          
     "\\n",
     "train_dataset = train_dataset.map(tokenize_function, batched=True)\\n",
     "val_dataset = val_dataset.map(tokenize_function, batched=True)\\n",
@@ -416,7 +440,12 @@ def create_corrected_notebook():
     "    predictions = np.argmax(predictions, axis=1)\\n",
     "    \\n",
     "    # Calculate metrics\\n",
-    "    report = classification_report(labels, predictions, target_names=emotions, output_dict=True)\\n",
+    "    report = classification_report(
+                                        labels,
+                                        predictions,
+                                        target_names=emotions,
+                                        output_dict=True)\\n",
+                                        
     "    \\n",
     "    return {\\n",
     "        'f1': report['weighted avg']['f1-score'],\\n",
@@ -510,7 +539,12 @@ def create_corrected_notebook():
     "predictions_by_emotion = {emotion: 0 for emotion in emotions}\\n",
     "\\n",
     "for text in test_examples:\\n",
-    "    inputs = tokenizer(text, return_tensors='pt', truncation=True, max_length=128)\\n",
+    "    inputs = tokenizer(
+                            text,
+                            return_tensors='pt',
+                            truncation=True,
+                            max_length=128)\\n",
+                            
     "    with torch.no_grad():\\n",
     "        outputs = model(**inputs)\\n",
     "        predictions = torch.softmax(outputs.logits, dim=1)\\n",
@@ -532,7 +566,10 @@ def create_corrected_notebook():
     "    else:\\n",
     "        status = '❌'\\n",
     "    \\n",
-    "    print(f'{status} \"{text}\" → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})')\\n",
+    "    print(
+               f'{status} \"{text}\" → {predicted_emotion} (expected: {expected_emotion},
+               confidence: {confidence:.3f})')\\n",
+               
     "\\n",
     "accuracy = correct / len(test_examples)\\n",
     "print(f'\\n📊 Test Accuracy: {accuracy:.1%}')\\n",
@@ -621,7 +658,8 @@ def create_corrected_notebook():
 }'''
     
     # Save the notebook
-    notebook_path = Path(__file__).parent.parent / 'notebooks' / 'CORRECTED_SPECIALIZED_TRAINING.ipynb'
+    notebook_path = Path(
+                         __file__).parent.parent / 'notebooks' / 'CORRECTED_SPECIALIZED_TRAINING.ipynb'
     with open(notebook_path, 'w') as f:
         f.write(notebook_content)
     

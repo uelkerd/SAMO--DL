@@ -159,7 +159,10 @@ class CodeQualityAutoFixer:
         return content, fixes
 
     @staticmethod
-    def _fix_f_strings_without_expressions(content: str) -> Tuple[str, List[Dict[str, Any]]]:
+    def _fix_f_strings_without_expressions(
+                                           content: str) -> Tuple[str,
+                                           List[Dict[str,
+                                           Any]]]:
         """Fix f-strings without expressions."""
         fixes = []
 

@@ -116,7 +116,9 @@ def test_final_inference():
                     top3_predictions.append((emotion, conf))
                 
                 print(f"{i:2d}. Text: {text}")
-                print(f"    Predicted: {predicted_emotion} (confidence: {confidence:.3f})")
+                print(
+                      f"    Predicted: {predicted_emotion} (confidence: {confidence:.3f})"
+                     )
                 print(f"    Top 3 predictions:")
                 for emotion, conf in top3_predictions:
                     print(f"      - {emotion}: {conf:.3f}")
@@ -163,7 +165,12 @@ def test_simple_prediction():
         text = "I'm feeling really happy today!"
         print(f"📝 Testing: {text}")
         
-        inputs = tokenizer(text, truncation=True, padding=True, return_tensors='pt').to(device)
+        inputs = tokenizer(
+                           text,
+                           truncation=True,
+                           padding=True,
+                           return_tensors='pt').to(device
+                          )
         
         with torch.no_grad():
             outputs = model(**inputs)

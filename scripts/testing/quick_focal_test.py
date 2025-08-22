@@ -6,7 +6,8 @@
         # Load dataset
         # Test focal loss
         # Test with dummy data
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+        from src
+    .models.emotion_detection.bert_classifier import create_bert_emotion_classifier
         from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
         from torch import nn
         import torch
@@ -49,7 +50,11 @@ def test_focal_loss_math():
                 pt = probs * targets + (1 - probs) * (1 - targets)
                 focal_weight = (1 - pt) ** self.gamma
                 alpha_weight = self.alpha * targets + (1 - self.alpha) * (1 - targets)
-                bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
+                bce_loss = F.binary_cross_entropy_with_logits(
+                                                              inputs,
+                                                              targets,
+                                                              reduction="none"
+                                                             )
                 focal_loss = alpha_weight * focal_weight * bce_loss
                 return focal_loss.mean()
 
@@ -90,7 +95,9 @@ def test_dataset_loading():
         logger.info("✅ Dataset Loading Test PASSED")
         logger.info("   • Train examples: {train_size}")
         logger.info("   • Validation examples: {val_size}")
-        logger.info("   • Class weights computed: {datasets['class_weights'] is not None}")
+        logger.info(
+                    "   • Class weights computed: {datasets['class_weights'] is not None}"
+                   )
 
         return True
 

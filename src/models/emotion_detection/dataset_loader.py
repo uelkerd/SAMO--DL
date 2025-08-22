@@ -82,7 +82,10 @@ class GoEmotionsDataset(Dataset):
 class GoEmotionsPreprocessor:
     """Preprocessing pipeline for GoEmotions dataset following SAMO requirements."""
 
-    def __init__(self, model_name: str = "bert-base-uncased", max_length: int = 512) -> None:
+    def __init__(
+                 self,
+                 model_name: str = "bert-base-uncased",
+                 max_length: int = 512) -> None:
         """Initialize preprocessor with BERT tokenizer.
 
         Args:
@@ -91,7 +94,10 @@ class GoEmotionsPreprocessor:
         """
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.max_length = max_length
-        logger.info(f"Initialized preprocessor with {model_name}, max_length={max_length}")
+        logger.info(
+                    f"Initialized preprocessor with {model_name},
+                    max_length={max_length}"
+                   )
 
     def clean_text(self, text: str) -> str:
         """Clean and normalize text while preserving emotional signals.
@@ -337,4 +343,6 @@ def create_goemotions_loader(
 if __name__ == "__main__":
     loader = create_goemotions_loader()
     datasets = loader.prepare_datasets()
-    logger.info(f"Dataset prepared successfully: {len(datasets['train_data'])} training samples")
+    logger.info(
+                f"Dataset prepared successfully: {len(datasets['train_data'])} training samples"
+               )

@@ -63,9 +63,16 @@ class SecurityHeadersMiddleware:
         # Load CSP from YAML config if available
         self.csp_policy = None
         try:
-            with open(os.path.join(os.path.dirname(__file__), '../configs/security.yaml'), 'r') as f:
+            with open(
+                      os.path.join(os.path.dirname(__file__),
+                      '../configs/security.yaml'),
+                      'r') as f:
                 security_config = yaml.safe_load(f)
-                self.csp_policy = security_config.get('security_headers', {}).get('headers', {}).get('Content-Security-Policy')
+                self.csp_policy = security_config.get(
+                                                      'security_headers',
+                                                      {}).get('headers',
+                                                      {}).get('Content-Security-Policy'
+                                                     )
         except Exception as e:
             logger.warning(f"Could not load CSP from config: {e}")
 
@@ -113,7 +120,8 @@ class SecurityHeadersMiddleware:
 
         # HTTP Strict Transport Security
         if self.config.enable_strict_transport_security:
-            response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
+response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains;
+preload'
 
         # X-Frame-Options
         if self.config.enable_x_frame_options:
@@ -236,7 +244,7 @@ class SecurityHeadersMiddleware:
     def _analyze_user_agent_enhanced(self, user_agent: str) -> dict:
         """Enhanced user agent analysis with scoring and detailed categorization."""
         if not user_agent:
-            return {"score": 0, "category": "empty", "patterns": [], "risk_level": "low"}
+return {"score": 0, "category": "empty", "patterns": [], "risk_level": "low"}
 
         score = 0
         patterns = []
@@ -298,7 +306,13 @@ class SecurityHeadersMiddleware:
                 logger.debug(f"Low-risk UA pattern detected: {pattern}")
 
         # Bonus for suspicious combinations
-        if any(pattern in ua_lower for pattern in ['bot', 'crawler', 'spider']) and any(pattern in ua_lower for pattern in ['python', 'curl', 'wget', 'script']):
+        if any(
+               pattern in ua_lower for pattern in ['bot',
+               'crawler',
+               'spider']) and any(pattern in ua_lower for pattern in ['python',
+               'curl',
+               'wget',
+               'script']):
             score += 2
             patterns.append("suspicious_combination")
             logger.debug("Suspicious UA combination detected")
@@ -366,13 +380,16 @@ class SecurityHeadersMiddleware:
             ua_analysis = self._analyze_user_agent_enhanced(user_agent)
 
             if ua_analysis["score"] >= self.config.ua_suspicious_score_threshold:
-                patterns.append(f"Suspicious user agent: {ua_analysis['category']} (score: {ua_analysis['score']})")
+                patterns.append(
+                                f"Suspicious user agent: {ua_analysis['category']} (score: {ua_analysis['score']})"
+                               )
 
                 # Log detailed analysis
                 logger.warning(f"User agent analysis: {ua_analysis}")
 
                 # Optionally block based on configuration
-                if self.config.ua_blocking_enabled and ua_analysis["risk_level"] in ["high", "very_high"]:
+if self.config.ua_blocking_enabled and ua_analysis["risk_level"] in ["high",
+"very_high"]:
                     patterns.append("BLOCKED: High-risk user agent")
 
         return patterns
@@ -390,7 +407,10 @@ class SecurityHeadersMiddleware:
                 'csp': response.headers.get('Content-Security-Policy', ''),
                 'hsts': response.headers.get('Strict-Transport-Security', ''),
                 'x_frame_options': response.headers.get('X-Frame-Options', ''),
-                'x_content_type_options': response.headers.get('X-Content-Type-Options', ''),
+                'x_content_type_options': response.headers.get(
+                                                               'X-Content-Type-Options',
+                                                               ''),
+                                                               
                 'x_xss_protection': response.headers.get('X-XSS-Protection', ''),
                 'referrer_policy': response.headers.get('Referrer-Policy', ''),
                 'permissions_policy': response.headers.get('Permissions-Policy', ''),
@@ -406,18 +426,18 @@ class SecurityHeadersMiddleware:
                 "enable_csp": self.config.enable_content_security_policy,
                 "enable_hsts": self.config.enable_strict_transport_security,
                 "enable_x_frame_options": self.config.enable_x_frame_options,
-                "enable_x_content_type_options": self.config.enable_x_content_type_options,
+"enable_x_content_type_options": self.config.enable_x_content_type_options,
                 "enable_x_xss_protection": self.config.enable_x_xss_protection,
                 "enable_referrer_policy": self.config.enable_referrer_policy,
                 "enable_permissions_policy": self.config.enable_permissions_policy,
-                "enable_cross_origin_embedder_policy": self.config.enable_cross_origin_embedder_policy,
-                "enable_cross_origin_opener_policy": self.config.enable_cross_origin_opener_policy,
-                "enable_cross_origin_resource_policy": self.config.enable_cross_origin_resource_policy,
+"enable_cross_origin_embedder_policy": self.config.enable_cross_origin_embedder_policy,
+"enable_cross_origin_opener_policy": self.config.enable_cross_origin_opener_policy,
+"enable_cross_origin_resource_policy": self.config.enable_cross_origin_resource_policy,
                 "enable_origin_agent_cluster": self.config.enable_origin_agent_cluster,
                 "enable_request_id": self.config.enable_request_id,
                 "enable_correlation_id": self.config.enable_correlation_id,
                 "enable_enhanced_ua_analysis": self.config.enable_enhanced_ua_analysis,
-                "ua_suspicious_score_threshold": self.config.ua_suspicious_score_threshold,
+"ua_suspicious_score_threshold": self.config.ua_suspicious_score_threshold,
                 "ua_blocking_enabled": self.config.ua_blocking_enabled,
             },
             "csp_nonce": self._csp_nonce

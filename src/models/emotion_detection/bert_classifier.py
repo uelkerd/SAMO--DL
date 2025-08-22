@@ -206,7 +206,8 @@ class BERTEmotionClassifier(nn.Module):
             attention_mask: Pre-tokenized attention mask (for testing)
 
         Returns:
-            Dictionary with predictions, probabilities, and emotion names, or list of predictions for testing
+Dictionary with predictions, probabilities, and emotion names, or list of predictions
+for testing
         """
         # Handle direct input_ids/attention_mask for testing
         if input_ids is not None and attention_mask is not None:

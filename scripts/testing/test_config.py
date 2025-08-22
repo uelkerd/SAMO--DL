@@ -86,7 +86,9 @@ class APIClient:
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
-            raise requests.exceptions.RequestException(f"GET {endpoint} failed: {str(e)}")
+            raise requests.exceptions.RequestException(
+                                                       f"GET {endpoint} failed: {str(e)}"
+                                                      )
         except ValueError as e:
             raise ValueError(f"Invalid JSON response from {endpoint}: {str(e)}")
     
@@ -98,11 +100,19 @@ class APIClient:
         headers = {**self.headers, **kwargs.get('headers', {})}
         
         try:
-            response = requests.post(url, json=data, headers=headers, timeout=30, **kwargs)
+            response = requests.post(
+                                     url,
+                                     json=data,
+                                     headers=headers,
+                                     timeout=30,
+                                     **kwargs
+                                    )
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
-            raise requests.exceptions.RequestException(f"POST {endpoint} failed: {str(e)}")
+            raise requests.exceptions.RequestException(
+                                                       f"POST {endpoint} failed: {str(e)}"
+                                                      )
         except ValueError as e:
             raise ValueError(f"Invalid JSON response from {endpoint}: {str(e)}")
 

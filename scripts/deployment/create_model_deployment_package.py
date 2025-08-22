@@ -46,7 +46,20 @@ python api_server.py
 
 ## 📊 Model Details
 - **Specialized Model**: finiteautomata/bertweet-base-emotion-analysis
-- **Emotions**: 12 classes (anxious, calm, content, excited, frustrated, grateful, happy, hopeful, overwhelmed, proud, sad, tired)
+- **Emotions**: 12 classes (
+                            anxious,
+                            calm,
+                            content,
+                            excited,
+                            frustrated,
+                            grateful,
+                            happy,
+                            hopeful,
+                            overwhelmed,
+                            proud,
+                            sad,
+                            tired
+                           )
 - **Training Data**: Augmented dataset with 2-3x expansion
 - **Performance**: 99.48% F1 score
 
@@ -127,7 +140,10 @@ class EmotionDetector:
                 'confidence': confidence,
                 'probabilities': {
                     emotion: prob.item() 
-                    for emotion, prob in zip(self.label_encoder.classes_, probabilities[0])
+                    for emotion, prob in zip(
+                                             self.label_encoder.classes_,
+                                             probabilities[0]
+                                            )
                 }
             }
         else:
@@ -167,7 +183,11 @@ def main():
         print(f"Text: {text}")
         print(f"Emotion: {result['emotion']} (confidence: {result['confidence']:.3f})")
         print(f"Top 3 predictions:")
-        sorted_probs = sorted(result['probabilities'].items(), key=lambda x: x[1], reverse=True)
+        sorted_probs = sorted(
+                              result['probabilities'].items(),
+                              key=lambda x: x[1],
+                              reverse=True
+                             )
         for emotion, prob in sorted_probs[:3]:
             print(f"  - {emotion}: {prob:.3f}")
         print()
@@ -229,15 +249,27 @@ def test_model():
         result = detector.predict(text)
         
         print(f"{i:2d}. Text: {text}")
-        print(f"    Predicted: {result['emotion']} (confidence: {result['confidence']:.3f})")
+        print(
+              f"    Predicted: {result['emotion']} (confidence: {result['confidence']:.3f})"
+             )
         
         # Show top 3 predictions
-        sorted_probs = sorted(result['probabilities'].items(), key=lambda x: x[1], reverse=True)
-        print(f"    Top 3: {', '.join([f'{emotion}({prob:.3f})' for emotion, prob in sorted_probs[:3]])}")
+        sorted_probs = sorted(
+                              result['probabilities'].items(),
+                              key=lambda x: x[1],
+                              reverse=True
+                             )
+        print(
+              f"    Top 3: {',
+              '.join([f'{emotion}({prob:.3f})' for emotion,
+              prob in sorted_probs[:3]])}"
+             )
         print()
     
     print("🎉 Testing completed!")
-    print(f"📊 Model confidence range: {min([detector.predict(text)['confidence'] for text in test_cases]):.3f} - {max([detector.predict(text)['confidence'] for text in test_cases]):.3f}")
+    print(
+          f"📊 Model confidence range: {min([detector.predict(text)['confidence'] for text in test_cases]):.3f} - {max([detector.predict(text)['confidence'] for text in test_cases]):.3f}"
+         )
 
 if __name__ == "__main__":
     test_model()
@@ -342,7 +374,10 @@ if __name__ == '__main__':
     print("🚀 Starting Emotion Detection API Server")
     print("=" * 50)
     print("📊 Model Performance: 99.48% F1 Score")
-    print("🎯 Supported Emotions:", list(detector.label_encoder.classes_) if detector else "None")
+    print(
+          "🎯 Supported Emotions:",
+          list(detector.label_encoder.classes_) if detector else "None"
+         )
     print("🌐 API Endpoints:")
     print("  - GET  /health - Health check")
     print("  - POST /predict - Single text prediction")

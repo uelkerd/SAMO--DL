@@ -91,7 +91,10 @@ def test_t5_summarization():
 
     except Exception as e:
         if "SentencePiece" in str(e):
-            logger.warning("⚠️ SentencePiece not available, skipping T5 summarization test")
+            logger.warning(
+                           "⚠️ SentencePiece not available,
+                           skipping T5 summarization test"
+                          )
             return True  # Skip gracefully
         else:
             logger.error(f"❌ T5 summarization test failed: {e}")

@@ -50,7 +50,8 @@ class IntegrityChecker:
         Returns:
             Dictionary mapping file paths to expected checksums
         """
-        if not self.trusted_checksums_file or not os.path.exists(self.trusted_checksums_file):
+        if not self.trusted_checksums_file or not os.path.exists(
+                                                                 self.trusted_checksums_file):
             logger.warning("No trusted checksums file found, using empty trust store")
             return {}
 
@@ -93,7 +94,9 @@ class IntegrityChecker:
         try:
             file_size = os.path.getsize(file_path)
             if file_size > self.max_file_size:
-                logger.error(f"File {file_path} exceeds maximum size limit: {file_size} bytes")
+                logger.error(
+                             f"File {file_path} exceeds maximum size limit: {file_size} bytes"
+                            )
                 return False
             return True
         except Exception as e:
@@ -140,7 +143,10 @@ class IntegrityChecker:
 
         return len(findings) == 0, findings
 
-    def verify_checksum(self, file_path: str, expected_checksum: Optional[str] = None) -> bool:
+    def verify_checksum(
+                        self,
+                        file_path: str,
+                        expected_checksum: Optional[str] = None) -> bool:
         """Verify file checksum against expected value.
 
         Args:
@@ -197,7 +203,11 @@ class IntegrityChecker:
             logger.error(f"Failed to validate model structure for {model_path}: {e}")
             return False
 
-    def comprehensive_validation(self, file_path: str, expected_checksum: Optional[str] = None) -> Tuple[bool, Dict]:
+    def comprehensive_validation(
+                                 self,
+                                 file_path: str,
+                                 expected_checksum: Optional[str] = None) -> Tuple[bool,
+                                 Dict]:
         """Perform comprehensive file validation.
 
         Args:

@@ -96,7 +96,10 @@ def prepare_expanded_data(data, test_size=0.2, val_size=0.1):
     )
     
     X_train, X_val, y_train, y_val = train_test_split(
-        X_temp, y_temp, test_size=val_size/(1-test_size), random_state=42, stratify=y_temp
+        X_temp, y_temp, test_size=val_size/(
+                                            1-test_size),
+                                            random_state=42,
+                                            stratify=y_temp
     )
     
     print(f"📊 Data split:")
@@ -256,7 +259,9 @@ def save_expanded_results(training_history, best_f1, label_encoder, test_data):
         'num_labels': len(label_encoder.classes_),
         'all_emotions': list(label_encoder.classes_),
         'training_history': training_history,
-        'expanded_samples': len(X_test) + len([x for x in train_data[0]]) + len([x for x in val_data[0]]),
+        'expanded_samples': len(
+                                X_test) + len([x for x in train_data[0]]) + len([x for x in val_data[0]]),
+                                
         'test_samples': len(X_test)
     }
     
@@ -280,7 +285,11 @@ def main():
     train_data, val_data, test_data, label_encoder = prepare_expanded_data(data)
     
     # Train model
-    model, training_history, best_f1 = train_expanded_model(train_data, val_data, label_encoder)
+    model, training_history, best_f1 = train_expanded_model(
+                                                            train_data,
+                                                            val_data,
+                                                            label_encoder
+                                                           )
     
     # Save results
     save_expanded_results(training_history, best_f1, label_encoder, test_data)

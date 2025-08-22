@@ -44,7 +44,11 @@ def add_advanced_features():
             "        self.reduction = reduction\n",
             "    \n",
             "    def forward(self, inputs, targets):\n",
-            "        ce_loss = torch.nn.functional.cross_entropy(inputs, targets, reduction='none')\n",
+            "        ce_loss = torch.nn.functional.cross_entropy(
+                                                                 inputs,
+                                                                 targets,
+                                                                 reduction='none')\n",
+                                                                 
             "        pt = torch.exp(-ce_loss)\n",
             "        focal_loss = self.alpha * (1 - pt) ** self.gamma * ce_loss\n",
             "        \n",
@@ -90,7 +94,10 @@ def add_advanced_features():
             "\n",
             "# Convert to tensor\n",
             "device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')\n",
-            "class_weights_tensor = torch.tensor(class_weights, dtype=torch.float32).to(device)\n",
+            "class_weights_tensor = torch.tensor(
+                                                 class_weights,
+                                                 dtype=torch.float32).to(device)\n",
+                                                 
             "\n",
             "print(f'✅ Class weights calculated: {class_weights}')\n",
             "print(f'✅ Device: {device}')"
@@ -116,7 +123,14 @@ def add_advanced_features():
             "class WeightedLossTrainer(Trainer):\n",
             "    \"\"\"Custom trainer with focal loss and class weighting.\"\"\"\n",
             "    \n",
-            "    def __init__(self, *args, focal_alpha=1, focal_gamma=2, class_weights=None, **kwargs):\n",
+            "    def __init__(
+                              self,
+                              *args,
+                              focal_alpha=1,
+                              focal_gamma=2,
+                              class_weights=None,
+                              **kwargs):\n",
+                              
             "        super().__init__(*args, **kwargs)\n",
             "        self.focal_alpha = focal_alpha\n",
             "        self.focal_gamma = focal_gamma\n",
@@ -131,13 +145,19 @@ def add_advanced_features():
             "        if self.class_weights is not None:\n",
             "            # Apply class weights to focal loss\n",
             "            ce_loss = torch.nn.functional.cross_entropy(\n",
-            "                logits, labels, weight=self.class_weights, reduction='none'\n",
+" logits, labels, weight=self.class_weights, reduction='none'\n",
             "            )\n",
             "        else:\n",
-            "            ce_loss = torch.nn.functional.cross_entropy(logits, labels, reduction='none')\n",
+            "            ce_loss = torch.nn.functional.cross_entropy(
+                                                                     logits,
+                                                                     labels,
+                                                                     reduction='none')\n",
+                                                                     
             "        \n",
             "        pt = torch.exp(-ce_loss)\n",
-            "        focal_loss = self.focal_alpha * (1 - pt) ** self.focal_gamma * ce_loss\n",
+            "        focal_loss = self.focal_alpha * (
+                                                      1 - pt) ** self.focal_gamma * ce_loss\n",
+                                                      
             "        loss = focal_loss.mean()\n",
             "        \n",
             "        return (loss, outputs) if return_outputs else loss\n",
@@ -174,8 +194,12 @@ def add_advanced_features():
             ")\n",
             "\n",
             "# CRITICAL: Set proper configuration\n",
-            "model.config.id2label = {i: emotion for i, emotion in enumerate(emotions)}\n",
-            "model.config.label2id = {emotion: i for i, emotion in enumerate(emotions)}\n",
+            "model.config.id2label = {i: emotion for i, emotion in enumerate(
+                                                                             emotions)}\n",
+                                                                             
+            "model.config.label2id = {emotion: i for i, emotion in enumerate(
+                                                                             emotions)}\n",
+                                                                             
             "\n",
             "print(f'✅ Model loaded: {specialized_model_name}')\n",
             "print(f'✅ Number of labels: {model.config.num_labels}')\n",
@@ -213,7 +237,10 @@ def add_advanced_features():
             "tokenized_dataset = dataset.map(preprocess_function, batched=True)\n",
             "\n",
             "# Split into train/validation\n",
-            "train_val_dataset = tokenized_dataset.train_test_split(test_size=0.2, seed=42)\n",
+            "train_val_dataset = tokenized_dataset.train_test_split(
+                                                                    test_size=0.2,
+                                                                    seed=42)\n",
+                                                                    
             "train_dataset = train_val_dataset['train']\n",
             "val_dataset = train_val_dataset['test']\n",
             "\n",
@@ -285,7 +312,11 @@ def add_advanced_features():
             "    # Calculate metrics\n",
             "    f1 = f1_score(labels, predictions, average='weighted')\n",
             "    accuracy = accuracy_score(labels, predictions)\n",
-            "    precision = precision_score(labels, predictions, average='weighted')\n",
+            "    precision = precision_score(
+                                             labels,
+                                             predictions,
+                                             average='weighted')\n",
+                                             
             "    recall = recall_score(labels, predictions, average='weighted')\n",
             "    \n",
             "    return {\n",
@@ -391,7 +422,8 @@ def add_advanced_features():
             "if results['eval_f1'] >= 0.75:\n",
             "    print('🎉 TARGET ACHIEVED! F1 Score >= 75%')\n",
             "else:\n",
-            "    print(f'⚠️ Target not achieved. Need {0.75 - results[\"eval_f1\"]:.3f} more F1 points')"
+            "    print(
+                       f'⚠️ Target not achieved. Need {0.75 - results[\"eval_f1\"]:.3f} more F1 points')"
         ]
     }
     
@@ -435,7 +467,12 @@ def add_advanced_features():
             "predictions_by_emotion = {emotion: 0 for emotion in emotions}\n",
             "\n",
             "for text in test_examples:\n",
-            "    inputs = tokenizer(text, return_tensors='pt', truncation=True, max_length=128)\n",
+            "    inputs = tokenizer(
+                                    text,
+                                    return_tensors='pt',
+                                    truncation=True,
+                                    max_length=128)\n",
+                                    
             "    with torch.no_grad():\n",
             "        outputs = model(**inputs)\n",
             "        predictions = torch.softmax(outputs.logits, dim=1)\n",
@@ -457,7 +494,10 @@ def add_advanced_features():
             "    else:\n",
             "        status = '❌'\n",
             "    \n",
-            "    print(f'{status} {text} → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})')\n",
+            "    print(
+                       f'{status} {text} → {predicted_emotion} (expected: {expected_emotion},
+                       confidence: {confidence:.3f})')\n",
+                       
             "\n",
             "accuracy = correct / len(test_examples)\n",
             "print(f'\\n📊 Test Accuracy: {accuracy:.1%}')\n",
@@ -506,8 +546,12 @@ def add_advanced_features():
             "\n",
             "# CRITICAL: Ensure configuration is still set before saving\n",
             "print('🔧 Verifying configuration before saving...')\n",
-            "model.config.id2label = {i: emotion for i, emotion in enumerate(emotions)}\n",
-            "model.config.label2id = {emotion: i for i, emotion in enumerate(emotions)}\n",
+            "model.config.id2label = {i: emotion for i, emotion in enumerate(
+                                                                             emotions)}\n",
+                                                                             
+            "model.config.label2id = {emotion: i for i, emotion in enumerate(
+                                                                             emotions)}\n",
+                                                                             
             "\n",
             "print(f'Final id2label: {model.config.id2label}')\n",
             "print(f'Final label2id: {model.config.label2id}')\n",
@@ -525,25 +569,47 @@ def add_advanced_features():
             "    with open(f'{output_dir}/config.json', 'r') as f:\n",
             "        saved_config = json.load(f)\n",
             "    \n",
-            "    print(f'Saved model type: {saved_config.get(\"model_type\", \"NOT FOUND\")}')\n",
-            "    print(f'Saved id2label: {saved_config.get(\"id2label\", \"NOT FOUND\")}')\n",
-            "    print(f'Saved label2id: {saved_config.get(\"label2id\", \"NOT FOUND\")}')\n",
+            "    print(
+                       f'Saved model type: {saved_config.get(\"model_type\",
+                       \"NOT FOUND\")}')\n",
+                       
+            "    print(
+                       f'Saved id2label: {saved_config.get(\"id2label\",
+                       \"NOT FOUND\")}')\n",
+                       
+            "    print(
+                       f'Saved label2id: {saved_config.get(\"label2id\",
+                       \"NOT FOUND\")}')\n",
+                       
             "    \n",
             "    # Verify the emotion labels are saved correctly\n",
-            "    expected_id2label = {str(i): emotion for i, emotion in enumerate(emotions)}\n",
-            "    expected_label2id = {emotion: i for i, emotion in enumerate(emotions)}\n",
+            "    expected_id2label = {str(
+                                          i): emotion for i,
+                                          emotion in enumerate(emotions)}\n",
+                                          
+            "    expected_label2id = {emotion: i for i, emotion in enumerate(
+                                                                             emotions)}\n",
+                                                                             
             "    \n",
             "    if saved_config.get('id2label') == expected_id2label:\n",
-            "        print('✅ CONFIRMED: Emotion labels saved correctly in config.json')\n",
+            "        print(
+                           '✅ CONFIRMED: Emotion labels saved correctly in config.json')\n",
+                           
             "    else:\n",
-            "        print('❌ ERROR: Emotion labels not saved correctly in config.json')\n",
+            "        print(
+                           '❌ ERROR: Emotion labels not saved correctly in config.json')\n",
+                           
             "        print(f'Expected: {expected_id2label}')\n",
             "        print(f'Got: {saved_config.get(\"id2label\")}')\n",
             "    \n",
             "    if saved_config.get('label2id') == expected_label2id:\n",
-            "        print('✅ CONFIRMED: Label mappings saved correctly in config.json')\n",
+            "        print(
+                           '✅ CONFIRMED: Label mappings saved correctly in config.json')\n",
+                           
             "    else:\n",
-            "        print('❌ ERROR: Label mappings not saved correctly in config.json')\n",
+            "        print(
+                           '❌ ERROR: Label mappings not saved correctly in config.json')\n",
+                           
             "        print(f'Expected: {expected_label2id}')\n",
             "        print(f'Got: {saved_config.get(\"label2id\")}')\n",
             "    \n",

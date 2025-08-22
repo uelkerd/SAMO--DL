@@ -89,7 +89,8 @@ def create_improved_notebook():
     "import torch\\n",
     "import numpy as np\\n",
     "import pandas as pd\\n",
-    "from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer\\n",
+"from transformers import AutoTokenizer, AutoModelForSequenceClassification,
+TrainingArguments, Trainer\\n",
     "from datasets import Dataset\\n",
     "from sklearn.model_selection import train_test_split\\n",
     "from sklearn.metrics import classification_report, confusion_matrix\\n",
@@ -107,7 +108,8 @@ def create_improved_notebook():
    "outputs": [],
    "source": [
     "# Create balanced dataset\\n",
-    "emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\\n",
+"emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy',
+'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\\n",
     "\\n",
     "# Balanced training data (12 samples per emotion)\\n",
     "balanced_data = [\\n",
@@ -153,7 +155,12 @@ def create_improved_notebook():
    "outputs": [],
    "source": [
     "# Split data with proper validation\\n",
-    "train_data, val_data = train_test_split(balanced_data, test_size=0.2, random_state=42, stratify=[d['label'] for d in balanced_data])\\n",
+    "train_data, val_data = train_test_split(
+                                             balanced_data,
+                                             test_size=0.2,
+                                             random_state=42,
+                                             stratify=[d['label'] for d in balanced_data])\\n",
+                                             
     "\\n",
     "print(f'Training samples: {len(train_data)}')\\n",
     "print(f'Validation samples: {len(val_data)}')\\n",
@@ -172,7 +179,10 @@ def create_improved_notebook():
     "# Load model and tokenizer\\n",
     "model_name = 'roberta-base'\\n",
     "tokenizer = AutoTokenizer.from_pretrained(model_name)\\n",
-    "model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=12)\\n",
+    "model = AutoModelForSequenceClassification.from_pretrained(
+                                                                model_name,
+                                                                num_labels=12)\\n",
+                                                                
     "\\n",
     "# Update model config with emotion labels\\n",
     "model.config.id2label = {i: emotion for i, emotion in enumerate(emotions)}\\n",
@@ -189,7 +199,12 @@ def create_improved_notebook():
    "source": [
     "# Tokenization function\\n",
     "def tokenize_function(examples):\\n",
-    "    return tokenizer(examples['text'], padding='max_length', truncation=True, max_length=128)\\n",
+    "    return tokenizer(
+                          examples['text'],
+                          padding='max_length',
+                          truncation=True,
+                          max_length=128)\\n",
+                          
     "\\n",
     "train_dataset = train_dataset.map(tokenize_function, batched=True)\\n",
     "val_dataset = val_dataset.map(tokenize_function, batched=True)\\n",
@@ -238,7 +253,12 @@ def create_improved_notebook():
     "    predictions = np.argmax(predictions, axis=1)\\n",
     "    \\n",
     "    # Calculate metrics\\n",
-    "    report = classification_report(labels, predictions, target_names=emotions, output_dict=True)\\n",
+    "    report = classification_report(
+                                        labels,
+                                        predictions,
+                                        target_names=emotions,
+                                        output_dict=True)\\n",
+                                        
     "    \\n",
     "    return {\\n",
     "        'f1': report['weighted avg']['f1-score'],\\n",
@@ -316,7 +336,12 @@ def create_improved_notebook():
     "print('🧪 Testing on diverse examples...')\\n",
     "correct = 0\\n",
     "for text in test_examples:\\n",
-    "    inputs = tokenizer(text, return_tensors='pt', truncation=True, max_length=128)\\n",
+    "    inputs = tokenizer(
+                            text,
+                            return_tensors='pt',
+                            truncation=True,
+                            max_length=128)\\n",
+                            
     "    with torch.no_grad():\\n",
     "        outputs = model(**inputs)\\n",
     "        predictions = torch.softmax(outputs.logits, dim=1)\\n",
@@ -336,7 +361,10 @@ def create_improved_notebook():
     "    else:\\n",
     "        status = '❌'\\n",
     "    \\n",
-    "    print(f'{status} \"{text}\" → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})')\\n",
+    "    print(
+               f'{status} \"{text}\" → {predicted_emotion} (expected: {expected_emotion},
+               confidence: {confidence:.3f})')\\n",
+               
     "\\n",
     "accuracy = correct / len(test_examples)\\n",
     "print(f'\\n📊 Test Accuracy: {accuracy:.1%}')\\n",
@@ -384,7 +412,8 @@ def create_improved_notebook():
 }'''
     
     # Save the notebook
-    notebook_path = Path(__file__).parent.parent / 'notebooks' / 'IMPROVED_TRAINING_WITH_VALIDATION.ipynb'
+    notebook_path = Path(
+                         __file__).parent.parent / 'notebooks' / 'IMPROVED_TRAINING_WITH_VALIDATION.ipynb'
     with open(notebook_path, 'w') as f:
         f.write(notebook_content)
     

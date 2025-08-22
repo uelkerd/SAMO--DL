@@ -36,13 +36,18 @@ class HealthMonitor:
         self.is_shutting_down = False
         self.active_requests = 0
         self.health_metrics: Dict[str, HealthMetrics] = {}
-        self.shutdown_timeout = int(os.getenv('GRACEFUL_SHUTDOWN_TIMEOUT', '30') or '30')
+        self.shutdown_timeout = int(
+                                    os.getenv('GRACEFUL_SHUTDOWN_TIMEOUT',
+                                    '30') or '30'
+                                   )
 
         # Register graceful shutdown handlers
         signal.signal(signal.SIGTERM, self._graceful_shutdown)
         signal.signal(signal.SIGINT, self._graceful_shutdown)
 
-        logger.info(f"Health monitor initialized with {self.shutdown_timeout}s shutdown timeout")
+        logger.info(
+                    f"Health monitor initialized with {self.shutdown_timeout}s shutdown timeout"
+                   )
 
     def _graceful_shutdown(self, signum, frame):
         """Handle graceful shutdown"""
@@ -51,12 +56,17 @@ class HealthMonitor:
 
         # Wait for active requests to complete
         start_wait = time.time()
-        while self.active_requests > 0 and (time.time() - start_wait) < self.shutdown_timeout:
-            logger.info(f"Waiting for {self.active_requests} active requests to complete...")
+        while self.active_requests > 0 and (
+                                            time.time() - start_wait) < self.shutdown_timeout:
+            logger.info(
+                        f"Waiting for {self.active_requests} active requests to complete..."
+                       )
             time.sleep(1)
 
         if self.active_requests > 0:
-            logger.warning(f"Force shutdown after {self.shutdown_timeout}s timeout with {self.active_requests} active requests")
+            logger.warning(
+                           f"Force shutdown after {self.shutdown_timeout}s timeout with {self.active_requests} active requests"
+                          )
         else:
             logger.info("Graceful shutdown completed successfully")
 

@@ -7,7 +7,14 @@ Tests for the refactored sandbox executor with safe builtins.
 
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'models', 'secure_loader'))
+sys.path.append(
+                os.path.join(os.path.dirname(__file__),
+                '..',
+                '..',
+                'src',
+                'models',
+                'secure_loader')
+               )
 
 import unittest
 import threading
@@ -114,7 +121,9 @@ class TestSandboxExecutor(unittest.TestCase):
         
         def worker_function():
             try:
-                result, meta = self.executor.execute_safely(lambda: f"Worker {threading.current_thread().name}")
+                result, meta = self.executor.execute_safely(
+                                                            lambda: f"Worker {threading.current_thread().name}"
+                                                           )
                 results.append(result)
             except Exception as e:
                 errors.append(str(e))

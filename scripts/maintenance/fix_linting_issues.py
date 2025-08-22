@@ -30,11 +30,13 @@ def fix_unused_exception_variables(file_path: Path) -> bool:
     content = file_path.read_text()
     original_content = content
 
-    pattern = r'except Exception as e:\s*\n\s*logger\.(error|warning|info)\("([^"]*)\{e\}([^"]*)"'
+    pattern = r'except Exception as e:\s*\n\s*logger\.(
+                                                       error|warning|info)\("([^"]*)\{e\}([^"]*)"'
     replacement = r'except Exception as e:\n        logger.\1(f"\2{e}\3")'
     content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
 
-    pattern = r'except Exception as e:\s*\n\s*logger\.(error|warning|info)\("([^"]*)\{e!s\}([^"]*)"'
+    pattern = r'except Exception as e:\s*\n\s*logger\.(
+                                                       error|warning|info)\("([^"]*)\{e!s\}([^"]*)"'
     replacement = r'except Exception as e:\n        logger.\1(f"\2{e!s}\3")'
     content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
 

@@ -39,7 +39,9 @@ def temp_dir():
 def sample_journal_entry():
     """Provide sample journal entry for testing."""
     return {
-        "text": "I had an amazing day today! I completed my machine learning project and felt so proud of my accomplishment. The weather was beautiful and I went for a walk in the park.",
+"text": "I had an amazing day today! I completed my machine learning project and felt so
+proud of my accomplishment. The weather was beautiful and I went for a walk in the
+park.",
         "user_id": 1,
         "is_private": False,
         "expected_emotions": ["joy", "pride", "admiration"],
@@ -77,7 +79,8 @@ def mock_bert_model():
 @pytest.fixture
 def mock_t5_model():
     """Mock T5 model for testing without loading actual weights."""
-    with patch("src.models.summarization.t5_summarizer.T5ForConditionalGeneration") as mock_model:
+    with patch(
+               "src.models.summarization.t5_summarizer.T5ForConditionalGeneration") as mock_model:
         mock_instance = Mock()
         mock_model.from_pretrained.return_value = mock_instance
         yield mock_model
@@ -86,7 +89,8 @@ def mock_t5_model():
 @pytest.fixture
 def mock_whisper_model():
     """Mock Whisper model for testing without loading actual weights."""
-    with patch("src.models.voice_processing.whisper_transcriber.whisper") as mock_whisper:
+    with patch(
+               "src.models.voice_processing.whisper_transcriber.whisper") as mock_whisper:
         mock_model = Mock()
         mock_model.transcribe.return_value = {"text": "test transcription"}
         mock_whisper.load_model.return_value = mock_model

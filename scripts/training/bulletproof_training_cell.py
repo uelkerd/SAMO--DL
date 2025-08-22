@@ -108,7 +108,11 @@ print(f"📊 Filtered Journal: {len(journal_texts)} samples")
 
 # Validate label ranges
 go_label_range = (min(go_labels), max(go_labels)) if go_labels else (0, 0)
-journal_label_range = (min(journal_labels), max(journal_labels)) if journal_labels else (0, 0)
+journal_label_range = (
+                       min(journal_labels),
+                       max(journal_labels)) if journal_labels else (0,
+                       0
+                      )
 expected_range = (0, len(label_encoder.classes_) - 1)
 
 print(f"📊 GoEmotions label range: {go_label_range}")
@@ -118,7 +122,8 @@ print(f"📊 Expected range: {expected_range}")
 if go_label_range[0] < expected_range[0] or go_label_range[1] > expected_range[1]:
     raise ValueError("❌ GoEmotions labels out of range!")
 
-if journal_label_range[0] < expected_range[0] or journal_label_range[1] > expected_range[1]:
+if journal_label_range[0] < expected_range[0] or journal_label_range[1] >
+expected_range[1]:
     raise ValueError("❌ Journal labels out of range!")
 
 print("✅ All labels within expected range")
@@ -133,7 +138,9 @@ class SimpleEmotionDataset(Dataset):
         
         # Validate data
         if len(texts) != len(labels):
-            raise ValueError(f"Texts and labels have different lengths: {len(texts)} vs {len(labels)}")
+            raise ValueError(
+                             f"Texts and labels have different lengths: {len(texts)} vs {len(labels)}"
+                            )
         
         # Validate labels
         for i, label in enumerate(labels):
@@ -189,7 +196,10 @@ class SimpleEmotionClassifier(nn.Module):
             raise ValueError(f"Expected input_ids to be 2D, got {input_ids.dim()}D")
         
         if attention_mask.dim() != 2:
-            raise ValueError(f"Expected attention_mask to be 2D, got {attention_mask.dim()}D")
+            raise ValueError(
+                             f"Expected attention_mask to be 2D,
+                             got {attention_mask.dim()}D"
+                            )
         
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
         pooled_output = outputs.pooler_output
@@ -197,7 +207,10 @@ class SimpleEmotionClassifier(nn.Module):
         
         # Validate outputs
         if logits.shape[-1] != self.num_labels:
-            raise ValueError(f"Expected {self.num_labels} output classes, got {logits.shape[-1]}")
+            raise ValueError(
+                             f"Expected {self.num_labels} output classes,
+                             got {logits.shape[-1]}"
+                            )
         
         return logits
 
@@ -218,19 +231,31 @@ go_dataset = SimpleEmotionDataset(go_texts, go_labels, tokenizer)
 journal_dataset = SimpleEmotionDataset(journal_texts, journal_labels, tokenizer)
 
 # Split journal data
-journal_train_texts, journal_val_texts, journal_train_labels, journal_val_labels = train_test_split(
-    journal_texts, journal_labels, test_size=0.3, random_state=42, stratify=journal_labels
+journal_train_texts, journal_val_texts, journal_train_labels, journal_val_labels =
+    train_test_split(
+journal_texts, journal_labels, test_size =
+    0.3, random_state=42, stratify=journal_labels
 )
 
-journal_train_dataset = SimpleEmotionDataset(journal_train_texts, journal_train_labels, tokenizer)
-journal_val_dataset = SimpleEmotionDataset(journal_val_texts, journal_val_labels, tokenizer)
+journal_train_dataset = SimpleEmotionDataset(
+                                             journal_train_texts,
+                                             journal_train_labels,
+                                             tokenizer
+                                            )
+journal_val_dataset = SimpleEmotionDataset(
+                                           journal_val_texts,
+                                           journal_val_labels,
+                                           tokenizer
+                                          )
 
 # Create dataloaders
 go_loader = DataLoader(go_dataset, batch_size=8, shuffle=True)
 journal_train_loader = DataLoader(journal_train_dataset, batch_size=8, shuffle=True)
 journal_val_loader = DataLoader(journal_val_dataset, batch_size=8, shuffle=False)
 
-print(f"✅ Training samples: {len(go_dataset)} GoEmotions + {len(journal_train_dataset)} Journal")
+print(
+      f"✅ Training samples: {len(go_dataset)} GoEmotions + {len(journal_train_dataset)} Journal"
+     )
 print(f"✅ Validation samples: {len(journal_val_dataset)} Journal")
 
 # Step 8: Training loop
@@ -255,7 +280,7 @@ for epoch in range(num_epochs):
     for i, batch in enumerate(go_loader):
         try:
             # Validate batch
-            if 'input_ids' not in batch or 'attention_mask' not in batch or 'labels' not in batch:
+if 'input_ids' not in batch or 'attention_mask' not in batch or 'labels' not in batch:
                 print(f"⚠️ Invalid batch structure at batch {i}")
                 continue
             
@@ -307,7 +332,10 @@ for epoch in range(num_epochs):
             num_batches += 1
             
             if i % 10 == 0:
-                print(f"    Batch {i}/{len(journal_train_loader)}, Loss: {loss.item():.4f}")
+                print(
+                      f"    Batch {i}/{len(journal_train_loader)},
+                      Loss: {loss.item():.4f}"
+                     )
                 
         except Exception as e:
             print(f"❌ Error in journal batch {i}: {e}")

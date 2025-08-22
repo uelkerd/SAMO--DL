@@ -150,13 +150,15 @@ class TestJWTAuthentication:
     def test_protected_endpoint_without_auth(self):
         """Test accessing protected endpoint without authentication."""
         response = client.get("/auth/profile")
-        assert response.status_code == 403  # Forbidden - FastAPI returns 403 for missing authentication
+assert response.status_code =
+    = 403  # Forbidden - FastAPI returns 403 for missing authentication
     
     def test_invalid_token(self):
         """Test accessing protected endpoint with invalid token."""
         headers = {"Authorization": "Bearer invalid_token"}
         response = client.get("/auth/profile", headers=headers)
-        assert response.status_code == 403  # Forbidden - FastAPI returns 403 for invalid tokens
+assert response.status_code =
+    = 403  # Forbidden - FastAPI returns 403 for invalid tokens
 
 class TestEnhancedVoiceTranscription:
     """Test enhanced voice transcription features."""
@@ -216,7 +218,12 @@ class TestEnhancedVoiceTranscription:
             with open(temp_file_path, "rb") as audio_file:
                 files = {"audio_file": ("test.txt", audio_file, "text/plain")}
                 data = {"language": "en", "model_size": "base"}
-                response = client.post("/transcribe/voice", files=files, data=data, headers=headers)
+                response = client.post(
+                                       "/transcribe/voice",
+                                       files=files,
+                                       data=data,
+                                       headers=headers
+                                      )
             
             assert response.status_code == 500  # Internal server error
             
@@ -261,10 +268,20 @@ class TestEnhancedVoiceTranscription:
             files = []
             for i, temp_file_path in enumerate(temp_files):
                 with open(temp_file_path, "rb") as audio_file:
-                    files.append(("audio_files", (f"test{i}.wav", audio_file, "audio/wav")))
+                    files.append(
+                                 ("audio_files",
+                                 (f"test{i}.wav",
+                                 audio_file,
+                                 "audio/wav"))
+                                )
             
             data = {"language": "en"}
-            response = client.post("/transcribe/batch", files=files, data=data, headers=headers)
+            response = client.post(
+                                   "/transcribe/batch",
+                                   files=files,
+                                   data=data,
+                                   headers=headers
+                                  )
             
             assert response.status_code == 200
             
@@ -277,14 +294,24 @@ class TestEnhancedVoiceTranscription:
 
             # Negative cases: missing and incorrect permissions
             missing_headers = {"Authorization": f"Bearer {access_token}"}
-            response_missing = client.post("/transcribe/batch", files=files, data=data, headers=missing_headers)
+            response_missing = client.post(
+                                           "/transcribe/batch",
+                                           files=files,
+                                           data=data,
+                                           headers=missing_headers
+                                          )
             assert response_missing.status_code == 403
 
             wrong_headers = {
                 "Authorization": f"Bearer {access_token}",
                 "X-User-Permissions": "wrong_permission"
             }
-            response_wrong = client.post("/transcribe/batch", files=files, data=data, headers=wrong_headers)
+            response_wrong = client.post(
+                                         "/transcribe/batch",
+                                         files=files,
+                                         data=data,
+                                         headers=wrong_headers
+                                        )
             assert response_wrong.status_code == 403
             
         finally:
@@ -324,10 +351,16 @@ class TestEnhancedVoiceTranscription:
             access_token = login_response.json()["access_token"]
             
             # Test batch transcription endpoint
-            headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
+headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions":
+"batch_processing"}
             data = {"language": "en"}
             with to_uploads(temp_files, "file") as files:
-                response = client.post("/transcribe/batch", files=files, data=data, headers=headers)
+                response = client.post(
+                                       "/transcribe/batch",
+                                       files=files,
+                                       data=data,
+                                       headers=headers
+                                      )
             
             assert response.status_code == 200
             data = response.json()
@@ -355,13 +388,18 @@ class TestEnhancedVoiceTranscription:
                 temp_files.append(tmp.name)
 
             # Login and headers with permission override for tests
-            login_data = {"username": "testuser@example.com", "password": "testpassword123"}
+login_data = {"username": "testuser@example.com", "password": "testpassword123"}
             login_response = client.post("/auth/login", json=login_data)
             access_token = login_response.json()["access_token"]
-            headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
+headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions":
+"batch_processing"}
 
             with to_uploads(temp_files, "f") as files:
-                response = client.post("/transcribe/batch", files=files, headers=headers)
+                response = client.post(
+                                       "/transcribe/batch",
+                                       files=files,
+                                       headers=headers
+                                      )
 
             assert response.status_code == 200
             data = response.json()
@@ -387,13 +425,18 @@ class TestEnhancedVoiceTranscription:
                 tmp.close()
                 temp_files.append(tmp.name)
 
-            login_data = {"username": "testuser@example.com", "password": "testpassword123"}
+login_data = {"username": "testuser@example.com", "password": "testpassword123"}
             login_response = client.post("/auth/login", json=login_data)
             access_token = login_response.json()["access_token"]
-            headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
+headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions":
+"batch_processing"}
 
             with to_uploads(temp_files, "f") as files:
-                response = client.post("/transcribe/batch", files=files, headers=headers)
+                response = client.post(
+                                       "/transcribe/batch",
+                                       files=files,
+                                       headers=headers
+                                      )
 
             assert response.status_code == 200
             data = response.json()
@@ -469,7 +512,8 @@ class TestEnhancedTextSummarization:
         
         # Test with unsupported model
         headers = {"Authorization": f"Bearer {access_token}"}
-        data = {"text": "This is a valid input text for summarization.", "model": "nonexistent-model"}
+data = {"text": "This is a valid input text for summarization.", "model":
+"nonexistent-model"}
         response = client.post("/summarize/text", data=data, headers=headers)
         
         # Should either return 400 or 422 depending on validation
@@ -510,7 +554,12 @@ class TestAPIValidation:
         files = {"audio_file": ("large.wav", large_content, "audio/wav")}
         data = {"language": "en", "model_size": "base"}
         
-        response = client.post("/transcribe/voice", files=files, data=data, headers=headers)
+        response = client.post(
+                               "/transcribe/voice",
+                               files=files,
+                               data=data,
+                               headers=headers
+                              )
         assert response.status_code == 400
         assert "too large" in response.json()["detail"].lower()
     
@@ -546,7 +595,12 @@ class TestAPIValidation:
         files = [("audio_files", ("test.wav", b"fake audio", "audio/wav"))]
         data = {"language": "en"}
         
-        response = client.post("/transcribe/batch", files=files, data=data, headers=headers)
+        response = client.post(
+                               "/transcribe/batch",
+                               files=files,
+                               data=data,
+                               headers=headers
+                              )
         # Should return 403 if user doesn't have batch_processing permission
         assert response.status_code == 403
 
@@ -556,11 +610,15 @@ class TestCompleteWorkflow:
     @patch('src.unified_ai_api.voice_transcriber')
     @patch('src.unified_ai_api.text_summarizer')
     @patch('src.unified_ai_api.emotion_detector')
-    def test_complete_voice_journal_analysis(self, mock_emotion_detector, mock_summarizer, mock_transcriber):
+    def test_complete_voice_journal_analysis(
+                                             self,
+                                             mock_emotion_detector,
+                                             mock_summarizer,
+                                             mock_transcriber):
         """Test complete voice journal analysis workflow."""
         # Mock all the AI components
         mock_transcriber.transcribe.return_value = {
-            "text": "Today I received a promotion at work and I'm really excited about it.",
+"text": "Today I received a promotion at work and I'm really excited about it.",
             "language": "en",
             "confidence": 0.95,
             "duration": 15.4
@@ -603,7 +661,12 @@ class TestCompleteWorkflow:
                     "generate_summary": True,
                     "emotion_threshold": 0.1
                 }
-                response = client.post("/analyze/voice-journal", files=files, data=data, headers=headers)
+                response = client.post(
+                                       "/analyze/voice-journal",
+                                       files=files,
+                                       data=data,
+                                       headers=headers
+                                      )
             
             assert response.status_code == 200
             data = response.json()
@@ -658,7 +721,10 @@ class TestCompleteWorkflow:
         assert profile_response.status_code == 200
         
         # 4. Refresh token
-        refresh_response = client.post("/auth/refresh", json={"refresh_token": refresh_token})
+        refresh_response = client.post(
+                                       "/auth/refresh",
+                                       json={"refresh_token": refresh_token}
+                                      )
         assert refresh_response.status_code == 200
         new_access_token = refresh_response.json()["access_token"]
         
@@ -850,7 +916,9 @@ class TestJWTManager:
         jwt_manager = JWTManager()
         assert jwt_manager.secret_key is not None
         assert jwt_manager.algorithm == "HS256"
-        assert isinstance(jwt_manager.blacklisted_tokens, dict)  # Changed to dict for performance
+        assert isinstance(
+                          jwt_manager.blacklisted_tokens,
+                          dict)  # Changed to dict for performance
     
     def test_token_creation(self):
         """Test token creation."""
@@ -972,7 +1040,11 @@ class TestJWTManager:
             "iat": datetime.utcnow() - timedelta(hours=2)
         }
         
-        expired_token = jwt.encode(payload, jwt_manager.secret_key, algorithm=jwt_manager.algorithm)
+        expired_token = jwt.encode(
+                                   payload,
+                                   jwt_manager.secret_key,
+                                   algorithm=jwt_manager.algorithm
+                                  )
         
         # Verify expired token returns None
         result = jwt_manager.verify_token(expired_token)
@@ -987,7 +1059,9 @@ class TestJWTManager:
         assert result is None
         
         # Test with malformed token
-        result = jwt_manager.verify_token("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid")
+        result = jwt_manager.verify_token(
+                                          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid"
+                                         )
         assert result is None
     
     def test_blacklist_token_cleanup(self):

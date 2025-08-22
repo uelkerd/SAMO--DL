@@ -407,7 +407,10 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                 local_dir = os.getenv("EMOTION_MODEL_LOCAL_DIR")
                 archive_url = os.getenv("EMOTION_MODEL_ARCHIVE_URL")
                 endpoint_url = os.getenv("EMOTION_MODEL_ENDPOINT_URL")
-                logger.info("Attempting to load emotion model from HF Hub: %s", hf_model_id)
+                logger.info(
+                            "Attempting to load emotion model from HF Hub: %s",
+                            hf_model_id
+                           )
                 logger.info(
                     "Sources configured: local_dir=%s, archive=%s, endpoint=%s",
                     bool(local_dir), bool(archive_url), bool(endpoint_url)
@@ -1898,7 +1901,9 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
             if voice_transcriber:
                 try:
                     # Save received audio data
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
+                    with tempfile.NamedTemporaryFile(
+                                                     delete=False,
+                                                     suffix=".wav") as temp_file:
                         temp_file.write(data)
                         temp_file.flush()  # Ensure data is written to disk
                         temp_file_path = temp_file.name
@@ -2022,12 +2027,13 @@ async def detailed_health_check(
     if emotion_detector is None:
         health_status = "degraded"
         issues.append("Emotion detection model not loaded")
-        model_checks["emotion_detection"] = {"status": "unavailable", "error": "Model not loaded"}
+model_checks["emotion_detection"] = {"status": "unavailable", "error": "Model not
+loaded"}
     else:
         try:
             # Test emotion detection
             test_result = emotion_detector.predict("I am happy today")
-            model_checks["emotion_detection"] = {"status": "healthy", "test_passed": True}
+model_checks["emotion_detection"] = {"status": "healthy", "test_passed": True}
         except Exception as exc:
             health_status = "degraded"
             issues.append(f"Emotion detection model error: {exc}")
@@ -2036,12 +2042,15 @@ async def detailed_health_check(
     if text_summarizer is None:
         health_status = "degraded"
         issues.append("Text summarization model not loaded")
-        model_checks["text_summarization"] = {"status": "unavailable", "error": "Model not loaded"}
+model_checks["text_summarization"] = {"status": "unavailable", "error": "Model not
+loaded"}
     else:
         try:
             # Test text summarization
-            test_result = text_summarizer.summarize("This is a test text for summarization.")
-            model_checks["text_summarization"] = {"status": "healthy", "test_passed": True}
+            test_result = text_summarizer.summarize(
+                                                    "This is a test text for summarization."
+                                                   )
+model_checks["text_summarization"] = {"status": "healthy", "test_passed": True}
         except Exception as exc:
             health_status = "degraded"
             issues.append(f"Text summarization model error: {exc}")
@@ -2050,7 +2059,8 @@ async def detailed_health_check(
     if voice_transcriber is None:
         health_status = "degraded"
         issues.append("Voice processing model not loaded")
-        model_checks["voice_processing"] = {"status": "unavailable", "error": "Model not loaded"}
+model_checks["voice_processing"] = {"status": "unavailable", "error": "Model not
+loaded"}
     else:
         model_checks["voice_processing"] = {"status": "healthy", "test_passed": True}
 
@@ -2071,7 +2081,7 @@ async def detailed_health_check(
         system_checks = {
             "cpu_percent": cpu_percent,
             "memory_percent": memory.percent,
-            "status": "healthy" if cpu_percent < 90 and memory.percent < 90 else "warning"
+"status": "healthy" if cpu_percent < 90 and memory.percent < 90 else "warning"
         }
     except Exception as exc:
         system_checks = {"status": "error", "error": str(exc)}
@@ -2100,7 +2110,7 @@ async def get_models_status() -> Dict[str, Any]:
         "emotion_detector": {
             "loaded": emotion_detector is not None,
             "model_type": "BERT + GoEmotions",
-            "capabilities": ["Multi-label emotion classification", "Emotion intensity analysis"],
+"capabilities": ["Multi-label emotion classification", "Emotion intensity analysis"],
             "available": emotion_detector is not None,
             "description": "Multi-label emotion classification",
         },
@@ -2121,7 +2131,11 @@ async def get_models_status() -> Dict[str, Any]:
         "pipeline": {
             "complete": all([emotion_detector, text_summarizer, voice_transcriber]),
             "partial": any([emotion_detector, text_summarizer, voice_transcriber]),
-            "degraded_mode": not all([emotion_detector, text_summarizer, voice_transcriber]),
+            "degraded_mode": not all(
+                                     [emotion_detector,
+                                     text_summarizer,
+                                     voice_transcriber]),
+                                     
         },
     }
 

@@ -28,7 +28,10 @@ class TestAdminEndpointProtection(unittest.TestCase):
     def setUpClass(cls):
         """Set up test class."""
         if not MODEL_AVAILABLE:
-            raise unittest.SkipTest("Model not available, skipping admin endpoint tests")
+            raise unittest.SkipTest(
+                                    "Model not available,
+                                    skipping admin endpoint tests"
+                                   )
     
     def setUp(self):
         """Set up test fixtures."""
@@ -70,7 +73,10 @@ class TestAdminEndpointProtection(unittest.TestCase):
                                content_type='application/json',
                                headers={'X-Admin-API-Key': 'test-admin-key-123'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Added 192.168.1.100 to blacklist', response.get_json()['message'])
+        self.assertIn(
+                      'Added 192.168.1.100 to blacklist',
+                      response.get_json()['message']
+                     )
     
     def test_whitelist_endpoint_no_auth(self):
         """Test that whitelist endpoint requires admin API key."""
@@ -96,7 +102,10 @@ class TestAdminEndpointProtection(unittest.TestCase):
                                content_type='application/json',
                                headers={'X-Admin-API-Key': 'test-admin-key-123'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Added 192.168.1.100 to whitelist', response.get_json()['message'])
+        self.assertIn(
+                      'Added 192.168.1.100 to whitelist',
+                      response.get_json()['message']
+                     )
     
     def test_admin_endpoints_missing_ip(self):
         """Test that admin endpoints require IP address."""

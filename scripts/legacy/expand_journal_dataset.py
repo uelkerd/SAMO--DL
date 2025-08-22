@@ -44,10 +44,12 @@ def create_balanced_dataset(target_size=1000):
     
     for emotion in emotion_counts.keys():
         # Get existing samples for this emotion
-        existing_samples = [entry for entry in current_data if entry['emotion'] == emotion]
+existing_samples = [entry for entry in current_data if entry['emotion'] == emotion]
         current_count = len(existing_samples)
         
-        print(f"\n📝 Expanding '{emotion}' from {current_count} to {target_per_emotion} samples...")
+        print(
+              f"\n📝 Expanding '{emotion}' from {current_count} to {target_per_emotion} samples..."
+             )
         
         # Add existing samples
         expanded_data.extend(existing_samples)
@@ -231,9 +233,23 @@ def create_variation(base_sample: Dict, emotion: str) -> Dict:
     
     # Add some variety to the content
     variations = [
-        f"{template} {random.choice(['It\'s been a long day.', 'Things are going well.', 'I need to process this.', 'This is important to me.'])}",
-        f"{template} {random.choice(['I hope this continues.', 'I wonder what\'s next.', 'This feels right.', 'I\'m processing this.'])}",
-        f"{template} {random.choice(['I should reflect on this.', 'This is meaningful.', 'I appreciate this moment.', 'I\'m learning from this.'])}"
+        f"{template} {random.choice(
+                                    ['It\'s been a long day.',
+                                    'Things are going well.',
+                                    'I need to process this.',
+                                    'This is important to me.'])}",
+                                    
+        f"{template} {random.choice(
+                                    ['I hope this continues.',
+                                    'I wonder what\'s next.',
+                                    'This feels right.',
+                                    'I\'m processing this.'])}",
+                                    
+        f"{template} {random.choice(
+                                    ['I should reflect on this.',
+                                    'This is meaningful.',
+                                    'I appreciate this moment.',
+                                    'I\'m learning from this.'])}"
     ]
     
     content = random.choice(variations)

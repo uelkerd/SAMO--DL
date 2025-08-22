@@ -18,7 +18,8 @@ def create_colab_notebook():
                     "\n",
                     "## 🎯 REQ-DL-012: Domain-Adapted Emotion Detection\n",
                     "\n",
-                    "**Target**: Achieve 70% F1 score on journal entries through domain adaptation from GoEmotions (Reddit comments) to personal journal writing style.\n",
+"**Target**: Achieve 70% F1 score on journal entries through domain adaptation from
+GoEmotions (Reddit comments) to personal journal writing style.\n",
                     "\n",
                     "### Key Objectives:\n",
                     "- Bridge domain gap between Reddit comments and journal entries\n",
@@ -47,13 +48,17 @@ def create_colab_notebook():
                     "print(f\"CUDA Available: {torch.cuda.is_available()}\")\n",
                     "if torch.cuda.is_available():\n",
                     "    print(f\"GPU: {torch.cuda.get_device_name(0)}\")\n",
-                    "    print(f\"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB\")\n",
+                    "    print(
+                               f\"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB\")\n",
+                               
                     "    \n",
                     "    # Clear GPU cache\n",
                     "    torch.cuda.empty_cache()\n",
                     "    gc.collect()\n",
                     "else:\n",
-                    "    print(\"⚠️ No GPU available. Training will be slow on CPU.\")\n",
+                    "    print(
+                               \"⚠️ No GPU available. Training will be slow on CPU.\")\n",
+                               
                     "\n",
                     "# Enable cudnn benchmarking for faster training\n",
                     "torch.backends.cudnn.benchmark = True"
@@ -73,8 +78,10 @@ def create_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Install required packages\n",
-                    "!pip install torch>=2.1.0 torchvision>=0.16.0 torchaudio>=2.1.0 --index-url https://download.pytorch.org/whl/cu118\n",
-                    "!pip install transformers>=4.30.0 datasets>=2.13.0 evaluate scikit-learn pandas numpy matplotlib seaborn\n",
+"!pip install torch>=2.1.0 torchvision>=0.16.0 torchaudio>=2.1.0 --index-url
+https://download.pytorch.org/whl/cu118\n",
+"!pip install transformers>=4.30.0 datasets>=2.13.0 evaluate scikit-learn pandas numpy
+matplotlib seaborn\n",
                     "!pip install accelerate wandb pydub openai-whisper jiwer\n",
                     "\n",
                     "# Clone repository if not already done\n",
@@ -103,10 +110,14 @@ def create_colab_notebook():
                     "import seaborn as sns\n",
                     "\n",
                     "def analyze_writing_style(texts, domain_name):\n",
-                    "    \"\"\"Analyze writing style characteristics of a domain.\"\"\"\n",
+" \"\"\"Analyze writing style characteristics of a domain.\"\"\"\n",
                     "    avg_length = np.mean([len(text.split()) for text in texts])\n",
-                    "    personal_pronouns = sum(['I ' in text or 'my ' in text or 'me ' in text for text in texts]) / len(texts)\n",
-                    "    reflection_words = sum(['think' in text.lower() or 'feel' in text.lower() or 'believe' in text.lower() \n",
+                    "    personal_pronouns = sum(
+                                                 ['I ' in text or 'my ' in text or 'me ' in text for text in texts]) / len(texts)\n",
+                                                 
+                    "    reflection_words = sum(
+                                                ['think' in text.lower() or 'feel' in text.lower() or 'believe' in text.lower() \n",
+                                                
                     "                           for text in texts]) / len(texts)\n",
                     "    \n",
                     "    print(f\"{domain_name} Style Analysis:\")\n",
@@ -125,7 +136,7 @@ def create_colab_notebook():
                     "\n",
                     "# Load GoEmotions dataset\n",
                     "go_emotions = load_dataset(\"go_emotions\", \"simplified\")\n",
-                    "go_texts = go_emotions['train']['text'][:1000]  # Sample for analysis\n",
+"go_texts = go_emotions['train']['text'][:1000] # Sample for analysis\n",
                     "\n",
                     "# Load journal dataset\n",
                     "with open('data/journal_test_dataset.json', 'r') as f:\n",
@@ -136,28 +147,45 @@ def create_colab_notebook():
                     "\n",
                     "# Analyze domains\n",
                     "print(\"\\n🔍 Domain Gap Analysis:\")\n",
-                    "go_analysis = analyze_writing_style(go_texts, \"GoEmotions (Reddit)\")\n",
-                    "journal_analysis = analyze_writing_style(journal_texts, \"Journal Entries\")\n",
+                    "go_analysis = analyze_writing_style(
+                                                         go_texts,
+                                                         \"GoEmotions (Reddit)\")\n",
+                                                         
+                    "journal_analysis = analyze_writing_style(
+                                                              journal_texts,
+                                                              \"Journal Entries\")\n",
+                                                              
                     "\n",
                     "# Visualize differences\n",
                     "fig, axes = plt.subplots(1, 3, figsize=(15, 5))\n",
                     "\n",
-                    "metrics = ['avg_length', 'personal_pronouns', 'reflection_words']\n",
-                    "labels = ['Avg Length (words)', 'Personal Pronouns', 'Reflection Words']\n",
+"metrics = ['avg_length', 'personal_pronouns', 'reflection_words']\n",
+                    "labels = ['Avg Length (
+                                            words)',
+                                            'Personal Pronouns',
+                                            'Reflection Words']\n",
+                                            
                     "\n",
                     "for i, (metric, label) in enumerate(zip(metrics, labels)):\n",
                     "    axes[i].bar(['GoEmotions', 'Journal'], \n",
-                    "                [go_analysis[metric], journal_analysis[metric]])\n",
+" [go_analysis[metric], journal_analysis[metric]])\n",
                     "    axes[i].set_title(label)\n",
-                    "    axes[i].set_ylabel('Percentage' if 'pronouns' in metric or 'reflection' in metric else 'Count')\n",
+                    "    axes[i].set_ylabel(
+                                            'Percentage' if 'pronouns' in metric or 'reflection' in metric else 'Count')\n",
+                                            
                     "\n",
                     "plt.tight_layout()\n",
                     "plt.show()\n",
                     "\n",
                     "print(\"\\n🎯 Key Insights:\")\n",
-                    "print(f\"- Journal entries are {journal_analysis['avg_length']/go_analysis['avg_length']:.1f}x longer\")\n",
-                    "print(f\"- Journal entries use {journal_analysis['personal_pronouns']/go_analysis['personal_pronouns']:.1f}x more personal pronouns\")\n",
-                    "print(f\"- Journal entries contain {journal_analysis['reflection_words']/go_analysis['reflection_words']:.1f}x more reflection words\")"
+                    "print(
+                           f\"- Journal entries are {journal_analysis['avg_length']/go_analysis['avg_length']:.1f}x longer\")\n",
+                           
+                    "print(
+                           f\"- Journal entries use {journal_analysis['personal_pronouns']/go_analysis['personal_pronouns']:.1f}x more personal pronouns\")\n",
+                           
+                    "print(
+                           f\"- Journal entries contain {journal_analysis['reflection_words']/go_analysis['reflection_words']:.1f}x more reflection words\")"
                 ]
             },
             {
@@ -179,7 +207,7 @@ def create_colab_notebook():
                     "from transformers import AutoModel, AutoTokenizer\n",
                     "\n",
                     "class FocalLoss(nn.Module):\n",
-                    "    \"\"\"Focal Loss for addressing class imbalance in emotion detection.\"\"\"\n",
+" \"\"\"Focal Loss for addressing class imbalance in emotion detection.\"\"\"\n",
                     "    \n",
                     "    def __init__(self, alpha=1, gamma=2, reduction='mean'):\n",
                     "        super(FocalLoss, self).__init__()\n",
@@ -188,9 +216,15 @@ def create_colab_notebook():
                     "        self.reduction = reduction\n",
                     "    \n",
                     "    def forward(self, inputs, targets):\n",
-                    "        ce_loss = F.cross_entropy(inputs, targets, reduction='none')\n",
+                    "        ce_loss = F.cross_entropy(
+                                                       inputs,
+                                                       targets,
+                                                       reduction='none')\n",
+                                                       
                     "        pt = torch.exp(-ce_loss)\n",
-                    "        focal_loss = self.alpha * (1 - pt) ** self.gamma * ce_loss\n",
+                    "        focal_loss = self.alpha * (
+                                                        1 - pt) ** self.gamma * ce_loss\n",
+                                                        
                     "        \n",
                     "        if self.reduction == 'mean':\n",
                     "            return focal_loss.mean()\n",
@@ -200,28 +234,49 @@ def create_colab_notebook():
                     "            return focal_loss\n",
                     "\n",
                     "class DomainAdaptedEmotionClassifier(nn.Module):\n",
-                    "    \"\"\"BERT-based emotion classifier with domain adaptation capabilities.\"\"\"\n",
+" \"\"\"BERT-based emotion classifier with domain adaptation capabilities.\"\"\"\n",
                     "    \n",
-                    "    def __init__(self, model_name=\"bert-base-uncased\", num_labels=12, dropout=0.3):\n",
+                    "    def __init__(
+                                      self,
+                                      model_name=\"bert-base-uncased\",
+                                      num_labels=12,
+                                      dropout=0.3):\n",
+                                      
                     "        super().__init__()\n",
                     "        self.bert = AutoModel.from_pretrained(model_name)\n",
                     "        self.dropout = nn.Dropout(dropout)\n",
-                    "        self.classifier = nn.Linear(self.bert.config.hidden_size, num_labels)\n",
+                    "        self.classifier = nn.Linear(
+                                                         self.bert.config.hidden_size,
+                                                         num_labels)\n",
+                                                         
                     "        \n",
                     "        # Domain adaptation layer\n",
                     "        self.domain_classifier = nn.Sequential(\n",
                     "            nn.Linear(self.bert.config.hidden_size, 512),\n",
                     "            nn.ReLU(),\n",
                     "            nn.Dropout(0.3),\n",
-                    "            nn.Linear(512, 2)  # 2 domains: GoEmotions vs Journal\n",
+                    "            nn.Linear(
+                                           512,
+                                           2)  # 2 domains: GoEmotions vs Journal\n",
+                                           
                     "        )\n",
                     "    \n",
-                    "    def forward(self, input_ids, attention_mask, domain_labels=None):\n",
-                    "        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)\n",
+                    "    def forward(
+                                     self,
+                                     input_ids,
+                                     attention_mask,
+                                     domain_labels=None):\n",
+                                     
+                    "        outputs = self.bert(
+                                                 input_ids=input_ids,
+                                                 attention_mask=attention_mask)\n",
+                                                 
                     "        pooled_output = outputs.pooler_output\n",
                     "        \n",
                     "        # Emotion classification\n",
-                    "        emotion_logits = self.classifier(self.dropout(pooled_output))\n",
+                    "        emotion_logits = self.classifier(
+                                                              self.dropout(pooled_output))\n",
+                                                              
                     "        \n",
                     "        # Domain classification (for domain adaptation)\n",
                     "        domain_logits = self.domain_classifier(pooled_output)\n",
@@ -234,13 +289,20 @@ def create_colab_notebook():
                     "print(\"🏗️ Initializing model...\")\n",
                     "model_name = \"bert-base-uncased\"\n",
                     "tokenizer = AutoTokenizer.from_pretrained(model_name)\n",
-                    "model = DomainAdaptedEmotionClassifier(model_name=model_name, num_labels=12)\n",
+                    "model = DomainAdaptedEmotionClassifier(
+                                                            model_name=model_name,
+                                                            num_labels=12)\n",
+                                                            
                     "\n",
-                    "device = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n",
+                    "device = torch.device(
+                                           \"cuda\" if torch.cuda.is_available() else \"cpu\")\n",
+                                           
                     "model = model.to(device)\n",
                     "\n",
                     "print(f\"✅ Model loaded on {device}\")\n",
-                    "print(f\"📊 Model parameters: {sum(p.numel() for p in model.parameters()):,}\")"
+                    "print(
+                           f\"📊 Model parameters: {sum(p.numel() for p in model.parameters()):,
+                           }\")"
                 ]
             },
             {
@@ -263,7 +325,13 @@ def create_colab_notebook():
                     "class EmotionDataset(Dataset):\n",
                     "    \"\"\"Custom dataset for emotion classification.\"\"\"\n",
                     "    \n",
-                    "    def __init__(self, texts, labels, tokenizer, max_length=128):\n",
+                    "    def __init__(
+                                      self,
+                                      texts,
+                                      labels,
+                                      tokenizer,
+                                      max_length=128):\n",
+                                      
                     "        self.texts = texts\n",
                     "        self.labels = labels\n",
                     "        self.tokenizer = tokenizer\n",
@@ -286,18 +354,21 @@ def create_colab_notebook():
                     "        \n",
                     "        return {\n",
                     "            'input_ids': encoding['input_ids'].flatten(),\n",
-                    "            'attention_mask': encoding['attention_mask'].flatten(),\n",
+                    "            'attention_mask': encoding['attention_mask'].flatten(
+                                                                                      ),
+                                                                                      \n",
+                                                                                      
                     "            'labels': torch.tensor(label, dtype=torch.long)\n",
                     "        }\n",
                     "\n",
                     "# Prepare GoEmotions data\n",
                     "print(\"📊 Preparing GoEmotions data...\")\n",
                     "go_train = go_emotions['train']\n",
-                    "go_texts = go_train['text'][:10000]  # Use subset for faster training\n",
+"go_texts = go_train['text'][:10000] # Use subset for faster training\n",
                     "go_labels = go_train['labels'][:10000]\n",
                     "\n",
                     "# Convert multi-label to single label (take first emotion)\n",
-                    "go_single_labels = [label[0] if label else 0 for label in go_labels]\n",
+"go_single_labels = [label[0] if label else 0 for label in go_labels]\n",
                     "\n",
                     "# Prepare journal data\n",
                     "print(\"📊 Preparing journal data...\")\n",
@@ -311,27 +382,60 @@ def create_colab_notebook():
                     "\n",
                     "# Encode labels\n",
                     "go_encoded_labels = label_encoder.transform(go_single_labels)\n",
-                    "journal_encoded_labels = label_encoder.transform(journal_emotions)\n",
+                    "journal_encoded_labels = label_encoder.transform(
+                                                                      journal_emotions)\n",
+                                                                      
                     "\n",
                     "# Split journal data\n",
-                    "journal_train_texts, journal_val_texts, journal_train_labels, journal_val_labels = train_test_split(\n",
-                    "    journal_texts, journal_encoded_labels, test_size=0.2, random_state=42, stratify=journal_encoded_labels\n",
+"journal_train_texts, journal_val_texts, journal_train_labels, journal_val_labels =
+train_test_split(\n",
+" journal_texts, journal_encoded_labels, test_size=0.2, random_state=42,
+stratify=journal_encoded_labels\n",
                     ")\n",
                     "\n",
                     "# Create datasets\n",
-                    "go_dataset = EmotionDataset(go_texts, go_encoded_labels, tokenizer)\n",
-                    "journal_train_dataset = EmotionDataset(journal_train_texts, journal_train_labels, tokenizer)\n",
-                    "journal_val_dataset = EmotionDataset(journal_val_texts, journal_val_labels, tokenizer)\n",
+                    "go_dataset = EmotionDataset(
+                                                 go_texts,
+                                                 go_encoded_labels,
+                                                 tokenizer)\n",
+                                                 
+                    "journal_train_dataset = EmotionDataset(
+                                                            journal_train_texts,
+                                                            journal_train_labels,
+                                                            tokenizer)\n",
+                                                            
+                    "journal_val_dataset = EmotionDataset(
+                                                          journal_val_texts,
+                                                          journal_val_labels,
+                                                          tokenizer)\n",
+                                                          
                     "\n",
                     "# Create dataloaders\n",
                     "batch_size = 16\n",
-                    "go_loader = DataLoader(go_dataset, batch_size=batch_size, shuffle=True, num_workers=2)\n",
-                    "journal_train_loader = DataLoader(journal_train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)\n",
-                    "journal_val_loader = DataLoader(journal_val_dataset, batch_size=batch_size, shuffle=False, num_workers=2)\n",
+                    "go_loader = DataLoader(
+                                            go_dataset,
+                                            batch_size=batch_size,
+                                            shuffle=True,
+                                            num_workers=2)\n",
+                                            
+                    "journal_train_loader = DataLoader(
+                                                       journal_train_dataset,
+                                                       batch_size=batch_size,
+                                                       shuffle=True,
+                                                       num_workers=2)\n",
+                                                       
+                    "journal_val_loader = DataLoader(
+                                                     journal_val_dataset,
+                                                     batch_size=batch_size,
+                                                     shuffle=False,
+                                                     num_workers=2)\n",
+                                                     
                     "\n",
                     "print(f\"✅ Data prepared:\")\n",
                     "print(f\"  GoEmotions: {len(go_dataset)} samples\")\n",
-                    "print(f\"  Journal Train: {len(journal_train_dataset)} samples\")\n",
+                    "print(
+                           f\"  Journal Train: {len(journal_train_dataset)} samples\")\n",
+                           
                     "print(f\"  Journal Val: {len(journal_val_dataset)} samples\")\n",
                     "print(f\"  Total classes: {len(label_encoder.classes_)}\")"
                 ]
@@ -362,21 +466,35 @@ def create_colab_notebook():
                     "        self.criterion = FocalLoss(alpha=1, gamma=2)\n",
                     "        self.domain_criterion = nn.CrossEntropyLoss()\n",
                     "        \n",
-                    "    def train_step(self, batch, domain_labels, lambda_domain=0.1):\n",
-                    "        \"\"\"Single training step with domain adaptation.\"\"\"\n",
+                    "    def train_step(
+                                        self,
+                                        batch,
+                                        domain_labels,
+                                        lambda_domain=0.1):\n",
+                                        
+" \"\"\"Single training step with domain adaptation.\"\"\"\n",
                     "        self.model.train()\n",
                     "        \n",
                     "        input_ids = batch['input_ids'].to(self.device)\n",
-                    "        attention_mask = batch['attention_mask'].to(self.device)\n",
+                    "        attention_mask = batch['attention_mask'].to(
+                                                                         self.device)\n",
+                                                                         
                     "        labels = batch['labels'].to(self.device)\n",
                     "        domain_labels = domain_labels.to(self.device)\n",
                     "        \n",
                     "        # Forward pass\n",
-                    "        emotion_logits, domain_logits = self.model(input_ids, attention_mask, domain_labels)\n",
+                    "        emotion_logits, domain_logits = self.model(
+                                                                        input_ids,
+                                                                        attention_mask,
+                                                                        domain_labels)\n",
+                                                                        
                     "        \n",
                     "        # Calculate losses\n",
                     "        emotion_loss = self.criterion(emotion_logits, labels)\n",
-                    "        domain_loss = self.domain_criterion(domain_logits, domain_labels)\n",
+                    "        domain_loss = self.domain_criterion(
+                                                                 domain_logits,
+                                                                 domain_labels)\n",
+                                                                 
                     "        \n",
                     "        # Combined loss\n",
                     "        total_loss = emotion_loss + lambda_domain * domain_loss\n",
@@ -397,21 +515,39 @@ def create_colab_notebook():
                     "        with torch.no_grad():\n",
                     "            for batch in dataloader:\n",
                     "                input_ids = batch['input_ids'].to(self.device)\n",
-                    "                attention_mask = batch['attention_mask'].to(self.device)\n",
+                    "                attention_mask = batch['attention_mask'].to(
+                                                                                 self.device)\n",
+                                                                                 
                     "                labels = batch['labels'].to(self.device)\n",
                     "                \n",
-                    "                emotion_logits = self.model(input_ids, attention_mask)\n",
+                    "                emotion_logits = self.model(
+                                                                 input_ids,
+                                                                 attention_mask)\n",
+                                                                 
                     "                loss = self.criterion(emotion_logits, labels)\n",
                     "                \n",
                     "                total_loss += loss.item()\n",
-                    "                predictions = torch.argmax(emotion_logits, dim=1)\n",
+                    "                predictions = torch.argmax(
+                                                                emotion_logits,
+                                                                dim=1)\n",
+                                                                
                     "                \n",
-                    "                all_predictions.extend(predictions.cpu().numpy())\n",
+                    "                all_predictions.extend(
+                                                            predictions.cpu().numpy())\n",
+                                                            
                     "                all_labels.extend(labels.cpu().numpy())\n",
                     "        \n",
                     "        # Calculate metrics\n",
-                    "        f1_macro = f1_score(all_labels, all_predictions, average='macro')\n",
-                    "        f1_weighted = f1_score(all_labels, all_predictions, average='weighted')\n",
+                    "        f1_macro = f1_score(
+                                                 all_labels,
+                                                 all_predictions,
+                                                 average='macro')\n",
+                                                 
+                    "        f1_weighted = f1_score(
+                                                    all_labels,
+                                                    all_predictions,
+                                                    average='weighted')\n",
+                                                    
                     "        \n",
                     "        return {\n",
                     "            'loss': total_loss / len(dataloader),\n",
@@ -421,14 +557,24 @@ def create_colab_notebook():
                     "\n",
                     "# Initialize trainer\n",
                     "trainer = DomainAdaptationTrainer(model, tokenizer, device)\n",
-                    "optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5, weight_decay=0.01)\n",
+                    "optimizer = torch.optim.AdamW(
+                                                   model.parameters(),
+                                                   lr=2e-5,
+                                                   weight_decay=0.01)\n",
+                                                   
                     "\n",
                     "# Initialize wandb (optional)\n",
                     "try:\n",
-                    "    wandb.init(project=\"samo-domain-adaptation\", name=\"journal-emotion-detection\")\n",
+                    "    wandb.init(
+                                    project=\"samo-domain-adaptation\",
+                                    name=\"journal-emotion-detection\")\n",
+                                    
                     "    use_wandb = True\n",
                     "except:\n",
-                    "    print(\"⚠️ Wandb not available, continuing without logging\")\n",
+                    "    print(
+                               \"⚠️ Wandb not available,
+                               continuing without logging\")\n",
+                               
                     "    use_wandb = False\n",
                     "\n",
                     "print(\"🎯 Starting domain adaptation training...\")"
@@ -455,8 +601,15 @@ def create_colab_notebook():
                     "    # Train on GoEmotions data\n",
                     "    print(\"  📚 Training on GoEmotions data...\")\n",
                     "    for i, batch in enumerate(go_loader):\n",
-                    "        domain_labels = torch.zeros(batch['input_ids'].size(0), dtype=torch.long)\n",
-                    "        losses = trainer.train_step(batch, domain_labels, lambda_domain=0.1)\n",
+                    "        domain_labels = torch.zeros(
+                                                         batch['input_ids'].size(0),
+                                                         dtype=torch.long)\n",
+                                                         
+                    "        losses = trainer.train_step(
+                                                         batch,
+                                                         domain_labels,
+                                                         lambda_domain=0.1)\n",
+                                                         
                     "        \n",
                     "        optimizer.zero_grad()\n",
                     "        losses['total_loss'].backward()\n",
@@ -465,13 +618,23 @@ def create_colab_notebook():
                     "        total_loss += losses['total_loss'].item()\n",
                     "        \n",
                     "        if i % 100 == 0:\n",
-                    "            print(f\"    Batch {i}/{len(go_loader)}, Loss: {losses['total_loss'].item():.4f}\")\n",
+                    "            print(
+                                       f\"    Batch {i}/{len(go_loader)},
+                                       Loss: {losses['total_loss'].item():.4f}\")\n",
+                                       
                     "    \n",
                     "    # Train on journal data\n",
                     "    print(\"  📝 Training on journal data...\")\n",
                     "    for i, batch in enumerate(journal_train_loader):\n",
-                    "        domain_labels = torch.ones(batch['input_ids'].size(0), dtype=torch.long)\n",
-                    "        losses = trainer.train_step(batch, domain_labels, lambda_domain=0.1)\n",
+                    "        domain_labels = torch.ones(
+                                                        batch['input_ids'].size(0),
+                                                        dtype=torch.long)\n",
+                                                        
+                    "        losses = trainer.train_step(
+                                                         batch,
+                                                         domain_labels,
+                                                         lambda_domain=0.1)\n",
+                                                         
                     "        \n",
                     "        optimizer.zero_grad()\n",
                     "        losses['total_loss'].backward()\n",
@@ -480,18 +643,27 @@ def create_colab_notebook():
                     "        total_loss += losses['total_loss'].item()\n",
                     "        \n",
                     "        if i % 10 == 0:\n",
-                    "            print(f\"    Batch {i}/{len(journal_train_loader)}, Loss: {losses['total_loss'].item():.4f}\")\n",
+                    "            print(
+                                       f\"    Batch {i}/{len(journal_train_loader)},
+                                       Loss: {losses['total_loss'].item():.4f}\")\n",
+                                       
                     "    \n",
                     "    # Validation\n",
                     "    print(\"  🎯 Validating on journal test set...\")\n",
                     "    val_results = trainer.evaluate(journal_val_loader)\n",
                     "    \n",
-                    "    avg_loss = total_loss / (len(go_loader) + len(journal_train_loader))\n",
+                    "    avg_loss = total_loss / (
+                                                  len(go_loader) + len(journal_train_loader))\n",
+                                                  
                     "    \n",
                     "    print(f\"  📊 Epoch {epoch + 1} Results:\")\n",
                     "    print(f\"    Average Loss: {avg_loss:.4f}\")\n",
-                    "    print(f\"    Validation F1 (Macro): {val_results['f1_macro']:.4f}\")\n",
-                    "    print(f\"    Validation F1 (Weighted): {val_results['f1_weighted']:.4f}\")\n",
+                    "    print(
+                               f\"    Validation F1 (Macro): {val_results['f1_macro']:.4f}\")\n",
+                               
+                    "    print(
+                               f\"    Validation F1 (Weighted): {val_results['f1_weighted']:.4f}\")\n",
+                               
                     "    \n",
                     "    # Log to wandb\n",
                     "    if use_wandb:\n",
@@ -506,8 +678,13 @@ def create_colab_notebook():
                     "    # Save best model\n",
                     "    if val_results['f1_macro'] > best_f1:\n",
                     "        best_f1 = val_results['f1_macro']\n",
-                    "        torch.save(model.state_dict(), 'best_domain_adapted_model.pth')\n",
-                    "        print(f\"    💾 New best model saved! F1: {best_f1:.4f}\")\n",
+                    "        torch.save(
+                                        model.state_dict(),
+                                        'best_domain_adapted_model.pth')\n",
+                                        
+                    "        print(
+                                   f\"    💾 New best model saved! F1: {best_f1:.4f}\")\n",
+                                   
                     "    \n",
                     "    training_history.append({\n",
                     "        'epoch': epoch,\n",
@@ -542,7 +719,12 @@ def create_colab_notebook():
                     "fig, axes = plt.subplots(1, 2, figsize=(15, 5))\n",
                     "\n",
                     "# Loss plot\n",
-                    "axes[0].plot(history_df['epoch'], history_df['train_loss'], 'b-', label='Training Loss')\n",
+                    "axes[0].plot(
+                                  history_df['epoch'],
+                                  history_df['train_loss'],
+                                  'b-',
+                                  label='Training Loss')\n",
+                                  
                     "axes[0].set_title('Training Loss Over Time')\n",
                     "axes[0].set_xlabel('Epoch')\n",
                     "axes[0].set_ylabel('Loss')\n",
@@ -550,9 +732,24 @@ def create_colab_notebook():
                     "axes[0].grid(True)\n",
                     "\n",
                     "# F1 Score plot\n",
-                    "axes[1].plot(history_df['epoch'], history_df['val_f1_macro'], 'r-', label='F1 Macro')\n",
-                    "axes[1].plot(history_df['epoch'], history_df['val_f1_weighted'], 'g-', label='F1 Weighted')\n",
-                    "axes[1].axhline(y=0.7, color='orange', linestyle='--', label='Target (70%)')\n",
+                    "axes[1].plot(
+                                  history_df['epoch'],
+                                  history_df['val_f1_macro'],
+                                  'r-',
+                                  label='F1 Macro')\n",
+                                  
+                    "axes[1].plot(
+                                  history_df['epoch'],
+                                  history_df['val_f1_weighted'],
+                                  'g-',
+                                  label='F1 Weighted')\n",
+                                  
+                    "axes[1].axhline(
+                                     y=0.7,
+                                     color='orange',
+                                     linestyle='--',
+                                     label='Target (70%)')\n",
+                                     
                     "axes[1].set_title('Validation F1 Score Over Time')\n",
                     "axes[1].set_xlabel('Epoch')\n",
                     "axes[1].set_ylabel('F1 Score')\n",
@@ -564,19 +761,28 @@ def create_colab_notebook():
                     "\n",
                     "# Final evaluation\n",
                     "print(\"\\n🎯 Final Model Evaluation:\")\n",
-                    "model.load_state_dict(torch.load('best_domain_adapted_model.pth'))\n",
+                    "model.load_state_dict(
+                                           torch.load('best_domain_adapted_model.pth'))\n",
+                                           
                     "final_results = trainer.evaluate(journal_val_loader)\n",
                     "\n",
                     "print(f\"📊 Final Results:\")\n",
                     "print(f\"  F1 Score (Macro): {final_results['f1_macro']:.4f}\")\n",
-                    "print(f\"  F1 Score (Weighted): {final_results['f1_weighted']:.4f}\")\n",
-                    "print(f\"  Target Met (70%): {'✅' if final_results['f1_macro'] >= 0.7 else '❌'}\")\n",
+                    "print(
+                           f\"  F1 Score (Weighted): {final_results['f1_weighted']:.4f}\")\n",
+                           
+                    "print(
+                           f\"  Target Met (70%): {'✅' if final_results['f1_macro'] >= 0.7 else '❌'}\")\n",
+                           
                     "\n",
                     "# REQ-DL-012 Validation\n",
                     "print(f\"\\n🎯 REQ-DL-012 Validation:\")\n",
                     "print(f\"  Target: 70% F1 score on journal entries\")\n",
-                    "print(f\"  Achieved: {final_results['f1_macro']:.1%} F1 score\")\n",
-                    "print(f\"  Status: {'✅ SUCCESS' if final_results['f1_macro'] >= 0.7 else '❌ NEEDS IMPROVEMENT'}\")"
+                    "print(
+                           f\"  Achieved: {final_results['f1_macro']:.1%} F1 score\")\n",
+                           
+                    "print(
+                           f\"  Status: {'✅ SUCCESS' if final_results['f1_macro'] >= 0.7 else '❌ NEEDS IMPROVEMENT'}\")"
                 ]
             },
             {

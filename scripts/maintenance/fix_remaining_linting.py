@@ -176,8 +176,9 @@ class ComprehensiveLintingFixer:
         """Fix other minor issues."""
         fixes = 0
         
-        pattern = r'TEST_USER_PASSWORD_HASH = "test_hashed_password_123"  # noqa: S105]*)"'
-        replacement = r'TEST_USER_PASSWORD_HASH = "test_hashed_password_123"  # noqa: S105  # noqa: S105'
+pattern = r'TEST_USER_PASSWORD_HASH = "test_hashed_password_123" # noqa: S105]*)"'
+replacement = r'TEST_USER_PASSWORD_HASH = "test_hashed_password_123" # noqa: S105 #
+noqa: S105'
         
         new_content = re.sub(pattern, replacement, content)
         if new_content != content:

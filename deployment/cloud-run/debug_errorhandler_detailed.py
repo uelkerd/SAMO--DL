@@ -34,7 +34,10 @@ try:
     errorhandler_method = getattr(api, 'errorhandler')
     print(f"✅ errorhandler method found: {type(errorhandler_method)}")
     print(f"errorhandler callable: {callable(errorhandler_method)}")
-    print(f"errorhandler bound: {errorhandler_method.__self__ if hasattr(errorhandler_method, '__self__') else 'Not bound'}")
+    print(
+          f"errorhandler bound: {errorhandler_method.__self__ if hasattr(errorhandler_method,
+          '__self__') else 'Not bound'}"
+         )
 except Exception as e:
     print(f"❌ errorhandler method access failed: {e}")
 

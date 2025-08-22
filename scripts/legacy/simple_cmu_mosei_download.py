@@ -213,7 +213,11 @@ def main():
     
     balanced_samples = []
     for emotion, samples_list in emotion_samples.items():
-        selected_samples = np.random.choice(samples_list, size=min_samples, replace=False)
+        selected_samples = np.random.choice(
+                                            samples_list,
+                                            size=min_samples,
+                                            replace=False
+                                           )
         balanced_samples.extend(selected_samples)
     
     save_dataset(balanced_samples, 'data/cmu_mosei_balanced_dataset.json')

@@ -1,6 +1,7 @@
         # Start training
         # Training configuration with debugging
-        from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
+        from src
+    .models.emotion_detection.training_pipeline import train_emotion_detection_model
         import traceback
 # Add src to path
 # Configure logging
@@ -26,7 +27,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout), logging.FileHandler("debug_training.log")],
+    handlers=[logging.StreamHandler(
+                                    sys.stdout),
+                                    logging.FileHandler("debug_training.log")],
+                                    
 )
 logger = logging.getLogger(__name__)
 

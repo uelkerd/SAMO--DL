@@ -33,7 +33,10 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             self.cloud_run_dir = Path("../../deployment/cloud-run").resolve()
         
         # Ensure the cloud-run directory exists
-        self.assertTrue(self.cloud_run_dir.exists(), f"Cloud Run directory not found: {self.cloud_run_dir}")
+        self.assertTrue(
+                        self.cloud_run_dir.exists(),
+                        f"Cloud Run directory not found: {self.cloud_run_dir}"
+                       )
         
         # Set up logging for tests
         logging.basicConfig(level=logging.INFO)
@@ -115,8 +118,15 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         # Test health monitor initialization
         monitor = HealthMonitor()
         self.assertIsNotNone(monitor, "Health monitor should initialize")
-        self.assertFalse(monitor.is_shutting_down, "Should not be shutting down initially")
-        self.assertEqual(monitor.active_requests, 0, "Should start with 0 active requests")
+        self.assertFalse(
+                         monitor.is_shutting_down,
+                         "Should not be shutting down initially"
+                        )
+        self.assertEqual(
+                         monitor.active_requests,
+                         0,
+                         "Should start with 0 active requests"
+                        )
         
         # Test system metrics
         metrics = monitor.get_system_metrics()
@@ -134,19 +144,28 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         
         # Test edge case: negative requests (should not go below 0)
         monitor.request_completed()
-        self.assertEqual(monitor.active_requests, 0, "Should not go below 0 active requests")
+        self.assertEqual(
+                         monitor.active_requests,
+                         0,
+                         "Should not go below 0 active requests"
+                        )
         
         print("✅ Health monitor functionality tests passed")
 
     def _test_required_metrics(self, metrics):
         """Helper method to test required metrics"""
-        required_metrics = ['memory_usage_mb', 'cpu_usage_percent', 'memory_percent', 'uptime_seconds']
-        missing_metrics = [metric for metric in required_metrics if metric not in metrics]
+required_metrics = ['memory_usage_mb', 'cpu_usage_percent', 'memory_percent',
+'uptime_seconds']
+missing_metrics =
+    [metric for metric in required_metrics if metric not in metrics]
         if missing_metrics:
             self.fail(f"Missing metrics: {', '.join(missing_metrics)}")
         
         # Check all metrics are numeric
-        non_numeric_metrics = [metric for metric in required_metrics if not isinstance(metrics[metric], (int, float))]
+        non_numeric_metrics = [metric for metric in required_metrics if not isinstance(
+                                                                                       metrics[metric],
+                                                                                       (int,
+                                                                                       float))]
         if non_numeric_metrics:
             self.fail(f"Non-numeric metrics: {', '.join(non_numeric_metrics)}")
 
@@ -160,7 +179,11 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         # Complete 10 requests
         for i in range(10):
             monitor.request_completed()
-        self.assertEqual(monitor.active_requests, 0, "Should handle multiple completions")
+        self.assertEqual(
+                         monitor.active_requests,
+                         0,
+                         "Should handle multiple completions"
+                        )
     
     def test_03_environment_config_validation(self):
         """Test environment configuration validation and edge cases"""
@@ -173,34 +196,58 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         # Test production configuration
         with patch.dict(os.environ, {'ENVIRONMENT': 'production'}):
             config = EnvironmentConfig()
-            self.assertEqual(config.environment, 'production', "Should load production environment")
+            self.assertEqual(
+                             config.environment,
+                             'production',
+                             "Should load production environment"
+                            )
             
             # Test configuration validation
             config.validate_config()  # Should not raise exception for valid config
             
             # Test resource limits
             cloud_config = config.config
-            self.assertGreaterEqual(cloud_config.memory_limit_mb, 512, "Memory should be >= 512MB")
-            self.assertLessEqual(cloud_config.memory_limit_mb, 8192, "Memory should be <= 8GB")
+            self.assertGreaterEqual(
+                                    cloud_config.memory_limit_mb,
+                                    512,
+                                    "Memory should be >= 512MB"
+                                   )
+            self.assertLessEqual(
+                                 cloud_config.memory_limit_mb,
+                                 8192,
+                                 "Memory should be <= 8GB"
+                                )
             self.assertGreaterEqual(cloud_config.cpu_limit, 1, "CPU should be >= 1")
             self.assertLessEqual(cloud_config.cpu_limit, 8, "CPU should be <= 8")
         
         # Test staging configuration
         with patch.dict(os.environ, {'ENVIRONMENT': 'staging'}):
             config = EnvironmentConfig()
-            self.assertEqual(config.environment, 'staging', "Should load staging environment")
+            self.assertEqual(
+                             config.environment,
+                             'staging',
+                             "Should load staging environment"
+                            )
             config.validate_config()  # Should not raise exception for valid config
         
         # Test development configuration
         with patch.dict(os.environ, {'ENVIRONMENT': 'development'}):
             config = EnvironmentConfig()
-            self.assertEqual(config.environment, 'development', "Should load development environment")
+            self.assertEqual(
+                             config.environment,
+                             'development',
+                             "Should load development environment"
+                            )
             config.validate_config()  # Should not raise exception for valid config
         
         # Test edge case: invalid environment
         with patch.dict(os.environ, {'ENVIRONMENT': 'invalid'}):
             config = EnvironmentConfig()
-            self.assertEqual(config.environment, 'invalid', "Should load invalid environment")
+            self.assertEqual(
+                             config.environment,
+                             'invalid',
+                             "Should load invalid environment"
+                            )
             # Should still be valid as it falls back to development defaults
         
         print("✅ Environment configuration validation tests passed")
@@ -237,7 +284,8 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             'PIP_DISABLE_PIP_VERSION_CHECK=1'  # Disable pip version check
         ]
         
-        missing_features = [feature for feature in security_features if feature not in content]
+missing_features =
+    [feature for feature in security_features if feature not in content]
         if missing_features:
             self.fail(f"Missing security features: {', '.join(missing_features)}")
 
@@ -251,7 +299,8 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             '--keep-alive 5'  # Keep-alive optimization
         ]
         
-        missing_features = [feature for feature in cloud_run_features if feature not in content]
+missing_features =
+    [feature for feature in cloud_run_features if feature not in content]
         if missing_features:
             self.fail(f"Missing Cloud Run features: {', '.join(missing_features)}")
 
@@ -264,7 +313,8 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             '--error-logfile -'  # Error logging
         ]
         
-        missing_features = [feature for feature in optimization_features if feature not in content]
+missing_features =
+    [feature for feature in optimization_features if feature not in content]
         if missing_features:
             self.fail(f"Missing optimization features: {', '.join(missing_features)}")
     
@@ -273,7 +323,10 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         print("🔍 Testing requirements security...")
         
         requirements_path = self.cloud_run_dir / 'requirements_secure.txt'
-        self.assertTrue(requirements_path.exists(), "requirements_secure.txt should exist")
+        self.assertTrue(
+                        requirements_path.exists(),
+                        "requirements_secure.txt should exist"
+                       )
         
         with open(requirements_path, 'r') as f:
             content = f.read()
@@ -339,9 +392,13 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             '--cpu=2'
         ]
         
-        missing_resource_params = [param for param in resource_params if param not in args]
+missing_resource_params =
+    [param for param in resource_params if param not in args]
         if missing_resource_params:
-            self.fail(f"Missing resource parameters: {', '.join(missing_resource_params)}")
+            self.fail(
+                      f"Missing resource parameters: {',
+                      '.join(missing_resource_params)}"
+                     )
         
         print("✅ Auto-scaling configuration tests passed")
     
@@ -382,7 +439,12 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
                     if var in arg:
                         env_vars_found += 1
         
-        self.assertGreaterEqual(env_vars_found, 2, f"Should have at least 2 health check environment variables, found {env_vars_found}")
+        self.assertGreaterEqual(
+                                env_vars_found,
+                                2,
+                                f"Should have at least 2 health check environment variables,
+                                found {env_vars_found}"
+                               )
         
         print("✅ Health check integration tests passed")
     
@@ -451,7 +513,8 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             'system', 'models', 'api', 'requests'
         ]
         
-        missing_metrics = [metric for metric in required_metrics if metric not in metrics]
+missing_metrics =
+    [metric for metric in required_metrics if metric not in metrics]
         if missing_metrics:
             self.fail(f"Missing performance metrics: {', '.join(missing_metrics)}")
         
@@ -459,19 +522,28 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         system_metrics = metrics['system']
         system_required = ['memory_usage_mb', 'cpu_usage_percent', 'memory_percent']
         
-        missing_system_metrics = [metric for metric in system_required if metric not in system_metrics]
+missing_system_metrics =
+    [metric for metric in system_required if metric not in system_metrics]
         if missing_system_metrics:
             self.fail(f"Missing system metrics: {', '.join(missing_system_metrics)}")
         
         # Check all system metrics are numeric
-        non_numeric_system_metrics = [metric for metric in system_required if not isinstance(system_metrics[metric], (int, float))]
+non_numeric_system_metrics = [metric for metric in system_required if not
+isinstance(system_metrics[metric], (int, float))]
         if non_numeric_system_metrics:
-            self.fail(f"Non-numeric system metrics: {', '.join(non_numeric_system_metrics)}")
+            self.fail(
+                      f"Non-numeric system metrics: {',
+                      '.join(non_numeric_system_metrics)}"
+                     )
         
         # Test request metrics
         request_metrics = metrics['requests']
         self.assertIn('active', request_metrics, "Should track active requests")
-        self.assertIn('total_processed', request_metrics, "Should track total processed requests")
+        self.assertIn(
+                      'total_processed',
+                      request_metrics,
+                      "Should track total processed requests"
+                     )
         
         print("✅ Performance metrics tests passed")
     
@@ -498,7 +570,11 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         yaml_str = yaml.dump(config_dict, default_flow_style=False)
         parsed_config = yaml.safe_load(yaml_str)
         
-        self.assertEqual(config_dict, parsed_config, "YAML serialization should be reversible")
+        self.assertEqual(
+                         config_dict,
+                         parsed_config,
+                         "YAML serialization should be reversible"
+                        )
         
         print("✅ YAML parsing validation tests passed")
     
@@ -512,7 +588,10 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             required_keys = ['steps', 'images']
             missing_keys = [key for key in required_keys if key not in config]
             if missing_keys:
-                self.fail(f"{filename} missing required keys: {', '.join(missing_keys)}")
+                self.fail(
+                          f"{filename} missing required keys: {',
+                          '.join(missing_keys)}"
+                         )
         
         # Validate nested structures
         if 'steps' in config:
@@ -545,7 +624,9 @@ def run_phase3_tests():
         'total_tests': result.testsRun,
         'failures': len(result.failures),
         'errors': len(result.errors),
-        'success_rate': ((result.testsRun - len(result.failures) - len(result.errors)) / result.testsRun) * 100,
+        'success_rate': (
+                         (result.testsRun - len(result.failures) - len(result.errors)) / result.testsRun) * 100,
+                         
         'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
         'test_details': []
     }

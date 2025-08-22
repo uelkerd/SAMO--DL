@@ -35,7 +35,8 @@ class TestCSPConfiguration(unittest.TestCase):
             yaml.dump({
                 'security_headers': {
                     'headers': {
-                        'Content-Security-Policy': "default-src 'self'; script-src 'self' 'nonce-test'; style-src 'self'"
+'Content-Security-Policy': "default-src 'self'; script-src 'self' 'nonce-test';
+style-src 'self'"
                     }
                 }
             }, f)
@@ -58,7 +59,9 @@ class TestCSPConfiguration(unittest.TestCase):
     def test_csp_fallback_to_secure_default(self):
         """Test that CSP falls back to secure default when config file is missing."""
         # Mock file not found
-        with patch('builtins.open', side_effect=FileNotFoundError("Config file not found")):
+        with patch(
+                   'builtins.open',
+                   side_effect=FileNotFoundError("Config file not found")):
             middleware = SecurityHeadersMiddleware(self.app, self.config)
             
             # Check that secure default is used
@@ -92,7 +95,7 @@ class TestCSPConfiguration(unittest.TestCase):
             os.unlink(config_path)
     
     def test_csp_fallback_on_missing_csp_key(self):
-        """Test that CSP falls back to secure default when CSP key is missing from config."""
+"""Test that CSP falls back to secure default when CSP key is missing from config."""
         # Create a temporary config file without CSP
         with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
             yaml.dump({

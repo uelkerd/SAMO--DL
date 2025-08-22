@@ -40,7 +40,11 @@ class SimpleBERTClassifier(torch.nn.Module):
         self.temperature = torch.nn.Parameter(torch.ones(1))
 
     def forward(self, input_ids, attention_mask, token_type_ids=None):
-        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids)
+        outputs = self.bert(
+                            input_ids=input_ids,
+                            attention_mask=attention_mask,
+                            token_type_ids=token_type_ids
+                           )
         pooled_output = outputs.pooler_output
         logits = self.classifier(pooled_output)
         return logits
@@ -133,7 +137,10 @@ def test_model_calibration():
         # Test threshold optimization
         threshold = 0.5
         predictions = (probabilities > threshold).float()
-        logger.info(f"✅ Threshold optimization successful, predictions shape: {predictions.shape}")
+        logger.info(
+                    f"✅ Threshold optimization successful,
+                    predictions shape: {predictions.shape}"
+                   )
 
         # Test metrics calculation
         if len(test_texts) > 1:

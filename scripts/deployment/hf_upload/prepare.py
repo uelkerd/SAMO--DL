@@ -29,7 +29,10 @@ def load_emotion_labels_from_model(model_path: str) -> List[str]:
                 if 'id2label' in config:
                     id2label = config['id2label']
                     sorted_labels = [id2label[str(i)] for i in range(len(id2label))]
-                    logging.info("Loaded %d labels from HF config.json", len(sorted_labels))
+                    logging.info(
+                                 "Loaded %d labels from HF config.json",
+                                 len(sorted_labels)
+                                )
                     return sorted_labels
             except Exception as e:
                 logging.warning("Could not load labels from config.json: %s", e)
@@ -37,29 +40,47 @@ def load_emotion_labels_from_model(model_path: str) -> List[str]:
     elif model_path.endswith('.pth') and os.path.exists(model_path):
         try:
             try:
-                checkpoint = torch.load(model_path, map_location='cpu', weights_only=False)
+                checkpoint = torch.load(
+                                        model_path,
+                                        map_location='cpu',
+                                        weights_only=False
+                                       )
             except TypeError:
                 checkpoint = torch.load(model_path, map_location='cpu')
                 logging.info("Using legacy torch.load; consider upgrading PyTorch")
-            for key in ['id2label', 'label2id', 'labels', 'emotion_labels', 'class_names']:
+for key in ['id2label', 'label2id', 'labels', 'emotion_labels', 'class_names']:
                 if key in checkpoint:
                     labels_data = checkpoint[key]
                     if key == 'id2label' and isinstance(labels_data, dict):
-                        sorted_labels = [labels_data[str(i)] for i in range(len(labels_data))]
-                        logging.info("Loaded %d labels from checkpoint['%s']", len(sorted_labels), key)
+                        sorted_labels = [labels_data[str(
+                                                         i)] for i in range(len(labels_data))]
+                        logging.info(
+                                     "Loaded %d labels from checkpoint['%s']",
+                                     len(sorted_labels),
+                                     key
+                                    )
                         return sorted_labels
                     if key == 'label2id' and isinstance(labels_data, dict):
                         id2label = {v: k for k, v in labels_data.items()}
                         sorted_labels = [id2label[i] for i in range(len(id2label))]
-                        logging.info("Loaded %d labels from checkpoint['%s']", len(sorted_labels), key)
+                        logging.info(
+                                     "Loaded %d labels from checkpoint['%s']",
+                                     len(sorted_labels),
+                                     key
+                                    )
                         return sorted_labels
                     if isinstance(labels_data, (list, tuple)):
-                        logging.info("Loaded %d labels from checkpoint['%s']", len(labels_data), key)
+                        logging.info(
+                                     "Loaded %d labels from checkpoint['%s']",
+                                     len(labels_data),
+                                     key
+                                    )
                         return list(labels_data)
         except Exception as e:
             logging.warning("Could not load labels from checkpoint: %s", e)
     # Method 3: external JSON
-    model_dir = os.path.dirname(model_path) if os.path.isfile(model_path) else model_path
+    model_dir = os.path.dirname(
+                                model_path) if os.path.isfile(model_path) else model_path
     for name in ["emotion_labels.json", "labels.json", "class_names.json"]:
         labels_path = os.path.join(model_dir, name)
         if os.path.exists(labels_path):
@@ -121,7 +142,11 @@ def prepare_model_for_upload(
         logging.info("Converting .pth checkpoint to HuggingFace format...")
         try:
             try:
-                checkpoint = torch.load(model_path, map_location='cpu', weights_only=False)
+                checkpoint = torch.load(
+                                        model_path,
+                                        map_location='cpu',
+                                        weights_only=False
+                                       )
             except TypeError:
                 checkpoint = torch.load(model_path, map_location='cpu')
                 logging.info("Using legacy torch.load; consider upgrading PyTorch")
@@ -176,7 +201,9 @@ def prepare_model_for_upload(
             missing_files.append(name)
     if missing_files and not allow_missing:
         raise RuntimeError(
-            "Missing required files for HuggingFace model upload: " + ', '.join(missing_files)
+            "Missing required files for HuggingFace model upload: " + ', '.join(
+                                                                                missing_files
+                                                                               )
         )
 
     # Validate label mappings present in config if exists

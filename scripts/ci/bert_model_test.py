@@ -62,7 +62,10 @@ def test_bert_model_loading():
         # Verify output dimensions
         expected_shape = (batch_size, 28)  # 28 emotions
         if outputs.shape != expected_shape:
-            raise ValueError(f"Expected output shape {expected_shape}, got {outputs.shape}")
+            raise ValueError(
+                             f"Expected output shape {expected_shape},
+                             got {outputs.shape}"
+                            )
 
         logger.info("✅ Output shape validation passed")
 

@@ -53,7 +53,10 @@ and provide managed ML training, deployment, and monitoring.
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+                    level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s"
+                   )
 logger = logging.getLogger(__name__)
 
 
@@ -106,8 +109,9 @@ class VertexAISetup:
         try:
             job_config = {
                 "display_name": "samo-emotion-detection-training",
-                "container_uri": "gcr.io/cloud-aiplatform/training/pytorch-gpu.2-0:latest",
-                "model_serving_container_image_uri": "gcr.io/cloud-aiplatform/prediction/pytorch-gpu.2-0:latest",
+"container_uri": "gcr.io/cloud-aiplatform/training/pytorch-gpu.2-0:latest",
+"model_serving_container_image_uri":
+"gcr.io/cloud-aiplatform/prediction/pytorch-gpu.2-0:latest",
                 "args": [
                     "--model_name=bert-base-uncased",
                     "--batch_size=16",
@@ -136,7 +140,7 @@ class VertexAISetup:
             job = aiplatform.CustomTrainingJob(
                 display_name=job_config["display_name"],
                 container_uri=job_config["container_uri"],
-                model_serving_container_image_uri=job_config["model_serving_container_image_uri"],
+model_serving_container_image_uri=job_config["model_serving_container_image_uri"],
                 args=job_config["args"],
                 machine_type=job_config["machine_spec"]["machine_type"],
                 accelerator_type=job_config["machine_spec"]["accelerator_type"],
@@ -168,7 +172,7 @@ class VertexAISetup:
         try:
             tuning_config = {
                 "display_name": "samo-emotion-detection-tuning",
-                "container_uri": "gcr.io/cloud-aiplatform/training/pytorch-gpu.2-0:latest",
+"container_uri": "gcr.io/cloud-aiplatform/training/pytorch-gpu.2-0:latest",
                 "args": [
                     "--model_name=bert-base-uncased",
                     "--batch_size=16",
@@ -288,7 +292,11 @@ class VertexAISetup:
 
             logger.info("✅ Automated pipeline configuration created")
             logger.info("   Schedule: Daily at 2 AM")
-            logger.info("   Trigger conditions: data drift, performance degradation, new data")
+            logger.info(
+                        "   Trigger conditions: data drift,
+                        performance degradation,
+                        new data"
+                       )
 
             return {"config": pipeline_config}
 
@@ -303,7 +311,7 @@ class VertexAISetup:
         try:
             validation_config = {
                 "display_name": "samo-validation-job",
-                "container_uri": "gcr.io/cloud-aiplatform/training/pytorch-cpu.2-0:latest",
+"container_uri": "gcr.io/cloud-aiplatform/training/pytorch-cpu.2-0:latest",
                 "args": [
                     "--validation_mode=true",
                     "--check_data_distribution=true",
@@ -396,7 +404,9 @@ def main():
             logger.error("❌ {component.title()}: FAILED")
 
     logger.info("\n🎯 NEXT STEPS:")
-    logger.info("   1. Check Vertex AI console: https://console.cloud.google.com/vertex-ai")
+    logger.info(
+                "   1. Check Vertex AI console: https://console.cloud.google.com/vertex-ai"
+               )
     logger.info("   2. Run validation job to identify 0.0000 loss root cause")
     logger.info("   3. Start training job with optimized configuration")
     logger.info("   4. Monitor training progress and results")

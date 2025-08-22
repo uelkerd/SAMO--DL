@@ -5,7 +5,10 @@
                 # Initialize tokenizer
                 # Load checkpoint
                 # Sleep for monitoring interval
-            # Calculate mock metrics (in real scenario, these would come from actual evaluation)
+            # Calculate mock metrics (
+                                      in real scenario,
+                                      these would come from actual evaluation
+                                     )
             # Calculate throughput
             # For now, just log the action
             # Generate test data
@@ -76,7 +79,8 @@ This script implements comprehensive model monitoring for SAMO Deep Learning:
 4. Model health dashboard and alerting system
 
 Usage:
-    python scripts/model_monitoring.py [--config_path PATH] [--monitor_interval INT] [--alert_threshold FLOAT]
+    python scripts/model_monitoring
+    .py [--config_path PATH] [--monitor_interval INT] [--alert_threshold FLOAT]
 
 Arguments:
     --config_path: Path to monitoring configuration (default: configs/monitoring.yaml)
@@ -203,7 +207,7 @@ class PerformanceTracker:
         max_degradation = max(f1_degradation, precision_degradation, recall_degradation)
 
         if max_degradation > self.degradation_threshold:
-            severity = "HIGH" if max_degradation > DEFAULT_RETRAIN_THRESHOLD else "MEDIUM"
+severity = "HIGH" if max_degradation > DEFAULT_RETRAIN_THRESHOLD else "MEDIUM"
             action_required = max_degradation > DEFAULT_RETRAIN_THRESHOLD
 
             return Alert(
@@ -250,7 +254,8 @@ class DataDriftDetector:
     """Detect data drift using statistical methods."""
 
     def __init__(
-        self, reference_data: pd.DataFrame, drift_threshold: float = DEFAULT_DRIFT_THRESHOLD
+self, reference_data: pd.DataFrame, drift_threshold: float =
+    DEFAULT_DRIFT_THRESHOLD
     ):
         """Initialize drift detector.
 
@@ -459,14 +464,19 @@ class ModelHealthMonitor:
                             timestamp=datetime.now(),
                             alert_type="DATA_DRIFT",
                             severity="MEDIUM",
-                            message="Data drift detected in {len(drift_metrics.affected_features)} features",
+                            message="Data drift detected in {len(
+                                                                 drift_metrics.affected_features)} features",
+                                                                 
                             metrics=asdict(drift_metrics),
                             action_required=False,
                         )
                         self.alerts.append(drift_alert)
                         self._handle_alert(drift_alert)
 
-                time.sleep(self.config.get("monitor_interval", DEFAULT_MONITOR_INTERVAL))
+                time.sleep(
+                           self.config.get("monitor_interval",
+                           DEFAULT_MONITOR_INTERVAL)
+                          )
 
             except Exception as e:
                 logger.error("Error in monitoring loop: {e}")
@@ -493,7 +503,7 @@ class ModelHealthMonitor:
             ]
 
             inputs = self.tokenizer(
-                test_texts, return_tensors="pt", padding=True, truncation=True, max_length=128
+test_texts, return_tensors="pt", padding=True, truncation=True, max_length=128
             )
 
             device = next(self.model.parameters()).device
@@ -613,7 +623,8 @@ class ModelHealthMonitor:
             alerts_dir = Path("logs/alerts")
             alerts_dir.mkdir(parents=True, exist_ok=True)
 
-            alert_file = alerts_dir / "alert_{alert.timestamp.strftime('%Y%m%d_%H%M%S')}.json"
+            alert_file = alerts_dir / "alert_{alert.timestamp.strftime(
+                                                                       '%Y%m%d_%H%M%S')}.json"
             with open(alert_file, "w") as f:
                 json.dump(asdict(alert), f, indent=2, default=str)
 
@@ -636,7 +647,8 @@ class ModelHealthMonitor:
             "current_performance": current_performance,
             "trend_analysis": trend_analysis,
             "recent_alerts": len(
-                [a for a in self.alerts if a.timestamp > datetime.now() - timedelta(hours=1)]
+                [a for a in self.alerts if a.timestamp > datetime.now(
+                                                                      ) - timedelta(hours=1)]
             ),
             "total_alerts": len(self.alerts),
         }
@@ -703,10 +715,12 @@ if __name__ == "__main__":
         "--alert_threshold",
         type=float,
         default=DEFAULT_ALERT_THRESHOLD,
-        help="Performance degradation threshold for alerts (default: {DEFAULT_ALERT_THRESHOLD})",
+        help="Performance degradation threshold for alerts (
+                                                            default: {DEFAULT_ALERT_THRESHOLD})",
+                                                            
     )
     parser.add_argument(
-        "--create_config", action="store_true", help="Create default monitoring configuration"
+"--create_config", action="store_true", help="Create default monitoring configuration"
     )
 
     args = parser.parse_args()

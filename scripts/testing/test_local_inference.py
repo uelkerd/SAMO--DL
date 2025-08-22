@@ -81,7 +81,9 @@ def test_local_inference():
         
     except ImportError as e:
         print(f"❌ Import error: {e}")
-        print("Make sure you're in the correct directory and all dependencies are installed.")
+        print(
+              "Make sure you're in the correct directory and all dependencies are installed."
+             )
         return False
     except Exception as e:
         print(f"❌ Error during inference: {e}")
@@ -114,7 +116,12 @@ def test_simple_inference():
         print(f"\n📝 Testing text: {test_text}")
         
         # Tokenize
-        inputs = tokenizer(test_text, return_tensors="pt", truncation=True, max_length=512)
+        inputs = tokenizer(
+                           test_text,
+                           return_tensors="pt",
+                           truncation=True,
+                           max_length=512
+                          )
         
         # Predict
         with torch.no_grad():

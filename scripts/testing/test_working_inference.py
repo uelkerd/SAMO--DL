@@ -44,7 +44,8 @@ def test_working_inference():
     print(f"📊 Number of labels: {len(config.get('id2label', {}))}")
     
     # Define emotion mapping based on your training order
-    emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
     print(f"🎯 Emotion mapping: {emotion_mapping}")
     
     try:
@@ -76,7 +77,13 @@ def test_working_inference():
             print(f"\n{i}. Text: {text}")
             
             # Tokenize
-            inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+            inputs = tokenizer(
+                               text,
+                               return_tensors="pt",
+                               truncation=True,
+                               max_length=512,
+                               padding=True
+                              )
             inputs = {k: v.to(device) for k, v in inputs.items()}
             
             # Predict
@@ -128,7 +135,8 @@ def test_simple_inference():
             predicted_class = torch.argmax(probabilities, dim=1).item()
             confidence = probabilities[0][predicted_class].item()
         
-        emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
         emotion = emotion_mapping[predicted_class]
         
         print(f"✅ Simple test successful!")

@@ -2,7 +2,8 @@
 """
 Full Dataset Focal Loss Training Script
 
-This script trains the emotion detection model using focal loss on the full GoEmotions dataset.
+This script trains the emotion detection model using focal loss on the full GoEmotions dataset
+    .
 """
 
 import logging
@@ -51,7 +52,8 @@ def create_synthetic_data(num_samples=1000):
     """Create synthetic training data for testing."""
     logger.info(f"Creating {num_samples} synthetic training samples...")
 
-    emotions = ["joy", "sadness", "anger", "fear", "surprise", "disgust", "trust", "anticipation"]
+emotions = ["joy", "sadness", "anger", "fear", "surprise", "disgust", "trust",
+"anticipation"]
     texts = [
         "I am feeling happy today!",
         "This makes me very sad.",

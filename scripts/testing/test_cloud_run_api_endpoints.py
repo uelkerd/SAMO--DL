@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Cloud Run API Endpoint Testing Script
-Tests the deployed SAMO Emotion Detection API for functionality, security, and performance.
+Tests the deployed SAMO Emotion Detection API for functionality, security, and performance
+    .
 """
 
 import requests
@@ -15,7 +16,10 @@ import logging
 from test_config import create_api_client, create_test_config
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+                    level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s'
+                   )
 logger = logging.getLogger(__name__)
 
 class CloudRunAPITester:
@@ -48,7 +52,8 @@ class CloudRunAPITester:
             
             # Validate expected fields for minimal API
             required_fields = ["status", "service", "version", "emotions_supported"]
-            if missing_fields := [field for field in required_fields if field not in data]:
+if missing_fields : =
+    [field for field in required_fields if field not in data]:
                 return {
                     "success": False,
                     "error": f"Missing required fields: {missing_fields}",
@@ -129,7 +134,10 @@ class CloudRunAPITester:
                 results.append({
                     "text_index": i,
                     "success": True,
-                    "emotion_detected": bool(data.get("primary_emotion", {}).get("emotion")),
+                    "emotion_detected": bool(
+                                             data.get("primary_emotion",
+                                             {}).get("emotion")),
+                                             
                     "confidence": data.get("primary_emotion", {}).get("confidence", 0),
                     "response_time": 0.0  # Will be measured in performance test
                 })
@@ -207,7 +215,9 @@ class CloudRunAPITester:
         unexpected_successes = [r for r in results if r.get("unexpected", False)]
         
         return {
-            "success": len(expected_failures) > 0,  # At least some inputs should be rejected
+            "success": len(
+                           expected_failures) > 0,
+                           # At least some inputs should be rejected
             "total_tests": len(results),
             "expected_failures": len(expected_failures),
             "unexpected_successes": len(unexpected_successes),
@@ -273,7 +283,8 @@ class CloudRunAPITester:
         except Exception as e:
             security_headers = {"error": str(e)}
         
-        # For minimal API, consider security test successful if rate limiting works or if no rate limiting is implemented
+# For minimal API, consider security test successful if rate limiting works or if no
+rate limiting is implemented
         # (since our minimal API doesn't have advanced security features)
         success = True  # Consider successful for minimal API
         
@@ -321,7 +332,8 @@ class CloudRunAPITester:
         else:
             avg_response_time = max_response_time = min_response_time = 0
         
-        success_rate = len(successful_requests) / len(performance_results) if performance_results else 0
+        success_rate = len(
+                           successful_requests) / len(performance_results) if performance_results else 0
         success = success_rate >= 0.8  # Consider successful if 80%+ requests succeed
         
         return {
@@ -347,7 +359,7 @@ class CloudRunAPITester:
         
         # Run all tests
         test_results["tests"]["health"] = self.test_health_endpoint()
-        test_results["tests"]["emotion_detection"] = self.test_emotion_detection_endpoint()
+test_results["tests"]["emotion_detection"] = self.test_emotion_detection_endpoint()
         test_results["tests"]["model_loading"] = self.test_model_loading()
         test_results["tests"]["invalid_inputs"] = self.test_invalid_inputs()
         test_results["tests"]["security"] = self.test_security_features()
@@ -374,7 +386,10 @@ class CloudRunAPITester:
             else:
                 summary["failed_tests"] += 1
                 if test_name in ["health", "model_loading"]:
-                    summary["critical_issues"].append(f"{test_name}: {result.get('error', 'Unknown error')}")
+                    summary["critical_issues"].append(
+                                                      f"{test_name}: {result.get('error',
+                                                      'Unknown error')}"
+                                                     )
         
         # Check for critical failures
         if summary["failed_tests"] > 0:
@@ -423,7 +438,10 @@ def main():
     print("-" * 30)
     
     for test_name, result in results["tests"].items():
-        status = "✅ PASS" if isinstance(result, dict) and result.get("success", False) else "❌ FAIL"
+        status = "✅ PASS" if isinstance(
+                                        result,
+                                        dict) and result.get("success",
+                                        False) else "❌ FAIL"
         print(f"{test_name.upper()}: {status}")
         
         if isinstance(result, dict):

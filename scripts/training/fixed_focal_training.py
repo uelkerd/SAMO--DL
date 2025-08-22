@@ -24,7 +24,10 @@ Usage:
     python3 scripts/fixed_focal_training.py
 """
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+                    level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s"
+                   )
 logger = logging.getLogger(__name__)
 
 
@@ -238,7 +241,11 @@ def create_proper_training_data():
     val_data = training_data[train_size:train_size + val_size]
     test_data = training_data[train_size + val_size:]
     
-    logger.info(f"✅ Created {len(train_data)} training, {len(val_data)} validation, {len(test_data)} test samples")
+    logger.info(
+                f"✅ Created {len(train_data)} training,
+                {len(val_data)} validation,
+                {len(test_data)} test samples"
+               )
     
     return train_data, val_data, test_data
 
@@ -314,7 +321,10 @@ def train_model(model, train_data, val_data, device, epochs=10):
         avg_train_loss = total_loss / len(train_data)
         avg_val_loss = val_loss / len(val_data)
         
-        logger.info(f"Epoch {epoch + 1}: Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}")
+        logger.info(
+                    f"Epoch {epoch + 1}: Train Loss: {avg_train_loss:.4f},
+                    Val Loss: {avg_val_loss:.4f}"
+                   )
         
         # Save best model
         if avg_val_loss < best_val_loss:
@@ -357,11 +367,30 @@ def evaluate_model(model, test_data, device):
         binary_predictions = (all_predictions > threshold).astype(int)
         
         # Calculate metrics
-        f1 = f1_score(all_labels, binary_predictions, average='weighted', zero_division=0)
-        precision = precision_score(all_labels, binary_predictions, average='weighted', zero_division=0)
-        recall = recall_score(all_labels, binary_predictions, average='weighted', zero_division=0)
+        f1 = f1_score(
+                      all_labels,
+                      binary_predictions,
+                      average='weighted',
+                      zero_division=0
+                     )
+        precision = precision_score(
+                                    all_labels,
+                                    binary_predictions,
+                                    average='weighted',
+                                    zero_division=0
+                                   )
+        recall = recall_score(
+                              all_labels,
+                              binary_predictions,
+                              average='weighted',
+                              zero_division=0
+                             )
         
-        logger.info(f"Threshold {threshold}: F1={f1:.4f}, Precision={precision:.4f}, Recall={recall:.4f}")
+        logger.info(
+                    f"Threshold {threshold}: F1={f1:.4f},
+                    Precision={precision:.4f},
+                    Recall={recall:.4f}"
+                   )
         
         if f1 > best_f1:
             best_f1 = f1
@@ -371,11 +400,30 @@ def evaluate_model(model, test_data, device):
     
     # Final evaluation with best threshold
     binary_predictions = (all_predictions > best_threshold).astype(int)
-    final_f1 = f1_score(all_labels, binary_predictions, average='weighted', zero_division=0)
-    final_precision = precision_score(all_labels, binary_predictions, average='weighted', zero_division=0)
-    final_recall = recall_score(all_labels, binary_predictions, average='weighted', zero_division=0)
+    final_f1 = f1_score(
+                        all_labels,
+                        binary_predictions,
+                        average='weighted',
+                        zero_division=0
+                       )
+    final_precision = precision_score(
+                                      all_labels,
+                                      binary_predictions,
+                                      average='weighted',
+                                      zero_division=0
+                                     )
+    final_recall = recall_score(
+                                all_labels,
+                                binary_predictions,
+                                average='weighted',
+                                zero_division=0
+                               )
     
-    logger.info(f"🏆 Final Results - F1: {final_f1:.4f}, Precision: {final_precision:.4f}, Recall: {final_recall:.4f}")
+    logger.info(
+                f"🏆 Final Results - F1: {final_f1:.4f},
+                Precision: {final_precision:.4f},
+                Recall: {final_recall:.4f}"
+               )
     
     return {
         "f1": final_f1,
@@ -402,7 +450,9 @@ def main():
     
     # Create model
     model = SimpleBERTClassifier()
-    logger.info(f"🤖 Created model with {sum(p.numel() for p in model.parameters())} parameters")
+    logger.info(
+                f"🤖 Created model with {sum(p.numel() for p in model.parameters())} parameters"
+               )
     
     # Create dataloaders
     train_dataloader = create_dataloader(train_data, model, batch_size=8)
@@ -410,7 +460,13 @@ def main():
     test_dataloader = create_dataloader(test_data, model, batch_size=8)
     
     # Train model
-    trained_model = train_model(model, train_dataloader, val_dataloader, device, epochs=5)
+    trained_model = train_model(
+                                model,
+                                train_dataloader,
+                                val_dataloader,
+                                device,
+                                epochs=5
+                               )
     
     # Load best model
     trained_model.load_state_dict(torch.load("best_focal_model.pth"))

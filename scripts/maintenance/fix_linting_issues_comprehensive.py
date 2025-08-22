@@ -65,7 +65,10 @@ class ComprehensiveLintingFixer:
                 python_files.extend(Path(directory).rglob("*.py"))
         return python_files
 
-    def separate_imports_and_code(self, lines: list[str]) -> tuple[list[str], list[str]]:
+    def separate_imports_and_code(
+                                  self,
+                                  lines: list[str]) -> tuple[list[str],
+                                  list[str]]:
         """Separate import lines from other code lines."""
         import_lines = []
         non_import_lines = []
@@ -178,7 +181,8 @@ class ComprehensiveLintingFixer:
             lines = content.split('\n')
             import_added = False
             for _i, line in enumerate(lines):
-                if line.strip().startswith('import ') or line.strip().startswith('from '):
+                if line.strip(
+                              ).startswith('import ') or line.strip().startswith('from '):
                     if not import_added:
                         lines.insert(i, 'import logging')
                         import_added = True
@@ -214,7 +218,10 @@ class ComprehensiveLintingFixer:
 
                 if not self.validate_python_syntax(file_path):
                     shutil.copy2(backup_path, file_path)
-                    self.errors.append(f"Syntax error after fixing {file_path}, restored backup")
+                    self.errors.append(
+                                       f"Syntax error after fixing {file_path},
+                                       restored backup"
+                                      )
                     return False
 
                 self.fixed_files.append(str(file_path))

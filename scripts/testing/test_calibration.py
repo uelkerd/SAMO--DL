@@ -88,7 +88,7 @@ def test_calibration():
         batch = val_dataset[i : i + batch_size]
 
         inputs = tokenizer(
-            batch["text"], padding=True, truncation=True, max_length=512, return_tensors="pt"
+batch["text"], padding=True, truncation=True, max_length=512, return_tensors="pt"
         ).to(device)
 
         with torch.no_grad():

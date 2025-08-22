@@ -44,7 +44,9 @@ def test_threshold_application():
     logging.info("📊 Threshold analysis:")
     logging.info("  - Total positions: {total_positions}")
     logging.info("  - Positions >= {threshold}: {num_above_threshold}")
-    logging.info("  - Percentage >= {threshold}: {100 * num_above_threshold / total_positions:.1f}%")
+    logging.info(
+                 "  - Percentage >= {threshold}: {100 * num_above_threshold / total_positions:.1f}%"
+                )
 
     predictions = (probabilities >= threshold).float()
 
@@ -53,13 +55,17 @@ def test_threshold_application():
     logging.info("  - Sum: {predictions.sum().item()}")
     logging.info("  - Mean: {predictions.mean().item():.4f}")
     logging.info("  - Expected sum: {num_above_threshold}")
-    logging.info("  - Match: {'✅' if predictions.sum().item() == num_above_threshold else '❌'}")
+    logging.info(
+                 "  - Match: {'✅' if predictions.sum().item() == num_above_threshold else '❌'}"
+                )
 
     samples_with_no_predictions = (predictions.sum(dim=1) == 0).sum().item()
     logging.info("  - Samples with 0 predictions: {samples_with_no_predictions}")
 
     if samples_with_no_predictions > 0:
-        logging.info("\n🔧 Applying fallback to {samples_with_no_predictions} samples...")
+        logging.info(
+                     "\n🔧 Applying fallback to {samples_with_no_predictions} samples..."
+                    )
 
         predictions_with_fallback = predictions.clone()
         for sample_idx in range(predictions.shape[0]):
@@ -71,7 +77,8 @@ def test_threshold_application():
         logging.info("  - Sum: {predictions_with_fallback.sum().item()}")
         logging.info("  - Mean: {predictions_with_fallback.mean().item():.4f}")
         print(
-            "  - Samples with 0 predictions: {(predictions_with_fallback.sum(dim=1) == 0).sum().item()}"
+            "  - Samples with 0 predictions: {(
+                                               predictions_with_fallback.sum(dim=1) == 0).sum().item()}"
         )
 
     return predictions

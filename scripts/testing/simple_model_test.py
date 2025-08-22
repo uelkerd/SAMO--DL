@@ -90,7 +90,9 @@ def suggest_next_steps():
     print("   - You're using Python 3.8.6 but libraries are in Python 3.11")
     print("   - Options:")
     print("     a) Use: python3.11 scripts/test_emotion_model.py")
-    print("     b) Install libraries in current Python: pip3 install torch transformers scikit-learn")
+    print(
+          "     b) Install libraries in current Python: pip3 install torch transformers scikit-learn"
+         )
     print("     c) Create virtual environment")
     
     print("\n2. 🧪 Model Testing:")

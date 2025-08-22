@@ -50,11 +50,13 @@ async def test_token_refill_logic():
         await rate_limiter.dispatch(request, call_next)
         if i % 20 == 0:
             print(
-                "   Request {i+1}: tokens={entry.tokens}, requests_in_window={len(entry.requests)}"
+                "   Request {i+1}: tokens={entry.tokens}, requests_in_window={len(
+                                                                                  entry.requests)}"
             )
 
     print(
-        "✅ After consuming all tokens: tokens={entry.tokens}, requests_in_window={len(entry.requests)}"
+        "✅ After consuming all tokens: tokens={entry.tokens}, requests_in_window={len(
+                                                                                      entry.requests)}"
     )
 
     old_time = time.time() - rate_limiter.window_size - 1
@@ -64,7 +66,8 @@ async def test_token_refill_logic():
     entry.requests.append(old_time)
 
     print(
-        "✅ After simulating time passing: tokens={entry.tokens}, requests_in_window={len(entry.requests)}"
+"✅ After simulating time passing: tokens={entry.tokens},
+requests_in_window={len(entry.requests)}"
     )
 
     response = await rate_limiter.dispatch(request, call_next)

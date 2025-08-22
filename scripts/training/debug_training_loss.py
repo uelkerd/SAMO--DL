@@ -24,7 +24,10 @@ from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+                    level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s"
+                   )
 logger = logging.getLogger(__name__)
 
 
@@ -73,14 +76,20 @@ def debug_data_loading():
 
             # Check for extreme values
             if labels.max() > 1.0 or labels.min() < 0.0:
-                logger.warning(f"⚠️ Labels outside [0,1] range: min={labels.min().item()}, max={labels.max().item()}")
+                logger.warning(
+                               f"⚠️ Labels outside [0,
+                               1] range: min={labels.min().item()},
+                               max={labels.max().item()}"
+                              )
 
             # Check label distribution per class
             for class_idx in range(labels.shape[1]):
                 class_labels = labels[:, class_idx]
                 positive_count = (class_labels > 0).sum().item()
                 total_count = class_labels.numel()
-                logger.info(f"   Class {class_idx}: {positive_count}/{total_count} positive ({positive_count/total_count:.2%})")
+                logger.info(
+                            f"   Class {class_idx}: {positive_count}/{total_count} positive ({positive_count/total_count:.2%})"
+                           )
 
         return True
 
@@ -131,7 +140,10 @@ def debug_model_outputs(datasets):
 
         # Check for extreme values
         if predictions.max() > 0.999 or predictions.min() < 0.001:
-            logger.warning(f"⚠️ Predictions near extremes: min={predictions.min().item():.4f}, max={predictions.max().item():.4f}")
+            logger.warning(
+                           f"⚠️ Predictions near extremes: min={predictions.min().item():.4f},
+                           max={predictions.max().item():.4f}"
+                          )
 
         # Examine first batch
         logger.info("📋 First batch details:")
@@ -222,10 +234,13 @@ def debug_class_weights():
 
         # Calculate weights
         total_samples = len(train_data)
-        class_weights = total_samples / (num_classes * class_counts + 1)  # Add 1 to avoid division by zero
+        class_weights = total_samples / (
+                                         num_classes * class_counts + 1)  # Add 1 to avoid division by zero
 
         logger.info(f"📊 First 10 class weights: {class_weights[:10].tolist()}")
-        logger.info(f"📊 Weight range: {class_weights.min().item():.2f} - {class_weights.max().item():.2f}")
+        logger.info(
+                    f"📊 Weight range: {class_weights.min().item():.2f} - {class_weights.max().item():.2f}"
+                   )
 
         return True
 

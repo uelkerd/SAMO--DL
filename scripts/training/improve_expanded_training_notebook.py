@@ -17,7 +17,8 @@ def improve_notebook():
     # Find the training function cell
     training_cell_idx = None
     for i, cell in enumerate(notebook['cells']):
-        if cell['cell_type'] == 'code' and 'train_expanded_model' in str(cell['source']):
+        if cell['cell_type'] == 'code' and 'train_expanded_model' in str(
+                                                                         cell['source']):
             training_cell_idx = i
             break
     
@@ -36,7 +37,9 @@ def improve_notebook():
         print("🔧 Applying GPU optimizations...")
         torch.backends.cudnn.benchmark = True
         torch.backends.cudnn.deterministic = False
-        print(f"📊 GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
+        print(
+              f"📊 GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
+             )
         print(f"📊 Available Memory: {torch.cuda.memory_allocated(0) / 1e9:.1f} GB")
     
     # Clear GPU cache
@@ -64,9 +67,16 @@ def improve_notebook():
     new_source = re.sub(early_stopping_pattern, early_stopping_code, new_source)
     
     # Add learning rate scheduling
-    lr_scheduler_pattern = r'optimizer = torch\.optim\.AdamW\(model\.parameters\(\), lr=2e-5\)'
+    lr_scheduler_pattern = r'optimizer = torch\.optim\.AdamW\(
+                                                              model\.parameters\(\),
+                                                              lr=2e-5\)'
     lr_scheduler_code = '''optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=2, verbose=True)'''
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+                                                           optimizer,
+                                                           mode='max',
+                                                           factor=0.5,
+                                                           patience=2,
+                                                           verbose=True)'''
     
     new_source = re.sub(lr_scheduler_pattern, lr_scheduler_code, new_source)
     
@@ -92,7 +102,10 @@ from torch.cuda.amp import autocast, GradScaler'''
     new_source = re.sub(scaler_init_pattern, scaler_init_code, new_source)
     
     # Add mixed precision training loop
-    training_loop_pattern = r'optimizer\.zero_grad\(\)\s+outputs = model\(input_ids=input_ids, attention_mask=attention_mask\)\s+loss = criterion\(outputs, labels\)\s+loss\.backward\(\)\s+optimizer\.step\(\)'
+    training_loop_pattern = r'optimizer\.zero_grad\(
+                                                    \)\s+outputs = model\(input_ids=input_ids,
+                                                    attention_mask=attention_mask\)\s+loss = criterion\(outputs,
+                                                    labels\)\s+loss\.backward\(\)\s+optimizer\.step\(\)'
     training_loop_code = '''optimizer.zero_grad()
             with autocast():
                 outputs = model(input_ids=input_ids, attention_mask=attention_mask)
@@ -111,7 +124,9 @@ from torch.cuda.amp import autocast, GradScaler'''
     with open('notebooks/expanded_dataset_training_improved.ipynb', 'w') as f:
         json.dump(notebook, f, indent=2)
     
-    print("✅ Improved notebook saved as 'notebooks/expanded_dataset_training_improved.ipynb'")
+    print(
+          "✅ Improved notebook saved as 'notebooks/expanded_dataset_training_improved.ipynb'"
+         )
     print("📋 Improvements added:")
     print("  - GPU optimizations (cudnn benchmark, memory management)")
     print("  - Early stopping to prevent overfitting")

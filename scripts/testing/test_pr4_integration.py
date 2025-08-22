@@ -69,7 +69,8 @@ class PR4IntegrationTester:
             
             # Check required sections
             required_sections = ['api', 'security_headers', 'logging', 'environment']
-            missing_sections = [section for section in required_sections if section not in config]
+missing_sections =
+    [section for section in required_sections if section not in config]
             
             if missing_sections:
                 return {
@@ -129,7 +130,8 @@ class PR4IntegrationTester:
             
             # Check required sections
             required_sections = ['info', 'paths', 'components']
-            missing_sections = [section for section in required_sections if section not in spec]
+missing_sections =
+    [section for section in required_sections if section not in spec]
             
             if missing_sections:
                 return {
@@ -179,7 +181,8 @@ class PR4IntegrationTester:
             
             # Check for security scanning tools
             security_tools = ['bandit', 'safety']
-            missing_tools = [tool for tool in security_tools if tool not in requirements]
+missing_tools =
+    [tool for tool in security_tools if tool not in requirements]
             
             if missing_tools:
                 return {
@@ -190,27 +193,41 @@ class PR4IntegrationTester:
                 }
             
             # Check for critical security packages
-            # The list of critical security packages is loaded from security.yaml under the 'critical_packages' key.
+# The list of critical security packages is loaded from security.yaml under the
+'critical_packages' key.
             # These packages are considered critical because:
-            #   - cryptography: Provides secure cryptographic primitives for encryption, hashing, etc.
-            #   - certifi: Ensures up-to-date CA certificates for secure HTTPS connections.
+            #   - cryptography: Provides secure cryptographic primitives for encryption, hashing, etc
+    .
+            #   - certifi: Ensures up-to-date CA certificates for secure HTTPS connections
+    .
             #   - urllib3: Secure HTTP client with robust TLS/SSL support.
             try:
                 with open(self.security_config_path, 'r') as secf:
                     security_config = yaml.safe_load(secf)
-                critical_packages = security_config.get('critical_packages', ['cryptography', 'certifi', 'urllib3'])
+                critical_packages = security_config.get(
+                                                        'critical_packages',
+                                                        ['cryptography',
+                                                        'certifi',
+                                                        'urllib3']
+                                                       )
                 if 'critical_packages' not in security_config:
-                    print("⚠️ Warning: 'critical_packages' not found in security.yaml, using default list.")
+                    print(
+                          "⚠️ Warning: 'critical_packages' not found in security.yaml,
+                          using default list."
+                         )
             except Exception as e:
-                print(f"⚠️ Warning: Could not read security.yaml for critical_packages: {str(e)}. Using default list.")
+                print(
+                      f"⚠️ Warning: Could not read security.yaml for critical_packages: {str(e)}. Using default list."
+                     )
                 critical_packages = ['cryptography', 'certifi', 'urllib3']
-            missing_critical = [pkg for pkg in critical_packages if pkg not in requirements]
+missing_critical =
+    [pkg for pkg in critical_packages if pkg not in requirements]
             
             if missing_critical:
                 return {
                     "name": "Dependencies Security",
                     "passed": False,
-                    "message": f"Missing critical security packages: {missing_critical}",
+"message": f"Missing critical security packages: {missing_critical}",
                     "details": "Critical security packages are required"
                 }
             
@@ -218,7 +235,8 @@ class PR4IntegrationTester:
                 "name": "Dependencies Security",
                 "passed": True,
                 "message": "Dependencies include required security packages",
-                "details": f"All {len(security_tools)} security tools and {len(critical_packages)} critical packages present"
+                "details": f"All {len(
+                                      security_tools)} security tools and {len(critical_packages)} critical packages present"
             }
             
         except Exception as e:
@@ -330,7 +348,9 @@ class PR4IntegrationTester:
             "total_tests": total_tests,
             "passed": passed_tests,
             "failed": failed_tests,
-            "success_rate": (passed_tests / total_tests) * 100 if total_tests > 0 else 0,
+            "success_rate": (
+                             passed_tests / total_tests) * 100 if total_tests > 0 else 0,
+                             
             "results": self.test_results,
             "recommendations": []
         }

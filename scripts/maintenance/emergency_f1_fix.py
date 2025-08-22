@@ -67,7 +67,9 @@ def create_optimized_model(class_weights):
         classifier_dropout_prob=0.2,  # Reduced dropout
         freeze_bert_layers=0,  # Don't freeze initially
         temperature=1.0,
-        class_weights=torch.tensor(class_weights, dtype=torch.float32) if class_weights is not None else None
+        class_weights=torch.tensor(
+                                   class_weights,
+                                   dtype=torch.float32) if class_weights is not None else None
     )
     
     return model
@@ -168,7 +170,8 @@ def train_with_focal_loss(model, train_loader, val_loader, device, epochs=5):
     )
     
     # Focal loss
-    class_weights = model.class_weights.to(device) if model.class_weights is not None else None
+    class_weights = model.class_weights.to(
+                                           device) if model.class_weights is not None else None
     focal_loss = FocalLoss(alpha=0.25, gamma=2.0, class_weights=class_weights)
     
     best_f1 = 0.0
@@ -294,7 +297,10 @@ def emergency_f1_fix():
         
         # Get class weights
         class_weights = datasets["class_weights"]
-        logger.info(f"📊 Class weights computed: min={class_weights.min():.3f}, max={class_weights.max():.3f}")
+        logger.info(
+                    f"📊 Class weights computed: min={class_weights.min():.3f},
+                    max={class_weights.max():.3f}"
+                   )
         
         # Create model
         model = create_optimized_model(class_weights)
@@ -303,14 +309,24 @@ def emergency_f1_fix():
         tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
         
         # Prepare data
-        train_loader, val_loader = prepare_training_data(datasets, tokenizer, batch_size=16)
+        train_loader, val_loader = prepare_training_data(
+                                                         datasets,
+                                                         tokenizer,
+                                                         batch_size=16
+                                                        )
         
         # Set device
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model.to(device)
         
         # Train with focal loss
-        best_val_f1 = train_with_focal_loss(model, train_loader, val_loader, device, epochs=5)
+        best_val_f1 = train_with_focal_loss(
+                                            model,
+                                            train_loader,
+                                            val_loader,
+                                            device,
+                                            epochs=5
+                                           )
         
         # Optimize threshold
         best_threshold = optimize_threshold(model, val_loader, device)
@@ -349,13 +365,22 @@ def emergency_f1_fix():
         test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
         
         # Evaluate with optimized threshold
-        test_results = evaluate_model(model, test_loader, device, threshold=best_threshold)
+        test_results = evaluate_model(
+                                      model,
+                                      test_loader,
+                                      device,
+                                      threshold=best_threshold
+                                     )
         
         # Display results
         logger.info("📊 FINAL RESULTS:")
         logger.info("=" * 60)
-        logger.info(f"Micro F1 Score:     {test_results['micro_f1']:.4f} ({test_results['micro_f1']*100:.2f}%)")
-        logger.info(f"Macro F1 Score:     {test_results['macro_f1']:.4f} ({test_results['macro_f1']*100:.2f}%)")
+        logger.info(
+                    f"Micro F1 Score:     {test_results['micro_f1']:.4f} ({test_results['micro_f1']*100:.2f}%)"
+                   )
+        logger.info(
+                    f"Macro F1 Score:     {test_results['macro_f1']:.4f} ({test_results['macro_f1']*100:.2f}%)"
+                   )
         logger.info(f"Best Threshold:     {best_threshold:.2f}")
         logger.info(f"Training Time:      {time.time() - start_time:.1f}s")
         logger.info("=" * 60)

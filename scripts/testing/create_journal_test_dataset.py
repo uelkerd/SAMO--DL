@@ -21,15 +21,19 @@ import pandas as pd
 # Realistic journal entry templates that reflect personal, reflective writing
 JOURNAL_TEMPLATES = [
     # Personal reflection templates
-    "Today I found myself thinking deeply about {topic}. {emotion_context} {reflection}",
+"Today I found myself thinking deeply about {topic}. {emotion_context} {reflection}",
     "I've been struggling with {topic} lately. {emotion_context} {reflection}",
-    "This week has been challenging when it comes to {topic}. {emotion_context} {reflection}",
+"This week has been challenging when it comes to {topic}. {emotion_context}
+{reflection}",
     "I'm feeling {emotion} about {topic}. {emotion_context} {reflection}",
     "My thoughts on {topic} have been consuming me. {emotion_context} {reflection}",
     "I had a breakthrough moment with {topic} today. {emotion_context} {reflection}",
-    "I'm trying to understand why {topic} affects me so deeply. {emotion_context} {reflection}",
-    "Looking back on my relationship with {topic}, I realize {emotion_context} {reflection}",
-    "I've been avoiding thinking about {topic}, but today I couldn't ignore it. {emotion_context} {reflection}",
+"I'm trying to understand why {topic} affects me so deeply. {emotion_context}
+{reflection}",
+"Looking back on my relationship with {topic}, I realize {emotion_context}
+{reflection}",
+"I've been avoiding thinking about {topic}, but today I couldn't ignore it.
+{emotion_context} {reflection}",
     "My journey with {topic} has taught me so much. {emotion_context} {reflection}",
 ]
 
@@ -167,7 +171,10 @@ REFLECTIVE_STATEMENTS = [
 def generate_journal_content(topic: str, emotion: str) -> str:
     """Generate realistic journal entry content."""
     template = random.choice(JOURNAL_TEMPLATES)
-    emotion_context = random.choice(EMOTION_CONTEXTS.get(emotion, ["I'm feeling this way."]))
+    emotion_context = random.choice(
+                                    EMOTION_CONTEXTS.get(emotion,
+                                    ["I'm feeling this way."])
+                                   )
     reflection = random.choice(REFLECTIVE_STATEMENTS)
     
     content = template.format(
@@ -179,7 +186,10 @@ def generate_journal_content(topic: str, emotion: str) -> str:
     
     # Add more depth with additional sentences
     if random.random() > 0.3:  # 70% chance of adding more detail
-        additional_context = random.choice(EMOTION_CONTEXTS.get(emotion, ["I'm processing this."]))
+        additional_context = random.choice(
+                                           EMOTION_CONTEXTS.get(emotion,
+                                           ["I'm processing this."])
+                                          )
         content += f" {additional_context}"
     
     if random.random() > 0.5:  # 50% chance of adding another reflection
@@ -188,7 +198,11 @@ def generate_journal_content(topic: str, emotion: str) -> str:
     
     return content
 
-def generate_journal_entry(entry_id: int, user_id: int, created_at: datetime) -> Dict[str, Any]:
+def generate_journal_entry(
+                           entry_id: int,
+                           user_id: int,
+                           created_at: datetime) -> Dict[str,
+                           Any]:
     """Generate a single realistic journal entry."""
     topic = random.choice(JOURNAL_TOPICS)
     emotion = random.choice(list(EMOTION_CONTEXTS.keys()))
@@ -294,7 +308,9 @@ def main():
     print(f"   Total Entries: {summary['total_entries']}")
     print(f"   Unique Users: {summary['unique_users']}")
     print(f"   Average Word Count: {summary['avg_word_count']:.1f}")
-    print(f"   Date Range: {summary['date_range']['start'][:10]} to {summary['date_range']['end'][:10]}")
+    print(
+          f"   Date Range: {summary['date_range']['start'][:10]} to {summary['date_range']['end'][:10]}"
+         )
     
     print("\n🎯 Emotion Distribution:")
     for emotion, count in summary['emotion_distribution'].items():

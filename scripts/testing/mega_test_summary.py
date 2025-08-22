@@ -12,7 +12,20 @@ def display_mega_test_results():
     print("🎉 MEGA COMPREHENSIVE TEST RESULTS SUMMARY")
     print("=" * 80)
     print("📁 Model Tested: deployment/models/default")
-    print("🎯 Emotions: anxious, calm, content, excited, frustrated, grateful, happy, hopeful, overwhelmed, proud, sad, tired")
+    print(
+          "🎯 Emotions: anxious,
+          calm,
+          content,
+          excited,
+          frustrated,
+          grateful,
+          happy,
+          hopeful,
+          overwhelmed,
+          proud,
+          sad,
+          tired"
+         )
     print()
     
     print("📊 TEST SUITE RESULTS")
@@ -29,7 +42,13 @@ def display_mega_test_results():
     print("🔍 EDGE CASES AND UNUSUAL INPUTS")
     print("   ✅ Accuracy: 81.58% (31/38)")
     print("   ✅ Average Confidence: 0.832 (83.2%)")
-    print("   ✅ Handles short inputs, long inputs, mixed emotions, negations, questions")
+    print(
+          "   ✅ Handles short inputs,
+          long inputs,
+          mixed emotions,
+          negations,
+          questions"
+         )
     print("   ✅ Handles emojis, symbols, capitalization variations, special characters")
     print()
     
@@ -63,7 +82,12 @@ def display_mega_test_results():
     print("🌍 REAL-WORLD SCENARIOS")
     print("   ✅ Accuracy: 93.75% (45/48)")
     print("   ✅ Average Confidence: 0.898 (89.8%)")
-    print("   ✅ Tested: Social media posts, journal entries, customer service, work scenarios")
+    print(
+          "   ✅ Tested: Social media posts,
+          journal entries,
+          customer service,
+          work scenarios"
+         )
     print("   ⚠️  Minor issues with: excited, grateful, hopeful (75% accuracy each)")
     print()
     
@@ -127,12 +151,19 @@ def display_mega_test_results():
     print()
     print("⚠️  MINOR AREAS FOR IMPROVEMENT:")
     print("   - Edge case accuracy could be improved (81.6%)")
-    print("   - Some emotions (excited, grateful, hopeful) need attention in real-world scenarios")
+    print(
+          "   - Some emotions (excited,
+          grateful,
+          hopeful) need attention in real-world scenarios"
+         )
     print("   - Low confidence predictions (11.4%) could be reduced")
     print()
     print("🎉 FINAL VERDICT:")
     print("   This model is EXCELLENT and READY FOR PRODUCTION DEPLOYMENT!")
-    print("   The comprehensive testing confirms it's a robust, reliable emotion detection system.")
+    print(
+          "   The comprehensive testing confirms it's a robust,
+          reliable emotion detection system."
+         )
     print()
     print("📈 PERFORMANCE COMPARISON:")
     print("   - Basic Tests: 100% accuracy (vs 91.67% in previous test)")

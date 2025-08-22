@@ -42,7 +42,11 @@ def complete_simple_notebook():
                 "        self.reduction = reduction\n",
                 "    \n",
                 "    def forward(self, inputs, targets):\n",
-                "        ce_loss = torch.nn.functional.cross_entropy(inputs, targets, reduction='none')\n",
+                "        ce_loss = torch.nn.functional.cross_entropy(
+                                                                     inputs,
+                                                                     targets,
+                                                                     reduction='none')\n",
+                                                                     
                 "        pt = torch.exp(-ce_loss)\n",
                 "        focal_loss = self.alpha * (1 - pt) ** self.gamma * ce_loss\n",
                 "        \n",
@@ -91,12 +95,28 @@ def complete_simple_notebook():
                 "class WeightedLossTrainer(Trainer):\n",
                 "    \"\"\"Custom trainer with focal loss and class weighting.\"\"\"\n",
                 "    \n",
-                "    def __init__(self, focal_alpha=1, focal_gamma=2, class_weights=None, *args, **kwargs):\n",
+                "    def __init__(
+                                  self,
+                                  focal_alpha=1,
+                                  focal_gamma=2,
+                                  class_weights=None,
+                                  *args,
+                                  **kwargs):\n",
+                                  
                 "        super().__init__(*args, **kwargs)\n",
-                "        self.focal_loss = FocalLoss(alpha=focal_alpha, gamma=focal_gamma)\n",
+                "        self.focal_loss = FocalLoss(
+                                                     alpha=focal_alpha,
+                                                     gamma=focal_gamma)\n",
+                                                     
                 "        self.class_weights = class_weights\n",
                 "    \n",
-                "    def compute_loss(self, model, inputs, return_outputs=False, num_items_in_batch=None):\n",
+                "    def compute_loss(
+                                      self,
+                                      model,
+                                      inputs,
+                                      return_outputs=False,
+                                      num_items_in_batch=None):\n",
+                                      
                 "        labels = inputs.pop(\"labels\")\n",
                 "        outputs = model(**inputs)\n",
                 "        logits = outputs.logits\n",
@@ -104,9 +124,15 @@ def complete_simple_notebook():
                 "        # Apply focal loss with class weighting\n",
                 "        if self.class_weights is not None:\n",
                 "            # Apply class weights to focal loss\n",
-                "            ce_loss = torch.nn.functional.cross_entropy(logits, labels, reduction='none')\n",
+                "            ce_loss = torch.nn.functional.cross_entropy(
+                                                                         logits,
+                                                                         labels,
+                                                                         reduction='none')\n",
+                                                                         
                 "            pt = torch.exp(-ce_loss)\n",
-                "            focal_loss = (1 - pt) ** self.focal_loss.gamma * ce_loss\n",
+                "            focal_loss = (
+                                           1 - pt) ** self.focal_loss.gamma * ce_loss\n",
+                                           
                 "            \n",
                 "            # Apply class weights\n",
                 "            for i, weight in enumerate(self.class_weights):\n",
@@ -140,12 +166,18 @@ def complete_simple_notebook():
                 "print('=' * 40)\n",
                 "\n",
                 "tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\n",
-                "model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name)\n",
+                "model = AutoModelForSequenceClassification.from_pretrained(
+                                                                            specialized_model_name)\n",
+                                                                            
                 "\n",
                 "# Configure model for our emotion classes\n",
                 "model.config.num_labels = len(emotions)\n",
-                "model.config.id2label = {i: emotion for i, emotion in enumerate(emotions)}\n",
-                "model.config.label2id = {emotion: i for i, emotion in enumerate(emotions)}\n",
+                "model.config.id2label = {i: emotion for i, emotion in enumerate(
+                                                                                 emotions)}\n",
+                                                                                 
+                "model.config.label2id = {emotion: i for i, emotion in enumerate(
+                                                                                 emotions)}\n",
+                                                                                 
                 "\n",
                 "# Verify configuration\n",
                 "print(f'✅ Model configured for {len(emotions)} emotions')\n",
@@ -153,7 +185,9 @@ def complete_simple_notebook():
                 "print(f'✅ label2id: {model.config.label2id}')\n",
                 "\n",
                 "# Move to GPU if available\n",
-                "device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')\n",
+                "device = torch.device(
+                                       'cuda' if torch.cuda.is_available() else 'cpu')\n",
+                                       
                 "model = model.to(device)\n",
                 "print(f'✅ Model moved to: {device}')"
             ]
@@ -176,7 +210,7 @@ def complete_simple_notebook():
                 "print('=' * 40)\n",
                 "\n",
                 "# Split data\n",
-                "train_texts, val_texts, train_labels, val_labels = train_test_split(\n",
+"train_texts, val_texts, train_labels, val_labels = train_test_split(\n",
                 "    texts, labels, test_size=0.2, random_state=42, stratify=labels\n",
                 ")\n",
                 "\n",
@@ -208,7 +242,10 @@ def complete_simple_notebook():
                 "        self.labels = labels\n",
                 "    \n",
                 "    def __getitem__(self, idx):\n",
-                "        item = {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}\n",
+                "        item = {key: torch.tensor(
+                                                   val[idx]) for key,
+                                                   val in self.encodings.items()}\n",
+                                                   
                 "        item['labels'] = torch.tensor(self.labels[idx])\n",
                 "        return item\n",
                 "    \n",
@@ -281,8 +318,17 @@ def complete_simple_notebook():
                 "    return {\n",
                 "        'f1': f1_score(labels, predictions, average='weighted'),\n",
                 "        'accuracy': accuracy_score(labels, predictions),\n",
-                "        'precision': precision_score(labels, predictions, average='weighted'),\n",
-                "        'recall': recall_score(labels, predictions, average='weighted')\n",
+                "        'precision': precision_score(
+                                                      labels,
+                                                      predictions,
+                                                      average='weighted'),
+                                                      \n",
+                                                      
+                "        'recall': recall_score(
+                                                labels,
+                                                predictions,
+                                                average='weighted')\n",
+                                                
                 "    }\n",
                 "\n",
                 "print('✅ Compute metrics function ready')"
@@ -393,16 +439,26 @@ def complete_simple_notebook():
                 "\n",
                 "print('🔍 Testing on diverse examples:')\n",
                 "for i, example in enumerate(test_examples):\n",
-                "    inputs = tokenizer(example, return_tensors='pt', truncation=True, padding=True)\n",
+                "    inputs = tokenizer(
+                                        example,
+                                        return_tensors='pt',
+                                        truncation=True,
+                                        padding=True)\n",
+                                        
                 "    inputs = {k: v.to(device) for k, v in inputs.items()}\n",
                 "    \n",
                 "    with torch.no_grad():\n",
                 "        outputs = model(**inputs)\n",
-                "        predictions = torch.nn.functional.softmax(outputs.logits, dim=-1)\n",
+                "        predictions = torch.nn.functional.softmax(
+                                                                   outputs.logits,
+                                                                   dim=-1)\n",
+                                                                   
                 "        predicted_class = torch.argmax(predictions, dim=-1).item()\n",
                 "        confidence = predictions[0][predicted_class].item()\n",
                 "    \n",
-                "    print(f'{i+1:2d}. \"{example}\" → {emotions[predicted_class]} ({confidence:.3f})')\n",
+                "    print(
+                           f'{i+1:2d}. \"{example}\" → {emotions[predicted_class]} ({confidence:.3f})')\n",
+                           
                 "\n",
                 "print('✅ Advanced validation completed!')"
             ]
@@ -438,27 +494,47 @@ def complete_simple_notebook():
                 "    config = json.load(f)\n",
                 "\n",
                 "print(f'Model type: {config.get(\"model_type\", \"NOT SET\")}')\n",
-                "print(f'Number of labels: {config.get(\"num_labels\", \"NOT SET\")}')\n",
+                "print(
+                       f'Number of labels: {config.get(\"num_labels\",
+                       \"NOT SET\")}')\n",
+                       
                 "print(f'id2label: {config.get(\"id2label\", \"NOT SET\")}')\n",
                 "print(f'label2id: {config.get(\"label2id\", \"NOT SET\")}')\n",
                 "\n",
                 "# Test loading the saved model\n",
                 "print('\\n🧪 TESTING SAVED MODEL:')\n",
                 "test_tokenizer = AutoTokenizer.from_pretrained(model_path)\n",
-                "test_model = AutoModelForSequenceClassification.from_pretrained(model_path)\n",
+                "test_model = AutoModelForSequenceClassification.from_pretrained(
+                                                                                 model_path)\n",
+                                                                                 
                 "\n",
                 "test_input = 'I feel happy about the results!'\n",
-                "test_encoding = test_tokenizer(test_input, return_tensors='pt', truncation=True, padding=True)\n",
+                "test_encoding = test_tokenizer(
+                                                test_input,
+                                                return_tensors='pt',
+                                                truncation=True,
+                                                padding=True)\n",
+                                                
                 "test_encoding = {k: v.to(device) for k, v in test_encoding.items()}\n",
                 "\n",
                 "with torch.no_grad():\n",
                 "    test_outputs = test_model(**test_encoding)\n",
-                "    test_predictions = torch.nn.functional.softmax(test_outputs.logits, dim=-1)\n",
-                "    test_predicted_class = torch.argmax(test_predictions, dim=-1).item()\n",
-                "    test_confidence = test_predictions[0][test_predicted_class].item()\n",
+                "    test_predictions = torch.nn.functional.softmax(
+                                                                    test_outputs.logits,
+                                                                    dim=-1)\n",
+                                                                    
+                "    test_predicted_class = torch.argmax(
+                                                         test_predictions,
+                                                         dim=-1).item()\n",
+                                                         
+                "    test_confidence = test_predictions[0][test_predicted_class].item(
+                                                                                      )\n",
+                                                                                      
                 "\n",
                 "print(f'Test input: \"{test_input}\"')\n",
-                "print(f'Predicted emotion: {test_model.config.id2label[test_predicted_class]}')\n",
+                "print(
+                       f'Predicted emotion: {test_model.config.id2label[test_predicted_class]}')\n",
+                       
                 "print(f'Confidence: {test_confidence:.3f}')\n",
                 "\n",
                 "print('\\n✅ Model saving and verification completed!')"

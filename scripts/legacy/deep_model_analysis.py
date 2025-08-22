@@ -26,7 +26,8 @@ def deep_model_analysis():
     model.eval()
     
     # Define emotion mapping
-    emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
     
     print(f"\n📊 EMOTION MAPPING ANALYSIS")
     print("-" * 40)
@@ -51,7 +52,13 @@ def deep_model_analysis():
         print(f"🎯 Expected: {expected_emotion}")
         
         # Tokenize
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+        inputs = tokenizer(
+                           text,
+                           return_tensors="pt",
+                           truncation=True,
+                           max_length=512,
+                           padding=True
+                          )
         inputs = {k: v.to(device) for k, v in inputs.items()}
         
         # Get all probabilities
@@ -70,7 +77,9 @@ def deep_model_analysis():
         # Check if expected emotion is in top 3
         expected_idx = emotion_mapping.index(expected_emotion)
         expected_prob = probabilities[0][expected_idx].item()
-        print(f"📊 Expected emotion '{expected_emotion}' probability: {expected_prob:.3f}")
+        print(
+              f"📊 Expected emotion '{expected_emotion}' probability: {expected_prob:.3f}"
+             )
     
     # Analyze model confidence patterns
     print(f"\n📈 CONFIDENCE PATTERN ANALYSIS")
@@ -80,11 +89,18 @@ def deep_model_analysis():
     
     # Test with simple emotion words
     simple_tests = [
-        "happy", "sad", "angry", "excited", "calm", "anxious", "proud", "grateful", "hopeful", "tired", "content", "overwhelmed"
+"happy", "sad", "angry", "excited", "calm", "anxious", "proud", "grateful", "hopeful",
+"tired", "content", "overwhelmed"
     ]
     
     for word in simple_tests:
-        inputs = tokenizer(word, return_tensors="pt", truncation=True, max_length=512, padding=True)
+        inputs = tokenizer(
+                           word,
+                           return_tensors="pt",
+                           truncation=True,
+                           max_length=512,
+                           padding=True
+                          )
         inputs = {k: v.to(device) for k, v in inputs.items()}
         
         with torch.no_grad():
@@ -107,7 +123,10 @@ def deep_model_analysis():
         emotion_counts[emotion] = len(confidence_by_emotion[emotion])
     
     print("Prediction frequency by emotion:")
-    for emotion, count in sorted(emotion_counts.items(), key=lambda x: x[1], reverse=True):
+    for emotion, count in sorted(
+                                 emotion_counts.items(),
+                                 key=lambda x: x[1],
+                                 reverse=True):
         print(f"  {emotion}: {count} predictions")
     
     # Check if model is biased towards certain emotions
@@ -139,7 +158,13 @@ def deep_model_analysis():
     
     correct_training_like = 0
     for text in training_like_tests:
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+        inputs = tokenizer(
+                           text,
+                           return_tensors="pt",
+                           truncation=True,
+                           max_length=512,
+                           padding=True
+                          )
         inputs = {k: v.to(device) for k, v in inputs.items()}
         
         with torch.no_grad():
@@ -165,7 +190,10 @@ def deep_model_analysis():
             else:
                 status = "❌"
             
-            print(f"{status} '{text}' → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})")
+            print(
+                  f"{status} '{text}' → {predicted_emotion} (expected: {expected_emotion},
+                  confidence: {confidence:.3f})"
+                 )
     
     training_like_accuracy = correct_training_like / len(training_like_tests)
     print(f"\n📊 Training-like accuracy: {training_like_accuracy:.1%}")
@@ -175,11 +203,15 @@ def deep_model_analysis():
     print("=" * 50)
     
     if training_like_accuracy > 0.8:
-        print(f"✅ Model performs well on training-like data ({training_like_accuracy:.1%})")
+        print(
+              f"✅ Model performs well on training-like data ({training_like_accuracy:.1%})"
+             )
         print(f"⚠️  Issue: Model may be overfitting to specific training patterns")
         print(f"💡 Solution: Model needs more diverse training data or regularization")
     else:
-        print(f"❌ Model performs poorly even on training-like data ({training_like_accuracy:.1%})")
+        print(
+              f"❌ Model performs poorly even on training-like data ({training_like_accuracy:.1%})"
+             )
         print(f"⚠️  Issue: Fundamental problem with model training or label mapping")
         print(f"💡 Solution: Retrain model with better data or check label mapping")
     

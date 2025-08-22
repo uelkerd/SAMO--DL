@@ -37,7 +37,10 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         """Test Phase 4 automation script structure"""
         print("🔍 Testing Phase 4 automation script structure...")
         
-        self.assertTrue(self.vertex_ai_script.exists(), "Vertex AI automation script should exist")
+        self.assertTrue(
+                        self.vertex_ai_script.exists(),
+                        "Vertex AI automation script should exist"
+                       )
         
         with open(self.vertex_ai_script, 'r') as f:
             content = f.read()
@@ -74,7 +77,11 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
             content = f.read()
         
         # Check for dataclass import and usage
-        self.assertIn('from dataclasses import dataclass', content, "Missing dataclass import")
+        self.assertIn(
+                      'from dataclasses import dataclass',
+                      content,
+                      "Missing dataclass import"
+                     )
         self.assertIn('@dataclass', content, "Missing dataclass decorator")
         
         # Check for required configuration fields
@@ -141,8 +148,16 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
             content = f.read()
         
         # Check for version generation
-        self.assertIn('def generate_model_version', content, "Missing version generation method")
-        self.assertIn('datetime.now().strftime', content, "Missing timestamp generation")
+        self.assertIn(
+                      'def generate_model_version',
+                      content,
+                      "Missing version generation method"
+                     )
+        self.assertIn(
+                      'datetime.now().strftime',
+                      content,
+                      "Missing timestamp generation"
+                     )
         self.assertIn('git rev-parse', content, "Missing git commit hash")
         
         # Check for version format
@@ -158,8 +173,16 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
             content = f.read()
         
         # Check for deployment package creation
-        self.assertIn('def create_deployment_package', content, "Missing deployment package creation")
-        self.assertIn('deployment/vertex_ai/{version}', content, "Missing versioned directory structure")
+        self.assertIn(
+                      'def create_deployment_package',
+                      content,
+                      "Missing deployment package creation"
+                     )
+        self.assertIn(
+                      'deployment/vertex_ai/{version}',
+                      content,
+                      "Missing versioned directory structure"
+                     )
         self.assertIn('Dockerfile', content, "Missing Dockerfile creation")
         self.assertIn('version_metadata.json', content, "Missing version metadata")
         
@@ -185,13 +208,25 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
             content = f.read()
         
         # Check for Docker operations
-        self.assertIn('def build_and_push_image', content, "Missing Docker image handling")
-        self.assertIn('gcloud auth configure-docker', content, "Missing Docker authentication")
+        self.assertIn(
+                      'def build_and_push_image',
+                      content,
+                      "Missing Docker image handling"
+                     )
+        self.assertIn(
+                      'gcloud auth configure-docker',
+                      content,
+                      "Missing Docker authentication"
+                     )
         self.assertIn('docker build', content, "Missing Docker build")
         self.assertIn('docker push', content, "Missing Docker push")
         
         # Check for image URI format
-        self.assertIn('gcr.io/{self.config.project_id}', content, "Missing image URI format")
+        self.assertIn(
+                      'gcr.io/{self.config.project_id}',
+                      content,
+                      "Missing image URI format"
+                     )
         
         print("✅ Docker image handling validation passed")
     
@@ -203,8 +238,16 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
             content = f.read()
         
         # Check for model creation
-        self.assertIn('def create_vertex_ai_model', content, "Missing model creation method")
-        self.assertIn('gcloud ai models upload', content, "Missing model upload command")
+        self.assertIn(
+                      'def create_vertex_ai_model',
+                      content,
+                      "Missing model creation method"
+                     )
+        self.assertIn(
+                      'gcloud ai models upload',
+                      content,
+                      "Missing model upload command"
+                     )
         self.assertIn('--container-image-uri', content, "Missing container image URI")
         self.assertIn('--container-predict-route', content, "Missing predict route")
         self.assertIn('--container-health-route', content, "Missing health route")
@@ -219,8 +262,16 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
             content = f.read()
         
         # Check for endpoint deployment
-        self.assertIn('def deploy_model_to_endpoint', content, "Missing endpoint deployment method")
-        self.assertIn('gcloud ai endpoints deploy-model', content, "Missing endpoint deployment command")
+        self.assertIn(
+                      'def deploy_model_to_endpoint',
+                      content,
+                      "Missing endpoint deployment method"
+                     )
+        self.assertIn(
+                      'gcloud ai endpoints deploy-model',
+                      content,
+                      "Missing endpoint deployment command"
+                     )
         self.assertIn('--traffic-split', content, "Missing traffic split")
         self.assertIn('--machine-type', content, "Missing machine type")
         self.assertIn('--min-replica-count', content, "Missing min replica count")
@@ -236,9 +287,17 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
             content = f.read()
         
         # Check for monitoring setup
-        self.assertIn('def setup_monitoring_and_alerting', content, "Missing monitoring setup method")
+        self.assertIn(
+                      'def setup_monitoring_and_alerting',
+                      content,
+                      "Missing monitoring setup method"
+                     )
         self.assertIn('monitoring_policy.json', content, "Missing monitoring policy")
-        self.assertIn('gcloud alpha monitoring policies create', content, "Missing monitoring policy creation")
+        self.assertIn(
+                      'gcloud alpha monitoring policies create',
+                      content,
+                      "Missing monitoring policy creation"
+                     )
         
         # Check for alert conditions
         self.assertIn('High Error Rate', content, "Missing error rate monitoring")
@@ -254,9 +313,17 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
             content = f.read()
         
         # Check for cost monitoring
-        self.assertIn('def setup_cost_monitoring', content, "Missing cost monitoring method")
+        self.assertIn(
+                      'def setup_cost_monitoring',
+                      content,
+                      "Missing cost monitoring method"
+                     )
         self.assertIn('budget_config.json', content, "Missing budget configuration")
-        self.assertIn('gcloud billing budgets create', content, "Missing budget creation")
+        self.assertIn(
+                      'gcloud billing budgets create',
+                      content,
+                      "Missing budget creation"
+                     )
         
         # Check for budget thresholds
         self.assertIn('thresholdPercent', content, "Missing budget thresholds")
@@ -273,7 +340,11 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         # Check for rollback functionality
         self.assertIn('def rollback_deployment', content, "Missing rollback method")
         self.assertIn('deployment_history', content, "Missing deployment history")
-        self.assertIn('gcloud ai endpoints deploy-model', content, "Missing rollback deployment")
+        self.assertIn(
+                      'gcloud ai endpoints deploy-model',
+                      content,
+                      "Missing rollback deployment"
+                     )
         
         print("✅ Rollback capabilities validation passed")
     
@@ -300,8 +371,16 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
             content = f.read()
         
         # Check for performance metrics
-        self.assertIn('def get_performance_metrics', content, "Missing performance metrics method")
-        self.assertIn('gcloud ai endpoints describe', content, "Missing endpoint description")
+        self.assertIn(
+                      'def get_performance_metrics',
+                      content,
+                      "Missing performance metrics method"
+                     )
+        self.assertIn(
+                      'gcloud ai endpoints describe',
+                      content,
+                      "Missing endpoint description"
+                     )
         self.assertIn('gcloud ai models list', content, "Missing model listing")
         
         print("✅ Performance metrics validation passed")
@@ -328,7 +407,11 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
             content = f.read()
         
         # Check for full deployment workflow
-        self.assertIn('def run_full_deployment', content, "Missing full deployment method")
+        self.assertIn(
+                      'def run_full_deployment',
+                      content,
+                      "Missing full deployment method"
+                     )
         
         # Check for workflow steps
         workflow_steps = [
@@ -409,8 +492,16 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         
         # Check for documentation
         self.assertIn('"""', content, "Missing docstrings")
-        self.assertIn('Phase 4: Vertex AI Deployment Automation', content, "Missing module docstring")
-        self.assertIn('Enhanced Vertex AI deployment', content, "Missing class docstring")
+        self.assertIn(
+                      'Phase 4: Vertex AI Deployment Automation',
+                      content,
+                      "Missing module docstring"
+                     )
+        self.assertIn(
+                      'Enhanced Vertex AI deployment',
+                      content,
+                      "Missing class docstring"
+                     )
         
         # Check for logging
         self.assertIn('logger.info', content, "Missing info logging")
@@ -428,9 +519,17 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         # Check for main function
         self.assertIn('def main():', content, "Missing main function")
         self.assertIn('if __name__ == "__main__":', content, "Missing main guard")
-        self.assertIn('gcloud config get-value project', content, "Missing project ID retrieval")
+        self.assertIn(
+                      'gcloud config get-value project',
+                      content,
+                      "Missing project ID retrieval"
+                     )
         self.assertIn('DeploymentConfig(', content, "Missing configuration creation")
-        self.assertIn('VertexAIPhase4Automation(', content, "Missing automation instance creation")
+        self.assertIn(
+                      'VertexAIPhase4Automation(',
+                      content,
+                      "Missing automation instance creation"
+                     )
         self.assertIn('run_full_deployment()', content, "Missing deployment execution")
         
         print("✅ Main function validation passed")

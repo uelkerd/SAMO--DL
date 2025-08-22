@@ -42,7 +42,8 @@ This script tests how well the GoEmotions-trained model performs on
 journal entries and provides domain adaptation strategies.
 
 Usage:
-    python scripts/test_domain_adaptation.py --model-path ./test_checkpoints/best_model.pt
+    python scripts/test_domain_adaptation
+    .py --model-path ./test_checkpoints/best_model.pt
     python scripts/test_domain_adaptation.py --create-journal-samples
 """
 
@@ -54,51 +55,63 @@ def create_journal_test_samples() -> list[dict[str, any]]:
     """Create realistic journal entry samples for domain adaptation testing."""
     journal_samples = [
         {
-            "text": "Today was absolutely wonderful. I finally got the promotion I've been working towards for months. I feel so proud and accomplished.",
+"text": "Today was absolutely wonderful. I finally got the promotion I've been working
+towards for months. I feel so proud and accomplished.",
             "expected_emotions": ["joy", "pride", "gratitude"],
         },
         {
-            "text": "Had the most amazing dinner with Sarah tonight. We laughed until our stomachs hurt. I'm so grateful for our friendship.",
+"text": "Had the most amazing dinner with Sarah tonight. We laughed until our stomachs
+hurt. I'm so grateful for our friendship.",
             "expected_emotions": ["joy", "gratitude", "love"],
         },
         {
-            "text": "The meditation session this morning left me feeling so peaceful and centered. I love these quiet moments of reflection.",
+"text": "The meditation session this morning left me feeling so peaceful and centered. I
+love these quiet moments of reflection.",
             "expected_emotions": ["relie", "gratitude", "love"],
         },
         {
-            "text": "Another rejection email today. I'm starting to doubt whether I'll ever find a job that's right for me. This whole process is exhausting.",
+"text": "Another rejection email today. I'm starting to doubt whether I'll ever find a
+job that's right for me. This whole process is exhausting.",
             "expected_emotions": ["disappointment", "sadness", "nervousness"],
         },
         {
-            "text": "Mom called upset about dad's health again. I feel so helpless being so far away. Why does life have to be so complicated?",
+"text": "Mom called upset about dad's health again. I feel so helpless being so far
+away. Why does life have to be so complicated?",
             "expected_emotions": ["sadness", "fear", "caring"],
         },
         {
-            "text": "Traffic was terrible, I was late to the meeting, and my boss was not happy. Everything that could go wrong did go wrong today.",
+"text": "Traffic was terrible, I was late to the meeting, and my boss was not happy.
+Everything that could go wrong did go wrong today.",
             "expected_emotions": ["annoyance", "disappointment", "anger"],
         },
         {
-            "text": "Graduation was bittersweet. I'm excited about the future but sad to leave all my friends behind. Change is scary but necessary.",
+"text": "Graduation was bittersweet. I'm excited about the future but sad to leave all
+my friends behind. Change is scary but necessary.",
             "expected_emotions": ["joy", "sadness", "nervousness", "excitement"],
         },
         {
-            "text": "Finished reading that book about climate change. It was eye-opening but also terrifying. I want to help but don't know where to start.",
+"text": "Finished reading that book about climate change. It was eye-opening but also
+terrifying. I want to help but don't know where to start.",
             "expected_emotions": ["fear", "caring", "curiosity", "nervousness"],
         },
         {
-            "text": "Spent most of the day organizing my closet. It's funny how decluttering physical space can make your mind feel clearer too.",
+"text": "Spent most of the day organizing my closet. It's funny how decluttering
+physical space can make your mind feel clearer too.",
             "expected_emotions": ["neutral", "realization"],
         },
         {
-            "text": "Watched an old movie with my roommate. We didn't talk much, but it was nice to just be together. Simple moments like these matter.",
+"text": "Watched an old movie with my roommate. We didn't talk much, but it was nice to
+just be together. Simple moments like these matter.",
             "expected_emotions": ["love", "gratitude", "neutral"],
         },
         {
-            "text": "Had a panic attack during the presentation. My heart was racing and I could barely speak. I'm embarrassed but also proud that I didn't give up.",
+"text": "Had a panic attack during the presentation. My heart was racing and I could
+barely speak. I'm embarrassed but also proud that I didn't give up.",
             "expected_emotions": ["fear", "nervousness", "embarrassment", "pride"],
         },
         {
-            "text": "Therapy was intense today. We talked about childhood memories I'd forgotten. It's painful but I know this healing work is important.",
+"text": "Therapy was intense today. We talked about childhood memories I'd forgotten.
+It's painful but I know this healing work is important.",
             "expected_emotions": ["sadness", "grie", "caring", "optimism"],
         },
     ]
@@ -192,7 +205,10 @@ def predict_emotions(
                 emotion_scores[emotion] = float(prob)
 
                 if prob > threshold:
-                    predicted_emotions.append({"emotion": emotion, "confidence": float(prob)})
+                    predicted_emotions.append(
+                                              {"emotion": emotion,
+                                              "confidence": float(prob)}
+                                             )
 
             predicted_emotions.sort(key=lambda x: x["confidence"], reverse=True)
 
@@ -244,7 +260,8 @@ def analyze_domain_adaptation(
         logger.info("Expected: {expected}")
         logger.info("Predicted: {predicted}")
         logger.info(
-            "Match: {'✅ Exact' if expected == predicted else '🟡 Partial' if expected.intersection(predicted) else '❌ None'}"
+"Match: {'✅ Exact' if expected == predicted else '🟡 Partial' if
+expected.intersection(predicted) else '❌ None'}"
         )
 
     exact_accuracy = correct_predictions / len(test_samples)
@@ -262,17 +279,23 @@ def analyze_domain_adaptation(
         analysis["recommendations"].append(
             "❌ Strong domain shift detected - consider domain adaptation"
         )
-        analysis["recommendations"].append("• Collect journal entry dataset with emotion labels")
+        analysis["recommendations"].append(
+                                           "• Collect journal entry dataset with emotion labels"
+                                          )
         analysis["recommendations"].append("• Fine-tune model on journal entries")
         analysis["recommendations"].append("• Use data augmentation techniques")
     elif exact_accuracy < 0.6:
         analysis["recommendations"].append("⚠️  Moderate domain adaptation needed")
-        analysis["recommendations"].append("• Consider few-shot learning with journal examples")
+        analysis["recommendations"].append(
+                                           "• Consider few-shot learning with journal examples"
+                                          )
         analysis["recommendations"].append("• Implement confidence thresholding")
         analysis["recommendations"].append("• Monitor performance on real user data")
     else:
         analysis["recommendations"].append("✅ Good cross-domain performance")
-        analysis["recommendations"].append("• Current model should work well for journal entries")
+        analysis["recommendations"].append(
+                                           "• Current model should work well for journal entries"
+                                          )
         analysis["recommendations"].append("• Monitor performance and collect feedback")
 
     return analysis
@@ -280,14 +303,27 @@ def analyze_domain_adaptation(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="SAMO Domain Adaptation Testing")
-    parser.add_argument("--model-path", type=str, default="./test_checkpoints/best_model.pt")
+    parser.add_argument(
+                        "--model-path",
+                        type=str,
+                        default="./test_checkpoints/best_model.pt"
+                       )
     parser.add_argument(
         "--create-journal-samples",
         action="store_true",
         help="Create journal test samples",
     )
-    parser.add_argument("--test-adaptation", action="store_true", help="Test domain adaptation")
-    parser.add_argument("--threshold", type=float, default=0.3, help="Emotion prediction threshold")
+    parser.add_argument(
+                        "--test-adaptation",
+                        action="store_true",
+                        help="Test domain adaptation"
+                       )
+    parser.add_argument(
+                        "--threshold",
+                        type=float,
+                        default=0.3,
+                        help="Emotion prediction threshold"
+                       )
 
     args = parser.parse_args()
 
@@ -310,7 +346,9 @@ def main() -> None:
         print("\nExact Accuracy: {metrics['exact_accuracy']:.2%}")
         print("Partial Accuracy: {metrics['partial_accuracy']:.2%}")
         print("Exact Matches: {metrics['exact_matches']}/{analysis['total_samples']}")
-        print("Partial Matches: {metrics['partial_matches']}/{analysis['total_samples']}")
+        print(
+              "Partial Matches: {metrics['partial_matches']}/{analysis['total_samples']}"
+             )
         print("No Matches: {metrics['no_matches']}/{analysis['total_samples']}")
 
         print("\n💡 Recommendations:")

@@ -54,7 +54,9 @@ def check_gpu_availability():
         if torch.cuda.is_available():
             print(f"✅ CUDA available")
             print(f"GPU: {torch.cuda.get_device_name(0)}")
-            print(f"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
+            print(
+                  f"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
+                 )
             print(f"CUDA version: {torch.version.cuda}")
             return True
         else:
@@ -153,7 +155,8 @@ def fix_pytorch_installation():
     
     # Install compatible PyTorch
     success, _ = run_command(
-        "pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu118",
+"pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url
+https://download.pytorch.org/whl/cu118",
         "Installing compatible PyTorch"
     )
     

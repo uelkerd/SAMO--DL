@@ -47,17 +47,26 @@ def main():
     project_root = Path(__file__).parent.parent
     os.chdir(project_root)
 
-    success1, _ = run_command("ruff format src/ tests/ scripts/", "Formatting code with ru")
+    success1, _ = run_command(
+                              "ruff format src/ tests/ scripts/",
+                              "Formatting code with ru"
+                             )
 
-    success2, _ = run_command("ruff check src/ tests/ scripts/ --fix", "Fixing linting issues")
+    success2, _ = run_command(
+                              "ruff check src/ tests/ scripts/ --fix",
+                              "Fixing linting issues"
+                             )
 
     success3, _ = run_command(
-        "python -m pytest tests/unit/test_emotion_detection.py::TestBertEmotionClassifier::test_forward_pass -v",
+"python -m pytest
+tests/unit/test_emotion_detection.py::TestBertEmotionClassifier::test_forward_pass -v",
         "Testing forward pass fix",
     )
 
     success4, _ = run_command(
-        "python -m pytest tests/unit/test_emotion_detection.py::TestBertEmotionClassifier::test_predict_emotions -v",
+"python -m pytest
+tests/unit/test_emotion_detection.py::TestBertEmotionClassifier::test_predict_emotions
+-v",
         "Testing predict emotions fix",
     )
 

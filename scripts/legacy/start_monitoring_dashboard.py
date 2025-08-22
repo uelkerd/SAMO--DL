@@ -91,7 +91,8 @@ def main():
         help="Path to monitoring configuration (default: {DEFAULT_CONFIG_PATH})",
     )
     parser.add_argument(
-        "--port", type=int, default=DEFAULT_PORT, help="Dashboard port (default: {DEFAULT_PORT})"
+        "--port", type=int, default=DEFAULT_PORT, help="Dashboard port (
+                                                                        default: {DEFAULT_PORT})"
     )
 
     args = parser.parse_args()

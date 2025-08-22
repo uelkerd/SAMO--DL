@@ -37,10 +37,14 @@ def add_comprehensive_features():
                 "\n",
                 "tokenizer = AutoTokenizer.from_pretrained(model_name)\n",
                 "\n",
-                "print(f'Original model labels: {AutoModelForSequenceClassification.from_pretrained(model_name).config.num_labels}')\n",
-                "print(f'Original id2label: {AutoModelForSequenceClassification.from_pretrained(model_name).config.id2label}')\n",
+                "print(
+                       f'Original model labels: {AutoModelForSequenceClassification.from_pretrained(model_name).config.num_labels}')\n",
+                       
+                "print(
+                       f'Original id2label: {AutoModelForSequenceClassification.from_pretrained(model_name).config.id2label}')\n",
+                       
                 "\n",
-                "# CRITICAL: Create a NEW model with correct configuration from scratch\n",
+"# CRITICAL: Create a NEW model with correct configuration from scratch\n",
                 "print('\\n🔧 CREATING NEW MODEL WITH CORRECT ARCHITECTURE')\n",
                 "print('=' * 60)\n",
                 "\n",
@@ -48,28 +52,42 @@ def add_comprehensive_features():
                 "model = AutoModelForSequenceClassification.from_pretrained(\n",
                 "    model_name,\n",
                 "    num_labels=len(emotions),  # Set to 12 emotions\n",
-                "    ignore_mismatched_sizes=True  # Important: ignore size mismatches\n",
+" ignore_mismatched_sizes=True # Important: ignore size mismatches\n",
                 ")\n",
                 "\n",
                 "# Configure the model properly\n",
                 "model.config.num_labels = len(emotions)\n",
-                "model.config.id2label = {i: emotion for i, emotion in enumerate(emotions)}\n",
-                "model.config.label2id = {emotion: i for i, emotion in enumerate(emotions)}\n",
+                "model.config.id2label = {i: emotion for i, emotion in enumerate(
+                                                                                 emotions)}\n",
+                                                                                 
+                "model.config.label2id = {emotion: i for i, emotion in enumerate(
+                                                                                 emotions)}\n",
+                                                                                 
                 "model.config.problem_type = 'single_label_classification'\n",
                 "\n",
                 "# Verify the configuration\n",
                 "print(f'✅ Model created with {model.config.num_labels} labels')\n",
                 "print(f'✅ New id2label: {model.config.id2label}')\n",
-                "print(f'✅ Classifier output size: {model.classifier.out_proj.out_features}')\n",
+                "print(
+                       f'✅ Classifier output size: {model.classifier.out_proj.out_features}')\n",
+                       
                 "print(f'✅ Problem type: {model.config.problem_type}')\n",
                 "\n",
                 "# Test the model with a sample input\n",
-                "test_input = tokenizer('I feel happy today', return_tensors='pt', truncation=True, padding=True)\n",
+                "test_input = tokenizer(
+                                        'I feel happy today',
+                                        return_tensors='pt',
+                                        truncation=True,
+                                        padding=True)\n",
+                                        
                 "with torch.no_grad():\n",
                 "    test_output = model(**test_input)\n",
                 "    print(f'✅ Test output shape: {test_output.logits.shape}')\n",
                 "    print(f'✅ Expected shape: [1, {len(emotions)}]')\n",
-                "    assert test_output.logits.shape[1] == len(emotions), f'Output shape mismatch: {test_output.logits.shape[1]} != {len(emotions)}'\n",
+                "    assert test_output.logits.shape[1] == len(
+                                                               emotions),
+                                                               f'Output shape mismatch: {test_output.logits.shape[1]} != {len(emotions)}'\n",
+                                                               
                 "    print('✅ Model architecture verified!')\n",
                 "\n",
                 "# Move model to GPU\n",
@@ -97,7 +115,7 @@ def add_comprehensive_features():
                 "print('=' * 50)\n",
                 "\n",
                 "# Split the data\n",
-                "train_texts, val_texts, train_labels, val_labels = train_test_split(\n",
+"train_texts, val_texts, train_labels, val_labels = train_test_split(\n",
                 "    texts, labels, test_size=0.2, random_state=42, stratify=labels\n",
                 ")\n",
                 "\n",
@@ -139,7 +157,9 @@ def add_comprehensive_features():
                 "    class_weights_tensor = class_weights_tensor.cuda()\n",
                 "\n",
                 "print(f'✅ Class weights calculated: {class_weights}')\n",
-                "print(f'✅ Class weights tensor shape: {class_weights_tensor.shape}')\n",
+                "print(
+                       f'✅ Class weights tensor shape: {class_weights_tensor.shape}')\n",
+                       
                 "\n",
                 "# Focal Loss implementation\n",
                 "class FocalLoss(torch.nn.Module):\n",
@@ -149,7 +169,11 @@ def add_comprehensive_features():
                 "        self.gamma = gamma\n",
                 "    \n",
                 "    def forward(self, inputs, targets):\n",
-                "        ce_loss = torch.nn.functional.cross_entropy(inputs, targets, reduction='none')\n",
+                "        ce_loss = torch.nn.functional.cross_entropy(
+                                                                     inputs,
+                                                                     targets,
+                                                                     reduction='none')\n",
+                                                                     
                 "        pt = torch.exp(-ce_loss)\n",
                 "        focal_loss = self.alpha * (1-pt)**self.gamma * ce_loss\n",
                 "        return focal_loss.mean()\n",
@@ -175,7 +199,14 @@ def add_comprehensive_features():
                 "\n",
                 "# Custom trainer with focal loss and class weighting\n",
                 "class WeightedLossTrainer(Trainer):\n",
-                "    def __init__(self, focal_alpha=1, focal_gamma=2, class_weights=None, *args, **kwargs):\n",
+                "    def __init__(
+                                  self,
+                                  focal_alpha=1,
+                                  focal_gamma=2,
+                                  class_weights=None,
+                                  *args,
+                                  **kwargs):\n",
+                                  
                 "        super().__init__(*args, **kwargs)\n",
                 "        self.focal_alpha = focal_alpha\n",
                 "        self.focal_gamma = focal_gamma\n",
@@ -187,9 +218,15 @@ def add_comprehensive_features():
                 "        logits = outputs.logits\n",
                 "        \n",
                 "        # Focal Loss\n",
-                "        ce_loss = torch.nn.functional.cross_entropy(logits, labels, reduction='none')\n",
+                "        ce_loss = torch.nn.functional.cross_entropy(
+                                                                     logits,
+                                                                     labels,
+                                                                     reduction='none')\n",
+                                                                     
                 "        pt = torch.exp(-ce_loss)\n",
-                "        focal_loss = self.focal_alpha * (1-pt)**self.focal_gamma * ce_loss\n",
+                "        focal_loss = self.focal_alpha * (
+                                                          1-pt)**self.focal_gamma * ce_loss\n",
+                                                          
                 "        \n",
                 "        # Apply class weights if provided\n",
                 "        if self.class_weights is not None:\n",
@@ -200,7 +237,8 @@ def add_comprehensive_features():
                 "        \n",
                 "        return (loss, outputs) if return_outputs else loss\n",
                 "\n",
-                "print('✅ WeightedLossTrainer created with focal loss and class weighting')"
+                "print(
+                       '✅ WeightedLossTrainer created with focal loss and class weighting')"
             ]
         },
         {
@@ -279,7 +317,7 @@ def add_comprehensive_features():
                 "    metric_for_best_model='f1',\n",
                 "    greater_is_better=True,\n",
                 "    # Disable wandb if no API key is set\n",
-                "    report_to=None if 'WANDB_API_KEY' not in os.environ else ['wandb']\n",
+" report_to=None if 'WANDB_API_KEY' not in os.environ else ['wandb']\n",
                 ")\n",
                 "\n",
                 "print('✅ Training arguments configured')"
@@ -309,7 +347,11 @@ def add_comprehensive_features():
                 "    # Calculate metrics\n",
                 "    f1 = f1_score(labels, predictions, average='weighted')\n",
                 "    accuracy = accuracy_score(labels, predictions)\n",
-                "    precision = precision_score(labels, predictions, average='weighted')\n",
+                "    precision = precision_score(
+                                                 labels,
+                                                 predictions,
+                                                 average='weighted')\n",
+                                                 
                 "    recall = recall_score(labels, predictions, average='weighted')\n",
                 "    \n",
                 "    return {\n",
@@ -397,7 +439,10 @@ def add_comprehensive_features():
                 "pred_labels = np.argmax(predictions.predictions, axis=1)\n",
                 "true_labels = val_labels\n",
                 "\n",
-                "print(classification_report(true_labels, pred_labels, target_names=emotions))"
+                "print(
+                       classification_report(true_labels,
+                       pred_labels,
+                       target_names=emotions))"
             ]
         },
         {
@@ -434,18 +479,28 @@ def add_comprehensive_features():
                 "print('=' * 40)\n",
                 "\n",
                 "for i, example in enumerate(unseen_examples, 1):\n",
-                "    inputs = tokenizer(example, return_tensors='pt', truncation=True, padding=True)\n",
+                "    inputs = tokenizer(
+                                        example,
+                                        return_tensors='pt',
+                                        truncation=True,
+                                        padding=True)\n",
+                                        
                 "    if torch.cuda.is_available():\n",
                 "        inputs = {k: v.cuda() for k, v in inputs.items()}\n",
                 "    \n",
                 "    with torch.no_grad():\n",
                 "        outputs = model(**inputs)\n",
                 "        probabilities = torch.softmax(outputs.logits, dim=1)\n",
-                "        predicted_label = torch.argmax(outputs.logits, dim=1).item()\n",
+                "        predicted_label = torch.argmax(
+                                                        outputs.logits,
+                                                        dim=1).item()\n",
+                                                        
                 "        confidence = probabilities[0][predicted_label].item()\n",
                 "    \n",
                 "    print(f'{i:2d}. \"{example}\"')\n",
-                "    print(f'    → Predicted: {emotions[predicted_label]} (confidence: {confidence:.3f})')\n",
+                "    print(
+                           f'    → Predicted: {emotions[predicted_label]} (confidence: {confidence:.3f})')\n",
+                           
                 "    print()\n",
                 "\n",
                 "# Bias analysis\n",
@@ -494,7 +549,9 @@ def add_comprehensive_features():
                 "print('=' * 50)\n",
                 "\n",
                 "# Load the saved model and check configuration\n",
-                "saved_model = AutoModelForSequenceClassification.from_pretrained(model_save_path)\n",
+                "saved_model = AutoModelForSequenceClassification.from_pretrained(
+                                                                                  model_save_path)\n",
+                                                                                  
                 "saved_tokenizer = AutoTokenizer.from_pretrained(model_save_path)\n",
                 "\n",
                 "print(f'✅ Saved model labels: {saved_model.config.num_labels}')\n",
@@ -503,21 +560,35 @@ def add_comprehensive_features():
                 "print(f'✅ Saved problem_type: {saved_model.config.problem_type}')\n",
                 "\n",
                 "# Test the saved model\n",
-                "test_input = saved_tokenizer('I feel happy today', return_tensors='pt', truncation=True, padding=True)\n",
+                "test_input = saved_tokenizer(
+                                              'I feel happy today',
+                                              return_tensors='pt',
+                                              truncation=True,
+                                              padding=True)\n",
+                                              
                 "with torch.no_grad():\n",
                 "    test_output = saved_model(**test_input)\n",
-                "    predicted_label = torch.argmax(test_output.logits, dim=1).item()\n",
-                "    confidence = torch.softmax(test_output.logits, dim=1)[0][predicted_label].item()\n",
+                "    predicted_label = torch.argmax(
+                                                    test_output.logits,
+                                                    dim=1).item()\n",
+                                                    
+                "    confidence = torch.softmax(
+                                                test_output.logits,
+                                                dim=1)[0][predicted_label].item()\n",
+                                                
                 "\n",
                 "print(f'\\n🧪 SAVED MODEL TEST:')\n",
                 "print(f'Input: \"I feel happy today\"')\n",
-                "print(f'Predicted: {saved_model.config.id2label[predicted_label]} (confidence: {confidence:.3f})')\n",
+                "print(
+                       f'Predicted: {saved_model.config.id2label[predicted_label]} (confidence: {confidence:.3f})')\n",
+                       
                 "\n",
                 "# Verify configuration persistence\n",
                 "config_correct = (\n",
                 "    saved_model.config.num_labels == len(emotions) and\n",
-                "    saved_model.config.id2label == {i: emotion for i, emotion in enumerate(emotions)} and\n",
-                "    saved_model.config.problem_type == 'single_label_classification'\n",
+" saved_model.config.id2label == {i: emotion for i, emotion in enumerate(emotions)}
+and\n",
+" saved_model.config.problem_type == 'single_label_classification'\n",
                 ")\n",
                 "\n",
                 "if config_correct:\n",
@@ -530,8 +601,13 @@ def add_comprehensive_features():
                 "\n",
                 "print(f'\\n🎉 COMPREHENSIVE TRAINING COMPLETED!')\n",
                 "print(f'📁 Model saved to: {model_save_path}')\n",
-                "print(f'📊 Final F1 Score: {eval_results.get(\"eval_f1\", \"N/A\"):.4f}')\n",
-                "print(f'📊 Final Accuracy: {eval_results.get(\"eval_accuracy\", \"N/A\"):.4f}')"
+                "print(
+                       f'📊 Final F1 Score: {eval_results.get(\"eval_f1\",
+                       \"N/A\"):.4f}')\n",
+                       
+                "print(
+                       f'📊 Final Accuracy: {eval_results.get(\"eval_accuracy\",
+                       \"N/A\"):.4f}')"
             ]
         }
     ]

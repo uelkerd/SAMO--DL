@@ -156,7 +156,12 @@ def check_model_health(base_url):
         response = requests.post(f"{base_url}/predict", json=payload, timeout=30)
         if response.status_code == 200:
             data = response.json()
-            print(f"✅ Prediction: {data.get('primary_emotion', {}).get('emotion')} (confidence: {data.get('primary_emotion', {}).get('confidence', 0):.3f})")
+            print(
+                  f"✅ Prediction: {data.get('primary_emotion',
+                  {}).get('emotion')} (confidence: {data.get('primary_emotion',
+                  {}).get('confidence',
+                  0):.3f})"
+                 )
             return True
         else:
             print(f"❌ Prediction failed: {response.status_code}")
@@ -169,7 +174,7 @@ def check_model_health(base_url):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Check model health status")
     parser.add_argument("--base-url",
-                       default="https://samo-emotion-api-minimal-71517823771.us-central1.run.app",
+default="https://samo-emotion-api-minimal-71517823771.us-central1.run.app",
                        help="Base URL of the service to check")
     args = parser.parse_args()
 

@@ -38,7 +38,7 @@ def create_model_ensemble_notebook():
                 "outputs": [],
                 "source": [
                     "# Install required packages\n",
-                    "!pip install transformers torch scikit-learn numpy pandas nltk nlpaug"
+"!pip install transformers torch scikit-learn numpy pandas nltk nlpaug"
                 ]
             },
             {
@@ -65,7 +65,7 @@ def create_model_ensemble_notebook():
                     ")\n",
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.preprocessing import LabelEncoder\n",
-                    "from sklearn.metrics import f1_score, accuracy_score, classification_report\n",
+"from sklearn.metrics import f1_score, accuracy_score, classification_report\n",
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",
@@ -76,7 +76,9 @@ def create_model_ensemble_notebook():
                     "except:\n",
                     "    print('NLTK data already downloaded')\n",
                     "\n",
-                    "print('🚀 MODEL ENSEMBLE TRAINING - TEST ALL SPECIALIZED MODELS')\n",
+                    "print(
+                           '🚀 MODEL ENSEMBLE TRAINING - TEST ALL SPECIALIZED MODELS')\n",
+                           
                     "print('=' * 70)"
                 ]
             },
@@ -133,46 +135,81 @@ def create_model_ensemble_notebook():
                     "combined_samples = []\n",
                     "\n",
                     "# Load journal data\n",
-                    "journal_path = os.path.join(repo_path, 'data', 'journal_test_dataset.json')\n",
+                    "journal_path = os.path.join(
+                                                 repo_path,
+                                                 'data',
+                                                 'journal_test_dataset.json')\n",
+                                                 
                     "try:\n",
                     "    with open(journal_path, 'r') as f:\n",
                     "        journal_data = json.load(f)\n",
                     "    for item in journal_data:\n",
                     "        if 'content' in item and 'emotion' in item:\n",
-                    "            combined_samples.append({'text': item['content'], 'emotion': item['emotion']})\n",
+                    "            combined_samples.append(
+                                                         {'text': item['content'],
+                                                         'emotion': item['emotion']})\n",
+                                                         
                     "        elif 'text' in item and 'emotion' in item:\n",
-                    "            combined_samples.append({'text': item['text'], 'emotion': item['emotion']})\n",
-                    "    print(f'✅ Loaded {len(journal_data)} journal samples from {journal_path}')\n",
+                    "            combined_samples.append(
+                                                         {'text': item['text'],
+                                                         'emotion': item['emotion']})\n",
+                                                         
+                    "    print(
+                               f'✅ Loaded {len(journal_data)} journal samples from {journal_path}')\n",
+                               
                     "except FileNotFoundError:\n",
-                    "    print(f'⚠️ Could not load journal data: {journal_path} not found.')\n",
+                    "    print(
+                               f'⚠️ Could not load journal data: {journal_path} not found.')\n",
+                               
                     "\n",
                     "# Load CMU-MOSEI data\n",
-                    "cmu_path = os.path.join(repo_path, 'data', 'cmu_mosei_balanced_dataset.json')\n",
+                    "cmu_path = os.path.join(
+                                             repo_path,
+                                             'data',
+                                             'cmu_mosei_balanced_dataset.json')\n",
+                                             
                     "try:\n",
                     "    with open(cmu_path, 'r') as f:\n",
                     "        cmu_data = json.load(f)\n",
                     "    for item in cmu_data:\n",
                     "        if 'text' in item and 'emotion' in item:\n",
-                    "            combined_samples.append({'text': item['text'], 'emotion': item['emotion']})\n",
-                    "    print(f'✅ Loaded {len(cmu_data)} CMU-MOSEI samples from {cmu_path}')\n",
+                    "            combined_samples.append(
+                                                         {'text': item['text'],
+                                                         'emotion': item['emotion']})\n",
+                                                         
+                    "    print(
+                               f'✅ Loaded {len(cmu_data)} CMU-MOSEI samples from {cmu_path}')\n",
+                               
                     "except FileNotFoundError:\n",
-                    "    print(f'⚠️ Could not load CMU-MOSEI data: {cmu_path} not found.')\n",
+                    "    print(
+                               f'⚠️ Could not load CMU-MOSEI data: {cmu_path} not found.')\n",
+                               
                     "\n",
                     "print(f'📊 Total combined samples: {len(combined_samples)}')\n",
                     "\n",
                     "# BULLETPROOF: Use UNIQUE fallback dataset if needed\n",
                     "if len(combined_samples) < 100:\n",
-                    "    print(f'⚠️ Only {len(combined_samples)} samples loaded! Using UNIQUE fallback dataset...')\n",
+                    "    print(
+                               f'⚠️ Only {len(combined_samples)} samples loaded! Using UNIQUE fallback dataset...')\n",
+                               
                     "    \n",
                     "    # Load the unique fallback dataset\n",
-                    "    fallback_path = os.path.join(repo_path, 'data', 'unique_fallback_dataset.json')\n",
+                    "    fallback_path = os.path.join(
+                                                      repo_path,
+                                                      'data',
+                                                      'unique_fallback_dataset.json')\n",
+                                                      
                     "    try:\n",
                     "        with open(fallback_path, 'r') as f:\n",
                     "            fallback_data = json.load(f)\n",
                     "        combined_samples = fallback_data\n",
-                    "        print(f'✅ Loaded {len(combined_samples)} UNIQUE fallback samples')\n",
+                    "        print(
+                                   f'✅ Loaded {len(combined_samples)} UNIQUE fallback samples')\n",
+                                   
                     "    except FileNotFoundError:\n",
-                    "        print(f'❌ Could not load unique fallback dataset: {fallback_path}')\n",
+                    "        print(
+                                   f'❌ Could not load unique fallback dataset: {fallback_path}')\n",
+                                   
                     "        print('❌ No data available for training!')\n",
                     "        raise Exception('No training data available!')\n",
                     "\n",
@@ -181,9 +218,14 @@ def create_model_ensemble_notebook():
                     "# Verify no duplicates\n",
                     "texts = [sample['text'] for sample in combined_samples]\n",
                     "unique_texts = set(texts)\n",
-                    "print(f'🔍 Duplicate check: {len(texts)} total, {len(unique_texts)} unique')\n",
+                    "print(
+                           f'🔍 Duplicate check: {len(texts)} total,
+                           {len(unique_texts)} unique')\n",
+                           
                     "if len(texts) != len(unique_texts):\n",
-                    "    print('❌ WARNING: DUPLICATES FOUND! This will cause model collapse!')\n",
+                    "    print(
+                               '❌ WARNING: DUPLICATES FOUND! This will cause model collapse!')\n",
+                               
                     "else:\n",
                     "    print('✅ All samples are unique - no model collapse risk!')"
                 ]
@@ -212,7 +254,10 @@ def create_model_ensemble_notebook():
                     "    augmented_samples = []\n",
                     "    \n",
                     "    # Original sample\n",
-                    "    augmented_samples.append({'text': text, 'emotion': emotion})\n",
+                    "    augmented_samples.append(
+                                                  {'text': text,
+                                                  'emotion': emotion})\n",
+                                                  
                     "    \n",
                     "    # Synonym replacement\n",
                     "    words = text.split()\n",
@@ -225,23 +270,35 @@ def create_model_ensemble_notebook():
                     "                new_words[i] = new_word\n",
                     "                new_text = ' '.join(new_words)\n",
                     "                if new_text != text:\n",
-                    "                    augmented_samples.append({'text': new_text, 'emotion': emotion})\n",
+                    "                    augmented_samples.append(
+                                                                  {'text': new_text,
+                                                                  'emotion': emotion})\n",
+                                                                  
                     "    \n",
                     "    # Back-translation style (word order changes)\n",
                     "    if len(words) > 3:\n",
                     "        # Swap adjacent words\n",
                     "        for i in range(len(words) - 1):\n",
                     "            new_words = words.copy()\n",
-                    "            new_words[i], new_words[i+1] = new_words[i+1], new_words[i]\n",
+" new_words[i], new_words[i+1] = new_words[i+1], new_words[i]\n",
                     "            new_text = ' '.join(new_words)\n",
                     "            if new_text != text:\n",
-                    "                augmented_samples.append({'text': new_text, 'emotion': emotion})\n",
+                    "                augmented_samples.append(
+                                                              {'text': new_text,
+                                                              'emotion': emotion})\n",
+                                                              
                     "    \n",
                     "    # Add/remove punctuation\n",
                     "    if '!' not in text:\n",
-                    "        augmented_samples.append({'text': text + '!', 'emotion': emotion})\n",
+                    "        augmented_samples.append(
+                                                      {'text': text + '!',
+                                                      'emotion': emotion})\n",
+                                                      
                     "    if '?' not in text:\n",
-                    "        augmented_samples.append({'text': text + '?', 'emotion': emotion})\n",
+                    "        augmented_samples.append(
+                                                      {'text': text + '?',
+                                                      'emotion': emotion})\n",
+                                                      
                     "    \n",
                     "    return augmented_samples\n",
                     "\n",
@@ -267,11 +324,14 @@ def create_model_ensemble_notebook():
                     "\n",
                     "print(f'📊 Original samples: {len(combined_samples)}')\n",
                     "print(f'📊 Augmented samples: {len(unique_augmented)}')\n",
-                    "print(f'📈 Data expansion: {len(unique_augmented)/len(combined_samples):.1f}x')\n",
+                    "print(
+                           f'📈 Data expansion: {len(unique_augmented)/len(combined_samples):.1f}x')\n",
+                           
                     "\n",
                     "# Use augmented dataset\n",
                     "combined_samples = unique_augmented\n",
-                    "print(f'✅ Final augmented dataset size: {len(combined_samples)} samples')"
+                    "print(
+                           f'✅ Final augmented dataset size: {len(combined_samples)} samples')"
                 ]
             },
             {
@@ -294,8 +354,8 @@ def create_model_ensemble_notebook():
                     "print(f'📊 Labels: {list(label_encoder.classes_)}')\n",
                     "\n",
                     "# Split data\n",
-                    "train_texts, test_texts, train_labels, test_labels = train_test_split(\n",
-                    "    texts, labels, test_size=0.2, random_state=42, stratify=labels\n",
+"train_texts, test_texts, train_labels, test_labels = train_test_split(\n",
+" texts, labels, test_size=0.2, random_state=42, stratify=labels\n",
                     ")\n",
                     "\n",
                     "print(f'📈 Training samples: {len(train_texts)}')\n",
@@ -304,7 +364,10 @@ def create_model_ensemble_notebook():
                     "# Show emotion distribution\n",
                     "emotion_counts = {}\n",
                     "for emotion in emotions:\n",
-                    "    emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1\n",
+                    "    emotion_counts[emotion] = emotion_counts.get(
+                                                                      emotion,
+                                                                      0) + 1\n",
+                                                                      
                     "\n",
                     "print('\\n📊 Emotion Distribution:')\n",
                     "for emotion, count in sorted(emotion_counts.items()):\n",
@@ -319,7 +382,13 @@ def create_model_ensemble_notebook():
                 "source": [
                     "# Create custom dataset\n",
                     "class EmotionDataset(Dataset):\n",
-                    "    def __init__(self, texts, labels, tokenizer, max_length=128):\n",
+                    "    def __init__(
+                                      self,
+                                      texts,
+                                      labels,
+                                      tokenizer,
+                                      max_length=128):\n",
+                                      
                     "        self.texts = texts\n",
                     "        self.labels = labels\n",
                     "        self.tokenizer = tokenizer\n",
@@ -342,7 +411,10 @@ def create_model_ensemble_notebook():
                     "        \n",
                     "        return {\n",
                     "            'input_ids': encoding['input_ids'].flatten(),\n",
-                    "            'attention_mask': encoding['attention_mask'].flatten(),\n",
+                    "            'attention_mask': encoding['attention_mask'].flatten(
+                                                                                      ),
+                                                                                      \n",
+                                                                                      
                     "            'labels': torch.tensor(label, dtype=torch.long)\n",
                     "        }"
                 ]
@@ -390,7 +462,7 @@ def create_model_ensemble_notebook():
                     "    try:\n",
                     "        # Load model and tokenizer\n",
                     "        tokenizer = AutoTokenizer.from_pretrained(model_name)\n",
-                    "        model = AutoModelForSequenceClassification.from_pretrained(\n",
+" model = AutoModelForSequenceClassification.from_pretrained(\n",
                     "            model_name,\n",
                     "            num_labels=len(label_encoder.classes_),\n",
                     "            problem_type='single_label_classification',\n",
@@ -398,12 +470,23 @@ def create_model_ensemble_notebook():
                     "        )\n",
                     "        \n",
                     "        # Create datasets\n",
-                    "        train_dataset = EmotionDataset(train_texts, train_labels, tokenizer)\n",
-                    "        test_dataset = EmotionDataset(test_texts, test_labels, tokenizer)\n",
+                    "        train_dataset = EmotionDataset(
+                                                            train_texts,
+                                                            train_labels,
+                                                            tokenizer)\n",
+                                                            
+                    "        test_dataset = EmotionDataset(
+                                                           test_texts,
+                                                           test_labels,
+                                                           tokenizer)\n",
+                                                           
                     "        \n",
                     "        # Training arguments\n",
                     "        training_args = TrainingArguments(\n",
-                    "            output_dir=f'./model_test_{model_name.split(\"/\")[-1]}',\n",
+                    "            output_dir=f'./model_test_{model_name.split(
+                                                                             \"/\")[-1]}',
+                                                                             \n",
+                                                                             
                     "            num_train_epochs=5,  # Quick test\n",
                     "            per_device_train_batch_size=4,\n",
                     "            per_device_eval_batch_size=4,\n",
@@ -439,7 +522,9 @@ def create_model_ensemble_notebook():
                     "        f1_score = results['eval_f1']\n",
                     "        model_results[model_name] = f1_score\n",
                     "        \n",
-                    "        print(f'✅ {model_name}: F1 = {f1_score:.4f} ({f1_score*100:.2f}%)')\n",
+                    "        print(
+                                   f'✅ {model_name}: F1 = {f1_score:.4f} ({f1_score*100:.2f}%)')\n",
+                                   
                     "        \n",
                     "        # Track best model\n",
                     "        if f1_score > best_f1:\n",
@@ -453,7 +538,11 @@ def create_model_ensemble_notebook():
                     "print(f'\\n🏆 BEST MODEL: {best_model}')\n",
                     "print(f'🏆 BEST F1 SCORE: {best_f1:.4f} ({best_f1*100:.2f}%)')\n",
                     "print('\\n📊 All Model Results:')\n",
-                    "for model_name, f1 in sorted(model_results.items(), key=lambda x: x[1], reverse=True):\n",
+                    "for model_name, f1 in sorted(
+                                                  model_results.items(),
+                                                  key=lambda x: x[1],
+                                                  reverse=True):\n",
+                                                  
                     "    print(f'  {model_name}: {f1:.4f} ({f1*100:.2f}%)')"
                 ]
             },
@@ -468,13 +557,17 @@ def create_model_ensemble_notebook():
                     "print('=' * 60)\n",
                     "\n",
                     "if best_model is None:\n",
-                    "    print('❌ No models worked! Falling back to generic BERT...')\n",
+                    "    print(
+                               '❌ No models worked! Falling back to generic BERT...')\n",
+                               
                     "    best_model = 'bert-base-uncased'\n",
                     "\n",
                     "print(f'🎯 Using best model: {best_model}')\n",
                     "print(f'🎯 Best F1 score: {best_f1:.4f} ({best_f1*100:.2f}%)')\n",
                     "print(f'🎯 Target: 75-85%')\n",
-                    "print(f'📈 Gap to target: {75 - best_f1*100:.1f}% - {85 - best_f1*100:.1f}%')\n",
+                    "print(
+                           f'📈 Gap to target: {75 - best_f1*100:.1f}% - {85 - best_f1*100:.1f}%')\n",
+                           
                     "\n",
                     "# Load the best model\n",
                     "tokenizer = AutoTokenizer.from_pretrained(best_model)\n",
@@ -486,11 +579,21 @@ def create_model_ensemble_notebook():
                     ")\n",
                     "\n",
                     "# Create datasets\n",
-                    "train_dataset = EmotionDataset(train_texts, train_labels, tokenizer)\n",
-                    "test_dataset = EmotionDataset(test_texts, test_labels, tokenizer)\n",
+                    "train_dataset = EmotionDataset(
+                                                    train_texts,
+                                                    train_labels,
+                                                    tokenizer)\n",
+                                                    
+                    "test_dataset = EmotionDataset(
+                                                   test_texts,
+                                                   test_labels,
+                                                   tokenizer)\n",
+                                                   
                     "\n",
                     "print(f'✅ Best model loaded: {best_model}')\n",
-                    "print(f'✅ Model initialized with {len(label_encoder.classes_)} labels')\n",
+                    "print(
+                           f'✅ Model initialized with {len(label_encoder.classes_)} labels')\n",
+                           
                     "print(f'✅ Datasets created successfully')"
                 ]
             },
@@ -538,7 +641,9 @@ def create_model_ensemble_notebook():
                     "    train_dataset=train_dataset,\n",
                     "    eval_dataset=test_dataset,\n",
                     "    compute_metrics=compute_metrics,\n",
-                    "    callbacks=[EarlyStoppingCallback(early_stopping_patience=7)]  # More patience\n",
+                    "    callbacks=[EarlyStoppingCallback(
+                                                          early_stopping_patience=7)]  # More patience\n",
+                                                          
                     ")\n",
                     "\n",
                     "print(f'📊 Training on {len(train_texts)} augmented samples')\n",
@@ -559,10 +664,18 @@ def create_model_ensemble_notebook():
                     "print('📊 Evaluating final model...')\n",
                     "results = trainer.evaluate()\n",
                     "\n",
-                    "print(f'🏆 Final F1 Score: {results[\"eval_f1\"]:.4f} ({results[\"eval_f1\"]*100:.2f}%)')\n",
-                    "print(f'🎯 Target achieved: {\"✅ YES!\" if results[\"eval_f1\"] >= 0.75 else \"❌ Not yet\"}')\n",
-                    "print(f'📈 Improvement from baseline: {((results[\"eval_f1\"] - 0.052) / 0.052 * 100):.1f}%')\n",
-                    "print(f'📈 Improvement from specialized: {((results[\"eval_f1\"] - 0.3273) / 0.3273 * 100):.1f}%')\n",
+                    "print(
+                           f'🏆 Final F1 Score: {results[\"eval_f1\"]:.4f} ({results[\"eval_f1\"]*100:.2f}%)')\n",
+                           
+                    "print(
+                           f'🎯 Target achieved: {\"✅ YES!\" if results[\"eval_f1\"] >= 0.75 else \"❌ Not yet\"}')\n",
+                           
+                    "print(
+                           f'📈 Improvement from baseline: {((results[\"eval_f1\"] - 0.052) / 0.052 * 100):.1f}%')\n",
+                           
+                    "print(
+                           f'📈 Improvement from specialized: {((results[\"eval_f1\"] - 0.3273) / 0.3273 * 100):.1f}%')\n",
+                           
                     "\n",
                     "# Save model\n",
                     "trainer.save_model('./emotion_model_ensemble_final')\n",
@@ -598,13 +711,19 @@ def create_model_ensemble_notebook():
                     "        \n",
                     "        outputs = model(**inputs)\n",
                     "        probabilities = torch.softmax(outputs.logits, dim=1)\n",
-                    "        predicted_class = torch.argmax(probabilities, dim=1).item()\n",
+                    "        predicted_class = torch.argmax(
+                                                            probabilities,
+                                                            dim=1).item()\n",
+                                                            
                     "        confidence = probabilities[0][predicted_class].item()\n",
                     "        \n",
-                    "        predicted_emotion = label_encoder.inverse_transform([predicted_class])[0]\n",
+                    "        predicted_emotion = label_encoder.inverse_transform(
+                                                                                 [predicted_class])[0]\n",
+                                                                                 
                     "        \n",
                     "        print(f'{i}. Text: {text}')\n",
-                    "        print(f'   Predicted: {predicted_emotion} (confidence: {confidence:.3f})\\n')"
+                    "        print(
+                                   f'   Predicted: {predicted_emotion} (confidence: {confidence:.3f})\\n')"
                 ]
             },
             {
@@ -615,7 +734,10 @@ def create_model_ensemble_notebook():
                     "\n",
                     "**Key Improvements:**\n",
                     "- ✅ **Model ensemble testing** (4 specialized models)\n",
-                    "- ✅ **Data augmentation** (synonym replacement, word order changes)\n",
+                    "- ✅ **Data augmentation** (
+                                                synonym replacement,
+                                                word order changes)\n",
+                                                
                     "- ✅ **Best model selection** (automatic)\n",
                     "- ✅ **More training epochs** (15 instead of 10)\n",
                     "- ✅ **Lower learning rate** (5e-6 for fine-tuning)\n",
@@ -660,7 +782,9 @@ def create_model_ensemble_notebook():
     with open('notebooks/MODEL_ENSEMBLE_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook_content, f, indent=2)
     
-    print("✅ Model ensemble notebook created: notebooks/MODEL_ENSEMBLE_TRAINING_COLAB.ipynb")
+    print(
+          "✅ Model ensemble notebook created: notebooks/MODEL_ENSEMBLE_TRAINING_COLAB.ipynb"
+         )
     print("📋 Instructions:")
     print("  1. Download the notebook file")
     print("  2. Upload to Google Colab")

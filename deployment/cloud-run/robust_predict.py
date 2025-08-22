@@ -33,7 +33,8 @@ model_loaded = False
 model_lock = threading.Lock()
 
 # Emotion mapping based on training order
-EMOTION_MAPPING = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+EMOTION_MAPPING = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
 
 # Constants
 MAX_INPUT_LENGTH = 512
@@ -98,7 +99,13 @@ def predict_emotion(text):
         raise ValueError(f"Input text too long (>{MAX_INPUT_LENGTH} characters).")
 
     # Tokenize
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=MAX_INPUT_LENGTH, padding=True)
+    inputs = tokenizer(
+                       text,
+                       return_tensors="pt",
+                       truncation=True,
+                       max_length=MAX_INPUT_LENGTH,
+                       padding=True
+                      )
     
     # Predict
     with torch.no_grad():
@@ -181,7 +188,9 @@ def predict():
         return jsonify(result)
     
     except Exception:
-        return create_error_response('Prediction processing failed. Please try again later.')
+        return create_error_response(
+                                     'Prediction processing failed. Please try again later.'
+                                    )
 
 @app.route('/predict_batch', methods=['POST'])
 def predict_batch():
@@ -215,7 +224,9 @@ def predict_batch():
         return jsonify({'results': results})
     
     except Exception:
-        return create_error_response('Batch prediction processing failed. Please try again later.')
+        return create_error_response(
+                                     'Batch prediction processing failed. Please try again later.'
+                                    )
 
 @app.route('/emotions', methods=['GET'])
 def get_emotions():

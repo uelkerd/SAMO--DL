@@ -28,10 +28,14 @@ def fix_model_reconfiguration():
                 "\n",
                 "tokenizer = AutoTokenizer.from_pretrained(model_name)\n",
                 "\n",
-                "print(f'Original model labels: {AutoModelForSequenceClassification.from_pretrained(model_name).config.num_labels}')\n",
-                "print(f'Original id2label: {AutoModelForSequenceClassification.from_pretrained(model_name).config.id2label}')\n",
+                "print(
+                       f'Original model labels: {AutoModelForSequenceClassification.from_pretrained(model_name).config.num_labels}')\n",
+                       
+                "print(
+                       f'Original id2label: {AutoModelForSequenceClassification.from_pretrained(model_name).config.id2label}')\n",
+                       
                 "\n",
-                "# CRITICAL: Create a NEW model with correct configuration from scratch\n",
+"# CRITICAL: Create a NEW model with correct configuration from scratch\n",
                 "print('\\n🔧 CREATING NEW MODEL WITH CORRECT ARCHITECTURE')\n",
                 "print('=' * 60)\n",
                 "\n",
@@ -43,28 +47,42 @@ def fix_model_reconfiguration():
                 "model = AutoModelForSequenceClassification.from_pretrained(\n",
                 "    model_name,\n",
                 "    num_labels=len(emotions),  # Set to 12 emotions\n",
-                "    ignore_mismatched_sizes=True  # Important: ignore size mismatches\n",
+" ignore_mismatched_sizes=True # Important: ignore size mismatches\n",
                 ")\n",
                 "\n",
                 "# Configure the model properly\n",
                 "model.config.num_labels = len(emotions)\n",
-                "model.config.id2label = {i: emotion for i, emotion in enumerate(emotions)}\n",
-                "model.config.label2id = {emotion: i for i, emotion in enumerate(emotions)}\n",
+                "model.config.id2label = {i: emotion for i, emotion in enumerate(
+                                                                                 emotions)}\n",
+                                                                                 
+                "model.config.label2id = {emotion: i for i, emotion in enumerate(
+                                                                                 emotions)}\n",
+                                                                                 
                 "model.config.problem_type = 'single_label_classification'\n",
                 "\n",
                 "# Verify the configuration\n",
                 "print(f'✅ Model created with {model.config.num_labels} labels')\n",
                 "print(f'✅ New id2label: {model.config.id2label}')\n",
-                "print(f'✅ Classifier output size: {model.classifier.out_proj.out_features}')\n",
+                "print(
+                       f'✅ Classifier output size: {model.classifier.out_proj.out_features}')\n",
+                       
                 "print(f'✅ Problem type: {model.config.problem_type}')\n",
                 "\n",
                 "# Test the model with a sample input\n",
-                "test_input = tokenizer('I feel happy today', return_tensors='pt', truncation=True, padding=True)\n",
+                "test_input = tokenizer(
+                                        'I feel happy today',
+                                        return_tensors='pt',
+                                        truncation=True,
+                                        padding=True)\n",
+                                        
                 "with torch.no_grad():\n",
                 "    test_output = model(**test_input)\n",
                 "    print(f'✅ Test output shape: {test_output.logits.shape}')\n",
                 "    print(f'✅ Expected shape: [1, {len(emotions)}]')\n",
-                "    assert test_output.logits.shape[1] == len(emotions), f'Output shape mismatch: {test_output.logits.shape[1]} != {len(emotions)}'\n",
+                "    assert test_output.logits.shape[1] == len(
+                                                               emotions),
+                                                               f'Output shape mismatch: {test_output.logits.shape[1]} != {len(emotions)}'\n",
+                                                               
                 "    print('✅ Model architecture verified!')\n",
                 "\n",
                 "# Move model to GPU\n",

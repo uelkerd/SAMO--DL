@@ -55,7 +55,10 @@ def _fix_generic_patterns(content: str, imports_to_add: set, changes_made: list)
     return content
 
 
-def _fix_optional_patterns(content: str, imports_to_add: set, changes_made: list) -> str:
+def _fix_optional_patterns(
+                           content: str,
+                           imports_to_add: set,
+                           changes_made: list) -> str:
     """Fix optional type patterns (A | None, None | A)."""
     # Fix A | None -> Optional[A] (most common case)
     optional_pattern = r'([a-zA-Z_][a-zA-Z0-9_]*)\s*\|\s*None'
@@ -236,7 +239,11 @@ def _process_single_file(file_path: Path, dry_run: bool) -> Dict[str, Any]:
     return result
 
 
-def _process_all_files(python_files: List[Path], dry_run: bool) -> Tuple[List[Dict[str, Any]], int]:
+def _process_all_files(
+                       python_files: List[Path],
+                       dry_run: bool) -> Tuple[List[Dict[str,
+                       Any]],
+                       int]:
     """Process all Python files and return results and total changes."""
     results = []
     total_changes = 0
@@ -251,7 +258,11 @@ def _process_all_files(python_files: List[Path], dry_run: bool) -> Tuple[List[Di
     return results, total_changes
 
 
-def _print_summary(results: List[Dict[str, Any]], total_changes: int, dry_run: bool) -> None:
+def _print_summary(
+                   results: List[Dict[str,
+                   Any]],
+                   total_changes: int,
+                   dry_run: bool) -> None:
     """Print summary of processing results."""
     print("=" * 50)
     print("SUMMARY")

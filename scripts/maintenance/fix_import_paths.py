@@ -30,9 +30,15 @@ def fix_import_paths_in_file(file_path):
             (r'from \.\.data\.', 'from data.'),
             
             # Fix sys.path insertions
-            (r'sys\.path\.insert\(0, str\(Path\(__file__\)\.parent\.parent / "src"\)\)', 
+            (
+             r'sys\.path\.insert\(0,
+             str\(Path\(__file__\)\.parent\.parent / "src"\)\)',
+             
              'sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))'),
-            (r'sys\.path\.insert\(0, str\(Path\(__file__\)\.parent\.parent\.parent / "src"\)\)', 
+            (
+             r'sys\.path\.insert\(0,
+             str\(Path\(__file__\)\.parent\.parent\.parent / "src"\)\)',
+             
              'sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))'),
         ]
         
