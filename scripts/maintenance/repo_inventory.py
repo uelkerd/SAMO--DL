@@ -55,7 +55,7 @@ def _load_tracked_files() -> frozenset[str]:
             check=True,
         )
         return frozenset(result.stdout.splitlines())
-    except OSError:
+    except (subprocess.CalledProcessError, OSError):
         return frozenset()
 
 
