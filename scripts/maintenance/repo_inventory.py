@@ -156,7 +156,8 @@ def find_references(paths: List[str]) -> Dict[str, List[str]]:
                 cwd=str(ROOT),
                 capture_output=True,
                 text=True,
-            check=True)
+                check=True,
+            )
             if rg.returncode in (0, 1):  # 0 found, 1 not found
                 lines = [ln for ln in rg.stdout.splitlines() if ln.strip()]
                 refs[p] = lines[:200]
