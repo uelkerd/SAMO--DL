@@ -594,7 +594,7 @@ The Deep Learning track will be considered successful when:
 
 ### **📁 Key Files Enhanced**
 
-**Primary Focus**: `website/integration.html`
+**Primary Focus**: `docs/site/integration.html`
 - ✅ Fixed JavaScript rendering issues
 - ✅ Enhanced error handling with specific HTTP status codes
 - ✅ Added input validation for empty API requests

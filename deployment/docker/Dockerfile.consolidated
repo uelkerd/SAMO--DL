@@ -31,14 +31,14 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Use a dedicated build directory for COPY to avoid W1006
 WORKDIR /build
 
-# Copy all requirements files and constraints
-COPY requirements_*.txt ./
-COPY constraints.txt ./
+# Copy all requirements files and constraints from dependencies/
+COPY dependencies/requirements_*.txt ./dependencies/
+COPY dependencies/constraints.txt ./dependencies/
 
 # Install Python dependencies
 RUN python -m pip install --no-cache-dir --upgrade pip==25.2 \
- && cp requirements_${BUILD_TYPE}.txt requirements.txt \
- && pip install --no-cache-dir -c constraints.txt -r requirements.txt
+ && cp dependencies/requirements_${BUILD_TYPE}.txt requirements.txt \
+ && pip install --no-cache-dir -c dependencies/constraints.txt -r requirements.txt
 
 # Create a simple minimal API server (always created for runtime stage compatibility)
 RUN echo '#!/usr/bin/env python3' > ./minimal_api_server.py && \
