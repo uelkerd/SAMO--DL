@@ -7,10 +7,7 @@ import subprocess
 import sys
 import json
 import pandas as pd
-from datasets import load_dataset
-import torch
-import traceback
-from pathlib import Path
+from datasets import load_dataset, load_dataset
 
 def install_dependencies():
     """Install required dependencies."""
@@ -27,10 +24,6 @@ def install_dependencies():
 if not install_dependencies():
     print("❌ Cannot proceed without dependencies")
     sys.exit(1)
-
-import json
-import pandas as pd
-from datasets import load_dataset
 
 def analyze_label_mapping():
     """Analyze the label mapping issue."""
