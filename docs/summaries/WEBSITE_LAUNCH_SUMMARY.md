@@ -74,9 +74,9 @@ The SAMO-DL project now features a complete, professional GitHub Pages website s
 - **Integration Guide**: `https://uelkerd.github.io/SAMO--DL/integration.html`
 
 ### Local Development
-- **Main Site**: `file:///path/to/SAMO--DL/website/index.html`
-- **Demo Page**: `file:///path/to/SAMO--DL/website/demo.html`
-- **Integration Guide**: `file:///path/to/SAMO--DL/website/integration.html`
+- **Main Site**: `file:///path/to/SAMO--DL/docs/site/index.html`
+- **Demo Page**: `file:///path/to/SAMO--DL/docs/site/demo.html`
+- **Integration Guide**: `file:///path/to/SAMO--DL/docs/site/integration.html`
 
 ## Portfolio Impact
 
