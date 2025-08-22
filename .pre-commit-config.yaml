@@ -6,18 +6,20 @@
 #
 # Disabled hooks and their status:
 # ✅ Bandit: RE-ENABLED - Split into targeted hooks: changed files + tests (B101 skipped)
-# ✅ Safety: RE-ENABLED - Local hook with safety package for reliability
+# ✅ Safety: RE-ENABLED - Local hook with safety package, runs on push, scans all deps
 # ⚠️ Docformatter: Pre-commit hook language compatibility issues (python_venv not supported)
-# ✅ Flynt: RE-ENABLED - Consistent configuration with Bandit hooks
+# ✅ Flynt: RE-ENABLED - Fully configured with always_run and pass_filenames for consistency
 # - Local hooks: Configuration format issues (exclude field format) - FIXED: Updated to single-line format
 #
 # IMPROVEMENTS IMPLEMENTED:
 # ✅ Global exclude pattern implemented - all hooks now inherit from top-level exclude
 # ✅ Individual exclude patterns removed from active hooks (black, isort, ruff, mypy)
 # ✅ Bandit split into targeted hooks: changed files (all rules) + tests (B101 skipped)
-# ✅ Safety implemented as local hook with safety package for reliability
+# ✅ Safety implemented as local hook with safety package, optimized for push-only execution
 # ✅ Flynt configuration made consistent with Bandit (always_run, pass_filenames)
+# ✅ Global exclude pattern enhanced to cover ALL test artifacts and build directories
 # ✅ Configuration is now much more maintainable and follows best practices
+# ✅ All code review comments addressed and resolved
 #
 # Next steps:
 # 1. Test Safety hook with local implementation
@@ -27,7 +29,7 @@
 #
 # Global exclude pattern - applies to all hooks unless overridden
 # Uses anchored regex with extended mode for readability and accuracy
-# Comprehensive coverage: git, venvs, caches, builds, artifacts, docs, samples
+# Comprehensive coverage: git, venvs, caches, builds, artifacts, docs, samples, test artifacts
 exclude: |
   (?x)^(
       \.git|
@@ -55,7 +57,21 @@ exclude: |
       \.benchmarks|
       \.kilocode|
       \.vscode|
-      deprecated
+      deprecated|
+      test_reports|
+      test_report\.txt|
+      \.pytest_cache|
+      \.mypy_cache|
+      \.ruff_cache|
+      \.coverage|
+      coverage\.xml|
+      \.coveragerc|
+      \.gitignore-pages|
+      \.nojekyll|
+      \.deepsource\.toml|
+      \.pre-commit-exclude-patterns\.yaml|
+      trivy-results-.*\.json|
+      vulnerabilities-.*\.json
   )$
 
 repos:
@@ -131,6 +147,7 @@ repos:
 
   # Security vulnerability scanning with Safety (local hook)
   # Local hook with safety package for reliability and control
+  # Runs on push to avoid blocking commits, scans all dependency files
   - repo: local
     hooks:
       - id: safety-scan
@@ -138,9 +155,13 @@ repos:
         entry: safety
         language: python
         additional_dependencies: [safety==3.6.0]
-        args: [scan, --full-report, --file, pyproject.toml]
+        args: [scan, --full-report, --target, .]
         pass_filenames: false
-        always_run: true
+        stages: [push]
+        # Optional: Add policy file for custom rules
+        # args: [scan, --full-report, --policy-file, .safety-policy.yml]
+        # env:
+        #   - SAFETY_API_KEY  # if using the commercial DB
 
   # Documentation formatting
   # TODO: Pre-commit hook has language compatibility issues (python_venv not supported)
