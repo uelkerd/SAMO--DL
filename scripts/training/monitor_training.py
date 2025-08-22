@@ -33,6 +33,8 @@ and provides insights on performance, convergence, and next steps.
 """
 
 sys.path.append(str(Path(__file__).parent.parent / "src"))
+repo_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(repo_root / "src"))
 
 def load_training_history(checkpoint_dir: str = "test_checkpoints_dev") -> list[dict]:
     """Load training history from checkpoint directory."""
