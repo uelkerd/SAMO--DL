@@ -6,7 +6,7 @@
 #
 # Disabled hooks and their status:
 # ✅ Bandit: RE-ENABLED - Split into targeted hooks: changed files + tests (B101 skipped)
-# ✅ Safety: RE-ENABLED - Official Safety hook from pyupio
+# ✅ Safety: RE-ENABLED - Local hook with safety package for reliability
 # ⚠️ Docformatter: Pre-commit hook language compatibility issues (python_venv not supported)
 # ✅ Flynt: RE-ENABLED - Consistent configuration with Bandit hooks
 # - Local hooks: Configuration format issues (exclude field format) - FIXED: Updated to single-line format
@@ -15,12 +15,12 @@
 # ✅ Global exclude pattern implemented - all hooks now inherit from top-level exclude
 # ✅ Individual exclude patterns removed from active hooks (black, isort, ruff, mypy)
 # ✅ Bandit split into targeted hooks: changed files (all rules) + tests (B101 skipped)
-# ✅ Safety implemented using official pyupio hook for reliability
+# ✅ Safety implemented as local hook with safety package for reliability
 # ✅ Flynt configuration made consistent with Bandit (always_run, pass_filenames)
 # ✅ Configuration is now much more maintainable and follows best practices
 #
 # Next steps:
-# 1. Test Safety hook with official pyupio implementation
+# 1. Test Safety hook with local implementation
 # 2. Find Docformatter alternative or fix language compatibility issues
 # 3. Test and re-enable local hooks
 # 4. Update this TODO section as hooks are re-enabled
@@ -129,14 +129,16 @@ repos:
         types: [python]
         files: '^(tests/|.*_test\.py$)'
 
-  # Security vulnerability scanning with Safety (official pre-commit hook)
-  # Using official Safety hook for reliability and simplified setup
-  - repo: https://github.com/pyupio/safety
-    rev: v3.6.0
+  # Security vulnerability scanning with Safety (local hook)
+  # Local hook with safety package for reliability and control
+  - repo: local
     hooks:
-      - id: safety
+      - id: safety-scan
         name: Safety (dependency vulnerability scan)
-        args: [--full-report, --file, pyproject.toml]
+        entry: safety
+        language: python
+        additional_dependencies: [safety==3.6.0]
+        args: [scan, --full-report, --file, pyproject.toml]
         pass_filenames: false
         always_run: true
 
