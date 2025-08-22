@@ -9,6 +9,8 @@ from pathlib import Path
 
 # Add the deployment directory to the path
 sys.path.insert(0, str(Path(__file__).parent.parent / 'deployment'))
+repo_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(repo_root / 'src'))
 
 def test_local_inference():
     """Test the local inference with the downloaded model"""

@@ -14,7 +14,8 @@ import torch
 from torch import nn
 
 # Add src to path
-sys.path.append(str(Path.cwd() / "src"))
+repo_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(repo_root / "src"))
 
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 

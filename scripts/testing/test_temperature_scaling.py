@@ -30,6 +30,8 @@ that reduces overprediction and improves F1 scores.
 """
 
 sys.path.append(str(Path(__file__).parent.parent / "src"))
+repo_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(repo_root / "src"))
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
 logger = logging.getLogger(__name__)
