@@ -23,7 +23,7 @@ This consolidated Dockerfile replaces multiple separate Dockerfiles with a singl
 ### **Minimal Version (Default)**
 ```bash
 # Build from the repository root
-docker build -f deployment/cloud-run/Dockerfile.consolidated -t samo-dl-minimal .
+docker build -f deployment/docker/Dockerfile.consolidated -t samo-dl-minimal .
 ```
 
 ### **Unified Version (with ML)**
@@ -31,7 +31,7 @@ docker build -f deployment/cloud-run/Dockerfile.consolidated -t samo-dl-minimal 
 docker build \
   --build-arg BUILD_TYPE=unified \
   --build-arg INCLUDE_ML=true \
-  -f deployment/cloud-run/Dockerfile.consolidated \
+  -f deployment/docker/Dockerfile.consolidated \
   -t samo-dl-unified .
 ```
 
@@ -40,7 +40,7 @@ docker build \
 docker build \
   --build-arg BUILD_TYPE=secure \
   --build-arg INCLUDE_SECURITY=true \
-  -f deployment/cloud-run/Dockerfile.consolidated \
+  -f deployment/docker/Dockerfile.consolidated \
   -t samo-dl-secure .
 ```
 
@@ -50,7 +50,7 @@ docker build \
   --build-arg BUILD_TYPE=production \
   --build-arg INCLUDE_ML=true \
   --build-arg INCLUDE_SECURITY=true \
-  -f deployment/cloud-run/Dockerfile.consolidated \
+  -f deployment/docker/Dockerfile.consolidated \
   -t samo-dl-production .
 ```
 
@@ -62,7 +62,7 @@ docker build \
   --platform linux/arm64 \
   --build-arg BUILD_TYPE=unified \
   --build-arg INCLUDE_ML=true \
-  -f deployment/cloud-run/Dockerfile.consolidated \
+  -f deployment/docker/Dockerfile.consolidated \
   -t samo-dl-unified-arm64 .
 ```
 
@@ -72,7 +72,7 @@ docker build \
   --platform linux/amd64 \
   --build-arg BUILD_TYPE=unified \
   --build-arg INCLUDE_ML=true \
-  -f deployment/cloud-run/Dockerfile.consolidated \
+  -f deployment/docker/Dockerfile.consolidated \
   -t samo-dl-unified-amd64 .
 ```
 
@@ -89,7 +89,7 @@ docker buildx inspect --bootstrap
 docker buildx build --platform linux/amd64,linux/arm64 \
   --build-arg BUILD_TYPE=unified \
   --build-arg INCLUDE_ML=true \
-  -f deployment/cloud-run/Dockerfile.consolidated \
+  -f deployment/docker/Dockerfile.consolidated \
   -t samo-dl-unified:multiarch --push
 ```
 
@@ -203,9 +203,9 @@ docker build -f deployment/cloud-run/Dockerfile.secure -t samo-dl-secure .
 ### **After (Single File)**
 ```bash
 # One Dockerfile, multiple variants
-docker build --build-arg BUILD_TYPE=minimal -f deployment/cloud-run/Dockerfile.consolidated -t samo-dl-minimal .
-docker build --build-arg BUILD_TYPE=unified --build-arg INCLUDE_ML=true -f deployment/cloud-run/Dockerfile.consolidated -t samo-dl-unified .
-docker build --build-arg BUILD_TYPE=secure --build-arg INCLUDE_SECURITY=true -f deployment/cloud-run/Dockerfile.consolidated -t samo-dl-secure .
+docker build --build-arg BUILD_TYPE=minimal -f deployment/docker/Dockerfile.consolidated -t samo-dl-minimal .
+docker build --build-arg BUILD_TYPE=unified --build-arg INCLUDE_ML=true -f deployment/docker/Dockerfile.consolidated -t samo-dl-unified .
+docker build --build-arg BUILD_TYPE=secure --build-arg INCLUDE_SECURITY=true -f deployment/docker/Dockerfile.consolidated -t samo-dl-secure .
 ```
 
 ## **Benefits**

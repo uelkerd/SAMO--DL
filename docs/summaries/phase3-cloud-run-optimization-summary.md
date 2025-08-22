@@ -58,7 +58,7 @@ Phase 3 successfully implements comprehensive Cloud Run optimization with produc
 - **`deployment/cloud-run/cloudbuild.yaml`**: Enhanced with Phase 3 optimizations
 - **`deployment/cloud-run/health_monitor.py`**: Comprehensive health monitoring system
 - **`deployment/cloud-run/config.py`**: Environment-specific configuration management
-- **`deployment/cloud-run/requirements_secure.txt`**: Updated with monitoring dependencies
+- **`dependencies/requirements_secure.txt`**: Updated with monitoring dependencies
 
 ### **Testing and Validation:**
 - **`scripts/testing/test_phase3_cloud_run_optimization.py`**: Comprehensive test suite with 10 test cases

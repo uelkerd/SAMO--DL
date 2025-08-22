@@ -1,0 +1,15 @@
+# Reduce Docker build context
+.git
+.github
+.circleci
+.docs
+*.md
+LICENSE
+**/__pycache__/
+**/*.pyc
+.logs
+.tmp
+dist
+build
+artifacts
+notebooks

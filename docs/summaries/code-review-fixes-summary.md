@@ -60,7 +60,7 @@ This document summarizes all the fixes applied to address the code review commen
 ```
 
 ### 7. Requirements File Alignment
-**File:** `deployment/cloud-run/requirements_secure.txt`
+**File:** `dependencies/requirements_secure.txt`
 **Issue:** Test suite expected specific dependencies with pinned versions, but requirements used ranges and omitted some deps.
 **Fix:** Updated requirements to use pinned versions (`==`) and added missing dependencies:
 - `fastapi==0.104.1`

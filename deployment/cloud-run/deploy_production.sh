@@ -53,7 +53,7 @@ print_status "  Repository: ${REPOSITORY}"
 
 # Step 1: Build production Docker image
 print_status "Step 1: Building production Docker image..."
-docker build -f Dockerfile.production -t "gcr.io/${PROJECT_ID}/${IMAGE_NAME}:latest" .
+docker build -f deployment/docker/Dockerfile.production -t "gcr.io/${PROJECT_ID}/${IMAGE_NAME}:latest" .
 
 if [ $? -ne 0 ]; then
     print_error "Docker build failed!"

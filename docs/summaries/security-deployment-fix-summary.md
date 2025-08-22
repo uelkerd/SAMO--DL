@@ -75,7 +75,7 @@ Your Cloud Run deployment is running on **INSECURE CODE** with critical vulnerab
 - **Features**: Token bucket algorithm, per-client rate limiting
 
 #### **5. Secure Dependencies**
-- **File**: `deployment/cloud-run/requirements_secure.txt` (generated)
+- **File**: `dependencies/requirements_secure.txt` (generated)
 - **Updates**:
   - `torch>=2.8.0,<3.0.0` (secure version)
   - `scikit-learn>=1.7.1,<2.0.0` (latest secure)

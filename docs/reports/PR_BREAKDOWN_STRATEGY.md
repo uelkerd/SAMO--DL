@@ -17,7 +17,7 @@
 **Files**:
 - `deployment/cloud-run/minimal_api_server.py` (269 lines)
 - `deployment/cloud-run/Dockerfile.minimal` (47 lines)
-- `deployment/cloud-run/requirements_minimal.txt` (28 lines)
+- `dependencies/requirements_minimal.txt` (28 lines)
 - `deployment/cloud-run/cloudbuild.yaml` (14 lines)
 - `deployment/cloud-run/secure_api_server.py` (48 lines)
 
@@ -55,7 +55,7 @@
 **Branch**: `pr5-onnx-optimization`
 **Files**:
 - `deployment/cloud-run/onnx_api_server.py` (292 lines)
-- `deployment/cloud-run/requirements_onnx.txt` (32 lines)
+- `dependencies/requirements_onnx.txt` (32 lines)
 
 ## **🔧 Model File Handling Strategy**
 

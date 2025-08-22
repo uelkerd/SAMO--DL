@@ -23,7 +23,7 @@ The repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml
 If you prefer manual deployment:
 
 1. Create a new branch called `gh-pages`
-2. Copy all files from `./website/` to the root of the `gh-pages` branch
+2. Copy all files from `./docs/site/` to the root of the `gh-pages` branch
 3. Commit and push the `gh-pages` branch
 4. Enable GitHub Pages to deploy from the `gh-pages` branch
 
