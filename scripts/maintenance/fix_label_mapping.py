@@ -6,29 +6,37 @@ Fix the label mapping issue between GoEmotions and Journal datasets.
 import subprocess
 import sys
 import json
-import pandas as pd
-from datasets import load_dataset
+from pathlib import Path
 
-def install_dependencies():
+
+def install_dependencies() -> bool:
     """Install required dependencies."""
     print("🔧 Installing dependencies...")
     try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "datasets", "pandas", "transformers"])
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", "datasets", "pandas", "transformers"]
+        )
         print("✅ Dependencies installed")
     except subprocess.CalledProcessError as e:
         print(f"❌ Failed to install dependencies: {e}")
         return False
     return True
 
+
 # Install dependencies first
 if not install_dependencies():
     print("❌ Cannot proceed without dependencies")
     sys.exit(1)
 
+
 def analyze_label_mapping():
     """Analyze the label mapping issue."""
     print("🔍 Analyzing label mapping issue...")
-    
+
+    # Lazy imports after install
+    from datasets import load_dataset  # type: ignore
+    import pandas as pd  # type: ignore
+
     # Load datasets
     go_emotions = load_dataset("go_emotions", "simplified")
     with open('data/journal_test_dataset.json', 'r') as f:
@@ -67,6 +75,7 @@ def analyze_label_mapping():
         print("This is why we get 0 GoEmotions samples!")
     
     return go_label_counts_map, journal_label_counts_map
+
 
 def create_emotion_mapping():
     """Create a mapping between GoEmotions and Journal emotions."""
@@ -107,6 +116,7 @@ def create_emotion_mapping():
     print(f"Created mapping with {len(go_emotions_mapping)} emotions")
     return go_emotions_mapping
 
+
 def create_fixed_bulletproof_cell():
     """Create a fixed bulletproof cell with proper emotion mapping."""
     
@@ -132,6 +142,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, accuracy_score
 from sklearn.preprocessing import LabelEncoder
 from transformers import AutoModel, AutoTokenizer
+from pathlib import Path
 
 print("✅ Imports successful")
 
@@ -153,17 +164,19 @@ except Exception as e:
     raise
 
 # Step 2: Ensure we are at the repository root
+start_path = Path(__file__).resolve() if "__file__" in globals() else Path.cwd()
+
 def _find_repo_root(start: Path) -> Path:
     for d in [start] + list(start.parents):
-        if (d / "src").exists():
+        if (d / "src").exists() or (d / ".git").exists() or (d / "pyproject.toml").exists():
             return d
     return start
 
-REPO_ROOT = _find_repo_root(Path(__file__).resolve())
+REPO_ROOT = _find_repo_root(start_path)
 os.chdir(str(REPO_ROOT))
 
 # Step 3: Create emotion mapping
-print("\\n🔧 Creating emotion mapping...")
+print("\n🔧 Creating emotion mapping...")
 
 # GoEmotions to Journal emotion mapping
 emotion_mapping = {
@@ -200,7 +213,7 @@ emotion_mapping = {
 print(f"✅ Created mapping with {len(emotion_mapping)} emotions")
 
 # Step 4: Load and prepare data with mapping
-print("\\n📊 Loading and preparing data with mapping...")
+print("\n📊 Loading and preparing data with mapping...")
 
 go_emotions = load_dataset("go_emotions", "simplified")
 with open('data/journal_test_dataset.json', 'r') as f:
@@ -328,7 +341,7 @@ class SimpleEmotionClassifier(nn.Module):
         return logits
 
 # Step 7: Setup training
-print("\\n🚀 Setting up training...")
+print("\n🚀 Setting up training...")
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"✅ Using device: {device}")
@@ -360,7 +373,7 @@ print(f"✅ Training samples: {len(go_dataset)} GoEmotions + {len(journal_train_
 print(f"✅ Validation samples: {len(journal_val_dataset)} Journal")
 
 # Step 8: Training loop
-print("\\n🚀 Starting training...")
+print("\n🚀 Starting training...")
 
 optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
 criterion = nn.CrossEntropyLoss()
@@ -369,7 +382,7 @@ num_epochs = 3  # Reduced for testing
 best_f1 = 0.0
 
 for epoch in range(num_epochs):
-    print(f"\\n🔄 Epoch {epoch + 1}/{num_epochs}")
+    print(f"\n🔄 Epoch {epoch + 1}/{num_epochs}")
     
     # Training
     model.train()
@@ -484,7 +497,7 @@ for epoch in range(num_epochs):
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
 
-print(f"\\n🏆 Training completed! Best F1 Score: {best_f1:.4f}")
+print(f"\n🏆 Training completed! Best F1 Score: {best_f1:.4f}")
 
 # Step 9: Save results
 results = {
@@ -499,7 +512,7 @@ results = {
 with open('simple_training_results.json', 'w') as f:
     json.dump(results, f, indent=2)
 
-print("\\n✅ Training completed successfully!")
+print("\n✅ Training completed successfully!")
 print(f"📊 Final F1 Score: {best_f1:.4f}")
 print(f"🎯 Target Met: {'✅' if best_f1 >= 0.7 else '❌'}")
 
@@ -508,7 +521,7 @@ from google.colab import files
 files.download('best_simple_model.pth')
 files.download('simple_training_results.json')
 
-print("\\n🎉 BULLETPROOF TRAINING COMPLETED!")
+print("\n🎉 BULLETPROOF TRAINING COMPLETED!")
 print("📁 Files downloaded: best_simple_model.pth, simple_training_results.json")'''
     
     # Write to file
