@@ -131,6 +131,7 @@ if journal_label_range[0] < expected_range[0] or journal_label_range[1] > expect
 
 print("✅ All labels within expected range")
 
+
 # Step 5: Create simple dataset class
 class SimpleEmotionDataset(Dataset):
     def __init__(self, texts, y_labels, hf_tokenizer, max_length=128):
@@ -178,6 +179,7 @@ class SimpleEmotionDataset(Dataset):
             'labels': torch.tensor(lbl, dtype=torch.long)
         }
 
+
 # Step 6: Create simple model
 class SimpleEmotionClassifier(nn.Module):
     def __init__(self, model_name="bert-base-uncased", n_labels=None, num_labels=None):
@@ -223,6 +225,7 @@ class SimpleEmotionClassifier(nn.Module):
             )
 
         return logits
+
 
 # Step 7: Setup training
 print("\n🚀 Setting up training...")

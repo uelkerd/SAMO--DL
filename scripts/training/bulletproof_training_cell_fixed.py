@@ -139,6 +139,7 @@ journal_label_ids = [label_to_id[label] for label in journal_labels]
 print(f"📊 GoEmotions label range: {min(go_label_ids)} to {max(go_label_ids)}")
 print(f"📊 Journal label range: {min(journal_label_ids)} to {max(journal_label_ids)}")
 
+
 # Step 5: Create simple dataset class
 class SimpleEmotionDataset(Dataset):
     def __init__(self, texts, y_labels, hf_tokenizer, max_length=128):
@@ -183,6 +184,7 @@ class SimpleEmotionDataset(Dataset):
             'attention_mask': encoding['attention_mask'].flatten(),
             'labels': torch.tensor(lbl, dtype=torch.long)
         }
+
 
 # Step 6: Create simple model
 class SimpleEmotionClassifier(nn.Module):
@@ -229,6 +231,7 @@ class SimpleEmotionClassifier(nn.Module):
             )
 
         return logits
+
 
 # Step 7: Setup training
 print("\n🚀 Setting up training...")
