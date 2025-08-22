@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
 
+
 def debug_rate_limiter():
     """Debug the rate limiter behavior."""
     print("🔍 Debugging Rate Limiter Issue")
@@ -50,6 +51,7 @@ def debug_rate_limiter():
 
     # Check request history
     print(f"Request history: {list(rate_limiter.request_history[client_key])}")
+
 
 if __name__ == "__main__":
     debug_rate_limiter() 
