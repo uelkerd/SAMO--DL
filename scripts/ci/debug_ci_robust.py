@@ -2,6 +2,7 @@
 
 
 def main() -> int:
+    """Entrypoint for CI diagnostics stub; returns 0 to indicate success."""
     return 0
 
 

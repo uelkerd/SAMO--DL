@@ -6,7 +6,6 @@
 - Configurable via configs/repo_inventory.json and CLI flags
 """
 import os
-import sys
 import json
 import argparse
 import subprocess

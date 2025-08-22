@@ -17,6 +17,7 @@ SPLIT = os.getenv("SPLIT", "validation")  # validation | test | train
 
 
 def norm(s: str) -> str:
+    """Normalize label strings to snake_case for consistent matching."""
     return str(s).strip().lower().replace(" ", "_").replace("-", "_")
 
 
@@ -103,6 +104,7 @@ kept_ds_pos = {ds_idx: pos for pos, ds_idx in enumerate(kept_ds_indices)}
 
 # 5) Build multi-hot ground truth in model-space order (kept labels only)
 def to_multihot(example):
+    """Attach a multi-hot vector 'y' in kept-label order to each example."""
     y = np.zeros(D, dtype=np.int64)
     for ds_idx in example["labels"]:
         pos = kept_ds_pos.get(ds_idx)
@@ -117,6 +119,7 @@ val = val.map(to_multihot)
 
 # 6) Batched inference (full probs), then slice to kept_model_indices
 def predict_probs(batch_texts):
+    """Return model probabilities for a batch of texts as a NumPy array."""
     enc = tok(
         batch_texts,
         padding=True,
@@ -145,6 +148,7 @@ all_probs = all_probs_full[:, kept_model_indices]  # shape (N, D)
 
 
 def evaluate(th):
+    """Compute macro/micro F1 and subset accuracy at threshold th."""
     pred = (all_probs >= th).astype(int)
     macro = f1_score(all_true, pred, average="macro", zero_division=0)
     micro = f1_score(all_true, pred, average="micro", zero_division=0)
