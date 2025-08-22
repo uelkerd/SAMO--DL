@@ -75,13 +75,13 @@ def list_all_files() -> List[Path]:
             p = Path(dirpath) / fname
             try:
                 rel_parts = p.relative_to(ROOT).parts
-            except (ValueError, RuntimeError):
+            except ValueError:
                 continue
             if any(part in IGNORES for part in rel_parts):
                 continue
+            # Include regular files and symlinks-to-files; skip vanished/dirs
             try:
-                # Include regular files and symlinks; skip vanished entries
-                if p.is_file() or p.is_symlink():
+                if p.is_file() or (p.is_symlink() and p.exists() and p.resolve().is_file()):
                     files.append(p)
             except OSError:
                 continue
@@ -106,30 +106,30 @@ def gather_metadata(p: Path) -> Dict[str, Any]:
     }
 
 
-def gather_top_level() -> Dict[str, Any]:
-    """Summarize first-level entries under repo root with approximate sizes."""
-    top = {}
+def gather_top_level(files_meta: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Summarize first-level entries under repo root with sizes aggregated from files_meta."""
+    # Initialize entries and types from a shallow scan
+    top: Dict[str, Dict[str, Any]] = {}
     for entry in ROOT.iterdir():
         if entry.name in IGNORES:
             continue
         try:
-            if entry.is_dir():
-                size = 0
-                for dp, dn, fn in os.walk(entry):
-                    dn[:] = [d for d in dn if d not in IGNORES]
-                    for f in fn:
-                        fp = Path(dp) / f
-                        with suppress(OSError):
-                            size += fp.stat().st_size
-                top[entry.name] = {"type": "dir", "size_bytes": size}
-            else:
-                top[entry.name] = {
-                    "type": "file",
-                    "size_bytes": entry.stat().st_size,
-                }
+            etype = "dir" if entry.is_dir() else "file"
         except OSError:
-            # Best effort
-            top[entry.name] = {"type": "unknown", "size_bytes": 0}
+            etype = "unknown"
+        top[entry.name] = {"type": etype, "size_bytes": 0}
+
+    # Aggregate sizes by first path segment from files_meta
+    for fm in files_meta:
+        parts = Path(fm["path"]).parts
+        if not parts:
+            continue
+        first = parts[0]
+        if first in IGNORES:
+            continue
+        bucket = top.setdefault(first, {"type": "dir", "size_bytes": 0})
+        bucket["size_bytes"] += int(fm.get("size_bytes", 0))
+
     return top
 
 
@@ -221,7 +221,7 @@ def main() -> int:
     files_meta = [gather_metadata(p) for p in all_files]
     files_meta.sort(key=lambda x: (-x["size_bytes"], x["path"]))
 
-    top_level = gather_top_level()
+    top_level = gather_top_level(files_meta)
 
     candidates = args.candidates
     refs = find_references(candidates)
@@ -247,6 +247,7 @@ def main() -> int:
 
     # Allow overriding report path
     report_path = Path(args.report)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2))
     print(f"Wrote inventory report to {report_path}")
     return 0

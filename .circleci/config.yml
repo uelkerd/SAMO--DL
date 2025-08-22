@@ -105,7 +105,9 @@ jobs:
     working_directory: ~/samo-dl
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: true
       - run:
           name: Verify Docker and print version
           command: |
@@ -113,15 +115,25 @@ jobs:
       - run:
           name: Build minimal image
           command: |
-            docker build -f deployment/docker/Dockerfile.consolidated -t samo-dl-minimal .
+            DOCKER_BUILDKIT=1 docker build \
+              --pull \
+              --progress=plain \
+              -f deployment/docker/Dockerfile.consolidated \
+              -t samo-dl-minimal:${CIRCLE_SHA1:0:7} \
+              -t samo-dl-minimal:latest \
+              .
       - run:
           name: Build unified image (with ML)
           command: |
-            docker build \
+            DOCKER_BUILDKIT=1 docker build \
               --build-arg BUILD_TYPE=unified \
               --build-arg INCLUDE_ML=true \
+              --pull \
+              --progress=plain \
               -f deployment/docker/Dockerfile.consolidated \
-              -t samo-dl-unified .
+              -t samo-dl-unified:${CIRCLE_SHA1:0:7} \
+              -t samo-dl-unified:latest \
+              .
 
 workflows:
   simple-ci:
