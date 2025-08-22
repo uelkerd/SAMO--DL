@@ -29,8 +29,8 @@ repos:
         language_version: python3
         args: [--line-length=88, --target-version=py38]
         types: [python]
-        exclude: |
-          (?x)^(\.git|\.venv|\.env|__pycache__|\.pytest_cache|\.mypy_cache|\.ruff_cache|build|dist|\.eggs|\.tox|\.coverage|htmlcov|\.cache|\.logs|results|samples|notebooks|website|docs/diagrams)$
+        exclude:
+          - "^(?x)(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)$"
 
   # Import sorting and organization
   - repo: https://github.com/pycqa/isort
@@ -39,29 +39,8 @@ repos:
       - id: isort
         args: [--profile=black, --line-length=88, --py=38]
         types: [python]
-        exclude: |
-          (?x)^(
-              \.git|
-              \.venv|
-              \.env|
-              __pycache__|
-              \.pytest_cache|
-              \.mypy_cache|
-              \.ruff_cache|
-              build|
-              dist|
-              \.eggs|
-              \.tox|
-              \.coverage|
-              htmlcov|
-              \.cache|
-              \.logs|
-              results|
-              samples|
-              notebooks|
-              website|
-              docs/diagrams
-          )$
+        exclude:
+          - "^(?x)(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)$"
 
   # Python linting with Ruff (super fast)
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -70,29 +49,8 @@ repos:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
         types: [python]
-        exclude: |
-          (?x)^(
-              \.git|
-              \.venv|
-              \.env|
-              __pycache__|
-              \.pytest_cache|
-              \.mypy_cache|
-              \.ruff_cache|
-              build|
-              dist|
-              \.eggs|
-              \.tox|
-              \.coverage|
-              htmlcov|
-              \.cache|
-              \.logs|
-              results|
-              samples|
-              notebooks|
-              website|
-              docs/diagrams
-          )$
+        exclude:
+          - "^(?x)(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)$"
 
   # Type checking with MyPy
   - repo: https://github.com/pre-commit/mirrors-mypy

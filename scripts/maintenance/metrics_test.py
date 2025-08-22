@@ -15,12 +15,19 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BATCH = int(os.getenv("BATCH_SIZE", "32"))
 SPLIT = os.getenv("SPLIT", "validation")  # validation | test | train
 
+
 def norm(s: str) -> str:
+    """Normalize label strings to snake_case for consistent matching."""
     return str(s).strip().lower().replace(" ", "_").replace("-", "_")
+
 
 # 1) Load model + tokenizer (private repos require token)
 tok = AutoTokenizer.from_pretrained(MODEL_ID, use_fast=True, token=TOKEN)
-mdl = AutoModelForSequenceClassification.from_pretrained(MODEL_ID, token=TOKEN).to(DEVICE).eval()
+mdl = (
+    AutoModelForSequenceClassification.from_pretrained(MODEL_ID, token=TOKEN)
+    .to(DEVICE)
+    .eval()
+)
 cfg = mdl.config
 num_labels = int(getattr(cfg, "num_labels", len(getattr(cfg, "id2label", {})) or 28))
 
@@ -78,20 +85,26 @@ if mapped_count >= 5:
     kept_model_indices = [ds_to_model[i] for i in kept_ds_indices]
 else:
     if num_labels == len(ds_names):
-        print("Low mapping coverage; falling back to identity mapping (assumes same order).")
+        print(
+            "Low mapping coverage; identity mapping (assumes same order)."
+        )
         kept_ds_indices = list(range(num_labels))
         kept_model_indices = list(range(num_labels))
     else:
         m = min(num_labels, len(ds_names))
-        print(f"Low mapping coverage; evaluating on min-dim identity mapping ({m} labels).")
+        print(
+            f"Low mapping coverage; min-dim identity mapping ({m} labels)."
+        )
         kept_ds_indices = list(range(m))
         kept_model_indices = list(range(m))
 
 D = len(kept_ds_indices)
 kept_ds_pos = {ds_idx: pos for pos, ds_idx in enumerate(kept_ds_indices)}
 
+
 # 5) Build multi-hot ground truth in model-space order (kept labels only)
 def to_multihot(example):
+    """Attach a multi-hot vector 'y' in kept-label order to each example."""
     y = np.zeros(D, dtype=np.int64)
     for ds_idx in example["labels"]:
         pos = kept_ds_pos.get(ds_idx)
@@ -100,22 +113,32 @@ def to_multihot(example):
     example["y"] = y
     return example
 
+
 val = val.map(to_multihot)
+
 
 # 6) Batched inference (full probs), then slice to kept_model_indices
 def predict_probs(batch_texts):
-    enc = tok(batch_texts, padding=True, truncation=True, max_length=512, return_tensors="pt")
+    """Return model probabilities for a batch of texts as a NumPy array."""
+    enc = tok(
+        batch_texts,
+        padding=True,
+        truncation=True,
+        max_length=512,
+        return_tensors="pt",
+    )
     enc = {k: v.to(DEVICE) for k, v in enc.items()}
-    with torch.no_grad():
-        logits = mdl(**enc).logits
-        probs = torch.sigmoid(logits).cpu().numpy()   # (B, num_labels)
-    return probs
+    with torch.inference_mode():
+        batch_logits = mdl(**enc).logits
+        probs_array = torch.sigmoid(batch_logits).cpu().numpy()  # (B, num_labels)
+    return probs_array
+
 
 all_probs_full, all_true = [], []
 for i in tqdm(range(0, len(val), BATCH)):
-    batch = val[i:i+BATCH]
-    probs = predict_probs(batch["text"])
-    all_probs_full.append(probs)
+    batch = val[i:i + BATCH]
+    batch_probs = predict_probs(batch["text"])  # predictions for this batch
+    all_probs_full.append(batch_probs)
     all_true.append(np.stack(batch["y"]))
 all_probs_full = np.concatenate(all_probs_full, axis=0)
 all_true = np.concatenate(all_true, axis=0)
@@ -123,12 +146,15 @@ all_true = np.concatenate(all_true, axis=0)
 # Slice predictions to kept labels
 all_probs = all_probs_full[:, kept_model_indices]  # shape (N, D)
 
+
 def evaluate(th):
+    """Compute macro/micro F1 and subset accuracy at threshold th."""
     pred = (all_probs >= th).astype(int)
     macro = f1_score(all_true, pred, average="macro", zero_division=0)
     micro = f1_score(all_true, pred, average="micro", zero_division=0)
     subset_acc = accuracy_score(all_true, pred)
     return macro, micro, subset_acc
+
 
 # 7) Report default and tuned thresholds
 m05, mi05, a05 = evaluate(0.50)
