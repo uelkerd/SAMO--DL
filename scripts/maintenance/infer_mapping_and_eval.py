@@ -48,13 +48,14 @@ def predict_probs(texts):
 
 P_chunks = []
 for i in tqdm(range(0, len(ds), BATCH)):
-    P_chunks.append(predict_probs(ds[i:i+BATCH]["text"]))
+    P_chunks.append(predict_probs(ds[i:i + BATCH]["text"]))
 P = np.concatenate(P_chunks, axis=0)  # (N, num_labels)
 
 # Correlation matrix C between model heads and dataset labels
 def safe_corr(a, b):
     sa, sb = a.std(), b.std()
-    if sa == 0 or sb == 0: return 0.0
+    if sa == 0 or sb == 0:
+        return 0.0
     return float(np.corrcoef(a, b)[0, 1])
 
 M, K = num_labels, len(ds_names)
@@ -70,7 +71,7 @@ mapping = list(zip(rows.tolist(), cols.tolist()))  # (model_idx -> ds_label_idx)
 
 print("Inferred mapping (model_idx -> goemotions_label, corr):")
 for mi, dj in mapping:
-    print(f"{mi:2d} -> {ds_names[dj]:<15s} (corr={C[mi,dj]:.3f})")
+    print(f"{mi:2d} -> {ds_names[dj]:<15s} (corr={C[mi, dj]:.3f})")
 
 # Evaluate with mapped columns
 keep_model = [mi for mi, _ in mapping]
