@@ -1,57 +1,30 @@
 {
   "root": "/workspace",
+  "generated_at_utc": "2025-08-22T20:18:07Z",
   "top_level_summary": {
-    "requirements-dev.txt": {
-      "type": "file",
-      "size_bytes": 764
-    },
-    "debug_rate_limiter.py": {
-      "type": "file",
-      "size_bytes": 2230
+    "dependencies": {
+      "type": "dir",
+      "size_bytes": 6968
     },
     "scripts": {
       "type": "dir",
-      "size_bytes": 4103966
-    },
-    "index.html": {
-      "type": "file",
-      "size_bytes": 31756
+      "size_bytes": 4124003
     },
     "CONTRIBUTING.md": {
       "type": "file",
       "size_bytes": 12091
     },
-    "metrics-test.py": {
-      "type": "file",
-      "size_bytes": 5393
-    },
-    "requirements.txt": {
-      "type": "file",
-      "size_bytes": 448
-    },
     ".pre-commit-config.yaml": {
       "type": "file",
       "size_bytes": 7690
     },
-    "results": {
-      "type": "dir",
-      "size_bytes": 6463
-    },
     "src": {
       "type": "dir",
-      "size_bytes": 1369518
-    },
-    "integration.html": {
-      "type": "file",
-      "size_bytes": 52576
-    },
-    "demo.html": {
-      "type": "file",
-      "size_bytes": 40749
+      "size_bytes": 1369797
     },
     "configs": {
       "type": "dir",
-      "size_bytes": 6750
+      "size_bytes": 7105
     },
     "prisma": {
       "type": "dir",
@@ -67,10 +40,6 @@
     },
     "test_reports": {
       "type": "dir",
-      "size_bytes": 36804
-    },
-    "test_report.txt": {
-      "type": "file",
       "size_bytes": 0
     },
     ".gitattributes": {
@@ -83,19 +52,11 @@
     },
     ".github": {
       "type": "dir",
-      "size_bytes": 4282
+      "size_bytes": 9647
     },
     ".nojekyll": {
       "type": "file",
       "size_bytes": 0
-    },
-    "debug_ci_robust.py": {
-      "type": "file",
-      "size_bytes": 1
-    },
-    "requirements-audio.txt": {
-      "type": "file",
-      "size_bytes": 685
     },
     "tests": {
       "type": "dir",
@@ -123,11 +84,7 @@
     },
     "docs": {
       "type": "dir",
-      "size_bytes": 1412860
-    },
-    "requirements-api.txt": {
-      "type": "file",
-      "size_bytes": 662
+      "size_bytes": 1611805
     },
     "logs": {
       "type": "dir",
@@ -135,19 +92,7 @@
     },
     ".gitignore": {
       "type": "file",
-      "size_bytes": 5944
-    },
-    "secure_api_server.log": {
-      "type": "file",
-      "size_bytes": 0
-    },
-    "ci_pipeline.log": {
-      "type": "file",
-      "size_bytes": 148685
-    },
-    "requirements-ml.txt": {
-      "type": "file",
-      "size_bytes": 812
+      "size_bytes": 5860
     },
     ".secrets.baseline": {
       "type": "file",
@@ -159,7 +104,7 @@
     },
     "website": {
       "type": "dir",
-      "size_bytes": 258446
+      "size_bytes": 184630
     },
     "README.md": {
       "type": "file",
@@ -167,7 +112,7 @@
     },
     ".deepsource.toml": {
       "type": "file",
-      "size_bytes": 256
+      "size_bytes": 298
     },
     "CHANGELOG.md": {
       "type": "file",
@@ -185,14 +130,6 @@
       "type": "file",
       "size_bytes": 12970
     },
-    "infer_mapping_and_eval.py": {
-      "type": "file",
-      "size_bytes": 4202
-    },
-    "bandit-report.json": {
-      "type": "file",
-      "size_bytes": 599445
-    },
     "environment.yml": {
       "type": "file",
       "size_bytes": 805
@@ -201,48 +138,32 @@
       "type": "file",
       "size_bytes": 1875
     },
-    "constraints.txt": {
-      "type": "file",
-      "size_bytes": 1295
-    },
     ".circleci": {
       "type": "dir",
-      "size_bytes": 4202
+      "size_bytes": 5660
     },
     "docker": {
       "type": "dir",
-      "size_bytes": 3613
-    },
-    "PR_DESCRIPTION.md": {
-      "type": "file",
-      "size_bytes": 5365
-    },
-    "patch_config_and_upload.py": {
-      "type": "file",
-      "size_bytes": 2419
+      "size_bytes": 0
     },
     "notebooks": {
       "type": "dir",
       "size_bytes": 1135125
     },
-    "debug_ci_timing.py": {
+    ".dockerignore": {
       "type": "file",
-      "size_bytes": 1
+      "size_bytes": 138
     },
     "deployment": {
       "type": "dir",
-      "size_bytes": 259625
+      "size_bytes": 261021
     }
   },
+  "file_inventory_cap": 2000,
   "file_inventory": [
     {
       "path": "SAMO_Voice_First_Development.ipynb",
       "size_bytes": 2397476,
-      "is_tracked": true
-    },
-    {
-      "path": "bandit-report.json",
-      "size_bytes": 599445,
       "is_tracked": true
     },
     {
@@ -253,11 +174,6 @@
     {
       "path": "notebooks/legacy/FIXED_SPECIALIZED_TRAINING copy.ipynb",
       "size_bytes": 215729,
-      "is_tracked": true
-    },
-    {
-      "path": "ci_pipeline.log",
-      "size_bytes": 148685,
       "is_tracked": true
     },
     {
@@ -291,7 +207,7 @@
       "is_tracked": true
     },
     {
-      "path": "website/comprehensive-demo.html",
+      "path": "docs/site/comprehensive-demo.html",
       "size_bytes": 73816,
       "is_tracked": true
     },
@@ -306,7 +222,7 @@
       "is_tracked": true
     },
     {
-      "path": "integration.html",
+      "path": "docs/site/integration.html",
       "size_bytes": 52576,
       "is_tracked": true
     },
@@ -336,7 +252,7 @@
       "is_tracked": true
     },
     {
-      "path": "demo.html",
+      "path": "docs/site/demo.html",
       "size_bytes": 40749,
       "is_tracked": true
     },
@@ -437,12 +353,7 @@
     },
     {
       "path": "docs/SAMO-DL-PRD.md",
-      "size_bytes": 32648,
-      "is_tracked": true
-    },
-    {
-      "path": "test_reports/mega_comprehensive_test_report_20250805_141116.json",
-      "size_bytes": 32348,
+      "size_bytes": 32650,
       "is_tracked": true
     },
     {
@@ -451,7 +362,7 @@
       "is_tracked": true
     },
     {
-      "path": "index.html",
+      "path": "docs/site/index.html",
       "size_bytes": 31756,
       "is_tracked": true
     },
@@ -1522,7 +1433,7 @@
     },
     {
       "path": "docs/summaries/phase3-cloud-run-optimization-summary.md",
-      "size_bytes": 11737,
+      "size_bytes": 11729,
       "is_tracked": true
     },
     {
@@ -1897,7 +1808,7 @@
     },
     {
       "path": "docs/summaries/security-deployment-fix-summary.md",
-      "size_bytes": 9385,
+      "size_bytes": 9377,
       "is_tracked": true
     },
     {
@@ -1927,7 +1838,7 @@
     },
     {
       "path": "docs/summaries/code-review-fixes-summary.md",
-      "size_bytes": 9207,
+      "size_bytes": 9199,
       "is_tracked": true
     },
     {
@@ -2108,6 +2019,11 @@
     {
       "path": "docs/summaries/pr4-documentation-security-enhancements-summary.md",
       "size_bytes": 7997,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/repo_inventory.py",
+      "size_bytes": 7981,
       "is_tracked": true
     },
     {
@@ -2316,6 +2232,11 @@
       "is_tracked": true
     },
     {
+      "path": "docs/summaries/cloud-run-deployment-success-summary.md",
+      "size_bytes": 7390,
+      "is_tracked": true
+    },
+    {
       "path": "scripts/maintenance/fix_remaining_linting.py",
       "size_bytes": 7356,
       "is_tracked": true
@@ -2346,18 +2267,8 @@
       "is_tracked": true
     },
     {
-      "path": "docs/summaries/cloud-run-deployment-success-summary.md",
-      "size_bytes": 7304,
-      "is_tracked": true
-    },
-    {
       "path": "scripts/training/simple_working_training.py",
       "size_bytes": 7300,
-      "is_tracked": true
-    },
-    {
-      "path": "deployment/cloud-run/README-consolidated-dockerfile.md",
-      "size_bytes": 7263,
       "is_tracked": true
     },
     {
@@ -2368,6 +2279,11 @@
     {
       "path": "scripts/deployment/save_trained_model_for_deployment.py",
       "size_bytes": 7243,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/README-consolidated-dockerfile.md",
+      "size_bytes": 7233,
       "is_tracked": true
     },
     {
@@ -2667,7 +2583,7 @@
     },
     {
       "path": "docs/summaries/WEBSITE_LAUNCH_SUMMARY.md",
-      "size_bytes": 6089,
+      "size_bytes": 6095,
       "is_tracked": true
     },
     {
@@ -2721,11 +2637,6 @@
       "is_tracked": true
     },
     {
-      "path": ".gitignore",
-      "size_bytes": 5944,
-      "is_tracked": true
-    },
-    {
       "path": "scripts/training/fix_preprocessing_in_notebook.py",
       "size_bytes": 5924,
       "is_tracked": true
@@ -2741,8 +2652,18 @@
       "is_tracked": true
     },
     {
+      "path": ".gitignore",
+      "size_bytes": 5860,
+      "is_tracked": true
+    },
+    {
       "path": "scripts/deployment/convert_model_to_onnx.py",
       "size_bytes": 5858,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/metrics_test.py",
+      "size_bytes": 5851,
       "is_tracked": true
     },
     {
@@ -2811,6 +2732,11 @@
       "is_tracked": true
     },
     {
+      "path": ".circleci/config.yml",
+      "size_bytes": 5660,
+      "is_tracked": true
+    },
+    {
       "path": "scripts/testing/test_local_inference.py",
       "size_bytes": 5653,
       "is_tracked": true
@@ -2818,6 +2744,11 @@
     {
       "path": "scripts/deployment/convert_model_to_onnx_simple.py",
       "size_bytes": 5629,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/docker/Dockerfile.consolidated",
+      "size_bytes": 5623,
       "is_tracked": true
     },
     {
@@ -2838,11 +2769,6 @@
     {
       "path": "tests/unit/test_validation.py.backup",
       "size_bytes": 5537,
-      "is_tracked": true
-    },
-    {
-      "path": "deployment/cloud-run/Dockerfile.consolidated",
-      "size_bytes": 5526,
       "is_tracked": true
     },
     {
@@ -2901,17 +2827,12 @@
       "is_tracked": true
     },
     {
-      "path": "metrics-test.py",
-      "size_bytes": 5393,
-      "is_tracked": true
-    },
-    {
       "path": "scripts/ci/model_compression_test.py.backup",
       "size_bytes": 5371,
       "is_tracked": true
     },
     {
-      "path": "PR_DESCRIPTION.md",
+      "path": ".github/PULL_REQUEST_TEMPLATE.md",
       "size_bytes": 5365,
       "is_tracked": true
     },
@@ -3086,11 +3007,6 @@
       "is_tracked": true
     },
     {
-      "path": "scripts/maintenance/repo_inventory.py",
-      "size_bytes": 4863,
-      "is_tracked": false
-    },
-    {
       "path": "scripts/training/improve_expanded_training_notebook.py",
       "size_bytes": 4862,
       "is_tracked": true
@@ -3112,7 +3028,7 @@
     },
     {
       "path": "docs/summaries/simple-tokenizer-fix-summary.md",
-      "size_bytes": 4804,
+      "size_bytes": 4796,
       "is_tracked": true
     },
     {
@@ -3121,13 +3037,8 @@
       "is_tracked": true
     },
     {
-      "path": "results/package-lock.json",
-      "size_bytes": 4760,
-      "is_tracked": true
-    },
-    {
       "path": "deployment/cloud-run/deploy_production.sh",
-      "size_bytes": 4757,
+      "size_bytes": 4775,
       "is_tracked": true
     },
     {
@@ -3226,11 +3137,6 @@
       "is_tracked": true
     },
     {
-      "path": "test_reports/cloud_run_api_test_results.json",
-      "size_bytes": 4456,
-      "is_tracked": true
-    },
-    {
       "path": "scripts/deployment/install_miniforge.sh",
       "size_bytes": 4455,
       "is_tracked": true
@@ -3238,6 +3144,11 @@
     {
       "path": "scripts/ci/api_health_check.py.backup",
       "size_bytes": 4449,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/infer_mapping_and_eval.py",
+      "size_bytes": 4445,
       "is_tracked": true
     },
     {
@@ -3256,13 +3167,13 @@
       "is_tracked": true
     },
     {
-      "path": "docs/reports/PR_BREAKDOWN_STRATEGY.md",
-      "size_bytes": 4280,
+      "path": "scripts/training/validate_improved_notebook.py",
+      "size_bytes": 4265,
       "is_tracked": true
     },
     {
-      "path": "scripts/training/validate_improved_notebook.py",
-      "size_bytes": 4265,
+      "path": "docs/reports/PR_BREAKDOWN_STRATEGY.md",
+      "size_bytes": 4264,
       "is_tracked": true
     },
     {
@@ -3291,17 +3202,7 @@
       "is_tracked": true
     },
     {
-      "path": ".circleci/config.yml",
-      "size_bytes": 4202,
-      "is_tracked": true
-    },
-    {
       "path": "PYTHON38_COMPATIBILITY_PR.md",
-      "size_bytes": 4202,
-      "is_tracked": true
-    },
-    {
-      "path": "infer_mapping_and_eval.py",
       "size_bytes": 4202,
       "is_tracked": true
     },
@@ -3337,7 +3238,7 @@
     },
     {
       "path": "docs/guides/GITHUB_PAGES_DEPLOYMENT.md",
-      "size_bytes": 4084,
+      "size_bytes": 4086,
       "is_tracked": true
     },
     {
@@ -3661,6 +3562,11 @@
       "is_tracked": true
     },
     {
+      "path": "scripts/deployment/patch_config_and_upload.py",
+      "size_bytes": 3099,
+      "is_tracked": true
+    },
+    {
       "path": "scripts/testing/simple_threshold_test.py",
       "size_bytes": 3069,
       "is_tracked": true
@@ -3688,6 +3594,11 @@
     {
       "path": "deployment/api_server.py",
       "size_bytes": 2965,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/create_focused_prs.sh",
+      "size_bytes": 2953,
       "is_tracked": true
     },
     {
@@ -3723,6 +3634,11 @@
     {
       "path": "scripts/setup-pre-commit.sh",
       "size_bytes": 2858,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/debug_rate_limiter.py",
+      "size_bytes": 2854,
       "is_tracked": true
     },
     {
@@ -3801,11 +3717,6 @@
       "is_tracked": true
     },
     {
-      "path": "scripts/create_focused_prs.sh",
-      "size_bytes": 2663,
-      "is_tracked": true
-    },
-    {
       "path": "scripts/maintenance/fix_import_paths.py",
       "size_bytes": 2636,
       "is_tracked": true
@@ -3843,11 +3754,6 @@
     {
       "path": "scripts/deployment/hf_upload/config_update.py",
       "size_bytes": 2429,
-      "is_tracked": true
-    },
-    {
-      "path": "patch_config_and_upload.py",
-      "size_bytes": 2419,
       "is_tracked": true
     },
     {
@@ -3893,11 +3799,6 @@
     {
       "path": "scripts/testing/check_model_health.py",
       "size_bytes": 2232,
-      "is_tracked": true
-    },
-    {
-      "path": "debug_rate_limiter.py",
-      "size_bytes": 2230,
       "is_tracked": true
     },
     {
@@ -3961,7 +3862,7 @@
       "is_tracked": true
     },
     {
-      "path": "docker/Dockerfile.prod",
+      "path": "deployment/docker/Dockerfile.prod",
       "size_bytes": 2071,
       "is_tracked": true
     },
@@ -4136,7 +4037,7 @@
       "is_tracked": true
     },
     {
-      "path": "deployment/gcp/Dockerfile",
+      "path": "deployment/docker/Dockerfile.gcp",
       "size_bytes": 1697,
       "is_tracked": true
     },
@@ -4186,7 +4087,7 @@
       "is_tracked": true
     },
     {
-      "path": "docker/vertex_ai_training.Dockerfile",
+      "path": "deployment/docker/vertex_ai_training.Dockerfile",
       "size_bytes": 1542,
       "is_tracked": true
     },
@@ -4196,7 +4097,7 @@
       "is_tracked": true
     },
     {
-      "path": "deployment/cloud-run/Dockerfile.emotion_arch_fixed",
+      "path": "deployment/docker/Dockerfile.emotion_arch_fixed",
       "size_bytes": 1514,
       "is_tracked": true
     },
@@ -4251,7 +4152,7 @@
       "is_tracked": true
     },
     {
-      "path": "constraints.txt",
+      "path": "dependencies/constraints.txt",
       "size_bytes": 1295,
       "is_tracked": true
     },
@@ -4326,11 +4227,6 @@
       "is_tracked": true
     },
     {
-      "path": "results/simple_training_results.json",
-      "size_bytes": 1096,
-      "is_tracked": true
-    },
-    {
       "path": "scripts/deployment/deploy_unified_cloud_run.sh",
       "size_bytes": 1096,
       "is_tracked": true
@@ -4351,7 +4247,7 @@
       "is_tracked": true
     },
     {
-      "path": "deployment/cloud-run/Dockerfile.production",
+      "path": "deployment/docker/Dockerfile.production",
       "size_bytes": 1027,
       "is_tracked": true
     },
@@ -4396,7 +4292,7 @@
       "is_tracked": true
     },
     {
-      "path": "requirements-ml.txt",
+      "path": "dependencies/requirements-ml.txt",
       "size_bytes": 812,
       "is_tracked": true
     },
@@ -4406,7 +4302,7 @@
       "is_tracked": true
     },
     {
-      "path": "requirements-dev.txt",
+      "path": "dependencies/requirements-dev.txt",
       "size_bytes": 764,
       "is_tracked": true
     },
@@ -4446,7 +4342,7 @@
       "is_tracked": true
     },
     {
-      "path": "requirements-audio.txt",
+      "path": "dependencies/requirements-audio.txt",
       "size_bytes": 685,
       "is_tracked": true
     },
@@ -4461,7 +4357,7 @@
       "is_tracked": true
     },
     {
-      "path": "requirements-api.txt",
+      "path": "dependencies/requirements-api.txt",
       "size_bytes": 662,
       "is_tracked": true
     },
@@ -4546,7 +4442,7 @@
       "is_tracked": true
     },
     {
-      "path": "deployment/cloud-run/requirements_secure.txt",
+      "path": "dependencies/requirements_secure.txt",
       "size_bytes": 505,
       "is_tracked": true
     },
@@ -4561,17 +4457,12 @@
       "is_tracked": true
     },
     {
-      "path": "results/package.json",
-      "size_bytes": 484,
-      "is_tracked": true
-    },
-    {
       "path": "src/common/env.py",
       "size_bytes": 483,
       "is_tracked": true
     },
     {
-      "path": "deployment/cloud-run/requirements_unified.txt",
+      "path": "dependencies/requirements_unified.txt",
       "size_bytes": 476,
       "is_tracked": true
     },
@@ -4591,7 +4482,7 @@
       "is_tracked": true
     },
     {
-      "path": "requirements.txt",
+      "path": "dependencies/requirements.txt",
       "size_bytes": 448,
       "is_tracked": true
     },
@@ -4606,7 +4497,7 @@
       "is_tracked": true
     },
     {
-      "path": "deployment/cloud-run/requirements_production.txt",
+      "path": "dependencies/requirements_production.txt",
       "size_bytes": 430,
       "is_tracked": true
     },
@@ -4631,8 +4522,13 @@
       "is_tracked": true
     },
     {
-      "path": "deployment/cloud-run/requirements_minimal.txt",
+      "path": "dependencies/requirements_minimal.txt",
       "size_bytes": 358,
+      "is_tracked": true
+    },
+    {
+      "path": "configs/repo_inventory.json",
+      "size_bytes": 355,
       "is_tracked": true
     },
     {
@@ -4676,6 +4572,11 @@
       "is_tracked": true
     },
     {
+      "path": ".deepsource.toml",
+      "size_bytes": 298,
+      "is_tracked": true
+    },
+    {
       "path": "tests/unit/__init__.py.backup",
       "size_bytes": 277,
       "is_tracked": true
@@ -4686,13 +4587,8 @@
       "is_tracked": true
     },
     {
-      "path": "deployment/cloud-run/requirements_onnx.txt",
+      "path": "dependencies/requirements_onnx.txt",
       "size_bytes": 258,
-      "is_tracked": true
-    },
-    {
-      "path": ".deepsource.toml",
-      "size_bytes": 256,
       "is_tracked": true
     },
     {
@@ -4703,6 +4599,11 @@
     {
       "path": "src/models/__pycache__/__init__.cpython-310.pyc",
       "size_bytes": 248,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/debug_ci_robust.py",
+      "size_bytes": 233,
       "is_tracked": true
     },
     {
@@ -4721,7 +4622,7 @@
       "is_tracked": true
     },
     {
-      "path": "deployment/requirements.txt",
+      "path": "dependencies/requirements_deployment.txt",
       "size_bytes": 175,
       "is_tracked": true
     },
@@ -4776,6 +4677,11 @@
       "is_tracked": true
     },
     {
+      "path": ".dockerignore",
+      "size_bytes": 138,
+      "is_tracked": true
+    },
+    {
       "path": "scripts/testing/__pycache__/test_api_startup.cpython-312.pyc",
       "size_bytes": 132,
       "is_tracked": true
@@ -4786,12 +4692,12 @@
       "is_tracked": true
     },
     {
-      "path": "results/focal_training_results.json",
-      "size_bytes": 123,
+      "path": "scripts/ci/debug_ci_timing.py",
+      "size_bytes": 116,
       "is_tracked": true
     },
     {
-      "path": "deployment/gcp/requirements.txt",
+      "path": "dependencies/requirements_gcp.txt",
       "size_bytes": 100,
       "is_tracked": true
     },
@@ -4811,8 +4717,18 @@
       "is_tracked": true
     },
     {
+      "path": "src/data/__init__.py",
+      "size_bytes": 77,
+      "is_tracked": true
+    },
+    {
       "path": "docs/summaries/README.md",
       "size_bytes": 60,
+      "is_tracked": true
+    },
+    {
+      "path": "src/security/__init__.py",
+      "size_bytes": 57,
       "is_tracked": true
     },
     {
@@ -4821,7 +4737,17 @@
       "is_tracked": true
     },
     {
+      "path": "src/monitoring/__init__.py",
+      "size_bytes": 49,
+      "is_tracked": true
+    },
+    {
       "path": "scripts/deployment/hf_upload/templates/requirements_model.txt.tmpl",
+      "size_bytes": 47,
+      "is_tracked": true
+    },
+    {
+      "path": "src/common/__init__.py",
       "size_bytes": 47,
       "is_tracked": true
     },
@@ -4856,18 +4782,23 @@
       "is_tracked": true
     },
     {
+      "path": "scripts/ci/__init__.py",
+      "size_bytes": 31,
+      "is_tracked": true
+    },
+    {
+      "path": "src/evaluation/__init__.py",
+      "size_bytes": 25,
+      "is_tracked": true
+    },
+    {
+      "path": "src/inference/__init__.py",
+      "size_bytes": 24,
+      "is_tracked": true
+    },
+    {
       "path": ".gitignore-pages",
       "size_bytes": 6,
-      "is_tracked": true
-    },
-    {
-      "path": "debug_ci_robust.py",
-      "size_bytes": 1,
-      "is_tracked": true
-    },
-    {
-      "path": "debug_ci_timing.py",
-      "size_bytes": 1,
       "is_tracked": true
     },
     {
@@ -4936,11 +4867,6 @@
       "is_tracked": true
     },
     {
-      "path": "deployment/model",
-      "size_bytes": 0,
-      "is_tracked": false
-    },
-    {
       "path": "docker/.gitkeep",
       "size_bytes": 0,
       "is_tracked": true
@@ -4956,43 +4882,35 @@
       "is_tracked": true
     },
     {
-      "path": "secure_api_server.log",
-      "size_bytes": 0,
-      "is_tracked": true
-    },
-    {
-      "path": "test_report.txt",
-      "size_bytes": 0,
-      "is_tracked": true
-    },
-    {
       "path": "tests/.gitkeep",
       "size_bytes": 0,
       "is_tracked": true
     }
   ],
   "candidates": [
-    "demo.html",
-    "index.html",
-    "integration.html",
-    "test_report.txt",
+    "docs/site/index.html",
+    "docs/site/demo.html",
+    "docs/site/integration.html",
+    "artifacts/test-reports/test_report.txt",
     "website/",
     "logs/",
-    "results/",
-    "PR_DESCRIPTION.md",
-    "bandit-report.json",
-    "ci_pipeline.log"
+    "artifacts/results/",
+    ".github/PULL_REQUEST_TEMPLATE.md",
+    "deprecated/bandit-report.json",
+    "deprecated/ci_pipeline.log"
   ],
   "references": {
-    "demo.html": [],
-    "index.html": [],
-    "integration.html": [],
-    "test_report.txt": [],
+    "docs/site/index.html": [],
+    "docs/site/demo.html": [],
+    "docs/site/integration.html": [],
+    "artifacts/test-reports/test_report.txt": [],
     "website/": [],
     "logs/": [],
-    "results/": [],
-    "PR_DESCRIPTION.md": [],
-    "bandit-report.json": [],
-    "ci_pipeline.log": []
-  }
+    "artifacts/results/": [],
+    ".github/PULL_REQUEST_TEMPLATE.md": [],
+    "deprecated/bandit-report.json": [],
+    "deprecated/ci_pipeline.log": []
+  },
+  "config_path": "/workspace/configs/repo_inventory.json",
+  "git_commit": "bfa1c4315b27561b000b1296ac0cd049f883bc12"
 }
