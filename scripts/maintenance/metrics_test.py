@@ -15,8 +15,10 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BATCH = int(os.getenv("BATCH_SIZE", "32"))
 SPLIT = os.getenv("SPLIT", "validation")  # validation | test | train
 
+
 def norm(s: str) -> str:
     return str(s).strip().lower().replace(" ", "_").replace("-", "_")
+
 
 # 1) Load model + tokenizer (private repos require token)
 tok = AutoTokenizer.from_pretrained(MODEL_ID, use_fast=True, token=TOKEN)
@@ -90,6 +92,7 @@ else:
 D = len(kept_ds_indices)
 kept_ds_pos = {ds_idx: pos for pos, ds_idx in enumerate(kept_ds_indices)}
 
+
 # 5) Build multi-hot ground truth in model-space order (kept labels only)
 def to_multihot(example):
     y = np.zeros(D, dtype=np.int64)
@@ -100,7 +103,9 @@ def to_multihot(example):
     example["y"] = y
     return example
 
+
 val = val.map(to_multihot)
+
 
 # 6) Batched inference (full probs), then slice to kept_model_indices
 def predict_probs(batch_texts):
@@ -110,6 +115,7 @@ def predict_probs(batch_texts):
         logits = mdl(**enc).logits
         batch_probs = torch.sigmoid(logits).cpu().numpy()   # (B, num_labels)
     return batch_probs
+
 
 all_probs_full, all_true = [], []
 for i in tqdm(range(0, len(val), BATCH)):
@@ -123,12 +129,14 @@ all_true = np.concatenate(all_true, axis=0)
 # Slice predictions to kept labels
 all_probs = all_probs_full[:, kept_model_indices]  # shape (N, D)
 
+
 def evaluate(th):
     pred = (all_probs >= th).astype(int)
     macro = f1_score(all_true, pred, average="macro", zero_division=0)
     micro = f1_score(all_true, pred, average="micro", zero_division=0)
     subset_acc = accuracy_score(all_true, pred)
     return macro, micro, subset_acc
+
 
 # 7) Report default and tuned thresholds
 m05, mi05, a05 = evaluate(0.50)

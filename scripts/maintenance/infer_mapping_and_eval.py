@@ -13,8 +13,10 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BATCH = int(os.getenv("BATCH_SIZE", "32"))
 SPLIT = os.getenv("SPLIT", "validation")  # validation | test | train
 
+
 def norm(s: str) -> str:
     return str(s).strip().lower().replace(" ", "_").replace("-", "_")
+
 
 # Load model/tokenizer
 tok = AutoTokenizer.from_pretrained(MODEL_ID, use_fast=True, token=TOKEN)
@@ -37,6 +39,7 @@ for i, labs in enumerate(ds["labels"]):
         if 0 <= j < len(ds_names):
             Y[i, j] = 1
 
+
 # Predict model probabilities P
 def predict_probs(texts):
     enc = tok(texts, padding=True, truncation=True, max_length=512, return_tensors="pt")
@@ -46,10 +49,12 @@ def predict_probs(texts):
         probs = torch.sigmoid(logits).cpu().numpy()
     return probs
 
+
 P_chunks = []
 for i in tqdm(range(0, len(ds), BATCH)):
     P_chunks.append(predict_probs(ds[i:i + BATCH]["text"]))
 P = np.concatenate(P_chunks, axis=0)  # (N, num_labels)
+
 
 # Correlation matrix C between model heads and dataset labels
 def safe_corr(a, b):
@@ -57,6 +62,7 @@ def safe_corr(a, b):
     if sa == 0 or sb == 0:
         return 0.0
     return float(np.corrcoef(a, b)[0, 1])
+
 
 M, K = num_labels, len(ds_names)
 m = min(M, K)
@@ -79,12 +85,14 @@ keep_ds = [dj for _, dj in mapping]
 P_mapped = P[:, keep_model]
 Y_keep = Y[:, keep_ds]
 
+
 def evaluate(th):
     pred = (P_mapped >= th).astype(int)
     macro = f1_score(Y_keep, pred, average="macro", zero_division=0)
     micro = f1_score(Y_keep, pred, average="micro", zero_division=0)
     acc = accuracy_score(Y_keep, pred)  # subset accuracy
     return macro, micro, acc
+
 
 m05, mi05, a05 = evaluate(0.50)
 ths = np.linspace(0.05, 0.6, 12)
