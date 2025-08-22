@@ -105,6 +105,7 @@ jobs:
     working_directory: ~/samo-dl
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Verify Docker and print version
           command: |
