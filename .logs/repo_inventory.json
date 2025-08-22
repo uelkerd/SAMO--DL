@@ -1,0 +1,4998 @@
+{
+  "root": "/workspace",
+  "top_level_summary": {
+    "requirements-dev.txt": {
+      "type": "file",
+      "size_bytes": 764
+    },
+    "debug_rate_limiter.py": {
+      "type": "file",
+      "size_bytes": 2230
+    },
+    "scripts": {
+      "type": "dir",
+      "size_bytes": 4103966
+    },
+    "index.html": {
+      "type": "file",
+      "size_bytes": 31756
+    },
+    "CONTRIBUTING.md": {
+      "type": "file",
+      "size_bytes": 12091
+    },
+    "metrics-test.py": {
+      "type": "file",
+      "size_bytes": 5393
+    },
+    "requirements.txt": {
+      "type": "file",
+      "size_bytes": 448
+    },
+    ".pre-commit-config.yaml": {
+      "type": "file",
+      "size_bytes": 7690
+    },
+    "results": {
+      "type": "dir",
+      "size_bytes": 6463
+    },
+    "src": {
+      "type": "dir",
+      "size_bytes": 1369518
+    },
+    "integration.html": {
+      "type": "file",
+      "size_bytes": 52576
+    },
+    "demo.html": {
+      "type": "file",
+      "size_bytes": 40749
+    },
+    "configs": {
+      "type": "dir",
+      "size_bytes": 6750
+    },
+    "prisma": {
+      "type": "dir",
+      "size_bytes": 5144
+    },
+    ".env.template": {
+      "type": "file",
+      "size_bytes": 1615
+    },
+    "SAMO_Voice_First_Development.ipynb": {
+      "type": "file",
+      "size_bytes": 2397476
+    },
+    "test_reports": {
+      "type": "dir",
+      "size_bytes": 36804
+    },
+    "test_report.txt": {
+      "type": "file",
+      "size_bytes": 0
+    },
+    ".gitattributes": {
+      "type": "file",
+      "size_bytes": 1002
+    },
+    "PYTHON38_COMPATIBILITY_PR.md": {
+      "type": "file",
+      "size_bytes": 4202
+    },
+    ".github": {
+      "type": "dir",
+      "size_bytes": 4282
+    },
+    ".nojekyll": {
+      "type": "file",
+      "size_bytes": 0
+    },
+    "debug_ci_robust.py": {
+      "type": "file",
+      "size_bytes": 1
+    },
+    "requirements-audio.txt": {
+      "type": "file",
+      "size_bytes": 685
+    },
+    "tests": {
+      "type": "dir",
+      "size_bytes": 443111
+    },
+    ".vscode": {
+      "type": "dir",
+      "size_bytes": 1023
+    },
+    "PYTHON38_COMPATIBILITY_PLAN.md": {
+      "type": "file",
+      "size_bytes": 1638
+    },
+    ".coverage": {
+      "type": "file",
+      "size_bytes": 77824
+    },
+    "Home.md": {
+      "type": "file",
+      "size_bytes": 6213
+    },
+    ".pre-commit-exclude-patterns.yaml": {
+      "type": "file",
+      "size_bytes": 537
+    },
+    "docs": {
+      "type": "dir",
+      "size_bytes": 1412860
+    },
+    "requirements-api.txt": {
+      "type": "file",
+      "size_bytes": 662
+    },
+    "logs": {
+      "type": "dir",
+      "size_bytes": 928
+    },
+    ".gitignore": {
+      "type": "file",
+      "size_bytes": 5944
+    },
+    "secure_api_server.log": {
+      "type": "file",
+      "size_bytes": 0
+    },
+    "ci_pipeline.log": {
+      "type": "file",
+      "size_bytes": 148685
+    },
+    "requirements-ml.txt": {
+      "type": "file",
+      "size_bytes": 812
+    },
+    ".secrets.baseline": {
+      "type": "file",
+      "size_bytes": 5552
+    },
+    "QUICK_START.md": {
+      "type": "file",
+      "size_bytes": 6003
+    },
+    "website": {
+      "type": "dir",
+      "size_bytes": 258446
+    },
+    "README.md": {
+      "type": "file",
+      "size_bytes": 11754
+    },
+    ".deepsource.toml": {
+      "type": "file",
+      "size_bytes": 256
+    },
+    "CHANGELOG.md": {
+      "type": "file",
+      "size_bytes": 13356
+    },
+    ".gitignore-pages": {
+      "type": "file",
+      "size_bytes": 6
+    },
+    ".coveragerc": {
+      "type": "file",
+      "size_bytes": 327
+    },
+    "pyproject.toml": {
+      "type": "file",
+      "size_bytes": 12970
+    },
+    "infer_mapping_and_eval.py": {
+      "type": "file",
+      "size_bytes": 4202
+    },
+    "bandit-report.json": {
+      "type": "file",
+      "size_bytes": 599445
+    },
+    "environment.yml": {
+      "type": "file",
+      "size_bytes": 805
+    },
+    ".ruff_summary.md": {
+      "type": "file",
+      "size_bytes": 1875
+    },
+    "constraints.txt": {
+      "type": "file",
+      "size_bytes": 1295
+    },
+    ".circleci": {
+      "type": "dir",
+      "size_bytes": 4202
+    },
+    "docker": {
+      "type": "dir",
+      "size_bytes": 3613
+    },
+    "PR_DESCRIPTION.md": {
+      "type": "file",
+      "size_bytes": 5365
+    },
+    "patch_config_and_upload.py": {
+      "type": "file",
+      "size_bytes": 2419
+    },
+    "notebooks": {
+      "type": "dir",
+      "size_bytes": 1135125
+    },
+    "debug_ci_timing.py": {
+      "type": "file",
+      "size_bytes": 1
+    },
+    "deployment": {
+      "type": "dir",
+      "size_bytes": 259625
+    }
+  },
+  "file_inventory": [
+    {
+      "path": "SAMO_Voice_First_Development.ipynb",
+      "size_bytes": 2397476,
+      "is_tracked": true
+    },
+    {
+      "path": "bandit-report.json",
+      "size_bytes": 599445,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/demos/data_pipeline_demo.ipynb",
+      "size_bytes": 241570,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/legacy/FIXED_SPECIALIZED_TRAINING copy.ipynb",
+      "size_bytes": 215729,
+      "is_tracked": true
+    },
+    {
+      "path": "ci_pipeline.log",
+      "size_bytes": 148685,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/diagrams/Diagram01.svg",
+      "size_bytes": 107288,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/domain_adaptation_gpu_training2.ipynb",
+      "size_bytes": 106625,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/diagrams/Diagram02.svg",
+      "size_bytes": 96393,
+      "is_tracked": true
+    },
+    {
+      "path": "website/integration.html",
+      "size_bytes": 82733,
+      "is_tracked": true
+    },
+    {
+      "path": "src/unified_ai_api.py",
+      "size_bytes": 79539,
+      "is_tracked": true
+    },
+    {
+      "path": ".coverage",
+      "size_bytes": 77824,
+      "is_tracked": true
+    },
+    {
+      "path": "website/comprehensive-demo.html",
+      "size_bytes": 73816,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/guides/vertex_ai_implementation_guide.md",
+      "size_bytes": 67453,
+      "is_tracked": true
+    },
+    {
+      "path": "website/index.html",
+      "size_bytes": 56522,
+      "is_tracked": true
+    },
+    {
+      "path": "integration.html",
+      "size_bytes": 52576,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb",
+      "size_bytes": 51318,
+      "is_tracked": true
+    },
+    {
+      "path": "website/demo.html",
+      "size_bytes": 45375,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/create_improved_expanded_notebook.py",
+      "size_bytes": 44279,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/create_bulletproof_colab_notebook.py",
+      "size_bytes": 42911,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/wiki/UX-Integration-Guide.md",
+      "size_bytes": 42004,
+      "is_tracked": true
+    },
+    {
+      "path": "demo.html",
+      "size_bytes": 40749,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/integration/test_priority1_features.py",
+      "size_bytes": 40492,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb",
+      "size_bytes": 40432,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/create_final_bulletproof_notebook.py",
+      "size_bytes": 39703,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/create_fixed_specialized_training_notebook.py",
+      "size_bytes": 39336,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/create_comprehensive_notebook.py",
+      "size_bytes": 38497,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/create_fixed_notebook.py",
+      "size_bytes": 36669,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb",
+      "size_bytes": 36523,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/wiki/Performance-Guide.md",
+      "size_bytes": 35703,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/create_colab_notebook.py",
+      "size_bytes": 35498,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/wiki/Data-Science-Integration-Guide.md",
+      "size_bytes": 35496,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/expanded_dataset_training_improved.ipynb",
+      "size_bytes": 35170,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/create_model_ensemble_notebook.py",
+      "size_bytes": 34969,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb",
+      "size_bytes": 34305,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/wiki/Security-Guide.md",
+      "size_bytes": 33902,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/wiki/Testing-Framework-Guide.md",
+      "size_bytes": 33745,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/create_colab_expanded_training.py",
+      "size_bytes": 33065,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/mega_comprehensive_model_test.cpython-312.pyc",
+      "size_bytes": 32984,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/expanded_dataset_training_fixed.ipynb",
+      "size_bytes": 32981,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/expanded_dataset_training.ipynb",
+      "size_bytes": 32791,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/SAMO-DL-PRD.md",
+      "size_bytes": 32648,
+      "is_tracked": true
+    },
+    {
+      "path": "test_reports/mega_comprehensive_test_report_20250805_141116.json",
+      "size_bytes": 32348,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/create_colab_expanded_training.cpython-38.pyc",
+      "size_bytes": 32212,
+      "is_tracked": true
+    },
+    {
+      "path": "index.html",
+      "size_bytes": 31756,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/playbooks/MODEL-TRAINING-PLAYBOOK.md",
+      "size_bytes": 31685,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/mega_comprehensive_model_test.py",
+      "size_bytes": 31213,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/legacy/FIXED_SPECIALIZED_TRAINING_CONFIG_PRESERVATION.ipynb",
+      "size_bytes": 30957,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/guides/INTEGRATION_GUIDE.md",
+      "size_bytes": 30951,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/secure_api_server.py",
+      "size_bytes": 30947,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/training_pipeline.cpython-313.pyc",
+      "size_bytes": 30856,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/wiki/System-Architecture.md",
+      "size_bytes": 30775,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/vertex_ai_phase4_automation.py",
+      "size_bytes": 30344,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/wiki/Frontend-Integration-Guide.md",
+      "size_bytes": 29547,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/create_improved_expanded_notebook.cpython-38.pyc",
+      "size_bytes": 29176,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_phase3_cloud_run_optimization.cpython-312.pyc",
+      "size_bytes": 28790,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/training_pipeline.py.backup",
+      "size_bytes": 28564,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/create_bulletproof_colab_notebook.cpython-38.pyc",
+      "size_bytes": 28303,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/comprehensive_domain_adaptation_training.py",
+      "size_bytes": 28261,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/create_corrected_specialized_notebook.py",
+      "size_bytes": 27903,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/create_comprehensive_notebook.cpython-38.pyc",
+      "size_bytes": 27872,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/FINAL_EMOTION_TRAINING_COLAB.ipynb",
+      "size_bytes": 27716,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/expanded_dataset_training_ultimate.ipynb",
+      "size_bytes": 27716,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/create_corrected_specialized_notebook.cpython-38.pyc",
+      "size_bytes": 27587,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/MODEL_ENSEMBLE_TRAINING_COLAB.ipynb",
+      "size_bytes": 26957,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/reports/experimentation_log.md",
+      "size_bytes": 26778,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/create_fixed_specialized_training_notebook.cpython-38.pyc",
+      "size_bytes": 26603,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/create_final_bulletproof_notebook.cpython-38.pyc",
+      "size_bytes": 26200,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/legacy/FIXED_SPECIALIZED_TRAINING.ipynb",
+      "size_bytes": 26177,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_phase4_vertex_ai_automation.cpython-312.pyc",
+      "size_bytes": 26051,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/create_emotion_specialized_notebook.py",
+      "size_bytes": 25424,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/guides/data-documentation-schema-registry.md",
+      "size_bytes": 25233,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/add_comprehensive_features.py",
+      "size_bytes": 25201,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/domain_adaptation_gpu_training.ipynb",
+      "size_bytes": 25198,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/training_pipeline.py",
+      "size_bytes": 25122,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/create_simple_ultimate_notebook.py",
+      "size_bytes": 25100,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/create_ultimate_bulletproof_notebook.py",
+      "size_bytes": 24994,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/wiki/Deployment-Guide.md",
+      "size_bytes": 24765,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/create_fixed_notebook.cpython-38.pyc",
+      "size_bytes": 24663,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/TECH-ARCHITECTURE.md",
+      "size_bytes": 24624,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/add_advanced_features_to_notebook.py",
+      "size_bytes": 24538,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/model_monitoring.py",
+      "size_bytes": 24467,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/model_monitoring.py.backup",
+      "size_bytes": 24467,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_phase3_cloud_run_optimization.py",
+      "size_bytes": 24414,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/expanded_dataset_training_bulletproof.ipynb",
+      "size_bytes": 23922,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/create_fixed_bulletproof_notebook.py",
+      "size_bytes": 23262,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/CODE_STANDARDS.md",
+      "size_bytes": 22895,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/full_scale_focal_training.py.backup",
+      "size_bytes": 22806,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/comprehensive_domain_adaptation_training.cpython-38.pyc",
+      "size_bytes": 22768,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/create_model_ensemble_notebook.cpython-38.pyc",
+      "size_bytes": 22525,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/bert_classifier.py.backup",
+      "size_bytes": 22442,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/create_colab_notebook.cpython-38.pyc",
+      "size_bytes": 22361,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/improve_model_f1.py.backup",
+      "size_bytes": 21905,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/__pycache__/whisper_transcriber.cpython-311.pyc",
+      "size_bytes": 21856,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/experiments/domain_adaptation_working.ipynb",
+      "size_bytes": 21711,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/TESTING_STRATEGY.md",
+      "size_bytes": 21665,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/bert_classifier.cpython-311.pyc",
+      "size_bytes": 21647,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/create_final_colab_notebook.py",
+      "size_bytes": 21624,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/create_fixed_colab_notebook.py",
+      "size_bytes": 21244,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/wiki/API-Reference.md",
+      "size_bytes": 21221,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/complete_simple_notebook.py",
+      "size_bytes": 21126,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/__pycache__/t5_summarizer.cpython-311.pyc",
+      "size_bytes": 20573,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_phase4_vertex_ai_automation.py",
+      "size_bytes": 20420,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_phase3_cloud_run_optimization_fixed.cpython-312.pyc",
+      "size_bytes": 20131,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/api/API_SPECIFICATION.md",
+      "size_bytes": 20122,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/NEXT_STEPS_IMPLEMENTATION_SUMMARY.md",
+      "size_bytes": 20113,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/secure_api_server.py",
+      "size_bytes": 20099,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/__pycache__/api_demo.cpython-313.pyc",
+      "size_bytes": 20008,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/bert_classifier.cpython-312.pyc",
+      "size_bytes": 19946,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/secure_model_loader.cpython-311.pyc",
+      "size_bytes": 19823,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/__pycache__/whisper_transcriber.cpython-313.pyc",
+      "size_bytes": 19740,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/bert_classifier.cpython-313.pyc",
+      "size_bytes": 19570,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/EMOTION_SPECIALIZED_TRAINING_COLAB.ipynb",
+      "size_bytes": 19361,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/colab-gpu-development-guide.md",
+      "size_bytes": 19241,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/training_pipeline.cpython-38.pyc",
+      "size_bytes": 19222,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/__pycache__/t5_summarizer.cpython-313.pyc",
+      "size_bytes": 19204,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/wiki/Backend-Integration-Guide.md",
+      "size_bytes": 19160,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_api_security.py",
+      "size_bytes": 18945,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_api_rate_limiter.py.backup",
+      "size_bytes": 18904,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_comprehensive_model.cpython-312.pyc",
+      "size_bytes": 18827,
+      "is_tracked": true
+    },
+    {
+      "path": "src/api_rate_limiter.py",
+      "size_bytes": 18664,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/pre_training_validation.py",
+      "size_bytes": 18594,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/pre_training_validation.py.backup",
+      "size_bytes": 18575,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/guides/USER_GUIDE.md",
+      "size_bytes": 18408,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/fix_label_mapping.py",
+      "size_bytes": 18332,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/whisper_transcriber.py.backup",
+      "size_bytes": 18324,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/model_validator.cpython-311.pyc",
+      "size_bytes": 18284,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_secure_model_loader.py",
+      "size_bytes": 18255,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/model_optimization.py",
+      "size_bytes": 18234,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/model_optimization.py.backup",
+      "size_bytes": 18234,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/secure_model_loader.cpython-312.pyc",
+      "size_bytes": 18059,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/secure_model_loader.cpython-313.pyc",
+      "size_bytes": 17933,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/code_quality_enforcer.py",
+      "size_bytes": 17896,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/create_simple_ultimate_notebook.cpython-38.pyc",
+      "size_bytes": 17785,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/create_ultimate_bulletproof_notebook.cpython-38.pyc",
+      "size_bytes": 17752,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/MINIMAL_WORKING_TRAINING_COLAB.ipynb",
+      "size_bytes": 17640,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/__pycache__/test_data_models.cpython-38-pytest-8.3.5.pyc",
+      "size_bytes": 17439,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/FIXED_BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb",
+      "size_bytes": 17396,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/api_demo.py.backup",
+      "size_bytes": 17363,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/finalize_emotion_model.py.backup",
+      "size_bytes": 17346,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/bulletproof_training.py",
+      "size_bytes": 17183,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_cloud_run_api_endpoints.py",
+      "size_bytes": 17143,
+      "is_tracked": true
+    },
+    {
+      "path": "src/security_headers.py",
+      "size_bytes": 17009,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_cloud_run_api_endpoints.cpython-312.pyc",
+      "size_bytes": 16972,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/__pycache__/test_validation_enhanced.cpython-38-pytest-8.3.5.pyc",
+      "size_bytes": 16954,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/api_demo.py",
+      "size_bytes": 16927,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/full_dataset_focal_training.py.backup",
+      "size_bytes": 16730,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/add_advanced_features_to_notebook.cpython-38.pyc",
+      "size_bytes": 16669,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/__pycache__/test_api_security.cpython-38-pytest-8.3.5.pyc",
+      "size_bytes": 16663,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_comprehensive_model.py",
+      "size_bytes": 16603,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/create_minimal_working_notebook.py",
+      "size_bytes": 16524,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/typehint_codemod.py",
+      "size_bytes": 16489,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/vertex_ai_setup.py",
+      "size_bytes": 16452,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/vertex_ai_setup.py.backup",
+      "size_bytes": 16445,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/whisper_transcriber.py",
+      "size_bytes": 16399,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_pr5_cicd_integration.cpython-312.pyc",
+      "size_bytes": 16356,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/t5_summarizer.py.backup",
+      "size_bytes": 16267,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/sandbox_executor.cpython-311.pyc",
+      "size_bytes": 16153,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/t5_summarizer.py",
+      "size_bytes": 16136,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/fixed_focal_training.py.backup",
+      "size_bytes": 16117,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/FINAL_COMBINED_TRAINING_COLAB.ipynb",
+      "size_bytes": 16087,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/create_emotion_specialized_notebook.cpython-38.pyc",
+      "size_bytes": 16081,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_phase3_cloud_run_optimization.cpython-38.pyc",
+      "size_bytes": 16006,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/model_validator.cpython-312.pyc",
+      "size_bytes": 15944,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/FIXED_COMBINED_TRAINING_COLAB.ipynb",
+      "size_bytes": 15923,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/deploy_to_gcp_vertex_ai.py",
+      "size_bytes": 15907,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/model_validator.cpython-313.pyc",
+      "size_bytes": 15905,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/playbooks/MONITORING_PLAYBOOK.md",
+      "size_bytes": 15895,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/local/api_server.py",
+      "size_bytes": 15822,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_phase3_cloud_run_optimization_fixed.py",
+      "size_bytes": 15776,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/create_final_bulletproof_cell.py",
+      "size_bytes": 15773,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/model_validator.py",
+      "size_bytes": 15745,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/__pycache__/secure_model_loader.cpython-311.pyc",
+      "size_bytes": 15706,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/smoke_local.py",
+      "size_bytes": 15701,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_pr4_integration.py",
+      "size_bytes": 15624,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/vertex_ai_training.py",
+      "size_bytes": 15581,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/vertex_ai_training.py.backup",
+      "size_bytes": 15557,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/__pycache__/test_secure_model_loader.cpython-38-pytest-8.3.5.pyc",
+      "size_bytes": 15518,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/bert_classifier.py",
+      "size_bytes": 15395,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/auto_fix_code_quality.py",
+      "size_bytes": 15356,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/secure_model_loader.py",
+      "size_bytes": 15321,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/final_bulletproof_training_cell.py",
+      "size_bytes": 15105,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/fixed_focal_training.py",
+      "size_bytes": 14998,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/run_full_ci_pipeline.py",
+      "size_bytes": 14947,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/api_demo.cpython-313.pyc",
+      "size_bytes": 14915,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_pr5_cicd_integration.py",
+      "size_bytes": 14751,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/evaluate_focal_model.py.backup",
+      "size_bytes": 14693,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/create_fixed_bulletproof_notebook.cpython-38.pyc",
+      "size_bytes": 14561,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_pr4_integration.cpython-312.pyc",
+      "size_bytes": 14559,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/create_bulletproof_cell.py",
+      "size_bytes": 14446,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/diagnose_f1_issue.py.backup",
+      "size_bytes": 14257,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/gcp_deploy_automation.sh",
+      "size_bytes": 14167,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/sandbox_executor.cpython-312.pyc",
+      "size_bytes": 14134,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/sandbox_executor.cpython-313.pyc",
+      "size_bytes": 14130,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/prepare_vertex_data.py.backup",
+      "size_bytes": 14088,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/optimize_model_performance.py.backup",
+      "size_bytes": 14060,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/reports/weekly-roadmap.md",
+      "size_bytes": 14007,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/optimize_model_performance.py",
+      "size_bytes": 13975,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/optimize_performance.py.backup",
+      "size_bytes": 13857,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/DEPLOYMENT_GUIDE.md",
+      "size_bytes": 13835,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/retrain_with_validation.py",
+      "size_bytes": 13789,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/e2e/__pycache__/test_complete_workflows.cpython-38-pytest-8.3.5.pyc",
+      "size_bytes": 13760,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/deploy_locally.py",
+      "size_bytes": 13682,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/complete_simple_notebook.cpython-38.pyc",
+      "size_bytes": 13677,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/create_model_deployment_package.py",
+      "size_bytes": 13666,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/bulletproof_training_cell_fixed.py",
+      "size_bytes": 13643,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/optimize_performance.py",
+      "size_bytes": 13629,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/integration/__pycache__/test_api_endpoints.cpython-38-pytest-8.3.5.pyc",
+      "size_bytes": 13611,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/bulletproof_training_cell.py",
+      "size_bytes": 13609,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/CUSTOM_MODEL_DEPLOYMENT_GUIDE.md",
+      "size_bytes": 13534,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/dataset_loader.cpython-311.pyc",
+      "size_bytes": 13490,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/robust_domain_adaptation_training.py",
+      "size_bytes": 13380,
+      "is_tracked": true
+    },
+    {
+      "path": "CHANGELOG.md",
+      "size_bytes": 13356,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/emergency_f1_fix.py",
+      "size_bytes": 13348,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/finalize_emotion_model.py",
+      "size_bytes": 13260,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/create_journal_test_dataset.cpython-312.pyc",
+      "size_bytes": 13204,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/__pycache__/api_demo.cpython-313.pyc",
+      "size_bytes": 13050,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/validate_model_performance.py",
+      "size_bytes": 13022,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/colab-fixes-summary.md",
+      "size_bytes": 12995,
+      "is_tracked": true
+    },
+    {
+      "path": "pyproject.toml",
+      "size_bytes": 12970,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/__pycache__/deploy_locally.cpython-38.pyc",
+      "size_bytes": 12940,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/bert_classifier.cpython-38.pyc",
+      "size_bytes": 12928,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/fixed_training_with_optimized_config.py",
+      "size_bytes": 12922,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/fixed_training_with_optimized_config.py.backup",
+      "size_bytes": 12901,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/bert_classifier.cpython-310.pyc",
+      "size_bytes": 12875,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/local/test_api.py",
+      "size_bytes": 12829,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/api_demo.py.backup",
+      "size_bytes": 12683,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/improve_model_f1_fixed.py",
+      "size_bytes": 12649,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/create_final_colab_notebook.cpython-38.pyc",
+      "size_bytes": 12621,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/create_fixed_colab_notebook.cpython-38.pyc",
+      "size_bytes": 12587,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/improve_model_f1_fixed.py.backup",
+      "size_bytes": 12583,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/__pycache__/whisper_transcriber.cpython-38.pyc",
+      "size_bytes": 12578,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/__pycache__/t5_summarizer.cpython-38.pyc",
+      "size_bytes": 12565,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/__pycache__/test_emotion_detection.cpython-38-pytest-8.3.5.pyc",
+      "size_bytes": 12551,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/integrity_checker.cpython-311.pyc",
+      "size_bytes": 12504,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/vertex_ai_setup_fixed.py",
+      "size_bytes": 12497,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/vertex_ai_setup_fixed.py.backup",
+      "size_bytes": 12490,
+      "is_tracked": true
+    },
+    {
+      "path": "src/input_sanitizer.py",
+      "size_bytes": 12487,
+      "is_tracked": true
+    },
+    {
+      "path": "src/monitoring/dashboard.py",
+      "size_bytes": 12470,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/wiki/Development-Setup-Guide.md",
+      "size_bytes": 12404,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/__pycache__/test_api_models.cpython-38-pytest-8.3.5.pyc",
+      "size_bytes": 12372,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_domain_adaptation.py",
+      "size_bytes": 12357,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/test_domain_adaptation.py.backup",
+      "size_bytes": 12356,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/full_focal_training.py.backup",
+      "size_bytes": 12332,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/create_journal_test_dataset.py",
+      "size_bytes": 12329,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/onnx_api_server.py",
+      "size_bytes": 12316,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/api/API_DOCUMENTATION.md",
+      "size_bytes": 12200,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/api_demo.py",
+      "size_bytes": 12160,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/debug_label_mismatch.cpython-312.pyc",
+      "size_bytes": 12103,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_new_trained_model_comprehensive.cpython-312.pyc",
+      "size_bytes": 12097,
+      "is_tracked": true
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "size_bytes": 12091,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_anomaly_detection.py",
+      "size_bytes": 12083,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/wiki/Team-Integration.md",
+      "size_bytes": 12023,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/bulletproof_training.cpython-38.pyc",
+      "size_bytes": 11987,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/simple-tokenizer-fix-summary.md.backup",
+      "size_bytes": 11972,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/phase4-vertex-ai-automation-summary.md",
+      "size_bytes": 11889,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/robust-solution-summary.md",
+      "size_bytes": 11768,
+      "is_tracked": true
+    },
+    {
+      "path": "README.md",
+      "size_bytes": 11754,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/phase3-cloud-run-optimization-summary.md",
+      "size_bytes": 11737,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/robust_domain_adaptation_training.cpython-38.pyc",
+      "size_bytes": 11564,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/dataset_loader.py.backup",
+      "size_bytes": 11525,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/.code-review.md",
+      "size_bytes": 11455,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/guides/robust-domain-adaptation-guide.md",
+      "size_bytes": 11422,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/deployment/PRODUCTION_DEPLOYMENT_GUIDE.md",
+      "size_bytes": 11419,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/secure_model_loader.cpython-310.pyc",
+      "size_bytes": 11399,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/dataset_loader.cpython-313.pyc",
+      "size_bytes": 11397,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/__pycache__/test_validation.cpython-38-pytest-8.3.5.pyc",
+      "size_bytes": 11385,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/security_deployment_fix.py",
+      "size_bytes": 11353,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/fixed_focal_training.cpython-38.pyc",
+      "size_bytes": 11319,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/__pycache__/api_demo.cpython-38.pyc",
+      "size_bytes": 11318,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/secure_model_loader.cpython-38.pyc",
+      "size_bytes": 11294,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/pr6-deployment-infrastructure-summary.md",
+      "size_bytes": 11167,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/pr5-cicd-pipeline-overhaul-summary.md",
+      "size_bytes": 11099,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/comprehensive_model_validation.py",
+      "size_bytes": 11088,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/expand_journal_dataset.py",
+      "size_bytes": 10989,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/legacy/IMPROVED_TRAINING_WITH_VALIDATION.ipynb",
+      "size_bytes": 10917,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/integrity_checker.cpython-312.pyc",
+      "size_bytes": 10915,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/api_demo.cpython-38.pyc",
+      "size_bytes": 10875,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/dataset_loader.py",
+      "size_bytes": 10826,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/hf_loader.cpython-313.pyc",
+      "size_bytes": 10783,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/fix_remaining_py38_types.py",
+      "size_bytes": 10776,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/integrate_security_fixes.py",
+      "size_bytes": 10749,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/integrity_checker.cpython-313.pyc",
+      "size_bytes": 10731,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/api_demo.py.backup",
+      "size_bytes": 10687,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/model_utils.py",
+      "size_bytes": 10639,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/__pycache__/transcription_api.cpython-311.pyc",
+      "size_bytes": 10565,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/cost-controls/setup_budget_alerts.sh.bak",
+      "size_bytes": 10518,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/complete_project_deployment.py",
+      "size_bytes": 10470,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/sandbox_executor.py",
+      "size_bytes": 10464,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/e2e/test_complete_workflows.py.backup",
+      "size_bytes": 10435,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/debug_training_loss.py.backup",
+      "size_bytes": 10433,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/local_validation_debug.py",
+      "size_bytes": 10423,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/sandbox_executor.cpython-38.pyc",
+      "size_bytes": 10422,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/debug_colab_compatibility.py",
+      "size_bytes": 10410,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/local_validation_debug.py.backup",
+      "size_bytes": 10399,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/sandbox_executor.cpython-310.pyc",
+      "size_bytes": 10399,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_pr5_cicd_integration.cpython-38.pyc",
+      "size_bytes": 10393,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/api/openapi.yaml",
+      "size_bytes": 10384,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/guides/google-colab-setup.md",
+      "size_bytes": 10363,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/openapi.yaml",
+      "size_bytes": 10335,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/api_demo.py",
+      "size_bytes": 10289,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/evaluate_focal_model.py",
+      "size_bytes": 10272,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/retrain_with_expanded_dataset.py",
+      "size_bytes": 10269,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/create_unique_fallback_dataset.py",
+      "size_bytes": 10255,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/validation/validate_security_config.py",
+      "size_bytes": 10117,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/fixed_training_with_optimized_config.cpython-38.pyc",
+      "size_bytes": 10097,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/model_validator.cpython-310.pyc",
+      "size_bytes": 10055,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/__pycache__/transcription_api.cpython-313.pyc",
+      "size_bytes": 10016,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/reports/PROJECT_COMPLETION_SUMMARY.md",
+      "size_bytes": 9945,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/ci/circleci-guide.md",
+      "size_bytes": 9930,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/model_validator.cpython-38.pyc",
+      "size_bytes": 9919,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/dataset_loader.cpython-38.pyc",
+      "size_bytes": 9860,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/debug_label_mismatch.py",
+      "size_bytes": 9838,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/wiki/Next-Steps-Implementation-Summary.md",
+      "size_bytes": 9818,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/create_minimal_working_notebook.cpython-38.pyc",
+      "size_bytes": 9744,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/fix_model_loading_issues.py",
+      "size_bytes": 9715,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/fix_linting_issues_comprehensive.py.backup",
+      "size_bytes": 9703,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/focal_loss_training_fixed.py.backup",
+      "size_bytes": 9665,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/debug_training_loss.py",
+      "size_bytes": 9654,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/pipeline.py.backup",
+      "size_bytes": 9649,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/focal_loss_training_fixed.py",
+      "size_bytes": 9633,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/fix_linting_issues_comprehensive.py",
+      "size_bytes": 9629,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/embeddings.py",
+      "size_bytes": 9597,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_new_trained_model_comprehensive.py",
+      "size_bytes": 9595,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/embeddings.py.backup",
+      "size_bytes": 9563,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_emotion_detection.py.backup",
+      "size_bytes": 9563,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/reorganize_model_directory.py",
+      "size_bytes": 9554,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/transcription_api.py",
+      "size_bytes": 9524,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/monitor_training.py.backup",
+      "size_bytes": 9520,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/transcription_api.py.backup",
+      "size_bytes": 9499,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/monitor_training.py",
+      "size_bytes": 9484,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/evaluate_whisper_wer.py.backup",
+      "size_bytes": 9474,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/robust_predict.py",
+      "size_bytes": 9430,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/security-deployment-fix-summary.md",
+      "size_bytes": 9385,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/pipeline.py",
+      "size_bytes": 9364,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/feature_engineering.py",
+      "size_bytes": 9317,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/feature_engineering.py.backup",
+      "size_bytes": 9317,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/guides/vertex_ai_deployment_guide.md",
+      "size_bytes": 9301,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/config.cpython-312.pyc",
+      "size_bytes": 9233,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/code-review-fixes-summary.md",
+      "size_bytes": 9207,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/config.py",
+      "size_bytes": 9192,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/fix_linting_issues.py",
+      "size_bytes": 9182,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/debug_colab_compatibility.cpython-38.pyc",
+      "size_bytes": 9159,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/__pycache__/api_demo.cpython-38.pyc",
+      "size_bytes": 9157,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/reports/current-status-july-29.md",
+      "size_bytes": 9100,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/validation.py",
+      "size_bytes": 9045,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_final_inference.cpython-312.pyc",
+      "size_bytes": 9039,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/final_combined_training.py",
+      "size_bytes": 9012,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/setup_code_quality_system.sh",
+      "size_bytes": 8963,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/dataset_loader.cpython-310.pyc",
+      "size_bytes": 8941,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/setup_colab_environment.py",
+      "size_bytes": 8907,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/sample_data.py",
+      "size_bytes": 8791,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/vertex_automl_training.py.backup",
+      "size_bytes": 8748,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/vertex_automl_training.py",
+      "size_bytes": 8740,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/diagnose_f1_issue.py",
+      "size_bytes": 8730,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/guides/ruff-linter-guide.md",
+      "size_bytes": 8722,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/hf_upload/prepare.py",
+      "size_bytes": 8684,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/mega_test_summary.cpython-312.pyc",
+      "size_bytes": 8649,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/comprehensive-pr8-analysis.md",
+      "size_bytes": 8620,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/integrity_checker.py",
+      "size_bytes": 8605,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_emotion_detection.py",
+      "size_bytes": 8535,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/health_monitor.py",
+      "size_bytes": 8522,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_calibration_fixed.cpython-312.pyc",
+      "size_bytes": 8453,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/integrated-security-optimization-summary.md",
+      "size_bytes": 8436,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/reports/vertex-ai-training-pipeline-backlog.md",
+      "size_bytes": 8367,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/fix_linting_issues_conservative.py.backup",
+      "size_bytes": 8360,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/e2e/test_complete_workflows.py",
+      "size_bytes": 8310,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/focal_loss_training.py.backup",
+      "size_bytes": 8146,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/focal_loss_training.py",
+      "size_bytes": 8138,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/setup_colab_environment.cpython-38.pyc",
+      "size_bytes": 8109,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/convert_to_onnx.py.backup",
+      "size_bytes": 8100,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/model_monitoring_test.py.backup",
+      "size_bytes": 8096,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/integrate_cmu_mosei.py",
+      "size_bytes": 8095,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/fix_code_quality.py.backup",
+      "size_bytes": 8095,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/SAMO_Colab_Setup.py",
+      "size_bytes": 8026,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/pr4-documentation-security-enhancements-summary.md",
+      "size_bytes": 7997,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/hf_loader.py",
+      "size_bytes": 7960,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/GCP_DEPLOYMENT_GUIDE.md",
+      "size_bytes": 7900,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/__pycache__/test_anomaly_detection.cpython-38-pytest-8.3.5.pyc",
+      "size_bytes": 7890,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/final_temperature_test.cpython-312.pyc",
+      "size_bytes": 7858,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/setup_gpu_training.py.backup",
+      "size_bytes": 7827,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_final_inference.py",
+      "size_bytes": 7800,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_validation_enhanced.py",
+      "size_bytes": 7800,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/REVIEW_COMMENTS_FIXES_SUMMARY.md",
+      "size_bytes": 7766,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/SAMO_Colab_Setup.cpython-38.pyc",
+      "size_bytes": 7759,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/simple_cmu_mosei_download.py",
+      "size_bytes": 7758,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/expanded-training-next-steps.md",
+      "size_bytes": 7757,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/whisper_transcription_test.py",
+      "size_bytes": 7753,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/guides/pre-commit-guide.md",
+      "size_bytes": 7741,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/model_monitoring_test.py",
+      "size_bytes": 7732,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/final_expanded_training.py",
+      "size_bytes": 7721,
+      "is_tracked": true
+    },
+    {
+      "path": ".pre-commit-config.yaml",
+      "size_bytes": 7690,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/integrity_checker.cpython-310.pyc",
+      "size_bytes": 7684,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/test_voice_pipeline.py.backup",
+      "size_bytes": 7667,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_voice_pipeline.py",
+      "size_bytes": 7667,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/validation.py.backup",
+      "size_bytes": 7647,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/__pycache__/test_database.cpython-38-pytest-8.3.5.pyc",
+      "size_bytes": 7646,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_hash_security.py",
+      "size_bytes": 7642,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/debug_evaluation_step_by_step.cpython-312.pyc",
+      "size_bytes": 7641,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/deep_model_analysis.py",
+      "size_bytes": 7618,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/final_combined_training.cpython-38.pyc",
+      "size_bytes": 7612,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/setup_gpu_training.py",
+      "size_bytes": 7574,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_working_inference.cpython-312.pyc",
+      "size_bytes": 7570,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/minimal_working_training.py.backup",
+      "size_bytes": 7550,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/wiki/Home.md",
+      "size_bytes": 7549,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/minimal_working_training.py",
+      "size_bytes": 7542,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_csp_config.py",
+      "size_bytes": 7534,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/reports/f1-optimization-strategy.md",
+      "size_bytes": 7511,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/integration/test_api_endpoints.py.backup",
+      "size_bytes": 7503,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/direct_evaluation_test.cpython-312.pyc",
+      "size_bytes": 7496,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/integration/test_api_endpoints.py",
+      "size_bytes": 7483,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/HUGGINGFACE_DEPLOYMENT_CHECKLIST.md",
+      "size_bytes": 7472,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/sample_data.py.backup",
+      "size_bytes": 7453,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/integrity_checker.cpython-38.pyc",
+      "size_bytes": 7452,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/integration/test_summarizer_voice_endpoints.py",
+      "size_bytes": 7441,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/simple_loss_debug.cpython-312.pyc",
+      "size_bytes": 7415,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/monitor_training.cpython-38.pyc",
+      "size_bytes": 7407,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/fix_remaining_linting.py",
+      "size_bytes": 7356,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_emotion_model.cpython-312.pyc",
+      "size_bytes": 7351,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/evaluate_whisper_wer.py",
+      "size_bytes": 7335,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/whisper_transcription_test.py.backup",
+      "size_bytes": 7327,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/fix_linting_issues_conservative.py",
+      "size_bytes": 7319,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/simple_working_training.py.backup",
+      "size_bytes": 7308,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/cloud-run-deployment-success-summary.md",
+      "size_bytes": 7304,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/simple_working_training.py",
+      "size_bytes": 7300,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/README-consolidated-dockerfile.md",
+      "size_bytes": 7263,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/focal_loss_training_robust.py.backup",
+      "size_bytes": 7245,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/save_trained_model_for_deployment.py",
+      "size_bytes": 7243,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_data_models.py",
+      "size_bytes": 7232,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/__pycache__/test_api_rate_limiter.cpython-38-pytest-8.3.5.pyc",
+      "size_bytes": 7221,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_data_models.py.backup",
+      "size_bytes": 7203,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/__pycache__/validation.cpython-38.pyc",
+      "size_bytes": 7163,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/simple_f1_evaluation.py",
+      "size_bytes": 7156,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/deploy_onnx_cloud_run.sh",
+      "size_bytes": 7149,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_local_inference.cpython-312.pyc",
+      "size_bytes": 7131,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/guides/project-structure.md",
+      "size_bytes": 7127,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/models.py",
+      "size_bytes": 7127,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/cleanup-summary.md",
+      "size_bytes": 7125,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/playbooks/0.0000_loss_debugging_plan.md",
+      "size_bytes": 7104,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/final_expanded_training.cpython-38.pyc",
+      "size_bytes": 7099,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/config.py",
+      "size_bytes": 7066,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/cleanup-inventory.md",
+      "size_bytes": 7011,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/debug_training_loss.cpython-38.pyc",
+      "size_bytes": 7002,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/fine_tune_emotion_model.py.backup",
+      "size_bytes": 6994,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/fine_tune_emotion_model.py",
+      "size_bytes": 6986,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/run_security_fix.sh",
+      "size_bytes": 6950,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/compress_model.py.backup",
+      "size_bytes": 6913,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/compress_model.py",
+      "size_bytes": 6910,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/create_test_dataset.py.backup",
+      "size_bytes": 6880,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/create_test_dataset.py",
+      "size_bytes": 6878,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/__pycache__/transcription_api.cpython-38.pyc",
+      "size_bytes": 6869,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/ci/CI_PIPELINE_GUIDE.md",
+      "size_bytes": 6839,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/focal_loss_training_fixed.cpython-38.pyc",
+      "size_bytes": 6830,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/test_quick_training.py.backup",
+      "size_bytes": 6818,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/vertex_automl_training.cpython-38.pyc",
+      "size_bytes": 6809,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/hf_upload/discovery.py",
+      "size_bytes": 6789,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/test_quick_training.py",
+      "size_bytes": 6768,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/test_calibration_fixed.py.backup",
+      "size_bytes": 6748,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/create_test_dataset.cpython-312.pyc",
+      "size_bytes": 6737,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_calibration_fixed.py",
+      "size_bytes": 6721,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/__pycache__/test_sandbox_executor.cpython-38-pytest-8.3.5.pyc",
+      "size_bytes": 6699,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/hf_loader.cpython-38.pyc",
+      "size_bytes": 6676,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/convert_to_onnx.py",
+      "size_bytes": 6663,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_new_trained_model.cpython-312.pyc",
+      "size_bytes": 6595,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/deploy_minimal_cloud_run.sh",
+      "size_bytes": 6585,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/focal_loss_training.cpython-38.pyc",
+      "size_bytes": 6550,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/final_temperature_test.py.backup",
+      "size_bytes": 6543,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_sandbox_executor.py",
+      "size_bytes": 6521,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/reports/f1_improvement_strategy.md",
+      "size_bytes": 6505,
+      "is_tracked": true
+    },
+    {
+      "path": "src/security/jwt_manager.py",
+      "size_bytes": 6486,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_fixed_inference.cpython-312.pyc",
+      "size_bytes": 6471,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/__pycache__/models.cpython-38.pyc",
+      "size_bytes": 6450,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/diagnose_model_issue.py.backup",
+      "size_bytes": 6442,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/add_wandb_setup.py",
+      "size_bytes": 6386,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/models.py.backup",
+      "size_bytes": 6374,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/mega_test_summary.py",
+      "size_bytes": 6369,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/diagnose_model_issue.py",
+      "size_bytes": 6351,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/setup_model_testing.cpython-312.pyc",
+      "size_bytes": 6343,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/ci/ci-fixes-summary.md",
+      "size_bytes": 6314,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/reports/monster-pr-8-breakdown-strategy.md",
+      "size_bytes": 6255,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/simple_loss_debug.py.backup",
+      "size_bytes": 6251,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/simple_validation.py.backup",
+      "size_bytes": 6227,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/simple_validation.py",
+      "size_bytes": 6223,
+      "is_tracked": true
+    },
+    {
+      "path": "Home.md",
+      "size_bytes": 6213,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/simple_loss_debug.py",
+      "size_bytes": 6123,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/setup_gpu_training.cpython-38.pyc",
+      "size_bytes": 6121,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_config.cpython-312.pyc",
+      "size_bytes": 6117,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/WEBSITE_LAUNCH_SUMMARY.md",
+      "size_bytes": 6089,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/fix_code_quality.py",
+      "size_bytes": 6072,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/cleanup-success.md",
+      "size_bytes": 6058,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_api_models.py.backup",
+      "size_bytes": 6041,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/diagrams/Diagram03.svg",
+      "size_bytes": 6026,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_api_models.py",
+      "size_bytes": 6024,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/__pycache__/test_hash_security.cpython-38-pytest-8.3.5.pyc",
+      "size_bytes": 6022,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/final_temperature_test.py",
+      "size_bytes": 6011,
+      "is_tracked": true
+    },
+    {
+      "path": "QUICK_START.md",
+      "size_bytes": 6003,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/temperature_scaling.py.backup",
+      "size_bytes": 5968,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/temperature_scaling.py",
+      "size_bytes": 5950,
+      "is_tracked": true
+    },
+    {
+      "path": ".gitignore",
+      "size_bytes": 5944,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/fix_preprocessing_in_notebook.py",
+      "size_bytes": 5924,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/__pycache__/audio_preprocessor.cpython-311.pyc",
+      "size_bytes": 5914,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/model_calibration_test.py.backup",
+      "size_bytes": 5867,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/convert_model_to_onnx.py",
+      "size_bytes": 5858,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_new_trained_model.py",
+      "size_bytes": 5835,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/debug_evaluation_step_by_step.py.backup",
+      "size_bytes": 5828,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/debug_evaluation_step_by_step.py",
+      "size_bytes": 5818,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_working_inference.py",
+      "size_bytes": 5782,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/environment-consistency-fix.md",
+      "size_bytes": 5778,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/direct_evaluation_test.py.backup",
+      "size_bytes": 5778,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/preprocessing.py.backup",
+      "size_bytes": 5743,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/validate_and_train.py",
+      "size_bytes": 5733,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/minimal_validation.py.backup",
+      "size_bytes": 5729,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/validate_and_train.py.backup",
+      "size_bytes": 5722,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/__pycache__/test_csp_config.cpython-38-pytest-8.3.5.pyc",
+      "size_bytes": 5717,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/direct_evaluation_test.py",
+      "size_bytes": 5716,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/minimal_validation.py",
+      "size_bytes": 5713,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_local_inference.py",
+      "size_bytes": 5653,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/convert_model_to_onnx_simple.py",
+      "size_bytes": 5629,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_validation.py",
+      "size_bytes": 5614,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_fixed_inference.py",
+      "size_bytes": 5609,
+      "is_tracked": true
+    },
+    {
+      "path": ".secrets.baseline",
+      "size_bytes": 5552,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_validation.py.backup",
+      "size_bytes": 5537,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/Dockerfile.consolidated",
+      "size_bytes": 5526,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/fix_linting_issues.py.backup",
+      "size_bytes": 5515,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/standalone_focal_test.py.backup",
+      "size_bytes": 5512,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/standalone_focal_test.py",
+      "size_bytes": 5512,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/fix_linting_issues.py",
+      "size_bytes": 5503,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/simple_model_test.cpython-312.pyc",
+      "size_bytes": 5491,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/quick_focal_test.py.backup",
+      "size_bytes": 5477,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/quick_focal_test.py",
+      "size_bytes": 5477,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/setup_model_testing.py",
+      "size_bytes": 5476,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/threshold_optimization.py.backup",
+      "size_bytes": 5468,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/gcp/predict.py",
+      "size_bytes": 5458,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/threshold_optimization.py",
+      "size_bytes": 5450,
+      "is_tracked": true
+    },
+    {
+      "path": "metrics-test.py",
+      "size_bytes": 5393,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/model_compression_test.py.backup",
+      "size_bytes": 5371,
+      "is_tracked": true
+    },
+    {
+      "path": "PR_DESCRIPTION.md",
+      "size_bytes": 5365,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/model_compression_test.py",
+      "size_bytes": 5360,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/deployment/DEPLOYMENT_CHECKLIST.md",
+      "size_bytes": 5343,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/reports/track-scope.md",
+      "size_bytes": 5332,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_temperature_scaling.cpython-312.pyc",
+      "size_bytes": 5324,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/__pycache__/audio_preprocessor.cpython-313.pyc",
+      "size_bytes": 5324,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/preprocessing.py",
+      "size_bytes": 5315,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_admin_endpoints.py",
+      "size_bytes": 5296,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/prisma_client.py",
+      "size_bytes": 5226,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/prisma_client.py.backup",
+      "size_bytes": 5214,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/setup_environment.sh",
+      "size_bytes": 5181,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/model_calibration_test.py",
+      "size_bytes": 5169,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_emotion_model.py",
+      "size_bytes": 5166,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/security-vulnerability-fix-summary.md",
+      "size_bytes": 5098,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/deploy_secure.sh",
+      "size_bytes": 5082,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/api-rate-limiter-fix-summary.md",
+      "size_bytes": 5076,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/DOCKERFILE_SECURITY_GUIDE.md",
+      "size_bytes": 5072,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/full_dataset_focal_training.py",
+      "size_bytes": 5072,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/validation/check_dependencies.py",
+      "size_bytes": 5047,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/ci/surgical-ci-debug-plan.md",
+      "size_bytes": 5040,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/minimal_api_server.py",
+      "size_bytes": 5035,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/gcp_quick_fix.sh",
+      "size_bytes": 5034,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/ubuntu_ml_setup.sh",
+      "size_bytes": 5019,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_model_status.cpython-312.pyc",
+      "size_bytes": 5012,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_calibration.cpython-312.pyc",
+      "size_bytes": 5002,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/onnx_conversion_test.py.backup",
+      "size_bytes": 4994,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/improve_model_f1.py",
+      "size_bytes": 4988,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/README.md",
+      "size_bytes": 4975,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/audio_preprocessor.py.backup",
+      "size_bytes": 4967,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/debug_go_emotions_labels.cpython-312.pyc",
+      "size_bytes": 4954,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/environment-crisis-resolution.md",
+      "size_bytes": 4940,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/README_OPTIMIZATION.md",
+      "size_bytes": 4923,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/full_scale_focal_training.py",
+      "size_bytes": 4902,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/test_quick_training.cpython-38.pyc",
+      "size_bytes": 4893,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/focal_loss_training_simple.py.backup",
+      "size_bytes": 4892,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/repo_inventory.py",
+      "size_bytes": 4863,
+      "is_tracked": false
+    },
+    {
+      "path": "scripts/training/improve_expanded_training_notebook.py",
+      "size_bytes": 4862,
+      "is_tracked": true
+    },
+    {
+      "path": "configs/security.yaml",
+      "size_bytes": 4848,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/__pycache__/test_admin_endpoints.cpython-38-pytest-8.3.5.pyc",
+      "size_bytes": 4827,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/DEPENDENCY_HELL_FIXED.md",
+      "size_bytes": 4804,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/simple-tokenizer-fix-summary.md",
+      "size_bytes": 4804,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deploy_and_validate_gcp.sh",
+      "size_bytes": 4785,
+      "is_tracked": true
+    },
+    {
+      "path": "results/package-lock.json",
+      "size_bytes": 4760,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/deploy_production.sh",
+      "size_bytes": 4757,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/full_dataset_focal_training.cpython-38.pyc",
+      "size_bytes": 4716,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/fix_model_reconfiguration.py",
+      "size_bytes": 4704,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/simple_temperature_test_local.py",
+      "size_bytes": 4700,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/simple_temperature_test_local.py.backup",
+      "size_bytes": 4696,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/hf_upload/upload.py",
+      "size_bytes": 4689,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/fix_all_imports_aggressive.py.backup",
+      "size_bytes": 4669,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/cloud-run-solution-summary.md",
+      "size_bytes": 4624,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/full_scale_focal_training.cpython-38.pyc",
+      "size_bytes": 4599,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/fix_all_imports_aggressive.py",
+      "size_bytes": 4570,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/run_integrated_deployment.sh",
+      "size_bytes": 4563,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/debug_model_loading.cpython-312.pyc",
+      "size_bytes": 4550,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/lint.sh",
+      "size_bytes": 4540,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_temperature_scaling.py",
+      "size_bytes": 4525,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/test_temperature_scaling.py.backup",
+      "size_bytes": 4523,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/audio_preprocessor.py",
+      "size_bytes": 4513,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/onnx_conversion_test.py",
+      "size_bytes": 4493,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/quick_start_vertex_ai.sh",
+      "size_bytes": 4486,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/guides/COLAB_TROUBLESHOOTING.md",
+      "size_bytes": 4476,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/gcp_deeplearning_images_fix.sh",
+      "size_bytes": 4458,
+      "is_tracked": true
+    },
+    {
+      "path": "test_reports/cloud_run_api_test_results.json",
+      "size_bytes": 4456,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/install_miniforge.sh",
+      "size_bytes": 4455,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/api_health_check.py.backup",
+      "size_bytes": 4449,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/hf_upload/cli.py",
+      "size_bytes": 4352,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_config.py",
+      "size_bytes": 4331,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/debug_dataset_structure.cpython-312.pyc",
+      "size_bytes": 4310,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/reports/PR_BREAKDOWN_STRATEGY.md",
+      "size_bytes": 4280,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/validate_improved_notebook.py",
+      "size_bytes": 4265,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/ci/circleci-debug-prompt.md",
+      "size_bytes": 4249,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/.env.flask.example",
+      "size_bytes": 4244,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/architecture-decision-onnx-production.md",
+      "size_bytes": 4231,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/simple_finalize_model.py",
+      "size_bytes": 4216,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/simple_finalize_model.py.backup",
+      "size_bytes": 4216,
+      "is_tracked": true
+    },
+    {
+      "path": ".circleci/config.yml",
+      "size_bytes": 4202,
+      "is_tracked": true
+    },
+    {
+      "path": "PYTHON38_COMPATIBILITY_PR.md",
+      "size_bytes": 4202,
+      "is_tracked": true
+    },
+    {
+      "path": "infer_mapping_and_eval.py",
+      "size_bytes": 4202,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_fixed_evaluation.cpython-312.pyc",
+      "size_bytes": 4167,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/working_training_script.py",
+      "size_bytes": 4130,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/working_training_script.py.backup",
+      "size_bytes": 4119,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_config.cpython-38.pyc",
+      "size_bytes": 4110,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/fix_preprocessing_in_notebook.cpython-38.pyc",
+      "size_bytes": 4093,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/summarize_ultimate_notebook.py",
+      "size_bytes": 4091,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/guides/GITHUB_PAGES_DEPLOYMENT.md",
+      "size_bytes": 4084,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/calibrate_model.py.backup",
+      "size_bytes": 4063,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/conftest.py",
+      "size_bytes": 4034,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_jwt_manager_extra.py",
+      "size_bytes": 4025,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/t5_summarization_test.py",
+      "size_bytes": 4020,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/guides/environment-setup.md",
+      "size_bytes": 4014,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/validate_current_f1.py.backup",
+      "size_bytes": 4014,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/validate_current_f1.py",
+      "size_bytes": 4009,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/api_health_check.py",
+      "size_bytes": 4000,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/setup_test_environment.sh",
+      "size_bytes": 3994,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/simple_threshold_test.cpython-312.pyc",
+      "size_bytes": 3951,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/simple_model_test.py",
+      "size_bytes": 3951,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/focal_loss_training_robust.py",
+      "size_bytes": 3940,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/calibrate_model.py",
+      "size_bytes": 3936,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/improve_expanded_training_notebook.cpython-38.pyc",
+      "size_bytes": 3905,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/full_focal_training.py",
+      "size_bytes": 3872,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/conftest.py.backup",
+      "size_bytes": 3871,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/summarize_ultimate_notebook.cpython-38.pyc",
+      "size_bytes": 3827,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/fix_model_architecture_mismatch.py",
+      "size_bytes": 3821,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/test_calibration.py.backup",
+      "size_bytes": 3809,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/debug_go_emotions_labels.py",
+      "size_bytes": 3803,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_calibration.py",
+      "size_bytes": 3779,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/summarize_comprehensive_notebook.cpython-38.pyc",
+      "size_bytes": 3771,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/database/schema.sql",
+      "size_bytes": 3761,
+      "is_tracked": true
+    },
+    {
+      "path": ".github/workflows/deploy-pages.yml",
+      "size_bytes": 3759,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/reports/PROJECT_SUMMARY.md",
+      "size_bytes": 3752,
+      "is_tracked": true
+    },
+    {
+      "path": "prisma/schema.prisma",
+      "size_bytes": 3743,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/quick_f1_test.py.backup",
+      "size_bytes": 3743,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/quick_f1_test.py",
+      "size_bytes": 3743,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_rate_limiter_fix.cpython-312.pyc",
+      "size_bytes": 3718,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/t5_summarization_test.py.backup",
+      "size_bytes": 3713,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/gpu_zone_finder.sh",
+      "size_bytes": 3693,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/summarize_comprehensive_notebook.py",
+      "size_bytes": 3688,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/ci/circleci-fix-summary.md",
+      "size_bytes": 3666,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/validate_improved_notebook.cpython-38.pyc",
+      "size_bytes": 3664,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/README_CALIBRATION.md",
+      "size_bytes": 3655,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/minimal_eval_test.cpython-312.pyc",
+      "size_bytes": 3577,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/full_focal_training.cpython-38.pyc",
+      "size_bytes": 3527,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/focal_loss_training_robust.cpython-38.pyc",
+      "size_bytes": 3510,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/database.py",
+      "size_bytes": 3492,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/pre-commit-hook.sh",
+      "size_bytes": 3463,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/update_model_threshold.py.backup",
+      "size_bytes": 3462,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/__pycache__/audio_preprocessor.cpython-38.pyc",
+      "size_bytes": 3445,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/update_model_threshold.py",
+      "size_bytes": 3435,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/focal_loss_training_simple.py",
+      "size_bytes": 3428,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_model_status.py",
+      "size_bytes": 3423,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/database/check_pgvector.py",
+      "size_bytes": 3373,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/test_fixed_evaluation.py.backup",
+      "size_bytes": 3370,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/start_monitoring_dashboard.py",
+      "size_bytes": 3347,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/start_monitoring_dashboard.py.backup",
+      "size_bytes": 3347,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/trigger_ci.py",
+      "size_bytes": 3286,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_fixed_evaluation.py",
+      "size_bytes": 3269,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_database.py.backup",
+      "size_bytes": 3262,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/debug_calibration.cpython-312.pyc",
+      "size_bytes": 3239,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/trigger_ci.py.backup",
+      "size_bytes": 3229,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/simple_vertex_ai_validation.py",
+      "size_bytes": 3209,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/simple_vertex_ai_validation.py.backup",
+      "size_bytes": 3209,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/create_gpu_instance_fixed.sh",
+      "size_bytes": 3190,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_numpy_compatibility.cpython-312.pyc",
+      "size_bytes": 3190,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/README_WHISPER.md",
+      "size_bytes": 3158,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/simple_temperature_test.cpython-312.pyc",
+      "size_bytes": 3145,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/simple_temperature_test.py.backup",
+      "size_bytes": 3123,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/simple_threshold_test.py.backup",
+      "size_bytes": 3109,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/focal_loss_training_simple.cpython-38.pyc",
+      "size_bytes": 3106,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/hf_serverless_smoke.py",
+      "size_bytes": 3103,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/simple_threshold_test.py",
+      "size_bytes": 3069,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/debug_model_loading.py",
+      "size_bytes": 3040,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_vertex_setup.cpython-312.pyc",
+      "size_bytes": 3027,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/fix_threshold_tuning.py.backup",
+      "size_bytes": 3007,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/simple_vertex_training.py.backup",
+      "size_bytes": 2983,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/api_server.py",
+      "size_bytes": 2965,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/bert_model_test.py",
+      "size_bytes": 2948,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/inference.py",
+      "size_bytes": 2944,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/guides/security-setup.md",
+      "size_bytes": 2937,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/fix_threshold_tuning.py",
+      "size_bytes": 2906,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_api_rate_limiter.py",
+      "size_bytes": 2887,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/debug_api_import.py",
+      "size_bytes": 2876,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/setup-pre-commit.sh",
+      "size_bytes": 2858,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/basic_environment_test.cpython-312.pyc",
+      "size_bytes": 2828,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/database/check_pgvector.py.backup",
+      "size_bytes": 2820,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/check_environment.sh",
+      "size_bytes": 2819,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/loaders.py",
+      "size_bytes": 2819,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/loaders.py.backup",
+      "size_bytes": 2819,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/bert_model_test.py.backup",
+      "size_bytes": 2794,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/debug_dataset_structure.py",
+      "size_bytes": 2789,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_database.py",
+      "size_bytes": 2773,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/minimal_eval_test.py.backup",
+      "size_bytes": 2755,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/run_api_rate_limiter_tests.cpython-312.pyc",
+      "size_bytes": 2736,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/test_swagger_debug_detailed.py",
+      "size_bytes": 2732,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/debug_errorhandler_detailed.py",
+      "size_bytes": 2697,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/fix_ci_issues.py",
+      "size_bytes": 2692,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/minimal_eval_test.py",
+      "size_bytes": 2677,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/fix_ci_issues.py.backup",
+      "size_bytes": 2672,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/create_focused_prs.sh",
+      "size_bytes": 2663,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/fix_import_paths.py",
+      "size_bytes": 2636,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/test_rate_limiter_fix.py.backup",
+      "size_bytes": 2584,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_rate_limiter_fix.py",
+      "size_bytes": 2575,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/check_model_health.cpython-312.pyc",
+      "size_bytes": 2548,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/test_routing_debug.py",
+      "size_bytes": 2520,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/setup_dev_environment.sh",
+      "size_bytes": 2507,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/__pycache__/database.cpython-38.pyc",
+      "size_bytes": 2500,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/hf_upload/config_update.py",
+      "size_bytes": 2429,
+      "is_tracked": true
+    },
+    {
+      "path": "patch_config_and_upload.py",
+      "size_bytes": 2419,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/quick_label_fix.py",
+      "size_bytes": 2378,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/simple_temperature_test.py",
+      "size_bytes": 2357,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/debug_state_dict.cpython-312.pyc",
+      "size_bytes": 2331,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/quick_temperature_test.cpython-312.pyc",
+      "size_bytes": 2283,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/debug_calibration.py.backup",
+      "size_bytes": 2279,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_loss_scenarios.cpython-312.pyc",
+      "size_bytes": 2271,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_permission_checker_override.py",
+      "size_bytes": 2247,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/test_examples.py",
+      "size_bytes": 2240,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/check_model_health.py",
+      "size_bytes": 2232,
+      "is_tracked": true
+    },
+    {
+      "path": "debug_rate_limiter.py",
+      "size_bytes": 2230,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_numpy_compatibility.py",
+      "size_bytes": 2192,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/fix_training_arguments.py",
+      "size_bytes": 2185,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/debug_errorhandler.py",
+      "size_bytes": 2159,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/minimal_test.cpython-312.pyc",
+      "size_bytes": 2145,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/models/README.md",
+      "size_bytes": 2138,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/code_quality_report.py.backup",
+      "size_bytes": 2136,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/fix_notebook_json.py",
+      "size_bytes": 2133,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/restart_training_debug.py",
+      "size_bytes": 2127,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/restart_training_debug.py.backup",
+      "size_bytes": 2116,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/fix_imports_in_notebook.py",
+      "size_bytes": 2116,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/code_quality_report.py",
+      "size_bytes": 2089,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/test_vertex_setup.py.backup",
+      "size_bytes": 2078,
+      "is_tracked": true
+    },
+    {
+      "path": "docker/Dockerfile.prod",
+      "size_bytes": 2071,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/security_headers.py",
+      "size_bytes": 2064,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_vertex_setup.py",
+      "size_bytes": 2040,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/basic_environment_test.py",
+      "size_bytes": 2020,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/basic_environment_test.py.backup",
+      "size_bytes": 2019,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/legacy/prepare_vertex_data.py",
+      "size_bytes": 1986,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/setup_gcp_auth.sh",
+      "size_bytes": 1938,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/validation_utils.py",
+      "size_bytes": 1930,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/create_gpu_instance.sh",
+      "size_bytes": 1926,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/rate_limiter.py",
+      "size_bytes": 1918,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/test_server_start.py",
+      "size_bytes": 1913,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/debug_calibration.py",
+      "size_bytes": 1913,
+      "is_tracked": true
+    },
+    {
+      "path": "configs/monitoring.yaml",
+      "size_bytes": 1902,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/__pycache__/dataset_loader.cpython-311.pyc",
+      "size_bytes": 1886,
+      "is_tracked": true
+    },
+    {
+      "path": ".ruff_summary.md",
+      "size_bytes": 1875,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/test_routing_fixed.py",
+      "size_bytes": 1871,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/maintenance/fix_linting.py",
+      "size_bytes": 1862,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/basic_environment_test.cpython-38.pyc",
+      "size_bytes": 1852,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/run_api_rate_limiter_tests.py",
+      "size_bytes": 1832,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/hf_upload/templates/model_card.md.tmpl",
+      "size_bytes": 1826,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/fix_imports_in_notebook.cpython-38.pyc",
+      "size_bytes": 1823,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/minimal_test.py",
+      "size_bytes": 1817,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/fix_linting.py.backup",
+      "size_bytes": 1810,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/test_http_exception_handler.py",
+      "size_bytes": 1793,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/fix_training_arguments.cpython-38.pyc",
+      "size_bytes": 1775,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/database.py.backup",
+      "size_bytes": 1752,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/debug_dataset_structure.py.backup",
+      "size_bytes": 1725,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/debug_checkpoint.cpython-312.pyc",
+      "size_bytes": 1723,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/test_direct_errorhandler.py",
+      "size_bytes": 1722,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/test_docs_error.py",
+      "size_bytes": 1719,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/simple_test.py",
+      "size_bytes": 1709,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/run_api_rate_limiter_tests.py.backup",
+      "size_bytes": 1704,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/__pycache__/dataset_loader.cpython-313.pyc",
+      "size_bytes": 1701,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/simple_test.py.backup",
+      "size_bytes": 1698,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/docs_blueprint.py",
+      "size_bytes": 1697,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/gcp/Dockerfile",
+      "size_bytes": 1697,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/fix_notebook_json.cpython-38.pyc",
+      "size_bytes": 1656,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/database/init_db.sh",
+      "size_bytes": 1646,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/test_loss_scenarios.py.backup",
+      "size_bytes": 1644,
+      "is_tracked": true
+    },
+    {
+      "path": "PYTHON38_COMPATIBILITY_PLAN.md",
+      "size_bytes": 1638,
+      "is_tracked": true
+    },
+    {
+      "path": ".env.template",
+      "size_bytes": 1615,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/ci/pre_warm_models.py",
+      "size_bytes": 1581,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_loss_scenarios.py",
+      "size_bytes": 1577,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/simple_vertex_training.py",
+      "size_bytes": 1559,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/test_routing_minimal.py",
+      "size_bytes": 1549,
+      "is_tracked": true
+    },
+    {
+      "path": "docker/vertex_ai_training.Dockerfile",
+      "size_bytes": 1542,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/training/__pycache__/simple_vertex_training.cpython-38.pyc",
+      "size_bytes": 1516,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/Dockerfile.emotion_arch_fixed",
+      "size_bytes": 1514,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/quick_temperature_test.py.backup",
+      "size_bytes": 1509,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/quick_temperature_test.py",
+      "size_bytes": 1504,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/debug_state_dict.py",
+      "size_bytes": 1460,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/test_minimal_import.py",
+      "size_bytes": 1457,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/debug_state_dict.py.backup",
+      "size_bytes": 1455,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/minimal_test.py",
+      "size_bytes": 1410,
+      "is_tracked": true
+    },
+    {
+      "path": "prisma/README.md",
+      "size_bytes": 1401,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/test_swagger_no_model.py",
+      "size_bytes": 1397,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/__pycache__/__init__.cpython-311.pyc",
+      "size_bytes": 1328,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/__pycache__/dataset_loader.cpython-38.pyc",
+      "size_bytes": 1324,
+      "is_tracked": true
+    },
+    {
+      "path": "constraints.txt",
+      "size_bytes": 1295,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/__pycache__/training_pipeline.cpython-311.pyc",
+      "size_bytes": 1271,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/test_swagger_debug.py",
+      "size_bytes": 1252,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/__pycache__/__init__.cpython-313.pyc",
+      "size_bytes": 1207,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/README.md",
+      "size_bytes": 1187,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/__pycache__/__init__.cpython-38.pyc",
+      "size_bytes": 1186,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/rebuild_environment.sh",
+      "size_bytes": 1178,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/fix_gcp_training.sh",
+      "size_bytes": 1157,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/test_minimal_swagger.py",
+      "size_bytes": 1153,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/__init__.py",
+      "size_bytes": 1132,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/__pycache__/training_pipeline.cpython-313.pyc",
+      "size_bytes": 1117,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/.env.model_config.example",
+      "size_bytes": 1113,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/__init__.py.backup",
+      "size_bytes": 1110,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/__init__.py",
+      "size_bytes": 1097,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/__init__.py.backup",
+      "size_bytes": 1097,
+      "is_tracked": true
+    },
+    {
+      "path": "results/simple_training_results.json",
+      "size_bytes": 1096,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/deploy_unified_cloud_run.sh",
+      "size_bytes": 1096,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/debug_checkpoint.py.backup",
+      "size_bytes": 1095,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/debug_checkpoint.py",
+      "size_bytes": 1095,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/bake_emotion_model.py",
+      "size_bytes": 1055,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/Dockerfile.production",
+      "size_bytes": 1027,
+      "is_tracked": true
+    },
+    {
+      "path": ".vscode/sessions.json",
+      "size_bytes": 1023,
+      "is_tracked": true
+    },
+    {
+      "path": ".gitattributes",
+      "size_bytes": 1002,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/templates/docs.html",
+      "size_bytes": 987,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/dataset_loader.py",
+      "size_bytes": 967,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/minimal_test.py.backup",
+      "size_bytes": 943,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/dataset_loader.py.backup",
+      "size_bytes": 943,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/__pycache__/training_pipeline.cpython-38.pyc",
+      "size_bytes": 886,
+      "is_tracked": true
+    },
+    {
+      "path": "logs/model_metrics.json",
+      "size_bytes": 832,
+      "is_tracked": true
+    },
+    {
+      "path": "requirements-ml.txt",
+      "size_bytes": 812,
+      "is_tracked": true
+    },
+    {
+      "path": "environment.yml",
+      "size_bytes": 805,
+      "is_tracked": true
+    },
+    {
+      "path": "requirements-dev.txt",
+      "size_bytes": 764,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/labels.cpython-38.pyc",
+      "size_bytes": 760,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/__init__.cpython-311.pyc",
+      "size_bytes": 759,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/check-repo-health.sh",
+      "size_bytes": 732,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/labels.cpython-312.pyc",
+      "size_bytes": 722,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/labels.cpython-313.pyc",
+      "size_bytes": 689,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/__init__.cpython-311.pyc",
+      "size_bytes": 687,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/labels.py",
+      "size_bytes": 687,
+      "is_tracked": true
+    },
+    {
+      "path": "requirements-audio.txt",
+      "size_bytes": 685,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/__init__.cpython-312.pyc",
+      "size_bytes": 678,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/__init__.cpython-312.pyc",
+      "size_bytes": 676,
+      "is_tracked": true
+    },
+    {
+      "path": "requirements-api.txt",
+      "size_bytes": 662,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/__init__.cpython-310.pyc",
+      "size_bytes": 662,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/__init__.cpython-310.pyc",
+      "size_bytes": 658,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/training_pipeline.py",
+      "size_bytes": 652,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/summarization/training_pipeline.py.backup",
+      "size_bytes": 652,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/__init__.cpython-313.pyc",
+      "size_bytes": 641,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/__pycache__/__init__.cpython-311.pyc",
+      "size_bytes": 641,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/__init__.cpython-313.pyc",
+      "size_bytes": 639,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/deploy.sh",
+      "size_bytes": 632,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__pycache__/__init__.cpython-38.pyc",
+      "size_bytes": 618,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__pycache__/__init__.cpython-38.pyc",
+      "size_bytes": 612,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/docker/dockerfile",
+      "size_bytes": 577,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/cleanup-branches.sh",
+      "size_bytes": 576,
+      "is_tracked": true
+    },
+    {
+      "path": ".pre-commit-exclude-patterns.yaml",
+      "size_bytes": 537,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/__pycache__/__init__.cpython-313.pyc",
+      "size_bytes": 531,
+      "is_tracked": true
+    },
+    {
+      "path": ".github/dependabot.yml",
+      "size_bytes": 523,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/README.md",
+      "size_bytes": 512,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/requirements_secure.txt",
+      "size_bytes": 505,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/voice_processing/__pycache__/__init__.cpython-38.pyc",
+      "size_bytes": 503,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/secure_loader/__init__.py",
+      "size_bytes": 499,
+      "is_tracked": true
+    },
+    {
+      "path": "results/package.json",
+      "size_bytes": 484,
+      "is_tracked": true
+    },
+    {
+      "path": "src/common/env.py",
+      "size_bytes": 483,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/requirements_unified.txt",
+      "size_bytes": 476,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__init__.py",
+      "size_bytes": 470,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/emotion_detection/__init__.py.backup",
+      "size_bytes": 470,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/database/generate_prisma_client.sh",
+      "size_bytes": 469,
+      "is_tracked": true
+    },
+    {
+      "path": "requirements.txt",
+      "size_bytes": 448,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/run_focal_training.sh",
+      "size_bytes": 443,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/guides/README.md",
+      "size_bytes": 434,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/requirements_production.txt",
+      "size_bytes": 430,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/local/start.sh",
+      "size_bytes": 393,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/docker/docker-compose.yml",
+      "size_bytes": 372,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/__pycache__/__init__.cpython-38.pyc",
+      "size_bytes": 367,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/reports/README.md",
+      "size_bytes": 364,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/requirements_minimal.txt",
+      "size_bytes": 358,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/hf_upload/__init__.py",
+      "size_bytes": 352,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/__init__.py",
+      "size_bytes": 345,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/upload_model_to_huggingface.py",
+      "size_bytes": 343,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/hf_upload/templates/.env.selfhosted.template.tmpl",
+      "size_bytes": 331,
+      "is_tracked": true
+    },
+    {
+      "path": ".coveragerc",
+      "size_bytes": 327,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/hf_upload/templates/.env.endpoints.template.tmpl",
+      "size_bytes": 327,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/cloudbuild.yaml",
+      "size_bytes": 306,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/hf_upload/templates/.env.serverless.template.tmpl",
+      "size_bytes": 302,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/unit/__init__.py.backup",
+      "size_bytes": 277,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/__pycache__/__init__.cpython-311.pyc",
+      "size_bytes": 266,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/requirements_onnx.txt",
+      "size_bytes": 258,
+      "is_tracked": true
+    },
+    {
+      "path": ".deepsource.toml",
+      "size_bytes": 256,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/__pycache__/__init__.cpython-312.pyc",
+      "size_bytes": 255,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/__pycache__/__init__.cpython-310.pyc",
+      "size_bytes": 248,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/__pycache__/__init__.cpython-313.pyc",
+      "size_bytes": 218,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/__pycache__/__init__.cpython-38.pyc",
+      "size_bytes": 198,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/phase3_test_report.json",
+      "size_bytes": 187,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/requirements.txt",
+      "size_bytes": 175,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/integration/__pycache__/__init__.cpython-38.pyc",
+      "size_bytes": 168,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/e2e/__pycache__/__init__.cpython-38.pyc",
+      "size_bytes": 160,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/__pycache__/__init__.cpython-38.pyc",
+      "size_bytes": 159,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/cloud-run/requirements.txt",
+      "size_bytes": 157,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/ci/README.md",
+      "size_bytes": 156,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/requirements_vertex_ai.txt",
+      "size_bytes": 148,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/playbooks/README.md",
+      "size_bytes": 147,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_rate_limiter_no_threading.cpython-312.pyc",
+      "size_bytes": 146,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/simple_rate_limiter_test.cpython-312.pyc",
+      "size_bytes": 140,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/debug_rate_limiter_test.cpython-312.pyc",
+      "size_bytes": 139,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_api_startup.cpython-312.pyc",
+      "size_bytes": 132,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/__pycache__/test_e2e_simple.cpython-312.pyc",
+      "size_bytes": 131,
+      "is_tracked": true
+    },
+    {
+      "path": "results/focal_training_results.json",
+      "size_bytes": 123,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/gcp/requirements.txt",
+      "size_bytes": 100,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/local/requirements.txt",
+      "size_bytes": 100,
+      "is_tracked": true
+    },
+    {
+      "path": "logs/emergency_f1_fix.log",
+      "size_bytes": 96,
+      "is_tracked": true
+    },
+    {
+      "path": "src/models/__init__.py",
+      "size_bytes": 80,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/summaries/README.md",
+      "size_bytes": 60,
+      "is_tracked": true
+    },
+    {
+      "path": "src/__init__.py",
+      "size_bytes": 49,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/deployment/hf_upload/templates/requirements_model.txt.tmpl",
+      "size_bytes": 47,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/integration/__init__.py",
+      "size_bytes": 41,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/integration/__init__.py.backup",
+      "size_bytes": 41,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/e2e/__init__.py",
+      "size_bytes": 40,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/e2e/__init__.py.backup",
+      "size_bytes": 40,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/__init__.py",
+      "size_bytes": 36,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/__init__.py.backup",
+      "size_bytes": 36,
+      "is_tracked": true
+    },
+    {
+      "path": ".gitignore-pages",
+      "size_bytes": 6,
+      "is_tracked": true
+    },
+    {
+      "path": "debug_ci_robust.py",
+      "size_bytes": 1,
+      "is_tracked": true
+    },
+    {
+      "path": "debug_ci_timing.py",
+      "size_bytes": 1,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/diagrams/README.md",
+      "size_bytes": 1,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/legacy/CORRECTED_SPECIALIZED_TRAINING.ipynb",
+      "size_bytes": 1,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/legacy/SAMO_Brain_Data_Science_Example.ipynb",
+      "size_bytes": 1,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/training/domain_adaptation_gpu_training_robust.ipynb",
+      "size_bytes": 1,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/debug_rate_limiter_test.py",
+      "size_bytes": 1,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/simple_rate_limiter_test.py",
+      "size_bytes": 1,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_api_startup.py",
+      "size_bytes": 1,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_e2e_simple.py",
+      "size_bytes": 1,
+      "is_tracked": true
+    },
+    {
+      "path": "scripts/testing/test_rate_limiter_no_threading.py",
+      "size_bytes": 1,
+      "is_tracked": true
+    },
+    {
+      "path": "src/data/__init__.py.backup",
+      "size_bytes": 1,
+      "is_tracked": true
+    },
+    {
+      "path": "src/evaluation/__init__.py.backup",
+      "size_bytes": 1,
+      "is_tracked": true
+    },
+    {
+      "path": "src/inference/__init__.py.backup",
+      "size_bytes": 1,
+      "is_tracked": true
+    },
+    {
+      "path": ".nojekyll",
+      "size_bytes": 0,
+      "is_tracked": true
+    },
+    {
+      "path": "deployment/model",
+      "size_bytes": 0,
+      "is_tracked": false
+    },
+    {
+      "path": "docker/.gitkeep",
+      "size_bytes": 0,
+      "is_tracked": true
+    },
+    {
+      "path": "docs/.gitkeep",
+      "size_bytes": 0,
+      "is_tracked": true
+    },
+    {
+      "path": "notebooks/.gitkeep",
+      "size_bytes": 0,
+      "is_tracked": true
+    },
+    {
+      "path": "secure_api_server.log",
+      "size_bytes": 0,
+      "is_tracked": true
+    },
+    {
+      "path": "test_report.txt",
+      "size_bytes": 0,
+      "is_tracked": true
+    },
+    {
+      "path": "tests/.gitkeep",
+      "size_bytes": 0,
+      "is_tracked": true
+    }
+  ],
+  "candidates": [
+    "demo.html",
+    "index.html",
+    "integration.html",
+    "test_report.txt",
+    "website/",
+    "logs/",
+    "results/",
+    "PR_DESCRIPTION.md",
+    "bandit-report.json",
+    "ci_pipeline.log"
+  ],
+  "references": {
+    "demo.html": [],
+    "index.html": [],
+    "integration.html": [],
+    "test_report.txt": [],
+    "website/": [],
+    "logs/": [],
+    "results/": [],
+    "PR_DESCRIPTION.md": [],
+    "bandit-report.json": [],
+    "ci_pipeline.log": []
+  }
+}

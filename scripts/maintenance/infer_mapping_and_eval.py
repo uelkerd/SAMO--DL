@@ -1,5 +1,6 @@
-CLEAR# infer_mapping_and_eval.py
-import os, numpy as np, torch
+import os
+import numpy as np
+import torch
 from tqdm import tqdm
 from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -8,12 +9,15 @@ from scipy.optimize import linear_sum_assignment
 
 MODEL_ID = os.getenv("MODEL_ID", "0xmnrv/samo")
 TOKEN = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_HUB_TOKEN")
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 BATCH = int(os.getenv("BATCH_SIZE", "32"))
 SPLIT = os.getenv("SPLIT", "validation")  # validation | test | train
 
+
 def norm(s: str) -> str:
+    """Normalize label strings to snake_case for consistent matching."""
     return str(s).strip().lower().replace(" ", "_").replace("-", "_")
+
 
 # Load model/tokenizer
 tok = AutoTokenizer.from_pretrained(MODEL_ID, use_fast=True, token=TOKEN)
@@ -21,8 +25,7 @@ mdl = AutoModelForSequenceClassification.from_pretrained(MODEL_ID, token=TOKEN)
 num_labels = mdl.config.num_labels
 
 # Move model to device and set to eval mode
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-mdl.to(device)
+mdl.to(DEVICE)
 mdl.eval()
 
 # Load GoEmotions split
@@ -36,25 +39,32 @@ for i, labs in enumerate(ds["labels"]):
         if 0 <= j < len(ds_names):
             Y[i, j] = 1
 
+
 # Predict model probabilities P
 def predict_probs(texts):
+    """Return model probabilities for given texts as a NumPy array."""
     enc = tok(texts, padding=True, truncation=True, max_length=512, return_tensors="pt")
     enc = {k: v.to(DEVICE) for k, v in enc.items()}
-    with torch.no_grad():
+    with torch.inference_mode():
         logits = mdl(**enc).logits
         probs = torch.sigmoid(logits).cpu().numpy()
     return probs
 
+
 P_chunks = []
 for i in tqdm(range(0, len(ds), BATCH)):
-    P_chunks.append(predict_probs(ds[i:i+BATCH]["text"]))
+    P_chunks.append(predict_probs(ds[i:i + BATCH]["text"]))
 P = np.concatenate(P_chunks, axis=0)  # (N, num_labels)
+
 
 # Correlation matrix C between model heads and dataset labels
 def safe_corr(a, b):
+    """Return absolute Pearson correlation with zero-variance guard."""
     sa, sb = a.std(), b.std()
-    if sa == 0 or sb == 0: return 0.0
+    if sa < 1e-12 or sb < 1e-12:
+        return 0.0
     return float(np.corrcoef(a, b)[0, 1])
+
 
 M, K = num_labels, len(ds_names)
 m = min(M, K)
@@ -69,7 +79,7 @@ mapping = list(zip(rows.tolist(), cols.tolist()))  # (model_idx -> ds_label_idx)
 
 print("Inferred mapping (model_idx -> goemotions_label, corr):")
 for mi, dj in mapping:
-    print(f"{mi:2d} -> {ds_names[dj]:<15s} (corr={C[mi,dj]:.3f})")
+    print(f"{mi:2d} -> {ds_names[dj]:<15s} (corr={C[mi, dj]:.3f})")
 
 # Evaluate with mapped columns
 keep_model = [mi for mi, _ in mapping]
@@ -77,12 +87,15 @@ keep_ds = [dj for _, dj in mapping]
 P_mapped = P[:, keep_model]
 Y_keep = Y[:, keep_ds]
 
+
 def evaluate(th):
+    """Compute macro/micro F1 and subset accuracy for threshold th."""
     pred = (P_mapped >= th).astype(int)
     macro = f1_score(Y_keep, pred, average="macro", zero_division=0)
     micro = f1_score(Y_keep, pred, average="micro", zero_division=0)
     acc = accuracy_score(Y_keep, pred)  # subset accuracy
     return macro, micro, acc
+
 
 m05, mi05, a05 = evaluate(0.50)
 ths = np.linspace(0.05, 0.6, 12)

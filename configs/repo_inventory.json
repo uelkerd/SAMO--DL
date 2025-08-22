@@ -1,0 +1,15 @@
+{
+  "candidates": [
+    "docs/site/index.html",
+    "docs/site/demo.html",
+    "docs/site/integration.html",
+    "artifacts/test-reports/test_report.txt",
+    "website/",
+    "logs/",
+    "artifacts/results/",
+    ".github/PULL_REQUEST_TEMPLATE.md",
+    "deprecated/bandit-report.json",
+    "deprecated/ci_pipeline.log"
+  ],
+  "file_inventory_cap": 2000
+}

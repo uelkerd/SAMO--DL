@@ -8,7 +8,7 @@ version: 2.1
 executors:
   python-simple:
     docker:
-      - image: cimg/python:3.13
+      - image: cimg/python:3.12
     resource_class: medium
     working_directory: ~/samo-dl
     environment:
@@ -36,26 +36,25 @@ jobs:
           command: |
             # Install with optimized flags to prevent timeout
             python3 -m pip install \
-              --only-binary=:all: \
               --no-compile \
               --disable-pip-version-check \
               --timeout 300 \
-              -r requirements-api.txt \
-              -r requirements-dev.txt
+              -r dependencies/requirements-api.txt \
+              -r dependencies/requirements-dev.txt
             # Sanity check to fail fast if imports break
-            python3 -c "import sys; import fastapi, uvicorn, pydantic, requests; print('✅ core imports OK')" || echo "❌ Import failed"
+            PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src" python3 -c "import sys; import fastapi, uvicorn, pydantic, requests; print('✅ core imports OK')" || echo "❌ Import failed"
       - run:
           name: Test Basic API Import
           command: |
             export PATH="$HOME/.local/bin:$PATH"
-            python3 -c "from src.unified_ai_api import app; print('✅ API imports successfully!')"
+            PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src" python3 -c "from src.unified_ai_api import app; print('✅ API imports successfully!')"
       - run:
           name: Test API Health Check
           command: |
             export PATH="$HOME/.local/bin:$PATH"
-            python3 -c "import importlib.util as u, sys; sys.exit(0 if u.find_spec('fastapi') is None else 1)" \
+            PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src" python3 -c "import importlib.util as u, sys; sys.exit(0 if u.find_spec('fastapi') is None else 1)" \
               && echo '⚠️ FastAPI not installed; skipping health check.' \
-              || python3 -c "from fastapi.testclient import TestClient; from src.unified_ai_api import app; c=TestClient(app); r=c.get('/health'); assert r.status_code==200, f'Health check failed: {r.status_code}'; print('✅ API health check passed!')"
+              || PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src" python3 -c "from fastapi.testclient import TestClient; from src.unified_ai_api import app; c=TestClient(app); r=c.get('/health'); assert r.status_code==200, f'Health check failed: {r.status_code}'; print('✅ API health check passed!')"
 
   # Basic linting (optional - won't fail build)
   code-quality:
@@ -85,19 +84,54 @@ jobs:
             python3 -m pip install --upgrade pip
             # Install with optimized flags to prevent timeout
             python3 -m pip install \
-              --only-binary=:all: \
               --no-compile \
               --disable-pip-version-check \
               --timeout 300 \
-              -r requirements-api.txt \
-              -r requirements-dev.txt
-            python3 -c "import sys; import pytest, ruff; print('✅ test deps imports OK')" || echo "❌ Import failed"
+              -r dependencies/requirements-api.txt \
+              -r dependencies/requirements-dev.txt \
+              -r dependencies/requirements-ml.txt
+            python3 -c "import sys; import pytest, ruff, torch, transformers, pandas; print('✅ test deps imports OK')" || echo "❌ Import failed"
       - run:
           name: Run Basic Tests
           command: |
             export PATH="$HOME/.local/bin:$PATH"
-            python3 -m pytest --version
+            PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src" python3 -m pytest --version
             echo "✅ Test framework ready"
+  docker-build:
+    docker:
+      - image: cimg/base:stable
+    resource_class: medium
+    working_directory: ~/samo-dl
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Verify Docker and print version
+          command: |
+            docker --version
+      - run:
+          name: Build minimal image
+          command: |
+            DOCKER_BUILDKIT=1 docker build \
+              --pull \
+              --progress=plain \
+              -f deployment/docker/Dockerfile.consolidated \
+              -t samo-dl-minimal:${CIRCLE_SHA1:0:7} \
+              -t samo-dl-minimal:latest \
+              .
+      - run:
+          name: Build unified image (with ML)
+          command: |
+            DOCKER_BUILDKIT=1 docker build \
+              --build-arg BUILD_TYPE=unified \
+              --build-arg INCLUDE_ML=true \
+              --pull \
+              --progress=plain \
+              -f deployment/docker/Dockerfile.consolidated \
+              -t samo-dl-unified:${CIRCLE_SHA1:0:7} \
+              -t samo-dl-unified:latest \
+              .
 
 workflows:
   simple-ci:
@@ -107,6 +141,9 @@ workflows:
           requires:
             - basic-setup
       - unit-tests:
+          requires:
+            - basic-setup
+      - docker-build:
           requires:
             - basic-setup
 

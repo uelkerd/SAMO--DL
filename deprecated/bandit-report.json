@@ -12362,7 +12362,7 @@
       "test_name": "assert_used"
     },
     {
-      "code": "17 \n18 TEST_USER_PASSWORD_HASH = \"test_hashed_password_123\"  # noqa: S105\n19 \n",
+      "code": "17 \n18 TEST_USER_PASSWORD_HASH = \"REDACTED_PLACEHOLDER\"  # noqa: S105\n19 \n",
       "col_offset": 26,
       "end_col_offset": 52,
       "filename": "./tests/unit/test_data_models.py",
@@ -12372,7 +12372,7 @@
         "link": "https://cwe.mitre.org/data/definitions/259.html"
       },
       "issue_severity": "LOW",
-      "issue_text": "Possible hardcoded password: 'test_hashed_password_123'",
+      "issue_text": "Possible hardcoded password: 'REDACTED_PLACEHOLDER'",
       "line_number": 18,
       "line_range": [
         18
