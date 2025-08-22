@@ -142,23 +142,23 @@ class SimpleEmotionDataset(Dataset):
             raise ValueError(f"Texts and labels have different lengths: {len(texts)} vs {len(labels)}")
 
         # Validate labels
-        for i, label in enumerate(labels):
-            if not isinstance(label, int) or label < 0:
-                raise ValueError(f"Invalid label at index {i}: {label}")
+        for idx_pos, label_val in enumerate(labels):
+            if not isinstance(label_val, int) or label_val < 0:
+                raise ValueError(f"Invalid label at index {idx_pos}: {label_val}")
 
     def __len__(self):
         return len(self.texts)
 
     def __getitem__(self, idx):
         text = self.texts[idx]
-        label = self.labels[idx]
+        lbl = self.labels[idx]
 
         # Validate inputs
         if not isinstance(text, str) or not text.strip():
             raise ValueError(f"Invalid text at index {idx}")
 
-        if not isinstance(label, int) or label < 0:
-            raise ValueError(f"Invalid label at index {idx}: {label}")
+        if not isinstance(lbl, int) or lbl < 0:
+            raise ValueError(f"Invalid label at index {idx}: {lbl}")
 
         encoding = self.tokenizer(
             text,
@@ -171,7 +171,7 @@ class SimpleEmotionDataset(Dataset):
         return {
             'input_ids': encoding['input_ids'].flatten(),
             'attention_mask': encoding['attention_mask'].flatten(),
-            'labels': torch.tensor(label, dtype=torch.long)
+            'labels': torch.tensor(lbl, dtype=torch.long)
         }
 
 # Step 6: Create simple model
@@ -189,15 +189,15 @@ class SimpleEmotionClassifier(nn.Module):
 
         print(f"✅ Model initialized with {num_labels} labels")
 
-    def forward(self, input_ids, attention_mask):
+    def forward(self, input_ids_tensor, attention_mask_tensor):
         # Validate inputs
-        if input_ids.dim() != 2:
-            raise ValueError(f"Expected input_ids to be 2D, got {input_ids.dim()}D")
+        if input_ids_tensor.dim() != 2:
+            raise ValueError(f"Expected input_ids to be 2D, got {input_ids_tensor.dim()}D")
 
-        if attention_mask.dim() != 2:
-            raise ValueError(f"Expected attention_mask to be 2D, got {attention_mask.dim()}D")
+        if attention_mask_tensor.dim() != 2:
+            raise ValueError(f"Expected attention_mask to be 2D, got {attention_mask_tensor.dim()}D")
 
-        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
+        outputs = self.bert(input_ids=input_ids_tensor, attention_mask=attention_mask_tensor)
         pooled_output = outputs.pooler_output
         logits = self.classifier(self.dropout(pooled_output))
 

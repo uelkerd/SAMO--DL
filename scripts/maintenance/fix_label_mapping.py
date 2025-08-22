@@ -37,26 +37,26 @@ def analyze_label_mapping():
     
     # Analyze GoEmotions labels
     print("\n📊 GoEmotions Analysis:")
-    go_label_counts = {}
+    go_label_counts_map = {}
     for example in go_emotions['train']:
         if example['labels']:
-            for label in example['labels']:
-                go_label_counts[label] = go_label_counts.get(label, 0) + 1
+            for label_val in example['labels']:
+                go_label_counts_map[label_val] = go_label_counts_map.get(label_val, 0) + 1
     
-    print(f"GoEmotions unique labels: {len(go_label_counts)}")
-    print(f"GoEmotions labels: {sorted(list(go_label_counts.keys()))}")
-    print(f"Top 10 GoEmotions labels: {dict(sorted(go_label_counts.items(), key=lambda x: x[1], reverse=True)[:10])}")
+    print(f"GoEmotions unique labels: {len(go_label_counts_map)}")
+    print(f"GoEmotions labels: {sorted(list(go_label_counts_map.keys()))}")
+    print(f"Top 10 GoEmotions labels: {dict(sorted(go_label_counts_map.items(), key=lambda x: x[1], reverse=True)[:10])}")
     
     # Analyze Journal labels
     print("\n📊 Journal Analysis:")
-    journal_label_counts = journal_df['emotion'].value_counts().to_dict()
-    print(f"Journal unique labels: {len(journal_label_counts)}")
-    print(f"Journal labels: {sorted(list(journal_label_counts.keys()))}")
-    print(f"Journal label counts: {journal_label_counts}")
+    journal_label_counts_map = journal_df['emotion'].value_counts().to_dict()
+    print(f"Journal unique labels: {len(journal_label_counts_map)}")
+    print(f"Journal labels: {sorted(list(journal_label_counts_map.keys()))}")
+    print(f"Journal label counts: {journal_label_counts_map}")
     
     # Check for any common labels
-    go_labels_set = set(go_label_counts.keys())
-    journal_labels_set = set(journal_label_counts.keys())
+    go_labels_set = set(go_label_counts_map.keys())
+    journal_labels_set = set(journal_label_counts_map.keys())
     common_labels = go_labels_set.intersection(journal_labels_set)
     
     print(f"\n🔍 Common labels: {len(common_labels)}")
@@ -66,7 +66,7 @@ def analyze_label_mapping():
         print("❌ NO COMMON LABELS FOUND!")
         print("This is why we get 0 GoEmotions samples!")
     
-    return go_label_counts, journal_label_counts
+    return go_label_counts_map, journal_label_counts_map
 
 def create_emotion_mapping():
     """Create a mapping between GoEmotions and Journal emotions."""
