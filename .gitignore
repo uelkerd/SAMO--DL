@@ -362,7 +362,11 @@ wheels/
 yarn-debug.log*
 yarn-error.log*
 # Artifacts (ignored)
-artifacts/*
+artifacts/**
+!artifacts/
+!artifacts/coverage/
+!artifacts/test-reports/
+!artifacts/results/
 !artifacts/.gitkeep
 !artifacts/coverage/.gitkeep
 !artifacts/test-reports/.gitkeep
