@@ -86,14 +86,14 @@ if mapped_count >= 5:
 else:
     if num_labels == len(ds_names):
         print(
-            "Low mapping coverage; falling back to identity mapping (assumes same order)."
+            "Low mapping coverage; identity mapping (assumes same order)."
         )
         kept_ds_indices = list(range(num_labels))
         kept_model_indices = list(range(num_labels))
     else:
         m = min(num_labels, len(ds_names))
         print(
-            f"Low mapping coverage; evaluating on min-dim identity mapping ({m} labels)."
+            f"Low mapping coverage; min-dim identity mapping ({m} labels)."
         )
         kept_ds_indices = list(range(m))
         kept_model_indices = list(range(m))

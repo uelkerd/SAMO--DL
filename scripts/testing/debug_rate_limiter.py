@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Debug script for rate limiter issue."""
 
+# pylint: disable=protected-access
+
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-from src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
+from src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig  # noqa: E402
 
 
 def debug_rate_limiter():
