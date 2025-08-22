@@ -6,27 +6,28 @@
 #
 # Disabled hooks and their status:
 # ✅ Bandit: RE-ENABLED - Split into targeted hooks: changed files + tests (B101 skipped)
-# ✅ Safety: RE-ENABLED - Local hook with pinned dependency (safety==3.6.0)
+# ✅ Safety: RE-ENABLED - Official pre-commit mirror with pinned dependency
 # ⚠️ Docformatter: Pre-commit hook language compatibility issues (python_venv not supported)
-# ✅ Flynt: RE-ENABLED - Working correctly with global exclude pattern and consistent config
+# ✅ Flynt: RE-ENABLED - Consistent configuration with Bandit hooks
 # - Local hooks: Configuration format issues (exclude field format) - FIXED: Updated to single-line format
 #
 # IMPROVEMENTS IMPLEMENTED:
 # ✅ Global exclude pattern implemented - all hooks now inherit from top-level exclude
 # ✅ Individual exclude patterns removed from active hooks (black, isort, ruff, mypy)
 # ✅ Bandit split into targeted hooks: changed files (all rules) + tests (B101 skipped)
-# ✅ Safety implemented as local hook with pinned dependency for reliability
+# ✅ Safety implemented using official pre-commit mirror for reliability
 # ✅ Flynt configuration made consistent with Bandit (always_run, pass_filenames)
 # ✅ Configuration is now much more maintainable and follows best practices
 #
 # Next steps:
-# 1. Test Safety hook with local implementation
+# 1. Test Safety hook with official mirror implementation
 # 2. Find Docformatter alternative or fix language compatibility issues
 # 3. Test and re-enable local hooks
 # 4. Update this TODO section as hooks are re-enabled
 #
 # Global exclude pattern - applies to all hooks unless overridden
 # Uses anchored regex with extended mode for readability and accuracy
+# Comprehensive coverage: git, venvs, caches, builds, artifacts, docs, samples
 exclude: |
   (?x)^(
       \.git|
@@ -48,7 +49,13 @@ exclude: |
       samples|
       notebooks|
       website|
-      docs/diagrams
+      docs/diagrams|
+      \.DS_Store|
+      artifacts|
+      \.benchmarks|
+      \.kilocode|
+      \.vscode|
+      deprecated
   )$
 
 repos:
@@ -122,16 +129,14 @@ repos:
         types: [python]
         files: '^(tests/|.*_test\.py$)'
 
-  # Security vulnerability scanning with Safety (local hook)
-  # Custom local hook with pinned dependency for reliability
-  - repo: local
+  # Security vulnerability scanning with Safety (official pre-commit mirror)
+  # Using official mirror for reliability and simplified setup
+  - repo: https://github.com/pre-commit/mirrors-safety
+    rev: v3.6.0
     hooks:
-      - id: safety-scan
+      - id: safety
         name: Safety (dependency vulnerability scan)
-        entry: safety
-        language: python
-        additional_dependencies: [safety==3.6.0]
-        args: [scan, --full-report, --file, pyproject.toml]
+        args: [--full-report, --file, pyproject.toml]
         pass_filenames: false
         always_run: true
 
@@ -147,6 +152,7 @@ repos:
   #       language: python
 
   # String formatting with flynt
+  # Configuration consistent with Bandit hooks for maintainability
   - repo: https://github.com/ikamensh/flynt
     rev: "0.78"
     hooks:
@@ -168,29 +174,6 @@ repos:
   #       types: [python]
   #       pass_filenames: false
   #       always_run: true
-  #       exclude: |
-  #         (?x)^(
-  #             \.git|
-  #             \.venv|
-  #             \.env|
-  #             __pycache__|
-  #             \.pytest_cache|
-  #             \.mypy_cache|
-  #             \.ruff_cache|
-  #             build|
-  #             dist|
-  #             \.eggs|
-  #             \.tox|
-  #             \.coverage|
-  #             htmlcov|
-  #             \.cache|
-  #             \.logs|
-  #             results|
-  #             samples|
-  #             notebooks|
-  #             website|
-  #             docs/diagrams
-  #         )$
 
   # Auto-fix common code quality issues
   # TODO: Re-enable once configuration issues are resolved
@@ -204,29 +187,6 @@ repos:
   #       types: [python]
   #       pass_filenames: false
   #       always_run: true
-  #       exclude: |
-  #         (?x)^(
-  #             \.git|
-  #             \.venv|
-  #             \.env|
-  #             __pycache__|
-  #             \.pytest_cache|
-  #             \.mypy_cache|
-  #             \.ruff_cache|
-  #             build|
-  #             dist|
-  #             \.eggs|
-  #             \.tox|
-  #             \.coverage|
-  #             htmlcov|
-  #             \.cache|
-  #             \.logs|
-  #             results|
-  #             samples|
-  #             notebooks|
-  #             website|
-  #             docs/diagrams
-  #         )$
 
 # Global configuration
 default_language_version:
