@@ -18,6 +18,12 @@ import sys
 
 
 def _import_bootstrap():
+    """Import bootstrap helpers and ensure `src/` is on `sys.path`.
+
+    Returns a tuple of `(add_repo_src_to_path, find_repo_root)` and falls back
+    to searching parent directories for `scripts/bootstrap.py` if the import
+    initially fails.
+    """
     try:
         from scripts.bootstrap import (
             add_repo_src_to_path,
@@ -217,6 +223,15 @@ class SimpleEmotionClassifier(nn.Module):
         print(f"✅ Model initialized with {n_labels} labels")
 
     def forward(self, input_ids_tensor, attention_mask_tensor):
+        """Compute logits for a batch.
+
+        Args:
+            input_ids_tensor: Tensor of shape (batch, seq_len) with token IDs.
+            attention_mask_tensor: Tensor of shape (batch, seq_len) with attention mask.
+
+        Returns:
+            Tensor of shape (batch, num_labels) containing logits.
+        """
         # Validate inputs
         if input_ids_tensor.dim() != 2:
             raise ValueError(f"Expected input_ids to be 2D, got {input_ids_tensor.dim()}D")
