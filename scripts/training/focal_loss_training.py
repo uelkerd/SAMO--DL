@@ -25,6 +25,7 @@
 # Configure logging
 #!/usr/bin/env python3
 from pathlib import Path
+from scripts.bootstrap import add_repo_src_to_path, find_repo_root
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
 from the current 13.2% to target >50%.
@@ -48,8 +49,8 @@ This script implements focal loss training to improve F1 score
 
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
-repo_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(repo_root / "src"))
+repo_root = find_repo_root(Path(__file__))
+add_repo_src_to_path(Path(__file__))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)

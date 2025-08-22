@@ -6,7 +6,6 @@ print("🚀 BULLETPROOF TRAINING FOR REQ-DL-012 - FIXED LABEL MAPPING")
 print("=" * 60)
 
 # Step 1: Clear everything and validate environment
-import os
 import sys
 import json
 import pickle
@@ -21,6 +20,8 @@ from sklearn.metrics import f1_score, accuracy_score
 from sklearn.preprocessing import LabelEncoder
 from transformers import AutoModel, AutoTokenizer
 from pathlib import Path
+import os
+from scripts.bootstrap import add_repo_src_to_path, find_repo_root
 
 print("✅ Imports successful")
 
@@ -41,14 +42,9 @@ except Exception as e:
     print(f"❌ Basic tensor operations failed: {e}")
     raise
 
-# Step 2: Ensure we are at the repository root
-def _find_repo_root(start: Path) -> Path:
-    for d in [start] + list(start.parents):
-        if (d / "src").exists():
-            return d
-    return start
-
-REPO_ROOT = _find_repo_root(Path(__file__).resolve())
+# Step 2: Ensure we are at the repository root (strict)
+REPO_ROOT = find_repo_root(Path(__file__))
+add_repo_src_to_path(Path(__file__))
 os.chdir(str(REPO_ROOT))
 
 # Step 3: Create emotion mapping

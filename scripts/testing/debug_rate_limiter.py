@@ -9,9 +9,10 @@ refill, history, and block status to help diagnose rate-limit behavior.
 
 import sys
 from pathlib import Path
+from scripts.bootstrap import add_repo_src_to_path, find_repo_root
 
-repo_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(repo_root / "src"))
+repo_root = find_repo_root(Path(__file__))
+add_repo_src_to_path(Path(__file__))
 
 from src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
 
