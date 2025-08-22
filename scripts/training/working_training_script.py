@@ -6,9 +6,7 @@ import torch
 import traceback
 from scripts.bootstrap import add_repo_src_to_path, find_repo_root
 
-"""
-Working Training Script based on the successful local validation approach.
-"""
+# Working Training Script based on the successful local validation approach.
 
 # Ensure src is importable
 repo_root = find_repo_root(Path(__file__))
@@ -83,7 +81,7 @@ def main():
                 loss = loss_fn(logits, labels)
 
                 if loss.item() <= 0:
-                    logger.error("❌ CRITICAL: Loss is zero at batch {batch}!")
+                    logger.error("❌ CRITICAL: Loss is zero at batch %d!", batch)
                     return False
 
                 loss.backward()
