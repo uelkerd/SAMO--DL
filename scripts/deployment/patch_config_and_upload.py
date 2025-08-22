@@ -1,6 +1,8 @@
 # patch_config_and_upload.py
 # pip install -U transformers huggingface_hub
-import os, json, tempfile
+import os
+import json
+import tempfile
 from transformers import AutoConfig
 from huggingface_hub import HfApi, HfFolder
 

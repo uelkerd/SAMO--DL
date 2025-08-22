@@ -1,5 +1,7 @@
 CLEAR# infer_mapping_and_eval.py
-import os, numpy as np, torch
+import os
+import numpy as np
+import torch
 from tqdm import tqdm
 from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
