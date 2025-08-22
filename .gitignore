@@ -361,3 +361,17 @@ wandb/
 wheels/
 yarn-debug.log*
 yarn-error.log*
+
+# Artifacts (ignored)
+artifacts/
+
+# Local logs (ignored)
+.logs/
+
+# Coverage and reports (for tools that may recreate)
+.coverage
+coverage.xml
+
+# Large generated reports
+bandit-report.json
+ci_pipeline.log

@@ -199,7 +199,7 @@ repos:
 
   # String formatting with flynt
   - repo: https://github.com/ikamensh/flynt
-    rev: 0.78
+    rev: "0.78"
     hooks:
       - id: flynt
         args: [--line-length=88]
