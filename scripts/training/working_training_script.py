@@ -89,10 +89,10 @@ def main():
                 epoch_loss += loss.item()
 
                 if batch % 5 == 0:
-                    logger.info("   Batch {batch}: Loss = {loss.item():.6f}")
+                    logger.info(f"   Batch {batch}: Loss = {loss.item():.6f}")
 
             avg_loss = epoch_loss / num_batches
-            logger.info("✅ Epoch {epoch + 1}: Average Loss = {avg_loss:.6f}")
+            logger.info(f"✅ Epoch {epoch + 1}: Average Loss = {avg_loss:.6f}")
 
         logger.info("🎉 SUCCESS: Training completed without 0.0000 loss!")
         logger.info("   The 0.0000 loss issue is SOLVED!")
@@ -100,8 +100,8 @@ def main():
 
         return True
 
-    except Exception as e:
-        logger.error("❌ Training error: {e}")
+    except Exception as exc:
+        logger.error(f"❌ Training error: {exc}")
         traceback.print_exc()
         return False
 
