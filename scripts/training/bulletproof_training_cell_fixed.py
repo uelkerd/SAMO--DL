@@ -2,8 +2,6 @@
 # Runtime → Change runtime type → GPU (T4 or V100)
 # Kernel → Restart and run all
 
-print("🚀 BULLETPROOF TRAINING FOR REQ-DL-012 - FIXED LABEL MAPPING")
-print("=" * 60)
 import json
 import torch
 import torch.nn as nn
@@ -16,8 +14,20 @@ from sklearn.preprocessing import LabelEncoder
 from transformers import AutoModel, AutoTokenizer
 from pathlib import Path
 import os
+import sys
+
+# Ensure we can import scripts.bootstrap even when run directly
+_probe = Path(__file__).resolve()
+for cand in [_probe] + list(_probe.parents):
+    if (cand / "scripts" / "bootstrap.py").exists():
+        if str(cand) not in sys.path:
+            sys.path.insert(0, str(cand))
+        break
+
 from scripts.bootstrap import add_repo_src_to_path, find_repo_root
 
+print("🚀 BULLETPROOF TRAINING FOR REQ-DL-012 - FIXED LABEL MAPPING")
+print("=" * 60)
 print("✅ Imports successful")
 
 # Clear GPU memory
@@ -383,10 +393,13 @@ print("\n✅ Training completed successfully!")
 print(f"📊 Final F1 Score: {best_f1:.4f}")
 print(f"🎯 Target Met: {'✅' if best_f1 >= 0.7 else '❌'}")
 
-# Download results
-from google.colab import files
-files.download('best_simple_model.pth')
-files.download('simple_training_results.json')
+# Download results (optional in Colab)
+try:
+    from google.colab import files  # type: ignore
+    files.download('best_simple_model.pth')
+    files.download('simple_training_results.json')
+except Exception:
+    print("ℹ️ Skipping file downloads (not running in Colab)")
 
 print("\n🎉 BULLETPROOF TRAINING COMPLETED!")
 print("📁 Files downloaded: best_simple_model.pth, simple_training_results.json")
