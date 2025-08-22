@@ -148,6 +148,7 @@ print("✅ All labels within expected range")
 
 # Step 5: Create simple dataset class
 class SimpleEmotionDataset(Dataset):
+    """Dataset wrapper that tokenizes texts and returns tensors with labels."""
     def __init__(self, texts, y_labels, hf_tokenizer, max_length=128):
         self.texts = texts
         self.labels = y_labels
@@ -196,6 +197,7 @@ class SimpleEmotionDataset(Dataset):
 
 # Step 6: Create simple model
 class SimpleEmotionClassifier(nn.Module):
+    """BERT-based classifier with configurable number of output labels."""
     def __init__(self, model_name="bert-base-uncased", n_labels=None, num_labels=None):
         super().__init__()
         # Resolve labels: prefer n_labels; accept legacy num_labels
