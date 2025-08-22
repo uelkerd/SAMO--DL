@@ -7,7 +7,7 @@
 # Disabled hooks and their status:
 # ✅ Bandit: RE-ENABLED - Split into targeted hooks: changed files + tests (B101 skipped)
 # ✅ Safety: RE-ENABLED - Local hook with safety package, runs on push, scans all deps
-# ⚠️ Docformatter: Pre-commit hook language compatibility issues (python_venv not supported)
+# ✅ Docformatter: RE-ENABLED - Local hook with docformatter package for reliability
 # ✅ Flynt: RE-ENABLED - Fully configured with always_run and pass_filenames for consistency
 # - Local hooks: Configuration format issues (exclude field format) - FIXED: Updated to single-line format
 #
@@ -16,6 +16,7 @@
 # ✅ Individual exclude patterns removed from active hooks (black, isort, ruff, mypy)
 # ✅ Bandit split into targeted hooks: changed files (all rules) + tests (B101 skipped)
 # ✅ Safety implemented as local hook with safety package, optimized for push-only execution
+# ✅ Docformatter implemented as local hook with docformatter package for reliability
 # ✅ Flynt configuration made consistent with Bandit (always_run, pass_filenames)
 # ✅ Global exclude pattern enhanced to cover ALL test artifacts and build directories
 # ✅ Configuration is now much more maintainable and follows best practices
@@ -23,7 +24,7 @@
 #
 # Next steps:
 # 1. Test Safety hook with local implementation
-# 2. Find Docformatter alternative or fix language compatibility issues
+# 2. Test Docformatter hook with system language configuration
 # 3. Test and re-enable local hooks
 # 4. Update this TODO section as hooks are re-enabled
 #
@@ -163,16 +164,17 @@ repos:
         # env:
         #   - SAFETY_API_KEY  # if using the commercial DB
 
-  # Documentation formatting
-  # TODO: Pre-commit hook has language compatibility issues (python_venv not supported)
-  # Issue: https://github.com/uelkerd/SAMO--DL/issues/106
-  # - repo: https://github.com/myint/docformatter
-  #   rev: v1.7.3
-  #   hooks:
-  #     - id: docformatter
-  #       args: [--in-place, --wrap-summaries=88, --wrap-descriptions=88]
-  #       types: [python]
-  #       language: python
+  # Documentation formatting with Docformatter (local hook)
+  # Local hook with docformatter package to avoid external repository compatibility issues
+  - repo: local
+    hooks:
+      - id: docformatter
+        name: Docformatter (docstring formatting)
+        entry: docformatter
+        language: python
+        additional_dependencies: [docformatter==1.7.3]
+        args: [--in-place, --wrap-summaries=88, --wrap-descriptions=88]
+        types: [python]
 
   # String formatting with flynt
   # Configuration consistent with Bandit hooks for maintainability
