@@ -1,4 +1,3 @@
-CLEAR# infer_mapping_and_eval.py
 import os
 import numpy as np
 import torch
