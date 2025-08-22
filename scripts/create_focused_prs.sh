@@ -3,7 +3,7 @@
 # 🚀 Create Focused PRs Script
 # This script creates focused PR branches from the massive cloud-run-deployment-focus branch
 
-set -e
+set -euo pipefail
 
 echo "🚀 Creating focused PR branches..."
 
@@ -53,6 +53,12 @@ git checkout -b pr5-onnx-optimization main
 git checkout cloud-run-deployment-focus -- \
     deployment/cloud-run/onnx_api_server.py \
     dependencies/requirements_onnx.txt
+
+# Verify the file exists in the source branch to avoid a silent failure later
+if ! git show cloud-run-deployment-focus:dependencies/requirements_onnx.txt > /dev/null 2>&1; then
+  echo "❌ Missing dependencies/requirements_onnx.txt in branch cloud-run-deployment-focus" >&2
+  exit 1
+fi
 
 git add .
 git commit -m "⚡ PR5: ONNX Optimization
