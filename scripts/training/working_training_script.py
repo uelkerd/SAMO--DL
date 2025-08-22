@@ -36,7 +36,7 @@ def main():
             freeze_bert_layers=6,
         )
 
-        logger.info("✅ Model created: {model.count_parameters():,} parameters")
+        logger.info("✅ Model created: %s parameters", f"{model.count_parameters():,}")
 
         logger.info("🔧 Step 2: Creating optimizer...")
         optimizer = torch.optim.AdamW(
@@ -63,7 +63,7 @@ def main():
             logits = model(dummy_input_ids, dummy_attention_mask)
             loss = loss_fn(logits, dummy_labels)
 
-        logger.info("✅ Forward pass successful: Loss = {loss.item():.6f}")
+        logger.info("✅ Forward pass successful: Loss = %.6f", loss.item())
 
         logger.info("🔧 Step 4: Starting simple training...")
         model.train()
@@ -92,10 +92,10 @@ def main():
                 epoch_loss += loss.item()
 
                 if batch % 5 == 0:
-                    logger.info(f"   Batch {batch}: Loss = {loss.item():.6f}")
+                    logger.info("   Batch %d: Loss = %.6f", batch, loss.item())
 
             avg_loss = epoch_loss / num_batches
-            logger.info(f"✅ Epoch {epoch + 1}: Average Loss = {avg_loss:.6f}")
+            logger.info("✅ Epoch %d: Average Loss = %.6f", epoch + 1, avg_loss)
 
         logger.info("🎉 SUCCESS: Training completed without 0.0000 loss!")
         logger.info("   The 0.0000 loss issue is SOLVED!")
@@ -104,7 +104,7 @@ def main():
         return True
 
     except Exception as exc:
-        logger.error(f"❌ Training error: {exc}")
+        logger.error("❌ Training error: %s", exc)
         traceback.print_exc()
         return False
 
