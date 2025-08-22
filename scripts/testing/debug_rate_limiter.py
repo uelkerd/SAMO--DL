@@ -4,10 +4,6 @@
 Runs a pair of requests against a minimal config and prints bucket,
 refill, history, and block status to help diagnose rate-limit behavior.
 """
-
-# pylint: disable=protected-access
-
-import sys
 from pathlib import Path
 from scripts.bootstrap import add_repo_src_to_path, find_repo_root
 repo_root = find_repo_root(Path(__file__))
