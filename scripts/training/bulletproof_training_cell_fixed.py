@@ -216,7 +216,7 @@ print(f"✅ Using device: {device}")
 # Initialize tokenizer and model
 tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 num_labels = len(label_encoder.classes_)
-model = SimpleEmotionClassifier(model_name="bert-base-uncased", num_labels=num_labels)
+model = SimpleEmotionClassifier(model_name="bert-base-uncased", n_labels=num_labels)
 model = model.to(device)
 
 # Create datasets

@@ -2,8 +2,6 @@
 # Runtime → Change runtime type → GPU (T4 or V100)
 # Kernel → Restart and run all
 
-print("🚀 BULLETPROOF TRAINING FOR REQ-DL-012")
-print("=" * 50)
 import os
 import json
 import torch
@@ -16,8 +14,20 @@ from sklearn.metrics import f1_score, accuracy_score
 from sklearn.preprocessing import LabelEncoder
 from transformers import AutoModel, AutoTokenizer
 from pathlib import Path
+import sys
+
+# Ensure we can import scripts.bootstrap even when run directly
+_repo_probe = Path(__file__).resolve()
+for candidate in [_repo_probe] + list(_repo_probe.parents):
+    if (candidate / "scripts" / "bootstrap.py").exists():
+        if str(candidate) not in sys.path:
+            sys.path.insert(0, str(candidate))
+        break
+
 from scripts.bootstrap import add_repo_src_to_path, find_repo_root
 
+print("🚀 BULLETPROOF TRAINING FOR REQ-DL-012")
+print("=" * 50)
 print("✅ Imports successful")
 
 # Clear GPU memory
@@ -208,7 +218,7 @@ print(f"✅ Using device: {device}")
 # Initialize tokenizer and model
 tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 num_labels = len(label_encoder.classes_)
-model = SimpleEmotionClassifier(model_name="bert-base-uncased", num_labels=num_labels)
+model = SimpleEmotionClassifier(model_name="bert-base-uncased", n_labels=num_labels)
 model = model.to(device)
 
 # Create datasets
