@@ -19,7 +19,10 @@ import sys
 
 def _import_bootstrap():
     try:
-        from scripts.bootstrap import add_repo_src_to_path, find_repo_root  # type: ignore
+        from scripts.bootstrap import (
+            add_repo_src_to_path,
+            find_repo_root,
+        )  # type: ignore
         return add_repo_src_to_path, find_repo_root
     except Exception:
         probe = Path(__file__).resolve()
@@ -28,7 +31,10 @@ def _import_bootstrap():
                 if str(cand) not in sys.path:
                     sys.path.insert(0, str(cand))
                 break
-        from scripts.bootstrap import add_repo_src_to_path, find_repo_root  # type: ignore
+        from scripts.bootstrap import (
+            add_repo_src_to_path,
+            find_repo_root,
+        )  # type: ignore
         return add_repo_src_to_path, find_repo_root
 
 
@@ -158,7 +164,11 @@ class SimpleEmotionDataset(Dataset):
 
         # Validate data
         if len(texts) != len(labels):
-            raise ValueError(f"Texts and labels have different lengths: {len(texts)} vs {len(labels)}")
+            msg = (
+                "Texts and labels have different lengths: "
+                f"{len(texts)} vs {len(labels)}"
+            )
+            raise ValueError(msg)
 
         # Validate labels
         for idx_pos, label_val in enumerate(labels):
@@ -201,8 +211,14 @@ class SimpleEmotionClassifier(nn.Module):
         # Resolve label count
         if n_labels is None and num_labels is not None:
             n_labels = num_labels
-        elif n_labels is not None and num_labels is not None and n_labels != num_labels:
-            raise ValueError("Conflicting n_labels and num_labels provided; use n_labels")
+        elif (
+            n_labels is not None
+            and num_labels is not None
+            and n_labels != num_labels
+        ):
+            raise ValueError(
+                "Conflicting n_labels and num_labels provided; use n_labels"
+            )
 
         if n_labels is None or n_labels <= 0:
             raise ValueError(f"Invalid num_labels: {n_labels}")
@@ -217,7 +233,11 @@ class SimpleEmotionClassifier(nn.Module):
     def forward(self, input_ids_tensor, attention_mask_tensor):
         # Validate inputs
         if input_ids_tensor.dim() != 2:
-            raise ValueError(f"Expected input_ids to be 2D, got {input_ids_tensor.dim()}D")
+            msg = (
+                "Expected input_ids to be 2D, got "
+                f"{input_ids_tensor.dim()}D"
+            )
+            raise ValueError(msg)
 
         if attention_mask_tensor.dim() != 2:
             msg = (
@@ -255,7 +275,11 @@ model = model.to(device)
 
 # Create datasets
 go_dataset = SimpleEmotionDataset(go_texts, go_label_ids, tokenizer)
-journal_dataset = SimpleEmotionDataset(journal_texts, journal_label_ids, tokenizer)
+journal_dataset = SimpleEmotionDataset(
+    journal_texts,
+    journal_label_ids,
+    tokenizer,
+)
 
 # Split journal data
 journal_train_texts, journal_val_texts, journal_train_labels, journal_val_labels = train_test_split(

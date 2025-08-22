@@ -19,7 +19,10 @@ import sys
 
 def _import_bootstrap():
     try:
-        from scripts.bootstrap import add_repo_src_to_path, find_repo_root  # type: ignore
+        from scripts.bootstrap import (
+            add_repo_src_to_path,
+            find_repo_root,
+        )  # type: ignore
         return add_repo_src_to_path, find_repo_root
     except Exception:
         probe = Path(__file__).resolve()
@@ -28,7 +31,10 @@ def _import_bootstrap():
                 if str(candidate) not in sys.path:
                     sys.path.insert(0, str(candidate))
                 break
-        from scripts.bootstrap import add_repo_src_to_path, find_repo_root  # type: ignore
+        from scripts.bootstrap import (
+            add_repo_src_to_path,
+            find_repo_root,
+        )  # type: ignore
         return add_repo_src_to_path, find_repo_root
 
 
@@ -260,15 +266,22 @@ journal_train_texts, journal_val_texts, journal_train_labels, journal_val_labels
     stratify=journal_labels,
 )
 
-journal_train_dataset = SimpleEmotionDataset(journal_train_texts, journal_train_labels, tokenizer)
-journal_val_dataset = SimpleEmotionDataset(journal_val_texts, journal_val_labels, tokenizer)
+journal_train_dataset = SimpleEmotionDataset(
+    journal_train_texts, journal_train_labels, tokenizer
+)
+journal_val_dataset = SimpleEmotionDataset(
+    journal_val_texts, journal_val_labels, tokenizer
+)
 
 # Create dataloaders
 go_loader = DataLoader(go_dataset, batch_size=8, shuffle=True)
 journal_train_loader = DataLoader(journal_train_dataset, batch_size=8, shuffle=True)
 journal_val_loader = DataLoader(journal_val_dataset, batch_size=8, shuffle=False)
 
-print(f"✅ Training samples: {len(go_dataset)} GoEmotions + {len(journal_train_dataset)} Journal")
+print(
+    f"✅ Training samples: {len(go_dataset)} GoEmotions + "
+    f"{len(journal_train_dataset)} Journal"
+)
 print(f"✅ Validation samples: {len(journal_val_dataset)} Journal")
 
 # Step 8: Training loop
