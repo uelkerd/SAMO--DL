@@ -243,8 +243,8 @@ print(f"✅ Using device: {device}")
 
 # Initialize tokenizer and model
 tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
-num_labels = len(label_encoder.classes_)
-model = SimpleEmotionClassifier(model_name="bert-base-uncased", n_labels=num_labels)
+TOTAL_LABELS = len(label_encoder.classes_)
+model = SimpleEmotionClassifier(model_name="bert-base-uncased", n_labels=TOTAL_LABELS)
 model = model.to(device)
 
 # Create datasets
@@ -307,7 +307,7 @@ for epoch in range(num_epochs):
             labels = batch['labels'].to(device)
 
             # Validate labels
-            if torch.any(labels >= num_labels) or torch.any(labels < 0):
+            if torch.any(labels >= TOTAL_LABELS) or torch.any(labels < 0):
                 print(f"⚠️ Invalid labels in batch {i}: {labels}")
                 continue
 
@@ -336,7 +336,7 @@ for epoch in range(num_epochs):
             attention_mask = batch['attention_mask'].to(device)
             labels = batch['labels'].to(device)
 
-            if torch.any(labels >= num_labels) or torch.any(labels < 0):
+            if torch.any(labels >= TOTAL_LABELS) or torch.any(labels < 0):
                 continue
 
             optimizer.zero_grad()
@@ -408,10 +408,11 @@ print(f"\n🏆 Training completed! Best F1 Score: {best_f1:.4f}")
 # Step 9: Save results
 results = {
     'best_f1': best_f1,
-    'num_labels': num_labels,
+    'num_labels': TOTAL_LABELS,
     'target_achieved': best_f1 >= 0.7,
     'go_samples': len(go_texts),
-    'journal_samples': len(journal_texts)
+    'journal_samples': len(journal_texts),
+    'emotion_mapping': emotion_mapping
 }
 
 with open('simple_training_results.json', 'w') as f:
