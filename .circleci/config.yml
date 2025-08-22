@@ -98,6 +98,29 @@ jobs:
             export PATH="$HOME/.local/bin:$PATH"
             python3 -m pytest --version
             echo "✅ Test framework ready"
+  docker-build:
+    docker:
+      - image: cimg/base:stable
+    resource_class: medium
+    working_directory: ~/samo-dl
+    steps:
+      - checkout
+      - run:
+          name: Verify Docker and print version
+          command: |
+            docker --version
+      - run:
+          name: Build minimal image
+          command: |
+            docker build -f deployment/docker/Dockerfile.consolidated -t samo-dl-minimal .
+      - run:
+          name: Build unified image (with ML)
+          command: |
+            docker build \
+              --build-arg BUILD_TYPE=unified \
+              --build-arg INCLUDE_ML=true \
+              -f deployment/docker/Dockerfile.consolidated \
+              -t samo-dl-unified .
 
 workflows:
   simple-ci:
@@ -107,6 +130,9 @@ workflows:
           requires:
             - basic-setup
       - unit-tests:
+          requires:
+            - basic-setup
+      - docker-build:
           requires:
             - basic-setup
 
