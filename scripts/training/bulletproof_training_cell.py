@@ -20,6 +20,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, accuracy_score
 from sklearn.preprocessing import LabelEncoder
 from transformers import AutoModel, AutoTokenizer
+from pathlib import Path
 
 print("✅ Imports successful")
 
@@ -40,9 +41,15 @@ except Exception as e:
     print(f"❌ Basic tensor operations failed: {e}")
     raise
 
-# Step 2: Clone repository and setup
-!git clone https://github.com/uelkerd/SAMO--DL.git
-%cd SAMO--DL
+# Step 2: Ensure we are at the repository root
+def _find_repo_root(start: Path) -> Path:
+    for d in [start] + list(start.parents):
+        if (d / "src").exists():
+            return d
+    return start
+
+REPO_ROOT = _find_repo_root(Path(__file__).resolve())
+os.chdir(str(REPO_ROOT))
 
 # Step 3: Create unified label encoder
 print("\n🔧 Creating unified label encoder...")
