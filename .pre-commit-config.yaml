@@ -27,7 +27,30 @@
 # 4. Update this TODO section as hooks are re-enabled
 #
 # Global exclude pattern - applies to all hooks unless overridden
-exclude: "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
+# Uses anchored regex with extended mode for readability and accuracy
+exclude: |
+  (?x)^(
+      \.git|
+      \.venv|
+      \.env|
+      __pycache__|
+      \.pytest_cache|
+      \.mypy_cache|
+      \.ruff_cache|
+      build|
+      dist|
+      \.eggs|
+      \.tox|
+      \.coverage|
+      htmlcov|
+      \.cache|
+      \.logs|
+      results|
+      samples|
+      notebooks|
+      website|
+      docs/diagrams
+  )$
 
 repos:
   # Basic pre-commit hooks (run first)
@@ -92,7 +115,29 @@ repos:
   #     - id: bandit
   #       args: [-r, .]
   #       types: [python]
-  #       exclude: "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
+  #       exclude: |
+  #         (?x)^(
+  #             \.git|
+  #             \.venv|
+  #             \.env|
+  #             __pycache__|
+  #             \.pytest_cache|
+  #             \.mypy_cache|
+  #             \.ruff_cache|
+  #             build|
+  #             dist|
+  #             \.eggs|
+  #             \.tox|
+  #             \.coverage|
+  #             htmlcov|
+  #             \.cache|
+  #             \.logs|
+  #             results|
+  #             samples|
+  #             notebooks|
+  #             website|
+  #             docs/diagrams
+  #         )$
 
   # Security vulnerability scanning with Safety
   # Note: Consider moving this to CI/CD pipeline for performance
@@ -114,7 +159,29 @@ repos:
   #     - id: docformatter
   #       args: [--in-place, --wrap-summaries=88, --wrap-descriptions=88]
   #       types: [python]
-  #       exclude: "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
+  #       exclude: |
+  #         (?x)^(
+  #             \.git|
+  #             \.venv|
+  #             \.env|
+  #             __pycache__|
+  #             \.pytest_cache|
+  #             \.mypy_cache|
+  #             \.ruff_cache|
+  #             build|
+  #             dist|
+  #             \.eggs|
+  #             \.tox|
+  #             \.coverage|
+  #             htmlcov|
+  #             \.cache|
+  #             \.logs|
+  #             results|
+  #             samples|
+  #             notebooks|
+  #             website|
+  #             docs/diagrams
+  #         )$
 
   # String formatting with flynt
   # TODO: Re-enable once configuration issues are resolved
