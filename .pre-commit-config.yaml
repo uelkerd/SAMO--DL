@@ -1,33 +1,36 @@
 # Comprehensive Code Quality Prevention System for SAMO-DL
 # This configuration prevents ALL recurring DeepSource issues from ever happening again
-
-# Comprehensive Code Quality Prevention System for SAMO-DL
-# This configuration prevents ALL recurring DeepSource issues from ever happening again
 #
 # TODO: Re-enable all disabled hooks once configuration issues are resolved
-# Issue: https://github.com/uelkerd/SAMO--DL/issues/ (to be created)
+# Issue: https://github.com/uelkerd/SAMO--DL/issues/106
 #
 # Disabled hooks and their status:
-# - Bandit: Configuration format issues (exclude field format) - FIXED: Updated to single-line format
-# - Safety: Repository access issues (PyCQA/safety not found) - FIXED: Updated to single-line format
-# - Docformatter: Configuration format issues (exclude field format) - FIXED: Updated to single-line format
-# - Flynt: Configuration format issues (exclude field format) - FIXED: Updated to single-line format
+# ✅ Bandit: RE-ENABLED - Split into targeted hooks: changed files + tests (B101 skipped)
+# ✅ Safety: RE-ENABLED - Local hook with safety package, runs on push, scans all deps
+# ✅ Docformatter: RE-ENABLED - Local hook with docformatter package for reliability
+# ✅ Flynt: RE-ENABLED - Fully configured with always_run and pass_filenames for consistency
 # - Local hooks: Configuration format issues (exclude field format) - FIXED: Updated to single-line format
 #
 # IMPROVEMENTS IMPLEMENTED:
 # ✅ Global exclude pattern implemented - all hooks now inherit from top-level exclude
 # ✅ Individual exclude patterns removed from active hooks (black, isort, ruff, mypy)
-# ✅ All commented-out hooks updated to use single-line exclude format
+# ✅ Bandit split into targeted hooks: changed files (all rules) + tests (B101 skipped)
+# ✅ Safety implemented as local hook with safety package, optimized for push-only execution
+# ✅ Docformatter implemented as local hook with docformatter package for reliability
+# ✅ Flynt configuration made consistent with Bandit (always_run, pass_filenames)
+# ✅ Global exclude pattern enhanced to cover ALL test artifacts and build directories
 # ✅ Configuration is now much more maintainable and follows best practices
+# ✅ All code review comments addressed and resolved
 #
 # Next steps:
-# 1. Verify repository URLs and access for disabled hooks
-# 2. Test each hook individually
-# 3. Re-enable hooks one by one
+# 1. Test Safety hook with local implementation
+# 2. Test Docformatter hook with system language configuration
+# 3. Test and re-enable local hooks
 # 4. Update this TODO section as hooks are re-enabled
 #
 # Global exclude pattern - applies to all hooks unless overridden
 # Uses anchored regex with extended mode for readability and accuracy
+# Comprehensive coverage: git, venvs, caches, builds, artifacts, docs, samples, test artifacts
 exclude: |
   (?x)^(
       \.git|
@@ -49,7 +52,27 @@ exclude: |
       samples|
       notebooks|
       website|
-      docs/diagrams
+      docs/diagrams|
+      \.DS_Store|
+      artifacts|
+      \.benchmarks|
+      \.kilocode|
+      \.vscode|
+      deprecated|
+      test_reports|
+      test_report\.txt|
+      \.pytest_cache|
+      \.mypy_cache|
+      \.ruff_cache|
+      \.coverage|
+      coverage\.xml|
+      \.coveragerc|
+      \.gitignore-pages|
+      \.nojekyll|
+      \.deepsource\.toml|
+      \.pre-commit-exclude-patterns\.yaml|
+      trivy-results-.*\.json|
+      vulnerabilities-.*\.json
   )$
 
 repos:
@@ -105,98 +128,68 @@ repos:
         args: [--ignore-missing-imports, --python-version=3.8]
         types: [python]
 
-  # Security scanning with Bandit
-  # Note: Bandit now reports to stdout and fails commit if issues found
-  # TODO: Re-enable once configuration issues are resolved
-  # Issue: https://github.com/uelkerd/SAMO--DL/issues/ (to be created)
-  # - repo: https://github.com/PyCQA/bandit
-  #   rev: 1.7.5
-  #   hooks:
-  #     - id: bandit
-  #       args: [-r, .]
-  #       types: [python]
-  #       exclude: |
-  #         (?x)^(
-  #             \.git|
-  #             \.venv|
-  #             \.env|
-  #             __pycache__|
-  #             \.pytest_cache|
-  #             \.mypy_cache|
-  #             \.ruff_cache|
-  #             build|
-  #             dist|
-  #             \.eggs|
-  #             \.tox|
-  #             \.coverage|
-  #             htmlcov|
-  #             \.cache|
-  #             \.logs|
-  #             results|
-  #             samples|
-  #             notebooks|
-  #             website|
-  #             docs/diagrams
-  #         )$
+  # Security scanning with Bandit (optimized for performance)
+  # Split into targeted hooks: changed files (all rules) + tests (B101 skipped)
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        name: bandit (changed files)
+        # Scan only changed Python files, enforce all rules
+        types: [python]
+        exclude: '^(tests/|.*_test\.py$)'
 
-  # Security vulnerability scanning with Safety
-  # Note: Consider moving this to CI/CD pipeline for performance
-  # Safety checks installed dependencies and can be slow
-  # TODO: Re-enable once repository access issues are resolved
-  # Issue: https://github.com/uelkerd/SAMO--DL/issues/ (to be created)
-  # - repo: https://github.com/PyCQA/safety
-  #   rev: 3.1.1
-  #   hooks:
-  #     - id: safety
-  #       args: [check]
+      - id: bandit
+        name: bandit (tests, B101 skipped)
+        # Scan test files with B101 (assert_used) disabled
+        args: [-s, B101]
+        types: [python]
+        files: '^(tests/|.*_test\.py$)'
 
-  # Documentation formatting
-  # TODO: Re-enable once configuration issues are resolved
-  # Issue: https://github.com/uelkerd/SAMO--DL/issues/ (to be created)
-  # - repo: https://github.com/myint/docformatter
-  #   rev: v1.7.5
-  #   hooks:
-  #     - id: docformatter
-  #       args: [--in-place, --wrap-summaries=88, --wrap-descriptions=88]
-  #       types: [python]
-  #       exclude: |
-  #         (?x)^(
-  #             \.git|
-  #             \.venv|
-  #             \.env|
-  #             __pycache__|
-  #             \.pytest_cache|
-  #             \.mypy_cache|
-  #             \.ruff_cache|
-  #             build|
-  #             dist|
-  #             \.eggs|
-  #             \.tox|
-  #             \.coverage|
-  #             htmlcov|
-  #             \.cache|
-  #             \.logs|
-  #             results|
-  #             samples|
-  #             notebooks|
-  #             website|
-  #             docs/diagrams
-  #         )$
+  # Security vulnerability scanning with Safety (local hook)
+  # Local hook with safety package for reliability and control
+  # Runs on push to avoid blocking commits, scans all dependency files
+  - repo: local
+    hooks:
+      - id: safety-scan
+        name: Safety (dependency vulnerability scan)
+        entry: safety
+        language: python
+        additional_dependencies: [safety==3.6.0]
+        args: [scan, --full-report, --target, .]
+        pass_filenames: false
+        stages: [push]
+        # Optional: Add policy file for custom rules
+        # args: [scan, --full-report, --policy-file, .safety-policy.yml]
+        # env:
+        #   - SAFETY_API_KEY  # if using the commercial DB
+
+  # Documentation formatting with Docformatter (local hook)
+  # Local hook with docformatter package to avoid external repository compatibility issues
+  - repo: local
+    hooks:
+      - id: docformatter
+        name: Docformatter (docstring formatting)
+        entry: docformatter
+        language: python
+        additional_dependencies: [docformatter==1.7.3]
+        args: [--in-place, --wrap-summaries=88, --wrap-descriptions=88]
+        types: [python]
 
   # String formatting with flynt
-  # TODO: Re-enable once configuration issues are resolved
-  # Issue: https://github.com/uelkerd/SAMO--DL/issues/ (to be created)
-  # - repo: https://github.com/ikamensh/flynt
-  #   rev: 0.78
-  #   hooks:
-  #     - id: flynt
-  #       args: [--line-length=88]
-  #       types: [python]
-  #       exclude: "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
+  # Configuration consistent with Bandit hooks for maintainability
+  - repo: https://github.com/ikamensh/flynt
+    rev: "0.78"
+    hooks:
+      - id: flynt
+        args: [--line-length=88, .]
+        types: [python]
+        pass_filenames: false
+        always_run: true
 
   # Custom SAMO-DL code quality enforcer
   # TODO: Re-enable once configuration issues are resolved
-  # Issue: https://github.com/uelkerd/SAMO--DL/issues/ (to be created)
+  # Issue: https://github.com/uelkerd/SAMO--DL/issues/106
   # - repo: local
   #   hooks:
   #     - id: samo-code-quality-enforcer
@@ -206,12 +199,10 @@ repos:
   #       types: [python]
   #       pass_filenames: false
   #       always_run: true
-  #       stages: commit
-  #       exclude: "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
 
   # Auto-fix common code quality issues
   # TODO: Re-enable once configuration issues are resolved
-  # Issue: https://github.com/uelkerd/SAMO--DL/issues/ (to be created)
+  # Issue: https://github.com/uelkerd/SAMO--DL/issues/106
   # - repo: local
   #   hooks:
   #     - id: samo-auto-fix-code-quality
@@ -221,8 +212,6 @@ repos:
   #       types: [python]
   #       pass_filenames: false
   #       always_run: true
-  #       stages: commit
-  #       exclude: "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
 
 # Global configuration
 default_language_version:
