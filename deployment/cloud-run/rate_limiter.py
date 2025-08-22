@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Rate Limiter for Flask API"""
 
+
 import time
 import threading
 from collections import defaultdict, deque
 from flask import request, jsonify
 from functools import wraps
+
 
 class RateLimiter:
     def __init__(self, requests_per_minute: int = 100):

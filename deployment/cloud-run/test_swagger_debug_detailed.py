@@ -3,9 +3,11 @@
 Detailed test to capture Swagger docs 500 error
 """
 
+
 import os
 import requests
 import traceback
+
 
 # Set required environment variables
 os.environ['ADMIN_API_KEY'] = 'test-key-123'
@@ -15,14 +17,18 @@ os.environ['MODEL_PATH'] = '/app/model'
 os.environ['PORT'] = '8084'
 
 try:
+
     from secure_api_server import app
     
+
     print("✅ Successfully imported secure_api_server")
     
     # Start server in background with error capture
+
     import threading
     import time
     
+
     def run_server():
         try:
             app.run(host='0.0.0.0', port=8084, debug=False)

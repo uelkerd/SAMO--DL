@@ -6,8 +6,10 @@ Creates a notebook that properly uses j-hartmann/emotion-english-distilroberta-b
 with proper JSON escaping
 """
 
+
 import json
 from pathlib import Path
+
 
 def create_fixed_notebook():
     """Create a fixed notebook with proper JSON escaping"""

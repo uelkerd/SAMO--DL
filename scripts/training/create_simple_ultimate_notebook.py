@@ -7,7 +7,9 @@ This script creates a simplified version of the ultimate notebook that
 avoids the datasets library issues by using a more direct approach.
 """
 
+
 import json
+
 
 def create_simple_notebook():
     """Create a simplified ultimate notebook."""

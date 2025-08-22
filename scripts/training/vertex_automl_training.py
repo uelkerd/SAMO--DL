@@ -18,6 +18,7 @@
     # Initialize and run training
 # Configure logging
 #!/usr/bin/env python3
+
 from datetime import datetime
 from google.cloud import aiplatform
 from google.cloud import storage
@@ -25,6 +26,7 @@ import json
 import logging
 import sys
 import time
+
 
 
 

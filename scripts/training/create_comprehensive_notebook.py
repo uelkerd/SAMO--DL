@@ -7,7 +7,9 @@ This script creates a comprehensive notebook that includes all the advanced
 features from the original working notebook while fixing the technical issues.
 """
 
+
 import json
+
 
 def create_comprehensive_notebook():
     """Create a comprehensive notebook with all advanced features."""

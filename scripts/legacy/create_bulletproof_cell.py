@@ -14,6 +14,7 @@ print("🚀 BULLETPROOF TRAINING FOR REQ-DL-012")
 print("=" * 50)
 
 # Step 1: Clear everything and validate environment
+
 import os
 import sys
 import json
@@ -28,6 +29,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, accuracy_score
 from sklearn.preprocessing import LabelEncoder
 from transformers import AutoModel, AutoTokenizer
+
 
 print("✅ Imports successful")
 
@@ -385,7 +387,9 @@ print(f"📊 Final F1 Score: {best_f1:.4f}")
 print(f"🎯 Target Met: {'✅' if best_f1 >= 0.7 else '❌'}")
 
 # Download results
+
 from google.colab import files
+
 files.download('best_simple_model.pth')
 files.download('simple_training_results.json')
 

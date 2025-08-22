@@ -5,6 +5,7 @@ Simple Focal Loss Training Script
 This script demonstrates focal loss training with a simplified approach.
 """
 
+
 import logging
 import sys
 from pathlib import Path
@@ -12,10 +13,13 @@ from pathlib import Path
 import torch
 from torch import nn
 
+
 # Add src to path
 sys.path.append(str(Path.cwd() / "src"))
 
+
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")

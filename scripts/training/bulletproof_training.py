@@ -3,6 +3,7 @@
 Bulletproof training script for REQ-DL-012 that handles notebook state corruption.
 This script can be run in a fresh kernel and will validate everything step by step.
 """
+
 import sys
 import json
 import pickle
@@ -16,6 +17,7 @@ from sklearn.metrics import f1_score, accuracy_score
 from sklearn.preprocessing import LabelEncoder
 from transformers import AutoModel, AutoTokenizer
 import logging
+
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

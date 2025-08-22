@@ -6,11 +6,13 @@ Complete the emotion detection project deployment.
 This script handles everything from model saving to final testing.
 """
 
+
 import os
 import json
 import subprocess
 import sys
 from datetime import datetime
+
 
 def print_banner():
     """Print project completion banner"""

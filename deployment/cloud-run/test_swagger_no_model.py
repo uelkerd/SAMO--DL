@@ -3,9 +3,11 @@
 Test Swagger docs without model dependencies
 """
 
+
 import os
 from flask import Flask, jsonify
 from flask_restx import Api, Resource, Namespace
+
 
 # Set required environment variables
 os.environ['ADMIN_API_KEY'] = 'test-key-123'

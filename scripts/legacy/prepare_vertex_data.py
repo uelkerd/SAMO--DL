@@ -5,9 +5,11 @@ Prepare Vertex AI Data Script
 This script prepares data for training on Google Cloud Vertex AI.
 """
 
+
 import logging
 import sys
 from pathlib import Path
+
 
 # Add src to path
 sys.path.append(str(Path.cwd() / "src"))
@@ -35,7 +37,9 @@ def prepare_vertex_data():
         ]
 
         # Save training data
+
         import json
+
         with open(data_dir / "training_data.json", "w") as f:
             json.dump(sample_data, f, indent=2)
 

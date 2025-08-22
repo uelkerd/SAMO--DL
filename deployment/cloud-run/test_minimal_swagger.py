@@ -3,8 +3,10 @@
 Minimal test to isolate Swagger docs issue
 """
 
+
 from flask import Flask, jsonify
 from flask_restx import Api, Resource, Namespace
+
 
 # Create Flask app
 app = Flask(__name__)

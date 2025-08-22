@@ -12,6 +12,7 @@ Key Features:
 - Performance monitoring
 """
 
+
 import logging
 import time
 from contextlib import asynccontextmanager
@@ -22,6 +23,7 @@ from fastapi import BackgroundTasks, FastAPI, HTTPException
 from pydantic import BaseModel, Field, validator
 
 from .t5_summarizer import T5SummarizationModel, create_t5_summarizer
+
 
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development

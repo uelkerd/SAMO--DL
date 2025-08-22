@@ -7,7 +7,9 @@ This script fixes the model architecture mismatch by properly reconfiguring
 the model for 12 emotions instead of the original 7.
 """
 
+
 import json
+
 
 def fix_model_architecture():
     """Fix the model architecture mismatch in the minimal notebook."""

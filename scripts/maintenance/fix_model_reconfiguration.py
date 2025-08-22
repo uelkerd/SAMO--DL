@@ -8,7 +8,9 @@ with the correct architecture from scratch instead of trying to modify
 the existing one.
 """
 
+
 import json
+
 
 def fix_model_reconfiguration():
     """Fix the model reconfiguration in the minimal notebook."""

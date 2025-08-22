@@ -3,11 +3,13 @@
 Phase 3 Cloud Run Optimization Test Suite - Fixed Version
 Comprehensive testing for Cloud Run optimization components without loops/conditionals
 """
+
 import sys
 import yaml
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 import unittest
+
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'src'))
@@ -74,7 +76,9 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         # Import health monitor with graceful fallback
         sys.path.insert(0, str(self.cloud_run_dir))
         try:
+
             from health_monitor import HealthMonitor, HealthMetrics
+
         except ImportError:
             self.skipTest("Health monitor not available in test environment")
         
@@ -92,7 +96,9 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         
         sys.path.insert(0, str(self.cloud_run_dir))
         try:
+
             from health_monitor import HealthMonitor
+
         except ImportError:
             self.skipTest("Health monitor not available in test environment")
         
@@ -119,7 +125,9 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         
         sys.path.insert(0, str(self.cloud_run_dir))
         try:
+
             from health_monitor import HealthMonitor
+
         except ImportError:
             self.skipTest("Health monitor not available in test environment")
         

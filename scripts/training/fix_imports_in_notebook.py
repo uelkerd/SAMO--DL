@@ -7,7 +7,9 @@ This script adds the missing imports to the ultimate notebook to ensure
 all features work properly.
 """
 
+
 import json
+
 
 def fix_imports():
     """Add missing imports to the ultimate notebook."""

@@ -5,23 +5,29 @@
 Tests for Content Security Policy configuration and loading.
 """
 
+
 import sys
 import os
 import tempfile
 import yaml
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
 
 import unittest
 from unittest.mock import patch
 
 from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
 
+
 class TestCSPConfiguration(unittest.TestCase):
     """Test CSP configuration loading and fallback."""
     
     def setUp(self):
         """Set up test fixtures."""
+
         from flask import Flask
+
         self.app = Flask(__name__)
         self.config = SecurityHeadersConfig(
             enable_csp=True,
@@ -161,7 +167,9 @@ class TestCSPConfiguration(unittest.TestCase):
         middleware = SecurityHeadersMiddleware(self.app, config)
         
         # Mock response
+
         from flask import Response
+
         response = Response()
         
         # Add security headers
@@ -175,7 +183,9 @@ class TestCSPConfiguration(unittest.TestCase):
         middleware = SecurityHeadersMiddleware(self.app, self.config)
         
         # Mock response
+
         from flask import Response
+
         response = Response()
         
         # Add security headers

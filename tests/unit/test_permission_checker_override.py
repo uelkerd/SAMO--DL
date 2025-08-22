@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Test permission override path guarded by PYTEST_CURRENT_TEST."""
+
 from fastapi.testclient import TestClient
 
 from src.unified_ai_api import app
+
 
 
 def test_permission_override_header_active_under_pytest(monkeypatch):

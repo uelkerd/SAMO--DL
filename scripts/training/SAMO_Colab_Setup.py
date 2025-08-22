@@ -10,10 +10,12 @@ Usage in Colab:
 3. Follow the setup instructions
 """
 
+
 import os
 import sys
 import subprocess
 from typing import Optional
+
 
 def print_header() -> None:
     """Print setup header."""
@@ -21,7 +23,9 @@ def print_header() -> None:
 def check_gpu() -> Optional[bool]:
     """Check GPU availability."""
     try:
+
         import torch
+
         gpu_available = torch.cuda.is_available()
         
         if gpu_available:
@@ -76,17 +80,23 @@ def install_dependencies() -> bool:
 def test_audio_libraries() -> bool:
     """Test audio processing libraries."""
     try:
+
         import soundfile as sf
+
     except ImportError:
         return False
     
     try:
+
         import librosa
+
     except ImportError:
         return False
     
     try:
+
         import whisper
+
         whisper.load_model("base")
     except ImportError:
         return False
@@ -97,11 +107,13 @@ def create_voice_demo() -> bool:
     """Create voice processing demo."""
     demo_code = '''
 # Voice Processing Demo
+
 import pyaudio
 import wave
 import numpy as np
 import librosa
 import whisper
+
 
 def record_audio(duration=5, sample_rate=16000):
     """Record audio from microphone."""
@@ -195,17 +207,21 @@ def create_f1_optimization_script() -> bool:
     """Create F1 optimization script."""
     f1_code = '''
 # F1 Score Optimization Script
+
 import torch
 import torch.nn as nn
 import numpy as np
 from pathlib import Path
 
+
 # Add project root to path
 project_root = Path(__file__).parent
 sys.path.append(str(project_root))
 
+
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+
 
 class FocalLoss(nn.Module):
     """Focal Loss for handling class imbalance."""

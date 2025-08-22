@@ -3,13 +3,17 @@
 Unit tests for emotion detection models.
 """
 
+
 import pytest
 import torch
 from unittest.mock import MagicMock, patch
 from transformers.modeling_outputs import BaseModelOutputWithPooling
 
+
 try:
+
     from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+
 except ImportError as e:
     raise RuntimeError(
         f"Failed to import BERTEmotionClassifier: {e}. "

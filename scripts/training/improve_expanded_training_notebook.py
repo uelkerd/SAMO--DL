@@ -4,8 +4,10 @@ Improve Expanded Training Notebook
 Adds GPU optimizations, better error handling, and performance enhancements
 """
 
+
 import json
 import re
+
 
 def improve_notebook():
     """Improve the expanded training notebook with enhancements."""
@@ -80,8 +82,10 @@ def improve_notebook():
     # Add mixed precision training
     mixed_precision_pattern = r'import torch\.nn as nn'
     mixed_precision_code = '''import torch.nn as nn
+
 from torch.cuda.amp import autocast, GradScaler'''
     
+
     new_source = re.sub(mixed_precision_pattern, mixed_precision_code, new_source)
     
     # Add scaler initialization

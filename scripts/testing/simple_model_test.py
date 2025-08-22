@@ -3,8 +3,10 @@
 Simple model test script that works with current Python environment.
 """
 
+
 import json
 import os
+
 
 def test_model_files():
     """Test if model files exist and are valid."""
@@ -57,7 +59,9 @@ def test_python_environment():
     
     # Test basic imports
     try:
+
         import sys
+
         print(f"✅ Python version: {sys.version}")
     except ImportError:
         print("❌ Cannot import sys")
@@ -65,7 +69,9 @@ def test_python_environment():
     
     # Test JSON
     try:
+
         import json
+
         print("✅ JSON module available")
     except ImportError:
         print("❌ JSON module not available")
@@ -73,7 +79,9 @@ def test_python_environment():
     
     # Test OS
     try:
+
         import os
+
         print("✅ OS module available")
     except ImportError:
         print("❌ OS module not available")

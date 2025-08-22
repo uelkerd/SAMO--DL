@@ -7,11 +7,13 @@ This script deploys the comprehensive emotion detection model to GCP/Vertex AI
 for production use.
 """
 
+
 import os
 import json
 import subprocess
 import sys
 from datetime import datetime
+
 
 def check_prerequisites():
     """Check if all prerequisites are met for GCP deployment."""
@@ -119,7 +121,9 @@ def create_deployment_package():
     # Create deployment directory
     deployment_dir = "gcp_deployment"
     if os.path.exists(deployment_dir):
+
         import shutil
+
         shutil.rmtree(deployment_dir)
     os.makedirs(deployment_dir)
     
@@ -127,7 +131,9 @@ def create_deployment_package():
     model_source = "deployment/models/default"
     model_dest = os.path.join(deployment_dir, "model")
     
+
     import shutil
+
     shutil.copytree(model_source, model_dest)
     print(f"✅ Model copied to: {model_dest}")
     
@@ -140,11 +146,13 @@ Vertex AI Prediction Script
 This script handles predictions for the emotion detection model on Vertex AI.
 """
 
+
 import os
 import json
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import numpy as np
+
 
 class EmotionDetectionModel:
     def __init__(self):

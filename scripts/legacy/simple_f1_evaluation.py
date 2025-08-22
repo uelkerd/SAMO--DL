@@ -5,6 +5,7 @@ Simple F1 Score Evaluation Script
 This script evaluates the current F1 score of the emotion detection model.
 """
 
+
 import logging
 import sys
 from pathlib import Path
@@ -12,12 +13,15 @@ from pathlib import Path
 import torch
 from sklearn.metrics import f1_score, precision_score, recall_score
 
+
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+
 
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from transformers import AutoTokenizer
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -174,13 +178,17 @@ def evaluate_current_f1():
 
     except Exception as e:
         logger.error(f"❌ Evaluation failed: {e}")
+
         import traceback
+
         traceback.print_exc()
         return None
 
 
 if __name__ == "__main__":
+
     import numpy as np
+
     results = evaluate_current_f1()
     if results:
         logger.info("✅ Evaluation completed successfully")

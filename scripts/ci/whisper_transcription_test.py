@@ -6,6 +6,7 @@ This script validates the Whisper transcription model functionality
 with a simple test audio file.
 """
 
+
 import contextlib
 import logging
 import numpy as np
@@ -15,6 +16,7 @@ import tempfile
 from pathlib import Path
 
 from scipy.io import wavfile
+
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
@@ -55,12 +57,16 @@ def test_whisper_imports():
 
         # Test imports with fallback mechanism
         try:
+
             from models.voice_processing.audio_preprocessor import AudioPreprocessor
             from models.voice_processing.whisper_transcriber import WhisperTranscriber
+
         except ImportError:
             # Fallback for different import paths
+
             from src.models.voice_processing.audio_preprocessor import AudioPreprocessor
             from src.models.voice_processing.whisper_transcriber import WhisperTranscriber
+
 
         logger.info("✅ Whisper imports successful")
         return True
@@ -77,13 +83,17 @@ def test_whisper_instantiation():
 
         # Test imports with fallback mechanism
         try:
+
             from models.voice_processing.whisper_transcriber import (
+
                 TranscriptionConfig,
                 WhisperTranscriber,
             )
         except ImportError:
             # Fallback for different import paths
+
             from src.models.voice_processing.whisper_transcriber import (
+
                 TranscriptionConfig,
                 WhisperTranscriber,
             )
@@ -112,10 +122,14 @@ def test_audio_preprocessor():
 
         # Test imports with fallback mechanism
         try:
+
             from models.voice_processing.audio_preprocessor import AudioPreprocessor
+
         except ImportError:
             # Fallback for different import paths
+
             from src.models.voice_processing.audio_preprocessor import AudioPreprocessor
+
 
         # Generate test audio
         test_audio_path = generate_test_audio()
@@ -158,13 +172,17 @@ def test_minimal_transcription():
 
         # Test imports with fallback mechanism
         try:
+
             from models.voice_processing.whisper_transcriber import (
+
                 TranscriptionConfig,
                 WhisperTranscriber,
             )
         except ImportError:
             # Fallback for different import paths
+
             from src.models.voice_processing.whisper_transcriber import (
+
                 TranscriptionConfig,
                 WhisperTranscriber,
             )

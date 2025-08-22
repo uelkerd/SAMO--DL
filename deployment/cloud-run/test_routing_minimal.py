@@ -3,8 +3,10 @@
 Minimal test script to isolate Flask-RESTX routing issues
 """
 
+
 from flask import Flask, jsonify
 from flask_restx import Api, Resource, Namespace
+
 
 # Create Flask app
 app = Flask(__name__)

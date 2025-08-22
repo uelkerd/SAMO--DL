@@ -3,9 +3,11 @@
 Setup script for testing the emotion detection model.
 """
 
+
 import os
 import json
 import shutil
+
 
 def check_model_files():
     """Check if required model files exist."""
@@ -135,10 +137,12 @@ def run_quick_test():
     print("\n🧪 Running quick test...")
     
     try:
+
         import torch
         import transformers
         from sklearn.preprocessing import LabelEncoder
         
+
         print("✅ All required libraries available")
         
         # Test model loading

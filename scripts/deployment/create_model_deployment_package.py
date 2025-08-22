@@ -5,7 +5,9 @@
 Create a complete deployment package for the trained emotion model.
 This includes model files, inference scripts, and documentation.
 """
+
 import os
+
 
 def create_model_deployment_package():
     """Create the deployment package content"""
@@ -73,11 +75,13 @@ requests==2.32.4
 Standalone script to run emotion detection on text.
 """
 
+
 import torch
 import json
 import numpy as np
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from sklearn.preprocessing import LabelEncoder
+
 
 class EmotionDetector:
     def __init__(self, model_path="./model"):
@@ -183,7 +187,9 @@ if __name__ == "__main__":
 Test the trained model with various examples.
 """
 
+
 from inference import EmotionDetector
+
 
 def test_model():
     """Test the emotion detection model"""
@@ -250,9 +256,11 @@ if __name__ == "__main__":
 REST API server for emotion detection.
 """
 
+
 from flask import Flask, request, jsonify
 from inference import EmotionDetector
 import logging
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -294,7 +302,9 @@ def predict_emotion():
         return jsonify(result)
     
     except Exception:
+
         import uuid
+
         request_id = str(uuid.uuid4())
         logger.exception(f"Prediction error [request_id={request_id}]")
         return jsonify({
@@ -319,7 +329,9 @@ def predict_batch():
         return jsonify({'results': results})
     
     except Exception:
+
         import uuid
+
         request_id = str(uuid.uuid4())
         logger.exception(f"Batch prediction error [request_id={request_id}]")
         return jsonify({

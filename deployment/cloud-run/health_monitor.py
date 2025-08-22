@@ -3,6 +3,7 @@ Cloud Run Health Monitor - Phase 3 Optimization
 Provides comprehensive health checks, graceful shutdown, and monitoring
 """
 
+
 import os
 import sys
 import time
@@ -12,6 +13,7 @@ from typing import Dict, Any, Optional
 from dataclasses import dataclass
 from datetime import datetime
 import psutil
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -88,13 +90,17 @@ class HealthMonitor:
         """Check if ML models are loaded and responding"""
         try:
             # Import models (this will fail if models aren't loaded)
+
             from secure_api_server import app
+
 
             # Test model loading
             start_time = time.time()
 
             # Simple health check - try to import key components
+
             import importlib
+
             modules_to_check = [
                 'src.models.emotion_detection.bert_classifier',
                 'src.models.summarization.t5_summarizer', 
@@ -131,7 +137,9 @@ class HealthMonitor:
             start_time = time.time()
 
             # Test internal health endpoint
+
             from secure_api_server import app
+
 
             # Use Flask test client instead of FastAPI TestClient
             with app.test_client() as client:

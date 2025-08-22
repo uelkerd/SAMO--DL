@@ -9,6 +9,7 @@ Usage:
     python3 diagnose_f1_issue.py
 """
 
+
 import logging
 import numpy as np
 import torch
@@ -17,6 +18,7 @@ from sklearn.metrics import f1_score, precision_score, recall_score
 from torch import nn
 from transformers import AutoModel, AutoTokenizer
 import sys
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")

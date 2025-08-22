@@ -7,6 +7,7 @@ continuation-indentation issues flagged by common linters (e.g., Ruff/Flake8).
 Use with care.
 """
 
+
 import os
 import argparse
 import shutil
@@ -14,6 +15,7 @@ import tempfile
 import contextlib
 from pathlib import Path
 from typing import Optional
+
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -110,7 +112,9 @@ def fix_indentation_issues(file_path: Path) -> tuple[bool, list[str]]:
             original_content = f.read()
 
         # Use ast to check for indentation/syntax issues without modifying the file
+
         import ast
+
         try:
             ast.parse(original_content)
             return False, []  # Parsed successfully; assume no indentation issues

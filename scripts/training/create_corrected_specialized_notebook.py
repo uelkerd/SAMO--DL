@@ -5,7 +5,9 @@ CREATE CORRECTED SPECIALIZED NOTEBOOK
 Creates a notebook that properly uses j-hartmann/emotion-english-distilroberta-base
 with verification steps to ensure the correct model is being used
 """
+
 from pathlib import Path
+
 
 def create_corrected_notebook():
     """Create a corrected notebook with proper specialized model usage"""

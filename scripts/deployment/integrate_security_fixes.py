@@ -11,6 +11,7 @@ This script:
 4. Tests both security and performance features
 """
 
+
 import os
 import subprocess
 import shlex
@@ -18,6 +19,7 @@ import time
 import requests
 from pathlib import Path
 from typing import Dict, List, Optional
+
 
 class IntegratedSecurityOptimization:
     def __init__(self):

@@ -7,10 +7,12 @@ This script deploys the comprehensive emotion detection model locally
 for testing before cloud deployment.
 """
 
+
 import os
 import json
 import sys
 from datetime import datetime
+
 
 def deploy_locally():
     """Deploy the model locally for testing."""
@@ -30,12 +32,16 @@ def deploy_locally():
     # Create local deployment directory
     local_deployment_dir = "local_deployment"
     if os.path.exists(local_deployment_dir):
+
         import shutil
+
         shutil.rmtree(local_deployment_dir)
     os.makedirs(local_deployment_dir)
     
     # Copy model files
+
     import shutil
+
     shutil.copytree(model_path, os.path.join(local_deployment_dir, "model"))
     print("✅ Model files copied")
     
@@ -48,11 +54,13 @@ Local Emotion Detection API Server
 A simple Flask API server for local testing of the emotion detection model.
 """
 
+
 from flask import Flask, request, jsonify
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import numpy as np
 import os
+
 
 app = Flask(__name__)
 
@@ -256,9 +264,11 @@ Test script for local deployment
 This script tests the local API server with various examples.
 """
 
+
 import requests
 import json
 import time
+
 
 def test_api():
     """Test the local API server."""

@@ -10,7 +10,9 @@ The key fix is to ensure the model configuration is properly saved and that
 we verify the saved model has the correct configuration before proceeding.
 """
 
+
 import json
+
 
 def create_fixed_notebook():
     """Create a corrected training notebook with proper configuration preservation."""

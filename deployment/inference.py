@@ -5,9 +5,11 @@ EMOTION DETECTION INFERENCE SCRIPT
 Standalone script to run emotion detection on text.
 """
 
+
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
+
 
 class EmotionDetector:
     def __init__(self, model_path=None):
@@ -63,8 +65,10 @@ class EmotionDetector:
 
 def main():
     """Main function for command line usage"""
+
     import sys
     
+
     if len(sys.argv) < 2:
         print("Usage: python inference.py 'Your text here'")
         print("Example: python inference.py 'I am feeling happy today!'")

@@ -4,6 +4,7 @@
 This module provides a unified FastAPI interface for all AI models
 in the SAMO Deep Learning pipeline.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -22,6 +23,7 @@ from collections import defaultdict
 
 import uvicorn
 from fastapi import (
+
     FastAPI,
     File,
     Form,
@@ -34,6 +36,7 @@ from fastapi import (
     WebSocket,
     Query,
 )
+
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -43,6 +46,7 @@ from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_
 
 from .api_rate_limiter import add_rate_limiting
 from .security.jwt_manager import JWTManager, TokenPayload, TokenResponse
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -135,7 +139,9 @@ def _run_emotion_predict(text: str, threshold: float = 0.5) -> dict:
         # Adapter for BERTEmotionClassifier.predict_emotions
         if hasattr(emotion_detector, "predict_emotions"):
             # Import labels lazily to avoid heavy deps at import time
+
             from src.models.emotion_detection.labels import (
+
                 GOEMOTIONS_EMOTIONS as _LABELS
             )
             result = emotion_detector.predict_emotions(text, threshold=threshold) or {}
@@ -399,7 +405,9 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
         try:
             # Prefer loading our HF Hub model; fallback to local BERT if unavailable
             try:
+
                 from src.models.emotion_detection.hf_loader import (
+
                     load_emotion_model_multi_source
                 )
                 hf_model_id = os.getenv("EMOTION_MODEL_ID", "0xmnrv/samo")
@@ -428,7 +436,9 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                     exc_info=True,
                 )
                 logger.info("Falling back to local BERT emotion classifier...")
+
                 from src.models.emotion_detection.bert_classifier import (
+
                     create_bert_emotion_classifier,
                 )
                 model, _ = create_bert_emotion_classifier()
@@ -439,7 +449,9 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
 
         logger.info("Loading text summarization model...")
         try:
+
             from src.models.summarization.t5_summarizer import create_t5_summarizer
+
 
             text_summarizer = create_t5_summarizer("t5-small")
             logger.info("Text summarization model loaded")
@@ -448,7 +460,9 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
 
         logger.info("Loading voice processing model...")
         try:
+
             from src.models.voice_processing.whisper_transcriber import (
+
                 create_whisper_transcriber,
             )
 
@@ -582,7 +596,9 @@ def _ensure_voice_transcriber_loaded() -> None:
     if voice_transcriber is not None:
         return
     try:
+
         from src.models.voice_processing.whisper_transcriber import (
+
             create_whisper_transcriber as _wcreate,
         )
         logger.info("Lazy-loading Whisper transcriber: small")
@@ -677,7 +693,9 @@ def _ensure_summarizer_loaded() -> None:
     if text_summarizer is not None:
         return
     try:
+
         from src.models.summarization.t5_summarizer import (
+
             create_t5_summarizer as _create,
         )
         logger.info("Lazy-loading summarizer model: t5-small")
@@ -697,7 +715,9 @@ def _get_request_scoped_summarizer(model: str):
     """
     if hasattr(text_summarizer, "model_name") and text_summarizer.model_name != model:
         try:
+
             from src.models.summarization.t5_summarizer import (
+
                 create_t5_summarizer as _create,
             )
             logger.info(
@@ -1954,7 +1974,9 @@ async def get_performance_metrics(
     """Get comprehensive performance metrics."""
     try:
         # Get system metrics
+
         import psutil
+
 
         cpu_percent = await asyncio.to_thread(psutil.cpu_percent, interval=1)
         memory = await asyncio.to_thread(psutil.virtual_memory)
@@ -2056,7 +2078,9 @@ async def detailed_health_check(
 
     # Check system resources
     try:
+
         import psutil
+
         cpu_percent = await asyncio.to_thread(psutil.cpu_percent, interval=1)
         memory = await asyncio.to_thread(psutil.virtual_memory)
 

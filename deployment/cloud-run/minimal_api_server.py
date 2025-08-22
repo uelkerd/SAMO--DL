@@ -5,6 +5,7 @@ Uses known working PyTorch/transformers combination
 Matches the actual model architecture: RoBERTa with 12 emotion classes
 """
 
+
 import logging
 import os
 import time
@@ -14,8 +15,11 @@ from flask import Flask, request, jsonify
 import psutil
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
+
 # Import shared model utilities
+
 from model_utils import (
+
     ensure_model_loaded, predict_emotions, get_model_status,
     MAX_TEXT_LENGTH
 )
@@ -28,7 +32,9 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 # Register shared docs blueprint
+
 from docs_blueprint import docs_bp
+
 app.register_blueprint(docs_bp)
 
 # Prometheus metrics

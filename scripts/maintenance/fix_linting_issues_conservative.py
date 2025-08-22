@@ -14,9 +14,11 @@ Usage:
     python scripts/fix_linting_issues_conservative.py
 """
 
+
 import re
 from pathlib import Path
 from typing import List
+
 
 
 class ConservativeLintingFixer:

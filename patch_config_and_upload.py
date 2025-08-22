@@ -1,8 +1,10 @@
 # patch_config_and_upload.py
 # pip install -U transformers huggingface_hub
+
 import os, json, tempfile
 from transformers import AutoConfig
 from huggingface_hub import HfApi, HfFolder
+
 
 MODEL_ID = os.getenv("MODEL_ID", "0xmnrv/samo")
 

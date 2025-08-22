@@ -12,6 +12,7 @@ Notes:
 - Keeps output minimal: endpoint, status, brief detail.
 """
 
+
 import argparse
 import io
 import json
@@ -26,9 +27,12 @@ import numpy as np
 import requests
 import asyncio  # ensure available for ws async path
 
+
 # WebSocket client: prefer websocket-client if available; fallback to websockets (async)
 try:
+
     import websocket  # type: ignore
+
     WEBSOCKET_BACKEND = "websocket-client"
 except Exception:
     websocket = None  # type: ignore
@@ -36,12 +40,16 @@ except Exception:
 
 # websockets backend is optional; ensure symbol exists for checks
 try:
+
     import websockets  # type: ignore
+
 except Exception:
     websockets = None  # type: ignore
 
 try:
+
     import jwt  # PyJWT
+
 except ImportError:
     print("PyJWT is required to mint a local elevated token; install PyJWT.")
     raise

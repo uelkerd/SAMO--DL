@@ -1,10 +1,12 @@
 CLEAR# infer_mapping_and_eval.py
+
 import os, numpy as np, torch
 from tqdm import tqdm
 from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from sklearn.metrics import f1_score, accuracy_score
 from scipy.optimize import linear_sum_assignment
+
 
 MODEL_ID = os.getenv("MODEL_ID", "0xmnrv/samo")
 TOKEN = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_HUB_TOKEN")
@@ -102,7 +104,9 @@ print(f"- Accuracy (subset): {ab:.4f}")
 
 # Optional: write corrected config.json with inferred labels in model-index order
 if os.getenv("WRITE_CONFIG", "0") == "1":
+
     from transformers import AutoConfig
+
     cfg = mdl.config
     id2label = {int(mi): ds_names[dj] for mi, dj in mapping}
     for i in range(M):

@@ -5,11 +5,13 @@ PR #5: CI/CD Pipeline Overhaul - Integration Test
 This script validates that the CircleCI configuration fixes are working correctly.
 """
 
+
 import os
 import sys
 import yaml
 import subprocess
 from pathlib import Path
+
 
 def test_yaml_syntax():
     """Test that the CircleCI config YAML is valid."""
@@ -72,7 +74,9 @@ def test_conda_environment_setup():
             return False
         
         # Check for key packages
+
         import re
+
         found_packages = []
         for dep in dependencies:
             if isinstance(dep, str):
@@ -94,7 +98,9 @@ def test_conda_environment_setup():
 
 def test_critical_fixes():
     """Test that critical CircleCI fixes are applied using YAML parsing."""
+
     import yaml
+
 
     print("🔍 Testing critical CircleCI fixes...")
 

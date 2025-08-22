@@ -1,9 +1,11 @@
         # Import the validation module
         # Start training
         # Training configuration optimized for debugging
+
         from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
         from pre_training_validation import PreTrainingValidator
         import traceback
+
     # Ask for user confirmation
     # Step 1: Pre-training validation
     # Step 2: User confirmation
@@ -11,11 +13,13 @@
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
+
 from pathlib import Path
 import logging
 import sys
 import time
 import traceback
+
 
 
 

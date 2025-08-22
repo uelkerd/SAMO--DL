@@ -3,7 +3,9 @@
 Create the Colab domain adaptation notebook with proper JSON format.
 """
 
+
 import json
+
 
 def create_colab_notebook():
     """Create the domain adaptation GPU training notebook."""

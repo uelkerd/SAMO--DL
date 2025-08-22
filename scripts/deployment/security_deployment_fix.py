@@ -11,6 +11,7 @@ This script:
 4. Tests the deployment for security compliance
 """
 
+
 import os
 import sys
 import subprocess
@@ -19,6 +20,7 @@ import time
 import requests
 from pathlib import Path
 from typing import Dict, List, Optional
+
 
 # Configuration
 def get_project_id():

@@ -9,6 +9,7 @@ Tests the secure model loading functionality including:
 - Audit logging
 """
 
+
 import os
 import tempfile
 import unittest
@@ -17,6 +18,7 @@ import torch
 import torch.nn as nn
 
 from src.models.secure_loader import (
+
     SecureModelLoader,
     IntegrityChecker,
     SandboxExecutor,
@@ -70,7 +72,9 @@ class TestIntegrityChecker(unittest.TestCase):
         }, self.test_file)
     
     def tearDown(self):
+
         import shutil
+
         shutil.rmtree(self.temp_dir)
     
     def test_calculate_checksum(self):
@@ -268,12 +272,16 @@ class TestSecureModelLoader(unittest.TestCase):
         }, self.model_file)
         
         # Calculate checksum for validation
+
         from src.models.secure_loader.integrity_checker import IntegrityChecker
+
         self.checker = IntegrityChecker()
         self.model_checksum = self.checker.calculate_checksum(self.model_file)
     
     def tearDown(self):
+
         import shutil
+
         shutil.rmtree(self.temp_dir)
     
     def test_load_model(self):
@@ -382,12 +390,16 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
         }, self.model_file)
         
         # Calculate checksum for validation
+
         from src.models.secure_loader.integrity_checker import IntegrityChecker
+
         self.checker = IntegrityChecker()
         self.model_checksum = self.checker.calculate_checksum(self.model_file)
     
     def tearDown(self):
+
         import shutil
+
         shutil.rmtree(self.temp_dir)
     
     def test_full_secure_loading_workflow(self):

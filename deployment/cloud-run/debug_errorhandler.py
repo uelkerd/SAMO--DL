@@ -3,8 +3,10 @@
 Debug script to investigate the errorhandler issue
 """
 
+
 import sys
 import os
+
 
 # Add current directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -12,8 +14,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 print("🔍 Starting errorhandler debug...")
 
 try:
+
     from flask import Flask
     from flask_restx import Api, Resource, fields, Namespace
+
     print("✅ Imports successful")
 except Exception as e:
     print(f"❌ Import failed: {e}")
@@ -62,7 +66,9 @@ except Exception as e:
 
 # Let's check if there's a version issue
 try:
+
     import flask_restx
+
     print(f"\n🔍 Flask-RESTX version: {flask_restx.__version__}")
 except Exception as e:
     print(f"❌ Could not get Flask-RESTX version: {e}")

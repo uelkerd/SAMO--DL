@@ -5,17 +5,23 @@
 Comprehensive unit tests for API security components.
 """
 
+
 import sys
 import os
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
 
 import unittest
 import time
 
+
 # Import security components
+
 from api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
 from input_sanitizer import InputSanitizer, SanitizationConfig
 from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
+
 
 class TestRateLimiter(unittest.TestCase):
     """Test rate limiter functionality."""
@@ -338,7 +344,9 @@ class TestSecurityHeaders(unittest.TestCase):
     
     def setUp(self):
         """Set up test fixtures."""
+
         from flask import Flask
+
         self.app = Flask(__name__)
         self.config = SecurityHeadersConfig(
             enable_csp=True,

@@ -7,7 +7,9 @@ This script adds all the missing training, validation, and model saving
 components to the simple notebook.
 """
 
+
 import json
+
 
 def complete_simple_notebook():
     """Add all missing components to the simple notebook."""

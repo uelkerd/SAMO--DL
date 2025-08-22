@@ -6,6 +6,7 @@ Token bucket algorithm for API rate limiting.
 Includes security features.
 """
 
+
 import time
 import threading
 from collections import defaultdict, deque
@@ -15,6 +16,7 @@ import hashlib
 import ipaddress
 from dataclasses import dataclass
 from starlette.middleware.base import BaseHTTPMiddleware
+
 
 logger = logging.getLogger(__name__)
 
@@ -128,7 +130,9 @@ class _RateLimitMiddleware(BaseHTTPMiddleware):
         # Check rate limit
         allowed, reason, meta = self._limiter.allow_request(client_ip, user_agent)
         if not allowed:
+
             from fastapi.responses import JSONResponse
+
             return JSONResponse(
                 status_code=429,
                 content={
@@ -466,7 +470,9 @@ def add_rate_limiting(
     excluded_paths: Optional[Set[str]] = None,
 ):
     """Attach rate limiting middleware to a FastAPI app."""
+
     from fastapi import Request  # noqa: F401  (kept for type hints in middleware)
+
 
     config = RateLimitConfig(
         requests_per_minute=requests_per_minute,

@@ -7,7 +7,9 @@ This script adds proper wandb API key setup using Google Colab secrets
 to avoid the manual API key prompt.
 """
 
+
 import json
+
 
 def add_wandb_setup():
     """Add wandb setup to the minimal notebook."""

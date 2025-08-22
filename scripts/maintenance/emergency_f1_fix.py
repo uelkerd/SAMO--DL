@@ -12,6 +12,7 @@ This script implements multiple F1 improvement techniques simultaneously:
 Target: Get F1 from 11% to 60%+ in one training run.
 """
 
+
 import logging
 import sys
 import time
@@ -25,11 +26,14 @@ from sklearn.metrics import f1_score
 from torch.utils.data import DataLoader, TensorDataset
 from transformers import AutoTokenizer, get_linear_schedule_with_warmup
 
+
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+
 from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -378,7 +382,9 @@ def emergency_f1_fix():
         
     except Exception as e:
         logger.error(f"❌ Emergency F1 fix failed: {e}")
+
         import traceback
+
         traceback.print_exc()
         return None
 

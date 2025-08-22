@@ -13,15 +13,19 @@ Usage:
     python scripts/maintenance/typehint_codemod.py <directory> [--dry-run] [--verbose]
 """
 
+
 import argparse
 import ast
 import sys
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
+
 # Try to import astor for Python 3.8 compatibility
 try:
+
     import astor
+
     def ast_to_source(node):
         """Convert AST node to source code using astor library.
 

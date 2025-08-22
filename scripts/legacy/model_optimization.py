@@ -14,8 +14,10 @@
         # Test on CPU
         # Test on GPU
         # Tokenize
+
         import onnx
         import onnxruntime as ort
+
     # Apply dynamic quantization to linear layers
     # Apply optimizations
     # Apply quantization
@@ -59,6 +61,7 @@
 # Configure logging
 # Constants
 #!/usr/bin/env python3
+
 from pathlib import Path
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from tqdm import tqdm
@@ -71,6 +74,7 @@ import numpy as np
 import sys
 import time
 import torch
+
 
 
 

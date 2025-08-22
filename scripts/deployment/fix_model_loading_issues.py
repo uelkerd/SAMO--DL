@@ -4,9 +4,11 @@ Fix Model Loading Issues
 Comprehensive fix for Cloud Run deployment model loading problems.
 """
 
+
 import os
 import sys
 from pathlib import Path
+
 
 def check_current_status():
     """Check current deployment status"""
@@ -114,12 +116,14 @@ Model Loading Health Check
 Check if the model is loading properly in the container.
 \"\"\"
 
+
 import os
 import sys
 import time
 import requests
 import json
 import argparse
+
 
 def get_base_url():
     \"\"\"Get base URL from env, CLI, or default\"\"\"

@@ -3,7 +3,9 @@
 Fix JSON syntax error in expanded dataset training notebook
 """
 
+
 import re
+
 
 def fix_notebook_json():
     """Fix JSON syntax errors in the notebook."""
@@ -44,7 +46,9 @@ def fix_notebook_json():
     
     # Test if the JSON is valid
     try:
+
         import json
+
         with open('notebooks/expanded_dataset_training_fixed.ipynb', 'r') as f:
             json.load(f)
         print("✅ JSON syntax is now valid")

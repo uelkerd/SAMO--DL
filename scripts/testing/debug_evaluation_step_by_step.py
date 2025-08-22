@@ -13,12 +13,14 @@
 # Add src to path
 # Set up logging
 #!/usr/bin/env python3
+
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 from pathlib import Path
 import logging
 import numpy as np
 import sys
 import torch
+
 
 
 

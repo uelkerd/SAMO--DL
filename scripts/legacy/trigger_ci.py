@@ -3,9 +3,11 @@
 Script to check git status and trigger CI pipeline.
 """
 
+
 import logging
 import subprocess
 from typing import Tuple
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

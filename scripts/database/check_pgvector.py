@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Script to check if pgvector extension is installed in PostgreSQL."""
 
+
 import logging
 import os
 import sys
@@ -9,9 +10,12 @@ from urllib.parse import urlparse
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
+
 # Load environment variables from .env file
 try:
+
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     # dotenv not installed, skip loading

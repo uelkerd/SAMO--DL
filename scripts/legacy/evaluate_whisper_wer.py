@@ -6,6 +6,7 @@ This script downloads a portion of the LibriSpeech test-clean dataset
 and evaluates the Word Error Rate (WER) of the Whisper transcription model.
 """
 
+
 import argparse
 import json
 import logging
@@ -21,10 +22,13 @@ import soundfile as sf
 import tqdm
 from datasets import load_dataset
 
+
 # Add src directory to path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
+
 from src.models.voice_processing.transcription_api import TranscriptionAPI, create_transcription_api
+
 
 # Configure logging
 logging.basicConfig(

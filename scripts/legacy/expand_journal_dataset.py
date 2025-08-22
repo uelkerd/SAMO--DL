@@ -3,9 +3,11 @@
 Expand the journal dataset to improve model performance.
 """
 
+
 import json
 import random
 from typing import List, Dict
+
 
 def load_current_dataset():
     """Load the current journal dataset."""

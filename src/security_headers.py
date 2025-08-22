@@ -5,6 +5,7 @@
 Flask middleware for adding security headers and implementing security policies.
 """
 
+
 import logging
 from typing import Dict, List, Optional, Callable
 from dataclasses import dataclass
@@ -14,6 +15,7 @@ import hashlib
 import secrets
 import yaml
 import os
+
 
 logger = logging.getLogger(__name__)
 

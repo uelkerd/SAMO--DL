@@ -4,6 +4,7 @@ Phase 3 Cloud Run Optimization Test Suite
 Comprehensive testing for Cloud Run optimization components using enhanced test approach
 """
 
+
 import os
 import sys
 import yaml
@@ -14,6 +15,7 @@ from typing import Dict, Any, List, Optional
 import unittest
 from unittest.mock import patch
 import logging
+
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'src'))
@@ -106,7 +108,9 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         # Import health monitor
         sys.path.insert(0, str(self.cloud_run_dir))
         try:
+
             from health_monitor import HealthMonitor, HealthMetrics
+
         except ImportError as e:
             if 'psutil' in str(e):
                 self.skipTest("psutil not available in test environment")
@@ -168,8 +172,10 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         
         # Import config
         sys.path.insert(0, str(self.cloud_run_dir))
+
         from config import EnvironmentConfig
         
+
         # Test production configuration
         with patch.dict(os.environ, {'ENVIRONMENT': 'production'}):
             config = EnvironmentConfig()
@@ -391,8 +397,10 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         print("🔍 Testing configuration edge cases...")
         
         sys.path.insert(0, str(self.cloud_run_dir))
+
         from config import EnvironmentConfig
         
+
         # Test invalid memory limits
         with patch.dict(os.environ, {
             'ENVIRONMENT': 'production',
@@ -435,7 +443,9 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         
         sys.path.insert(0, str(self.cloud_run_dir))
         try:
+
             from health_monitor import HealthMonitor
+
         except ImportError as e:
             if 'psutil' in str(e):
                 self.skipTest("psutil not available in test environment")
@@ -489,8 +499,10 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         
         # Test configuration serialization
         sys.path.insert(0, str(self.cloud_run_dir))
+
         from config import EnvironmentConfig
         
+
         config_obj = EnvironmentConfig('production')
         config_dict = config_obj.to_dict()
         

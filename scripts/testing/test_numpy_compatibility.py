@@ -3,8 +3,10 @@
 Test script to verify numpy compatibility fix for transformers.
 """
 
+
 import sys
 import logging
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -16,7 +18,9 @@ def test_numpy_compatibility():
     
     try:
         # Test 1: Basic numpy import
+
         import numpy as np
+
         logger.info(f"✅ Numpy version: {np.__version__}")
         
         # Test 2: Check for broadcast_to function
@@ -31,7 +35,9 @@ def test_numpy_compatibility():
         
         # Test 3: Test transformers import
         try:
+
             from transformers import AutoModel, AutoTokenizer
+
             logger.info("✅ Transformers import successful")
         except ImportError as e:
             if "broadcast_to" in str(e):

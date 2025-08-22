@@ -4,10 +4,12 @@ Fixed Inference Test Script for Emotion Detection Model
 Handles missing tokenizer and generic labels
 """
 
+
 import torch
 import json
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
+
 
 def test_fixed_inference():
     """Test inference with missing tokenizer and generic labels"""
@@ -132,7 +134,9 @@ def test_fixed_inference():
         
     except Exception as e:
         print(f"❌ Error during inference: {e}")
+
         import traceback
+
         traceback.print_exc()
         return False
 

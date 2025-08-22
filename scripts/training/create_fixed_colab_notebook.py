@@ -6,7 +6,9 @@
 This script creates a fixed Colab notebook that handles the correct data structure.
 """
 
+
 import json
+
 
 def create_fixed_colab_notebook():
     """Create the fixed Colab notebook content"""
