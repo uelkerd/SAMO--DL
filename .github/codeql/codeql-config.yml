@@ -15,4 +15,3 @@ paths-ignore:
   - website/**
   - results/**
   - samples/**
-  - **/*.ipynb
