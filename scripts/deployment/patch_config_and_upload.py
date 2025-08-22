@@ -1,7 +1,6 @@
 # patch_config_and_upload.py
 # pip install -U transformers huggingface_hub
 import os
-import json
 import tempfile
 from transformers import AutoConfig
 from huggingface_hub import HfApi, HfFolder
@@ -36,13 +35,13 @@ if hasattr(cfg, 'id2label') and cfg.id2label:
     print("Current labels:")
     for i, label in cfg.id2label.items():
         print(f"  {i}: {label}")
-    
+
     print(f"\nNew labels ({len(new_labels)} total):")
     for i, label in enumerate(new_labels):
         print(f"  {i}: {label}")
 
 # Update config with new labels
-cfg.id2label = {i: lbl for i, lbl in enumerate(new_labels)}
+cfg.id2label = dict(enumerate(new_labels))
 cfg.label2id = {lbl: i for i, lbl in enumerate(new_labels)}
 cfg.problem_type = "multi_label_classification"
 cfg.num_labels = len(new_labels)
@@ -53,7 +52,7 @@ print(f"\nUpdated config: num_labels={cfg.num_labels}")
 with tempfile.TemporaryDirectory() as tmpdir:
     cfg.save_pretrained(tmpdir)
     path = os.path.join(tmpdir, "config.json")
-    
+
     api = HfApi()
     try:
         api.upload_file(
