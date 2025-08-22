@@ -1,7 +1,9 @@
 # Comprehensive Code Quality Prevention System for SAMO-DL
 # This configuration prevents ALL recurring DeepSource issues from ever happening again
 
-# YAML anchors for common exclude patterns to avoid duplication
+# Comprehensive Code Quality Prevention System for SAMO-DL
+# This configuration prevents ALL recurring DeepSource issues from ever happening again
+#
 # TODO: Re-enable all disabled hooks once configuration issues are resolved
 # Issue: https://github.com/uelkerd/SAMO--DL/issues/ (to be created)
 #
@@ -18,7 +20,9 @@
 # 3. Test each hook individually
 # 4. Re-enable hooks one by one
 # 5. Update this TODO section as hooks are re-enabled
-x-common-excludes: &common-excludes "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
+#
+# Common exclude pattern (used consistently across all hooks):
+# "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
 
 repos:
   # Basic pre-commit hooks (run first)
@@ -48,7 +52,7 @@ repos:
         language_version: python3
         args: [--line-length=88, --target-version=py38]
         types: [python]
-        exclude: *common-excludes
+        exclude: "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
 
   # Import sorting and organization
   - repo: https://github.com/pycqa/isort
@@ -57,7 +61,7 @@ repos:
       - id: isort
         args: [--profile=black, --line-length=88, --py=38]
         types: [python]
-        exclude: *common-excludes
+        exclude: "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
 
   # Python linting with Ruff (super fast)
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -66,7 +70,7 @@ repos:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
         types: [python]
-        exclude: *common-excludes
+        exclude: "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
 
   # Type checking with MyPy
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -75,7 +79,7 @@ repos:
       - id: mypy
         args: [--ignore-missing-imports, --python-version=3.8]
         types: [python]
-        exclude: *common-excludes
+        exclude: "(\\.git|\\.venv|\\.env|__pycache__|\\.pytest_cache|\\.mypy_cache|\\.ruff_cache|build|dist|\\.eggs|\\.tox|\\.coverage|htmlcov|\\.cache|\\.logs|results|samples|notebooks|website|docs/diagrams)"
 
   # Security scanning with Bandit
   # Note: Bandit now reports to stdout and fails commit if issues found
