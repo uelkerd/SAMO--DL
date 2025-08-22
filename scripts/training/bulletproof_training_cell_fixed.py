@@ -16,15 +16,23 @@ from pathlib import Path
 import os
 import sys
 
-# Ensure we can import scripts.bootstrap even when run directly
-_probe = Path(__file__).resolve()
-for cand in [_probe] + list(_probe.parents):
-    if (cand / "scripts" / "bootstrap.py").exists():
-        if str(cand) not in sys.path:
-            sys.path.insert(0, str(cand))
-        break
 
-from scripts.bootstrap import add_repo_src_to_path, find_repo_root
+def _import_bootstrap():
+    try:
+        from scripts.bootstrap import add_repo_src_to_path, find_repo_root  # type: ignore
+        return add_repo_src_to_path, find_repo_root
+    except Exception:
+        probe = Path(__file__).resolve()
+        for cand in [probe] + list(probe.parents):
+            if (cand / "scripts" / "bootstrap.py").exists():
+                if str(cand) not in sys.path:
+                    sys.path.insert(0, str(cand))
+                break
+        from scripts.bootstrap import add_repo_src_to_path, find_repo_root  # type: ignore
+        return add_repo_src_to_path, find_repo_root
+
+
+add_repo_src_to_path, find_repo_root = _import_bootstrap()
 
 print("🚀 BULLETPROOF TRAINING FOR REQ-DL-012 - FIXED LABEL MAPPING")
 print("=" * 60)
