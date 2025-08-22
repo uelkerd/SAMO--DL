@@ -18,6 +18,12 @@ import sys
 
 
 def _import_bootstrap():
+    """Import bootstrap helpers and ensure `src/` is on `sys.path`.
+
+    Returns a tuple of `(add_repo_src_to_path, find_repo_root)` and falls back
+    to searching parent directories for `scripts/bootstrap.py` if the import
+    initially fails.
+    """
     try:
         from scripts.bootstrap import (
             add_repo_src_to_path,
@@ -217,6 +223,15 @@ class SimpleEmotionClassifier(nn.Module):
         print(f"✅ Model initialized with {n_labels} labels")
 
     def forward(self, input_ids_tensor, attention_mask_tensor):
+        """Compute logits for a batch.
+
+        Args:
+            input_ids_tensor: Tensor of shape (batch, seq_len) with token IDs.
+            attention_mask_tensor: Tensor of shape (batch, seq_len) with attention mask.
+
+        Returns:
+            Tensor of shape (batch, num_labels) containing logits.
+        """
         # Validate inputs
         if input_ids_tensor.dim() != 2:
             raise ValueError(f"Expected input_ids to be 2D, got {input_ids_tensor.dim()}D")
@@ -398,54 +413,12 @@ for epoch in range(num_epochs):
                 print(f"❌ Error in validation batch: {e}")
                 continue
 
-    # Calculate metrics
-    if all_preds and all_labels:
-        f1_macro = f1_score(all_labels, all_preds, average='macro')
-        accuracy = accuracy_score(all_labels, all_preds)
+    # Compute metrics
+    macro_f1 = f1_score(all_labels, all_preds, average='macro', zero_division=0)
+    acc = accuracy_score(all_labels, all_preds)
 
-        avg_loss = total_loss / num_batches if num_batches > 0 else 0
+    print(f"  ✅ Epoch {epoch + 1} — Macro F1: {macro_f1:.4f}, Acc: {acc:.4f}")
 
-        print(f"  📊 Epoch {epoch + 1} Results:")
-        print(f"    Average Loss: {avg_loss:.4f}")
-        print(f"    Validation F1 (Macro): {f1_macro:.4f}")
-        print(f"    Validation Accuracy: {accuracy:.4f}")
-
-        # Save best model
-        if f1_macro > best_f1:
-            best_f1 = f1_macro
-            torch.save(model.state_dict(), 'best_simple_model.pth')
-            print(f"    💾 New best model saved! F1: {best_f1:.4f}")
-
-    # Clear GPU cache
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
-
-print(f"\n🏆 Training completed! Best F1 Score: {best_f1:.4f}")
-
-# Step 9: Save results
-results = {
-    'best_f1': best_f1,
-    'num_labels': TOTAL_LABELS,
-    'target_achieved': best_f1 >= 0.7,
-    'go_samples': len(go_texts),
-    'journal_samples': len(journal_texts),
-    'emotion_mapping': emotion_mapping
-}
-
-with open('simple_training_results.json', 'w') as f:
-    json.dump(results, f, indent=2)
-
-print("\n✅ Training completed successfully!")
-print(f"📊 Final F1 Score: {best_f1:.4f}")
-print(f"🎯 Target Met: {'✅' if best_f1 >= 0.7 else '❌'}")
-
-# Download results (optional in Colab)
-try:
-    from google.colab import files  # type: ignore
-    files.download('best_simple_model.pth')
-    files.download('simple_training_results.json')
-except Exception:
-    print("ℹ️ Skipping file downloads (not running in Colab)")
-
-print("\n🎉 BULLETPROOF TRAINING COMPLETED!")
-print("📁 Files downloaded: best_simple_model.pth, simple_training_results.json")
+    if macro_f1 > best_f1:
+        best_f1 = macro_f1
+        print("  🌟 New best macro F1!")

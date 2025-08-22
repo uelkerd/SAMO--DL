@@ -18,24 +18,19 @@ import sys
 
 
 def _import_bootstrap():
+    """Import bootstrap helpers and ensure `src/` is on `sys.path`.
+
+    Returns a tuple of `(add_repo_src_to_path, find_repo_root)` and raises
+    `ImportError` if the import fails.
+    """
     try:
         from scripts.bootstrap import (
             add_repo_src_to_path,
             find_repo_root,
         )  # type: ignore
         return add_repo_src_to_path, find_repo_root
-    except Exception:
-        probe = Path(__file__).resolve()
-        for cand in [probe] + list(probe.parents):
-            if (cand / "scripts" / "bootstrap.py").exists():
-                if str(cand) not in sys.path:
-                    sys.path.insert(0, str(cand))
-                break
-        from scripts.bootstrap import (
-            add_repo_src_to_path,
-            find_repo_root,
-        )  # type: ignore
-        return add_repo_src_to_path, find_repo_root
+    except Exception as exc:  # noqa: BLE001
+        raise ImportError("Failed to import scripts.bootstrap") from exc
 
 
 add_repo_src_to_path, find_repo_root = _import_bootstrap()
@@ -207,8 +202,8 @@ class SimpleEmotionDataset(Dataset):
 
 # Step 6: Create simple model
 class SimpleEmotionClassifier(nn.Module):
-    """BERT-based classifier with configurable number of output labels."""
-    def __init__(self, model_name="bert-base-uncased", n_labels=None, num_labels=None):
+    """Simple classifier wrapper around a transformer backbone."""
+    def __init__(self, model_name: str = "bert-base-uncased", n_labels: int | None = None, num_labels: int | None = None):
         super().__init__()
         # Resolve label count
         if n_labels is None and num_labels is not None:
@@ -233,6 +228,15 @@ class SimpleEmotionClassifier(nn.Module):
         print(f"✅ Model initialized with {self.num_labels} labels")
 
     def forward(self, input_ids_tensor, attention_mask_tensor):
+        """Compute logits for a batch.
+
+        Args:
+            input_ids_tensor: Tensor of shape (batch, seq_len) with token IDs.
+            attention_mask_tensor: Tensor of shape (batch, seq_len) with attention mask.
+
+        Returns:
+            Tensor of shape (batch, num_labels) containing logits.
+        """
         # Validate inputs
         if input_ids_tensor.dim() != 2:
             msg = (
