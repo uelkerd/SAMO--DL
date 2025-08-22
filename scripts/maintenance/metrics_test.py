@@ -22,7 +22,11 @@ def norm(s: str) -> str:
 
 # 1) Load model + tokenizer (private repos require token)
 tok = AutoTokenizer.from_pretrained(MODEL_ID, use_fast=True, token=TOKEN)
-mdl = AutoModelForSequenceClassification.from_pretrained(MODEL_ID, token=TOKEN).to(DEVICE).eval()
+mdl = (
+    AutoModelForSequenceClassification.from_pretrained(MODEL_ID, token=TOKEN)
+    .to(DEVICE)
+    .eval()
+)
 cfg = mdl.config
 num_labels = int(getattr(cfg, "num_labels", len(getattr(cfg, "id2label", {})) or 28))
 
@@ -80,12 +84,16 @@ if mapped_count >= 5:
     kept_model_indices = [ds_to_model[i] for i in kept_ds_indices]
 else:
     if num_labels == len(ds_names):
-        print("Low mapping coverage; falling back to identity mapping (assumes same order).")
+        print(
+            "Low mapping coverage; falling back to identity mapping (assumes same order)."
+        )
         kept_ds_indices = list(range(num_labels))
         kept_model_indices = list(range(num_labels))
     else:
         m = min(num_labels, len(ds_names))
-        print(f"Low mapping coverage; evaluating on min-dim identity mapping ({m} labels).")
+        print(
+            f"Low mapping coverage; evaluating on min-dim identity mapping ({m} labels)."
+        )
         kept_ds_indices = list(range(m))
         kept_model_indices = list(range(m))
 
@@ -109,11 +117,17 @@ val = val.map(to_multihot)
 
 # 6) Batched inference (full probs), then slice to kept_model_indices
 def predict_probs(batch_texts):
-    enc = tok(batch_texts, padding=True, truncation=True, max_length=512, return_tensors="pt")
+    enc = tok(
+        batch_texts,
+        padding=True,
+        truncation=True,
+        max_length=512,
+        return_tensors="pt",
+    )
     enc = {k: v.to(DEVICE) for k, v in enc.items()}
-    with torch.no_grad():
+    with torch.inference_mode():
         batch_logits = mdl(**enc).logits
-        batch_probs = torch.sigmoid(batch_logits).cpu().numpy()   # (B, num_labels)
+        batch_probs = torch.sigmoid(batch_logits).cpu().numpy()  # (B, num_labels)
     return batch_probs
 
 

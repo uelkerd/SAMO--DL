@@ -15,7 +15,11 @@ def debug_rate_limiter():
 
     # Create config with minimal settings (same as test)
     config = RateLimitConfig(requests_per_minute=1, burst_size=1)
-    print(f"Config: requests_per_minute={config.requests_per_minute}, burst_size={config.burst_size}")
+    print(
+        "Config: requests_per_minute="
+        f"{config.requests_per_minute}, "
+        f"burst_size={config.burst_size}"
+    )
 
     rate_limiter = TokenBucketRateLimiter(config)
     print(f"Initial buckets: {rate_limiter.buckets}")
