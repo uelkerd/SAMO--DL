@@ -14,7 +14,6 @@ from sklearn.preprocessing import LabelEncoder
 from transformers import AutoModel, AutoTokenizer
 from pathlib import Path
 import os
-import sys
 
 
 def _import_bootstrap():
