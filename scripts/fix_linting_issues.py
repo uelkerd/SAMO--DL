@@ -7,11 +7,11 @@ continuation-indentation issues flagged by common linters (e.g., Ruff/Flake8).
 Use with care.
 """
 
-import os
 import argparse
+import contextlib
+import os
 import shutil
 import tempfile
-import contextlib
 from pathlib import Path
 from typing import Optional
 
@@ -244,7 +244,7 @@ def main():
         if detected_issues:
             print(
                 f"  ⚠️ Detected {len(detected_issues)} issues that may require "
-                f"manual attention:"
+                "manual attention:"
             )
             for issue in detected_issues:
                 print(f"    - {issue}")

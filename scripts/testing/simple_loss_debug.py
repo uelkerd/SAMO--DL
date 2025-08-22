@@ -12,8 +12,8 @@
     # Summary
 # Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
 import logging
+from pathlib import Path
 
 
 

@@ -7,11 +7,11 @@ import re
 
 def fix_notebook_json():
     """Fix JSON syntax errors in the notebook."""
-    
+
     # Read the notebook as text
     with open('notebooks/expanded_dataset_training.ipynb', 'r') as f:
         content = f.read()
-    
+
     # Fix unescaped quotes in strings
     # Replace "I'm" with "I\\'m" and similar patterns
     content = re.sub(r'"I\'m', r'"I\\\'m', content)
@@ -32,16 +32,16 @@ def fix_notebook_json():
     content = re.sub(r'"shouldn\'t', r'"shouldn\\\'t', content)
     content = re.sub(r'"mightn\'t', r'"mightn\\\'t', content)
     content = re.sub(r'"mustn\'t', r'"mustn\\\'t', content)
-    
+
     # Fix other common contractions
     content = re.sub(r'"(\w+)\'(\w+)"', r'"\\1\\\'\\2"', content)
-    
+
     # Write the fixed content
     with open('notebooks/expanded_dataset_training_fixed.ipynb', 'w') as f:
         f.write(content)
-    
+
     print("✅ Fixed notebook saved as 'notebooks/expanded_dataset_training_fixed.ipynb'")
-    
+
     # Test if the JSON is valid
     try:
         import json
@@ -52,4 +52,4 @@ def fix_notebook_json():
         print(f"❌ JSON still has issues: {e}")
 
 if __name__ == "__main__":
-    fix_notebook_json() 
+    fix_notebook_json()

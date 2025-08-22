@@ -4,11 +4,11 @@ Centralized Configuration for Testing Scripts
 Eliminates hardcoded values and provides consistent configuration across all test scripts.
 """
 
-import os
 import argparse
+import os
+import requests
 import time
 from typing import Optional
-import requests
 
 
 class TestConfig:

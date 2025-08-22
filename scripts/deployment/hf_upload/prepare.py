@@ -1,9 +1,9 @@
-import os
 import json
 import logging
+import os
 import shutil
-from typing import Any, Dict, List, Optional
 from string import Template
+from typing import Any, Dict, List, Optional
 
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification

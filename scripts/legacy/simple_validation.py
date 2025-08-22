@@ -1,20 +1,20 @@
         # Test with dummy data
-        from torch import nn
+import logging
         import sklearn
+    import subprocess
+import sys
+    # Check if gcloud is available
+    # Check if we have the deployment guide
+# Configure logging
+    # Summary
+#!/usr/bin/env python3
+import numpy as np
         import torch
         import torch
         import torch.nn.functional as F
         import transformers
-    # Check if gcloud is available
-    # Check if we have the deployment guide
-    # Summary
-    import subprocess
-# Configure logging
-#!/usr/bin/env python3
 from pathlib import Path
-import logging
-import numpy as np
-import sys
+        from torch import nn
 
 
 
@@ -23,11 +23,11 @@ import sys
 
 
 
-"""
+""""
 Simple Validation for GCP Deployment
 
 Quick validation of core components before GCP deployment.
-"""
+""""
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -59,7 +59,7 @@ def validate_focal_loss():
         focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
         loss = focal_loss(inputs, targets)
 
-        logger.info("✅ Focal Loss: PASSED (loss={loss.item():.4f})")
+        logger.info(" Focal Loss: PASSED (loss={loss.item():.4f})")
         return True
 
     except Exception as e:
@@ -67,7 +67,7 @@ def validate_focal_loss():
         return False
 
 
-def validate_script_files():
+            def validate_script_files():
     """Validate that all required scripts exist."""
     logger.info("📁 Validating Script Files...")
 
@@ -80,36 +80,36 @@ def validate_script_files():
     ]
 
     missing_files = []
-    for script in required_scripts:
-        if Path(script).exists():
-            logger.info("   ✅ {script}")
+            for script in required_scripts:
+            if Path(script).exists():
+            logger.info("    {script}")
         else:
             logger.error("   ❌ {script} - MISSING")
             missing_files.append(script)
 
-    if missing_files:
+            if missing_files:
         logger.error("❌ Script Files: FAILED - {len(missing_files)} files missing")
         return False
     else:
-        logger.info("✅ Script Files: PASSED - All {len(required_scripts)} files found")
+        logger.info(" Script Files: PASSED - All {len(required_scripts)} files found")
         return True
 
 
-def validate_python_environment():
+            def validate_python_environment():
     """Validate Python environment and basic imports."""
     logger.info("🐍 Validating Python Environment...")
 
     try:
-        logger.info("   ✅ PyTorch: {torch.__version__}")
+        logger.info("    PyTorch: {torch.__version__}")
 
-        logger.info("   ✅ Transformers: {transformers.__version__}")
+        logger.info("    Transformers: {transformers.__version__}")
 
 
-        logger.info("   ✅ NumPy: {np.__version__}")
+        logger.info("    NumPy: {np.__version__}")
 
-        logger.info("   ✅ Scikit-learn: {sklearn.__version__}")
+        logger.info("    Scikit-learn: {sklearn.__version__}")
 
-        logger.info("✅ Python Environment: PASSED")
+        logger.info(" Python Environment: PASSED")
         return True
 
     except ImportError as _:
@@ -117,16 +117,16 @@ def validate_python_environment():
         return False
 
 
-def validate_gcp_readiness():
+            def validate_gcp_readiness():
     """Validate GCP deployment readiness."""
     logger.info("☁️ Validating GCP Readiness...")
 
     try:
-        result = subprocess.run(
+        result = subprocess.run()
             ["gcloud", "--version"], capture_output=True, text=True, timeout=10, check=False
-        )
-        if result.returncode == 0:
-            logger.info("   ✅ gcloud CLI: Available")
+(        )
+            if result.returncode == 0:
+            logger.info("    gcloud CLI: Available")
             gcp_ready = True
         else:
             logger.warning("   ⚠️ gcloud CLI: Not available (will need to install)")
@@ -135,27 +135,27 @@ def validate_gcp_readiness():
         logger.warning("   ⚠️ gcloud CLI: Not available (will need to install)")
         gcp_ready = False
 
-if Path("docs/GCP_DEPLOYMENT_GUIDE.md").exists():
-        logger.info("   ✅ GCP Deployment Guide: Available")
+            if Path("docs/GCP_DEPLOYMENT_GUIDE.md").exists():
+        logger.info("    GCP Deployment Guide: Available")
         guide_ready = True
     else:
         logger.error("   ❌ GCP Deployment Guide: Missing")
         guide_ready = False
 
-    if gcp_ready and guide_ready:
-        logger.info("✅ GCP Readiness: PASSED")
+            if gcp_ready and guide_ready:
+        logger.info(" GCP Readiness: PASSED")
         return True
     elif guide_ready:
-        logger.info("✅ GCP Readiness: READY (gcloud can be installed on GCP)")
+        logger.info(" GCP Readiness: READY (gcloud can be installed on GCP)")
         return True
     else:
         logger.error("❌ GCP Readiness: FAILED")
         return False
 
 
-def main():
+            def main():
     """Run all validations."""
-    logger.info("🎯 Simple Validation for GCP Deployment")
+    logger.info(" Simple Validation for GCP Deployment")
     logger.info("=" * 50)
 
     validations = [
@@ -167,28 +167,28 @@ def main():
 
     results = {}
 
-    for name, validation_func in validations:
-        logger.info("\n📋 Running {name} validation...")
+            for name, validation_func in validations:
+        logger.info("\n Running {name} validation...")
         try:
             results[name] = validation_func()
         except Exception as e:
             logger.error("❌ {name} validation failed with exception: {e}")
             results[name] = False
 
-    logger.info("\n📊 Validation Results:")
+    logger.info("\n Validation Results:")
     logger.info("=" * 30)
 
     passed = sum(results.values())
     total = len(results)
 
-    for name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
+            for name, result in results.items():
+        status = " PASS" if result else "❌ FAIL"
         logger.info("   • {name}: {status}")
 
-    logger.info("\n🎯 Overall: {passed}/{total} validations passed")
+    logger.info("\n Overall: {passed}/{total} validations passed")
 
-    if passed >= 3:  # At least 3 out of 4 should pass
-        logger.info("✅ Ready for GCP deployment!")
+            if passed >= 3:  # At least 3 out of 4 should pass
+        logger.info(" Ready for GCP deployment!")
         logger.info("🚀 Next steps:")
         logger.info("   1. Set up GCP project and APIs")
         logger.info("   2. Create GPU instance")
@@ -200,6 +200,6 @@ def main():
         return False
 
 
-if __name__ == "__main__":
+            if __name__ == "__main__":
     success = main()
     sys.exit(0 if success else 1)

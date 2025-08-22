@@ -11,12 +11,12 @@
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
-from torch import nn
 import logging
 import sys
 import tempfile
 import torch
+from pathlib import Path
+from torch import nn
 
 
 

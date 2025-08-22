@@ -6,28 +6,28 @@
         # Load dataset
         # Test focal loss
         # Test with dummy data
+import logging
+import sys
+# Configure logging
+    # Summary
+#!/usr/bin/env python3
+        import torch
+        import torch.nn.functional as F
+from pathlib import Path
         from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
         from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
         from torch import nn
-        import torch
-        import torch.nn.functional as F
-    # Summary
-# Configure logging
-#!/usr/bin/env python3
-from pathlib import Path
-import logging
-import sys
 
 
 
 
 
 
-"""
+""""
 Quick Focal Loss Test
 
 Minimal test to validate focal loss implementation without complex dependencies.
-"""
+""""
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -62,7 +62,7 @@ def test_focal_loss_math():
         focal_loss = SimpleFocalLoss(alpha=0.25, gamma=2.0)
         loss = focal_loss(inputs, targets)
 
-        logger.info("✅ Focal Loss Test PASSED")
+        logger.info(" Focal Loss Test PASSED")
         logger.info("   • Loss value: {loss.item():.4f}")
         logger.info("   • Input shape: {inputs.shape}")
         logger.info("   • Target shape: {targets.shape}")
@@ -74,9 +74,9 @@ def test_focal_loss_math():
         return False
 
 
-def test_dataset_loading():
+            def test_dataset_loading():
     """Test if we can load a small subset of the dataset."""
-    logger.info("📊 Testing Dataset Loading...")
+    logger.info(" Testing Dataset Loading...")
 
     try:
         sys.path.append(str(Path(__file__).parent.parent.resolve()))
@@ -87,7 +87,7 @@ def test_dataset_loading():
         train_size = len(datasets["train"])
         val_size = len(datasets["validation"])
 
-        logger.info("✅ Dataset Loading Test PASSED")
+        logger.info(" Dataset Loading Test PASSED")
         logger.info("   • Train examples: {train_size}")
         logger.info("   • Validation examples: {val_size}")
         logger.info("   • Class weights computed: {datasets['class_weights'] is not None}")
@@ -99,21 +99,21 @@ def test_dataset_loading():
         return False
 
 
-def test_model_creation():
+            def test_model_creation():
     """Test if we can create the BERT model."""
     logger.info("🤖 Testing Model Creation...")
 
     try:
         sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
-        model, loss_fn = create_bert_emotion_classifier(
+        model, loss_fn = create_bert_emotion_classifier()
             model_name="bert-base-uncased", class_weights=None, freeze_bert_layers=4
-        )
+(        )
 
         param_count = sum(p.numel() for p in model.parameters())
         trainable_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
-        logger.info("✅ Model Creation Test PASSED")
+        logger.info(" Model Creation Test PASSED")
         logger.info("   • Total parameters: {param_count:,}")
         logger.info("   • Trainable parameters: {trainable_count:,}")
         logger.info("   • Model type: {type(model).__name__}")
@@ -125,9 +125,9 @@ def test_model_creation():
         return False
 
 
-def main():
+            def main():
     """Run all quick tests."""
-    logger.info("🎯 Quick Focal Loss Validation Tests")
+    logger.info(" Quick Focal Loss Validation Tests")
     logger.info("=" * 50)
 
     tests = [
@@ -138,28 +138,28 @@ def main():
 
     results = {}
 
-    for test_name, test_func in tests:
-        logger.info("\n📋 Running {test_name}...")
+            for test_name, test_func in tests:
+        logger.info("\n Running {test_name}...")
         try:
             results[test_name] = test_func()
         except Exception as e:
             logger.error("❌ {test_name} failed with exception: {e}")
             results[test_name] = False
 
-    logger.info("\n📊 Test Results Summary:")
+    logger.info("\n Test Results Summary:")
     logger.info("=" * 30)
 
     passed = sum(results.values())
     total = len(results)
 
-    for test_name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
+            for test_name, result in results.items():
+        status = " PASS" if result else "❌ FAIL"
         logger.info("   • {test_name}: {status}")
 
-    logger.info("\n🎯 Overall: {passed}/{total} tests passed")
+    logger.info("\n Overall: {passed}/{total} tests passed")
 
-    if passed == total:
-        logger.info("✅ All tests passed! Ready for GCP deployment.")
+            if passed == total:
+        logger.info(" All tests passed! Ready for GCP deployment.")
         logger.info("🚀 Next step: Deploy to GCP for full training")
     else:
         logger.info("⚠️  Some tests failed. Check environment setup.")
@@ -168,6 +168,6 @@ def main():
     return passed == total
 
 
-if __name__ == "__main__":
+            if __name__ == "__main__":
     success = main()
     sys.exit(0 if success else 1)

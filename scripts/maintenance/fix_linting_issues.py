@@ -8,9 +8,9 @@
     # Remove unused imports
     # Replace hardcoded passwords in tests
 #!/usr/bin/env python3
-from pathlib import Path
 import logging
 import re
+from pathlib import Path
 
 
 

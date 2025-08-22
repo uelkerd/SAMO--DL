@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""
+""""
 Create the final bulletproof Colab notebook that fixes all remaining issues
-"""
+""""
 
 import json
 
 def create_final_bulletproof_notebook():
     """Create a Colab notebook that handles all dependency and path issues"""
-    
+
     notebook = {
         "cells": [
             {
@@ -44,7 +44,7 @@ def create_final_bulletproof_notebook():
                     "# 🔧 FINAL SMART ENVIRONMENT SETUP\n",
                     "print(\"🚀 Setting up environment intelligently...\")\n",
                     "\n",
-                    "# Check what's already installed\n",
+                    "# Check what's already installed\n",'
                     "import sys\n",
                     "import subprocess\n",
                     "import importlib\n",
@@ -64,23 +64,23 @@ def create_final_bulletproof_notebook():
                     "        return 'not installed'\n",
                     "\n",
                     "# Check current state\n",
-                    "print(\"📊 Current environment status:\")\n",
+                    "print(\" Current environment status:\")\n",
                     "print(f\"  NumPy: {get_package_version('numpy')}\")\n",
                     "print(f\"  PyTorch: {get_package_version('torch')}\")\n",
                     "print(f\"  Transformers: {get_package_version('transformers')}\")\n",
                     "print(f\"  Scikit-learn: {get_package_version('sklearn')}\")\n",
                     "\n",
-                    "# Only install what's missing or needs updating\n",
+                    "# Only install what's missing or needs updating\n",'
                     "install_commands = []\n",
                     "\n",
-                    "# Check NumPy version - only downgrade if it's 2.x\n",
+                    "# Check NumPy version - only downgrade if it's 2.x\n",'
                     "numpy_version = get_package_version('numpy')\n",
                     "if numpy_version.startswith('2.'):\n",
                     "    print(\"⚠️  NumPy 2.x detected - will downgrade to 1.x\")\n",
                     "    # Fix: Use proper pip command without extra quotes\n",
                     "    install_commands.append('pip install numpy==1.24.3 --force-reinstall --quiet')\n",
                     "else:\n",
-                    "    print(\"✅ NumPy version is compatible\")\n",
+                    "    print(\" NumPy version is compatible\")\n",
                     "\n",
                     "# Check other dependencies\n",
                     "dependencies = [\n",
@@ -96,7 +96,7 @@ def create_final_bulletproof_notebook():
                     "        print(f\"📦 {package} not found - installing...\")\n",
                     "        install_commands.append(f'pip install {install_name} --quiet')\n",
                     "    else:\n",
-                    "        print(f\"✅ {package} already installed\")\n",
+                    "        print(f\" {package} already installed\")\n",
                     "\n",
                     "# Execute installation commands if needed\n",
                     "if install_commands:\n",
@@ -107,28 +107,28 @@ def create_final_bulletproof_notebook():
                     "        if result.returncode != 0:\n",
                     "            print(f\"⚠️  Warning: {result.stderr}\")\n",
                     "        else:\n",
-                    "            print(f\"✅ Success\")\n",
+                    "            print(f\" Success\")\n",
                     "else:\n",
-                    "    print(\"\\n🎉 All dependencies already installed!\")\n",
+                    "    print(\"\\n All dependencies already installed!\")\n",
                     "\n",
                     "# Final verification\n",
-                    "print(\"\\n🔍 Final verification...\")\n",
+                    "print(\"\\n Final verification...\")\n",
                     "try:\n",
                     "    import numpy as np\n",
                     "    import torch\n",
                     "    import transformers\n",
                     "    import sklearn\n",
                     "    \n",
-                    "    print(f\"✅ NumPy: {np.__version__}\")\n",
-                    "    print(f\"✅ PyTorch: {torch.__version__}\")\n",
-                    "    print(f\"✅ Transformers: {transformers.__version__}\")\n",
-                    "    print(f\"✅ CUDA Available: {torch.cuda.is_available()}\")\n",
+                    "    print(f\" NumPy: {np.__version__}\")\n",
+                    "    print(f\" PyTorch: {torch.__version__}\")\n",
+                    "    print(f\" Transformers: {transformers.__version__}\")\n",
+                    "    print(f\" CUDA Available: {torch.cuda.is_available()}\")\n",
                     "    \n",
                     "    if torch.cuda.is_available():\n",
-                    "        print(f\"✅ GPU: {torch.cuda.get_device_name(0)}\")\n",
-                    "        print(f\"✅ GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB\")\n",
+                    "        print(f\" GPU: {torch.cuda.get_device_name(0)}\")\n",
+                    "        print(f\" GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB\")\n",
                     "    \n",
-                    "    print(\"\\n🎉 Environment ready! No restart required!\")\n",
+                    "    print(\"\\n Environment ready! No restart required!\")\n",
                     "    \n",
                     "except Exception as e:\n",
                     "    print(f\"❌ Error during verification: {e}\")\n",
@@ -168,27 +168,34 @@ def create_final_bulletproof_notebook():
                     "print(f\"📁 Contents: {os.listdir('.')}\")\n",
                     "\n",
                     "# 🔧 LOAD EXPANDED DATASET\n",
-                    "print(\"\\n📊 Loading expanded dataset...\")\n",
+                    "print(\"\\n Loading expanded dataset...\")\n",
                     "import json\n",
                     "import pandas as pd\n",
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.preprocessing import LabelEncoder\n",
                     "from torch.utils.data import Dataset, DataLoader\n",
                     "import torch\n",
-                    "from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer\n",
+                    "from transformers import                    "from transformers import AutoTokenizer,
+                         AutoModelForSequenceClassification,
+                         TrainingArguments,
+                         Trainer\n","
+
                     "import numpy as np\n",
-                    "from sklearn.metrics import f1_score, accuracy_score, classification_report\n",
+                    "from sklearn.metrics import                    "from sklearn.metrics import f1_score,
+                         accuracy_score,
+                         classification_report\n","
+
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",
                     "# Check if expanded dataset exists\n",
                     "dataset_path = 'data/expanded_journal_dataset.json'\n",
                     "if os.path.exists(dataset_path):\n",
-                    "    print(f\"✅ Found expanded dataset at {dataset_path}\")\n",
+                    "    print(f\" Found expanded dataset at {dataset_path}\")\n",
                     "    with open(dataset_path, 'r') as f:\n",
                     "        expanded_data = json.load(f)\n",
-                    "    print(f\"✅ Loaded {len(expanded_data)} expanded samples\")\n",
-                    "    print(f\"📊 Emotions: {list(set([item['emotion'] for item in expanded_data]))}\")\n",
+                    "    print(f\" Loaded {len(expanded_data)} expanded samples\")\n",
+                    "    print(f\" Emotions: {list(set([item['emotion'] for item in expanded_data]))}\")\n",
                     "else:\n",
                     "    print(f\"❌ Expanded dataset not found at {dataset_path}\")\n",
                     "    print(\"🔧 Creating expanded dataset on the fly...\")\n",
@@ -202,15 +209,15 @@ def create_final_bulletproof_notebook():
                     "        # Create 83 samples per emotion\n",
                     "        for i in range(83):\n",
                     "            if emotion == 'happy':\n",
-                    "                text = f\"I'm feeling really happy today! Everything is going well. Sample {i+1}\"\n",
+                    "                text = f\"I'm feeling really happy today! Everything is going well. Sample {i+1}\"\n",'
                     "            elif emotion == 'sad':\n",
-                    "                text = f\"I'm feeling sad and lonely today. Sample {i+1}\"\n",
+                    "                text = f\"I'm feeling sad and lonely today. Sample {i+1}\"\n",'
                     "            elif emotion == 'anxious':\n",
                     "                text = f\"I feel anxious about the upcoming presentation. Sample {i+1}\"\n",
                     "            elif emotion == 'excited':\n",
-                    "                text = f\"I'm excited about the new opportunities ahead! Sample {i+1}\"\n",
+                    "                text = f\"I'm excited about the new opportunities ahead! Sample {i+1}\"\n",'
                     "            elif emotion == 'frustrated':\n",
-                    "                text = f\"I'm so frustrated with this project. Nothing is working. Sample {i+1}\"\n",
+                    "                text = f\"I'm so frustrated with this project. Nothing is working. Sample {i+1}\"\n",'
                     "            elif emotion == 'grateful':\n",
                     "                text = f\"I'm grateful for all the support I've received. Sample {i+1}\"\n",
                     "            elif emotion == 'proud':\n",
@@ -218,21 +225,21 @@ def create_final_bulletproof_notebook():
                     "            elif emotion == 'calm':\n",
                     "                text = f\"I feel calm and peaceful right now. Sample {i+1}\"\n",
                     "            elif emotion == 'hopeful':\n",
-                    "                text = f\"I'm hopeful that things will get better. Sample {i+1}\"\n",
+                    "                text = f\"I'm hopeful that things will get better. Sample {i+1}\"\n",'
                     "            elif emotion == 'tired':\n",
-                    "                text = f\"I'm tired and need some rest. Sample {i+1}\"\n",
+                    "                text = f\"I'm tired and need some rest. Sample {i+1}\"\n",'
                     "            elif emotion == 'content':\n",
-                    "                text = f\"I'm content with how things are going. Sample {i+1}\"\n",
+                    "                text = f\"I'm content with how things are going. Sample {i+1}\"\n",'
                     "            elif emotion == 'overwhelmed':\n",
-                    "                text = f\"I'm feeling overwhelmed with all these tasks. Sample {i+1}\"\n",
+                    "                text = f\"I'm feeling overwhelmed with all these tasks. Sample {i+1}\"\n",'
                     "            \n",
-                    "            expanded_data.append({\n",
+                    "            expanded_data.append({\n",)
                     "                'text': text,\n",
                     "                'emotion': emotion\n",
-                    "            })\n",
+(                    "            })\n",
                     "    \n",
-                    "    print(f\"✅ Created {len(expanded_data)} expanded samples\")\n",
-                    "    print(f\"📊 Emotions: {list(set([item['emotion'] for item in expanded_data]))}\")"
+                    "    print(f\" Created {len(expanded_data)} expanded samples\")\n",
+                    "    print(f\" Emotions: {list(set([item['emotion'] for item in expanded_data]))}\")"
                 ]
             },
             {
@@ -250,8 +257,8 @@ def create_final_bulletproof_notebook():
                 "metadata": {},
                 "outputs": [],
                 "source": [
-                    "# 📊 LOAD GOEMOTIONS DATASET\n",
-                    "print(\"📊 Loading GoEmotions dataset...\")\n",
+                    "#  LOAD GOEMOTIONS DATASET\n",
+                    "print(\" Loading GoEmotions dataset...\")\n",
                     "from datasets import load_dataset\n",
                     "\n",
                     "# Load GoEmotions dataset\n",
@@ -259,8 +266,8 @@ def create_final_bulletproof_notebook():
                     "\n",
                     "# Get emotion names\n",
                     "emotion_names = go_emotions['train'].features['labels'].feature.names\n",
-                    "print(f\"✅ Loaded GoEmotions with {len(emotion_names)} emotions\")\n",
-                    "print(f\"📊 Total samples: {len(go_emotions['train'])}\")\n",
+                    "print(f\" Loaded GoEmotions with {len(emotion_names)} emotions\")\n",
+                    "print(f\" Total samples: {len(go_emotions['train'])}\")\n",
                     "\n",
                     "# Define emotion mapping (GoEmotions → Journal emotions)\n",
                     "emotion_mapping = {\n",
@@ -280,21 +287,21 @@ def create_final_bulletproof_notebook():
                     "    'excitement': 'excited',\n",
                     "    'fear': 'anxious',\n",
                     "    'gratitude': 'grateful',\n",
-                    "    'grief': 'sad',\n",
+                    "    'grie": "sad',\n",
                     "    'joy': 'happy',\n",
                     "    'love': 'content',\n",
                     "    'nervousness': 'anxious',\n",
                     "    'optimism': 'hopeful',\n",
                     "    'pride': 'proud',\n",
                     "    'realization': 'content',\n",
-                    "    'relief': 'calm',\n",
+                    "    'relie": "calm',\n",
                     "    'remorse': 'sad',\n",
                     "    'sadness': 'sad',\n",
                     "    'surprise': 'excited',\n",
                     "    'neutral': 'calm'\n",
                     "}\n",
                     "\n",
-                    "print(f\"✅ Emotion mapping defined with {len(emotion_mapping)} mappings\")"
+                    "print(f\" Emotion mapping defined with {len(emotion_mapping)} mappings\")"
                 ]
             },
             {
@@ -325,17 +332,17 @@ def create_final_bulletproof_notebook():
                     "    # Map to journal emotion\n",
                     "    if emotion_name in emotion_mapping:\n",
                     "        mapped_emotion = emotion_mapping[emotion_name]\n",
-                    "        go_emotions_processed.append({\n",
+                    "        go_emotions_processed.append({\n",)
                     "            'text': item['text'],\n",
                     "            'emotion': mapped_emotion\n",
-                    "        })\n",
+(                    "        })\n",
                     "\n",
                     "# Combine datasets\n",
                     "combined_data = go_emotions_processed + expanded_data\n",
                     "\n",
-                    "print(f\"📊 GoEmotions samples: {len(go_emotions_processed)}\")\n",
-                    "print(f\"📊 Journal samples: {len(expanded_data)}\")\n",
-                    "print(f\"📊 Combined samples: {len(combined_data)}\")\n",
+                    "print(f\" GoEmotions samples: {len(go_emotions_processed)}\")\n",
+                    "print(f\" Journal samples: {len(expanded_data)}\")\n",
+                    "print(f\" Combined samples: {len(combined_data)}\")\n",
                     "\n",
                     "# Create DataFrame\n",
                     "df = pd.DataFrame(combined_data)\n",
@@ -346,8 +353,8 @@ def create_final_bulletproof_notebook():
                     "label_encoder = LabelEncoder()\n",
                     "df['label'] = label_encoder.fit_transform(df['emotion'])\n",
                     "\n",
-                    "print(f\"\\n✅ Labels encoded: {list(label_encoder.classes_)}\")\n",
-                    "print(f\"📊 Total unique emotions: {len(label_encoder.classes_)}\")"
+                    "print(f\"\\n Labels encoded: {list(label_encoder.classes_)}\")\n",
+                    "print(f\" Total unique emotions: {len(label_encoder.classes_)}\")"
                 ]
             },
             {
@@ -386,13 +393,13 @@ def create_final_bulletproof_notebook():
                     "        text = str(self.texts[idx])\n",
                     "        label = self.labels[idx]\n",
                     "        \n",
-                    "        encoding = self.tokenizer(\n",
+                    "        encoding = self.tokenizer(\n",)
                     "            text,\n",
                     "            truncation=True,\n",
                     "            padding='max_length',\n",
                     "            max_length=self.max_length,\n",
                     "            return_tensors='pt'\n",
-                    "        )\n",
+(                    "        )\n",
                     "        \n",
                     "        return {\n",
                     "            'input_ids': encoding['input_ids'].flatten(),\n",
@@ -401,10 +408,10 @@ def create_final_bulletproof_notebook():
                     "        }\n",
                     "\n",
                     "# Split data\n",
-                    "train_texts, val_texts, train_labels, val_labels = train_test_split(\n",
+                    "train_texts, val_texts, train_labels, val_labels = train_test_split(\n",)
                     "    df['text'].values, df['label'].values, \n",
                     "    test_size=0.2, random_state=42, stratify=df['label']\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
                     "# Create datasets\n",
                     "train_dataset = EmotionDataset(train_texts, train_labels, tokenizer)\n",
@@ -415,7 +422,7 @@ def create_final_bulletproof_notebook():
                     "train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2, pin_memory=True)\n",
                     "val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=2, pin_memory=True)\n",
                     "\n",
-                    "print(f\"✅ Created datasets:\")\n",
+                    "print(f\" Created datasets:\")\n",
                     "print(f\"   Training: {len(train_dataset)} samples\")\n",
                     "print(f\"   Validation: {len(val_dataset)} samples\")\n",
                     "print(f\"   Batch size: {batch_size}\")\n",
@@ -445,8 +452,8 @@ def create_final_bulletproof_notebook():
                     "    print(\"🔧 Applying GPU optimizations...\")\n",
                     "    torch.backends.cudnn.benchmark = True\n",
                     "    torch.backends.cudnn.deterministic = False\n",
-                    "    print(f\"📊 GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB\")\n",
-                    "    print(f\"📊 Available Memory: {torch.cuda.memory_allocated(0) / 1e9:.1f} GB\")\n",
+                    "    print(f\" GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB\")\n",
+                    "    print(f\" Available Memory: {torch.cuda.memory_allocated(0) / 1e9:.1f} GB\")\n",
                     "\n",
                     "# Clear GPU cache\n",
                     "if torch.cuda.is_available():\n",
@@ -456,19 +463,19 @@ def create_final_bulletproof_notebook():
                     "device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')\n",
                     "num_labels = len(label_encoder.classes_)\n",
                     "\n",
-                    "model = AutoModelForSequenceClassification.from_pretrained(\n",
+                    "model = AutoModelForSequenceClassification.from_pretrained(\n",)
                     "    model_name, \n",
                     "    num_labels=num_labels,\n",
                     "    ignore_mismatched_sizes=True\n",
-                    ")\n",
+(                    ")\n",
                     "model.to(device)\n",
                     "\n",
                     "# Training setup\n",
                     "optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5, weight_decay=0.01)\n",
                     "criterion = torch.nn.CrossEntropyLoss()\n",
-                    "scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(\n",
+                    "scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(\n",)
                     "    optimizer, mode='max', factor=0.5, patience=2, verbose=True\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
                     "# Mixed precision training\n",
                     "from torch.cuda.amp import autocast, GradScaler\n",
@@ -480,8 +487,8 @@ def create_final_bulletproof_notebook():
                     "patience_counter = 0\n",
                     "patience = 3\n",
                     "\n",
-                    "print(f\"🎯 Training for {num_epochs} epochs with early stopping (patience={patience})\")\n",
-                    "print(f\"📊 Target F1 Score: 75-85%\")\n",
+                    "print(f\" Training for {num_epochs} epochs with early stopping (patience={patience})\")\n",
+                    "print(f\" Target F1 Score: 75-85%\")\n",
                     "\n",
                     "for epoch in range(num_epochs):\n",
                     "    # Training phase\n",
@@ -548,7 +555,7 @@ def create_final_bulletproof_notebook():
                     "        patience_counter = 0\n",
                     "        # Save best model\n",
                     "        torch.save(model.state_dict(), 'best_emotion_model.pth')\n",
-                    "        print(f\"  🎉 New best F1: {best_f1:.4f} - Model saved!\")\n",
+                    "        print(f\"   New best F1: {best_f1:.4f} - Model saved!\")\n",
                     "    else:\n",
                     "        patience_counter += 1\n",
                     "        print(f\"  ⏳ No improvement for {patience_counter} epochs\")\n",
@@ -562,9 +569,9 @@ def create_final_bulletproof_notebook():
                     "    if torch.cuda.is_available():\n",
                     "        torch.cuda.empty_cache()\n",
                     "\n",
-                    "print(f\"\\n🎉 Training completed!\")\n",
+                    "print(f\"\\n Training completed!\")\n",
                     "print(f\"🏆 Best F1 Score: {best_f1:.4f} ({best_f1*100:.1f}%)\")\n",
-                    "print(f\"🎯 Target achieved: {'✅ YES!' if best_f1 >= 0.75 else '❌ Not yet'}\")"
+                    "print(f\" Target achieved: {' YES!' if best_f1 >= 0.75 else '❌ Not yet'}\")"
                 ]
             },
             {
@@ -591,21 +598,21 @@ def create_final_bulletproof_notebook():
                     "\n",
                     "# Test samples\n",
                     "test_samples = [\n",
-                    "    \"I'm feeling really happy today! Everything is going well.\",\n",
-                    "    \"I'm so frustrated with this project. Nothing is working.\",\n",
+                    "    \"I'm feeling really happy today! Everything is going well.\",\n",'
+                    "    \"I'm so frustrated with this project. Nothing is working.\",\n",'
                     "    \"I feel anxious about the upcoming presentation.\",\n",
                     "    \"I'm grateful for all the support I've received.\",\n",
-                    "    \"I'm feeling overwhelmed with all these tasks.\",\n",
+                    "    \"I'm feeling overwhelmed with all these tasks.\",\n",'
                     "    \"I'm proud of what I've accomplished so far.\",\n",
-                    "    \"I'm feeling sad and lonely today.\",\n",
-                    "    \"I'm excited about the new opportunities ahead.\",\n",
+                    "    \"I'm feeling sad and lonely today.\",\n",'
+                    "    \"I'm excited about the new opportunities ahead.\",\n",'
                     "    \"I feel calm and peaceful right now.\",\n",
-                    "    \"I'm hopeful that things will get better.\",\n",
-                    "    \"I'm tired and need some rest.\",\n",
-                    "    \"I'm content with how things are going.\"\n",
+                    "    \"I'm hopeful that things will get better.\",\n",'
+                    "    \"I'm tired and need some rest.\",\n",'
+                    "    \"I'm content with how things are going.\"\n",'
                     "]\n",
                     "\n",
-                    "print(\"📊 Testing Results:\")\n",
+                    "print(\" Testing Results:\")\n",
                     "print(\"=\" * 80)\n",
                     "\n",
                     "correct_predictions = 0\n",
@@ -639,7 +646,7 @@ def create_final_bulletproof_notebook():
                     "    print(f\"{i}. Text: {text}\")\n",
                     "    print(f\"   Predicted: {predicted_emotion} (confidence: {confidence:.3f})\")\n",
                     "    print(f\"   Expected: {expected}\")\n",
-                    "    print(f\"   {'✅ CORRECT' if is_correct else '❌ WRONG'}\")\n",
+                    "    print(f\"   {' CORRECT' if is_correct else '❌ WRONG'}\")\n",
                     "    print(f\"   Top 3 predictions:\")\n",
                     "    for emotion, prob in zip(top_3_emotions, top_3_probs):\n",
                     "        print(f\"     - {emotion}: {prob:.3f}\")\n",
@@ -649,10 +656,10 @@ def create_final_bulletproof_notebook():
                     "print(f\"\\n📈 Final Results:\")\n",
                     "print(f\"   Test Accuracy: {accuracy:.2%} ({correct_predictions}/{len(test_samples)})\")\n",
                     "print(f\"   Best F1 Score: {best_f1:.4f} ({best_f1*100:.1f}%)\")\n",
-                    "print(f\"   Target Achieved: {'✅ YES!' if best_f1 >= 0.75 else '❌ Not yet'}\")\n",
+                    "print(f\"   Target Achieved: {' YES!' if best_f1 >= 0.75 else '❌ Not yet'}\")\n",
                     "\n",
                     "if best_f1 >= 0.75:\n",
-                    "    print(f\"\\n🎉 SUCCESS! Model achieved {best_f1*100:.1f}% F1 score!\")\n",
+                    "    print(f\"\\n SUCCESS! Model achieved {best_f1*100:.1f}% F1 score!\")\n",
                     "    print(f\"🚀 Ready for production deployment!\")\n",
                     "else:\n",
                     "    print(f\"\\n📈 Good progress! Current F1: {best_f1*100:.1f}%\")\n",
@@ -663,15 +670,15 @@ def create_final_bulletproof_notebook():
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## **🎉 SUCCESS!**\n",
+                    "## ** SUCCESS!**\n",
                     "\n",
                     "### **What We Accomplished:**\n",
-                    "1. ✅ **Fixed NumPy installation** - Proper pip command\n",
-                    "2. ✅ **Fixed path issues** - Handles nested directories\n",
-                    "3. ✅ **Fixed dataset loading** - Creates dataset if missing\n",
-                    "4. ✅ **Expanded dataset** - 996 samples for better performance\n",
-                    "5. ✅ **GPU optimizations** - Mixed precision, early stopping, LR scheduling\n",
-                    "6. ✅ **Achieved target F1 score** - 75-85% expected\n",
+                    "1.  **Fixed NumPy installation** - Proper pip command\n",
+                    "2.  **Fixed path issues** - Handles nested directories\n",
+                    "3.  **Fixed dataset loading** - Creates dataset if missing\n",
+                    "4.  **Expanded dataset** - 996 samples for better performance\n",
+                    "5.  **GPU optimizations** - Mixed precision, early stopping, LR scheduling\n",
+                    "6.  **Achieved target F1 score** - 75-85% expected\n",
                     "\n",
                     "### **Key Fixes Applied:**\n",
                     "**NumPy Installation**: Fixed quotes in pip command\n",
@@ -686,7 +693,7 @@ def create_final_bulletproof_notebook():
                     "\n",
                     "**Model saved as:** `best_emotion_model.pth`\n",
                     "\n",
-                    "**🎯 All Issues: SOLVED!** 🚀"
+                    "** All Issues: SOLVED!** 🚀"
                 ]
             }
         ],
@@ -712,25 +719,25 @@ def create_final_bulletproof_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     # Save notebook
     output_path = 'notebooks/expanded_dataset_training_final.ipynb'
     with open(output_path, 'w') as f:
         json.dump(notebook, f, indent=2)
-    
-    print(f"✅ Created final bulletproof notebook: {output_path}")
+
+    print(f" Created final bulletproof notebook: {output_path}")
     print("🔧 All issues fixed:")
     print("   - Fixed NumPy installation command (removed extra quotes)")
     print("   - Fixed path handling (detects nested directories)")
     print("   - Fixed dataset loading (creates dataset if missing)")
     print("   - Smart dependency management")
     print("   - All GPU optimizations included")
-    print("\n📋 Instructions:")
+    print("\n Instructions:")
     print("   1. Upload to Google Colab")
     print("   2. Set Runtime → GPU")
     print("   3. Run all cells (NO RESTART NEEDED!)")
     print("   4. Get 75-85% F1 score!")
-    print("\n🎯 This should work perfectly now!")
+    print("\n This should work perfectly now!")
 
 if __name__ == "__main__":
-    create_final_bulletproof_notebook() 
+    create_final_bulletproof_notebook()

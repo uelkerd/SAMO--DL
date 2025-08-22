@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
-"""
+""""
 Create Ultimate Bulletproof Training Notebook
 =============================================
 
 This script generates the ultimate training notebook that combines ALL gains from
 previous iterations:
 
-✅ Configuration preservation (from current notebook)
-✅ Focal loss (from previous iterations)  
-✅ Class weighting (from previous iterations)
-✅ Data augmentation (from previous iterations)
-✅ Advanced validation (from previous iterations)
+ Configuration preservation (from current notebook)
+ Focal loss (from previous iterations)
+ Class weighting (from previous iterations)
+ Data augmentation (from previous iterations)
+ Advanced validation (from previous iterations)
 
 This is the bulletproof version that should achieve reliable 75-85% F1 scores.
-"""
+""""
 
 import json
 
 def create_ultimate_notebook():
     """Create the ultimate bulletproof training notebook."""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -30,11 +30,11 @@ def create_ultimate_notebook():
                     "## Combining ALL Gains from Previous Iterations\n",
                     "\n",
                     "**FEATURES INCLUDED:**\n",
-                    "✅ Configuration preservation (prevents 8.3% vs 75% discrepancy)\n",
-                    "✅ Focal loss (handles class imbalance)\n",
-                    "✅ Class weighting (WeightedLossTrainer)\n",
-                    "✅ Data augmentation (sophisticated techniques)\n",
-                    "✅ Advanced validation (proper testing)\n",
+                    " Configuration preservation (prevents 8.3% vs 75% discrepancy)\n",
+                    " Focal loss (handles class imbalance)\n",
+                    " Class weighting (WeightedLossTrainer)\n",
+                    " Data augmentation (sophisticated techniques)\n",
+                    " Advanced validation (proper testing)\n",
                     "\n",
                     "**Target**: Reliable 75-85% F1 score with consistent performance"
                 ]
@@ -58,7 +58,11 @@ def create_ultimate_notebook():
                     "import torch\n",
                     "import numpy as np\n",
                     "import pandas as pd\n",
-                    "from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer\n",
+                    "from transformers import                    "from transformers import AutoTokenizer,
+                         AutoModelForSequenceClassification,
+                         TrainingArguments,
+                         Trainer\n","
+
                     "from datasets import Dataset\n",
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.metrics import classification_report, confusion_matrix\n",
@@ -67,14 +71,14 @@ def create_ultimate_notebook():
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",
-                    "print('✅ Packages imported successfully')"
+                    "print(' Packages imported successfully')"
                 ]
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🔍 VERIFYING SPECIALIZED MODEL ACCESS"
+                    "##  VERIFYING SPECIALIZED MODEL ACCESS"
                 ]
             },
             {
@@ -83,7 +87,7 @@ def create_ultimate_notebook():
                 "metadata": {},
                 "outputs": [],
                 "source": [
-                    "print('🔍 VERIFYING SPECIALIZED MODEL ACCESS')\n",
+                    "print(' VERIFYING SPECIALIZED MODEL ACCESS')\n",
                     "print('=' * 50)\n",
                     "\n",
                     "specialized_model_name = 'j-hartmann/emotion-english-distilroberta-base'\n",
@@ -93,7 +97,7 @@ def create_ultimate_notebook():
                     "    test_tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\n",
                     "    test_model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name)\n",
                     "    \n",
-                    "    print('✅ SUCCESS: Specialized model loaded!')\n",
+                    "    print(' SUCCESS: Specialized model loaded!')\n",
                     "    print(f'Model type: {test_model.config.model_type}')\n",
                     "    print(f'Architecture: {test_model.config.architectures[0]}')\n",
                     "    print(f'Hidden layers: {test_model.config.num_hidden_layers}')\n",
@@ -101,9 +105,9 @@ def create_ultimate_notebook():
                     "    print(f'Number of labels: {test_model.config.num_labels}')\n",
                     "    print(f'Original labels: {test_model.config.id2label}')\n",
                     "    \n",
-                    "    # Verify it's actually DistilRoBERTa\n",
+                    "    # Verify it's actually DistilRoBERTa\n",'
                     "    if test_model.config.num_hidden_layers == 6:\n",
-                    "        print('✅ CONFIRMED: This is DistilRoBERTa architecture')\n",
+                    "        print(' CONFIRMED: This is DistilRoBERTa architecture')\n",
                     "    else:\n",
                     "        print('⚠️  WARNING: This may not be the expected DistilRoBERTa model')\n",
                     "    \n",
@@ -113,14 +117,14 @@ def create_ultimate_notebook():
                     "    specialized_model_name = 'roberta-base'\n",
                     "    test_tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\n",
                     "    test_model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name, num_labels=12)\n",
-                    "    print(f'✅ Fallback model loaded: {specialized_model_name}')"
+                    "    print(f' Fallback model loaded: {specialized_model_name}')"
                 ]
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🎯 DEFINING EMOTION CLASSES"
+                    "##  DEFINING EMOTION CLASSES"
                 ]
             },
             {
@@ -131,15 +135,15 @@ def create_ultimate_notebook():
                 "source": [
                     "# Define our emotion classes\n",
                     "emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\n",
-                    "print(f'🎯 Our emotion classes: {emotions}')\n",
-                    "print(f'📊 Number of emotions: {len(emotions)}')"
+                    "print(f' Our emotion classes: {emotions}')\n",
+                    "print(f' Number of emotions: {len(emotions)}')"
                 ]
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 📊 CREATING ENHANCED DATASET WITH AUGMENTATION"
+                    "##  CREATING ENHANCED DATASET WITH AUGMENTATION"
                 ]
             },
             {
@@ -148,7 +152,7 @@ def create_ultimate_notebook():
                 "metadata": {},
                 "outputs": [],
                 "source": [
-                    "print('📊 CREATING ENHANCED DATASET WITH AUGMENTATION')\n",
+                    "print(' CREATING ENHANCED DATASET WITH AUGMENTATION')\n",
                     "print('=' * 50)\n",
                     "\n",
                     "# Base balanced dataset\n",
@@ -322,7 +326,7 @@ def create_ultimate_notebook():
                     "    {'text': 'This creates fatigue in me.', 'label': 11}\n",
                     "]\n",
                     "\n",
-                    "print(f'📊 Base dataset size: {len(base_data)} samples')\n",
+                    "print(f' Base dataset size: {len(base_data)} samples')\n",
                     "\n",
                     "# Data augmentation function\n",
                     "def augment_text(text, emotion):\n",
@@ -369,12 +373,12 @@ def create_ultimate_notebook():
                     "\n",
                     "# Combine base and augmented data\n",
                     "enhanced_data = base_data + augmented_data\n",
-                    "print(f'📊 Enhanced dataset size: {len(enhanced_data)} samples')\n",
-                    "print(f'📊 Augmentation added: {len(augmented_data)} samples')\n",
+                    "print(f' Enhanced dataset size: {len(enhanced_data)} samples')\n",
+                    "print(f' Augmentation added: {len(augmented_data)} samples')\n",
                     "\n",
                     "# Create dataset\n",
                     "dataset = Dataset.from_list(enhanced_data)\n",
-                    "print(f'✅ Dataset created with {len(dataset)} samples')"
+                    "print(f' Dataset created with {len(dataset)} samples')"
                 ]
             }
         ],
@@ -400,21 +404,21 @@ def create_ultimate_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     # Save the notebook
     output_path = "notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb"
     with open(output_path, 'w') as f:
         json.dump(notebook_content, f, indent=2)
-    
-    print(f"✅ Created ultimate bulletproof notebook: {output_path}")
-    print("📋 Features included:")
-    print("   ✅ Configuration preservation")
-    print("   ✅ Focal loss (to be added)")
-    print("   ✅ Class weighting (to be added)")
-    print("   ✅ Data augmentation")
-    print("   ✅ Advanced validation (to be added)")
-    
+
+    print(f" Created ultimate bulletproof notebook: {output_path}")
+    print(" Features included:")
+    print("    Configuration preservation")
+    print("    Focal loss (to be added)")
+    print("    Class weighting (to be added)")
+    print("    Data augmentation")
+    print("    Advanced validation (to be added)")
+
     return output_path
 
 if __name__ == "__main__":
-    create_ultimate_notebook() 
+    create_ultimate_notebook()

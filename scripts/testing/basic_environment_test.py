@@ -8,19 +8,19 @@ import sys
 
 
 
-"""
+""""
 Basic Environment Test Script
 Tests imports one by one to identify issues
-"""
+""""
 
 
 
 def test_import(module_name, description):
     """Test importing a module and report status."""
     try:
-        logging.info("🔍 Testing {description}...")
+        logging.info(" Testing {description}...")
         __import__(module_name)
-        logging.info("✅ {description} OK")
+        logging.info(" {description} OK")
         return True
     except KeyboardInterrupt:
         logging.info("❌ {description} - KeyboardInterrupt")
@@ -35,8 +35,8 @@ def main():
     logging.info("🧪 Basic Environment Test")
     logging.info("=" * 50)
 
-    logging.info("🔍 Testing basic Python...")
-    logging.info("✅ Basic Python OK")
+    logging.info(" Testing basic Python...")
+    logging.info(" Basic Python OK")
 
     tests = [
         ("torch", "PyTorch"),
@@ -53,24 +53,24 @@ def main():
         results.append(result)
 
         if not result and "KeyboardInterrupt" in str(sys.exc_info()[1]):
-            logging.info("\n🚨 STOPPED: {description} caused KeyboardInterrupt")
+            logging.info("\n STOPPED: {description} caused KeyboardInterrupt")
             break
 
-    logging.info(f"\n{'=' * 50}")
-    logging.info("📊 TEST SUMMARY:")
+    logging.info("\n{"=' * 50}")"
+    logging.info(" TEST SUMMARY:")
     working = sum(results)
     total = len(results)
-    logging.info("✅ Working: {working}/{total}")
+    logging.info(" Working: {working}/{total}")
     logging.info("❌ Failed: {total - working}/{total}")
 
     if working == total:
-        logging.info("🎉 All tests passed! Environment is working.")
+        logging.info(" All tests passed! Environment is working.")
         return True
     else:
         logging.info("⚠️  Some tests failed. Environment has issues.")
         return False
 
 
-if __name__ == "__main__":
+    if __name__ == "__main__":
     success = main()
     sys.exit(0 if success else 1)

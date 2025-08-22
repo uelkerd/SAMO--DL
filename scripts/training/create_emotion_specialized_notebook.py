@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""
+""""
 🚀 CREATE EMOTION SPECIALIZED NOTEBOOK
 ======================================
 Create a Colab notebook using specialized emotion analysis models.
 This addresses the poor performance with generic BERT.
-"""
+""""
 
 import json
 
 def create_emotion_specialized_notebook():
     """Create the emotion specialized notebook content"""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -52,16 +52,19 @@ def create_emotion_specialized_notebook():
                     "import numpy as np\n",
                     "import torch\n",
                     "from torch.utils.data import Dataset, DataLoader\n",
-                    "from transformers import (\n",
+                    "from transformers import (\n",)
                     "    AutoTokenizer,\n",
                     "    AutoModelForSequenceClassification,\n",
                     "    TrainingArguments,\n",
                     "    Trainer,\n",
                     "    EarlyStoppingCallback\n",
-                    ")\n",
+(                    ")\n",
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.preprocessing import LabelEncoder\n",
-                    "from sklearn.metrics import f1_score, accuracy_score, classification_report\n",
+                    "from sklearn.metrics import                    "from sklearn.metrics import f1_score,
+                         accuracy_score,
+                         classification_report\n","
+
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",
@@ -77,7 +80,7 @@ def create_emotion_specialized_notebook():
                 "source": [
                     "# BULLETPROOF: Auto-detect repository path and data files\n",
                     "import os\n",
-                    "print('🔍 Auto-detecting repository structure...')\n",
+                    "print(' Auto-detecting repository structure...')\n",
                     "\n",
                     "# Find the repository directory\n",
                     "possible_paths = [\n",
@@ -92,7 +95,7 @@ def create_emotion_specialized_notebook():
                     "for path in possible_paths:\n",
                     "    if os.path.exists(path):\n",
                     "        repo_path = path\n",
-                    "        print(f'✅ Found repository at: {repo_path}')\n",
+                    "        print(f' Found repository at: {repo_path}')\n",
                     "        break\n",
                     "\n",
                     "if repo_path is None:\n",
@@ -106,7 +109,7 @@ def create_emotion_specialized_notebook():
                     "    print(f'❌ Data directory not found: {data_path}')\n",
                     "    raise Exception('Data directory not found!')\n",
                     "\n",
-                    "print(f'✅ Data directory found: {data_path}')\n",
+                    "print(f' Data directory found: {data_path}')\n",
                     "print('📂 Listing data files:')\n",
                     "!ls -la {data_path}/"
                 ]
@@ -118,7 +121,7 @@ def create_emotion_specialized_notebook():
                 "outputs": [],
                 "source": [
                     "# Load combined dataset with UNIQUE fallback\n",
-                    "print('📊 Loading combined dataset...')\n",
+                    "print(' Loading combined dataset...')\n",
                     "combined_samples = []\n",
                     "\n",
                     "# Load journal data\n",
@@ -131,7 +134,7 @@ def create_emotion_specialized_notebook():
                     "            combined_samples.append({'text': item['content'], 'emotion': item['emotion']})\n",
                     "        elif 'text' in item and 'emotion' in item:\n",
                     "            combined_samples.append({'text': item['text'], 'emotion': item['emotion']})\n",
-                    "    print(f'✅ Loaded {len(journal_data)} journal samples from {journal_path}')\n",
+                    "    print(f' Loaded {len(journal_data)} journal samples from {journal_path}')\n",
                     "except FileNotFoundError:\n",
                     "    print(f'⚠️ Could not load journal data: {journal_path} not found.')\n",
                     "\n",
@@ -143,11 +146,11 @@ def create_emotion_specialized_notebook():
                     "    for item in cmu_data:\n",
                     "        if 'text' in item and 'emotion' in item:\n",
                     "            combined_samples.append({'text': item['text'], 'emotion': item['emotion']})\n",
-                    "    print(f'✅ Loaded {len(cmu_data)} CMU-MOSEI samples from {cmu_path}')\n",
+                    "    print(f' Loaded {len(cmu_data)} CMU-MOSEI samples from {cmu_path}')\n",
                     "except FileNotFoundError:\n",
                     "    print(f'⚠️ Could not load CMU-MOSEI data: {cmu_path} not found.')\n",
                     "\n",
-                    "print(f'📊 Total combined samples: {len(combined_samples)}')\n",
+                    "print(f' Total combined samples: {len(combined_samples)}')\n",
                     "\n",
                     "# BULLETPROOF: Use UNIQUE fallback dataset if needed\n",
                     "if len(combined_samples) < 100:\n",
@@ -159,22 +162,22 @@ def create_emotion_specialized_notebook():
                     "        with open(fallback_path, 'r') as f:\n",
                     "            fallback_data = json.load(f)\n",
                     "        combined_samples = fallback_data\n",
-                    "        print(f'✅ Loaded {len(combined_samples)} UNIQUE fallback samples')\n",
+                    "        print(f' Loaded {len(combined_samples)} UNIQUE fallback samples')\n",
                     "    except FileNotFoundError:\n",
                     "        print(f'❌ Could not load unique fallback dataset: {fallback_path}')\n",
                     "        print('❌ No data available for training!')\n",
                     "        raise Exception('No training data available!')\n",
                     "\n",
-                    "print(f'✅ Final dataset size: {len(combined_samples)} samples')\n",
+                    "print(f' Final dataset size: {len(combined_samples)} samples')\n",
                     "\n",
                     "# Verify no duplicates\n",
                     "texts = [sample['text'] for sample in combined_samples]\n",
                     "unique_texts = set(texts)\n",
-                    "print(f'🔍 Duplicate check: {len(texts)} total, {len(unique_texts)} unique')\n",
+                    "print(f' Duplicate check: {len(texts)} total, {len(unique_texts)} unique')\n",
                     "if len(texts) != len(unique_texts):\n",
                     "    print('❌ WARNING: DUPLICATES FOUND! This will cause model collapse!')\n",
                     "else:\n",
-                    "    print('✅ All samples are unique - no model collapse risk!')"
+                    "    print(' All samples are unique - no model collapse risk!')"
                 ]
             },
             {
@@ -193,13 +196,13 @@ def create_emotion_specialized_notebook():
                     "label_encoder = LabelEncoder()\n",
                     "labels = label_encoder.fit_transform(emotions)\n",
                     "\n",
-                    "print(f'🎯 Number of labels: {len(label_encoder.classes_)}')\n",
-                    "print(f'📊 Labels: {list(label_encoder.classes_)}')\n",
+                    "print(f' Number of labels: {len(label_encoder.classes_)}')\n",
+                    "print(f' Labels: {list(label_encoder.classes_)}')\n",
                     "\n",
                     "# Split data\n",
-                    "train_texts, test_texts, train_labels, test_labels = train_test_split(\n",
+                    "train_texts, test_texts, train_labels, test_labels = train_test_split(\n",)
                     "    texts, labels, test_size=0.2, random_state=42, stratify=labels\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
                     "print(f'📈 Training samples: {len(train_texts)}')\n",
                     "print(f'🧪 Test samples: {len(test_labels)}')\n",
@@ -209,7 +212,7 @@ def create_emotion_specialized_notebook():
                     "for emotion in emotions:\n",
                     "    emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1\n",
                     "\n",
-                    "print('\\n📊 Emotion Distribution:')\n",
+                    "print('\\n Emotion Distribution:')\n",
                     "for emotion, count in sorted(emotion_counts.items()):\n",
                     "    print(f'  {emotion}: {count} samples')"
                 ]
@@ -235,13 +238,13 @@ def create_emotion_specialized_notebook():
                     "        text = str(self.texts[idx])\n",
                     "        label = self.labels[idx]\n",
                     "        \n",
-                    "        encoding = self.tokenizer(\n",
+                    "        encoding = self.tokenizer(\n",)
                     "            text,\n",
                     "            truncation=True,\n",
                     "            padding='max_length',\n",
                     "            max_length=self.max_length,\n",
                     "            return_tensors='pt'\n",
-                    "        )\n",
+(                    "        )\n",
                     "        \n",
                     "        return {\n",
                     "            'input_ids': encoding['input_ids'].flatten(),\n",
@@ -267,42 +270,42 @@ def create_emotion_specialized_notebook():
                     "    'cardiffnlp/twitter-roberta-base-emotion'\n",
                     "]\n",
                     "\n",
-                    "print('📋 Available specialized models:')\n",
+                    "print(' Available specialized models:')\n",
                     "for i, model_name in enumerate(emotion_models, 1):\n",
                     "    print(f'  {i}. {model_name}')\n",
                     "\n",
                     "# Use the best model for emotion analysis\n",
                     "model_name = 'finiteautomata/bertweet-base-emotion-analysis'  # Best for emotions\n",
-                    "print(f'\\n🎯 Using specialized model: {model_name}')\n",
+                    "print(f'\\n Using specialized model: {model_name}')\n",
                     "\n",
                     "try:\n",
                     "    tokenizer = AutoTokenizer.from_pretrained(model_name)\n",
-                    "    model = AutoModelForSequenceClassification.from_pretrained(\n",
+                    "    model = AutoModelForSequenceClassification.from_pretrained(\n",)
                     "        model_name,\n",
                     "        num_labels=len(label_encoder.classes_),\n",
                     "        problem_type='single_label_classification',\n",
                     "        ignore_mismatched_sizes=True  # Handle size mismatches\n",
-                    "    )\n",
-                    "    print(f'✅ Specialized model loaded: {model_name}')\n",
+(                    "    )\n",
+                    "    print(f' Specialized model loaded: {model_name}')\n",
                     "except Exception as e:\n",
                     "    print(f'⚠️ Could not load {model_name}: {e}')\n",
                     "    print('🔄 Falling back to generic BERT...')\n",
                     "    model_name = 'bert-base-uncased'\n",
                     "    tokenizer = AutoTokenizer.from_pretrained(model_name)\n",
-                    "    model = AutoModelForSequenceClassification.from_pretrained(\n",
+                    "    model = AutoModelForSequenceClassification.from_pretrained(\n",)
                     "        model_name,\n",
                     "        num_labels=len(label_encoder.classes_),\n",
                     "        problem_type='single_label_classification'\n",
-                    "    )\n",
-                    "    print(f'✅ Fallback model loaded: {model_name}')\n",
+(                    "    )\n",
+                    "    print(f' Fallback model loaded: {model_name}')\n",
                     "\n",
-                    "print(f'✅ Model initialized with {len(label_encoder.classes_)} labels')\n",
+                    "print(f' Model initialized with {len(label_encoder.classes_)} labels')\n",
                     "\n",
                     "# Create datasets\n",
                     "train_dataset = EmotionDataset(train_texts, train_labels, tokenizer)\n",
                     "test_dataset = EmotionDataset(test_texts, test_labels, tokenizer)\n",
                     "\n",
-                    "print('✅ Datasets created successfully')"
+                    "print(' Datasets created successfully')"
                 ]
             },
             {
@@ -330,11 +333,11 @@ def create_emotion_specialized_notebook():
                 "source": [
                     "# Configure training arguments with OPTIMIZED hyperparameters for small datasets\n",
                     "print('🚀 Starting SPECIALIZED EMOTION training...')\n",
-                    "print('🎯 Target F1 Score: 75-85%')\n",
-                    "print('📊 Current Best: 5.20%')\n",
+                    "print(' Target F1 Score: 75-85%')\n",
+                    "print(' Current Best: 5.20%')\n",
                     "print('📈 Expected Improvement: 70-80%')\n",
                     "\n",
-                    "training_args = TrainingArguments(\n",
+                    "training_args = TrainingArguments(\n",)
                     "    output_dir='./emotion_model_specialized',\n",
                     "    num_train_epochs=10,  # More epochs for small dataset\n",
                     "    per_device_train_batch_size=4,  # Smaller batch size for small dataset\n",
@@ -357,21 +360,21 @@ def create_emotion_specialized_notebook():
                     "    gradient_accumulation_steps=4,  # Increased for stability\n",
                     "    fp16=True,  # Enable mixed precision for GPU\n",
                     "    dataloader_pin_memory=False,  # Disable for small dataset\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
                     "# Create trainer\n",
-                    "trainer = Trainer(\n",
+                    "trainer = Trainer(\n",)
                     "    model=model,\n",
                     "    args=training_args,\n",
                     "    train_dataset=train_dataset,\n",
                     "    eval_dataset=test_dataset,\n",
                     "    compute_metrics=compute_metrics,\n",
                     "    callbacks=[EarlyStoppingCallback(early_stopping_patience=5)]  # More patience\n",
-                    ")\n",
+(                    ")\n",
                     "\n",
-                    "print(f'📊 Training on {len(train_texts)} samples')\n",
+                    "print(f' Training on {len(train_texts)} samples')\n",
                     "print(f'🧪 Evaluating on {len(test_labels)} samples')\n",
-                    "print(f'🎯 Using specialized model: {model_name}')\n",
+                    "print(f' Using specialized model: {model_name}')\n",
                     "\n",
                     "# Start training\n",
                     "trainer.train()"
@@ -384,12 +387,12 @@ def create_emotion_specialized_notebook():
                 "outputs": [],
                 "source": [
                     "# Evaluate final model\n",
-                    "print('📊 Evaluating final model...')\n",
+                    "print(' Evaluating final model...')\n",
                     "results = trainer.evaluate()\n",
                     "\n",
-                    "print(f'🏆 Final F1 Score: {results[\"eval_f1\"]:.4f} ({results[\"eval_f1\"]*100:.2f}%)')\n",
-                    "print(f'🎯 Target achieved: {\"✅ YES!\" if results[\"eval_f1\"] >= 0.75 else \"❌ Not yet\"}')\n",
-                    "print(f'📈 Improvement from baseline: {((results[\"eval_f1\"] - 0.052) / 0.052 * 100):.1f}%')\n",
+                    "print("🏆 Final F1 Score: {results[\"eval_f1\"]:.4f} ({results[\"eval_f1\"]*100:.2f}%)')\n","
+                    "print(" Target achieved: {\" YES!\" if results[\"eval_f1\"] >= 0.75 else \"❌ Not yet\"}')\n","
+                    "print("📈 Improvement from baseline: {((results[\"eval_f1\"] - 0.052) / 0.052 * 100):.1f}%')\n","
                     "\n",
                     "# Save model\n",
                     "trainer.save_model('./emotion_model_specialized_final')\n",
@@ -406,22 +409,22 @@ def create_emotion_specialized_notebook():
                     "print('🧪 Testing on sample texts...')\n",
                     "\n",
                     "test_texts = [\n",
-                    "    \"I'm feeling really happy today!\",\n",
-                    "    \"I'm so frustrated with this project.\",\n",
+                    "    \"I'm feeling really happy today!\",\n",'
+                    "    \"I'm so frustrated with this project.\",\n",'
                     "    \"I feel anxious about the presentation.\",\n",
-                    "    \"I'm grateful for all the support.\",\n",
-                    "    \"I'm feeling overwhelmed with tasks.\"\n",
+                    "    \"I'm grateful for all the support.\",\n",'
+                    "    \"I'm feeling overwhelmed with tasks.\"\n",'
                     "]\n",
                     "\n",
                     "model.eval()\n",
                     "with torch.no_grad():\n",
                     "    for i, text in enumerate(test_texts, 1):\n",
-                    "        inputs = tokenizer(\n",
+                    "        inputs = tokenizer(\n",)
                     "            text,\n",
                     "            truncation=True,\n",
                     "            padding=True,\n",
                     "            return_tensors='pt'\n",
-                    "        )\n",
+(                    "        )\n",
                     "        \n",
                     "        outputs = model(**inputs)\n",
                     "        probabilities = torch.softmax(outputs.logits, dim=1)\n",
@@ -438,17 +441,17 @@ def create_emotion_specialized_notebook():
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🎉 Specialized Training Complete!\n",
+                    "##  Specialized Training Complete!\n",
                     "\n",
                     "**Key Improvements:**\n",
-                    "- ✅ **Specialized emotion model** (finiteautomata/bertweet-base-emotion-analysis)\n",
-                    "- ✅ **More training epochs** (10 instead of 3)\n",
-                    "- ✅ **Lower learning rate** (1e-5 for fine-tuning)\n",
-                    "- ✅ **Smaller batch size** (4 for small dataset)\n",
-                    "- ✅ **More patience** (5 epochs early stopping)\n",
+                    "-  **Specialized emotion model** (finiteautomata/bertweet-base-emotion-analysis)\n",
+                    "-  **More training epochs** (10 instead of 3)\n",
+                    "-  **Lower learning rate** (1e-5 for fine-tuning)\n",
+                    "-  **Smaller batch size** (4 for small dataset)\n",
+                    "-  **More patience** (5 epochs early stopping)\n",
                     "\n",
                     "**Expected Results:**\n",
-                    "- 🎯 **Target F1 Score: 75-85%**\n",
+                    "-  **Target F1 Score: 75-85%**\n",
                     "- 📈 **Massive improvement from 5.20% baseline**\n",
                     "- 🔧 **Better emotion understanding** (specialized model)\n",
                     "\n",
@@ -481,12 +484,12 @@ def create_emotion_specialized_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     with open('notebooks/EMOTION_SPECIALIZED_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook_content, f, indent=2)
-    
-    print("✅ Emotion specialized notebook created: notebooks/EMOTION_SPECIALIZED_TRAINING_COLAB.ipynb")
-    print("📋 Instructions:")
+
+    print(" Emotion specialized notebook created: notebooks/EMOTION_SPECIALIZED_TRAINING_COLAB.ipynb")
+    print(" Instructions:")
     print("  1. Download the notebook file")
     print("  2. Upload to Google Colab")
     print("  3. Set Runtime → GPU")
@@ -499,4 +502,4 @@ def create_emotion_specialized_notebook():
     print("  - Better hyperparameters")
 
 if __name__ == "__main__":
-    create_emotion_specialized_notebook() 
+    create_emotion_specialized_notebook()

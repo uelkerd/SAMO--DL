@@ -1,15 +1,15 @@
     # Create a simple sine wave for testing
 # Custom markers for test categorization
 # Skip GPU tests if CUDA not available
+import os
+import pytest
+import tempfile
+import numpy as np
+import torch
 from fastapi.testclient import TestClient
 from pathlib import Path
 from src.unified_ai_api import app
 from unittest.mock import Mock, patch
-import numpy as np
-import os
-import pytest
-import tempfile
-import torch
 
 
 
@@ -103,11 +103,11 @@ def cpu_device():
 def api_client():
     """Provide FastAPI test client."""
     client = TestClient(app)
-    
+
     # Reset rate limiter state before each test
     if hasattr(app.state, 'rate_limiter'):
         app.state.rate_limiter.reset_state()
-    
+
     return client
 
 

@@ -30,6 +30,11 @@
 # Global model instance (loaded on startup)
 # Initialize FastAPI with lifecycle management
 # Request/Response Models
+import logging
+import os
+import tempfile
+import time
+import uvicorn
 from .audio_preprocessor import AudioPreprocessor
 from .whisper_transcriber import WhisperTranscriber, create_whisper_transcriber
 from contextlib import asynccontextmanager, suppress
@@ -38,11 +43,6 @@ from fastapi.responses import JSONResponse
 from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import Any, Dict, List, Optional
-import logging
-import os
-import tempfile
-import time
-import uvicorn
 
 
 

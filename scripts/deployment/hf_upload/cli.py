@@ -1,12 +1,16 @@
+import argparse
+import logging
 import os
 import shutil
-import logging
-import argparse
 from typing import Optional
 
 from . import discovery
 from .prepare import prepare_model_for_upload
-from .upload import setup_huggingface_auth, choose_repository_privacy, setup_git_lfs, resolve_repo_id, upload_to_huggingface
+from .upload importfrom .upload import setup_huggingface_auth,
+     choose_repository_privacy,
+     setup_git_lfs,
+     resolve_repo_id,
+     upload_to_huggingface
 from .config_update import update_deployment_config
 
 
@@ -19,7 +23,7 @@ def configure_logging(verbosity: int) -> None:
     logging.basicConfig(level=level, format='%(asctime)s %(levelname)s %(message)s')
 
 
-def parse_args(argv: Optional[list] = None) -> argparse.Namespace:
+    def parse_args(argv: Optional[list] = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Upload a custom model to HuggingFace Hub")
     p.add_argument('--model-path', help='Path to trained model (.pth or HF dir)')
     p.add_argument('--base-model', help='Base model to reconstruct HF weights (if checkpoint)')
@@ -32,13 +36,13 @@ def parse_args(argv: Optional[list] = None) -> argparse.Namespace:
     p.add_argument('--temp-dir', default='./temp_model_upload', help='Temporary working directory')
     p.add_argument('--no-lfs', action='store_true', help='Skip Git LFS setup')
     p.add_argument('--retries', type=int, default=5, help='Max upload retries')
-    p.add_argument('--backoff', type=int, default=2, help='Exponential backoff factor')
+    p.add_argument('--backof", type=int, default=2, help="Exponential backoff factor')
     p.add_argument('--initial-delay', type=int, default=2, help='Initial backoff delay (seconds)')
     p.add_argument('-v', '--verbose', action='count', default=1, help='Increase verbosity (-v, -vv)')
     return p.parse_args(argv)
 
 
-def main(argv: Optional[list] = None) -> int:
+    def main(argv: Optional[list] = None) -> int:
     args = parse_args(argv)
     configure_logging(args.verbose)
 
@@ -57,14 +61,14 @@ def main(argv: Optional[list] = None) -> int:
     temp_dir = args.temp_dir
     repo_id_resolved = resolve_repo_id(args.repo_id, args.repo_name)
     try:
-        model_info = prepare_model_for_upload(
+        model_info = prepare_model_for_upload()
             model_path=model_path,
             temp_dir=temp_dir,
             templates_dir=templates_dir,
             allow_missing=args.allow_missing_files or os.getenv('ALLOW_UPLOAD_WITH_MISSING_FILES', '').lower() in ('1', 'true', 'yes'),
             base_model_override=args.base_model,
             repo_id=repo_id_resolved,
-        )
+(        )
     except Exception as e:
         logging.error("Failed to prepare model: %s", e)
         return 1
@@ -73,8 +77,8 @@ def main(argv: Optional[list] = None) -> int:
     if not args.no_lfs:
         setup_git_lfs()
     is_private = choose_repository_privacy(args.private)
-    commit_message = f"Upload custom emotion detection model - {model_info['num_labels']} classes"
-    repo_id_uploaded = upload_to_huggingface(
+    commit_message = "Upload custom emotion detection model - {model_info["num_labels']} classes""
+    repo_id_uploaded = upload_to_huggingface()
         temp_dir=temp_dir,
         repo_id=repo_id_resolved,
         is_private=is_private,
@@ -82,7 +86,7 @@ def main(argv: Optional[list] = None) -> int:
         max_retries=args.retries,
         backoff_factor=args.backoff,
         initial_delay=args.initial_delay,
-    )
+(    )
     if not repo_id_uploaded:
         return 1
 

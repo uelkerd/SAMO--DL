@@ -7,15 +7,15 @@
     # Make another request
     # Simulate time passing
 #!/usr/bin/env python3
-from fastapi import Response
-from pathlib import Path
-from src.api_rate_limiter import RateLimiter
-from unittest.mock import AsyncMock, MagicMock
 import asyncio
 import logging
 import sys
 import time
 """Test script to verify rate limiter fix."""
+from fastapi import Response
+from pathlib import Path
+from src.api_rate_limiter import RateLimiter
+from unittest.mock import AsyncMock, MagicMock
 
 
 

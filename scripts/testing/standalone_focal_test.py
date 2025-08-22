@@ -2,26 +2,26 @@
         # Create a simple classifier head
         # Load a small subset for testing
         # Test with a simple input
-        from datasets import load_dataset
-        from torch import nn
-        from transformers import AutoTokenizer, AutoModel
+import logging
+import sys
     # Compute loss
+# Configure logging
     # Create focal loss
     # Create synthetic data
     # Setup device
-# Configure logging
 #!/usr/bin/env python3
-from torch import nn
-import logging
-import sys
 import torch
 import torch.nn.functional as F
+        from datasets import load_dataset
+        from torch import nn
+from torch import nn
+        from transformers import AutoTokenizer, AutoModel
 
 
 
 
 
-"""
+""""
 Standalone Focal Loss Test
 
 This script tests focal loss implementation without depending on the src module structure.
@@ -29,7 +29,7 @@ It will download and use the GoEmotions dataset directly.
 
 Usage:
     python3 standalone_focal_test.py
-"""
+""""
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ class FocalLoss(nn.Module):
         return focal_loss.mean()
 
 
-def test_focal_loss():
+    def test_focal_loss():
     """Test focal loss with synthetic data."""
     logger.info("🧮 Testing Focal Loss with synthetic data...")
 
@@ -67,7 +67,7 @@ def test_focal_loss():
 
     loss = focal_loss(inputs, targets)
 
-    logger.info("✅ Focal Loss Test PASSED")
+    logger.info(" Focal Loss Test PASSED")
     logger.info("   • Loss value: {loss.item():.4f}")
     logger.info("   • Input shape: {inputs.shape}")
     logger.info("   • Target shape: {targets.shape}")
@@ -75,7 +75,7 @@ def test_focal_loss():
     return True
 
 
-def test_bert_import():
+    def test_bert_import():
     """Test if we can import transformers and create a simple BERT model."""
     logger.info("🤖 Testing BERT model creation...")
 
@@ -94,7 +94,7 @@ def test_bert_import():
             outputs = bert_model(**inputs)
             logits = classifier(outputs.last_hidden_state[:, 0, :])  # Use [CLS] token
 
-        logger.info("✅ BERT Model Test PASSED")
+        logger.info(" BERT Model Test PASSED")
         logger.info("   • Model: {model_name}")
         logger.info("   • Input text: '{text}'")
         logger.info("   • Output shape: {logits.shape}")
@@ -107,14 +107,14 @@ def test_bert_import():
         return False
 
 
-def test_dataset_download():
+    def test_dataset_download():
     """Test if we can download the GoEmotions dataset."""
-    logger.info("📊 Testing GoEmotions dataset download...")
+    logger.info(" Testing GoEmotions dataset download...")
 
     try:
         dataset = load_dataset("go_emotions", "simplified", split="train[:100]")
 
-        logger.info("✅ Dataset Download Test PASSED")
+        logger.info(" Dataset Download Test PASSED")
         logger.info("   • Dataset size: {len(dataset)}")
         logger.info("   • Features: {list(dataset.features.keys())}")
         logger.info("   • Sample text: '{dataset[0]['text'][:50]}...'")
@@ -127,9 +127,9 @@ def test_dataset_download():
         return False
 
 
-def main():
+    def main():
     """Main test function."""
-    logger.info("🎯 Standalone Focal Loss Validation Tests")
+    logger.info(" Standalone Focal Loss Validation Tests")
     logger.info("=" * 50)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -143,26 +143,26 @@ def main():
 
     results = {}
     for test_name, test_func in tests:
-        logger.info("\n📋 Running {test_name}...")
+        logger.info("\n Running {test_name}...")
         try:
             results[test_name] = test_func()
         except Exception as e:
             logger.error("❌ {test_name} failed with exception: {e}")
             results[test_name] = False
 
-    logger.info("\n📊 Test Results Summary:")
+    logger.info("\n Test Results Summary:")
     logger.info("=" * 30)
     passed = sum(results.values())
     total = len(results)
 
     for name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
+        status = " PASS" if result else "❌ FAIL"
         logger.info("   • {name}: {status}")
 
-    logger.info("\n🎯 Overall: {passed}/{total} tests passed")
+    logger.info("\n Overall: {passed}/{total} tests passed")
 
     if passed == total:
-        logger.info("✅ All tests passed! Ready for full training.")
+        logger.info(" All tests passed! Ready for full training.")
         logger.info("🚀 Next step: Create full training script with these components")
         return True
     else:
@@ -170,6 +170,6 @@ def main():
         return False
 
 
-if __name__ == "__main__":
+    if __name__ == "__main__":
     success = main()
     sys.exit(0 if success else 1)

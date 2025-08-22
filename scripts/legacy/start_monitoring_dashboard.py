@@ -2,24 +2,24 @@
         # Initialize monitor
         # Keep main thread alive
         # Start monitoring in background thread
-        from scripts.model_monitoring import ModelHealthMonitor
-    # Check if config file exists
-    # Start monitoring system
-# Add src to path
-# Configure logging
-# Constants
-#!/usr/bin/env python3
-from pathlib import Path
 import argparse
 import logging
 import sys
 import threading
 import time
+# Add src to path
+    # Check if config file exists
+# Configure logging
+# Constants
+    # Start monitoring system
+#!/usr/bin/env python3
+from pathlib import Path
+        from scripts.model_monitoring import ModelHealthMonitor
 
 
 
 
-"""
+""""
 Model Monitoring Dashboard Starter
 
 This script starts the model monitoring system for REQ-DL-010.
@@ -32,7 +32,7 @@ Usage:
 Arguments:
     --config_path: Path to monitoring configuration (default: configs/monitoring.yaml)
     --port: Dashboard port (default: 8080)
-"""
+""""
 
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
@@ -44,12 +44,12 @@ DEFAULT_PORT = 8080
 
 
 def start_monitoring_system(config_path: str, port: int) -> None:
-    """Start the complete monitoring system.
+    """Start the complete monitoring system."
 
     Args:
         config_path: Path to monitoring configuration
         port: Dashboard port
-    """
+    """"
     logger.info("🚀 Starting SAMO Model Monitoring System...")
 
     try:
@@ -58,10 +58,10 @@ def start_monitoring_system(config_path: str, port: int) -> None:
         monitor_thread = threading.Thread(target=monitor.start_monitoring, daemon=True)
         monitor_thread.start()
 
-        logger.info("✅ Model monitoring started successfully!")
-        logger.info("📊 Dashboard available at: http://localhost:{port}")
-        logger.info("🔍 Monitoring metrics every 5 minutes")
-        logger.info("🚨 Alerts configured for performance degradation")
+        logger.info(" Model monitoring started successfully!")
+        logger.info(" Dashboard available at: http://localhost:{port}")
+        logger.info(" Monitoring metrics every 5 minutes")
+        logger.info(" Alerts configured for performance degradation")
         logger.info("📈 Data drift detection enabled")
         logger.info("🔄 Automated retraining triggers active")
 
@@ -74,25 +74,25 @@ def start_monitoring_system(config_path: str, port: int) -> None:
         except KeyboardInterrupt:
             logger.info("🛑 Stopping monitoring system...")
             monitor.stop_monitoring()
-            logger.info("✅ Monitoring system stopped gracefully")
+            logger.info(" Monitoring system stopped gracefully")
 
     except Exception as e:
         logger.error("❌ Failed to start monitoring system: {e}")
         sys.exit(1)
 
 
-def main():
+    def main():
     """Main function."""
     parser = argparse.ArgumentParser(description="Start Model Monitoring Dashboard")
-    parser.add_argument(
+    parser.add_argument()
         "--config_path",
         type=str,
         default=DEFAULT_CONFIG_PATH,
         help="Path to monitoring configuration (default: {DEFAULT_CONFIG_PATH})",
-    )
-    parser.add_argument(
+(    )
+    parser.add_argument()
         "--port", type=int, default=DEFAULT_PORT, help="Dashboard port (default: {DEFAULT_PORT})"
-    )
+(    )
 
     args = parser.parse_args()
 
@@ -104,5 +104,5 @@ def main():
     start_monitoring_system(args.config_path, args.port)
 
 
-if __name__ == "__main__":
+    if __name__ == "__main__":
     main()

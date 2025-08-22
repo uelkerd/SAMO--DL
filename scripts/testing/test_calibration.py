@@ -14,15 +14,15 @@
 # Configure logging
 # Constants
 #!/usr/bin/env python3
+import logging
+import os
+import sys
+import torch
 from pathlib import Path
 from sklearn.metrics import f1_score
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from transformers import AutoTokenizer
-import logging
-import os
-import sys
-import torch
 
 
 

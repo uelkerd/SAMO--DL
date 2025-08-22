@@ -8,51 +8,51 @@ from pathlib import Path
 
 def create_improved_training_plan():
     """Create an improved training plan with proper validation"""
-    
+
     print("🔄 IMPROVED TRAINING PLAN")
     print("=" * 50)
     print("🎯 Goal: Retrain model to achieve reliable 75-85% F1 score")
     print("=" * 50)
-    
-    print(f"\n❌ CURRENT ISSUES IDENTIFIED:")
+
+    print("\n❌ CURRENT ISSUES IDENTIFIED:")
     print("-" * 40)
     print("1. Model bias towards 'grateful' and 'happy' emotions")
     print("2. Poor generalization (58.3% accuracy on basic tests)")
     print("3. Overfitting to specific training patterns")
     print("4. Label mapping inconsistencies")
-    
-    print(f"\n✅ IMPROVED TRAINING STRATEGY:")
+
+    print("\n✅ IMPROVED TRAINING STRATEGY:")
     print("-" * 40)
     print("1. Use balanced dataset with equal emotion distribution")
     print("2. Implement proper cross-validation")
     print("3. Add regularization to prevent overfitting")
     print("4. Use early stopping based on validation performance")
     print("5. Test on diverse, realistic examples")
-    
-    print(f"\n📊 VALIDATION REQUIREMENTS:")
+
+    print("\n📊 VALIDATION REQUIREMENTS:")
     print("-" * 40)
     print("✅ Basic functionality test: >80% accuracy")
     print("✅ Training-like data test: >80% accuracy")
     print("✅ Edge case handling: >70% success rate")
     print("✅ No emotion bias: <30% predictions for any single emotion")
     print("✅ Consistent predictions: 100% consistency for same input")
-    
-    print(f"\n🚀 RECOMMENDED ACTIONS:")
+
+    print("\n🚀 RECOMMENDED ACTIONS:")
     print("-" * 40)
     print("1. Create balanced training dataset")
     print("2. Implement proper validation split")
     print("3. Use regularization techniques")
     print("4. Test extensively before deployment")
     print("5. Monitor for bias and overfitting")
-    
+
     # Create improved training notebook
     create_improved_notebook()
-    
+
     return True
 
 def create_improved_notebook():
     """Create an improved training notebook"""
-    
+
     notebook_content = '''{
  "cells": [
   {
@@ -89,7 +89,11 @@ def create_improved_notebook():
     "import torch\\n",
     "import numpy as np\\n",
     "import pandas as pd\\n",
-    "from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer\\n",
+    "from transformers import    "from transformers import AutoTokenizer,
+         AutoModelForSequenceClassification,
+         TrainingArguments,
+         Trainer\\n",
+        
     "from datasets import Dataset\\n",
     "from sklearn.model_selection import train_test_split\\n",
     "from sklearn.metrics import classification_report, confusion_matrix\\n",
@@ -287,8 +291,8 @@ def create_improved_notebook():
     "# Evaluate the model\\n",
     "print('📊 Evaluating model...')\\n",
     "results = trainer.evaluate()\\n",
-    "print(f'Final F1 Score: {results[\"eval_f1\"]:.3f}')\\n",
-    "print(f'Final Accuracy: {results[\"eval_accuracy\"]:.3f}')"
+    "print("Final F1 Score: {results[\"eval_f1\"]:.3f}')\\n",
+    "print("Final Accuracy: {results[\"eval_accuracy\"]:.3f}')"
    ]
   },
   {
@@ -382,20 +386,20 @@ def create_improved_notebook():
  "nbformat": 4,
  "nbformat_minor": 4
 }'''
-    
+
     # Save the notebook
     notebook_path = Path(__file__).parent.parent / 'notebooks' / 'IMPROVED_TRAINING_WITH_VALIDATION.ipynb'
     with open(notebook_path, 'w') as f:
         f.write(notebook_content)
-    
+
     print(f"✅ Created improved training notebook: {notebook_path}")
-    print(f"📋 Instructions:")
-    print(f"   1. Download the notebook file")
-    print(f"   2. Upload to Google Colab")
-    print(f"   3. Set Runtime → GPU")
-    print(f"   4. Run all cells")
-    print(f"   5. Verify reliability before deployment")
+    print("📋 Instructions:")
+    print("   1. Download the notebook file")
+    print("   2. Upload to Google Colab")
+    print("   3. Set Runtime → GPU")
+    print("   4. Run all cells")
+    print("   5. Verify reliability before deployment")
 
 if __name__ == "__main__":
     success = create_improved_training_plan()
-    exit(0 if success else 1) 
+    exit(0 if success else 1)

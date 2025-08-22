@@ -160,11 +160,12 @@ repos:
   # Security vulnerability scanning with Safety
   # Note: Consider moving this to CI/CD pipeline for performance
   # Safety checks installed dependencies and can be slow
-  - repo: https://github.com/PyCQA/safety
-    rev: 3.1.1
-    hooks:
-      - id: safety
-        args: [check]
+  # Temporarily disabled due to repository access issues
+  # - repo: https://github.com/PyCQA/safety
+  #   rev: 3.1.1
+  #   hooks:
+  #     - id: safety
+  #       args: [check]
 
   # Documentation formatting
   - repo: https://github.com/myint/docformatter
@@ -199,7 +200,7 @@ repos:
 
   # String formatting with flynt
   - repo: https://github.com/ikamensh/flynt
-    rev: 0.78
+    rev: v0.78
     hooks:
       - id: flynt
         args: [--line-length=88]
@@ -238,7 +239,7 @@ repos:
         types: [python]
         pass_filenames: false
         always_run: true
-        stages: commit
+        stages: [pre-commit]
         exclude: |
           (?x)^(
               \.git|
@@ -273,7 +274,7 @@ repos:
         types: [python]
         pass_filenames: false
         always_run: true
-        stages: commit
+        stages: [pre-commit]
         exclude: |
           (?x)^(
               \.git|

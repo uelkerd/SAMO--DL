@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Extra unit tests for JWTManager to increase coverage."""
 
-from datetime import datetime, timedelta
 import time
+from datetime import datetime, timedelta
 
 from src.security.jwt_manager import JWTManager
 

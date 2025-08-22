@@ -4,10 +4,10 @@
 import os
 import numpy as np
 import torch
-from tqdm import tqdm
 from datasets import load_dataset
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from sklearn.metrics import f1_score, accuracy_score
+from tqdm import tqdm
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 MODEL_ID = os.getenv("MODEL_ID", "0xmnrv/samo")
 TOKEN = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_HUB_TOKEN")

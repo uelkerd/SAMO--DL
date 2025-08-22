@@ -5,8 +5,8 @@ Unit tests for emotion detection models.
 
 import pytest
 import torch
-from unittest.mock import MagicMock, patch
 from transformers.modeling_outputs import BaseModelOutputWithPooling
+from unittest.mock import MagicMock, patch
 
 try:
     from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier

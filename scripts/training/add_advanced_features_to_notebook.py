@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+""""
 Add Advanced Features to Ultimate Notebook
 =========================================
 
@@ -7,26 +7,26 @@ This script adds the remaining advanced features to the ultimate notebook:
 - Focal loss implementation
 - Class weighting with WeightedLossTrainer
 - Advanced validation and testing
-"""
+""""
 
 import json
 
 def add_advanced_features():
     """Add advanced features to the ultimate notebook."""
-    
+
     # Read the existing notebook
     with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'r') as f:
         notebook = json.load(f)
-    
+
     # Add focal loss implementation
     focal_loss_cell = {
         "cell_type": "markdown",
         "metadata": {},
         "source": [
-            "## 🎯 IMPLEMENTING FOCAL LOSS"
+            "##  IMPLEMENTING FOCAL LOSS"
         ]
     }
-    
+
     focal_loss_code = {
         "cell_type": "code",
         "execution_count": None,
@@ -55,10 +55,10 @@ def add_advanced_features():
             "        else:\n",
             "            return focal_loss\n",
             "\n",
-            "print('✅ Focal Loss implementation ready')"
+            "print(' Focal Loss implementation ready')"
         ]
     }
-    
+
     # Add class weighting implementation
     class_weighting_cell = {
         "cell_type": "markdown",
@@ -67,7 +67,7 @@ def add_advanced_features():
             "## ⚖️ IMPLEMENTING CLASS WEIGHTING"
         ]
     }
-    
+
     class_weighting_code = {
         "cell_type": "code",
         "execution_count": None,
@@ -82,21 +82,21 @@ def add_advanced_features():
             "labels = [item['label'] for item in enhanced_data]\n",
             "\n",
             "# Calculate class weights\n",
-            "class_weights = compute_class_weight(\n",
+            "class_weights = compute_class_weight(\n",)
             "    'balanced',\n",
             "    classes=np.unique(labels),\n",
             "    y=labels\n",
-            ")\n",
+(            ")\n",
             "\n",
             "# Convert to tensor\n",
             "device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')\n",
             "class_weights_tensor = torch.tensor(class_weights, dtype=torch.float32).to(device)\n",
             "\n",
-            "print(f'✅ Class weights calculated: {class_weights}')\n",
-            "print(f'✅ Device: {device}')"
+            "print(f' Class weights calculated: {class_weights}')\n",
+            "print(f' Device: {device}')"
         ]
     }
-    
+
     # Add WeightedLossTrainer
     weighted_trainer_cell = {
         "cell_type": "markdown",
@@ -105,7 +105,7 @@ def add_advanced_features():
             "## 🚀 CREATING WEIGHTED LOSS TRAINER"
         ]
     }
-    
+
     weighted_trainer_code = {
         "cell_type": "code",
         "execution_count": None,
@@ -130,9 +130,9 @@ def add_advanced_features():
             "        # Use focal loss with class weighting\n",
             "        if self.class_weights is not None:\n",
             "            # Apply class weights to focal loss\n",
-            "            ce_loss = torch.nn.functional.cross_entropy(\n",
+            "            ce_loss = torch.nn.functional.cross_entropy(\n",)
             "                logits, labels, weight=self.class_weights, reduction='none'\n",
-            "            )\n",
+(            "            )\n",
             "        else:\n",
             "            ce_loss = torch.nn.functional.cross_entropy(logits, labels, reduction='none')\n",
             "        \n",
@@ -142,10 +142,10 @@ def add_advanced_features():
             "        \n",
             "        return (loss, outputs) if return_outputs else loss\n",
             "\n",
-            "print('✅ WeightedLossTrainer with focal loss ready')"
+            "print(' WeightedLossTrainer with focal loss ready')"
         ]
     }
-    
+
     # Add model loading and configuration
     model_loading_cell = {
         "cell_type": "markdown",
@@ -154,7 +154,7 @@ def add_advanced_features():
             "## 🔧 LOADING MODEL WITH PROPER CONFIGURATION"
         ]
     }
-    
+
     model_loading_code = {
         "cell_type": "code",
         "execution_count": None,
@@ -167,23 +167,23 @@ def add_advanced_features():
             "\n",
             "# Load tokenizer and model\n",
             "tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\n",
-            "model = AutoModelForSequenceClassification.from_pretrained(\n",
+            "model = AutoModelForSequenceClassification.from_pretrained(\n",)
             "    specialized_model_name,\n",
             "    num_labels=len(emotions),\n",
             "    ignore_mismatched_sizes=True\n",
-            ")\n",
+(            ")\n",
             "\n",
             "# CRITICAL: Set proper configuration\n",
             "model.config.id2label = {i: emotion for i, emotion in enumerate(emotions)}\n",
             "model.config.label2id = {emotion: i for i, emotion in enumerate(emotions)}\n",
             "\n",
-            "print(f'✅ Model loaded: {specialized_model_name}')\n",
-            "print(f'✅ Number of labels: {model.config.num_labels}')\n",
-            "print(f'✅ id2label: {model.config.id2label}')\n",
-            "print(f'✅ label2id: {model.config.label2id}')"
+            "print(f' Model loaded: {specialized_model_name}')\n",
+            "print(f' Number of labels: {model.config.num_labels}')\n",
+            "print(f' id2label: {model.config.id2label}')\n",
+            "print(f' label2id: {model.config.label2id}')"
         ]
     }
-    
+
     # Add data preprocessing
     preprocessing_cell = {
         "cell_type": "markdown",
@@ -192,7 +192,7 @@ def add_advanced_features():
             "## 📝 DATA PREPROCESSING"
         ]
     }
-    
+
     preprocessing_code = {
         "cell_type": "code",
         "execution_count": None,
@@ -201,13 +201,13 @@ def add_advanced_features():
         "source": [
             "# Data preprocessing function\n",
             "def preprocess_function(examples):\n",
-            "    return tokenizer(\n",
+            "    return tokenizer(\n",)
             "        examples['text'],\n",
             "        truncation=True,\n",
             "        padding='max_length',\n",
             "        max_length=128,\n",
             "        return_tensors=None\n",
-            "    )\n",
+(            "    )\n",
             "\n",
             "# Apply preprocessing\n",
             "tokenized_dataset = dataset.map(preprocess_function, batched=True)\n",
@@ -217,11 +217,11 @@ def add_advanced_features():
             "train_dataset = train_val_dataset['train']\n",
             "val_dataset = train_val_dataset['test']\n",
             "\n",
-            "print(f'✅ Training samples: {len(train_dataset)}')\n",
-            "print(f'✅ Validation samples: {len(val_dataset)}')"
+            "print(f' Training samples: {len(train_dataset)}')\n",
+            "print(f' Validation samples: {len(val_dataset)}')"
         ]
     }
-    
+
     # Add training arguments
     training_args_cell = {
         "cell_type": "markdown",
@@ -230,7 +230,7 @@ def add_advanced_features():
             "## ⚙️ TRAINING ARGUMENTS"
         ]
     }
-    
+
     training_args_code = {
         "cell_type": "code",
         "execution_count": None,
@@ -238,7 +238,7 @@ def add_advanced_features():
         "outputs": [],
         "source": [
             "# Training arguments\n",
-            "training_args = TrainingArguments(\n",
+            "training_args = TrainingArguments(\n",)
             "    output_dir='./ultimate_emotion_model',\n",
             "    num_train_epochs=5,\n",
             "    per_device_train_batch_size=8,\n",
@@ -256,21 +256,21 @@ def add_advanced_features():
             "    learning_rate=2e-5,\n",
             "    save_total_limit=2,\n",
             "    remove_unused_columns=False\n",
-            ")\n",
+(            ")\n",
             "\n",
-            "print('✅ Training arguments configured')"
+            "print(' Training arguments configured')"
         ]
     }
-    
+
     # Add compute metrics
     compute_metrics_cell = {
         "cell_type": "markdown",
         "metadata": {},
         "source": [
-            "## 📊 COMPUTE METRICS"
+            "##  COMPUTE METRICS"
         ]
     }
-    
+
     compute_metrics_code = {
         "cell_type": "code",
         "execution_count": None,
@@ -295,10 +295,10 @@ def add_advanced_features():
             "        'recall': recall\n",
             "    }\n",
             "\n",
-            "print('✅ Compute metrics function ready')"
+            "print(' Compute metrics function ready')"
         ]
     }
-    
+
     # Add trainer initialization
     trainer_init_cell = {
         "cell_type": "markdown",
@@ -307,7 +307,7 @@ def add_advanced_features():
             "## 🚀 INITIALIZING TRAINER"
         ]
     }
-    
+
     trainer_init_code = {
         "cell_type": "code",
         "execution_count": None,
@@ -315,7 +315,7 @@ def add_advanced_features():
         "outputs": [],
         "source": [
             "# Initialize trainer with focal loss and class weighting\n",
-            "trainer = WeightedLossTrainer(\n",
+            "trainer = WeightedLossTrainer(\n",)
             "    model=model,\n",
             "    args=training_args,\n",
             "    train_dataset=train_dataset,\n",
@@ -325,12 +325,12 @@ def add_advanced_features():
             "    focal_alpha=1,\n",
             "    focal_gamma=2,\n",
             "    class_weights=class_weights_tensor\n",
-            ")\n",
+(            ")\n",
             "\n",
-            "print('✅ Trainer initialized with focal loss and class weighting')"
+            "print(' Trainer initialized with focal loss and class weighting')"
         ]
     }
-    
+
     # Add training
     training_cell = {
         "cell_type": "markdown",
@@ -339,7 +339,7 @@ def add_advanced_features():
             "## 🚀 STARTING TRAINING"
         ]
     }
-    
+
     training_code = {
         "cell_type": "code",
         "execution_count": None,
@@ -349,28 +349,28 @@ def add_advanced_features():
             "# Start training\n",
             "print('🚀 STARTING ULTIMATE TRAINING')\n",
             "print('=' * 50)\n",
-            "print(f'🎯 Target: 75-85% F1 score')\n",
-            "print(f'📊 Training samples: {len(train_dataset)}')\n",
+            "print(" Target: 75-85% F1 score")\n",
+            "print(f' Training samples: {len(train_dataset)}')\n",
             "print(f'🧪 Validation samples: {len(val_dataset)}')\n",
-            "print(f'⚖️ Using focal loss + class weighting')\n",
+            "print("⚖️ Using focal loss + class weighting")\n",
             "print(f'🔧 Model: {specialized_model_name}')\n",
             "\n",
             "# Train the model\n",
             "trainer.train()\n",
             "\n",
-            "print('✅ Training completed successfully!')"
+            "print(' Training completed successfully!')"
         ]
     }
-    
+
     # Add evaluation
     evaluation_cell = {
         "cell_type": "markdown",
         "metadata": {},
         "source": [
-            "## 📊 EVALUATING MODEL"
+            "##  EVALUATING MODEL"
         ]
     }
-    
+
     evaluation_code = {
         "cell_type": "code",
         "execution_count": None,
@@ -378,23 +378,23 @@ def add_advanced_features():
         "outputs": [],
         "source": [
             "# Evaluate the model\n",
-            "print('📊 EVALUATING MODEL')\n",
+            "print(' EVALUATING MODEL')\n",
             "print('=' * 40)\n",
             "\n",
             "results = trainer.evaluate()\n",
-            "print(f'Final F1 Score: {results[\"eval_f1\"]:.3f}')\n",
-            "print(f'Final Accuracy: {results[\"eval_accuracy\"]:.3f}')\n",
-            "print(f'Final Precision: {results[\"eval_precision\"]:.3f}')\n",
-            "print(f'Final Recall: {results[\"eval_recall\"]:.3f}')\n",
+            "print("Final F1 Score: {results[\"eval_f1\"]:.3f}')\n","
+            "print("Final Accuracy: {results[\"eval_accuracy\"]:.3f}')\n","
+            "print("Final Precision: {results[\"eval_precision\"]:.3f}')\n","
+            "print("Final Recall: {results[\"eval_recall\"]:.3f}')\n","
             "\n",
             "# Check if target achieved\n",
             "if results['eval_f1'] >= 0.75:\n",
-            "    print('🎉 TARGET ACHIEVED! F1 Score >= 75%')\n",
+            "    print(' TARGET ACHIEVED! F1 Score >= 75%')\n",
             "else:\n",
-            "    print(f'⚠️ Target not achieved. Need {0.75 - results[\"eval_f1\"]:.3f} more F1 points')"
+            "    print("⚠️ Target not achieved. Need {0.75 - results[\"eval_f1\"]:.3f} more F1 points')""
         ]
     }
-    
+
     # Add advanced validation
     advanced_validation_cell = {
         "cell_type": "markdown",
@@ -403,7 +403,7 @@ def add_advanced_features():
             "## 🧪 ADVANCED VALIDATION"
         ]
     }
-    
+
     advanced_validation_code = {
         "cell_type": "code",
         "execution_count": None,
@@ -453,17 +453,17 @@ def add_advanced_features():
             "    \n",
             "    if expected_emotion and predicted_emotion == expected_emotion:\n",
             "        correct += 1\n",
-            "        status = '✅'\n",
+            "        status = ''\n",
             "    else:\n",
             "        status = '❌'\n",
             "    \n",
             "    print(f'{status} {text} → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})')\n",
             "\n",
             "accuracy = correct / len(test_examples)\n",
-            "print(f'\\n📊 Test Accuracy: {accuracy:.1%}')\n",
+            "print(f'\\n Test Accuracy: {accuracy:.1%}')\n",
             "\n",
             "# Check for bias\n",
-            "print('\\n🎯 Bias Analysis:')\n",
+            "print('\\n Bias Analysis:')\n",
             "for emotion, count in predictions_by_emotion.items():\n",
             "    percentage = count / len(test_examples) * 100\n",
             "    print(f'  {emotion}: {count} predictions ({percentage:.1f}%)')\n",
@@ -472,8 +472,8 @@ def add_advanced_features():
             "max_bias = max(predictions_by_emotion.values()) / len(test_examples)\n",
             "\n",
             "if accuracy >= 0.8 and max_bias <= 0.3:\n",
-            "    print('\\n🎉 MODEL PASSES RELIABILITY TEST!')\n",
-            "    print('✅ Ready for deployment!')\n",
+            "    print('\\n MODEL PASSES RELIABILITY TEST!')\n",
+            "    print(' Ready for deployment!')\n",
             "else:\n",
             "    print('\\n⚠️ MODEL NEEDS IMPROVEMENT')\n",
             "    if accuracy < 0.8:\n",
@@ -482,7 +482,7 @@ def add_advanced_features():
             "        print(f'❌ Too much bias: {max_bias:.1%} (need <30%)')"
         ]
     }
-    
+
     # Add model saving with verification
     model_saving_cell = {
         "cell_type": "markdown",
@@ -491,7 +491,7 @@ def add_advanced_features():
             "## 💾 SAVING MODEL WITH VERIFICATION"
         ]
     }
-    
+
     model_saving_code = {
         "cell_type": "code",
         "execution_count": None,
@@ -517,35 +517,35 @@ def add_advanced_features():
             "tokenizer.save_pretrained(output_dir)\n",
             "\n",
             "# CRITICAL: Verify the saved configuration\n",
-            "print('\\n🔍 VERIFYING SAVED CONFIGURATION')\n",
+            "print('\\n VERIFYING SAVED CONFIGURATION')\n",
             "print('=' * 40)\n",
             "\n",
             "try:\n",
-            "    # Load the saved config to verify it's correct\n",
+            "    # Load the saved config to verify it's correct\n",'
             "    with open(f'{output_dir}/config.json', 'r') as f:\n",
             "        saved_config = json.load(f)\n",
             "    \n",
-            "    print(f'Saved model type: {saved_config.get(\"model_type\", \"NOT FOUND\")}')\n",
-            "    print(f'Saved id2label: {saved_config.get(\"id2label\", \"NOT FOUND\")}')\n",
-            "    print(f'Saved label2id: {saved_config.get(\"label2id\", \"NOT FOUND\")}')\n",
+            "    print("Saved model type: {saved_config.get(\"model_type\", \"NOT FOUND\")}')\n","
+            "    print("Saved id2label: {saved_config.get(\"id2label\", \"NOT FOUND\")}')\n","
+            "    print("Saved label2id: {saved_config.get(\"label2id\", \"NOT FOUND\")}')\n","
             "    \n",
             "    # Verify the emotion labels are saved correctly\n",
             "    expected_id2label = {str(i): emotion for i, emotion in enumerate(emotions)}\n",
             "    expected_label2id = {emotion: i for i, emotion in enumerate(emotions)}\n",
             "    \n",
             "    if saved_config.get('id2label') == expected_id2label:\n",
-            "        print('✅ CONFIRMED: Emotion labels saved correctly in config.json')\n",
+            "        print(' CONFIRMED: Emotion labels saved correctly in config.json')\n",
             "    else:\n",
             "        print('❌ ERROR: Emotion labels not saved correctly in config.json')\n",
             "        print(f'Expected: {expected_id2label}')\n",
-            "        print(f'Got: {saved_config.get(\"id2label\")}')\n",
+            "        print("Got: {saved_config.get(\"id2label\")}')\n","
             "    \n",
             "    if saved_config.get('label2id') == expected_label2id:\n",
-            "        print('✅ CONFIRMED: Label mappings saved correctly in config.json')\n",
+            "        print(' CONFIRMED: Label mappings saved correctly in config.json')\n",
             "    else:\n",
             "        print('❌ ERROR: Label mappings not saved correctly in config.json')\n",
             "        print(f'Expected: {expected_label2id}')\n",
-            "        print(f'Got: {saved_config.get(\"label2id\")}')\n",
+            "        print("Got: {saved_config.get(\"label2id\")}')\n","
             "    \n",
             "except Exception as e:\n",
             "    print(f'❌ ERROR: Could not verify saved configuration: {str(e)}')\n",
@@ -572,15 +572,15 @@ def add_advanced_features():
             "with open(f'{output_dir}/training_info.json', 'w') as f:\n",
             "    json.dump(training_info, f, indent=2)\n",
             "\n",
-            "print(f'\\n✅ Model saved to: {output_dir}')\n",
-            "print(f'✅ Training info saved: {output_dir}/training_info.json')\n",
-            "print('\\n📋 Next steps:')\n",
+            "print(f'\\n Model saved to: {output_dir}')\n",
+            "print(f' Training info saved: {output_dir}/training_info.json')\n",
+            "print('\\n Next steps:')\n",
             "print('1. Download the model files')\n",
             "print('2. Test locally with validation script')\n",
             "print('3. Deploy if all tests pass')"
         ]
     }
-    
+
     # Add all cells to the notebook
     new_cells = [
             focal_loss_cell,
@@ -608,23 +608,23 @@ def add_advanced_features():
             model_saving_cell,
             model_saving_code
         ]
-    
+
     notebook['cells'].extend(new_cells)
-    
+
     # Save the enhanced notebook
     with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook, f, indent=2)
-    
-    print('✅ Enhanced notebook with all advanced features created!')
-    print('📋 All features included:')
-    print('   ✅ Configuration preservation')
-    print('   ✅ Focal loss implementation')
-    print('   ✅ Class weighting with WeightedLossTrainer')
-    print('   ✅ Data augmentation')
-    print('   ✅ Advanced validation')
-    print('   ✅ Model saving with verification')
-    
+
+    print(' Enhanced notebook with all advanced features created!')
+    print(' All features included:')
+    print('    Configuration preservation')
+    print('    Focal loss implementation')
+    print('    Class weighting with WeightedLossTrainer')
+    print('    Data augmentation')
+    print('    Advanced validation')
+    print('    Model saving with verification')
+
     return 'notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb'
 
 if __name__ == "__main__":
-    add_advanced_features() 
+    add_advanced_features()
