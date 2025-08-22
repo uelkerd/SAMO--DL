@@ -6,12 +6,15 @@
 - Configurable via configs/repo_inventory.json and CLI flags
 """
 import os
+import sys
 import json
 import argparse
 import subprocess
+import time
 from functools import lru_cache
 from pathlib import Path
 from shutil import which
+from contextlib import suppress
 from typing import List, Dict, Any
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -117,10 +120,8 @@ def gather_top_level() -> Dict[str, Any]:
                     dn[:] = [d for d in dn if d not in IGNORES]
                     for f in fn:
                         fp = Path(dp) / f
-                        try:
+                        with suppress(OSError):
                             size += fp.stat().st_size
-                        except OSError:
-                            pass
                 top[entry.name] = {"type": "dir", "size_bytes": size}
             else:
                 top[entry.name] = {
@@ -228,6 +229,7 @@ def main() -> int:
 
     report = {
         "root": str(ROOT),
+        "generated_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "top_level_summary": top_level,
         "file_inventory_cap": args.cap,
         "file_inventory": files_meta[: args.cap],
@@ -235,6 +237,14 @@ def main() -> int:
         "references": refs,
         "config_path": str(CONFIG_PATH),
     }
+
+    try:
+        commit = subprocess.check_output(
+            [GIT_BIN, "rev-parse", "HEAD"], cwd=str(ROOT), text=True
+        ).strip()
+        report["git_commit"] = commit
+    except Exception:
+        report["git_commit"] = None
 
     # Allow overriding report path
     report_path = Path(args.report)
