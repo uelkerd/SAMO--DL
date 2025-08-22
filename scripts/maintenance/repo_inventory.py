@@ -1,10 +1,19 @@
 #!/usr/bin/env python3
+"""Repository inventory tool for cleanup planning.
+
+- Summarizes top-level sizes and lists files (skipping ignored dirs)
+- Scans for references to candidate paths
+- Configurable via configs/repo_inventory.json and CLI flags
+"""
 import os
+import sys
 import json
 import argparse
 import subprocess
+from functools import lru_cache
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from shutil import which
+from typing import List, Dict, Any
 
 ROOT = Path(__file__).resolve().parents[2]
 LOGS = ROOT / ".logs"
@@ -21,26 +30,8 @@ IGNORES = {
     "htmlcov",
 }
 
-_TRACKED_FILES: Optional[set[str]] = None
-
-
-def _load_tracked_files() -> set[str]:
-    """Load all git-tracked files once and cache them in memory."""
-    global _TRACKED_FILES
-    if _TRACKED_FILES is not None:
-        return _TRACKED_FILES
-    try:
-        result = subprocess.run(
-            ["git", "ls-files"],
-            cwd=str(ROOT),
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        _TRACKED_FILES = set(result.stdout.splitlines())
-    except (subprocess.CalledProcessError, FileNotFoundError, OSError):
-        _TRACKED_FILES = set()
-    return _TRACKED_FILES
+GIT_BIN = which("git") or "git"
+RG_BIN = which("rg") or "rg"
 
 
 def is_git_tracked(path: Path) -> bool:
@@ -51,6 +42,22 @@ def is_git_tracked(path: Path) -> bool:
     except ValueError:
         return False
     return p in tracked
+
+
+@lru_cache(maxsize=1)
+def _load_tracked_files() -> frozenset[str]:
+    """Load all git-tracked files once and cache them in memory."""
+    try:
+        result = subprocess.run(
+            [GIT_BIN, "ls-files"],
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return frozenset(result.stdout.splitlines())
+    except OSError:
+        return frozenset()
 
 
 def list_all_files() -> List[Path]:
@@ -75,7 +82,7 @@ def list_all_files() -> List[Path]:
                 # Include regular files and symlinks; skip vanished entries
                 if p.is_file() or p.is_symlink():
                     files.append(p)
-            except FileNotFoundError:
+            except OSError:
                 continue
     return files
 
@@ -85,7 +92,7 @@ def gather_metadata(p: Path) -> Dict[str, Any]:
     try:
         stat = p.stat()
         size = stat.st_size
-    except FileNotFoundError:
+    except OSError:
         size = 0
     try:
         rel = str(p.relative_to(ROOT))
@@ -113,7 +120,7 @@ def gather_top_level() -> Dict[str, Any]:
                         fp = Path(dp) / f
                         try:
                             size += fp.stat().st_size
-                        except (FileNotFoundError, OSError, PermissionError):
+                        except OSError:
                             pass
                 top[entry.name] = {"type": "dir", "size_bytes": size}
             else:
@@ -139,7 +146,7 @@ def find_references(paths: List[str]) -> Dict[str, List[str]]:
         try:
             rg = subprocess.run(
                 [
-                    "rg",
+                    RG_BIN,
                     "-n",
                     "-S",
                     "--hidden",
@@ -150,11 +157,11 @@ def find_references(paths: List[str]) -> Dict[str, List[str]]:
                 cwd=str(ROOT),
                 capture_output=True,
                 text=True,
-            check=True)
+            )
             if rg.returncode in (0, 1):  # 0 found, 1 not found
                 lines = [ln for ln in rg.stdout.splitlines() if ln.strip()]
                 refs[p] = lines[:200]
-        except (FileNotFoundError, OSError):
+        except OSError:
             pass
     return refs
 
@@ -164,7 +171,9 @@ def load_config(config_path: Path) -> Dict[str, Any]:
     if config_path.exists():
         try:
             return json.loads(config_path.read_text())
-        except Exception:
+        except json.JSONDecodeError:
+            return {}
+        except OSError:
             return {}
     return {}
 
