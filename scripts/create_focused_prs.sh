@@ -52,7 +52,7 @@ echo "⚡ Creating PR5: ONNX Optimization..."
 git checkout -b pr5-onnx-optimization main
 git checkout cloud-run-deployment-focus -- \
     deployment/cloud-run/onnx_api_server.py \
-    deployment/cloud-run/requirements_onnx.txt
+    dependencies/requirements_onnx.txt
 
 git add .
 git commit -m "⚡ PR5: ONNX Optimization

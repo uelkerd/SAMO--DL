@@ -113,7 +113,7 @@ def simple_tokenize(text: str) -> List[int]:
    - Removed complex tokenizer dependencies
    - Added robust error handling
 
-2. **`deployment/cloud-run/requirements_onnx.txt`**
+2. **`dependencies/requirements_onnx.txt`**
    - Updated to Python 3.8 compatible versions
    - Removed heavy dependencies
    - Minimal, secure package list

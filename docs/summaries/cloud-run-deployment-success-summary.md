@@ -66,7 +66,7 @@ steps:
 ### **Fix 2: Updated Requirements File Reference**
 ```dockerfile
 # AFTER (FIXED):
-COPY deployment/cloud-run/requirements_secure.txt /app/requirements.txt
+COPY dependencies/requirements_secure.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt
 
 # SOLUTION: Use requirements_secure.txt with all ML dependencies
