@@ -211,15 +211,17 @@ class EmotionDetectionTrainer:
             freeze_bert_layers=self.freeze_initial_layers,
         )
 
-        logger.info("🔍 DEBUG: Loss Function Analysis")
-        logger.info("   Loss function type: %s", type(self.loss_fn).__name__)
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug("Loss Function Analysis")
+            logger.debug("   Loss function type: %s", type(self.loss_fn).__name__)
 
         if hasattr(self.loss_fn, "class_weights") and self.loss_fn.class_weights is not None:
             weights = self.loss_fn.class_weights
-            logger.info("   Class weights shape: %s", getattr(weights, "shape", None))
-            logger.info("   Class weights min: %.6f", weights.min().item())
-            logger.info("   Class weights max: %.6f", weights.max().item())
-            logger.info("   Class weights mean: %.6f", weights.mean().item())
+            if logger.isEnabledFor(logging.DEBUG):
+                logger.debug("   Class weights shape: %s", getattr(weights, "shape", None))
+                logger.debug("   Class weights min: %.6f", weights.min().item())
+                logger.debug("   Class weights max: %.6f", weights.max().item())
+                logger.debug("   Class weights mean: %.6f", weights.mean().item())
 
             if weights.min() <= 0:
                 logger.error("❌ CRITICAL: Class weights contain zero or negative values!")
@@ -300,29 +302,29 @@ class EmotionDetectionTrainer:
             attention_mask = batch["attention_mask"].to(self.device)
             labels = batch["labels"].to(self.device)
 
-            if batch_idx == 0:
+            if batch_idx == 0 and logger.isEnabledFor(logging.DEBUG):
                 self._log_data_distribution(labels)
 
             self.optimizer.zero_grad()
 
             logits = self.model(input_ids, attention_mask)
 
-            if batch_idx == 0:
+            if batch_idx == 0 and logger.isEnabledFor(logging.DEBUG):
                 self._log_model_output(logits)
 
             loss = self.loss_fn(logits, labels)
 
-            if batch_idx == 0:
+            if batch_idx == 0 and logger.isEnabledFor(logging.DEBUG):
                 self._log_loss_analysis(loss, logits, labels)
 
             loss.backward()
 
-            if batch_idx == 0:
+            if batch_idx == 0 and logger.isEnabledFor(logging.DEBUG):
                 self._log_gradient_stats_before()
 
             clip_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
 
-            if batch_idx == 0:
+            if batch_idx == 0 and logger.isEnabledFor(logging.DEBUG):
                 self._log_gradient_stats_after(clip_norm)
 
             self.optimizer.step()
@@ -637,9 +639,8 @@ def train_emotion_detection_model(
     learning_rate: float = 2e-6,  # Reduced from 2e-5 to 2e-6 for debugging
     num_epochs: int = 3,
     device: Optional[str] = None,
-    dev_mode: bool = True,  # Enable development mode by default
-    debug_mode: bool = True,  # Enable debugging by default
-    ) -> Dict[str, Any]:
+    dev_mode: bool = False,
+) -> Dict[str, Any]:
     """Convenient function to train emotion detection model with default settings.
 
     Args:
@@ -650,8 +651,7 @@ def train_emotion_detection_model(
         learning_rate: Learning rate for optimization
         num_epochs: Number of training epochs
         device: Device to use for training (auto-detect if None)
-        dev_mode: Enable development mode with smaller dataset
-        debug_mode: Enable debugging mode with enhanced logging
+        dev_mode: If True, use a small subset of data for quicker iterations
 
     Returns:
         Dictionary containing training results and metrics
