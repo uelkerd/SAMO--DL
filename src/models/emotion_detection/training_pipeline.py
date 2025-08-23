@@ -386,7 +386,8 @@ class EmotionDetectionTrainer:
             clip_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
 
             if batch_idx == 0:
-                logger.info(f"   Gradient norm after clipping: {clip_norm:.6f}")
+                clip_val = float(clip_norm) if not isinstance(clip_norm, (int, float)) else clip_norm
+                logger.info(f"   Gradient norm after clipping: {clip_val:.6f}")
 
             self.optimizer.step()
             self.scheduler.step()
@@ -398,21 +399,21 @@ class EmotionDetectionTrainer:
                 current_lr = self.scheduler.get_last_lr()[0]
 
                 logger.info(
-                    "Epoch {epoch}, Batch {batch_idx + 1}/{num_batches}, "
-                    "Loss: {avg_loss:.8f}, LR: {current_lr:.2e}"
+                    f"Epoch {epoch}, Batch {batch_idx + 1}/{num_batches}, "
+                    f"Loss: {avg_loss:.8f}, LR: {current_lr:.2e}"
                 )
 
                 if avg_loss < 1e-8:
-                    logger.error("❌ CRITICAL: Average loss is suspiciously small: {avg_loss:.8f}")
+                    logger.error(f"❌ CRITICAL: Average loss is suspiciously small: {avg_loss:.8f}")
                 if avg_loss > 100:
-                    logger.error("❌ CRITICAL: Average loss is suspiciously large: {avg_loss:.8f}")
+                    logger.error(f"❌ CRITICAL: Average loss is suspiciously large: {avg_loss:.8f}")
 
             if (batch_idx + 1) % val_frequency == 0:
-                logger.info("🔍 Validating at batch {batch_idx + 1}...")
+                logger.info(f"🔍 Validating at batch {batch_idx + 1}...")
                 self.validate(epoch)
 
                 if self.should_stop_early():
-                    logger.info("🛑 Early stopping triggered at batch {batch_idx + 1}")
+                    logger.info(f"🛑 Early stopping triggered at batch {batch_idx + 1}")
                     return {
                         "epoch": epoch,
                         "train_loss": total_loss / (batch_idx + 1),
@@ -431,7 +432,7 @@ class EmotionDetectionTrainer:
             "learning_rate": self.scheduler.get_last_lr()[0],
         }
 
-        logger.info("Epoch {epoch} completed - Loss: {avg_loss:.4f}, Time: {epoch_time:.1f}s")
+        logger.info(f"Epoch {epoch} completed - Loss: {avg_loss:.4f}, Time: {epoch_time:.1f}s")
 
         return metrics
 
@@ -444,7 +445,7 @@ class EmotionDetectionTrainer:
         Returns:
             Dictionary with validation metrics
         """
-        logger.info("Validating model at epoch {epoch}...")
+        logger.info(f"Validating model at epoch {epoch}...")
 
         val_metrics = evaluate_emotion_classifier(
             self.model, self.val_dataloader, self.device, threshold=0.2
@@ -459,11 +460,11 @@ class EmotionDetectionTrainer:
 
             if self.save_best_only:
                 self.save_checkpoint(epoch, val_metrics, is_best=True)
-                logger.info("New best model saved! Macro F1: {current_score:.4f}")
+                logger.info(f"New best model saved! Macro F1: {current_score:.4f}")
         else:
             self.patience_counter += 1
             logger.info(
-                "No improvement. Patience: {self.patience_counter}/{self.early_stopping_patience}"
+                f"No improvement. Patience: {self.patience_counter}/{self.early_stopping_patience}"
             )
 
         return val_metrics
@@ -498,10 +499,10 @@ class EmotionDetectionTrainer:
         if is_best:
             checkpoint_path = self.output_dir / "best_model.pt"
         else:
-            checkpoint_path = self.output_dir / "checkpoint_epoch_{epoch}.pt"
+            checkpoint_path = self.output_dir / f"checkpoint_epoch_{epoch}.pt"
 
         torch.save(checkpoint, checkpoint_path)
-        logger.info("Checkpoint saved: {checkpoint_path}")
+        logger.info(f"Checkpoint saved: {checkpoint_path}")
 
     def train(self) -> Dict[str, Any]:
         """Complete training pipeline.
@@ -556,7 +557,7 @@ class EmotionDetectionTrainer:
             serializable_history = convert_numpy_types(self.training_history)
             with Path(history_path).open("w") as f:
                 json.dump(serializable_history, f, indent=2)
-            logger.info("Training history saved to {history_path}")
+            logger.info(f"Training history saved to {history_path}")
         except Exception:
             logger.exception("Failed to save training history")
             simplified_history = []
@@ -576,7 +577,7 @@ class EmotionDetectionTrainer:
 
             with Path(history_path).open("w") as f:
                 json.dump(simplified_history, f, indent=2)
-            logger.info("Simplified training history saved to {history_path}")
+            logger.info(f"Simplified training history saved to {history_path}")
 
         results = {
             "final_test_metrics": test_metrics,
