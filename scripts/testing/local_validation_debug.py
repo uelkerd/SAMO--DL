@@ -224,11 +224,11 @@ def check_data_distribution():
             logger.error("❌ CRITICAL: No positive labels found!")
             logger.error("   This will cause 0.0000 loss with BCE")
             return False
-        elif positive_rate == 1:
+        if positive_rate == 1:
             logger.error("❌ CRITICAL: All labels are positive!")
             logger.error("   This will cause 0.0000 loss with BCE")
             return False
-        elif positive_rate < 0.01:
+        if positive_rate < 0.01:
             logger.warning("⚠️  Very low positive label rate")
             logger.warning("   Consider using focal loss or class weights")
 

@@ -93,7 +93,7 @@ def create_improved_notebook():
          AutoModelForSequenceClassification,
          TrainingArguments,
          Trainer\\n",
-        
+
     "from datasets import Dataset\\n",
     "from sklearn.model_selection import train_test_split\\n",
     "from sklearn.metrics import classification_report, confusion_matrix\\n",

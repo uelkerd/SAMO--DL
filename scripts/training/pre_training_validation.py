@@ -460,9 +460,8 @@ def main():
     if validator.critical_issues:
         logger.error("❌ Validation failed - training blocked!")
         return False
-    else:
-        logger.info("✅ Validation passed - training can proceed!")
-        return True
+    logger.info("✅ Validation passed - training can proceed!")
+    return True
 
 
 if __name__ == "__main__":

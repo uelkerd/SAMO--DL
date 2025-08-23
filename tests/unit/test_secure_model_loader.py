@@ -265,9 +265,6 @@ class TestSecureModelLoader(unittest.TestCase):
             'config': self.test_config,
             'model_name': 'BERTEmotionClassifier'  # Add model_name at top level
         }, self.model_file)
-
-        # Calculate checksum for validation
-        from src.models.secure_loader.integrity_checker import IntegrityChecker
         self.checker = IntegrityChecker()
         self.model_checksum = self.checker.calculate_checksum(self.model_file)
 
@@ -379,9 +376,6 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
             'state_dict': self.test_model.state_dict(),
             'config': self.test_config
         }, self.model_file)
-
-        # Calculate checksum for validation
-        from src.models.secure_loader.integrity_checker import IntegrityChecker
         self.checker = IntegrityChecker()
         self.model_checksum = self.checker.calculate_checksum(self.model_file)
 
