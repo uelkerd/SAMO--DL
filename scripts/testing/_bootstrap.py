@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import sys
 from pathlib import Path
 from typing import Iterable, Optional
@@ -20,7 +21,10 @@ _MARKERS: tuple[str, ...] = (
 )
 
 
-def get_project_root(start: Optional[Path] = None, markers: Iterable[str] = _MARKERS) -> Path:
+def get_project_root(
+    start: Optional[Path] = None,
+    markers: Iterable[str] = _MARKERS,
+) -> Path:
     """Discover the project root by walking up directories until a marker is found.
 
     Falls back to two levels up from this file if no markers are found.
