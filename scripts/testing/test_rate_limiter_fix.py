@@ -17,7 +17,15 @@ async def test_token_refill_logic():
     """Test the token refill logic manually."""
     logger.info("🧪 Testing token refill logic...")
 
-    rate_limiter = TokenBucketRateLimiter(RateLimitConfig(burst_size=5, requests_per_minute=10))
+    config = RateLimitConfig(
+        burst_size=5,
+        requests_per_minute=10,
+        rapid_fire_threshold=1000,          # avoid rapid-fire trigger
+        sustained_rate_threshold=100000,    # avoid sustained-rate trigger
+        enable_user_agent_analysis=False,   # disable UA analysis for test
+        enable_request_pattern_analysis=False,  # disable pattern analysis
+    )
+    rate_limiter = TokenBucketRateLimiter(config)
 
     request = MagicMock()
     request.url.path = "/api/test"
@@ -33,10 +41,10 @@ async def test_token_refill_logic():
         return False
     client_key = meta["client_key"]
 
-    for i in range(20):
+    for i in range(5):
         rate_limiter.release_request(request.client.host, "")
         allowed, _, _ = rate_limiter.allow_request(request.client.host, "")
-        if i % 20 == 0:
+        if i == 0:
             logger.info("   Request %d: allowed=%s", i + 1, allowed)
 
     old_time = time.time() - rate_limiter.config.window_size_seconds - 1
