@@ -168,7 +168,7 @@ repos:
   #       args: [check]
 
   # Documentation formatting
-  # Temporarily disabled due to version compatibility issues
+  # Temporarily disabled due to language compatibility issues
   # - repo: https://github.com/myint/docformatter
   #   rev: v1.7.5
   #   hooks:
@@ -231,7 +231,7 @@ repos:
           )$
 
   # Custom SAMO-DL code quality enforcer
-  # Temporarily disabled due to conflicts with staged changes
+  # Temporarily disabled to resolve conflicts with stashed changes
   # - repo: local
   #   hooks:
   #     - id: samo-code-quality-enforcer
@@ -267,7 +267,7 @@ repos:
   #         )$
 
   # Auto-fix common code quality issues
-  # Temporarily disabled due to conflicts with staged changes
+  # Temporarily disabled to resolve conflicts with stashed changes
   # - repo: local
   #   hooks:
   #     - id: samo-auto-fix-code-quality
@@ -303,6 +303,5 @@ repos:
   #         )$
 
 # Global configuration
-# Temporarily disabled due to conflicts
-# default_language_version:
-#   python: python3.8
+default_language_version:
+  python: python3.8
