@@ -10,10 +10,11 @@ ENV FLASK_ENV=production
 ENV ENVIRONMENT=production
 ENV PORT=8080
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
+# Install only required system dependencies (pinned)
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl=7.88.1-10+deb12u12 \
     && rm -rf /var/lib/apt/lists/*
 
 # Set work directory
@@ -40,4 +41,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8080/health || exit 1
 
 # Start the application with Gunicorn
-CMD ["python", "onnx_api_server.py"] 
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "onnx_api_server:app"] 
