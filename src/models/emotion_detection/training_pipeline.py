@@ -301,103 +301,29 @@ class EmotionDetectionTrainer:
             labels = batch["labels"].to(self.device)
 
             if batch_idx == 0:
-                logger.info("🔍 DEBUG: Data Distribution Analysis")
-                logger.info("   Labels shape: %s", labels.shape)
-                logger.info("   Labels dtype: %s", labels.dtype)
-                logger.info("   Labels min: %s", labels.min().item())
-                logger.info("   Labels max: %s", labels.max().item())
-                logger.info("   Labels mean: %.6f", labels.float().mean().item())
-                logger.info("   Labels sum: %s", labels.sum().item())
-                logger.info("   Non-zero labels: %s", (labels > 0).sum().item())
-                logger.info("   Total labels: %s", labels.numel())
-
-                if labels.sum() == 0:
-                    logger.error("❌ CRITICAL: All labels are zero!")
-                elif labels.sum() == labels.numel():
-                    logger.error("❌ CRITICAL: All labels are one!")
-
-                # Iterate over first 10 classes
-                max_classes = min(10, labels.shape[1])
-                for i in range(max_classes):
-                    class_count = labels[:, i].sum().item()
-                    if class_count > 0:
-                        logger.info("   Class %d: %d positive samples", i, int(class_count))
+                self._log_data_distribution(labels)
 
             self.optimizer.zero_grad()
 
             logits = self.model(input_ids, attention_mask)
 
             if batch_idx == 0:
-                logger.info("🔍 DEBUG: Model Output Analysis")
-                logger.info("   Logits shape: %s", logits.shape)
-                logger.info("   Logits min: %.6f", logits.min().item())
-                logger.info("   Logits max: %.6f", logits.max().item())
-                logger.info("   Logits mean: %.6f", logits.mean().item())
-                logger.info("   Logits std: %.6f", logits.std().item())
-
-                if torch.isnan(logits).any():
-                    logger.error("❌ CRITICAL: NaN values in logits!")
-                if torch.isinf(logits).any():
-                    logger.error("❌ CRITICAL: Inf values in logits!")
-
-                predictions = torch.sigmoid(logits)
-                logger.info("   Predictions min: %.6f", predictions.min().item())
-                logger.info("   Predictions max: %.6f", predictions.max().item())
-                logger.info("   Predictions mean: %.6f", predictions.mean().item())
+                self._log_model_output(logits)
 
             loss = self.loss_fn(logits, labels)
 
             if batch_idx == 0:
-                logger.info("🔍 DEBUG: Loss Analysis")
-                logger.info("   Raw loss: %.8f", loss.item())
-
-                bce_manual = F.binary_cross_entropy_with_logits(
-                    logits, labels.float(), reduction="mean"
-                )
-                logger.info("   Manual BCE loss: %.8f", bce_manual.item())
-
-                if abs(loss.item()) < 1e-10:
-                    logger.error("❌ CRITICAL: Loss is effectively zero!")
-                    logger.error("   This indicates a serious training issue!")
-
-                for i in range(min(5, logits.shape[1])):
-                    class_logits = logits[:, i]
-                    class_labels = labels[:, i].float()
-                    class_loss = F.binary_cross_entropy_with_logits(
-                        class_logits, class_labels, reduction="mean"
-                    )
-                    logger.info("   Class %d loss: %.8f", i, class_loss.item())
+                self._log_loss_analysis(loss, logits, labels)
 
             loss.backward()
 
             if batch_idx == 0:
-                logger.info("🔍 DEBUG: Gradient Analysis")
-                total_norm = 0
-                param_count = 0
-                for p in self.model.parameters():
-                    if p.grad is not None:
-                        param_norm = p.grad.data.norm(2)
-                        total_norm += param_norm.item() ** 2
-                        param_count += 1
-
-                if param_count > 0:
-                    total_norm = total_norm ** (1.0 / 2)
-                    logger.info("   Gradient norm before clipping: %.6f", total_norm)
-
-                    if total_norm > 10:
-                        logger.warning("⚠️  WARNING: Large gradient norm detected!")
-                    if total_norm < 1e-6:
-                        logger.warning("⚠️  WARNING: Very small gradient norm detected!")
+                self._log_gradient_stats_before()
 
             clip_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
 
             if batch_idx == 0:
-                clip_val = (
-                    float(clip_norm)
-                    if not isinstance(clip_norm, (int, float))
-                    else clip_norm
-                )
-                logger.info("   Gradient norm after clipping: %.6f", clip_val)
+                self._log_gradient_stats_after(clip_norm)
 
             self.optimizer.step()
             self.scheduler.step()
@@ -405,32 +331,13 @@ class EmotionDetectionTrainer:
             total_loss += loss.item()
 
             if batch_idx < 5 or (batch_idx + 1) % 100 == 0:  # First 5 batches + every 100
-                avg_loss = total_loss / (batch_idx + 1)
-                current_lr = self.scheduler.get_last_lr()[0]
+                self._log_progress(epoch, batch_idx, num_batches, total_loss)
 
-                logger.info(
-                    "Epoch %d, Batch %d/%d, Loss: %.8f, LR: %.2e",
-                    epoch, batch_idx + 1, num_batches, avg_loss, current_lr,
-                )
-
-                if avg_loss < 1e-8:
-                    logger.error("❌ CRITICAL: Average loss is suspiciously small: %.8f", avg_loss)
-                if avg_loss > 100:
-                    logger.error("❌ CRITICAL: Average loss is suspiciously large: %.8f", avg_loss)
-
-            if (batch_idx + 1) % val_frequency == 0:
-                logger.info("🔍 Validating at batch %d...", batch_idx + 1)
-                self.validate(epoch)
-
-                if self.should_stop_early():
-                    logger.info("🛑 Early stopping triggered at batch %d", batch_idx + 1)
-                    return {
-                        "epoch": epoch,
-                        "train_loss": total_loss / (batch_idx + 1),
-                        "epoch_time": time.time() - start_time,
-                        "learning_rate": self.scheduler.get_last_lr()[0],
-                        "early_stopped": True,
-                    }
+            maybe_metrics = self._maybe_validate_and_early_stop(
+                batch_idx, epoch, start_time, total_loss, val_frequency
+            )
+            if maybe_metrics is not None:
+                return maybe_metrics
 
         epoch_time = time.time() - start_time
         avg_loss = total_loss / num_batches
@@ -448,6 +355,119 @@ class EmotionDetectionTrainer:
         )
 
         return metrics
+
+    def _log_data_distribution(self, labels: torch.Tensor) -> None:
+        logger.info("🔍 DEBUG: Data Distribution Analysis")
+        logger.info("   Labels shape: %s", labels.shape)
+        logger.info("   Labels dtype: %s", labels.dtype)
+        logger.info("   Labels min: %s", labels.min().item())
+        logger.info("   Labels max: %s", labels.max().item())
+        logger.info("   Labels mean: %.6f", labels.float().mean().item())
+        logger.info("   Labels sum: %s", labels.sum().item())
+        logger.info("   Non-zero labels: %s", (labels > 0).sum().item())
+        logger.info("   Total labels: %s", labels.numel())
+
+        if labels.sum() == 0:
+            logger.error("❌ CRITICAL: All labels are zero!")
+        elif labels.sum() == labels.numel():
+            logger.error("❌ CRITICAL: All labels are one!")
+
+        # Iterate over first 10 classes
+        max_classes = min(10, labels.shape[1])
+        for i in range(max_classes):
+            class_count = labels[:, i].sum().item()
+            if class_count > 0:
+                logger.info("   Class %d: %d positive samples", i, int(class_count))
+
+    def _log_model_output(self, logits: torch.Tensor) -> None:
+        logger.info("🔍 DEBUG: Model Output Analysis")
+        logger.info("   Logits shape: %s", logits.shape)
+        logger.info("   Logits min: %.6f", logits.min().item())
+        logger.info("   Logits max: %.6f", logits.max().item())
+        logger.info("   Logits mean: %.6f", logits.mean().item())
+        logger.info("   Logits std: %.6f", logits.std().item())
+        if torch.isnan(logits).any():
+            logger.error("❌ CRITICAL: NaN values in logits!")
+        if torch.isinf(logits).any():
+            logger.error("❌ CRITICAL: Inf values in logits!")
+        predictions = torch.sigmoid(logits)
+        logger.info("   Predictions min: %.6f", predictions.min().item())
+        logger.info("   Predictions max: %.6f", predictions.max().item())
+        logger.info("   Predictions mean: %.6f", predictions.mean().item())
+
+    def _log_loss_analysis(self, loss: torch.Tensor, logits: torch.Tensor, labels: torch.Tensor) -> None:
+        logger.info("🔍 DEBUG: Loss Analysis")
+        logger.info("   Raw loss: %.8f", loss.item())
+        bce_manual = F.binary_cross_entropy_with_logits(
+            logits, labels.float(), reduction="mean"
+        )
+        logger.info("   Manual BCE loss: %.8f", bce_manual.item())
+        if abs(loss.item()) < 1e-10:
+            logger.error("❌ CRITICAL: Loss is effectively zero!")
+            logger.error("   This indicates a serious training issue!")
+        for i in range(min(5, logits.shape[1])):
+            class_logits = logits[:, i]
+            class_labels = labels[:, i].float()
+            class_loss = F.binary_cross_entropy_with_logits(
+                class_logits, class_labels, reduction="mean"
+            )
+            logger.info("   Class %d loss: %.8f", i, class_loss.item())
+
+    def _log_gradient_stats_before(self) -> None:
+        logger.info("🔍 DEBUG: Gradient Analysis")
+        total_norm = 0.0
+        param_count = 0
+        for p in self.model.parameters():
+            if p.grad is not None:
+                param_norm = p.grad.data.norm(2)
+                total_norm += param_norm.item() ** 2
+                param_count += 1
+        if param_count > 0:
+            total_norm = total_norm ** 0.5
+            logger.info("   Gradient norm before clipping: %.6f", total_norm)
+            if total_norm > 10:
+                logger.warning("⚠️  WARNING: Large gradient norm detected!")
+            if total_norm < 1e-6:
+                logger.warning("⚠️  WARNING: Very small gradient norm detected!")
+
+    def _log_gradient_stats_after(self, clip_norm: Union[float, torch.Tensor]) -> None:
+        clip_val = float(clip_norm) if not isinstance(clip_norm, (int, float)) else clip_norm
+        logger.info("   Gradient norm after clipping: %.6f", clip_val)
+
+    def _log_progress(self, epoch: int, batch_idx: int, num_batches: int, total_loss: float) -> None:
+        avg_loss = total_loss / (batch_idx + 1)
+        current_lr = self.scheduler.get_last_lr()[0]
+        logger.info(
+            "Epoch %d, Batch %d/%d, Loss: %.8f, LR: %.2e",
+            epoch, batch_idx + 1, num_batches, avg_loss, current_lr,
+        )
+        if avg_loss < 1e-8:
+            logger.error("❌ CRITICAL: Average loss is suspiciously small: %.8f", avg_loss)
+        if avg_loss > 100:
+            logger.error("❌ CRITICAL: Average loss is suspiciously large: %.8f", avg_loss)
+
+    def _maybe_validate_and_early_stop(
+        self,
+        batch_idx: int,
+        epoch: int,
+        start_time: float,
+        total_loss: float,
+        val_frequency: int,
+    ) -> Optional[Dict[str, Any]]:
+        if (batch_idx + 1) % val_frequency != 0:
+            return None
+        logger.info("🔍 Validating at batch %d...", batch_idx + 1)
+        self.validate(epoch)
+        if self.should_stop_early():
+            logger.info("🛑 Early stopping triggered at batch %d", batch_idx + 1)
+            return {
+                "epoch": epoch,
+                "train_loss": total_loss / (batch_idx + 1),
+                "epoch_time": time.time() - start_time,
+                "learning_rate": self.scheduler.get_last_lr()[0],
+                "early_stopped": True,
+            }
+        return None
 
     def validate(self, epoch: int) -> Dict[str, float]:
         """Validate model performance.
