@@ -36,6 +36,7 @@ def test_whisper_transcription():
     logger.info("🤖 Testing Whisper transcription...")
 
     try:
+        import whisper  # Local import to handle optional dependency
         model = whisper.load_model("base")
         logger.info("✅ Whisper model loaded successfully")
         logger.info("   • Model: %s", getattr(model, "name", "base"))
@@ -95,6 +96,7 @@ def test_voice_emotion_features():
     logger.info("🎵 Testing voice emotion features...")
 
     try:
+        import librosa  # Local import to handle optional dependency
         sample_rate = 16000
         duration = 3
         samples = int(sample_rate * duration)
@@ -166,11 +168,12 @@ def test_complete_pipeline():
     if passed == total:
         logger.info("🎉 All tests passed! Voice pipeline is ready.")
         return True
-    if passed >= total // 2:
+    elif passed >= total // 2:
         logger.info("⚠️  Most tests passed. Some components may need attention.")
         return True
-    logger.error("❌ Multiple tests failed. Pipeline needs fixes.")
-    return False
+    else:
+        logger.error("❌ Multiple tests failed. Pipeline needs fixes.")
+        return False
 
 
 def main():
