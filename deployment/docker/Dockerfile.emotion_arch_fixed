@@ -1,5 +1,5 @@
 # Use official Python runtime with explicit platform targeting
-FROM --platform=linux/amd64 python:3.9-slim
+FROM --platform=linux/amd64 python:3.9-slim-bookworm
 
 # Set environment variables for Python
 ENV PYTHONDONTWRITEBYTECODE=1 \
