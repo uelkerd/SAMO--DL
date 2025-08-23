@@ -5,7 +5,6 @@ Tests the downloaded model files directly without API server
 """
 
 import sys
-from pathlib import Path
 
 from scripts.testing._bootstrap import ensure_project_root_on_sys_path, ensure_path, configure_basic_logging
 
