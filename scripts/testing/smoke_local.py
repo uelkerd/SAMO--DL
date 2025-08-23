@@ -321,7 +321,7 @@ def phase_batch_transcribe(
         )
         msg = "ok"
         try:
-            msg = f"ok:{r.json().get('successful_transcriptions', 0)}"
+            msg = "ok:{r.json().get("successful_transcriptions', 0)}"
         except Exception:
             msg = r.text[:60]
         p("/transcribe/batch", r.status_code, msg)

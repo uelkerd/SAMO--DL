@@ -128,7 +128,7 @@ def main():
     logging.info("\n📊 Sample entries:")
     for i, entry in enumerate(test_data[:3]):
         logging.info(f"  {i+1}. Text: '{entry['text'][:50]}...'")
-        logging.info(f"     Emotions: {entry['emotions']}")
+        logging.info("     Emotions: {entry["emotions']}")
 
     emotion_counts = {}
     for entry in test_data:

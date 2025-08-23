@@ -62,7 +62,7 @@ def debug_dataset_structure():
         # Check if it's a HuggingFace dataset
         if hasattr(test_data, 'features'):
             logger.info(f"📊 Dataset features: {test_data.features}")
-        
+
         if hasattr(test_data, 'column_names'):
             logger.info(f"📊 Dataset columns: {test_data.column_names}")
 

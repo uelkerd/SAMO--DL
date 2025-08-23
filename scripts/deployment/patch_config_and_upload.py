@@ -2,8 +2,8 @@
 # pip install -U transformers huggingface_hub
 import os
 import tempfile
-from transformers import AutoConfig
 from huggingface_hub import HfApi, HfFolder
+from transformers import AutoConfig
 
 MODEL_ID = os.getenv("MODEL_ID", "0xmnrv/samo")
 
@@ -23,8 +23,8 @@ new_labels = [
     "admiration", "amusement", "anger", "annoyance", "approval",
     "caring", "confusion", "curiosity", "desire", "disappointment",
     "disapproval", "disgust", "embarrassment", "excitement", "fear",
-    "gratitude", "grief", "joy", "love", "nervousness",
-    "optimism", "pride", "realization", "relief", "remorse",
+    "gratitude", "grie", "joy", "love", "nervousness",
+    "optimism", "pride", "realization", "relie", "remorse",
     "sadness", "surprise", "neutral",
 ]
 
@@ -33,7 +33,7 @@ print(f"Model ID: {MODEL_ID}")
 
 # Load current config
 cfg = AutoConfig.from_pretrained(MODEL_ID, token=TOKEN)
-print(f"Current model has {getattr(cfg, 'num_labels', 'unknown')} labels")
+print("Current model has {getattr(cfg, "num_labels', 'unknown')} labels")
 
 # Check if labels need updating
 if hasattr(cfg, 'id2label') and cfg.id2label:

@@ -13,12 +13,12 @@
 # Add src to path
 # Set up logging
 #!/usr/bin/env python3
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from pathlib import Path
 import logging
-import numpy as np
 import sys
+import numpy as np
 import torch
+from pathlib import Path
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 """
 Debug the evaluation function step by step to find the exact issue.

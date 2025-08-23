@@ -10,7 +10,7 @@ import json
 
 def create_fixed_bulletproof_notebook():
     """Create the fixed bulletproof notebook content."""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -61,7 +61,10 @@ def create_fixed_bulletproof_notebook():
                         ")\n",
                         "from sklearn.model_selection import train_test_split\n",
                         "from sklearn.preprocessing import LabelEncoder\n",
-                        "from sklearn.metrics import f1_score, accuracy_score, classification_report\n",
+                        "from sklearn.metrics import                        "from sklearn.metrics import f1_score,
+                             accuracy_score,
+                             classification_report\n",
+                            
                         "import warnings\n",
                         "warnings.filterwarnings('ignore')\n",
                         "\n",
@@ -307,7 +310,7 @@ def create_fixed_bulletproof_notebook():
                     "print('📈 Expected Improvement: 8-18%')\n",
                     "\n",
                     "training_args = TrainingArguments(\n",
-                    "    output_dir='./emotion_model_fixed_bulletproof',\n",
+                    "    output_dir='./emotion_model_fixed_bulletproo",\n",
                     "    num_train_epochs=3,  # Reduced to prevent overfitting\n",
                     "    per_device_train_batch_size=8,  # Smaller batch size\n",
                     "    per_device_eval_batch_size=8,\n",
@@ -357,8 +360,8 @@ def create_fixed_bulletproof_notebook():
                     "print('📊 Evaluating final model...')\n",
                     "results = trainer.evaluate()\n",
                     "\n",
-                    "print(f'🏆 Final F1 Score: {results[\"eval_f1\"]:.4f} ({results[\"eval_f1\"]*100:.2f}%)')\n",
-                    "print(f'🎯 Target achieved: {\"✅ YES!\" if results[\"eval_f1\"] >= 0.75 else \"❌ Not yet\"}')\n",
+                    "print("🏆 Final F1 Score: {results[\"eval_f1\"]:.4f} ({results[\"eval_f1\"]*100:.2f}%)')\n",
+                    "print("🎯 Target achieved: {\"✅ YES!\" if results[\"eval_f1\"] >= 0.75 else \"❌ Not yet\"}')\n",
                     "\n",
                     "# Save model\n",
                     "trainer.save_model('./emotion_model_fixed_bulletproof_final')\n",
@@ -450,10 +453,10 @@ def create_fixed_bulletproof_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     with open('notebooks/FIXED_BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook_content, f, indent=2)
-    
+
     print("✅ Fixed bulletproof notebook created: notebooks/FIXED_BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb")
     print("📋 Instructions:")
     print("  1. Download the notebook file")

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Debug script to isolate the 'int' object is not callable error."""
 
-import sys
 import os
+import sys
 
 # Add current directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -87,7 +87,10 @@ except Exception as e:
 
 try:
     print("9. Testing model_utils import...")
-    from model_utils import ensure_model_loaded, predict_emotions, get_model_status, validate_text_input
+    from model_utils import    from model_utils import ensure_model_loaded,
+         predict_emotions,
+         get_model_status,
+         validate_text_input
     print("✅ model_utils imported successfully")
 except Exception as e:
     print(f"❌ model_utils import failed: {e}")

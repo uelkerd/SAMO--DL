@@ -5,12 +5,12 @@
     # Fix 3: Run specific failing tests to verify fixes
     # Summary
 #!/usr/bin/env python3
-from pathlib import Path
-from typing import Tuple
 import logging
 import os
 import subprocess
 import sys
+from pathlib import Path
+from typing import Tuple
 
 """
 Script to fix CI issues identified in the SAMO Deep Learning project.

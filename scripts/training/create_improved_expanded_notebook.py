@@ -6,7 +6,7 @@ import json
 
 def create_improved_notebook():
     """Create an improved version of the expanded training notebook."""
-    
+
     notebook = {
         "cells": [
             {
@@ -746,11 +746,11 @@ def create_improved_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     # Save the improved notebook
     with open('notebooks/expanded_dataset_training_improved.ipynb', 'w') as f:
         json.dump(notebook, f, indent=2)
-    
+
     print("✅ Improved notebook created: 'notebooks/expanded_dataset_training_improved.ipynb'")
     print("📋 Key improvements:")
     print("  - Fixed JSON syntax errors")

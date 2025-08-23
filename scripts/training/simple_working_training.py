@@ -14,12 +14,12 @@
         # Load dataset
         # Setup optimizer
         # Training loop
-        import traceback
-    # Setup device
 import logging
 import os
 import sys
+        import traceback
 import traceback
+    # Setup device
 
 # Add project root to path
 # Configure logging

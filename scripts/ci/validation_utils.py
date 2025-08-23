@@ -20,7 +20,7 @@ def validate_metric_ranges(metrics: dict[str, Any], fields: Iterable[str]) -> No
         try:
             numeric = float(value)
         except (TypeError, ValueError) as exc:  # non-numeric
-            raise ValueError(f"Metric '{field}' is not numeric: {value}") from exc
+            raise ValueError("Metric "{field}' is not numeric: {value}") from exc
         if not 0.0 <= numeric <= 1.0:
             pretty = field.replace("_", " ").capitalize()
             raise ValueError(f"{pretty} should be between 0 and 1")

@@ -11,7 +11,7 @@ from pathlib import Path
 
 def create_fixed_notebook():
     """Create a fixed notebook with proper JSON escaping."""
-    
+
     # Create the notebook structure
     notebook = {
         "cells": [
@@ -47,7 +47,11 @@ def create_fixed_notebook():
                     "import torch\n",
                     "import numpy as np\n",
                     "import pandas as pd\n",
-                    "from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer\n",
+                    "from transformers import                    "from transformers import AutoTokenizer,
+                         AutoModelForSequenceClassification,
+                         TrainingArguments,
+                         Trainer\n",
+                        
                     "from datasets import Dataset\n",
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.metrics import classification_report, confusion_matrix\n",
@@ -478,10 +482,10 @@ def create_fixed_notebook():
                     "print('=' * 40)\n",
                     "\n",
                     "results = trainer.evaluate()\n",
-                    "print(f'Final F1 Score: {results[\"eval_f1\"]:.3f}')\n",
-                    "print(f'Final Accuracy: {results[\"eval_accuracy\"]:.3f}')\n",
-                    "print(f'Final Precision: {results[\"eval_precision\"]:.3f}')\n",
-                    "print(f'Final Recall: {results[\"eval_recall\"]:.3f}')"
+                    "print("Final F1 Score: {results[\"eval_f1\"]:.3f}')\n",
+                    "print("Final Accuracy: {results[\"eval_accuracy\"]:.3f}')\n",
+                    "print("Final Precision: {results[\"eval_precision\"]:.3f}')\n",
+                    "print("Final Recall: {results[\"eval_recall\"]:.3f}')"
                 ]
             },
             {
@@ -623,26 +627,26 @@ def create_fixed_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     # Save the notebook with proper JSON formatting
     notebook_path = Path(__file__).parent.parent / 'notebooks' / 'FIXED_SPECIALIZED_TRAINING.ipynb'
     with open(notebook_path, 'w') as f:
         json.dump(notebook, f, indent=1)
-    
+
     print(f"✅ Created fixed specialized notebook: {notebook_path}")
-    print(f"📋 Key improvements:")
-    print(f"   1. Proper JSON formatting (no syntax errors)")
-    print(f"   2. Verifies access to j-hartmann/emotion-english-distilroberta-base")
-    print(f"   3. Confirms model architecture (should be DistilRoBERTa with 6 layers)")
-    print(f"   4. Includes comprehensive reliability testing")
-    print(f"   5. Saves training info for verification")
-    print(f"\n🚀 Instructions:")
-    print(f"   1. Download the notebook file")
-    print(f"   2. Upload to Google Colab")
-    print(f"   3. Set Runtime → GPU")
-    print(f"   4. Run all cells")
-    print(f"   5. Verify the model is actually using the specialized architecture")
-    print(f"   6. Only deploy if reliability tests pass")
+    print("📋 Key improvements:")
+    print("   1. Proper JSON formatting (no syntax errors)")
+    print("   2. Verifies access to j-hartmann/emotion-english-distilroberta-base")
+    print("   3. Confirms model architecture (should be DistilRoBERTa with 6 layers)")
+    print("   4. Includes comprehensive reliability testing")
+    print("   5. Saves training info for verification")
+    print("\n🚀 Instructions:")
+    print("   1. Download the notebook file")
+    print("   2. Upload to Google Colab")
+    print("   3. Set Runtime → GPU")
+    print("   4. Run all cells")
+    print("   5. Verify the model is actually using the specialized architecture")
+    print("   6. Only deploy if reliability tests pass")
 
 if __name__ == "__main__":
     create_fixed_notebook()

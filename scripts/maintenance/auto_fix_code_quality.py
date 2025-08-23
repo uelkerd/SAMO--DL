@@ -12,11 +12,11 @@ Auto-fixes:
 - PTC-W0027: f-strings without expressions
 - Basic import organization
 """
-import sys
-import re
-from pathlib import Path
-from typing import Dict, List, Set, Tuple, Any, Optional
 import logging
+import re
+import sys
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -361,7 +361,7 @@ class CodeQualityAutoFixer:
     @staticmethod
     def generate_report(results: Dict[str, Any]) -> str:
         """Generate a comprehensive fix report."""
-        report = f"""
+        report = """
 🔧 CODE QUALITY AUTO-FIX REPORT
 {'='*50}
 
@@ -376,7 +376,7 @@ class CodeQualityAutoFixer:
         for fix_type, count in sorted(results['fixes_by_type'].items()):
             report += f"- {fix_type}: {count} fixes\n"
 
-        report += f"""
+        report += """
 
 📋 DETAILED RESULTS:
 {'-'*50}

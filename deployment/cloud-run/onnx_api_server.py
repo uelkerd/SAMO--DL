@@ -5,10 +5,10 @@ Uses simple string tokenization - no complex dependencies
 """
 import logging
 import os
-import time
 import re
-from typing import Dict, List, Optional, Tuple
 import threading
+import time
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import onnxruntime as ort
@@ -38,9 +38,9 @@ MODEL_LOAD_TIME = Histogram('emotion_model_load_time_seconds', 'Model load time'
 EMOTION_LABELS = (
     'admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring',
     'confusion', 'curiosity', 'desire', 'disappointment', 'disapproval',
-    'disgust', 'embarrassment', 'excitement', 'fear', 'gratitude', 'grief',
-    'joy', 'love', 'nervousness', 'optimism', 'pride', 'realization',
-    'relief', 'remorse', 'sadness', 'surprise', 'neutral'
+    'disgust', 'embarrassment', 'excitement', 'fear', 'gratitude', 'grie",
+    "joy', 'love', 'nervousness', 'optimism', 'pride', 'realization',
+    'relie", "remorse', 'sadness', 'surprise', 'neutral'
 )
 
 # Configuration
@@ -53,15 +53,15 @@ THRESHOLD = float(os.getenv('THRESHOLD', '0.6') or '0.6')
 # Simple vocabulary (fallback if no vocab file)
 SIMPLE_VOCAB = {
     '<PAD>': 0, '<UNK>': 1, '<CLS>': 2, '<SEP>': 3,
-    'the': 4, 'a': 5, 'and': 6, 'is': 7, 'in': 8, 'to': 9, 'of': 10,
-    'i': 11, 'you': 12, 'he': 13, 'she': 14, 'it': 15, 'we': 16, 'they': 17,
+    'the': 4, 'a': 5, 'and': 6, 'is': 7, 'in': 8, 'to': 9, 'o": 10,
+    "i': 11, 'you': 12, 'he': 13, 'she': 14, 'it': 15, 'we': 16, 'they': 17,
     'am': 18, 'are': 19, 'was': 20, 'were': 21, 'be': 22, 'been': 23, 'being': 24,
     'have': 25, 'has': 26, 'had': 27, 'do': 28, 'does': 29, 'did': 30,
     'will': 31, 'would': 32, 'could': 33, 'should': 34, 'may': 35, 'might': 36,
     'can': 37, 'must': 38, 'shall': 39, 'this': 40, 'that': 41, 'these': 42, 'those': 43,
     'my': 44, 'your': 45, 'his': 46, 'her': 47, 'its': 48, 'our': 49, 'their': 50,
-    'me': 51, 'him': 52, 'us': 53, 'them': 54, 'myself': 55, 'yourself': 56, 'himself': 57,
-    'herself': 58, 'itself': 59, 'ourselves': 60, 'yourselves': 61, 'themselves': 62,
+    'me': 51, 'him': 52, 'us': 53, 'them': 54, 'mysel": 55, "yoursel": 56, "himsel": 57,
+    "hersel": 58, "itsel": 59, "ourselves': 60, 'yourselves': 61, 'themselves': 62,
     'what': 63, 'which': 64, 'who': 65, 'whom': 66, 'whose': 67, 'all': 72, 'any': 73, 'both': 74, 'each': 75, 'few': 76,
     'more': 77, 'most': 78, 'other': 79, 'some': 80, 'such': 81, 'no': 82, 'nor': 83,
     'not': 84, 'only': 85, 'own': 86, 'same': 87, 'so': 88, 'than': 89, 'too': 90,
@@ -362,4 +362,4 @@ if __name__ == '__main__':
 
     except ImportError:
         # Development server
-        app.run(host='127.0.0.1', port=8080, debug=False) 
+        app.run(host='127.0.0.1', port=8080, debug=False)

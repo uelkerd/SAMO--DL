@@ -64,7 +64,7 @@ def main():
             logits = model(dummy_input_ids, dummy_attention_mask)
             loss = loss_fn(logits, dummy_labels)
 
-        logger.info("✅ Forward pass successful: Loss = %.6f", loss.item())
+        logger.info("✅ Forward pass successful: Loss = %.6", loss.item())
 
         logger.info("🔧 Step 4: Starting simple training...")
         model.train()
@@ -93,10 +93,10 @@ def main():
                 epoch_loss += loss.item()
 
                 if batch % 5 == 0:
-                    logger.info("   Batch %d: Loss = %.6f", batch, loss.item())
+                    logger.info("   Batch %d: Loss = %.6", batch, loss.item())
 
             avg_loss = epoch_loss / num_batches
-            logger.info("✅ Epoch %d: Average Loss = %.6f", epoch + 1, avg_loss)
+            logger.info("✅ Epoch %d: Average Loss = %.6", epoch + 1, avg_loss)
 
         logger.info("🎉 SUCCESS: Training completed without 0.0000 loss!")
         logger.info("   The 0.0000 loss issue is SOLVED!")

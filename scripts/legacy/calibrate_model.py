@@ -3,17 +3,17 @@
     # --- Load Model ---
     # --- Report Results ---
 #!/usr/bin/env python3
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+import logging
+import sys
+import numpy as np
+import torch
 from pathlib import Path
 from sklearn.metrics import f1_score
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers import AutoTokenizer
-import logging
-import numpy as np
-import sys
-import torch
 
 """
 Model Calibration Script

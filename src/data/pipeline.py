@@ -6,20 +6,20 @@ preprocessing, feature extraction, and dataset management.
 """
 
 import logging
+)
+    EmbeddingPipeline
+    FastTextEmbedder,
+    TfidfEmbedder,
+    Word2VecEmbedder,
+import pandas as pd
+from .embeddings import (
+from .feature_engineering import FeatureEngineer
+from .loaders import load_entries_from_db, load_entries_from_json, load_entries_from_csv
+from .preprocessing import JournalEntryPreprocessor
+from .validation import DataValidator
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Union
-import pandas as pd
-from .feature_engineering import FeatureEngineer
-from .validation import DataValidator
-from .preprocessing import JournalEntryPreprocessor
-from .embeddings import (
-    TfidfEmbedder,
-    Word2VecEmbedder,
-    FastTextEmbedder,
-    EmbeddingPipeline
-)
-from .loaders import load_entries_from_db, load_entries_from_json, load_entries_from_csv
 
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
@@ -58,7 +58,7 @@ class DataPipeline:
         elif embedding_method == "fasttext":
             embedder = FastTextEmbedder(vector_size=100)
         else:
-            logger.warning(f"Unknown embedding method '{embedding_method}'. Defaulting to TF-IDF.")
+            logger.warning("Unknown embedding method "{embedding_method}'. Defaulting to TF-IDF.")
             embedder = TfidfEmbedder(max_features=1000)
 
         self.embedding_pipeline = EmbeddingPipeline(embedder)

@@ -5,15 +5,15 @@
     # Create output directory
     # Save metadata
     # Verify requirements
+import json
+import logging
     import shutil
+import sys
 # Add src to path
 # Configure logging
 # Constants
 #!/usr/bin/env python3
 from pathlib import Path
-import json
-import logging
-import sys
 
 """
 Simple Model Finalization Script

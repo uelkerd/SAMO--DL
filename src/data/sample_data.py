@@ -12,12 +12,12 @@
 # Sample topics to generate journal entries about
 # Templates for journal entry content
 # Title templates
+import json
+import random
+import pandas as pd
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-import json
-import pandas as pd
-import random
 
 
 

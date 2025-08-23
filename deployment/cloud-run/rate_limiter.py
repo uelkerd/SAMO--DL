@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Rate Limiter for Flask API."""
 
-import time
 import threading
+import time
 from collections import defaultdict, deque
 from flask import request, jsonify
 from functools import wraps

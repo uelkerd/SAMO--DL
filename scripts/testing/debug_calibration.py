@@ -37,7 +37,7 @@ def debug_calibration_issue():
                 checkpoint = torch.load(checkpoint_file, map_location="cpu", weights_only=False)
                 logger.info("✅ Checkpoint loaded successfully")
                 logger.info(
-                    f"Checkpoint keys: {list(checkpoint.keys()) if isinstance(checkpoint, dict) else 'Not a dict'}"
+                    "Checkpoint keys: {list(checkpoint.keys()) if isinstance(checkpoint, dict) else "Not a dict'}"
                 )
             except Exception as e:
                 logger.error(f"❌ Failed to load checkpoint: {e}")

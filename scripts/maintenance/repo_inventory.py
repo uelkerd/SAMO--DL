@@ -5,9 +5,9 @@
 - Scans for references to candidate paths
 - Configurable via configs/repo_inventory.json and CLI flags
 """
-import os
-import json
 import argparse
+import json
+import os
 import subprocess
 import time
 from functools import lru_cache

@@ -38,16 +38,16 @@
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
-from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+import logging
+import sys
+import time
+import numpy as np
+import torch
 from pathlib import Path
+from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 from torch import nn
 from transformers import AutoTokenizer
 from typing import Any
-import logging
-import numpy as np
-import sys
-import time
-import torch
 
 """SAMO Model Performance Optimization Script.
 

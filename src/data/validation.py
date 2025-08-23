@@ -1,8 +1,8 @@
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
-from typing import Dict, List, Optional, Union
 import logging
 import pandas as pd
+from typing import Dict, List, Optional, Union
 
 
 
@@ -173,7 +173,7 @@ class DataValidator:
             )
             return {
                 "is_valid": False,
-                "validated_df": df,
+                "validated_d": df,
                 "missing_values": {},
                 "data_types": {},
                 "text_quality": df,
@@ -197,7 +197,7 @@ class DataValidator:
 
         return {
             "is_valid": validation_passed,
-            "validated_df": df_with_quality,
+            "validated_d": df_with_quality,
             "missing_values": missing_stats,
             "data_types": type_check_results,
             "text_quality": df_with_quality,

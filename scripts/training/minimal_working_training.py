@@ -12,18 +12,18 @@
         # Create synthetic data
         # Setup optimizer
         # Training loop
-        from transformers import AutoModel, AutoTokenizer
-        import traceback
-    # Create random input data
-    # Setup device
-# Configure logging
-#!/usr/bin/env python3
-from torch import nn
 import logging
 import os
 import sys
-import torch
+        import traceback
 import traceback
+# Configure logging
+    # Create random input data
+    # Setup device
+#!/usr/bin/env python3
+import torch
+from torch import nn
+        from transformers import AutoModel, AutoTokenizer
 
 """
 Minimal Working Training Script

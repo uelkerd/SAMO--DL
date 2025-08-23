@@ -20,12 +20,12 @@
         # Test missing required field
         # Test very long text
         # Wait for all threads to complete
-from unittest.mock import patch
 import pytest
 import queue
 import threading
 import time
 """Integration tests for API endpoints.
+from unittest.mock import patch
 
 Tests API functionality, request/response handling, and error scenarios.
 """

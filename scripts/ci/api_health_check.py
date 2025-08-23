@@ -110,9 +110,9 @@ def main():
     total = len(tests)
 
     for _test_name, test_func in tests:
-        logger.info(f"\n{'='*50}")
+        logger.info("\n{"='*50}")
         logger.info(f"Running: {_test_name}")
-        logger.info(f"{'='*50}")
+        logger.info("{"='*50}")
 
         if test_func():
             passed += 1
@@ -120,9 +120,9 @@ def main():
         else:
             logger.error(f"❌ {_test_name}: FAILED")
 
-    logger.info(f"\n{'='*50}")
+    logger.info("\n{"='*50}")
     logger.info(f"API Health Check Results: {passed}/{total} tests passed")
-    logger.info(f"{'='*50}")
+    logger.info("{"='*50}")
 
     if passed < total:
         logger.error("💥 Some API health checks failed!")

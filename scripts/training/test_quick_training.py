@@ -14,14 +14,14 @@
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
-from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
-from pathlib import Path
 import logging
 import sys
 import time
 import torch
+from pathlib import Path
+from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
 
 """Quick Training Test Script for SAMO Emotion Detection.
 

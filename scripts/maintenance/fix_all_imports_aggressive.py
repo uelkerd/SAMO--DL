@@ -15,9 +15,9 @@
     # Only write if content changed
     # Split into lines
 #!/usr/bin/env python3
-from pathlib import Path
 import logging
 import re
+from pathlib import Path
 
 """
 Aggressive script to fix ALL missing imports across the codebase.

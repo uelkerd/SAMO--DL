@@ -138,7 +138,7 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
 def benchmark_pytorch_inference(model, input_ids, attention_mask, num_runs=50):
     """Benchmark PyTorch model inference time."""
     model.eval()
-    
+
     # Warm up
     with torch.no_grad():
         for _ in range(10):
@@ -160,7 +160,7 @@ def benchmark_onnx_inference(model_path, input_ids, attention_mask, token_type_i
 
     # Create ONNX session
     session = ort.InferenceSession(model_path)
-    
+
     # Prepare inputs
     input_feed = {
         "input_ids": input_ids.numpy(),

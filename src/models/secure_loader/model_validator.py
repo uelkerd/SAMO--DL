@@ -138,10 +138,10 @@ class ModelValidator:
 
             # Check for issues
             if validation_info['missing_keys']:
-                validation_info['issues'].append(f"Missing required keys: {validation_info['missing_keys']}")
+                validation_info['issues'].append("Missing required keys: {validation_info["missing_keys']}")
 
             if validation_info['invalid_values']:
-                validation_info['issues'].append(f"Invalid values: {validation_info['invalid_values']}")
+                validation_info['issues'].append("Invalid values: {validation_info["invalid_values']}")
 
             is_valid = len(validation_info['issues']) == 0
             return is_valid, validation_info

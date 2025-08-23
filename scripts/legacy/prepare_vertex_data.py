@@ -38,7 +38,7 @@ def prepare_vertex_data():
         with open(data_dir / "training_data.json", "w") as f:
             json.dump(sample_data, f, indent=2)
 
-        logger.info(f"✅ Training data saved to {data_dir / 'training_data.json'}")
+        logger.info("✅ Training data saved to {data_dir / "training_data.json'}")
         logger.info(f"✅ Created {len(sample_data)} training samples")
 
         # Create configuration file
@@ -53,7 +53,7 @@ def prepare_vertex_data():
         with open(data_dir / "config.json", "w") as f:
             json.dump(config, f, indent=2)
 
-        logger.info(f"✅ Configuration saved to {data_dir / 'config.json'}")
+        logger.info("✅ Configuration saved to {data_dir / "config.json'}")
         logger.info("✅ Vertex AI data preparation completed!")
 
     except Exception as e:

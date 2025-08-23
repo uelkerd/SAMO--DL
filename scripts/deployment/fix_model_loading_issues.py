@@ -140,7 +140,7 @@ def check_model_health(base_url):
         response = requests.get(f"{base_url}/health", timeout=10)
         if response.status_code == 200:
             data = response.json()
-            print(f"✅ Health: {data.get('status')}")
+            print("✅ Health: {data.get("status')}")
         else:
             print(f"❌ Health failed: {response.status_code}")
             return False
@@ -154,7 +154,7 @@ def check_model_health(base_url):
         response = requests.post(f"{base_url}/predict", json=payload, timeout=30)
         if response.status_code == 200:
             data = response.json()
-            print(f"✅ Prediction: {data.get('primary_emotion', {}).get('emotion')} (confidence: {data.get('primary_emotion', {}).get('confidence', 0):.3f})")
+            print("✅ Prediction: {data.get("primary_emotion', {}).get('emotion')} (confidence: {data.get('primary_emotion', {}).get('confidence', 0):.3f})")
             return True
         else:
             print(f"❌ Prediction failed: {response.status_code}")
@@ -302,4 +302,4 @@ def main():
     print("4. Monitor logs for any remaining issues")
 
 if __name__ == "__main__":
-    main() 
+    main()

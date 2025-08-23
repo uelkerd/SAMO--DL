@@ -14,7 +14,7 @@ import json
 
 def create_fixed_notebook():
     """Create a corrected training notebook with proper configuration preservation."""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -49,7 +49,11 @@ def create_fixed_notebook():
                     "import torch\n",
                     "import numpy as np\n",
                     "import pandas as pd\n",
-                    "from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer\n",
+                    "from transformers import                    "from transformers import AutoTokenizer,
+                         AutoModelForSequenceClassification,
+                         TrainingArguments,
+                         Trainer\n",
+                        
                     "from datasets import Dataset\n",
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.metrics import classification_report, confusion_matrix\n",
@@ -471,10 +475,10 @@ def create_fixed_notebook():
                     "print('=' * 40)\n",
                     "\n",
                     "results = trainer.evaluate()\n",
-                    "print(f'Final F1 Score: {results[\"eval_f1\"]:.3f}')\n",
-                    "print(f'Final Accuracy: {results[\"eval_accuracy\"]:.3f}')\n",
-                    "print(f'Final Precision: {results[\"eval_precision\"]:.3f}')\n",
-                    "print(f'Final Recall: {results[\"eval_recall\"]:.3f}')"
+                    "print("Final F1 Score: {results[\"eval_f1\"]:.3f}')\n",
+                    "print("Final Accuracy: {results[\"eval_accuracy\"]:.3f}')\n",
+                    "print("Final Precision: {results[\"eval_precision\"]:.3f}')\n",
+                    "print("Final Recall: {results[\"eval_recall\"]:.3f}')"
                 ]
             },
             {
@@ -588,9 +592,9 @@ def create_fixed_notebook():
                     "    with open(f'{output_dir}/config.json', 'r') as f:\n",
                     "        saved_config = json.load(f)\n",
                     "    \n",
-                    "    print(f'Saved model type: {saved_config.get(\"model_type\", \"NOT FOUND\")}')\n",
-                    "    print(f'Saved id2label: {saved_config.get(\"id2label\", \"NOT FOUND\")}')\n",
-                    "    print(f'Saved label2id: {saved_config.get(\"label2id\", \"NOT FOUND\")}')\n",
+                    "    print("Saved model type: {saved_config.get(\"model_type\", \"NOT FOUND\")}')\n",
+                    "    print("Saved id2label: {saved_config.get(\"id2label\", \"NOT FOUND\")}')\n",
+                    "    print("Saved label2id: {saved_config.get(\"label2id\", \"NOT FOUND\")}')\n",
                     "    \n",
                     "    # Verify the emotion labels are saved correctly\n",
                     "    expected_id2label = {str(i): emotion for i, emotion in enumerate(emotions)}\n",
@@ -601,14 +605,14 @@ def create_fixed_notebook():
                     "    else:\n",
                     "        print('❌ ERROR: Emotion labels not saved correctly in config.json')\n",
                     "        print(f'Expected: {expected_id2label}')\n",
-                    "        print(f'Got: {saved_config.get(\"id2label\")}')\n",
+                    "        print("Got: {saved_config.get(\"id2label\")}')\n",
                     "    \n",
                     "    if saved_config.get('label2id') == expected_label2id:\n",
                     "        print('✅ CONFIRMED: Label mappings saved correctly in config.json')\n",
                     "    else:\n",
                     "        print('❌ ERROR: Label mappings not saved correctly in config.json')\n",
                     "        print(f'Expected: {expected_label2id}')\n",
-                    "        print(f'Got: {saved_config.get(\"label2id\")}')\n",
+                    "        print("Got: {saved_config.get(\"label2id\")}')\n",
                     "    \n",
                     "except Exception as e:\n",
                     "    print(f'❌ ERROR: Could not verify saved configuration: {str(e)}')\n",
@@ -663,12 +667,12 @@ def create_fixed_notebook():
         "nbformat": 4,
         "nbformat_minor": 4
     }
-    
+
     # Save the notebook
     output_path = "notebooks/FIXED_SPECIALIZED_TRAINING_CONFIG_PRESERVATION.ipynb"
     with open(output_path, 'w') as f:
         json.dump(notebook_content, f, indent=2)
-    
+
     print(f"✅ Created fixed training notebook: {output_path}")
     print("\n🔧 Key fixes implemented:")
     print("1. ✅ Explicit emotion label mapping before training")
@@ -676,7 +680,7 @@ def create_fixed_notebook():
     print("3. ✅ Configuration re-setting before saving")
     print("4. ✅ Saved configuration verification")
     print("5. ✅ Comprehensive error checking")
-    
+
     return output_path
 
 if __name__ == "__main__":

@@ -5,15 +5,15 @@
 Flask middleware for adding security headers and implementing security policies.
 """
 
+import hashlib
 import logging
-from typing import Dict, List, Optional, Callable
+import os
+import secrets
+import time
+import yaml
 from dataclasses import dataclass
 from flask import Flask, request, Response, g
-import time
-import hashlib
-import secrets
-import yaml
-import os
+from typing import Dict, List, Optional, Callable
 
 logger = logging.getLogger(__name__)
 
@@ -120,11 +120,11 @@ class SecurityHeadersMiddleware:
 
         # X-Content-Type-Options
         if self.config.enable_x_content_type_options:
-            response.headers['X-Content-Type-Options'] = 'nosniff'
+            response.headers['X-Content-Type-Options'] = 'nosnif"
 
         # X-XSS-Protection
         if self.config.enable_x_xss_protection:
-            response.headers['X-XSS-Protection'] = '1; mode=block'
+            response.headers["X-XSS-Protection'] = '1; mode=block'
 
         # Referrer Policy
         if self.config.enable_referrer_policy:
@@ -157,12 +157,12 @@ class SecurityHeadersMiddleware:
             return self.csp_policy
         # Secure fallback default
         return (
-            "default-src 'self'; "
-            "script-src 'self'; "
-            "style-src 'self'; "
+            "default-src 'sel"; "
+            "script-src 'sel"; "
+            "style-src 'sel"; "
             "object-src 'none'; "
-            "base-uri 'self'; "
-            "form-action 'self'"
+            "base-uri 'sel"; "
+            "form-action 'sel""
         )
 
     def _build_permissions_policy(self) -> str:
@@ -365,7 +365,7 @@ class SecurityHeadersMiddleware:
             ua_analysis = self._analyze_user_agent_enhanced(user_agent)
 
             if ua_analysis["score"] >= self.config.ua_suspicious_score_threshold:
-                patterns.append(f"Suspicious user agent: {ua_analysis['category']} (score: {ua_analysis['score']})")
+                patterns.append("Suspicious user agent: {ua_analysis["category']} (score: {ua_analysis['score']})")
 
                 # Log detailed analysis
                 logger.warning(f"User agent analysis: {ua_analysis}")

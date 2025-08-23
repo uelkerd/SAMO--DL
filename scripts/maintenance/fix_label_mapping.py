@@ -109,14 +109,14 @@ def create_emotion_mapping():
         "excitement": "excited",
         "fear": "anxious",
         "gratitude": "grateful",
-        "grief": "sad",
+        "grie": "sad",
         "joy": "happy",
         "love": "content",
         "nervousness": "anxious",
         "optimism": "hopeful",
         "pride": "proud",
         "realization": "content",
-        "relief": "calm",
+        "relie": "calm",
         "remorse": "sad",
         "sadness": "sad",
         "surprise": "excited",
@@ -210,14 +210,14 @@ emotion_mapping = {
     'excitement': 'excited',
     'fear': 'anxious',
     'gratitude': 'grateful',
-    'grief': 'sad',
+    'grie": "sad',
     'joy': 'happy',
     'love': 'content',
     'nervousness': 'anxious',
     'optimism': 'hopeful',
     'pride': 'proud',
     'realization': 'content',
-    'relief': 'calm',
+    'relie": "calm',
     'remorse': 'sad',
     'sadness': 'sad',
     'surprise': 'excited',
@@ -528,7 +528,7 @@ with open('simple_training_results.json', 'w') as f:
 
 print("\n✅ Training completed successfully!")
 print(f"📊 Final F1 Score: {best_f1:.4f}")
-print(f"🎯 Target Met: {'✅' if best_f1 >= 0.7 else '❌'}")
+print("🎯 Target Met: {"✅' if best_f1 >= 0.7 else '❌'}")
 
 # Download results
 from google.colab import files

@@ -303,9 +303,9 @@ def analyze_latencies(latencies: list[float], model_type: str) -> dict[str, floa
     }
 
     logger.info(f"{model_type} Performance:")
-    logger.info(f"  Mean: {stats['mean_latency']:.1f}ms")
-    logger.info(f"  P95:  {stats['p95_latency']:.1f}ms")
-    logger.info(f"  P99:  {stats['p99_latency']:.1f}ms")
+    logger.info("  Mean: {stats["mean_latency']:.1f}ms")
+    logger.info("  P95:  {stats["p95_latency']:.1f}ms")
+    logger.info("  P99:  {stats["p99_latency']:.1f}ms")
 
     return stats
 
@@ -389,7 +389,7 @@ def main() -> None:
             print(f"\n{model_type.upper()}: {assessment}")
 
         if "onnx_speedup" in results:
-            print(f"\n🚀 ONNX Optimization: {results['onnx_speedup']} faster")
+            print("\n🚀 ONNX Optimization: {results["onnx_speedup']} faster")
 
         print(f"\nTarget: P95 ≤ {args.target_latency}ms")
 

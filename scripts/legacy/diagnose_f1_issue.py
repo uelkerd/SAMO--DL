@@ -9,13 +9,13 @@ Usage:
 """
 
 import logging
+import sys
 import numpy as np
 import torch
 from pathlib import Path
 from sklearn.metrics import f1_score, precision_score, recall_score
 from torch import nn
 from transformers import AutoModel, AutoTokenizer
-import sys
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")

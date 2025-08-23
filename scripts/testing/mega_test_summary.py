@@ -8,23 +8,23 @@ This script displays the results from the mega comprehensive testing that was co
 
 def display_mega_test_results():
     """Display the mega comprehensive test results."""
-    
+
     print("🎉 MEGA COMPREHENSIVE TEST RESULTS SUMMARY")
     print("=" * 80)
     print("📁 Model Tested: deployment/models/default")
     print("🎯 Emotions: anxious, calm, content, excited, frustrated, grateful, happy, hopeful, overwhelmed, proud, sad, tired")
     print()
-    
+
     print("📊 TEST SUITE RESULTS")
     print("=" * 50)
-    
+
     # Basic Functionality Tests
     print("🧪 BASIC FUNCTIONALITY TESTS")
     print("   ✅ Accuracy: 100.00% (24/24)")
     print("   ✅ Average Confidence: 0.965 (96.5%)")
     print("   ✅ All basic emotion expressions correctly identified")
     print()
-    
+
     # Edge Cases Tests
     print("🔍 EDGE CASES AND UNUSUAL INPUTS")
     print("   ✅ Accuracy: 81.58% (31/38)")
@@ -32,7 +32,7 @@ def display_mega_test_results():
     print("   ✅ Handles short inputs, long inputs, mixed emotions, negations, questions")
     print("   ✅ Handles emojis, symbols, capitalization variations, special characters")
     print()
-    
+
     # Stress Tests
     print("💪 STRESS TESTS")
     print("   ✅ Success Rate: 100.00% (38/38)")
@@ -40,7 +40,7 @@ def display_mega_test_results():
     print("   ✅ Handles random noise text, very long texts, special characters")
     print("   ✅ No crashes or errors under stress conditions")
     print()
-    
+
     # Bias Analysis
     print("⚖️ BIAS ANALYSIS")
     print("   ✅ Overall Accuracy: 100.00%")
@@ -50,7 +50,7 @@ def display_mega_test_results():
     print("   ✅ Least Confident: content (0.951)")
     print("   ✅ No significant bias detected")
     print()
-    
+
     # Robustness Tests
     print("🛡️ ROBUSTNESS TESTS")
     print("   ✅ Success Rate: 100.00% (60/60)")
@@ -58,7 +58,7 @@ def display_mega_test_results():
     print("   ✅ Handles different tokenization lengths (10-200 tokens)")
     print("   ✅ Consistent performance across input variations")
     print()
-    
+
     # Real-World Scenarios
     print("🌍 REAL-WORLD SCENARIOS")
     print("   ✅ Accuracy: 93.75% (45/48)")
@@ -66,7 +66,7 @@ def display_mega_test_results():
     print("   ✅ Tested: Social media posts, journal entries, customer service, work scenarios")
     print("   ⚠️  Minor issues with: excited, grateful, hopeful (75% accuracy each)")
     print()
-    
+
     # Confidence Analysis
     print("📊 CONFIDENCE ANALYSIS")
     print("   ✅ Mean Confidence: 0.839 (83.9%)")
@@ -76,10 +76,10 @@ def display_mega_test_results():
     print("   ✅ Low Confidence (<0.5): 11.4% of predictions")
     print("   ✅ Confidence Range: 0.134 - 0.971")
     print()
-    
+
     print("🎯 OVERALL PERFORMANCE ASSESSMENT")
     print("=" * 50)
-    
+
     print("🏆 EXCELLENT PERFORMANCE ACROSS ALL METRICS:")
     print()
     print("✅ BASIC FUNCTIONALITY: PERFECT (100% accuracy)")
@@ -111,10 +111,10 @@ def display_mega_test_results():
     print("   - Handles social media, journal entries, work scenarios")
     print("   - Minor issues with 3 emotions (excited, grateful, hopeful)")
     print()
-    
+
     print("🚀 DEPLOYMENT READINESS ASSESSMENT")
     print("=" * 50)
-    
+
     print("✅ DEPLOYMENT STATUS: FULLY READY")
     print()
     print("🎯 STRENGTHS:")

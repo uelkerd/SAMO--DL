@@ -11,28 +11,28 @@ import json
 
 def summarize_comprehensive_notebook():
     """Summarize the comprehensive notebook."""
-    
+
     # Read the notebook
     with open('notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb', 'r') as f:
         notebook = json.load(f)
-    
+
     print("🚀 COMPREHENSIVE ULTIMATE TRAINING NOTEBOOK SUMMARY")
     print("=" * 60)
     print()
-    
+
     # Count cells by type
     markdown_cells = [cell for cell in notebook['cells'] if cell['cell_type'] == 'markdown']
     code_cells = [cell for cell in notebook['cells'] if cell['cell_type'] == 'code']
-    
-    print(f"📊 NOTEBOOK STATISTICS:")
-    print(f"   Total cells: {len(notebook['cells'])}")
+
+    print("📊 NOTEBOOK STATISTICS:")
+    print("   Total cells: {len(notebook["cells'])}")
     print(f"   Markdown cells: {len(markdown_cells)}")
     print(f"   Code cells: {len(code_cells)}")
     print()
-    
+
     print("🎯 ALL FEATURES INCLUDED:")
     print("=" * 40)
-    
+
     features = [
         "✅ Configuration preservation (prevents 8.3% vs 75% discrepancy)",
         "✅ Focal loss (handles class imbalance)",
@@ -50,14 +50,14 @@ def summarize_comprehensive_notebook():
         "✅ Evaluation and metrics",
         "✅ Unseen data testing"
     ]
-    
+
     for feature in features:
         print(f"   {feature}")
-    
+
     print()
     print("📋 CELL BREAKDOWN:")
     print("=" * 30)
-    
+
     cell_titles = [
         "Title and Overview",
         "Package Installation",
@@ -78,10 +78,10 @@ def summarize_comprehensive_notebook():
         "Advanced Validation and Bias Analysis",
         "Model Saving with Verification"
     ]
-    
+
     for i, title in enumerate(cell_titles, 1):
         print(f"   {i:2d}. {title}")
-    
+
     print()
     print("🎯 KEY ADVANTAGES:")
     print("=" * 30)
@@ -95,13 +95,13 @@ def summarize_comprehensive_notebook():
         "🚀 Ready for production deployment",
         "📋 Complete training pipeline from start to finish"
     ]
-    
+
     for advantage in advantages:
         print(f"   {advantage}")
-    
+
     print()
     print("📁 FILE LOCATION:")
-    print(f"   notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb")
+    print("   notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb")
     print()
     print("🚀 READY TO USE!")
     print("   Download, upload to Colab, set GPU runtime, and run!")

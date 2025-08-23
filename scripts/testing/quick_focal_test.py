@@ -6,17 +6,17 @@
         # Load dataset
         # Test focal loss
         # Test with dummy data
+import logging
+import sys
+# Configure logging
+    # Summary
+#!/usr/bin/env python3
+        import torch
+        import torch.nn.functional as F
+from pathlib import Path
         from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
         from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
         from torch import nn
-        import torch
-        import torch.nn.functional as F
-    # Summary
-# Configure logging
-#!/usr/bin/env python3
-from pathlib import Path
-import logging
-import sys
 
 """
 Quick Focal Loss Test

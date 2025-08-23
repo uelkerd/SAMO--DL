@@ -28,18 +28,18 @@
     # Load dataset
     # Set positive labels to 1
     # Use different learning rates for different layers
-    from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-    from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-    from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+import logging
+import sys
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
-from typing import Dict, Any, Tuple
-import logging
-import sys
 import torch
 import torch.nn as nn
+from pathlib import Path
+    from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+    from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+    from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+from typing import Dict, Any, Tuple
 
 """
 Fixed Training Script with Optimized Configuration for SAMO Deep Learning.

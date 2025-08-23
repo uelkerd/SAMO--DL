@@ -16,12 +16,12 @@
         # Simple check - can be improved
     # Directories to process
 #!/usr/bin/env python3
-from pathlib import Path
 import ast
 import logging
 import re
 import shutil
 """Comprehensive Linting Fix Script for SAMO Deep Learning.
+from pathlib import Path
 
 This script fixes linting issues across the entire codebase systematically.
 It processes all Python files in specified directories and applies safe fixes.

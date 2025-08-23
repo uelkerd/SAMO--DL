@@ -259,7 +259,7 @@ class SecureModelLoader:
 
             if not integrity_valid:
                 loading_info['issues'].extend(integrity_info['findings'])
-                raise ValueError(f"Integrity check failed: {integrity_info['findings']}")
+                raise ValueError("Integrity check failed: {integrity_info["findings']}")
 
             # 2. Model validation
             logger.info(f"Validating model {model_path}")
@@ -272,7 +272,7 @@ class SecureModelLoader:
 
             if not validation_valid:
                 loading_info['issues'].extend(validation_info['issues'])
-                raise ValueError(f"Model validation failed: {validation_info['issues']}")
+                raise ValueError("Model validation failed: {validation_info["issues']}")
 
             # 3. Load model (with or without sandbox)
             logger.info(f"Loading model {model_path}")
@@ -310,7 +310,7 @@ class SecureModelLoader:
                 'model_type': type(model).__name__
             })
 
-            logger.info(f"Model loaded successfully in {loading_info['loading_time']:.2f}s")
+            logger.info("Model loaded successfully in {loading_info["loading_time']:.2f}s")
             return model, loading_info
 
         except Exception as e:

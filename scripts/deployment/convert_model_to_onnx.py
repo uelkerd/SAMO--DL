@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Convert PyTorch Model to ONNX for Deployment Quick conversion script to eliminate
 PyTorch dependencies."""
+import argparse
+import logging
 import sys
 import torch
-import logging
-import argparse
 from pathlib import Path
 
 # Add src to path
@@ -168,4 +168,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

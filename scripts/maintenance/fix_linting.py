@@ -25,8 +25,8 @@ def fix_file(file_path: str) -> None:
         content += '\n'
 
     # Fix f-strings without placeholders (convert to regular strings)
-    content = re.sub(r'f"([^"]*)"', r'"\1"', content)
-    content = re.sub(r"f'([^']*)'", r"'\1'", content)
+    content = re.sub(r'"([^"]*)"', r'"\1"', content)
+    content = re.sub(r""([^"]*)'", r"'\1'", content)
 
     # Fix unused imports (basic removal)
     lines = content.split('\n')

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Simple ONNX Conversion for Current Model Handles the actual model architecture we
 have."""
+import argparse
+import logging
 import sys
 import torch
-import logging
-import argparse
 from pathlib import Path
 
 # Add src to path
@@ -159,4 +159,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

@@ -45,10 +45,10 @@ if __name__ == '__main__':
     print("=== Flask App Routes ===")
     for rule in app.url_map.iter_rules():
         print(f"App: {rule.rule} -> {rule.endpoint}")
-    
+
     print("\n=== Flask-RESTX API Routes ===")
     for rule in api.url_map.iter_rules():
         print(f"API: {rule.rule} -> {rule.endpoint}")
-    
+
     print("\n=== Starting test server ===")
     app.run(host='0.0.0.0', port=5000, debug=True)

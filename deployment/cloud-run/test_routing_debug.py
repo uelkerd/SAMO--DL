@@ -63,7 +63,7 @@ print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
 endpoints = {}
 for rule in app.url_map.iter_rules():
     if rule.endpoint in endpoints:
-        print(f"⚠️  CONFLICT: Endpoint '{rule.endpoint}' appears multiple times:")
+        print("⚠️  CONFLICT: Endpoint "{rule.endpoint}' appears multiple times:")
         print(f"   - {endpoints[rule.endpoint]} -> {rule.rule}")
         print(f"   - {rule.endpoint} -> {rule.rule}")
     else:

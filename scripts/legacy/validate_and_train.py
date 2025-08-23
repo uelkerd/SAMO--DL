@@ -1,21 +1,21 @@
         # Import the validation module
         # Start training
         # Training configuration optimized for debugging
-        from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
-        from pre_training_validation import PreTrainingValidator
-        import traceback
-    # Ask for user confirmation
-    # Step 1: Pre-training validation
-    # Step 2: User confirmation
-    # Step 3: Start training
-# Add src to path
-# Configure logging
-#!/usr/bin/env python3
-from pathlib import Path
 import logging
 import sys
 import time
+        import traceback
 import traceback
+# Add src to path
+    # Ask for user confirmation
+# Configure logging
+    # Step 1: Pre-training validation
+    # Step 2: User confirmation
+    # Step 3: Start training
+#!/usr/bin/env python3
+from pathlib import Path
+        from pre_training_validation import PreTrainingValidator
+        from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
 
 """
 Validate and Train Script for SAMO Deep Learning.

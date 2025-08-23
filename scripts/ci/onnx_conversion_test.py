@@ -6,10 +6,10 @@ without complex imports.
 """
 
 import logging
-import numpy as np
 import os
 import sys
 import tempfile
+import numpy as np
 
 # Test imports
 try:
@@ -119,9 +119,9 @@ def main():
     total = len(tests)
 
     for test_name, test_func in tests:
-        logger.info(f"\n{'='*40}")
+        logger.info("\n{"='*40}")
         logger.info(f"Running: {test_name}")
-        logger.info(f"{'='*40}")
+        logger.info("{"='*40}")
 
         if test_func():
             passed += 1
@@ -129,9 +129,9 @@ def main():
         else:
             logger.error(f"❌ {test_name}: FAILED")
 
-    logger.info(f"\n{'='*40}")
+    logger.info("\n{"='*40}")
     logger.info(f"ONNX Conversion Tests Results: {passed}/{total} tests passed")
-    logger.info(f"{'='*40}")
+    logger.info("{"='*40}")
 
     if passed == total:
         logger.info("🎉 All ONNX conversion tests passed!")

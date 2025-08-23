@@ -15,11 +15,11 @@
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from pathlib import Path
 import logging
 import sys
 import torch
+from pathlib import Path
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 """Diagnose Model Issue - Why is the model predicting all emotions?
 

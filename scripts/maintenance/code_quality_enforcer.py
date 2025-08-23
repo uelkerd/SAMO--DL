@@ -18,12 +18,12 @@ Prevents:
 - PY-D0003: Missing docstrings
 - PY-R1000: High cyclomatic complexity
 """
-import sys
 import ast
-import re
-from pathlib import Path
-from typing import Dict, List, Set, Tuple, Any, Optional
 import logging
+import re
+import sys
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -196,7 +196,7 @@ class CodeQualityEnforcer:
 
         # Check for f-strings without expressions
         if (
-            (line.strip().startswith('f"') or line.strip().startswith("f'"))
+            (line.strip().startswith('f"') or line.strip().startswith('f\''))
             and not re.search(r'\{[^}]*\}', line)
         ):
             issues.append({
@@ -271,7 +271,7 @@ class CodeQualityEnforcer:
                             'rule': 'PY-R1000',
                             'line': getattr(node, 'lineno', 0),
                             'message': (
-                                f'Function/class has high cyclomatic complexity '
+                                "Function/class has high cyclomatic complexity "
                                 f'({complexity})'
                             ),
                             'severity': 'warning'
@@ -435,7 +435,7 @@ class CodeQualityEnforcer:
             issues_by_rule[rule].append(issue)
 
         # Generate report
-        report = f"""
+        report = """
 🔍 CODE QUALITY REPORT
 {'='*50}
 
