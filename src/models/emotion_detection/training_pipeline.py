@@ -31,6 +31,7 @@ from .dataset_loader import (
     create_goemotions_loader,
     GoEmotionsDataset,
 )
+from src.utils import count_model_params
 
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
@@ -98,7 +99,7 @@ class EmotionDetectionTrainer:
         else:
             self.device = torch.device(device)
 
-        logger.info("Using device: {self.device}")
+        logger.info(f"Using device: {self.device}")
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -159,7 +160,7 @@ class EmotionDetectionTrainer:
             original_batch_size = self.batch_size
             self.batch_size = min(128, self.batch_size * 8)  # Much larger batch size
             logger.info(
-                "🔧 DEVELOPMENT MODE: Using {len(train_texts)} training examples, batch_size={self.batch_size} (was {original_batch_size})"
+                f"🔧 DEVELOPMENT MODE: Using {len(train_texts)} training examples, batch_size={self.batch_size} (was {original_batch_size})"
             )
 
         self.train_dataset = GoEmotionsDataset(
@@ -188,8 +189,7 @@ class EmotionDetectionTrainer:
         )
 
         logger.info(
-            "Prepared datasets - Train: {len(self.train_dataset)}, "
-            "Val: {len(self.val_dataset)}, Test: {len(self.test_dataset)}"
+            f"Prepared datasets - Train: {len(self.train_dataset)}, Val: {len(self.val_dataset)}, Test: {len(self.test_dataset)}"
         )
 
         return datasets
@@ -209,14 +209,14 @@ class EmotionDetectionTrainer:
         )
 
         logger.info("🔍 DEBUG: Loss Function Analysis")
-        logger.info("   Loss function type: {type(self.loss_fn).__name__}")
+        logger.info(f"   Loss function type: {type(self.loss_fn).__name__}")
 
         if hasattr(self.loss_fn, "class_weights") and self.loss_fn.class_weights is not None:
             weights = self.loss_fn.class_weights
-            logger.info("   Class weights shape: {weights.shape}")
-            logger.info("   Class weights min: {weights.min().item():.6f}")
-            logger.info("   Class weights max: {weights.max().item():.6f}")
-            logger.info("   Class weights mean: {weights.mean().item():.6f}")
+            logger.info(f"   Class weights shape: {weights.shape}")
+            logger.info(f"   Class weights min: {weights.min().item():.6f}")
+            logger.info(f"   Class weights max: {weights.max().item():.6f}")
+            logger.info(f"   Class weights mean: {weights.mean().item():.6f}")
 
             if weights.min() <= 0:
                 logger.error("❌ CRITICAL: Class weights contain zero or negative values!")
@@ -242,9 +242,9 @@ class EmotionDetectionTrainer:
         )
 
         logger.info(
-            "Model initialized with {self.model.count_parameters():,} trainable parameters"
+            f"Model initialized with {count_model_params(self.model, only_trainable=True):,} trainable parameters"
         )
-        logger.info("Total training steps: {total_steps}")
+        logger.info(f"Total training steps: {total_steps}")
 
     def load_model(self, checkpoint_path: str) -> None:
         """Load a trained model from checkpoint.
@@ -252,7 +252,7 @@ class EmotionDetectionTrainer:
         Args:
             checkpoint_path: Path to the model checkpoint file
         """
-        logger.info("Loading model from checkpoint: {checkpoint_path}")
+        logger.info(f"Loading model from checkpoint: {checkpoint_path}")
 
         checkpoint = torch.load(checkpoint_path, map_location=self.device)
 
@@ -285,11 +285,11 @@ class EmotionDetectionTrainer:
             layers_to_unfreeze = 2  # Unfreeze 2 layers at a time
             self.model.unfreeze_bert_layers(layers_to_unfreeze)
             logger.info(
-                "Epoch {epoch}: Applied progressive unfreezing", extra={"format_args": True}
+                f"Epoch {epoch}: Applied progressive unfreezing"
             )
 
         val_frequency = max(500, num_batches // 5)
-        logger.info("🔧 Validation frequency: every {val_frequency} batches")
+        logger.info(f"🔧 Validation frequency: every {val_frequency} batches")
 
         for batch_idx, batch in enumerate(self.train_dataloader):
             input_ids = batch["input_ids"].to(self.device)
@@ -298,14 +298,14 @@ class EmotionDetectionTrainer:
 
             if batch_idx == 0:
                 logger.info("🔍 DEBUG: Data Distribution Analysis")
-                logger.info("   Labels shape: {labels.shape}")
-                logger.info("   Labels dtype: {labels.dtype}")
-                logger.info("   Labels min: {labels.min().item()}")
-                logger.info("   Labels max: {labels.max().item()}")
-                logger.info("   Labels mean: {labels.float().mean().item():.6f}")
-                logger.info("   Labels sum: {labels.sum().item()}")
-                logger.info("   Non-zero labels: {(labels > 0).sum().item()}")
-                logger.info("   Total labels: {labels.numel()}")
+                logger.info(f"   Labels shape: {labels.shape}")
+                logger.info(f"   Labels dtype: {labels.dtype}")
+                logger.info(f"   Labels min: {labels.min().item()}")
+                logger.info(f"   Labels max: {labels.max().item()}")
+                logger.info(f"   Labels mean: {labels.float().mean().item():.6f}")
+                logger.info(f"   Labels sum: {labels.sum().item()}")
+                logger.info(f"   Non-zero labels: {(labels > 0).sum().item()}")
+                logger.info(f"   Total labels: {labels.numel()}")
 
                 if labels.sum() == 0:
                     logger.error("❌ CRITICAL: All labels are zero!")
@@ -315,7 +315,7 @@ class EmotionDetectionTrainer:
                 for i in range(min(10, labels.shape[1])):  # First 10 classes
                     class_count = labels[:, i].sum().item()
                     if class_count > 0:
-                        logger.info("   Class {i}: {class_count} positive samples")
+                        logger.info(f"   Class {i}: {class_count} positive samples")
 
             self.optimizer.zero_grad()
 
@@ -323,11 +323,11 @@ class EmotionDetectionTrainer:
 
             if batch_idx == 0:
                 logger.info("🔍 DEBUG: Model Output Analysis")
-                logger.info("   Logits shape: {logits.shape}")
-                logger.info("   Logits min: {logits.min().item():.6f}")
-                logger.info("   Logits max: {logits.max().item():.6f}")
-                logger.info("   Logits mean: {logits.mean().item():.6f}")
-                logger.info("   Logits std: {logits.std().item():.6f}")
+                logger.info(f"   Logits shape: {logits.shape}")
+                logger.info(f"   Logits min: {logits.min().item():.6f}")
+                logger.info(f"   Logits max: {logits.max().item():.6f}")
+                logger.info(f"   Logits mean: {logits.mean().item():.6f}")
+                logger.info(f"   Logits std: {logits.std().item():.6f}")
 
                 if torch.isnan(logits).any():
                     logger.error("❌ CRITICAL: NaN values in logits!")
@@ -335,20 +335,20 @@ class EmotionDetectionTrainer:
                     logger.error("❌ CRITICAL: Inf values in logits!")
 
                 predictions = torch.sigmoid(logits)
-                logger.info("   Predictions min: {predictions.min().item():.6f}")
-                logger.info("   Predictions max: {predictions.max().item():.6f}")
-                logger.info("   Predictions mean: {predictions.mean().item():.6f}")
+                logger.info(f"   Predictions min: {predictions.min().item():.6f}")
+                logger.info(f"   Predictions max: {predictions.max().item():.6f}")
+                logger.info(f"   Predictions mean: {predictions.mean().item():.6f}")
 
             loss = self.loss_fn(logits, labels)
 
             if batch_idx == 0:
                 logger.info("🔍 DEBUG: Loss Analysis")
-                logger.info("   Raw loss: {loss.item():.8f}")
+                logger.info(f"   Raw loss: {loss.item():.8f}")
 
                 bce_manual = F.binary_cross_entropy_with_logits(
                     logits, labels.float(), reduction="mean"
                 )
-                logger.info("   Manual BCE loss: {bce_manual.item():.8f}")
+                logger.info(f"   Manual BCE loss: {bce_manual.item():.8f}")
 
                 if abs(loss.item()) < 1e-10:
                     logger.error("❌ CRITICAL: Loss is effectively zero!")
@@ -360,7 +360,7 @@ class EmotionDetectionTrainer:
                     class_loss = F.binary_cross_entropy_with_logits(
                         class_logits, class_labels, reduction="mean"
                     )
-                    logger.info("   Class {i} loss: {class_loss.item():.8f}")
+                    logger.info(f"   Class {i} loss: {class_loss.item():.8f}")
 
             loss.backward()
 
@@ -376,7 +376,7 @@ class EmotionDetectionTrainer:
 
                 if param_count > 0:
                     total_norm = total_norm ** (1.0 / 2)
-                    logger.info("   Gradient norm before clipping: {total_norm:.6f}")
+                    logger.info(f"   Gradient norm before clipping: {total_norm:.6f}")
 
                     if total_norm > 10:
                         logger.warning("⚠️  WARNING: Large gradient norm detected!")
@@ -386,7 +386,7 @@ class EmotionDetectionTrainer:
             clip_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
 
             if batch_idx == 0:
-                logger.info("   Gradient norm after clipping: {clip_norm:.6f}")
+                logger.info(f"   Gradient norm after clipping: {clip_norm:.6f}")
 
             self.optimizer.step()
             self.scheduler.step()
