@@ -8,13 +8,14 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install system dependencies with version pinning for security
-# Pin versions to avoid DOK-DL3008 and ensure reproducible builds
+# Install system dependencies (Ubuntu-based image)
+# Use --no-install-recommends and clean apt lists for smaller image
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git=1:2.39.2-1.1 \
-    curl=7.88.1-10+deb12u12 \
-    wget=1.21.3-1+b2 \
-    build-essential=12.9 \
+    ca-certificates \
+    git \
+    curl \
+    wget \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
