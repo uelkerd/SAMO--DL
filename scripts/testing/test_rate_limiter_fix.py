@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-from pathlib import Path
 from unittest.mock import MagicMock
 import asyncio
-import logging
 import sys
 import time
 """Test script to verify rate limiter fix."""
