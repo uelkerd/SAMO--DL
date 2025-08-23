@@ -106,6 +106,24 @@ def create_emotion_mapping():
     }
     
     print(f"Created mapping with {len(go_emotions_mapping)} emotions")
+
+    # Export mapping for re-use by other scripts
+    try:
+        import os
+        from pathlib import Path
+        import json
+
+        project_root = Path(__file__).resolve().parents[2]
+        configs_dir = project_root / "configs"
+        configs_dir.mkdir(parents=True, exist_ok=True)
+        mapping_path = configs_dir / "emotion_mapping.json"
+        with open(mapping_path, "w", encoding="utf-8") as f:
+            json.dump(go_emotions_mapping, f, ensure_ascii=False, indent=2)
+        print(f"💾 Exported emotion mapping to {mapping_path}")
+    except Exception as export_err:
+        print(f"⚠️ Failed to export emotion mapping: {export_err}")
+
+    # TODO[NEXT]: centralize emotion_mapping to config export near this block
     return go_emotions_mapping
 
 def create_fixed_bulletproof_cell():

@@ -9,7 +9,7 @@ Includes security features.
 import time
 import threading
 from collections import defaultdict, deque
-from typing import Dict, Deque, Optional, Tuple, Set
+from typing import Dict, Deque, Optional, Tuple, Set, Any
 import logging
 import hashlib
 import ipaddress
@@ -453,6 +453,30 @@ class TokenBucketRateLimiter:
                     "max_concurrent_requests": self.config.max_concurrent_requests,
                     "block_duration_seconds": self.config.block_duration_seconds,
                 },
+            }
+
+    def get_client_state(self, client_key: str) -> Dict:
+        """Return current state for a given client key without using private access.
+
+        The returned dict contains tokens, last_refill, concurrent requests,
+        blocked_until (if any), and recent history length along with config hints.
+        """
+        with self.lock:
+            tokens = self.buckets.get(client_key, 0.0)
+            last_refill = self.last_refill.get(client_key, 0.0)
+            concurrent = self.concurrent_requests.get(client_key, 0)
+            blocked_until = self.blocked_clients.get(client_key)
+            history = list(self.request_history.get(client_key, deque()))
+            return {
+                "client_key": client_key,
+                "tokens": tokens,
+                "tokens_remaining": max(0.0, min(self.config.burst_size, tokens)),
+                "last_refill": last_refill,
+                "concurrent": concurrent,
+                "blocked_until": blocked_until,
+                "history_len": len(history),
+                "rate_limit": self.config.requests_per_minute,
+                "burst_size": self.config.burst_size,
             }
 
 

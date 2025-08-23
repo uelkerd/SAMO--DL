@@ -1,0 +1,1 @@
+from .model_utils import count_model_params  # noqa: F401
