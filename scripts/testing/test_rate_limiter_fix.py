@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-from fastapi import Response
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import MagicMock
 import asyncio
 import logging
 import sys
@@ -19,9 +18,7 @@ async def test_token_refill_logic():
     """Test the token refill logic manually."""
     logging.info("🧪 Testing token refill logic...")
 
-    mock_app = MagicMock()
-
-    rate_limiter = TokenBucketRateLimiter(RateLimitConfig())
+    rate_limiter = TokenBucketRateLimiter(RateLimitConfig(burst_size=5, requests_per_minute=10))
 
     request = MagicMock()
     request.url.path = "/api/test"
@@ -30,23 +27,23 @@ async def test_token_refill_logic():
     request.client = MagicMock()
     request.client.host = "192.168.1.1"
 
-    call_next = AsyncMock()
-    call_next.return_value = Response(status_code=200)
-
-    allowed, _, meta = rate_limiter.allow_request(request.client.host, "")
-    client_key = meta.get("client_key")
-
+    allowed, reason, meta = rate_limiter.allow_request(request.client.host, "")
     logging.info("✅ First allow_request returned: %s", allowed)
+    if not allowed:
+        logging.warning("First request denied: %s", reason)
+        return False
+    client_key = meta["client_key"]
 
-    for i in range(100):
+    for i in range(20):
         rate_limiter.release_request(request.client.host, "")
         allowed, _, _ = rate_limiter.allow_request(request.client.host, "")
         if i % 20 == 0:
             logging.info("   Request %d: allowed=%s", i + 1, allowed)
 
     old_time = time.time() - rate_limiter.config.window_size_seconds - 1
-    rate_limiter.last_refill[client_key] = old_time
-    rate_limiter.buckets[client_key] = 0.0
+    with rate_limiter.lock:
+        rate_limiter.last_refill[client_key] = old_time
+        rate_limiter.buckets[client_key] = 0.0
 
     rate_limiter._refill_bucket(client_key)
     logging.info("✅ After simulating time passing: tokens=%s", rate_limiter.buckets[client_key])
