@@ -1,15 +1,6 @@
-    # Consume all tokens
-    # Create a mock app
-    # Create mock call_next
-    # Create mock request
-    # Create rate limiter
-    # Get client entry
-    # Make another request
-    # Simulate time passing
 #!/usr/bin/env python3
 from fastapi import Response
 from pathlib import Path
-from src.api_rate_limiter import RateLimiter
 from unittest.mock import AsyncMock, MagicMock
 import asyncio
 import logging
@@ -17,10 +8,12 @@ import sys
 import time
 """Test script to verify rate limiter fix."""
 
+# Ensure project root is on sys.path
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-
-
-sys.path.insert(0, str(Path(__file__).parent / ".."))
+from src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig  # noqa: E402
 
 async def test_token_refill_logic():
     """Test the token refill logic manually."""
@@ -28,7 +21,7 @@ async def test_token_refill_logic():
 
     mock_app = MagicMock()
 
-    rate_limiter = RateLimiter(app=mock_app, rate_limit=100, window_size=60)
+    rate_limiter = TokenBucketRateLimiter(RateLimitConfig())
 
     request = MagicMock()
     request.url.path = "/api/test"
@@ -40,46 +33,28 @@ async def test_token_refill_logic():
     call_next = AsyncMock()
     call_next.return_value = Response(status_code=200)
 
-    client_id = rate_limiter.get_client_id(request)
-    entry = rate_limiter.cache.get(client_id)
+    allowed, _, meta = rate_limiter.allow_request(request.client.host, "")
+    client_key = meta.get("client_key")
 
-    logging.info("✅ Initial tokens: {entry.tokens}")
-    logging.info("✅ Initial requests in window: {len(entry.requests)}")
+    logging.info("✅ First allow_request returned: %s", allowed)
 
     for i in range(100):
-        await rate_limiter.dispatch(request, call_next)
+        rate_limiter.release_request(request.client.host, "")
+        allowed, _, _ = rate_limiter.allow_request(request.client.host, "")
         if i % 20 == 0:
-            print(
-                "   Request {i+1}: tokens={entry.tokens}, requests_in_window={len(entry.requests)}"
-            )
+            logging.info("   Request %d: allowed=%s", i + 1, allowed)
 
-    print(
-        "✅ After consuming all tokens: tokens={entry.tokens}, requests_in_window={len(entry.requests)}"
-    )
+    old_time = time.time() - rate_limiter.config.window_size_seconds - 1
+    rate_limiter.last_refill[client_key] = old_time
+    rate_limiter.buckets[client_key] = 0.0
 
-    old_time = time.time() - rate_limiter.window_size - 1
-    entry.last_refill = old_time
-    entry.tokens = 0
-    entry.requests.clear()
-    entry.requests.append(old_time)
+    rate_limiter._refill_bucket(client_key)
+    logging.info("✅ After simulating time passing: tokens=%s", rate_limiter.buckets[client_key])
 
-    print(
-        "✅ After simulating time passing: tokens={entry.tokens}, requests_in_window={len(entry.requests)}"
-    )
+    allowed_final, _, _ = rate_limiter.allow_request(request.client.host, "")
+    logging.info("✅ Final allowed: %s", allowed_final)
 
-    response = await rate_limiter.dispatch(request, call_next)
-
-    logging.info("✅ Response status: {response.status_code}")
-    logging.info("✅ Final tokens: {entry.tokens}")
-    logging.info("✅ Final requests in window: {len(entry.requests)}")
-
-    if response.status_code == 200 and entry.tokens > 0:
-        logging.info("🎉 Test PASSED! Token refill is working correctly.")
-        return True
-    else:
-        logging.info("❌ Test FAILED! Token refill is not working.")
-        return False
-
+    return allowed_final
 
 if __name__ == "__main__":
     success = asyncio.run(test_token_refill_logic())
