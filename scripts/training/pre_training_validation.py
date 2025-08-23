@@ -26,8 +26,20 @@
             # Validate labels
             # Validate outputs
 import logging
-            import shutil
+import shutil
 import sys
+
+# Import torch early for validation
+from pathlib import Path
+
+#!/usr/bin/env python3
+import torch
+from torch.optim import AdamW
+
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+
 # Add src to path
 # Configure logging
         # Critical issues
@@ -37,18 +49,6 @@ import sys
     # Run all validations
         # Summary
         # Warnings
-#!/usr/bin/env python3
-import numpy as np
-            import pandas as pd
-            import torch
-import torch
-            import transformers
-# Import torch early for validation
-from pathlib import Path
-            from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-            from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-            from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-            from torch.optim import AdamW
 
 """
 Pre-Training Validation Script for SAMO Deep Learning.
@@ -175,7 +175,7 @@ class PreTrainingValidator:
             self.validation_results["data_loading"] = True
             return True
 
-        except Exception as e:
+        except Exception:
             logger.error("❌ Data loading validation failed: {e}")
             self.critical_issues.append("Data loading error: {e}")
             self.validation_results["data_loading"] = False
@@ -247,7 +247,7 @@ class PreTrainingValidator:
             self.validation_results["model_architecture"] = True
             return True
 
-        except Exception as e:
+        except Exception:
             logger.error("❌ Model architecture validation failed: {e}")
             self.critical_issues.append("Model architecture error: {e}")
             self.validation_results["model_architecture"] = False
@@ -333,7 +333,7 @@ class PreTrainingValidator:
             self.validation_results["training_components"] = True
             return True
 
-        except Exception as e:
+        except Exception:
             logger.error("❌ Training components validation failed: {e}")
             self.critical_issues.append("Training components error: {e}")
             self.validation_results["training_components"] = False
@@ -374,7 +374,7 @@ class PreTrainingValidator:
             self.validation_results["file_system"] = True
             return True
 
-        except Exception as e:
+        except Exception:
             logger.error("❌ File system validation failed: {e}")
             self.critical_issues.append("File system error: {e}")
             self.validation_results["file_system"] = False
@@ -405,7 +405,7 @@ class PreTrainingValidator:
                     logger.error("❌ {name} validation FAILED")
                 else:
                     logger.info("✅ {name} validation PASSED")
-            except Exception as e:
+            except Exception:
                 logger.error("❌ {name} validation ERROR: {e}")
                 self.critical_issues.append("{name} validation error: {e}")
                 all_passed = False

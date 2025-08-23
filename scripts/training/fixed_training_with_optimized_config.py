@@ -30,16 +30,17 @@
     # Use different learning rates for different layers
 import logging
 import sys
+from pathlib import Path
+from typing import Any, Dict, Tuple
+
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
 import torch
-import torch.nn as nn
-from pathlib import Path
-    from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-    from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-    from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-from typing import Dict, Any, Tuple
+from torch import nn
+
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 
 """
 Fixed Training Script with Optimized Configuration for SAMO Deep Learning.
@@ -352,7 +353,7 @@ def main():
             logger.error("❌ Training failed: {training_results.get('reason', 'unknown')}")
             return False
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Training error: {e}")
         return False
 

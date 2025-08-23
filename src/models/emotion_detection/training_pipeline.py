@@ -17,19 +17,10 @@ import torch
 import torch.nn.functional as F
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
-from transformers import (
-    AutoTokenizer,
-    get_linear_schedule_with_warmup,
-)
+from transformers import AutoTokenizer, get_linear_schedule_with_warmup
 
-from .bert_classifier import (
-    create_bert_emotion_classifier,
-    evaluate_emotion_classifier,
-)
-from .dataset_loader import (
-    create_goemotions_loader,
-    GoEmotionsDataset,
-)
+from .bert_classifier import create_bert_emotion_classifier, evaluate_emotion_classifier
+from .dataset_loader import GoEmotionsDataset, create_goemotions_loader
 
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development

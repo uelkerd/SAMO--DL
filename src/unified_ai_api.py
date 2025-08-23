@@ -7,39 +7,39 @@ Learning pipeline.
 from __future__ import annotations
 
 import asyncio
+import inspect
 import json
 import logging
+import os
 import tempfile
 import time
 import traceback
-import os
-from contextlib import asynccontextmanager
-from pathlib import Path
-from typing import Any, Dict, List, AsyncGenerator, Optional, Set, Tuple
-import inspect
-from datetime import datetime, timezone
 from collections import defaultdict
+from contextlib import asynccontextmanager
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, AsyncGenerator, Dict, List, Optional, Set, Tuple
 
 import uvicorn
 from fastapi import (
+    Depends,
     FastAPI,
     File,
     Form,
     Header,
     HTTPException,
+    Query,
     Request,
     UploadFile,
-    Depends,
-    status,
     WebSocket,
-    Query,
+    status,
 )
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.websockets import WebSocketDisconnect
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
 from pydantic import BaseModel, Field
-from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
 from .api_rate_limiter import add_rate_limiting
 from .security.jwt_manager import JWTManager, TokenPayload, TokenResponse
@@ -136,7 +136,7 @@ def _run_emotion_predict(text: str, threshold: float = 0.5) -> dict:
         if hasattr(emotion_detector, "predict_emotions"):
             # Import labels lazily to avoid heavy deps at import time
             from src.models.emotion_detection.labels import (
-                GOEMOTIONS_EMOTIONS as _LABELS
+                GOEMOTIONS_EMOTIONS as _LABELS,
             )
             result = emotion_detector.predict_emotions(text, threshold=threshold) or {}
             probs_list = result.get("probabilities") or []

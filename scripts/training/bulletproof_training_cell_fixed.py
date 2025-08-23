@@ -8,11 +8,11 @@ from pathlib import Path
 
 import pandas as pd
 import torch
-from torch import nn
 from datasets import load_dataset
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from transformers import AutoModel, AutoTokenizer
 

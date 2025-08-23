@@ -21,24 +21,23 @@
         # Test forward pass
 import logging
 import sys
+from pathlib import Path
+
+#!/usr/bin/env python3
+import torch
+import torch.nn.functional as F
+
+from src.models.emotion_detection.bert_classifier import (
+    WeightedBCELoss,
+    create_bert_emotion_classifier,
+)
+from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+
 # Add src to path
 # Configure logging
     # Run all validations
     # Run validations
     # Summary
-#!/usr/bin/env python3
-import numpy as np
-        import pandas as pd
-        import torch
-        import torch
-        import torch
-        import torch.nn.functional as F
-        import transformers
-from pathlib import Path
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-        from src.models.emotion_detection.bert_classifier import WeightedBCELoss
-        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 
 """
 Local Validation and Debug Script for SAMO Deep Learning.
@@ -70,7 +69,7 @@ def check_environment():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Environment check failed: {e}")
         return False
 
@@ -101,7 +100,7 @@ def check_data_loading():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Data loading failed: {e}")
         return False
 
@@ -149,7 +148,7 @@ def check_model_creation():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Model creation failed: {e}")
         return False
 
@@ -182,7 +181,7 @@ def check_loss_function():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Loss function check failed: {e}")
         return False
 
@@ -241,7 +240,7 @@ def check_data_distribution():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Data distribution check failed: {e}")
         return False
 
@@ -274,7 +273,7 @@ def main():
             else:
                 logger.error("❌ {name} FAILED")
 
-        except Exception as e:
+        except Exception:
             logger.error("❌ {name} ERROR: {e}")
             results[name] = False
 

@@ -10,10 +10,11 @@ import logging
 import os
 import secrets
 import time
-import yaml
 from dataclasses import dataclass
-from flask import Flask, request, Response, g
-from typing import Dict, List, Optional, Callable
+from typing import Callable, Dict, List, Optional
+
+import yaml
+from flask import Flask, Response, g, request
 
 logger = logging.getLogger(__name__)
 
