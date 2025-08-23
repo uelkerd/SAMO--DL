@@ -7,43 +7,43 @@ Tests the downloaded model files directly without API server
 import sys
 from pathlib import Path
 
-# Ensure project root is on sys.path
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+from scripts.testing._bootstrap import ensure_project_root_on_sys_path, ensure_path, configure_basic_logging
+
+# Ensure project root and logging
+PROJECT_ROOT = ensure_project_root_on_sys_path()
+logger = configure_basic_logging()
 
 # Add the deployment directory to the path
 DEPLOYMENT_DIR = PROJECT_ROOT / 'deployment'
-if str(DEPLOYMENT_DIR) not in sys.path:
-    sys.path.insert(0, str(DEPLOYMENT_DIR))
+ensure_path(DEPLOYMENT_DIR)
 
 
 def test_local_inference():
     """Test the local inference with the downloaded model"""
-    print("🧪 LOCAL INFERENCE TEST")
-    print("=" * 50)
+    logger.info("🧪 LOCAL INFERENCE TEST")
+    logger.info("=" * 50)
 
     # Check if model files exist
     model_dir = DEPLOYMENT_DIR / 'model'
     required_files = ['config.json', 'model.safetensors', 'training_args.bin']
 
-    print(f"📁 Checking model directory: {model_dir}")
+    logger.info("📁 Checking model directory: %s", model_dir)
 
     missing_files = []
     for file in required_files:
         file_path = model_dir / file
         if file_path.exists():
-            print(f"✅ Found: {file}")
+            logger.info("✅ Found: %s", file)
         else:
-            print(f"❌ Missing: {file}")
+            logger.error("❌ Missing: %s", file)
             missing_files.append(file)
 
     if missing_files:
-        print(f"\n❌ Missing required files: {missing_files}")
-        print("Please download the model files from Colab first!")
+        logger.error("❌ Missing required files: %s", missing_files)
+        logger.info("Please download the model files from Colab first!")
         return False
 
-    print("\n✅ All model files found!")
+    logger.info("✅ All model files found!")
 
     # Test texts
     test_texts = [
@@ -63,20 +63,20 @@ def test_local_inference():
         # Import the inference module
         from inference import EmotionDetector
 
-        print("\n🔧 Loading model...")
+        logger.info("🔧 Loading model...")
         detector = EmotionDetector(model_path=str(model_dir))
-        print("✅ Model loaded successfully!")
+        logger.info("✅ Model loaded successfully!")
 
-        print("\n🧪 Running inference tests...")
+        logger.info("🧪 Running inference tests...")
         for i, text in enumerate(test_texts, 1):
             result = detector.predict(text)
-            print(f"{i:02d}. {text} -> {result}")
+            logger.info("%02d. %s -> %s", i, text, result)
 
-        print("\n✅ Local inference test completed successfully!")
+        logger.info("✅ Local inference test completed successfully!")
         return True
 
     except Exception as e:
-        print(f"❌ Local inference test failed for model_dir={model_dir}: {e}")
+        logger.error("❌ Local inference test failed for model_dir=%s: %s", model_dir, e)
         return False
 
 
