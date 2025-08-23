@@ -158,7 +158,8 @@ class EmotionDetectionTrainer:
             val_labels = [val_labels[i] for i in val_indices]
 
             original_batch_size = self.batch_size
-            self.batch_size = min(128, self.batch_size * 8)  # Much larger batch size
+            # Increase batch size for dev mode
+            self.batch_size = min(128, self.batch_size * 8)
             logger.info(
                 "🔧 DEVELOPMENT MODE: Using %d training examples, batch_size=%d (was %d)",
                 len(train_texts), self.batch_size, original_batch_size,
@@ -315,7 +316,9 @@ class EmotionDetectionTrainer:
                 elif labels.sum() == labels.numel():
                     logger.error("❌ CRITICAL: All labels are one!")
 
-                for i in range(min(10, labels.shape[1])):  # First 10 classes
+                # Iterate over first 10 classes
+                max_classes = min(10, labels.shape[1])
+                for i in range(max_classes):
                     class_count = labels[:, i].sum().item()
                     if class_count > 0:
                         logger.info("   Class %d: %d positive samples", i, int(class_count))
@@ -389,7 +392,11 @@ class EmotionDetectionTrainer:
             clip_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
 
             if batch_idx == 0:
-                clip_val = float(clip_norm) if not isinstance(clip_norm, (int, float)) else clip_norm
+                clip_val = (
+                    float(clip_norm)
+                    if not isinstance(clip_norm, (int, float))
+                    else clip_norm
+                )
                 logger.info("   Gradient norm after clipping: %.6f", clip_val)
 
             self.optimizer.step()
