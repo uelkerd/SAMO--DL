@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
+"""Test script to verify rate limiter fix."""
 from unittest.mock import MagicMock
 import asyncio
 import sys
 import time
-"""Test script to verify rate limiter fix."""
 
 from scripts.testing._bootstrap import ensure_project_root_on_sys_path, configure_basic_logging
 
