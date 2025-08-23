@@ -17,14 +17,12 @@ import sys
 import tempfile
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# DRY bootstrap
+from scripts.testing._bootstrap import ensure_project_root_on_sys_path, configure_basic_logging
 
-# Add project root to path (guard against duplicates)
-project_root = Path(__file__).resolve().parents[2]
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Configure logging and path
+project_root = ensure_project_root_on_sys_path()
+logger = configure_basic_logging()
 
 if __name__ == "__main__":
     logger.info("🧪 Running API Rate Limiter Tests...")
