@@ -6,7 +6,7 @@ FROM pytorch/pytorch:2.0.1-cuda11.8-cudnn8-runtime
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV DEBIAN_FRONTEND=noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
 
 # Install system dependencies (Ubuntu-based image)
 # Use --no-install-recommends and clean apt lists for smaller image
@@ -28,18 +28,19 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Install Vertex AI specific dependencies
+# Install Vertex AI specific dependencies (pinned major versions)
 RUN pip install --no-cache-dir \
-    google-cloud-aiplatform \
-    google-cloud-storage \
-    google-cloud-logging \
-    google-auth
+    google-cloud-aiplatform==1.* \
+    google-cloud-storage==2.* \
+    google-cloud-logging==3.* \
+    google-auth==2.*
 
 # Copy source code
 COPY src/ ./src/
 COPY scripts/ ./scripts/
 COPY configs/ ./configs/
-COPY data/ ./data/
+# Mount or stage data at runtime instead of baking it into the image
+# COPY data/ ./data/
 
 # Create necessary directories
 RUN mkdir -p /app/models/emotion_detection \
