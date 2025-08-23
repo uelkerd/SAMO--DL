@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Test Swagger docs without model dependencies
-"""
+"""Test Swagger docs without model dependencies."""
 
 import os
 from flask import Flask, jsonify
@@ -52,4 +50,4 @@ if __name__ == '__main__':
     print("- http://localhost:8083/docs (should work)")
     print("- http://localhost:8083/api/health (should work)")
     
-    app.run(host='0.0.0.0', port=8083, debug=True) 
+    app.run(host='0.0.0.0', port=8083, debug=True)

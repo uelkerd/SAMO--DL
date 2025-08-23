@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-ONNX Conversion Test for CI/CD Pipeline.
+"""ONNX Conversion Test for CI/CD Pipeline.
 
-This script validates that ONNX dependencies are available
-and basic functionality works without complex imports.
+This script validates that ONNX dependencies are available and basic functionality works
+without complex imports.
 """
 
 import logging

@@ -10,10 +10,6 @@ import logging
 import sys
 import traceback
 
-
-
-
-
 """
 Restart Training with Debugging Script for SAMO Deep Learning.
 

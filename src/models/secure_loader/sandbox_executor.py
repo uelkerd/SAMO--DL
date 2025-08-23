@@ -1,8 +1,7 @@
-"""
-Sandbox Executor for Secure Model Loading.
+"""Sandbox Executor for Secure Model Loading.
 
-This module provides sandboxed execution capabilities for model loading,
-preventing potential RCE vulnerabilities and malicious code execution.
+This module provides sandboxed execution capabilities for model loading, preventing
+potential RCE vulnerabilities and malicious code execution.
 """
 
 import logging
@@ -124,7 +123,8 @@ class SandboxExecutor:
 
     @contextmanager
     def sandbox_context(self):
-        """Context manager for sandboxed execution (resource limits, signals, network)."""
+        """Context manager for sandboxed execution (resource limits, signals,
+        network)."""
         original_signal_handlers = {}
         try:
             self._set_resource_limits()

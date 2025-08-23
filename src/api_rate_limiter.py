@@ -63,8 +63,8 @@ def _normalize_path(path: str) -> str:
 def _build_exclusions(excluded_paths: Optional[Set[str]]) -> Set[str]:
     """Build normalized exclusions set.
 
-    Merges default exclusions with any provided paths and normalizes each
-    entry (lowercase, leading slash, no trailing slash).
+    Merges default exclusions with any provided paths and normalizes each entry
+    (lowercase, leading slash, no trailing slash).
     """
     default_exclusions: Set[str] = {
         "/health",
@@ -96,8 +96,8 @@ def _is_excluded_path(request_path: str, normalized_exclusions: Set[str]) -> boo
 class _RateLimitMiddleware(BaseHTTPMiddleware):
     """Starlette middleware for token-bucket rate limiting.
 
-    Applies rate limits using a shared limiter instance while respecting
-    normalized path exclusions and test user-agents.
+    Applies rate limits using a shared limiter instance while respecting normalized path
+    exclusions and test user-agents.
     """
 
     def __init__(
@@ -147,8 +147,7 @@ class _RateLimitMiddleware(BaseHTTPMiddleware):
 
 
 class TokenBucketRateLimiter:
-    """
-    Token bucket rate limiter with security enhancements.
+    """Token bucket rate limiter with security enhancements.
 
     Features:
     - Token bucket algorithm for smooth rate limiting
@@ -217,7 +216,10 @@ class TokenBucketRateLimiter:
         return False
 
     def _analyze_user_agent(self, user_agent: str) -> int:
-        """Analyze user agent for suspicious patterns. Returns score (0-10)."""
+        """Analyze user agent for suspicious patterns.
+
+        Returns score (0-10).
+        """
         if not user_agent:
             return 0
         ua_lower = user_agent.lower()
@@ -251,7 +253,10 @@ class TokenBucketRateLimiter:
         return min(score, 10)
 
     def _analyze_request_patterns(self, client_key: str, client_ip: str) -> int:
-        """Analyze request patterns for suspicious behavior. Returns score (0-10)."""
+        """Analyze request patterns for suspicious behavior.
+
+        Returns score (0-10).
+        """
         # Delegate to helper calculators to reduce complexity and improve readability
         history = self.request_history[client_key]
         current_time = time.time()
@@ -374,8 +379,7 @@ class TokenBucketRateLimiter:
         client_ip: str,
         user_agent: str = "",
     ) -> Tuple[bool, str, dict]:
-        """
-        Check if request should be allowed.
+        """Check if request should be allowed.
 
         Returns:
             Tuple of (allowed, reason, metadata)

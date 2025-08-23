@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Setup script for testing the emotion detection model.
-"""
+"""Setup script for testing the emotion detection model."""
 
 import os
 import json
@@ -165,4 +163,4 @@ if __name__ == "__main__":
         print("\n🎉 Ready to test the model!")
         print("📋 Run: python scripts/test_emotion_model.py")
     else:
-        print("\n❌ Setup failed. Please check the issues above.") 
+        print("\n❌ Setup failed. Please check the issues above.")

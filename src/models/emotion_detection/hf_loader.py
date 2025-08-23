@@ -120,7 +120,8 @@ def load_emotion_model_multi_source(
     endpoint_url: Optional[str] = None,
     force_multi_label: Optional[bool] = None,
 ) -> object:
-    """Try multiple sources to load the emotion model. Returns an object with .predict(text, threshold).
+    """Try multiple sources to load the emotion model. Returns an object with
+    .predict(text, threshold).
 
     Priority:
     1) Explicit local_dir if provided and exists

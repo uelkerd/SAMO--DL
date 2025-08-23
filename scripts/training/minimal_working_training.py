@@ -25,10 +25,6 @@ import sys
 import torch
 import traceback
 
-
-
-
-
 """
 Minimal Working Training Script
 Uses only working modules to avoid environment issues

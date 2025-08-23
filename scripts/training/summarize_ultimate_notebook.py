@@ -93,4 +93,4 @@ def summarize_notebook():
     print("   Ready for production deployment")
 
 if __name__ == "__main__":
-    summarize_notebook() 
+    summarize_notebook()

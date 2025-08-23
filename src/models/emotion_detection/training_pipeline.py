@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""
-Training Pipeline for BERT Emotion Detection.
+"""Training Pipeline for BERT Emotion Detection.
 
-This module provides a comprehensive training pipeline for the BERT-based
-emotion detection model with advanced features like focal loss, temperature
-scaling, and ensemble methods.
+This module provides a comprehensive training pipeline for the BERT-based emotion
+detection model with advanced features like focal loss, temperature scaling, and
+ensemble methods.
 """
 
 import json

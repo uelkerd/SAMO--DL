@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Test script to verify the fixed routing in secure_api_server.py
-"""
+"""Test script to verify the fixed routing in secure_api_server.py."""
 
 import os
 
@@ -54,4 +52,4 @@ try:
 except Exception as e:
     print(f"❌ Error testing routing: {e}")
     import traceback
-    traceback.print_exc() 
+    traceback.print_exc()

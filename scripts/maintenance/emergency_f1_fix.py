@@ -389,4 +389,4 @@ if __name__ == "__main__":
         logger.info("✅ Emergency F1 fix completed successfully")
     else:
         logger.error("❌ Emergency F1 fix failed")
-        sys.exit(1) 
+        sys.exit(1)

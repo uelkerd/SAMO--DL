@@ -10,11 +10,6 @@ from pathlib import Path
 import logging
 import sys
 
-
-
-
-
-
 """
 Quick Temperature Scaling Test.
 """

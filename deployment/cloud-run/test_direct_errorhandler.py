@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Test direct error handler registration
-"""
+"""Test direct error handler registration."""
 
 import os
 os.environ['ADMIN_API_KEY'] = 'test123'
@@ -61,4 +59,4 @@ try:
 except Exception as e:
     print(f"❌ Flask app error handler failed: {e}")
 
-print("\n�� Test complete.") 
+print("\n�� Test complete.")

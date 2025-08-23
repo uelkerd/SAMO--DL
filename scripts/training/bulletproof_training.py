@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-Bulletproof training script for REQ-DL-012 that handles notebook state corruption.
+"""Bulletproof training script for REQ-DL-012 that handles notebook state corruption.
+
 This script can be run in a fresh kernel and will validate everything step by step.
 """
 import sys
@@ -446,4 +446,4 @@ def main():
 if __name__ == "__main__":
     success = main()
     if not success:
-        sys.exit(1) 
+        sys.exit(1)

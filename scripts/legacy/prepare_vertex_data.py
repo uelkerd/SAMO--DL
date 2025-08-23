@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Prepare Vertex AI Data Script
+"""Prepare Vertex AI Data Script.
 
 This script prepares data for training on Google Cloud Vertex AI.
 """

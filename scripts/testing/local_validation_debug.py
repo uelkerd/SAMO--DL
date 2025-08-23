@@ -40,13 +40,6 @@ import logging
 import numpy as np
 import sys
 
-
-
-
-
-
-
-
 """
 Local Validation and Debug Script for SAMO Deep Learning.
 

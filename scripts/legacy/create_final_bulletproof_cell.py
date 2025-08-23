@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Create the FINAL bulletproof training cell with proper integer-to-emotion mapping.
-"""
+"""Create the FINAL bulletproof training cell with proper integer-to-emotion mapping."""
 
 def create_final_bulletproof_cell():
     """Create the final bulletproof cell with proper label mapping."""
@@ -442,4 +440,4 @@ print("🔥 READY TO ACHIEVE 70% F1 SCORE!")'''
     print("🎯 This will solve the zero samples issue!")
 
 if __name__ == "__main__":
-    create_final_bulletproof_cell() 
+    create_final_bulletproof_cell()

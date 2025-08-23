@@ -1,8 +1,7 @@
-"""
-Secure Model Loader Module for SAMO Deep Learning.
+"""Secure Model Loader Module for SAMO Deep Learning.
 
-This module provides secure model loading capabilities with defense-in-depth
-against PyTorch RCE vulnerabilities and other security threats.
+This module provides secure model loading capabilities with defense-in-depth against
+PyTorch RCE vulnerabilities and other security threats.
 """
 
 from .secure_model_loader import SecureModelLoader

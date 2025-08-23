@@ -61,11 +61,6 @@ import time
 import torch
 import yaml
 
-
-
-
-
-
 """
 Model Monitoring Script for REQ-DL-010
 

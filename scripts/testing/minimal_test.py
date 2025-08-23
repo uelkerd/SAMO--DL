@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Minimal Test Script
+"""Minimal Test Script.
 
 This script provides a minimal test setup for the SAMO-DL project.
 """

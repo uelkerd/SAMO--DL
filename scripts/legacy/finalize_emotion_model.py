@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Finalize Emotion Detection Model
+"""Finalize Emotion Detection Model.
 
 This script finalizes the BERT emotion classifier training to achieve >75% F1 score
 by combining multiple optimization techniques:

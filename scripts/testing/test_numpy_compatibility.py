@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Test script to verify numpy compatibility fix for transformers.
-"""
+"""Test script to verify numpy compatibility fix for transformers."""
 
 import sys
 import logging
@@ -59,4 +57,4 @@ def test_numpy_compatibility():
 if __name__ == "__main__":
     success = test_numpy_compatibility()
     if not success:
-        sys.exit(1) 
+        sys.exit(1)

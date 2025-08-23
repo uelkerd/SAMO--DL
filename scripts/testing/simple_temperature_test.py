@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Simple Temperature Test Script
+"""Simple Temperature Test Script.
 
 This script tests temperature scaling on the emotion detection model.
 """
@@ -15,7 +14,10 @@ import torch
 repo_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(repo_root / "src"))
 
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, evaluate_emotion_classifier
+from src.models.emotion_detection.bert_classifier import (
+    create_bert_emotion_classifier,
+    evaluate_emotion_classifier,
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -61,13 +63,13 @@ def simple_temperature_test():
 
     # Test different temperatures
     temperatures = [0.5, 1.0, 1.5, 2.0]
-    
+
     for temp in temperatures:
         logger.info(f"📊 Testing temperature: {temp}")
-        
+
         # Set model temperature
         model.temperature = temp
-        
+
         # Evaluate model
         try:
             results = evaluate_emotion_classifier(
@@ -75,11 +77,13 @@ def simple_temperature_test():
                 tokenizer=tokenizer,
                 texts=test_texts,
                 labels=test_labels,
-                device=device
+                device=device,
             )
-            
-            logger.info(f"   Temperature {temp}: F1 = {results.get('f1_score', 'N/A'):.4f}")
-            
+
+            logger.info(
+                f"   Temperature {temp}: F1 = {results.get('f1_score', 'N/A'):.4f}"
+            )
+
         except Exception as e:
             logger.warning(f"   Temperature {temp}: Error - {e}")
 

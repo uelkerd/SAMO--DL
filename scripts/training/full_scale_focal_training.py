@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-Full Scale Focal Loss Training Script
+"""Full Scale Focal Loss Training Script.
 
-This script provides a full-scale focal loss training implementation
-for the emotion detection model with comprehensive evaluation.
+This script provides a full-scale focal loss training implementation for the emotion
+detection model with comprehensive evaluation.
 """
 
 import logging

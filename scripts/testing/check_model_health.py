@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Model Loading Health Check
-Check if the model is loading properly in the container.
-"""
+"""Model Loading Health Check Check if the model is loading properly in the
+container."""
 
 import requests
 import json
@@ -10,7 +8,7 @@ from test_config import create_api_client, create_test_config
 
 
 def check_model_health(base_url=None):
-    """Check model health status"""
+    """Check model health status."""
     config = create_test_config()
     if base_url:
         config.base_url = base_url.rstrip('/')

@@ -12,7 +12,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from sklearn.preprocessing import LabelEncoder
 
 def save_model_for_deployment():
-    """Save the trained model for deployment"""
+    """Save the trained model for deployment."""
     
     print("🚀 SAVING TRAINED MODEL FOR DEPLOYMENT")
     print("=" * 50)
@@ -118,7 +118,7 @@ def save_model_for_deployment():
         return False
 
 def test_saved_model(model_dir):
-    """Test the saved model"""
+    """Test the saved model."""
     try:
         from inference import EmotionDetector
         
@@ -149,7 +149,7 @@ def test_saved_model(model_dir):
         print(f"⚠️ Could not test saved model: {e}")
 
 def create_deployment_script():
-    """Create a deployment script"""
+    """Create a deployment script."""
     
     deployment_script = """#!/bin/bash
 # 🚀 EMOTION DETECTION MODEL DEPLOYMENT
@@ -215,4 +215,4 @@ if __name__ == "__main__":
         print("🏆 Target Achieved: ✅ YES!")
     else:
         print("\n❌ Failed to create deployment package!")
-        print("Please ensure you have a trained model available.") 
+        print("Please ensure you have a trained model available.")

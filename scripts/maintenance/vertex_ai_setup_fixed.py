@@ -29,12 +29,6 @@ import logging
 import os
 import sys
 
-
-
-
-
-
-
 """
 Fixed Vertex AI Setup for SAMO Deep Learning Project.
 

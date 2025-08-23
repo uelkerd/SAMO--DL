@@ -12,10 +12,10 @@ import unittest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'src'))
 
 class Phase4VertexAIAutomationTest(unittest.TestCase):
-    """Comprehensive test suite for Phase 4 Vertex AI automation"""
+    """Comprehensive test suite for Phase 4 Vertex AI automation."""
     
     def setUp(self):
-        """Set up test environment"""
+        """Set up test environment."""
         self.test_dir = Path(__file__).parent
         self.deployment_dir = self.test_dir.parent.parent / 'deployment'
         self.vertex_ai_script = self.deployment_dir / 'vertex_ai_phase4_automation.py'
@@ -34,7 +34,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         }
     
     def test_01_script_structure(self):
-        """Test Phase 4 automation script structure"""
+        """Test Phase 4 automation script structure."""
         print("🔍 Testing Phase 4 automation script structure...")
         
         self.assertTrue(self.vertex_ai_script.exists(), "Vertex AI automation script should exist")
@@ -67,7 +67,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ Phase 4 automation script structure validation passed")
     
     def test_02_deployment_config_dataclass(self):
-        """Test DeploymentConfig dataclass structure"""
+        """Test DeploymentConfig dataclass structure."""
         print("🔍 Testing DeploymentConfig dataclass...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -95,7 +95,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ DeploymentConfig dataclass validation passed")
     
     def test_03_prerequisites_checking(self):
-        """Test prerequisites checking functionality"""
+        """Test prerequisites checking functionality."""
         print("🔍 Testing prerequisites checking...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -134,7 +134,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ Prerequisites checking validation passed")
     
     def test_04_model_versioning(self):
-        """Test model versioning functionality"""
+        """Test model versioning functionality."""
         print("🔍 Testing model versioning...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -151,7 +151,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ Model versioning validation passed")
     
     def test_05_deployment_package_creation(self):
-        """Test deployment package creation"""
+        """Test deployment package creation."""
         print("🔍 Testing deployment package creation...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -178,7 +178,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ Deployment package creation validation passed")
     
     def test_06_docker_image_handling(self):
-        """Test Docker image building and pushing"""
+        """Test Docker image building and pushing."""
         print("🔍 Testing Docker image handling...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -196,7 +196,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ Docker image handling validation passed")
     
     def test_07_vertex_ai_model_creation(self):
-        """Test Vertex AI model creation"""
+        """Test Vertex AI model creation."""
         print("🔍 Testing Vertex AI model creation...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -212,7 +212,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ Vertex AI model creation validation passed")
     
     def test_08_endpoint_deployment(self):
-        """Test endpoint deployment functionality"""
+        """Test endpoint deployment functionality."""
         print("🔍 Testing endpoint deployment...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -229,7 +229,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ Endpoint deployment validation passed")
     
     def test_09_monitoring_and_alerting(self):
-        """Test monitoring and alerting setup"""
+        """Test monitoring and alerting setup."""
         print("🔍 Testing monitoring and alerting...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -247,7 +247,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ Monitoring and alerting validation passed")
     
     def test_10_cost_monitoring(self):
-        """Test cost monitoring setup"""
+        """Test cost monitoring setup."""
         print("🔍 Testing cost monitoring...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -264,7 +264,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ Cost monitoring validation passed")
     
     def test_11_rollback_capabilities(self):
-        """Test rollback capabilities"""
+        """Test rollback capabilities."""
         print("🔍 Testing rollback capabilities...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -278,7 +278,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ Rollback capabilities validation passed")
     
     def test_12_ab_testing_support(self):
-        """Test A/B testing support"""
+        """Test A/B testing support."""
         print("🔍 Testing A/B testing support...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -293,7 +293,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ A/B testing support validation passed")
     
     def test_13_performance_metrics(self):
-        """Test performance metrics collection"""
+        """Test performance metrics collection."""
         print("🔍 Testing performance metrics...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -307,7 +307,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ Performance metrics validation passed")
     
     def test_14_cleanup_functionality(self):
-        """Test cleanup functionality"""
+        """Test cleanup functionality."""
         print("🔍 Testing cleanup functionality...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -321,7 +321,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ Cleanup functionality validation passed")
     
     def test_15_full_deployment_workflow(self):
-        """Test full deployment workflow"""
+        """Test full deployment workflow."""
         print("🔍 Testing full deployment workflow...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -351,7 +351,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ Full deployment workflow validation passed")
     
     def test_16_error_handling(self):
-        """Test error handling and logging"""
+        """Test error handling and logging."""
         print("🔍 Testing error handling...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -368,7 +368,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ Error handling validation passed")
     
     def test_17_configuration_management(self):
-        """Test configuration management"""
+        """Test configuration management."""
         print("🔍 Testing configuration management...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -386,7 +386,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ Configuration management validation passed")
     
     def test_18_security_features(self):
-        """Test security features"""
+        """Test security features."""
         print("🔍 Testing security features...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -401,7 +401,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ Security features validation passed")
     
     def test_19_documentation_and_logging(self):
-        """Test documentation and logging"""
+        """Test documentation and logging."""
         print("🔍 Testing documentation and logging...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -419,7 +419,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ Documentation and logging validation passed")
     
     def test_20_main_function(self):
-        """Test main function"""
+        """Test main function."""
         print("🔍 Testing main function...")
         
         with open(self.vertex_ai_script, 'r') as f:
@@ -436,7 +436,7 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         print("✅ Main function validation passed")
 
 def run_phase4_tests():
-    """Run all Phase 4 tests"""
+    """Run all Phase 4 tests."""
     print("🚀 RUNNING PHASE 4 VERTEX AI AUTOMATION TESTS")
     print("=" * 70)
     
@@ -490,4 +490,4 @@ def run_phase4_tests():
 
 if __name__ == "__main__":
     success = run_phase4_tests()
-    sys.exit(0 if success else 1) 
+    sys.exit(0 if success else 1)

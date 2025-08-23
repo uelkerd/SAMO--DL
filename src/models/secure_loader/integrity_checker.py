@@ -1,8 +1,7 @@
-"""
-Model Integrity Checker for Secure Model Loading.
+"""Model Integrity Checker for Secure Model Loading.
 
-This module provides integrity verification capabilities for model files,
-including checksums, digital signatures, and format validation.
+This module provides integrity verification capabilities for model files, including
+checksums, digital signatures, and format validation.
 """
 
 import hashlib

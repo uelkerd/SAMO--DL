@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Test Model Status Endpoint
-Get detailed information about model loading status and any errors.
-"""
+"""Test Model Status Endpoint Get detailed information about model loading status and
+any errors."""
 
 import requests
 import argparse
@@ -10,7 +8,7 @@ from test_config import create_api_client, create_test_config
 
 
 def test_health_endpoint(client):
-    """Test the health endpoint"""
+    """Test the health endpoint."""
     print("1. Testing health endpoint...")
     try:
         data = client.get("/")
@@ -24,7 +22,7 @@ def test_health_endpoint(client):
 
 
 def test_emotions_endpoint(client):
-    """Test the emotions from main endpoint"""
+    """Test the emotions from main endpoint."""
     print("\n2. Testing emotions from main endpoint...")
     try:
         data = client.get("/")
@@ -37,7 +35,7 @@ def test_emotions_endpoint(client):
 
 
 def test_model_status_endpoint(client):
-    """Test the model status from main endpoint"""
+    """Test the model status from main endpoint."""
     print("\n3. Testing model status from main endpoint...")
     try:
         data = client.get("/")
@@ -52,7 +50,7 @@ def test_model_status_endpoint(client):
 
 
 def test_prediction_endpoint(client):
-    """Test the prediction endpoint"""
+    """Test the prediction endpoint."""
     print("\n4. Testing prediction endpoint...")
     try:
         payload = {"text": "I am happy"}
@@ -65,7 +63,7 @@ def test_prediction_endpoint(client):
 
 
 def test_model_status(base_url=None):
-    """Test the model status endpoint"""
+    """Test the model status endpoint."""
     config = create_test_config()
     if base_url:
         config.base_url = base_url.rstrip('/')
@@ -92,7 +90,7 @@ def test_model_status(base_url=None):
 
 
 def main():
-    """Main function with CLI argument support"""
+    """Main function with CLI argument support."""
     parser = argparse.ArgumentParser(description="Test Model Status Endpoint")
     parser.add_argument("--base-url", help="API base URL")
     args = parser.parse_args()
@@ -102,4 +100,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

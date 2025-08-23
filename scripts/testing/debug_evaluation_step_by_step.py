@@ -20,9 +20,6 @@ import numpy as np
 import sys
 import torch
 
-
-
-
 """
 Debug the evaluation function step by step to find the exact issue.
 """

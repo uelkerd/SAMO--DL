@@ -9,7 +9,7 @@ from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 def test_new_trained_model():
-    """Test the newly trained model from Colab"""
+    """Test the newly trained model from Colab."""
     
     print("🧪 TESTING NEW TRAINED MODEL")
     print("=" * 50)
@@ -152,4 +152,4 @@ if __name__ == "__main__":
     if success:
         print("\n🎉 Model testing completed successfully!")
     else:
-        print("\n❌ Model testing failed!") 
+        print("\n❌ Model testing failed!")

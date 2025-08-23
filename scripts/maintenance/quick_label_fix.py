@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-Quick fix for CUDA device-side assert errors caused by label mismatches.
+"""Quick fix for CUDA device-side assert errors caused by label mismatches.
+
 Run this before your training to fix the label encoding issues.
 """
 
@@ -68,4 +68,4 @@ def quick_label_fix():
 
 if __name__ == "__main__":
     num_labels = quick_label_fix()
-    print(f"\n🎉 Quick fix completed! Use num_labels={num_labels}") 
+    print(f"\n🎉 Quick fix completed! Use num_labels={num_labels}")

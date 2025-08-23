@@ -25,7 +25,7 @@ except Exception as e:
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    """Health check endpoint"""
+    """Health check endpoint."""
     return jsonify({
         'status': 'healthy',
         'model_loaded': detector is not None,
@@ -34,7 +34,7 @@ def health_check():
 
 @app.route('/predict', methods=['POST'])
 def predict_emotion():
-    """Predict emotion for given text"""
+    """Predict emotion for given text."""
     if detector is None:
         return jsonify({'error': 'Model not loaded'}), 500
     
@@ -54,7 +54,7 @@ def predict_emotion():
 
 @app.route('/predict_batch', methods=['POST'])
 def predict_batch():
-    """Predict emotions for multiple texts"""
+    """Predict emotions for multiple texts."""
     if detector is None:
         return jsonify({'error': 'Model not loaded'}), 500
     
@@ -74,7 +74,7 @@ def predict_batch():
 
 @app.route('/emotions', methods=['GET'])
 def get_emotions():
-    """Get list of supported emotions"""
+    """Get list of supported emotions."""
     if detector is None:
         return jsonify({'error': 'Model not loaded'}), 500
     

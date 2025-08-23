@@ -13,9 +13,6 @@ import logging
 import sys
 import torch
 
-
-
-
 """Test Fixed Evaluation Function.
 
 This script tests the fixed evaluation function to see if we get

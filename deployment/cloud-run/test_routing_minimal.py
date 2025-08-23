@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Minimal test script to isolate Flask-RESTX routing issues
-"""
+"""Minimal test script to isolate Flask-RESTX routing issues."""
 
 from flask import Flask, jsonify
 from flask_restx import Api, Resource, Namespace
@@ -53,4 +51,4 @@ if __name__ == '__main__':
         print(f"API: {rule.rule} -> {rule.endpoint}")
     
     print("\n=== Starting test server ===")
-    app.run(host='0.0.0.0', port=5000, debug=True) 
+    app.run(host='0.0.0.0', port=5000, debug=True)

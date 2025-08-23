@@ -31,9 +31,6 @@ import sys
 import torch
 from .validation_utils import validate_metric_ranges, validate_required_keys, ensure
 
-
-
-
 """
 Model Monitoring Test for CI/CD Pipeline.
 

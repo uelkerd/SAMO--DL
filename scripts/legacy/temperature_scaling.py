@@ -26,11 +26,6 @@ import sys
 import torch
 import traceback
 
-
-
-
-
-
 """
 Temperature Scaling for Model Calibration
 

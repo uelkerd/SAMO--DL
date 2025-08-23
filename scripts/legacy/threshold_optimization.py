@@ -22,10 +22,6 @@ import sys
 import torch
 import traceback
 
-
-
-
-
 """
 Threshold Optimization for Multi-label Classification
 

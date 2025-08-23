@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Performance Optimization Script for SAMO Deep Learning.
+"""Performance Optimization Script for SAMO Deep Learning.
 
 This script handles GPU setup verification, ONNX model conversion,
 and comprehensive performance benchmarking to meet <500ms P95 targets.
@@ -46,7 +45,6 @@ def check_gpu_setup() -> dict[str, any]:
 
     Returns:
         Dictionary with GPU setup information
-
     """
     logger.info("🔍 Checking GPU Setup...")
 
@@ -118,7 +116,6 @@ def convert_to_onnx(
 
     Returns:
         Path to the converted ONNX model
-
     """
     logger.info("🔄 Converting model to ONNX format...")
 
@@ -184,7 +181,6 @@ def benchmark_model_performance(
 
     Returns:
         Dictionary with benchmark results
-
     """
     logger.info("📊 Starting performance benchmark...")
 

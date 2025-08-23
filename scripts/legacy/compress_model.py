@@ -32,9 +32,6 @@ import time
 import torch
 import torch.quantization
 
-
-
-
 """
 Compress Model
 

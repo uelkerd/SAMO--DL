@@ -1,5 +1,4 @@
-"""
-Unit tests for Secure Model Loader.
+"""Unit tests for Secure Model Loader.
 
 Tests the secure model loading functionality including:
 - Integrity checking
@@ -493,4 +492,4 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

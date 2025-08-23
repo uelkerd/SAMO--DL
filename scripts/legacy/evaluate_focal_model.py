@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Evaluate Focal Loss Trained Model
+"""Evaluate Focal Loss Trained Model.
 
 This script evaluates the trained focal loss model and calculates F1 scores.
 It also implements threshold optimization to improve performance.

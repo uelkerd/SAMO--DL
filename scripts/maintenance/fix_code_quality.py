@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
-"""
-Code Quality Fixer Script
+"""Code Quality Fixer Script.
 
-This script automatically fixes common code quality issues
-identified by Ruff linter.
+This script automatically fixes common code quality issues identified by Ruff linter.
 """
 
 import logging

@@ -26,11 +26,6 @@ import logging
 import os
 import torch
 
-
-
-
-
-
 """GPU Training Setup Script for SAMO Deep Learning.
 
 This script helps transition the current CPU training to GPU training

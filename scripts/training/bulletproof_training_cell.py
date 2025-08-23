@@ -2,19 +2,20 @@
 # Runtime → Change runtime type → GPU (T4 or V100)
 # Kernel → Restart and run all
 
-import os
 import json
-import torch
-import torch.nn as nn
-import pandas as pd
-from datasets import load_dataset
-from torch.utils.data import Dataset, DataLoader
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import f1_score, accuracy_score
-from sklearn.preprocessing import LabelEncoder
-from transformers import AutoModel, AutoTokenizer
-from pathlib import Path
+import os
 import sys
+from pathlib import Path
+
+import pandas as pd
+import torch
+from torch import nn
+from datasets import load_dataset
+from sklearn.metrics import accuracy_score, f1_score
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from torch.utils.data import DataLoader, Dataset
+from transformers import AutoModel, AutoTokenizer
 
 
 def _import_bootstrap():
@@ -25,10 +26,11 @@ def _import_bootstrap():
     initially fails.
     """
     try:
-        from scripts.bootstrap import (
+        from scripts.bootstrap import (  # type: ignore
             add_repo_src_to_path,
             find_repo_root,
-        )  # type: ignore
+        )
+
         return add_repo_src_to_path, find_repo_root
     except Exception:
         probe = Path(__file__).resolve()
@@ -37,10 +39,11 @@ def _import_bootstrap():
                 if str(candidate) not in sys.path:
                     sys.path.insert(0, str(candidate))
                 break
-        from scripts.bootstrap import (
+        from scripts.bootstrap import (  # type: ignore
             add_repo_src_to_path,
             find_repo_root,
-        )  # type: ignore
+        )
+
         return add_repo_src_to_path, find_repo_root
 
 
@@ -76,17 +79,17 @@ os.chdir(str(REPO_ROOT))
 print("\n🔧 Creating unified label encoder...")
 
 go_emotions = load_dataset("go_emotions", "simplified")
-with open('data/journal_test_dataset.json', 'r') as f:
+with open("data/journal_test_dataset.json") as f:
     journal_entries = json.load(f)
 journal_df = pd.DataFrame(journal_entries)
 
 # Extract labels
 go_labels = set()
-for example in go_emotions['train']:
-    if example['labels']:
-        go_labels.update(example['labels'])
+for example in go_emotions["train"]:
+    if example["labels"]:
+        go_labels.update(example["labels"])
 
-journal_labels = set(journal_df['emotion'].unique())
+journal_labels = set(journal_df["emotion"].unique())
 
 # Find common labels
 common_labels = sorted(list(go_labels.intersection(journal_labels)))
@@ -115,11 +118,11 @@ valid_labels = set(label_encoder.classes_)
 # Filter GoEmotions data
 go_texts = []
 go_labels = []
-for example in go_emotions['train']:
-    if example['labels']:
-        for label in example['labels']:
+for example in go_emotions["train"]:
+    if example["labels"]:
+        for label in example["labels"]:
             if label in valid_labels:
-                go_texts.append(example['text'])
+                go_texts.append(example["text"])
                 go_labels.append(label_to_id[label])
                 break
 
@@ -127,16 +130,18 @@ for example in go_emotions['train']:
 journal_texts = []
 journal_labels = []
 for _, row in journal_df.iterrows():
-    if row['emotion'] in valid_labels:
-        journal_texts.append(row['content'])
-        journal_labels.append(label_to_id[row['emotion']])
+    if row["emotion"] in valid_labels:
+        journal_texts.append(row["content"])
+        journal_labels.append(label_to_id[row["emotion"]])
 
 print(f"📊 Filtered GoEmotions: {len(go_texts)} samples")
 print(f"📊 Filtered Journal: {len(journal_texts)} samples")
 
 # Validate label ranges
 go_label_range = (min(go_labels), max(go_labels)) if go_labels else (0, 0)
-journal_label_range = (min(journal_labels), max(journal_labels)) if journal_labels else (0, 0)
+journal_label_range = (
+    (min(journal_labels), max(journal_labels)) if journal_labels else (0, 0)
+)
 expected_range = (0, len(label_encoder.classes_) - 1)
 
 print(f"📊 GoEmotions label range: {go_label_range}")
@@ -146,7 +151,10 @@ print(f"📊 Expected range: {expected_range}")
 if go_label_range[0] < expected_range[0] or go_label_range[1] > expected_range[1]:
     raise ValueError("❌ GoEmotions labels out of range!")
 
-if journal_label_range[0] < expected_range[0] or journal_label_range[1] > expected_range[1]:
+if (
+    journal_label_range[0] < expected_range[0]
+    or journal_label_range[1] > expected_range[1]
+):
     raise ValueError("❌ Journal labels out of range!")
 
 print("✅ All labels within expected range")
@@ -190,15 +198,15 @@ class SimpleEmotionDataset(Dataset):
         encoding = self.tokenizer(
             text,
             truncation=True,
-            padding='max_length',
+            padding="max_length",
             max_length=self.max_length,
-            return_tensors='pt'
+            return_tensors="pt",
         )
 
         return {
-            'input_ids': encoding['input_ids'].flatten(),
-            'attention_mask': encoding['attention_mask'].flatten(),
-            'labels': torch.tensor(lbl, dtype=torch.long)
+            "input_ids": encoding["input_ids"].flatten(),
+            "attention_mask": encoding["attention_mask"].flatten(),
+            "labels": torch.tensor(lbl, dtype=torch.long),
         }
 
 
@@ -212,7 +220,9 @@ class SimpleEmotionClassifier(nn.Module):
         if n_labels is None and num_labels is not None:
             n_labels = num_labels
         elif n_labels is not None and num_labels is not None and n_labels != num_labels:
-            raise ValueError("Conflicting n_labels and num_labels provided; use n_labels")
+            raise ValueError(
+                "Conflicting n_labels and num_labels provided; use n_labels"
+            )
 
         if n_labels is None or n_labels <= 0:
             raise ValueError(f"Invalid num_labels: {n_labels}")
@@ -236,7 +246,9 @@ class SimpleEmotionClassifier(nn.Module):
         """
         # Validate inputs
         if input_ids_tensor.dim() != 2:
-            raise ValueError(f"Expected input_ids to be 2D, got {input_ids_tensor.dim()}D")
+            raise ValueError(
+                f"Expected input_ids to be 2D, got {input_ids_tensor.dim()}D"
+            )
 
         if attention_mask_tensor.dim() != 2:
             msg = (
@@ -274,17 +286,17 @@ model = model.to(device)
 
 # Create datasets
 go_dataset = SimpleEmotionDataset(go_texts, go_labels, tokenizer)
-journal_dataset = SimpleEmotionDataset(
-    journal_texts, journal_labels, tokenizer
-)
+journal_dataset = SimpleEmotionDataset(journal_texts, journal_labels, tokenizer)
 
 # Split journal data
-journal_train_texts, journal_val_texts, journal_train_labels, journal_val_labels = train_test_split(
-    journal_texts,
-    journal_labels,
-    test_size=0.3,
-    random_state=42,
-    stratify=journal_labels,
+journal_train_texts, journal_val_texts, journal_train_labels, journal_val_labels = (
+    train_test_split(
+        journal_texts,
+        journal_labels,
+        test_size=0.3,
+        random_state=42,
+        stratify=journal_labels,
+    )
 )
 
 journal_train_dataset = SimpleEmotionDataset(
@@ -328,17 +340,17 @@ for epoch in range(num_epochs):
         try:
             # Validate batch
             if (
-                'input_ids' not in batch
-                or 'attention_mask' not in batch
-                or 'labels' not in batch
+                "input_ids" not in batch
+                or "attention_mask" not in batch
+                or "labels" not in batch
             ):
                 print(f"⚠️ Invalid batch structure at batch {i}")
                 continue
 
             # Move to device with validation
-            input_ids = batch['input_ids'].to(device)
-            attention_mask = batch['attention_mask'].to(device)
-            labels = batch['labels'].to(device)
+            input_ids = batch["input_ids"].to(device)
+            attention_mask = batch["attention_mask"].to(device)
+            labels = batch["labels"].to(device)
 
             # Validate labels
             if torch.any(labels >= TOTAL_LABELS) or torch.any(labels < 0):
@@ -366,9 +378,9 @@ for epoch in range(num_epochs):
     print("  📝 Training on journal data...")
     for i, batch in enumerate(journal_train_loader):
         try:
-            input_ids = batch['input_ids'].to(device)
-            attention_mask = batch['attention_mask'].to(device)
-            labels = batch['labels'].to(device)
+            input_ids = batch["input_ids"].to(device)
+            attention_mask = batch["attention_mask"].to(device)
+            labels = batch["labels"].to(device)
 
             if torch.any(labels >= TOTAL_LABELS) or torch.any(labels < 0):
                 continue
@@ -401,9 +413,9 @@ for epoch in range(num_epochs):
     with torch.no_grad():
         for batch in journal_val_loader:
             try:
-                input_ids = batch['input_ids'].to(device)
-                attention_mask = batch['attention_mask'].to(device)
-                labels = batch['labels'].to(device)
+                input_ids = batch["input_ids"].to(device)
+                attention_mask = batch["attention_mask"].to(device)
+                labels = batch["labels"].to(device)
 
                 outputs = model(input_ids=input_ids, attention_mask=attention_mask)
                 preds = torch.argmax(outputs, dim=1)
@@ -417,7 +429,7 @@ for epoch in range(num_epochs):
 
     # Calculate metrics
     if all_preds and all_labels:
-        f1_macro = f1_score(all_labels, all_preds, average='macro')
+        f1_macro = f1_score(all_labels, all_preds, average="macro")
         accuracy = accuracy_score(all_labels, all_preds)
 
         avg_loss = total_loss / num_batches if num_batches > 0 else 0
@@ -430,7 +442,7 @@ for epoch in range(num_epochs):
         # Save best model
         if f1_macro > best_f1:
             best_f1 = f1_macro
-            torch.save(model.state_dict(), 'best_simple_model.pth')
+            torch.save(model.state_dict(), "best_simple_model.pth")
             print(f"    💾 New best model saved! F1: {best_f1:.4f}")
 
     # Clear GPU cache
@@ -441,15 +453,15 @@ print(f"\n🏆 Training completed! Best F1 Score: {best_f1:.4f}")
 
 # Step 9: Save results
 results = {
-    'best_f1': best_f1,
-    'num_labels': TOTAL_LABELS,
-    'target_achieved': best_f1 >= 0.7,
-    'go_samples': len(go_texts),
-    'journal_samples': len(journal_texts),
-    'emotion_mapping': emotion_mapping
+    "best_f1": best_f1,
+    "num_labels": TOTAL_LABELS,
+    "target_achieved": best_f1 >= 0.7,
+    "go_samples": len(go_texts),
+    "journal_samples": len(journal_texts),
+    "emotion_mapping": emotion_mapping,
 }
 
-with open('simple_training_results.json', 'w') as f:
+with open("simple_training_results.json", "w") as f:
     json.dump(results, f, indent=2)
 
 print("\n✅ Training completed successfully!")
@@ -459,8 +471,9 @@ print(f"🎯 Target Met: {'✅' if best_f1 >= 0.7 else '❌'}")
 # Download results (optional in Colab)
 try:
     from google.colab import files  # type: ignore
-    files.download('best_simple_model.pth')
-    files.download('simple_training_results.json')
+
+    files.download("best_simple_model.pth")
+    files.download("simple_training_results.json")
 except Exception:
     print("ℹ️ Skipping file downloads (not running in Colab)")
 

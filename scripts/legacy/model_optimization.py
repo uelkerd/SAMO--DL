@@ -72,12 +72,6 @@ import sys
 import time
 import torch
 
-
-
-
-
-
-
 """
 Model Optimization Script for REQ-DL-008
 

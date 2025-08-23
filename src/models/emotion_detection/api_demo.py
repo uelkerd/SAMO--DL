@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """SAMO Emotion Detection API Demo.
 
-This demo showcases the emotion detection pipeline working with pre-trained
-models and provides a preview of the API interface for Web Dev integration.
+This demo showcases the emotion detection pipeline working with pre-trained models and
+provides a preview of the API interface for Web Dev integration.
 """
 
 import logging

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-TypeHint Codemod for Python 3.8 Compatibility
+"""TypeHint Codemod for Python 3.8 Compatibility.
 
 This script converts Python 3.9+ type hints to Python 3.8 compatible syntax:
 - list[T] -> List[T]

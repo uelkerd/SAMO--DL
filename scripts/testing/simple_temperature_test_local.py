@@ -28,12 +28,6 @@ import logging
 import sys
 import torch
 
-
-
-
-
-
-
 """
 Simple Temperature Scaling Test - Using Local Sample Data.
 """

@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-T5 Summarization Model Test for CI/CD Pipeline.
+"""T5 Summarization Model Test for CI/CD Pipeline.
 
-This script validates that the T5 text summarization model
-can be loaded and initialized correctly.
+This script validates that the T5 text summarization model can be loaded and initialized
+correctly.
 """
 
 import logging

@@ -20,9 +20,9 @@ import logging
 import time
 """Transcription API for SAMO Voice Processing.
 
-This module provides integration between the WhisperTranscriber and the
-application API layer, handling transcription requests with proper error
-handling and performance monitoring.
+This module provides integration between the WhisperTranscriber and the application API
+layer, handling transcription requests with proper error handling and performance
+monitoring.
 """
 
 
@@ -34,8 +34,8 @@ logger = logging.getLogger(__name__)
 class TranscriptionAPI:
     """API layer for voice transcription services.
 
-    This class provides a simplified interface for the application to interact with
-    the Whisper transcription functionality, including error handling, performance
+    This class provides a simplified interface for the application to interact with the
+    Whisper transcription functionality, including error handling, performance
     monitoring, and proper resource management.
     """
 

@@ -21,7 +21,6 @@ def load_entries_from_db(
 
     Returns:
         DataFrame containing journal entries
-
     """
     query = db_session.query(JournalEntry)
 
@@ -60,7 +59,6 @@ def load_entries_from_prisma(
 
     Returns:
         DataFrame containing journal entries
-
     """
     prisma = PrismaClient()
 
@@ -83,7 +81,6 @@ def load_entries_from_json(file_path: str) -> pd.DataFrame:
 
     Returns:
         DataFrame containing journal entries
-
     """
     with open(file_path) as f:
         data = json.load(f)
@@ -99,7 +96,6 @@ def load_entries_from_csv(file_path: str) -> pd.DataFrame:
 
     Returns:
         DataFrame containing journal entries
-
     """
     return pd.read_csv(file_path)
 
@@ -110,7 +106,6 @@ def save_entries_to_csv(df: pd.DataFrame, output_path: str) -> None:
     Args:
         df: DataFrame containing journal entries
         output_path: Path to save the CSV file
-
     """
     df.to_csv(output_path, index=False)
 
@@ -121,6 +116,5 @@ def save_entries_to_json(df: pd.DataFrame, output_path: str) -> None:
     Args:
         df: DataFrame containing journal entries
         output_path: Path to save the JSON file
-
     """
     df.to_json(output_path, orient="records")

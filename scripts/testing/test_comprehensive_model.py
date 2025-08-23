@@ -392,4 +392,4 @@ def test_comprehensive_model():
     print("=" * 60)
 
 if __name__ == "__main__":
-    test_comprehensive_model() 
+    test_comprehensive_model()

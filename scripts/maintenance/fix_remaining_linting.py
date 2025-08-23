@@ -18,8 +18,7 @@
 #!/usr/bin/env python3
 from pathlib import Path
 import re
-"""
-Comprehensive Linting Fix Script for SAMO Deep Learning.
+"""Comprehensive Linting Fix Script for SAMO Deep Learning.
 
 This script addresses the remaining 2,669 linting errors systematically:
 - F821: Undefined name errors (73 instances)

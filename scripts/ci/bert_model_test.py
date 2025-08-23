@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-BERT Model Loading Test for CI/CD Pipeline.
+"""BERT Model Loading Test for CI/CD Pipeline.
 
-This script validates that the BERT emotion detection model
-can be loaded and initialized correctly.
+This script validates that the BERT emotion detection model can be loaded and
+initialized correctly.
 """
 
 import logging

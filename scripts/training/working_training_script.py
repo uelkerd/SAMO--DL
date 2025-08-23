@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-from pathlib import Path
 import logging
 import sys
-import torch
 import traceback
+from pathlib import Path
+
+import torch
+
 from scripts.bootstrap import add_repo_src_to_path, find_repo_root
 
 # Working Training Script based on the successful local validation approach.
@@ -28,6 +30,7 @@ def main():
         from src.models.emotion_detection.bert_classifier import (
             create_bert_emotion_classifier,
         )
+
         model, loss_fn = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
             class_weights=None,  # We'll handle this differently

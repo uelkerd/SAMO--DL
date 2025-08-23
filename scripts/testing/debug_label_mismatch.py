@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""
-Debug script to identify and fix CUDA device-side assert errors caused by label mismatches.
-"""
+"""Debug script to identify and fix CUDA device-side assert errors caused by label
+mismatches."""
 
 import json
 import pandas as pd
@@ -218,4 +217,4 @@ if __name__ == "__main__":
         print(f"📊 Use num_labels={result['num_labels']} in your model")
         print(f"📊 Label encoder saved as 'fixed_label_encoder.pkl'")
     else:
-        print(f"\n❌ Debugging failed!") 
+        print(f"\n❌ Debugging failed!")

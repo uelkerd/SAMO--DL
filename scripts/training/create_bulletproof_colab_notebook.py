@@ -10,7 +10,7 @@ file paths and handles all edge cases for reliable training.
 import json
 
 def create_bulletproof_colab_notebook():
-    """Create the bulletproof Colab notebook content"""
+    """Create the bulletproof Colab notebook content."""
     
     notebook_content = {
         "cells": [
@@ -714,4 +714,4 @@ def create_bulletproof_colab_notebook():
     print("  - Robust error handling")
 
 if __name__ == "__main__":
-    create_bulletproof_colab_notebook() 
+    create_bulletproof_colab_notebook()

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Debug Training Loss Script for SAMO Deep Learning.
+"""Debug Training Loss Script for SAMO Deep Learning.
 
 This script investigates why training loss is showing 0.0000 by examining:
 - Data loading and label distribution

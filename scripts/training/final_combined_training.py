@@ -34,7 +34,7 @@ print("🚀 FINAL COMBINED TRAINING - JOURNAL + CMU-MOSEI")
 print("=" * 60)
 
 def load_combined_dataset():
-    """Load and combine journal and CMU-MOSEI datasets"""
+    """Load and combine journal and CMU-MOSEI datasets."""
     print("📊 Loading combined dataset...")
     
     combined_samples = []
@@ -103,7 +103,7 @@ def load_combined_dataset():
     return combined_samples
 
 class EmotionDataset(Dataset):
-    """Custom dataset for emotion classification"""
+    """Custom dataset for emotion classification."""
     
     def __init__(self, texts, labels, tokenizer, max_length=128):
         self.texts = texts
@@ -133,7 +133,7 @@ class EmotionDataset(Dataset):
         }
 
 def compute_metrics(eval_pred):
-    """Compute F1 score and accuracy"""
+    """Compute F1 score and accuracy."""
     predictions, labels = eval_pred
     predictions = np.argmax(predictions, axis=1)
     
@@ -146,7 +146,7 @@ def compute_metrics(eval_pred):
     }
 
 def main():
-    """Main training function"""
+    """Main training function."""
     print("🎯 Target F1 Score: 75-85%")
     print("🔧 Current Best: 67%")
     print("📈 Expected Improvement: 8-18%")
@@ -272,4 +272,4 @@ def main():
     print(f"📊 Improvement: {((results['eval_f1'] - 0.67) / 0.67 * 100):.1f}% from baseline")
 
 if __name__ == "__main__":
-    main() 
+    main()

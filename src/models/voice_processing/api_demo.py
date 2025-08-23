@@ -155,8 +155,8 @@ async def transcribe_audio(
 ):
     """Transcribe a single audio file to text.
 
-    This endpoint accepts various audio formats (MP3, WAV, M4A, etc.)
-    and returns high-quality transcription with confidence scoring.
+    This endpoint accepts various audio formats (MP3, WAV, M4A, etc.) and returns high-
+    quality transcription with confidence scoring.
     """
     if whisper_transcriber is None:
         raise HTTPException(
@@ -231,8 +231,8 @@ async def transcribe_batch(
 ):
     """Transcribe multiple audio files in batch for efficiency.
 
-    Useful for processing multiple journal voice entries simultaneously
-    with improved throughput and resource utilization.
+    Useful for processing multiple journal voice entries simultaneously with improved
+    throughput and resource utilization.
     """
     if whisper_transcriber is None:
         raise HTTPException(
@@ -374,8 +374,8 @@ async def get_model_info() -> Dict[str, Any]:
 async def validate_audio(audio_file: UploadFile = File(...)):
     """Validate audio file without transcribing.
 
-    Useful for pre-upload validation to provide immediate feedback
-    to users about file compatibility and quality.
+    Useful for pre-upload validation to provide immediate feedback to users about file
+    compatibility and quality.
     """
     if not audio_file.filename:
         raise HTTPException(status_code=400, detail="No filename provided")

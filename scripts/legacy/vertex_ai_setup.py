@@ -36,14 +36,6 @@ import logging
 import os
 import sys
 
-
-
-
-
-
-
-
-
 """
 Vertex AI Setup for SAMO Deep Learning Project.
 

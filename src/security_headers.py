@@ -41,8 +41,7 @@ class SecurityHeadersConfig:
     ua_blocking_enabled: bool = False  # Whether to block suspicious UAs (vs just log)
 
 class SecurityHeadersMiddleware:
-    """
-    Flask middleware for adding security headers and implementing security policies.
+    """Flask middleware for adding security headers and implementing security policies.
 
     Features:
     - Content Security Policy (CSP)

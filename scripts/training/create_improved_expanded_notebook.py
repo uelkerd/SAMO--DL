@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Create Improved Expanded Training Notebook
-Generates a new notebook with proper JSON escaping and GPU optimizations
-"""
+"""Create Improved Expanded Training Notebook Generates a new notebook with proper JSON
+escaping and GPU optimizations."""
 
 import json
 
@@ -764,4 +762,4 @@ def create_improved_notebook():
     print("  - DataLoader optimizations (num_workers, pin_memory)")
 
 if __name__ == "__main__":
-    create_improved_notebook() 
+    create_improved_notebook()

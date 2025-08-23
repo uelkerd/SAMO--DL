@@ -9,7 +9,7 @@ This addresses the poor performance with generic BERT.
 import json
 
 def create_emotion_specialized_notebook():
-    """Create the emotion specialized notebook content"""
+    """Create the emotion specialized notebook content."""
     
     notebook_content = {
         "cells": [
@@ -499,4 +499,4 @@ def create_emotion_specialized_notebook():
     print("  - Better hyperparameters")
 
 if __name__ == "__main__":
-    create_emotion_specialized_notebook() 
+    create_emotion_specialized_notebook()

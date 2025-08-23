@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Cloud Run API Endpoint Testing Script
-Tests the deployed SAMO Emotion Detection API for functionality, security, and performance.
-"""
+"""Cloud Run API Endpoint Testing Script Tests the deployed SAMO Emotion Detection API
+for functionality, security, and performance."""
 
 import requests
 import json
@@ -39,7 +37,7 @@ class CloudRunAPITester:
         ]
 
     def test_health_endpoint(self) -> Dict[str, Any]:
-        """Test the health/status endpoint"""
+        """Test the health/status endpoint."""
         logger.info("Testing health endpoint...")
         
         try:
@@ -70,7 +68,7 @@ class CloudRunAPITester:
             }
 
     def _validate_emotion_response(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Validate emotion detection response structure"""
+        """Validate emotion detection response structure."""
         if "primary_emotion" not in data:
             return {
                 "success": False,
@@ -92,13 +90,13 @@ class CloudRunAPITester:
         }
 
     def _create_test_payload(self, text: str = None) -> Dict[str, str]:
-        """Create a test payload for emotion detection"""
+        """Create a test payload for emotion detection."""
         if text is None:
             text = "I am feeling really happy and excited today!"
         return {"text": text}
 
     def test_emotion_detection_endpoint(self) -> Dict[str, Any]:
-        """Test the emotion detection endpoint"""
+        """Test the emotion detection endpoint."""
         logger.info("Testing emotion detection endpoint...")
         
         try:
@@ -115,7 +113,7 @@ class CloudRunAPITester:
             }
 
     def test_model_loading(self) -> Dict[str, Any]:
-        """Test if models are properly loaded"""
+        """Test if models are properly loaded."""
         logger.info("Testing model loading...")
         
         # Test multiple emotion detection requests to verify model loading
@@ -154,7 +152,7 @@ class CloudRunAPITester:
         }
 
     def test_invalid_inputs(self) -> Dict[str, Any]:
-        """Test invalid input handling"""
+        """Test invalid input handling."""
         logger.info("Testing invalid inputs...")
         
         invalid_test_cases = [
@@ -215,7 +213,7 @@ class CloudRunAPITester:
         }
 
     def test_security_features(self) -> Dict[str, Any]:
-        """Test security features like rate limiting and authentication"""
+        """Test security features like rate limiting and authentication."""
         logger.info("Testing security features...")
         
         # Test rate limiting by making multiple rapid requests
@@ -285,7 +283,7 @@ class CloudRunAPITester:
         }
 
     def test_performance(self) -> Dict[str, Any]:
-        """Test API performance metrics"""
+        """Test API performance metrics."""
         logger.info("Testing performance...")
         
         performance_results = []
@@ -336,7 +334,7 @@ class CloudRunAPITester:
         }
 
     def run_comprehensive_test(self) -> Dict[str, Any]:
-        """Run all tests and generate comprehensive report"""
+        """Run all tests and generate comprehensive report."""
         logger.info("Starting comprehensive API testing...")
         
         test_results = {
@@ -360,7 +358,7 @@ class CloudRunAPITester:
 
     @staticmethod
     def generate_summary(tests: Dict[str, Any]) -> Dict[str, Any]:
-        """Generate a summary of test results"""
+        """Generate a summary of test results."""
         summary = {
             "overall_success": True,
             "passed_tests": 0,
@@ -384,7 +382,7 @@ class CloudRunAPITester:
 
 
 def main():
-    """Main function to run the API tests"""
+    """Main function to run the API tests."""
     # Allow BASE_URL to be set via command line argument or environment variable
     parser = argparse.ArgumentParser(description="Test SAMO Cloud Run API")
     parser.add_argument("--base-url", help="API base URL")

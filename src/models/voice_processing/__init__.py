@@ -2,7 +2,6 @@ from .audio_preprocessor import AudioPreprocessor, preprocess_audio
 from .transcription_api import TranscriptionAPI
 from .whisper_transcriber import WhisperTranscriber, create_whisper_transcriber
 
-
 """SAMO Deep Learning - Voice Processing Module.
 
 This module implements OpenAI Whisper-based voice-to-text processing for

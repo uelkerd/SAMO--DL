@@ -17,9 +17,6 @@ import os
 import sys
 import torch
 
-
-
-
 """
 Update Model Threshold
 

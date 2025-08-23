@@ -22,7 +22,7 @@ from typing import Dict, List, Optional
 
 # Configuration
 def get_project_id():
-    """Get current GCP project ID dynamically"""
+    """Get current GCP project ID dynamically."""
     try:
         result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], 
                               capture_output=True, text=True, check=True)
@@ -56,12 +56,12 @@ class SecurityDeploymentFix:
 
     @staticmethod
     def log(message: str, level: str = "INFO"):
-        """Log messages with timestamp"""
+        """Log messages with timestamp."""
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
         print(f"[{timestamp}] [{level}] {message}")
 
     def run_command(self, command: List[str], check: bool = True) -> subprocess.CompletedProcess:
-        """Run shell command with error handling"""
+        """Run shell command with error handling."""
         # Sanitize command for security
         sanitized_command = []
         for arg in command:
@@ -84,7 +84,7 @@ class SecurityDeploymentFix:
             return e
 
     def verify_static_files_exist(self):
-        """Verify that all required static files exist"""
+        """Verify that all required static files exist."""
         required_files = [
             self.secure_requirements,
             self.secure_dockerfile,
@@ -104,7 +104,7 @@ class SecurityDeploymentFix:
         self.log("✅ All static files verified")
 
     def create_secure_requirements(self):
-        """Create secure requirements.txt with latest secure versions"""
+        """Create secure requirements.txt with latest secure versions."""
         self.log("Creating secure requirements.txt...")
 
         secure_requirements = """# Secure requirements for Cloud Run deployment
@@ -141,7 +141,7 @@ cryptography>=41.0.0,<42.0.0
         self.log("✅ Secure requirements.txt created")
 
     def build_and_deploy(self):
-        """Build and deploy secure container to Cloud Run"""
+        """Build and deploy secure container to Cloud Run."""
         self.log("Building and deploying secure container...")
 
         # Verify static files exist before deployment
@@ -194,7 +194,7 @@ images:
         self.log("✅ Secure deployment completed successfully")
 
     def test_deployment(self):
-        """Test the deployed service for security compliance"""
+        """Test the deployed service for security compliance."""
         self.log("Testing deployment for security compliance...")
 
         # Get service URL
@@ -288,7 +288,7 @@ images:
         return True
 
     def cleanup_old_deployment(self):
-        """Clean up old deployment artifacts"""
+        """Clean up old deployment artifacts."""
         self.log("Cleaning up old deployment artifacts...")
 
         # Remove temporary cloudbuild.yaml
@@ -298,7 +298,7 @@ images:
             self.log("✅ Cleaned up temporary cloudbuild.yaml")
 
     def run(self):
-        """Run the complete security deployment fix"""
+        """Run the complete security deployment fix."""
         try:
             self.log("🚀 Starting security deployment fix...")
 

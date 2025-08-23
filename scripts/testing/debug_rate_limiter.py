@@ -1,18 +1,21 @@
 #!/usr/bin/env python3
 """Debug aid for TokenBucketRateLimiter.
 
-Runs a pair of requests against a minimal config and prints bucket,
-refill, history, and block status to help diagnose rate-limit behavior.
+Runs a pair of requests against a minimal config and prints bucket, refill, history, and
+block status to help diagnose rate-limit behavior.
 """
 from pathlib import Path
+
 from scripts.bootstrap import add_repo_src_to_path, find_repo_root
+
 repo_root = find_repo_root(Path(__file__))
 add_repo_src_to_path(Path(__file__))
 
 
 def debug_rate_limiter():
     """Debug the rate limiter behavior."""
-    from src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
+    from src.api_rate_limiter import RateLimitConfig, TokenBucketRateLimiter
+
     print("🔍 Debugging Rate Limiter Issue")
     print("=" * 50)
 
@@ -46,9 +49,8 @@ def debug_rate_limiter():
     print(f"Buckets after second request: {rate_limiter.buckets}")
 
     # Check what's in the bucket for this client
-    client_key = (
-        meta1.get("client_key")
-        or rate_limiter._get_client_key(client_ip, user_agent)
+    client_key = meta1.get("client_key") or rate_limiter._get_client_key(
+        client_ip, user_agent
     )
     print(f"\n🔑 Client key: {client_key}")
     print(f"Bucket value for client: {rate_limiter.buckets[client_key]}")

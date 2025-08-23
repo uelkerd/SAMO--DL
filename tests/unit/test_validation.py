@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Unit tests for data validation functionality.
-"""
+"""Unit tests for data validation functionality."""
 
 import pandas as pd
 

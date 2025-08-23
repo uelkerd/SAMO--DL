@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Sequential smoke test for local and Cloud Run deployments.
+"""Sequential smoke test for local and Cloud Run deployments.
 
 Usage:
   BASE_URL="http://127.0.0.1:8000" python scripts/testing/smoke_local.py

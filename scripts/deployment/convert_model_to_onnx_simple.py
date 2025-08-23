@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Simple ONNX Conversion for Current Model
-Handles the actual model architecture we have
-"""
+"""Simple ONNX Conversion for Current Model Handles the actual model architecture we
+have."""
 import sys
 import torch
 import logging

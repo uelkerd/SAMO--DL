@@ -25,8 +25,8 @@ import pytest
 import queue
 import threading
 import time
-"""
-Integration tests for API endpoints.
+"""Integration tests for API endpoints.
+
 Tests API functionality, request/response handling, and error scenarios.
 """
 

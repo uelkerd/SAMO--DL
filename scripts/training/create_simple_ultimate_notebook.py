@@ -414,4 +414,4 @@ def create_simple_notebook():
     return output_path
 
 if __name__ == "__main__":
-    create_simple_notebook() 
+    create_simple_notebook()

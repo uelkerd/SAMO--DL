@@ -9,7 +9,7 @@ and uses the best performing one. This addresses the 32.73% F1 score.
 import json
 
 def create_model_ensemble_notebook():
-    """Create the model ensemble notebook content"""
+    """Create the model ensemble notebook content."""
     
     notebook_content = {
         "cells": [
@@ -674,4 +674,4 @@ def create_model_ensemble_notebook():
     print("  - Optimized hyperparameters")
 
 if __name__ == "__main__":
-    create_model_ensemble_notebook() 
+    create_model_ensemble_notebook()

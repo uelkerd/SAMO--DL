@@ -1,5 +1,4 @@
-"""
-Integration Tests for Priority 1 Features
+"""Integration Tests for Priority 1 Features.
 
 This module tests all the Priority 1 Features implemented:
 1. JWT-based Authentication
@@ -1013,4 +1012,4 @@ class TestJWTManager:
         assert cleaned_count >= 0  # May or may not have expired tokens
 
 if __name__ == "__main__":
-    pytest.main([__file__]) 
+    pytest.main([__file__])

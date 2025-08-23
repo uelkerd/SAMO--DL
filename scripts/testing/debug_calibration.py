@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Debug Calibration Script
+"""Debug Calibration Script.
 
 This script helps debug the calibration test by checking file paths and permissions.
 """

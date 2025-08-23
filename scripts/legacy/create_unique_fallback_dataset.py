@@ -10,7 +10,7 @@ import json
 import random
 
 def create_unique_fallback_dataset():
-    """Create a unique fallback dataset with no duplicates"""
+    """Create a unique fallback dataset with no duplicates."""
     
     # Define unique templates for each emotion with variations
     emotion_templates = {
@@ -234,4 +234,4 @@ if __name__ == "__main__":
     print("🚀 CREATE UNIQUE FALLBACK DATASET")
     print("=" * 40)
     create_unique_fallback_dataset()
-    print("\n🎉 Unique fallback dataset created successfully!") 
+    print("\n🎉 Unique fallback dataset created successfully!")

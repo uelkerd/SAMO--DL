@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-Full Focal Loss Training Script
+"""Full Focal Loss Training Script.
 
-This script provides a complete focal loss training implementation
-for the emotion detection model.
+This script provides a complete focal loss training implementation for the emotion
+detection model.
 """
 
 import logging
@@ -117,7 +116,7 @@ def full_focal_training():
     model.train()
     for epoch in range(3):
         logger.info(f"📚 Epoch {epoch + 1}/3")
-        
+
         for batch_idx, batch in enumerate(train_dataloader):
             input_ids, attention_mask, batch_labels = batch
             input_ids = input_ids.to(device)

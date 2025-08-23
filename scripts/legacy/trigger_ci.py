@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Script to check git status and trigger CI pipeline.
-"""
+"""Script to check git status and trigger CI pipeline."""
 
 import logging
 import subprocess

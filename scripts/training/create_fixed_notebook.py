@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 
 def create_fixed_notebook():
-    """Create a fixed notebook with proper JSON escaping"""
+    """Create a fixed notebook with proper JSON escaping."""
     
     # Create the notebook structure
     notebook = {
@@ -646,4 +646,4 @@ def create_fixed_notebook():
 
 if __name__ == "__main__":
     create_fixed_notebook()
-    print("✅ Fixed specialized notebook created successfully!") 
+    print("✅ Fixed specialized notebook created successfully!")

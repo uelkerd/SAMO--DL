@@ -488,4 +488,4 @@ def complete_simple_notebook():
     print('\\n🚀 The notebook is now COMPLETE and ready to use!')
 
 if __name__ == "__main__":
-    complete_simple_notebook() 
+    complete_simple_notebook()

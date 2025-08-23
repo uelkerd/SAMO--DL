@@ -22,9 +22,6 @@ import numpy as np
 import sys
 import torch
 
-
-
-
 """
 Direct test of evaluation logic to find and fix the bug.
 """

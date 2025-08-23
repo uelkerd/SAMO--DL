@@ -1,5 +1,4 @@
-"""
-JWT-based Authentication Manager for SAMO Deep Learning API
+"""JWT-based Authentication Manager for SAMO Deep Learning API.
 
 This module provides comprehensive JWT token management including:
 - Access and refresh token creation
@@ -28,7 +27,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 class TokenPayload(BaseModel):
-    """Token payload structure"""
+    """Token payload structure."""
     user_id: str = Field(..., description="User identifier")
     username: str = Field(..., description="Username")
     email: str = Field(..., description="User email")
@@ -38,7 +37,7 @@ class TokenPayload(BaseModel):
     type: Optional[str] = Field(None, description="Token type, e.g., 'refresh'")
 
 class TokenResponse(BaseModel):
-    """Token response structure"""
+    """Token response structure."""
     access_token: str = Field(..., description="Access token")
     refresh_token: str = Field(..., description="Refresh token")
     token_type: str = Field(default="bearer", description="Token type")
@@ -47,7 +46,7 @@ class TokenResponse(BaseModel):
 # Token pair is returned as a plain dict
 
 class JWTManager:
-    """Comprehensive JWT token management system"""
+    """Comprehensive JWT token management system."""
 
     def __init__(self, secret_key: str = SECRET_KEY, algorithm: str = ALGORITHM):
         self.secret_key = secret_key
@@ -56,7 +55,7 @@ class JWTManager:
         self.blacklisted_tokens: dict = {}
 
     def create_access_token(self, user_data: Dict[str, Any]) -> str:
-        """Create a new access token"""
+        """Create a new access token."""
         payload = {
             "user_id": user_data["user_id"],
             "username": user_data["username"],
@@ -68,7 +67,7 @@ class JWTManager:
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
 
     def create_refresh_token(self, user_data: Dict[str, Any]) -> str:
-        """Create a new refresh token"""
+        """Create a new refresh token."""
         payload = {
             "user_id": user_data["user_id"],
             "username": user_data["username"],
@@ -91,7 +90,7 @@ class JWTManager:
         )
 
     def verify_token(self, token: str) -> Optional[TokenPayload]:
-        """Verify and decode a token"""
+        """Verify and decode a token."""
         try:
             if token in self.blacklisted_tokens:
                 return None
@@ -109,7 +108,7 @@ class JWTManager:
             return None
 
     def refresh_access_token(self, refresh_token: str) -> Optional[str]:
-        """Refresh an access token using a valid refresh token"""
+        """Refresh an access token using a valid refresh token."""
         payload = self.verify_token(refresh_token)
         if not payload or getattr(payload, "type", None) != "refresh":
             return None
@@ -123,7 +122,7 @@ class JWTManager:
         return self.create_access_token(user_data)
 
     def blacklist_token(self, token: str) -> bool:
-        """Add a token to the blacklist"""
+        """Add a token to the blacklist."""
         try:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
             exp_datetime = datetime.fromtimestamp(payload["exp"]) if payload.get("exp") else None
@@ -133,21 +132,21 @@ class JWTManager:
             return False
 
     def is_token_blacklisted(self, token: str) -> bool:
-        """Check if a token is blacklisted"""
+        """Check if a token is blacklisted."""
         return token in self.blacklisted_tokens
 
     def get_user_permissions(self, token: str) -> List[str]:
-        """Extract user permissions from token"""
+        """Extract user permissions from token."""
         payload = self.verify_token(token)
         return payload.permissions if payload else []
 
     def has_permission(self, token: str, required_permission: str) -> bool:
-        """Check if user has a specific permission"""
+        """Check if user has a specific permission."""
         permissions = self.get_user_permissions(token)
         return required_permission in permissions
 
     def cleanup_expired_tokens(self) -> int:
-        """Clean up expired tokens from blacklist"""
+        """Clean up expired tokens from blacklist."""
         initial_count = len(self.blacklisted_tokens)
         current_time = datetime.utcnow()
 

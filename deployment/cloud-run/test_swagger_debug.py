@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Test script to debug Swagger docs 500 error
-"""
+"""Test script to debug Swagger docs 500 error."""
 
 from flask import Flask, jsonify
 from flask_restx import Api, Resource, Namespace
@@ -44,4 +42,4 @@ if __name__ == '__main__':
     print("- http://localhost:5001/docs (should work)")
     print("- http://localhost:5001/api/health (should work)")
     
-    app.run(host='0.0.0.0', port=5001, debug=True) 
+    app.run(host='0.0.0.0', port=5001, debug=True)

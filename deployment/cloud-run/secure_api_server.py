@@ -40,7 +40,7 @@ add_security_headers(app)
 # Register root endpoint BEFORE Flask-RESTX initialization to avoid conflicts
 @app.route('/')
 def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX's root
-    """Get API status and information"""
+    """Get API status and information."""
     try:
         logger.info(f"Root endpoint accessed from {request.remote_addr}")
         return jsonify({
@@ -139,7 +139,7 @@ model_lock = threading.Lock()
 EMOTION_MAPPING = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
 
 def require_api_key(f):
-    """Decorator to require API key via X-API-Key header"""
+    """Decorator to require API key via X-API-Key header."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         api_key = request.headers.get('X-API-Key')
@@ -150,13 +150,13 @@ def require_api_key(f):
     return decorated_function
 
 def verify_api_key(api_key: str) -> bool:
-    """Verify API key using constant-time comparison"""
+    """Verify API key using constant-time comparison."""
     if not api_key:
         return False
     return hmac.compare_digest(api_key, ADMIN_API_KEY)
 
 def sanitize_input(text: str) -> str:
-    """Sanitize input text"""
+    """Sanitize input text."""
     if not isinstance(text, str):
         raise ValueError("Input must be a string")
 
@@ -172,7 +172,7 @@ def sanitize_input(text: str) -> str:
     return text.strip()
 
 def load_model():
-    """Load the emotion detection model using shared utilities"""
+    """Load the emotion detection model using shared utilities."""
     # Use the shared model loading function
     success = ensure_model_loaded()
     if not success:
@@ -180,7 +180,7 @@ def load_model():
         raise RuntimeError("Model loading failed - check logs for details")
 
 def predict_emotion(text: str) -> dict:
-    """Predict emotion for given text using shared utilities"""
+    """Predict emotion for given text using shared utilities."""
     # Use shared prediction function
     result = predict_emotions(text)
 
@@ -190,12 +190,12 @@ def predict_emotion(text: str) -> dict:
     return result
 
 def check_model_loaded():
-    """Ensure model is loaded before processing requests"""
+    """Ensure model is loaded before processing requests."""
     # Use shared model loading function
     return ensure_model_loaded()
 
 def create_error_response(error_message: str, status_code: int):
-    """Create a properly formatted error response for Flask-RESTX"""
+    """Create a properly formatted error response for Flask-RESTX."""
     error_response = {
         'error': error_message,
         'status_code': status_code,
@@ -210,13 +210,13 @@ def handle_rate_limit_exceeded():
     return create_error_response('Rate limit exceeded - too many requests', 429)
 
 def log_rate_limit_info():
-    """Log rate limiting information for debugging"""
+    """Log rate limiting information for debugging."""
     logger.debug(f"Rate limiting configured: {RATE_LIMIT_PER_MINUTE} requests per minute")
     logger.debug(f"Current request from: {request.remote_addr}")
 
 @app.before_request
 def before_request():
-    """Add request ID and timing to all requests"""
+    """Add request ID and timing to all requests."""
     g.start_time = time.time()
     g.request_id = str(uuid.uuid4())
     
@@ -235,7 +235,7 @@ def before_request():
 
 @app.after_request
 def after_request(response):
-    """Add request tracking headers"""
+    """Add request tracking headers."""
     if hasattr(g, 'start_time'):
         duration = time.time() - g.start_time
         response.headers['X-Request-Duration'] = str(duration)
@@ -257,7 +257,7 @@ class Health(Resource):
     @api.response(503, 'Service Unavailable', error_model)
     @api.response(500, 'Internal Server Error', error_model)
     def get(self):
-        """Get API health status"""
+        """Get API health status."""
         try:
             logger.info(f"Health check from {request.remote_addr}")
             model_status = check_model_loaded()
@@ -291,7 +291,7 @@ class Predict(Resource):
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
-        """Predict emotion for a single text input"""
+        """Predict emotion for a single text input."""
         try:
             # Log rate limiting info for debugging
             log_rate_limit_info()
@@ -340,7 +340,7 @@ class PredictBatch(Resource):
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
-        """Predict emotions for multiple text inputs"""
+        """Predict emotions for multiple text inputs."""
         try:
             # Log rate limiting info for debugging
             log_rate_limit_info()
@@ -392,7 +392,7 @@ class Emotions(Resource):
     @api.response(200, 'Success')
     @api.response(500, 'Internal Server Error', error_model)
     def get(self):
-        """Get list of supported emotions"""
+        """Get list of supported emotions."""
         try:
             logger.info(f"Emotions list requested from {request.remote_addr}")
             return {
@@ -448,27 +448,27 @@ class SecurityStatus(Resource):
 
 # Error handlers for Flask-RESTX - using direct registration due to decorator compatibility issue
 def rate_limit_exceeded(error):
-    """Handle rate limit exceeded errors"""
+    """Handle rate limit exceeded errors."""
     logger.warning(f"Rate limit exceeded for {request.remote_addr}")
     return create_error_response('Rate limit exceeded - too many requests', 429)
 
 def internal_error(error):
-    """Handle internal server errors"""
+    """Handle internal server errors."""
     logger.error(f"Internal server error for {request.remote_addr}: {str(error)}")
     return create_error_response('Internal server error', 500)
 
 def not_found(error):
-    """Handle not found errors"""
+    """Handle not found errors."""
     logger.warning(f"Endpoint not found for {request.remote_addr}: {request.url}")
     return create_error_response('Endpoint not found', 404)
 
 def method_not_allowed(error):
-    """Handle method not allowed errors"""
+    """Handle method not allowed errors."""
     logger.warning(f"Method not allowed for {request.remote_addr}: {request.method} {request.url}")
     return create_error_response('Method not allowed', 405)
 
 def handle_unexpected_error(error):
-    """Handle any unexpected errors"""
+    """Handle any unexpected errors."""
     logger.error(f"Unexpected error for {request.remote_addr}: {str(error)}")
     return create_error_response('An unexpected error occurred', 500)
 
@@ -480,7 +480,7 @@ api.error_handlers[405] = method_not_allowed
 api.error_handlers[Exception] = handle_unexpected_error
 
 def initialize_model():
-    """Initialize the emotion detection model"""
+    """Initialize the emotion detection model."""
     try:
         logger.info("🚀 Initializing emotion detection API server...")
         logger.info(f"📊 Configuration: MAX_INPUT_LENGTH={MAX_INPUT_LENGTH}, RATE_LIMIT={RATE_LIMIT_PER_MINUTE}/min")

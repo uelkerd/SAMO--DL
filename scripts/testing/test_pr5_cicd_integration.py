@@ -182,7 +182,8 @@ def test_critical_fixes():
     return all_fixes_present
 
 def test_pipeline_structure():
-    """Test that the pipeline structure is correct, including handling malformed or incomplete configs."""
+    """Test that the pipeline structure is correct, including handling malformed or
+    incomplete configs."""
     print("🔍 Testing pipeline structure...")
 
     config_path = Path(".circleci/config.yml")
@@ -426,4 +427,4 @@ def main():
 
 if __name__ == "__main__":
     success = main()
-    sys.exit(0 if success else 1) 
+    sys.exit(0 if success else 1)

@@ -4,8 +4,6 @@
 import logging
 import sys
 
-
-
 """
 Validate Current F1 Score
 

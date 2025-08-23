@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Run API Rate Limiter Tests
+"""Run API Rate Limiter Tests.
 
 This script explicitly runs the API rate limiter tests to ensure they're discovered
 and included in test coverage metrics.

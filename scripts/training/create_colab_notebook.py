@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Create the Colab domain adaptation notebook with proper JSON format.
-"""
+"""Create the Colab domain adaptation notebook with proper JSON format."""
 
 import json
 
@@ -673,4 +671,4 @@ def create_colab_notebook():
     print("  - Model export for deployment")
 
 if __name__ == "__main__":
-    create_colab_notebook() 
+    create_colab_notebook()

@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Quick script to fix common Ruff linting issues
-"""
+"""Quick script to fix common Ruff linting issues."""
 
 import logging
 import re

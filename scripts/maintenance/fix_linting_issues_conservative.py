@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Conservative Linting Issues Fixer
+"""Conservative Linting Issues Fixer.
 
 This script fixes common linting issues in Python files without being too aggressive.
 It focuses on:

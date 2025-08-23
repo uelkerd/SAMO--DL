@@ -10,9 +10,6 @@ import logging
 import os
 import sys
 
-
-
-
 """
 Simple Vertex AI Validation for SAMO Deep Learning.
 

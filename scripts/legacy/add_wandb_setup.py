@@ -149,4 +149,4 @@ def add_wandb_setup():
     print('3. Restart runtime and run the notebook')
 
 if __name__ == "__main__":
-    add_wandb_setup() 
+    add_wandb_setup()

@@ -15,9 +15,6 @@
 from pathlib import Path
 import logging
 
-
-
-
 """
 Simple Loss Debug Script for SAMO Deep Learning.
 

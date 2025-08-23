@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Improve Expanded Training Notebook
-Adds GPU optimizations, better error handling, and performance enhancements
-"""
+"""Improve Expanded Training Notebook Adds GPU optimizations, better error handling, and
+performance enhancements."""
 
 import json
 import re
@@ -120,4 +118,4 @@ from torch.cuda.amp import autocast, GradScaler'''
     print("  - Better memory management")
 
 if __name__ == "__main__":
-    improve_notebook() 
+    improve_notebook()

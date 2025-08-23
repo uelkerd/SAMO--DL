@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Fix Remaining Python 3.8 Compatibility Issues
+"""Fix Remaining Python 3.8 Compatibility Issues.
 
 This script uses regex patterns to fix remaining type hint issues:
 - list[T] -> List[T]

@@ -50,14 +50,6 @@ import numpy as np
 import sys
 import torch
 
-
-
-
-
-
-
-
-
 """
 Pre-Training Validation Script for SAMO Deep Learning.
 

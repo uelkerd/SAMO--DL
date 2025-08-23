@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Validate Improved Expanded Training Notebook
-Tests the notebook structure, content, and ensures it's ready for Colab execution
-"""
+"""Validate Improved Expanded Training Notebook Tests the notebook structure, content,
+and ensures it's ready for Colab execution."""
 
 import json
 
@@ -127,4 +125,4 @@ def validate_notebook():
     return all_passed
 
 if __name__ == "__main__":
-    validate_notebook() 
+    validate_notebook()

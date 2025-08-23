@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Unified AI API for SAMO Deep Learning.
 
-This module provides a unified FastAPI interface for all AI models
-in the SAMO Deep Learning pipeline.
+This module provides a unified FastAPI interface for all AI models in the SAMO Deep
+Learning pipeline.
 """
 from __future__ import annotations
 
@@ -70,8 +70,8 @@ REQUEST_LATENCY = Histogram(
 def normalize_emotion_results(raw: Any) -> dict:
     """Normalize various emotion detector return shapes to a consistent dict.
 
-    Supports dicts (possibly with MagicMock values) and objects with attributes.
-    Returns a structure matching EmotionAnalysis fields.
+    Supports dicts (possibly with MagicMock values) and objects with attributes. Returns
+    a structure matching EmotionAnalysis fields.
     """
     try:
         if isinstance(raw, dict):
@@ -120,8 +120,8 @@ def normalize_emotion_results(raw: Any) -> dict:
         }
 
 def _run_emotion_predict(text: str, threshold: float = 0.5) -> dict:
-    """Run emotion prediction using available detector, adapting outputs to a
-    common schema.
+    """Run emotion prediction using available detector, adapting outputs to a common
+    schema.
 
     Returns a dict with keys: emotions (label->prob), primary_emotion,
     confidence, emotional_intensity.
@@ -692,8 +692,8 @@ def _ensure_summarizer_loaded() -> None:
 def _get_request_scoped_summarizer(model: str):
     """Return summarizer for requested model.
 
-    If the requested model differs, attempt to create a request-scoped instance.
-    On failure, raise HTTPException(400/503) instead of silently falling back.
+    If the requested model differs, attempt to create a request-scoped instance. On
+    failure, raise HTTPException(400/503) instead of silently falling back.
     """
     if hasattr(text_summarizer, "model_name") and text_summarizer.model_name != model:
         try:

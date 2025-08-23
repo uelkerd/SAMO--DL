@@ -28,40 +28,38 @@
         # Test different scenarios
         # Test edge cases
         # Test forward pass
-        from google.cloud import aiplatform
-        from src.models.emotion_detection.bert_classifier import WeightedBCELoss
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-        from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-        import torch
-        import torch
+        import traceback
+
         import torch
         import torch.nn.functional as F
-        import traceback
         import transformers
+        from google.cloud import aiplatform
+
+        from src.models.emotion_detection.bert_classifier import (
+            WeightedBCELoss,
+            create_bert_emotion_classifier,
+        )
+        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+        from src.models.emotion_detection.training_pipeline import (
+            EmotionDetectionTrainer,
+        )
     # Model configuration
     # Parse arguments
     # Run validation if requested
     # Training configuration
     # Validate environment
     # Validation configuration
-# Add src to path
-# Configure logging
-#!/usr/bin/env python3
-from pathlib import Path
-from typing import Dict, Any, Optional
 import argparse
 import logging
 import os
 import sys
 import traceback
 
-
-
-
-
-
-
+# Add src to path
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+from typing import Any, Dict, Optional
 
 """
 Vertex AI Training Script for SAMO Deep Learning.

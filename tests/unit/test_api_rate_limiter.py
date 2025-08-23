@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Unit tests for API rate limiter functionality.
-"""
+"""Unit tests for API rate limiter functionality."""
 from fastapi import FastAPI
 
 from src.api_rate_limiter import (

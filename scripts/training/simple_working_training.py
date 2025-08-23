@@ -16,22 +16,23 @@
         # Training loop
         import traceback
     # Setup device
+import logging
+import os
+import sys
+import traceback
+
 # Add project root to path
 # Configure logging
 #!/usr/bin/env python3
 from pathlib import Path
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-from torch import nn
-import logging
-import os
-import sys
+
 import torch
-import traceback
+from torch import nn
 
-
-
-
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import (
+    create_bert_emotion_classifier,
+)
 
 """
 Simple Working Training Script - FIXES ALL ISSUES

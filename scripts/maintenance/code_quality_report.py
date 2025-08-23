@@ -11,10 +11,6 @@ import datetime
 import logging
 import subprocess
 
-
-
-
-
 """Generate code quality report for SAMO Deep Learning project.
 
 This script demonstrates the pre-commit hooks in action by creating

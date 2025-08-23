@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Create Journal Entry Test Dataset for Domain Adaptation
+"""Create Journal Entry Test Dataset for Domain Adaptation.
 
 This script generates a realistic test dataset of journal entries for domain adaptation
 testing as required by REQ-DL-012. The dataset will be used to validate that our
@@ -306,4 +305,4 @@ def main():
     print("   Target: 70% F1 score on journal-style text vs Reddit comments")
 
 if __name__ == "__main__":
-    main() 
+    main()

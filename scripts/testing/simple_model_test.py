@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Simple model test script that works with current Python environment.
-"""
+"""Simple model test script that works with current Python environment."""
 
 import json
 import os
@@ -128,4 +126,4 @@ def main():
     suggest_next_steps()
 
 if __name__ == "__main__":
-    main() 
+    main()

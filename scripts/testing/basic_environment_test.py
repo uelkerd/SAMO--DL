@@ -6,8 +6,6 @@
 import logging
 import sys
 
-
-
 """
 Basic Environment Test Script
 Tests imports one by one to identify issues

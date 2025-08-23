@@ -1,5 +1,4 @@
-"""
-Secure Model Loader for SAMO Deep Learning.
+"""Secure Model Loader for SAMO Deep Learning.
 
 This module provides the main secure model loading interface that integrates
 all security components: integrity checking, sandboxed execution, and validation.

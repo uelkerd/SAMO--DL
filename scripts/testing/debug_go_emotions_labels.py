@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Debug the actual GoEmotions label structure to understand the mapping.
-"""
+"""Debug the actual GoEmotions label structure to understand the mapping."""
 
 import subprocess
 import sys
@@ -101,4 +99,4 @@ def debug_go_emotions():
     return go_emotions
 
 if __name__ == "__main__":
-    debug_go_emotions() 
+    debug_go_emotions()

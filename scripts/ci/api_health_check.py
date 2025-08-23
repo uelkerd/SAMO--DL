@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-API Health Check for CI/CD Pipeline.
+"""API Health Check for CI/CD Pipeline.
 
-This script validates that all API components are working correctly
-and can be imported without errors.
+This script validates that all API components are working correctly and can be imported
+without errors.
 """
 
 import logging

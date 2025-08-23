@@ -316,7 +316,8 @@ class TestInputSanitizer(unittest.TestCase):
         self.assertGreater(len(warnings), 0)
 
     def test_deeply_nested_json_sanitization(self):
-        """Test that deeply nested JSON triggers max_depth logic and does not cause stack overflow."""
+        """Test that deeply nested JSON triggers max_depth logic and does not cause
+        stack overflow."""
         # Construct a deeply nested JSON object
         max_depth = getattr(self.sanitizer, "max_depth", 10)
         deep_data = current = {}
@@ -455,4 +456,4 @@ class TestSecurityIntegration(unittest.TestCase):
 
 if __name__ == '__main__':
     # Run tests
-    unittest.main(verbosity=2) 
+    unittest.main(verbosity=2)

@@ -1,5 +1,4 @@
-"""
-Model Validator for Secure Model Loading.
+"""Model Validator for Secure Model Loading.
 
 This module provides model validation capabilities including:
 - Model structure validation

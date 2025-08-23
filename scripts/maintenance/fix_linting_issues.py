@@ -12,9 +12,6 @@ from pathlib import Path
 import logging
 import re
 
-
-
-
 """
 Fix all linting issues identified by Ruff in the CI pipeline.
 This script addresses:

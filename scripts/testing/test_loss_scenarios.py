@@ -8,9 +8,6 @@ import logging
 import torch
 import torch.nn.functional as F
 
-
-
-
 """
 Simple Test Script for Loss Debugging
 """

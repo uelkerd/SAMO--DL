@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-SAMO-DL Code Quality Enforcer
+"""SAMO-DL Code Quality Enforcer.
 
 This script enforces comprehensive code quality standards and prevents
 ALL recurring DeepSource issues from ever happening again.

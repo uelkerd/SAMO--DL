@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Test the trained emotion detection model with sample journal entries.
-"""
+"""Test the trained emotion detection model with sample journal entries."""
 
 import json
 import torch
@@ -142,4 +140,4 @@ def analyze_performance():
 
 if __name__ == "__main__":
     test_model()
-    analyze_performance() 
+    analyze_performance()

@@ -29,7 +29,7 @@ class IntegratedSecurityOptimization:
 
     @staticmethod
     def get_project_id():
-        """Get current GCP project ID dynamically"""
+        """Get current GCP project ID dynamically."""
         try:
             result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], 
                                   capture_output=True, text=True, check=True)
@@ -39,12 +39,12 @@ class IntegratedSecurityOptimization:
 
     @staticmethod
     def log(message: str, level: str = "INFO"):
-        """Log messages with timestamp"""
+        """Log messages with timestamp."""
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
         print(f"[{timestamp}] [{level}] {message}")
 
     def run_command(self, command: List[str], check: bool = True) -> subprocess.CompletedProcess:
-        """Run shell command with error handling"""
+        """Run shell command with error handling."""
         sanitized_command = []
         for arg in command:
             if isinstance(arg, str):
@@ -65,7 +65,7 @@ class IntegratedSecurityOptimization:
             return e
 
     def update_requirements_with_security(self):
-        """Update requirements with latest secure versions"""
+        """Update requirements with latest secure versions."""
         self.log("Updating requirements with security fixes...")
 
         secure_requirements = """# Integrated Secure & Optimized Requirements for Cloud Run
@@ -106,7 +106,7 @@ fastapi==0.104.1
         self.log("✅ Requirements updated with security fixes")
 
     def enhance_cloudbuild_with_security(self):
-        """Enhance cloudbuild.yaml with security features"""
+        """Enhance cloudbuild.yaml with security features."""
         self.log("Enhancing Cloud Build configuration with security...")
 
         enhanced_cloudbuild = f"""timeout: '3600s'
@@ -156,7 +156,7 @@ substitutions:
         self.log("✅ Cloud Build configuration enhanced with security")
 
     def deploy_integrated_service(self):
-        """Deploy the integrated secure and optimized service"""
+        """Deploy the integrated secure and optimized service."""
         self.log("Deploying integrated secure and optimized service...")
 
         # Build and deploy using Cloud Build
@@ -171,7 +171,7 @@ substitutions:
         self.log("✅ Integrated service deployed successfully")
 
     def test_integrated_deployment(self):
-        """Test both security and optimization features"""
+        """Test both security and optimization features."""
         self.log("Testing integrated deployment...")
 
         # Get service URL
@@ -251,7 +251,7 @@ substitutions:
         self.log("✅ Integrated deployment testing completed")
 
     def run(self):
-        """Run the complete integration process"""
+        """Run the complete integration process."""
         self.log("🚀 Starting Integrated Security & Cloud Run Optimization")
         self.log(f"Project ID: {self.project_id}")
         self.log(f"Service Name: {self.service_name}")

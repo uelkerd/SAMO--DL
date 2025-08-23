@@ -9,7 +9,7 @@ This script creates a fixed Colab notebook that handles the correct data structu
 import json
 
 def create_fixed_colab_notebook():
-    """Create the fixed Colab notebook content"""
+    """Create the fixed Colab notebook content."""
     
     notebook_content = {
         "cells": [
@@ -453,4 +453,4 @@ def create_fixed_colab_notebook():
     print("  5. Expect 75-85% F1 score!")
 
 if __name__ == "__main__":
-    create_fixed_colab_notebook() 
+    create_fixed_colab_notebook()

@@ -12,16 +12,12 @@ import json
 import logging
 import random
 
-
-
-
-
 """
 Create a test dataset with emotion labels for Vertex AI
 """
 
 def create_test_dataset():
-    """Create a test dataset with emotion labels"""
+    """Create a test dataset with emotion labels."""
 
     test_data = [
         {
@@ -116,7 +112,7 @@ def create_test_dataset():
 
 
 def main():
-    """Main function"""
+    """Main function."""
     logging.info("🚀 Creating test dataset with emotion labels...")
 
     test_data = create_test_dataset()

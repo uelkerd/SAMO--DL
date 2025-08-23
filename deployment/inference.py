@@ -11,7 +11,7 @@ from pathlib import Path
 
 class EmotionDetector:
     def __init__(self, model_path=None):
-        """Initialize the emotion detector"""
+        """Initialize the emotion detector."""
         if model_path is None:
             # Use the model directory relative to this script
             model_path = Path(__file__).parent / "model"
@@ -32,7 +32,7 @@ class EmotionDetector:
         print(f"✅ Model loaded successfully on {self.device}")
     
     def predict(self, text):
-        """Predict emotion for given text"""
+        """Predict emotion for given text."""
         # Tokenize
         inputs = self.tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
@@ -54,7 +54,7 @@ class EmotionDetector:
         }
     
     def predict_batch(self, texts):
-        """Predict emotions for multiple texts"""
+        """Predict emotions for multiple texts."""
         results = []
         for text in texts:
             result = self.predict(text)
@@ -62,7 +62,7 @@ class EmotionDetector:
         return results
 
 def main():
-    """Main function for command line usage"""
+    """Main function for command line usage."""
     import sys
     
     if len(sys.argv) < 2:

@@ -16,7 +16,7 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
     """Fixed test suite for Phase 3 Cloud Run optimization - no loops/conditionals"""
     
     def setUp(self):
-        """Set up test environment"""
+        """Set up test environment."""
         self.test_dir = Path(__file__).parent
         self.cloud_run_dir = self.test_dir.parent.parent / 'deployment' / 'cloud-run'
         self.maxDiff = None
@@ -325,7 +325,7 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         print("✅ YAML parsing validation passed")
 
 def run_phase3_tests_fixed():
-    """Run all Phase 3 tests with fixed approach"""
+    """Run all Phase 3 tests with fixed approach."""
     print("🚀 RUNNING PHASE 3 CLOUD RUN OPTIMIZATION TESTS (FIXED VERSION)")
     print("=" * 70)
     
@@ -373,4 +373,4 @@ def run_phase3_tests_fixed():
 
 if __name__ == "__main__":
     success = run_phase3_tests_fixed()
-    sys.exit(0 if success else 1) 
+    sys.exit(0 if success else 1)

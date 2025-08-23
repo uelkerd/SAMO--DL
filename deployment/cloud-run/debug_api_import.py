@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Debug script to isolate the 'int' object is not callable error
-"""
+"""Debug script to isolate the 'int' object is not callable error."""
 
 import sys
 import os

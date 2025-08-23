@@ -252,4 +252,4 @@ def test_new_trained_model():
     }
 
 if __name__ == "__main__":
-    test_new_trained_model() 
+    test_new_trained_model()

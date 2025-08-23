@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Final Inference Test Script for Emotion Detection Model
-Uses public RoBERTa tokenizer to avoid authentication issues
-"""
+"""Final Inference Test Script for Emotion Detection Model Uses public RoBERTa tokenizer
+to avoid authentication issues."""
 
 import torch
 import json
@@ -10,7 +8,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
 
 def test_final_inference():
-    """Test inference with public RoBERTa tokenizer"""
+    """Test inference with public RoBERTa tokenizer."""
     
     print("🧪 FINAL INFERENCE TEST")
     print("=" * 50)
@@ -137,7 +135,7 @@ def test_final_inference():
         return False
 
 def test_simple_prediction():
-    """Simple test with just one prediction"""
+    """Simple test with just one prediction."""
     
     print("🧪 SIMPLE PREDICTION TEST")
     print("=" * 50)
@@ -209,4 +207,4 @@ if __name__ == "__main__":
         print(f"   - Deploy with: cd deployment && ./deploy.sh")
         print(f"   - API will be available at: http://localhost:5000")
     else:
-        print(f"\n❌ Tests failed. Check the error messages above.") 
+        print(f"\n❌ Tests failed. Check the error messages above.")

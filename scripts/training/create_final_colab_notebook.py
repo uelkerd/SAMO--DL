@@ -9,7 +9,7 @@ This script creates the final Colab notebook for combined training.
 import json
 
 def create_colab_notebook():
-    """Create the final Colab notebook content"""
+    """Create the final Colab notebook content."""
     
     notebook_content = {
         "cells": [
@@ -463,7 +463,7 @@ def create_colab_notebook():
     return notebook_content
 
 def main():
-    """Create the notebook file"""
+    """Create the notebook file."""
     print("🚀 Creating final Colab notebook...")
     
     notebook_content = create_colab_notebook()
@@ -482,4 +482,4 @@ def main():
     print("  5. Expect 75-85% F1 score!")
 
 if __name__ == "__main__":
-    main() 
+    main()

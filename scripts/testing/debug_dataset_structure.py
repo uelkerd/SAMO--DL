@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Debug Dataset Structure Script
+"""Debug Dataset Structure Script.
 
 This script helps understand the structure of the GoEmotions dataset.
 """

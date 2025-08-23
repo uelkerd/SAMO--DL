@@ -21,9 +21,6 @@ import logging
 import sys
 import torch
 
-
-
-
 """Diagnose Model Issue - Why is the model predicting all emotions?
 
 This script investigates why the BERT model is predicting all emotions

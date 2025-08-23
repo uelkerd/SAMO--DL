@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-Security Configuration Validator
+"""Security Configuration Validator.
 
-This script validates the security configuration file to ensure all required
-settings are present and valid according to the security schema.
+This script validates the security configuration file to ensure all required settings
+are present and valid according to the security schema.
 """
 
 import yaml
@@ -254,4 +253,4 @@ def main():
         sys.exit(1)
 
 if __name__ == "__main__":
-    main() 
+    main()

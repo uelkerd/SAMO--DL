@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Fix JSON syntax error in expanded dataset training notebook
-"""
+"""Fix JSON syntax error in expanded dataset training notebook."""
 
 import re
 
@@ -52,4 +50,4 @@ def fix_notebook_json():
         print(f"❌ JSON still has issues: {e}")
 
 if __name__ == "__main__":
-    fix_notebook_json() 
+    fix_notebook_json()

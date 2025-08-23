@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-Integration Tests for PR #4: Documentation & Security Enhancements
+"""Integration Tests for PR #4: Documentation & Security Enhancements.
 
-This script validates that the security configurations and documentation
-implemented in PR #4 are properly integrated and functional.
+This script validates that the security configurations and documentation implemented in
+PR #4 are properly integrated and functional.
 """
 
 import sys
@@ -374,4 +373,4 @@ def main():
         print("Ready for final review and submission")
 
 if __name__ == "__main__":
-    main() 
+    main()

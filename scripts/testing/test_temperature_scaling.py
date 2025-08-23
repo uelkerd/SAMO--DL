@@ -1,25 +1,23 @@
-        # Calculate predictions per sample (overprediction metric)
-        # Evaluate with current temperature
-        # This is approximated from the debug output
-        # Track best result
-        # Update model temperature
-    # Display all results
-    # Initialize trainer
-    # Load trained model
-    # Provide recommendations
-    # Save results for CircleCI
-    # Test different temperatures
+# Calculate predictions per sample (overprediction metric)
+# Evaluate with current temperature
+# This is approximated from the debug output
+# Track best result
+# Update model temperature
+# Display all results
+# Initialize trainer
+# Load trained model
+# Provide recommendations
+# Save results for CircleCI
+# Test different temperatures
 # Add src to path
 # Set up logging
 #!/usr/bin/env python3
-from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from pathlib import Path
 import json
 import logging
+from pathlib import Path
 
-
-
+from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 """
 Temperature Scaling Test for BERT Emotion Classifier.
@@ -66,7 +64,9 @@ def test_temperature_scaling():
             trainer.model, trainer.val_loader, trainer.device, threshold=threshold
         )
 
-        predictions_per_sample = metrics.get("predictions_sum", 0) / metrics.get("num_samples", 1)
+        predictions_per_sample = metrics.get("predictions_sum", 0) / metrics.get(
+            "num_samples", 1
+        )
 
         result = {
             "temperature": temp,
@@ -124,7 +124,9 @@ def test_temperature_scaling():
         logger.info(
             "🎉 SUCCESS! Temperature scaling improved F1 by {(best_f1 / 0.076 - 1) * 100:.1f}%"
         )
-        logger.info("💡 RECOMMENDATION: Use temperature={best_temp} with threshold={threshold}")
+        logger.info(
+            "💡 RECOMMENDATION: Use temperature={best_temp} with threshold={threshold}"
+        )
     else:
         logger.info("⚠️ Temperature scaling provided modest improvement")
         logger.info(

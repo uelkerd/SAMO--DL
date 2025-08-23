@@ -345,7 +345,8 @@ logger.info("🔒 Secure model will be created via factory function")
 def create_secure_model():
     """Factory function to create a SecureEmotionDetectionModel or a stub in CI/TEST.
 
-    This avoids implicit global state and makes the creation path explicit and mockable in tests.
+    This avoids implicit global state and makes the creation path explicit and mockable
+    in tests.
     """
     if os.environ.get("TESTING") or os.environ.get("CI"):
         class _Stub:
@@ -370,10 +371,10 @@ def get_secure_model():
 def get_admin_api_key() -> str | None:
     """Fetch the admin API key from the environment on each call.
 
-    This function intentionally does not cache the key to support dynamic
-    updates (e.g., during tests or runtime reconfiguration). Be aware this
-    per-request read may introduce race conditions if the environment variable
-    changes mid-request; callers should treat the value as ephemeral per call.
+    This function intentionally does not cache the key to support dynamic updates (e.g.,
+    during tests or runtime reconfiguration). Be aware this per-request read may
+    introduce race conditions if the environment variable changes mid-request; callers
+    should treat the value as ephemeral per call.
     """
     return os.environ.get("ADMIN_API_KEY")
 
@@ -743,4 +744,4 @@ if __name__ == '__main__':
     logger.info("🛡️ Security monitoring: Comprehensive logging and metrics enabled")
     logger.info("=" * 60)
     
-    app.run(host='0.0.0.0', port=8000, debug=False) 
+    app.run(host='0.0.0.0', port=8000, debug=False)

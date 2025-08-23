@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
-"""
-Fix Model Loading Issues
-Comprehensive fix for Cloud Run deployment model loading problems.
-"""
+"""Fix Model Loading Issues Comprehensive fix for Cloud Run deployment model loading
+problems."""
 
 import os
 import sys
 from pathlib import Path
 
 def check_current_status():
-    """Check current deployment status"""
+    """Check current deployment status."""
     print("🔍 Checking Current Deployment Status")
     print("=" * 50)
 
@@ -39,7 +37,7 @@ def check_current_status():
     return True
 
 def fix_race_condition():
-    """Fix race condition in model loading"""
+    """Fix race condition in model loading."""
     print("\n🔧 Fixing Race Condition Issues")
     print("=" * 40)
 
@@ -50,7 +48,7 @@ def fix_race_condition():
     print("   - All state changes protected by locks")
 
 def improve_error_handling():
-    """Improve error handling and logging"""
+    """Improve error handling and logging."""
     print("\n🔧 Improving Error Handling")
     print("=" * 40)
 
@@ -61,7 +59,7 @@ def improve_error_handling():
     print("   - Enhanced logging for debugging")
 
 def optimize_model_loading():
-    """Optimize model loading for Cloud Run"""
+    """Optimize model loading for Cloud Run."""
     print("\n🔧 Optimizing Model Loading")
     print("=" * 40)
 
@@ -72,7 +70,7 @@ def optimize_model_loading():
     print("   - Better logging during loading process")
 
 def check_cloud_run_config():
-    """Check Cloud Run configuration for better model loading"""
+    """Check Cloud Run configuration for better model loading."""
     print("\n🔧 Updating Cloud Run Configuration")
     print("=" * 40)
 
@@ -104,7 +102,7 @@ def check_cloud_run_config():
     return True
 
 def create_health_check_script():
-    """Create a health check script for model loading"""
+    """Create a health check script for model loading."""
     print("\n🔧 Creating Health Check Script")
     print("=" * 40)
 
@@ -190,7 +188,7 @@ if __name__ == "__main__":
     return True
 
 def create_deployment_guide():
-    """Create a deployment guide with troubleshooting steps"""
+    """Create a deployment guide with troubleshooting steps."""
     print("\n🔧 Creating Deployment Guide")
     print("=" * 40)
 
@@ -272,7 +270,7 @@ def create_deployment_guide():
     return True
 
 def main():
-    """Main function to run all fixes"""
+    """Main function to run all fixes."""
     print("🚀 Cloud Run Model Loading Fix Script")
     print("=" * 50)
 

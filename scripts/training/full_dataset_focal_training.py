@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""
-Full Dataset Focal Loss Training Script
+"""Full Dataset Focal Loss Training Script.
 
-This script trains the emotion detection model using focal loss on the full GoEmotions dataset.
+This script trains the emotion detection model using focal loss on the full GoEmotions
+dataset.
 """
 
 import logging

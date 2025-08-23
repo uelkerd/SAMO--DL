@@ -10,9 +10,6 @@
 import logging
 import torch
 
-
-
-
 """
 Simple test to isolate the threshold application bug.
 """

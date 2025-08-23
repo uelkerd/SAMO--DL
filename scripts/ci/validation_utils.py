@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-Reusable validation helpers for CI scripts.
+"""Reusable validation helpers for CI scripts.
 
-These helpers reduce boilerplate and provide clearer failure semantics
-using specific exception types.
+These helpers reduce boilerplate and provide clearer failure semantics using specific
+exception types.
 """
 from typing import Any, Iterable
 

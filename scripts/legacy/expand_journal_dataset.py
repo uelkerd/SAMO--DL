@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Expand the journal dataset to improve model performance.
-"""
+"""Expand the journal dataset to improve model performance."""
 
 import json
 import random
@@ -282,4 +280,4 @@ def main():
     print("  3. Expect 75-85% F1 score!")
 
 if __name__ == "__main__":
-    main() 
+    main()

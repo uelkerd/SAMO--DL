@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-SAMO-DL Auto-Fix Code Quality
+"""SAMO-DL Auto-Fix Code Quality.
 
 This script automatically fixes common code quality issues to prevent
 recurring DeepSource warnings.

@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-Evaluate Whisper model performance using LibriSpeech test set.
+"""Evaluate Whisper model performance using LibriSpeech test set.
 
-This script downloads a portion of the LibriSpeech test-clean dataset
-and evaluates the Word Error Rate (WER) of the Whisper transcription model.
+This script downloads a portion of the LibriSpeech test-clean dataset and evaluates the
+Word Error Rate (WER) of the Whisper transcription model.
 """
 
 import argparse

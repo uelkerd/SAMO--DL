@@ -8,7 +8,7 @@ This includes model files, inference scripts, and documentation.
 import os
 
 def create_model_deployment_package():
-    """Create the deployment package content"""
+    """Create the deployment package content."""
     
     # Create deployment directory structure
     deployment_files = {
@@ -454,4 +454,4 @@ services:
     print("  3. Test API at: http://localhost:5000")
 
 if __name__ == "__main__":
-    create_model_deployment_package() 
+    create_model_deployment_package()

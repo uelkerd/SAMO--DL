@@ -92,7 +92,8 @@ class TestCSPConfiguration(unittest.TestCase):
             os.unlink(config_path)
     
     def test_csp_fallback_on_missing_csp_key(self):
-        """Test that CSP falls back to secure default when CSP key is missing from config."""
+        """Test that CSP falls back to secure default when CSP key is missing from
+        config."""
         # Create a temporary config file without CSP
         with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
             yaml.dump({
@@ -188,4 +189,4 @@ class TestCSPConfiguration(unittest.TestCase):
         self.assertGreater(len(csp_value), 0)
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Detailed debug script to understand the errorhandler issue
-"""
+"""Detailed debug script to understand the errorhandler issue."""
 
 import os
 os.environ['ADMIN_API_KEY'] = 'test123'
@@ -76,4 +74,4 @@ try:
 except Exception as e:
     print(f"❌ Could not get versions: {e}")
 
-print("\n🔍 Debug complete.") 
+print("\n🔍 Debug complete.")

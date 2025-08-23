@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Simple Vertex AI Training Script
+"""Simple Vertex AI Training Script.
 
 This script provides a simple interface for training on Google Cloud Vertex AI.
 """

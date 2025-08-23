@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-Dependency Usage Checker
+"""Dependency Usage Checker.
 
-This script checks if all dependencies listed in requirements.txt are actually
-used in the codebase to avoid unnecessary bloat.
+This script checks if all dependencies listed in requirements.txt are actually used in
+the codebase to avoid unnecessary bloat.
 """
 
 import re
@@ -137,4 +136,4 @@ def main():
         return 1
 
 if __name__ == "__main__":
-    sys.exit(main()) 
+    sys.exit(main())

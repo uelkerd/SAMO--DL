@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Minimal test to isolate the API issue
-"""
+"""Minimal test to isolate the API issue."""
 
 import os
 os.environ['ADMIN_API_KEY'] = 'test123'
@@ -52,4 +50,4 @@ except Exception as e:
     print(f"Error type: {type(e)}")
     exit(1)
 
-print("🎉 All tests passed!") 
+print("🎉 All tests passed!")

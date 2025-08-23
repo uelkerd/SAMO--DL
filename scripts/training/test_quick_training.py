@@ -23,9 +23,6 @@ import sys
 import time
 import torch
 
-
-
-
 """Quick Training Test Script for SAMO Emotion Detection.
 
 This script validates the fixes for the critical training issues:

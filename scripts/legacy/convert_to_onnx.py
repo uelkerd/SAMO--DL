@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Convert Model to ONNX
+"""Convert Model to ONNX.
 
 This script converts the BERT emotion classifier model to ONNX format
 for faster inference and easier deployment.

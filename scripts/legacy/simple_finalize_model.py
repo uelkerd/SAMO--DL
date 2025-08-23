@@ -15,9 +15,6 @@ import json
 import logging
 import sys
 
-
-
-
 """
 Simple Model Finalization Script
 

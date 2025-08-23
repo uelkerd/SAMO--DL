@@ -21,8 +21,7 @@ import ast
 import logging
 import re
 import shutil
-"""
-Comprehensive Linting Fix Script for SAMO Deep Learning.
+"""Comprehensive Linting Fix Script for SAMO Deep Learning.
 
 This script fixes linting issues across the entire codebase systematically.
 It processes all Python files in specified directories and applies safe fixes.

@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Detailed test to capture Swagger docs 500 error
-"""
+"""Detailed test to capture Swagger docs 500 error."""
 
 import os
 import requests
@@ -81,4 +79,4 @@ try:
     
 except Exception as e:
     print(f"❌ Error: {e}")
-    traceback.print_exc() 
+    traceback.print_exc()

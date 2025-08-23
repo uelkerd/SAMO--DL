@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Debug Model Loading Issues
-Get detailed information about why the model is not loading properly.
-"""
+"""Debug Model Loading Issues Get detailed information about why the model is not
+loading properly."""
 
 import requests
 import json
@@ -12,7 +10,7 @@ from test_config import create_api_client, create_test_config
 
 
 def debug_model_loading():
-    """Debug the model loading issues"""
+    """Debug the model loading issues."""
     config = create_test_config()
     client = create_api_client()
     

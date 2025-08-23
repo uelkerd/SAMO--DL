@@ -89,4 +89,4 @@ def fix_model_reconfiguration():
     print('   ✅ Added detailed logging of the configuration process')
 
 if __name__ == "__main__":
-    fix_model_reconfiguration() 
+    fix_model_reconfiguration()

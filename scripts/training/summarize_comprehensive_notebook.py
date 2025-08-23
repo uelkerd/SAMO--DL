@@ -107,4 +107,4 @@ def summarize_comprehensive_notebook():
     print("   Download, upload to Colab, set GPU runtime, and run!")
 
 if __name__ == "__main__":
-    summarize_comprehensive_notebook() 
+    summarize_comprehensive_notebook()

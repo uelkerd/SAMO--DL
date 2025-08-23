@@ -145,4 +145,4 @@ def display_mega_test_results():
     print("   It's ready for production deployment with confidence.")
 
 if __name__ == "__main__":
-    display_mega_test_results() 
+    display_mega_test_results()

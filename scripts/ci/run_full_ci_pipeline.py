@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Comprehensive CI Pipeline Runner for SAMO Deep Learning
+"""Comprehensive CI Pipeline Runner for SAMO Deep Learning.
 
 This script runs the complete CI pipeline end-to-end, including:
 - Environment validation
@@ -56,7 +55,7 @@ class CIPipelineRunner:
 
     def _get_test_stats(self) -> tuple[dict, int, int]:
         """Calculate statistics on test results.
-        
+
         Returns:
             tuple: (test_results dict, total_tests, passed_tests)
         """
@@ -421,4 +420,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

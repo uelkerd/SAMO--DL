@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Simple F1 Score Evaluation Script
+"""Simple F1 Score Evaluation Script.
 
 This script evaluates the current F1 score of the emotion detection model.
 """
@@ -186,4 +185,4 @@ if __name__ == "__main__":
         logger.info("✅ Evaluation completed successfully")
     else:
         logger.error("❌ Evaluation failed")
-        sys.exit(1) 
+        sys.exit(1)

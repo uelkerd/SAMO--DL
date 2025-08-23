@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-Fix import paths after repository reorganization.
+"""Fix import paths after repository reorganization.
+
 This script updates common import path issues in moved scripts.
 """
 import re
@@ -73,4 +73,4 @@ def main():
     print("Import path fixes completed!")
 
 if __name__ == "__main__":
-    main() 
+    main()

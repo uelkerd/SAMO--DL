@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Phase 3 Cloud Run Optimization Test Suite
-Comprehensive testing for Cloud Run optimization components using enhanced test approach
-"""
+"""Phase 3 Cloud Run Optimization Test Suite Comprehensive testing for Cloud Run
+optimization components using enhanced test approach."""
 
 import os
 import sys
@@ -19,10 +17,10 @@ import logging
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'src'))
 
 class Phase3CloudRunOptimizationTest(unittest.TestCase):
-    """Comprehensive test suite for Phase 3 Cloud Run optimization"""
+    """Comprehensive test suite for Phase 3 Cloud Run optimization."""
     
     def setUp(self):
-        """Set up test environment"""
+        """Set up test environment."""
         # Get the project root directory (2 levels up from scripts/testing)
         self.project_root = Path(__file__).parent.parent.parent
         self.cloud_run_dir = self.project_root / "deployment" / "cloud-run"
@@ -55,7 +53,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         }
     
     def test_01_cloudbuild_yaml_structure(self):
-        """Test Cloud Build YAML structure and validation"""
+        """Test Cloud Build YAML structure and validation."""
         print("🔍 Testing Cloud Build YAML structure...")
         
         cloudbuild_path = self.cloud_run_dir / 'cloudbuild.yaml'
@@ -84,13 +82,13 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         print("✅ Cloud Build YAML structure validation passed")
     
     def _assert_all_fields_present(self, config, required_fields):
-        """Helper method to check all required fields are present"""
+        """Helper method to check all required fields are present."""
         missing_fields = [field for field in required_fields if field not in config]
         if missing_fields:
             self.fail(f"Missing required fields: {', '.join(missing_fields)}")
     
     def _assert_all_steps_valid(self, steps):
-        """Helper method to validate all steps"""
+        """Helper method to validate all steps."""
         invalid_steps = []
         for i, step in enumerate(steps):
             if 'name' not in step or 'args' not in step:
@@ -100,7 +98,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             self.fail(f"Invalid steps: {', '.join(invalid_steps)}")
     
     def test_02_health_monitor_functionality(self):
-        """Test health monitor functionality and metrics collection"""
+        """Test health monitor functionality and metrics collection."""
         print("🔍 Testing health monitor functionality...")
         
         # Import health monitor
@@ -139,7 +137,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         print("✅ Health monitor functionality tests passed")
 
     def _test_required_metrics(self, metrics):
-        """Helper method to test required metrics"""
+        """Helper method to test required metrics."""
         required_metrics = ['memory_usage_mb', 'cpu_usage_percent', 'memory_percent', 'uptime_seconds']
         missing_metrics = [metric for metric in required_metrics if metric not in metrics]
         if missing_metrics:
@@ -151,7 +149,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             self.fail(f"Non-numeric metrics: {', '.join(non_numeric_metrics)}")
 
     def _test_multiple_requests(self, monitor):
-        """Helper method to test multiple requests"""
+        """Helper method to test multiple requests."""
         # Add 10 requests
         for i in range(10):
             monitor.request_started()
@@ -163,7 +161,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         self.assertEqual(monitor.active_requests, 0, "Should handle multiple completions")
     
     def test_03_environment_config_validation(self):
-        """Test environment configuration validation and edge cases"""
+        """Test environment configuration validation and edge cases."""
         print("🔍 Testing environment configuration validation...")
         
         # Import config
@@ -206,7 +204,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         print("✅ Environment configuration validation tests passed")
     
     def test_04_dockerfile_optimization(self):
-        """Test Dockerfile optimization and security features"""
+        """Test Dockerfile optimization and security features."""
         print("🔍 Testing Dockerfile optimization...")
         
         dockerfile_path = self.cloud_run_dir / 'Dockerfile.secure'
@@ -227,7 +225,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         print("✅ Dockerfile optimization tests passed")
 
     def _test_security_features(self, content):
-        """Helper method to test security features"""
+        """Helper method to test security features."""
         security_features = [
             'FROM --platform=linux/amd64',  # Platform targeting
             'USER appuser',  # Non-root user
@@ -242,7 +240,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             self.fail(f"Missing security features: {', '.join(missing_features)}")
 
     def _test_cloud_run_features(self, content):
-        """Helper method to test Cloud Run features"""
+        """Helper method to test Cloud Run features."""
         cloud_run_features = [
             'EXPOSE 8080',  # Cloud Run port
             '--bind :$PORT',  # Dynamic port binding
@@ -256,7 +254,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             self.fail(f"Missing Cloud Run features: {', '.join(missing_features)}")
 
     def _test_optimization_features(self, content):
-        """Helper method to test optimization features"""
+        """Helper method to test optimization features."""
         optimization_features = [
             '--max-requests 1000',  # Request recycling
             '--max-requests-jitter 100',  # Jitter for load distribution
@@ -269,7 +267,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             self.fail(f"Missing optimization features: {', '.join(missing_features)}")
     
     def test_05_requirements_security(self):
-        """Test requirements.txt security and version pinning"""
+        """Test requirements.txt security and version pinning."""
         print("🔍 Testing requirements security...")
         
         requirements_path = self.cloud_run_dir / 'requirements_secure.txt'
@@ -306,7 +304,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         print("✅ Requirements security tests passed")
     
     def test_06_auto_scaling_configuration(self):
-        """Test auto-scaling configuration and validation"""
+        """Test auto-scaling configuration and validation."""
         print("🔍 Testing auto-scaling configuration...")
         
         cloudbuild_path = self.cloud_run_dir / 'cloudbuild.yaml'
@@ -346,14 +344,14 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         print("✅ Auto-scaling configuration tests passed")
     
     def _find_deploy_step(self, config):
-        """Helper method to find deployment step"""
+        """Helper method to find deployment step."""
         for step in config['steps']:
             if 'gcr.io/google.com/cloudsdktool/cloud-sdk' in step.get('name', ''):
                 return step
         return None
     
     def test_07_health_check_integration(self):
-        """Test health check integration and monitoring"""
+        """Test health check integration and monitoring."""
         print("🔍 Testing health check integration...")
         
         # Test health check endpoint configuration
@@ -387,7 +385,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         print("✅ Health check integration tests passed")
     
     def test_08_configuration_edge_cases(self):
-        """Test configuration edge cases and error handling"""
+        """Test configuration edge cases and error handling."""
         print("🔍 Testing configuration edge cases...")
         
         sys.path.insert(0, str(self.cloud_run_dir))
@@ -430,7 +428,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         print("✅ Configuration edge case tests passed")
     
     def test_09_performance_metrics(self):
-        """Test performance metrics and monitoring"""
+        """Test performance metrics and monitoring."""
         print("🔍 Testing performance metrics...")
         
         sys.path.insert(0, str(self.cloud_run_dir))
@@ -476,7 +474,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         print("✅ Performance metrics tests passed")
     
     def test_10_yaml_parsing_validation(self):
-        """Test YAML parsing and validation using enhanced test approach"""
+        """Test YAML parsing and validation using enhanced test approach."""
         print("🔍 Testing YAML parsing and validation...")
         
         # Test Cloud Build YAML parsing
@@ -503,7 +501,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         print("✅ YAML parsing validation tests passed")
     
     def _validate_yaml_structure(self, config: Dict[str, Any], filename: str):
-        """Enhanced YAML structure validation"""
+        """Enhanced YAML structure validation."""
         # Validate top-level structure
         self.assertIsInstance(config, dict, f"{filename} should be a dictionary")
         
@@ -528,7 +526,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
                 self.fail(f"Invalid steps: {', '.join(invalid_steps)}")
 
 def run_phase3_tests():
-    """Run all Phase 3 Cloud Run optimization tests"""
+    """Run all Phase 3 Cloud Run optimization tests."""
     print("🚀 Starting Phase 3 Cloud Run Optimization Test Suite")
     print("=" * 60)
     
@@ -586,4 +584,4 @@ def run_phase3_tests():
 
 if __name__ == '__main__':
     success = run_phase3_tests()
-    sys.exit(0 if success else 1) 
+    sys.exit(0 if success else 1)

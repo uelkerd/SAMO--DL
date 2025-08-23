@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Minimal test to isolate Swagger docs issue
-"""
+"""Minimal test to isolate Swagger docs issue."""
 
 from flask import Flask, jsonify
 from flask_restx import Api, Resource, Namespace
@@ -44,4 +42,4 @@ if __name__ == '__main__':
     print("- http://localhost:5003/docs (should work)")
     print("- http://localhost:5003/api/health (should work)")
     
-    app.run(host='0.0.0.0', port=5003, debug=True) 
+    app.run(host='0.0.0.0', port=5003, debug=True)

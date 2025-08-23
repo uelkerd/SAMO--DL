@@ -78,4 +78,4 @@ def fix_model_architecture():
     print('   ✅ Added detailed logging of the reconfiguration process')
 
 if __name__ == "__main__":
-    fix_model_architecture() 
+    fix_model_architecture()

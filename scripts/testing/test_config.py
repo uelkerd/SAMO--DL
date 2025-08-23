@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Centralized Test Configuration
-Provides consistent configuration for all testing scripts.
-"""
+"""Centralized Test Configuration Provides consistent configuration for all testing
+scripts."""
 
 import os
 import argparse
@@ -11,14 +9,14 @@ from typing import Optional
 
 
 class TestConfig:
-    """Centralized configuration for all testing scripts"""
+    """Centralized configuration for all testing scripts."""
     
     def __init__(self, base_url: Optional[str] = None, api_key: Optional[str] = None):
         self.base_url = base_url or self._get_base_url()
         self.api_key = api_key or self._get_api_key()
     
     def _get_base_url(self) -> str:
-        """Get base URL from environment or command line arguments"""
+        """Get base URL from environment or command line arguments."""
         # Priority: CLI arg > environment variable > default
         parser = argparse.ArgumentParser(add_help=False)
         parser.add_argument('--base-url', help='API base URL')
@@ -45,7 +43,7 @@ class TestConfig:
         )
     
     def _get_api_key(self) -> str:
-        """Get API key from environment or generate securely"""
+        """Get API key from environment or generate securely."""
         # Priority: environment variable > secure generation
         api_key = os.environ.get("API_KEY")
         if api_key:
@@ -55,19 +53,19 @@ class TestConfig:
         return f"samo-admin-key-{secrets.token_urlsafe(32)}"
     
     def get_headers(self) -> dict:
-        """Get standard headers for API requests"""
+        """Get standard headers for API requests."""
         return {
             "X-API-Key": self.api_key,
             "Content-Type": "application/json"
         }
     
     def get_rate_limit_requests(self) -> int:
-        """Get number of requests for rate limiting tests"""
+        """Get number of requests for rate limiting tests."""
         return int(os.environ.get("RATE_LIMIT_REQUESTS", "10"))
 
 
 class APIClient:
-    """Centralized API client with consistent error handling"""
+    """Centralized API client with consistent error handling."""
     
     def __init__(self, config: TestConfig):
         self.config = config
@@ -75,7 +73,7 @@ class APIClient:
         self.headers = config.get_headers()
     
     def get(self, endpoint: str, **kwargs) -> dict:
-        """Make GET request with consistent error handling"""
+        """Make GET request with consistent error handling."""
         import requests
         
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
@@ -91,7 +89,7 @@ class APIClient:
             raise ValueError(f"Invalid JSON response from {endpoint}: {str(e)}")
     
     def post(self, endpoint: str, data: dict, **kwargs) -> dict:
-        """Make POST request with consistent error handling"""
+        """Make POST request with consistent error handling."""
         import requests
         
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
@@ -108,11 +106,11 @@ class APIClient:
 
 
 def create_test_config() -> TestConfig:
-    """Factory function to create test configuration"""
+    """Factory function to create test configuration."""
     return TestConfig()
 
 
 def create_api_client() -> APIClient:
-    """Factory function to create API client"""
+    """Factory function to create API client."""
     config = create_test_config()
-    return APIClient(config) 
+    return APIClient(config)

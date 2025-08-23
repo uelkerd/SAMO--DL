@@ -142,8 +142,8 @@ async def health_check():
 async def summarize_text(request: SummarizeRequest):
     """Summarize a single journal entry or text.
 
-    This endpoint generates an intelligent summary that preserves
-    emotional context and key insights from the original text.
+    This endpoint generates an intelligent summary that preserves emotional context and
+    key insights from the original text.
     """
     if summarization_model is None:
         raise HTTPException(status_code=503, detail="Model not loaded")
@@ -184,8 +184,8 @@ async def summarize_text(request: SummarizeRequest):
 async def summarize_batch(request: BatchSummarizationRequest):
     """Summarize multiple texts in batch for efficiency.
 
-    Useful for processing multiple journal entries or conversation
-    segments simultaneously with improved throughput.
+    Useful for processing multiple journal entries or conversation segments
+    simultaneously with improved throughput.
     """
     if summarization_model is None:
         raise HTTPException(status_code=503, detail="Model not loaded")

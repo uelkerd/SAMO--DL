@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Convert PyTorch Model to ONNX for Deployment
-Quick conversion script to eliminate PyTorch dependencies
-"""
+"""Convert PyTorch Model to ONNX for Deployment Quick conversion script to eliminate
+PyTorch dependencies."""
 import sys
 import torch
 import logging

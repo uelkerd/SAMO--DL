@@ -14,8 +14,6 @@ from pathlib import Path
 from urllib.parse import quote_plus
 from src.common.env import is_truthy
 
-
-
 """Database connection utilities for the SAMO-DL application."""
 
 
@@ -90,7 +88,6 @@ def get_db():
 
     Yields:
         Session: SQLAlchemy database session
-
     """
     db = SessionLocal()
     try:

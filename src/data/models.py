@@ -132,7 +132,8 @@ class Embedding(Base):
 
 
 class Prediction(Base):
-    """Prediction model storing AI-generated predictions about user mood, topics, etc."""
+    """Prediction model storing AI-generated predictions about user mood, topics,
+    etc."""
 
     __tablename__ = "predictions"
 

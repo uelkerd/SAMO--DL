@@ -13,7 +13,7 @@ from pathlib import Path
 import time
 
 def comprehensive_validation():
-    """Comprehensive validation of the emotion detection model"""
+    """Comprehensive validation of the emotion detection model."""
     
     print("🔬 COMPREHENSIVE MODEL VALIDATION")
     print("=" * 60)
@@ -293,4 +293,4 @@ def comprehensive_validation():
 
 if __name__ == "__main__":
     success = comprehensive_validation()
-    exit(0 if success else 1) 
+    exit(0 if success else 1)

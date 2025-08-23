@@ -75,7 +75,6 @@ class FeatureEngineer:
 
         Returns:
             DataFrame with basic features added
-
         """
         df = df.copy()
 
@@ -120,7 +119,6 @@ class FeatureEngineer:
 
         Returns:
             DataFrame with sentiment features added
-
         """
         if self.sentiment_analyzer is None:
             logger.warning(
@@ -166,7 +164,6 @@ class FeatureEngineer:
 
         Returns:
             DataFrame with topic features added
-
         """
         df = df.copy()
 
@@ -217,7 +214,6 @@ class FeatureEngineer:
 
         Returns:
             DataFrame with time features added
-
         """
         df = df.copy()
 
@@ -269,7 +265,6 @@ class FeatureEngineer:
 
         Returns:
             DataFrame with all features added
-
         """
         logger.info(
             "Extracting all features for {len(df)} journal entries",

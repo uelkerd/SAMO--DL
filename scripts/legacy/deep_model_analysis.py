@@ -10,7 +10,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
 
 def deep_model_analysis():
-    """Deep analysis of the model's behavior"""
+    """Deep analysis of the model's behavior."""
     
     print("🔍 DEEP MODEL ANALYSIS")
     print("=" * 50)
@@ -187,4 +187,4 @@ def deep_model_analysis():
 
 if __name__ == "__main__":
     success = deep_model_analysis()
-    exit(0 if success else 1) 
+    exit(0 if success else 1)

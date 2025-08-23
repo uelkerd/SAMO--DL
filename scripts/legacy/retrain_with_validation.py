@@ -7,7 +7,7 @@ Helps retrain the model with proper validation to ensure reliability
 from pathlib import Path
 
 def create_improved_training_plan():
-    """Create an improved training plan with proper validation"""
+    """Create an improved training plan with proper validation."""
     
     print("🔄 IMPROVED TRAINING PLAN")
     print("=" * 50)
@@ -51,7 +51,7 @@ def create_improved_training_plan():
     return True
 
 def create_improved_notebook():
-    """Create an improved training notebook"""
+    """Create an improved training notebook."""
     
     notebook_content = '''{
  "cells": [
@@ -398,4 +398,4 @@ def create_improved_notebook():
 
 if __name__ == "__main__":
     success = create_improved_training_plan()
-    exit(0 if success else 1) 
+    exit(0 if success else 1)

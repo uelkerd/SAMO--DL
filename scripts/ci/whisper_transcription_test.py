@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-Whisper Voice Transcription Test for CI/CD Pipeline.
+"""Whisper Voice Transcription Test for CI/CD Pipeline.
 
-This script validates the Whisper transcription model functionality
-with a simple test audio file.
+This script validates the Whisper transcription model functionality with a simple test
+audio file.
 """
 
 import contextlib

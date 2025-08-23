@@ -1,8 +1,7 @@
-"""
-Shared model utilities for Cloud Run deployment.
+"""Shared model utilities for Cloud Run deployment.
 
-This module provides common functionality for model loading, inference,
-and error handling to eliminate code duplication between API servers.
+This module provides common functionality for model loading, inference, and error
+handling to eliminate code duplication between API servers.
 """
 
 import logging
@@ -74,8 +73,7 @@ def _resolve_model_repo_id() -> str:
 
 
 def ensure_model_loaded() -> bool:
-    """
-    Thread-safe model loading with proper error handling.
+    """Thread-safe model loading with proper error handling.
 
     Returns:
         bool: True if model is loaded successfully, False otherwise
@@ -169,8 +167,7 @@ def ensure_model_loaded() -> bool:
 
 
 def predict_emotions(text: str) -> Dict[str, Any]:
-    """
-    Predict emotions for given text.
+    """Predict emotions for given text.
 
     Args:
         text (str): Input text to analyze
@@ -267,8 +264,7 @@ def predict_emotions(text: str) -> Dict[str, Any]:
 
 
 def get_model_status() -> Dict[str, Any]:
-    """
-    Get current model status.
+    """Get current model status.
 
     Returns:
         Dict[str, Any]: Model status information
@@ -287,8 +283,7 @@ def get_model_status() -> Dict[str, Any]:
 
 
 def validate_text_input(text: str) -> Tuple[bool, str]:
-    """
-    Validate text input for prediction.
+    """Validate text input for prediction.
 
     Args:
         text (str): Text to validate

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Test Vertex AI Setup Script
+"""Test Vertex AI Setup Script.
 
 This script tests the Vertex AI setup and configuration.
 """

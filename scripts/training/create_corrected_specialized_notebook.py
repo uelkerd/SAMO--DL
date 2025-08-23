@@ -8,7 +8,7 @@ with verification steps to ensure the correct model is being used
 from pathlib import Path
 
 def create_corrected_notebook():
-    """Create a corrected notebook with proper specialized model usage"""
+    """Create a corrected notebook with proper specialized model usage."""
     
     notebook_content = '''{
  "cells": [
@@ -642,4 +642,4 @@ def create_corrected_notebook():
 
 if __name__ == "__main__":
     create_corrected_notebook()
-    print("✅ Corrected specialized notebook created successfully!") 
+    print("✅ Corrected specialized notebook created successfully!")

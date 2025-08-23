@@ -9,7 +9,7 @@ This fixes the duplicate data issue that caused model collapse.
 import json
 
 def create_fixed_bulletproof_notebook():
-    """Create the fixed bulletproof notebook content"""
+    """Create the fixed bulletproof notebook content."""
     
     notebook_content = {
         "cells": [
@@ -468,4 +468,4 @@ def create_fixed_bulletproof_notebook():
     print("  - Robust error handling")
 
 if __name__ == "__main__":
-    create_fixed_bulletproof_notebook() 
+    create_fixed_bulletproof_notebook()

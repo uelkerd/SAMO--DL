@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-Model F1 Score Improvement Script
+"""Model F1 Score Improvement Script.
 
-This script focuses on improving the F1 score of the emotion detection model
-through various optimization techniques.
+This script focuses on improving the F1 score of the emotion detection model through
+various optimization techniques.
 """
 
 import logging

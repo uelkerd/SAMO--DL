@@ -16,9 +16,6 @@ import sys
 import threading
 import time
 
-
-
-
 """
 Model Monitoring Dashboard Starter
 

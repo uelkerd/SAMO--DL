@@ -600,4 +600,4 @@ def create_comprehensive_notebook():
     return output_path
 
 if __name__ == "__main__":
-    create_comprehensive_notebook() 
+    create_comprehensive_notebook()

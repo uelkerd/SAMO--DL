@@ -32,10 +32,6 @@ import json
 import logging
 import torch
 
-
-
-
-
 """Domain Adaptation Testing for SAMO Deep Learning.
 
 This script tests how well the GoEmotions-trained model performs on

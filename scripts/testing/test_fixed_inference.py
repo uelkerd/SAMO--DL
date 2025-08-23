@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Fixed Inference Test Script for Emotion Detection Model
-Handles missing tokenizer and generic labels
-"""
+"""Fixed Inference Test Script for Emotion Detection Model Handles missing tokenizer and
+generic labels."""
 
 import torch
 import json
@@ -10,7 +8,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
 
 def test_fixed_inference():
-    """Test inference with missing tokenizer and generic labels"""
+    """Test inference with missing tokenizer and generic labels."""
     
     print("🧪 FIXED INFERENCE TEST")
     print("=" * 50)
@@ -148,4 +146,4 @@ if __name__ == "__main__":
         print(f"   - Deploy with: cd deployment && ./deploy.sh")
         print(f"   - API will be available at: http://localhost:5000")
     else:
-        print(f"\n❌ Test failed. Check the error messages above.") 
+        print(f"\n❌ Test failed. Check the error messages above.")

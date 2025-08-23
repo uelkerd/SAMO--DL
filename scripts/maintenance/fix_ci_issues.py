@@ -12,10 +12,6 @@ import os
 import subprocess
 import sys
 
-
-
-
-
 """
 Script to fix CI issues identified in the SAMO Deep Learning project.
 """

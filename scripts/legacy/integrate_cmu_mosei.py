@@ -25,7 +25,7 @@ except ImportError as e:
     sys.exit(1)
 
 def download_cmu_mosei():
-    """Download CMU-MOSEI dataset"""
+    """Download CMU-MOSEI dataset."""
     print("📥 Downloading CMU-MOSEI dataset...")
     
     try:
@@ -62,7 +62,7 @@ def download_cmu_mosei():
         return None, None, None, None, None, None
 
 def extract_text_and_emotions(mosei_words, sentiments, train_ids, valid_ids, test_ids):
-    """Extract text sentences and emotion labels from CMU-MOSEI"""
+    """Extract text sentences and emotion labels from CMU-MOSEI."""
     print("🔍 Extracting text and emotion data...")
     
     dataset_samples = []
@@ -93,7 +93,7 @@ def extract_text_and_emotions(mosei_words, sentiments, train_ids, valid_ids, tes
     return dataset_samples
 
 def map_sentiment_to_emotions(samples):
-    """Map CMU-MOSEI sentiment scores to our 12 target emotions"""
+    """Map CMU-MOSEI sentiment scores to our 12 target emotions."""
     print("🗺️ Mapping sentiments to emotions...")
     
     # CMU-MOSEI sentiment range: [-3, 3]
@@ -161,7 +161,7 @@ def map_sentiment_to_emotions(samples):
     return mapped_samples
 
 def save_cmu_mosei_dataset(samples):
-    """Save processed CMU-MOSEI dataset"""
+    """Save processed CMU-MOSEI dataset."""
     print("💾 Saving CMU-MOSEI dataset...")
     
     # Save full dataset
@@ -198,7 +198,7 @@ def save_cmu_mosei_dataset(samples):
     return output_file, balanced_file
 
 def main():
-    """Main integration process"""
+    """Main integration process."""
     print("🚀 CMU-MOSEI DATASET INTEGRATION")
     print("=" * 50)
     
@@ -229,4 +229,4 @@ def main():
     print("  3. Upload to Colab and achieve 75-85% F1 score!")
 
 if __name__ == "__main__":
-    main() 
+    main()

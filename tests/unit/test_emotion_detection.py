@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Unit tests for emotion detection models.
-"""
+"""Unit tests for emotion detection models."""
 
 import pytest
 import torch

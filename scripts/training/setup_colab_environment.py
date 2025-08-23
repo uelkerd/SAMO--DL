@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""
-Colab Environment Setup Script for SAMO Deep Learning
+"""Colab Environment Setup Script for SAMO Deep Learning.
 
-This script sets up the environment for Google Colab with GPU support.
-It installs all required dependencies and configures the environment
-for optimal performance in the Colab environment.
+This script sets up the environment for Google Colab with GPU support. It installs all
+required dependencies and configures the environment for optimal performance in the
+Colab environment.
 """
 
 import os
@@ -288,4 +287,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

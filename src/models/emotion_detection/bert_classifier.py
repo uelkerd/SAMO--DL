@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-BERT-based Emotion Classifier for SAMO Deep Learning.
+"""BERT-based Emotion Classifier for SAMO Deep Learning.
 
-This module provides a BERT-based multi-label emotion classification model
-trained on the GoEmotions dataset for journal entry analysis.
+This module provides a BERT-based multi-label emotion classification model trained on
+the GoEmotions dataset for journal entry analysis.
 """
 
 import logging

@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Working Inference Test Script for Emotion Detection Model
-Uses public roberta-base tokenizer and maps generic labels to emotions
-"""
+"""Working Inference Test Script for Emotion Detection Model Uses public roberta-base
+tokenizer and maps generic labels to emotions."""
 
 import torch
 import json
@@ -10,7 +8,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
 
 def test_working_inference():
-    """Test inference with public roberta-base tokenizer"""
+    """Test inference with public roberta-base tokenizer."""
     
     print("🧪 WORKING INFERENCE TEST")
     print("=" * 50)
@@ -99,7 +97,7 @@ def test_working_inference():
         return False
 
 def test_simple_inference():
-    """Simple inference test as fallback"""
+    """Simple inference test as fallback."""
     
     print("\n🧪 SIMPLE INFERENCE TEST")
     print("=" * 50)
@@ -156,4 +154,4 @@ if __name__ == "__main__":
         print(f"\n🎉 SUCCESS! Your 99.54% F1 score model is working!")
         print(f"📊 Ready for deployment!")
     else:
-        print(f"\n❌ Test failed. Check the error messages above.") 
+        print(f"\n❌ Test failed. Check the error messages above.")

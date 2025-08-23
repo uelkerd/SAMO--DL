@@ -10,27 +10,27 @@
         # Simulate recording (don't actually record in test)
         # Test with sample audio (simulated)
         # Test with sample text
+        import wave
+
         import librosa
         import pyaudio
-        import wave
         import whisper
     # Summary
     # Test individual components
+import logging
+import sys
+
 # Add project root to path
 # Configure logging
 #!/usr/bin/env python3
 from pathlib import Path
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-import logging
+
 import numpy as np
-import sys
 import torch
 
-
-
-
-
-
+from src.models.emotion_detection.training_pipeline import (
+    create_bert_emotion_classifier,
+)
 
 """
 Test Voice Pipeline for SAMO

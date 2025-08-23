@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-CI Model Calibration Test
+"""CI Model Calibration Test.
 
 This script tests the BERT emotion classifier calibration for CI/CD pipeline.
 It creates a simple model and tests basic functionality without requiring checkpoints.

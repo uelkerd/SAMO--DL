@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Simple Focal Loss Training Script
+"""Simple Focal Loss Training Script.
 
 This script demonstrates focal loss training with a simplified approach.
 """

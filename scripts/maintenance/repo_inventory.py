@@ -63,8 +63,8 @@ def _load_tracked_files() -> frozenset[str]:
 def list_all_files() -> List[Path]:
     """Walk the repository and return a list of files, skipping ignored dirs.
 
-    Follows neither symlinks nor ignored directories to keep traversal fast and
-    avoid accidental recursion into large caches.
+    Follows neither symlinks nor ignored directories to keep traversal fast and avoid
+    accidental recursion into large caches.
     """
     files: List[Path] = []
     for dirpath, dirnames, filenames in os.walk(ROOT, followlinks=False):
@@ -142,8 +142,8 @@ def gather_top_level(files_meta: List[Dict[str, Any]]) -> Dict[str, Any]:
 def find_references(paths: List[str]) -> Dict[str, List[str]]:
     """Search for textual references to provided paths using ripgrep.
 
-    Returns a mapping from candidate path string to a list of example matches
-    (capped) to help update docs/CI after moves.
+    Returns a mapping from candidate path string to a list of example matches (capped)
+    to help update docs/CI after moves.
     """
     refs: Dict[str, List[str]] = {p: [] for p in paths}
     # Use ripgrep to find textual references for moved/deprecated candidates

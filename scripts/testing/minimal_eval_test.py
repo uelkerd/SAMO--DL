@@ -8,7 +8,6 @@
 import logging
 import torch
 
-
 """
 Minimal test of evaluation logic to isolate the bug.
 """

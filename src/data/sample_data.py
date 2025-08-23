@@ -184,7 +184,6 @@ def generate_entries(
 
     Returns:
         List of dictionaries containing journal entries
-
     """
     if start_date is None:
         start_date = datetime.now(timezone.utc) - timedelta(days=60)
@@ -218,7 +217,6 @@ def save_entries_to_json(entries: List[Dict[str, Any]], output_path: str) -> Non
     Args:
         entries: List of entry dictionaries
         output_path: Path to save the JSON file
-
     """
     Path(Path(output_path).parent).mkdir(parents=True, exist_ok=True)
 
@@ -241,7 +239,6 @@ def load_sample_entries(json_path: str) -> pd.DataFrame:
 
     Returns:
         DataFrame containing the entries
-
     """
     with open(json_path) as f:
         entries = json.load(f)

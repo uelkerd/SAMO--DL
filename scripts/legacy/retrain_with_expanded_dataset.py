@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Retrain the emotion detection model with the expanded dataset.
-"""
+"""Retrain the emotion detection model with the expanded dataset."""
 
 import json
 import torch
@@ -292,4 +290,4 @@ def main():
     print("  3. Deploy if target achieved!")
 
 if __name__ == "__main__":
-    main() 
+    main()

@@ -627,4 +627,4 @@ def add_advanced_features():
     return 'notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb'
 
 if __name__ == "__main__":
-    add_advanced_features() 
+    add_advanced_features()

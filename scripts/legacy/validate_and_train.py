@@ -17,11 +17,6 @@ import sys
 import time
 import traceback
 
-
-
-
-
-
 """
 Validate and Train Script for SAMO Deep Learning.
 

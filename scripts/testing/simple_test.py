@@ -10,10 +10,6 @@ import logging
 import sys
 import traceback
 
-
-
-
-
 """
 Simple test to understand the dataset object type.
 """

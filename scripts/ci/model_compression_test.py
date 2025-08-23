@@ -18,9 +18,6 @@ import sys
 import tempfile
 import torch
 
-
-
-
 """
 Model Compression Test for CI/CD Pipeline.
 

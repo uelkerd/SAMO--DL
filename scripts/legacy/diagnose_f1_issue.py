@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Diagnose F1 Score Issue
+"""Diagnose F1 Score Issue.
 
 This script investigates why F1 scores are 0% despite good training loss.
 It checks label formats, prediction outputs, and evaluation logic.

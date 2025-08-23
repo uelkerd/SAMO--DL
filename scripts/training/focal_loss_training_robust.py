@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-Robust Focal Loss Training Script
+"""Robust Focal Loss Training Script.
 
-This script provides a robust implementation of focal loss training
-with comprehensive error handling and validation.
+This script provides a robust implementation of focal loss training with comprehensive
+error handling and validation.
 """
 
 import logging

@@ -139,4 +139,4 @@ def fix_preprocessing():
     print('   ✅ Updated trainer initialization with data collator')
 
 if __name__ == "__main__":
-    fix_preprocessing() 
+    fix_preprocessing()

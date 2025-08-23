@@ -14,9 +14,6 @@
         # This test will need actual model import to work
 from datetime import datetime, timezone
 
-
-
-
 """
 Unit tests for API data models and validation.
 Tests Pydantic models, request/response validation, and data transformations.
