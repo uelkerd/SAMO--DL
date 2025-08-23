@@ -6,7 +6,7 @@ This script explicitly runs the API rate limiter tests to ensure they're discove
 and included in test coverage metrics.
 
 Usage:
-    python scripts/run_api_rate_limiter_tests.py
+    python scripts/testing/run_api_rate_limiter_tests.py
 """
 
 import contextlib

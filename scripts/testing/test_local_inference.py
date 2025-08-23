@@ -43,7 +43,7 @@ def test_local_inference():
         print("Please download the model files from Colab first!")
         return False
 
-    print(f"\n✅ All model files found!")
+    print("\n✅ All model files found!")
 
     # Test texts
     test_texts = [
@@ -63,7 +63,7 @@ def test_local_inference():
         # Import the inference module
         from inference import EmotionDetector
 
-        print(f"\n🔧 Loading model...")
+        print("\n🔧 Loading model...")
         detector = EmotionDetector(model_path=str(model_dir))
         print("✅ Model loaded successfully!")
 
@@ -76,7 +76,7 @@ def test_local_inference():
         return True
 
     except Exception as e:
-        print(f"❌ Local inference test failed: {e}")
+        print(f"❌ Local inference test failed for model_dir={model_dir}: {e}")
         return False
 
 
