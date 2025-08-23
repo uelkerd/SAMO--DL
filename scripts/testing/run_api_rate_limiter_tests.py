@@ -10,12 +10,10 @@ Usage:
 """
 
 import contextlib
-import logging
 import os
 import pytest
 import sys
 import tempfile
-from pathlib import Path
 
 # DRY bootstrap
 from scripts.testing._bootstrap import (
