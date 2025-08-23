@@ -6,24 +6,24 @@ This script explicitly runs the API rate limiter tests to ensure they're discove
 and included in test coverage metrics.
 
 Usage:
-    python scripts/run_api_rate_limiter_tests.py
+    python scripts/testing/run_api_rate_limiter_tests.py
 """
 
 import contextlib
-import logging
 import os
 import pytest
 import sys
 import tempfile
-from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# DRY bootstrap
+from scripts.testing._bootstrap import (
+    ensure_project_root_on_sys_path,
+    configure_basic_logging,
+)
 
-# Add project root to path
-project_root = Path(__file__).parent.parent.parent.resolve()
-sys.path.append(str(project_root))
+# Configure logging and path
+project_root = ensure_project_root_on_sys_path()
+logger = configure_basic_logging()
 
 if __name__ == "__main__":
     logger.info("🧪 Running API Rate Limiter Tests...")
