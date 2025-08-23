@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
-from pathlib import Path
-import logging
-import numpy as np
-import sys
-import torch
-
 """
 Test Voice Pipeline for SAMO
 
 This script tests the complete voice-first pipeline including
 audio recording, transcription, and emotion detection.
 """
+from pathlib import Path
+import logging
+import numpy as np
+import sys
+import torch
 
 # Ensure project root is on sys.path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
