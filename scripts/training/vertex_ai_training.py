@@ -1,52 +1,3 @@
-            # Check per-class distribution
-        # All negative
-        # All positive
-        # Analyze first few batches
-        # Calculate statistics
-        # Check CUDA
-        # Check Vertex AI environment
-        # Check difference
-        # Check for critical issues
-        # Check for issues
-        # Check for issues
-        # Check for potential issues
-        # Compare with manual BCE
-        # Create model
-        # Create trainer with optimized configuration
-        # Ensure some positive labels
-        # Initialize model
-        # Load data
-        # Log class distribution
-        # Log results
-        # Prepare data
-        # Run all validations if none specified
-        # Run training
-        # Run validations
-        # Scenario 1: Mixed labels
-        # Start training
-        # Summary
-        # Test different scenarios
-        # Test edge cases
-        # Test forward pass
-        from google.cloud import aiplatform
-        from src.models.emotion_detection.bert_classifier import WeightedBCELoss
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-        from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-        import torch
-        import torch
-        import torch
-        import torch.nn.functional as F
-        import traceback
-        import transformers
-    # Model configuration
-    # Parse arguments
-    # Run validation if requested
-    # Training configuration
-    # Validate environment
-    # Validation configuration
-# Add src to path
-# Configure logging
 #!/usr/bin/env python3
 from pathlib import Path
 from typing import Dict, Any, Optional
@@ -56,13 +7,6 @@ import os
 import sys
 import traceback
 
-
-
-
-
-
-
-
 """
 Vertex AI Training Script for SAMO Deep Learning.
 
@@ -70,7 +14,10 @@ This script runs training on Vertex AI with optimized configuration
 to solve the 0.0000 loss issue and achieve >75% F1 score.
 """
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+# Ensure project root on path
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 logging.basicConfig(
     level=logging.INFO,
@@ -113,27 +60,17 @@ def validate_environment():
     logger.info("🔍 Validating Vertex AI environment...")
 
     try:
-        logger.info("✅ PyTorch: {torch.__version__}")
-        logger.info("✅ Transformers: {transformers.__version__}")
+        import torch
+        import transformers
+        logger.info(f"✅ PyTorch: {torch.__version__}")
+        logger.info(f"✅ Transformers: {transformers.__version__}")
         logger.info("✅ Vertex AI: Available")
 
         if torch.cuda.is_available():
-            logger.info("✅ CUDA: {torch.cuda.get_device_name(0)}")
-            logger.info("✅ CUDA Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
-        else:
-            logger.warning("⚠️  CUDA not available, using CPU")
-
-        project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
-        region = os.getenv("VERTEX_AI_REGION", "us-central1")
-
-        logger.info("✅ Project ID: {project_id}")
-        logger.info("✅ Region: {region}")
-
-        return True
-
+            logger.info(f"✅ CUDA device: {torch.cuda.get_device_name(0)}")
     except Exception as e:
-        logger.error("❌ Environment validation failed: {e}")
-        return False
+        logger.error(f"❌ Environment validation failed: {e}")
+        raise
 
 
 def validate_data_distribution():
@@ -141,6 +78,7 @@ def validate_data_distribution():
     logger.info("🔍 Validating data distribution...")
 
     try:
+        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
         datasets = create_goemotions_loader(dev_mode=True)
         train_dataloader = datasets["train_dataloader"]
 
@@ -149,7 +87,7 @@ def validate_data_distribution():
         label_distribution = {}
 
         for _batch_idx, batch in enumerate(train_dataloader):
-            if batch_idx >= 10:  # Check first 10 batches
+            if _batch_idx >= 10:  # Check first 10 batches
                 break
 
             labels = batch["labels"]
@@ -162,9 +100,9 @@ def validate_data_distribution():
                 label_distribution[class_idx] += labels[:, class_idx].sum().item()
 
         positive_rate = total_positive_labels / (total_samples * 28)  # 28 emotion classes
-        logger.info("✅ Total samples analyzed: {total_samples}")
-        logger.info("✅ Total positive labels: {total_positive_labels}")
-        logger.info("✅ Positive label rate: {positive_rate:.6f}")
+        logger.info(f"✅ Total samples analyzed: {total_samples}")
+        logger.info(f"✅ Total positive labels: {total_positive_labels}")
+        logger.info(f"✅ Positive label rate: {positive_rate:.6f}")
 
         if positive_rate == 0:
             logger.error("❌ CRITICAL: No positive labels found!")
@@ -182,7 +120,7 @@ def validate_data_distribution():
         for class_idx in range(min(10, len(label_distribution))):
             count = label_distribution.get(class_idx, 0)
             if count > 0:
-                logger.info("   Class {class_idx}: {count} positive samples")
+                logger.info(f"   Class {class_idx}: {count} positive samples")
 
         return True
 
@@ -196,14 +134,16 @@ def validate_model_architecture():
     logger.info("🔍 Validating model architecture...")
 
     try:
+        from src.models.emotion_detection.bert_classifier import WeightedBCELoss
+        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
         model, loss_fn = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
             class_weights=None,
             freeze_bert_layers=6,
         )
 
-        logger.info("✅ Model created: {model.count_parameters():,} parameters")
-        logger.info("✅ Loss function: {type(loss_fn).__name__}")
+        logger.info(f"✅ Model created: {model.count_parameters():,} parameters")
+        logger.info(f"✅ Loss function: {type(loss_fn).__name__}")
 
         batch_size = 2
         seq_length = 64
@@ -221,8 +161,8 @@ def validate_model_architecture():
             loss = loss_fn(logits, dummy_labels)
 
         logger.info("✅ Forward pass successful")
-        logger.info("   Logits shape: {logits.shape}")
-        logger.info("   Loss value: {loss.item():.8f}")
+        logger.info(f"   Logits shape: {logits.shape}")
+        logger.info(f"   Loss value: {loss.item():.8f}")
 
         if loss.item() <= 0:
             logger.error("❌ CRITICAL: Loss is zero or negative: {loss.item()}")
@@ -244,6 +184,8 @@ def validate_loss_function():
     logger.info("🔍 Validating loss function...")
 
     try:
+        import torch
+        import torch.nn.functional as F
         batch_size = 4
         num_classes = 28
 
@@ -251,13 +193,14 @@ def validate_loss_function():
         labels = torch.randint(0, 2, (batch_size, num_classes)).float()
         labels[:, 0] = 1.0  # Ensure some positive labels
 
+        from src.models.emotion_detection.bert_classifier import WeightedBCELoss
         loss_fn = WeightedBCELoss()
         loss1 = loss_fn(logits, labels)
 
         bce_manual = F.binary_cross_entropy_with_logits(logits, labels, reduction="mean")
 
-        logger.info("✅ Mixed labels loss: {loss1.item():.8f}")
-        logger.info("✅ Manual BCE loss: {bce_manual.item():.8f}")
+        logger.info(f"✅ Mixed labels loss: {loss1.item():.8f}")
+        logger.info(f"✅ Manual BCE loss: {bce_manual.item():.8f}")
 
         loss_diff = abs(loss1.item() - bce_manual.item())
         if loss_diff > 1.0:
@@ -265,11 +208,11 @@ def validate_loss_function():
 
         labels_all_pos = torch.ones(batch_size, num_classes)
         loss2 = loss_fn(logits, labels_all_pos)
-        logger.info("✅ All positive loss: {loss2.item():.8f}")
+        logger.info(f"✅ All positive loss: {loss2.item():.8f}")
 
         labels_all_neg = torch.zeros(batch_size, num_classes)
         loss3 = loss_fn(logits, labels_all_neg)
-        logger.info("✅ All negative loss: {loss3.item():.8f}")
+        logger.info(f"✅ All negative loss: {loss3.item():.8f}")
 
         if loss1.item() <= 0 or loss2.item() <= 0 or loss3.item() <= 0:
             logger.error("❌ CRITICAL: Loss function producing zero/negative values!")
@@ -288,14 +231,14 @@ def validate_training_config(args):
 
     try:
         logger.info("📋 Training Configuration:")
-        logger.info("   Model: {args.model_name}")
-        logger.info("   Batch size: {args.batch_size}")
-        logger.info("   Learning rate: {args.learning_rate}")
-        logger.info("   Epochs: {args.num_epochs}")
-        logger.info("   Max length: {args.max_length}")
-        logger.info("   Frozen layers: {args.freeze_bert_layers}")
-        logger.info("   Focal loss: {args.use_focal_loss}")
-        logger.info("   Class weights: {args.class_weights}")
+        logger.info(f"   Model: {args.model_name}")
+        logger.info(f"   Batch size: {args.batch_size}")
+        logger.info(f"   Learning rate: {args.learning_rate}")
+        logger.info(f"   Epochs: {args.num_epochs}")
+        logger.info(f"   Max length: {args.max_length}")
+        logger.info(f"   Frozen layers: {args.freeze_bert_layers}")
+        logger.info(f"   Focal loss: {args.use_focal_loss}")
+        logger.info(f"   Class weights: {args.class_weights}")
 
         if args.learning_rate > 1e-4:
             logger.warning("⚠️  Learning rate might be too high")
@@ -320,6 +263,7 @@ def run_training(args):
     logger.info("🚀 Starting Vertex AI training...")
 
     try:
+        from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
         trainer = EmotionDetectionTrainer(
             model_name=args.model_name,
             batch_size=args.batch_size,
