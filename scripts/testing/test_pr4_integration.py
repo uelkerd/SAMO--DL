@@ -8,9 +8,11 @@ PR #4 are properly integrated and functional.
 import shutil
 import subprocess
 import sys
-import yaml
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
+
+import yaml
+
 
 class PR4IntegrationTester:
     """Integration tester for PR #4 security and documentation enhancements."""

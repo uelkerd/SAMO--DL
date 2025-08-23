@@ -2,6 +2,7 @@
 """Test script to investigate the Swagger docs 500 error."""
 
 import os
+
 import requests
 
 # Set required environment variables

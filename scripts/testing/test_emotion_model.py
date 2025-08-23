@@ -2,11 +2,13 @@
 """Test the trained emotion detection model with sample journal entries."""
 
 import json
+
 import numpy as np
 import torch
 import torch.nn as nn
 from sklearn.preprocessing import LabelEncoder
 from transformers import AutoModel, AutoTokenizer
+
 
 def load_trained_model():
     """Load the trained emotion detection model."""

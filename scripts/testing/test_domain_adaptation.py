@@ -1,36 +1,38 @@
-            # Apply threshold and get predicted emotions
-            # Predict
-            # Sort by confidence
-            # Tokenize
-        # Emotional complexity
-        # Exact match
-        # Mixed emotions
-        # Negative emotions
-        # Neutral/complex emotions
-        # Partial match (at least one emotion correct)
-        # Positive emotions
-        # Save detailed results
-    # Analyze results
-    # Calculate metrics
-    # Emotion mapping
-    # Extract texts for prediction
-    # Generate recommendations
-    # Get predictions
-    # GoEmotions emotion labels (28 emotions including neutral)
-    # Import and initialize model
-    # Initialize tokenizer
-    # Load model
-    # Performance analysis
-    # Save samples for testing
+# Apply threshold and get predicted emotions
+# Predict
+# Sort by confidence
+# Tokenize
+# Emotional complexity
+# Exact match
+# Mixed emotions
+# Negative emotions
+# Neutral/complex emotions
+# Partial match (at least one emotion correct)
+# Positive emotions
+# Save detailed results
+# Analyze results
+# Calculate metrics
+# Emotion mapping
+# Extract texts for prediction
+# Generate recommendations
+# Get predictions
+# GoEmotions emotion labels (28 emotions including neutral)
+# Import and initialize model
+# Initialize tokenizer
+# Load model
+# Performance analysis
+# Save samples for testing
 import argparse
 import json
 import logging
+from pathlib import Path
+
 # Set up logging
 #!/usr/bin/env python3
 import torch
-from pathlib import Path
-    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 from transformers import AutoTokenizer
+
+from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 
 """Domain Adaptation Testing for SAMO Deep Learning.
 
@@ -188,7 +190,9 @@ def predict_emotions(
                 emotion_scores[emotion] = float(prob)
 
                 if prob > threshold:
-                    predicted_emotions.append({"emotion": emotion, "confidence": float(prob)})
+                    predicted_emotions.append(
+                        {"emotion": emotion, "confidence": float(prob)}
+                    )
 
             predicted_emotions.sort(key=lambda x: x["confidence"], reverse=True)
 
@@ -258,17 +262,23 @@ def analyze_domain_adaptation(
         analysis["recommendations"].append(
             "❌ Strong domain shift detected - consider domain adaptation"
         )
-        analysis["recommendations"].append("• Collect journal entry dataset with emotion labels")
+        analysis["recommendations"].append(
+            "• Collect journal entry dataset with emotion labels"
+        )
         analysis["recommendations"].append("• Fine-tune model on journal entries")
         analysis["recommendations"].append("• Use data augmentation techniques")
     elif exact_accuracy < 0.6:
         analysis["recommendations"].append("⚠️  Moderate domain adaptation needed")
-        analysis["recommendations"].append("• Consider few-shot learning with journal examples")
+        analysis["recommendations"].append(
+            "• Consider few-shot learning with journal examples"
+        )
         analysis["recommendations"].append("• Implement confidence thresholding")
         analysis["recommendations"].append("• Monitor performance on real user data")
     else:
         analysis["recommendations"].append("✅ Good cross-domain performance")
-        analysis["recommendations"].append("• Current model should work well for journal entries")
+        analysis["recommendations"].append(
+            "• Current model should work well for journal entries"
+        )
         analysis["recommendations"].append("• Monitor performance and collect feedback")
 
     return analysis
@@ -276,14 +286,20 @@ def analyze_domain_adaptation(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="SAMO Domain Adaptation Testing")
-    parser.add_argument("--model-path", type=str, default="./test_checkpoints/best_model.pt")
+    parser.add_argument(
+        "--model-path", type=str, default="./test_checkpoints/best_model.pt"
+    )
     parser.add_argument(
         "--create-journal-samples",
         action="store_true",
         help="Create journal test samples",
     )
-    parser.add_argument("--test-adaptation", action="store_true", help="Test domain adaptation")
-    parser.add_argument("--threshold", type=float, default=0.3, help="Emotion prediction threshold")
+    parser.add_argument(
+        "--test-adaptation", action="store_true", help="Test domain adaptation"
+    )
+    parser.add_argument(
+        "--threshold", type=float, default=0.3, help="Emotion prediction threshold"
+    )
 
     args = parser.parse_args()
 
@@ -306,7 +322,9 @@ def main() -> None:
         print("\nExact Accuracy: {metrics['exact_accuracy']:.2%}")
         print("Partial Accuracy: {metrics['partial_accuracy']:.2%}")
         print("Exact Matches: {metrics['exact_matches']}/{analysis['total_samples']}")
-        print("Partial Matches: {metrics['partial_matches']}/{analysis['total_samples']}")
+        print(
+            "Partial Matches: {metrics['partial_matches']}/{analysis['total_samples']}"
+        )
         print("No Matches: {metrics['no_matches']}/{analysis['total_samples']}")
 
         print("\n💡 Recommendations:")

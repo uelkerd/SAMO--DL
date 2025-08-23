@@ -12,6 +12,7 @@ import subprocess
 import sys
 from datetime import datetime
 
+
 def print_banner():
     """Print project completion banner."""
     print("🎉" * 50)
@@ -20,6 +21,7 @@ def print_banner():
     print("🏆 ACHIEVED: 99.48% F1 Score")
     print("✅ STATUS: TARGET CRUSHED!")
     print("🎉" * 50)
+
 
 def check_project_status():
     """Check the current project status."""
@@ -31,7 +33,7 @@ def check_project_status():
         "./emotion_model_ensemble_final",
         "./emotion_model_specialized_final",
         "./emotion_model_fixed_bulletproof_final",
-        "./emotion_model"
+        "./emotion_model",
     ]
 
     found_models = []
@@ -48,6 +50,7 @@ def check_project_status():
     print(f"📊 Found {len(found_models)} trained model(s)")
     return True
 
+
 def save_model_for_deployment():
     """Save the trained model for deployment."""
     print("\n🚀 SAVING MODEL FOR DEPLOYMENT")
@@ -55,9 +58,12 @@ def save_model_for_deployment():
 
     try:
         # Run the model saving script
-        result = subprocess.run([
-            sys.executable, "scripts/save_trained_model_for_deployment.py"
-        ], capture_output=True, text=True)
+        result = subprocess.run(
+            [sys.executable, "scripts/save_trained_model_for_deployment.py"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
 
         if result.returncode == 0:
             print("✅ Model saved successfully!")
@@ -72,6 +78,7 @@ def save_model_for_deployment():
         print(f"❌ Error saving model: {e}")
         return False
 
+
 def test_deployment_package():
     """Test the deployment package."""
     print("\n🧪 TESTING DEPLOYMENT PACKAGE")
@@ -83,9 +90,12 @@ def test_deployment_package():
 
     try:
         # Test the model
-        result = subprocess.run([
-            sys.executable, "deployment/test_examples.py"
-        ], capture_output=True, text=True)
+        result = subprocess.run(
+            [sys.executable, "deployment/test_examples.py"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
 
         if result.returncode == 0:
             print("✅ Deployment package test passed!")
@@ -100,6 +110,7 @@ def test_deployment_package():
         print(f"❌ Error testing deployment: {e}")
         return False
 
+
 def create_final_documentation():
     """Create final project documentation."""
     print("\n📚 CREATING FINAL DOCUMENTATION")
@@ -113,14 +124,14 @@ def create_final_documentation():
             "target_f1": "75-85%",
             "achieved_f1": "99.48%",
             "improvement": "1,813%",
-            "target_achieved": True
+            "target_achieved": True,
         },
         "technical_achievements": [
             "Specialized emotion models (finiteautomata/bertweet-base-emotion-analysis)",
             "Data augmentation techniques (synonym replacement, word order changes)",
             "Model ensembling with automatic best model selection",
             "Hyperparameter optimization for small datasets",
-            "Production-ready deployment package"
+            "Production-ready deployment package",
         ],
         "files_created": [
             "deployment/model/ (trained model)",
@@ -128,17 +139,17 @@ def create_final_documentation():
             "deployment/api_server.py (REST API)",
             "deployment/test_examples.py (testing script)",
             "deployment/deploy.sh (deployment script)",
-            "docs/reports/PROJECT_COMPLETION_SUMMARY.md (project summary)"
+            "docs/reports/PROJECT_COMPLETION_SUMMARY.md (project summary)",
         ],
         "next_steps": [
             "cd deployment",
             "./deploy.sh",
-            "Test API at http://localhost:5000"
-        ]
+            "Test API at http://localhost:5000",
+        ],
     }
 
     # Save summary
-    with open("deployment/project_summary.json", 'w') as f:
+    with open("deployment/project_summary.json", "w") as f:
         json.dump(summary, f, indent=2)
 
     print("✅ Final documentation created!")
@@ -147,6 +158,7 @@ def create_final_documentation():
     print("  - docs/reports/PROJECT_COMPLETION_SUMMARY.md")
 
     return True
+
 
 def create_deployment_instructions():
     """Create deployment instructions."""
@@ -233,11 +245,12 @@ The project demonstrates the power of:
 **MISSION ACCOMPLISHED!** 🚀
 """
 
-    with open("deployment/DEPLOYMENT_INSTRUCTIONS.md", 'w') as f:
+    with open("deployment/DEPLOYMENT_INSTRUCTIONS.md", "w") as f:
         f.write(instructions)
 
     print("✅ Deployment instructions created!")
     return True
+
 
 def run_final_tests():
     """Run final comprehensive tests."""
@@ -245,9 +258,18 @@ def run_final_tests():
     print("=" * 40)
 
     tests = [
-        ("Model Loading", "python3.12 -c \"from deployment.inference import EmotionDetector; d = EmotionDetector(); print('✅ Model loaded successfully!')\""),
-        ("API Health", "curl -s http://localhost:5000/health | grep -q 'healthy' && echo '✅ API health check passed' || echo '❌ API health check failed'"),
-        ("Single Prediction", "curl -s -X POST http://localhost:5000/predict -H 'Content-Type: application/json' -d '{\"text\": \"I am happy\"}' | grep -q 'emotion' && echo '✅ Single prediction passed' || echo '❌ Single prediction failed'"),
+        (
+            "Model Loading",
+            "python3.12 -c \"from deployment.inference import EmotionDetector; d = EmotionDetector(); print('✅ Model loaded successfully!')\"",
+        ),
+        (
+            "API Health",
+            "curl -s http://localhost:5000/health | grep -q 'healthy' && echo '✅ API health check passed' || echo '❌ API health check failed'",
+        ),
+        (
+            "Single Prediction",
+            "curl -s -X POST http://localhost:5000/predict -H 'Content-Type: application/json' -d '{\"text\": \"I am happy\"}' | grep -q 'emotion' && echo '✅ Single prediction passed' || echo '❌ Single prediction failed'",
+        ),
     ]
 
     passed = 0
@@ -255,7 +277,9 @@ def run_final_tests():
 
     for test_name, command in tests:
         try:
-            result = subprocess.run(command, shell=True, capture_output=True, text=True)
+            result = subprocess.run(
+                command, shell=True, capture_output=True, text=True, check=False
+            )
             if result.returncode == 0:
                 print(f"✅ {test_name}: PASSED")
                 passed += 1
@@ -266,6 +290,7 @@ def run_final_tests():
 
     print(f"\n📊 Test Results: {passed}/{total} tests passed")
     return passed == total
+
 
 def main():
     """Main deployment process."""
@@ -316,6 +341,7 @@ def main():
     print("🎉 MISSION ACCOMPLISHED!")
 
     return True
+
 
 if __name__ == "__main__":
     success = main()

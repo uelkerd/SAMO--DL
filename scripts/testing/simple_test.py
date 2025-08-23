@@ -1,20 +1,22 @@
-        # Create loader
-        # Get first example
-        # Try different ways to access
+# Create loader
+# Get first example
+# Try different ways to access
 import logging
 import sys
-        import traceback
 import traceback
+
 # Add src to path
 #!/usr/bin/env python3
 from pathlib import Path
-        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+
+from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 
 """
 Simple test to understand the dataset object type.
 """
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+
 
 def main():
     logging.info("🔍 Simple test...")
@@ -41,20 +43,23 @@ def main():
 
         try:
             logging.info("✅ Labels: {first_example['labels']}")
-        except Exception as e:
+        except Exception:
             logging.info("❌ Cannot access labels: {e}")
 
         try:
-            logging.info("✅ Labels attr: {getattr(first_example, 'labels', 'No labels attr')}")
-        except Exception as e:
+            logging.info(
+                "✅ Labels attr: {getattr(first_example, 'labels', 'No labels attr')}"
+            )
+        except Exception:
             logging.info("❌ Cannot get labels attr: {e}")
 
         return True
 
-    except Exception as e:
+    except Exception:
         logging.info("❌ Error: {e}")
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     success = main()

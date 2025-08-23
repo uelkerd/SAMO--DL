@@ -1,76 +1,79 @@
-            # Check if target speedup is achieved with ONNX
-            # Prepare ONNX inputs
-        # Benchmark ONNX model
-        # Benchmark original PyTorch model
-        # Benchmark quantized PyTorch model
-        # Calculate statistics
-        # Check if outputs are close
-        # Create dummy input
-        # Generate random input texts
-        # Log results
-        # Move model back to CPU
-        # Move outputs to CPU for comparison
-        # Save benchmark results
-        # Test on CPU
-        # Test on GPU
-        # Tokenize
+# Check if target speedup is achieved with ONNX
+# Prepare ONNX inputs
+# Benchmark ONNX model
+# Benchmark original PyTorch model
+# Benchmark quantized PyTorch model
+# Calculate statistics
+# Check if outputs are close
+# Create dummy input
+# Generate random input texts
+# Log results
+# Move model back to CPU
+# Move outputs to CPU for comparison
+# Save benchmark results
+# Test on CPU
+# Test on GPU
+# Tokenize
 import argparse
 import json
 import logging
-        import onnx
-        import onnxruntime as ort
 import sys
 import time
-# Add src to path
-    # Apply dynamic quantization to linear layers
-    # Apply optimizations
-    # Apply quantization
-    # Benchmark for different batch sizes
-    # Calculate size reduction
-    # Check if all requirements are met
-    # Check if CUDA is available
-    # Check if model exists
-    # Check if ONNX Runtime is available
-    # Check if target size is achieved
-    # Collect all metrics
-# Configure logging
-# Constants
-    # Convert to ONNX
-    # Create dummy input for ONNX export
-    # Create model
-    # Create output directory
-    # Create tokenizer
-    # Define dynamic axes for variable batch size and sequence length
-    # Define input and output names
-    # Define output paths
-    # Exit with success code
-    # Export to ONNX
-    # Initialize results dictionary
-    # Load checkpoint
-    # Load model
-    # Load quantized model
-    # Load state dict
-    # Log summary
-    # Measure original model size
-    # Measure quantized model size
-    # Return metrics
-    # Run benchmarks if requested
-    # Save quantized model
-    # Save results
-    # Set model to evaluation mode
-    # Set model to evaluation mode
-    # Set model to evaluation mode
-    # Set models to evaluation mode
-    # Verify GPU compatibility
-    # Verify ONNX model
+from pathlib import Path
+from typing import Any, Optional, Union
+
 #!/usr/bin/env python3
 import numpy as np
+import onnx
+import onnxruntime as ort
 import torch
-from pathlib import Path
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from tqdm import tqdm
 from transformers import AutoTokenizer
-from typing import Any, Union, Optional
+
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+
+# Add src to path
+# Apply dynamic quantization to linear layers
+# Apply optimizations
+# Apply quantization
+# Benchmark for different batch sizes
+# Calculate size reduction
+# Check if all requirements are met
+# Check if CUDA is available
+# Check if model exists
+# Check if ONNX Runtime is available
+# Check if target size is achieved
+# Collect all metrics
+# Configure logging
+# Constants
+# Convert to ONNX
+# Create dummy input for ONNX export
+# Create model
+# Create output directory
+# Create tokenizer
+# Define dynamic axes for variable batch size and sequence length
+# Define input and output names
+# Define output paths
+# Exit with success code
+# Export to ONNX
+# Initialize results dictionary
+# Load checkpoint
+# Load model
+# Load quantized model
+# Load state dict
+# Log summary
+# Measure original model size
+# Measure quantized model size
+# Return metrics
+# Run benchmarks if requested
+# Save quantized model
+# Save results
+# Set model to evaluation mode
+# Set model to evaluation mode
+# Set model to evaluation mode
+# Set models to evaluation mode
+# Verify GPU compatibility
+# Verify ONNX model
 
 """
 Model Optimization Script for REQ-DL-008
@@ -141,9 +144,13 @@ def apply_dynamic_quantization(
     logger.info("Size reduction: {size_reduction:.2f}%")
 
     if quantized_size <= TARGET_SIZE_MB:
-        logger.info("✅ Target size achieved: {quantized_size:.2f} MB <= {TARGET_SIZE_MB} MB")
+        logger.info(
+            "✅ Target size achieved: {quantized_size:.2f} MB <= {TARGET_SIZE_MB} MB"
+        )
     else:
-        logger.warning("⚠️ Target size not achieved: {quantized_size:.2f} MB > {TARGET_SIZE_MB} MB")
+        logger.warning(
+            "⚠️ Target size not achieved: {quantized_size:.2f} MB > {TARGET_SIZE_MB} MB"
+        )
 
     return {
         "original_size_mb": original_size,
@@ -152,7 +159,9 @@ def apply_dynamic_quantization(
     }
 
 
-def convert_to_onnx(model: torch.nn.Module, output_path: str, opset_version: int = 12) -> str:
+def convert_to_onnx(
+    model: torch.nn.Module, output_path: str, opset_version: int = 12
+) -> str:
     """Convert PyTorch model to ONNX format.
 
     Args:
@@ -188,7 +197,9 @@ def convert_to_onnx(model: torch.nn.Module, output_path: str, opset_version: int
         (
             dummy_inputs["input_ids"],
             dummy_inputs["attention_mask"],
-            dummy_inputs.get("token_type_ids", torch.zeros_like(dummy_inputs["input_ids"])),
+            dummy_inputs.get(
+                "token_type_ids", torch.zeros_like(dummy_inputs["input_ids"])
+            ),
         ),
         output_path,
         input_names=input_names,
@@ -208,7 +219,7 @@ def convert_to_onnx(model: torch.nn.Module, output_path: str, opset_version: int
     except ImportError:
         logger.warning("⚠️ ONNX package not installed, skipping verification")
         logger.info("To install: pip install onnx")
-    except Exception as e:
+    except Exception:
         logger.error("❌ ONNX model verification failed: {e}")
 
     return output_path
@@ -251,13 +262,15 @@ def benchmark_models(
     except ImportError:
         logger.warning("⚠️ ONNX Runtime not installed, skipping ONNX benchmarks")
         logger.info("To install: pip install onnxruntime")
-    except Exception as e:
+    except Exception:
         logger.error("❌ Error loading ONNX model: {e}")
 
     for batch_size in batch_sizes:
         logger.info("Benchmarking with batch_size={batch_size}...")
 
-        texts = ["This is test sentence {i} for benchmarking." for i in range(batch_size)]
+        texts = [
+            "This is test sentence {i} for benchmarking." for i in range(batch_size)
+        ]
 
         inputs = tokenizer(
             texts, return_tensors="pt", padding=True, truncation=True, max_length=128
@@ -375,7 +388,11 @@ def verify_gpu_compatibility(model: torch.nn.Module) -> bool:
         tokenizer = AutoTokenizer.from_pretrained(model.model_name)
         dummy_text = "This is a test sentence for GPU compatibility."
         dummy_inputs = tokenizer(
-            dummy_text, return_tensors="pt", padding=True, truncation=True, max_length=128
+            dummy_text,
+            return_tensors="pt",
+            padding=True,
+            truncation=True,
+            max_length=128,
         )
 
         model.to("cpu")
@@ -396,14 +413,16 @@ def verify_gpu_compatibility(model: torch.nn.Module) -> bool:
             logger.error("❌ Model outputs differ between CPU and GPU")
             return False
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Error during GPU compatibility check: {e}")
         return False
     finally:
         model.to("cpu")
 
 
-def optimize_model(model_path: str, output_dir: str, run_benchmark: bool = False) -> dict[str, Any]:
+def optimize_model(
+    model_path: str, output_dir: str, run_benchmark: bool = False
+) -> dict[str, Any]:
     """Apply all optimization techniques to model.
 
     Args:
@@ -476,14 +495,24 @@ def optimize_model(model_path: str, output_dir: str, run_benchmark: bool = False
     logger.info("Optimization results saved to {results_path}")
 
     logger.info("\n=== Optimization Summary ===")
-    logger.info("Original model size: {quantization_metrics['original_size_mb']:.2f} MB")
-    logger.info("Quantized model size: {quantization_metrics['quantized_size_mb']:.2f} MB")
+    logger.info(
+        "Original model size: {quantization_metrics['original_size_mb']:.2f} MB"
+    )
+    logger.info(
+        "Quantized model size: {quantization_metrics['quantized_size_mb']:.2f} MB"
+    )
     logger.info("Size reduction: {quantization_metrics['size_reduction_percent']:.2f}%")
     logger.info("ONNX model path: {onnx_path}")
     logger.info("GPU compatible: {'Yes' if gpu_compatible else 'No'}")
 
-    if run_benchmark and "onnx" in benchmark_results and "batch_1" in benchmark_results["onnx"]:
-        logger.info("ONNX speedup: {benchmark_results['onnx']['batch_1']['speedup']:.2f}x")
+    if (
+        run_benchmark
+        and "onnx" in benchmark_results
+        and "batch_1" in benchmark_results["onnx"]
+    ):
+        logger.info(
+            "ONNX speedup: {benchmark_results['onnx']['batch_1']['speedup']:.2f}x"
+        )
 
     all_requirements_met = (
         quantization_metrics["quantized_size_mb"] <= TARGET_SIZE_MB
@@ -501,7 +530,9 @@ def optimize_model(model_path: str, output_dir: str, run_benchmark: bool = False
     if all_requirements_met:
         logger.info("✅ All optimization requirements met!")
     else:
-        logger.warning("⚠️ Some optimization requirements not met. Check logs for details.")
+        logger.warning(
+            "⚠️ Some optimization requirements not met. Check logs for details."
+        )
 
     return results
 
@@ -521,13 +552,17 @@ if __name__ == "__main__":
         help="Directory to save optimized models (default: {DEFAULT_OUTPUT_DIR})",
     )
     parser.add_argument(
-        "--benchmark", action="store_true", help="Run performance benchmarks on optimized models"
+        "--benchmark",
+        action="store_true",
+        help="Run performance benchmarks on optimized models",
     )
 
     args = parser.parse_args()
 
     results = optimize_model(
-        model_path=args.model_path, output_dir=args.output_dir, run_benchmark=args.benchmark
+        model_path=args.model_path,
+        output_dir=args.output_dir,
+        run_benchmark=args.benchmark,
     )
 
     sys.exit(0)

@@ -142,7 +142,7 @@ const EmotionAnalyzer = () => {
   return (
     <div className="emotion-analyzer">
       <h2>🧠 SAMO Brain - Emotion Analyzer</h2>
-      
+
       <form onSubmit={handleSubmit} className="analyzer-form">
         <textarea
           value={text}
@@ -151,9 +151,9 @@ const EmotionAnalyzer = () => {
           className="emotion-input"
           rows={4}
         />
-        
-        <button 
-          type="submit" 
+
+        <button
+          type="submit"
           disabled={loading || !text.trim()}
           className="analyze-button"
         >
@@ -169,9 +169,9 @@ const EmotionAnalyzer = () => {
 
       {emotion && (
         <div className="emotion-result">
-          <div 
+          <div
             className="emotion-card"
-            style={{ 
+            style={{
               backgroundColor: EMOTION_COLORS[emotion.predicted_emotion] + '20',
               borderColor: EMOTION_COLORS[emotion.predicted_emotion]
             }}
@@ -181,35 +181,35 @@ const EmotionAnalyzer = () => {
                 {EMOTION_ICONS[emotion.predicted_emotion]}
               </span>
               <h3 className="emotion-name">
-                {emotion.predicted_emotion.charAt(0).toUpperCase() + 
+                {emotion.predicted_emotion.charAt(0).toUpperCase() +
                  emotion.predicted_emotion.slice(1)}
               </h3>
             </div>
-            
+
             <div className="confidence-bar">
-              <div 
+              <div
                 className="confidence-fill"
-                style={{ 
+                style={{
                   width: `${emotion.confidence * 100}%`,
                   backgroundColor: EMOTION_COLORS[emotion.predicted_emotion]
                 }}
               />
             </div>
-            
+
             <p className="confidence-text">
               Confidence: {(emotion.confidence * 100).toFixed(1)}%
             </p>
-            
+
             <div className="emotion-probabilities">
               <h4>All Emotions:</h4>
               <div className="probability-grid">
                 {Object.entries(emotion.probabilities)
                   .sort(([,a], [,b]) => b - a)
                   .map(([emotionName, probability]) => (
-                    <div 
+                    <div
                       key={emotionName}
                       className="probability-item"
-                      style={{ 
+                      style={{
                         backgroundColor: EMOTION_COLORS[emotionName] + '20',
                         borderColor: EMOTION_COLORS[emotionName]
                       }}
@@ -395,7 +395,7 @@ export default EmotionAnalyzer;
   .emotion-analyzer {
     padding: 15px;
   }
-  
+
   .probability-grid {
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   }
@@ -408,7 +408,7 @@ export default EmotionAnalyzer;
 <template>
   <div class="emotion-analyzer">
     <h2>🧠 SAMO Brain - Emotion Analyzer</h2>
-    
+
     <form @submit.prevent="analyzeEmotion" class="analyzer-form">
       <textarea
         v-model="text"
@@ -416,9 +416,9 @@ export default EmotionAnalyzer;
         class="emotion-input"
         rows="4"
       />
-      
-      <button 
-        type="submit" 
+
+      <button
+        type="submit"
         :disabled="loading || !text.trim()"
         class="analyze-button"
       >
@@ -431,9 +431,9 @@ export default EmotionAnalyzer;
     </div>
 
     <div v-if="emotion" class="emotion-result">
-      <div 
+      <div
         class="emotion-card"
-        :style="{ 
+        :style="{
           backgroundColor: emotionColors[emotion.predicted_emotion] + '20',
           borderColor: emotionColors[emotion.predicted_emotion]
         }"
@@ -446,29 +446,29 @@ export default EmotionAnalyzer;
             {{ capitalizeFirst(emotion.predicted_emotion) }}
           </h3>
         </div>
-        
+
         <div class="confidence-bar">
-          <div 
+          <div
             class="confidence-fill"
-            :style="{ 
+            :style="{
               width: `${emotion.confidence * 100}%`,
               backgroundColor: emotionColors[emotion.predicted_emotion]
             }"
           />
         </div>
-        
+
         <p class="confidence-text">
           Confidence: {{ (emotion.confidence * 100).toFixed(1) }}%
         </p>
-        
+
         <div class="emotion-probabilities">
           <h4>All Emotions:</h4>
           <div class="probability-grid">
-            <div 
+            <div
               v-for="[emotionName, probability] in sortedProbabilities"
               :key="emotionName"
               class="probability-item"
-              :style="{ 
+              :style="{
                 backgroundColor: emotionColors[emotionName] + '20',
                 borderColor: emotionColors[emotionName]
               }"
@@ -648,7 +648,7 @@ const EmotionAnalyzer = () => {
                 {EMOTION_ICONS[emotion.predicted_emotion]}
               </Text>
               <Text style={styles.emotionName}>
-                {emotion.predicted_emotion.charAt(0).toUpperCase() + 
+                {emotion.predicted_emotion.charAt(0).toUpperCase() +
                  emotion.predicted_emotion.slice(1)}
               </Text>
             </View>
@@ -786,7 +786,7 @@ const RealTimeEmotionDisplay = ({ emotion, confidence }) => {
         <span className="emotion-icon">{EMOTION_ICONS[emotion]}</span>
         <span className="emotion-label">{emotion}</span>
         <div className="confidence-indicator">
-          <div 
+          <div
             className="confidence-bar"
             style={{ width: `${confidence * 100}%` }}
           />
@@ -819,10 +819,10 @@ const EmotionTrendChart = ({ emotionHistory }) => {
           <XAxis dataKey="time" />
           <YAxis domain={[0, 100]} />
           <Tooltip />
-          <Line 
-            type="monotone" 
-            dataKey="confidence" 
-            stroke="#4ECDC4" 
+          <Line
+            type="monotone"
+            dataKey="confidence"
+            stroke="#4ECDC4"
             strokeWidth={2}
           />
         </LineChart>
@@ -850,11 +850,11 @@ export const analyzeEmotion = createAsyncThunk(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text })
     });
-    
+
     if (!response.ok) {
       throw new Error('Analysis failed');
     }
-    
+
     return response.json();
   }
 );
@@ -1029,12 +1029,12 @@ class EmotionCache {
 
   set(text, emotion) {
     const hash = this.hashText(text);
-    
+
     if (this.cache.size >= this.maxSize) {
       const firstKey = this.cache.keys().next().value;
       this.cache.delete(firstKey);
     }
-    
+
     this.cache.set(hash, {
       emotion,
       timestamp: Date.now()
@@ -1067,10 +1067,10 @@ const analyzeWithCache = async (text) => {
   });
 
   const emotion = await response.json();
-  
+
   // Cache the result
   emotionCache.set(text, emotion);
-  
+
   return emotion;
 };
 ```
@@ -1149,7 +1149,7 @@ const EmotionAnalyzerWithErrorHandling = () => {
         </div>
       )}
 
-      <button 
+      <button
         onClick={analyzeEmotion}
         disabled={loading || !text.trim()}
         className="analyze-button"
@@ -1224,4 +1224,4 @@ const MobileEmotionAnalyzer = () => {
 
 ---
 
-**Ready to build beautiful emotion-aware interfaces?** Start with the [Quick Start](#-quick-start-5-minutes) section above! 🎨✨ 
+**Ready to build beautiful emotion-aware interfaces?** Start with the [Quick Start](#-quick-start-5-minutes) section above! 🎨✨

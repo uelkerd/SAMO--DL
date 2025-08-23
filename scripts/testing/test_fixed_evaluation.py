@@ -1,15 +1,17 @@
-        # Create trainer
-        # Load trained model
-        # Prepare data and model
-        # Success criteria
-        # Test different thresholds with fixed evaluation
+# Create trainer
+# Load trained model
+# Prepare data and model
+# Success criteria
+# Test different thresholds with fixed evaluation
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
 import logging
 import sys
-import torch
 from pathlib import Path
+
+import torch
+
 from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
@@ -62,7 +64,10 @@ def main():
             logger.info("🔍 Threshold: {threshold}")
 
             metrics = evaluate_emotion_classifier(
-                trainer.model, trainer.val_dataloader, trainer.device, threshold=threshold
+                trainer.model,
+                trainer.val_dataloader,
+                trainer.device,
+                threshold=threshold,
             )
 
             macro_f1 = metrics["macro_f1"]
@@ -82,7 +87,9 @@ def main():
             logger.info("🚀 Ready to proceed with full training or deployment!")
             return 0
         elif best_f1 > 0.10:  # 10% is acceptable for initial training
-            logger.info("✅ GOOD: Model shows promise, could benefit from more training")
+            logger.info(
+                "✅ GOOD: Model shows promise, could benefit from more training"
+            )
             return 0
         else:
             logger.warning(

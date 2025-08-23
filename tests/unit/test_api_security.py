@@ -7,15 +7,17 @@ Comprehensive unit tests for API security components.
 
 import os
 import sys
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import unittest
 import time
+import unittest
 
 # Import security components
-from api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
+from api_rate_limiter import RateLimitConfig, TokenBucketRateLimiter
 from input_sanitizer import InputSanitizer, SanitizationConfig
-from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
+from security_headers import SecurityHeadersConfig, SecurityHeadersMiddleware
+
 
 class TestRateLimiter(unittest.TestCase):
     """Test rate limiter functionality."""

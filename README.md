@@ -15,8 +15,8 @@
 
 ## 🎯 Project Context & Scope
 
-**Role**: Sole Deep Learning Engineer (originally 2-person team, now independent ownership)  
-**Responsibility**: End-to-end ML pipeline from research to production deployment  
+**Role**: Sole Deep Learning Engineer (originally 2-person team, now independent ownership)
+**Responsibility**: End-to-end ML pipeline from research to production deployment
 
 ### Architecture Overview
 ```
@@ -44,7 +44,7 @@ Voice Input → Whisper STT → DistilRoBERTa Emotion → T5 Summarization → E
 - **Optimization**: ONNX Runtime deployment with dynamic quantization
 - **Performance**: 90.70% F1 score, 100-600ms inference time
 
-**2. Text Summarization Engine** 
+**2. Text Summarization Engine**
 - **Architecture**: T5-based transformer (60.5M parameters)
 - **Purpose**: Extract emotional core from journal conversations
 - **Integration**: Seamless pipeline with emotion detection API
@@ -58,7 +58,7 @@ Voice Input → Whisper STT → DistilRoBERTa Emotion → T5 Summarization → E
 
 **MLOps Infrastructure**
 - **Deployment**: Dockerized microservices on Google Cloud Run
-- **Monitoring**: Prometheus metrics + custom model drift detection  
+- **Monitoring**: Prometheus metrics + custom model drift detection
 - **Security**: Rate limiting, input validation, comprehensive error handling
 - **Testing**: Complete test suite (Unit, Integration, E2E, Performance)
 
@@ -70,10 +70,10 @@ Voice Input → Whisper STT → DistilRoBERTa Emotion → T5 Summarization → E
 
 ## 🔧 Technical Stack
 
-**ML Frameworks**: PyTorch, Transformers (Hugging Face), ONNX Runtime  
-**Model Architecture**: DistilRoBERTa, T5, Transformer-based NLP  
-**Production**: Docker, Kubernetes, Google Cloud Platform, Flask APIs  
-**MLOps**: Model monitoring, automated retraining, drift detection, CI/CD  
+**ML Frameworks**: PyTorch, Transformers (Hugging Face), ONNX Runtime
+**Model Architecture**: DistilRoBERTa, T5, Transformer-based NLP
+**Production**: Docker, Kubernetes, Google Cloud Platform, Flask APIs
+**MLOps**: Model monitoring, automated retraining, drift detection, CI/CD
 
 ## 📊 Live Production System
 
@@ -96,7 +96,7 @@ curl -X POST https://samo-emotion-api-[...].run.app/predict \
 
 ### System Health
 - **Uptime**: >99.5% production availability
-- **Latency**: 95th percentile under 500ms  
+- **Latency**: 95th percentile under 500ms
 - **Throughput**: 1000+ requests/minute capacity
 - **Error Rate**: <0.1% system errors
 
@@ -111,7 +111,7 @@ SAMO--DL/
 │   └── local/                # Development environment
 ├── scripts/
 │   ├── testing/              # Comprehensive test suite
-│   ├── deployment/           # Deployment automation  
+│   ├── deployment/           # Deployment automation
 │   └── optimization/         # Model optimization tools
 ├── docs/
 │   ├── api/                  # API documentation
@@ -119,7 +119,7 @@ SAMO--DL/
 │   └── architecture/         # System design documentation
 └── models/
     ├── emotion_detection/    # Fine-tuned emotion models
-    ├── summarization/        # T5 summarization models  
+    ├── summarization/        # T5 summarization models
     └── optimization/         # ONNX optimized models
 ```
 
@@ -190,10 +190,10 @@ def predict_emotion(text):
 
 **Model Performance**
 - Emotion detection accuracy: **90.70% F1 score**
-- Voice transcription: **<10% Word Error Rate**  
+- Voice transcription: **<10% Word Error Rate**
 - Summarization quality: **>4.0/5.0 human evaluation**
 
-**System Performance**  
+**System Performance**
 - Average response time: **287ms**
 - 95th percentile latency: **<500ms**
 - Production uptime: **>99.5%**

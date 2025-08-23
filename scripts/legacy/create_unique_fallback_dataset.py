@@ -9,12 +9,13 @@ Each sample must be completely different from all others.
 import json
 import random
 
+
 def create_unique_fallback_dataset():
     """Create a unique fallback dataset with no duplicates."""
 
     # Define unique templates for each emotion with variations
     emotion_templates = {
-        'happy': [
+        "happy": [
             "I'm feeling really happy today! Everything is going well.",
             "I'm so happy with how things turned out.",
             "I feel joyful and content right now.",
@@ -26,9 +27,9 @@ def create_unique_fallback_dataset():
             "I'm feeling cheerful and upbeat.",
             "I'm happy about the opportunities ahead.",
             "I feel blessed and grateful for today.",
-            "I'm excited and happy about the future."
+            "I'm excited and happy about the future.",
         ],
-        'frustrated': [
+        "frustrated": [
             "I'm so frustrated with this project. Nothing is working.",
             "I'm getting really annoyed with these constant issues.",
             "I feel irritated by the lack of progress.",
@@ -40,9 +41,9 @@ def create_unique_fallback_dataset():
             "I feel irritated by the lack of support.",
             "I'm annoyed with the constant delays.",
             "I'm frustrated with the unclear instructions.",
-            "I feel exasperated with these obstacles."
+            "I feel exasperated with these obstacles.",
         ],
-        'anxious': [
+        "anxious": [
             "I feel anxious about the upcoming presentation.",
             "I'm worried about the meeting tomorrow.",
             "I feel nervous about the interview.",
@@ -54,9 +55,9 @@ def create_unique_fallback_dataset():
             "I feel worried about the future.",
             "I'm nervous about the performance review.",
             "I feel uneasy about the changes.",
-            "I'm anxious about the responsibilities."
+            "I'm anxious about the responsibilities.",
         ],
-        'grateful': [
+        "grateful": [
             "I'm grateful for all the support I've received.",
             "I feel thankful for the opportunities given to me.",
             "I'm grateful for the help from my friends.",
@@ -68,9 +69,9 @@ def create_unique_fallback_dataset():
             "I'm grateful for the kindness shown to me.",
             "I feel thankful for the understanding.",
             "I'm grateful for the patience of others.",
-            "I feel blessed for the love and support."
+            "I feel blessed for the love and support.",
         ],
-        'overwhelmed': [
+        "overwhelmed": [
             "I'm feeling overwhelmed with all these tasks.",
             "I feel swamped with the amount of work.",
             "I'm overwhelmed by the responsibilities.",
@@ -82,9 +83,9 @@ def create_unique_fallback_dataset():
             "I'm overwhelmed by the changes.",
             "I feel swamped with the demands.",
             "I'm overwhelmed by the uncertainty.",
-            "I feel buried under the workload."
+            "I feel buried under the workload.",
         ],
-        'proud': [
+        "proud": [
             "I'm proud of what I've accomplished so far.",
             "I feel proud of my achievements.",
             "I'm proud of how far I've come.",
@@ -96,9 +97,9 @@ def create_unique_fallback_dataset():
             "I'm proud of the skills I've developed.",
             "I feel proud of my resilience.",
             "I'm proud of the challenges I've overcome.",
-            "I feel proud of my determination."
+            "I feel proud of my determination.",
         ],
-        'sad': [
+        "sad": [
             "I'm feeling sad and lonely today.",
             "I feel down about the recent events.",
             "I'm sad about the loss I experienced.",
@@ -110,9 +111,9 @@ def create_unique_fallback_dataset():
             "I'm saddened by the lack of progress.",
             "I feel melancholy about the changes.",
             "I'm sad about the broken promises.",
-            "I feel down about the setbacks."
+            "I feel down about the setbacks.",
         ],
-        'excited': [
+        "excited": [
             "I'm excited about the new opportunities ahead.",
             "I feel thrilled about the upcoming adventure.",
             "I'm excited about the possibilities.",
@@ -124,9 +125,9 @@ def create_unique_fallback_dataset():
             "I'm excited about the potential outcomes.",
             "I feel thrilled about the new experiences.",
             "I'm excited about the growth opportunities.",
-            "I feel enthusiastic about the journey ahead."
+            "I feel enthusiastic about the journey ahead.",
         ],
-        'calm': [
+        "calm": [
             "I feel calm and peaceful right now.",
             "I'm feeling serene and relaxed.",
             "I feel tranquil about the situation.",
@@ -138,9 +139,9 @@ def create_unique_fallback_dataset():
             "I feel tranquil and centered.",
             "I'm feeling peaceful and balanced.",
             "I feel calm about the future.",
-            "I'm serene about the present moment."
+            "I'm serene about the present moment.",
         ],
-        'hopeful': [
+        "hopeful": [
             "I'm hopeful that things will get better.",
             "I feel optimistic about the future.",
             "I'm hopeful about the possibilities ahead.",
@@ -152,9 +153,9 @@ def create_unique_fallback_dataset():
             "I'm hopeful that we'll find solutions.",
             "I feel optimistic about the results.",
             "I'm hopeful about the positive changes.",
-            "I feel optimistic about the journey ahead."
+            "I feel optimistic about the journey ahead.",
         ],
-        'tired': [
+        "tired": [
             "I'm tired and need some rest.",
             "I feel exhausted from the long day.",
             "I'm tired of dealing with these issues.",
@@ -166,9 +167,9 @@ def create_unique_fallback_dataset():
             "I'm tired of the ongoing problems.",
             "I feel exhausted from the demands.",
             "I'm tired of the uncertainty.",
-            "I feel worn out from the responsibilities."
+            "I feel worn out from the responsibilities.",
         ],
-        'content': [
+        "content": [
             "I'm content with how things are going.",
             "I feel satisfied with the current situation.",
             "I'm content with my progress.",
@@ -180,8 +181,8 @@ def create_unique_fallback_dataset():
             "I'm content with the direction.",
             "I feel satisfied with the achievements.",
             "I'm content with the balance in my life.",
-            "I feel satisfied with the growth experienced."
-        ]
+            "I feel satisfied with the growth experienced.",
+        ],
     }
 
     # Create unique samples
@@ -189,11 +190,9 @@ def create_unique_fallback_dataset():
 
     for emotion, templates in emotion_templates.items():
         for i, template in enumerate(templates):
-            unique_samples.append({
-                'text': template,
-                'emotion': emotion,
-                'sample_id': f"{emotion}_{i+1}"
-            })
+            unique_samples.append(
+                {"text": template, "emotion": emotion, "sample_id": f"{emotion}_{i+1}"}
+            )
 
     # Shuffle the samples for better training
     random.shuffle(unique_samples)
@@ -202,7 +201,7 @@ def create_unique_fallback_dataset():
     print(f"📊 Samples per emotion: {len(unique_samples) // 12}")
 
     # Verify no duplicates
-    texts = [sample['text'] for sample in unique_samples]
+    texts = [sample["text"] for sample in unique_samples]
     unique_texts = set(texts)
     print(f"🔍 Duplicate check: {len(texts)} total, {len(unique_texts)} unique")
 
@@ -213,7 +212,7 @@ def create_unique_fallback_dataset():
     print("✅ All samples are unique!")
 
     # Save the dataset
-    with open('data/unique_fallback_dataset.json', 'w') as f:
+    with open("data/unique_fallback_dataset.json", "w") as f:
         json.dump(unique_samples, f, indent=2)
 
     print("💾 Saved unique fallback dataset to data/unique_fallback_dataset.json")
@@ -221,7 +220,7 @@ def create_unique_fallback_dataset():
     # Show emotion distribution
     emotion_counts = {}
     for sample in unique_samples:
-        emotion = sample['emotion']
+        emotion = sample["emotion"]
         emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
 
     print("\n📊 Emotion Distribution:")
@@ -229,6 +228,7 @@ def create_unique_fallback_dataset():
         print(f"  {emotion}: {count} samples")
 
     return unique_samples
+
 
 if __name__ == "__main__":
     print("🚀 CREATE UNIQUE FALLBACK DATASET")

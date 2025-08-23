@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Emotion Detection Demo - SAMO Deep Learning</title>
     <meta name="description" content="Interactive demo of SAMO-DL emotion detection API with real-time analysis and visualization">
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Chart.js for visualizations -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <style>
         :root {
             /* New sophisticated dark gradient color palette */
@@ -20,7 +20,7 @@
             --secondary-gradient: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #3730a3 100%);
             --dark-gradient: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
             --accent-gradient: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #c084fc 100%);
-            
+
             --primary-color: #8b5cf6;
             --secondary-color: #a855f7;
             --accent-color: #c084fc;
@@ -29,7 +29,7 @@
             --light-accent: #e9d5ff;
             --glass-bg: rgba(139, 92, 246, 0.1);
             --glass-border: rgba(139, 92, 246, 0.2);
-            
+
             /* Performance and animation settings */
             --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -66,7 +66,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: 
+            background:
                 radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.2) 0%, transparent 50%),
                 radial-gradient(circle at 40% 80%, rgba(192, 132, 252, 0.2) 0%, transparent 50%);
@@ -290,7 +290,7 @@
                 padding: 30px 20px;
                 margin: -50px 15px 30px 15px;
             }
-            
+
             .hero-section {
                 padding: 80px 0;
             }
@@ -339,7 +339,7 @@
                         Live Emotion Detection Demo
                     </h1>
                     <p class="lead mb-4">
-                        Experience the power of SAMO-DL's emotion detection API in real-time. 
+                        Experience the power of SAMO-DL's emotion detection API in real-time.
                         Test with your own text and see instant results with confidence scores.
                     </p>
                     <div class="d-flex gap-3">
@@ -403,14 +403,14 @@
                     <div class="col-lg-8 mx-auto">
                         <div class="mb-4">
                             <label for="demoText" class="form-label fw-bold fs-5">Enter your text:</label>
-                            <textarea 
-                                class="form-control form-control-lg" 
-                                id="demoText" 
-                                rows="4" 
+                            <textarea
+                                class="form-control form-control-lg"
+                                id="demoText"
+                                rows="4"
                                 placeholder="I am feeling really excited about this project! The possibilities are endless and I can't wait to see what we can achieve together."
                             ></textarea>
                         </div>
-                        
+
                         <div class="d-flex gap-3 justify-content-center">
                             <button class="btn btn-primary btn-lg px-5" onclick="analyzeEmotion()">
                                 <i class="fas fa-magic me-2"></i>
@@ -438,7 +438,7 @@
                     <div class="row mb-5">
                         <div class="col-lg-8 mx-auto">
                             <h3 class="fw-bold mb-4 text-center">Analysis Results</h3>
-                            
+
                             <!-- Top Emotions -->
                             <div class="row mb-4">
                                 <div class="col-12">
@@ -639,13 +639,13 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Demo Script -->
     <script>
         // Chart Management - Better pattern than global variables
         const ChartManager = {
             charts: new Map(),
-            
+
             destroy(chartId) {
                 const chart = this.charts.get(chartId);
                 if (chart && typeof chart.destroy === 'function') {
@@ -662,7 +662,7 @@
                 }
                 this.charts.delete(chartId);
             },
-            
+
             set(chartId, chartInstance) {
                 // Destroy existing chart if it exists
                 this.destroy(chartId);
@@ -670,11 +670,11 @@
                 this.charts.set(chartId, chartInstance);
                 console.log(`Chart '${chartId}' registered in ChartManager`);
             },
-            
+
             get(chartId) {
                 return this.charts.get(chartId);
             },
-            
+
             has(chartId) {
                 return this.charts.has(chartId);
             }
@@ -712,11 +712,11 @@
                 // For demo purposes, we'll simulate the API call
                 // In production, this would call the actual API
                 await new Promise(resolve => setTimeout(resolve, 1500));
-                
+
                 // Simulate API response
                 const emotions = simulateEmotionAnalysis(text);
                 const responseTime = Date.now() - startTime;
-                
+
                 // Display results
                 displayResults(emotions, responseTime);
                 updateCharts(emotions);
@@ -732,7 +732,7 @@
         function simulateEmotionAnalysis(text) {
             const textLower = text.toLowerCase();
             const emotions = [];
-            
+
             // Enhanced emotion detection simulation
             const emotionPatterns = {
                 'joy': ['happy', 'joy', 'excited', 'thrilled', 'delighted', 'ecstatic', 'elated'],
@@ -746,7 +746,7 @@
                 'optimism': ['optimistic', 'hopeful', 'positive', 'bright', 'promising'],
                 'curiosity': ['curious', 'interested', 'wonder', 'explore', 'discover']
             };
-            
+
             for (const [emotion, patterns] of Object.entries(emotionPatterns)) {
                 for (const pattern of patterns) {
                     if (textLower.includes(pattern)) {
@@ -756,12 +756,12 @@
                     }
                 }
             }
-            
+
             // Default to neutral if no specific emotions detected
             if (emotions.length === 0) {
                 emotions.push({ emotion: 'neutral', confidence: 0.75 });
             }
-            
+
             // Sort by confidence and limit to top 5
             return emotions.sort((a, b) => b.confidence - a.confidence).slice(0, 5);
         }
@@ -769,11 +769,11 @@
         function displayResults(emotions, responseTime) {
             const resultsContainer = document.getElementById('emotionResults');
             resultsContainer.innerHTML = '';
-            
+
             emotions.forEach((emotion, index) => {
                 const confidencePercent = Math.round(emotion.confidence * 100);
                 const colorClass = getEmotionColor(emotion.emotion);
-                
+
                 const emotionCard = `
                     <div class="col-md-6 col-lg-4">
                         <div class="emotion-card ${index === 0 ? 'active' : ''}">
@@ -783,7 +783,7 @@
                                     <span class="badge ${colorClass} fs-6">${confidencePercent}%</span>
                                 </div>
                                 <div class="confidence-bar">
-                                    <div class="confidence-fill ${colorClass.replace('bg-', 'bg-')}" 
+                                    <div class="confidence-fill ${colorClass.replace('bg-', 'bg-')}"
                                          style="width: ${confidencePercent}%"></div>
                                 </div>
                                 <small class="text-muted mt-2 d-block">
@@ -795,7 +795,7 @@
                 `;
                 resultsContainer.innerHTML += emotionCard;
             });
-            
+
             document.getElementById('resultSection').classList.add('show');
         }
 
@@ -807,7 +807,7 @@
             // Check if chart containers exist
             const confidenceCanvas = document.getElementById('confidenceChart');
             const categoryCanvas = document.getElementById('categoryChart');
-            
+
             if (!confidenceCanvas || !categoryCanvas) {
                 console.warn('Chart canvases not found');
                 // Display error message to user
@@ -910,7 +910,7 @@
                         }
                     }
                 });
-                
+
                 // Register confidence chart with ChartManager
                 ChartManager.set('confidenceChart', confidenceChart);
             } catch (error) {
@@ -920,15 +920,15 @@
             try {
                 // Category Chart (Doughnut chart for emotion distribution)
                 const categoryCtx = categoryCanvas.getContext('2d');
-                
+
                 const colors = [
                     'rgba(139, 92, 246, 0.8)',
-                    'rgba(168, 85, 247, 0.8)', 
+                    'rgba(168, 85, 247, 0.8)',
                     'rgba(192, 132, 252, 0.8)',
                     'rgba(196, 181, 253, 0.8)',
                     'rgba(221, 214, 254, 0.8)'
                 ];
-                
+
                 const categoryChart = new Chart(categoryCtx, {
                     type: 'doughnut',
                     data: {
@@ -972,7 +972,7 @@
                         }
                     }
                 });
-                
+
                 // Register category chart with ChartManager
                 ChartManager.set('categoryChart', categoryChart);
             } catch (error) {
@@ -984,7 +984,7 @@
             document.getElementById('responseTime').textContent = `${responseTime}ms`;
             document.getElementById('apiStatus').textContent = 'Success';
             document.getElementById('apiStatus').className = 'text-success';
-            
+
             const avgConfidence = emotions.reduce((sum, e) => sum + e.confidence, 0) / emotions.length;
             document.getElementById('avgConfidence').textContent = `${Math.round(avgConfidence * 100)}%`;
         }
@@ -1026,4 +1026,4 @@
         });
     </script>
 </body>
-</html> 
+</html>

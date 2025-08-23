@@ -3,9 +3,11 @@
 tokenizer and maps generic labels to emotions."""
 
 import json
-import torch
 from pathlib import Path
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+import torch
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
 
 def test_working_inference():
     """Test inference with public roberta-base tokenizer."""

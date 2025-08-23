@@ -1,6 +1,7 @@
 """Enhanced tests for data validation module to increase coverage."""
 
 import pandas as pd
+
 from src.data.validation import DataValidator, validate_text_input
 
 

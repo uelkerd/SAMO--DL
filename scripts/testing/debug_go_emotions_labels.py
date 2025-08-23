@@ -4,6 +4,7 @@
 import subprocess
 import sys
 
+
 def install_dependencies():
     """Install required dependencies."""
     print("🔧 Installing dependencies...")
@@ -21,6 +22,7 @@ if not install_dependencies():
     sys.exit(1)
 
 from datasets import load_dataset
+
 
 def debug_go_emotions():
     """Debug the actual GoEmotions dataset structure."""

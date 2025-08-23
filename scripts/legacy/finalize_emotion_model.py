@@ -21,7 +21,7 @@ import argparse
 import logging
 import sys
 from pathlib import Path
-from typing import Optional, Any
+from typing import Any, Optional
 
 import torch
 import torch.nn.functional as F
@@ -32,9 +32,7 @@ from transformers import AutoTokenizer
 # Add src to path
 sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
-from src.models.emotion_detection.bert_classifier import (
-    create_bert_emotion_classifier,
-    )
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")

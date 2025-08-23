@@ -1,11 +1,12 @@
-    # Apply threshold (this is the exact line from our evaluation function)
-    # Check fallback logic
-    # Count how many should be above threshold
-    # Create probabilities similar to what we observed
-    # Create synthetic data matching what we observed
-    # min: 0.1150, max: 0.9119, mean: 0.4681
+# Apply threshold (this is the exact line from our evaluation function)
+# Check fallback logic
+# Count how many should be above threshold
+# Create probabilities similar to what we observed
+# Create synthetic data matching what we observed
+# min: 0.1150, max: 0.9119, mean: 0.4681
 #!/usr/bin/env python3
 import logging
+
 import torch
 
 """
@@ -65,7 +66,9 @@ def test_evaluation_logic():
                 predictions[sample_idx, top_idx] = 1.0
 
         (predictions.sum(dim=1) == 0).sum().item()
-        logging.info("    - Applied fallback to {samples_before - samples_after} samples")
+        logging.info(
+            "    - Applied fallback to {samples_before - samples_after} samples"
+        )
         logging.info("    - Final predictions sum: {predictions.sum().item()}")
         logging.info("    - Final predictions mean: {predictions.mean().item():.4f}")
 

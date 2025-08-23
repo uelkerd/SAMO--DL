@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Create a bulletproof notebook cell that can be run in a fresh kernel."""
 
+
 def create_bulletproof_cell():
     """Create a bulletproof training cell."""
 
-    cell_code = '''# 🚀 BULLETPROOF TRAINING CELL - RUN IN FRESH KERNEL
+    cell_code = """# 🚀 BULLETPROOF TRAINING CELL - RUN IN FRESH KERNEL
 # Runtime → Change runtime type → GPU (T4 or V100)
 # Kernel → Restart and run all
 
@@ -388,10 +389,10 @@ files.download('best_simple_model.pth')
 files.download('simple_training_results.json')
 
 print("\\n🎉 BULLETPROOF TRAINING COMPLETED!")
-print("📁 Files downloaded: best_simple_model.pth, simple_training_results.json")'''
+print("📁 Files downloaded: best_simple_model.pth, simple_training_results.json")"""
 
     # Write to file
-    with open('bulletproof_training_cell.py', 'w') as f:
+    with open("bulletproof_training_cell.py", "w") as f:
         f.write(cell_code)
 
     print("✅ Created bulletproof training cell: bulletproof_training_cell.py")
@@ -402,6 +403,7 @@ print("📁 Files downloaded: best_simple_model.pth, simple_training_results.jso
     print("4. Paste the code into a single cell")
     print("5. Run the cell")
     print("6. This will work in a fresh kernel without any state corruption!")
+
 
 if __name__ == "__main__":
     create_bulletproof_cell()

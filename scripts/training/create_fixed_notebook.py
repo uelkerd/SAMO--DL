@@ -9,6 +9,7 @@ with proper JSON escaping
 import json
 from pathlib import Path
 
+
 def create_fixed_notebook():
     """Create a fixed notebook with proper JSON escaping."""
 
@@ -51,7 +52,7 @@ def create_fixed_notebook():
                          AutoModelForSequenceClassification,
                          TrainingArguments,
                          Trainer\n",
-                        
+
                     "from datasets import Dataset\n",
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.metrics import classification_report, confusion_matrix\n",

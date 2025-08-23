@@ -3,9 +3,11 @@
 to avoid authentication issues."""
 
 import json
-import torch
 from pathlib import Path
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+import torch
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
 
 def test_final_inference():
     """Test inference with public RoBERTa tokenizer."""

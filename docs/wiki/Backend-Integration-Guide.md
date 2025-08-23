@@ -76,13 +76,13 @@ class SAMOBrainClient:
     def __init__(self, base_url: str = "http://localhost:8000"):
         self.base_url = base_url
         self.session = requests.Session()
-    
+
     def health_check(self) -> Dict:
         """Check API health and get basic metrics."""
         response = self.session.get(f"{self.base_url}/health")
         response.raise_for_status()
         return response.json()
-    
+
     def analyze_emotion(self, text: str) -> Dict:
         """Analyze emotion for a single text."""
         payload = {"text": text}
@@ -93,7 +93,7 @@ class SAMOBrainClient:
         )
         response.raise_for_status()
         return response.json()
-    
+
     def analyze_emotions_batch(self, texts: List[str]) -> Dict:
         """Analyze emotions for multiple texts efficiently."""
         payload = {"texts": texts}
@@ -104,7 +104,7 @@ class SAMOBrainClient:
         )
         response.raise_for_status()
         return response.json()
-    
+
     def get_metrics(self) -> Dict:
         """Get detailed server metrics."""
         response = self.session.get(f"{self.base_url}/metrics")
@@ -241,26 +241,26 @@ public class SAMOBrainClient {
 
     public Map<String, Object> analyzeEmotion(String text) {
         String url = baseUrl + "/predict";
-        
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        
+
         Map<String, String> payload = Map.of("text", text);
         HttpEntity<Map<String, String>> request = new HttpEntity<>(payload, headers);
-        
+
         ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
         return response.getBody();
     }
 
     public Map<String, Object> analyzeEmotionsBatch(List<String> texts) {
         String url = baseUrl + "/predict_batch";
-        
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        
+
         Map<String, List<String>> payload = Map.of("texts", texts);
         HttpEntity<Map<String, List<String>>> request = new HttpEntity<>(payload, headers);
-        
+
         ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
         return response.getBody();
     }
@@ -291,7 +291,7 @@ public class Main {
             List<String> texts = List.of("I am happy", "I feel sad", "I am excited");
             Map<String, Object> batchResults = client.analyzeEmotionsBatch(texts);
             List<Map<String, Object>> predictions = (List<Map<String, Object>>) batchResults.get("predictions");
-            
+
             for (Map<String, Object> pred : predictions) {
                 System.out.println(pred.get("text") + " → " + pred.get("predicted_emotion"));
             }
@@ -340,17 +340,17 @@ def safe_analyze_emotion(text: str, client: SAMOBrainClient) -> Dict:
 # Usage with retry logic
 def analyze_with_retry(text: str, max_retries: int = 3) -> Dict:
     client = SAMOBrainClient()
-    
+
     for attempt in range(max_retries):
         result = safe_analyze_emotion(text, client)
-        
+
         if "error" not in result:
             return result
-        
+
         if result.get("retry") and attempt < max_retries - 1:
             time.sleep(2 ** attempt)  # Exponential backoff
             continue
-        
+
         return result
 ```
 
@@ -377,13 +377,13 @@ class CachedSAMOBrainClient(SAMOBrainClient):
     def __init__(self, base_url: str = "http://localhost:8000", cache_size: int = 1000):
         super().__init__(base_url)
         self.cache_size = cache_size
-    
+
     @lru_cache(maxsize=1000)
     def analyze_emotion_cached(self, text_hash: str) -> Dict:
         """Cache emotion analysis results."""
         # In production, use Redis or similar for distributed caching
         return super().analyze_emotion(text_hash)
-    
+
     def analyze_emotion(self, text: str) -> Dict:
         """Analyze emotion with caching."""
         text_hash = hashlib.md5(text.encode()).hexdigest()
@@ -399,7 +399,7 @@ from urllib3.util.retry import Retry
 class OptimizedSAMOBrainClient(SAMOBrainClient):
     def __init__(self, base_url: str = "http://localhost:8000"):
         super().__init__(base_url)
-        
+
         # Configure connection pooling
         adapter = HTTPAdapter(
             pool_connections=10,
@@ -410,7 +410,7 @@ class OptimizedSAMOBrainClient(SAMOBrainClient):
                 status_forcelist=[500, 502, 503, 504]
             )
         )
-        
+
         self.session.mount("http://", adapter)
         self.session.mount("https://", adapter)
 ```
@@ -428,15 +428,15 @@ class SAMOBrainMonitor:
     def __init__(self, client: SAMOBrainClient):
         self.client = client
         self.metrics = []
-    
+
     def check_health(self) -> Dict:
         """Comprehensive health check."""
         start_time = time.time()
-        
+
         try:
             health = self.client.health_check()
             response_time = (time.time() - start_time) * 1000
-            
+
             return {
                 "status": "healthy" if health["status"] == "healthy" else "unhealthy",
                 "response_time_ms": response_time,
@@ -451,27 +451,27 @@ class SAMOBrainMonitor:
                 "response_time_ms": (time.time() - start_time) * 1000,
                 "timestamp": time.time()
             }
-    
+
     def monitor_performance(self, duration_minutes: int = 5) -> Dict:
         """Monitor performance over time."""
         start_time = time.time()
         end_time = start_time + (duration_minutes * 60)
-        
+
         while time.time() < end_time:
             health = self.check_health()
             self.metrics.append(health)
             time.sleep(30)  # Check every 30 seconds
-        
+
         return self.analyze_metrics()
-    
+
     def analyze_metrics(self) -> Dict:
         """Analyze collected metrics."""
         if not self.metrics:
             return {"error": "No metrics collected"}
-        
+
         response_times = [m["response_time_ms"] for m in self.metrics if "response_time_ms" in m]
         success_count = sum(1 for m in self.metrics if m["status"] == "healthy")
-        
+
         return {
             "total_checks": len(self.metrics),
             "success_rate": success_count / len(self.metrics),
@@ -493,32 +493,32 @@ from unittest.mock import Mock, patch
 class TestSAMOBrainIntegration(unittest.TestCase):
     def setUp(self):
         self.client = SAMOBrainClient("http://localhost:8000")
-    
+
     def test_health_check(self):
         """Test health check endpoint."""
         health = self.client.health_check()
         self.assertEqual(health["status"], "healthy")
         self.assertTrue("model_status" in health)
-    
+
     def test_emotion_analysis(self):
         """Test emotion analysis endpoint."""
         result = self.client.analyze_emotion("I am feeling happy today!")
         self.assertEqual(result["predicted_emotion"], "happy")
         self.assertGreater(result["confidence"], 0.5)
         self.assertTrue("probabilities" in result)
-    
+
     def test_batch_analysis(self):
         """Test batch analysis endpoint."""
         texts = ["I am happy", "I feel sad", "I am excited"]
         results = self.client.analyze_emotions_batch(texts)
         self.assertEqual(len(results["predictions"]), 3)
         self.assertEqual(results["count"], 3)
-    
+
     @patch('requests.Session.post')
     def test_error_handling(self, mock_post):
         """Test error handling."""
         mock_post.side_effect = requests.exceptions.ConnectionError()
-        
+
         with self.assertRaises(requests.exceptions.ConnectionError):
             self.client.analyze_emotion("test")
 
@@ -540,12 +540,12 @@ def test_full_integration(client):
     # 1. Health check
     health = client.health_check()
     assert health["status"] == "healthy"
-    
+
     # 2. Single prediction
     result = client.analyze_emotion("I am feeling grateful for this opportunity!")
     assert result["predicted_emotion"] in ["grateful", "happy", "content"]
     assert result["confidence"] > 0.3
-    
+
     # 3. Batch prediction
     texts = [
         "I am feeling anxious about the presentation",
@@ -554,7 +554,7 @@ def test_full_integration(client):
     ]
     batch_results = client.analyze_emotions_batch(texts)
     assert len(batch_results["predictions"]) == 3
-    
+
     # 4. Metrics check
     metrics = client.get_metrics()
     assert "server_metrics" in metrics
@@ -585,7 +585,7 @@ import random
 
 def analyze_with_backoff(text: str, max_retries: int = 3) -> Dict:
     client = SAMOBrainClient()
-    
+
     for attempt in range(max_retries):
         try:
             return client.analyze_emotion(text)
@@ -618,4 +618,4 @@ results = client.analyze_emotions_batch(texts)  # More efficient
 
 ---
 
-**Ready to integrate?** Start with the [Quick Start](#-quick-start-5-minutes) section above, and you'll be up and running in minutes! 🚀 
+**Ready to integrate?** Start with the [Quick Start](#-quick-start-5-minutes) section above, and you'll be up and running in minutes! 🚀

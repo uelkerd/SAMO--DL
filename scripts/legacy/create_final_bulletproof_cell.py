@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Create the FINAL bulletproof training cell with proper integer-to-emotion mapping."""
 
+
 def create_final_bulletproof_cell():
     """Create the final bulletproof cell with proper label mapping."""
 
-    cell_code = '''# 🚀 FINAL BULLETPROOF TRAINING CELL - PROPER LABEL MAPPING
+    cell_code = """# 🚀 FINAL BULLETPROOF TRAINING CELL - PROPER LABEL MAPPING
 # Runtime → Change runtime type → GPU (T4 or V100)
 # Kernel → Restart and run all
 
@@ -429,15 +430,18 @@ print("\\n🎉 FINAL BULLETPROOF TRAINING COMPLETED!")
 print("📁 Files downloaded: best_simple_model.pth, simple_training_results.json")
 print("\\n🔥 THIS VERSION HAS PROPER INTEGER-TO-EMOTION MAPPING!")
 print("🔥 NO MORE ZERO SAMPLES ISSUE!")
-print("🔥 READY TO ACHIEVE 70% F1 SCORE!")'''
+print("🔥 READY TO ACHIEVE 70% F1 SCORE!")"""
 
     # Write to file
-    with open('final_bulletproof_training_cell.py', 'w') as f:
+    with open("final_bulletproof_training_cell.py", "w") as f:
         f.write(cell_code)
 
-    print("✅ Created FINAL bulletproof training cell: final_bulletproof_training_cell.py")
+    print(
+        "✅ Created FINAL bulletproof training cell: final_bulletproof_training_cell.py"
+    )
     print("📋 This version has PROPER INTEGER-TO-EMOTION MAPPING!")
     print("🎯 This will solve the zero samples issue!")
+
 
 if __name__ == "__main__":
     create_final_bulletproof_cell()

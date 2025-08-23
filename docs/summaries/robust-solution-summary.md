@@ -5,7 +5,7 @@
 ### Problem Solved
 The original notebook (`domain_adaptation_gpu_training2.ipynb`) was **incredibly error-prone** and sent users straight to **dependency hell** with:
 - ❌ Version conflicts between PyTorch and Transformers
-- ❌ Hardcoded `num_labels=12` causing runtime errors  
+- ❌ Hardcoded `num_labels=12` causing runtime errors
 - ❌ Missing error handling and validation
 - ❌ Incomplete environment setup
 - ❌ No proper logging or monitoring
@@ -18,7 +18,7 @@ We've created a **SENIOR-LEVEL** solution that **completely eliminates** these i
 ### 1. `scripts/comprehensive_domain_adaptation_training.py` ⭐ **MAIN SCRIPT**
 **Enterprise-grade implementation with:**
 - ✅ **EnvironmentManager**: Handles dependency installation and verification
-- ✅ **RepositoryManager**: Manages repository setup and file validation  
+- ✅ **RepositoryManager**: Manages repository setup and file validation
 - ✅ **DataManager**: Handles data loading and preprocessing
 - ✅ **ModelManager**: Manages model architecture and initialization
 - ✅ **TrainingManager**: Manages complete training pipeline
@@ -58,7 +58,7 @@ We've created a **SENIOR-LEVEL** solution that **completely eliminates** these i
 # SENIOR-LEVEL: Compatible versions defined
 dependencies = {
     'torch': '2.1.0',
-    'torchvision': '0.16.0', 
+    'torchvision': '0.16.0',
     'torchaudio': '2.1.0',
     'transformers': '4.30.0',
     'datasets': '2.13.0',
@@ -79,7 +79,7 @@ def install_dependencies(self) -> bool:
 # FIXED: No more hardcoded num_labels=12
 def prepare_label_encoder(self) -> bool:
     # Get GoEmotions labels
-    # Get journal labels  
+    # Get journal labels
     # Create unified label encoder
     self.num_labels = len(self.label_encoder.classes_)
     # Use dynamic num_labels in model initialization
@@ -104,16 +104,16 @@ except Exception as e:
 # SENIOR-LEVEL: Clean, maintainable architecture
 class EnvironmentManager:
     """Manages environment setup and dependency installation."""
-    
+
 class RepositoryManager:
     """Manages repository setup and file validation."""
-    
+
 class DataManager:
     """Manages data loading and preprocessing."""
-    
+
 class ModelManager:
     """Manages model architecture and initialization."""
-    
+
 class TrainingManager:
     """Manages the complete training pipeline."""
 ```
@@ -255,7 +255,7 @@ Journal Entries Style Analysis:
 **Problem**: `torch.sparse._triton_ops_meta` errors, version conflicts
 **Solution**: Automatic dependency management with compatible versions
 
-#### **2. Hardcoded Labels** ✅ SOLVED  
+#### **2. Hardcoded Labels** ✅ SOLVED
 **Problem**: `num_labels=12` causing runtime errors
 **Solution**: Dynamic label management based on actual data
 
@@ -375,4 +375,4 @@ files.download('best_domain_adapted_model.pth')
 
 ---
 
-**🎯 MISSION ACCOMPLISHED: No more dependency hell, senior-level engineering delivered!** 
+**🎯 MISSION ACCOMPLISHED: No more dependency hell, senior-level engineering delivered!**

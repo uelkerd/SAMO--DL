@@ -11,6 +11,7 @@ This script adds the remaining advanced features to the ultimate notebook:
 
 import json
 
+
 def add_advanced_features():
     """Add advanced features to the ultimate notebook."""
 

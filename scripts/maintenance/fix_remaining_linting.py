@@ -1,22 +1,23 @@
-            # Fix B007: Loop control variable issues
-            # Fix F821: Undefined name errors
-            # Fix G003: Logging issues
-            # Fix P-series: Path issues
-            # Fix S-series: Import sorting issues
-            # Fix exception variables
-            # Fix loop variables that are undefined
-            # Fix other minor issues
-            # Fix undefined variables in f-strings
-        # Fix common undefined variables in loops
-        # Fix hardcoded passwords
-        # Fix logging statements using + instead of f-strings
-        # Fix unused loop variables
-        # Move all imports to the top
-        # Process all directories
-        # Replace os.path with pathlib
-        # Sort imports
+# Fix B007: Loop control variable issues
+# Fix F821: Undefined name errors
+# Fix G003: Logging issues
+# Fix P-series: Path issues
+# Fix S-series: Import sorting issues
+# Fix exception variables
+# Fix loop variables that are undefined
+# Fix other minor issues
+# Fix undefined variables in f-strings
+# Fix common undefined variables in loops
+# Fix hardcoded passwords
+# Fix logging statements using + instead of f-strings
+# Fix unused loop variables
+# Move all imports to the top
+# Process all directories
+# Replace os.path with pathlib
+# Sort imports
 #!/usr/bin/env python3
 import re
+
 """Comprehensive Linting Fix Script for SAMO Deep Learning.
 from pathlib import Path
 
@@ -32,7 +33,6 @@ Usage:
 """
 
 
-
 class ComprehensiveLintingFixer:
     """Comprehensive linting fixer for all remaining issues."""
 
@@ -43,7 +43,7 @@ class ComprehensiveLintingFixer:
     def fix_file(self, file_path: str) -> bool:
         """Fix all linting issues in a single file."""
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -68,7 +68,7 @@ class ComprehensiveLintingFixer:
             fixes_applied += other_fixes
 
             if content != original_content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
                 self.fixed_files.append(file_path)
@@ -87,8 +87,8 @@ class ComprehensiveLintingFixer:
         fixes = 0
 
         patterns = [
-            (r'for ___(\w+) in (\w+):', r'for \1 in \2:'),
-            (r'except Exception as e:', r'except Exception as e:'),
+            (r"for ___(\w+) in (\w+):", r"for \1 in \2:"),
+            (r"except Exception as e:", r"except Exception as e:"),
             (r'"([^"]*)\{(\w+)\}([^"]*)"', r'f"\1{\2}\3"'),
         ]
 
@@ -104,22 +104,24 @@ class ComprehensiveLintingFixer:
         """Fix S-series: Import sorting issues."""
         fixes = 0
 
-        lines = content.split('\n')
+        lines = content.split("\n")
         import_lines = []
         non_import_lines = []
 
         for line in lines:
             stripped = line.strip()
-            if (stripped.startswith('import ') or
-                stripped.startswith('from ') or
-                stripped.startswith('#')):
+            if (
+                stripped.startswith("import ")
+                or stripped.startswith("from ")
+                or stripped.startswith("#")
+            ):
                 import_lines.append(line)
             else:
                 non_import_lines.append(line)
 
         import_lines.sort()
 
-        new_content = '\n'.join(import_lines + non_import_lines)
+        new_content = "\n".join(import_lines + non_import_lines)
         if new_content != content:
             fixes += 1
 
@@ -130,9 +132,9 @@ class ComprehensiveLintingFixer:
         fixes = 0
 
         patterns = [
-            (r'os\.path\.abspath\(', r'Path('),
-            (r'os\.path\.join\(', r'Path('),
-            (r'os\.path\.exists\(', r'Path('),
+            (r"os\.path\.abspath\(", r"Path("),
+            (r"os\.path\.join\(", r"Path("),
+            (r"os\.path\.exists\(", r"Path("),
         ]
 
         for pattern, replacement in patterns:
@@ -161,8 +163,8 @@ class ComprehensiveLintingFixer:
         """Fix B007: Loop control variable issues."""
         fixes = 0
 
-        pattern = r'for (\w+), (\w+) in enumerate\((\w+)\):'
-        replacement = r'for _\1, \2 in enumerate(\3):'
+        pattern = r"for (\w+), (\w+) in enumerate\((\w+)\):"
+        replacement = r"for _\1, \2 in enumerate(\3):"
 
         new_content = re.sub(pattern, replacement, content)
         if new_content != content:
@@ -175,7 +177,9 @@ class ComprehensiveLintingFixer:
         """Fix other minor issues."""
         fixes = 0
 
-        pattern = r'TEST_USER_PASSWORD_HASH = "test_hashed_password_123"  # noqa: S105]*)"'
+        pattern = (
+            r'TEST_USER_PASSWORD_HASH = "test_hashed_password_123"  # noqa: S105]*)"'
+        )
         replacement = r'TEST_USER_PASSWORD_HASH = "test_hashed_password_123"  # noqa: S105  # noqa: S105'
 
         new_content = re.sub(pattern, replacement, content)

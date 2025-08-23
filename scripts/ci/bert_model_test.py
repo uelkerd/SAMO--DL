@@ -7,8 +7,9 @@ initialized correctly.
 
 import logging
 import sys
-import torch
 from pathlib import Path
+
+import torch
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
@@ -41,7 +42,9 @@ def test_bert_model_loading():
         # Move model to device after initialization
         model.to(device)
 
-        logger.info(f"✅ Model initialized with {model.count_parameters():,} parameters")
+        logger.info(
+            f"✅ Model initialized with {model.count_parameters():,} parameters"
+        )
 
         batch_size = 2
         seq_length = 32
@@ -61,7 +64,9 @@ def test_bert_model_loading():
         # Verify output dimensions
         expected_shape = (batch_size, 28)  # 28 emotions
         if outputs.shape != expected_shape:
-            raise ValueError(f"Expected output shape {expected_shape}, got {outputs.shape}")
+            raise ValueError(
+                f"Expected output shape {expected_shape}, got {outputs.shape}"
+            )
 
         logger.info("✅ Output shape validation passed")
 

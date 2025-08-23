@@ -1,37 +1,39 @@
-            # Backward pass
-            # Forward pass
-            # Log progress every 100 batches
-        # Apply alpha weighting
-        # Apply reduction
-        # Apply sigmoid to get probabilities
-        # Calculate binary cross entropy
-        # Calculate focal loss components
-        # Combine all components
-        # Log progress
-        # Save best model
-        # Training phase
-        # Validation phase
-    # Create data loaders
-    # Create focal loss
-    # Create model
-    # Load dataset using existing loader
-    # Run training
-    # Save final model
-    # Setup device
-    # Setup optimizer
-    # Training loop
+# Backward pass
+# Forward pass
+# Log progress every 100 batches
+# Apply alpha weighting
+# Apply reduction
+# Apply sigmoid to get probabilities
+# Calculate binary cross entropy
+# Calculate focal loss components
+# Combine all components
+# Log progress
+# Save best model
+# Training phase
+# Validation phase
+# Create data loaders
+# Create focal loss
+# Create model
+# Load dataset using existing loader
+# Run training
+# Save final model
+# Setup device
+# Setup optimizer
+# Training loop
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
 import argparse
 import logging
 import sys
+from pathlib import Path
+
 import torch
 import torch.nn.functional as F
-from pathlib import Path
+from torch import nn
+
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from torch import nn
 
 """
 Focal Loss Training for Emotion Detection (Fixed Version)
@@ -52,7 +54,9 @@ logger = logging.getLogger(__name__)
 class FocalLoss(nn.Module):
     """Focal Loss implementation for multi-label classification."""
 
-    def __init__(self, alpha: float = 0.25, gamma: float = 2.0, reduction: str = "mean"):
+    def __init__(
+        self, alpha: float = 0.25, gamma: float = 2.0, reduction: str = "mean"
+    ):
         super().__init__()
         self.alpha = alpha
         self.gamma = gamma
@@ -149,8 +153,12 @@ def train_with_focal_loss(
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset, batch_size=batch_size, shuffle=True
+    )
+    val_loader = torch.utils.data.DataLoader(
+        val_dataset, batch_size=batch_size, shuffle=False
+    )
 
     best_val_loss = float("in")
     training_history = []
@@ -257,15 +265,28 @@ def train_with_focal_loss(
 
 def main():
     """Main function to run focal loss training."""
-    parser = argparse.ArgumentParser(description="Train emotion detection with Focal Loss")
-    parser.add_argument("--gamma", type=float, default=2.0, help="Focal loss gamma parameter")
-    parser.add_argument("--alpha", type=float, default=0.25, help="Focal loss alpha parameter")
-    parser.add_argument("--lr", type=float, default=2e-5, help="Learning rate")
-    parser.add_argument("--epochs", type=int, default=3, help="Number of training epochs")
-    parser.add_argument("--batch_size", type=int, default=16, help="Batch size")
-    parser.add_argument("--max_length", type=int, default=512, help="Maximum sequence length")
+    parser = argparse.ArgumentParser(
+        description="Train emotion detection with Focal Loss"
+    )
     parser.add_argument(
-        "--output_dir", type=str, default="./models/checkpoints", help="Output directory"
+        "--gamma", type=float, default=2.0, help="Focal loss gamma parameter"
+    )
+    parser.add_argument(
+        "--alpha", type=float, default=0.25, help="Focal loss alpha parameter"
+    )
+    parser.add_argument("--lr", type=float, default=2e-5, help="Learning rate")
+    parser.add_argument(
+        "--epochs", type=int, default=3, help="Number of training epochs"
+    )
+    parser.add_argument("--batch_size", type=int, default=16, help="Batch size")
+    parser.add_argument(
+        "--max_length", type=int, default=512, help="Maximum sequence length"
+    )
+    parser.add_argument(
+        "--output_dir",
+        type=str,
+        default="./models/checkpoints",
+        help="Output directory",
     )
 
     args = parser.parse_args()

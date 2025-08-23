@@ -9,20 +9,19 @@ to avoid the manual API key prompt.
 
 import json
 
+
 def add_wandb_setup():
     """Add wandb setup to the minimal notebook."""
 
     # Read the existing notebook
-    with open('notebooks/MINIMAL_WORKING_TRAINING_COLAB.ipynb', 'r') as f:
+    with open("notebooks/MINIMAL_WORKING_TRAINING_COLAB.ipynb") as f:
         notebook = json.load(f)
 
     # Add wandb setup cell after the imports
     wandb_setup_cell = {
         "cell_type": "markdown",
         "metadata": {},
-        "source": [
-            "## 🔑 WANDB API KEY SETUP"
-        ]
+        "source": ["## 🔑 WANDB API KEY SETUP"],
     }
 
     wandb_setup_code = {
@@ -93,23 +92,25 @@ def add_wandb_setup():
             "    print('3. Enter your API key when prompted')\n",
             "    print('\\n⚠️ Continuing without WandB logging...')\n",
             "\n",
-            "print('\\n✅ WandB setup completed')"
-        ]
+            "print('\\n✅ WandB setup completed')",
+        ],
     }
 
     # Find the imports cell and add wandb setup after it
-    for i, cell in enumerate(notebook['cells']):
-        if cell['cell_type'] == 'code' and 'import torch' in ''.join(cell['source']):
+    for i, cell in enumerate(notebook["cells"]):
+        if cell["cell_type"] == "code" and "import torch" in "".join(cell["source"]):
             # Insert wandb setup after imports
-            notebook['cells'].insert(i + 2, wandb_setup_cell)
-            notebook['cells'].insert(i + 3, wandb_setup_code)
+            notebook["cells"].insert(i + 2, wandb_setup_cell)
+            notebook["cells"].insert(i + 3, wandb_setup_code)
             break
 
     # Also update the training arguments to disable wandb if no API key
-    for cell in notebook['cells']:
-        if cell['cell_type'] == 'code' and 'TrainingArguments(' in ''.join(cell['source']):
+    for cell in notebook["cells"]:
+        if cell["cell_type"] == "code" and "TrainingArguments(" in "".join(
+            cell["source"]
+        ):
             # Update training arguments to handle wandb properly
-            cell['source'] = [
+            cell["source"] = [
                 "# Minimal training arguments - only essential parameters\n",
                 "training_args = TrainingArguments(\n",
                 "    output_dir='./minimal_emotion_model',\n",
@@ -127,26 +128,27 @@ def add_wandb_setup():
                 "if 'WANDB_API_KEY' in os.environ:\n",
                 "    print('✅ WandB logging enabled')\n",
                 "else:\n",
-                "    print('⚠️ WandB logging disabled (no API key)')"
+                "    print('⚠️ WandB logging disabled (no API key)')",
             ]
             break
 
     # Save the updated notebook
-    with open('notebooks/MINIMAL_WORKING_TRAINING_COLAB.ipynb', 'w') as f:
+    with open("notebooks/MINIMAL_WORKING_TRAINING_COLAB.ipynb", "w") as f:
         json.dump(notebook, f, indent=2)
 
-    print('✅ Added WandB setup to minimal notebook!')
-    print('📋 Changes made:')
-    print('   ✅ Added WandB API key setup from Colab secrets')
-    print('   ✅ Tries multiple possible secret names')
-    print('   ✅ Graceful fallback if no API key found')
-    print('   ✅ Updated training arguments to handle WandB properly')
-    print('\\n📋 TO SET UP THE SECRET:')
-    print('1. Go to Colab → Settings → Secrets')
-    print('2. Add new secret:')
-    print('   Name: WANDB_API_KEY')
-    print('   Value: Your API key from https://wandb.ai/authorize')
-    print('3. Restart runtime and run the notebook')
+    print("✅ Added WandB setup to minimal notebook!")
+    print("📋 Changes made:")
+    print("   ✅ Added WandB API key setup from Colab secrets")
+    print("   ✅ Tries multiple possible secret names")
+    print("   ✅ Graceful fallback if no API key found")
+    print("   ✅ Updated training arguments to handle WandB properly")
+    print("\\n📋 TO SET UP THE SECRET:")
+    print("1. Go to Colab → Settings → Secrets")
+    print("2. Add new secret:")
+    print("   Name: WANDB_API_KEY")
+    print("   Value: Your API key from https://wandb.ai/authorize")
+    print("3. Restart runtime and run the notebook")
+
 
 if __name__ == "__main__":
     add_wandb_setup()

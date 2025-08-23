@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-🚀 EMOTION DETECTION API FOR CLOUD RUN
+"""🚀 EMOTION DETECTION API FOR CLOUD RUN
 ======================================
 Robust Flask API optimized for Cloud Run deployment.
 """
@@ -10,15 +9,15 @@ import os
 import threading
 import time
 import uuid
-import torch
-from flask import Flask, request, jsonify
 from pathlib import Path
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+import torch
+from flask import Flask, jsonify, request
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 # Configure logging for Cloud Run
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -33,10 +32,24 @@ model_loaded = False
 model_lock = threading.Lock()
 
 # Emotion mapping based on training order
-EMOTION_MAPPING = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+EMOTION_MAPPING = [
+    "anxious",
+    "calm",
+    "content",
+    "excited",
+    "frustrated",
+    "grateful",
+    "happy",
+    "hopeful",
+    "overwhelmed",
+    "proud",
+    "sad",
+    "tired",
+]
 
 # Constants
 MAX_INPUT_LENGTH = 512
+
 
 def load_model():
     """Load the emotion detection model."""
@@ -66,7 +79,7 @@ def load_model():
         model = AutoModelForSequenceClassification.from_pretrained(str(model_path))
 
         # Set device (CPU for Cloud Run)
-        device = torch.device('cpu')
+        device = torch.device("cpu")
         model.to(device)
         model.eval()
 
@@ -84,6 +97,7 @@ def load_model():
     finally:
         model_loading = False
 
+
 def predict_emotion(text):
     """Predict emotion for given text."""
     global model, tokenizer, emotion_mapping
@@ -98,7 +112,13 @@ def predict_emotion(text):
         raise ValueError(f"Input text too long (>{MAX_INPUT_LENGTH} characters).")
 
     # Tokenize
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=MAX_INPUT_LENGTH, padding=True)
+    inputs = tokenizer(
+        text,
+        return_tensors="pt",
+        truncation=True,
+        max_length=MAX_INPUT_LENGTH,
+        padding=True,
+    )
 
     # Predict
     with torch.no_grad():
@@ -110,11 +130,8 @@ def predict_emotion(text):
     # Map to emotion name
     emotion = emotion_mapping[predicted_class]
 
-    return {
-        "emotion": emotion,
-        "confidence": confidence,
-        "text": text
-    }
+    return {"emotion": emotion, "confidence": confidence, "text": text}
+
 
 def ensure_model_loaded():
     """Ensure model is loaded before processing requests."""
@@ -124,36 +141,41 @@ def ensure_model_loaded():
     if not model_loaded:
         raise RuntimeError("Model not loaded")
 
+
 def create_error_response(message, status_code=500):
     """Create standardized error response with request ID for debugging."""
     request_id = str(uuid.uuid4())
     logger.exception(f"{message} [request_id={request_id}]")
-    return jsonify({
-        'error': message,
-        'request_id': request_id
-    }), status_code
+    return jsonify({"error": message, "request_id": request_id}), status_code
 
-@app.route('/', methods=['GET'])
+
+@app.route("/", methods=["GET"])
 def root():
     """Root endpoint."""
-    return jsonify({
-        "message": "Hello from SAMO Emotion Detection API!",
-        "status": "running",
-        "timestamp": time.time()
-    })
+    return jsonify(
+        {
+            "message": "Hello from SAMO Emotion Detection API!",
+            "status": "running",
+            "timestamp": time.time(),
+        }
+    )
 
-@app.route('/health', methods=['GET'])
+
+@app.route("/health", methods=["GET"])
 def health_check():
     """Health check endpoint."""
-    return jsonify({
-        'status': 'healthy',
-        'model_loaded': model_loaded,
-        'model_loading': model_loading,
-        'port': os.environ.get('PORT', '8080'),
-        'timestamp': time.time()
-    })
+    return jsonify(
+        {
+            "status": "healthy",
+            "model_loaded": model_loaded,
+            "model_loading": model_loading,
+            "port": os.environ.get("PORT", "8080"),
+            "timestamp": time.time(),
+        }
+    )
 
-@app.route('/predict', methods=['POST'])
+
+@app.route("/predict", methods=["POST"])
 def predict():
     """Predict emotion for given text."""
     try:
@@ -162,28 +184,31 @@ def predict():
 
         # Content-type validation
         if not request.is_json:
-            return jsonify({'error': 'Content-Type must be application/json'}), 400
+            return jsonify({"error": "Content-Type must be application/json"}), 400
 
         try:
             data = request.get_json()
         except Exception:
-            return jsonify({'error': 'Invalid JSON data'}), 400
+            return jsonify({"error": "Invalid JSON data"}), 400
 
         if not data:
-            return jsonify({'error': 'No JSON data provided'}), 400
+            return jsonify({"error": "No JSON data provided"}), 400
 
-        text = data.get('text', '')
+        text = data.get("text", "")
         if not text:
-            return jsonify({'error': 'No text provided'}), 400
+            return jsonify({"error": "No text provided"}), 400
 
         # Make prediction
         result = predict_emotion(text)
         return jsonify(result)
 
     except Exception:
-        return create_error_response('Prediction processing failed. Please try again later.')
+        return create_error_response(
+            "Prediction processing failed. Please try again later."
+        )
 
-@app.route('/predict_batch', methods=['POST'])
+
+@app.route("/predict_batch", methods=["POST"])
 def predict_batch():
     """Predict emotions for multiple texts."""
     try:
@@ -192,19 +217,19 @@ def predict_batch():
 
         # Content-type validation
         if not request.is_json:
-            return jsonify({'error': 'Content-Type must be application/json'}), 400
+            return jsonify({"error": "Content-Type must be application/json"}), 400
 
         try:
             data = request.get_json()
         except Exception:
-            return jsonify({'error': 'Invalid JSON data'}), 400
+            return jsonify({"error": "Invalid JSON data"}), 400
 
         if not data:
-            return jsonify({'error': 'No JSON data provided'}), 400
+            return jsonify({"error": "No JSON data provided"}), 400
 
-        texts = data.get('texts', [])
+        texts = data.get("texts", [])
         if not texts:
-            return jsonify({'error': 'No texts provided'}), 400
+            return jsonify({"error": "No texts provided"}), 400
 
         # Make predictions
         results = []
@@ -212,29 +237,33 @@ def predict_batch():
             result = predict_emotion(text)
             results.append(result)
 
-        return jsonify({'results': results})
+        return jsonify({"results": results})
 
     except Exception:
-        return create_error_response('Batch prediction processing failed. Please try again later.')
+        return create_error_response(
+            "Batch prediction processing failed. Please try again later."
+        )
 
-@app.route('/emotions', methods=['GET'])
+
+@app.route("/emotions", methods=["GET"])
 def get_emotions():
     """Get list of supported emotions."""
-    return jsonify({
-        'emotions': EMOTION_MAPPING,
-        'count': len(EMOTION_MAPPING)
-    })
+    return jsonify({"emotions": EMOTION_MAPPING, "count": len(EMOTION_MAPPING)})
 
-@app.route('/model_status', methods=['GET'])
+
+@app.route("/model_status", methods=["GET"])
 def model_status():
     """Get detailed model status."""
-    return jsonify({
-        'model_loaded': model_loaded,
-        'model_loading': model_loading,
-        'emotions': EMOTION_MAPPING if model_loaded else [],
-        'device': 'cpu',
-        'timestamp': time.time()
-    })
+    return jsonify(
+        {
+            "model_loaded": model_loaded,
+            "model_loading": model_loading,
+            "emotions": EMOTION_MAPPING if model_loaded else [],
+            "device": "cpu",
+            "timestamp": time.time(),
+        }
+    )
+
 
 # Load model on startup
 def initialize_model():
@@ -244,10 +273,11 @@ def initialize_model():
     except Exception:
         logger.exception("Failed to initialize model")
 
+
 # Initialize model when module is imported
 initialize_model()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     logger.info("🚀 Starting SAMO Emotion Detection API")
     logger.info("=" * 50)
     logger.info("📊 Model Performance: 99.48% F1 Score")
@@ -268,7 +298,7 @@ if __name__ == '__main__':
         logger.exception("Failed to load model on startup")
 
     # Get port from environment (Cloud Run requirement)
-    port = int(os.environ.get('PORT', '8080'))
+    port = int(os.environ.get("PORT", "8080"))
 
     # Use production WSGI server for better performance and reliability
     import gunicorn.app.base
@@ -280,8 +310,11 @@ if __name__ == '__main__':
             super().__init__()
 
         def load_config(self):
-            config = {key: value for key, value in self.options.items()
-                     if key in self.cfg.settings and value is not None}
+            config = {
+                key: value
+                for key, value in self.options.items()
+                if key in self.cfg.settings and value is not None
+            }
             for key, value in config.items():
                 self.cfg.set(key.lower(), value)
 
@@ -289,16 +322,16 @@ if __name__ == '__main__':
             return self.application
 
     options = {
-        'bind': f'0.0.0.0:{port}',
-        'workers': 1,  # Single worker for Cloud Run
-        'threads': 8,
-        'timeout': 0,  # No timeout for Cloud Run
-        'keepalive': 5,
-        'max_requests': 1000,
-        'max_requests_jitter': 100,
-        'access_logfile': '-',
-        'error_logfile': '-',
-        'loglevel': 'info'
+        "bind": f"0.0.0.0:{port}",
+        "workers": 1,  # Single worker for Cloud Run
+        "threads": 8,
+        "timeout": 0,  # No timeout for Cloud Run
+        "keepalive": 5,
+        "max_requests": 1000,
+        "max_requests_jitter": 100,
+        "access_logfile": "-",
+        "error_logfile": "-",
+        "loglevel": "info",
     }
 
     StandaloneApplication(app, options).run()

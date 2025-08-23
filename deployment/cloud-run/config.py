@@ -5,7 +5,8 @@ Provides environment-specific settings for development, staging, and production
 
 import os
 from dataclasses import dataclass
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
+
 
 @dataclass
 class CloudRunConfig:

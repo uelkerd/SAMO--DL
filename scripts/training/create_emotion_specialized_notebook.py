@@ -8,6 +8,7 @@ This addresses the poor performance with generic BERT.
 
 import json
 
+
 def create_emotion_specialized_notebook():
     """Create the emotion specialized notebook content."""
 
@@ -64,7 +65,7 @@ def create_emotion_specialized_notebook():
                     "from sklearn.metrics import                    "from sklearn.metrics import f1_score,
                          accuracy_score,
                          classification_report\n",
-                        
+
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",

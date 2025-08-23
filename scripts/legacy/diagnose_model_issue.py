@@ -1,24 +1,26 @@
-            # Check if all probabilities are high
-            # Forward pass
-            # Sample analysis
-        # Check gradients
-        # Create fake logits and labels
-        # Create simple test case
-        # Create trainer
-        # Get a few samples from validation set
-        # Get one batch for detailed analysis
-        # Load trained model
-        # Prepare data
-        # Set some emotions as positive
-        # Test BCE loss
-        # Test with class weights
+# Check if all probabilities are high
+# Forward pass
+# Sample analysis
+# Check gradients
+# Create fake logits and labels
+# Create simple test case
+# Create trainer
+# Get a few samples from validation set
+# Get one batch for detailed analysis
+# Load trained model
+# Prepare data
+# Set some emotions as positive
+# Test BCE loss
+# Test with class weights
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
 import logging
 import sys
-import torch
 from pathlib import Path
+
+import torch
+
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 """Diagnose Model Issue - Why is the model predicting all emotions?
@@ -139,7 +141,9 @@ def diagnose_loss_function():
 
         logger.info("BCE Loss: {loss.item():.4f}")
 
-        pos_weight = torch.ones(num_emotions) * 2.0  # Give more weight to positive class
+        pos_weight = (
+            torch.ones(num_emotions) * 2.0
+        )  # Give more weight to positive class
         weighted_bce = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
         weighted_bce(logits, labels)
 

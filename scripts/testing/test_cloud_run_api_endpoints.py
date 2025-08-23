@@ -6,11 +6,12 @@ import argparse
 import json
 import logging
 import os
-import requests
 import sys
 import time
+from typing import Any, Dict, List
+
+import requests
 from test_config import create_api_client, create_test_config
-from typing import Dict, Any, List
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

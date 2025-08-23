@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Unit tests for emotion detection models."""
 
+from unittest.mock import MagicMock, patch
+
 import pytest
 import torch
 from transformers.modeling_outputs import BaseModelOutputWithPooling
-from unittest.mock import MagicMock, patch
 
 try:
     from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
@@ -97,7 +98,7 @@ class TestBertEmotionClassifier:
             mock_tokenizer_instance = MagicMock()
             mock_tokenizer_instance.return_value = {
                 "input_ids": torch.tensor([[1, 2, 3, 0]]),  # [batch, seq_len]
-                "attention_mask": torch.tensor([[1, 1, 1, 0]])  # [batch, seq_len]
+                "attention_mask": torch.tensor([[1, 1, 1, 0]]),  # [batch, seq_len]
             }
             mock_tokenizer.return_value = mock_tokenizer_instance
 

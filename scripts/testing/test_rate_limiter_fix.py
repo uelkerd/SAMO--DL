@@ -1,26 +1,27 @@
-    # Consume all tokens
-    # Create a mock app
-    # Create mock call_next
-    # Create mock request
-    # Create rate limiter
-    # Get client entry
-    # Make another request
-    # Simulate time passing
+# Consume all tokens
+# Create a mock app
+# Create mock call_next
+# Create mock request
+# Create rate limiter
+# Get client entry
+# Make another request
+# Simulate time passing
 #!/usr/bin/env python3
 import asyncio
 import logging
 import sys
 import time
+
 """Test script to verify rate limiter fix."""
-from fastapi import Response
 from pathlib import Path
-from src.api_rate_limiter import RateLimiter
 from unittest.mock import AsyncMock, MagicMock
 
+from fastapi import Response
 
-
+from src.api_rate_limiter import RateLimiter
 
 sys.path.insert(0, str(Path(__file__).parent / ".."))
+
 
 async def test_token_refill_logic():
     """Test the token refill logic manually."""

@@ -7,16 +7,20 @@ import logging
 import sys
 from pathlib import Path
 
+import numpy as np
 import torch
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
-import numpy as np
 
 # Add src to path
 sys.path.append(str(Path.cwd() / "src"))
 
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
 from sklearn.metrics import f1_score
+
+from src.models.emotion_detection.bert_classifier import (
+    EmotionDataset,
+    create_bert_emotion_classifier,
+)
 
 
 def final_temperature_test():

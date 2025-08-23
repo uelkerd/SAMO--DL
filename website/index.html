@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SAMO Deep Learning - Production Emotion Detection API</title>
     <meta name="description" content="Enterprise-grade emotion detection API with >90% F1 score and 2.3x performance optimization">
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -18,7 +18,7 @@
             --secondary-gradient: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #3730a3 100%);
             --dark-gradient: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
             --accent-gradient: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #c084fc 100%);
-            
+
             --primary-color: #8b5cf6;
             --secondary-color: #a855f7;
             --accent-color: #c084fc;
@@ -27,7 +27,7 @@
             --light-accent: #e9d5ff;
             --glass-bg: rgba(139, 92, 246, 0.1);
             --glass-border: rgba(139, 92, 246, 0.2);
-            
+
             /* Performance and animation settings */
             --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -64,7 +64,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: 
+            background:
                 radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.2) 0%, transparent 50%),
                 radial-gradient(circle at 40% 80%, rgba(192, 132, 252, 0.2) 0%, transparent 50%);
@@ -344,12 +344,12 @@
             .hero-section {
                 padding: 80px 0;
             }
-            
+
             .integration-card {
                 padding: 25px;
                 margin-bottom: 20px;
             }
-            
+
             .feature-icon {
                 width: 60px;
                 height: 60px;
@@ -404,8 +404,8 @@
                         🚀 Complete AI Integration Platform
                     </h1>
                     <p class="lead mb-4">
-                        <strong>100% Priority 1 Features Complete!</strong> Enterprise-grade AI platform with JWT authentication, 
-                        voice transcription, text summarization, real-time processing, and comprehensive monitoring. 
+                        <strong>100% Priority 1 Features Complete!</strong> Enterprise-grade AI platform with JWT authentication,
+                        voice transcription, text summarization, real-time processing, and comprehensive monitoring.
                         Production-ready with <strong>>90% F1 score</strong> and <strong>2.3x performance optimization</strong>.
                     </p>
                                         <div class="d-flex gap-3">
@@ -475,7 +475,7 @@
                             </div>
                             <h5 class="card-title fw-bold">JWT Authentication System</h5>
                             <p class="card-text text-muted">
-                                Complete token lifecycle management with register, login, refresh, logout, and profile endpoints. 
+                                Complete token lifecycle management with register, login, refresh, logout, and profile endpoints.
                                 Secure with blacklist tracking and permission-based access control.
                             </p>
                             <div class="badge bg-success">✅ Complete</div>
@@ -490,7 +490,7 @@
                             </div>
                             <h5 class="card-title fw-bold">Enhanced Voice Transcription</h5>
                             <p class="card-text text-muted">
-                                Advanced Whisper integration with batch processing, real-time streaming, and comprehensive 
+                                Advanced Whisper integration with batch processing, real-time streaming, and comprehensive
                                 error handling. Supports multiple audio formats with file validation.
                             </p>
                             <div class="badge bg-success">✅ Complete</div>
@@ -505,7 +505,7 @@
                             </div>
                             <h5 class="card-title fw-bold">Text Summarization & Analysis</h5>
                             <p class="card-text text-muted">
-                                Multi-model T5 summarization with emotional analysis, key point extraction, and 
+                                Multi-model T5 summarization with emotional analysis, key point extraction, and
                                 customizable compression ratios. Real-time processing with confidence scoring.
                             </p>
                             <div class="badge bg-success">✅ Complete</div>
@@ -520,7 +520,7 @@
                             </div>
                             <h5 class="card-title fw-bold">Real-time Batch Processing</h5>
                             <p class="card-text text-muted">
-                                WebSocket-based real-time processing with progress tracking, partial results, and 
+                                WebSocket-based real-time processing with progress tracking, partial results, and
                                 comprehensive error handling. Supports concurrent processing with rate limiting.
                             </p>
                             <div class="badge bg-success">✅ Complete</div>
@@ -535,7 +535,7 @@
                             </div>
                             <h5 class="card-title fw-bold">Comprehensive Monitoring</h5>
                             <p class="card-text text-muted">
-                                Real-time dashboard with system metrics, model performance tracking, error rate monitoring, 
+                                Real-time dashboard with system metrics, model performance tracking, error rate monitoring,
                                 and health status alerts. Production-ready observability.
                             </p>
                             <div class="badge bg-success">✅ Complete</div>
@@ -550,7 +550,7 @@
                             </div>
                             <h5 class="card-title fw-bold">Comprehensive Testing</h5>
                             <p class="card-text text-muted">
-                                Complete test suite with 1,094 lines of integration tests covering all endpoints, 
+                                Complete test suite with 1,094 lines of integration tests covering all endpoints,
                                 edge cases, error scenarios, and security validation. 100% code review issues resolved.
                             </p>
                             <div class="badge bg-success">✅ Complete</div>
@@ -1132,7 +1132,7 @@ const analyzeUserFeedback = async (feedback) => {
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Demo Script -->
     <script>
         // Configure API Base URL for display (replace with your actual deployment URL)
@@ -1157,10 +1157,10 @@ const analyzeUserFeedback = async (feedback) => {
                 // For demo purposes, we'll simulate the API call
                 // In production, this would call the actual API
                 await new Promise(resolve => setTimeout(resolve, 1500));
-                
+
                 // Simulate API response
                 const emotions = simulateEmotionAnalysis(text);
-                
+
                 // Display results
                 displayResults(emotions);
             } catch (error) {
@@ -1175,7 +1175,7 @@ const analyzeUserFeedback = async (feedback) => {
             // Simple emotion detection simulation
             const textLower = text.toLowerCase();
             const emotions = [];
-            
+
             if (textLower.includes('happy') || textLower.includes('joy') || textLower.includes('excited')) {
                 emotions.push({ emotion: 'joy', confidence: 0.89 });
             }
@@ -1194,23 +1194,23 @@ const analyzeUserFeedback = async (feedback) => {
             if (textLower.includes('surprise') || textLower.includes('amazed') || textLower.includes('shocked')) {
                 emotions.push({ emotion: 'surprise', confidence: 0.84 });
             }
-            
+
             // Default to neutral if no specific emotions detected
             if (emotions.length === 0) {
                 emotions.push({ emotion: 'neutral', confidence: 0.75 });
             }
-            
+
             return emotions;
         }
 
         function displayResults(emotions) {
             const resultsContainer = document.getElementById('emotionResults');
             resultsContainer.innerHTML = '';
-            
+
             emotions.forEach(emotion => {
                 const confidencePercent = Math.round(emotion.confidence * 100);
                 const colorClass = getEmotionColor(emotion.emotion);
-                
+
                 const emotionCard = `
                     <div class="col-md-6">
                         <div class="card border-0 shadow-sm">
@@ -1219,7 +1219,7 @@ const analyzeUserFeedback = async (feedback) => {
                                     <div>
                                         <h6 class="mb-1 fw-bold text-capitalize">${emotion.emotion}</h6>
                                         <div class="progress" style="height: 8px;">
-                                            <div class="progress-bar ${colorClass}" 
+                                            <div class="progress-bar ${colorClass}"
                                                  style="width: ${confidencePercent}%"></div>
                                         </div>
                                     </div>
@@ -1233,7 +1233,7 @@ const analyzeUserFeedback = async (feedback) => {
                 `;
                 resultsContainer.innerHTML += emotionCard;
             });
-            
+
             document.getElementById('demoResult').style.display = 'block';
         }
 
@@ -1265,4 +1265,4 @@ const analyzeUserFeedback = async (feedback) => {
         });
     </script>
 </body>
-</html> 
+</html>

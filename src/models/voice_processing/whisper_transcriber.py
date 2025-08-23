@@ -6,7 +6,9 @@ import os
 import tempfile
 import time
 import warnings
+
 import whisper
+
 """OpenAI Whisper Transcriber for SAMO Deep Learning.
 import numpy as np
 import torch
@@ -27,7 +29,6 @@ Key Features:
 - Production-ready error handling and logging
 - Batch transcription for multiple audio files
 """
-
 
 
 logging.basicConfig(level=logging.INFO)
@@ -105,7 +106,10 @@ class AudioPreprocessor:
 
             duration = len(audio) / 1000.0  # Convert to seconds
             if duration > AudioPreprocessor.MAX_DURATION:
-                return False, "Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s"
+                return (
+                    False,
+                    "Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s",
+                )
 
             if duration < 0.1:  # Too short
                 return False, "Audio too short: {duration:.1f}s"
@@ -153,7 +157,8 @@ class AudioPreprocessor:
         if audio.frame_rate != AudioPreprocessor.TARGET_SAMPLE_RATE:
             audio = audio.set_frame_rate(AudioPreprocessor.TARGET_SAMPLE_RATE)
             logger.info(
-                "Resampled to {AudioPreprocessor.TARGET_SAMPLE_RATE}Hz", extra={"format_args": True}
+                "Resampled to {AudioPreprocessor.TARGET_SAMPLE_RATE}Hz",
+                extra={"format_args": True},
             )
 
         audio = audio.normalize()
@@ -182,7 +187,9 @@ class WhisperTranscriber:
     """OpenAI Whisper transcriber for journal voice processing."""
 
     def __init__(
-        self, config: Optional[TranscriptionConfig] = None, model_size: Optional[str] = None
+        self,
+        config: Optional[TranscriptionConfig] = None,
+        model_size: Optional[str] = None,
     ) -> None:
         """Initialize Whisper transcriber.
 
@@ -200,7 +207,8 @@ class WhisperTranscriber:
             self.device = torch.device(self.config.device)
 
         logger.info(
-            "Initializing Whisper {self.config.model_size} model...", extra={"format_args": True}
+            "Initializing Whisper {self.config.model_size} model...",
+            extra={"format_args": True},
         )
         logger.info("Device: {self.device}", extra={"format_args": True})
 
@@ -237,7 +245,9 @@ class WhisperTranscriber:
 
         logger.info("Starting transcription: {audio_path}", extra={"format_args": True})
 
-        processed_audio_path, audio_metadata = self.preprocessor.preprocess_audio(audio_path)
+        processed_audio_path, audio_metadata = self.preprocessor.preprocess_audio(
+            audio_path
+        )
 
         try:
             transcribe_options = {
@@ -257,7 +267,9 @@ class WhisperTranscriber:
                 "no_speech_threshold": self.config.no_speech_threshold,
             }
 
-            transcribe_options = {k: v for k, v in transcribe_options.items() if v is not None}
+            transcribe_options = {
+                k: v for k, v in transcribe_options.items() if v is not None
+            }
 
             result = self.model.transcribe(processed_audio_path, **transcribe_options)
 
@@ -318,9 +330,7 @@ class WhisperTranscriber:
         Returns:
             List of TranscriptionResult objects
         """
-        logger.info(
-            f"Starting batch transcription of {len(audio_paths)} files..."
-        )
+        logger.info(f"Starting batch transcription of {len(audio_paths)} files...")
 
         results = []
         for _i, audio_path in enumerate(audio_paths, 1):
@@ -354,9 +364,7 @@ class WhisperTranscriber:
         total_duration = sum(r.duration for r in results)
         total_processing_time = sum(r.processing_time for r in results)
 
-        logger.info(
-            f"✅ Batch transcription complete: {len(results)} files"
-        )
+        logger.info(f"✅ Batch transcription complete: {len(results)} files")
         logger.info(
             f"Total audio: {total_duration:.1f}s, Processing: {total_processing_time:.1f}s"
         )
@@ -380,7 +388,9 @@ class WhisperTranscriber:
             avg_logprob = segment.get("avg_logprob", -1.0)
             no_speech_prob = segment.get("no_speech_prob", 0.5)
 
-            segment_confidence = min(1.0, max(0.0, np.exp(avg_logprob) * (1 - no_speech_prob)))
+            segment_confidence = min(
+                1.0, max(0.0, np.exp(avg_logprob) * (1 - no_speech_prob))
+            )
             confidences.append(segment_confidence)
 
         return float(np.mean(confidences)) if confidences else 0.5
@@ -439,7 +449,9 @@ class WhisperTranscriber:
 
 
 def create_whisper_transcriber(
-    model_size: str = "base", language: Optional[str] = None, device: Optional[str] = None
+    model_size: str = "base",
+    language: Optional[str] = None,
+    device: Optional[str] = None,
 ) -> WhisperTranscriber:
     """Create Whisper transcriber with specified configuration.
 
@@ -451,10 +463,14 @@ def create_whisper_transcriber(
     Returns:
         Configured WhisperTranscriber instance
     """
-    config = TranscriptionConfig(model_size=model_size, language=language, device=device)
+    config = TranscriptionConfig(
+        model_size=model_size, language=language, device=device
+    )
 
     transcriber = WhisperTranscriber(config)
-    logger.info("Created Whisper transcriber: {model_size}", extra={"format_args": True})
+    logger.info(
+        "Created Whisper transcriber: {model_size}", extra={"format_args": True}
+    )
 
     return transcriber
 
@@ -467,7 +483,6 @@ def test_whisper_transcriber() -> None:
 
     logger.info("Whisper transcriber initialized successfully")
     logger.info("Model info:", transcriber.get_model_info())
-
 
     logger.info("✅ Whisper transcriber test complete!")
 

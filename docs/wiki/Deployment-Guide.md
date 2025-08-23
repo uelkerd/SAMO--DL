@@ -16,33 +16,33 @@ graph TB
         E[Redis Cluster]
         F[Monitoring Stack]
     end
-    
+
     subgraph "Development Environment"
         G[Local Docker]
         H[Development Database]
         I[Local Redis]
     end
-    
+
     subgraph "Staging Environment"
         J[Staging Load Balancer]
         K[Staging API Gateway]
         L[Staging Kubernetes]
         M[Staging Database]
     end
-    
+
     A --> B
     B --> C
     C --> D
     C --> E
     C --> F
-    
+
     G --> H
     G --> I
-    
+
     J --> K
     K --> L
     L --> M
-    
+
     style A fill:#e1f5fe
     style G fill:#f3e5f5
     style J fill:#e8f5e8
@@ -543,22 +543,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.12'
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pytest pytest-cov
-    
+
     - name: Run tests
       run: |
         pytest tests/ --cov=src --cov-report=xml
-    
+
     - name: Upload coverage
       uses: codecov/codecov-action@v3
       with:
@@ -568,20 +568,20 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-    
+
     - name: Log in to Container Registry
       uses: docker/login-action@v3
       with:
         registry: ${{ env.REGISTRY }}
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
@@ -595,15 +595,15 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment: staging
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Configure kubectl
       run: |
         echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > kubeconfig
         export KUBECONFIG=kubeconfig
-    
+
     - name: Deploy to staging
       run: |
         kubectl set image deployment/samo-brain-api \
@@ -615,15 +615,15 @@ jobs:
     needs: deploy-staging
     runs-on: ubuntu-latest
     environment: production
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Configure kubectl
       run: |
         echo "${{ secrets.KUBE_CONFIG_PROD }}" | base64 -d > kubeconfig
         export KUBECONFIG=kubeconfig
-    
+
     - name: Deploy to production
       run: |
         kubectl set image deployment/samo-brain-api \
@@ -905,12 +905,12 @@ def run_migrations():
     if not database_url:
         print("Error: DATABASE_URL environment variable not set")
         sys.exit(1)
-    
+
     # Create Alembic configuration
     alembic_cfg = Config()
     alembic_cfg.set_main_option("script_location", "migrations")
     alembic_cfg.set_main_option("sqlalchemy.url", database_url)
-    
+
     try:
         # Run migration
         command.upgrade(alembic_cfg, "head")
@@ -1173,4 +1173,4 @@ echo "✅ Restore completed successfully!"
 
 ---
 
-*This deployment guide provides comprehensive instructions for deploying SAMO Brain across different environments, from local development to production cloud deployments, with security, monitoring, and disaster recovery considerations.* 
+*This deployment guide provides comprehensive instructions for deploying SAMO Brain across different environments, from local development to production cloud deployments, with security, monitoring, and disaster recovery considerations.*

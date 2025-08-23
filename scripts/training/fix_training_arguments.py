@@ -9,18 +9,21 @@ unsupported parameters like evaluation_strategy.
 
 import json
 
+
 def fix_training_arguments():
     """Fix the training arguments in the simple notebook."""
 
     # Read the existing notebook
-    with open('notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'r') as f:
+    with open("notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb") as f:
         notebook = json.load(f)
 
     # Find and replace the training arguments cell
-    for cell in notebook['cells']:
-        if cell['cell_type'] == 'code' and 'TrainingArguments(' in ''.join(cell['source']):
+    for cell in notebook["cells"]:
+        if cell["cell_type"] == "code" and "TrainingArguments(" in "".join(
+            cell["source"]
+        ):
             # Replace with fixed training arguments
-            cell['source'] = [
+            cell["source"] = [
                 "# Training arguments\n",
                 "training_args = TrainingArguments(\n",
                 "    output_dir='./ultimate_emotion_model',\n",
@@ -40,19 +43,20 @@ def fix_training_arguments():
                 "    run_name='ultimate_emotion_model'\n",
                 ")\n",
                 "\n",
-                "print('✅ Training arguments configured')"
+                "print('✅ Training arguments configured')",
             ]
             break
 
     # Save the updated notebook
-    with open('notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'w') as f:
+    with open("notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb", "w") as f:
         json.dump(notebook, f, indent=2)
 
-    print('✅ Fixed training arguments in simple notebook!')
-    print('📋 Changes made:')
-    print('   ✅ Removed evaluation_strategy parameter')
-    print('   ✅ Removed save_strategy parameter')
-    print('   ✅ Kept all other parameters intact')
+    print("✅ Fixed training arguments in simple notebook!")
+    print("📋 Changes made:")
+    print("   ✅ Removed evaluation_strategy parameter")
+    print("   ✅ Removed save_strategy parameter")
+    print("   ✅ Kept all other parameters intact")
+
 
 if __name__ == "__main__":
     fix_training_arguments()

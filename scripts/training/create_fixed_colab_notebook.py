@@ -8,6 +8,7 @@ This script creates a fixed Colab notebook that handles the correct data structu
 
 import json
 
+
 def create_fixed_colab_notebook():
     """Create the fixed Colab notebook content."""
 
@@ -77,7 +78,7 @@ def create_fixed_colab_notebook():
                     "from sklearn.metrics import                    "from sklearn.metrics import f1_score,
                          accuracy_score,
                          classification_report\n",
-                        
+
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",

@@ -1,10 +1,10 @@
-        # Create model
-        # Load checkpoint
-        # Load state dict
-        # Save model
-        # Set temperature
-        # Update threshold
-    # Find an existing model file
+# Create model
+# Load checkpoint
+# Load state dict
+# Save model
+# Set temperature
+# Update threshold
+# Find an existing model file
 # Add src to path
 # Configure logging
 # Constants
@@ -13,8 +13,10 @@ import argparse
 import logging
 import os
 import sys
-import torch
 from pathlib import Path
+
+import torch
+
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
 """
@@ -36,7 +38,10 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_THRESHOLD = 0.6
 DEFAULT_TEMPERATURE = 1.0
-MODEL_PATHS = ["models/checkpoints/bert_emotion_classifier.pth", "test_checkpoints/best_model.pt"]
+MODEL_PATHS = [
+    "models/checkpoints/bert_emotion_classifier.pth",
+    "test_checkpoints/best_model.pt",
+]
 
 
 def update_threshold(threshold: float = DEFAULT_THRESHOLD):

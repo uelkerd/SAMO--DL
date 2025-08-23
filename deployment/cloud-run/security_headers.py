@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Security Headers Module for Cloud Run API."""
 
-from flask import Flask, request, g
-from typing import Dict, Any
+from typing import Any, Dict
+
+from flask import Flask, g, request
+
 
 def add_security_headers(app: Flask) -> None:
     """Add comprehensive security headers to Flask app."""

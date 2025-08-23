@@ -10,7 +10,7 @@
 ## Architecture Decision
 
 **Decision**: Separate training (Vertex AI) from inference (Cloud Run)
-**Rationale**: 
+**Rationale**:
 - Current model achieves >90% F1 score (excellent)
 - ONNX-only production provides 2.3x speedup
 - Training can be delegated to GCP-managed infrastructure
@@ -130,16 +130,16 @@ jobs:
     steps:
       - name: Trigger Vertex AI Training
         run: gcloud ai custom-jobs create --region=us-central1 --config=training_config.yaml
-      
+
       - name: Wait for Training
         run: gcloud ai custom-jobs wait $JOB_ID --region=us-central1
-      
+
       - name: Convert to ONNX
         run: python scripts/convert_to_onnx.py
-      
+
       - name: Validate Model
         run: python scripts/validate_model.py
-      
+
       - name: Deploy to Cloud Run
         run: ./scripts/deploy_to_cloud_run.sh
 ```

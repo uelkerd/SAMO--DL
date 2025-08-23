@@ -8,10 +8,10 @@ other text content.
 import logging
 import warnings
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.utils.data import Dataset
 from transformers import (
     AutoModelForSeq2SeqLM,
@@ -142,7 +142,8 @@ class T5SummarizationModel(nn.Module):
             self.device = torch.device(self.config.device)
 
         logger.info(
-            "Initializing {self.model_name} summarization model...", extra={"format_args": True}
+            "Initializing {self.model_name} summarization model...",
+            extra={"format_args": True},
         )
 
         if "bart" in self.model_name.lower():
@@ -171,14 +172,18 @@ class T5SummarizationModel(nn.Module):
         labels: Optional[torch.Tensor] = None,
     ) -> Dict[str, torch.Tensor]:
         """Forward pass for training."""
-        outputs = self.model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+        outputs = self.model(
+            input_ids=input_ids, attention_mask=attention_mask, labels=labels
+        )
 
         return {
             "loss": outputs.loss if labels is not None else None,
             "logits": outputs.logits,
-            "hidden_states": outputs.decoder_hidden_states
-            if hasattr(outputs, "decoder_hidden_states")
-            else None,
+            "hidden_states": (
+                outputs.decoder_hidden_states
+                if hasattr(outputs, "decoder_hidden_states")
+                else None
+            ),
         }
 
     def generate_summary(
@@ -211,10 +216,7 @@ class T5SummarizationModel(nn.Module):
         # Reduce beams for larger models to avoid long runtimes on CPU
         default_beams = (
             2
-            if (
-                "base" in self.model_name.lower()
-                or "large" in self.model_name.lower()
-            )
+            if ("base" in self.model_name.lower() or "large" in self.model_name.lower())
             else self.config.num_beams
         )
         num_beams = num_beams or default_beams
@@ -307,9 +309,7 @@ class T5SummarizationModel(nn.Module):
                     min_new_tokens=generation_kwargs.get(
                         "min_length", self.config.min_target_length
                     ),
-                    num_beams=generation_kwargs.get(
-                        "num_beams", default_beams
-                    ),
+                    num_beams=generation_kwargs.get("num_beams", default_beams),
                     length_penalty=generation_kwargs.get(
                         "length_penalty", self.config.length_penalty
                     ),
@@ -393,15 +393,20 @@ def test_summarization_model() -> None:
     ]
 
     logger.info(
-        "Generating summaries for {len(test_texts)} journal entries...", extra={"format_args": True}
+        "Generating summaries for {len(test_texts)} journal entries...",
+        extra={"format_args": True},
     )
 
     for _i, text in enumerate(test_texts, 1):
         model.generate_summary(text)
 
         logger.info("\n--- Journal Entry {i} ---", extra={"format_args": True})
-        logger.info("Original ({len(text)} chars): {text[:100]}...", extra={"format_args": True})
-        logger.info("Summary ({len(summary)} chars): {summary}", extra={"format_args": True})
+        logger.info(
+            "Original ({len(text)} chars): {text[:100]}...", extra={"format_args": True}
+        )
+        logger.info(
+            "Summary ({len(summary)} chars): {summary}", extra={"format_args": True}
+        )
 
     logger.info("\nTesting batch summarization...")
     batch_summaries = model.generate_batch_summaries(test_texts, batch_size=2)

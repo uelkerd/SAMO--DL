@@ -11,10 +11,12 @@ This script comprehensively tests the newly trained model to verify:
 """
 
 import warnings
+
 warnings.filterwarnings('ignore')
 import numpy as np
 import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
 
 def test_new_trained_model():
     """Comprehensive test of the newly trained model."""

@@ -1,21 +1,22 @@
-        # Create a simple BERT classifier
-        # Create a simple classifier head
-        # Load a small subset for testing
-        # Test with a simple input
+# Create a simple BERT classifier
+# Create a simple classifier head
+# Load a small subset for testing
+# Test with a simple input
 import logging
 import sys
-    # Compute loss
-# Configure logging
-    # Create focal loss
-    # Create synthetic data
-    # Setup device
+
 #!/usr/bin/env python3
 import torch
 import torch.nn.functional as F
-        from datasets import load_dataset
-        from torch import nn
+from datasets import load_dataset
 from torch import nn
-        from transformers import AutoTokenizer, AutoModel
+from transformers import AutoModel, AutoTokenizer
+
+# Compute loss
+# Configure logging
+# Create focal loss
+# Create synthetic data
+# Setup device
 
 """
 Standalone Focal Loss Test
@@ -27,7 +28,9 @@ Usage:
     python3 standalone_focal_test.py
 """
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -98,7 +101,7 @@ def test_bert_import():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ BERT Model Test FAILED: {e}")
         return False
 
@@ -118,7 +121,7 @@ def test_dataset_download():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Dataset Download Test FAILED: {e}")
         return False
 
@@ -142,7 +145,7 @@ def main():
         logger.info("\n📋 Running {test_name}...")
         try:
             results[test_name] = test_func()
-        except Exception as e:
+        except Exception:
             logger.error("❌ {test_name} failed with exception: {e}")
             results[test_name] = False
 

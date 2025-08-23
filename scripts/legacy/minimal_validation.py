@@ -2,19 +2,21 @@
         # Create model
         # Test with dummy data
 import logging
-        import sklearn
 import sys
-# Configure logging
-    # Summary
+from pathlib import Path
+
 #!/usr/bin/env python3
 import numpy as np
-        import torch
-        import torch
-        import torch.nn.functional as F
-        import transformers
-from pathlib import Path
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-        from torch import nn
+import sklearn
+import torch
+import torch.nn.functional as F
+import transformers
+from torch import nn
+
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+
+# Configure logging
+    # Summary
 
 
 

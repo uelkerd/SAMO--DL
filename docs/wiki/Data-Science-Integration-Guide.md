@@ -10,7 +10,7 @@ import requests
 import pandas as pd
 
 # Test emotion detection
-response = requests.post('http://localhost:8000/predict', 
+response = requests.post('http://localhost:8000/predict',
     json={'text': 'I am feeling happy today!'})
 result = response.json()
 
@@ -44,7 +44,7 @@ class SAMOBrainAnalytics:
     def __init__(self, base_url="http://localhost:8000"):
         self.base_url = base_url
         self.session = requests.Session()
-    
+
     def get_performance_metrics(self):
         """Get comprehensive performance metrics."""
         try:
@@ -54,11 +54,11 @@ class SAMOBrainAnalytics:
         except Exception as e:
             print(f"Error fetching metrics: {e}")
             return None
-    
+
     def analyze_emotion_distribution(self, texts):
         """Analyze emotion distribution across a dataset."""
         results = []
-        
+
         for text in texts:
             try:
                 response = self.session.post(
@@ -76,15 +76,15 @@ class SAMOBrainAnalytics:
             except Exception as e:
                 print(f"Error analyzing text: {e}")
                 continue
-        
+
         return pd.DataFrame(results)
-    
+
     def create_performance_report(self):
         """Generate comprehensive performance report."""
         metrics = self.get_performance_metrics()
         if not metrics:
             return None
-        
+
         report = {
             'timestamp': datetime.now().isoformat(),
             'server_metrics': metrics['server_metrics'],
@@ -92,42 +92,42 @@ class SAMOBrainAnalytics:
             'error_analysis': metrics.get('error_counts', {}),
             'rate_limiting': metrics.get('rate_limiting', {})
         }
-        
+
         return report
-    
+
     def plot_emotion_distribution(self, df):
         """Plot emotion distribution from analysis results."""
         plt.figure(figsize=(12, 6))
-        
+
         # Emotion frequency
         emotion_counts = df['emotion'].value_counts()
-        
+
         plt.subplot(1, 2, 1)
         emotion_counts.plot(kind='bar', color='skyblue')
         plt.title('Emotion Distribution')
         plt.xlabel('Emotion')
         plt.ylabel('Count')
         plt.xticks(rotation=45)
-        
+
         # Confidence distribution
         plt.subplot(1, 2, 2)
         plt.hist(df['confidence'], bins=20, alpha=0.7, color='lightgreen')
         plt.title('Confidence Distribution')
         plt.xlabel('Confidence Score')
         plt.ylabel('Frequency')
-        
+
         plt.tight_layout()
         plt.show()
-    
+
     def analyze_confidence_trends(self, df):
         """Analyze confidence trends by emotion."""
         confidence_by_emotion = df.groupby('emotion')['confidence'].agg([
             'mean', 'std', 'count', 'min', 'max'
         ]).round(3)
-        
+
         print("Confidence Analysis by Emotion:")
         print(confidence_by_emotion)
-        
+
         return confidence_by_emotion
 
 # Usage example
@@ -172,11 +172,11 @@ class ModelDriftDetector:
         self.base_url = base_url
         self.baseline_metrics = None
         self.drift_threshold = 0.1  # 10% change threshold
-    
+
     def establish_baseline(self, test_texts, n_runs=10):
         """Establish baseline performance metrics."""
         print("Establishing baseline metrics...")
-        
+
         baseline_results = []
         for _ in range(n_runs):
             run_results = []
@@ -196,10 +196,10 @@ class ModelDriftDetector:
                 except Exception as e:
                     print(f"Error in baseline run: {e}")
                     continue
-            
+
             if run_results:
                 baseline_results.append(run_results)
-        
+
         # Calculate baseline metrics
         self.baseline_metrics = {
             'avg_confidence': np.mean([r['confidence'] for run in baseline_results for r in run]),
@@ -207,21 +207,21 @@ class ModelDriftDetector:
             'avg_response_time': np.mean([r['response_time'] for run in baseline_results for r in run]),
             'emotion_distribution': pd.DataFrame([r['emotion'] for run in baseline_results for r in run]).value_counts().to_dict()
         }
-        
+
         print(f"Baseline established:")
         print(f"  Average Confidence: {self.baseline_metrics['avg_confidence']:.3f}")
         print(f"  Average Response Time: {self.baseline_metrics['avg_response_time']:.1f}ms")
-        
+
         return self.baseline_metrics
-    
+
     def detect_drift(self, test_texts, n_runs=5):
         """Detect model drift by comparing current performance to baseline."""
         if self.baseline_metrics is None:
             print("Please establish baseline first using establish_baseline()")
             return None
-        
+
         print("Detecting model drift...")
-        
+
         current_results = []
         for _ in range(n_runs):
             run_results = []
@@ -241,10 +241,10 @@ class ModelDriftDetector:
                 except Exception as e:
                     print(f"Error in drift detection run: {e}")
                     continue
-            
+
             if run_results:
                 current_results.append(run_results)
-        
+
         # Calculate current metrics
         current_metrics = {
             'avg_confidence': np.mean([r['confidence'] for run in current_results for r in run]),
@@ -252,7 +252,7 @@ class ModelDriftDetector:
             'avg_response_time': np.mean([r['response_time'] for run in current_results for r in run]),
             'emotion_distribution': pd.DataFrame([r['emotion'] for run in current_results for r in run]).value_counts().to_dict()
         }
-        
+
         # Detect drift
         drift_report = {
             'timestamp': datetime.now().isoformat(),
@@ -263,34 +263,34 @@ class ModelDriftDetector:
             'drift_detected': False,
             'drift_severity': 'none'
         }
-        
+
         # Check for significant drift
         confidence_drift_abs = abs(drift_report['confidence_drift'])
         response_time_drift_abs = abs(drift_report['response_time_drift'])
-        
+
         if confidence_drift_abs > self.drift_threshold or response_time_drift_abs > self.drift_threshold:
             drift_report['drift_detected'] = True
-            
+
             if max(confidence_drift_abs, response_time_drift_abs) > 0.2:
                 drift_report['drift_severity'] = 'high'
             elif max(confidence_drift_abs, response_time_drift_abs) > 0.1:
                 drift_report['drift_severity'] = 'medium'
             else:
                 drift_report['drift_severity'] = 'low'
-        
+
         return drift_report
-    
+
     def generate_drift_alert(self, drift_report):
         """Generate alert based on drift detection."""
         if not drift_report['drift_detected']:
             print("✅ No significant drift detected")
             return
-        
+
         print(f"🚨 MODEL DRIFT DETECTED - Severity: {drift_report['drift_severity'].upper()}")
         print(f"   Confidence Drift: {drift_report['confidence_drift']:.1%}")
         print(f"   Response Time Drift: {drift_report['response_time_drift']:.1%}")
         print(f"   Timestamp: {drift_report['timestamp']}")
-        
+
         if drift_report['drift_severity'] == 'high':
             print("   🔴 IMMEDIATE ACTION REQUIRED: Consider model retraining")
         elif drift_report['drift_severity'] == 'medium':
@@ -339,11 +339,11 @@ import seaborn as sns
 class EmotionPatternAnalyzer:
     def __init__(self, base_url="http://localhost:8000"):
         self.base_url = base_url
-    
+
     def analyze_emotion_patterns(self, texts, labels=None):
         """Analyze emotion patterns in a dataset."""
         results = []
-        
+
         for i, text in enumerate(texts):
             try:
                 response = requests.post(
@@ -352,7 +352,7 @@ class EmotionPatternAnalyzer:
                 )
                 response.raise_for_status()
                 result = response.json()
-                
+
                 results.append({
                     'text': text,
                     'emotion': result['predicted_emotion'],
@@ -363,36 +363,36 @@ class EmotionPatternAnalyzer:
             except Exception as e:
                 print(f"Error analyzing text {i}: {e}")
                 continue
-        
+
         return pd.DataFrame(results)
-    
+
     def extract_emotion_features(self, df):
         """Extract numerical features from emotion probabilities."""
-        emotion_cols = ['anxious', 'calm', 'content', 'excited', 'frustrated', 
+        emotion_cols = ['anxious', 'calm', 'content', 'excited', 'frustrated',
                        'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
-        
+
         features = []
         for _, row in df.iterrows():
             feature_vector = [row['probabilities'].get(emotion, 0) for emotion in emotion_cols]
             features.append(feature_vector)
-        
+
         return np.array(features), emotion_cols
-    
+
     def cluster_emotion_patterns(self, df, n_clusters=3):
         """Cluster texts based on emotion patterns."""
         features, emotion_cols = self.extract_emotion_features(df)
-        
+
         # Apply PCA for visualization
         pca = PCA(n_components=2)
         features_2d = pca.fit_transform(features)
-        
+
         # Apply K-means clustering
         kmeans = KMeans(n_clusters=n_clusters, random_state=42)
         clusters = kmeans.fit_predict(features)
-        
+
         # Create visualization
         plt.figure(figsize=(12, 8))
-        
+
         # PCA plot
         plt.subplot(2, 2, 1)
         scatter = plt.scatter(features_2d[:, 0], features_2d[:, 1], c=clusters, cmap='viridis')
@@ -400,14 +400,14 @@ class EmotionPatternAnalyzer:
         plt.xlabel('Principal Component 1')
         plt.ylabel('Principal Component 2')
         plt.colorbar(scatter)
-        
+
         # Cluster analysis
         plt.subplot(2, 2, 2)
         cluster_emotions = []
         for cluster_id in range(n_clusters):
             cluster_texts = df[clusters == cluster_id]
             cluster_emotions.append(cluster_texts['emotion'].value_counts())
-        
+
         cluster_df = pd.DataFrame(cluster_emotions).fillna(0)
         cluster_df.plot(kind='bar', ax=plt.gca())
         plt.title('Emotion Distribution by Cluster')
@@ -415,7 +415,7 @@ class EmotionPatternAnalyzer:
         plt.ylabel('Count')
         plt.xticks(rotation=0)
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
-        
+
         # Confidence distribution
         plt.subplot(2, 2, 3)
         for cluster_id in range(n_clusters):
@@ -425,34 +425,34 @@ class EmotionPatternAnalyzer:
         plt.xlabel('Confidence')
         plt.ylabel('Frequency')
         plt.legend()
-        
+
         # Emotion correlation heatmap
         plt.subplot(2, 2, 4)
         features_df = pd.DataFrame(features, columns=emotion_cols)
         correlation_matrix = features_df.corr()
         sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', center=0)
         plt.title('Emotion Correlation Matrix')
-        
+
         plt.tight_layout()
         plt.show()
-        
+
         return clusters, features_2d
-    
+
     def analyze_emotion_transitions(self, emotion_sequence):
         """Analyze emotion transitions in a sequence."""
         if len(emotion_sequence) < 2:
             return None
-        
+
         transitions = []
         for i in range(len(emotion_sequence) - 1):
             transitions.append((emotion_sequence[i], emotion_sequence[i + 1]))
-        
+
         transition_matrix = pd.crosstab(
             pd.Series([t[0] for t in transitions]),
             pd.Series([t[1] for t in transitions]),
             normalize='index'
         )
-        
+
         # Visualize transition matrix
         plt.figure(figsize=(10, 8))
         sns.heatmap(transition_matrix, annot=True, cmap='Blues', fmt='.2f')
@@ -460,7 +460,7 @@ class EmotionPatternAnalyzer:
         plt.xlabel('Next Emotion')
         plt.ylabel('Current Emotion')
         plt.show()
-        
+
         return transition_matrix
 
 # Usage example
@@ -505,17 +505,17 @@ import matplotlib.pyplot as plt
 class ExperimentalModelTester:
     def __init__(self, base_url="http://localhost:8000"):
         self.base_url = base_url
-    
+
     def a_b_test_models(self, test_texts, model_a_config, model_b_config, n_runs=10):
         """Perform A/B testing between different model configurations."""
         print("Running A/B test...")
-        
+
         results_a = []
         results_b = []
-        
+
         for run in range(n_runs):
             print(f"Run {run + 1}/{n_runs}")
-            
+
             # Test Model A
             for text in test_texts:
                 try:
@@ -532,7 +532,7 @@ class ExperimentalModelTester:
                     })
                 except Exception as e:
                     print(f"Error testing Model A: {e}")
-            
+
             # Test Model B
             for text in test_texts:
                 try:
@@ -549,27 +549,27 @@ class ExperimentalModelTester:
                     })
                 except Exception as e:
                     print(f"Error testing Model B: {e}")
-        
+
         return pd.DataFrame(results_a), pd.DataFrame(results_b)
-    
+
     def statistical_comparison(self, df_a, df_b):
         """Perform statistical comparison between two models."""
         print("Performing statistical comparison...")
-        
+
         # Confidence comparison
         confidence_a = df_a['confidence']
         confidence_b = df_b['confidence']
-        
+
         # T-test for confidence
         t_stat, p_value = stats.ttest_ind(confidence_a, confidence_b)
-        
+
         # Response time comparison
         response_time_a = df_a['response_time']
         response_time_b = df_b['response_time']
-        
+
         # Mann-Whitney U test for response time (non-parametric)
         u_stat, u_p_value = stats.mannwhitneyu(response_time_a, response_time_b, alternative='two-sided')
-        
+
         # Create comparison report
         comparison_report = {
             'confidence_comparison': {
@@ -589,13 +589,13 @@ class ExperimentalModelTester:
                 'significant': u_p_value < 0.05
             }
         }
-        
+
         return comparison_report
-    
+
     def visualize_comparison(self, df_a, df_b, comparison_report):
         """Visualize A/B test results."""
         fig, axes = plt.subplots(2, 2, figsize=(15, 10))
-        
+
         # Confidence comparison
         axes[0, 0].hist(df_a['confidence'], alpha=0.7, label='Model A', bins=20)
         axes[0, 0].hist(df_b['confidence'], alpha=0.7, label='Model B', bins=20)
@@ -603,7 +603,7 @@ class ExperimentalModelTester:
         axes[0, 0].set_xlabel('Confidence')
         axes[0, 0].set_ylabel('Frequency')
         axes[0, 0].legend()
-        
+
         # Response time comparison
         axes[0, 1].hist(df_a['response_time'], alpha=0.7, label='Model A', bins=20)
         axes[0, 1].hist(df_b['response_time'], alpha=0.7, label='Model B', bins=20)
@@ -611,19 +611,19 @@ class ExperimentalModelTester:
         axes[0, 1].set_xlabel('Response Time (ms)')
         axes[0, 1].set_ylabel('Frequency')
         axes[0, 1].legend()
-        
+
         # Box plots
         axes[1, 0].boxplot([df_a['confidence'], df_b['confidence']], labels=['Model A', 'Model B'])
         axes[1, 0].set_title('Confidence Box Plot')
         axes[1, 0].set_ylabel('Confidence')
-        
+
         axes[1, 1].boxplot([df_a['response_time'], df_b['response_time']], labels=['Model A', 'Model B'])
         axes[1, 1].set_title('Response Time Box Plot')
         axes[1, 1].set_ylabel('Response Time (ms)')
-        
+
         plt.tight_layout()
         plt.show()
-        
+
         # Print statistical results
         print("\n=== STATISTICAL COMPARISON RESULTS ===")
         print(f"Confidence Comparison:")
@@ -632,7 +632,7 @@ class ExperimentalModelTester:
         print(f"  Difference: {comparison_report['confidence_comparison']['difference']:.3f}")
         print(f"  P-value: {comparison_report['confidence_comparison']['p_value']:.4f}")
         print(f"  Significant: {comparison_report['confidence_comparison']['significant']}")
-        
+
         print(f"\nResponse Time Comparison:")
         print(f"  Model A Mean: {comparison_report['response_time_comparison']['model_a_mean']:.1f}ms")
         print(f"  Model B Mean: {comparison_report['response_time_comparison']['model_b_mean']:.1f}ms")
@@ -681,11 +681,11 @@ import sqlalchemy
 class SAMOBrainDataExporter:
     def __init__(self, base_url="http://localhost:8000"):
         self.base_url = base_url
-    
+
     def export_emotion_data(self, texts, labels=None, metadata=None):
         """Export comprehensive emotion analysis data."""
         results = []
-        
+
         for i, text in enumerate(texts):
             try:
                 response = requests.post(
@@ -694,10 +694,10 @@ class SAMOBrainDataExporter:
                 )
                 response.raise_for_status()
                 result = response.json()
-                
+
                 # Flatten probabilities
                 probabilities = result['probabilities']
-                
+
                 export_row = {
                     'text_id': i,
                     'text': text,
@@ -708,50 +708,50 @@ class SAMOBrainDataExporter:
                     'timestamp': datetime.now().isoformat(),
                     **probabilities
                 }
-                
+
                 if labels:
                     export_row['true_label'] = labels[i]
-                
+
                 if metadata:
                     export_row.update(metadata[i] if isinstance(metadata, list) else metadata)
-                
+
                 results.append(export_row)
-                
+
             except Exception as e:
                 print(f"Error exporting data for text {i}: {e}")
                 continue
-        
+
         return pd.DataFrame(results)
-    
+
     def export_to_csv(self, df, filename):
         """Export data to CSV file."""
         df.to_csv(filename, index=False)
         print(f"Data exported to {filename}")
-    
+
     def export_to_json(self, df, filename):
         """Export data to JSON file."""
         df.to_json(filename, orient='records', indent=2)
         print(f"Data exported to {filename}")
-    
+
     def export_to_sqlite(self, df, db_path, table_name='emotion_analysis'):
         """Export data to SQLite database."""
         engine = sqlalchemy.create_engine(f'sqlite:///{db_path}')
         df.to_sql(table_name, engine, if_exists='append', index=False)
         print(f"Data exported to SQLite table '{table_name}' in {db_path}")
-    
+
     def export_to_postgres(self, df, connection_string, table_name='emotion_analysis'):
         """Export data to PostgreSQL database."""
         engine = sqlalchemy.create_engine(connection_string)
         df.to_sql(table_name, engine, if_exists='append', index=False)
         print(f"Data exported to PostgreSQL table '{table_name}'")
-    
+
     def get_model_metrics_export(self):
         """Export model performance metrics."""
         try:
             response = requests.get(f"{self.base_url}/metrics")
             response.raise_for_status()
             metrics = response.json()
-            
+
             # Flatten metrics for export
             export_data = {
                 'timestamp': datetime.now().isoformat(),
@@ -764,9 +764,9 @@ class SAMOBrainDataExporter:
                 'requests_per_minute': metrics['server_metrics']['requests_per_minute'],
                 **metrics['emotion_distribution']
             }
-            
+
             return pd.DataFrame([export_data])
-            
+
         except Exception as e:
             print(f"Error exporting metrics: {e}")
             return None
@@ -820,7 +820,7 @@ class ModelFeedbackSystem:
     def __init__(self, base_url="http://localhost:8000"):
         self.base_url = base_url
         self.feedback_data = []
-    
+
     def collect_feedback(self, text, predicted_emotion, user_feedback, confidence=None):
         """Collect user feedback on model predictions."""
         feedback_entry = {
@@ -831,29 +831,29 @@ class ModelFeedbackSystem:
             'confidence': confidence,
             'feedback_type': 'user_correction'
         }
-        
+
         self.feedback_data.append(feedback_entry)
         print(f"Feedback collected: {predicted_emotion} → {user_feedback}")
-        
+
         return feedback_entry
-    
+
     def analyze_feedback_patterns(self):
         """Analyze patterns in user feedback."""
         if not self.feedback_data:
             print("No feedback data available")
             return None
-        
+
         df = pd.DataFrame(self.feedback_data)
-        
+
         # Calculate accuracy metrics
         correct_predictions = df[df['predicted_emotion'] == df['user_feedback']]
         accuracy = len(correct_predictions) / len(df)
-        
+
         # Analyze by emotion
         emotion_accuracy = df.groupby('predicted_emotion').apply(
             lambda x: (x['predicted_emotion'] == x['user_feedback']).mean()
         )
-        
+
         # Analyze by confidence level
         if 'confidence' in df.columns:
             df['confidence_bin'] = pd.cut(df['confidence'], bins=5)
@@ -862,7 +862,7 @@ class ModelFeedbackSystem:
             )
         else:
             confidence_accuracy = None
-        
+
         analysis_report = {
             'total_feedback': len(df),
             'overall_accuracy': accuracy,
@@ -871,20 +871,20 @@ class ModelFeedbackSystem:
             'most_corrected_emotions': df[df['predicted_emotion'] != df['user_feedback']]['predicted_emotion'].value_counts().to_dict(),
             'most_common_corrections': df[df['predicted_emotion'] != df['user_feedback']]['user_feedback'].value_counts().to_dict()
         }
-        
+
         return analysis_report
-    
+
     def generate_retraining_recommendations(self, analysis_report):
         """Generate recommendations for model retraining."""
         recommendations = []
-        
+
         if analysis_report['overall_accuracy'] < 0.8:
             recommendations.append({
                 'type': 'retrain',
                 'priority': 'high',
                 'reason': f"Overall accuracy ({analysis_report['overall_accuracy']:.1%}) below 80% threshold"
             })
-        
+
         # Check for specific emotion issues
         for emotion, accuracy in analysis_report['emotion_accuracy'].items():
             if accuracy < 0.7:
@@ -893,7 +893,7 @@ class ModelFeedbackSystem:
                     'priority': 'medium',
                     'reason': f"Low accuracy for '{emotion}' emotion ({accuracy:.1%})"
                 })
-        
+
         # Check for confidence issues
         if analysis_report['confidence_accuracy']:
             low_confidence_accuracy = min(analysis_report['confidence_accuracy'].values())
@@ -903,15 +903,15 @@ class ModelFeedbackSystem:
                     'priority': 'medium',
                     'reason': f"Low accuracy for high-confidence predictions ({low_confidence_accuracy:.1%})"
                 })
-        
+
         return recommendations
-    
+
     def export_feedback_data(self, filename):
         """Export feedback data for analysis."""
         df = pd.DataFrame(self.feedback_data)
         df.to_csv(filename, index=False)
         print(f"Feedback data exported to {filename}")
-    
+
     def load_feedback_data(self, filename):
         """Load feedback data from file."""
         df = pd.read_csv(filename)
@@ -969,4 +969,4 @@ feedback_system.export_feedback_data('user_feedback.csv')
 
 ---
 
-**Ready to dive deep into emotion analytics?** Start with the [Quick Start](#-quick-start-5-minutes) section above! 📊🔬 
+**Ready to dive deep into emotion analytics?** Start with the [Quick Start](#-quick-start-5-minutes) section above! 📊🔬

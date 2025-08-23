@@ -9,6 +9,7 @@ features from the original working notebook while fixing the technical issues.
 
 import json
 
+
 def create_comprehensive_notebook():
     """Create a comprehensive notebook with all advanced features."""
 
@@ -58,7 +59,7 @@ def create_comprehensive_notebook():
                          TrainingArguments,
                          Trainer,
                          DataCollatorWithPadding\n",
-                        
+
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.metrics import                    "from sklearn.metrics import classification_report,
                          confusion_matrix,
@@ -66,7 +67,7 @@ def create_comprehensive_notebook():
                          accuracy_score,
                          precision_score,
                          recall_score\n",
-                        
+
                     "from sklearn.utils.class_weight import compute_class_weight\n",
                     "import json\n",
                     "import warnings\n",

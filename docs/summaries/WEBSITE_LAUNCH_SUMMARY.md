@@ -136,4 +136,4 @@ The SAMO-DL website successfully presents a production-ready emotion detection A
 4. **Technical Excellence**: Production deployment with monitoring
 5. **Portfolio Ready**: Perfect for professional presentation
 
-This website effectively showcases the technical capabilities, production experience, and professional presentation skills that make SAMO-DL an excellent portfolio project. 
+This website effectively showcases the technical capabilities, production experience, and professional presentation skills that make SAMO-DL an excellent portfolio project.

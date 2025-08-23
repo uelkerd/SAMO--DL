@@ -1,25 +1,27 @@
-        # Apply sigmoid to get probabilities
-        # Apply threshold
-        # Calculate F1 manually
-        # Check if any samples have zero predictions
-        # Check what type of output we get
-        # Convert to numpy for metrics calculation
-        # Count expected predictions
-        # Get model output
-        # Test threshold application
-    # Get one batch from validation data
-    # Initialize trainer
-    # Load model
-    # Move to device
-    # Run model inference
-    # Unpack batch data
+# Apply sigmoid to get probabilities
+# Apply threshold
+# Calculate F1 manually
+# Check if any samples have zero predictions
+# Check what type of output we get
+# Convert to numpy for metrics calculation
+# Count expected predictions
+# Get model output
+# Test threshold application
+# Get one batch from validation data
+# Initialize trainer
+# Load model
+# Move to device
+# Run model inference
+# Unpack batch data
 # Add src to path
 #!/usr/bin/env python3
 import logging
 import sys
+from pathlib import Path
+
 import numpy as np
 import torch
-from pathlib import Path
+
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 """
@@ -73,10 +75,14 @@ def test_direct_evaluation():
 
         logger.info("📊 Model output type: {type(model_output)}")
 
-        logits = model_output["logits"] if isinstance(model_output, dict) else model_output
+        logits = (
+            model_output["logits"] if isinstance(model_output, dict) else model_output
+        )
 
         logger.info("📊 Logits shape: {logits.shape}")
-        logger.info("📊 Logits min/max: {logits.min().item():.4f}/{logits.max().item():.4f}")
+        logger.info(
+            "📊 Logits min/max: {logits.min().item():.4f}/{logits.max().item():.4f}"
+        )
 
         probabilities = torch.sigmoid(logits)
         logger.info("📊 Probabilities shape: {probabilities.shape}")

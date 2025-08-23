@@ -6,7 +6,8 @@ from typing import Optional
 
 from . import discovery
 from .prepare import prepare_model_for_upload
-from .upload importfrom .upload import setup_huggingface_auth,
+from .uploadimportfrom.upload import setup_huggingface_auth
+
      choose_repository_privacy,
      setup_git_lfs,
      resolve_repo_id,

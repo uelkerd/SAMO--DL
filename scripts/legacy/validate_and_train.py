@@ -1,21 +1,23 @@
-        # Import the validation module
-        # Start training
-        # Training configuration optimized for debugging
+# Import the validation module
+# Start training
+# Training configuration optimized for debugging
 import logging
 import sys
 import time
-        import traceback
-import traceback
-# Add src to path
-    # Ask for user confirmation
-# Configure logging
-    # Step 1: Pre-training validation
-    # Step 2: User confirmation
-    # Step 3: Start training
+
 #!/usr/bin/env python3
 from pathlib import Path
-        from pre_training_validation import PreTrainingValidator
-        from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
+
+from pre_training_validation import PreTrainingValidator
+
+from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
+
+# Add src to path
+# Ask for user confirmation
+# Configure logging
+# Step 1: Pre-training validation
+# Step 2: User confirmation
+# Step 3: Start training
 
 """
 Validate and Train Script for SAMO Deep Learning.
@@ -29,7 +31,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout), logging.FileHandler("training_session.log")],
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler("training_session.log"),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -47,7 +52,7 @@ def run_pre_training_validation():
 
         return all_passed, validator.critical_issues, validator.warnings
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Pre-training validation failed: {e}")
         return False, ["Validation error: {e}"], []
 
@@ -81,7 +86,7 @@ def run_training_with_debugging():
 
         return True, results
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Training failed: {e}")
         logger.error("Traceback: {traceback.format_exc()}")
         return False, None
@@ -108,7 +113,9 @@ def main():
             for i, warning in enumerate(warnings, 1):
                 logger.warning("   {i}. {warning}")
 
-        logger.error("\n🔧 Please fix all critical issues before running training again.")
+        logger.error(
+            "\n🔧 Please fix all critical issues before running training again."
+        )
         return False
 
     logger.info("\n✅ VALIDATION PASSED!")

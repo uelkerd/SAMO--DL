@@ -1,20 +1,23 @@
-        # Import monitoring components
-        # Initialize monitor
-        # Keep main thread alive
-        # Start monitoring in background thread
+# Import monitoring components
+# Initialize monitor
+# Keep main thread alive
+# Start monitoring in background thread
 import argparse
 import logging
 import sys
 import threading
 import time
-# Add src to path
-    # Check if config file exists
-# Configure logging
-# Constants
-    # Start monitoring system
+
 #!/usr/bin/env python3
 from pathlib import Path
-        from scripts.model_monitoring import ModelHealthMonitor
+
+from scripts.model_monitoring import ModelHealthMonitor
+
+# Add src to path
+# Check if config file exists
+# Configure logging
+# Constants
+# Start monitoring system
 
 """
 Model Monitoring Dashboard Starter
@@ -73,7 +76,7 @@ def start_monitoring_system(config_path: str, port: int) -> None:
             monitor.stop_monitoring()
             logger.info("✅ Monitoring system stopped gracefully")
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Failed to start monitoring system: {e}")
         sys.exit(1)
 
@@ -88,7 +91,10 @@ def main():
         help="Path to monitoring configuration (default: {DEFAULT_CONFIG_PATH})",
     )
     parser.add_argument(
-        "--port", type=int, default=DEFAULT_PORT, help="Dashboard port (default: {DEFAULT_PORT})"
+        "--port",
+        type=int,
+        default=DEFAULT_PORT,
+        help="Dashboard port (default: {DEFAULT_PORT})",
     )
 
     args = parser.parse_args()

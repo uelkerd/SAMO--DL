@@ -61,7 +61,7 @@ command -v python3 >/dev/null 2>&1 || { error "python3 is required but not insta
 # Function to check current deployment status
 check_current_deployment() {
     log "Checking current deployment status..."
-    
+
     # Try different possible service names
     for service_name in "samo-emotion-api" "samo-emotion-api-71517823771" "arch-fixed-test"; do
         if gcloud run services describe "$service_name" --region=us-central1 --format="value(status.url)" 2>/dev/null; then
@@ -71,7 +71,7 @@ check_current_deployment() {
             return 0
         fi
     done
-    
+
     log "No current deployment found"
     return 1
 }
@@ -79,7 +79,7 @@ check_current_deployment() {
 # Function to test current deployment security
 test_current_security() {
     log "Testing current deployment security..."
-    
+
     if check_current_deployment; then
         # Test for security headers
         if curl -s -I "${CURRENT_URL}/health" | grep -q "Content-Security-Policy"; then
@@ -87,7 +87,7 @@ test_current_security() {
         else
             error "Current deployment MISSING security headers"
         fi
-        
+
         # Test for rate limiting
         responses=()
         for i in {1..105}; do
@@ -96,7 +96,7 @@ test_current_security() {
                 -d '{"text":"test"}' 2>/dev/null || echo "000")
             responses+=("${response}")
         done
-        
+
         if [[ " ${responses[@]} " =~ " 429 " ]]; then
             warning "Current deployment has rate limiting"
         else
@@ -110,14 +110,14 @@ main() {
     echo "🚨 CRITICAL SECURITY DEPLOYMENT FIX"
     echo "=================================="
     echo ""
-    
+
     # Check prerequisites
     log "Checking prerequisites..."
     success "All prerequisites met"
-    
+
     # Test current deployment
     test_current_security
-    
+
     echo ""
     warning "WARNING: This will replace your current deployment with a secure version."
     echo "The new deployment will include:"
@@ -128,23 +128,23 @@ main() {
     echo "  ✅ Input sanitization and validation"
     echo "  ✅ Request tracking and logging"
     echo ""
-    
+
     read -p "Do you want to proceed with the security fix? (y/N): " -n 1 -r
     echo
-    
+
     if [[ ! ${REPLY} =~ ^[Yy]$ ]]; then
         log "Security deployment cancelled by user"
         exit 0
     fi
-    
+
     # Set environment variable for admin API key
     export ADMIN_API_KEY="samo-admin-key-2024-secure-$(date +%s)"
     log "Generated admin API key: ${ADMIN_API_KEY}"
-    
+
     # Run the security deployment script
     log "Starting security deployment fix..."
     cd "${PROJECT_ROOT}"
-    
+
     if python3 "$SECURITY_SCRIPT"; then
         success "Security deployment completed successfully!"
         echo ""
@@ -160,14 +160,14 @@ main() {
         echo "🔑 Admin API Key: ${ADMIN_API_KEY}"
         echo "📝 Save this key for admin endpoint access"
         echo ""
-        
+
         # Get new service URL
         NEW_URL=$(gcloud run services describe samo-emotion-api-secure --region=us-central1 --format="value(status.url)" 2>/dev/null || echo "Service not found")
             if [[ "${NEW_URL}" != "Service not found" ]]; then
         echo "🌐 New Secure Service URL: ${NEW_URL}"
             echo ""
             echo "🧪 Testing new deployment..."
-            
+
             # Quick test
             if curl -s "${NEW_URL}/health" | grep -q "healthy"; then
                 success "New deployment is healthy and responding"
@@ -175,7 +175,7 @@ main() {
                 warning "New deployment may have issues - check logs"
             fi
         fi
-        
+
         # Clean up old deployment if it exists
         if [[ -n "${CURRENT_SERVICE_NAME}" ]]; then
             echo ""
@@ -183,7 +183,7 @@ main() {
             gcloud run services delete "${CURRENT_SERVICE_NAME}" --region=us-central1 --quiet 2>/dev/null || true
             success "Old deployment cleaned up"
         fi
-        
+
     else
         error "Security deployment failed!"
         echo ""
@@ -197,4 +197,4 @@ main() {
 }
 
 # Run main function
-main "$@" 
+main "$@"

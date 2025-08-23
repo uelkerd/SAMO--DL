@@ -100,12 +100,12 @@ class DomainAdaptedEmotionClassifier(nn.Module):
         super().__init__()
         self.bert = AutoModel.from_pretrained(model_name)
         self.dropout = nn.Dropout(dropout)
-        
+
         # FIXED: Use dynamic num_labels instead of hardcoded 12
         if num_labels is None:
             num_labels = 12  # Default fallback
         self.num_labels = num_labels
-        
+
         self.classifier = nn.Linear(self.bert.config.hidden_size, num_labels)
         # ... rest of model
 
@@ -370,7 +370,7 @@ If you encounter the `torch.sparse._triton_ops_meta` error:
 
 ---
 
-**Last Updated**: July 31, 2025  
-**Version**: 1.0.0  
-**Status**: All Critical Fixes Applied ✅  
-**Target**: REQ-DL-012 Domain Adaptation Success 🎯 
+**Last Updated**: July 31, 2025
+**Version**: 1.0.0
+**Status**: All Critical Fixes Applied ✅
+**Target**: REQ-DL-012 Domain Adaptation Success 🎯

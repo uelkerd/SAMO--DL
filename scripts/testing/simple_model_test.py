@@ -4,6 +4,7 @@
 import json
 import os
 
+
 def test_model_files():
     """Test if model files exist and are valid."""
     print("🧪 SIMPLE MODEL TEST")

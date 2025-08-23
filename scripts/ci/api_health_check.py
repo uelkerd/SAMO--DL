@@ -12,9 +12,10 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+from pydantic import BaseModel, Field, ValidationError
+
 # Test imports
-from api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
-from pydantic import BaseModel, ValidationError, Field
+from api_rate_limiter import RateLimitConfig, TokenBucketRateLimiter
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

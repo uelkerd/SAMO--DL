@@ -1,12 +1,12 @@
-            # Remove the line containing the unused import
-        # Apply fixes
-    # Add timezone import if needed
-    # Files that need fixing based on the CI errors
-    # Fix datetime.now() calls
-    # Fix exception handlers that don't use the exception variable
-    # Fix other exception patterns
-    # Remove unused imports
-    # Replace hardcoded passwords in tests
+# Remove the line containing the unused import
+# Apply fixes
+# Add timezone import if needed
+# Files that need fixing based on the CI errors
+# Fix datetime.now() calls
+# Fix exception handlers that don't use the exception variable
+# Fix other exception patterns
+# Remove unused imports
+# Replace hardcoded passwords in tests
 #!/usr/bin/env python3
 import logging
 import re
@@ -21,6 +21,7 @@ This script addresses:
 - Hardcoded passwords (S105/S106)
 - Timezone issues (DTZ005)
 """
+
 
 def fix_unused_exception_variables(file_path: Path) -> bool:
     """Fix unused exception variables by using f-strings."""
@@ -47,17 +48,17 @@ def fix_unused_imports(file_path: Path) -> bool:
     original_content = content
 
     unused_imports = [
-        'import time',  # in test files
-        'import pytest',  # in some test files
-        'from unittest.mock import MagicMock',  # in some test files
-        'from unittest.mock import patch',  # in some test files
+        "import time",  # in test files
+        "import pytest",  # in some test files
+        "from unittest.mock import MagicMock",  # in some test files
+        "from unittest.mock import patch",  # in some test files
     ]
 
     for unused_import in unused_imports:
         if unused_import in content:
-            lines = content.split('\n')
+            lines = content.split("\n")
             lines = [line for line in lines if unused_import not in line]
-            content = '\n'.join(lines)
+            content = "\n".join(lines)
 
     if content != original_content:
         file_path.write_text(content)
@@ -89,19 +90,18 @@ def fix_timezone_issues(file_path: Path) -> bool:
     content = file_path.read_text()
     original_content = content
 
-    if 'datetime.now()' in content and 'from datetime import timezone' not in content:
-        if 'from datetime import datetime' in content:
+    if "datetime.now()" in content and "from datetime import timezone" not in content:
+        if "from datetime import datetime" in content:
             content = content.replace(
-                'from datetime import datetime',
-                'from datetime import datetime, timezone'
+                "from datetime import datetime",
+                "from datetime import datetime, timezone",
             )
-        elif 'import datetime' in content:
+        elif "import datetime" in content:
             content = content.replace(
-                'import datetime',
-                'import datetime\nfrom datetime import timezone'
+                "import datetime", "import datetime\nfrom datetime import timezone"
             )
 
-    content = content.replace('datetime.now()', 'datetime.now(timezone.utc)')
+    content = content.replace("datetime.now()", "datetime.now(timezone.utc)")
 
     if content != original_content:
         file_path.write_text(content)

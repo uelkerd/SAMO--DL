@@ -1,12 +1,12 @@
-        # Add hour/minute/second for more realistic timestamps
-        # Create the entry
-        # Generate a random date within the range
-        # Randomly select user_id
-    # Convert datetime objects to strings for JSON serialization
-    # Convert string dates back to datetime
-    # Ensure output directory exists
-    # Generate 100 entries from 5 users over the past 60 days
-    # Save to data/raw directory
+# Add hour/minute/second for more realistic timestamps
+# Create the entry
+# Generate a random date within the range
+# Randomly select user_id
+# Convert datetime objects to strings for JSON serialization
+# Convert string dates back to datetime
+# Ensure output directory exists
+# Generate 100 entries from 5 users over the past 60 days
+# Save to data/raw directory
 # Additional sentences to add variety
 # Emotion categories for entries
 # Sample topics to generate journal entries about
@@ -14,13 +14,11 @@
 # Title templates
 import json
 import random
-import pandas as pd
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-
-
+import pandas as pd
 
 TOPICS = [
     "work",
@@ -141,7 +139,9 @@ def generate_content(topic: str, emotion: str) -> str:
     """Generate journal entry content."""
     template = random.choice(ENTRY_TEMPLATES)
     base_sentence = random.choice(ADDITIONAL_SENTENCES)
-    content = template.format(topic=topic, emotion=emotion, additional_sentence=base_sentence)
+    content = template.format(
+        topic=topic, emotion=emotion, additional_sentence=base_sentence
+    )
 
     # Add more complexity with a chance of a second or third sentence
     if random.random() > 0.4:  # 60% chance of adding more detail
@@ -150,7 +150,10 @@ def generate_content(topic: str, emotion: str) -> str:
         content += f" {random.choice(REFLECTION_TEMPLATES)}"
     return content
 
-def generate_entry(user_id: int, created_at: datetime, id_start: int = 1) -> Dict[str, Any]:
+
+def generate_entry(
+    user_id: int, created_at: datetime, id_start: int = 1
+) -> Dict[str, Any]:
     """Generate a single journal entry."""
     topic = random.choice(TOPICS)
     emotion = random.choice(EMOTIONS)

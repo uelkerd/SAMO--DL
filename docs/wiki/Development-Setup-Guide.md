@@ -576,4 +576,4 @@ pytest tests/unit/test_specific.py::test_function -v -s
 
 ---
 
-**Ready to start developing?** Follow the [Quick Setup](#-quick-setup-10-minutes) above and join our development community! 🚀👨‍💻 
+**Ready to start developing?** Follow the [Quick Setup](#-quick-setup-10-minutes) above and join our development community! 🚀👨‍💻

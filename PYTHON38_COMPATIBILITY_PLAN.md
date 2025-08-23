@@ -13,7 +13,7 @@ This branch focuses **exclusively** on fixing Python 3.8 compatibility issues th
 
 ### **2. Files with Issues:**
 - `src/api_rate_limiter.py` - ✅ **FIXED**
-- `src/security/jwt_manager.py` - ✅ **FIXED**  
+- `src/security/jwt_manager.py` - ✅ **FIXED**
 - `src/unified_ai_api.py` - ✅ **FIXED**
 - `requirements-dev.txt` - ✅ **FIXED** (Flask dependency for legacy tests)
 

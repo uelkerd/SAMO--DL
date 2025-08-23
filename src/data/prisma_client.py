@@ -1,8 +1,8 @@
-            # Clean up the temporary file
-            # Execute the script
-            # Parse the output
-        # Create a temporary JS file
-        # Ensure we return a list, even if the result is a single dict
+# Clean up the temporary file
+# Execute the script
+# Parse the output
+# Create a temporary JS file
+# Ensure we return a list, even if the result is a single dict
 import json
 import subprocess
 from pathlib import Path
@@ -14,6 +14,7 @@ This module provides functions to interact with the Prisma client via subprocess
 
 It's a simple wrapper that allows Python code to execute Prisma commands.
 """
+
 
 class PrismaClient:
     """A simple wrapper class for Prisma client operations.
@@ -36,7 +37,8 @@ class PrismaClient:
             Exception: If the script execution fails
         """
         with Path("temp_prisma_script.js").open("w") as f:
-            f.write("""
+            f.write(
+                """
 const {{ PrismaClient }} = require('@prisma/client');
 const prisma = new PrismaClient();
 
@@ -56,7 +58,8 @@ async function main() {{
 }}
 
 main();
-""")
+"""
+            )
 
         try:
             result = subprocess.run(
@@ -150,7 +153,9 @@ main();
         result = self.execute_prisma_command(script)
         return result if result else None
 
-    def get_journal_entries_by_user(self, user_id: str, limit: int = 10) -> List[Dict[str, Any]]:
+    def get_journal_entries_by_user(
+        self, user_id: str, limit: int = 10
+    ) -> List[Dict[str, Any]]:
         """Get journal entries for a specific user.
 
         Args:

@@ -40,7 +40,7 @@ run_in_conda:
 
 ### **All `run_in_conda` Usages Updated**
 - ✅ Pre-warm Models
-- ✅ Ruff Linting  
+- ✅ Ruff Linting
 - ✅ Ruff Formatting Check
 - ✅ Type Checking (MyPy)
 - ✅ Bandit Security Scan
@@ -88,7 +88,7 @@ run_in_conda:
 
 3. **Test Pipeline Stages**
    - Stage 1: Linting and unit tests (<3 minutes)
-   - Stage 2: Integration and security tests (<8 minutes)  
+   - Stage 2: Integration and security tests (<8 minutes)
    - Stage 3: E2E tests and performance (<15 minutes)
 
 ## 📝 Documentation Updated
@@ -102,7 +102,7 @@ run_in_conda:
 ### **CircleCI Parameter Restrictions**
 CircleCI reserves these parameter names and they cannot be used in custom command definitions:
 - `name`
-- `command` 
+- `command`
 - `shell`
 - `environment`
 - `working_directory`
@@ -120,4 +120,4 @@ CircleCI reserves these parameter names and they cannot be used in custom comman
 
 **Status**: ✅ **CRITICAL FIX COMPLETE** - Ready for testing
 **Priority**: 🔴 **HIGH** - Blocking all CI/CD operations
-**Next Action**: Push changes and monitor CircleCI pipeline 
+**Next Action**: Push changes and monitor CircleCI pipeline

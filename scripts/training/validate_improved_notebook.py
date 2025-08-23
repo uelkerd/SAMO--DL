@@ -4,6 +4,7 @@ and ensures it's ready for Colab execution."""
 
 import json
 
+
 def validate_notebook():
     """Validate the improved notebook for Colab execution."""
 

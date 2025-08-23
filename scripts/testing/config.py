@@ -4,9 +4,10 @@ provides consistent configuration across all test scripts."""
 
 import argparse
 import os
-import requests
 import time
 from typing import Optional
+
+import requests
 
 
 class TestConfig:
@@ -22,7 +23,7 @@ class TestConfig:
     def _get_base_url() -> str:
         """Get base URL with priority: CLI args > env vars > explicit configuration."""
         # Check command line arguments first
-        if len(os.sys.argv) > 1 and os.sys.argv[1].startswith('http'):
+        if len(os.sys.argv) > 1 and os.sys.argv[1].startswith("http"):
             return os.sys.argv[1]
 
         # Check multiple environment variables for flexibility
@@ -62,7 +63,7 @@ class TestConfig:
         """Get request headers with optional authentication."""
         headers = {
             "Content-Type": "application/json",
-            "User-Agent": "SAMO-Testing-Suite/1.0"
+            "User-Agent": "SAMO-Testing-Suite/1.0",
         }
 
         if include_auth:
@@ -74,25 +75,19 @@ class TestConfig:
         """Get argument parser with common options."""
         parser = argparse.ArgumentParser(description=description)
         parser.add_argument(
-            "--base-url",
-            default=self.base_url,
-            help="Base URL of the API to test"
+            "--base-url", default=self.base_url, help="Base URL of the API to test"
         )
         parser.add_argument(
             "--timeout",
             type=int,
             default=self.timeout,
-            help="Request timeout in seconds"
+            help="Request timeout in seconds",
         )
         parser.add_argument(
-            "--no-auth",
-            action="store_true",
-            help="Skip authentication headers"
+            "--no-auth", action="store_true", help="Skip authentication headers"
         )
         parser.add_argument(
-            "--verbose",
-            action="store_true",
-            help="Enable verbose output"
+            "--verbose", action="store_true", help="Enable verbose output"
         )
         return parser
 
@@ -137,13 +132,13 @@ class APIClient:
     def get(self, endpoint: str, **kwargs) -> requests.Response:
         """Make GET request with common configuration."""
         url = f"{self.base_url}{endpoint}"
-        headers = {**self.headers, **kwargs.get('headers', {})}
+        headers = {**self.headers, **kwargs.get("headers", {})}
         return self.session.get(url, headers=headers, timeout=self.timeout, **kwargs)
 
     def post(self, endpoint: str, json_data: dict, **kwargs) -> requests.Response:
         """Make POST request with common configuration."""
         url = f"{self.base_url}{endpoint}"
-        headers = {**self.headers, **kwargs.get('headers', {})}
+        headers = {**self.headers, **kwargs.get("headers", {})}
         return self.session.post(
             url,
             json=json_data,
@@ -160,14 +155,14 @@ class APIClient:
                 "success": response.status_code == 200,
                 "status_code": response.status_code,
                 "data": response.json() if response.status_code == 200 else None,
-                "error": response.text if response.status_code != 200 else None
+                "error": response.text if response.status_code != 200 else None,
             }
         except Exception as e:
             return {
                 "success": False,
                 "status_code": None,
                 "data": None,
-                "error": str(e)
+                "error": str(e),
             }
 
     def test_prediction(self, text: str) -> dict:
@@ -178,14 +173,14 @@ class APIClient:
                 "success": response.status_code == 200,
                 "status_code": response.status_code,
                 "data": response.json() if response.status_code == 200 else None,
-                "error": response.text if response.status_code != 200 else None
+                "error": response.text if response.status_code != 200 else None,
             }
         except Exception as e:
             return {
                 "success": False,
                 "status_code": None,
                 "data": None,
-                "error": str(e)
+                "error": str(e),
             }
 
     def test_batch_prediction(self, texts: list) -> dict:
@@ -196,12 +191,12 @@ class APIClient:
                 "success": response.status_code == 200,
                 "status_code": response.status_code,
                 "data": response.json() if response.status_code == 200 else None,
-                "error": response.text if response.status_code != 200 else None
+                "error": response.text if response.status_code != 200 else None,
             }
         except Exception as e:
             return {
                 "success": False,
                 "status_code": None,
                 "data": None,
-                "error": str(e)
+                "error": str(e),
             }

@@ -1,16 +1,18 @@
-    # Scenario 1: Normal case
-    # Scenario 2: All zeros
-    # Scenario 3: All ones
-    # Scenario 4: Perfect predictions
-    # Scenario 5: Very small logits
+# Scenario 1: Normal case
+# Scenario 2: All zeros
+# Scenario 3: All ones
+# Scenario 4: Perfect predictions
+# Scenario 5: Very small logits
 #!/usr/bin/env python3
 import logging
+
 import torch
 import torch.nn.functional as F
 
 """
 Simple Test Script for Loss Debugging
 """
+
 
 def test_bce_loss():
     """Test BCE loss with different scenarios."""
@@ -45,6 +47,7 @@ def test_bce_loss():
 
     F.binary_cross_entropy_with_logits(logits, labels)
     logging.info("Small logits - Loss: {loss.item():.6f}")
+
 
 if __name__ == "__main__":
     test_bce_loss()

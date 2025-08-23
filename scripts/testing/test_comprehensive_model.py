@@ -9,9 +9,11 @@ and compares it with the fallback model to verify the improvements.
 
 import json
 import os
-import torch
 from datetime import datetime
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+import torch
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
 
 def test_comprehensive_model():
     """Test the comprehensive model thoroughly."""

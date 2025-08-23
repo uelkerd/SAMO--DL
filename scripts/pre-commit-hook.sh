@@ -22,7 +22,7 @@ while IFS= read -r file; do
     if [ -f "$file" ]; then
         # Get file size (portable method)
         size=$(wc -c < "$file" | tr -d '[:space:]')
-        
+
         if [ "$size" -gt "$MAX_SIZE" ]; then
             human_size=$(command -v numfmt >/dev/null && numfmt --to=iec "$size" || echo "${size}B")
             echo -e "${RED}❌ ERROR: $file is larger than 1MB ($human_size)${NC}"
@@ -83,4 +83,4 @@ echo "💡 Tips to prevent repository bloat:"
 echo "- Keep branches focused on single features"
 echo "- Regularly check repository size: git count-objects -vH"
 echo "- Use .gitignore to exclude model artifacts"
-echo "- Consider git-lfs for large files that must be tracked" 
+echo "- Consider git-lfs for large files that must be tracked"

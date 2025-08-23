@@ -8,6 +8,7 @@ This fixes the duplicate data issue that caused model collapse.
 
 import json
 
+
 def create_fixed_bulletproof_notebook():
     """Create the fixed bulletproof notebook content."""
 
@@ -64,7 +65,7 @@ def create_fixed_bulletproof_notebook():
                         "from sklearn.metrics import                        "from sklearn.metrics import f1_score,
                              accuracy_score,
                              classification_report\n",
-                            
+
                         "import warnings\n",
                         "warnings.filterwarnings('ignore')\n",
                         "\n",

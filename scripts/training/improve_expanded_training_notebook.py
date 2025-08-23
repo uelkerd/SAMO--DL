@@ -5,6 +5,7 @@ performance enhancements."""
 import json
 import re
 
+
 def improve_notebook():
     """Improve the expanded training notebook with enhancements."""
 

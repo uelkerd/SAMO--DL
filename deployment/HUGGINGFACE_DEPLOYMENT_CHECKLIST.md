@@ -6,9 +6,9 @@ Based on practical deployment recommendations for DistilBERT emotion models.
 
 ### 📁 Required Files
 - [ ] **Model file**: `model.safetensors` (preferred) or `pytorch_model.bin`
-- [ ] **Config**: `config.json` with proper `id2label`/`label2id` mappings  
+- [ ] **Config**: `config.json` with proper `id2label`/`label2id` mappings
 - [ ] **Tokenizer files**:
-  - [ ] `tokenizer.json` 
+  - [ ] `tokenizer.json`
   - [ ] `tokenizer_config.json`
   - [ ] Vocabulary files (if needed)
 - [ ] **README.md** with proper metadata
@@ -25,7 +25,7 @@ labels: ["anxious", "calm", "content", "excited", "frustrated", "grateful", "hap
 # Track large files (>100MB)
 git lfs track "*.bin"
 git lfs track "*.safetensors"
-git lfs track "*.onnx" 
+git lfs track "*.onnx"
 git lfs track "*.pkl"
 git lfs track "*.pth"
 ```
@@ -35,7 +35,7 @@ git lfs track "*.pth"
 ### 📊 Public Repository (Recommended Start)
 **Choose if:**
 - [ ] Content is general emotion analysis
-- [ ] No sensitive/health data involved  
+- [ ] No sensitive/health data involved
 - [ ] Want completely free hosting
 - [ ] Easy integration and sharing
 
@@ -45,7 +45,7 @@ git lfs track "*.pth"
 - ✅ Better community discovery
 
 ### 🔒 Private Repository
-**Choose if:** 
+**Choose if:**
 - [ ] Journal content includes mental health data
 - [ ] Therapy/counseling applications
 - [ ] PII (personally identifiable information)
@@ -77,12 +77,12 @@ git lfs track "*.pth"
 
 **Benefits:**
 - ✅ No cold starts
-- ✅ Consistent latency  
+- ✅ Consistent latency
 - ✅ VPC options for security
 - ✅ Custom containers if needed
 
 **Costs:**
-- 💰 CPU: ~$0.06-0.24/hour  
+- 💰 CPU: ~$0.06-0.24/hour
 - 💰 GPU: ~$0.60-1.20/hour
 
 ### 🏠 Enterprise: Self-Hosted
@@ -91,7 +91,7 @@ git lfs track "*.pth"
 **Choose when:**
 - [ ] Strict data residency requirements
 - [ ] Custom inference optimizations needed
-- [ ] High volume makes endpoints expensive  
+- [ ] High volume makes endpoints expensive
 - [ ] Complete control over infrastructure
 
 ## Common Pitfalls Checklist
@@ -102,7 +102,7 @@ git lfs track "*.pth"
 - [ ] **Large weights without LFS** → Push failures
 - [ ] **Wrong label mappings** → Client-side mapping breaks
 
-### ❌ Runtime Issues  
+### ❌ Runtime Issues
 - [ ] **Token not set** → Authentication failures
 - [ ] **Wrong endpoint URL** → 404 errors
 - [ ] **Expecting wrong output format** → Parsing failures
@@ -121,7 +121,7 @@ headers = {"Authorization": f"Bearer {os.getenv('HF_TOKEN')}"}
 # Test cases
 test_cases = [
     "I felt calm after writing it all down.",
-    "I am frustrated but hopeful.", 
+    "I am frustrated but hopeful.",
     "Today was overwhelming but I'm proud of getting through it.",
     ""  # Edge case: empty input
 ]
@@ -143,7 +143,7 @@ for text in test_cases:
     "score": 0.8234
   },
   {
-    "label": "hopeful", 
+    "label": "hopeful",
     "score": 0.1123
   }
 ]
@@ -177,7 +177,7 @@ export HF_TOKEN='hf_your_token_here'
 
 ### 📈 Key Metrics to Track
 - [ ] **Response time** (p50, p95, p99)
-- [ ] **Error rate** (4xx, 5xx responses) 
+- [ ] **Error rate** (4xx, 5xx responses)
 - [ ] **Cold start frequency** (Serverless only)
 - [ ] **Token usage** (if rate-limited)
 - [ ] **Prediction accuracy** (spot-check results)
@@ -218,7 +218,7 @@ def health_check():
 
 ### 🚀 Pre-Launch (Final Steps)
 - [ ] Model uploaded and validated
-- [ ] Test with actual journal entries  
+- [ ] Test with actual journal entries
 - [ ] Error handling implemented
 - [ ] Monitoring set up
 - [ ] Security tokens configured
@@ -255,7 +255,7 @@ def health_check():
 
 Before going live, ensure:
 - [ ] ✅ All files validated and uploaded
-- [ ] ✅ Privacy settings match data sensitivity  
+- [ ] ✅ Privacy settings match data sensitivity
 - [ ] ✅ Test API calls return expected format
 - [ ] ✅ Error handling works properly
 - [ ] ✅ Monitoring is active

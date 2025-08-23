@@ -15,6 +15,7 @@ Strategy:
 
 import json
 import warnings
+
 )
     AutoModelForSequenceClassification,
     AutoTokenizer,
@@ -24,13 +25,12 @@ import warnings
 warnings.filterwarnings('ignore')
 import numpy as np
 import torch
-from sklearn.metrics import f1_score, accuracy_score
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from torch.utils.data import Dataset
-from transformers import (
+from transformers import CMU-MOSEI", COMBINED, FINAL, JOURNAL, TRAINING, "🚀, +, -, print
 
-print("🚀 FINAL COMBINED TRAINING - JOURNAL + CMU-MOSEI")
 print("=" * 60)
 
 def load_combined_dataset():

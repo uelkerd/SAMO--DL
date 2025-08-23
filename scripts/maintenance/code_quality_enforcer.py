@@ -23,12 +23,11 @@ import logging
 import re
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -43,96 +42,100 @@ class CodeQualityEnforcer:
 
         # Define quality rules
         self.rules = {
-            'PYL-R1705': {
-                'name': 'Unnecessary else/elif after return',
-                'severity': 'error',
-                'description': 'Remove unnecessary else/elif after return statements'
+            "PYL-R1705": {
+                "name": "Unnecessary else/elif after return",
+                "severity": "error",
+                "description": "Remove unnecessary else/elif after return statements",
             },
-            'PTC-W0027': {
-                'name': 'f-string without expressions',
-                'severity': 'warning',
-                'description': (
-                    'Use regular strings instead of f-strings without expressions'
-                )
+            "PTC-W0027": {
+                "name": "f-string without expressions",
+                "severity": "warning",
+                "description": (
+                    "Use regular strings instead of f-strings without expressions"
+                ),
             },
-            'PY-W2000': {
-                'name': 'Unused imports',
-                'severity': 'warning',
-                'description': 'Remove unused imports'
+            "PY-W2000": {
+                "name": "Unused imports",
+                "severity": "warning",
+                "description": "Remove unused imports",
             },
-            'FLK-E128': {
-                'name': 'Continuation line indentation',
-                'severity': 'error',
-                'description': 'Fix continuation line indentation for visual indent'
+            "FLK-E128": {
+                "name": "Continuation line indentation",
+                "severity": "error",
+                "description": "Fix continuation line indentation for visual indent",
             },
-            'FLK-E301': {
-                'name': 'Missing blank lines',
-                'severity': 'error',
-                'description': 'Add blank lines between class methods'
+            "FLK-E301": {
+                "name": "Missing blank lines",
+                "severity": "error",
+                "description": "Add blank lines between class methods",
             },
-            'FLK-E501': {
-                'name': 'Line too long',
-                'severity': 'error',
-                'description': 'Break long lines to stay within 88 character limit'
+            "FLK-E501": {
+                "name": "Line too long",
+                "severity": "error",
+                "description": "Break long lines to stay within 88 character limit",
             },
-            'FLK-W291': {
-                'name': 'Trailing whitespace',
-                'severity': 'error',
-                'description': 'Remove trailing whitespace'
+            "FLK-W291": {
+                "name": "Trailing whitespace",
+                "severity": "error",
+                "description": "Remove trailing whitespace",
             },
-            'FLK-W292': {
-                'name': 'Missing newline at end of file',
-                'severity': 'error',
-                'description': 'Add newline at end of file'
+            "FLK-W292": {
+                "name": "Missing newline at end of file",
+                "severity": "error",
+                "description": "Add newline at end of file",
             },
-            'FLK-W293': {
-                'name': 'Blank line contains whitespace',
-                'severity': 'error',
-                'description': 'Remove whitespace from blank lines'
+            "FLK-W293": {
+                "name": "Blank line contains whitespace",
+                "severity": "error",
+                "description": "Remove whitespace from blank lines",
             },
-            'FLK-W505': {
-                'name': 'Doc line too long',
-                'severity': 'warning',
-                'description': 'Break long docstring lines'
+            "FLK-W505": {
+                "name": "Doc line too long",
+                "severity": "warning",
+                "description": "Break long docstring lines",
             },
-            'PY-D0003': {
-                'name': 'Missing docstring',
-                'severity': 'warning',
-                'description': 'Add docstrings to functions and classes'
+            "PY-D0003": {
+                "name": "Missing docstring",
+                "severity": "warning",
+                "description": "Add docstrings to functions and classes",
             },
-            'PY-R1000': {
-                'name': 'High cyclomatic complexity',
-                'severity': 'warning',
-                'description': 'Refactor complex functions to reduce complexity'
-            }
+            "PY-R1000": {
+                "name": "High cyclomatic complexity",
+                "severity": "warning",
+                "description": "Refactor complex functions to reduce complexity",
+            },
         }
 
     def check_file(self, file_path: Path) -> List[Dict[str, Any]]:
         """Check a single Python file for quality issues."""
         # Validate file path for security
         if not self._is_safe_file_path(file_path):
-            return [{
-                'rule': 'SECURITY',
-                'line': 0,
-                'message': 'Unsafe file path detected',
-                'severity': 'error'
-            }]
+            return [
+                {
+                    "rule": "SECURITY",
+                    "line": 0,
+                    "message": "Unsafe file path detected",
+                    "severity": "error",
+                }
+            ]
 
         issues = []
 
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
                 lines = content.splitlines()
 
             # Check for missing newline at end of file
-            if content and not content.endswith('\n'):
-                issues.append({
-                    'rule': 'FLK-W292',
-                    'line': len(lines),
-                    'message': 'Missing newline at end of file',
-                    'severity': 'error'
-                })
+            if content and not content.endswith("\n"):
+                issues.append(
+                    {
+                        "rule": "FLK-W292",
+                        "line": len(lines),
+                        "message": "Missing newline at end of file",
+                        "severity": "error",
+                    }
+                )
 
             # Check each line for issues
             for line_num, line in enumerate(lines, 1):
@@ -153,12 +156,14 @@ class CodeQualityEnforcer:
 
         except Exception as e:
             logger.error("Error checking %s: %s", file_path, e)
-            issues.append({
-                'rule': 'ERROR',
-                'line': 0,
-                'message': f'Error reading file: {e}',
-                'severity': 'error'
-            })
+            issues.append(
+                {
+                    "rule": "ERROR",
+                    "line": 0,
+                    "message": f"Error reading file: {e}",
+                    "severity": "error",
+                }
+            )
 
         return issues
 
@@ -169,42 +174,49 @@ class CodeQualityEnforcer:
 
         # Check for trailing whitespace
         if line.rstrip() != line:
-            issues.append({
-                'rule': 'FLK-W291',
-                'line': line_num,
-                'message': 'Trailing whitespace detected',
-                'severity': 'error'
-            })
+            issues.append(
+                {
+                    "rule": "FLK-W291",
+                    "line": line_num,
+                    "message": "Trailing whitespace detected",
+                    "severity": "error",
+                }
+            )
 
         # Check for blank line with whitespace
-        if line.strip() == '' and line != '':
-            issues.append({
-                'rule': 'FLK-W293',
-                'line': line_num,
-                'message': 'Blank line contains whitespace',
-                'severity': 'error'
-            })
+        if line.strip() == "" and line != "":
+            issues.append(
+                {
+                    "rule": "FLK-W293",
+                    "line": line_num,
+                    "message": "Blank line contains whitespace",
+                    "severity": "error",
+                }
+            )
 
         # Check for line length
         if len(line) > 88:
-            issues.append({
-                'rule': 'FLK-E501',
-                'line': line_num,
-                'message': f'Line too long ({len(line)} > 88 characters)',
-                'severity': 'error'
-            })
+            issues.append(
+                {
+                    "rule": "FLK-E501",
+                    "line": line_num,
+                    "message": f"Line too long ({len(line)} > 88 characters)",
+                    "severity": "error",
+                }
+            )
 
         # Check for f-strings without expressions
         if (
-            (line.strip().startswith('f"') or line.strip().startswith('f\''))
-            and not re.search(r'\{[^}]*\}', line)
-        ):
-            issues.append({
-                'rule': 'PTC-W0027',
-                'line': line_num,
-                'message': 'f-string used without expressions',
-                'severity': 'warning'
-            })
+            line.strip().startswith('f"') or line.strip().startswith("f'")
+        ) and not re.search(r"\{[^}]*\}", line):
+            issues.append(
+                {
+                    "rule": "PTC-W0027",
+                    "line": line_num,
+                    "message": "f-string used without expressions",
+                    "severity": "warning",
+                }
+            )
 
         return issues
 
@@ -233,16 +245,17 @@ class CodeQualityEnforcer:
             for node in import_nodes:
                 if isinstance(node, ast.Import):
                     for alias in node.names:
-                        if (
-                            alias.name not in used_names and
-                            not alias.name.startswith('_')
+                        if alias.name not in used_names and not alias.name.startswith(
+                            "_"
                         ):
-                            issues.append({
-                                'rule': 'PY-W2000',
-                                'line': getattr(node, 'lineno', 0),
-                                'message': f'Unused import: {alias.name}',
-                                'severity': 'warning'
-                            })
+                            issues.append(
+                                {
+                                    "rule": "PY-W2000",
+                                    "line": getattr(node, "lineno", 0),
+                                    "message": f"Unused import: {alias.name}",
+                                    "severity": "warning",
+                                }
+                            )
                 elif isinstance(node, ast.ImportFrom):
                     pass
 
@@ -267,15 +280,17 @@ class CodeQualityEnforcer:
                 ):
                     complexity = self._calculate_complexity(node)
                     if complexity > 10:  # Threshold for high complexity
-                        issues.append({
-                            'rule': 'PY-R1000',
-                            'line': getattr(node, 'lineno', 0),
-                            'message': (
-                                "Function/class has high cyclomatic complexity "
-                                f'({complexity})'
-                            ),
-                            'severity': 'warning'
-                        })
+                        issues.append(
+                            {
+                                "rule": "PY-R1000",
+                                "line": getattr(node, "lineno", 0),
+                                "message": (
+                                    "Function/class has high cyclomatic complexity "
+                                    f"({complexity})"
+                                ),
+                                "severity": "warning",
+                            }
+                        )
 
         except SyntaxError:
             # File has syntax errors, skip complexity analysis
@@ -289,15 +304,19 @@ class CodeQualityEnforcer:
         complexity = 1  # Base complexity
 
         for child in ast.walk(node):
-            if isinstance(child, (ast.If, ast.While, ast.For, ast.AsyncFor)):
-                complexity += 1
-            elif isinstance(child, ast.ExceptHandler):
-                complexity += 1
-            elif isinstance(child, ast.With):
-                complexity += 1
-            elif isinstance(child, ast.Assert):
-                complexity += 1
-            elif isinstance(child, ast.Return):
+            if isinstance(
+                child,
+                (
+                    ast.Assert,
+                    ast.AsyncFor,
+                    ast.ExceptHandler,
+                    ast.For,
+                    ast.If,
+                    ast.Return,
+                    ast.While,
+                    ast.With,
+                ),
+            ):
                 complexity += 1
 
         return complexity
@@ -315,12 +334,14 @@ class CodeQualityEnforcer:
                 if isinstance(node, ast.If):
                     # Check if this if statement has a return and unnecessary else
                     if self._has_unnecessary_else(node):
-                        issues.append({
-                            'rule': 'PYL-R1705',
-                            'line': getattr(node, 'lineno', 0),
-                            'message': 'Unnecessary else/elif after return',
-                            'severity': 'error'
-                        })
+                        issues.append(
+                            {
+                                "rule": "PYL-R1705",
+                                "line": getattr(node, "lineno", 0),
+                                "message": "Unnecessary else/elif after return",
+                                "severity": "error",
+                            }
+                        )
 
         except SyntaxError:
             # File has syntax errors, skip control flow analysis
@@ -334,7 +355,7 @@ class CodeQualityEnforcer:
         has_return_in_if = self._contains_return(node.body)
 
         # Check if there's an else clause
-        if hasattr(node, 'orelse') and node.orelse:
+        if hasattr(node, "orelse") and node.orelse:
             # Check if the else clause is just another if (elif)
             if len(node.orelse) == 1 and isinstance(node.orelse[0], ast.If):
                 return self._has_unnecessary_else(node.orelse[0])
@@ -359,10 +380,15 @@ class CodeQualityEnforcer:
             # Check if path contains suspicious patterns
             path_str = str(resolved_path)
             suspicious_patterns = [
-                '..',  # Path traversal
-                '~',   # Home directory
-                '/etc', '/var', '/usr', '/bin', '/sbin',  # System directories
-                'C:\\', 'D:\\',  # Windows system drives
+                "..",  # Path traversal
+                "~",  # Home directory
+                "/etc",
+                "/var",
+                "/usr",
+                "/bin",
+                "/sbin",  # System directories
+                "C:\\",
+                "D:\\",  # Windows system drives
             ]
 
             for pattern in suspicious_patterns:
@@ -370,7 +396,7 @@ class CodeQualityEnforcer:
                     return False
 
             # Ensure it's a Python file
-            if not path_str.endswith('.py'):
+            if not path_str.endswith(".py"):
                 return False
 
             return True
@@ -389,11 +415,27 @@ class CodeQualityEnforcer:
 
         for file_path in python_files:
             # Skip certain directories
-            if any(part in str(file_path) for part in [
-                '__pycache__', '.git', '.venv', '.env', 'build', 'dist',
-                '.eggs', '.tox', '.coverage', 'htmlcov', '.cache',
-                '.logs', 'results', 'samples', 'notebooks', 'website'
-            ]):
+            if any(
+                part in str(file_path)
+                for part in [
+                    "__pycache__",
+                    ".git",
+                    ".venv",
+                    ".env",
+                    "build",
+                    "dist",
+                    ".eggs",
+                    ".tox",
+                    ".coverage",
+                    "htmlcov",
+                    ".cache",
+                    ".logs",
+                    "results",
+                    "samples",
+                    "notebooks",
+                    "website",
+                ]
+            ):
                 continue
 
             logger.info("Checking: %s", file_path)
@@ -404,21 +446,23 @@ class CodeQualityEnforcer:
                 total_issues += len(issues)
 
                 for issue in issues:
-                    self.issues_found.append({
-                        'file': str(file_path),
-                        'line': issue['line'],
-                        'rule': issue['rule'],
-                        'message': issue['message'],
-                        'severity': issue['severity']
-                    })
+                    self.issues_found.append(
+                        {
+                            "file": str(file_path),
+                            "line": issue["line"],
+                            "rule": issue["rule"],
+                            "message": issue["message"],
+                            "severity": issue["severity"],
+                        }
+                    )
 
             self.files_checked += 1
 
         return {
-            'files_checked': self.files_checked,
-            'files_with_issues': self.files_with_issues,
-            'total_issues': total_issues,
-            'issues': self.issues_found
+            "files_checked": self.files_checked,
+            "files_with_issues": self.files_with_issues,
+            "total_issues": total_issues,
+            "issues": self.issues_found,
         }
 
     def generate_report(self) -> str:
@@ -429,7 +473,7 @@ class CodeQualityEnforcer:
         # Group issues by rule
         issues_by_rule = {}
         for issue in self.issues_found:
-            rule = issue['rule']
+            rule = issue["rule"]
             if rule not in issues_by_rule:
                 issues_by_rule[rule] = []
             issues_by_rule[rule].append(issue)
@@ -448,19 +492,17 @@ class CodeQualityEnforcer:
 """
 
         for rule, issues in sorted(issues_by_rule.items()):
-            rule_info = self.rules.get(rule, {'name': rule, 'severity': 'unknown'})
+            rule_info = self.rules.get(rule, {"name": rule, "severity": "unknown"})
             report += f"\n{rule}: {rule_info['name']} ({len(issues)} issues)"
             report += f"\n  Severity: {rule_info['severity']}"
             report += (
-                f"\n  Description: "
-                f"{rule_info.get('description', 'No description')}"
+                f"\n  Description: " f"{rule_info.get('description', 'No description')}"
             )
 
             # Show first few examples
             for issue in issues[:3]:
                 report += (
-                    f"\n    - {issue['file']}:{issue['line']} - "
-                    f"{issue['message']}"
+                    f"\n    - {issue['file']}:{issue['line']} - " f"{issue['message']}"
                 )
 
             if len(issues) > 3:
@@ -491,7 +533,7 @@ class CodeQualityEnforcer:
         print(report)
 
         # Return success (True if no critical issues, False if any errors)
-        critical_issues = [i for i in self.issues_found if i['severity'] == 'error']
+        critical_issues = [i for i in self.issues_found if i["severity"] == "error"]
         return len(critical_issues) == 0
 
 

@@ -1,18 +1,18 @@
 # ONNX Runtime Requirements
 # Optimized for inference performance
 
-# Core ML
-onnx>=1.14.0
-onnxruntime>=1.22.1
 
 # Web framework
 flask>=3.1.1,<4.0.0
 
-# HTTP client
-requests==2.32.4
+# Production
+gunicorn>=23.0.0,<24.0.0
+# Core ML
+onnx>=1.14.0
+onnxruntime>=1.22.1
 
 # Monitoring
 prometheus-client==0.20.0
 
-# Production
-gunicorn>=23.0.0,<24.0.0 
+# HTTP client
+requests==2.32.4

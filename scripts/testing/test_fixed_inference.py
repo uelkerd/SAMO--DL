@@ -3,9 +3,11 @@
 generic labels."""
 
 import json
-import torch
 from pathlib import Path
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+import torch
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
 
 def test_fixed_inference():
     """Test inference with missing tokenizer and generic labels."""

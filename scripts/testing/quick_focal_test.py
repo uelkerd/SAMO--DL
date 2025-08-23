@@ -1,22 +1,25 @@
-                # Simple focal loss implementation
-        # Add src to path
-        # Add src to path
-        # Create dummy inputs and targets
-        # Create model
-        # Load dataset
-        # Test focal loss
-        # Test with dummy data
+# Simple focal loss implementation
+# Add src to path
+# Add src to path
+# Create dummy inputs and targets
+# Create model
+# Load dataset
+# Test focal loss
+# Test with dummy data
 import logging
 import sys
-# Configure logging
-    # Summary
-#!/usr/bin/env python3
-        import torch
-        import torch.nn.functional as F
 from pathlib import Path
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-        from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-        from torch import nn
+
+#!/usr/bin/env python3
+import torch
+import torch.nn.functional as F
+from torch import nn
+
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+
+# Configure logging
+# Summary
 
 """
 Quick Focal Loss Test
@@ -33,6 +36,7 @@ def test_focal_loss_math():
     logger.info("🧮 Testing Focal Loss Mathematics...")
 
     try:
+
         class SimpleFocalLoss(nn.Module):
             def __init__(self, alpha=0.25, gamma=2.0):
                 super().__init__()
@@ -44,7 +48,9 @@ def test_focal_loss_math():
                 pt = probs * targets + (1 - probs) * (1 - targets)
                 focal_weight = (1 - pt) ** self.gamma
                 alpha_weight = self.alpha * targets + (1 - self.alpha) * (1 - targets)
-                bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
+                bce_loss = F.binary_cross_entropy_with_logits(
+                    inputs, targets, reduction="none"
+                )
                 focal_loss = alpha_weight * focal_weight * bce_loss
                 return focal_loss.mean()
 
@@ -64,7 +70,7 @@ def test_focal_loss_math():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Focal Loss Test FAILED: {e}")
         return False
 
@@ -85,11 +91,13 @@ def test_dataset_loading():
         logger.info("✅ Dataset Loading Test PASSED")
         logger.info("   • Train examples: {train_size}")
         logger.info("   • Validation examples: {val_size}")
-        logger.info("   • Class weights computed: {datasets['class_weights'] is not None}")
+        logger.info(
+            "   • Class weights computed: {datasets['class_weights'] is not None}"
+        )
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Dataset Loading Test FAILED: {e}")
         return False
 
@@ -115,7 +123,7 @@ def test_model_creation():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Model Creation Test FAILED: {e}")
         return False
 
@@ -137,7 +145,7 @@ def main():
         logger.info("\n📋 Running {test_name}...")
         try:
             results[test_name] = test_func()
-        except Exception as e:
+        except Exception:
             logger.error("❌ {test_name} failed with exception: {e}")
             results[test_name] = False
 

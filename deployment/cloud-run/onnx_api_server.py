@@ -12,9 +12,9 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import onnxruntime as ort
-from flask import Flask, request, jsonify
 import psutil
-from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+from flask import Flask, jsonify, request
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

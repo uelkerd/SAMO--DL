@@ -154,4 +154,4 @@ echo "  - Image: ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NA
 echo "  - Server: Gunicorn WSGI (production-ready)"
 echo "  - Workers: 2 (configurable via GUNICORN_WORKERS)"
 echo "  - Max Length: 512 characters (configurable via MAX_LENGTH)"
-echo "  - Status: ✅ PRODUCTION READY" 
+echo "  - Status: ✅ PRODUCTION READY"

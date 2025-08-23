@@ -10,13 +10,14 @@ import logging
 import os
 import threading
 import time
-import werkzeug
-import torch
 from collections import defaultdict, deque
 from datetime import datetime
-from flask import Flask, request, jsonify
 from functools import wraps
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+import torch
+import werkzeug
+from flask import Flask, jsonify, request
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 # Configure logging
 logging.basicConfig(

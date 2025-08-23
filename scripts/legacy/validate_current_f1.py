@@ -1,4 +1,4 @@
-    # Current status based on your summary
+# Current status based on your summary
 # Configure logging
 #!/usr/bin/env python3
 import logging

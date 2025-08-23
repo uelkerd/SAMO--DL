@@ -1,36 +1,36 @@
-            # Check field types are consistent
-        # CI environment should respond within 2 seconds
-        # Check all requests succeeded
-        # Check all responses have same structure
-        # Check emotion analysis structure
-        # Check expected models
-        # Check model status structure
-        # Check processing time in response
-        # Check required fields
-        # Check response structure
-        # Create multiple threads
-        # For JSON-based endpoints, form data might not be accepted
-        # Mock the emotion detection
-        # Note: Depending on FastAPI configuration, this might need adjustment
-        # Test JSON content type (primary)
-        # Test empty text
-        # Test form data (fallback)
-        # Test invalid endpoint
-        # Test malformed request
-        # Test missing required field
-        # Test very long text
-        # Wait for all threads to complete
-import pytest
+# Check field types are consistent
+# CI environment should respond within 2 seconds
+# Check all requests succeeded
+# Check all responses have same structure
+# Check emotion analysis structure
+# Check expected models
+# Check model status structure
+# Check processing time in response
+# Check required fields
+# Check response structure
+# Create multiple threads
+# For JSON-based endpoints, form data might not be accepted
+# Mock the emotion detection
+# Note: Depending on FastAPI configuration, this might need adjustment
+# Test JSON content type (primary)
+# Test empty text
+# Test form data (fallback)
+# Test invalid endpoint
+# Test malformed request
+# Test missing required field
+# Test very long text
+# Wait for all threads to complete
 import queue
 import threading
 import time
+
+import pytest
+
 """Integration tests for API endpoints.
 from unittest.mock import patch
 
 Tests API functionality, request/response handling, and error scenarios.
 """
-
-
 
 
 @pytest.mark.integration
@@ -68,7 +68,11 @@ class TestAPIEndpoints:
     def test_journal_analysis_endpoint(self, mock_bert, api_client):
         """Test /analyze/journal endpoint with text input."""
         mock_model = mock_bert.return_value
-        mock_model.predict_emotions.return_value = [0, 13, 17]  # joy, excitement, gratitude
+        mock_model.predict_emotions.return_value = [
+            0,
+            13,
+            17,
+        ]  # joy, excitement, gratitude
 
         test_data = {
             "text": "I had an amazing day today! I completed my project and felt so proud.",
@@ -194,7 +198,13 @@ class TestAPIEndpoints:
             assert response.status_code == 200
             responses.append(response.json())
 
-        required_fields = ["emotion_analysis", "summary", "processing_time_ms", "pipeline_status", "insights"]
+        required_fields = [
+            "emotion_analysis",
+            "summary",
+            "processing_time_ms",
+            "pipeline_status",
+            "insights",
+        ]
 
         for response_data in responses:
             for field in required_fields:

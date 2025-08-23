@@ -9,6 +9,7 @@ avoids the datasets library issues by using a more direct approach.
 
 import json
 
+
 def create_simple_notebook():
     """Create a simplified ultimate notebook."""
 
@@ -56,7 +57,7 @@ def create_simple_notebook():
                          TrainingArguments,
                          Trainer,
                          DataCollatorWithPadding\n",
-                        
+
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.metrics import                    "from sklearn.metrics import classification_report,
                          confusion_matrix,
@@ -64,7 +65,7 @@ def create_simple_notebook():
                          accuracy_score,
                          precision_score,
                          recall_score\n",
-                        
+
                     "from sklearn.utils.class_weight import compute_class_weight\n",
                     "import json\n",
                     "import warnings\n",

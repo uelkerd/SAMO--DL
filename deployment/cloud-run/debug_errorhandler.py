@@ -11,7 +11,7 @@ print("🔍 Starting errorhandler debug...")
 
 try:
     from flask import Flask
-    from flask_restx import Api, Resource, fields, Namespace
+    from flask_restx import Api, Namespace, Resource, fields
     print("✅ Imports successful")
 except Exception as e:
     print(f"❌ Import failed: {e}")

@@ -8,7 +8,8 @@ the codebase to avoid unnecessary bloat.
 import re
 import sys
 from pathlib import Path
-from typing import Set, List, Dict
+from typing import Set
+
 
 class DependencyChecker:
     """Checker for dependency usage in the codebase."""
@@ -45,12 +46,12 @@ class DependencyChecker:
         """Parse requirements.txt and extract package names."""
         deps = set()
 
-        with open(self.requirements_path, 'r') as f:
+        with open(self.requirements_path) as f:
             for line in f:
                 line = line.strip()
-                if line and not line.startswith('#'):
+                if line and not line.startswith("#"):
                     # Extract package name (remove version constraints)
-                    package = re.split(r'[<>=!~]', line)[0].strip()
+                    package = re.split(r"[<>=!~]", line)[0].strip()
                     deps.add(package)
 
         return deps
@@ -60,15 +61,15 @@ class DependencyChecker:
         used_deps = set()
 
         # Common Python file extensions
-        python_extensions = {'.py', '.pyx', '.pyi'}
+        python_extensions = {".py", ".pyx", ".pyi"}
 
         # Directories to scan
-        scan_dirs = ['src', 'scripts', 'tests', 'deployment']
+        scan_dirs = ["src", "scripts", "tests", "deployment"]
 
         for scan_dir in scan_dirs:
             dir_path = self.project_root / scan_dir
             if dir_path.exists():
-                for file_path in dir_path.rglob('*'):
+                for file_path in dir_path.rglob("*"):
                     if file_path.suffix in python_extensions:
                         self._scan_file_for_imports(file_path, used_deps)
 
@@ -77,25 +78,25 @@ class DependencyChecker:
     def _scan_file_for_imports(self, file_path: Path, used_deps: Set[str]) -> None:
         """Scan a Python file for import statements."""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             # Find import statements
             import_patterns = [
-                r'^import\s+(\w+)',
-                r'^from\s+(\w+)',
-                r'^\s+import\s+(\w+)',
-                r'^\s+from\s+(\w+)'
+                r"^import\s+(\w+)",
+                r"^from\s+(\w+)",
+                r"^\s+import\s+(\w+)",
+                r"^\s+from\s+(\w+)",
             ]
 
             for pattern in import_patterns:
                 matches = re.findall(pattern, content, re.MULTILINE)
                 for match in matches:
                     # Handle multi-import statements
-                    packages = [p.strip() for p in match.split(',')]
+                    packages = [p.strip() for p in match.split(",")]
                     for package in packages:
                         # Extract base package name
-                        base_package = package.split('.')[0]
+                        base_package = package.split(".")[0]
                         used_deps.add(base_package)
 
         except Exception as e:
@@ -119,6 +120,7 @@ class DependencyChecker:
             for dep in sorted(self.missing_deps):
                 print(f"  - {dep}")
 
+
 def main():
     """Main function to run dependency usage check."""
     checker = DependencyChecker()
@@ -134,6 +136,7 @@ def main():
     else:
         checker.print_results()
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

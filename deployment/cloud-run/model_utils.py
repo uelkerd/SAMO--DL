@@ -10,7 +10,7 @@ import os
 import threading
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Any, Dict, List, Optional, Tuple
 
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
@@ -27,15 +27,25 @@ model_loading = False
 model_lock = threading.Lock()
 
 # Configuration
-MODEL_PATH = os.getenv('MODEL_PATH', '/app/model/best_simple_model.pth')
-MAX_LENGTH = int(os.getenv('MAX_LENGTH', '128'))
-MAX_TEXT_LENGTH = int(os.getenv('MAX_TEXT_LENGTH', '1000'))
-PREDICTION_THRESHOLD = float(os.getenv('PREDICTION_THRESHOLD', '0.5'))
+MODEL_PATH = os.getenv("MODEL_PATH", "/app/model/best_simple_model.pth")
+MAX_LENGTH = int(os.getenv("MAX_LENGTH", "128"))
+MAX_TEXT_LENGTH = int(os.getenv("MAX_TEXT_LENGTH", "1000"))
+PREDICTION_THRESHOLD = float(os.getenv("PREDICTION_THRESHOLD", "0.5"))
 
 # Emotion labels (12 classes for DistilRoBERTa model)
 EMOTION_LABELS = [
-    'admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring',
-    'confusion', 'curiosity', 'desire', 'disappointment', 'disgust', 'embarrassment'
+    "admiration",
+    "amusement",
+    "anger",
+    "annoyance",
+    "approval",
+    "caring",
+    "confusion",
+    "curiosity",
+    "desire",
+    "disappointment",
+    "disgust",
+    "embarrassment",
 ]
 # Runtime label list derived from model config if available; falls back to default
 emotion_labels_runtime: List[str] = EMOTION_LABELS.copy()
@@ -44,12 +54,12 @@ is_multi_label_runtime: bool = False
 
 
 def _load_repo_id_from_config() -> Optional[str]:
-    cfg_path = Path('deployment/custom_model_config.json')
+    cfg_path = Path("deployment/custom_model_config.json")
     if cfg_path.exists():
         try:
-            with open(cfg_path, 'r') as f:
+            with open(cfg_path) as f:
                 cfg = json.load(f)
-            repo_id = cfg.get('model_name') or cfg.get('repo_id')
+            repo_id = cfg.get("model_name") or cfg.get("repo_id")
             if repo_id:
                 return repo_id
         except Exception as e:
@@ -63,11 +73,11 @@ def _resolve_model_repo_id() -> str:
     if repo_id:
         logger.info("Using model from config: %s", repo_id)
         return repo_id
-    env_model = os.getenv('BASE_MODEL_NAME')
+    env_model = os.getenv("BASE_MODEL_NAME")
     if env_model:
         logger.info("Using model from BASE_MODEL_NAME env: %s", env_model)
         return env_model
-    default_model = 'distilroberta-base'
+    default_model = "distilroberta-base"
     logger.info("Using default base model: %s", default_model)
     return default_model
 
@@ -100,46 +110,60 @@ def ensure_model_loaded() -> bool:
         tokenizer_local = AutoTokenizer.from_pretrained(repo_id)
 
         # Load model
-        model_local = AutoModelForSequenceClassification.from_pretrained(
-            repo_id
-        )
+        model_local = AutoModelForSequenceClassification.from_pretrained(repo_id)
 
         # Load trained weights if available
         if Path(MODEL_PATH).exists():
             logger.info(f"📁 Loading trained weights from {MODEL_PATH}")
             try:
-                state = torch.load(MODEL_PATH, map_location='cpu')
+                state = torch.load(MODEL_PATH, map_location="cpu")
                 model_local.load_state_dict(state, strict=True)
                 logger.info("Applied local fine-tuned weights from %s", MODEL_PATH)
             except Exception as weight_err:
-                logger.warning("Failed to apply local weights from %s; using HF pretrained weights: %s", MODEL_PATH, weight_err)
+                logger.warning(
+                    "Failed to apply local weights from %s; using HF pretrained weights: %s",
+                    MODEL_PATH,
+                    weight_err,
+                )
         else:
-            logger.warning(f"⚠️ No trained weights found at {MODEL_PATH}, using base/pretrained weights")
+            logger.warning(
+                f"⚠️ No trained weights found at {MODEL_PATH}, using base/pretrained weights"
+            )
 
         model_local.eval()
 
         # Derive labels from model config if available
         derived_labels: List[str] = EMOTION_LABELS
-        labels_from_config = getattr(model_local.config, 'id2label', None)
+        labels_from_config = getattr(model_local.config, "id2label", None)
         try:
             if isinstance(labels_from_config, dict) and labels_from_config:
                 try:
-                    sorted_labels = sorted(labels_from_config.items(), key=lambda item: int(item[0]))
+                    sorted_labels = sorted(
+                        labels_from_config.items(), key=lambda item: int(item[0])
+                    )
                 except (ValueError, TypeError) as sort_exc:
-                    logger.warning("Could not sort id2label by integer keys. Using insertion order: %s", sort_exc)
+                    logger.warning(
+                        "Could not sort id2label by integer keys. Using insertion order: %s",
+                        sort_exc,
+                    )
                     sorted_labels = list(labels_from_config.items())
                 derived_labels = [str(v) for _, v in sorted_labels]
         except Exception as e:
-            logger.warning("Failed to parse id2label mapping; falling back to defaults: %s", e)
+            logger.warning(
+                "Failed to parse id2label mapping; falling back to defaults: %s", e
+            )
 
         # Resolve multi-label mode: env override -> config -> default False
-        ml_env = os.getenv('MULTI_LABEL', 'auto').lower()
-        if ml_env in ('1', 'true', 'yes'):
+        ml_env = os.getenv("MULTI_LABEL", "auto").lower()
+        if ml_env in ("1", "true", "yes"):
             ml_flag = True
-        elif ml_env in ('0', 'false', 'no'):
+        elif ml_env in ("0", "false", "no"):
             ml_flag = False
         else:
-            ml_flag = str(getattr(model_local.config, 'problem_type', '')).lower() == 'multi_label_classification'
+            ml_flag = (
+                str(getattr(model_local.config, "problem_type", "")).lower()
+                == "multi_label_classification"
+            )
 
         with model_lock:
             # Assign only after successful load to avoid races
@@ -152,8 +176,19 @@ def ensure_model_loaded() -> bool:
             model_loading = False
 
         logger.info("✅ Model loaded successfully!")
-        logger.info("🎯 Active labels (%d): %s", len(emotion_labels_runtime), emotion_labels_runtime)
-        logger.info("🧮 Inference mode: %s", 'multi-label (sigmoid)' if is_multi_label_runtime else 'single-label (softmax)')
+        logger.info(
+            "🎯 Active labels (%d): %s",
+            len(emotion_labels_runtime),
+            emotion_labels_runtime,
+        )
+        logger.info(
+            "🧮 Inference mode: %s",
+            (
+                "multi-label (sigmoid)"
+                if is_multi_label_runtime
+                else "single-label (softmax)"
+            ),
+        )
         logger.info("🔧 Prediction threshold: %.2", PREDICTION_THRESHOLD)
         return True
 
@@ -161,7 +196,7 @@ def ensure_model_loaded() -> bool:
         with model_lock:
             model_loading = False
 
-        logger.exception(f"❌ Failed to load model: {str(e)}")
+        logger.exception(f"❌ Failed to load model: {e!s}")
         logger.error("Model loading failed - check model configuration")
         return False
 
@@ -176,26 +211,22 @@ def predict_emotions(text: str) -> Dict[str, Any]:
         Dict[str, Any]: Prediction results with emotions and confidence scores
     """
     if not ensure_model_loaded():
-        return {
-            'error': 'Model not available',
-            'emotions': [],
-            'confidence': 0.0
-        }
+        return {"error": "Model not available", "emotions": [], "confidence": 0.0}
 
     try:
         # Validate input
         if not text or not text.strip():
             return {
-                'error': 'Text field is required',
-                'emotions': [],
-                'confidence': 0.0
+                "error": "Text field is required",
+                "emotions": [],
+                "confidence": 0.0,
             }
 
         if len(text) > MAX_TEXT_LENGTH:
             return {
-                'error': f'Text too long (max {MAX_TEXT_LENGTH} characters)',
-                'emotions': [],
-                'confidence': 0.0
+                "error": f"Text too long (max {MAX_TEXT_LENGTH} characters)",
+                "emotions": [],
+                "confidence": 0.0,
             }
 
         # Tokenize input
@@ -204,7 +235,7 @@ def predict_emotions(text: str) -> Dict[str, Any]:
             truncation=True,
             padding=True,
             max_length=MAX_LENGTH,
-            return_tensors='pt'
+            return_tensors="pt",
         )
 
         # Get predictions
@@ -220,47 +251,55 @@ def predict_emotions(text: str) -> Dict[str, Any]:
             probabilities = torch.sigmoid(logits)[0]
             pairs = [
                 (
-                    emotion_labels_runtime[i] if 0 <= i < len(emotion_labels_runtime) else f"LABEL_{i}",
+                    (
+                        emotion_labels_runtime[i]
+                        if 0 <= i < len(emotion_labels_runtime)
+                        else f"LABEL_{i}"
+                    ),
                     probabilities[i].item(),
                 )
                 for i in range(probabilities.shape[-1])
             ]
             # Filter by threshold, fall back to top-1 if none pass
-            filtered = [(lbl, prob) for lbl, prob in pairs if prob >= PREDICTION_THRESHOLD]
+            filtered = [
+                (lbl, prob) for lbl, prob in pairs if prob >= PREDICTION_THRESHOLD
+            ]
             if not filtered and pairs:
                 # pick the best single label
                 best_lbl, best_prob = max(pairs, key=lambda kv: kv[1])
                 filtered = [(best_lbl, best_prob)]
             # Sort by confidence
             filtered.sort(key=lambda kv: kv[1], reverse=True)
-            emotions = [{'emotion': lbl, 'confidence': prob} for lbl, prob in filtered]
-            overall_confidence = emotions[0]['confidence'] if emotions else 0.0
+            emotions = [{"emotion": lbl, "confidence": prob} for lbl, prob in filtered]
+            overall_confidence = emotions[0]["confidence"] if emotions else 0.0
         else:
             # Single-label: softmax + top-k
             probabilities = torch.softmax(logits, dim=1)
             k = min(3, probabilities.shape[-1])
             top_probs, top_indices = torch.topk(probabilities[0], k=k)
             for prob, idx in zip(top_probs, top_indices):
-                emotions.append({
-                    'emotion': emotion_labels_runtime[idx.item()] if 0 <= idx.item() < len(emotion_labels_runtime) else "UNKNOWN_EMOTION",
-                    'confidence': prob.item()
-                })
+                emotions.append(
+                    {
+                        "emotion": (
+                            emotion_labels_runtime[idx.item()]
+                            if 0 <= idx.item() < len(emotion_labels_runtime)
+                            else "UNKNOWN_EMOTION"
+                        ),
+                        "confidence": prob.item(),
+                    }
+                )
             overall_confidence = top_probs[0].item() if len(top_probs) > 0 else 0.0
 
         return {
-            'text': text,
-            'emotions': emotions,
-            'confidence': overall_confidence,
-            'timestamp': time.time()
+            "text": text,
+            "emotions": emotions,
+            "confidence": overall_confidence,
+            "timestamp": time.time(),
         }
 
     except Exception as e:
-        logger.exception(f"❌ Prediction failed: {str(e)}")
-        return {
-            'error': 'Prediction failed',
-            'emotions': [],
-            'confidence': 0.0
-        }
+        logger.exception(f"❌ Prediction failed: {e!s}")
+        return {"error": "Prediction failed", "emotions": [], "confidence": 0.0}
 
 
 def get_model_status() -> Dict[str, Any]:
@@ -270,15 +309,15 @@ def get_model_status() -> Dict[str, Any]:
         Dict[str, Any]: Model status information
     """
     return {
-        'model_loaded': model_loaded,
-        'model_loading': model_loading,
-        'model_path': MODEL_PATH,
-        'max_length': MAX_LENGTH,
-        'max_text_length': MAX_TEXT_LENGTH,
-        'emotion_labels': emotion_labels_runtime,
-        'multi_label': is_multi_label_runtime,
-        'prediction_threshold': PREDICTION_THRESHOLD,
-        'timestamp': time.time()
+        "model_loaded": model_loaded,
+        "model_loading": model_loading,
+        "model_path": MODEL_PATH,
+        "max_length": MAX_LENGTH,
+        "max_text_length": MAX_TEXT_LENGTH,
+        "emotion_labels": emotion_labels_runtime,
+        "multi_label": is_multi_label_runtime,
+        "prediction_threshold": PREDICTION_THRESHOLD,
+        "timestamp": time.time(),
     }
 
 
@@ -292,7 +331,7 @@ def validate_text_input(text: str) -> Tuple[bool, str]:
         Tuple[bool, str]: (is_valid, error_message)
     """
     if not text or not isinstance(text, str):
-        return False, 'Text must be a non-empty string'
+        return False, "Text must be a non-empty string"
     if len(text) > MAX_TEXT_LENGTH:
-        return False, f'Text too long (max {MAX_TEXT_LENGTH} characters)'
-    return True, ''
+        return False, f"Text too long (max {MAX_TEXT_LENGTH} characters)"
+    return True, ""

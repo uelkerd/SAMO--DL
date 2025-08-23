@@ -6,9 +6,11 @@ are present and valid according to the security schema.
 """
 
 import sys
-import yaml
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any, Dict
+
+import yaml
+
 
 class SecurityConfigValidator:
     """Validator for security configuration files."""
@@ -24,11 +26,13 @@ class SecurityConfigValidator:
 
         # Check if file exists
         if not self.config_path.exists():
-            self.errors.append(f"Security configuration file not found: {self.config_path}")
+            self.errors.append(
+                f"Security configuration file not found: {self.config_path}"
+            )
             return False
 
         try:
-            with open(self.config_path, 'r') as f:
+            with open(self.config_path) as f:
                 config = yaml.safe_load(f)
         except yaml.YAMLError as e:
             self.errors.append(f"Invalid YAML in security configuration: {e}")
@@ -38,36 +42,42 @@ class SecurityConfigValidator:
         self._validate_required_sections(config)
 
         # Validate API security settings
-        self._validate_api_security(config.get('api', {}))
+        self._validate_api_security(config.get("api", {}))
 
         # Validate security headers
-        self._validate_security_headers(config.get('security_headers', {}))
+        self._validate_security_headers(config.get("security_headers", {}))
 
         # Validate logging configuration
-        self._validate_logging(config.get('logging', {}))
+        self._validate_logging(config.get("logging", {}))
 
         # Validate environment settings
-        self._validate_environment(config.get('environment', {}))
+        self._validate_environment(config.get("environment", {}))
 
         # Validate dependency security
-        self._validate_dependencies(config.get('dependencies', {}))
+        self._validate_dependencies(config.get("dependencies", {}))
 
         # Validate model security
-        self._validate_model_security(config.get('model', {}))
+        self._validate_model_security(config.get("model", {}))
 
         # Validate database security
-        self._validate_database_security(config.get('database', {}))
+        self._validate_database_security(config.get("database", {}))
 
         # Validate deployment security
-        self._validate_deployment_security(config.get('deployment', {}))
+        self._validate_deployment_security(config.get("deployment", {}))
 
         return len(self.errors) == 0
 
     def _validate_required_sections(self, config: Dict[str, Any]) -> None:
         """Validate that all required sections are present."""
         required_sections = [
-            'api', 'security_headers', 'logging', 'environment',
-            'dependencies', 'model', 'database', 'deployment'
+            "api",
+            "security_headers",
+            "logging",
+            "environment",
+            "dependencies",
+            "model",
+            "database",
+            "deployment",
         ]
 
         for section in required_sections:
@@ -81,36 +91,36 @@ class SecurityConfigValidator:
             return
 
         # Check rate limiting
-        rate_limiting = api_config.get('rate_limiting', {})
-        if not rate_limiting.get('enabled', False):
+        rate_limiting = api_config.get("rate_limiting", {})
+        if not rate_limiting.get("enabled", False):
             self.warnings.append("Rate limiting is disabled - security risk")
 
         # Check CORS
-        cors = api_config.get('cors', {})
-        if not cors.get('enabled', False):
+        cors = api_config.get("cors", {})
+        if not cors.get("enabled", False):
             self.warnings.append("CORS is disabled - may cause issues")
 
         # Check authentication
-        auth = api_config.get('authentication', {})
-        if not auth.get('enabled', False):
+        auth = api_config.get("authentication", {})
+        if not auth.get("enabled", False):
             self.errors.append("Authentication is disabled - security risk")
 
         # Check input validation
-        input_validation = api_config.get('input_validation', {})
+        input_validation = api_config.get("input_validation", {})
         if not input_validation:
             self.errors.append("Input validation configuration is missing")
 
     def _validate_security_headers(self, headers_config: Dict[str, Any]) -> None:
         """Validate security headers configuration."""
-        if not headers_config.get('enabled', False):
+        if not headers_config.get("enabled", False):
             self.warnings.append("Security headers are disabled")
             return
 
-        headers = headers_config.get('headers', {})
+        headers = headers_config.get("headers", {})
         required_headers = [
-            'X-Content-Type-Options',
-            'X-Frame-Options',
-            'X-XSS-Protection'
+            "X-Content-Type-Options",
+            "X-Frame-Options",
+            "X-XSS-Protection",
         ]
 
         for header in required_headers:
@@ -124,18 +134,18 @@ class SecurityConfigValidator:
             return
 
         # Check security events logging
-        security_events = logging_config.get('security_events', {})
-        if not security_events.get('enabled', False):
+        security_events = logging_config.get("security_events", {})
+        if not security_events.get("enabled", False):
             self.warnings.append("Security events logging is disabled")
 
         # Check request logging
-        requests = logging_config.get('requests', {})
-        if not requests.get('enabled', False):
+        requests = logging_config.get("requests", {})
+        if not requests.get("enabled", False):
             self.warnings.append("Request logging is disabled")
 
         # Check error logging
-        errors = logging_config.get('errors', {})
-        if not errors.get('enabled', False):
+        errors = logging_config.get("errors", {})
+        if not errors.get("enabled", False):
             self.warnings.append("Error logging is disabled")
 
     def _validate_environment(self, env_config: Dict[str, Any]) -> None:
@@ -145,17 +155,17 @@ class SecurityConfigValidator:
             return
 
         # Check required environment variables
-        required_vars = env_config.get('required_vars', [])
+        required_vars = env_config.get("required_vars", [])
         if not required_vars:
             self.warnings.append("No required environment variables specified")
 
         # Check sensitive variables
-        sensitive_vars = env_config.get('sensitive_vars', [])
+        sensitive_vars = env_config.get("sensitive_vars", [])
         if not sensitive_vars:
             self.warnings.append("No sensitive variables specified for masking")
 
         # Check environment-specific settings
-        for env in ['production', 'development', 'testing']:
+        for env in ["production", "development", "testing"]:
             env_settings = env_config.get(env, {})
             if not env_settings:
                 self.warnings.append(f"No settings specified for {env} environment")
@@ -166,11 +176,11 @@ class SecurityConfigValidator:
             self.errors.append("Dependency security configuration is missing")
             return
 
-        scanning = deps_config.get('scanning', {})
-        if not scanning.get('enabled', False):
+        scanning = deps_config.get("scanning", {})
+        if not scanning.get("enabled", False):
             self.warnings.append("Dependency security scanning is disabled")
 
-        tools = scanning.get('tools', [])
+        tools = scanning.get("tools", [])
         if not tools:
             self.warnings.append("No security scanning tools specified")
 
@@ -180,11 +190,11 @@ class SecurityConfigValidator:
             self.errors.append("Model security configuration is missing")
             return
 
-        loading = model_config.get('loading', {})
-        if not loading.get('validate_model_files', False):
+        loading = model_config.get("loading", {})
+        if not loading.get("validate_model_files", False):
             self.warnings.append("Model file validation is disabled")
 
-        inference = model_config.get('inference', {})
+        inference = model_config.get("inference", {})
         if not inference:
             self.warnings.append("Model inference security settings are missing")
 
@@ -194,12 +204,12 @@ class SecurityConfigValidator:
             self.errors.append("Database security configuration is missing")
             return
 
-        connection = db_config.get('connection', {})
-        if not connection.get('use_ssl', False):
+        connection = db_config.get("connection", {})
+        if not connection.get("use_ssl", False):
             self.errors.append("Database SSL is disabled - security risk")
 
-        data_protection = db_config.get('data_protection', {})
-        if not data_protection.get('encrypt_sensitive_data', False):
+        data_protection = db_config.get("data_protection", {})
+        if not data_protection.get("encrypt_sensitive_data", False):
             self.warnings.append("Sensitive data encryption is disabled")
 
     def _validate_deployment_security(self, deploy_config: Dict[str, Any]) -> None:
@@ -208,12 +218,14 @@ class SecurityConfigValidator:
             self.errors.append("Deployment security configuration is missing")
             return
 
-        container = deploy_config.get('container', {})
-        if not container.get('run_as_non_root', False):
-            self.errors.append("Container not configured to run as non-root - security risk")
+        container = deploy_config.get("container", {})
+        if not container.get("run_as_non_root", False):
+            self.errors.append(
+                "Container not configured to run as non-root - security risk"
+            )
 
-        network = deploy_config.get('network', {})
-        if not network.get('use_https', False):
+        network = deploy_config.get("network", {})
+        if not network.get("use_https", False):
             self.errors.append("HTTPS is disabled - security risk")
 
     def print_results(self) -> None:
@@ -236,7 +248,10 @@ class SecurityConfigValidator:
         elif not self.errors:
             print(f"\n⚠️  Configuration has {len(self.warnings)} warnings but no errors")
         else:
-            print(f"\n❌ Configuration has {len(self.errors)} errors that must be fixed")
+            print(
+                f"\n❌ Configuration has {len(self.errors)} errors that must be fixed"
+            )
+
 
 def main():
     """Main function to run security configuration validation."""
@@ -251,6 +266,7 @@ def main():
     else:
         validator.print_results()
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

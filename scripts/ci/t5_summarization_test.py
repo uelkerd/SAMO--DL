@@ -23,7 +23,8 @@ except ImportError:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-from .validation_utils import validate_hasattrs, ensure
+from .validation_utils import ensure, validate_hasattrs
+
 
 def test_t5_model_loading():
     """Test T5 model initialization."""
@@ -72,9 +73,7 @@ def test_t5_summarization():
 
         # Perform summarization
         summary = model.generate_summary(
-            text=test_text.strip(),
-            max_length=50,
-            min_length=10
+            text=test_text.strip(), max_length=50, min_length=10
         )
 
         logger.info(f"✅ Summarization successful: {summary[:50]}...")
@@ -90,7 +89,9 @@ def test_t5_summarization():
 
     except Exception as e:
         if "SentencePiece" in str(e):
-            logger.warning("⚠️ SentencePiece not available, skipping T5 summarization test")
+            logger.warning(
+                "⚠️ SentencePiece not available, skipping T5 summarization test"
+            )
             return True  # Skip gracefully
         else:
             logger.error(f"❌ T5 summarization test failed: {e}")

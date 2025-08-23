@@ -16,23 +16,25 @@ Security Features:
 
 import os
 import sys
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from flask import Flask, request, jsonify, g
-import werkzeug
-import logging
-from pathlib import Path
-import time
-from datetime import datetime
-from collections import defaultdict, deque
-import threading
-from functools import wraps
 import functools
+import logging
+import threading
+import time
+from collections import defaultdict, deque
+from datetime import datetime
+from functools import wraps
+from pathlib import Path
+
+import werkzeug
+from flask import Flask, g, jsonify, request
 
 # Import security components
-from api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
+from api_rate_limiter import RateLimitConfig, TokenBucketRateLimiter
 from input_sanitizer import InputSanitizer, SanitizationConfig
-from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
+from security_headers import SecurityHeadersConfig, SecurityHeadersMiddleware
 
 # Configure logging
 logging.basicConfig(
@@ -237,8 +239,11 @@ class SecureEmotionDetectionModel:
 
         try:
             # Lazy import heavy deps only when not in stub mode and path checks passed
-            from transformers import AutoTokenizer, AutoModelForSequenceClassification  # type: ignore
             import torch  # type: ignore
+            from transformers import (  # type: ignore
+                AutoModelForSequenceClassification,
+                AutoTokenizer,
+            )
 
             self.tokenizer = AutoTokenizer.from_pretrained(str(self.model_path), local_files_only=True)
             self.model = AutoModelForSequenceClassification.from_pretrained(str(self.model_path), local_files_only=True)

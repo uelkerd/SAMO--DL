@@ -653,35 +653,35 @@ class SAMOBrainClient:
             "Authorization": f"ApiKey {api_key}",
             "Content-Type": "application/json"
         }
-    
+
     def predict_emotion(self, text):
         """Predict emotion from text."""
         url = f"{self.base_url}/predict"
         payload = {"text": text}
-        
+
         response = requests.post(url, headers=self.headers, json=payload)
         response.raise_for_status()
-        
+
         return response.json()
-    
+
     def predict_batch(self, texts):
         """Predict emotions from multiple texts."""
         url = f"{self.base_url}/predict_batch"
         payload = {"texts": texts}
-        
+
         response = requests.post(url, headers=self.headers, json=payload)
         response.raise_for_status()
-        
+
         return response.json()
-    
+
     def analyze_voice(self, audio_file_path):
         """Analyze emotion from audio file."""
         url = f"{self.base_url}/voice/analyze"
-        
+
         with open(audio_file_path, 'rb') as audio_file:
             files = {'audio': audio_file}
             response = requests.post(url, headers={"Authorization": f"ApiKey {self.api_key}"}, files=files)
-        
+
         response.raise_for_status()
         return response.json()
 
@@ -707,7 +707,7 @@ class SAMOBrainClient {
         this.apiKey = apiKey;
         this.baseUrl = baseUrl;
     }
-    
+
     async predictEmotion(text) {
         const response = await fetch(`${this.baseUrl}/predict`, {
             method: 'POST',
@@ -717,14 +717,14 @@ class SAMOBrainClient {
             },
             body: JSON.stringify({ text })
         });
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         return await response.json();
     }
-    
+
     async predictBatch(texts) {
         const response = await fetch(`${this.baseUrl}/predict_batch`, {
             method: 'POST',
@@ -734,18 +734,18 @@ class SAMOBrainClient {
             },
             body: JSON.stringify({ texts })
         });
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         return await response.json();
     }
-    
+
     async analyzeVoice(audioFile) {
         const formData = new FormData();
         formData.append('audio', audioFile);
-        
+
         const response = await fetch(`${this.baseUrl}/voice/analyze`, {
             method: 'POST',
             headers: {
@@ -753,11 +753,11 @@ class SAMOBrainClient {
             },
             body: formData
         });
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         return await response.json();
     }
 }
@@ -841,7 +841,7 @@ ws.onopen = function() {
 // Handle incoming messages
 ws.onmessage = function(event) {
     const data = JSON.parse(event.data);
-    
+
     switch(data.type) {
         case 'auth_success':
             console.log('WebSocket authenticated successfully');
@@ -870,4 +870,4 @@ ws.send(JSON.stringify({
 
 ---
 
-*This API reference provides comprehensive documentation for all SAMO Brain endpoints, including authentication, request/response formats, error handling, and practical examples in multiple programming languages.* 
+*This API reference provides comprehensive documentation for all SAMO Brain endpoints, including authentication, request/response formats, error handling, and practical examples in multiple programming languages.*

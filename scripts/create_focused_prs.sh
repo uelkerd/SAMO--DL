@@ -75,4 +75,4 @@ echo "1. Push all branches: git push origin pr1-core-cloud-run-deployment pr2-do
 echo "2. Create GitHub PRs for each branch"
 echo "3. Review and merge in order: PR1 → PR2 → PR3 → PR4 → PR5"
 echo ""
-echo "🎯 Remember: Each PR is now focused and reviewable (<1,200 lines each)" 
+echo "🎯 Remember: Each PR is now focused and reviewable (<1,200 lines each)"

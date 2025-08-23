@@ -11,13 +11,16 @@ Usage:
 import contextlib
 import logging
 import os
-import pytest
 import sys
 import tempfile
 from pathlib import Path
 
+import pytest
+
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 # Add project root to path
@@ -34,10 +37,12 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # Create a temporary pytest configuration to avoid conflicts with pyproject.toml
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.ini', delete=False) as f:
-        f.write("""[pytest]
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".ini", delete=False) as f:
+        f.write(
+            """[pytest]
 addopts = --cov=src.api_rate_limiter --cov-report=term-missing --cov-fail-under=50 -v --tb=short
-""")
+"""
+        )
         temp_config = f.name
 
     try:

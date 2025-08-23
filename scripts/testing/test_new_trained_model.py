@@ -4,9 +4,11 @@ TEST NEW TRAINED MODEL
 ======================
 Tests the newly trained model from Colab with proper verification
 """
-import torch
 from pathlib import Path
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+import torch
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
 
 def test_new_trained_model():
     """Test the newly trained model from Colab."""
@@ -15,12 +17,16 @@ def test_new_trained_model():
     print("=" * 50)
 
     # Model directory
-    model_dir = Path(__file__).parent.parent / 'deployment' / 'model'
+    model_dir = Path(__file__).parent.parent / "deployment" / "model"
 
     # Check for required files
     required_files = [
-        'config.json', 'model.safetensors', 'training_args.bin',
-        'tokenizer.json', 'tokenizer_config.json', 'vocab.json'
+        "config.json",
+        "model.safetensors",
+        "training_args.bin",
+        "tokenizer.json",
+        "tokenizer_config.json",
+        "vocab.json",
     ]
 
     print("📁 Checking model files...")
@@ -50,7 +56,20 @@ def test_new_trained_model():
         print(f"  Labels: {model.config.id2label}")
 
         # Define emotion mapping
-        emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+        emotions = [
+            "anxious",
+            "calm",
+            "content",
+            "excited",
+            "frustrated",
+            "grateful",
+            "happy",
+            "hopeful",
+            "overwhelmed",
+            "proud",
+            "sad",
+            "tired",
+        ]
 
         print("\n🎯 Testing predictions...")
 
@@ -67,7 +86,7 @@ def test_new_trained_model():
             "I feel calm and peaceful.",
             "I am excited about the new opportunity.",
             "I feel content with my life.",
-            "I am hopeful for the future."
+            "I am hopeful for the future.",
         ]
 
         model.eval()
@@ -75,7 +94,9 @@ def test_new_trained_model():
 
         for text in test_examples:
             # Tokenize
-            inputs = tokenizer(text, return_tensors='pt', truncation=True, max_length=128)
+            inputs = tokenizer(
+                text, return_tensors="pt", truncation=True, max_length=128
+            )
 
             # Predict
             with torch.no_grad():
@@ -99,7 +120,9 @@ def test_new_trained_model():
             else:
                 status = "❌"
 
-            print(f"{status} \"{text}\" → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})")
+            print(
+                f'{status} "{text}" → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})'
+            )
 
         accuracy = correct / len(test_examples)
         print(f"\n📊 Test Accuracy: {accuracy:.1%} ({correct}/{len(test_examples)})")
@@ -111,11 +134,13 @@ def test_new_trained_model():
             "This is amazing!",
             "I'm so disappointed.",
             "Everything is going well.",
-            "I'm exhausted."
+            "I'm exhausted.",
         ]
 
         for text in edge_cases:
-            inputs = tokenizer(text, return_tensors='pt', truncation=True, max_length=128)
+            inputs = tokenizer(
+                text, return_tensors="pt", truncation=True, max_length=128
+            )
             with torch.no_grad():
                 outputs = model(**inputs)
                 predictions = torch.softmax(outputs.logits, dim=1)
@@ -123,7 +148,7 @@ def test_new_trained_model():
                 confidence = predictions[0][predicted_class].item()
 
             predicted_emotion = emotions[predicted_class]
-            print("  \"{text}\" → {predicted_emotion} (confidence: {confidence:.3f})")
+            print('  "{text}" → {predicted_emotion} (confidence: {confidence:.3f})')
 
         # Overall assessment
         print("\n🎯 MODEL ASSESSMENT:")
@@ -144,8 +169,9 @@ def test_new_trained_model():
         return True
 
     except Exception as e:
-        print(f"❌ Error testing model: {str(e)}")
+        print(f"❌ Error testing model: {e!s}")
         return False
+
 
 if __name__ == "__main__":
     success = test_new_trained_model()

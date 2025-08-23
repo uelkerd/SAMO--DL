@@ -26,7 +26,7 @@ import sys
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings('ignore')

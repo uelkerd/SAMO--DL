@@ -1,20 +1,21 @@
         # Test with dummy data
 import logging
-        import sklearn
-    import subprocess
+import subprocess
 import sys
+from pathlib import Path
+
+#!/usr/bin/env python3
+import numpy as np
+import sklearn
+import torch
+import torch.nn.functional as F
+import transformers
+from torch import nn
+
     # Check if gcloud is available
     # Check if we have the deployment guide
 # Configure logging
     # Summary
-#!/usr/bin/env python3
-import numpy as np
-        import torch
-        import torch
-        import torch.nn.functional as F
-        import transformers
-from pathlib import Path
-        from torch import nn
 
 
 

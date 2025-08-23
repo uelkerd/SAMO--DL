@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 import os
-import sys
 
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 try:
     from huggingface_hub import login  # type: ignore

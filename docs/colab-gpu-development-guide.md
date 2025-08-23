@@ -77,12 +77,12 @@ class DomainAdaptedEmotionClassifier(nn.Module):
         super().__init__()
         self.bert = AutoModel.from_pretrained(model_name)
         self.dropout = nn.Dropout(dropout)
-        
+
         # FIXED: Use dynamic num_labels instead of hardcoded 12
         if num_labels is None:
             num_labels = 12  # Default fallback
         self.num_labels = num_labels
-        
+
         self.classifier = nn.Linear(self.bert.config.hidden_size, num_labels)
         # ... rest of the model
 
@@ -120,19 +120,19 @@ The critical insight driving REQ-DL-012:
 ```python
 class DomainAdaptedEmotionClassifier(nn.Module):
     """BERT-based emotion classifier with domain adaptation capabilities."""
-    
+
     def __init__(self, model_name="bert-base-uncased", num_labels=None, dropout=0.3):
         super().__init__()
         self.bert = AutoModel.from_pretrained(model_name)
         self.dropout = nn.Dropout(dropout)
-        
+
         # FIXED: Use dynamic num_labels instead of hardcoded 12
         if num_labels is None:
             num_labels = 12  # Default fallback
         self.num_labels = num_labels
-        
+
         self.classifier = nn.Linear(self.bert.config.hidden_size, num_labels)
-        
+
         # Domain adaptation layer
         self.domain_classifier = nn.Sequential(
             nn.Linear(self.bert.config.hidden_size, 512),
@@ -140,17 +140,17 @@ class DomainAdaptedEmotionClassifier(nn.Module):
             nn.Dropout(0.3),
             nn.Linear(512, 2)  # 2 domains: GoEmotions vs Journal
         )
-    
+
     def forward(self, input_ids, attention_mask, domain_labels=None):
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
         pooled_output = outputs.pooler_output
-        
+
         # Emotion classification
         emotion_logits = self.classifier(self.dropout(pooled_output))
-        
+
         # Domain classification (for domain adaptation)
         domain_logits = self.domain_classifier(pooled_output)
-        
+
         if domain_labels is not None:
             return emotion_logits, domain_logits
         return emotion_logits
@@ -161,18 +161,18 @@ class DomainAdaptedEmotionClassifier(nn.Module):
 ```python
 class FocalLoss(nn.Module):
     """Focal Loss for addressing class imbalance in emotion detection."""
-    
+
     def __init__(self, alpha=1, gamma=2, reduction='mean'):
         super(FocalLoss, self).__init__()
         self.alpha = alpha
         self.gamma = gamma
         self.reduction = reduction
-    
+
     def forward(self, inputs, targets):
         ce_loss = F.cross_entropy(inputs, targets, reduction='none')
         pt = torch.exp(-ce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * ce_loss
-        
+
         if self.reduction == 'mean':
             return focal_loss.mean()
         elif self.reduction == 'sum':
@@ -217,9 +217,9 @@ combined_dataset = ConcatDataset([go_dataset, journal_dataset])
 def analyze_writing_style(texts, domain_name):
     avg_length = np.mean([len(text.split()) for text in texts])
     personal_pronouns = sum(['I ' in text or 'my ' in text for text in texts]) / len(texts)
-    reflection_words = sum(['think' in text.lower() or 'feel' in text.lower() 
+    reflection_words = sum(['think' in text.lower() or 'feel' in text.lower()
                            for text in texts]) / len(texts)
-    
+
     print(f"{domain_name} Style Analysis:")
     print(f"  Average length: {avg_length:.1f} words")
     print(f"  Personal pronouns: {personal_pronouns:.1%}")
@@ -234,12 +234,12 @@ for epoch in range(num_epochs):
     for batch in go_loader:
         domain_labels = torch.zeros(batch['input_ids'].size(0), dtype=torch.long)
         losses = trainer.train_step(batch, domain_labels, lambda_domain=0.1)
-    
+
     # Train on journal data
     for batch in journal_train_loader:
         domain_labels = torch.ones(batch['input_ids'].size(0), dtype=torch.long)
         losses = trainer.train_step(batch, domain_labels, lambda_domain=0.1)
-    
+
     # Validate on journal test set
     val_results = trainer.evaluate(journal_val_loader)
     print(f"Epoch {epoch}: F1 = {val_results['f1_macro']:.4f}")
@@ -252,23 +252,23 @@ def calibrate_model(model, val_loader):
     model.eval()
     logits_list = []
     labels_list = []
-    
+
     with torch.no_grad():
         for batch in val_loader:
             logits = model(batch['input_ids'], batch['attention_mask'])
             logits_list.append(logits)
             labels_list.append(batch['labels'])
-    
+
     # Fit temperature scaling
     temperature = nn.Parameter(torch.ones(1) * 1.5)
     optimizer = torch.optim.LBFGS([temperature], lr=0.01, max_iter=50)
-    
+
     def eval():
         optimizer.zero_grad()
         loss = F.cross_entropy(logits / temperature, labels)
         loss.backward()
         return loss
-    
+
     optimizer.step(eval)
     return temperature.item()
 ```
@@ -372,10 +372,10 @@ class GradientReversalLayer(nn.Module):
     def __init__(self, alpha=1.0):
         super().__init__()
         self.alpha = alpha
-    
+
     def forward(self, x):
         return x
-    
+
     def backward(self, grad_output):
         return -self.alpha * grad_output
 
@@ -470,26 +470,26 @@ This script will:
 ```python
 def validate_req_dl_012():
     """Comprehensive validation for REQ-DL-012."""
-    
+
     # Load best model
     model.load_state_dict(torch.load('best_domain_adapted_model.pth'))
-    
+
     # Test on journal dataset
     journal_results = evaluate_on_journal_dataset(model)
-    
+
     # Test on GoEmotions dataset
     go_emotions_results = evaluate_on_go_emotions_dataset(model)
-    
+
     # Validate requirements
     journal_f1 = journal_results['f1_macro']
     go_emotions_f1 = go_emotions_results['f1_macro']
-    
+
     print("🎯 REQ-DL-012 Validation Results:")
     print(f"  Journal F1 Score: {journal_f1:.4f} (Target: ≥0.70)")
     print(f"  GoEmotions F1 Score: {go_emotions_f1:.4f} (Target: ≥0.75)")
     print(f"  Journal Target Met: {'✅' if journal_f1 >= 0.7 else '❌'}")
     print(f"  GoEmotions Target Met: {'✅' if go_emotions_f1 >= 0.75 else '❌'}")
-    
+
     return journal_f1 >= 0.7 and go_emotions_f1 >= 0.75
 ```
 
@@ -566,8 +566,8 @@ If you encounter the `torch.sparse._triton_ops_meta` error:
 
 ---
 
-**Last Updated**: July 31, 2025  
-**Version**: 2.0.0  
-**Status**: Fixed and Ready for Colab Development 🚀  
-**Target**: REQ-DL-012 Domain Adaptation Success ✅  
-**Critical Fixes**: PyTorch/Transformers compatibility, dynamic num_labels, comprehensive error handling 
+**Last Updated**: July 31, 2025
+**Version**: 2.0.0
+**Status**: Fixed and Ready for Colab Development 🚀
+**Target**: REQ-DL-012 Domain Adaptation Success ✅
+**Critical Fixes**: PyTorch/Transformers compatibility, dynamic num_labels, comprehensive error handling

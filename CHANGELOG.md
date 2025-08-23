@@ -291,4 +291,4 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-*This changelog follows the [Keep a Changelog](https://keepachangelog.com/) format and adheres to [Semantic Versioning](https://semver.org/).* 
+*This changelog follows the [Keep a Changelog](https://keepachangelog.com/) format and adheres to [Semantic Versioning](https://semver.org/).*

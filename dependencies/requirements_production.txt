@@ -9,9 +9,6 @@ numpy>=2.3.2,<3.0.0
 # ONNX Runtime (CPU optimized)
 onnxruntime>=1.20.0,<2.0.0
 
-# Tokenization
-tokenizers>=0.20.0,<1.0.0
-
 # Monitoring and metrics
 prometheus-client==0.20.0
 psutil>=6.0.0,<7.0.0
@@ -20,4 +17,7 @@ psutil>=6.0.0,<7.0.0
 python-dotenv>=1.0.0,<2.0.0
 
 # HTTP client
-requests==2.32.4 
+requests==2.32.4
+
+# Tokenization
+tokenizers>=0.20.0,<1.0.0

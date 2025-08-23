@@ -6,6 +6,7 @@ Helps retrain the model with proper validation to ensure reliability
 """
 from pathlib import Path
 
+
 def create_improved_training_plan():
     """Create an improved training plan with proper validation."""
 
@@ -50,10 +51,11 @@ def create_improved_training_plan():
 
     return True
 
+
 def create_improved_notebook():
     """Create an improved training notebook."""
 
-    notebook_content = '''{
+    notebook_content = """{
  "cells": [
   {
    "cell_type": "markdown",
@@ -385,11 +387,15 @@ def create_improved_notebook():
  },
  "nbformat": 4,
  "nbformat_minor": 4
-}'''
+}"""
 
     # Save the notebook
-    notebook_path = Path(__file__).parent.parent / 'notebooks' / 'IMPROVED_TRAINING_WITH_VALIDATION.ipynb'
-    with open(notebook_path, 'w') as f:
+    notebook_path = (
+        Path(__file__).parent.parent
+        / "notebooks"
+        / "IMPROVED_TRAINING_WITH_VALIDATION.ipynb"
+    )
+    with open(notebook_path, "w") as f:
         f.write(notebook_content)
 
     print(f"✅ Created improved training notebook: {notebook_path}")
@@ -399,6 +405,7 @@ def create_improved_notebook():
     print("   3. Set Runtime → GPU")
     print("   4. Run all cells")
     print("   5. Verify reliability before deployment")
+
 
 if __name__ == "__main__":
     success = create_improved_training_plan()

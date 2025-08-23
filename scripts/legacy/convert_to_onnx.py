@@ -154,7 +154,9 @@ def benchmark_pytorch_inference(model, input_ids, attention_mask, num_runs=50):
     return (end_time - start_time) / num_runs
 
 
-def benchmark_onnx_inference(model_path, input_ids, attention_mask, token_type_ids, num_runs=50):
+def benchmark_onnx_inference(
+    model_path, input_ids, attention_mask, token_type_ids, num_runs=50
+):
     """Benchmark ONNX model inference time."""
     import onnxruntime as ort
 
@@ -183,7 +185,9 @@ def benchmark_onnx_inference(model_path, input_ids, attention_mask, token_type_i
 
 def main():
     """Main function."""
-    parser = argparse.ArgumentParser(description="Convert BERT emotion classifier to ONNX")
+    parser = argparse.ArgumentParser(
+        description="Convert BERT emotion classifier to ONNX"
+    )
     parser.add_argument(
         "--input_model",
         type=str,

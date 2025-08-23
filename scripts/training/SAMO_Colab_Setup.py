@@ -15,13 +15,16 @@ import subprocess
 import sys
 from typing import Optional
 
+
 def print_header() -> None:
     """Print setup header."""
+
 
 def check_gpu() -> Optional[bool]:
     """Check GPU availability."""
     try:
         import torch
+
         gpu_available = torch.cuda.is_available()
 
         if gpu_available:
@@ -34,19 +37,21 @@ def check_gpu() -> Optional[bool]:
     except ImportError:
         return False
 
+
 def clone_repository() -> Optional[bool]:
     """Clone SAMO repository."""
     try:
         # Clone repository
-        subprocess.run([
-            "git", "clone", "https://github.com/uelkerd/SAMO--DL.git"
-        ], check=True)
+        subprocess.run(
+            ["git", "clone", "https://github.com/uelkerd/SAMO--DL.git"], check=True
+        )
 
         # Change to repository directory
         os.chdir("SAMO--DL")
         return True
     except subprocess.CalledProcessError:
         return False
+
 
 def install_dependencies() -> bool:
     """Install all dependencies."""
@@ -62,7 +67,7 @@ def install_dependencies() -> bool:
         "soundfile",
         "librosa",
         "openai-whisper",
-        "speechrecognition"
+        "speechrecognition",
     ]
 
     for package in voice_packages:
@@ -72,6 +77,7 @@ def install_dependencies() -> bool:
             return False
 
     return True
+
 
 def test_audio_libraries() -> bool:
     """Test audio processing libraries."""
@@ -87,11 +93,13 @@ def test_audio_libraries() -> bool:
 
     try:
         import whisper
+
         whisper.load_model("base")
     except ImportError:
         return False
 
     return True
+
 
 def create_voice_demo() -> bool:
     """Create voice processing demo."""
@@ -191,6 +199,7 @@ print(f"📊 Audio features: {features}")
 
     return True
 
+
 def create_f1_optimization_script() -> bool:
     """Create F1 optimization script."""
     f1_code = '''
@@ -265,8 +274,10 @@ if __name__ == "__main__":
 
     return True
 
+
 def print_next_steps() -> None:
     """Print next steps for the user."""
+
 
 def main() -> bool:
     """Main setup function."""
@@ -296,6 +307,7 @@ def main() -> bool:
     print_next_steps()
 
     return True
+
 
 if __name__ == "__main__":
     success = main()

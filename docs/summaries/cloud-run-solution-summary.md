@@ -124,4 +124,4 @@ The system is now:
 - ✅ **Production-ready**
 - ✅ **Following best practices**
 
-This demonstrates the importance of understanding platform architecture requirements when deploying containers to cloud services. 
+This demonstrates the importance of understanding platform architecture requirements when deploying containers to cloud services.

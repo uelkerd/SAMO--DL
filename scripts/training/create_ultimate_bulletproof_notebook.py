@@ -17,6 +17,7 @@ This is the bulletproof version that should achieve reliable 75-85% F1 scores.
 
 import json
 
+
 def create_ultimate_notebook():
     """Create the ultimate bulletproof training notebook."""
 
@@ -62,7 +63,7 @@ def create_ultimate_notebook():
                          AutoModelForSequenceClassification,
                          TrainingArguments,
                          Trainer\n",
-                        
+
                     "from datasets import Dataset\n",
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.metrics import classification_report, confusion_matrix\n",

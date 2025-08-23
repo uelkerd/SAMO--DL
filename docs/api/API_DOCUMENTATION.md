@@ -254,7 +254,7 @@ def detect_emotion(text: str) -> dict:
     url = "https://samo-emotion-api-xxxxx-ew.a.run.app/predict"
     headers = {"Content-Type": "application/json"}
     data = {"text": text}
-    
+
     try:
         response = requests.post(url, json=data, headers=headers, timeout=10)
         response.raise_for_status()
@@ -280,14 +280,14 @@ async function detectEmotion(text) {
         },
         body: JSON.stringify({ text })
     };
-    
+
     try {
         const response = await fetch(url, options);
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         return await response.json();
     } catch (error) {
         console.error('API Error:', error);
@@ -464,4 +464,4 @@ scrape_configs:
 
 ## License
 
-This API is part of the SAMO-DL project. See the main project repository for licensing information. 
+This API is part of the SAMO-DL project. See the main project repository for licensing information.

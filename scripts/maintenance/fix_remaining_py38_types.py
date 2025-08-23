@@ -12,7 +12,7 @@ This script uses regex patterns to fix remaining type hint issues:
 import re
 import sys
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import Any, Dict, List, Tuple
 
 
 def _fix_generic_patterns(content: str, imports_to_add: set, changes_made: list) -> str:

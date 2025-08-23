@@ -12,6 +12,7 @@ we verify the saved model has the correct configuration before proceeding.
 
 import json
 
+
 def create_fixed_notebook():
     """Create a corrected training notebook with proper configuration preservation."""
 
@@ -53,7 +54,7 @@ def create_fixed_notebook():
                          AutoModelForSequenceClassification,
                          TrainingArguments,
                          Trainer\n",
-                        
+
                     "from datasets import Dataset\n",
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.metrics import classification_report, confusion_matrix\n",

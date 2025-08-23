@@ -12,6 +12,7 @@ import os
 import sys
 from datetime import datetime
 
+
 def deploy_locally():
     """Deploy the model locally for testing."""
     print("🚀 LOCAL DEPLOYMENT")
@@ -48,11 +49,12 @@ Local Emotion Detection API Server
 A simple Flask API server for local testing of the emotion detection model.
 """
 
-from flask import Flask, request, jsonify
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import numpy as np
 import os
+
+import numpy as np
+import torch
+from flask import Flask, jsonify, request
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 app = Flask(__name__)
 
@@ -256,9 +258,11 @@ Test script for local deployment
 This script tests the local API server with various examples.
 """
 
-import requests
 import json
 import time
+
+import requests
+
 
 def test_api():
     """Test the local API server."""

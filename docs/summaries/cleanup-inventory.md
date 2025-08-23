@@ -225,4 +225,4 @@ deployment/
 - Deployment structure now unified and logical
 - Cache and build artifacts removed for cleaner repository
 - Basic functionality tested and working
-- Ready for merge to main branch 
+- Ready for merge to main branch

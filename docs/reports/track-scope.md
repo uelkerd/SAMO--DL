@@ -4,7 +4,7 @@
 
 **SAMO** is an AI-powered, voice-first journaling companion designed to provide real emotional reflection rather than just data collection. As the sole Deep Learning engineer, you're responsible for the core AI intelligence that makes SAMO emotionally aware and contextually responsive.
 
-## Deep Learning Track Scope 
+## Deep Learning Track Scope
 
 ### Core AI Responsibilities
 

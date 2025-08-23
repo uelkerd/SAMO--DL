@@ -1,27 +1,31 @@
-        # Create trainer and load small dataset
-        # Find best threshold
-        # Load a pre-trained model if available, otherwise skip
-        # Load model
-        # Overall assessment
-        # Prepare small dataset
-        # Run training with development mode enabled
-        # Success criteria
-        # Test different thresholds
-        # Validate results
-    # Summary
-    # Test 1: Development mode training
-    # Test 2: Threshold tuning
+# Create trainer and load small dataset
+# Find best threshold
+# Load a pre-trained model if available, otherwise skip
+# Load model
+# Overall assessment
+# Prepare small dataset
+# Run training with development mode enabled
+# Success criteria
+# Test different thresholds
+# Validate results
+# Summary
+# Test 1: Development mode training
+# Test 2: Threshold tuning
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
 import logging
 import sys
 import time
-import torch
 from pathlib import Path
+
+import torch
+
 from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
+from src.models.emotion_detection.training_pipeline import (
+    EmotionDetectionTrainer,
+    train_emotion_detection_model,
+)
 
 """Quick Training Test Script for SAMO Emotion Detection.
 
@@ -70,8 +74,12 @@ def test_development_mode():
 
         logger.info("📊 Training Results Analysis:")
         logger.info("⏱️  Total training time: {training_minutes:.1f} minutes")
-        logger.info("📈 Final test Macro F1: {results['final_test_metrics']['macro_f1']:.4f}")
-        logger.info("📈 Final test Micro F1: {results['final_test_metrics']['micro_f1']:.4f}")
+        logger.info(
+            "📈 Final test Macro F1: {results['final_test_metrics']['macro_f1']:.4f}"
+        )
+        logger.info(
+            "📈 Final test Micro F1: {results['final_test_metrics']['micro_f1']:.4f}"
+        )
         logger.info("🏆 Best validation score: {results['best_validation_score']:.4f}")
         logger.info("🔄 Total epochs completed: {results['total_epochs']}")
 
@@ -127,7 +135,6 @@ def test_threshold_tuning():
             logger.info("No pre-trained model found, skipping threshold tuning test")
             return True
 
-
         checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
         trainer.model.load_state_dict(checkpoint["model_state_dict"])
 
@@ -137,9 +144,15 @@ def test_threshold_tuning():
         for threshold in thresholds:
             logger.info("Testing threshold: {threshold}")
             metrics = evaluate_emotion_classifier(
-                trainer.model, trainer.val_dataloader, trainer.device, threshold=threshold
+                trainer.model,
+                trainer.val_dataloader,
+                trainer.device,
+                threshold=threshold,
             )
-            results[threshold] = {"macro_f1": metrics["macro_f1"], "micro_f1": metrics["micro_f1"]}
+            results[threshold] = {
+                "macro_f1": metrics["macro_f1"],
+                "micro_f1": metrics["micro_f1"],
+            }
             logger.info(
                 "  Macro F1: {metrics['macro_f1']:.4f}, Micro F1: {metrics['micro_f1']:.4f}"
             )

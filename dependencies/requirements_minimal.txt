@@ -4,19 +4,19 @@
 # Web framework
 flask>=3.1.1,<4.0.0
 
-# HTTP client
-requests==2.32.4
-
-# Database
-sqlalchemy==2.0.36
-psycopg2-binary==2.9.10
+# Production server
+gunicorn>=23.0.0,<24.0.0
 
 # Monitoring
 prometheus-client==0.20.0
+psycopg2-binary==2.9.10
 
 # Utilities
 python-dotenv==1.0.1
 pyyaml==6.0.2
 
-# Production server
-gunicorn>=23.0.0,<24.0.0
+# HTTP client
+requests==2.32.4
+
+# Database
+sqlalchemy==2.0.36

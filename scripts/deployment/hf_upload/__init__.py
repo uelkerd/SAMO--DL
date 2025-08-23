@@ -7,4 +7,4 @@ Submodules:
 - config_update: update deployment configs and env templates
 """
 
-from . import discovery, prepare, upload, config_update  # noqa: F401
+from . import config_update, discovery, prepare, upload  # noqa: F401

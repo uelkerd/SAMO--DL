@@ -233,9 +233,13 @@ class CIPipelineRunner:
 
             # Test BERT on GPU
             try:
-                from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+                from models.emotion_detection.bert_classifier import (
+                    BERTEmotionClassifier,
+                )
             except ImportError:
-                from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+                from src.models.emotion_detection.bert_classifier import (
+                    BERTEmotionClassifier,
+                )
             model = BERTEmotionClassifier().to(device)
 
             # Test forward pass
@@ -258,6 +262,7 @@ class CIPipelineRunner:
         try:
             # Simple performance test - model loading speed
             import time
+
             import torch
 
             # Test BERT model loading speed
@@ -269,9 +274,13 @@ class CIPipelineRunner:
             sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
             try:
-                from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+                from models.emotion_detection.bert_classifier import (
+                    BERTEmotionClassifier,
+                )
             except ImportError:
-                from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+                from src.models.emotion_detection.bert_classifier import (
+                    BERTEmotionClassifier,
+                )
 
             model = BERTEmotionClassifier()
             loading_time = time.time() - start_time

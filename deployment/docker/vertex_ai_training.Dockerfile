@@ -57,4 +57,4 @@ COPY scripts/vertex_ai_training.py /app/train.py
 RUN chmod +x /app/train.py
 
 # Set default command
-CMD ["python", "/app/train.py"] 
+CMD ["python", "/app/train.py"]

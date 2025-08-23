@@ -13,12 +13,12 @@
   # Add this to your notebook to prevent disconnection
   import time
   import threading
-  
+
   def keep_alive():
       while True:
           time.sleep(60)
           print("Still alive...")
-  
+
   # Start keep-alive thread
   thread = threading.Thread(target=keep_alive, daemon=True)
   thread.start()
@@ -146,4 +146,4 @@ torch.cuda.empty_cache()
 
 ---
 
-**Remember**: Most issues can be resolved by restarting the runtime and ensuring proper setup. Always save your work frequently! 
+**Remember**: Most issues can be resolved by restarting the runtime and ensuring proper setup. Always save your work frequently!

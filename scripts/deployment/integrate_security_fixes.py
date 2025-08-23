@@ -12,12 +12,14 @@ This script:
 """
 
 import os
-import requests
 import shlex
 import subprocess
 import time
 from pathlib import Path
 from typing import Dict, List, Optional
+
+import requests
+
 
 class IntegratedSecurityOptimization:
     def __init__(self):

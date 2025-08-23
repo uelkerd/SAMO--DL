@@ -9,6 +9,7 @@ all features work properly.
 
 import json
 
+
 def fix_imports():
     """Add missing imports to the ultimate notebook."""
 
@@ -28,7 +29,7 @@ def fix_imports():
                      AutoModelForSequenceClassification,
                      TrainingArguments,
                      Trainer\n",
-                    
+
                 "from datasets import Dataset\n",
                 "from sklearn.model_selection import train_test_split\n",
                 "from sklearn.metrics import                "from sklearn.metrics import classification_report,
@@ -37,7 +38,7 @@ def fix_imports():
                      accuracy_score,
                      precision_score,
                      recall_score\n",
-                    
+
                 "from sklearn.utils.class_weight import compute_class_weight\n",
                 "import json\n",
                 "import warnings\n",

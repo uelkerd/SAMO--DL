@@ -55,9 +55,9 @@ if [ -z "$API_URL" ]; then
     echo "2. Optimized API (Staging): https://samo-emotion-api-optimized-secure-71517823771.us-central1.run.app"
     echo "3. Custom URL (enter manually)"
     echo ""
-    
+
     read -p "Select API endpoint (1-3): " choice
-    
+
     case $choice in
         1)
             API_URL="https://samo-emotion-api-minimal-71517823771.us-central1.run.app"
@@ -141,4 +141,4 @@ echo "  python scripts/testing/check_model_health.py"
 echo "  python scripts/testing/test_model_status.py"
 echo ""
 print_info "Or with custom URL:"
-echo "  python scripts/testing/test_cloud_run_api_endpoints.py --base-url \"$API_URL\"" 
+echo "  python scripts/testing/test_cloud_run_api_endpoints.py --base-url \"$API_URL\""

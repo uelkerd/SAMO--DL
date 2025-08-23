@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Team Integration Guide - SAMO Deep Learning</title>
     <meta name="description" content="Complete integration guides for backend, frontend, UX, and data science teams">
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Prism.js for syntax highlighting -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
-    
+
     <style>
         :root {
             --primary-color: #6366f1;
@@ -93,32 +93,32 @@
             align-items: flex-start;
             margin-bottom: 30px;
         }
-        
+
         /* Table of Contents Styling */
         .toc-nav .card {
             border: 2px solid #e5e7eb;
             border-radius: 12px;
         }
-        
+
         .toc-nav .card-header {
             background: linear-gradient(135deg, #f8fafc, #e2e8f0);
             border-bottom: 2px solid #e5e7eb;
         }
-        
+
         .toc-nav .card-body ul li {
             padding: 0.5rem 0;
             border-bottom: 1px solid #f3f4f6;
         }
-        
+
         .toc-nav .card-body ul li:last-child {
             border-bottom: none;
         }
-        
+
         .toc-nav .card-body ul li a {
             color: #374151;
             transition: color 0.2s ease;
         }
-        
+
         .toc-nav .card-body ul li a:hover {
             color: #6366f1;
         }
@@ -167,7 +167,7 @@
                 <div class="col-lg-8 mx-auto">
                     <h1 class="display-4 fw-bold mb-4">Team Integration Guide</h1>
                     <p class="lead mb-4">
-                        Complete integration guides for backend, frontend, UX, and data science teams. 
+                        Complete integration guides for backend, frontend, UX, and data science teams.
                         Get your team up and running with SAMO-DL in minutes.
                     </p>
                 </div>
@@ -185,21 +185,21 @@
                         <h6 class="fw-bold mb-2">Base URL</h6>
                         <code>https://samo-unified-api-frrnetyhfa-uc.a.run.app</code>
                     </div>
-                    
+
                     <h4 class="fw-bold mt-4 mb-3">Available Endpoints</h4>
-                    
+
                     <div class="api-endpoint">
                         <h6 class="fw-bold mb-2">Health Check</h6>
                         <code>GET /health</code>
                         <p class="mb-0 text-muted">Check API status and model health</p>
                     </div>
-                    
+
                     <div class="api-endpoint">
                         <h6 class="fw-bold mb-2">Emotion Detection</h6>
                         <code>POST /predict</code>
                         <p class="mb-0 text-muted">Analyze text and return detected emotions</p>
                     </div>
-                    
+
                     <div class="api-endpoint">
                         <h6 class="fw-bold mb-2">Metrics</h6>
                         <code>GET /metrics</code>
@@ -219,7 +219,7 @@
                         <i class="fas fa-server text-primary me-2"></i>
                         Backend Integration Guide
                     </h2>
-                    
+
                     <div class="row g-4 mb-5">
                         <div class="col-md-6">
                             <div class="card team-card h-100">
@@ -250,7 +250,7 @@
                     </div>
 
                     <h4 class="fw-bold mb-3">Quick Start</h4>
-                    
+
                     <div class="integration-step">
                         <div class="step-number">1</div>
                         <div>
@@ -301,19 +301,19 @@ print(emotions)  # [{"emotion": "excitement", "confidence": 0.92}]</code></pre>
     """Safe emotion detection with comprehensive error handling"""
     if not text or len(text.strip()) == 0:
         return {"error": "Empty text provided"}
-    
+
     if len(text) > 1000:
         return {"error": "Text too long (max 1000 characters)"}
-    
+
     try:
         emotions = detect_emotion(text)
         if "error" in emotions:
             return emotions
-        
+
         # Validate response format
         if not isinstance(emotions, list):
             return {"error": "Invalid response format"}
-        
+
         return {"success": True, "emotions": emotions}
     except Exception as e:
         return {"error": f"Unexpected error: {str(e)}"}</code></pre>
@@ -334,7 +334,7 @@ print(emotions)  # [{"emotion": "excitement", "confidence": 0.92}]</code></pre>
                         <i class="fas fa-code text-success me-2"></i>
                         Frontend Integration Guide
                     </h2>
-                    
+
                     <div class="row g-4 mb-5">
                         <div class="col-md-4">
                             <div class="card team-card h-100">
@@ -378,7 +378,7 @@ print(emotions)  # [{"emotion": "excitement", "confidence": 0.92}]</code></pre>
                     </div>
 
                     <h4 class="fw-bold mb-3">React Integration Example</h4>
-                    
+
                     <div class="code-example">
                         <pre><code class="language-javascript">import React, { useState } from 'react';
 
@@ -391,7 +391,7 @@ const useEmotionDetection = () => {
   const analyzeEmotion = async (text) => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch(
         'https://samo-unified-api-frrnetyhfa-uc.a.run.app/analyze/journal',
@@ -401,11 +401,11 @@ const useEmotionDetection = () => {
           body: JSON.stringify({ text, generate_summary: false })
         }
       );
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       setEmotions(data);
     } catch (err) {
@@ -440,8 +440,8 @@ const EmotionAnalyzer = () => {
           className="form-control mb-3"
           rows="4"
         />
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="btn btn-primary"
           disabled={loading || !text.trim()}
         >
@@ -463,8 +463,8 @@ const EmotionAnalyzer = () => {
               <div className="card-body">
                 <h6 className="card-title">{emotion.emotion}</h6>
                 <div className="progress">
-                  <div 
-                    className="progress-bar" 
+                  <div
+                    className="progress-bar"
                     style={{width: `${emotion.confidence * 100}%`}}
                   >
                     {Math.round(emotion.confidence * 100)}%
@@ -495,7 +495,7 @@ export default EmotionAnalyzer;</code></pre>
                         <i class="fas fa-palette text-warning me-2"></i>
                         UX Integration Guide - Making Your App Emotionally Intelligent
                     </h2>
-                    
+
                     <!-- Table of Contents -->
                     <nav class="mb-4 toc-nav" aria-label="UX Integration Guide navigation">
                         <div class="card">
@@ -512,7 +512,7 @@ export default EmotionAnalyzer;</code></pre>
                             </div>
                         </div>
                     </nav>
-                    
+
                     <div class="alert alert-info" role="alert" aria-labelledby="ux-guide-info">
                         <h5 id="ux-guide-info"><i class="fas fa-info-circle me-2" aria-hidden="true"></i>What This Guide Does</h5>
                         <p class="mb-0">This guide shows UX designers and product managers how to make your app respond to user emotions in real-time. Think of it like giving your app emotional intelligence - it can sense how users feel and adapt accordingly.</p>
@@ -559,7 +559,7 @@ export default EmotionAnalyzer;</code></pre>
                         <i class="fas fa-code text-primary me-2"></i>
                         Step-by-Step Implementation Guide
                     </h4>
-                    
+
                     <div class="integration-step" role="region" aria-labelledby="step-1-title">
                         <div class="step-number" aria-hidden="true">1</div>
                         <div>
@@ -577,12 +577,12 @@ async function analyzeEmotion(text) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: text, generate_summary: false })
     });
-    
+
     if (!response.ok) {
       console.error(`HTTP error! status: ${response.status}`);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     const result = await response.json();
     return result; // Returns emotions like: [{emotion: "joy", confidence: 0.95}]
   } catch (error) {
@@ -616,12 +616,12 @@ class EmotionAwareUI {
   async analyzeUserInput(text) {
     // Validate input
     if (!text || text.trim() === '') return;
-    
+
     // Debounce: clear any pending analysis and schedule a new one
     if (this.debounceTimer) {
       clearTimeout(this.debounceTimer);
     }
-    
+
     this.debounceTimer = setTimeout(() => {
       this.queueAnalysis(text);
     }, this.debounceDelay);
@@ -631,7 +631,7 @@ class EmotionAwareUI {
   async queueAnalysis(text) {
     // Add to queue
     this.analysisQueue.push(text);
-    
+
     // Process queue if not already processing
     if (!this.isProcessingQueue) {
       this.processQueue();
@@ -645,18 +645,18 @@ class EmotionAwareUI {
     }
 
     this.isProcessingQueue = true;
-    
+
     while (this.analysisQueue.length > 0) {
       const text = this.analysisQueue.shift(); // Get next item from queue
-      
+
       if (this.isAnalyzing) {
         // If already analyzing, wait for it to complete
         await this.waitForAnalysisComplete();
       }
-      
+
       await this.performAnalysis(text);
     }
-    
+
     this.isProcessingQueue = false;
   }
 
@@ -678,10 +678,10 @@ class EmotionAwareUI {
   async performAnalysis(text) {
     this.isAnalyzing = true;
     this.showLoadingIndicator(); // Show user that analysis is happening
-    
+
     try {
       const emotions = await analyzeEmotion(text);
-      
+
       if (emotions && emotions.length > 0) {
         this.currentEmotion = emotions[0].emotion;
         this.emotionHistory.push({
@@ -690,7 +690,7 @@ class EmotionAwareUI {
           timestamp: new Date(),
           text: text
         });
-        
+
         this.adaptUI(); // Change the UI based on emotion
       }
     } catch (error) {
@@ -705,10 +705,10 @@ class EmotionAwareUI {
   // This method changes your app's appearance based on emotion
   adaptUI() {
     const body = document.body;
-    
+
     // Remove old emotion styles
     body.classList.remove('emotion-joy', 'emotion-sadness', 'emotion-anger', 'emotion-fear', 'emotion-surprise', 'emotion-disgust');
-    
+
     // Add new emotion style
     if (this.currentEmotion) {
       body.classList.add(`emotion-${this.currentEmotion}`);
@@ -729,9 +729,9 @@ class EmotionAwareUI {
       disgust: { primary: '#059669', secondary: '#34d399', background: '#ecfdf5' },
       neutral: { primary: '#6b7280', secondary: '#d1d5db', background: '#f3f4f6' } // Added neutral color scheme
     };
-    
+
     const colors = colorSchemes[this.currentEmotion] || colorSchemes.neutral;
-    
+
     // Apply colors to your app
     document.documentElement.style.setProperty('--primary-color', colors.primary);
     document.documentElement.style.setProperty('--secondary-color', colors.secondary);
@@ -771,9 +771,9 @@ class EmotionAwareUI {
       surprise: { animationSpeed: 'fast', feedbackStyle: 'exciting' },
       disgust: { animationSpeed: 'normal', feedbackStyle: 'professional' }
     };
-    
+
     const style = interactionStyles[this.currentEmotion] || interactionStyles.joy;
-    
+
     // Apply interaction changes
     document.body.style.setProperty('--animation-speed', style.animationSpeed);
     this.updateFeedbackStyle(style.feedbackStyle);
@@ -914,7 +914,7 @@ class EmotionAwareUI {
 document.addEventListener('DOMContentLoaded', function() {
   // Create your emotion-aware UI
   const emotionUI = new EmotionAwareUI();
-  
+
   // Connect to text inputs
   const textInputs = document.querySelectorAll('input[type="text"], textarea');
   textInputs.forEach(input => {
@@ -924,7 +924,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
-  
+
   // Connect to chat messages
   const chatContainer = document.getElementById('chat-messages');
   if (chatContainer) {
@@ -938,17 +938,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
       });
     });
-    
+
     observer.observe(chatContainer, { childList: true });
   }
-  
+
   // Connect to form submissions
   const forms = document.querySelectorAll('form');
   forms.forEach(form => {
     form.addEventListener('submit', function(e) {
       const formData = new FormData(form);
       const textInputs = form.querySelectorAll('input[type="text"], textarea');
-      
+
       textInputs.forEach(input => {
         if (input.value.trim()) {
           emotionUI.analyzeUserInput(input.value);
@@ -970,7 +970,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fas fa-lightbulb text-warning me-2"></i>
                         Pro Tips for UX Designers
                     </h4>
-                    
+
                     <div class="row g-4">
                         <div class="col-md-6">
                             <div class="card border-warning">
@@ -1036,7 +1036,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fas fa-chart-bar text-info me-2"></i>
                         Data Science Integration Guide - Turn Emotions Into Insights
                     </h2>
-                    
+
                     <!-- Table of Contents -->
                     <nav class="mb-4 toc-nav" aria-label="Data Science Integration Guide navigation">
                         <div class="card">
@@ -1053,7 +1053,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
                     </nav>
-                    
+
                     <div class="alert alert-info" role="alert" aria-labelledby="ds-guide-info">
                         <h5 id="ds-guide-info"><i class="fas fa-info-circle me-2" aria-hidden="true"></i>What This Guide Does</h5>
                         <p class="mb-0">This guide shows data scientists and analysts how to collect, analyze, and derive insights from emotion data. Think of it as a complete toolkit for understanding user emotions at scale and using that data to improve your products.</p>
@@ -1117,7 +1117,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fas fa-code text-primary me-2"></i>
                         Step-by-Step Implementation Guide
                     </h4>
-                    
+
                     <div class="integration-step" role="region" aria-labelledby="ds-step-1-title">
                         <div class="step-number" aria-hidden="true">1</div>
                         <div>
@@ -1140,15 +1140,15 @@ class EmotionDataCollector:
     Think of this as your "emotion data vacuum" - it sucks up all the emotion data
     and stores it in a way that's easy to analyze later.
     """
-    
+
     def __init__(self, api_url: str = "https://samo-unified-api-frrnetyhfa-uc.a.run.app"):
         self.api_url = api_url
         self.session = requests.Session()
         self.logger = logging.getLogger(__name__)
-        
+
         # Set up logging so you can see what's happening
         logging.basicConfig(level=logging.INFO)
-        
+
         # Track collection statistics
         self.stats = {
             'total_requests': 0,
@@ -1156,7 +1156,7 @@ class EmotionDataCollector:
             'failed_requests': 0,
             'total_texts_processed': 0
         }
-    
+
     def analyze_single_text(self, text: str) -> Optional[Dict]:
         """
         Analyze a single piece of text and return emotion data.
@@ -1164,7 +1164,7 @@ class EmotionDataCollector:
         """
         try:
             self.stats['total_requests'] += 1
-            
+
             # Send the text to our emotion API
             response = self.session.post(
                 f"{self.api_url}/predict",
@@ -1172,13 +1172,13 @@ class EmotionDataCollector:
                 timeout=30  # Timeout after 30 seconds
             )
             response.raise_for_status()  # Raise error if request failed
-            
+
             # Get the emotion results
             emotions = response.json()
-            
+
             self.stats['successful_requests'] += 1
             self.stats['total_texts_processed'] += 1
-            
+
             # Return structured data
             return {
                 'text': text,
@@ -1188,11 +1188,11 @@ class EmotionDataCollector:
                 'text_length': len(text),
                 'emotion_count': len(emotions) if emotions else 0
             }
-            
+
         except Exception as e:
             self.stats['failed_requests'] += 1
             self.logger.error(f"Error analyzing text: {type(e).__name__} - {e}")
-            
+
             return {
                 'text': text,
                 'emotions': [],
@@ -1202,14 +1202,14 @@ class EmotionDataCollector:
                 'text_length': len(text),
                 'emotion_count': 0
             }
-    
+
     def analyze_batch(self, texts: List[str], max_retries: int = 3) -> pd.DataFrame:
         """
         Analyze multiple texts at once using the batch endpoint.
         This is much more efficient than analyzing one text at a time.
         """
         self.logger.info(f"Starting batch analysis of {len(texts)} texts...")
-        
+
         for attempt in range(max_retries):
             try:
                 self.stats['total_requests'] += 1
@@ -1233,7 +1233,7 @@ class EmotionDataCollector:
                         'text_length': len(text),
                         'emotion_count': len(emotions) if emotions else 0
                     })
-                
+
                 df = pd.DataFrame(processed_results)
                 self.stats['successful_requests'] += 1
                 self.stats['total_texts_processed'] += len(texts)
@@ -1251,21 +1251,21 @@ class EmotionDataCollector:
                     self.logger.error(f"Batch analysis failed after {max_retries} attempts: {e}")
                     # Create error entries for all texts in the batch
                     error_results = [{
-                        'text': text, 
-                        'emotions': [], 
+                        'text': text,
+                        'emotions': [],
                         'timestamp': datetime.now().isoformat(),
-                        'status': 'error', 
-                        'error': str(e), 
-                        'text_length': len(text), 
+                        'status': 'error',
+                        'error': str(e),
+                        'text_length': len(text),
                         'emotion_count': 0
                     } for text in texts]
                     return pd.DataFrame(error_results)
-    
+
     def save_to_csv(self, df: pd.DataFrame, filename: str):
         """Save your emotion data to a CSV file for later analysis."""
         df.to_csv(filename, index=False)
         self.logger.info(f"Data saved to {filename}")
-    
+
     def get_stats(self) -> Dict:
         """Get collection statistics to see how well things are working."""
         return self.stats.copy()</code></pre>
@@ -1291,67 +1291,67 @@ class EmotionAnalyzer:
     Your emotion data analysis toolkit.
     This class helps you understand what your emotion data is telling you.
     """
-    
+
     def __init__(self, data: pd.DataFrame):
         self.data = data
         self.logger = logging.getLogger(__name__)
-    
+
     def get_emotion_distribution(self) -> pd.DataFrame:
         """
         See which emotions are most common in your data.
         This helps you understand what emotions your users typically express.
         """
         all_emotions = []
-        
+
         for emotions_list in self.data['emotions']:
             if isinstance(emotions_list, list):
                 for emotion in emotions_list:
                     if isinstance(emotion, dict) and 'emotion' in emotion:
                         all_emotions.append(emotion['emotion'])
-        
+
         # Count how many times each emotion appears
         emotion_counts = Counter(all_emotions)
-        
+
         # Convert to DataFrame for easy analysis
-        df = pd.DataFrame(list(emotion_counts.items()), 
+        df = pd.DataFrame(list(emotion_counts.items()),
                          columns=['emotion', 'count'])
         df = df.sort_values('count', ascending=False)
-        
+
         return df
-    
+
     def plot_emotion_distribution(self, save_path: str = None):
         """
         Create a beautiful chart showing emotion distribution.
         This makes it easy to see patterns at a glance.
         """
         emotion_df = self.get_emotion_distribution()
-        
+
         # Create a colorful bar chart
         plt.figure(figsize=(12, 6))
         colors = ['#10b981', '#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6', '#059669']
-        
-        bars = plt.bar(emotion_df['emotion'], emotion_df['count'], 
+
+        bars = plt.bar(emotion_df['emotion'], emotion_df['count'],
                       color=colors[:len(emotion_df)])
-        
+
         plt.title('Distribution of Emotions in Your Data', fontsize=16, fontweight='bold')
         plt.xlabel('Emotion', fontsize=12)
         plt.ylabel('Count', fontsize=12)
         plt.xticks(rotation=45)
-        
+
         # Add value labels on bars
         for bar in bars:
             height = bar.get_height()
             plt.text(bar.get_x() + bar.get_width()/2., height + 0.01,
                     f'{int(height)}', ha='center', va='bottom')
-        
+
         plt.tight_layout()
-        
+
         if save_path:
             plt.savefig(save_path, dpi=300, bbox_inches='tight')
             self.logger.info(f"Chart saved to {save_path}")
-        
+
         plt.show()
-    
+
     def analyze_emotion_by_text_length(self):
         """
         See if longer texts have different emotions than shorter ones.
@@ -1359,7 +1359,7 @@ class EmotionAnalyzer:
         """
         # Extract emotions and text lengths
         emotion_length_data = []
-        
+
         for _, row in self.data.iterrows():
             if isinstance(row['emotions'], list):
                 for emotion in row['emotions']:
@@ -1369,22 +1369,22 @@ class EmotionAnalyzer:
                             'text_length': row['text_length'],
                             'confidence': emotion.get('confidence', 0)
                         })
-        
+
         if emotion_length_data:
             df = pd.DataFrame(emotion_length_data)
-            
+
             # Create a scatter plot
             plt.figure(figsize=(12, 8))
-            
+
             # Plot each emotion with a different color
             emotions = df['emotion'].unique()
             colors = plt.cm.Set3(np.linspace(0, 1, len(emotions)))
-            
+
             for emotion, color in zip(emotions, colors):
                 emotion_data = df[df['emotion'] == emotion]
                 plt.scatter(emotion_data['text_length'], emotion_data['confidence'],
                            label=emotion, color=color, alpha=0.7, s=50)
-            
+
             plt.title('Emotion Confidence vs Text Length', fontsize=16, fontweight='bold')
             plt.xlabel('Text Length (characters)', fontsize=12)
             plt.ylabel('Confidence Score', fontsize=12)
@@ -1392,7 +1392,7 @@ class EmotionAnalyzer:
             plt.grid(True, alpha=0.3)
             plt.tight_layout()
             plt.show()
-    
+
     def get_daily_emotion_trends(self):
         """
         See how emotions change over time.
@@ -1401,13 +1401,13 @@ class EmotionAnalyzer:
         # Convert timestamp to datetime safely
         self.data['timestamp_parsed'] = pd.to_datetime(self.data['timestamp'], errors='coerce')
         self.data['date'] = self.data['timestamp_parsed'].dt.date
-        
+
         # Count emotions by date
         daily_emotions = []
-        
+
         for date in self.data['date'].unique():
             day_data = self.data[self.data['date'] == date]
-            
+
             for emotions_list in day_data['emotions']:
                 if isinstance(emotions_list, list):
                     for emotion in emotions_list:
@@ -1416,22 +1416,22 @@ class EmotionAnalyzer:
                                 'date': date,
                                 'emotion': emotion['emotion']
                             })
-        
+
         if daily_emotions:
             df = pd.DataFrame(daily_emotions)
             daily_counts = df.groupby(['date', 'emotion']).size().reset_index(name='count')
-            
+
             # Create a line chart
             plt.figure(figsize=(15, 8))
-            
+
             emotions = daily_counts['emotion'].unique()
             colors = plt.cm.Set3(np.linspace(0, 1, len(emotions)))
-            
+
             for emotion, color in zip(emotions, colors):
                 emotion_data = daily_counts[daily_counts['emotion'] == emotion]
                 plt.plot(emotion_data['date'], emotion_data['count'],
                         label=emotion, color=color, linewidth=2, marker='o')
-            
+
             plt.title('Daily Emotion Trends', fontsize=16, fontweight='bold')
             plt.xlabel('Date', fontsize=12)
             plt.ylabel('Count', fontsize=12)
@@ -1461,22 +1461,22 @@ class EmotionModelMonitor:
     Monitor your emotion detection model to make sure it's working well.
     This is like having a health check for your AI model.
     """
-    
+
     def __init__(self, api_url: str = "https://samo-unified-api-frrnetyhfa-uc.a.run.app"):
         self.api_url = api_url
         self.session = requests.Session()
         self.logger = logging.getLogger(__name__)
-        
+
         # Performance thresholds
         self.thresholds = {
             'response_time_max': 5.0,  # seconds
             'success_rate_min': 0.95,  # 95%
             'confidence_min': 0.7      # 70%
         }
-        
+
         # Store recent performance data
         self.performance_history = []
-    
+
     def run_health_check(self) -> Dict:
         """
         Run a comprehensive health check on your emotion API.
@@ -1489,7 +1489,7 @@ class EmotionModelMonitor:
             "Wow, that's amazing!",
             "I'm scared about what might happen."
         ]
-        
+
         results = {
             'timestamp': datetime.now(),
             'response_times': [],
@@ -1498,10 +1498,10 @@ class EmotionModelMonitor:
             'confidence_scores': [],
             'errors': []
         }
-        
+
         for text in test_texts:
             start_time = time.time()
-            
+
             try:
                 response = self.session.post(
                     f"{self.api_url}/predict",
@@ -1509,35 +1509,35 @@ class EmotionModelMonitor:
                     timeout=10  # Timeout after 10 seconds
                 )
                 response.raise_for_status()
-                
+
                 response_time = time.time() - start_time
                 results['response_times'].append(response_time)
-                
+
                 emotions = response.json()
                 if emotions and len(emotions) > 0:
                     results['success_count'] += 1
                     results['confidence_scores'].append(emotions[0].get('confidence', 0))
-                
+
             except Exception as e:
                 results['errors'].append(f'{type(e).__name__}: {e}')
-        
+
         # Calculate metrics
         results['avg_response_time'] = np.mean(results['response_times']) if results['response_times'] else 0
         results['success_rate'] = results['success_count'] / results['total_requests']
         results['avg_confidence'] = np.mean(results['confidence_scores']) if results['confidence_scores'] else 0
-        
+
         # Check if metrics are within acceptable ranges
         results['status'] = 'healthy'
         if (results['avg_response_time'] > self.thresholds['response_time_max'] or
             results['success_rate'] < self.thresholds['success_rate_min'] or
             results['avg_confidence'] < self.thresholds['confidence_min']):
             results['status'] = 'warning'
-        
+
         # Store in history
         self.performance_history.append(results)
-        
+
         return results
-    
+
     def create_performance_dashboard(self):
         """
         Create a visual dashboard showing model performance over time.
@@ -1546,25 +1546,25 @@ class EmotionModelMonitor:
         if len(self.performance_history) < 2:
             self.logger.warning("Need more data points for dashboard")
             return
-        
+
         # Extract data for plotting
         timestamps = [r['timestamp'] for r in self.performance_history]
         response_times = [r['avg_response_time'] for r in self.performance_history]
         success_rates = [r['success_rate'] * 100 for r in self.performance_history]  # Convert to percentage
         confidences = [r['avg_confidence'] * 100 for r in self.performance_history]  # Convert to percentage
-        
+
         # Create subplots
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 10))
-        
+
         # Response time plot
         ax1.plot(timestamps, response_times, 'b-o', linewidth=2)
-        ax1.axhline(y=self.thresholds['response_time_max'], color='r', linestyle='--', 
+        ax1.axhline(y=self.thresholds['response_time_max'], color='r', linestyle='--',
                    label=f'Max threshold ({self.thresholds["response_time_max"]}s)')
         ax1.set_title('Average Response Time Over Time', fontweight='bold')
         ax1.set_ylabel('Response Time (seconds)')
         ax1.legend()
         ax1.grid(True, alpha=0.3)
-        
+
         # Success rate plot
         ax2.plot(timestamps, success_rates, 'g-o', linewidth=2)
         ax2.axhline(y=self.thresholds['success_rate_min'] * 100, color='r', linestyle='--',
@@ -1573,7 +1573,7 @@ class EmotionModelMonitor:
         ax2.set_ylabel('Success Rate (%)')
         ax2.legend()
         ax2.grid(True, alpha=0.3)
-        
+
         # Confidence plot
         ax3.plot(timestamps, confidences, 'm-o', linewidth=2)
         ax3.axhline(y=self.thresholds['confidence_min'] * 100, color='r', linestyle='--',
@@ -1583,41 +1583,41 @@ class EmotionModelMonitor:
         ax3.set_xlabel('Time')
         ax3.legend()
         ax3.grid(True, alpha=0.3)
-        
+
         plt.tight_layout()
         plt.show()
-    
+
     def send_alert(self, message: str, email: str = None):
         """
         Send an alert when something goes wrong.
         This helps you catch problems before they affect users.
         """
         self.logger.warning(f"ALERT: {message}")
-        
+
         if email:
             # You would configure your email settings here
             self.logger.info(f"Alert email would be sent to {email}: {message}")
-    
+
     def run_continuous_monitoring(self, check_interval: int = 3600):
         """
         Run continuous monitoring with regular health checks.
         This runs in the background to keep an eye on your model.
         """
         self.logger.info(f"Starting continuous monitoring (checks every {check_interval} seconds)")
-        
+
         while True:
             try:
                 results = self.run_health_check()
-                
+
                 if results['status'] == 'warning':
                     self.send_alert(f"Model performance warning: {results}")
-                
+
                 # Create dashboard every 24 hours
                 if len(self.performance_history) % 24 == 0:
                     self.create_performance_dashboard()
-                
+
                 time.sleep(check_interval)
-                
+
             except KeyboardInterrupt:
                 self.logger.info("Monitoring stopped by user")
                 break
@@ -1640,11 +1640,11 @@ def run_complete_emotion_analysis_workflow():
     Complete workflow for emotion data analysis.
     Run this regularly to keep track of your emotion data insights.
     """
-    
+
     # Step 1: Collect new data
     print("🔄 Step 1: Collecting emotion data...")
     collector = EmotionDataCollector()
-    
+
     # Example: Analyze some sample texts
     sample_texts = [
         "I love this new feature! It's exactly what I needed.",
@@ -1653,42 +1653,42 @@ def run_complete_emotion_analysis_workflow():
         "Wow, this is amazing! I can't believe how good this is.",
         "I'm feeling a bit sad about the changes you made."
     ]
-    
+
     # Collect data
     emotion_data = collector.analyze_batch(sample_texts)
-    
+
     # Save to file
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"emotion_data_{timestamp}.csv"
     collector.save_to_csv(emotion_data, filename)
-    
+
     # Step 2: Analyze the data
     print("📊 Step 2: Analyzing emotion patterns...")
     analyzer = EmotionAnalyzer(emotion_data)
-    
+
     # Get emotion distribution
     emotion_dist = analyzer.get_emotion_distribution()
     print("\nEmotion Distribution:")
     print(emotion_dist)
-    
+
     # Create visualizations
     analyzer.plot_emotion_distribution(f"emotion_distribution_{timestamp}.png")
     analyzer.analyze_emotion_by_text_length()
     analyzer.get_daily_emotion_trends()
-    
+
     # Step 3: Monitor model health
     print("🔍 Step 3: Running model health check...")
     monitor = EmotionModelMonitor()
     health_results = monitor.run_health_check()
-    
+
     print(f"\nModel Health Status: {health_results['status']}")
     print(f"Average Response Time: {health_results['avg_response_time']:.2f}s")
     print(f"Success Rate: {health_results['success_rate']*100:.1f}%")
     print(f"Average Confidence: {health_results['avg_confidence']*100:.1f}%")
-    
+
     # Step 4: Generate insights report
     print("📈 Step 4: Generating insights report...")
-    
+
     insights = {
         'total_texts_analyzed': len(emotion_data),
         'most_common_emotion': emotion_dist.iloc[0]['emotion'] if len(emotion_dist) > 0 else 'None',
@@ -1696,27 +1696,27 @@ def run_complete_emotion_analysis_workflow():
         'data_quality': 'Good' if health_results['success_rate'] > 0.9 else 'Needs attention',
         'recommendations': []
     }
-    
+
     # Add recommendations based on findings
     if health_results['avg_response_time'] > 3:
         insights['recommendations'].append("Consider optimizing API response time")
-    
+
     if health_results['avg_confidence'] < 0.8:
         insights['recommendations'].append("Model confidence is low - consider retraining")
-    
+
     if len(emotion_dist) > 0 and emotion_dist.iloc[0]['count'] > emotion_dist['count'].sum() * 0.5:
         insights['recommendations'].append("Emotion distribution is skewed - check data balance")
-    
+
     # Save insights report
     insights_filename = f"emotion_insights_{timestamp}.json"
     with open(insights_filename, 'w') as f:
         json.dump(insights, f, indent=2, default=str)
-    
+
     print(f"\n✅ Analysis complete! Files saved:")
     print(f"   - Data: {filename}")
     print(f"   - Insights: {insights_filename}")
     print(f"   - Chart: emotion_distribution_{timestamp}.png")
-    
+
     return insights
 
 # Run the complete workflow
@@ -1726,7 +1726,7 @@ if __name__ == "__main__":
     for key, value in insights.items():
         if key != 'recommendations':
             print(f"   {key}: {value}")
-    
+
     if insights['recommendations']:
         print("\n💡 Recommendations:")
         for rec in insights['recommendations']:
@@ -1744,7 +1744,7 @@ if __name__ == "__main__":
                         <i class="fas fa-lightbulb text-warning me-2"></i>
                         Pro Tips for Data Scientists
                     </h4>
-                    
+
                     <div class="row g-4">
                         <div class="col-md-6">
                             <div class="card border-warning">
@@ -1795,7 +1795,7 @@ if __name__ == "__main__":
             </div>
         </div>
     </section>
-        
+
         return report
 
 # Usage example
@@ -1803,7 +1803,7 @@ if __name__ == "__main__":
     # Initialize components
     collector = EmotionDataCollector()
     monitor = ModelMonitor()
-    
+
     # Sample texts for analysis
     sample_texts = [
         "I'm feeling really happy today!",
@@ -1812,19 +1812,19 @@ if __name__ == "__main__":
         "I'm scared about the upcoming changes.",
         "What a wonderful surprise!"
     ]
-    
+
     # Collect data
     results_df = collector.analyze_batch(sample_texts)
     features_df = collector.extract_emotion_features(results_df)
-    
+
     # Calculate metrics
     metrics = collector.calculate_metrics(results_df)
     monitor.track_performance(metrics)
-    
+
     # Generate report
     report = monitor.generate_report()
     print(report)
-    
+
     # Save results
     features_df.to_csv('emotion_analysis_results.csv', index=False)
     print("Results saved to emotion_analysis_results.csv")</code></pre>
@@ -1910,7 +1910,7 @@ if __name__ == "__main__":
     <!-- Prism.js for syntax highlighting -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
-    
+
     <script>
         // Smooth scrolling for navigation links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -1927,4 +1927,4 @@ if __name__ == "__main__":
         });
     </script>
 </body>
-</html> 
+</html>

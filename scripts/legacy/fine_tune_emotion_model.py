@@ -1,31 +1,35 @@
-                # Backward pass
-                # Forward pass
-                # Log progress every 100 batches
-                # Save model
-            # Log progress
-            # Save best model
-            # Training phase
-            # Update learning rate
-            # Validation phase
-        # Create data loaders
-        # Create model
-        # Load dataset
-        # Setup loss and optimizer
-        # Training loop
+# Backward pass
+# Forward pass
+# Log progress every 100 batches
+# Save model
+# Log progress
+# Save best model
+# Training phase
+# Update learning rate
+# Validation phase
+# Create data loaders
+# Create model
+# Load dataset
+# Setup loss and optimizer
+# Training loop
 import logging
 import os
 import sys
-        import traceback
 import traceback
-# Add project root to path
-# Configure logging
-    # Setup device
+from pathlib import Path
+
 #!/usr/bin/env python3
 import torch
-from pathlib import Path
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
 from torch import nn
+
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import (
+    create_bert_emotion_classifier,
+)
+
+# Add project root to path
+# Configure logging
+# Setup device
 
 """
 Fine-tune Emotion Detection Model on GoEmotions Dataset
@@ -37,7 +41,9 @@ to improve emotion detection performance.
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -80,8 +86,12 @@ def fine_tune_model():
         optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5, weight_decay=0.01)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=5)
 
-        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=16, shuffle=True)
-        val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
+        train_loader = torch.utils.data.DataLoader(
+            train_dataset, batch_size=16, shuffle=True
+        )
+        val_loader = torch.utils.data.DataLoader(
+            val_dataset, batch_size=16, shuffle=False
+        )
 
         best_val_loss = float("in")
         training_history = []
@@ -177,7 +187,7 @@ def fine_tune_model():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Fine-tuning failed: {e}")
         traceback.print_exc()
         return False

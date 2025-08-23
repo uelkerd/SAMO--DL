@@ -121,7 +121,7 @@ def test_function_with_long_line_that_should_be_broken_down_into_multiple_lines_
     """This function has a very long name that should trigger line length warnings."""
     return "test"
 
-def test_function_with_trailing_whitespace():    
+def test_function_with_trailing_whitespace():
     """This function has trailing whitespace."""
     return "test"
 

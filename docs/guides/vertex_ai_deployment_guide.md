@@ -296,4 +296,4 @@ pipeline_config = {
 
 ---
 
-**🎉 Vertex AI will solve the 0.0000 loss issue and provide a production-ready ML infrastructure for SAMO Deep Learning!** 
+**🎉 Vertex AI will solve the 0.0000 loss issue and provide a production-ready ML infrastructure for SAMO Deep Learning!**

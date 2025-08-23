@@ -1,24 +1,24 @@
-            # Check per-class distribution
-            # Count positive labels
-        # Analyze first few examples
-        # Calculate statistics
-        # Check CUDA
-        # Check for critical issues
-        # Check for issues
-        # Check for issues
-        # Check if we have the expected keys
-        # Check statistics
-        # Compare with manual BCE
-        # Create loader without dev_mode parameter
-        # Create model
-        # Ensure some positive labels
-        # Get training data
-        # Load data
-        # Log class distribution
-        # Prepare datasets
-        # Scenario 1: Mixed labels
-        # Test different scenarios
-        # Test forward pass
+# Check per-class distribution
+# Count positive labels
+# Analyze first few examples
+# Calculate statistics
+# Check CUDA
+# Check for critical issues
+# Check for issues
+# Check for issues
+# Check if we have the expected keys
+# Check statistics
+# Compare with manual BCE
+# Create loader without dev_mode parameter
+# Create model
+# Ensure some positive labels
+# Get training data
+# Load data
+# Log class distribution
+# Prepare datasets
+# Scenario 1: Mixed labels
+# Test different scenarios
+# Test forward pass
 import logging
 import sys
 from pathlib import Path
@@ -35,9 +35,9 @@ from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 
 # Add src to path
 # Configure logging
-    # Run all validations
-    # Run validations
-    # Summary
+# Run all validations
+# Run validations
+# Summary
 
 """
 Local Validation and Debug Script for SAMO Deep Learning.
@@ -48,7 +48,9 @@ It can be run locally to diagnose problems before deploying to GCP.
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -96,7 +98,9 @@ def check_data_loading():
 
         stats = datasets["statistics"]
         logger.info("✅ Total examples: {stats.get('total_examples', 'N/A')}")
-        logger.info("✅ Emotion distribution: {len(stats.get('emotion_counts', {}))} emotions")
+        logger.info(
+            "✅ Emotion distribution: {len(stats.get('emotion_counts', {}))} emotions"
+        )
 
         return True
 
@@ -168,11 +172,17 @@ def check_loss_function():
         loss_fn = WeightedBCELoss()
         loss1 = loss_fn(logits, labels)
 
-        bce_manual = F.binary_cross_entropy_with_logits(logits, labels, reduction="mean")
+        bce_manual = F.binary_cross_entropy_with_logits(
+            logits, labels, reduction="mean"
+        )
 
         logger.info("✅ Mixed labels loss: {loss1.item():.8f}")
-        logger.info("✅ All positive loss: {loss_fn(logits, torch.ones(batch_size, num_classes)).item():.8f}")
-        logger.info("✅ All negative loss: {loss_fn(logits, torch.zeros(batch_size, num_classes)).item():.8f}")
+        logger.info(
+            "✅ All positive loss: {loss_fn(logits, torch.ones(batch_size, num_classes)).item():.8f}"
+        )
+        logger.info(
+            "✅ All negative loss: {loss_fn(logits, torch.zeros(batch_size, num_classes)).item():.8f}"
+        )
         logger.info("✅ Manual BCE loss: {bce_manual.item():.8f}")
 
         if loss1.item() <= 0:

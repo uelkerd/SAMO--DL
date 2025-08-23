@@ -34,7 +34,7 @@ print_error() {
 # Check if conda is available
 check_conda() {
     print_status "Checking conda installation..."
-    
+
     # Try different conda locations
     CONDA_PATHS=(
         "/opt/homebrew/anaconda3/bin/conda"
@@ -44,7 +44,7 @@ check_conda() {
         "$HOME/miniconda3/bin/conda"
         "$HOME/miniforge3/bin/conda"
     )
-    
+
     CONDA_PATH=""
     for path in "${CONDA_PATHS[@]}"; do
         if [ -f "$path" ]; then
@@ -52,13 +52,13 @@ check_conda() {
             break
         fi
     done
-    
+
     if [ -z "$CONDA_PATH" ]; then
         print_error "Conda not found. Please install Anaconda or Miniconda first."
         print_status "Download from: https://docs.conda.io/en/latest/miniconda.html"
         exit 1
     fi
-    
+
     print_success "Found conda at: ${CONDA_PATH}"
     export PATH="$(dirname "$CONDA_PATH"):$PATH"
 }
@@ -66,11 +66,11 @@ check_conda() {
 # Initialize conda
 init_conda() {
     print_status "Initializing conda..."
-    
+
     # Source conda initialization
     CONDA_BASE=$(dirname "$(dirname "$CONDA_PATH")")
     source "$CONDA_BASE/etc/profile.d/conda.sh"
-    
+
     if [ $? -eq 0 ]; then
         print_success "Conda initialized successfully"
     else
@@ -82,7 +82,7 @@ init_conda() {
 # Create or update environment
 setup_environment() {
     print_status "Setting up conda environment 'samo-dl'..."
-    
+
     # Check if environment exists
     if conda env list | grep -q "samo-dl"; then
         print_warning "Environment 'samo-dl' already exists. Updating..."
@@ -91,7 +91,7 @@ setup_environment() {
         print_status "Creating new environment 'samo-dl'..."
         conda env create -f environment.yml
     fi
-    
+
     if [ $? -eq 0 ]; then
         print_success "Environment setup completed"
     else
@@ -103,40 +103,40 @@ setup_environment() {
 # Activate environment and install additional dependencies
 activate_and_setup() {
     print_status "Activating environment and installing additional dependencies..."
-    
+
     conda activate samo-dl
-    
+
     # Install additional pip packages
     pip install --upgrade pip
     pip install -r requirements.txt 2>/dev/null || print_warning "No requirements.txt found"
-    
+
     # Install pre-commit hooks
     print_status "Setting up pre-commit hooks..."
     pre-commit install
-    
+
     print_success "Environment activation completed"
 }
 
 # Test the environment
 test_environment() {
     print_status "Testing environment setup..."
-    
+
     # Test Python version
     python_version=$(python --version 2>&1)
     print_status "Python version: ${python_version}"
-    
+
     # Test key imports
     python -c "import torch; print(f'PyTorch version: {torch.__version__}')"
     python -c "import transformers; print(f'Transformers version: {transformers.__version__}')"
     python -c "import numpy; print(f'NumPy version: {numpy.__version__}')"
-    
+
     print_success "Environment test completed successfully"
 }
 
 # Setup database connection
 setup_database() {
     print_status "Setting up database connection..."
-    
+
     # Check if .env file exists
     if [ ! -f ".env" ]; then
         print_warning "No .env file found. Creating from template..."
@@ -147,7 +147,7 @@ setup_database() {
             print_warning "No .env.template found. Please create .env file manually"
         fi
     fi
-    
+
     # Test database connection if .env exists
     if [ -f ".env" ]; then
         python scripts/database/check_pgvector.py 2>/dev/null || print_warning "Database connection test failed"
@@ -159,14 +159,14 @@ main() {
     echo "=========================================="
     echo "SAMO Deep Learning Environment Setup"
     echo "=========================================="
-    
+
     check_conda
     init_conda
     setup_environment
     activate_and_setup
     test_environment
     setup_database
-    
+
     echo ""
     echo "=========================================="
     print_success "Environment setup completed!"
@@ -182,4 +182,4 @@ main() {
 }
 
 # Run main function
-main "$@" 
+main "$@"

@@ -1,30 +1,30 @@
-                # Test write permissions
-            # Backward pass
-            # Check CUDA availability
-            # Check available disk space
-            # Check class weights
-            # Check data shapes and types
-            # Check dataset structure
-            # Check for all-zero or all-one labels
-            # Check gradients
-            # Check output directories
-            # Create model
-            # Create trainer
-            # Forward pass
-            # Load data in dev mode
-            # Move to device if available
-            # Optimizer step
-            # Prepare data
-            # Test forward pass
-            # Test forward pass with dummy data
-            # Test learning rate
-            # Test loss function
-            # Test one training step
-            # Test optimizer
-            # Test scheduler
-            # Validate first batch
-            # Validate labels
-            # Validate outputs
+# Test write permissions
+# Backward pass
+# Check CUDA availability
+# Check available disk space
+# Check class weights
+# Check data shapes and types
+# Check dataset structure
+# Check for all-zero or all-one labels
+# Check gradients
+# Check output directories
+# Create model
+# Create trainer
+# Forward pass
+# Load data in dev mode
+# Move to device if available
+# Optimizer step
+# Prepare data
+# Test forward pass
+# Test forward pass with dummy data
+# Test learning rate
+# Test loss function
+# Test one training step
+# Test optimizer
+# Test scheduler
+# Validate first batch
+# Validate labels
+# Validate outputs
 import logging
 import shutil
 import sys
@@ -42,13 +42,13 @@ from src.models.emotion_detection.training_pipeline import EmotionDetectionTrain
 
 # Add src to path
 # Configure logging
-        # Critical issues
-    # Exit with appropriate code
-        # Final recommendation
-    # Generate report
-    # Run all validations
-        # Summary
-        # Warnings
+# Critical issues
+# Exit with appropriate code
+# Final recommendation
+# Generate report
+# Run all validations
+# Summary
+# Warnings
 
 """
 Pre-Training Validation Script for SAMO Deep Learning.
@@ -59,7 +59,9 @@ issues like 0.0000 loss, data problems, model issues, etc.
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -164,7 +166,9 @@ class PreTrainingValidator:
                 logger.info("✅ Class weights max: {class_weights.max():.6f}")
 
                 if class_weights.min() <= 0:
-                    logger.error("❌ CRITICAL: Class weights contain zero or negative values!")
+                    logger.error(
+                        "❌ CRITICAL: Class weights contain zero or negative values!"
+                    )
                     self.critical_issues.append("Invalid class weights")
                     return False
 
@@ -285,11 +289,15 @@ class PreTrainingValidator:
 
             if trainer.learning_rate <= 0:
                 logger.error("❌ Invalid learning rate: {trainer.learning_rate}")
-                self.critical_issues.append("Invalid learning rate: {trainer.learning_rate}")
+                self.critical_issues.append(
+                    "Invalid learning rate: {trainer.learning_rate}"
+                )
                 return False
 
             if trainer.learning_rate > 1e-3:
-                logger.warning("⚠️  Learning rate might be too high: {trainer.learning_rate}")
+                logger.warning(
+                    "⚠️  Learning rate might be too high: {trainer.learning_rate}"
+                )
                 self.warnings.append("High learning rate: {trainer.learning_rate}")
 
             batch = next(iter(trainer.train_dataloader))

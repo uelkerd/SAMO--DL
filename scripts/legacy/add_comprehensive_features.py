@@ -9,6 +9,7 @@ to make it truly complete with all the gains from previous iterations.
 
 import json
 
+
 def add_comprehensive_features():
     """Add all advanced features to the comprehensive notebook."""
 

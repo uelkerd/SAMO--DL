@@ -10,9 +10,8 @@ This module provides comprehensive JWT token management including:
 
 import logging
 import os
-import time
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Union, Any
+from typing import Any, Dict, List, Optional
 
 import jwt
 from pydantic import BaseModel, Field
@@ -26,8 +25,10 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
+
 class TokenPayload(BaseModel):
     """Token payload structure."""
+
     user_id: str = Field(..., description="User identifier")
     username: str = Field(..., description="Username")
     email: str = Field(..., description="User email")
@@ -36,14 +37,18 @@ class TokenPayload(BaseModel):
     iat: Optional[int] = Field(None, description="Issued at timestamp")
     type: Optional[str] = Field(None, description="Token type, e.g., 'refresh'")
 
+
 class TokenResponse(BaseModel):
     """Token response structure."""
+
     access_token: str = Field(..., description="Access token")
     refresh_token: str = Field(..., description="Refresh token")
     token_type: str = Field(default="bearer", description="Token type")
     expires_in: int = Field(..., description="Access token expiration in seconds")
 
+
 # Token pair is returned as a plain dict
+
 
 class JWTManager:
     """Comprehensive JWT token management system."""
@@ -62,7 +67,7 @@ class JWTManager:
             "email": user_data["email"],
             "permissions": user_data.get("permissions", []),
             "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
-            "iat": datetime.utcnow()
+            "iat": datetime.utcnow(),
         }
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
 
@@ -75,7 +80,7 @@ class JWTManager:
             "permissions": user_data.get("permissions", []),
             "exp": datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS),
             "iat": datetime.utcnow(),
-            "type": "refresh"
+            "type": "refresh",
         }
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
 
@@ -86,7 +91,7 @@ class JWTManager:
         return TokenResponse(
             access_token=access_token,
             refresh_token=refresh_token,
-            expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60
+            expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         )
 
     def verify_token(self, token: str) -> Optional[TokenPayload]:
@@ -101,10 +106,10 @@ class JWTManager:
             logger.warning(f"Token expired: {token[:10]}...")
             return None
         except jwt.InvalidTokenError as e:
-            logger.warning(f"Invalid token: {str(e)}")
+            logger.warning(f"Invalid token: {e!s}")
             return None
         except Exception as e:
-            logger.error(f"Token verification error: {str(e)}")
+            logger.error(f"Token verification error: {e!s}")
             return None
 
     def refresh_access_token(self, refresh_token: str) -> Optional[str]:
@@ -117,7 +122,7 @@ class JWTManager:
             "user_id": payload.user_id,
             "username": payload.username,
             "email": payload.email,
-            "permissions": payload.permissions
+            "permissions": payload.permissions,
         }
         return self.create_access_token(user_data)
 
@@ -125,7 +130,9 @@ class JWTManager:
         """Add a token to the blacklist."""
         try:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
-            exp_datetime = datetime.fromtimestamp(payload["exp"]) if payload.get("exp") else None
+            exp_datetime = (
+                datetime.fromtimestamp(payload["exp"]) if payload.get("exp") else None
+            )
             self.blacklisted_tokens[token] = exp_datetime
             return True
         except jwt.InvalidTokenError:
@@ -159,6 +166,7 @@ class JWTManager:
         for token in tokens_to_remove:
             self.blacklisted_tokens.pop(token, None)
         return initial_count - len(self.blacklisted_tokens)
+
 
 # Global JWT manager instance
 jwt_manager = JWTManager()

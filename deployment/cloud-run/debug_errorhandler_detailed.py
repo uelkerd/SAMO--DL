@@ -2,6 +2,7 @@
 """Detailed debug script to understand the errorhandler issue."""
 
 import os
+
 os.environ['ADMIN_API_KEY'] = 'test123'
 
 print("🔍 Starting detailed errorhandler debug...")

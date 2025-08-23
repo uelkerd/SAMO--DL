@@ -9,6 +9,7 @@ and all its features.
 
 import json
 
+
 def summarize_comprehensive_notebook():
     """Summarize the comprehensive notebook."""
 

@@ -7,13 +7,15 @@ Tests for hash security and collision resistance.
 
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import unittest
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "src"))
+
 import hashlib
+import unittest
 
-from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
-from api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
+from api_rate_limiter import RateLimitConfig, TokenBucketRateLimiter
+from security_headers import SecurityHeadersConfig, SecurityHeadersMiddleware
+
 
 class TestHashSecurity(unittest.TestCase):
     """Test hash security and collision resistance."""
@@ -21,18 +23,16 @@ class TestHashSecurity(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         from flask import Flask
+
         self.app = Flask(__name__)
         self.config = SecurityHeadersConfig(
-            enable_request_id=True,
-            enable_correlation_id=True
+            enable_request_id=True, enable_correlation_id=True
         )
         self.middleware = SecurityHeadersMiddleware(self.app, self.config)
 
         # Rate limiter for testing
         self.rate_limit_config = RateLimitConfig(
-            requests_per_minute=100,
-            burst_size=10,
-            max_concurrent_requests=5
+            requests_per_minute=100, burst_size=10, max_concurrent_requests=5
         )
         self.rate_limiter = TokenBucketRateLimiter(self.rate_limit_config)
 
@@ -40,9 +40,10 @@ class TestHashSecurity(unittest.TestCase):
         """Test that request ID uses full SHA-256 hexdigest."""
         # Mock request context
         from flask import g, request
-        with self.app.test_request_context('/'):
+
+        with self.app.test_request_context("/"):
             # Mock request.remote_addr
-            request.remote_addr = '192.168.1.1'
+            request.remote_addr = "192.168.1.1"
 
             # Call _before_request to generate request ID
             self.middleware._before_request()
@@ -81,9 +82,10 @@ class TestHashSecurity(unittest.TestCase):
 
         for i in range(100):
             # Mock different request contexts
-            with self.app.test_request_context('/'):
+            with self.app.test_request_context("/"):
                 from flask import g, request
-                request.remote_addr = f'192.168.1.{i}'
+
+                request.remote_addr = f"192.168.1.{i}"
 
                 # Generate request ID
                 self.middleware._before_request()
@@ -131,9 +133,10 @@ class TestHashSecurity(unittest.TestCase):
         """Test that request ID is deterministic for same inputs."""
         # This test is limited because request ID includes time and random components
         # But we can test the structure and length consistency
-        with self.app.test_request_context('/'):
+        with self.app.test_request_context("/"):
             from flask import g, request
-            request.remote_addr = '192.168.1.1'
+
+            request.remote_addr = "192.168.1.1"
 
             # Generate request ID multiple times
             self.middleware._before_request()
@@ -201,5 +204,6 @@ class TestHashSecurity(unittest.TestCase):
         except ValueError:
             self.fail("Client key with special characters is not a valid hex string")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

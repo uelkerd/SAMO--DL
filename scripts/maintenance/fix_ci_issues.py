@@ -1,9 +1,9 @@
-        # Split command for security (avoid shell=True)
-    # Change to project root
-    # Fix 1: Format code with ruff
-    # Fix 2: Check for any remaining formatting issues
-    # Fix 3: Run specific failing tests to verify fixes
-    # Summary
+# Split command for security (avoid shell=True)
+# Change to project root
+# Fix 1: Format code with ruff
+# Fix 2: Check for any remaining formatting issues
+# Fix 3: Run specific failing tests to verify fixes
+# Summary
 #!/usr/bin/env python3
 import logging
 import os
@@ -15,6 +15,7 @@ from typing import Tuple
 """
 Script to fix CI issues identified in the SAMO Deep Learning project.
 """
+
 
 def run_command(cmd: str, description: str) -> Tuple[bool, str]:
     """Run a command and return success status and output."""
@@ -43,9 +44,13 @@ def main():
     project_root = Path(__file__).parent.parent
     os.chdir(project_root)
 
-    success1, _ = run_command("ruff format src/ tests/ scripts/", "Formatting code with ru")
+    success1, _ = run_command(
+        "ruff format src/ tests/ scripts/", "Formatting code with ru"
+    )
 
-    success2, _ = run_command("ruff check src/ tests/ scripts/ --fix", "Fixing linting issues")
+    success2, _ = run_command(
+        "ruff check src/ tests/ scripts/ --fix", "Fixing linting issues"
+    )
 
     success3, _ = run_command(
         "python -m pytest tests/unit/test_emotion_detection.py::TestBertEmotionClassifier::test_forward_pass -v",

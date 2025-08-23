@@ -1,14 +1,15 @@
-    # Check if checkpoint exists
-    # Copy checkpoint to final location
-    # Create final model
-    # Create model metadata
-    # Create output directory
-    # Save metadata
-    # Verify requirements
+# Check if checkpoint exists
+# Copy checkpoint to final location
+# Create final model
+# Create model metadata
+# Create output directory
+# Save metadata
+# Verify requirements
 import json
 import logging
-    import shutil
+import shutil
 import sys
+
 # Add src to path
 # Configure logging
 # Constants
@@ -133,7 +134,7 @@ def main():
         logger.info("📁 Model saved to: {model_info['model_path']}")
         logger.info("📊 Target F1 Score: {TARGET_F1_SCORE}")
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Error during model finalization: {e}")
         sys.exit(1)
 

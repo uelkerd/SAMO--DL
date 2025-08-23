@@ -27,9 +27,9 @@ You must restart the runtime in order to use newly installed versions.
 
 ### **The Vicious Cycle:**
 ```
-Colab Runtime (NumPy 2.x) 
+Colab Runtime (NumPy 2.x)
     ↓
-Install NumPy 1.x 
+Install NumPy 1.x
     ↓
 Conflict with loaded NumPy 2.x
     ↓
@@ -165,4 +165,4 @@ Cell 4: Train model → Success
 
 ## **🎯 Dependency Hell: SOLVED!**
 
-**No more infinite loops. No more restarts. Just smooth training to your target F1 score!** 🚀 
+**No more infinite loops. No more restarts. Just smooth training to your target F1 score!** 🚀

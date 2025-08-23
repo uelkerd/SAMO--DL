@@ -5,13 +5,14 @@ import json
 import os
 import shutil
 
+
 def check_model_files():
     """Check if required model files exist."""
     print("🔍 Checking for model files...")
 
     required_files = {
-        'model': 'best_simple_model.pth',
-        'results': 'simple_training_results.json'
+        "model": "best_simple_model.pth",
+        "results": "simple_training_results.json",
     }
 
     missing_files = []
@@ -28,6 +29,7 @@ def check_model_files():
 
     return existing_files, missing_files
 
+
 def create_mock_results():
     """Create mock results file for testing if missing."""
     print("\n🔧 Creating mock results file for testing...")
@@ -40,8 +42,18 @@ def create_mock_results():
         "go_samples": 43410,
         "journal_samples": 150,
         "all_emotions": [
-            "anxious", "calm", "content", "excited", "frustrated",
-            "grateful", "happy", "hopeful", "overwhelmed", "proud", "sad", "tired"
+            "anxious",
+            "calm",
+            "content",
+            "excited",
+            "frustrated",
+            "grateful",
+            "happy",
+            "hopeful",
+            "overwhelmed",
+            "proud",
+            "sad",
+            "tired",
         ],
         "emotion_mapping": {
             "joy": "happy",
@@ -70,14 +82,15 @@ def create_mock_results():
             "realization": "content",
             "relie": "calm",
             "remorse": "sad",
-            "neutral": "calm"
-        }
+            "neutral": "calm",
+        },
     }
 
-    with open('simple_training_results.json', 'w') as f:
+    with open("simple_training_results.json", "w") as f:
         json.dump(mock_results, f, indent=2)
 
     print("✅ Created mock results file: simple_training_results.json")
+
 
 def find_model_file():
     """Find the model file in common locations."""
@@ -88,7 +101,7 @@ def find_model_file():
         "best_focal_model.pth",  # Fallback
         os.path.expanduser("~/Downloads/best_simple_model.pth"),
         os.path.expanduser("~/Desktop/best_simple_model.pth"),
-        os.path.expanduser("~/best_simple_model.pth")
+        os.path.expanduser("~/best_simple_model.pth"),
     ]
 
     for location in search_locations:
@@ -106,6 +119,7 @@ def find_model_file():
     print("❌ Model file not found in common locations")
     return False
 
+
 def setup_testing():
     """Main setup function."""
     print("🚀 SETTING UP MODEL TESTING")
@@ -115,18 +129,21 @@ def setup_testing():
     existing_files, missing_files = check_model_files()
 
     # Find model file if missing
-    if 'model' in missing_files:
+    if "model" in missing_files:
         if not find_model_file():
             print("\n❌ Cannot proceed without model file!")
-            print("📋 Please download best_simple_model.pth from Colab and place it in this directory")
+            print(
+                "📋 Please download best_simple_model.pth from Colab and place it in this directory"
+            )
             return False
 
     # Create mock results if missing
-    if 'results' in missing_files:
+    if "results" in missing_files:
         create_mock_results()
 
     print("\n✅ Setup complete! Ready for testing.")
     return True
+
 
 def run_quick_test():
     """Run a quick test to verify everything works."""
@@ -140,11 +157,11 @@ def run_quick_test():
         print("✅ All required libraries available")
 
         # Test model loading
-        if os.path.exists('best_simple_model.pth'):
+        if os.path.exists("best_simple_model.pth"):
             print("✅ Model file exists")
 
             # Try to load a small part to verify it's valid
-            checkpoint = torch.load('best_simple_model.pth', map_location='cpu')
+            checkpoint = torch.load("best_simple_model.pth", map_location="cpu")
             print(f"✅ Model checkpoint loaded with {len(checkpoint)} layers")
 
         return True
@@ -156,6 +173,7 @@ def run_quick_test():
     except Exception as e:
         print(f"❌ Test failed: {e}")
         return False
+
 
 if __name__ == "__main__":
     if setup_testing():

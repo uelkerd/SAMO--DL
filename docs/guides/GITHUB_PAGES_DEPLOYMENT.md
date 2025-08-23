@@ -118,4 +118,4 @@ If you encounter any issues:
 
 ---
 
-**Your SAMO-DL website is now ready for professional portfolio presentation!** 🎉 
+**Your SAMO-DL website is now ready for professional portfolio presentation!** 🎉

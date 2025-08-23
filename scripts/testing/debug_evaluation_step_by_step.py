@@ -1,23 +1,25 @@
-                    # Find top-1 prediction
-        # Apply fallback manually to see what happens
-        # Apply threshold
-        # Calculate F1 scores manually
-        # Check which samples need fallback
-        # Micro F1
-    # Get validation data (small batch for debugging)
-    # Initialize trainer
-    # Load model
-    # Run model inference
-    # Take just one batch for detailed analysis
-    # Test different thresholds
+# Find top-1 prediction
+# Apply fallback manually to see what happens
+# Apply threshold
+# Calculate F1 scores manually
+# Check which samples need fallback
+# Micro F1
+# Get validation data (small batch for debugging)
+# Initialize trainer
+# Load model
+# Run model inference
+# Take just one batch for detailed analysis
+# Test different thresholds
 # Add src to path
 # Set up logging
 #!/usr/bin/env python3
 import logging
 import sys
+from pathlib import Path
+
 import numpy as np
 import torch
-from pathlib import Path
+
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 """
@@ -67,7 +69,9 @@ def debug_evaluation_step_by_step():
 
     logger.info("🔍 Model outputs:")
     logger.info("  📊 Logits shape: {logits.shape}")
-    logger.info("  📊 Logits min/max: {logits.min().item():.4f} / {logits.max().item():.4f}")
+    logger.info(
+        "  📊 Logits min/max: {logits.min().item():.4f} / {logits.max().item():.4f}"
+    )
     logger.info("  📊 Probabilities shape: {probabilities.shape}")
     logger.info(
         "  📊 Probabilities min/max: {probabilities.min().item():.4f} / {probabilities.max().item():.4f}"
@@ -103,7 +107,9 @@ def debug_evaluation_step_by_step():
         predictions_after_fallback = predictions_before_fallback.clone()
 
         if num_samples_needing_fallback > 0:
-            logger.info("  🔧 Applying fallback to {num_samples_needing_fallback} samples...")
+            logger.info(
+                "  🔧 Applying fallback to {num_samples_needing_fallback} samples..."
+            )
 
             for sample_idx in range(predictions_after_fallback.shape[0]):
                 if predictions_after_fallback[sample_idx].sum() == 0:

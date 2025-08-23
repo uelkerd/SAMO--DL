@@ -8,6 +8,7 @@ This script provides a comprehensive summary of what the ultimate notebook conta
 
 import json
 
+
 def summarize_notebook():
     """Summarize the ultimate notebook contents."""
 

@@ -1,12 +1,14 @@
-    # Load checkpoint
+# Load checkpoint
 #!/usr/bin/env python3
 import logging
-import torch
 from pathlib import Path
+
+import torch
 
 """
 Debug Checkpoint Format
 """
+
 
 def debug_checkpoint():
     checkpoint_path = Path("test_checkpoints/best_model.pt")

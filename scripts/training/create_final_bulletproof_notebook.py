@@ -3,6 +3,7 @@
 
 import json
 
+
 def create_final_bulletproof_notebook():
     """Create a Colab notebook that handles all dependency and path issues."""
 
@@ -177,12 +178,12 @@ def create_final_bulletproof_notebook():
                          AutoModelForSequenceClassification,
                          TrainingArguments,
                          Trainer\n",
-                        
+
                     "import numpy as np\n",
                     "from sklearn.metrics import                    "from sklearn.metrics import f1_score,
                          accuracy_score,
                          classification_report\n",
-                        
+
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",

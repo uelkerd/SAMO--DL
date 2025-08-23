@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Create a Colab notebook for expanded dataset training."""
 
+
 def create_colab_notebook():
     """Create a complete Colab notebook for expanded training."""
 
-    notebook_content = '''{
+    notebook_content = """{
   "cells": [
     {
       "cell_type": "markdown",
@@ -717,10 +718,10 @@ def create_colab_notebook():
   },
   "nbformat": 4,
   "nbformat_minor": 4
-}'''
+}"""
 
     # Save the notebook
-    with open('notebooks/expanded_dataset_training.ipynb', 'w') as f:
+    with open("notebooks/expanded_dataset_training.ipynb", "w") as f:
         f.write(notebook_content)
 
     print("✅ Created Colab notebook: notebooks/expanded_dataset_training.ipynb")
@@ -730,6 +731,7 @@ def create_colab_notebook():
     print("  3. Set Runtime → GPU")
     print("  4. Run all cells")
     print("  5. Expect 75-85% F1 score!")
+
 
 if __name__ == "__main__":
     create_colab_notebook()

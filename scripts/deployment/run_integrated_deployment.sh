@@ -60,11 +60,11 @@ main() {
     echo "🔒 INTEGRATED SECURITY & CLOUD RUN OPTIMIZATION"
     echo "==============================================="
     echo ""
-    
+
     # Check prerequisites
     log "Checking prerequisites..."
     success "All prerequisites met"
-    
+
     echo ""
     log "This deployment will integrate:"
     echo "  ✅ Phase 3 Cloud Run optimization features"
@@ -75,19 +75,19 @@ main() {
     echo "  ✅ Updated secure dependencies"
     echo "  ✅ Dynamic project ID detection"
     echo ""
-    
+
     read -p "Do you want to proceed with the integrated deployment? (y/N): " -n 1 -r
     echo
-    
+
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         log "Integrated deployment cancelled by user"
         exit 0
     fi
-    
+
     # Run the integration script
     log "Starting integrated security and optimization deployment..."
     cd "$PROJECT_ROOT"
-    
+
     if python3 "$INTEGRATION_SCRIPT"; then
         success "Integrated deployment completed successfully!"
         echo ""
@@ -103,14 +103,14 @@ main() {
         echo "✅ All dependencies updated to secure versions"
         echo "✅ Dynamic project configuration"
         echo ""
-        
+
         # Get new service URL
         NEW_URL=$(gcloud run services describe samo-emotion-api-optimized-secure --region=us-central1 --format="value(status.url)" 2>/dev/null || echo "Service not found")
         if [[ "$NEW_URL" != "Service not found" ]]; then
             echo "🌐 New Integrated Service URL: $NEW_URL"
             echo ""
             echo "🧪 Quick test of new deployment..."
-            
+
             # Quick test
             if curl -s "$NEW_URL/health" | grep -q "healthy"; then
                 success "New integrated deployment is healthy and responding"
@@ -118,7 +118,7 @@ main() {
                 warning "New deployment may have issues - check logs"
             fi
         fi
-        
+
     else
         error "Integrated deployment failed!"
         echo ""
@@ -133,4 +133,4 @@ main() {
 }
 
 # Run main function
-main "$@" 
+main "$@"

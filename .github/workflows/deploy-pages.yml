@@ -18,11 +18,11 @@ jobs:
     permissions:
       pages: write
       id-token: write
-    
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      
+
     - name: Debug - Check current directory structure
       run: |
         echo "=== Current Directory Structure ==="
@@ -31,12 +31,12 @@ jobs:
         ls -la website/ || echo "Website directory not found"
         echo "=== Root HTML Files ==="
         ls -la *.html 2>/dev/null || echo "No HTML files in root"
-        
+
     - name: Create clean website directory
       run: |
         # Create a completely clean directory with only website files
         mkdir -p website-deploy
-        
+
         # Copy website files from the website/ directory (primary source)
         if [ -d "website" ]; then
           cp -r website/* website-deploy/ 2>/dev/null || true
@@ -45,7 +45,7 @@ jobs:
           echo "ERROR: website/ directory not found!"
           exit 1
         fi
-        
+
         # Copy essential files from root if they don't exist in website/
         if [ ! -f "website-deploy/index.html" ]; then
           cp index.html website-deploy/ 2>/dev/null || true
@@ -53,10 +53,10 @@ jobs:
         if [ ! -f "website-deploy/README.md" ]; then
           cp README.md website-deploy/ 2>/dev/null || true
         fi
-        
+
         # Copy .nojekyll file
         cp .nojekyll website-deploy/ 2>/dev/null || true
-        
+
         # Remove any problematic directories that might have been copied
         rm -rf website-deploy/data/
         rm -rf website-deploy/models/
@@ -64,31 +64,31 @@ jobs:
         rm -rf website-deploy/test_checkpoints/
         rm -rf website-deploy/__pycache__/
         rm -rf website-deploy/*/__pycache__/
-        
+
         # Remove any lock files
         find website-deploy -name "*.lock" -delete 2>/dev/null || true
         find website-deploy -name "*.incomplete_info.lock" -delete 2>/dev/null || true
-        
+
         # Remove large files
         find website-deploy -name "*.pt" -delete 2>/dev/null || true
         find website-deploy -name "*.pth" -delete 2>/dev/null || true
         find website-deploy -name "*.safetensors" -delete 2>/dev/null || true
         find website-deploy -name "*.bin" -delete 2>/dev/null || true
         find website-deploy -name "*.onnx" -delete 2>/dev/null || true
-        
+
         echo "=== Clean website directory created ==="
         ls -la website-deploy/
         echo "=== HTML files in website-deploy ==="
         ls -la website-deploy/*.html 2>/dev/null || echo "No HTML files found"
-        
+
         # Validate that we have the required files
         if [ ! -f "website-deploy/index.html" ]; then
           echo "ERROR: index.html not found in website-deploy!"
           exit 1
         fi
-        
+
         echo "✅ Deployment files ready"
-        
+
     - name: Check GitHub Pages settings
       run: |
         echo "=== GitHub Pages Configuration ==="
@@ -96,16 +96,16 @@ jobs:
         echo "Event: ${{ github.event_name }}"
         echo "Actor: ${{ github.actor }}"
         echo "Repository: ${{ github.repository }}"
-        
+
     - name: Setup Pages
       uses: actions/configure-pages@v4
-      
+
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
       with:
         path: 'website-deploy'
         retention-days: 1
-        
+
     - name: Deploy to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v4 
+      uses: actions/deploy-pages@v4

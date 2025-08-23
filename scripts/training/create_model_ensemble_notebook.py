@@ -8,6 +8,7 @@ and uses the best performing one. This addresses the 32.73% F1 score.
 
 import json
 
+
 def create_model_ensemble_notebook():
     """Create the model ensemble notebook content."""
 
@@ -68,7 +69,7 @@ def create_model_ensemble_notebook():
                     "from sklearn.metrics import                    "from sklearn.metrics import f1_score,
                          accuracy_score,
                          classification_report\n",
-                        
+
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",

@@ -17,7 +17,7 @@ This document explains the security considerations and design decisions for diff
 - ✅ Health checks
 - ✅ Environment variable configuration
 
-**CMD**: 
+**CMD**:
 ```dockerfile
 CMD ["sh", "-c", "gunicorn --bind ${HOST}:${PORT} --workers 2 --worker-class uvicorn.workers.UvicornWorker --access-logfile - --error-logfile - src.unified_ai_api:app"]
 ```

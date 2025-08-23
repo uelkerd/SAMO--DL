@@ -13,8 +13,8 @@ import torch
 import torch.nn as nn
 
 from .integrity_checker import IntegrityChecker
-from .sandbox_executor import SandboxExecutor
 from .model_validator import ModelValidator
+from .sandbox_executor import SandboxExecutor
 
 logger = logging.getLogger(__name__)
 

@@ -5,9 +5,11 @@ DEEP MODEL ANALYSIS SCRIPT
 Analyzes the model's behavior to understand performance discrepancies
 """
 
-import torch
 from pathlib import Path
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+import torch
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
 
 def deep_model_analysis():
     """Deep analysis of the model's behavior."""

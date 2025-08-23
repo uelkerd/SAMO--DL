@@ -8,8 +8,10 @@ This includes model files, tokenizer, and label encoder.
 
 import json
 import os
+
 from sklearn.preprocessing import LabelEncoder
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
 
 def save_model_for_deployment():
     """Save the trained model for deployment."""

@@ -9,6 +9,7 @@ file paths and handles all edge cases for reliable training.
 
 import json
 
+
 def create_bulletproof_colab_notebook():
     """Create the bulletproof Colab notebook content."""
 
@@ -80,7 +81,7 @@ def create_bulletproof_colab_notebook():
                     "from sklearn.metrics import                    "from sklearn.metrics import f1_score,
                          accuracy_score,
                          classification_report\n",
-                        
+
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",

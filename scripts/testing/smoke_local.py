@@ -12,6 +12,7 @@ Notes:
 """
 
 import argparse
+import asyncio  # ensure available for ws async path
 import io
 import json
 import os
@@ -19,11 +20,10 @@ import time
 import wave
 from contextlib import suppress
 from datetime import datetime, timedelta, timezone
-from typing import Optional, Callable
+from typing import Callable, Optional
 
 import numpy as np
 import requests
-import asyncio  # ensure available for ws async path
 
 # WebSocket client: prefer websocket-client if available; fallback to websockets (async)
 try:

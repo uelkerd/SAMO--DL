@@ -2,8 +2,9 @@
 """Detailed test to capture Swagger docs 500 error."""
 
 import os
-import requests
 import traceback
+
+import requests
 
 # Set required environment variables
 os.environ['ADMIN_API_KEY'] = 'test-key-123'

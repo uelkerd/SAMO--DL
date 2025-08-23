@@ -16,7 +16,7 @@ import argparse
 import ast
 import sys
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 # Try to import astor for Python 3.8 compatibility
 try:

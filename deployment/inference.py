@@ -5,9 +5,11 @@ EMOTION DETECTION INFERENCE SCRIPT
 Standalone script to run emotion detection on text.
 """
 
-import torch
 from pathlib import Path
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+import torch
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
 
 class EmotionDetector:
     def __init__(self, model_path=None):

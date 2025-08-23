@@ -11,4 +11,4 @@
 
 # Note: For ML functionality, install separately:
 # pip install -r requirements-ml.txt
-# Or use extras: pip install .[ml] 
+# Or use extras: pip install .[ml]

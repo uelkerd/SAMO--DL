@@ -34,7 +34,7 @@ import requests
 url = "https://samo-emotion-api-minimal-71517823771.us-central1.run.app"
 
 # Test your model!
-response = requests.post(f"{url}/predict", 
+response = requests.post(f"{url}/predict",
                         json={"text": "I am feeling excited about this project!"})
 result = response.json()
 print(f"Primary emotion: {result['primary_emotion']['emotion']}")
@@ -217,4 +217,4 @@ Your model is already deployed and operational at:
 
 ---
 
-**Ready to build the next big thing with your emotion detection model!** 🚀 
+**Ready to build the next big thing with your emotion detection model!** 🚀

@@ -1,19 +1,21 @@
-            # Calculate WER
-            # Calculate additional metrics
-            # Format results and update metrics
-            # Get transcription
-            # Perform transcription
-            # Process batch through transcriber
-            # Return evaluation
-            # Return formatted response
-            # Update metrics
-            # Update processing time
-            # Validate audio before transcription
-        # Initialize transcriber
-        # Track performance metrics
-import jiwer
+# Calculate WER
+# Calculate additional metrics
+# Format results and update metrics
+# Get transcription
+# Perform transcription
+# Process batch through transcriber
+# Return evaluation
+# Return formatted response
+# Update metrics
+# Update processing time
+# Validate audio before transcription
+# Initialize transcriber
+# Track performance metrics
 import logging
 import time
+
+import jiwer
+
 """Transcription API for SAMO Voice Processing.
 from .audio_preprocessor import AudioPreprocessor
 from .whisper_transcriber import create_whisper_transcriber
@@ -24,8 +26,6 @@ This module provides integration between the WhisperTranscriber and the applicat
 layer, handling transcription requests with proper error handling and performance
 monitoring.
 """
-
-
 
 
 logger = logging.getLogger(__name__)
@@ -40,7 +40,10 @@ class TranscriptionAPI:
     """
 
     def __init__(
-        self, model_size: str = "base", language: Optional[str] = None, device: Optional[str] = None
+        self,
+        model_size: str = "base",
+        language: Optional[str] = None,
+        device: Optional[str] = None,
     ) -> None:
         """Initialize TranscriptionAPI with whisper model.
 
@@ -121,9 +124,9 @@ class TranscriptionAPI:
                 "audio_quality": result.audio_quality,
                 "metrics": {
                     "processing_time": processing_time,
-                    "real_time_factor": processing_time / result.duration
-                    if result.duration > 0
-                    else 0,
+                    "real_time_factor": (
+                        processing_time / result.duration if result.duration > 0 else 0
+                    ),
                 },
             }
 
@@ -158,7 +161,9 @@ class TranscriptionAPI:
 
         try:
             transcription_results = self.transcriber.transcribe_batch(
-                audio_paths=audio_paths, language=language, initial_prompt=initial_prompt
+                audio_paths=audio_paths,
+                language=language,
+                initial_prompt=initial_prompt,
             )
 
             for result in transcription_results:
@@ -230,10 +235,14 @@ class TranscriptionAPI:
             "total_requests": self.total_requests,
             "total_audio_duration": self.total_audio_duration,
             "total_processing_time": self.total_processing_time,
-            "error_rate": self.error_count / self.total_requests if self.total_requests > 0 else 0,
-            "average_real_time_factor": self.total_processing_time / self.total_audio_duration
-            if self.total_audio_duration > 0
-            else 0,
+            "error_rate": (
+                self.error_count / self.total_requests if self.total_requests > 0 else 0
+            ),
+            "average_real_time_factor": (
+                self.total_processing_time / self.total_audio_duration
+                if self.total_audio_duration > 0
+                else 0
+            ),
             "model_info": self.transcriber.get_model_info() if self.transcriber else {},
         }
 
@@ -252,7 +261,9 @@ class TranscriptionAPI:
 
 
 def create_transcription_api(
-    model_size: str = "base", language: Optional[str] = None, device: Optional[str] = None
+    model_size: str = "base",
+    language: Optional[str] = None,
+    device: Optional[str] = None,
 ) -> TranscriptionAPI:
     """Create TranscriptionAPI with specified configuration.
 

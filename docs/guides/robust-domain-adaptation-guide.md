@@ -102,16 +102,16 @@ except Exception as e:
 # SENIOR-LEVEL: Object-oriented, modular design
 class EnvironmentManager:
     """Manages environment setup and dependency installation."""
-    
+
 class RepositoryManager:
     """Manages repository setup and file validation."""
-    
+
 class DataManager:
     """Manages data loading and preprocessing."""
-    
+
 class ModelManager:
     """Manages model architecture and initialization."""
-    
+
 class TrainingManager:
     """Manages the complete training pipeline."""
 ```
@@ -366,4 +366,4 @@ files.download('best_domain_adapted_model.pth')
 
 **🎉 CONGRATULATIONS!** You now have a **SENIOR-LEVEL** domain adaptation solution that completely eliminates dependency hell and provides production-ready code for REQ-DL-012!
 
-**🚀 Ready to achieve that 70% F1 score on journal entries!** 
+**🚀 Ready to achieve that 70% F1 score on journal entries!**

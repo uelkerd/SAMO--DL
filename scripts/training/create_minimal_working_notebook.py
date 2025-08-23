@@ -9,6 +9,7 @@ training arguments that should work in any transformers version.
 
 import json
 
+
 def create_minimal_notebook():
     """Create a minimal working notebook."""
 
@@ -53,12 +54,12 @@ def create_minimal_notebook():
                          AutoModelForSequenceClassification,
                          TrainingArguments,
                          Trainer\n",
-                        
+
                     "from sklearn.model_selection import train_test_split\n",
                     "from sklearn.metrics import                    "from sklearn.metrics import classification_report,
                          f1_score,
                          accuracy_score\n",
-                        
+
                     "import json\n",
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",

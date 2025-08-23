@@ -305,7 +305,7 @@ class ModelDriftDetector:
     def check_for_drift(self, current_metrics: Dict) -> Dict:
         """Compares current metrics to the baseline to detect drift."""
         drift_report = {}
-        
+
         # 1. Confidence Drift
         conf_change = (current_metrics['avg_confidence'] - self.baseline['avg_confidence']) / self.baseline['avg_confidence']
         if abs(conf_change) > self.drift_threshold:
@@ -318,7 +318,7 @@ class ModelDriftDetector:
         # A more robust method like KL divergence is recommended in production
         baseline_dist = self.baseline['emotion_distribution']
         current_dist = current_metrics['emotion_distribution']
-        
+
         # Check if a top emotion has changed
         if baseline_dist.index[0] != current_dist.index[0]:
              drift_report['distribution_drift'] = {
@@ -343,4 +343,3 @@ class ModelDriftDetector:
 2.  **Analyze Trends**: Collect prediction data to analyze long-term emotional trends and user behavior.
 3.  **Detect Drift**: Implement a robust drift detection system to know when the model needs retraining.
 4.  **Provide Feedback**: Your analysis is crucial for guiding the next iteration of model development.
-

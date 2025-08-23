@@ -12,10 +12,11 @@ Success Metric: 70% F1 score on this test set
 
 import json
 import random
-import pandas as pd
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
+import pandas as pd
 
 # Realistic journal entry templates that reflect personal, reflective writing
 JOURNAL_TEMPLATES = [

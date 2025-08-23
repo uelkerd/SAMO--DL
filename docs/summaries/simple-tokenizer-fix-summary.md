@@ -25,7 +25,7 @@
    # Before (complex)
    transformers==4.45.0
    tokenizers==0.19.1
-   
+
    # After (simple)
    flask==2.3.3
    onnxruntime==1.18.0
@@ -48,19 +48,19 @@ def simple_tokenize(text: str) -> List[int]:
     # Clean and normalize text
     text = text.lower().strip()
     text = re.sub(r'[^\w\s]', ' ', text)
-    
+
     # Split into words
     words = text.split()
-    
+
     # Convert to token IDs
     tokens = [vocab.get('<CLS>', 2)]  # Start token
-    
+
     for word in words[:MAX_LENGTH-2]:  # Leave room for CLS and SEP
         token_id = vocab.get(word, vocab.get('<UNK>', 1))
         tokens.append(token_id)
-    
+
     tokens.append(vocab.get('<SEP>', 3))  # End token
-    
+
     return tokens
 ```
 

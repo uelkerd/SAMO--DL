@@ -1,65 +1,68 @@
-                # Calculate drift score using KL divergence or statistical distance
-                # Check for data drift (if detector is initialized)
-                # Check for degradation
-                # Collect metrics
-                # Initialize tokenizer
-                # Load checkpoint
-                # Sleep for monitoring interval
-            # Calculate mock metrics (in real scenario, these would come from actual evaluation)
-            # Calculate throughput
-            # For now, just log the action
-            # Generate test data
-            # Get GPU utilization if available
-            # Get memory usage
-            # In a real implementation, this would trigger the retraining pipeline
-            # Inference
-            # Load model
-            # Move to device
-            # Tokenize
+# Calculate drift score using KL divergence or statistical distance
+# Check for data drift (if detector is initialized)
+# Check for degradation
+# Collect metrics
+# Initialize tokenizer
+# Load checkpoint
+# Sleep for monitoring interval
+# Calculate mock metrics (in real scenario, these would come from actual evaluation)
+# Calculate throughput
+# For now, just log the action
+# Generate test data
+# Get GPU utilization if available
+# Get memory usage
+# In a real implementation, this would trigger the retraining pipeline
+# Inference
+# Load model
+# Move to device
+# Tokenize
 import argparse
 import json
 import logging
-            import psutil
 import sys
 import threading
 import time
-import yaml
-# Add src to path
-        # Calculate degradation
-        # Calculate overall drift score
-        # Calculate trends
-        # Check each feature for drift
-        # Check if degradation exceeds threshold
-        # Combined drift score
-# Configure logging
-# Constants
-    # Create directory if needed
-    # Create monitor
-        # Extract metrics arrays
-        # For now, return mock drift metrics
-        # Get recent alerts
-        # Get recent metrics
-        # In a real implementation, this would analyze actual incoming data
-        # Initialize model
-        # Keep running
-        # Normalize by reference statistics
-        # Print final status
-        # Save alert to file
-    # Save configuration
-        # Set baseline if not set
-    # Start monitoring
-        # Use Wasserstein distance as drift measure
+from collections import deque
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any, Optional
+
 #!/usr/bin/env python3
 import numpy as np
 import pandas as pd
+import psutil
 import torch
-from collections import deque
-from dataclasses import dataclass, asdict
-from datetime import datetime, timedelta
-from pathlib import Path
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+import yaml
 from transformers import AutoTokenizer
-from typing import Any, Optional
+
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+
+# Add src to path
+# Calculate degradation
+# Calculate overall drift score
+# Calculate trends
+# Check each feature for drift
+# Check if degradation exceeds threshold
+# Combined drift score
+# Configure logging
+# Constants
+# Create directory if needed
+# Create monitor
+# Extract metrics arrays
+# For now, return mock drift metrics
+# Get recent alerts
+# Get recent metrics
+# In a real implementation, this would analyze actual incoming data
+# Initialize model
+# Keep running
+# Normalize by reference statistics
+# Print final status
+# Save alert to file
+# Save configuration
+# Set baseline if not set
+# Start monitoring
+# Use Wasserstein distance as drift measure
 
 """
 Model Monitoring Script for REQ-DL-010
@@ -198,7 +201,9 @@ class PerformanceTracker:
         max_degradation = max(f1_degradation, precision_degradation, recall_degradation)
 
         if max_degradation > self.degradation_threshold:
-            severity = "HIGH" if max_degradation > DEFAULT_RETRAIN_THRESHOLD else "MEDIUM"
+            severity = (
+                "HIGH" if max_degradation > DEFAULT_RETRAIN_THRESHOLD else "MEDIUM"
+            )
             action_required = max_degradation > DEFAULT_RETRAIN_THRESHOLD
 
             return Alert(
@@ -245,7 +250,9 @@ class DataDriftDetector:
     """Detect data drift using statistical methods."""
 
     def __init__(
-        self, reference_data: pd.DataFrame, drift_threshold: float = DEFAULT_DRIFT_THRESHOLD
+        self,
+        reference_data: pd.DataFrame,
+        drift_threshold: float = DEFAULT_DRIFT_THRESHOLD,
     ):
         """Initialize drift detector.
 
@@ -410,7 +417,7 @@ class ModelHealthMonitor:
                 logger.info("Model initialized for monitoring")
             else:
                 logger.warning("Model not found: {model_path}")
-        except Exception as e:
+        except Exception:
             logger.error("Error initializing model: {e}")
 
     def start_monitoring(self) -> None:
@@ -461,9 +468,11 @@ class ModelHealthMonitor:
                         self.alerts.append(drift_alert)
                         self._handle_alert(drift_alert)
 
-                time.sleep(self.config.get("monitor_interval", DEFAULT_MONITOR_INTERVAL))
+                time.sleep(
+                    self.config.get("monitor_interval", DEFAULT_MONITOR_INTERVAL)
+                )
 
-            except Exception as e:
+            except Exception:
                 logger.error("Error in monitoring loop: {e}")
                 time.sleep(60)  # Wait before retrying
 
@@ -488,7 +497,11 @@ class ModelHealthMonitor:
             ]
 
             inputs = self.tokenizer(
-                test_texts, return_tensors="pt", padding=True, truncation=True, max_length=128
+                test_texts,
+                return_tensors="pt",
+                padding=True,
+                truncation=True,
+                max_length=128,
             )
 
             device = next(self.model.parameters()).device
@@ -522,7 +535,7 @@ class ModelHealthMonitor:
                 gpu_utilization=gpu_utilization,
             )
 
-        except Exception as e:
+        except Exception:
             logger.error("Error collecting metrics: {e}")
             return None
 
@@ -595,7 +608,7 @@ class ModelHealthMonitor:
             )
             self.alerts.append(retrain_alert)
 
-        except Exception as e:
+        except Exception:
             logger.error("Error triggering retraining: {e}")
 
     def _save_alert(self, alert: Alert) -> None:
@@ -608,11 +621,13 @@ class ModelHealthMonitor:
             alerts_dir = Path("logs/alerts")
             alerts_dir.mkdir(parents=True, exist_ok=True)
 
-            alert_file = alerts_dir / "alert_{alert.timestamp.strftime('%Y%m%d_%H%M%S')}.json"
+            alert_file = (
+                alerts_dir / "alert_{alert.timestamp.strftime('%Y%m%d_%H%M%S')}.json"
+            )
             with open(alert_file, "w") as f:
                 json.dump(asdict(alert), f, indent=2, default=str)
 
-        except Exception as e:
+        except Exception:
             logger.error("Error saving alert: {e}")
 
     def get_health_status(self) -> dict[str, Any]:
@@ -631,7 +646,11 @@ class ModelHealthMonitor:
             "current_performance": current_performance,
             "trend_analysis": trend_analysis,
             "recent_alerts": len(
-                [a for a in self.alerts if a.timestamp > datetime.now() - timedelta(hours=1)]
+                [
+                    a
+                    for a in self.alerts
+                    if a.timestamp > datetime.now() - timedelta(hours=1)
+                ]
             ),
             "total_alerts": len(self.alerts),
         }
@@ -701,7 +720,9 @@ if __name__ == "__main__":
         help="Performance degradation threshold for alerts (default: {DEFAULT_ALERT_THRESHOLD})",
     )
     parser.add_argument(
-        "--create_config", action="store_true", help="Create default monitoring configuration"
+        "--create_config",
+        action="store_true",
+        help="Create default monitoring configuration",
     )
 
     args = parser.parse_args()

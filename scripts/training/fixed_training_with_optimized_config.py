@@ -1,33 +1,33 @@
-                    # The labels field contains a list of integer indices
-                    # The labels field contains a list of integer indices
-            # Backward pass
-            # Check for 0.0000 loss
-            # Create dummy inputs
-            # Create dummy inputs (in real implementation, use proper tokenization)
-            # Create dummy tensors for validation
-            # Forward pass
-            # Forward pass
-            # Get labels - FIXED: labels are lists, not dict keys
-            # Get labels from batch - FIXED: labels are lists, not dict keys
-            # Log every 50 batches
-        # Apply alpha weighting
-        # Apply sigmoid to get probabilities
-        # Calculate BCE loss
-        # Calculate focal loss
-        # Create optimized components
-        # Epoch summary
-        # Train model
-        # Training loop (simplified for validation)
-        # Validate before training
-        # Validation
-    # Create focal loss
-    # Create model with class weights
-    # Create simple data loaders (we'll implement proper batching later)
-    # Create zero tensor
-    # Load data to get class weights
-    # Load dataset
-    # Set positive labels to 1
-    # Use different learning rates for different layers
+# The labels field contains a list of integer indices
+# The labels field contains a list of integer indices
+# Backward pass
+# Check for 0.0000 loss
+# Create dummy inputs
+# Create dummy inputs (in real implementation, use proper tokenization)
+# Create dummy tensors for validation
+# Forward pass
+# Forward pass
+# Get labels - FIXED: labels are lists, not dict keys
+# Get labels from batch - FIXED: labels are lists, not dict keys
+# Log every 50 batches
+# Apply alpha weighting
+# Apply sigmoid to get probabilities
+# Calculate BCE loss
+# Calculate focal loss
+# Create optimized components
+# Epoch summary
+# Train model
+# Training loop (simplified for validation)
+# Validate before training
+# Validation
+# Create focal loss
+# Create model with class weights
+# Create simple data loaders (we'll implement proper batching later)
+# Create zero tensor
+# Load data to get class weights
+# Load dataset
+# Set positive labels to 1
+# Use different learning rates for different layers
 import logging
 import sys
 from pathlib import Path
@@ -54,7 +54,9 @@ This script addresses the 0.0000 loss issue with:
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -106,7 +108,9 @@ def create_optimized_model() -> Tuple[nn.Module, nn.Module]:
     datasets = loader.prepare_datasets()
     class_weights = torch.tensor(datasets["class_weights"], dtype=torch.float32)
 
-    logger.info("   Class weights range: {class_weights.min():.4f} - {class_weights.max():.4f}")
+    logger.info(
+        "   Class weights range: {class_weights.min():.4f} - {class_weights.max():.4f}"
+    )
 
     model, _ = create_bert_emotion_classifier(
         model_name="bert-base-uncased",
@@ -129,20 +133,25 @@ def create_optimized_optimizer(model: nn.Module) -> torch.optim.Optimizer:
     no_decay = ["bias", "LayerNorm.weight"]
     optimizer_grouped_parameters = [
         {
-            "params": [p for n, p in model.named_parameters()
-                      if not any(nd in n for nd in no_decay) and "bert" in n],
+            "params": [
+                p
+                for n, p in model.named_parameters()
+                if not any(nd in n for nd in no_decay) and "bert" in n
+            ],
             "weight_decay": 0.01,
             "lr": 1e-6,  # Very low LR for BERT layers
         },
         {
-            "params": [p for n, p in model.named_parameters()
-                      if any(nd in n for nd in no_decay) and "bert" in n],
+            "params": [
+                p
+                for n, p in model.named_parameters()
+                if any(nd in n for nd in no_decay) and "bert" in n
+            ],
             "weight_decay": 0.0,
             "lr": 1e-6,
         },
         {
-            "params": [p for n, p in model.named_parameters()
-                      if "classifier" in n],
+            "params": [p for n, p in model.named_parameters() if "classifier" in n],
             "weight_decay": 0.01,
             "lr": 2e-6,  # Higher LR for classifier
         },
@@ -196,7 +205,9 @@ def convert_labels_to_tensor(label_list: list, num_classes: int = 28) -> torch.T
     return label_tensor
 
 
-def validate_model(model: nn.Module, loss_fn: nn.Module, val_data: Any, num_samples: int = 100) -> Dict[str, float]:
+def validate_model(
+    model: nn.Module, loss_fn: nn.Module, val_data: Any, num_samples: int = 100
+) -> Dict[str, float]:
     """Validate model and check for 0.0000 loss."""
     logger.info("🔍 Validating model...")
 
@@ -206,7 +217,7 @@ def validate_model(model: nn.Module, loss_fn: nn.Module, val_data: Any, num_samp
 
     with torch.no_grad():
         for i in range(0, min(num_samples, len(val_data)), 16):
-            batch_data = val_data[i:i+16]
+            batch_data = val_data[i : i + 16]
 
             batch_size = len(batch_data)
             if batch_size == 0:
@@ -228,7 +239,7 @@ def validate_model(model: nn.Module, loss_fn: nn.Module, val_data: Any, num_samp
             total_loss += loss.item()
             num_batches += 1
 
-    avg_loss = total_loss / num_batches if num_batches > 0 else float('in')
+    avg_loss = total_loss / num_batches if num_batches > 0 else float("in")
 
     logger.info("✅ Validation loss: {avg_loss:.8f}")
 
@@ -242,8 +253,14 @@ def validate_model(model: nn.Module, loss_fn: nn.Module, val_data: Any, num_samp
     return {"loss": avg_loss, "status": "success"}
 
 
-def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Optimizer,
-                train_data: Any, val_data: Any, num_epochs: int = 3) -> Dict[str, Any]:
+def train_model(
+    model: nn.Module,
+    loss_fn: nn.Module,
+    optimizer: torch.optim.Optimizer,
+    train_data: Any,
+    val_data: Any,
+    num_epochs: int = 3,
+) -> Dict[str, Any]:
     """Train model with monitoring for 0.0000 loss."""
     logger.info("🚀 Starting training with optimized configuration...")
 
@@ -256,8 +273,10 @@ def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Opt
         epoch_loss = 0.0
         num_batches = 0
 
-        for i in range(0, min(1000, len(train_data)), 16):  # Limit to 1000 examples for testing
-            batch_data = train_data[i:i+16]
+        for i in range(
+            0, min(1000, len(train_data)), 16
+        ):  # Limit to 1000 examples for testing
+            batch_data = train_data[i : i + 16]
             batch_size = len(batch_data)
 
             if batch_size == 0:
@@ -278,7 +297,9 @@ def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Opt
             loss = loss_fn(logits, labels)
 
             if loss.item() <= 0:
-                logger.error("❌ CRITICAL: Training loss is zero at batch {num_batches}!")
+                logger.error(
+                    "❌ CRITICAL: Training loss is zero at batch {num_batches}!"
+                )
                 logger.error("   Logits: {logits.mean().item():.6f}")
                 logger.error("   Labels: {labels.mean().item():.6f}")
                 return {"status": "failed", "reason": "zero_loss", "epoch": epoch}
@@ -293,7 +314,7 @@ def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Opt
                 avg_loss = epoch_loss / num_batches
                 logger.info("   Batch {num_batches}: Loss = {avg_loss:.6f}")
 
-        avg_epoch_loss = epoch_loss / num_batches if num_batches > 0 else float('in')
+        avg_epoch_loss = epoch_loss / num_batches if num_batches > 0 else float("in")
         training_history.append(avg_epoch_loss)
 
         logger.info("✅ Epoch {epoch + 1} complete: Loss = {avg_epoch_loss:.6f}")
@@ -308,7 +329,7 @@ def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Opt
     return {
         "status": "success",
         "training_history": training_history,
-        "final_loss": training_history[-1] if training_history else float('in')
+        "final_loss": training_history[-1] if training_history else float("in"),
     }
 
 
@@ -337,9 +358,12 @@ def main():
 
         logger.info("\n🚀 Starting training...")
         training_results = train_model(
-            model, loss_fn, optimizer,
-            data_loaders["train"], data_loaders["validation"],
-            num_epochs=3
+            model,
+            loss_fn,
+            optimizer,
+            data_loaders["train"],
+            data_loaders["validation"],
+            num_epochs=3,
         )
 
         if training_results["status"] == "success":

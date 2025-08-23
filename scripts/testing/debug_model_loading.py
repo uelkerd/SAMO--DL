@@ -4,8 +4,9 @@ loading properly."""
 
 import argparse
 import json
-import requests
 import time
+
+import requests
 from test_config import create_api_client, create_test_config
 
 

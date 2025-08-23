@@ -4,20 +4,24 @@ PyTorch dependencies."""
 import argparse
 import logging
 import sys
-import torch
 from pathlib import Path
 
+import torch
+
 # Add src to path
-sys.path.append(str(Path(__file__).parent.parent.parent / 'src'))
+sys.path.append(str(Path(__file__).parent.parent.parent / "src"))
+
+from transformers import AutoTokenizer
 
 from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from transformers import AutoTokenizer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name="bert-base-uncased"):
+def convert_model_to_onnx(
+    model_path=None, onnx_output_path=None, tokenizer_name="bert-base-uncased"
+):
     """Convert PyTorch model to ONNX format."""
     try:
         # Default paths if not provided
@@ -65,7 +69,7 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
             return_tensors="pt",
             padding=True,
             truncation=True,
-            max_length=128
+            max_length=128,
         )
 
         # Handle token_type_ids properly - use actual values if available, otherwise zeros
@@ -79,11 +83,7 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
         logger.info("🔄 Converting to ONNX format...")
         torch.onnx.export(
             model,
-            (
-                inputs["input_ids"],
-                inputs["attention_mask"],
-                token_type_ids
-            ),
+            (inputs["input_ids"], inputs["attention_mask"], token_type_ids),
             onnx_output_path,
             export_params=True,
             opset_version=14,
@@ -103,6 +103,7 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
         # Verify ONNX model
         try:
             import onnx
+
             onnx_model = onnx.load(onnx_output_path)
             onnx.checker.check_model(onnx_model)
             logger.info("✅ ONNX model validation successful")
@@ -115,10 +116,13 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
         # Test ONNX model with ONNX Runtime
         try:
             import onnxruntime as ort
+
             session = ort.InferenceSession(onnx_output_path)
             logger.info("✅ ONNX Runtime test successful")
         except ImportError:
-            logger.error("❌ ONNX Runtime is required for ONNX model validation. Please install it with 'pip install onnxruntime'.")
+            logger.error(
+                "❌ ONNX Runtime is required for ONNX model validation. Please install it with 'pip install onnxruntime'."
+            )
             return False
         except Exception as e:
             logger.error(f"❌ ONNX Runtime test failed: {e}")
@@ -138,19 +142,19 @@ def main():
         "--model-path",
         type=str,
         default="models/best_simple_model.pth",
-        help="Path to PyTorch model file (default: models/best_simple_model.pth)"
+        help="Path to PyTorch model file (default: models/best_simple_model.pth)",
     )
     parser.add_argument(
         "--onnx-output-path",
         type=str,
         default="deployment/cloud-run/model/bert_emotion_classifier.onnx",
-        help="Path for ONNX output file (default: deployment/cloud-run/model/bert_emotion_classifier.onnx)"
+        help="Path for ONNX output file (default: deployment/cloud-run/model/bert_emotion_classifier.onnx)",
     )
     parser.add_argument(
         "--tokenizer-name",
         type=str,
         default="bert-base-uncased",
-        help="Tokenizer name to use (default: bert-base-uncased)"
+        help="Tokenizer name to use (default: bert-base-uncased)",
     )
 
     args = parser.parse_args()
@@ -158,7 +162,7 @@ def main():
     if success := convert_model_to_onnx(
         model_path=args.model_path,
         onnx_output_path=args.onnx_output_path,
-        tokenizer_name=args.tokenizer_name
+        tokenizer_name=args.tokenizer_name,
     ):
         logger.info("🎉 ONNX conversion completed successfully!")
         sys.exit(0)

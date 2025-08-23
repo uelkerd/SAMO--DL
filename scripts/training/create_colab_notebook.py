@@ -3,6 +3,7 @@
 
 import json
 
+
 def create_colab_notebook():
     """Create the domain adaptation GPU training notebook."""
 
@@ -22,15 +23,13 @@ def create_colab_notebook():
                     "- Bridge domain gap between Reddit comments and journal entries\n",
                     "- Implement focal loss for class imbalance\n",
                     "- Use domain adaptation techniques for better transfer learning\n",
-                    "- Optimize for GPU training on Colab"
-                ]
+                    "- Optimize for GPU training on Colab",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
-                "source": [
-                    "## 🚀 Environment Setup & GPU Configuration"
-                ]
+                "source": ["## 🚀 Environment Setup & GPU Configuration"],
             },
             {
                 "cell_type": "code",
@@ -42,27 +41,25 @@ def create_colab_notebook():
                     "import torch\n",
                     "import gc\n",
                     "\n",
-                    "print(f\"CUDA Available: {torch.cuda.is_available()}\")\n",
+                    'print(f"CUDA Available: {torch.cuda.is_available()}")\n',
                     "if torch.cuda.is_available():\n",
-                    "    print(f\"GPU: {torch.cuda.get_device_name(0)}\")\n",
-                    "    print(f\"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB\")\n",
+                    '    print(f"GPU: {torch.cuda.get_device_name(0)}")\n',
+                    '    print(f"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")\n',
                     "    \n",
                     "    # Clear GPU cache\n",
                     "    torch.cuda.empty_cache()\n",
                     "    gc.collect()\n",
                     "else:\n",
-                    "    print(\"⚠️ No GPU available. Training will be slow on CPU.\")\n",
+                    '    print("⚠️ No GPU available. Training will be slow on CPU.")\n',
                     "\n",
                     "# Enable cudnn benchmarking for faster training\n",
-                    "torch.backends.cudnn.benchmark = True"
-                ]
+                    "torch.backends.cudnn.benchmark = True",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
-                "source": [
-                    "## 📦 Install Dependencies"
-                ]
+                "source": ["## 📦 Install Dependencies"],
             },
             {
                 "cell_type": "code",
@@ -77,15 +74,13 @@ def create_colab_notebook():
                     "\n",
                     "# Clone repository if not already done\n",
                     "!git clone https://github.com/uelkerd/SAMO--DL.git\n",
-                    "%cd SAMO--DL"
-                ]
+                    "%cd SAMO--DL",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
-                "source": [
-                    "## 🔍 Domain Gap Analysis"
-                ]
+                "source": ["## 🔍 Domain Gap Analysis"],
             },
             {
                 "cell_type": "code",
@@ -101,16 +96,16 @@ def create_colab_notebook():
                     "import seaborn as sns\n",
                     "\n",
                     "def analyze_writing_style(texts, domain_name):\n",
-                    "    \"\"\"Analyze writing style characteristics of a domain.\"\"\"\n",
+                    '    """Analyze writing style characteristics of a domain."""\n',
                     "    avg_length = np.mean([len(text.split()) for text in texts])\n",
                     "    personal_pronouns = sum(['I ' in text or 'my ' in text or 'me ' in text for text in texts]) / len(texts)\n",
                     "    reflection_words = sum(['think' in text.lower() or 'feel' in text.lower() or 'believe' in text.lower() \n",
                     "                           for text in texts]) / len(texts)\n",
                     "    \n",
-                    "    print(f\"{domain_name} Style Analysis:\")\n",
-                    "    print(f\"  Average length: {avg_length:.1f} words\")\n",
-                    "    print(f\"  Personal pronouns: {personal_pronouns:.1%}\")\n",
-                    "    print(f\"  Reflection words: {reflection_words:.1%}\")\n",
+                    '    print(f"{domain_name} Style Analysis:")\n',
+                    '    print(f"  Average length: {avg_length:.1f} words")\n',
+                    '    print(f"  Personal pronouns: {personal_pronouns:.1%}")\n',
+                    '    print(f"  Reflection words: {reflection_words:.1%}")\n',
                     "    \n",
                     "    return {\n",
                     "        'avg_length': avg_length,\n",
@@ -119,10 +114,10 @@ def create_colab_notebook():
                     "    }\n",
                     "\n",
                     "# Load datasets\n",
-                    "print(\"📊 Loading datasets...\")\n",
+                    'print("📊 Loading datasets...")\n',
                     "\n",
                     "# Load GoEmotions dataset\n",
-                    "go_emotions = load_dataset(\"go_emotions\", \"simplified\")\n",
+                    'go_emotions = load_dataset("go_emotions", "simplified")\n',
                     "go_texts = go_emotions['train']['text'][:1000]  # Sample for analysis\n",
                     "\n",
                     "# Load journal dataset\n",
@@ -133,9 +128,9 @@ def create_colab_notebook():
                     "journal_texts = journal_df['content'].tolist()\n",
                     "\n",
                     "# Analyze domains\n",
-                    "print(\"\\n🔍 Domain Gap Analysis:\")\n",
-                    "go_analysis = analyze_writing_style(go_texts, \"GoEmotions (Reddit)\")\n",
-                    "journal_analysis = analyze_writing_style(journal_texts, \"Journal Entries\")\n",
+                    'print("\\n🔍 Domain Gap Analysis:")\n',
+                    'go_analysis = analyze_writing_style(go_texts, "GoEmotions (Reddit)")\n',
+                    'journal_analysis = analyze_writing_style(journal_texts, "Journal Entries")\n',
                     "\n",
                     "# Visualize differences\n",
                     "fig, axes = plt.subplots(1, 3, figsize=(15, 5))\n",
@@ -152,18 +147,16 @@ def create_colab_notebook():
                     "plt.tight_layout()\n",
                     "plt.show()\n",
                     "\n",
-                    "print(\"\\n🎯 Key Insights:\")\n",
+                    'print("\\n🎯 Key Insights:")\n',
                     "print(f\"- Journal entries are {journal_analysis['avg_length']/go_analysis['avg_length']:.1f}x longer\")\n",
                     "print(f\"- Journal entries use {journal_analysis['personal_pronouns']/go_analysis['personal_pronouns']:.1f}x more personal pronouns\")\n",
-                    "print(f\"- Journal entries contain {journal_analysis['reflection_words']/go_analysis['reflection_words']:.1f}x more reflection words\")"
-                ]
+                    "print(f\"- Journal entries contain {journal_analysis['reflection_words']/go_analysis['reflection_words']:.1f}x more reflection words\")",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
-                "source": [
-                    "## 🏗️ Model Architecture"
-                ]
+                "source": ["## 🏗️ Model Architecture"],
             },
             {
                 "cell_type": "code",
@@ -177,7 +170,7 @@ def create_colab_notebook():
                     "from transformers import AutoModel, AutoTokenizer\n",
                     "\n",
                     "class FocalLoss(nn.Module):\n",
-                    "    \"\"\"Focal Loss for addressing class imbalance in emotion detection.\"\"\"\n",
+                    '    """Focal Loss for addressing class imbalance in emotion detection."""\n',
                     "    \n",
                     "    def __init__(self, alpha=1, gamma=2, reduction='mean'):\n",
                     "        super(FocalLoss, self).__init__()\n",
@@ -198,9 +191,9 @@ def create_colab_notebook():
                     "            return focal_loss\n",
                     "\n",
                     "class DomainAdaptedEmotionClassifier(nn.Module):\n",
-                    "    \"\"\"BERT-based emotion classifier with domain adaptation capabilities.\"\"\"\n",
+                    '    """BERT-based emotion classifier with domain adaptation capabilities."""\n',
                     "    \n",
-                    "    def __init__(self, model_name=\"bert-base-uncased\", num_labels=12, dropout=0.3):\n",
+                    '    def __init__(self, model_name="bert-base-uncased", num_labels=12, dropout=0.3):\n',
                     "        super().__init__()\n",
                     "        self.bert = AutoModel.from_pretrained(model_name)\n",
                     "        self.dropout = nn.Dropout(dropout)\n",
@@ -229,24 +222,22 @@ def create_colab_notebook():
                     "        return emotion_logits\n",
                     "\n",
                     "# Initialize model and tokenizer\n",
-                    "print(\"🏗️ Initializing model...\")\n",
-                    "model_name = \"bert-base-uncased\"\n",
+                    'print("🏗️ Initializing model...")\n',
+                    'model_name = "bert-base-uncased"\n',
                     "tokenizer = AutoTokenizer.from_pretrained(model_name)\n",
                     "model = DomainAdaptedEmotionClassifier(model_name=model_name, num_labels=12)\n",
                     "\n",
-                    "device = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n",
+                    'device = torch.device("cuda" if torch.cuda.is_available() else "cpu")\n',
                     "model = model.to(device)\n",
                     "\n",
-                    "print(f\"✅ Model loaded on {device}\")\n",
-                    "print(f\"📊 Model parameters: {sum(p.numel() for p in model.parameters()):,}\")"
-                ]
+                    'print(f"✅ Model loaded on {device}")\n',
+                    'print(f"📊 Model parameters: {sum(p.numel() for p in model.parameters()):,}")',
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
-                "source": [
-                    "## 📊 Data Preparation"
-                ]
+                "source": ["## 📊 Data Preparation"],
             },
             {
                 "cell_type": "code",
@@ -259,7 +250,7 @@ def create_colab_notebook():
                     "from sklearn.preprocessing import LabelEncoder\n",
                     "\n",
                     "class EmotionDataset(Dataset):\n",
-                    "    \"\"\"Custom dataset for emotion classification.\"\"\"\n",
+                    '    """Custom dataset for emotion classification."""\n',
                     "    \n",
                     "    def __init__(self, texts, labels, tokenizer, max_length=128):\n",
                     "        self.texts = texts\n",
@@ -289,7 +280,7 @@ def create_colab_notebook():
                     "        }\n",
                     "\n",
                     "# Prepare GoEmotions data\n",
-                    "print(\"📊 Preparing GoEmotions data...\")\n",
+                    'print("📊 Preparing GoEmotions data...")\n',
                     "go_train = go_emotions['train']\n",
                     "go_texts = go_train['text'][:10000]  # Use subset for faster training\n",
                     "go_labels = go_train['labels'][:10000]\n",
@@ -298,7 +289,7 @@ def create_colab_notebook():
                     "go_single_labels = [label[0] if label else 0 for label in go_labels]\n",
                     "\n",
                     "# Prepare journal data\n",
-                    "print(\"📊 Preparing journal data...\")\n",
+                    'print("📊 Preparing journal data...")\n',
                     "journal_texts = journal_df['content'].tolist()\n",
                     "journal_emotions = journal_df['emotion'].tolist()\n",
                     "\n",
@@ -327,19 +318,17 @@ def create_colab_notebook():
                     "journal_train_loader = DataLoader(journal_train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)\n",
                     "journal_val_loader = DataLoader(journal_val_dataset, batch_size=batch_size, shuffle=False, num_workers=2)\n",
                     "\n",
-                    "print(f\"✅ Data prepared:\")\n",
-                    "print(f\"  GoEmotions: {len(go_dataset)} samples\")\n",
-                    "print(f\"  Journal Train: {len(journal_train_dataset)} samples\")\n",
-                    "print(f\"  Journal Val: {len(journal_val_dataset)} samples\")\n",
-                    "print(f\"  Total classes: {len(label_encoder.classes_)}\")"
-                ]
+                    'print(f"✅ Data prepared:")\n',
+                    'print(f"  GoEmotions: {len(go_dataset)} samples")\n',
+                    'print(f"  Journal Train: {len(journal_train_dataset)} samples")\n',
+                    'print(f"  Journal Val: {len(journal_val_dataset)} samples")\n',
+                    'print(f"  Total classes: {len(label_encoder.classes_)}")',
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
-                "source": [
-                    "## 🎯 Training Pipeline"
-                ]
+                "source": ["## 🎯 Training Pipeline"],
             },
             {
                 "cell_type": "code",
@@ -351,7 +340,7 @@ def create_colab_notebook():
                     "import wandb\n",
                     "\n",
                     "class DomainAdaptationTrainer:\n",
-                    "    \"\"\"Trainer for domain adaptation training.\"\"\"\n",
+                    '    """Trainer for domain adaptation training."""\n',
                     "    \n",
                     "    def __init__(self, model, tokenizer, device):\n",
                     "        self.model = model\n",
@@ -361,7 +350,7 @@ def create_colab_notebook():
                     "        self.domain_criterion = nn.CrossEntropyLoss()\n",
                     "        \n",
                     "    def train_step(self, batch, domain_labels, lambda_domain=0.1):\n",
-                    "        \"\"\"Single training step with domain adaptation.\"\"\"\n",
+                    '        """Single training step with domain adaptation."""\n',
                     "        self.model.train()\n",
                     "        \n",
                     "        input_ids = batch['input_ids'].to(self.device)\n",
@@ -386,7 +375,7 @@ def create_colab_notebook():
                     "        }\n",
                     "    \n",
                     "    def evaluate(self, dataloader):\n",
-                    "        \"\"\"Evaluate model on validation set.\"\"\"\n",
+                    '        """Evaluate model on validation set."""\n',
                     "        self.model.eval()\n",
                     "        total_loss = 0\n",
                     "        all_predictions = []\n",
@@ -423,14 +412,14 @@ def create_colab_notebook():
                     "\n",
                     "# Initialize wandb (optional)\n",
                     "try:\n",
-                    "    wandb.init(project=\"samo-domain-adaptation\", name=\"journal-emotion-detection\")\n",
+                    '    wandb.init(project="samo-domain-adaptation", name="journal-emotion-detection")\n',
                     "    use_wandb = True\n",
                     "except:\n",
-                    "    print(\"⚠️ Wandb not available, continuing without logging\")\n",
+                    '    print("⚠️ Wandb not available, continuing without logging")\n',
                     "    use_wandb = False\n",
                     "\n",
-                    "print(\"🎯 Starting domain adaptation training...\")"
-                ]
+                    'print("🎯 Starting domain adaptation training...")',
+                ],
             },
             {
                 "cell_type": "code",
@@ -444,14 +433,14 @@ def create_colab_notebook():
                     "training_history = []\n",
                     "\n",
                     "for epoch in range(num_epochs):\n",
-                    "    print(f\"\\n🔄 Epoch {epoch + 1}/{num_epochs}\")\n",
+                    '    print(f"\\n🔄 Epoch {epoch + 1}/{num_epochs}")\n',
                     "    \n",
                     "    # Training phase\n",
                     "    model.train()\n",
                     "    total_loss = 0\n",
                     "    \n",
                     "    # Train on GoEmotions data\n",
-                    "    print(\"  📚 Training on GoEmotions data...\")\n",
+                    '    print("  📚 Training on GoEmotions data...")\n',
                     "    for i, batch in enumerate(go_loader):\n",
                     "        domain_labels = torch.zeros(batch['input_ids'].size(0), dtype=torch.long)\n",
                     "        losses = trainer.train_step(batch, domain_labels, lambda_domain=0.1)\n",
@@ -466,7 +455,7 @@ def create_colab_notebook():
                     "            print(f\"    Batch {i}/{len(go_loader)}, Loss: {losses['total_loss'].item():.4f}\")\n",
                     "    \n",
                     "    # Train on journal data\n",
-                    "    print(\"  📝 Training on journal data...\")\n",
+                    '    print("  📝 Training on journal data...")\n',
                     "    for i, batch in enumerate(journal_train_loader):\n",
                     "        domain_labels = torch.ones(batch['input_ids'].size(0), dtype=torch.long)\n",
                     "        losses = trainer.train_step(batch, domain_labels, lambda_domain=0.1)\n",
@@ -481,13 +470,13 @@ def create_colab_notebook():
                     "            print(f\"    Batch {i}/{len(journal_train_loader)}, Loss: {losses['total_loss'].item():.4f}\")\n",
                     "    \n",
                     "    # Validation\n",
-                    "    print(\"  🎯 Validating on journal test set...\")\n",
+                    '    print("  🎯 Validating on journal test set...")\n',
                     "    val_results = trainer.evaluate(journal_val_loader)\n",
                     "    \n",
                     "    avg_loss = total_loss / (len(go_loader) + len(journal_train_loader))\n",
                     "    \n",
-                    "    print(f\"  📊 Epoch {epoch + 1} Results:\")\n",
-                    "    print(f\"    Average Loss: {avg_loss:.4f}\")\n",
+                    '    print(f"  📊 Epoch {epoch + 1} Results:")\n',
+                    '    print(f"    Average Loss: {avg_loss:.4f}")\n',
                     "    print(f\"    Validation F1 (Macro): {val_results['f1_macro']:.4f}\")\n",
                     "    print(f\"    Validation F1 (Weighted): {val_results['f1_weighted']:.4f}\")\n",
                     "    \n",
@@ -505,7 +494,7 @@ def create_colab_notebook():
                     "    if val_results['f1_macro'] > best_f1:\n",
                     "        best_f1 = val_results['f1_macro']\n",
                     "        torch.save(model.state_dict(), 'best_domain_adapted_model.pth')\n",
-                    "        print(f\"    💾 New best model saved! F1: {best_f1:.4f}\")\n",
+                    '        print(f"    💾 New best model saved! F1: {best_f1:.4f}")\n',
                     "    \n",
                     "    training_history.append({\n",
                     "        'epoch': epoch,\n",
@@ -518,15 +507,13 @@ def create_colab_notebook():
                     "    if torch.cuda.is_available():\n",
                     "        torch.cuda.empty_cache()\n",
                     "\n",
-                    "print(f\"\\n🎉 Training completed! Best F1 Score: {best_f1:.4f}\")"
-                ]
+                    'print(f"\\n🎉 Training completed! Best F1 Score: {best_f1:.4f}")',
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
-                "source": [
-                    "## 📈 Results Analysis & Visualization"
-                ]
+                "source": ["## 📈 Results Analysis & Visualization"],
             },
             {
                 "cell_type": "code",
@@ -561,28 +548,26 @@ def create_colab_notebook():
                     "plt.show()\n",
                     "\n",
                     "# Final evaluation\n",
-                    "print(\"\\n🎯 Final Model Evaluation:\")\n",
+                    'print("\\n🎯 Final Model Evaluation:")\n',
                     "model.load_state_dict(torch.load('best_domain_adapted_model.pth'))\n",
                     "final_results = trainer.evaluate(journal_val_loader)\n",
                     "\n",
-                    "print(f\"📊 Final Results:\")\n",
+                    'print(f"📊 Final Results:")\n',
                     "print(f\"  F1 Score (Macro): {final_results['f1_macro']:.4f}\")\n",
                     "print(f\"  F1 Score (Weighted): {final_results['f1_weighted']:.4f}\")\n",
                     "print(f\"  Target Met (70%): {'✅' if final_results['f1_macro'] >= 0.7 else '❌'}\")\n",
                     "\n",
                     "# REQ-DL-012 Validation\n",
-                    "print(f\"\\n🎯 REQ-DL-012 Validation:\")\n",
-                    "print(f\"  Target: 70% F1 score on journal entries\")\n",
+                    'print(f"\\n🎯 REQ-DL-012 Validation:")\n',
+                    'print(f"  Target: 70% F1 score on journal entries")\n',
                     "print(f\"  Achieved: {final_results['f1_macro']:.1%} F1 score\")\n",
-                    "print(f\"  Status: {'✅ SUCCESS' if final_results['f1_macro'] >= 0.7 else '❌ NEEDS IMPROVEMENT'}\")"
-                ]
+                    "print(f\"  Status: {'✅ SUCCESS' if final_results['f1_macro'] >= 0.7 else '❌ NEEDS IMPROVEMENT'}\")",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
-                "source": [
-                    "## 💾 Model Export & Deployment"
-                ]
+                "source": ["## 💾 Model Export & Deployment"],
             },
             {
                 "cell_type": "code",
@@ -612,11 +597,11 @@ def create_colab_notebook():
                     "with open('model_config.json', 'w') as f:\n",
                     "    json.dump(model_config, f, indent=2)\n",
                     "\n",
-                    "print(\"💾 Model artifacts saved:\")\n",
-                    "print(\"  - best_domain_adapted_model.pth (model weights)\")\n",
-                    "print(\"  - label_encoder.pkl (label encoder)\")\n",
-                    "print(\"  - domain_adapted_model/ (tokenizer)\")\n",
-                    "print(\"  - model_config.json (configuration)\")\n",
+                    'print("💾 Model artifacts saved:")\n',
+                    'print("  - best_domain_adapted_model.pth (model weights)")\n',
+                    'print("  - label_encoder.pkl (label encoder)")\n',
+                    'print("  - domain_adapted_model/ (tokenizer)")\n',
+                    'print("  - model_config.json (configuration)")\n',
                     "\n",
                     "# Download files (for Colab)\n",
                     "from google.colab import files\n",
@@ -624,41 +609,38 @@ def create_colab_notebook():
                     "files.download('label_encoder.pkl')\n",
                     "files.download('model_config.json')\n",
                     "\n",
-                    "print(\"\\n🚀 Model ready for deployment!\")\n",
-                    "print(\"📋 Next steps:\")\n",
-                    "print(\"  1. Integrate model into SAMO-DL pipeline\")\n",
-                    "print(\"  2. Update emotion detection API\")\n",
-                    "print(\"  3. Deploy to production environment\")\n",
-                    "print(\"  4. Update PRD with achieved metrics\")"
-                ]
-            }
+                    'print("\\n🚀 Model ready for deployment!")\n',
+                    'print("📋 Next steps:")\n',
+                    'print("  1. Integrate model into SAMO-DL pipeline")\n',
+                    'print("  2. Update emotion detection API")\n',
+                    'print("  3. Deploy to production environment")\n',
+                    'print("  4. Update PRD with achieved metrics")',
+                ],
+            },
         ],
         "metadata": {
             "kernelspec": {
                 "display_name": "Python 3",
                 "language": "python",
-                "name": "python3"
+                "name": "python3",
             },
             "language_info": {
-                "codemirror_mode": {
-                    "name": "ipython",
-                    "version": 3
-                },
+                "codemirror_mode": {"name": "ipython", "version": 3},
                 "file_extension": ".py",
                 "mimetype": "text/x-python",
                 "name": "python",
                 "nbconvert_exporter": "python",
                 "pygments_lexer": "ipython3",
-                "version": "3.8.5"
-            }
+                "version": "3.8.5",
+            },
         },
         "nbformat": 4,
-        "nbformat_minor": 4
+        "nbformat_minor": 4,
     }
 
     # Write the notebook to file
     notebook_path = "notebooks/domain_adaptation_gpu_training.ipynb"
-    with open(notebook_path, 'w') as f:
+    with open(notebook_path, "w") as f:
         json.dump(notebook, f, indent=1)
 
     print(f"✅ Created Colab notebook: {notebook_path}")
@@ -669,6 +651,7 @@ def create_colab_notebook():
     print("  - Domain adaptation training")
     print("  - REQ-DL-012 validation")
     print("  - Model export for deployment")
+
 
 if __name__ == "__main__":
     create_colab_notebook()

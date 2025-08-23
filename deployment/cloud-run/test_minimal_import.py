@@ -2,6 +2,7 @@
 """Minimal test to isolate the API issue."""
 
 import os
+
 os.environ['ADMIN_API_KEY'] = 'test123'
 
 print("🔍 Starting minimal import test...")

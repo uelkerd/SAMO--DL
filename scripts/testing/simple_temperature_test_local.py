@@ -1,38 +1,45 @@
-                # Apply threshold
-        # Calculate macro F1
-        # Calculate metrics
-        # Calculate micro F1
-        # Concatenate results
-        # Convert to numpy for sklearn
-        # If it's a tuple, assume first element is the state dict
-        # If it's just the state dict directly
-        # Run evaluation
-        # Set temperature
-        # Show some predictions
+# Apply threshold
+# Calculate macro F1
+# Calculate metrics
+# Calculate micro F1
+# Concatenate results
+# Convert to numpy for sklearn
+# If it's a tuple, assume first element is the state dict
+# If it's just the state dict directly
+# Run evaluation
+# Set temperature
+# Show some predictions
 import json
 import logging
 import sys
-    # Create dataset
-    # Create emotion labels (simplified for testing)
-    # Create simple test data
-    # Handle different checkpoint formats
-    # Initialize model
-    # Load checkpoint
-    # Load sample data
-    # Set device
-    # Test different temperatures
+from pathlib import Path
+
 #!/usr/bin/env python3
 import torch
-from pathlib import Path
-        from sklearn.metrics import f1_score
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
+from sklearn.metrics import f1_score
 from torch.utils.data import DataLoader
+
+from src.models.emotion_detection.bert_classifier import (
+    EmotionDataset,
+    create_bert_emotion_classifier,
+)
+
+# Create dataset
+# Create emotion labels (simplified for testing)
+# Create simple test data
+# Handle different checkpoint formats
+# Initialize model
+# Load checkpoint
+# Load sample data
+# Set device
+# Test different temperatures
 
 """
 Simple Temperature Scaling Test - Using Local Sample Data.
 """
 
 sys.path.append(str(Path.cwd() / "src"))
+
 
 def simple_temperature_test_local():
     logging.info("🌡️ Simple Temperature Scaling Test (Local Data)")

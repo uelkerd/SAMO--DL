@@ -15,7 +15,7 @@ api:
       db: 0
       password: null  # Set via environment variable in production
       ssl: false  # Enable in production
-    
+
   # CORS configuration
   cors:
     enabled: true
@@ -33,14 +33,14 @@ api:
       - "Authorization"
       - "X-API-Key"
     max_age: 3600
-    
+
   # Authentication settings
   authentication:
     enabled: true
     api_key_required: true
     jwt_enabled: false  # Future enhancement
     session_timeout: 3600  # 1 hour
-    
+
   # Input validation
   input_validation:
     max_text_length: 1000
@@ -67,7 +67,7 @@ logging:
     level: "INFO"
     format: "json"
     include_pii: false
-    
+
   # Request logging
   requests:
     enabled: true
@@ -77,7 +77,7 @@ logging:
       - "api_key"
       - "token"
       - "secret"
-      
+
   # Error logging
   errors:
     enabled: true
@@ -96,7 +96,7 @@ environment:
     - "SECRET_KEY"
     - "API_KEY"
     - "ENVIRONMENT"
-    
+
   # Sensitive variables (will be masked in logs)
   sensitive_vars:
     - "DATABASE_URL"
@@ -104,18 +104,18 @@ environment:
     - "API_KEY"
     - "OPENAI_API_KEY"
     - "GOOGLE_CLOUD_CREDENTIALS"
-    
+
   # Environment-specific settings
   production:
     debug: false
     log_level: "WARNING"
     enable_health_checks: true
-    
+
   development:
     debug: true
     log_level: "DEBUG"
     enable_health_checks: true
-    
+
   testing:
     debug: false
     log_level: "INFO"
@@ -133,13 +133,13 @@ dependencies:
     auto_fix: false
     fail_on_critical: true
     fail_on_high: true  # Fail on high-severity vulnerabilities for security
-    
+
   # Update policy
   updates:
     auto_update: false
     security_updates_only: true
     test_after_update: true
-    
+
 # Model Security
 model:
   # Model loading security
@@ -147,14 +147,14 @@ model:
     validate_model_files: true
     check_model_signatures: true
     max_model_size_mb: 1000
-    
+
   # Inference security
   inference:
     max_input_length: 1000
     max_batch_size: 50
     timeout_seconds: 30
     memory_limit_mb: 2048
-    
+
   # Model access control
   access_control:
     require_authentication: true
@@ -169,13 +169,13 @@ database:
     verify_ssl: true
     connection_timeout: 30
     max_connections: 20
-    
+
   # Query security
   queries:
     max_query_time: 30  # seconds
     log_slow_queries: true
     prevent_sql_injection: true
-    
+
   # Data protection
   data_protection:
     encrypt_sensitive_data: true
@@ -193,16 +193,16 @@ deployment:
       run_as_user: 1000
       run_as_group: 1000
       fs_group: 1000
-      
+
   # Network security
   network:
     use_https: true
     enable_tls_1_3: true
     disable_tls_1_0_1_1: true
     certificate_validation: true
-    
+
   # Secrets management
   secrets:
     use_external_secrets: true
     rotate_secrets: true
-    secret_rotation_days: 90 
+    secret_rotation_days: 90

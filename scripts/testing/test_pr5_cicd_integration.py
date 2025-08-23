@@ -8,8 +8,10 @@ This script validates that the CircleCI configuration fixes are working correctl
 import os
 import subprocess
 import sys
-import yaml
 from pathlib import Path
+
+import yaml
+
 
 def test_yaml_syntax():
     """Test that the CircleCI config YAML is valid."""

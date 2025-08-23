@@ -13,6 +13,7 @@ import subprocess
 import sys
 from datetime import datetime
 
+
 def check_prerequisites():
     """Check if all prerequisites are met for GCP deployment."""
     print("🔍 CHECKING DEPLOYMENT PREREQUISITES")

@@ -12,6 +12,7 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 # Load environment variables from .env file
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     # dotenv not installed, skip loading
@@ -60,8 +61,7 @@ def check_pgvector():
             with conn.cursor() as cur:
                 # Check if vector extension is available
                 cur.execute(
-                    "SELECT extname FROM pg_extension "
-                    "WHERE extname = 'vector';"
+                    "SELECT extname FROM pg_extension " "WHERE extname = 'vector';"
                 )
                 extension_installed = cur.fetchone() is not None
 

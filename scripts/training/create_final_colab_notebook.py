@@ -8,6 +8,7 @@ This script creates the final Colab notebook for combined training.
 
 import json
 
+
 def create_colab_notebook():
     """Create the final Colab notebook content."""
 
@@ -64,7 +65,7 @@ def create_colab_notebook():
                     "from sklearn.metrics import                    "from sklearn.metrics import f1_score,
                          accuracy_score,
                          classification_report\n",
-                        
+
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",

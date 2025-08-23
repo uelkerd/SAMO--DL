@@ -19,7 +19,7 @@ except Exception as e:
 
 try:
     print("2. Importing Flask-RESTX...")
-    from flask_restx import Api, Resource, fields, Namespace
+    from flask_restx import Api, Namespace, Resource, fields
     print("✅ Flask-RESTX imported successfully")
 except Exception as e:
     print(f"❌ Flask-RESTX import failed: {e}")
@@ -87,7 +87,7 @@ except Exception as e:
 
 try:
     print("9. Testing model_utils import...")
-    from model_utils import    from model_utils import ensure_model_loaded,
+    from model_utils import ensure_model_loaded, from, import, model_utils
          predict_emotions,
          get_model_status,
          validate_text_input

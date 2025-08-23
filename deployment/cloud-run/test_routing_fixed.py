@@ -4,14 +4,15 @@
 import os
 
 # Set required environment variables
-os.environ['ADMIN_API_KEY'] = 'test-key-123'
-os.environ['MAX_INPUT_LENGTH'] = '512'
-os.environ['RATE_LIMIT_PER_MINUTE'] = '100'
-os.environ['MODEL_PATH'] = '/app/model'
-os.environ['PORT'] = '8080'
+os.environ["ADMIN_API_KEY"] = "test-key-123"
+os.environ["MAX_INPUT_LENGTH"] = "512"
+os.environ["RATE_LIMIT_PER_MINUTE"] = "100"
+os.environ["MODEL_PATH"] = "/app/model"
+os.environ["PORT"] = "8080"
 
 try:
     from secure_api_server import app
+
     print("✅ Successfully imported secure_api_server")
 
     print("\n=== All Routes ===")
@@ -21,7 +22,7 @@ try:
     print("\n=== Testing specific endpoints ===")
 
     # Check if root endpoint exists
-    root_routes = [rule for rule in app.url_map.iter_rules() if rule.rule == '/']
+    root_routes = [rule for rule in app.url_map.iter_rules() if rule.rule == "/"]
     if root_routes:
         print("✅ Root endpoint (/) exists")
         for route in root_routes:
@@ -30,7 +31,9 @@ try:
         print("❌ Root endpoint (/) missing")
 
     # Check if health endpoint exists
-    health_routes = [rule for rule in app.url_map.iter_rules() if '/health' in rule.rule]
+    health_routes = [
+        rule for rule in app.url_map.iter_rules() if "/health" in rule.rule
+    ]
     if health_routes:
         print("✅ Health endpoint exists")
         for route in health_routes:
@@ -39,7 +42,7 @@ try:
         print("❌ Health endpoint missing")
 
     # Check if docs endpoint exists
-    docs_routes = [rule for rule in app.url_map.iter_rules() if rule.rule == '/docs']
+    docs_routes = [rule for rule in app.url_map.iter_rules() if rule.rule == "/docs"]
     if docs_routes:
         print("✅ Docs endpoint (/docs) exists")
         for route in docs_routes:
@@ -52,4 +55,5 @@ try:
 except Exception as e:
     print(f"❌ Error testing routing: {e}")
     import traceback
+
     traceback.print_exc()

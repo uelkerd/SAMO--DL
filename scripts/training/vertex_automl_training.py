@@ -1,21 +1,21 @@
-            # If no emotion column found, use the last column (typically labels)
-            # Save results to GCS
-            # Step 1: Load metadata
-            # Step 2: Create dataset
-            # Step 3: Train model
-            # Step 4: Monitor training
-            # Step 5: Deploy model
-            # Step 6: Save results
-        # Configure training job
-        # Create dataset
-        # Download first few lines to check structure
-        # Find the target column (should be the emotion labels column)
-        # Get model evaluation
-        # Get the correct target column
-        # Initialize Vertex AI
-        # Look for emotion-related columns
-        # Start training
-    # Initialize and run training
+# If no emotion column found, use the last column (typically labels)
+# Save results to GCS
+# Step 1: Load metadata
+# Step 2: Create dataset
+# Step 3: Train model
+# Step 4: Monitor training
+# Step 5: Deploy model
+# Step 6: Save results
+# Configure training job
+# Create dataset
+# Download first few lines to check structure
+# Find the target column (should be the emotion labels column)
+# Get model evaluation
+# Get the correct target column
+# Initialize Vertex AI
+# Look for emotion-related columns
+# Start training
+# Initialize and run training
 # Configure logging
 #!/usr/bin/env python3
 import json
@@ -23,15 +23,17 @@ import logging
 import sys
 import time
 from datetime import datetime
-from google.cloud import aiplatform
-from google.cloud import storage
+
+from google.cloud import aiplatform, storage
 
 """
 SAMO Vertex AI AutoML Training Pipeline
 Trains an AutoML model for emotion detection with F1 score optimization
 """
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -146,14 +148,20 @@ class SAMOVertexAutoMLTraining:
         evaluation = model.evaluate()
         logger.info("Model evaluation: {evaluation}")
 
-        return {"model_id": model_id, "evaluation": evaluation, "training_complete": True}
+        return {
+            "model_id": model_id,
+            "evaluation": evaluation,
+            "training_complete": True,
+        }
 
     def deploy_model(self, model_id: str) -> str:
         """Deploy model to endpoint."""
         endpoint_display_name = "samo-emotion-endpoint-{int(time.time())}"
 
         endpoint = aiplatform.Endpoint.create(
-            display_name=endpoint_display_name, project=self.project_id, location=self.region
+            display_name=endpoint_display_name,
+            project=self.project_id,
+            location=self.region,
         )
 
         model = aiplatform.Model(model_id)
@@ -221,7 +229,9 @@ class SAMOVertexAutoMLTraining:
 def main():
     """Main function."""
     if len(sys.argv) != 3:
-        logging.info("Usage: python vertex_automl_training.py <project_id> <bucket_name>")
+        logging.info(
+            "Usage: python vertex_automl_training.py <project_id> <bucket_name>"
+        )
         sys.exit(1)
 
     project_id = sys.argv[1]

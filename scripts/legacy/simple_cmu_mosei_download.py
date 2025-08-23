@@ -7,8 +7,10 @@ Alternative approach to get CMU-MOSEI data using Hugging Face datasets.
 """
 
 import json
-import numpy as np
 from collections import defaultdict
+
+import numpy as np
+
 
 def download_cmu_mosei_sample():
     """Download a sample of CMU-MOSEI data from Hugging Face."""
@@ -17,6 +19,7 @@ def download_cmu_mosei_sample():
     # Try to get CMU-MOSEI from Hugging Face datasets
     try:
         from datasets import load_dataset
+
         print("✅ Hugging Face datasets available")
 
         # Try to load CMU-MOSEI
@@ -31,6 +34,7 @@ def download_cmu_mosei_sample():
     except Exception as e:
         print(f"❌ Error loading CMU-MOSEI: {e}")
         return None
+
 
 def create_synthetic_cmu_mosei():
     """Create synthetic CMU-MOSEI-like data for testing."""
@@ -86,15 +90,18 @@ def create_synthetic_cmu_mosei():
 
     # Create dataset entries
     for i, (text, sentiment) in enumerate(all_samples):
-        synthetic_data.append({
-            'text': text,
-            'sentiment': sentiment,
-            'video_id': f'video_{i//10:03d}',
-            'segment_id': f'{i%10}'
-        })
+        synthetic_data.append(
+            {
+                "text": text,
+                "sentiment": sentiment,
+                "video_id": f"video_{i//10:03d}",
+                "segment_id": f"{i%10}",
+            }
+        )
 
     print(f"✅ Created {len(synthetic_data)} synthetic samples")
     return synthetic_data
+
 
 def map_sentiment_to_emotions(samples):
     """Map sentiment scores to our 12 target emotions."""
@@ -102,27 +109,25 @@ def map_sentiment_to_emotions(samples):
 
     emotion_mapping = {
         # Very negative sentiments
-        (-3, -2.5): 'sad',
-        (-2.5, -2): 'frustrated',
-        (-2, -1.5): 'anxious',
-        (-1.5, -1): 'tired',
-        (-1, -0.5): 'overwhelmed',
-
+        (-3, -2.5): "sad",
+        (-2.5, -2): "frustrated",
+        (-2, -1.5): "anxious",
+        (-1.5, -1): "tired",
+        (-1, -0.5): "overwhelmed",
         # Neutral sentiments
-        (-0.5, 0.5): 'calm',
-
+        (-0.5, 0.5): "calm",
         # Positive sentiments
-        (0.5, 1): 'content',
-        (1, 1.5): 'hopeful',
-        (1.5, 2): 'grateful',
-        (2, 2.5): 'happy',
-        (2.5, 3): 'excited',
+        (0.5, 1): "content",
+        (1, 1.5): "hopeful",
+        (1.5, 2): "grateful",
+        (2, 2.5): "happy",
+        (2.5, 3): "excited",
     }
 
     mapped_samples = []
 
     for sample in samples:
-        sentiment = sample['sentiment']
+        sentiment = sample["sentiment"]
 
         # Find appropriate emotion mapping
         mapped_emotion = None
@@ -134,26 +139,28 @@ def map_sentiment_to_emotions(samples):
         # Default mapping for edge cases
         if mapped_emotion is None:
             if sentiment < -2.5:
-                mapped_emotion = 'sad'
+                mapped_emotion = "sad"
             elif sentiment > 2.5:
-                mapped_emotion = 'excited'
+                mapped_emotion = "excited"
             else:
-                mapped_emotion = 'calm'
+                mapped_emotion = "calm"
 
-        mapped_samples.append({
-            'text': sample['text'],
-            'emotion': mapped_emotion,
-            'original_sentiment': sentiment,
-            'video_id': sample['video_id'],
-            'segment_id': sample['segment_id']
-        })
+        mapped_samples.append(
+            {
+                "text": sample["text"],
+                "emotion": mapped_emotion,
+                "original_sentiment": sentiment,
+                "video_id": sample["video_id"],
+                "segment_id": sample["segment_id"],
+            }
+        )
 
     print(f"✅ Mapped {len(mapped_samples)} samples to emotions")
 
     # Show emotion distribution
     emotion_counts = defaultdict(int)
     for sample in mapped_samples:
-        emotion_counts[sample['emotion']] += 1
+        emotion_counts[sample["emotion"]] += 1
 
     print("📊 Emotion distribution:")
     for emotion, count in sorted(emotion_counts.items()):
@@ -161,14 +168,16 @@ def map_sentiment_to_emotions(samples):
 
     return mapped_samples
 
+
 def save_dataset(samples, filename):
     """Save dataset to JSON file."""
     print(f"💾 Saving dataset to {filename}...")
 
-    with open(filename, 'w') as f:
+    with open(filename, "w") as f:
         json.dump(samples, f, indent=2)
 
     print(f"✅ Saved {len(samples)} samples to {filename}")
+
 
 def main():
     """Main function."""
@@ -185,44 +194,49 @@ def main():
         print("📝 Processing real CMU-MOSEI data...")
         # Extract samples from dataset
         samples = []
-        for split in ['train', 'validation', 'test']:
+        for split in ["train", "validation", "test"]:
             if split in dataset:
                 for item in dataset[split]:
-                    if 'text' in item and 'sentiment' in item:
-                        samples.append({
-                            'text': item['text'],
-                            'sentiment': item['sentiment'],
-                            'video_id': item.get('video_id', 'unknown'),
-                            'segment_id': item.get('segment_id', '0')
-                        })
+                    if "text" in item and "sentiment" in item:
+                        samples.append(
+                            {
+                                "text": item["text"],
+                                "sentiment": item["sentiment"],
+                                "video_id": item.get("video_id", "unknown"),
+                                "segment_id": item.get("segment_id", "0"),
+                            }
+                        )
 
     # Map to emotions
     mapped_samples = map_sentiment_to_emotions(samples)
 
     # Save datasets
-    save_dataset(mapped_samples, 'data/cmu_mosei_emotion_dataset.json')
+    save_dataset(mapped_samples, "data/cmu_mosei_emotion_dataset.json")
 
     # Create balanced subset
     print("⚖️ Creating balanced training subset...")
     emotion_samples = defaultdict(list)
     for sample in mapped_samples:
-        emotion_samples[sample['emotion']].append(sample)
+        emotion_samples[sample["emotion"]].append(sample)
 
     min_samples = min(len(samples) for samples in emotion_samples.values())
     print(f"📊 Minimum samples per emotion: {min_samples}")
 
     balanced_samples = []
     for emotion, samples_list in emotion_samples.items():
-        selected_samples = np.random.choice(samples_list, size=min_samples, replace=False)
+        selected_samples = np.random.choice(
+            samples_list, size=min_samples, replace=False
+        )
         balanced_samples.extend(selected_samples)
 
-    save_dataset(balanced_samples, 'data/cmu_mosei_balanced_dataset.json')
+    save_dataset(balanced_samples, "data/cmu_mosei_balanced_dataset.json")
 
     print("\n🎉 CMU-MOSEI Integration Complete!")
     print("📋 Next steps:")
     print("  1. Review the datasets in data/")
     print("  2. Use cmu_mosei_balanced_dataset.json for training")
     print("  3. Upload to Colab and achieve 75-85% F1 score!")
+
 
 if __name__ == "__main__":
     main()

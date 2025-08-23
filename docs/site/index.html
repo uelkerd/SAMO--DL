@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SAMO Deep Learning - Production Emotion Detection API</title>
     <meta name="description" content="Enterprise-grade emotion detection API with >90% F1 score and 2.3x performance optimization">
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -174,7 +174,7 @@
                         Production Emotion Detection API
                     </h1>
                     <p class="lead mb-4">
-                        Enterprise-grade emotion detection with <strong>>90% F1 score</strong> and <strong>2.3x performance optimization</strong>. 
+                        Enterprise-grade emotion detection with <strong>>90% F1 score</strong> and <strong>2.3x performance optimization</strong>.
                         Ready for production integration with your applications.
                     </p>
                     <div class="d-flex gap-3">
@@ -601,7 +601,7 @@ const analyzeUserFeedback = async (feedback) => {
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Demo Script -->
     <script>
         async function analyzeEmotion() {
@@ -619,10 +619,10 @@ const analyzeUserFeedback = async (feedback) => {
                 // For demo purposes, we'll simulate the API call
                 // In production, this would call the actual API
                 await new Promise(resolve => setTimeout(resolve, 1500));
-                
+
                 // Simulate API response
                 const emotions = simulateEmotionAnalysis(text);
-                
+
                 // Display results
                 displayResults(emotions);
             } catch (error) {
@@ -637,7 +637,7 @@ const analyzeUserFeedback = async (feedback) => {
             // Simple emotion detection simulation
             const textLower = text.toLowerCase();
             const emotions = [];
-            
+
             if (textLower.includes('happy') || textLower.includes('joy') || textLower.includes('excited')) {
                 emotions.push({ emotion: 'joy', confidence: 0.89 });
             }
@@ -656,23 +656,23 @@ const analyzeUserFeedback = async (feedback) => {
             if (textLower.includes('surprise') || textLower.includes('amazed') || textLower.includes('shocked')) {
                 emotions.push({ emotion: 'surprise', confidence: 0.84 });
             }
-            
+
             // Default to neutral if no specific emotions detected
             if (emotions.length === 0) {
                 emotions.push({ emotion: 'neutral', confidence: 0.75 });
             }
-            
+
             return emotions;
         }
 
         function displayResults(emotions) {
             const resultsContainer = document.getElementById('emotionResults');
             resultsContainer.innerHTML = '';
-            
+
             emotions.forEach(emotion => {
                 const confidencePercent = Math.round(emotion.confidence * 100);
                 const colorClass = getEmotionColor(emotion.emotion);
-                
+
                 const emotionCard = `
                     <div class="col-md-6">
                         <div class="card border-0 shadow-sm">
@@ -681,7 +681,7 @@ const analyzeUserFeedback = async (feedback) => {
                                     <div>
                                         <h6 class="mb-1 fw-bold text-capitalize">${emotion.emotion}</h6>
                                         <div class="progress" style="height: 8px;">
-                                            <div class="progress-bar ${colorClass}" 
+                                            <div class="progress-bar ${colorClass}"
                                                  style="width: ${confidencePercent}%"></div>
                                         </div>
                                     </div>
@@ -695,7 +695,7 @@ const analyzeUserFeedback = async (feedback) => {
                 `;
                 resultsContainer.innerHTML += emotionCard;
             });
-            
+
             document.getElementById('demoResult').style.display = 'block';
         }
 
@@ -727,4 +727,4 @@ const analyzeUserFeedback = async (feedback) => {
         });
     </script>
 </body>
-</html> 
+</html>

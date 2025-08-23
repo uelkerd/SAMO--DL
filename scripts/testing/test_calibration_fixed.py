@@ -1,27 +1,28 @@
-                # Try to load the checkpoint
-        # Create new model
-        # Get predictions
-        # Load existing model
-        # Tokenize
-    # Calculate metrics
-    # Check if F1 score meets target
-    # Convert to numpy arrays
-    # Create simple labels (one emotion per text)
-    # Create test data
-    # Create tokenizer
-    # Find valid checkpoint
-    # Process test data
-    # Set optimal temperature
+# Try to load the checkpoint
+# Create new model
+# Get predictions
+# Load existing model
+# Tokenize
+# Calculate metrics
+# Check if F1 score meets target
+# Convert to numpy arrays
+# Create simple labels (one emotion per text)
+# Create test data
+# Create tokenizer
+# Find valid checkpoint
+# Process test data
+# Set optimal temperature
 # Configure logging
 # Constants
 #!/usr/bin/env python3
 import logging
 import sys
+from pathlib import Path
+
 import numpy as np
 import torch
-from pathlib import Path
 from sklearn.metrics import f1_score
-from transformers import AutoTokenizer, AutoModel
+from transformers import AutoModel, AutoTokenizer
 
 """
 Fixed Model Calibration Test
@@ -154,7 +155,9 @@ def test_calibration():
         model.to(device)
 
         try:
-            checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
+            checkpoint = torch.load(
+                checkpoint_path, map_location=device, weights_only=False
+            )
             if "model_state_dict" in checkpoint:
                 model.load_state_dict(checkpoint["model_state_dict"])
                 logger.info("✅ Model loaded successfully")

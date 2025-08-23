@@ -6,10 +6,11 @@ This script updates common import path issues in moved scripts.
 import glob
 import re
 
+
 def fix_import_paths_in_file(file_path):
     """Fix import paths in a single file."""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         original_content = content
@@ -17,23 +18,24 @@ def fix_import_paths_in_file(file_path):
         # Fix common import path issues
         replacements = [
             # Fix models imports
-            (r'from models\.', 'from src.models.'),
-            (r'import models\.', 'import src.models.'),
-
+            (r"from models\.", "from src.models."),
+            (r"import models\.", "import src.models."),
             # Fix src imports
-            (r'from src\.src\.', 'from src.'),
-            (r'import src\.src\.', 'import src.'),
-
+            (r"from src\.src\.", "from src."),
+            (r"import src\.src\.", "import src."),
             # Fix relative imports for moved scripts
-            (r'from \.\.models\.', 'from src.models.'),
-            (r'from \.\.src\.', 'from src.'),
-            (r'from \.\.data\.', 'from data.'),
-
+            (r"from \.\.models\.", "from src.models."),
+            (r"from \.\.src\.", "from src."),
+            (r"from \.\.data\.", "from data."),
             # Fix sys.path insertions
-            (r'sys\.path\.insert\(0, str\(Path\(__file__\)\.parent\.parent / "src"\)\)',
-             'sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))'),
-            (r'sys\.path\.insert\(0, str\(Path\(__file__\)\.parent\.parent\.parent / "src"\)\)',
-             'sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))'),
+            (
+                r'sys\.path\.insert\(0, str\(Path\(__file__\)\.parent\.parent / "src"\)\)',
+                'sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))',
+            ),
+            (
+                r'sys\.path\.insert\(0, str\(Path\(__file__\)\.parent\.parent\.parent / "src"\)\)',
+                'sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))',
+            ),
         ]
 
         for pattern, replacement in replacements:
@@ -41,7 +43,7 @@ def fix_import_paths_in_file(file_path):
 
         # Only write if content changed
         if content != original_content:
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(content)
             print(f"Fixed imports in: {file_path}")
             return True
@@ -53,13 +55,14 @@ def fix_import_paths_in_file(file_path):
         print(f"Error processing {file_path}: {e}")
         return False
 
+
 def main():
     """Fix import paths in all Python files."""
     print("Fixing import paths after reorganization...")
 
     # Get all Python files in scripts directory
     script_files = []
-    for pattern in ['scripts/**/*.py', 'src/**/*.py']:
+    for pattern in ["scripts/**/*.py", "src/**/*.py"]:
         script_files.extend(glob.glob(pattern, recursive=True))
 
     print(f"Found {len(script_files)} Python files to check")
@@ -71,6 +74,7 @@ def main():
 
     print(f"\nFixed import paths in {fixed_count} files")
     print("Import path fixes completed!")
+
 
 if __name__ == "__main__":
     main()
