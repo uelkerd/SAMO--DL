@@ -10,10 +10,10 @@ ENV FLASK_ENV=production
 ENV ENVIRONMENT=production
 ENV PORT=8080
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
+# Install only required system dependencies (pinned)
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl=7.88.1-10+deb12u12 \
     && rm -rf /var/lib/apt/lists/*
 
 # Set work directory
