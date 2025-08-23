@@ -64,12 +64,12 @@ def test_local_inference():
         from inference import EmotionDetector
 
         print(f"\n🔧 Loading model...")
-        detector = EmotionDetector()
+        detector = EmotionDetector(model_path=str(model_dir))
         print("✅ Model loaded successfully!")
 
         print("\n🧪 Running inference tests...")
         for i, text in enumerate(test_texts, 1):
-            result = detector.predict_single(text)
+            result = detector.predict(text)
             print(f"{i:02d}. {text} -> {result}")
 
         print("\n✅ Local inference test completed successfully!")
