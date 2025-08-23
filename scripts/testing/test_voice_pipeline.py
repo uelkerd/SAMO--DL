@@ -168,12 +168,11 @@ def test_complete_pipeline():
     if passed == total:
         logger.info("🎉 All tests passed! Voice pipeline is ready.")
         return True
-    elif passed >= total // 2:
+    if passed >= total // 2:
         logger.info("⚠️  Most tests passed. Some components may need attention.")
         return True
-    else:
-        logger.error("❌ Multiple tests failed. Pipeline needs fixes.")
-        return False
+    logger.error("❌ Multiple tests failed. Pipeline needs fixes.")
+    return False
 
 
 def main():
