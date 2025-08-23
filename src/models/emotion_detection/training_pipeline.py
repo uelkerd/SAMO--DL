@@ -358,7 +358,8 @@ class EmotionDetectionTrainer:
 
         return metrics
 
-    def _log_data_distribution(self, labels: torch.Tensor) -> None:
+    @staticmethod
+    def _log_data_distribution(labels: torch.Tensor) -> None:
         logger.info("🔍 DEBUG: Data Distribution Analysis")
         logger.info("   Labels shape: %s", labels.shape)
         logger.info("   Labels dtype: %s", labels.dtype)
@@ -381,7 +382,8 @@ class EmotionDetectionTrainer:
             if class_count > 0:
                 logger.info("   Class %d: %d positive samples", i, int(class_count))
 
-    def _log_model_output(self, logits: torch.Tensor) -> None:
+    @staticmethod
+    def _log_model_output(logits: torch.Tensor) -> None:
         logger.info("🔍 DEBUG: Model Output Analysis")
         logger.info("   Logits shape: %s", logits.shape)
         logger.info("   Logits min: %.6f", logits.min().item())
@@ -397,7 +399,8 @@ class EmotionDetectionTrainer:
         logger.info("   Predictions max: %.6f", predictions.max().item())
         logger.info("   Predictions mean: %.6f", predictions.mean().item())
 
-    def _log_loss_analysis(self, loss: torch.Tensor, logits: torch.Tensor, labels: torch.Tensor) -> None:
+    @staticmethod
+    def _log_loss_analysis(loss: torch.Tensor, logits: torch.Tensor, labels: torch.Tensor) -> None:
         logger.info("🔍 DEBUG: Loss Analysis")
         logger.info("   Raw loss: %.8f", loss.item())
         bce_manual = F.binary_cross_entropy_with_logits(
@@ -432,7 +435,8 @@ class EmotionDetectionTrainer:
             if total_norm < 1e-6:
                 logger.warning("⚠️  WARNING: Very small gradient norm detected!")
 
-    def _log_gradient_stats_after(self, clip_norm: Union[float, torch.Tensor]) -> None:
+    @staticmethod
+    def _log_gradient_stats_after(clip_norm: Union[float, torch.Tensor]) -> None:
         clip_val = float(clip_norm) if not isinstance(clip_norm, (int, float)) else clip_norm
         logger.info("   Gradient norm after clipping: %.6f", clip_val)
 
