@@ -132,6 +132,13 @@ jobs:
               -t samo-dl-unified:${CIRCLE_SHA1:0:7} \
               -t samo-dl-unified:latest \
               .
+      - run:
+          name: Smoke test unified image health
+          command: |
+            docker run -d --rm -p 18080:8080 --name unified-test samo-dl-unified:${CIRCLE_SHA1:0:7}
+            sleep 5
+            curl -fsS http://127.0.0.1:18080/health || (docker logs unified-test; docker rm -f unified-test; exit 1)
+            docker rm -f unified-test
 
 workflows:
   simple-ci:
