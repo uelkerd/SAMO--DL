@@ -59,14 +59,14 @@ def validate_environment():
 
     try:
         import transformers
-        logger.info(f"✅ PyTorch: {torch.__version__}")
-        logger.info(f"✅ Transformers: {transformers.__version__}")
+        logger.info("✅ PyTorch: %s", torch.__version__)
+        logger.info("✅ Transformers: %s", transformers.__version__)
         logger.info("✅ Vertex AI: Available")
 
         if torch.cuda.is_available():
-            logger.info(f"✅ CUDA device: {torch.cuda.get_device_name(0)}")
+            logger.info("✅ CUDA device: %s", torch.cuda.get_device_name(0))
     except Exception as _e:
-        logger.info(f"❌ Environment validation failed: {_e}")
+        logger.info("❌ Environment validation failed: %s", _e)
         raise
 
 
@@ -97,9 +97,9 @@ def validate_data_distribution():
                 label_distribution[class_idx] += labels[:, class_idx].sum().item()
 
         positive_rate = total_positive_labels / (total_samples * 28)  # 28 emotion classes
-        logger.info(f"✅ Total samples analyzed: {total_samples}")
-        logger.info(f"✅ Total positive labels: {total_positive_labels}")
-        logger.info(f"✅ Positive label rate: {positive_rate:.6f}")
+        logger.info("✅ Total samples analyzed: %d", total_samples)
+        logger.info("✅ Total positive labels: %d", total_positive_labels)
+        logger.info("✅ Positive label rate: %.6f", positive_rate)
 
         if positive_rate == 0:
             logger.error("❌ CRITICAL: No positive labels found!")
@@ -117,7 +117,7 @@ def validate_data_distribution():
         for class_idx in range(min(10, len(label_distribution))):
             count = label_distribution.get(class_idx, 0)
             if count > 0:
-                logger.info(f"   Class {class_idx}: {count} positive samples")
+                logger.info("   Class %d: %d positive samples", class_idx, count)
 
         return True
 
@@ -138,8 +138,8 @@ def validate_model_architecture():
             freeze_bert_layers=6,
         )
 
-        logger.info(f"✅ Model created: {model.count_parameters():,} parameters")
-        logger.info(f"✅ Loss function: {type(loss_fn).__name__}")
+        logger.info("✅ Model created: %s parameters", format(model.count_parameters(), ",d"))
+        logger.info("✅ Loss function: %s", type(loss_fn).__name__)
 
         batch_size = 2
         seq_length = 64
@@ -157,8 +157,8 @@ def validate_model_architecture():
             loss = loss_fn(logits, dummy_labels)
 
         logger.info("✅ Forward pass successful")
-        logger.info(f"   Logits shape: {logits.shape}")
-        logger.info(f"   Loss value: {loss.item():.8f}")
+        logger.info("   Logits shape: %s", logits.shape)
+        logger.info("   Loss value: %.8f", loss.item())
 
         if loss.item() <= 0:
             logger.error("❌ CRITICAL: Loss is zero or negative: {loss.item()}")
@@ -194,20 +194,20 @@ def validate_loss_function():
 
         bce_manual = F.binary_cross_entropy_with_logits(logits, labels, reduction="mean")
 
-        logger.info(f"✅ Mixed labels loss: {loss1.item():.8f}")
-        logger.info(f"✅ Manual BCE loss: {bce_manual.item():.8f}")
+        logger.info("✅ Mixed labels loss: %.8f", loss1.item())
+        logger.info("✅ Manual BCE loss: %.8f", bce_manual.item())
 
         loss_diff = abs(loss1.item() - bce_manual.item())
         if loss_diff > 1.0:
-            logger.warning("⚠️  Large difference between custom and manual loss: {loss_diff}")
+            logger.warning("⚠️  Large difference between custom and manual loss: %s", loss_diff)
 
         labels_all_pos = torch.ones(batch_size, num_classes)
         loss2 = loss_fn(logits, labels_all_pos)
-        logger.info(f"✅ All positive loss: {loss2.item():.8f}")
+        logger.info("✅ All positive loss: %.8f", loss2.item())
 
         labels_all_neg = torch.zeros(batch_size, num_classes)
         loss3 = loss_fn(logits, labels_all_neg)
-        logger.info(f"✅ All negative loss: {loss3.item():.8f}")
+        logger.info("✅ All negative loss: %.8f", loss3.item())
 
         if loss1.item() <= 0 or loss2.item() <= 0 or loss3.item() <= 0:
             logger.error("❌ CRITICAL: Loss function producing zero/negative values!")
@@ -226,14 +226,14 @@ def validate_training_config(args):
 
     try:
         logger.info("📋 Training Configuration:")
-        logger.info(f"   Model: {args.model_name}")
-        logger.info(f"   Batch size: {args.batch_size}")
-        logger.info(f"   Learning rate: {args.learning_rate}")
-        logger.info(f"   Epochs: {args.num_epochs}")
-        logger.info(f"   Max length: {args.max_length}")
-        logger.info(f"   Frozen layers: {args.freeze_bert_layers}")
-        logger.info(f"   Focal loss: {args.use_focal_loss}")
-        logger.info(f"   Class weights: {args.class_weights}")
+        logger.info("   Model: %s", args.model_name)
+        logger.info("   Batch size: %d", args.batch_size)
+        logger.info("   Learning rate: %s", args.learning_rate)
+        logger.info("   Epochs: %d", args.num_epochs)
+        logger.info("   Max length: %d", args.max_length)
+        logger.info("   Frozen layers: %d", args.freeze_bert_layers)
+        logger.info("   Focal loss: %s", args.use_focal_loss)
+        logger.info("   Class weights: %s", args.class_weights)
 
         if args.learning_rate > 1e-4:
             logger.warning("⚠️  Learning rate might be too high")
@@ -280,7 +280,7 @@ def run_training(args):
 
         logger.info("📊 Training Results:")
         for key, value in results.items():
-            logger.info(f"   {key}: {value}")
+            logger.info("   %s: %s", key, value)
 
         return results
 
@@ -371,7 +371,7 @@ def main():
             logger.info("\n🎉 TRAINING COMPLETED SUCCESSFULLY!")
             logger.info("📊 Final Results:")
             for key, value in results.items():
-                logger.info(f"   {key}: {value}")
+                logger.info("   %s: %s", key, value)
         else:
             logger.error("\n❌ TRAINING FAILED!")
             sys.exit(1)
