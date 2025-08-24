@@ -115,10 +115,9 @@ jobs:
           command: |
             set -e
             echo "🔍 Scanning all canonical requirements with constraints"
-            safety check \
-              -r dependencies/requirements-api.txt \
-              -r dependencies/requirements-dev.txt \
-              -r dependencies/requirements-ml.txt \
+            REQUIREMENT_FILES=$(find dependencies -name 'requirements-*.txt' -printf -- '-r %p ')
+            # shellcheck disable=SC2086
+            safety check $REQUIREMENT_FILES \
               -c dependencies/constraints.txt \
               --full-report \
               --fail-on HIGH
