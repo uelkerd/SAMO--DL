@@ -103,18 +103,26 @@ class SecurityHeadersMiddleware:
             
             if ua_analysis["risk_level"] in ["high", "very_high"]:
                 # Store blocking information for after_request logging
-                g.security_patterns = [f"BLOCKED: High-risk user agent - {ua_analysis['category']} (score: {ua_analysis['score']})"]
+                g.security_patterns = [
+                    f"BLOCKED: High-risk user agent - {ua_analysis['category']} "
+                    f"(score: {ua_analysis['score']})"
+                ]
                 g.block_reason = f"User agent risk level: {ua_analysis['risk_level']}"
                 g.ua_analysis = ua_analysis
                 
                 # Return 403 Forbidden response
                 from flask import make_response
-                response = make_response("Access Forbidden - High-risk user agent detected", 403)
+                response = make_response(
+                    "Access Forbidden - High-risk user agent detected", 403
+                )
                 response.headers["Content-Type"] = "text/plain"
                 return response
 
         # Log security-relevant request information
         self._log_security_info()
+        
+        # Explicit return None for consistency (PEP8 compliance)
+        return None
 
     def _after_request(self, response: Response) -> Response:
         """Process response after handling."""
@@ -129,11 +137,11 @@ class SecurityHeadersMiddleware:
 
         # Log blocking information if request was blocked
         if hasattr(g, 'security_patterns'):
-            logger.warning(f"Request blocked: {g.security_patterns}")
+            logger.warning("Request blocked: %s", g.security_patterns)
             if hasattr(g, 'block_reason'):
-                logger.warning(f"Block reason: {g.block_reason}")
+                logger.warning("Block reason: %s", g.block_reason)
             if hasattr(g, 'ua_analysis'):
-                logger.warning(f"User agent analysis: {g.ua_analysis}")
+                logger.warning("User agent analysis: %s", g.ua_analysis)
 
         return response
 
