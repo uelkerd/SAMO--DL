@@ -161,7 +161,23 @@ jobs:
             pip install safety==3.2.3
             
             # Run safety check against installed environment (captures transitives)
-            python3 -m safety check --full-report --fail-on HIGH
+            echo "🔍 Running safety check..."
+            SAFETY_OUTPUT=$(python3 -m safety check --full-report 2>&1)
+            SAFETY_EXIT_CODE=$?
+            
+            # Display the safety report
+            echo "$SAFETY_OUTPUT"
+            
+            # Check if there are high/critical vulnerabilities
+            if echo "$SAFETY_OUTPUT" | grep -q "HIGH\|CRITICAL"; then
+              echo "❌ High or Critical vulnerabilities found!"
+              exit 1
+            elif [ $SAFETY_EXIT_CODE -ne 0 ]; then
+              echo "❌ Safety check failed with exit code $SAFETY_EXIT_CODE"
+              exit 1
+            else
+              echo "✅ No high/critical vulnerabilities found"
+            fi
             
             # Cleanup
             deactivate
