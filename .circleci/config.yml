@@ -101,6 +101,28 @@ jobs:
               && echo '⚠️ FastAPI not installed; skipping health check.' \
               || PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src" python3 -c "from fastapi.testclient import TestClient; from src.unified_ai_api import app; c=TestClient(app); r=c.get('/health'); assert r.status_code==200, f'Health check failed: {r.status_code}'; print('✅ API health check passed!')"
 
+  safety-scan:
+    executor: python-simple
+    steps:
+      - checkout
+      - run:
+          name: Install safety
+          command: |
+            python3 -m pip install --upgrade pip
+            python3 -m pip install safety==3.2.3
+      - run:
+          name: Run safety scan with constraints (fail on high/critical)
+          command: |
+            set -e
+            echo "🔍 Scanning all canonical requirements with constraints"
+            safety check \
+              -r dependencies/requirements-api.txt \
+              -r dependencies/requirements-dev.txt \
+              -r dependencies/requirements-ml.txt \
+              -c dependencies/constraints.txt \
+              --full-report \
+              --fail-on HIGH
+
   # Basic linting (optional - won't fail build)
   code-quality:
     executor: python-simple
@@ -203,10 +225,38 @@ jobs:
           command: |
             docker run --rm --entrypoint python samo-dl-train:${CIRCLE_SHA1:0:7} -c "import torch, transformers; print('✅ train image imports OK')"
 
+  safety-scan-live:
+    executor: python-simple
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies under constraints (API + dev)
+          command: |
+            python3 -m pip install --upgrade pip
+            python3 -m pip install \
+              --no-compile \
+              --disable-pip-version-check \
+              --timeout 300 \
+              -c dependencies/constraints.txt \
+              -r dependencies/requirements-api.txt \
+              -r dependencies/requirements-dev.txt
+      - run:
+          name: Install safety and scan live environment
+          command: |
+            python3 -m pip install safety==3.2.3
+            # Scan the installed environment for transitives as resolved under constraints.
+            safety check --full-report --fail-on HIGH
+
 workflows:
   simple-ci:
     jobs:
       - basic-setup
+      - safety-scan:
+          requires:
+            - basic-setup
+      - safety-scan-live:
+          requires:
+            - safety-scan
       - code-quality:
           requires:
             - basic-setup
