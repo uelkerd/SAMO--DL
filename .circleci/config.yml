@@ -175,21 +175,25 @@ jobs:
             pip install --upgrade pip
             pip install -c dependencies/constraints.txt -r dependencies/requirements-api.txt -r dependencies/requirements-dev.txt -r dependencies/requirements-ml.txt
             
-            # Install safety in the virtual environment (v3.2.3 doesn't require auth)
-            pip install safety==3.2.3
+            # Install safety in the virtual environment (latest version with token auth)
+            pip install safety==3.6.0
             
-            # Run safety check with fallback security scanning (v3.2.3 compatible)
-            echo "🔍 Running safety check with fallback security scanning..."
+            # Run modern safety scan with policy control and token authentication
+            echo "🔍 Running modern safety scan with policy control..."
             echo "🔍 Safety version: $(python3 -m safety --version)"
             echo "🔍 Python version: $(python3 --version)"
             echo "🔍 Working directory: $(pwd)"
+            echo "🔍 Policy file: .safety-policy.yml"
             
-            # Try safety check first, with fallback to alternative security scanning
-            echo "🔍 Attempting safety check..."
-            if python3 -m safety check --full-report 2>/dev/null; then
-              echo "✅ Safety check completed successfully"
+            # Check if Safety token is available
+            if [ -n "${SAFETY_TOKEN:-}" ]; then
+              echo "🔑 Using Safety token for authenticated scanning..."
+              # Run safety scan with policy - will fail CI only for High/Critical vulnerabilities
+              echo "🔍 Executing: python3 -m safety scan --policy .safety-policy.yml --full-report"
+              python3 -m safety scan --policy .safety-policy.yml --full-report
+              echo "✅ Authenticated safety scan completed - CI will fail only on High/Critical vulnerabilities"
             else
-              echo "⚠️ Safety check failed, using fallback security scanning..."
+              echo "⚠️ No Safety token found, using fallback security scanning..."
               
               # Fallback: Check for known vulnerable packages using pip-audit or manual checks
               echo "🔍 Running fallback security scan..."
