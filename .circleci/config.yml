@@ -192,9 +192,13 @@ jobs:
               echo "🔑 Using Safety API key for authenticated scanning..."
               # Export API key for safety command
               export SAFETY_API_KEY
-              # Run safety scan with v3 flags - will fail CI only for High/Critical vulnerabilities
-              echo "🔍 Executing: python3 -m safety scan --policy-file .safety-policy.yml --detailed-output --non-interactive"
-              python3 -m safety scan --policy-file .safety-policy.yml --detailed-output --non-interactive
+              # Try to avoid interactive prompts with multiple approaches
+              echo "🔍 Executing: python3 -m safety scan --policy-file .safety-policy.yml --detailed-output --non-interactive --no-input"
+              python3 -m safety scan --policy-file .safety-policy.yml --detailed-output --non-interactive --no-input || {
+                echo "⚠️ First attempt failed, trying with different flags..."
+                echo "🔍 Executing: python3 -m safety scan --policy-file .safety-policy.yml --detailed-output --batch"
+                python3 -m safety scan --policy-file .safety-policy.yml --detailed-output --batch
+              }
               echo "✅ Authenticated safety scan completed - CI will fail only on High/Critical vulnerabilities"
             else
               echo "⚠️ No Safety API key found, using fallback security scanning..."
