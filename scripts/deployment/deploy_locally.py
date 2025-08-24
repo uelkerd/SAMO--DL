@@ -347,12 +347,24 @@ if __name__ == "__main__":
     start_script = '''#!/bin/bash
 # Start local deployment
 
+set -euo pipefail
+
+# Resolve repo root from this script's directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
 echo "🚀 STARTING LOCAL DEPLOYMENT"
 echo "============================"
 
 # Install dependencies
 echo "📦 Installing dependencies..."
-pip install -c ../../dependencies/constraints.txt -r requirements.txt
+CONSTRAINTS="$REPO_ROOT/dependencies/constraints.txt"
+if [ -f "$CONSTRAINTS" ]; then
+  PIP_CONSTRAINT="$CONSTRAINTS" pip install -c "$CONSTRAINTS" -r requirements.txt
+else
+  echo "⚠️  constraints.txt not found at $CONSTRAINTS; installing without constraints"
+  pip install -r requirements.txt
+fi
 
 # Start API server
 echo "🌐 Starting API server..."
