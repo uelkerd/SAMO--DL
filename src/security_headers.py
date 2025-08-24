@@ -1,25 +1,27 @@
 #!/usr/bin/env python3
-"""
-🛡️ Security Headers Middleware
+"""🛡️ Security Headers Middleware
 ==============================
 Flask middleware for adding security headers and implementing security policies.
 """
 
-import logging
-from typing import Dict, List, Optional, Callable
-from dataclasses import dataclass
-from flask import Flask, request, Response, g
-import time
 import hashlib
-import secrets
-import yaml
+import logging
 import os
+import secrets
+import time
+from dataclasses import dataclass
+from typing import Dict, List
+
+import yaml
+from flask import Flask, Response, g, request
 
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class SecurityHeadersConfig:
     """Security headers configuration."""
+
     enable_csp: bool = True
     enable_hsts: bool = True
     enable_x_frame_options: bool = True
@@ -40,9 +42,9 @@ class SecurityHeadersConfig:
     ua_suspicious_score_threshold: int = 4  # Score threshold for suspicious UAs
     ua_blocking_enabled: bool = False  # Whether to block suspicious UAs (vs just log)
 
+
 class SecurityHeadersMiddleware:
-    """
-    Flask middleware for adding security headers and implementing security policies.
+    """Flask middleware for adding security headers and implementing security policies.
 
     Features:
     - Content Security Policy (CSP)
@@ -63,9 +65,16 @@ class SecurityHeadersMiddleware:
         # Load CSP from YAML config if available
         self.csp_policy = None
         try:
-            with open(os.path.join(os.path.dirname(__file__), '../configs/security.yaml'), 'r') as f:
+            config_path = os.path.join(
+                os.path.dirname(__file__), "../configs/security.yaml"
+            )
+            with open(config_path) as f:
                 security_config = yaml.safe_load(f)
-                self.csp_policy = security_config.get('security_headers', {}).get('headers', {}).get('Content-Security-Policy')
+                self.csp_policy = (
+                    security_config.get("security_headers", {})
+                    .get("headers", {})
+                    .get("Content-Security-Policy")
+                )
         except Exception as e:
             logger.warning(f"Could not load CSP from config: {e}")
 
@@ -80,13 +89,12 @@ class SecurityHeadersMiddleware:
         """Process request before handling."""
         # Generate request ID for correlation
         if self.config.enable_request_id:
-            g.request_id = hashlib.sha256(
-                f"{time.time()}:{request.remote_addr}:{secrets.token_hex(8)}".encode()
-            ).hexdigest()
+            request_data = f"{time.time()}:{request.remote_addr}:{secrets.token_hex(8)}"
+            g.request_id = hashlib.sha256(request_data.encode()).hexdigest()
 
         # Generate correlation ID
         if self.config.enable_correlation_id:
-            g.correlation_id = request.headers.get('X-Correlation-ID', g.request_id)
+            g.correlation_id = request.headers.get("X-Correlation-ID", g.request_id)
 
         # Log security-relevant request information
         self._log_security_info()
@@ -109,48 +117,50 @@ class SecurityHeadersMiddleware:
         # Content Security Policy
         if self.config.enable_content_security_policy:
             csp_policy = self._build_csp_policy()
-            response.headers['Content-Security-Policy'] = csp_policy
+            response.headers["Content-Security-Policy"] = csp_policy
 
         # HTTP Strict Transport Security
         if self.config.enable_strict_transport_security:
-            response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
+            hsts_value = "max-age=31536000; includeSubDomains; preload"
+            response.headers["Strict-Transport-Security"] = hsts_value
 
         # X-Frame-Options
         if self.config.enable_x_frame_options:
-            response.headers['X-Frame-Options'] = 'DENY'
+            response.headers["X-Frame-Options"] = "DENY"
 
         # X-Content-Type-Options
         if self.config.enable_x_content_type_options:
-            response.headers['X-Content-Type-Options'] = 'nosniff'
+            response.headers["X-Content-Type-Options"] = "nosniff"
 
         # X-XSS-Protection
         if self.config.enable_x_xss_protection:
-            response.headers['X-XSS-Protection'] = '1; mode=block'
+            response.headers["X-XSS-Protection"] = "1; mode=block"
 
         # Referrer Policy
         if self.config.enable_referrer_policy:
-            response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+            referrer_policy = "strict-origin-when-cross-origin"
+            response.headers["Referrer-Policy"] = referrer_policy
 
         # Permissions Policy
         if self.config.enable_permissions_policy:
             permissions_policy = self._build_permissions_policy()
-            response.headers['Permissions-Policy'] = permissions_policy
+            response.headers["Permissions-Policy"] = permissions_policy
 
         # Cross-Origin Embedder Policy
         if self.config.enable_cross_origin_embedder_policy:
-            response.headers['Cross-Origin-Embedder-Policy'] = 'require-corp'
+            response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
 
         # Cross-Origin Opener Policy
         if self.config.enable_cross_origin_opener_policy:
-            response.headers['Cross-Origin-Opener-Policy'] = 'same-origin'
+            response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
 
         # Cross-Origin Resource Policy
         if self.config.enable_cross_origin_resource_policy:
-            response.headers['Cross-Origin-Resource-Policy'] = 'same-origin'
+            response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
 
         # Origin-Agent-Cluster
         if self.config.enable_origin_agent_cluster:
-            response.headers['Origin-Agent-Cluster'] = '?1'
+            response.headers["Origin-Agent-Cluster"] = "?1"
 
     def _build_csp_policy(self) -> str:
         """Return CSP policy from config, or a secure default if not set."""
@@ -195,40 +205,40 @@ class SecurityHeadersMiddleware:
             "sync-xhr=()",
             "usb=()",
             "web-share=()",
-            "xr-spatial-tracking=()"
+            "xr-spatial-tracking=()",
         ]
         return ", ".join(policies)
 
     def _add_correlation_headers(self, response: Response):
         """Add request correlation headers."""
-        if hasattr(g, 'request_id'):
-            response.headers['X-Request-ID'] = g.request_id
+        if hasattr(g, "request_id"):
+            response.headers["X-Request-ID"] = g.request_id
 
-        if hasattr(g, 'correlation_id'):
-            response.headers['X-Correlation-ID'] = g.correlation_id
+        if hasattr(g, "correlation_id"):
+            response.headers["X-Correlation-ID"] = g.correlation_id
 
     def _log_security_info(self):
         """Log security-relevant request information."""
         security_info = {
-            'timestamp': time.time(),
-            'request_id': getattr(g, 'request_id', None),
-            'correlation_id': getattr(g, 'correlation_id', None),
-            'method': request.method,
-            'path': request.path,
-            'remote_addr': request.remote_addr,
-            'user_agent': request.headers.get('User-Agent', ''),
-            'content_type': request.headers.get('Content-Type', ''),
-            'content_length': request.headers.get('Content-Length', ''),
-            'referer': request.headers.get('Referer', ''),
-            'origin': request.headers.get('Origin', ''),
-            'x_forwarded_for': request.headers.get('X-Forwarded-For', ''),
-            'x_real_ip': request.headers.get('X-Real-IP', ''),
+            "timestamp": time.time(),
+            "request_id": getattr(g, "request_id", None),
+            "correlation_id": getattr(g, "correlation_id", None),
+            "method": request.method,
+            "path": request.path,
+            "remote_addr": request.remote_addr,
+            "user_agent": request.headers.get("User-Agent", ""),
+            "content_type": request.headers.get("Content-Type", ""),
+            "content_length": request.headers.get("Content-Length", ""),
+            "referer": request.headers.get("Referer", ""),
+            "origin": request.headers.get("Origin", ""),
+            "x_forwarded_for": request.headers.get("X-Forwarded-For", ""),
+            "x_real_ip": request.headers.get("X-Real-IP", ""),
         }
 
         # Log suspicious patterns
         suspicious_patterns = self._detect_suspicious_patterns()
         if suspicious_patterns:
-            security_info['suspicious_patterns'] = suspicious_patterns
+            security_info["suspicious_patterns"] = suspicious_patterns
             logger.warning(f"Security warning: {suspicious_patterns}")
 
         logger.info(f"Security audit: {security_info}")
@@ -236,7 +246,12 @@ class SecurityHeadersMiddleware:
     def _analyze_user_agent_enhanced(self, user_agent: str) -> dict:
         """Enhanced user agent analysis with scoring and detailed categorization."""
         if not user_agent:
-            return {"score": 0, "category": "empty", "patterns": [], "risk_level": "low"}
+            return {
+                "score": 0,
+                "category": "empty",
+                "patterns": [],
+                "risk_level": "low",
+            }
 
         score = 0
         patterns = []
@@ -244,29 +259,74 @@ class SecurityHeadersMiddleware:
 
         # Legitimate bot whitelist (negative scoring)
         legitimate_bots = [
-            'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'facebookexternalhit',
-            'twitterbot', 'linkedinbot', 'whatsapp', 'telegrambot', 'discordbot',
-            'slackbot', 'github-camo', 'github-actions', 'vercel', 'netlify',
-            'uptimerobot', 'pingdom', 'statuscake', 'monitor', 'healthcheck'
+            "googlebot",
+            "bingbot",
+            "slurp",
+            "duckduckbot",
+            "facebookexternalhit",
+            "twitterbot",
+            "linkedinbot",
+            "whatsapp",
+            "telegrambot",
+            "discordbot",
+            "slackbot",
+            "github-camo",
+            "github-actions",
+            "vercel",
+            "netlify",
+            "uptimerobot",
+            "pingdom",
+            "statuscake",
+            "monitor",
+            "healthcheck",
         ]
 
         # High-risk patterns (score +3 each)
         high_risk_patterns = [
-            'sqlmap', 'nikto', 'nmap', 'scanner', 'grabber', 'harvester',
-            'exploit', 'vulnerability', 'penetration', 'security', 'audit'
+            "sqlmap",
+            "nikto",
+            "nmap",
+            "scanner",
+            "grabber",
+            "harvester",
+            "exploit",
+            "vulnerability",
+            "penetration",
+            "security",
+            "audit",
         ]
 
         # Medium-risk patterns (score +2 each)
         medium_risk_patterns = [
-            'headless', 'phantom', 'selenium', 'webdriver', 'automated',
-            'testing', 'script', 'python-requests', 'curl', 'wget',
-            'httrack', 'scraper', 'crawler', 'spider', 'bot'
+            "headless",
+            "phantom",
+            "selenium",
+            "webdriver",
+            "automated",
+            "testing",
+            "script",
+            "python-requests",
+            "curl",
+            "wget",
+            "httrack",
+            "scraper",
+            "crawler",
+            "spider",
+            "bot",
         ]
 
         # Low-risk patterns (score +1 each)
         low_risk_patterns = [
-            'indexer', 'feed', 'rss', 'aggregator', 'monitor', 'checker',
-            'validator', 'linter', 'checker', 'analyzer'
+            "indexer",
+            "feed",
+            "rss",
+            "aggregator",
+            "monitor",
+            "checker",
+            "validator",
+            "linter",
+            "checker",
+            "analyzer",
         ]
 
         # Check legitimate bots first (negative scoring)
@@ -298,13 +358,18 @@ class SecurityHeadersMiddleware:
                 logger.debug(f"Low-risk UA pattern detected: {pattern}")
 
         # Bonus for suspicious combinations
-        if any(pattern in ua_lower for pattern in ['bot', 'crawler', 'spider']) and any(pattern in ua_lower for pattern in ['python', 'curl', 'wget', 'script']):
+        bot_patterns = ["bot", "crawler", "spider"]
+        script_patterns = ["python", "curl", "wget", "script"]
+
+        if any(pattern in ua_lower for pattern in bot_patterns) and any(
+            pattern in ua_lower for pattern in script_patterns
+        ):
             score += 2
             patterns.append("suspicious_combination")
             logger.debug("Suspicious UA combination detected")
 
         # Check for missing or generic user agents
-        if user_agent in ['', 'null', 'undefined', 'unknown', 'anonymous']:
+        if user_agent in ["", "null", "undefined", "unknown", "anonymous"]:
             score += 2
             patterns.append("missing_generic_ua")
             logger.debug("Missing or generic user agent detected")
@@ -331,7 +396,7 @@ class SecurityHeadersMiddleware:
             "category": category,
             "patterns": patterns,
             "risk_level": risk_level,
-            "user_agent": user_agent[:100]  # Truncate for logging
+            "user_agent": user_agent[:100],  # Truncate for logging
         }
 
     def _detect_suspicious_patterns(self) -> List[str]:
@@ -340,10 +405,10 @@ class SecurityHeadersMiddleware:
 
         # Check for suspicious headers
         suspicious_headers = [
-            'X-Forwarded-Host',
-            'X-Original-URL',
-            'X-Rewrite-URL',
-            'X-Custom-IP-Authorization'
+            "X-Forwarded-Host",
+            "X-Original-URL",
+            "X-Rewrite-URL",
+            "X-Custom-IP-Authorization",
         ]
 
         for header in suspicious_headers:
@@ -352,8 +417,16 @@ class SecurityHeadersMiddleware:
 
         # Check for suspicious query parameters
         suspicious_params = [
-            'cmd', 'exec', 'system', 'eval', 'script',
-            'union', 'select', 'insert', 'update', 'delete'
+            "cmd",
+            "exec",
+            "system",
+            "eval",
+            "script",
+            "union",
+            "select",
+            "insert",
+            "update",
+            "delete",
         ]
 
         for param in suspicious_params:
@@ -362,17 +435,24 @@ class SecurityHeadersMiddleware:
 
         # Enhanced user agent analysis
         if self.config.enable_enhanced_ua_analysis:
-            user_agent = request.headers.get('User-Agent', '')
+            user_agent = request.headers.get("User-Agent", "")
             ua_analysis = self._analyze_user_agent_enhanced(user_agent)
 
             if ua_analysis["score"] >= self.config.ua_suspicious_score_threshold:
-                patterns.append(f"Suspicious user agent: {ua_analysis['category']} (score: {ua_analysis['score']})")
+                ua_msg = (
+                    f"Suspicious user agent: {ua_analysis['category']} "
+                    f"(score: {ua_analysis['score']})"
+                )
+                patterns.append(ua_msg)
 
                 # Log detailed analysis
                 logger.warning(f"User agent analysis: {ua_analysis}")
 
                 # Optionally block based on configuration
-                if self.config.ua_blocking_enabled and ua_analysis["risk_level"] in ["high", "very_high"]:
+                if self.config.ua_blocking_enabled and ua_analysis["risk_level"] in [
+                    "high",
+                    "very_high",
+                ]:
                     patterns.append("BLOCKED: High-risk user agent")
 
         return patterns
@@ -380,21 +460,23 @@ class SecurityHeadersMiddleware:
     def _log_response_security(self, response: Response):
         """Log security-relevant response information."""
         security_info = {
-            'timestamp': time.time(),
-            'request_id': getattr(g, 'request_id', None),
-            'correlation_id': getattr(g, 'correlation_id', None),
-            'status_code': response.status_code,
-            'content_type': response.headers.get('Content-Type', ''),
-            'content_length': response.headers.get('Content-Length', ''),
-            'security_headers': {
-                'csp': response.headers.get('Content-Security-Policy', ''),
-                'hsts': response.headers.get('Strict-Transport-Security', ''),
-                'x_frame_options': response.headers.get('X-Frame-Options', ''),
-                'x_content_type_options': response.headers.get('X-Content-Type-Options', ''),
-                'x_xss_protection': response.headers.get('X-XSS-Protection', ''),
-                'referrer_policy': response.headers.get('Referrer-Policy', ''),
-                'permissions_policy': response.headers.get('Permissions-Policy', ''),
-            }
+            "timestamp": time.time(),
+            "request_id": getattr(g, "request_id", None),
+            "correlation_id": getattr(g, "correlation_id", None),
+            "status_code": response.status_code,
+            "content_type": response.headers.get("Content-Type", ""),
+            "content_length": response.headers.get("Content-Length", ""),
+            "security_headers": {
+                "csp": response.headers.get("Content-Security-Policy", ""),
+                "hsts": response.headers.get("Strict-Transport-Security", ""),
+                "x_frame_options": response.headers.get("X-Frame-Options", ""),
+                "x_content_type_options": response.headers.get(
+                    "X-Content-Type-Options", ""
+                ),
+                "x_xss_protection": response.headers.get("X-XSS-Protection", ""),
+                "referrer_policy": response.headers.get("Referrer-Policy", ""),
+                "permissions_policy": response.headers.get("Permissions-Policy", ""),
+            },
         }
 
         logger.info(f"Response security: {security_info}")
@@ -406,19 +488,29 @@ class SecurityHeadersMiddleware:
                 "enable_csp": self.config.enable_content_security_policy,
                 "enable_hsts": self.config.enable_strict_transport_security,
                 "enable_x_frame_options": self.config.enable_x_frame_options,
-                "enable_x_content_type_options": self.config.enable_x_content_type_options,
+                "enable_x_content_type_options": (
+                    self.config.enable_x_content_type_options
+                ),
                 "enable_x_xss_protection": self.config.enable_x_xss_protection,
                 "enable_referrer_policy": self.config.enable_referrer_policy,
                 "enable_permissions_policy": self.config.enable_permissions_policy,
-                "enable_cross_origin_embedder_policy": self.config.enable_cross_origin_embedder_policy,
-                "enable_cross_origin_opener_policy": self.config.enable_cross_origin_opener_policy,
-                "enable_cross_origin_resource_policy": self.config.enable_cross_origin_resource_policy,
+                "enable_cross_origin_embedder_policy": (
+                    self.config.enable_cross_origin_embedder_policy
+                ),
+                "enable_cross_origin_opener_policy": (
+                    self.config.enable_cross_origin_opener_policy
+                ),
+                "enable_cross_origin_resource_policy": (
+                    self.config.enable_cross_origin_resource_policy
+                ),
                 "enable_origin_agent_cluster": self.config.enable_origin_agent_cluster,
                 "enable_request_id": self.config.enable_request_id,
                 "enable_correlation_id": self.config.enable_correlation_id,
                 "enable_enhanced_ua_analysis": self.config.enable_enhanced_ua_analysis,
-                "ua_suspicious_score_threshold": self.config.ua_suspicious_score_threshold,
+                "ua_suspicious_score_threshold": (
+                    self.config.ua_suspicious_score_threshold
+                ),
                 "ua_blocking_enabled": self.config.ua_blocking_enabled,
             },
-            "csp_nonce": self._csp_nonce
+            "csp_nonce": self._csp_nonce,
         }
