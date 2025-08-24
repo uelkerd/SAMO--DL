@@ -40,12 +40,17 @@ commands:
             trap cleanup EXIT
             docker run -d --rm -p << parameters.host_port >>:<< parameters.port >> --name << parameters.container_name >> << parameters.image >>
 
+            # Wait for container to be fully ready
+            echo "⏳ Waiting for container to start..."
+            sleep 5
+
             HEALTH_PATH="<< parameters.path >>"
             case "$HEALTH_PATH" in
               /*) ;;
               *) HEALTH_PATH="/$HEALTH_PATH" ;;
             esac
 
+            echo "🔍 Starting health check on port << parameters.host_port >> (maps to container port << parameters.port >>)"
             for i in $(seq 1 30); do
               if curl -fsS --connect-timeout 2 --max-time 4 "http://127.0.0.1:<< parameters.host_port >>${HEALTH_PATH}" >/dev/null; then
                 echo "✅ Health check passed"
@@ -53,6 +58,7 @@ commands:
                 cleanup
                 exit 0
               fi
+              echo "⏳ Health check attempt $i/30 - waiting..."
               sleep 1
             done
             echo "❌ Health check failed after 30 seconds"
