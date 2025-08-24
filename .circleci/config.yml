@@ -38,6 +38,14 @@ commands:
             set -euo pipefail
             cleanup() { docker rm -f << parameters.container_name >> >/dev/null 2>&1 || true; }
             trap cleanup EXIT
+            # Check if the image exists before running container
+            echo "🔍 Checking if image << parameters.image >> exists..."
+            if ! docker image inspect << parameters.image >> >/dev/null 2>&1; then
+              echo "❌ Image << parameters.image >> not found! Available images:"
+              docker images
+              exit 1
+            fi
+            
             # Use CircleCI's port binding approach for remote Docker
             echo "🔍 Starting container with CircleCI-compatible port binding..."
             docker run -d --rm --name << parameters.container_name >> << parameters.image >>
@@ -45,6 +53,10 @@ commands:
             # Debug: Check container started successfully
             echo "🔍 Debug: Container started, checking status..."
             docker ps -a | grep << parameters.container_name >> || echo "Container not found in docker ps"
+            
+            # Debug: Show available images
+            echo "🔍 Debug: Available Docker images:"
+            docker images | grep samo-dl || echo "No samo-dl images found"
             
             # Wait for container to be fully ready
             echo "⏳ Waiting for container to start..."
