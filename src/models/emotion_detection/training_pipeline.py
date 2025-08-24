@@ -295,23 +295,22 @@ class EmotionDetectionTrainer:
             Dictionary with training metrics
         """
         self.model.train()
-        
+
         # Handle progressive unfreezing
         self._handle_progressive_unfreezing(epoch)
-        
+
         # Setup training
         total_loss = 0.0
         num_batches = len(self.train_dataloader)
         start_time = time.time()
         val_frequency = max(500, num_batches // 5)
-        
         logger.info(f"🔧 Validation frequency: every {val_frequency} batches")
 
         # Train on all batches
         for batch_idx, batch in enumerate(self.train_dataloader):
             batch_loss = self._train_single_batch(batch, batch_idx, epoch, num_batches)
             total_loss += batch_loss
-            
+
             # Check for early stopping
             maybe_metrics = self._maybe_validate_and_early_stop(
                 batch_idx, epoch, num_batches, total_loss, self.scheduler.get_last_lr()[0]
@@ -324,7 +323,7 @@ class EmotionDetectionTrainer:
 
     def _handle_progressive_unfreezing(self, epoch: int) -> None:
         """Handle progressive unfreezing of BERT layers.
-        
+
         Args:
             epoch: Current epoch number
         """
@@ -337,13 +336,13 @@ class EmotionDetectionTrainer:
         self, batch: Dict[str, torch.Tensor], batch_idx: int, epoch: int, num_batches: int
     ) -> float:
         """Train on a single batch.
-        
+
         Args:
             batch: Input batch data
             batch_idx: Current batch index
             epoch: Current epoch number
             num_batches: Total number of batches
-            
+
         Returns:
             float: Loss value for this batch
         """
@@ -367,7 +366,7 @@ class EmotionDetectionTrainer:
 
         # Backward pass
         loss.backward()
-        
+
         # Gradient clipping
         clip_norm = torch.nn.utils.clip_grad_norm_(
             self.model.parameters(), max_norm=1.0
@@ -397,7 +396,7 @@ class EmotionDetectionTrainer:
         self, labels: torch.Tensor, logits: Optional[torch.Tensor], loss: Optional[torch.Tensor]
     ) -> None:
         """Log debug information for the first batch.
-        
+
         Args:
             labels: Ground truth labels
             logits: Model output logits (None for first call)
@@ -405,12 +404,12 @@ class EmotionDetectionTrainer:
         """
         if not logger.isEnabledFor(logging.DEBUG):
             return
-            
+
         self._log_data_distribution(labels)
-        
+
         if logits is not None:
             self._log_model_output(logits)
-            
+
         if loss is not None:
             self._log_loss_analysis(loss, logits, labels)
 
@@ -418,13 +417,13 @@ class EmotionDetectionTrainer:
         self, epoch: int, total_loss: float, num_batches: int, start_time: float
     ) -> Dict[str, float]:
         """Create metrics dictionary for completed epoch.
-        
+
         Args:
             epoch: Current epoch number
             total_loss: Total loss for the epoch
             num_batches: Number of batches in epoch
             start_time: Start time of epoch
-            
+
         Returns:
             Dictionary with epoch metrics
         """
@@ -447,7 +446,7 @@ class EmotionDetectionTrainer:
     @staticmethod
     def _log_data_distribution(labels: torch.Tensor) -> None:
         """Log data distribution analysis for debugging.
-        
+
         Args:
             labels: Ground truth labels tensor
         """
@@ -476,7 +475,7 @@ class EmotionDetectionTrainer:
     @staticmethod
     def _log_model_output(logits: torch.Tensor) -> None:
         """Log model output analysis for debugging.
-        
+
         Args:
             logits: Model output logits tensor
         """
@@ -500,7 +499,7 @@ class EmotionDetectionTrainer:
         loss: torch.Tensor, logits: torch.Tensor, labels: torch.Tensor
     ) -> None:
         """Log detailed loss analysis for debugging.
-        
+
         Args:
             loss: Computed loss tensor
             logits: Model output logits
@@ -525,7 +524,7 @@ class EmotionDetectionTrainer:
 
     def _log_gradient_stats_before(self) -> None:
         """Log gradient statistics before gradient clipping.
-        
+
         Analyzes gradient norms across all model parameters and logs
         statistics for debugging purposes.
         """
@@ -548,7 +547,7 @@ class EmotionDetectionTrainer:
     @staticmethod
     def _log_gradient_stats_after(clip_norm: Union[float, torch.Tensor]) -> None:
         """Log gradient statistics after gradient clipping.
-        
+
         Args:
             clip_norm: Gradient norm value after clipping
         """
@@ -562,7 +561,7 @@ class EmotionDetectionTrainer:
         self, epoch: int, batch_idx: int, num_batches: int, total_loss: float
     ) -> None:
         """Log training progress information.
-        
+
         Args:
             epoch: Current epoch number
             batch_idx: Current batch index
@@ -592,14 +591,14 @@ class EmotionDetectionTrainer:
         current_lr: float,
     ) -> Optional[Dict[str, Any]]:
         """Check if validation should be performed and handle early stopping.
-        
+
         Args:
             batch_idx: Current batch index
             epoch: Current epoch number
             num_batches: Total number of batches in epoch
             avg_loss: Average loss for current epoch
             current_lr: Current learning rate
-            
+
         Returns:
             bool: True if training should stop early, False otherwise
         """
