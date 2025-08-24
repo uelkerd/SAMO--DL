@@ -13,7 +13,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     git \
-    curl \
+    curl=7.88.1-10+deb12u12 \
     wget \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
@@ -25,8 +25,13 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install Python dependencies
+ARG PIP_CONSTRAINT=""
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    if [ -n "$PIP_CONSTRAINT" ]; then \
+      pip install --no-cache-dir -c "$PIP_CONSTRAINT" -r requirements.txt; \
+    else \
+      pip install --no-cache-dir -r requirements.txt; \
+    fi
 
 # Install Vertex AI specific dependencies (pinned major versions)
 RUN pip install --no-cache-dir \

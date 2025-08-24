@@ -23,7 +23,7 @@ This consolidated Dockerfile replaces multiple separate Dockerfiles with a singl
 ### **Minimal Version (Default)**
 ```bash
 # Build from the repository root
-docker build -f deployment/docker/Dockerfile.consolidated -t samo-dl-minimal .
+docker build -f deployment/docker/Dockerfile.app -t samo-dl-app .
 ```
 
 ### **Unified Version (with ML)**
@@ -31,8 +31,8 @@ docker build -f deployment/docker/Dockerfile.consolidated -t samo-dl-minimal .
 docker build \
   --build-arg BUILD_TYPE=unified \
   --build-arg INCLUDE_ML=true \
-  -f deployment/docker/Dockerfile.consolidated \
-  -t samo-dl-unified .
+  -f deployment/docker/Dockerfile.app \
+  -t samo-dl-app-unified .
 ```
 
 ### **Secure Version**
@@ -40,7 +40,7 @@ docker build \
 docker build \
   --build-arg BUILD_TYPE=secure \
   --build-arg INCLUDE_SECURITY=true \
-  -f deployment/docker/Dockerfile.consolidated \
+  -f deployment/docker/Dockerfile.app \
   -t samo-dl-secure .
 ```
 
@@ -50,7 +50,7 @@ docker build \
   --build-arg BUILD_TYPE=production \
   --build-arg INCLUDE_ML=true \
   --build-arg INCLUDE_SECURITY=true \
-  -f deployment/docker/Dockerfile.consolidated \
+  -f deployment/docker/Dockerfile.app \
   -t samo-dl-production .
 ```
 
@@ -62,8 +62,8 @@ docker build \
   --platform linux/arm64 \
   --build-arg BUILD_TYPE=unified \
   --build-arg INCLUDE_ML=true \
-  -f deployment/docker/Dockerfile.consolidated \
-  -t samo-dl-unified-arm64 .
+  -f deployment/docker/Dockerfile.app \
+  -t samo-dl-app-unified-arm64 .
 ```
 
 ### **x86_64 (Intel/AMD)**
@@ -72,8 +72,8 @@ docker build \
   --platform linux/amd64 \
   --build-arg BUILD_TYPE=unified \
   --build-arg INCLUDE_ML=true \
-  -f deployment/docker/Dockerfile.consolidated \
-  -t samo-dl-unified-amd64 .
+  -f deployment/docker/Dockerfile.app \
+  -t samo-dl-app-unified-amd64 .
 ```
 
 ### **Multi-Architecture Builds with Buildx**
@@ -89,8 +89,8 @@ docker buildx inspect --bootstrap
 docker buildx build --platform linux/amd64,linux/arm64 \
   --build-arg BUILD_TYPE=unified \
   --build-arg INCLUDE_ML=true \
-  -f deployment/docker/Dockerfile.consolidated \
-  -t samo-dl-unified:multiarch --push
+  -f deployment/docker/Dockerfile.app \
+  -t samo-dl-app-unified:multiarch --push
 ```
 
 ## **Image Characteristics**
@@ -172,13 +172,13 @@ The Dockerfile automatically selects the appropriate requirements file:
 
 ### **Test Minimal Version**
 ```bash
-docker run --rm -p 8080:8080 samo-dl-minimal
+docker run --rm -p 8080:8080 samo-dl-app
 curl http://localhost:8080/health
 ```
 
 ### **Test Unified Version**
 ```bash
-docker run --rm -p 8080:8080 samo-dl-unified
+docker run --rm -p 8080:8080 samo-dl-app-unified
 curl http://localhost:8080/health
 # Should show ML models as available
 ```
@@ -195,17 +195,17 @@ curl http://localhost:8080/health
 ```bash
 # Had to remember which Dockerfile to use
 docker build -f deployment/cloud-run/Dockerfile -t samo-dl .
-docker build -f deployment/cloud-run/Dockerfile.unified -t samo-dl-unified .
-docker build -f deployment/cloud-run/Dockerfile.minimal -t samo-dl-minimal .
+docker build --build-arg BUILD_TYPE=unified --build-arg INCLUDE_ML=true -f deployment/docker/Dockerfile.app -t samo-dl-app-unified .
+docker build --build-arg BUILD_TYPE=minimal -f deployment/docker/Dockerfile.app -t samo-dl-app .
 docker build -f deployment/cloud-run/Dockerfile.secure -t samo-dl-secure .
 ```
 
 ### **After (Single File)**
 ```bash
 # One Dockerfile, multiple variants
-docker build --build-arg BUILD_TYPE=minimal -f deployment/docker/Dockerfile.consolidated -t samo-dl-minimal .
-docker build --build-arg BUILD_TYPE=unified --build-arg INCLUDE_ML=true -f deployment/docker/Dockerfile.consolidated -t samo-dl-unified .
-docker build --build-arg BUILD_TYPE=secure --build-arg INCLUDE_SECURITY=true -f deployment/docker/Dockerfile.consolidated -t samo-dl-secure .
+docker build --build-arg BUILD_TYPE=minimal -f deployment/docker/Dockerfile.app -t samo-dl-app .
+docker build --build-arg BUILD_TYPE=unified --build-arg INCLUDE_ML=true -f deployment/docker/Dockerfile.app -t samo-dl-app-unified .
+docker build --build-arg BUILD_TYPE=secure --build-arg INCLUDE_SECURITY=true -f deployment/docker/Dockerfile.app -t samo-dl-secure .
 ```
 
 ## **Benefits**
