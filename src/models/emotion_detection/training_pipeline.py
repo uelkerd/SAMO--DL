@@ -351,7 +351,7 @@ class EmotionDetectionTrainer:
                 self._log_progress(epoch, batch_idx, num_batches, total_loss)
 
             maybe_metrics = self._maybe_validate_and_early_stop(
-                batch_idx, epoch, start_time, total_loss, val_frequency
+                batch_idx, epoch, num_batches, total_loss, self.scheduler.get_last_lr()[0]
             )
             if maybe_metrics is not None:
                 return maybe_metrics
@@ -377,6 +377,11 @@ class EmotionDetectionTrainer:
 
     @staticmethod
     def _log_data_distribution(labels: torch.Tensor) -> None:
+        """Log data distribution analysis for debugging.
+        
+        Args:
+            labels: Ground truth labels tensor
+        """
         logger.info("🔍 DEBUG: Data Distribution Analysis")
         logger.info("   Labels shape: %s", labels.shape)
         logger.info("   Labels dtype: %s", labels.dtype)
@@ -401,6 +406,11 @@ class EmotionDetectionTrainer:
 
     @staticmethod
     def _log_model_output(logits: torch.Tensor) -> None:
+        """Log model output analysis for debugging.
+        
+        Args:
+            logits: Model output logits tensor
+        """
         logger.info("🔍 DEBUG: Model Output Analysis")
         logger.info("   Logits shape: %s", logits.shape)
         logger.info("   Logits min: %.6f", logits.min().item())
@@ -420,6 +430,13 @@ class EmotionDetectionTrainer:
     def _log_loss_analysis(
         loss: torch.Tensor, logits: torch.Tensor, labels: torch.Tensor
     ) -> None:
+        """Log detailed loss analysis for debugging.
+        
+        Args:
+            loss: Computed loss tensor
+            logits: Model output logits
+            labels: Ground truth labels
+        """
         logger.info("🔍 DEBUG: Loss Analysis")
         logger.info("   Raw loss: %.8f", loss.item())
         bce_manual = F.binary_cross_entropy_with_logits(
@@ -438,6 +455,11 @@ class EmotionDetectionTrainer:
             logger.info("   Class %d loss: %.8f", i, class_loss.item())
 
     def _log_gradient_stats_before(self) -> None:
+        """Log gradient statistics before gradient clipping.
+        
+        Analyzes gradient norms across all model parameters and logs
+        statistics for debugging purposes.
+        """
         logger.info("🔍 DEBUG: Gradient Analysis")
         total_norm = 0.0
         param_count = 0
@@ -456,6 +478,11 @@ class EmotionDetectionTrainer:
 
     @staticmethod
     def _log_gradient_stats_after(clip_norm: Union[float, torch.Tensor]) -> None:
+        """Log gradient statistics after gradient clipping.
+        
+        Args:
+            clip_norm: Gradient norm value after clipping
+        """
         if not isinstance(clip_norm, (int, float)):
             clip_val = float(clip_norm)
         else:
@@ -465,6 +492,14 @@ class EmotionDetectionTrainer:
     def _log_progress(
         self, epoch: int, batch_idx: int, num_batches: int, total_loss: float
     ) -> None:
+        """Log training progress information.
+        
+        Args:
+            epoch: Current epoch number
+            batch_idx: Current batch index
+            num_batches: Total number of batches in epoch
+            total_loss: Cumulative loss for current epoch
+        """
         avg_loss = total_loss / (batch_idx + 1)
         current_lr = self.scheduler.get_last_lr()[0]
         logger.info(
@@ -488,10 +523,22 @@ class EmotionDetectionTrainer:
         self,
         batch_idx: int,
         epoch: int,
-        start_time: float,
-        total_loss: float,
-        val_frequency: int,
+        num_batches: int,
+        avg_loss: float,
+        current_lr: float,
     ) -> Optional[Dict[str, Any]]:
+        """Check if validation should be performed and handle early stopping.
+        
+        Args:
+            batch_idx: Current batch index
+            epoch: Current epoch number
+            num_batches: Total number of batches in epoch
+            avg_loss: Average loss for current epoch
+            current_lr: Current learning rate
+            
+        Returns:
+            bool: True if training should stop early, False otherwise
+        """
         if (batch_idx + 1) % val_frequency != 0:
             return None
         logger.info("🔍 Validating at batch %d...", batch_idx + 1)
@@ -500,9 +547,9 @@ class EmotionDetectionTrainer:
             logger.info("🛑 Early stopping triggered at batch %d", batch_idx + 1)
             return {
                 "epoch": epoch,
-                "train_loss": total_loss / (batch_idx + 1),
+                "train_loss": avg_loss / (batch_idx + 1),
                 "epoch_time": time.time() - start_time,
-                "learning_rate": self.scheduler.get_last_lr()[0],
+                "learning_rate": current_lr,
                 "early_stopped": True,
             }
         return None
