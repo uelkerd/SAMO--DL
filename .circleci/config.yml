@@ -66,15 +66,16 @@ commands:
             echo "🔍 Checking container logs for readiness..."
             docker logs << parameters.container_name >> || echo "No logs available"
             
-            # Use docker exec to check if the app is responding internally
-            echo "🔍 Testing internal container connectivity..."
-            docker exec << parameters.container_name >> curl -fsS --connect-timeout 3 --max-time 5 "http://127.0.0.1:<< parameters.port >>${HEALTH_PATH}" >/dev/null && echo "✅ Internal health check passed" || echo "⚠️ Internal health check failed"
-
+            # Define HEALTH_PATH early so we can use it
             HEALTH_PATH="<< parameters.path >>"
             case "$HEALTH_PATH" in
               /*) ;;
               *) HEALTH_PATH="/$HEALTH_PATH" ;;
             esac
+            
+            # Use docker exec to check if the app is responding internally
+            echo "🔍 Testing internal container connectivity..."
+            docker exec << parameters.container_name >> curl -fsS --connect-timeout 3 --max-time 5 "http://127.0.0.1:<< parameters.port >>${HEALTH_PATH}" >/dev/null && echo "✅ Internal health check passed" || echo "⚠️ Internal health check failed"
 
             echo "🔍 Starting internal container health check on port << parameters.port >>"
             for i in $(seq 1 30); do
