@@ -108,7 +108,7 @@ activate_and_setup() {
     
     # Install additional pip packages
     pip install --upgrade pip
-    pip install -r requirements.txt 2>/dev/null || print_warning "No requirements.txt found"
+    pip install -c dependencies/constraints.txt -r requirements.txt 2>/dev/null || print_warning "No requirements.txt found"
     
     # Install pre-commit hooks
     print_status "Setting up pre-commit hooks..."
