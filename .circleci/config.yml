@@ -111,34 +111,44 @@ jobs:
           command: |
             docker --version
       - run:
-          name: Build minimal image
+          name: Build app image (minimal)
           command: |
             DOCKER_BUILDKIT=1 docker build \
               --pull \
               --progress=plain \
-              -f deployment/docker/Dockerfile.consolidated \
-              -t samo-dl-minimal:${CIRCLE_SHA1:0:7} \
-              -t samo-dl-minimal:latest \
+              -f deployment/docker/Dockerfile.app \
+              -t samo-dl-app:${CIRCLE_SHA1:0:7} \
+              -t samo-dl-app:latest \
               .
       - run:
-          name: Build unified image (with ML)
+          name: Build app image (unified ML)
           command: |
             DOCKER_BUILDKIT=1 docker build \
               --build-arg BUILD_TYPE=unified \
               --build-arg INCLUDE_ML=true \
               --pull \
               --progress=plain \
-              -f deployment/docker/Dockerfile.consolidated \
-              -t samo-dl-unified:${CIRCLE_SHA1:0:7} \
-              -t samo-dl-unified:latest \
+              -f deployment/docker/Dockerfile.app \
+              -t samo-dl-app-unified:${CIRCLE_SHA1:0:7} \
+              -t samo-dl-app-unified:latest \
               .
       - run:
-          name: Smoke test unified image health
+          name: Smoke test app unified image health
           command: |
-            docker run -d --rm -p 18080:8080 --name unified-test samo-dl-unified:${CIRCLE_SHA1:0:7}
+            docker run -d --rm -p 18080:8080 --name app-unified-test samo-dl-app-unified:${CIRCLE_SHA1:0:7}
             sleep 5
-            curl -fsS http://127.0.0.1:18080/health || (docker logs unified-test; docker rm -f unified-test; exit 1)
-            docker rm -f unified-test
+            curl -fsS http://127.0.0.1:18080/health || (docker logs app-unified-test; docker rm -f app-unified-test; exit 1)
+            docker rm -f app-unified-test
+      - run:
+          name: Build training image
+          command: |
+            DOCKER_BUILDKIT=1 docker build \
+              --pull \
+              --progress=plain \
+              -f deployment/docker/Dockerfile.train \
+              -t samo-dl-train:${CIRCLE_SHA1:0:7} \
+              -t samo-dl-train:latest \
+              .
 
 workflows:
   simple-ci:

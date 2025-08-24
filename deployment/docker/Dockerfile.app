@@ -58,6 +58,7 @@ FROM python:3.11-slim-bookworm
 ARG BUILD_TYPE=minimal
 ARG INCLUDE_ML=false
 ARG INCLUDE_SECURITY=false
+ARG PIP_CONSTRAINT=""
 
 # Environment
 ENV PYTHONUNBUFFERED=1 \
@@ -72,12 +73,12 @@ RUN if [ "$INCLUDE_ML" = "true" ]; then \
         # ML version needs ffmpeg for audio processing
         apt-get update && apt-get install -y --no-install-recommends \
         ffmpeg \
-        curl \
+        curl=7.88.1-10+deb12u12 \
         && rm -rf /var/lib/apt/lists/*; \
     else \
         # Minimal version only needs curl for health checks
         apt-get update && apt-get install -y --no-install-recommends \
-        curl \
+        curl=7.88.1-10+deb12u12 \
         && rm -rf /var/lib/apt/lists/*; \
     fi
 
