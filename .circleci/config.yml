@@ -14,6 +14,37 @@ executors:
     environment:
       PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src
 
+commands:
+  smoke_health:
+    description: "Run container and poll a health endpoint with retry"
+    parameters:
+      image:
+        type: string
+      name:
+        type: string
+      port:
+        type: string
+        default: "8080"
+      path:
+        type: string
+        default: "/health"
+    steps:
+      - run:
+          name: Smoke test << parameters.name >>
+          command: |
+            docker run -d --rm -p 18080:<< parameters.port >> --name << parameters.name >> << parameters.image >>
+            for i in $(seq 1 30); do
+              if curl -fsS http://127.0.0.1:18080<< parameters.path >>; then
+                docker rm -f << parameters.name >>
+                exit 0
+              fi
+              sleep 1
+            done
+            echo "Health check failed after 30 seconds"
+            docker logs << parameters.name >>
+            docker rm -f << parameters.name >>
+            exit 1
+
 jobs:
   # Simple health check to validate basic setup
   basic-setup:
@@ -120,6 +151,9 @@ jobs:
               -t samo-dl-app:${CIRCLE_SHA1:0:7} \
               -t samo-dl-app:latest \
               .
+      - smoke_health:
+          image: samo-dl-app:${CIRCLE_SHA1:0:7}
+          name: app-minimal-test
       - run:
           name: Build app image (unified ML)
           command: |
@@ -132,13 +166,9 @@ jobs:
               -t samo-dl-app-unified:${CIRCLE_SHA1:0:7} \
               -t samo-dl-app-unified:latest \
               .
-      - run:
-          name: Smoke test app unified image health
-          command: |
-            docker run -d --rm -p 18080:8080 --name app-unified-test samo-dl-app-unified:${CIRCLE_SHA1:0:7}
-            sleep 5
-            curl -fsS http://127.0.0.1:18080/health || (docker logs app-unified-test; docker rm -f app-unified-test; exit 1)
-            docker rm -f app-unified-test
+      - smoke_health:
+          image: samo-dl-app-unified:${CIRCLE_SHA1:0:7}
+          name: app-unified-test
       - run:
           name: Build training image
           command: |
