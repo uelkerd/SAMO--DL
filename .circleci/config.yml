@@ -147,6 +147,8 @@ jobs:
             DOCKER_BUILDKIT=1 docker build \
               --pull \
               --progress=plain \
+              --platform linux/amd64 \
+              --build-arg PIP_CONSTRAINT=dependencies/constraints.txt \
               -f deployment/docker/Dockerfile.app \
               -t samo-dl-app:${CIRCLE_SHA1:0:7} \
               -t samo-dl-app:latest \
@@ -162,6 +164,8 @@ jobs:
               --build-arg INCLUDE_ML=true \
               --pull \
               --progress=plain \
+              --platform linux/amd64 \
+              --build-arg PIP_CONSTRAINT=dependencies/constraints.txt \
               -f deployment/docker/Dockerfile.app \
               -t samo-dl-app-unified:${CIRCLE_SHA1:0:7} \
               -t samo-dl-app-unified:latest \
@@ -179,6 +183,10 @@ jobs:
               -t samo-dl-train:${CIRCLE_SHA1:0:7} \
               -t samo-dl-train:latest \
               .
+      - run:
+          name: Smoke test training image (imports)
+          command: |
+            docker run --rm --entrypoint python samo-dl-train:${CIRCLE_SHA1:0:7} -c "import torch, transformers; print('✅ train image imports OK')"
 
 workflows:
   simple-ci:
