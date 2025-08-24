@@ -100,7 +100,7 @@ class SecurityHeadersMiddleware:
         if self.config.ua_blocking_enabled:
             user_agent = request.headers.get("User-Agent", "")
             ua_analysis = self._analyze_user_agent_enhanced(user_agent)
-            
+
             if ua_analysis["risk_level"] in ["high", "very_high"]:
                 # Store blocking information for after_request logging
                 g.security_patterns = [
@@ -109,7 +109,7 @@ class SecurityHeadersMiddleware:
                 ]
                 g.block_reason = f"User agent risk level: {ua_analysis['risk_level']}"
                 g.ua_analysis = ua_analysis
-                
+
                 # Return 403 Forbidden response
                 from flask import make_response
                 response = make_response(
