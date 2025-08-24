@@ -20,7 +20,7 @@ commands:
     parameters:
       image:
         type: string
-      name:
+      container_name:
         type: string
       port:
         type: string
@@ -33,12 +33,12 @@ commands:
         default: "/health"
     steps:
       - run:
-          name: Smoke test << parameters.name >>
+          name: Smoke test << parameters.container_name >>
           command: |
             set -euo pipefail
-            cleanup() { docker rm -f << parameters.name >> >/dev/null 2>&1 || true; }
+            cleanup() { docker rm -f << parameters.container_name >> >/dev/null 2>&1 || true; }
             trap cleanup EXIT
-            docker run -d --rm -p << parameters.host_port >>:<< parameters.port >> --name << parameters.name >> << parameters.image >>
+            docker run -d --rm -p << parameters.host_port >>:<< parameters.port >> --name << parameters.container_name >> << parameters.image >>
 
             HEALTH_PATH="<< parameters.path >>"
             case "$HEALTH_PATH" in
@@ -56,7 +56,7 @@ commands:
               sleep 1
             done
             echo "❌ Health check failed after 30 seconds"
-            docker logs << parameters.name >> || true
+            docker logs << parameters.container_name >> || true
             exit 1
 
 jobs:
@@ -200,7 +200,7 @@ jobs:
               .
       - smoke_health:
           image: samo-dl-app:${CIRCLE_SHA1:0:7}
-          name: app-minimal-test
+          container_name: app-minimal-test
       - run:
           name: Build app image (unified ML)
           command: |
@@ -217,7 +217,7 @@ jobs:
               .
       - smoke_health:
           image: samo-dl-app-unified:${CIRCLE_SHA1:0:7}
-          name: app-unified-test
+          container_name: app-unified-test
       - run:
           name: Build training image
           command: |
