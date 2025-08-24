@@ -186,16 +186,18 @@ jobs:
             echo "🔍 Policy file: .safety-policy.yml"
             echo "🔍 Testing Safety token availability..."
             
-            # Check if Safety token is available
-            if [ -n "${SAFETY_TOKEN:-}" ]; then
-              echo "🔑 Safety token found! Length: ${#SAFETY_TOKEN} characters"
-              echo "🔑 Using Safety token for authenticated scanning..."
-              # Run safety scan with policy - will fail CI only for High/Critical vulnerabilities
-              echo "🔍 Executing: python3 -m safety scan --policy .safety-policy.yml --full-report"
-              python3 -m safety scan --policy .safety-policy.yml --full-report
+            # Check if Safety API key is available
+            if [ -n "${SAFETY_API_KEY:-}" ]; then
+              echo "🔑 Safety API key found! Length: ${#SAFETY_API_KEY} characters"
+              echo "🔑 Using Safety API key for authenticated scanning..."
+              # Export API key for safety command
+              export SAFETY_API_KEY
+              # Run safety scan with v3 flags - will fail CI only for High/Critical vulnerabilities
+              echo "🔍 Executing: python3 -m safety scan --policy-file .safety-policy.yml --detailed-output"
+              python3 -m safety scan --policy-file .safety-policy.yml --detailed-output
               echo "✅ Authenticated safety scan completed - CI will fail only on High/Critical vulnerabilities"
             else
-              echo "⚠️ No Safety token found, using fallback security scanning..."
+              echo "⚠️ No Safety API key found, using fallback security scanning..."
               
               # Fallback: Check for known vulnerable packages using pip-audit or manual checks
               echo "🔍 Running fallback security scan..."
