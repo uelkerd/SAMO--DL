@@ -68,8 +68,8 @@ def validate_environment():
 
         if torch.cuda.is_available():
             logger.info(f"✅ CUDA device: {torch.cuda.get_device_name(0)}")
-    except Exception as e:
-        logger.info(f"❌ Environment validation failed: {e}")
+    except Exception as _e:
+        logger.info(f"❌ Environment validation failed: {_e}")
         raise
 
 
