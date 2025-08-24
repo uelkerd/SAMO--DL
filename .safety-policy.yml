@@ -1,0 +1,72 @@
+version: "3.0"
+
+# Safety CLI v3 Policy Configuration
+# This policy controls vulnerability scanning behavior in CI/CD pipelines
+
+security:
+  # Fail scan with exit code instead of using deprecated cvss-severity
+  fail-scan-with-exit-code: true
+  
+  # Continue scan even when vulnerabilities are found (to get full report)
+  continue-on-vulnerability-error: false
+
+  # Vulnerability severity levels that should cause CI failure
+  ignore-severity-below: medium
+  
+  # CVSS score thresholds (0.0-10.0)
+  ignore-cvss-severity-below: 7.0  # High and Critical only
+  
+  # Report all vulnerabilities but only fail on High/Critical
+  report-all-vulnerabilities: true
+
+alert:
+  # Output format for CI environments
+  format: json
+  
+  # Include additional vulnerability details
+  include-details: true
+
+ignore:
+  # Ignore vulnerabilities by ID (use with caution)
+  vulnerabilities: []
+  
+  # Ignore specific packages (use with extreme caution)
+  packages: []
+
+scan:
+  # Scan all requirements files
+  requirements-files:
+    - dependencies/requirements.txt
+    - dependencies/requirements-dev.txt
+    - dependencies/requirements-api.txt
+    - dependencies/requirements-ml.txt
+    - dependencies/requirements_production.txt
+    - dependencies/requirements_secure.txt
+    - dependencies/requirements_unified.txt
+  
+  # Use constraints file if available
+  constraint-files:
+    - dependencies/constraints.txt
+
+# CI/CD specific settings
+ci:
+  # Prevent interactive prompts
+  non-interactive: true
+  
+  # Exit codes
+  exit-zero-on-vulnerabilities-found: false
+  
+  # Cache settings for faster CI runs
+  use-cache: true
+  cache-ttl: 3600  # 1 hour
+
+# Reporting settings
+reporting:
+  # Create detailed reports
+  create-report: true
+  
+  # Report format options: json, text, sarif
+  formats: ["json", "text"]
+  
+  # Output directory for reports
+  output-directory: "./artifacts/security/"
