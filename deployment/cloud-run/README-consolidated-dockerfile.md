@@ -172,13 +172,13 @@ The Dockerfile automatically selects the appropriate requirements file:
 
 ### **Test Minimal Version**
 ```bash
-docker run --rm -p 8080:8080 samo-dl-minimal
+docker run --rm -p 8080:8080 samo-dl-app
 curl http://localhost:8080/health
 ```
 
 ### **Test Unified Version**
 ```bash
-docker run --rm -p 8080:8080 samo-dl-unified
+docker run --rm -p 8080:8080 samo-dl-app-unified
 curl http://localhost:8080/health
 # Should show ML models as available
 ```
@@ -195,8 +195,8 @@ curl http://localhost:8080/health
 ```bash
 # Had to remember which Dockerfile to use
 docker build -f deployment/cloud-run/Dockerfile -t samo-dl .
-docker build -f deployment/cloud-run/Dockerfile.unified -t samo-dl-unified .
-docker build -f deployment/cloud-run/Dockerfile.minimal -t samo-dl-minimal .
+docker build --build-arg BUILD_TYPE=unified --build-arg INCLUDE_ML=true -f deployment/docker/Dockerfile.app -t samo-dl-app-unified .
+docker build --build-arg BUILD_TYPE=minimal -f deployment/docker/Dockerfile.app -t samo-dl-app .
 docker build -f deployment/cloud-run/Dockerfile.secure -t samo-dl-secure .
 ```
 
