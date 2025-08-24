@@ -6,6 +6,7 @@ import logging
 import os
 import sys
 import traceback
+import torch
 
 """
 Vertex AI Training Script for SAMO Deep Learning.
@@ -60,7 +61,6 @@ def validate_environment():
     logger.info("🔍 Validating Vertex AI environment...")
 
     try:
-        import torch
         import transformers
         logger.info(f"✅ PyTorch: {torch.__version__}")
         logger.info(f"✅ Transformers: {transformers.__version__}")
@@ -69,7 +69,7 @@ def validate_environment():
         if torch.cuda.is_available():
             logger.info(f"✅ CUDA device: {torch.cuda.get_device_name(0)}")
     except Exception as e:
-        logger.error(f"❌ Environment validation failed: {e}")
+        logger.info(f"❌ Environment validation failed: {e}")
         raise
 
 
@@ -184,7 +184,6 @@ def validate_loss_function():
     logger.info("🔍 Validating loss function...")
 
     try:
-        import torch
         import torch.nn.functional as F
         batch_size = 4
         num_classes = 28
