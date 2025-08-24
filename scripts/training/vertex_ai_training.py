@@ -11,6 +11,8 @@ import logging
 import sys
 import traceback
 import torch
+import transformers
+import os
 
 # Ensure project root on path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -125,15 +127,29 @@ def validate_environment():
     logger.info("🔍 Validating Vertex AI environment...")
 
     try:
-        import transformers
         logger.info("✅ PyTorch: %s", torch.__version__)
         logger.info("✅ Transformers: %s", transformers.__version__)
         logger.info("✅ Vertex AI: Available")
 
+        # Log environment variables for visibility
+        project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
+        region = os.getenv("VERTEX_AI_REGION")
+        if project_id:
+            logger.info("✅ Google Cloud Project: %s", project_id)
+        else:
+            logger.warning("⚠️  GOOGLE_CLOUD_PROJECT not set")
+        
+        if region:
+            logger.info("✅ Vertex AI Region: %s", region)
+        else:
+            logger.warning("⚠️  VERTEX_AI_REGION not set")
+
         if torch.cuda.is_available():
             logger.info("✅ CUDA device: %s", torch.cuda.get_device_name(0))
+        
+        return True
     except Exception as _e:
-        logger.info("❌ Environment validation failed: %s", _e)
+        logger.error("❌ Environment validation failed: %s", _e)
         raise
 
 
@@ -170,13 +186,13 @@ def validate_data_distribution():
         logger.info("✅ Positive label rate: %.6f", positive_rate)
 
         if positive_rate == 0:
-            logger.error("❌ CRITICAL: No positive labels found!")
-            logger.error("   This will cause 0.0000 loss with BCE")
-            return False
+            error_msg = "No positive labels found! This will cause 0.0000 loss with BCE"
+            logger.error("❌ CRITICAL: %s", error_msg)
+            raise ValueError(error_msg)
         elif positive_rate == 1:
-            logger.error("❌ CRITICAL: All labels are positive!")
-            logger.error("   This will cause 0.0000 loss with BCE")
-            return False
+            error_msg = "All labels are positive! This will cause 0.0000 loss with BCE"
+            logger.error("❌ CRITICAL: %s", error_msg)
+            raise ValueError(error_msg)
         elif positive_rate < 0.01:
             logger.warning("⚠️  Very low positive label rate")
             logger.warning("   Consider using focal loss or class weights")
@@ -191,7 +207,7 @@ def validate_data_distribution():
 
     except Exception as _e:
         logger.error("❌ Data distribution validation failed: %s", _e)
-        return False
+        raise
 
 
 def validate_model_architecture():
@@ -231,18 +247,20 @@ def validate_model_architecture():
         logger.info("   Loss value: %.8f", loss.item())
 
         if loss.item() <= 0:
-            logger.error("❌ CRITICAL: Loss is zero or negative: {loss.item()}")
-            return False
+            error_msg = f"Loss is zero or negative: {loss.item()}"
+            logger.error("❌ CRITICAL: %s", error_msg)
+            raise ValueError(error_msg)
 
         if torch.isnan(loss).any():
-            logger.error("❌ CRITICAL: NaN loss!")
-            return False
+            error_msg = "NaN loss detected"
+            logger.error("❌ CRITICAL: %s", error_msg)
+            raise ValueError(error_msg)
 
         return True
 
     except Exception as _e:
         logger.error("❌ Model architecture validation failed: %s", _e)
-        return False
+        raise
 
 
 def validate_loss_function():
@@ -284,14 +302,15 @@ def validate_loss_function():
         logger.info("✅ All negative loss: %.8f", loss3.item())
 
         if loss1.item() <= 0 or loss2.item() <= 0 or loss3.item() <= 0:
-            logger.error("❌ CRITICAL: Loss function producing zero/negative values!")
-            return False
+            error_msg = "Loss function producing zero/negative values!"
+            logger.error("❌ CRITICAL: %s", error_msg)
+            raise ValueError(error_msg)
 
         return True
 
     except Exception as _e:
         logger.error("❌ Loss function validation failed: %s", _e)
-        return False
+        raise
 
 
 def validate_training_config(args):
@@ -326,7 +345,7 @@ def validate_training_config(args):
 
     except Exception as _e:
         logger.error("❌ Training configuration validation failed: %s", _e)
-        return False
+        raise
 
 
 def run_training(args):
@@ -413,13 +432,9 @@ def main():
             logger.info("%s", "="*40)
 
             try:
-                success = validation_func()
-                results[name] = success
-
-                if success:
-                    logger.info("✅ %s PASSED", name)
-                else:
-                    logger.error("❌ %s FAILED", name)
+                validation_func()  # Will raise exception on failure
+                results[name] = True
+                logger.info("✅ %s PASSED", name)
 
             except Exception as _e:
                 logger.error("❌ %s ERROR: %s", name, _e)
