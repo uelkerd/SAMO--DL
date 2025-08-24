@@ -25,6 +25,9 @@ commands:
       port:
         type: string
         default: "8080"
+      host_port:
+        type: string
+        default: "18080"
       path:
         type: string
         default: "/health"
@@ -32,17 +35,28 @@ commands:
       - run:
           name: Smoke test << parameters.name >>
           command: |
-            docker run -d --rm -p 18080:<< parameters.port >> --name << parameters.name >> << parameters.image >>
+            set -euo pipefail
+            cleanup() { docker rm -f << parameters.name >> >/dev/null 2>&1 || true; }
+            trap cleanup EXIT
+            docker run -d --rm -p << parameters.host_port >>:<< parameters.port >> --name << parameters.name >> << parameters.image >>
+
+            HEALTH_PATH="<< parameters.path >>"
+            case "$HEALTH_PATH" in
+              /*) ;;
+              *) HEALTH_PATH="/$HEALTH_PATH" ;;
+            esac
+
             for i in $(seq 1 30); do
-              if curl -fsS http://127.0.0.1:18080<< parameters.path >>; then
-                docker rm -f << parameters.name >>
+              if curl -fsS --connect-timeout 2 --max-time 4 "http://127.0.0.1:<< parameters.host_port >>${HEALTH_PATH}" >/dev/null; then
+                echo "✅ Health check passed"
+                trap - EXIT
+                cleanup
                 exit 0
               fi
               sleep 1
             done
-            echo "Health check failed after 30 seconds"
-            docker logs << parameters.name >>
-            docker rm -f << parameters.name >>
+            echo "❌ Health check failed after 30 seconds"
+            docker logs << parameters.name >> || true
             exit 1
 
 jobs:
@@ -145,6 +159,7 @@ jobs:
           name: Build app image (minimal)
           command: |
             DOCKER_BUILDKIT=1 docker build \
+              --build-arg BUILD_TYPE=minimal \
               --pull \
               --progress=plain \
               --platform linux/amd64 \
