@@ -6,10 +6,8 @@ to solve the 0.0000 loss issue and achieve >75% F1 score.
 """
 
 from pathlib import Path
-from typing import Dict, Any, Optional
 import argparse
 import logging
-import os
 import sys
 import traceback
 import torch
@@ -133,7 +131,6 @@ def validate_model_architecture():
     logger.info("🔍 Validating model architecture...")
 
     try:
-        from src.models.emotion_detection.bert_classifier import WeightedBCELoss
         from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
         model, loss_fn = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
