@@ -157,8 +157,9 @@ jobs:
             pip install --upgrade pip
             pip install -c dependencies/constraints.txt -r dependencies/requirements-api.txt -r dependencies/requirements-dev.txt -r dependencies/requirements-ml.txt
             
-            # Install safety in the virtual environment
-            pip install safety==3.2.3
+            # Install safety in the virtual environment with compatible dependencies
+            pip install "typer>=0.9.0,<1.0.0" "rich>=13.0.0,<14.0.0"
+            pip install safety==4.0.0
             
             # Run safety check against installed environment (captures transitives)
             echo "🔍 Running safety check..."
