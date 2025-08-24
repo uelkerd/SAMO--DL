@@ -38,36 +38,25 @@ commands:
             set -euo pipefail
             cleanup() { docker rm -f << parameters.container_name >> >/dev/null 2>&1 || true; }
             trap cleanup EXIT
-            docker run -d --rm -p << parameters.host_port >>:<< parameters.port >> --name << parameters.container_name >> << parameters.image >>
+            # Use CircleCI's port binding approach for remote Docker
+            echo "🔍 Starting container with CircleCI-compatible port binding..."
+            docker run -d --rm --name << parameters.container_name >> << parameters.image >>
 
             # Debug: Check container started successfully
             echo "🔍 Debug: Container started, checking status..."
             docker ps -a | grep << parameters.container_name >> || echo "Container not found in docker ps"
-            echo "🔍 Debug: Port mapping should be << parameters.host_port >>:<< parameters.port >>"
             
             # Wait for container to be fully ready
             echo "⏳ Waiting for container to start..."
             sleep 5
             
-            # Wait for container to actually be listening on the port
-            echo "🔍 Waiting for container to be listening on port << parameters.host_port >>..."
-            for i in $(seq 1 15); do
-              if nc -z 127.0.0.1 << parameters.host_port >> 2>/dev/null; then
-                echo "✅ Container is listening on port << parameters.host_port >>"
-                break
-              fi
-              echo "⏳ Waiting for port << parameters.host_port >> to be open (attempt $i/15)..."
-              sleep 2
-            done
-            
-            # Debug: Check what's actually happening with the container
-            echo "🔍 Debug: Container status and port mapping..."
-            docker ps -a
+            # Check container logs to see if it's ready
+            echo "🔍 Checking container logs for readiness..."
             docker logs << parameters.container_name >> || echo "No logs available"
-            echo "🔍 Debug: Checking if port << parameters.host_port >> is bound..."
-            netstat -tlnp 2>/dev/null | grep << parameters.host_port >> || echo "Port << parameters.host_port >> not found in netstat"
-            echo "🔍 Debug: Checking Docker port bindings..."
-            docker port << parameters.container_name >> || echo "No port bindings found"
+            
+            # Use docker exec to check if the app is responding internally
+            echo "🔍 Testing internal container connectivity..."
+            docker exec << parameters.container_name >> curl -fsS --connect-timeout 3 --max-time 5 "http://127.0.0.1:<< parameters.port >>${HEALTH_PATH}" >/dev/null && echo "✅ Internal health check passed" || echo "⚠️ Internal health check failed"
 
             HEALTH_PATH="<< parameters.path >>"
             case "$HEALTH_PATH" in
@@ -75,18 +64,18 @@ commands:
               *) HEALTH_PATH="/$HEALTH_PATH" ;;
             esac
 
-            echo "🔍 Starting health check on port << parameters.host_port >> (maps to container port << parameters.port >>)"
-            for i in $(seq 1 60); do
-              if curl -fsS --connect-timeout 3 --max-time 5 "http://127.0.0.1:<< parameters.host_port >>${HEALTH_PATH}" >/dev/null; then
-                echo "✅ Health check passed"
+            echo "🔍 Starting internal container health check on port << parameters.port >>"
+            for i in $(seq 1 30); do
+              if docker exec << parameters.container_name >> curl -fsS --connect-timeout 3 --max-time 5 "http://127.0.0.1:<< parameters.port >>${HEALTH_PATH}" >/dev/null; then
+                echo "✅ Internal health check passed"
                 trap - EXIT
                 cleanup
                 exit 0
               fi
-              echo "⏳ Health check attempt $i/60 - waiting..."
+              echo "⏳ Health check attempt $i/30 - waiting..."
               sleep 2
             done
-            echo "❌ Health check failed after 120 seconds (60 attempts × 2s)"
+            echo "❌ Health check failed after 60 seconds (30 attempts × 2s)"
             docker logs << parameters.container_name >> || true
             exit 1
 
