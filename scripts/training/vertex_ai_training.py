@@ -124,8 +124,8 @@ def validate_data_distribution():
 
         return True
 
-    except Exception as e:
-        logger.error("❌ Data distribution validation failed: {e}")
+    except Exception as _e:
+        logger.error(f"❌ Data distribution validation failed: {_e}")
         return False
 
 
@@ -174,8 +174,8 @@ def validate_model_architecture():
 
         return True
 
-    except Exception as e:
-        logger.error("❌ Model architecture validation failed: {e}")
+    except Exception as _e:
+        logger.error(f"❌ Model architecture validation failed: {_e}")
         return False
 
 
@@ -219,8 +219,8 @@ def validate_loss_function():
 
         return True
 
-    except Exception as e:
-        logger.error("❌ Loss function validation failed: {e}")
+    except Exception as _e:
+        logger.error(f"❌ Loss function validation failed: {_e}")
         return False
 
 
@@ -252,8 +252,8 @@ def validate_training_config(args):
 
         return True
 
-    except Exception as e:
-        logger.error("❌ Training configuration validation failed: {e}")
+    except Exception as _e:
+        logger.error(f"❌ Training configuration validation failed: {_e}")
         return False
 
 
@@ -284,13 +284,13 @@ def run_training(args):
 
         logger.info("📊 Training Results:")
         for key, value in results.items():
-            logger.info("   {key}: {value}")
+            logger.info(f"   {key}: {value}")
 
         return results
 
-    except Exception as e:
-        logger.error("❌ Training failed: {e}")
-        logger.error("Traceback: {traceback.format_exc()}")
+    except Exception as _e:
+        logger.error(f"❌ Training failed: {_e}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
         return None
 
 
@@ -332,32 +332,32 @@ def main():
 
         results = {}
         for name, validation_func in validations:
-            logger.info("\n{'='*40}")
-            logger.info("Running: {name}")
-            logger.info("{'='*40}")
+            logger.info(f"\n{'='*40}")
+            logger.info(f"Running: {name}")
+            logger.info(f"{'='*40}")
 
             try:
                 success = validation_func()
                 results[name] = success
 
                 if success:
-                    logger.info("✅ {name} PASSED")
+                    logger.info(f"✅ {name} PASSED")
                 else:
-                    logger.error("❌ {name} FAILED")
+                    logger.error(f"❌ {name} FAILED")
 
-            except Exception as e:
-                logger.error("❌ {name} ERROR: {e}")
+            except Exception as _e:
+                logger.error(f"❌ {name} ERROR: {_e}")
                 results[name] = False
 
         passed = sum(results.values())
         total = len(results)
 
-        logger.info("\n{'='*50}")
+        logger.info(f"\n{'='*50}")
         logger.info("📊 VALIDATION SUMMARY")
-        logger.info("{'='*50}")
-        logger.info("Total checks: {total}")
-        logger.info("Passed: {passed}")
-        logger.info("Failed: {total - passed}")
+        logger.info(f"{'='*50}")
+        logger.info(f"Total checks: {total}")
+        logger.info(f"Passed: {passed}")
+        logger.info(f"Failed: {total - passed}")
 
         if passed == total:
             logger.info("\n✅ ALL VALIDATIONS PASSED!")
@@ -375,7 +375,7 @@ def main():
             logger.info("\n🎉 TRAINING COMPLETED SUCCESSFULLY!")
             logger.info("📊 Final Results:")
             for key, value in results.items():
-                logger.info("   {key}: {value}")
+                logger.info(f"   {key}: {value}")
         else:
             logger.error("\n❌ TRAINING FAILED!")
             sys.exit(1)
