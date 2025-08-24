@@ -178,37 +178,18 @@ jobs:
             # Install safety in the virtual environment
             pip install safety==3.6.0
             
-            # Run safety check against installed environment (captures transitives)
-            echo "🔍 Running safety check..."
+            # Run modern safety scan with policy control (fails only on High/Critical)
+            echo "🔍 Running modern safety scan with policy control..."
             echo "🔍 Safety version: $(python3 -m safety --version)"
             echo "🔍 Python version: $(python3 --version)"
             echo "🔍 Working directory: $(pwd)"
-            echo "🔍 Installed packages:"
-            pip list | grep -E "(safety|dparse)" || echo "No safety-related packages found"
+            echo "🔍 Policy file: .safety-policy.yml"
             
-            # Try safety check first, with fallback to alternative security scanning
-            echo "🔍 Attempting safety check..."
-            if python3 -m safety check --full-report 2>/dev/null; then
-              echo "✅ Safety check completed successfully"
-            else
-              echo "⚠️ Safety check failed, using fallback security scanning..."
-              
-              # Fallback: Check for known vulnerable packages using pip-audit or manual checks
-              echo "🔍 Running fallback security scan..."
-              
-              # Check if any packages have known CVEs by looking for common vulnerable patterns
-              VULNERABLE_PACKAGES=$(pip list | grep -E "(django<2.2|flask<2.0|requests<2.25|urllib3<1.26)" || echo "No obvious vulnerable packages found")
-              
-              if echo "$VULNERABLE_PACKAGES" | grep -q "No obvious vulnerable packages found"; then
-                echo "✅ Fallback security scan: No obvious vulnerable packages detected"
-              else
-                echo "❌ Fallback security scan: Potentially vulnerable packages found:"
-                echo "$VULNERABLE_PACKAGES"
-                echo "⚠️ This is a basic check - consider running safety locally for full analysis"
-              fi
-              
-              echo "✅ Fallback security scan completed"
-            fi
+            # Run safety scan with policy - will fail CI only for High/Critical vulnerabilities
+            echo "🔍 Executing: python3 -m safety scan --policy .safety-policy.yml --full-report"
+            python3 -m safety scan --policy .safety-policy.yml --full-report
+            
+            echo "✅ Safety scan completed - CI will fail only on High/Critical vulnerabilities"
             
             # Cleanup
             deactivate

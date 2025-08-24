@@ -1,0 +1,37 @@
+# Safety Policy Configuration
+# This policy controls how Safety v3 behaves during security scans
+
+# Enable dependency vulnerability scanning
+dependency-vulnerabilities:
+  enabled: true
+  
+  # Fail CI only for Critical and High severity vulnerabilities
+  cvss-severity:
+    - critical
+    - high
+    
+  # Allow lower severity findings to pass (warnings only)
+  # - medium
+  # - low
+  # - none
+
+# Additional policy options
+# Uncomment and customize as needed:
+
+# Ignore specific vulnerabilities by CVE ID
+# ignore:
+#   - CVE-2023-12345
+#   - CVE-2023-67890
+
+# Ignore specific packages
+# ignore-packages:
+#   - package-name
+
+# Custom severity thresholds
+# severity-threshold: high
+
+# Output format
+output:
+  format: text
+  include-ignored: false
+  include-removed: false
