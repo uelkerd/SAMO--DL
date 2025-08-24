@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+"""Vertex AI Training Script for SAMO Deep Learning.
+
+This script runs training on Vertex AI with optimized configuration
+to solve the 0.0000 loss issue and achieve >75% F1 score.
+"""
+
 from pathlib import Path
 from typing import Dict, Any, Optional
 import argparse
@@ -7,13 +13,6 @@ import os
 import sys
 import traceback
 import torch
-
-"""
-Vertex AI Training Script for SAMO Deep Learning.
-
-This script runs training on Vertex AI with optimized configuration
-to solve the 0.0000 loss issue and achieve >75% F1 score.
-"""
 
 # Ensure project root on path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
