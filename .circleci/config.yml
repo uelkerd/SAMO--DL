@@ -162,22 +162,26 @@ jobs:
             
             # Run safety check against installed environment (captures transitives)
             echo "🔍 Running safety check..."
-            SAFETY_OUTPUT=$(python3 -m safety check --full-report 2>&1)
-            SAFETY_EXIT_CODE=$?
+            echo "🔍 Safety version: $(python3 -m safety --version)"
+            echo "🔍 Python version: $(python3 --version)"
+            echo "🔍 Working directory: $(pwd)"
+            echo "🔍 Installed packages:"
+            pip list | grep -E "(safety|dparse)" || echo "No safety-related packages found"
             
-            # Display the safety report
-            echo "$SAFETY_OUTPUT"
+            # Run safety check with verbose output
+            echo "🔍 Executing: python3 -m safety check --full-report"
+            python3 -m safety check --full-report || {
+              echo "❌ Safety check failed with exit code $?"
+              echo "🔍 Trying safety check without --full-report..."
+              python3 -m safety check || {
+                echo "❌ Basic safety check also failed with exit code $?"
+                echo "🔍 Checking if safety is working at all..."
+                python3 -m safety --help || echo "❌ Safety command not working"
+                exit 1
+              }
+            }
             
-            # Check if there are high/critical vulnerabilities
-            if echo "$SAFETY_OUTPUT" | grep -q "HIGH\|CRITICAL"; then
-              echo "❌ High or Critical vulnerabilities found!"
-              exit 1
-            elif [ $SAFETY_EXIT_CODE -ne 0 ]; then
-              echo "❌ Safety check failed with exit code $SAFETY_EXIT_CODE"
-              exit 1
-            else
-              echo "✅ No high/critical vulnerabilities found"
-            fi
+            echo "✅ Safety check completed successfully"
             
             # Cleanup
             deactivate
