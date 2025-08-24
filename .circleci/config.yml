@@ -184,9 +184,11 @@ jobs:
             echo "🔍 Python version: $(python3 --version)"
             echo "🔍 Working directory: $(pwd)"
             echo "🔍 Policy file: .safety-policy.yml"
+            echo "🔍 Testing Safety token availability..."
             
             # Check if Safety token is available
             if [ -n "${SAFETY_TOKEN:-}" ]; then
+              echo "🔑 Safety token found! Length: ${#SAFETY_TOKEN} characters"
               echo "🔑 Using Safety token for authenticated scanning..."
               # Run safety scan with policy - will fail CI only for High/Critical vulnerabilities
               echo "🔍 Executing: python3 -m safety scan --policy .safety-policy.yml --full-report"
