@@ -1,3 +1,4 @@
+# DEPRECATED: Use requirements-api.txt / requirements-ml.txt + constraints.txt
 transformers>=4.55.0,<5.0.0
 torch>=2.7.1,<2.9.0
 scikit-learn>=1.5.0,<2.0.0

@@ -1,3 +1,4 @@
+# DEPRECATED: Use Dockerfile.app with BUILD_TYPE=unified and requirements-api.txt + requirements-ml.txt
 fastapi==0.116.1
 uvicorn==0.35.0
 pydantic==2.11.7

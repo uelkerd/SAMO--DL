@@ -10,29 +10,37 @@ dependencies:
   - portaudio
   - curl
   - pip:
+      # API/runtime (align with dependencies/requirements-api.txt)
       - fastapi==0.116.1
-      - uvicorn==0.35.0
+      - uvicorn[standard]==0.35.0
+      - python-multipart==0.0.18
       - pydantic==2.11.7
       - PyJWT==2.8.0
-      - Flask==3.0.3
+      - sqlalchemy==2.0.36
+      - psycopg2-binary==2.9.10
+      - pgvector==0.3.6
+      - redis==5.0.8
+      - python-dotenv==1.0.1
+      - pyyaml==6.0.2
       - requests==2.32.4
-      - httpx>=0.24.0
-      - psutil==5.9.8
-      - python-multipart==0.0.9
-      - numpy==1.26.4
-      - transformers==4.55.0
-      - sentencepiece==0.1.99
-      - torch==2.2.2
-      - openai-whisper==20250625
-      - pydub==0.25.1
-      - jiwer==3.0.3
-      - websockets==12.0
+      - certifi==2024.12.14
+      - click==8.1.8
+      - rich==13.9.4
+      - loguru==0.7.2
       - prometheus-client==0.20.0
-      - ruff==0.6.9
+      
+      # Dev/test essentials (subset of dependencies/requirements-dev.txt)
       - pytest==8.3.2
       - pytest-xdist==3.6.1
-      - bandit==1.7.9
-      - safety==3.2.3
+      - pytest-asyncio==0.21.0
+      - pytest-cov==6.2.1
+      - ruff==0.6.9
+      - black==23.7.0
       - mypy==1.10.0
-      - python-dotenv==1.0.1
-      - psycopg2-binary==2.9.9
+      - bandit==1.7.9
+      - pre-commit==3.3.0
+      
+      # ML core kept minimal in base env (opt-in via separate env/PR if needed)
+      - numpy==1.26.4
+      - transformers==4.55.0
+      # torch intentionally omitted here for cross-platform variance; use conda or separate ML env
