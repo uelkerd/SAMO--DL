@@ -31,7 +31,10 @@ COPY dependencies/constraints.txt .
 ARG PIP_CONSTRAINT=""
 RUN pip install --no-cache-dir --upgrade pip && \
     if [ -n "$PIP_CONSTRAINT" ]; then \
-      pip install --no-cache-dir -c "$PIP_CONSTRAINT" -r requirements-api.txt -r requirements-dev.txt -r requirements-ml.txt; \
+      # Resolve PIP_CONSTRAINT to basename since we only copy constraints.txt to /app/
+      CONSTRAINT_BASENAME=$(basename "$PIP_CONSTRAINT") && \
+      echo "Using constraints file: /app/$CONSTRAINT_BASENAME" && \
+      pip install --no-cache-dir -c "/app/$CONSTRAINT_BASENAME" -r requirements-api.txt -r requirements-dev.txt -r requirements-ml.txt; \
     else \
       pip install --no-cache-dir -r requirements-api.txt -r requirements-dev.txt -r requirements-ml.txt; \
     fi
