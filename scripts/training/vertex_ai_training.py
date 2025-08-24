@@ -14,6 +14,15 @@ import torch
 import transformers
 import os
 
+# Import project-specific modules
+from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+from src.models.emotion_detection.bert_classifier import (
+    WeightedBCELoss, create_bert_emotion_classifier
+)
+from src.models.emotion_detection.training_pipeline import (
+    EmotionDetectionTrainer
+)
+
 # Ensure project root on path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
@@ -158,7 +167,6 @@ def validate_data_distribution():
     logger.info("🔍 Validating data distribution...")
 
     try:
-        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
         datasets = create_goemotions_loader(dev_mode=True)
         train_dataloader = datasets["train_dataloader"]
 
@@ -215,9 +223,6 @@ def validate_model_architecture():
     logger.info("🔍 Validating model architecture...")
 
     try:
-        from src.models.emotion_detection.bert_classifier import (
-            create_bert_emotion_classifier
-        )
         model, loss_fn = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
             class_weights=None,
@@ -276,7 +281,6 @@ def validate_loss_function():
         labels = torch.randint(0, 2, (batch_size, num_classes)).float()
         labels[:, 0] = 1.0  # Ensure some positive labels
 
-        from src.models.emotion_detection.bert_classifier import WeightedBCELoss
         loss_fn = WeightedBCELoss()
         loss1 = loss_fn(logits, labels)
 
@@ -353,9 +357,6 @@ def run_training(args):
     logger.info("🚀 Starting Vertex AI training...")
 
     try:
-        from src.models.emotion_detection.training_pipeline import (
-            EmotionDetectionTrainer
-        )
         trainer = EmotionDetectionTrainer(
             model_name=args.model_name,
             batch_size=args.batch_size,
