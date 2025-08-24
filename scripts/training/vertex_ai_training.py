@@ -428,7 +428,7 @@ def _build_validation_list(args):
 def _run_validations(validations):
     """Run all validations and return results."""
     results = {}
-    
+
     for name, validation_func in validations:
         logger.info("\n%s", "="*40)
         logger.info("Running: %s", name)
