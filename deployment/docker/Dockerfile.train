@@ -21,16 +21,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Set working directory
 WORKDIR /app
 
-# Copy requirements first for better caching
-COPY dependencies/requirements.txt .
+# Copy requirements files for better caching
+COPY dependencies/requirements-api.txt .
+COPY dependencies/requirements-dev.txt .
 
 # Install Python dependencies
 ARG PIP_CONSTRAINT=""
 RUN pip install --no-cache-dir --upgrade pip && \
     if [ -n "$PIP_CONSTRAINT" ]; then \
-      pip install --no-cache-dir -c "$PIP_CONSTRAINT" -r requirements.txt; \
+      pip install --no-cache-dir -c "$PIP_CONSTRAINT" -r requirements-api.txt -r requirements-dev.txt; \
     else \
-      pip install --no-cache-dir -r requirements.txt; \
+      pip install --no-cache-dir -r requirements-api.txt -r requirements-dev.txt; \
     fi
 
 # Install Vertex AI specific dependencies (pinned major versions)
