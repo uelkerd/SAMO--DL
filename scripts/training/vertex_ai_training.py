@@ -32,6 +32,8 @@ if PROJECT_ROOT.is_dir():
     if project_root_str not in sys.path:
         sys.path.insert(0, project_root_str)
 
+# Ensure log directory exists for FileHandler safety
+Path("/app/logs").mkdir(parents=True, exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
