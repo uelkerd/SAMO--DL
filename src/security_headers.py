@@ -120,7 +120,7 @@ class SecurityHeadersMiddleware:
 
         # Log security-relevant request information
         self._log_security_info()
-        
+
         # Explicit return None for consistency (PEP8 compliance)
         return None
 
