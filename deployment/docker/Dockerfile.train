@@ -13,7 +13,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     git \
-    curl=7.88.1-10+deb12u12 \
+    curl \
     wget \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
