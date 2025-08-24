@@ -40,6 +40,11 @@ commands:
             trap cleanup EXIT
             docker run -d --rm -p << parameters.host_port >>:<< parameters.port >> --name << parameters.container_name >> << parameters.image >>
 
+            # Debug: Check container started successfully
+            echo "🔍 Debug: Container started, checking status..."
+            docker ps -a | grep << parameters.container_name >> || echo "Container not found in docker ps"
+            echo "🔍 Debug: Port mapping should be << parameters.host_port >>:<< parameters.port >>"
+            
             # Wait for container to be fully ready
             echo "⏳ Waiting for container to start..."
             sleep 5
@@ -54,6 +59,15 @@ commands:
               echo "⏳ Waiting for port << parameters.host_port >> to be open (attempt $i/15)..."
               sleep 2
             done
+            
+            # Debug: Check what's actually happening with the container
+            echo "🔍 Debug: Container status and port mapping..."
+            docker ps -a
+            docker logs << parameters.container_name >> || echo "No logs available"
+            echo "🔍 Debug: Checking if port << parameters.host_port >> is bound..."
+            netstat -tlnp 2>/dev/null | grep << parameters.host_port >> || echo "Port << parameters.host_port >> not found in netstat"
+            echo "🔍 Debug: Checking Docker port bindings..."
+            docker port << parameters.container_name >> || echo "No port bindings found"
 
             HEALTH_PATH="<< parameters.path >>"
             case "$HEALTH_PATH" in
