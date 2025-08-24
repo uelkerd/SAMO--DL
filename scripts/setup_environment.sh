@@ -108,7 +108,15 @@ activate_and_setup() {
     
     # Install additional pip packages
     pip install --upgrade pip
-    pip install -r requirements.txt 2>/dev/null || print_warning "No requirements.txt found"
+    # Resolve constraints path relative to this script
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    CONSTRAINTS_PATH="${SCRIPT_DIR}/../dependencies/constraints.txt"
+    if [ -f "$CONSTRAINTS_PATH" ]; then
+        PIP_CONSTRAINT="$CONSTRAINTS_PATH" pip install -c "$CONSTRAINTS_PATH" -r requirements.txt 2>/dev/null || print_warning "No requirements.txt found"
+    else
+        print_warning "constraints.txt not found at $CONSTRAINTS_PATH; installing without constraints"
+        pip install -r requirements.txt 2>/dev/null || print_warning "No requirements.txt found"
+    fi
     
     # Install pre-commit hooks
     print_status "Setting up pre-commit hooks..."

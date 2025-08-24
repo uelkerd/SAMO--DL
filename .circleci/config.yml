@@ -84,6 +84,7 @@ jobs:
               --no-compile \
               --disable-pip-version-check \
               --timeout 300 \
+              -c dependencies/constraints.txt \
               -r dependencies/requirements-api.txt \
               -r dependencies/requirements-dev.txt
             # Sanity check to fail fast if imports break
@@ -132,6 +133,7 @@ jobs:
               --no-compile \
               --disable-pip-version-check \
               --timeout 300 \
+              -c dependencies/constraints.txt \
               -r dependencies/requirements-api.txt \
               -r dependencies/requirements-dev.txt \
               -r dependencies/requirements-ml.txt
