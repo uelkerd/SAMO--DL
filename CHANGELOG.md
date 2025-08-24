@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 - ✅ **Extracted validation logic** into focused helper functions: `_build_validation_list()`, `_run_validations()`, `_print_validation_summary()`, `_run_training_mode()`
 - ✅ **Maintained all functionality** while improving code maintainability and readability
 - ✅ **Applied systematic refactoring approach** following project's incremental improvement strategy
+- ✅ **Addressed nitpick comments**: Updated docstring to reflect logging/path bootstrap focus, hardened sys.path bootstrap with error handling, moved torch imports to function scope for lazy loading
+- ✅ **Improved code robustness**: Added IndexError handling for path resolution, directory validation before path insertion, and duplicate path insertion prevention
 
 ### Docker Security Hardening
 - Hardened `deployment/cloud-run/Dockerfile` and `deployment/cloud-run/Dockerfile.unified` (non-root user, pinned OS packages, healthchecks, explicit EXPOSE, clarified uvicorn entrypoint).
