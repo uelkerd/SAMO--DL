@@ -20,7 +20,7 @@ commands:
     parameters:
       image:
         type: string
-      name:
+      container_name:
         type: string
       port:
         type: string
@@ -33,12 +33,16 @@ commands:
         default: "/health"
     steps:
       - run:
-          name: Smoke test << parameters.name >>
+          name: Smoke test << parameters.container_name >>
           command: |
             set -euo pipefail
-            cleanup() { docker rm -f << parameters.name >> >/dev/null 2>&1 || true; }
+            cleanup() { docker rm -f << parameters.container_name >> >/dev/null 2>&1 || true; }
             trap cleanup EXIT
-            docker run -d --rm -p << parameters.host_port >>:<< parameters.port >> --name << parameters.name >> << parameters.image >>
+            docker run -d --rm -p << parameters.host_port >>:<< parameters.port >> --name << parameters.container_name >> << parameters.image >>
+
+            # Wait for container to be fully ready
+            echo "⏳ Waiting for container to start..."
+            sleep 5
 
             HEALTH_PATH="<< parameters.path >>"
             case "$HEALTH_PATH" in
@@ -46,6 +50,7 @@ commands:
               *) HEALTH_PATH="/$HEALTH_PATH" ;;
             esac
 
+            echo "🔍 Starting health check on port << parameters.host_port >> (maps to container port << parameters.port >>)"
             for i in $(seq 1 30); do
               if curl -fsS --connect-timeout 2 --max-time 4 "http://127.0.0.1:<< parameters.host_port >>${HEALTH_PATH}" >/dev/null; then
                 echo "✅ Health check passed"
@@ -53,10 +58,11 @@ commands:
                 cleanup
                 exit 0
               fi
+              echo "⏳ Health check attempt $i/30 - waiting..."
               sleep 1
             done
             echo "❌ Health check failed after 30 seconds"
-            docker logs << parameters.name >> || true
+            docker logs << parameters.container_name >> || true
             exit 1
 
 jobs:
@@ -100,6 +106,38 @@ jobs:
             PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src" python3 -c "import importlib.util as u, sys; sys.exit(0 if u.find_spec('fastapi') is None else 1)" \
               && echo '⚠️ FastAPI not installed; skipping health check.' \
               || PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src" python3 -c "from fastapi.testclient import TestClient; from src.unified_ai_api import app; c=TestClient(app); r=c.get('/health'); assert r.status_code==200, f'Health check failed: {r.status_code}'; print('✅ API health check passed!')"
+
+  safety-scan:
+    executor: python-simple
+    steps:
+      - checkout
+      - run:
+          name: Install safety
+          command: |
+            python3 -m pip install --upgrade pip
+            python3 -m pip install safety==3.2.3
+      - run:
+          name: Run safety scan with constraints (fail on high/critical)
+          command: |
+            set -e
+            echo "🔍 Scanning all canonical requirements with constraints"
+            # Create temporary virtual environment
+            python3 -m venv /tmp/safety-scan-env
+            source /tmp/safety-scan-env/bin/activate
+            
+            # Install dependencies with constraints
+            pip install --upgrade pip
+            pip install -c dependencies/constraints.txt -r dependencies/requirements-api.txt -r dependencies/requirements-dev.txt -r dependencies/requirements-ml.txt
+            
+            # Install safety in the virtual environment
+            pip install safety==3.2.3
+            
+            # Run safety check against installed environment (captures transitives)
+            python3 -m safety check --full-report --fail-on HIGH
+            
+            # Cleanup
+            deactivate
+            rm -rf /tmp/safety-scan-env
 
   # Basic linting (optional - won't fail build)
   code-quality:
@@ -170,7 +208,7 @@ jobs:
               .
       - smoke_health:
           image: samo-dl-app:${CIRCLE_SHA1:0:7}
-          name: app-minimal-test
+          container_name: app-minimal-test
       - run:
           name: Build app image (unified ML)
           command: |
@@ -187,7 +225,7 @@ jobs:
               .
       - smoke_health:
           image: samo-dl-app-unified:${CIRCLE_SHA1:0:7}
-          name: app-unified-test
+          container_name: app-unified-test
       - run:
           name: Build training image
           command: |
@@ -203,10 +241,38 @@ jobs:
           command: |
             docker run --rm --entrypoint python samo-dl-train:${CIRCLE_SHA1:0:7} -c "import torch, transformers; print('✅ train image imports OK')"
 
+  safety-scan-live:
+    executor: python-simple
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies under constraints (API + dev)
+          command: |
+            python3 -m pip install --upgrade pip
+            python3 -m pip install \
+              --no-compile \
+              --disable-pip-version-check \
+              --timeout 300 \
+              -c dependencies/constraints.txt \
+              -r dependencies/requirements-api.txt \
+              -r dependencies/requirements-dev.txt
+      - run:
+          name: Install safety and scan live environment
+          command: |
+            python3 -m pip install safety==3.2.3
+            # Scan the installed environment for transitives as resolved under constraints.
+            safety check --full-report --fail-on HIGH
+
 workflows:
   simple-ci:
     jobs:
       - basic-setup
+      - safety-scan:
+          requires:
+            - basic-setup
+      - safety-scan-live:
+          requires:
+            - safety-scan
       - code-quality:
           requires:
             - basic-setup
