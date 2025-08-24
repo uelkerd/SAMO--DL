@@ -396,13 +396,13 @@ class EmotionDetectionTrainer:
         if batch_idx < 5 or (batch_idx + 1) % 100 == 0:
             # We need to pass the current total loss from the calling method
             # For now, just log basic progress
-                    logger.info(
-            "Epoch %d, Batch %d/%d, Loss: %.8f",
-            epoch,
-            batch_idx + 1,
-            num_batches,
-            loss.item(),
-        )
+            logger.info(
+                "Epoch %d, Batch %d/%d, Loss: %.8f",
+                epoch,
+                batch_idx + 1,
+                num_batches,
+                loss.item(),
+            )
 
         return loss.item()
 
