@@ -19,8 +19,6 @@ from torch.optim import AdamW
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer, get_linear_schedule_with_warmup
 
-from src.utils import count_model_params
-
 from .bert_classifier import create_bert_emotion_classifier, evaluate_emotion_classifier
 from .dataset_loader import GoEmotionsDataset, create_goemotions_loader
 
@@ -261,8 +259,8 @@ class EmotionDetectionTrainer:
         )
 
         logger.info(
-            "Model initialized with %s trainable parameters",
-            format(count_model_params(self.model, only_trainable=True), ",d"),
+            "Model initialized with %d trainable parameters",
+            sum(p.numel() for p in self.model.parameters() if p.requires_grad),
         )
         logger.info("Total training steps: %d", total_steps)
 
