@@ -30,25 +30,92 @@ logger = logging.getLogger(__name__)
 
 def parse_arguments():
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description="Vertex AI Training for SAMO Deep Learning")
+    parser = argparse.ArgumentParser(
+        description="Vertex AI Training for SAMO Deep Learning"
+    )
 
-    parser.add_argument("--model_name", default="bert-base-uncased", help="Hugging Face model name")
-    parser.add_argument("--batch_size", type=int, default=16, help="Training batch size")
-    parser.add_argument("--learning_rate", type=float, default=2e-6, help="Learning rate (optimized for stability)")
-    parser.add_argument("--num_epochs", type=int, default=3, help="Number of training epochs")
-    parser.add_argument("--max_length", type=int, default=512, help="Maximum sequence length")
-    parser.add_argument("--freeze_bert_layers", type=int, default=6, help="Number of BERT layers to freeze")
+    parser.add_argument(
+        "--model_name",
+        default="bert-base-uncased",
+        help="Hugging Face model name"
+    )
+    parser.add_argument(
+        "--batch_size",
+        type=int,
+        default=16,
+        help="Training batch size"
+    )
+    parser.add_argument(
+        "--learning_rate",
+        type=float,
+        default=2e-6,
+        help="Learning rate (optimized for stability)"
+    )
+    parser.add_argument(
+        "--num_epochs",
+        type=int,
+        default=3,
+        help="Number of training epochs"
+    )
+    parser.add_argument(
+        "--max_length",
+        type=int,
+        default=512,
+        help="Maximum sequence length"
+    )
+    parser.add_argument(
+        "--freeze_bert_layers",
+        type=int,
+        default=6,
+        help="Number of BERT layers to freeze"
+    )
 
-    parser.add_argument("--use_focal_loss", action="store_true", help="Use focal loss instead of BCE")
-    parser.add_argument("--class_weights", action="store_true", help="Use class weights for imbalanced data")
-    parser.add_argument("--dev_mode", action="store_true", help="Run in development mode")
-    parser.add_argument("--debug_mode", action="store_true", help="Enable debugging mode")
+    parser.add_argument(
+        "--use_focal_loss",
+        action="store_true",
+        help="Use focal loss instead of BCE"
+    )
+    parser.add_argument(
+        "--class_weights",
+        action="store_true",
+        help="Use class weights for imbalanced data"
+    )
+    parser.add_argument(
+        "--dev_mode",
+        action="store_true",
+        help="Run in development mode"
+    )
+    parser.add_argument(
+        "--debug_mode",
+        action="store_true",
+        help="Enable debugging mode"
+    )
 
-    parser.add_argument("--validation_mode", action="store_true", help="Run validation only")
-    parser.add_argument("--check_data_distribution", action="store_true", help="Check data distribution")
-    parser.add_argument("--check_model_architecture", action="store_true", help="Check model architecture")
-    parser.add_argument("--check_loss_function", action="store_true", help="Check loss function")
-    parser.add_argument("--check_training_config", action="store_true", help="Check training configuration")
+    parser.add_argument(
+        "--validation_mode",
+        action="store_true",
+        help="Run validation only"
+    )
+    parser.add_argument(
+        "--check_data_distribution",
+        action="store_true",
+        help="Check data distribution"
+    )
+    parser.add_argument(
+        "--check_model_architecture",
+        action="store_true",
+        help="Check model architecture"
+    )
+    parser.add_argument(
+        "--check_loss_function",
+        action="store_true",
+        help="Check loss function"
+    )
+    parser.add_argument(
+        "--check_training_config",
+        action="store_true",
+        help="Check training configuration"
+    )
 
     return parser.parse_args()
 
@@ -96,7 +163,8 @@ def validate_data_distribution():
                     label_distribution[class_idx] = 0
                 label_distribution[class_idx] += labels[:, class_idx].sum().item()
 
-        positive_rate = total_positive_labels / (total_samples * 28)  # 28 emotion classes
+        # 28 emotion classes
+        positive_rate = total_positive_labels / (total_samples * 28)
         logger.info("✅ Total samples analyzed: %d", total_samples)
         logger.info("✅ Total positive labels: %d", total_positive_labels)
         logger.info("✅ Positive label rate: %.6f", positive_rate)
@@ -131,7 +199,9 @@ def validate_model_architecture():
     logger.info("🔍 Validating model architecture...")
 
     try:
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+        from src.models.emotion_detection.bert_classifier import (
+            create_bert_emotion_classifier
+        )
         model, loss_fn = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
             class_weights=None,
@@ -192,14 +262,18 @@ def validate_loss_function():
         loss_fn = WeightedBCELoss()
         loss1 = loss_fn(logits, labels)
 
-        bce_manual = F.binary_cross_entropy_with_logits(logits, labels, reduction="mean")
+        bce_manual = F.binary_cross_entropy_with_logits(
+            logits, labels, reduction="mean"
+        )
 
         logger.info("✅ Mixed labels loss: %.8f", loss1.item())
         logger.info("✅ Manual BCE loss: %.8f", bce_manual.item())
 
         loss_diff = abs(loss1.item() - bce_manual.item())
         if loss_diff > 1.0:
-            logger.warning("⚠️  Large difference between custom and manual loss: %s", loss_diff)
+            logger.warning(
+                "⚠️  Large difference between custom and manual loss: %s", loss_diff
+            )
 
         labels_all_pos = torch.ones(batch_size, num_classes)
         loss2 = loss_fn(logits, labels_all_pos)
@@ -244,7 +318,9 @@ def validate_training_config(args):
 
         if not args.use_focal_loss and not args.class_weights:
             logger.warning("⚠️  No class balancing strategy")
-            logger.warning("   Consider using focal loss or class weights for imbalanced data")
+            logger.warning(
+                "   Consider using focal loss or class weights for imbalanced data"
+            )
 
         return True
 
@@ -258,7 +334,9 @@ def run_training(args):
     logger.info("🚀 Starting Vertex AI training...")
 
     try:
-        from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+        from src.models.emotion_detection.training_pipeline import (
+            EmotionDetectionTrainer
+        )
         trainer = EmotionDetectionTrainer(
             model_name=args.model_name,
             batch_size=args.batch_size,
@@ -316,7 +394,9 @@ def main():
             validations.append(("Loss Function", validate_loss_function))
 
         if args.check_training_config:
-            validations.append(("Training Config", lambda: validate_training_config(args)))
+            validations.append(
+                ("Training Config", lambda: validate_training_config(args))
+            )
 
         if not validations:
             validations = [
