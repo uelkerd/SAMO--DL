@@ -32,6 +32,8 @@ if PROJECT_ROOT.is_dir():
     if project_root_str not in sys.path:
         sys.path.insert(0, project_root_str)
 
+# Ensure log directory exists for FileHandler safety
+Path("/app/logs").mkdir(parents=True, exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -236,7 +238,7 @@ def validate_model_architecture():
         )
 
         param_count = sum(p.numel() for p in model.parameters())
-        logger.info("✅ Model created: %s parameters", f"{param_count:,}")
+        logger.info("✅ Model created: %s parameters", format(param_count, ","))
         logger.info("✅ Loss function: %s", type(loss_fn).__name__)
 
         batch_size = 2
