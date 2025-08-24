@@ -713,7 +713,7 @@ class EmotionDetectionTrainer:
         if is_best:
             checkpoint_path = self.output_dir / "best_model.pt"
         else:
-            checkpoint_path = self.output_dir / f"checkpoint_epoch_{epoch}.pt"
+            checkpoint_path = self.output_dir / "checkpoint_epoch_{}.pt".format(epoch)
 
         torch.save(checkpoint, checkpoint_path)
         logger.info("Checkpoint saved: %s", checkpoint_path)
