@@ -108,6 +108,38 @@ jobs:
               && echo '⚠️ FastAPI not installed; skipping health check.' \
               || PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src" python3 -c "from fastapi.testclient import TestClient; from src.unified_ai_api import app; c=TestClient(app); r=c.get('/health'); assert r.status_code==200, f'Health check failed: {r.status_code}'; print('✅ API health check passed!')"
 
+  safety-scan:
+    executor: python-simple
+    steps:
+      - checkout
+      - run:
+          name: Install safety
+          command: |
+            python3 -m pip install --upgrade pip
+            python3 -m pip install safety==3.2.3
+      - run:
+          name: Run safety scan with constraints (fail on high/critical)
+          command: |
+            set -euo pipefail
+            echo "🔍 Scanning all canonical requirements with constraints"
+            
+            # Create temporary virtual environment
+            python3 -m venv /tmp/safety-scan-env
+            source /tmp/safety-scan-env/bin/activate
+            
+            # Install dependencies with constraints
+            pip install --upgrade pip
+            pip install -c dependencies/constraints.txt -r dependencies/requirements-api.txt -r dependencies/requirements-dev.txt -r dependencies/requirements-ml.txt
+            
+            # Install safety in the virtual environment
+            pip install safety==3.2.3
+            
+            # Run safety check against installed environment (captures transitives)
+            python3 -m safety check --full-report --fail-on HIGH
+            
+            # Cleanup
+            deactivate
+            rm -rf /tmp/safety-scan-env
   # Basic linting (optional - won't fail build)
   code-quality:
     executor: python-simple
