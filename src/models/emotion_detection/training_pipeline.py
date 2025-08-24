@@ -229,7 +229,7 @@ class EmotionDetectionTrainer:
             weights = self.loss_fn.class_weights
             if logger.isEnabledFor(logging.DEBUG):
                 logger.debug(
-                "   Class weights shape: %s", getattr(weights, "shape", None)
+                    "   Class weights shape: %s", getattr(weights, "shape", None)
                 )
                 logger.debug("   Class weights min: %.6f", weights.min().item())
                 logger.debug("   Class weights mean: %.6f", weights.mean().item())
