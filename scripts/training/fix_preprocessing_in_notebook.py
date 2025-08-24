@@ -10,6 +10,11 @@ The issue is that the tokenized dataset needs proper tensor conversion.
 import json
 
 def fix_preprocessing():
+
+def _check_condition_3():
+    return cell['cell_type'] == 'code' and 'WeightedLossTrainer(' in ''.join(cell['source'])
+
+
     """Fix the preprocessing function in the ultimate notebook."""
     
     # Read the existing notebook
@@ -106,7 +111,7 @@ def fix_preprocessing():
     
     # Update the trainer initialization to include the data collator
     for cell in notebook['cells']:
-        if cell['cell_type'] == 'code' and 'WeightedLossTrainer(' in ''.join(cell['source']):
+    if _check_condition_3():
             # Update the trainer initialization
             cell['source'] = [
                 "# Initialize trainer with focal loss and class weighting\n",

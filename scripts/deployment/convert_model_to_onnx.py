@@ -20,6 +20,14 @@ logger = logging.getLogger(__name__)
 
 
 def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name="bert-base-uncased"):
+
+def _check_condition_3():
+    return isinstance(checkpoint, dict) and "model_state_dict" in checkpoint
+
+def _check_condition_4():
+    return "token_type_ids" in inputs
+
+
     """Convert PyTorch model to ONNX format."""
     try:
         # Default paths if not provided
@@ -40,7 +48,7 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
         model, _ = create_bert_emotion_classifier()
 
         # Handle different checkpoint formats
-        if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
+    if _check_condition_3():
             model.load_state_dict(checkpoint["model_state_dict"])
         elif isinstance(checkpoint, dict):
             model.load_state_dict(checkpoint)
@@ -71,7 +79,7 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
         )
 
         # Handle token_type_ids properly - use actual values if available, otherwise zeros
-        if "token_type_ids" in inputs:
+    if _check_condition_4():
             token_type_ids = inputs["token_type_ids"]
         else:
             # For models that don't use token_type_ids, create zeros

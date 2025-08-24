@@ -14,6 +14,74 @@ import json
 from datetime import datetime
 
 def test_comprehensive_model():
+
+def _check_condition_3():
+    return model.config.label2id
+
+def _check_condition_4():
+    return model.config.id2label
+
+def _check_condition_5():
+    return i in model.config.id2label
+
+def _check_condition_6():
+    return actual_emotions == expected_emotions
+
+def _check_condition_7():
+    return torch.cuda.is_available()
+
+def _check_condition_8():
+    return output_shape[1] == len(expected_emotions)
+
+def _check_condition_9():
+    return torch.cuda.is_available()
+
+def _check_condition_10():
+    return predicted_label in model.config.id2label
+
+def _check_condition_11():
+    return is_correct
+
+def _check_condition_12():
+    return torch.cuda.is_available()
+
+def _check_condition_13():
+    return torch.cuda.is_available()
+
+def _check_condition_14():
+    return predicted_label in fallback_model.config.id2label
+
+def _check_condition_15():
+    return predicted_emotion == expected_emotion
+
+def _check_condition_16():
+    return accuracy > fallback_accuracy
+
+def _check_condition_17():
+    return average_confidence > fallback_avg_confidence
+
+def _check_condition_18():
+    return not check_result
+
+def _check_condition_19():
+    return all_checks_passed
+
+def _check_condition_20():
+    return all_checks_passed
+
+def _check_condition_21():
+    return accuracy >= 90
+
+def _check_condition_22():
+    return average_confidence >= 0.8
+
+def _check_condition_23():
+    return all_checks_passed
+
+def _check_condition_24():
+    return os.path.exists(metadata_path)
+
+
     """Test the comprehensive model thoroughly."""
     
     print("🧪 COMPREHENSIVE MODEL TESTING")
@@ -58,7 +126,7 @@ def test_comprehensive_model():
     
     if model.config.id2label:
         print(f"id2label: {model.config.id2label}")
-    if model.config.label2id:
+    if _check_condition_3():
         print(f"label2id: {model.config.label2id}")
     
     # 3. Verify emotion classes
@@ -67,10 +135,10 @@ def test_comprehensive_model():
     
     expected_emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
     
-    if model.config.id2label:
+    if _check_condition_4():
         actual_emotions = []
         for i in range(len(model.config.id2label)):
-            if i in model.config.id2label:
+    if _check_condition_5():
                 actual_emotions.append(model.config.id2label[i])
             elif str(i) in model.config.id2label:
                 actual_emotions.append(model.config.id2label[str(i)])
@@ -80,7 +148,7 @@ def test_comprehensive_model():
         print(f"Expected emotions: {expected_emotions}")
         print(f"Actual emotions: {actual_emotions}")
         
-        if actual_emotions == expected_emotions:
+    if _check_condition_6():
             print("✅ Emotion classes match expected!")
         else:
             print("❌ Emotion classes mismatch!")
@@ -94,7 +162,7 @@ def test_comprehensive_model():
     print("-" * 40)
     
     test_input = tokenizer("I feel happy today", return_tensors='pt', truncation=True, padding=True)
-    if torch.cuda.is_available():
+    if _check_condition_7():
         test_input = {k: v.to('cuda') for k, v in test_input.items()}
     
     with torch.no_grad():
@@ -103,7 +171,7 @@ def test_comprehensive_model():
         print(f"Output logits shape: {output_shape}")
         print(f"Expected shape: [1, {len(expected_emotions)}]")
         
-        if output_shape[1] == len(expected_emotions):
+    if _check_condition_8():
             print("✅ Model architecture is correct!")
         else:
             print(f"❌ Model architecture mismatch: {output_shape[1]} != {len(expected_emotions)}")
@@ -175,7 +243,7 @@ def test_comprehensive_model():
     for i, (text, expected_emotion) in enumerate(test_cases, 1):
         # Tokenize input
         inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True)
-        if torch.cuda.is_available():
+    if _check_condition_9():
             inputs = {k: v.to('cuda') for k, v in inputs.items()}
         
         # Get prediction
@@ -186,7 +254,7 @@ def test_comprehensive_model():
             confidence = probabilities[0][predicted_label].item()
         
         # Get predicted emotion name
-        if predicted_label in model.config.id2label:
+    if _check_condition_10():
             predicted_emotion = model.config.id2label[predicted_label]
         elif str(predicted_label) in model.config.id2label:
             predicted_emotion = model.config.id2label[str(predicted_label)]
@@ -195,7 +263,7 @@ def test_comprehensive_model():
         
         # Check if prediction is correct
         is_correct = predicted_emotion == expected_emotion
-        if is_correct:
+    if _check_condition_11():
             correct_predictions += 1
             status = "✅"
         else:
@@ -232,7 +300,7 @@ def test_comprehensive_model():
         fallback_tokenizer = AutoTokenizer.from_pretrained(fallback_model_path)
         fallback_model = AutoModelForSequenceClassification.from_pretrained(fallback_model_path)
         
-        if torch.cuda.is_available():
+    if _check_condition_12():
             fallback_model = fallback_model.to('cuda')
         
         # Test same cases on fallback model
@@ -241,7 +309,7 @@ def test_comprehensive_model():
         
         for text, expected_emotion in test_cases[:12]:  # Test first 12 cases
             inputs = fallback_tokenizer(text, return_tensors='pt', truncation=True, padding=True)
-            if torch.cuda.is_available():
+    if _check_condition_13():
                 inputs = {k: v.to('cuda') for k, v in inputs.items()}
             
             with torch.no_grad():
@@ -250,14 +318,14 @@ def test_comprehensive_model():
                 predicted_label = torch.argmax(probabilities, dim=1).item()
                 confidence = probabilities[0][predicted_label].item()
             
-            if predicted_label in fallback_model.config.id2label:
+    if _check_condition_14():
                 predicted_emotion = fallback_model.config.id2label[predicted_label]
             elif str(predicted_label) in fallback_model.config.id2label:
                 predicted_emotion = fallback_model.config.id2label[str(predicted_label)]
             else:
                 predicted_emotion = f"unknown_{predicted_label}"
             
-            if predicted_emotion == expected_emotion:
+    if _check_condition_15():
                 fallback_correct += 1
             fallback_confidence += confidence
         
@@ -273,13 +341,13 @@ def test_comprehensive_model():
         print(f"  Average confidence: {fallback_avg_confidence:.3f}")
         print()
         
-        if accuracy > fallback_accuracy:
+    if _check_condition_16():
             improvement = accuracy - fallback_accuracy
             print(f"✅ Comprehensive model shows {improvement:.2f}% improvement in accuracy!")
         else:
             print(f"⚠️ Fallback model performed better by {fallback_accuracy - accuracy:.2f}%")
         
-        if average_confidence > fallback_avg_confidence:
+    if _check_condition_17():
             conf_improvement = average_confidence - fallback_avg_confidence
             print(f"✅ Comprehensive model shows {conf_improvement:.3f} improvement in confidence!")
         else:
@@ -306,10 +374,10 @@ def test_comprehensive_model():
     for check_name, check_result in config_checks:
         status = "✅" if check_result else "❌"
         print(f"{status} {check_name}: {check_result}")
-        if not check_result:
+    if _check_condition_18():
             all_checks_passed = False
     
-    if all_checks_passed:
+    if _check_condition_19():
         print("✅ Configuration persistence verified!")
     else:
         print("❌ Configuration persistence issues detected!")
@@ -319,14 +387,14 @@ def test_comprehensive_model():
     print("-" * 40)
     
     print("Configuration Status:")
-    if all_checks_passed:
+    if _check_condition_20():
         print("✅ Configuration persistence verified")
         print("✅ Model should work correctly in deployment")
     else:
         print("❌ Configuration persistence issues")
     
     print("\nPerformance Status:")
-    if accuracy >= 90:
+    if _check_condition_21():
         print("✅ Excellent performance (≥90% accuracy)")
     elif accuracy >= 80:
         print("✅ Good performance (≥80% accuracy)")
@@ -336,7 +404,7 @@ def test_comprehensive_model():
         print("❌ Poor performance (<70% accuracy)")
     
     print("\nConfidence Status:")
-    if average_confidence >= 0.8:
+    if _check_condition_22():
         print("✅ High confidence predictions")
     elif average_confidence >= 0.6:
         print("✅ Good confidence predictions")
@@ -356,7 +424,7 @@ def test_comprehensive_model():
     print(f"📊 Test accuracy: {accuracy:.2f}%")
     print(f"📊 Average confidence: {average_confidence:.3f}")
     
-    if all_checks_passed:
+    if _check_condition_23():
         print("✅ Configuration persistence verified")
         print("✅ Model ready for deployment!")
     else:
@@ -367,7 +435,7 @@ def test_comprehensive_model():
     print("-" * 40)
     
     metadata_path = os.path.join(comprehensive_model_path, "model_metadata.json")
-    if os.path.exists(metadata_path):
+    if _check_condition_24():
         try:
             with open(metadata_path, 'r') as f:
                 metadata = json.load(f)

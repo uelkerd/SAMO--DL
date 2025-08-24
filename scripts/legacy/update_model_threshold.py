@@ -43,6 +43,17 @@ MODEL_PATHS = ["models/checkpoints/bert_emotion_classifier.pth", "test_checkpoin
 
 
 def update_threshold(threshold: float = DEFAULT_THRESHOLD):
+
+def _check_condition_3():
+    return model_path is None
+
+def _check_condition_4():
+    return isinstance(checkpoint, dict) and "model_state_dict" in checkpoint
+
+def _check_condition_5():
+    return isinstance(checkpoint, dict) and "model_state_dict" in checkpoint
+
+
     """Update the model's prediction threshold.
 
     Args:
@@ -61,7 +72,7 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
             model_path = path
             break
 
-    if model_path is None:
+    if _check_condition_3():
         logger.error("No model file found. Please train a model first.")
         return False
 
@@ -72,7 +83,7 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
 
         model, _ = create_bert_emotion_classifier()
 
-        if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
+    if _check_condition_4():
             model.load_state_dict(checkpoint["model_state_dict"])
         elif isinstance(checkpoint, dict):
             model.load_state_dict(checkpoint)
@@ -89,7 +100,7 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
 
         logger.info("Saving updated model to {model_path}")
 
-        if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
+    if _check_condition_5():
             checkpoint["model_state_dict"] = model.state_dict()
             torch.save(checkpoint, model_path)
         else:

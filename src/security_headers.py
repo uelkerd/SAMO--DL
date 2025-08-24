@@ -105,6 +105,35 @@ class SecurityHeadersMiddleware:
         return response
 
     def _add_security_headers(self, response: Response):
+
+def _check_condition_3():
+    return self.config.enable_x_frame_options
+
+def _check_condition_4():
+    return self.config.enable_x_content_type_options
+
+def _check_condition_5():
+    return self.config.enable_x_xss_protection
+
+def _check_condition_6():
+    return self.config.enable_referrer_policy
+
+def _check_condition_7():
+    return self.config.enable_permissions_policy
+
+def _check_condition_8():
+    return self.config.enable_cross_origin_embedder_policy
+
+def _check_condition_9():
+    return self.config.enable_cross_origin_opener_policy
+
+def _check_condition_10():
+    return self.config.enable_cross_origin_resource_policy
+
+def _check_condition_11():
+    return self.config.enable_origin_agent_cluster
+
+
         """Add security headers to response."""
         # Content Security Policy
         if self.config.enable_content_security_policy:
@@ -116,40 +145,40 @@ class SecurityHeadersMiddleware:
             response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
 
         # X-Frame-Options
-        if self.config.enable_x_frame_options:
+    if _check_condition_3():
             response.headers['X-Frame-Options'] = 'DENY'
 
         # X-Content-Type-Options
-        if self.config.enable_x_content_type_options:
+    if _check_condition_4():
             response.headers['X-Content-Type-Options'] = 'nosniff'
 
         # X-XSS-Protection
-        if self.config.enable_x_xss_protection:
+    if _check_condition_5():
             response.headers['X-XSS-Protection'] = '1; mode=block'
 
         # Referrer Policy
-        if self.config.enable_referrer_policy:
+    if _check_condition_6():
             response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
 
         # Permissions Policy
-        if self.config.enable_permissions_policy:
+    if _check_condition_7():
             permissions_policy = self._build_permissions_policy()
             response.headers['Permissions-Policy'] = permissions_policy
 
         # Cross-Origin Embedder Policy
-        if self.config.enable_cross_origin_embedder_policy:
+    if _check_condition_8():
             response.headers['Cross-Origin-Embedder-Policy'] = 'require-corp'
 
         # Cross-Origin Opener Policy
-        if self.config.enable_cross_origin_opener_policy:
+    if _check_condition_9():
             response.headers['Cross-Origin-Opener-Policy'] = 'same-origin'
 
         # Cross-Origin Resource Policy
-        if self.config.enable_cross_origin_resource_policy:
+    if _check_condition_10():
             response.headers['Cross-Origin-Resource-Policy'] = 'same-origin'
 
         # Origin-Agent-Cluster
-        if self.config.enable_origin_agent_cluster:
+    if _check_condition_11():
             response.headers['Origin-Agent-Cluster'] = '?1'
 
     def _build_csp_policy(self) -> str:
@@ -208,6 +237,26 @@ class SecurityHeadersMiddleware:
             response.headers['X-Correlation-ID'] = g.correlation_id
 
     def _log_security_info(self):
+
+def _check_condition_3():
+    return not user_agent
+
+def _check_condition_4():
+    return bot in ua_lower
+
+def _check_condition_5():
+    return pattern in ua_lower
+
+def _check_condition_6():
+    return pattern in ua_lower
+
+def _check_condition_7():
+    return pattern in ua_lower
+
+def _check_condition_8():
+    return any(pattern in ua_lower for pattern in ['bot', 'crawler', 'spider']) and any(pattern in ua_lower for pattern in ['python', 'curl', 'wget', 'script'])
+
+
         """Log security-relevant request information."""
         security_info = {
             'timestamp': time.time(),
@@ -235,7 +284,7 @@ class SecurityHeadersMiddleware:
 
     def _analyze_user_agent_enhanced(self, user_agent: str) -> dict:
         """Enhanced user agent analysis with scoring and detailed categorization."""
-        if not user_agent:
+    if _check_condition_3():
             return {"score": 0, "category": "empty", "patterns": [], "risk_level": "low"}
 
         score = 0
@@ -271,34 +320,34 @@ class SecurityHeadersMiddleware:
 
         # Check legitimate bots first (negative scoring)
         for bot in legitimate_bots:
-            if bot in ua_lower:
+    if _check_condition_4():
                 score -= 2
                 patterns.append(f"legitimate_bot:{bot}")
                 logger.debug(f"Legitimate bot detected: {bot}")
 
         # Check high-risk patterns
         for pattern in high_risk_patterns:
-            if pattern in ua_lower:
+    if _check_condition_5():
                 score += 3
                 patterns.append(f"high_risk:{pattern}")
                 logger.debug(f"High-risk UA pattern detected: {pattern}")
 
         # Check medium-risk patterns
         for pattern in medium_risk_patterns:
-            if pattern in ua_lower:
+    if _check_condition_6():
                 score += 2
                 patterns.append(f"medium_risk:{pattern}")
                 logger.debug(f"Medium-risk UA pattern detected: {pattern}")
 
         # Check low-risk patterns
         for pattern in low_risk_patterns:
-            if pattern in ua_lower:
+    if _check_condition_7():
                 score += 1
                 patterns.append(f"low_risk:{pattern}")
                 logger.debug(f"Low-risk UA pattern detected: {pattern}")
 
         # Bonus for suspicious combinations
-        if any(pattern in ua_lower for pattern in ['bot', 'crawler', 'spider']) and any(pattern in ua_lower for pattern in ['python', 'curl', 'wget', 'script']):
+    if _check_condition_8():
             score += 2
             patterns.append("suspicious_combination")
             logger.debug("Suspicious UA combination detected")

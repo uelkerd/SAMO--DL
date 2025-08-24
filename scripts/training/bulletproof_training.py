@@ -98,6 +98,23 @@ def create_unified_label_encoder():
     return label_encoder, label_to_id, id_to_label
 
 def prepare_filtered_data(label_encoder, label_to_id):
+
+def _check_condition_3():
+    return row['emotion'] in valid_labels
+
+def _check_condition_4():
+    return go_labels
+
+def _check_condition_5():
+    return journal_labels
+
+def _check_condition_6():
+    return go_label_range[0] < expected_range[0] or go_label_range[1] > expected_range[1]
+
+def _check_condition_7():
+    return journal_label_range[0] < expected_range[0] or journal_label_range[1] > expected_range[1]
+
+
     """Prepare filtered data using only common labels."""
     logger.info("📊 Preparing filtered data...")
     
@@ -124,7 +141,7 @@ def prepare_filtered_data(label_encoder, label_to_id):
     journal_texts = []
     journal_labels = []
     for _, row in journal_df.iterrows():
-        if row['emotion'] in valid_labels:
+    if _check_condition_3():
             journal_texts.append(row['content'])
             journal_labels.append(label_to_id[row['emotion']])
     
@@ -132,12 +149,12 @@ def prepare_filtered_data(label_encoder, label_to_id):
     logger.info(f"📊 Filtered Journal: {len(journal_texts)} samples")
     
     # Validate label ranges - FIX: Convert to integers for comparison
-    if go_labels:
+    if _check_condition_4():
         go_label_range = (min(go_labels), max(go_labels))
     else:
         go_label_range = (0, 0)
         
-    if journal_labels:
+    if _check_condition_5():
         journal_label_range = (min(journal_labels), max(journal_labels))
     else:
         journal_label_range = (0, 0)
@@ -148,11 +165,11 @@ def prepare_filtered_data(label_encoder, label_to_id):
     logger.info(f"📊 Journal label range: {journal_label_range}")
     logger.info(f"📊 Expected range: {expected_range}")
     
-    if go_label_range[0] < expected_range[0] or go_label_range[1] > expected_range[1]:
+    if _check_condition_6():
         logger.error(f"❌ GoEmotions labels out of range!")
         return None, None, None, None
     
-    if journal_label_range[0] < expected_range[0] or journal_label_range[1] > expected_range[1]:
+    if _check_condition_7():
         logger.error(f"❌ Journal labels out of range!")
         return None, None, None, None
     
@@ -232,12 +249,35 @@ class SimpleEmotionClassifier(nn.Module):
         logits = self.classifier(self.dropout(pooled_output))
         
         # Validate outputs
-        if logits.shape[-1] != self.num_labels:
+    if _check_condition_3():
             raise ValueError(f"Expected {self.num_labels} output classes, got {logits.shape[-1]}")
         
         return logits
 
 def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_labels):
+
+def _check_condition_3():
+    return logits.shape[-1] != self.num_labels
+
+def _check_condition_4():
+    return 'input_ids' not in batch or 'attention_mask' not in batch or 'labels' not in batch
+
+def _check_condition_5():
+    return torch.any(labels >= num_labels) or torch.any(labels < 0)
+
+def _check_condition_6():
+    return i % 50 == 0
+
+def _check_condition_7():
+    return torch.any(labels >= num_labels) or torch.any(labels < 0)
+
+def _check_condition_8():
+    return i % 10 == 0
+
+def _check_condition_9():
+    return all_preds and all_labels
+
+
     """Simple training function with comprehensive validation."""
     logger.info("🚀 Starting simple training...")
     
@@ -291,7 +331,7 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
         for i, batch in enumerate(go_loader):
             try:
                 # Validate batch
-                if 'input_ids' not in batch or 'attention_mask' not in batch or 'labels' not in batch:
+    if _check_condition_4():
                     logger.warning(f"⚠️ Invalid batch structure at batch {i}")
                     continue
                 
@@ -301,7 +341,7 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
                 labels = batch['labels'].to(device)
                 
                 # Validate labels
-                if torch.any(labels >= num_labels) or torch.any(labels < 0):
+    if _check_condition_5():
                     logger.warning(f"⚠️ Invalid labels in batch {i}: {labels}")
                     continue
                 
@@ -315,7 +355,7 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
                 total_loss += loss.item()
                 num_batches += 1
                 
-                if i % 50 == 0:
+    if _check_condition_6():
                     logger.info(f"    Batch {i}/{len(go_loader)}, Loss: {loss.item():.4f}")
                     
             except Exception as e:
@@ -330,7 +370,7 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
                 attention_mask = batch['attention_mask'].to(device)
                 labels = batch['labels'].to(device)
                 
-                if torch.any(labels >= num_labels) or torch.any(labels < 0):
+    if _check_condition_7():
                     continue
                 
                 optimizer.zero_grad()
@@ -342,7 +382,7 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
                 total_loss += loss.item()
                 num_batches += 1
                 
-                if i % 10 == 0:
+    if _check_condition_8():
                     logger.info(f"    Batch {i}/{len(journal_train_loader)}, Loss: {loss.item():.4f}")
                     
             except Exception as e:
@@ -373,7 +413,7 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
                     continue
         
         # Calculate metrics
-        if all_preds and all_labels:
+    if _check_condition_9():
             f1_macro = f1_score(all_labels, all_preds, average='macro')
             accuracy = accuracy_score(all_labels, all_preds)
             

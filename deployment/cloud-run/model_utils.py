@@ -74,6 +74,17 @@ def _resolve_model_repo_id() -> str:
 
 
 def ensure_model_loaded() -> bool:
+
+def _check_condition_3():
+    return Path(MODEL_PATH).exists()
+
+def _check_condition_4():
+    return isinstance(labels_from_config, dict) and labels_from_config
+
+def _check_condition_5():
+    return ml_env in ('1', 'true', 'yes')
+
+
     """
     Thread-safe model loading with proper error handling.
 
@@ -107,7 +118,7 @@ def ensure_model_loaded() -> bool:
         )
 
         # Load trained weights if available
-        if Path(MODEL_PATH).exists():
+    if _check_condition_3():
             logger.info(f"📁 Loading trained weights from {MODEL_PATH}")
             try:
                 state = torch.load(MODEL_PATH, map_location='cpu')
@@ -124,7 +135,7 @@ def ensure_model_loaded() -> bool:
         derived_labels: List[str] = EMOTION_LABELS
         labels_from_config = getattr(model_local.config, 'id2label', None)
         try:
-            if isinstance(labels_from_config, dict) and labels_from_config:
+    if _check_condition_4():
                 try:
                     sorted_labels = sorted(labels_from_config.items(), key=lambda item: int(item[0]))
                 except (ValueError, TypeError) as sort_exc:
@@ -136,7 +147,7 @@ def ensure_model_loaded() -> bool:
 
         # Resolve multi-label mode: env override -> config -> default False
         ml_env = os.getenv('MULTI_LABEL', 'auto').lower()
-        if ml_env in ('1', 'true', 'yes'):
+    if _check_condition_5():
             ml_flag = True
         elif ml_env in ('0', 'false', 'no'):
             ml_flag = False
@@ -169,6 +180,17 @@ def ensure_model_loaded() -> bool:
 
 
 def predict_emotions(text: str) -> Dict[str, Any]:
+
+def _check_condition_3():
+    return len(text) > MAX_TEXT_LENGTH
+
+def _check_condition_4():
+    return is_multi_label_runtime
+
+def _check_condition_5():
+    return not filtered and pairs
+
+
     """
     Predict emotions for given text.
 
@@ -194,7 +216,7 @@ def predict_emotions(text: str) -> Dict[str, Any]:
                 'confidence': 0.0
             }
 
-        if len(text) > MAX_TEXT_LENGTH:
+    if _check_condition_3():
             return {
                 'error': f'Text too long (max {MAX_TEXT_LENGTH} characters)',
                 'emotions': [],
@@ -218,7 +240,7 @@ def predict_emotions(text: str) -> Dict[str, Any]:
         emotions: List[Dict[str, Any]] = []
         overall_confidence: float = 0.0
 
-        if is_multi_label_runtime:
+    if _check_condition_4():
             # Multi-label: sigmoid + threshold
             probabilities = torch.sigmoid(logits)[0]
             pairs = [
@@ -230,7 +252,7 @@ def predict_emotions(text: str) -> Dict[str, Any]:
             ]
             # Filter by threshold, fall back to top-1 if none pass
             filtered = [(lbl, prob) for lbl, prob in pairs if prob >= PREDICTION_THRESHOLD]
-            if not filtered and pairs:
+    if _check_condition_5():
                 # pick the best single label
                 best_lbl, best_prob = max(pairs, key=lambda kv: kv[1])
                 filtered = [(best_lbl, best_prob)]

@@ -7,6 +7,14 @@ Tests the notebook structure, content, and ensures it's ready for Colab executio
 import json
 
 def validate_notebook():
+
+def _check_condition_3():
+    return opt in all_source
+
+def _check_condition_4():
+    return all_passed
+
+
     """Validate the improved notebook for Colab execution."""
     
     print("🔍 Validating improved notebook...")
@@ -101,7 +109,7 @@ def validate_notebook():
     
     print("\n🔍 Training optimization checks:")
     for opt in training_optimizations:
-        if opt in all_source:
+    if _check_condition_3():
             print(f"  ✅ {opt}")
         else:
             print(f"  ❌ {opt}")
@@ -114,7 +122,7 @@ def validate_notebook():
     print(f"  Markdown cells: {len(markdown_cells)}")
     print(f"  All checks passed: {'✅' if all_passed else '❌'}")
     
-    if all_passed:
+    if _check_condition_4():
         print("\n🎉 Notebook is ready for Colab execution!")
         print("📋 Next steps:")
         print("  1. Upload to Google Colab")

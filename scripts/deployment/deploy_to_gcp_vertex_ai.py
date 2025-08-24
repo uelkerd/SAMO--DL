@@ -14,6 +14,14 @@ import sys
 from datetime import datetime
 
 def check_prerequisites():
+
+def _check_condition_3():
+    return result.returncode == 0 and result.stdout.strip()
+
+def _check_condition_4():
+    return result.returncode == 0 and 'aiplatform.googleapis.com' in result.stdout
+
+
     """Check if all prerequisites are met for GCP deployment."""
     print("🔍 CHECKING DEPLOYMENT PREREQUISITES")
     print("=" * 50)
@@ -47,7 +55,7 @@ def check_prerequisites():
     # Check if project is set
     try:
         result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], capture_output=True, text=True)
-        if result.returncode == 0 and result.stdout.strip():
+    if _check_condition_3():
             project_id = result.stdout.strip()
             print(f"✅ Project is set: {project_id}")
         else:
@@ -61,7 +69,7 @@ def check_prerequisites():
     # Check if Vertex AI API is enabled
     try:
         result = subprocess.run(['gcloud', 'services', 'list', '--enabled', '--filter=name:aiplatform.googleapis.com'], capture_output=True, text=True)
-        if result.returncode == 0 and 'aiplatform.googleapis.com' in result.stdout:
+    if _check_condition_4():
             print("✅ Vertex AI API is enabled")
         else:
             print("❌ Vertex AI API is not enabled")

@@ -267,6 +267,62 @@ class EmotionDetectionTrainer:
         logger.info("✅ Model loaded successfully")
 
     def train_epoch(self, epoch: int) -> Dict[str, float]:
+
+def _check_condition_3():
+    return labels.sum() == 0
+
+def _check_condition_4():
+    return class_count > 0
+
+def _check_condition_5():
+    return batch_idx == 0
+
+def _check_condition_6():
+    return torch.isnan(logits).any()
+
+def _check_condition_7():
+    return torch.isinf(logits).any()
+
+def _check_condition_8():
+    return batch_idx == 0
+
+def _check_condition_9():
+    return abs(loss.item()) < 1e-10
+
+def _check_condition_10():
+    return batch_idx == 0
+
+def _check_condition_11():
+    return p.grad is not None
+
+def _check_condition_12():
+    return param_count > 0
+
+def _check_condition_13():
+    return total_norm > 10
+
+def _check_condition_14():
+    return total_norm < 1e-6
+
+def _check_condition_15():
+    return batch_idx == 0
+
+def _check_condition_16():
+    return batch_idx < 5 or (batch_idx + 1) % 100 == 0:  # First 5 batches + every 100
+
+def _check_condition_17():
+    return avg_loss < 1e-8
+
+def _check_condition_18():
+    return avg_loss > 100
+
+def _check_condition_19():
+    return (batch_idx + 1) % val_frequency == 0
+
+def _check_condition_20():
+    return self.should_stop_early()
+
+
         """Train model for one epoch.
 
         Args:
@@ -307,21 +363,21 @@ class EmotionDetectionTrainer:
                 logger.info("   Non-zero labels: {(labels > 0).sum().item()}")
                 logger.info("   Total labels: {labels.numel()}")
 
-                if labels.sum() == 0:
+    if _check_condition_3():
                     logger.error("❌ CRITICAL: All labels are zero!")
                 elif labels.sum() == labels.numel():
                     logger.error("❌ CRITICAL: All labels are one!")
 
                 for i in range(min(10, labels.shape[1])):  # First 10 classes
                     class_count = labels[:, i].sum().item()
-                    if class_count > 0:
+    if _check_condition_4():
                         logger.info("   Class {i}: {class_count} positive samples")
 
             self.optimizer.zero_grad()
 
             logits = self.model(input_ids, attention_mask)
 
-            if batch_idx == 0:
+    if _check_condition_5():
                 logger.info("🔍 DEBUG: Model Output Analysis")
                 logger.info("   Logits shape: {logits.shape}")
                 logger.info("   Logits min: {logits.min().item():.6f}")
@@ -329,9 +385,9 @@ class EmotionDetectionTrainer:
                 logger.info("   Logits mean: {logits.mean().item():.6f}")
                 logger.info("   Logits std: {logits.std().item():.6f}")
 
-                if torch.isnan(logits).any():
+    if _check_condition_6():
                     logger.error("❌ CRITICAL: NaN values in logits!")
-                if torch.isinf(logits).any():
+    if _check_condition_7():
                     logger.error("❌ CRITICAL: Inf values in logits!")
 
                 predictions = torch.sigmoid(logits)
@@ -341,7 +397,7 @@ class EmotionDetectionTrainer:
 
             loss = self.loss_fn(logits, labels)
 
-            if batch_idx == 0:
+    if _check_condition_8():
                 logger.info("🔍 DEBUG: Loss Analysis")
                 logger.info("   Raw loss: {loss.item():.8f}")
 
@@ -350,7 +406,7 @@ class EmotionDetectionTrainer:
                 )
                 logger.info("   Manual BCE loss: {bce_manual.item():.8f}")
 
-                if abs(loss.item()) < 1e-10:
+    if _check_condition_9():
                     logger.error("❌ CRITICAL: Loss is effectively zero!")
                     logger.error("   This indicates a serious training issue!")
 
@@ -364,28 +420,28 @@ class EmotionDetectionTrainer:
 
             loss.backward()
 
-            if batch_idx == 0:
+    if _check_condition_10():
                 logger.info("🔍 DEBUG: Gradient Analysis")
                 total_norm = 0
                 param_count = 0
                 for p in self.model.parameters():
-                    if p.grad is not None:
+    if _check_condition_11():
                         param_norm = p.grad.data.norm(2)
                         total_norm += param_norm.item() ** 2
                         param_count += 1
 
-                if param_count > 0:
+    if _check_condition_12():
                     total_norm = total_norm ** (1.0 / 2)
                     logger.info("   Gradient norm before clipping: {total_norm:.6f}")
 
-                    if total_norm > 10:
+    if _check_condition_13():
                         logger.warning("⚠️  WARNING: Large gradient norm detected!")
-                    if total_norm < 1e-6:
+    if _check_condition_14():
                         logger.warning("⚠️  WARNING: Very small gradient norm detected!")
 
             clip_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
 
-            if batch_idx == 0:
+    if _check_condition_15():
                 logger.info("   Gradient norm after clipping: {clip_norm:.6f}")
 
             self.optimizer.step()
@@ -393,7 +449,7 @@ class EmotionDetectionTrainer:
 
             total_loss += loss.item()
 
-            if batch_idx < 5 or (batch_idx + 1) % 100 == 0:  # First 5 batches + every 100
+    if _check_condition_16():
                 avg_loss = total_loss / (batch_idx + 1)
                 current_lr = self.scheduler.get_last_lr()[0]
 
@@ -402,16 +458,16 @@ class EmotionDetectionTrainer:
                     "Loss: {avg_loss:.8f}, LR: {current_lr:.2e}"
                 )
 
-                if avg_loss < 1e-8:
+    if _check_condition_17():
                     logger.error("❌ CRITICAL: Average loss is suspiciously small: {avg_loss:.8f}")
-                if avg_loss > 100:
+    if _check_condition_18():
                     logger.error("❌ CRITICAL: Average loss is suspiciously large: {avg_loss:.8f}")
 
-            if (batch_idx + 1) % val_frequency == 0:
+    if _check_condition_19():
                 logger.info("🔍 Validating at batch {batch_idx + 1}...")
                 self.validate(epoch)
 
-                if self.should_stop_early():
+    if _check_condition_20():
                     logger.info("🛑 Early stopping triggered at batch {batch_idx + 1}")
                     return {
                         "epoch": epoch,
@@ -469,6 +525,17 @@ class EmotionDetectionTrainer:
         return val_metrics
 
     def should_stop_early(self) -> bool:
+
+def _check_condition_3():
+    return is_best
+
+def _check_condition_4():
+    return self.evaluation_strategy == "epoch"
+
+def _check_condition_5():
+    return self.should_stop_early()
+
+
         """Check if training should stop early."""
         return self.patience_counter >= self.early_stopping_patience
 
@@ -495,7 +562,7 @@ class EmotionDetectionTrainer:
             },
         }
 
-        if is_best:
+    if _check_condition_3():
             checkpoint_path = self.output_dir / "best_model.pt"
         else:
             checkpoint_path = self.output_dir / "checkpoint_epoch_{epoch}.pt"
@@ -519,13 +586,13 @@ class EmotionDetectionTrainer:
         for epoch in range(1, self.num_epochs + 1):
             train_metrics = self.train_epoch(epoch)
 
-            if self.evaluation_strategy == "epoch":
+    if _check_condition_4():
                 val_metrics = self.validate(epoch)
 
                 epoch_metrics = {**train_metrics, **val_metrics}
                 self.training_history.append(epoch_metrics)
 
-                if self.should_stop_early():
+    if _check_condition_5():
                     logger.info(f"Early stopping at epoch {epoch}")
                     break
             else:

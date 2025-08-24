@@ -9,6 +9,14 @@ from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 def test_new_trained_model():
+
+def _check_condition_3():
+    return expected_emotion and predicted_emotion == expected_emotion
+
+def _check_condition_4():
+    return accuracy >= 0.8
+
+
     """Test the newly trained model from Colab"""
     
     print("🧪 TESTING NEW TRAINED MODEL")
@@ -93,7 +101,7 @@ def test_new_trained_model():
                     expected_emotion = emotion
                     break
             
-            if expected_emotion and predicted_emotion == expected_emotion:
+    if _check_condition_3():
                 correct += 1
                 status = "✅"
             else:
@@ -127,7 +135,7 @@ def test_new_trained_model():
         
         # Overall assessment
         print(f"\n🎯 MODEL ASSESSMENT:")
-        if accuracy >= 0.8:
+    if _check_condition_4():
             print("✅ EXCELLENT: Model ready for deployment!")
         elif accuracy >= 0.7:
             print("✅ GOOD: Model is working well, can be deployed!")

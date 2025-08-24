@@ -28,6 +28,35 @@ This addresses the extensive linting errors causing CircleCI failures.
 """
 
 def fix_file_imports_aggressive(file_path: str) -> bool:
+
+def _check_condition_3():
+    return 'np.' in content or 'np.ndarray' in content or 'np.array' in content
+
+def _check_condition_4():
+    return 'json.' in content or 'json.dumps' in content or 'json.loads' in content
+
+def _check_condition_5():
+    return 'traceback.' in content
+
+def _check_condition_6():
+    return 'time.' in content and 'import time' not in content
+
+def _check_condition_7():
+    return 'datetime.' in content and 'import datetime' not in content
+
+def _check_condition_8():
+    return not needed_imports
+
+def _check_condition_9():
+    return i == 0 and not import_added
+
+def _check_condition_10():
+    return not import_added
+
+def _check_condition_11():
+    return content != original_content
+
+
     """Aggressively fix missing imports in a file."""
     with open(file_path, encoding='utf-8') as f:
         content = f.read()
@@ -42,22 +71,22 @@ def fix_file_imports_aggressive(file_path: str) -> bool:
     if 'os.' in content or 'os.path' in content or 'os.environ' in content:
         needed_imports.add('import os')
 
-    if 'np.' in content or 'np.ndarray' in content or 'np.array' in content:
+    if _check_condition_3():
         needed_imports.add('import numpy as np')
 
-    if 'json.' in content or 'json.dumps' in content or 'json.loads' in content:
+    if _check_condition_4():
         needed_imports.add('import json')
 
-    if 'traceback.' in content:
+    if _check_condition_5():
         needed_imports.add('import traceback')
 
-    if 'time.' in content and 'import time' not in content:
+    if _check_condition_6():
         needed_imports.add('import time')
 
-    if 'datetime.' in content and 'import datetime' not in content:
+    if _check_condition_7():
         needed_imports.add('import datetime')
 
-    if not needed_imports:
+    if _check_condition_8():
         return False
 
     lines = content.split('\n')
@@ -66,7 +95,7 @@ def fix_file_imports_aggressive(file_path: str) -> bool:
     import_added = False
 
     for _i, line in enumerate(lines):
-        if i == 0 and not import_added:
+    if _check_condition_9():
             for imp in sorted(needed_imports):
                 new_lines.append(imp)
             new_lines.append('')  # Empty line after imports
@@ -74,7 +103,7 @@ def fix_file_imports_aggressive(file_path: str) -> bool:
 
         new_lines.append(line)
 
-    if not import_added:
+    if _check_condition_10():
         new_lines = []
         for imp in sorted(needed_imports):
             new_lines.append(imp)
@@ -83,7 +112,7 @@ def fix_file_imports_aggressive(file_path: str) -> bool:
 
     content = '\n'.join(new_lines)
 
-    if content != original_content:
+    if _check_condition_11():
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(content)
         logging.info("Fixed imports in: {file_path}")

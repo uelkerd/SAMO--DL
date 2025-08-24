@@ -17,6 +17,44 @@ import warnings
 warnings.filterwarnings('ignore')
 
 def test_new_trained_model():
+
+def _check_condition_3():
+    return actual_emotions == expected_emotions
+
+def _check_condition_4():
+    return logits.shape[1] == len(expected_emotions)
+
+def _check_condition_5():
+    return predicted_label in model.config.id2label
+
+def _check_condition_6():
+    return not hasattr(model.config, 'num_labels') or model.config.num_labels is None
+
+def _check_condition_7():
+    return not hasattr(model.config, 'problem_type') or model.config.problem_type is None
+
+def _check_condition_8():
+    return not model.config.id2label
+
+def _check_condition_9():
+    return not model.config.label2id
+
+def _check_condition_10():
+    return config_issues
+
+def _check_condition_11():
+    return config_issues
+
+def _check_condition_12():
+    return accuracy >= 0.8
+
+def _check_condition_13():
+    return avg_confidence >= 0.7
+
+def _check_condition_14():
+    return config_issues
+
+
     """Comprehensive test of the newly trained model."""
     
     print("🧪 COMPREHENSIVE MODEL TESTING")
@@ -73,7 +111,7 @@ def test_new_trained_model():
         print(f"Expected emotions: {expected_emotions}")
         print(f"Actual emotions: {actual_emotions}")
         
-        if actual_emotions == expected_emotions:
+    if _check_condition_3():
             print("✅ Emotion classes match expected!")
         else:
             print("❌ Emotion classes don't match expected!")
@@ -93,7 +131,7 @@ def test_new_trained_model():
         print(f"Output logits shape: {logits.shape}")
         print(f"Expected shape: [1, {len(expected_emotions)}]")
         
-        if logits.shape[1] == len(expected_emotions):
+    if _check_condition_4():
             print("✅ Model architecture is correct!")
         else:
             print(f"❌ Model architecture mismatch! Expected {len(expected_emotions)}, got {logits.shape[1]}")
@@ -131,7 +169,7 @@ def test_new_trained_model():
             confidence = probabilities[0][predicted_label].item()
             
             # Handle both string and integer keys
-            if predicted_label in model.config.id2label:
+    if _check_condition_5():
                 predicted_emotion = model.config.id2label[predicted_label]
             elif str(predicted_label) in model.config.id2label:
                 predicted_emotion = model.config.id2label[str(predicted_label)]
@@ -172,26 +210,26 @@ def test_new_trained_model():
     config_issues = []
     
     # Check if num_labels is set
-    if not hasattr(model.config, 'num_labels') or model.config.num_labels is None:
+    if _check_condition_6():
         config_issues.append("num_labels is not set")
     
     # Check if problem_type is set
-    if not hasattr(model.config, 'problem_type') or model.config.problem_type is None:
+    if _check_condition_7():
         config_issues.append("problem_type is not set")
     
     # Check if id2label is properly formatted
-    if not model.config.id2label:
+    if _check_condition_8():
         config_issues.append("id2label is missing")
     elif len(model.config.id2label) != len(expected_emotions):
         config_issues.append(f"id2label has wrong length: {len(model.config.id2label)} vs {len(expected_emotions)}")
     
     # Check if label2id is properly formatted
-    if not model.config.label2id:
+    if _check_condition_9():
         config_issues.append("label2id is missing")
     elif len(model.config.label2id) != len(expected_emotions):
         config_issues.append(f"label2id has wrong length: {len(model.config.label2id)} vs {len(expected_emotions)}")
     
-    if config_issues:
+    if _check_condition_10():
         print("❌ Configuration issues found:")
         for issue in config_issues:
             print(f"   - {issue}")
@@ -203,7 +241,7 @@ def test_new_trained_model():
     print("-" * 40)
     
     print("Configuration Status:")
-    if config_issues:
+    if _check_condition_11():
         print("❌ Configuration persistence issues detected")
         print("⚠️ Model may have deployment issues")
     else:
@@ -211,7 +249,7 @@ def test_new_trained_model():
         print("✅ Model should work correctly in deployment")
     
     print(f"\nPerformance Status:")
-    if accuracy >= 0.8:
+    if _check_condition_12():
         print("✅ Excellent performance (≥80% accuracy)")
     elif accuracy >= 0.6:
         print("✅ Good performance (≥60% accuracy)")
@@ -219,7 +257,7 @@ def test_new_trained_model():
         print("❌ Poor performance (<60% accuracy)")
     
     print(f"\nConfidence Status:")
-    if avg_confidence >= 0.7:
+    if _check_condition_13():
         print("✅ High confidence predictions")
     elif avg_confidence >= 0.5:
         print("⚠️ Moderate confidence predictions")
@@ -237,7 +275,7 @@ def test_new_trained_model():
     print(f"📊 Test accuracy: {accuracy:.2%}")
     print(f"📊 Average confidence: {avg_confidence:.3f}")
     
-    if config_issues:
+    if _check_condition_14():
         print(f"⚠️ Configuration issues: {len(config_issues)}")
         print("   Consider using the comprehensive notebook for better configuration persistence")
     else:

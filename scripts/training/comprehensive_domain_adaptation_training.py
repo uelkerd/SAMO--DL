@@ -636,6 +636,32 @@ class TrainingManager:
             return False
 
 def main():
+
+def _check_condition_3():
+    return not repo_manager.setup_repository()
+
+def _check_condition_4():
+    return not data_manager.load_datasets()
+
+def _check_condition_5():
+    return not data_manager.prepare_label_encoder()
+
+def _check_condition_6():
+    return not data_manager.analyze_domain_gap()
+
+def _check_condition_7():
+    return not model_manager.setup_device()
+
+def _check_condition_8():
+    return not model_manager.initialize_model(data_manager.num_labels)
+
+def _check_condition_9():
+    return not training_manager.setup_training()
+
+def _check_condition_10():
+    return not training_manager.train()
+
+
     """Main execution function with comprehensive error handling."""
     logger.info("🚀 Starting SAMO Deep Learning - Comprehensive Domain Adaptation Training")
     logger.info("=" * 80)
@@ -655,42 +681,42 @@ def main():
     
     # Step 2: Repository setup
     repo_manager = RepositoryManager()
-    if not repo_manager.setup_repository():
+    if _check_condition_3():
         logger.error("❌ Repository setup failed")
         return False
     
     # Step 3: Data management
     data_manager = DataManager()
-    if not data_manager.load_datasets():
+    if _check_condition_4():
         logger.error("❌ Data loading failed")
         return False
     
-    if not data_manager.prepare_label_encoder():
+    if _check_condition_5():
         logger.error("❌ Label encoder preparation failed")
         return False
     
-    if not data_manager.analyze_domain_gap():
+    if _check_condition_6():
         logger.error("❌ Domain analysis failed")
         return False
     
     # Step 4: Model management
     model_manager = ModelManager(config)
-    if not model_manager.setup_device():
+    if _check_condition_7():
         logger.error("❌ Device setup failed")
         return False
     
-    if not model_manager.initialize_model(data_manager.num_labels):
+    if _check_condition_8():
         logger.error("❌ Model initialization failed")
         return False
     
     # Step 5: Training setup
     training_manager = TrainingManager(config, model_manager, data_manager)
-    if not training_manager.setup_training():
+    if _check_condition_9():
         logger.error("❌ Training setup failed")
         return False
     
     # Step 6: Execute training
-    if not training_manager.train():
+    if _check_condition_10():
         logger.error("❌ Training execution failed")
         return False
     

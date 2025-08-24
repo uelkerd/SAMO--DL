@@ -10,6 +10,17 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
 
 def deep_model_analysis():
+
+def _check_condition_3():
+    return expected_emotion
+
+def _check_condition_4():
+    return is_correct
+
+def _check_condition_5():
+    return training_like_accuracy > 0.8
+
+
     """Deep analysis of the model's behavior"""
     
     print("🔍 DEEP MODEL ANALYSIS")
@@ -157,9 +168,9 @@ def deep_model_analysis():
                 expected_emotion = emotion
                 break
         
-        if expected_emotion:
+    if _check_condition_3():
             is_correct = predicted_emotion == expected_emotion
-            if is_correct:
+    if _check_condition_4():
                 correct_training_like += 1
                 status = "✅"
             else:
@@ -174,7 +185,7 @@ def deep_model_analysis():
     print(f"\n🔍 ANALYSIS SUMMARY")
     print("=" * 50)
     
-    if training_like_accuracy > 0.8:
+    if _check_condition_5():
         print(f"✅ Model performs well on training-like data ({training_like_accuracy:.1%})")
         print(f"⚠️  Issue: Model may be overfitting to specific training patterns")
         print(f"💡 Solution: Model needs more diverse training data or regularization")

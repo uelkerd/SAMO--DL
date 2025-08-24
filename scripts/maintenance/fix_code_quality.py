@@ -25,6 +25,20 @@ class CodeQualityFixer:
         self.total_issues = 0
 
     def fix_path_operations(self, content: str) -> str:
+
+def _check_condition_3():
+    return line.strip().startswith("import ") or line.strip().startswith("from ")
+
+def _check_condition_4():
+    return "pathlib" in line
+
+def _check_condition_5():
+    return not import_found and i > 0
+
+def _check_condition_6():
+    return not import_found
+
+
         """Fix path operations to use pathlib (PTH-codes)."""
         if "os.path." in content or "os.makedirs" in content or "os.remove" in content:
             if "from pathlib import Path" not in content:
@@ -32,15 +46,15 @@ class CodeQualityFixer:
                 lines = content.split("\n")
                 import_found = False
                 for i, line in enumerate(lines):
-                    if line.strip().startswith("import ") or line.strip().startswith("from "):
-                        if "pathlib" in line:
+    if _check_condition_3():
+    if _check_condition_4():
                             import_found = True
                             break
-                        if not import_found and i > 0:
+    if _check_condition_5():
                             lines.insert(i, "from pathlib import Path")
                             import_found = True
                             break
-                if not import_found:
+    if _check_condition_6():
                     lines.insert(0, "from pathlib import Path")
                 content = "\n".join(lines)
 

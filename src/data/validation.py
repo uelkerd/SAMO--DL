@@ -89,7 +89,7 @@ class DataValidator:
                 type_check_results[column] = True
             else:
                 is_match = actual_type == expected_type
-                if not is_match:
+    if _check_condition_3():
                     logger.warning(
                         "Column '{column}' has type {actual_type}, expected {expected_type}"
                     )
@@ -210,6 +210,26 @@ class DataValidator:
 
 
 def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 10000) -> Dict[str, Union[bool, str]]:
+
+def _check_condition_3():
+    return len(stripped_text) == 0
+
+def _check_condition_4():
+    return input_text == ""
+
+def _check_condition_5():
+    return len(stripped_text) < min_length
+
+def _check_condition_6():
+    return len(input_text) > max_length
+
+def _check_condition_7():
+    return pattern.lower() in input_text.lower()
+
+def _check_condition_8():
+    return char in input_text
+
+
     """Validate text input for journal entries.
 
     Args:
@@ -228,27 +248,27 @@ def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 
 
     # Check for empty or whitespace-only text
     stripped_text = input_text.strip()
-    if len(stripped_text) == 0:
-        if input_text == "":
+    if _check_condition_3():
+    if _check_condition_4():
             return {"is_valid": False, "error": "Text cannot be empty"}
         else:
             return {"is_valid": False, "error": "Text cannot be whitespace only"}
 
-    if len(stripped_text) < min_length:
+    if _check_condition_5():
         return {"is_valid": False, "error": f"Text is too short, must be at least {min_length} characters long"}
 
-    if len(input_text) > max_length:
+    if _check_condition_6():
         return {"is_valid": False, "error": f"Text must be no more than {max_length} characters long"}
 
     harmful_patterns = ["<script>", "javascript:", "data:text/html"]
     for pattern in harmful_patterns:
-        if pattern.lower() in input_text.lower():
+    if _check_condition_7():
             return {"is_valid": False, "error": f"Text contains potentially harmful content: {pattern}"}
 
     # Check for invalid characters
     invalid_chars = ['\x00', '\x01', '\x02']
     for char in invalid_chars:
-        if char in input_text:
+    if _check_condition_8():
             return {"is_valid": False, "error": "Text contains invalid characters"}
 
     return {"is_valid": True, "error": None}

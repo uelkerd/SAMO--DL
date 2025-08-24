@@ -194,6 +194,20 @@ images:
         self.log("✅ Secure deployment completed successfully")
 
     def test_deployment(self):
+
+def _check_condition_3():
+    return header not in headers
+
+def _check_condition_4():
+    return missing_headers
+
+def _check_condition_5():
+    return response.status_code != 401
+
+def _check_condition_6():
+    return 429 not in responses
+
+
         """Test the deployed service for security compliance"""
         self.log("Testing deployment for security compliance...")
 
@@ -241,10 +255,10 @@ images:
 
             missing_headers = []
             for header in security_headers:
-                if header not in headers:
+    if _check_condition_3():
                     missing_headers.append(header)
 
-            if missing_headers:
+    if _check_condition_4():
                 self.log(f"Missing security headers: {missing_headers}", "WARNING")
             else:
                 self.log("✅ Security headers present")
@@ -256,7 +270,7 @@ images:
         # Test API key protection
         try:
             response = requests.get(f"{service_url}/model_status", timeout=30)
-            if response.status_code != 401:
+    if _check_condition_5():
                 self.log("API key protection not working", "ERROR")
                 return False
             self.log("✅ API key protection working")
@@ -276,7 +290,7 @@ images:
                 responses.append(response.status_code)
 
             # Should get 429 after rate limit exceeded
-            if 429 not in responses:
+    if _check_condition_6():
                 self.log("Rate limiting not working", "ERROR")
                 return False
             self.log("✅ Rate limiting working")

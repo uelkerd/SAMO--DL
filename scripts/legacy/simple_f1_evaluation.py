@@ -25,6 +25,20 @@ logger = logging.getLogger(__name__)
 
 
 def evaluate_current_f1():
+
+def _check_condition_3():
+    return not checkpoint_loaded
+
+def _check_condition_4():
+    return 0 <= label_idx < num_classes
+
+def _check_condition_5():
+    return (i // batch_size + 1) % 10 == 0
+
+def _check_condition_6():
+    return micro_f1 >= target_f1
+
+
     """Evaluate the current F1 score of the emotion detection model."""
     logger.info("🎯 Evaluating Current F1 Score")
     logger.info("=" * 50)
@@ -62,7 +76,7 @@ def evaluate_current_f1():
                     logger.warning(f"⚠️ Failed to load checkpoint {checkpoint_path}: {e}")
                     continue
         
-        if not checkpoint_loaded:
+    if _check_condition_3():
             logger.warning("⚠️ No valid checkpoint found, using untrained model")
 
         # Create tokenizer
@@ -96,7 +110,7 @@ def evaluate_current_f1():
                 for label_list in labels:
                     label_vector = [0] * num_classes
                     for label_idx in label_list:
-                        if 0 <= label_idx < num_classes:
+    if _check_condition_4():
                             label_vector[label_idx] = 1
                     batch_labels.append(label_vector)
                 
@@ -119,7 +133,7 @@ def evaluate_current_f1():
                 all_predictions.extend(predictions.cpu().numpy())
                 all_labels.extend(batch_labels)
                 
-                if (i // batch_size + 1) % 10 == 0:
+    if _check_condition_5():
                     logger.info(f"   Processed {end_idx}/{len(test_data)} samples")
 
         # Calculate metrics
@@ -156,7 +170,7 @@ def evaluate_current_f1():
         logger.info(f"📊 CURRENT F1: {micro_f1*100:.2f}%")
         logger.info(f"📈 PROGRESS: {progress:.1f}% of target")
         
-        if micro_f1 >= target_f1:
+    if _check_condition_6():
             logger.info("🎉 TARGET ACHIEVED!")
         else:
             gap = target_f1 - micro_f1
