@@ -236,7 +236,7 @@ def validate_model_architecture():
         )
 
         param_count = sum(p.numel() for p in model.parameters())
-        logger.info("✅ Model created: %d parameters", param_count)
+        logger.info("✅ Model created: %,d parameters", param_count)
         logger.info("✅ Loss function: %s", type(loss_fn).__name__)
 
         batch_size = 2
