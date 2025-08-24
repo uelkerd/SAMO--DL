@@ -262,7 +262,7 @@ class EmotionDetectionTrainer:
 
         logger.info(
             "Model initialized with %s trainable parameters",
-            format(count_model_params(self.model, only_trainable=True), ",d")
+            format(count_model_params(self.model, only_trainable=True), ",d"),
         )
         logger.info("Total training steps: %d", total_steps)
 
@@ -314,7 +314,13 @@ class EmotionDetectionTrainer:
 
             # Check for early stopping
             maybe_metrics = self._maybe_validate_and_early_stop(
-                batch_idx, epoch, num_batches, total_loss, self.scheduler.get_last_lr()[0], val_frequency, start_time
+                batch_idx,
+                epoch,
+                num_batches,
+                total_loss,
+                self.scheduler.get_last_lr()[0],
+                val_frequency,
+                start_time,
             )
             if maybe_metrics is not None:
                 return maybe_metrics
@@ -334,7 +340,11 @@ class EmotionDetectionTrainer:
             logger.info("Epoch %d: Applied progressive unfreezing", epoch)
 
     def _train_single_batch(
-        self, batch: Dict[str, torch.Tensor], batch_idx: int, epoch: int, num_batches: int
+        self,
+        batch: Dict[str, torch.Tensor],
+        batch_idx: int,
+        epoch: int,
+        num_batches: int,
     ) -> float:
         """Train on a single batch.
 
@@ -388,13 +398,19 @@ class EmotionDetectionTrainer:
             # For now, just log basic progress
             logger.info(
                 "Epoch %d, Batch %d/%d, Loss: %.8f",
-                epoch, batch_idx + 1, num_batches, loss.item()
+                epoch,
+                batch_idx + 1,
+                num_batches,
+                loss.item(),
             )
 
         return loss.item()
 
     def _log_batch_debug_info(
-        self, labels: torch.Tensor, logits: Optional[torch.Tensor], loss: Optional[torch.Tensor]
+        self,
+        labels: torch.Tensor,
+        logits: Optional[torch.Tensor],
+        loss: Optional[torch.Tensor],
     ) -> None:
         """Log debug information for the first batch.
 
@@ -529,8 +545,8 @@ class EmotionDetectionTrainer:
     def _log_gradient_stats_before(self) -> None:
         """Log gradient statistics before gradient clipping.
 
-        Analyzes gradient norms across all model parameters and logs
-        statistics for debugging purposes.
+        Analyzes gradient norms across all model parameters and logs statistics for
+        debugging purposes.
         """
         logger.info("🔍 DEBUG: Gradient Analysis")
         total_norm = 0.0
@@ -697,7 +713,7 @@ class EmotionDetectionTrainer:
         if is_best:
             checkpoint_path = self.output_dir / "best_model.pt"
         else:
-            checkpoint_path = self.output_dir / "checkpoint_epoch_{}.pt".format(epoch)
+            checkpoint_path = self.output_dir / f"checkpoint_epoch_{epoch}.pt"
 
         torch.save(checkpoint, checkpoint_path)
         logger.info("Checkpoint saved: %s", checkpoint_path)
