@@ -90,7 +90,7 @@ class EmotionDetectionTrainer:
         else:
             self.device = torch.device(device)
 
-        logger.info(f"Using device: {self.device}")
+        logger.info("Using device: %s", self.device)
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -220,7 +220,7 @@ class EmotionDetectionTrainer:
 
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug("Loss Function Analysis")
-            logger.debug(f"   Loss function type: {type(self.loss_fn).__name__}")
+            logger.debug("   Loss function type: %s", type(self.loss_fn).__name__)
 
         if (
             hasattr(self.loss_fn, "class_weights")
@@ -229,11 +229,11 @@ class EmotionDetectionTrainer:
             weights = self.loss_fn.class_weights
             if logger.isEnabledFor(logging.DEBUG):
                 logger.debug(
-                    f"   Class weights shape: {getattr(weights, 'shape', None)}"
+                    "   Class weights shape: %s", getattr(weights, "shape", None)
                 )
-                logger.debug(f"   Class weights min: {weights.min().item():.6f}")
-                logger.debug(f"   Class weights mean: {weights.mean().item():.6f}")
-                logger.debug(f"   Class weights max: {weights.max().item():.6f}")
+                logger.debug("   Class weights min: %.6f", weights.min().item())
+                logger.debug("   Class weights mean: %.6f", weights.mean().item())
+                logger.debug("   Class weights max: %.6f", weights.max().item())
 
             if weights.min() <= 0:
                 logger.error(
@@ -261,9 +261,10 @@ class EmotionDetectionTrainer:
         )
 
         logger.info(
-            f"Model initialized with {format(count_model_params(self.model, only_trainable=True), ',d')} trainable parameters"
+            "Model initialized with %s trainable parameters",
+            format(count_model_params(self.model, only_trainable=True), ",d"),
         )
-        logger.info(f"Total training steps: {total_steps}")
+        logger.info("Total training steps: %d", total_steps)
 
     def load_model(self, checkpoint_path: str) -> None:
         """Load a trained model from checkpoint.
@@ -271,7 +272,7 @@ class EmotionDetectionTrainer:
         Args:
             checkpoint_path: Path to the model checkpoint file
         """
-        logger.info(f"Loading model from checkpoint: {checkpoint_path}")
+        logger.info("Loading model from checkpoint: %s", checkpoint_path)
 
         checkpoint = torch.load(checkpoint_path, map_location=self.device)
 
@@ -304,7 +305,7 @@ class EmotionDetectionTrainer:
         num_batches = len(self.train_dataloader)
         start_time = time.time()
         val_frequency = max(500, num_batches // 5)
-        logger.info(f"🔧 Validation frequency: every {val_frequency} batches")
+        logger.info("🔧 Validation frequency: every %d batches", val_frequency)
 
         # Train on all batches
         for batch_idx, batch in enumerate(self.train_dataloader):
@@ -336,7 +337,7 @@ class EmotionDetectionTrainer:
         if epoch in self.unfreeze_schedule:
             layers_to_unfreeze = 2  # Unfreeze 2 layers at a time
             self.model.unfreeze_bert_layers(layers_to_unfreeze)
-            logger.info(f"Epoch {epoch}: Applied progressive unfreezing")
+            logger.info("Epoch %d: Applied progressive unfreezing", epoch)
 
     def _train_single_batch(
         self,
@@ -396,7 +397,11 @@ class EmotionDetectionTrainer:
             # We need to pass the current total loss from the calling method
             # For now, just log basic progress
                     logger.info(
-            f"Epoch {epoch}, Batch {batch_idx + 1}/{num_batches}, Loss: {loss.item():.8f}"
+            "Epoch %d, Batch %d/%d, Loss: %.8f",
+            epoch,
+            batch_idx + 1,
+            num_batches,
+            loss.item(),
         )
 
         return loss.item()
@@ -450,7 +455,10 @@ class EmotionDetectionTrainer:
         }
 
         logger.info(
-            f"Epoch {epoch} completed - Loss: {avg_loss:.4f}, Time: {epoch_time:.1fs}"
+            "Epoch %d completed - Loss: %.4f, Time: %.1fs",
+            epoch,
+            avg_loss,
+            epoch_time,
         )
 
         return metrics
@@ -463,14 +471,14 @@ class EmotionDetectionTrainer:
             labels: Ground truth labels tensor
         """
         logger.info("🔍 DEBUG: Data Distribution Analysis")
-        logger.info(f"   Labels shape: {labels.shape}")
-        logger.info(f"   Labels dtype: {labels.dtype}")
-        logger.info(f"   Labels min: {labels.min().item()}")
-        logger.info(f"   Labels max: {labels.max().item()}")
-        logger.info(f"   Labels mean: {labels.float().mean().item():.6f}")
-        logger.info(f"   Labels sum: {labels.sum().item()}")
-        logger.info(f"   Non-zero labels: {(labels > 0).sum().item()}")
-        logger.info(f"   Total labels: {labels.numel()}")
+        logger.info("   Labels shape: %s", labels.shape)
+        logger.info("   Labels dtype: %s", labels.dtype)
+        logger.info("   Labels min: %s", labels.min().item())
+        logger.info("   Labels max: %s", labels.max().item())
+        logger.info("   Labels mean: %.6f", labels.float().mean().item())
+        logger.info("   Labels sum: %s", labels.sum().item())
+        logger.info("   Non-zero labels: %s", (labels > 0).sum().item())
+        logger.info("   Total labels: %s", labels.numel())
 
         if labels.sum() == 0:
             logger.error("❌ CRITICAL: All labels are zero!")
@@ -482,7 +490,7 @@ class EmotionDetectionTrainer:
         for i in range(max_classes):
             class_count = labels[:, i].sum().item()
             if class_count > 0:
-                logger.info(f"   Class {i}: {int(class_count)} positive samples")
+                logger.info("   Class %d: %d positive samples", i, int(class_count))
 
     @staticmethod
     def _log_model_output(logits: torch.Tensor) -> None:
@@ -492,19 +500,19 @@ class EmotionDetectionTrainer:
             logits: Model output logits tensor
         """
         logger.info("🔍 DEBUG: Model Output Analysis")
-        logger.info(f"   Logits shape: {logits.shape}")
-        logger.info(f"   Logits min: {logits.min().item():.6f}")
-        logger.info(f"   Logits max: {logits.max().item():.6f}")
-        logger.info(f"   Logits mean: {logits.mean().item():.6f}")
-        logger.info(f"   Logits std: {logits.std().item():.6f}")
+        logger.info("   Logits shape: %s", logits.shape)
+        logger.info("   Logits min: %.6f", logits.min().item())
+        logger.info("   Logits max: %.6f", logits.max().item())
+        logger.info("   Logits mean: %.6f", logits.mean().item())
+        logger.info("   Logits std: %.6f", logits.std().item())
         if torch.isnan(logits).any():
             logger.error("❌ CRITICAL: NaN values in logits!")
         if torch.isinf(logits).any():
             logger.error("❌ CRITICAL: Inf values in logits!")
         predictions = torch.sigmoid(logits)
-        logger.info(f"   Predictions min: {predictions.min().item():.6f}")
-        logger.info(f"   Predictions max: {predictions.max().item():.6f}")
-        logger.info(f"   Predictions mean: {predictions.mean().item():.6f}")
+        logger.info("   Predictions min: %.6f", predictions.min().item())
+        logger.info("   Predictions max: %.6f", predictions.max().item())
+        logger.info("   Predictions mean: %.6f", predictions.mean().item())
 
     @staticmethod
     def _log_loss_analysis(
@@ -518,11 +526,11 @@ class EmotionDetectionTrainer:
             labels: Ground truth labels
         """
         logger.info("🔍 DEBUG: Loss Analysis")
-        logger.info(f"   Raw loss: {loss.item():.8f}")
+        logger.info("   Raw loss: %.8f", loss.item())
         bce_manual = F.binary_cross_entropy_with_logits(
             logits, labels.float(), reduction="mean"
         )
-        logger.info(f"   Manual BCE loss: {bce_manual.item():.8f}")
+        logger.info("   Manual BCE loss: %.8f", bce_manual.item())
         if abs(loss.item()) < 1e-10:
             logger.error("❌ CRITICAL: Loss is effectively zero!")
             logger.error("   This indicates a serious training issue!")
@@ -532,7 +540,7 @@ class EmotionDetectionTrainer:
             class_loss = F.binary_cross_entropy_with_logits(
                 class_logits, class_labels, reduction="mean"
             )
-            logger.info(f"   Class {i} loss: {class_loss.item():.8f}")
+            logger.info("   Class %d loss: %.8f", i, class_loss.item())
 
     def _log_gradient_stats_before(self) -> None:
         """Log gradient statistics before gradient clipping.
@@ -550,7 +558,7 @@ class EmotionDetectionTrainer:
                 param_count += 1
         if param_count > 0:
             total_norm = total_norm**0.5
-            logger.info(f"   Gradient norm before clipping: {total_norm:.6f}")
+            logger.info("   Gradient norm before clipping: %.6f", total_norm)
             if total_norm > 10:
                 logger.warning("⚠️  WARNING: Large gradient norm detected!")
             if total_norm < 1e-6:
@@ -567,7 +575,7 @@ class EmotionDetectionTrainer:
             clip_val = float(clip_norm)
         else:
             clip_val = clip_norm
-        logger.info(f"   Gradient norm after clipping: {clip_val:.6f}")
+        logger.info("   Gradient norm after clipping: %.6f", clip_val)
 
     def _log_progress(
         self, epoch: int, batch_idx: int, num_batches: int, total_loss: float
@@ -583,15 +591,20 @@ class EmotionDetectionTrainer:
         avg_loss = total_loss / (batch_idx + 1)
         current_lr = self.scheduler.get_last_lr()[0]
         logger.info(
-            f"Epoch {epoch}, Batch {batch_idx + 1}/{num_batches}, Loss: {avg_loss:.8f}, LR: {current_lr:.2e}"
+            "Epoch %d, Batch %d/%d, Loss: %.8f, LR: %.2e",
+            epoch,
+            batch_idx + 1,
+            num_batches,
+            avg_loss,
+            current_lr,
         )
         if avg_loss < 1e-8:
             logger.error(
-                f"❌ CRITICAL: Average loss is suspiciously small: {avg_loss:.8f}"
+                "❌ CRITICAL: Average loss is suspiciously small: %.8f", avg_loss
             )
         if avg_loss > 100:
             logger.error(
-                f"❌ CRITICAL: Average loss is suspiciously large: {avg_loss:.8f}"
+                "❌ CRITICAL: Average loss is suspiciously large: %.8f", avg_loss
             )
 
     def _maybe_validate_and_early_stop(
@@ -620,10 +633,10 @@ class EmotionDetectionTrainer:
         """
         if (batch_idx + 1) % val_frequency != 0:
             return None
-        logger.info(f"🔍 Validating at batch {batch_idx + 1}...")
+        logger.info("🔍 Validating at batch %d...", batch_idx + 1)
         self.validate(epoch)
         if self.should_stop_early():
-            logger.info(f"🛑 Early stopping triggered at batch {batch_idx + 1}")
+            logger.info("🛑 Early stopping triggered at batch %d", batch_idx + 1)
             return {
                 "epoch": epoch,
                 "train_loss": total_loss / (batch_idx + 1),
@@ -642,7 +655,7 @@ class EmotionDetectionTrainer:
         Returns:
             Dictionary with validation metrics
         """
-        logger.info(f"Validating model at epoch {epoch}...")
+        logger.info("Validating model at epoch %d...", epoch)
 
         val_metrics = evaluate_emotion_classifier(
             self.model, self.val_dataloader, self.device, threshold=0.2
@@ -657,11 +670,13 @@ class EmotionDetectionTrainer:
 
             if self.save_best_only:
                 self.save_checkpoint(epoch, val_metrics, is_best=True)
-                logger.info(f"New best model saved! Macro F1: {current_score:.4f}")
+                logger.info("New best model saved! Macro F1: %.4f", current_score)
         else:
             self.patience_counter += 1
             logger.info(
-                f"No improvement. Patience: {self.patience_counter}/{self.early_stopping_patience}"
+                "No improvement. Patience: %d/%d",
+                self.patience_counter,
+                self.early_stopping_patience,
             )
 
         return val_metrics
@@ -701,7 +716,7 @@ class EmotionDetectionTrainer:
             checkpoint_path = self.output_dir / f"checkpoint_epoch_{epoch}.pt"
 
         torch.save(checkpoint, checkpoint_path)
-        logger.info(f"Checkpoint saved: {checkpoint_path}")
+        logger.info("Checkpoint saved: %s", checkpoint_path)
 
     def train(self) -> Dict[str, Any]:
         """Complete training pipeline.
@@ -726,7 +741,7 @@ class EmotionDetectionTrainer:
                 self.training_history.append(epoch_metrics)
 
                 if self.should_stop_early():
-                    logger.info(f"Early stopping at epoch {epoch}")
+                    logger.info("Early stopping at epoch %d", epoch)
                     break
             else:
                 self.training_history.append(train_metrics)
@@ -756,7 +771,7 @@ class EmotionDetectionTrainer:
             serializable_history = convert_numpy_types(self.training_history)
             with Path(history_path).open("w") as f:
                 json.dump(serializable_history, f, indent=2)
-            logger.info(f"Training history saved to {history_path}")
+            logger.info("Training history saved to %s", history_path)
         except Exception:
             logger.exception("Failed to save training history")
             simplified_history = []
@@ -776,7 +791,7 @@ class EmotionDetectionTrainer:
 
             with Path(history_path).open("w") as f:
                 json.dump(simplified_history, f, indent=2)
-            logger.info(f"Simplified training history saved to {history_path}")
+            logger.info("Simplified training history saved to %s", history_path)
 
         results = {
             "final_test_metrics": test_metrics,
@@ -787,9 +802,9 @@ class EmotionDetectionTrainer:
         }
 
         logger.info("✅ Training completed!")
-        logger.info(f"Best validation Macro F1: {self.best_score:.4f}")
-        logger.info(f"Final test Macro F1: {test_metrics['macro_f1']:.4f}")
-        logger.info(f"Final test Micro F1: {test_metrics['micro_f1']:.4f}")
+        logger.info("Best validation Macro F1: %.4f", self.best_score)
+        logger.info("Final test Macro F1: %.4f", test_metrics["macro_f1"])
+        logger.info("Final test Micro F1: %.4f", test_metrics["micro_f1"])
 
         return results
 
