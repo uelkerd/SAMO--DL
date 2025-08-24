@@ -352,7 +352,7 @@ echo "============================"
 
 # Install dependencies
 echo "📦 Installing dependencies..."
-pip install -r requirements.txt
+pip install -c ../../dependencies/constraints.txt -r requirements.txt
 
 # Start API server
 echo "🌐 Starting API server..."
