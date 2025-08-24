@@ -101,6 +101,14 @@ class EmotionDetectionTrainer:
         self.scheduler = None
         self.tokenizer = None
 
+        # Dataset attributes
+        self.train_dataset = None
+        self.val_dataset = None
+        self.test_dataset = None
+        self.train_dataloader = None
+        self.val_dataloader = None
+        self.test_dataloader = None
+
         self.best_score = 0.0
         self.patience_counter = 0
         self.training_history = []
