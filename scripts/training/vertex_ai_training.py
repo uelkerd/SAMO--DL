@@ -229,7 +229,8 @@ def validate_model_architecture():
             freeze_bert_layers=6,
         )
 
-        logger.info("✅ Model created: %s parameters", format(model.count_parameters(), ",d"))
+        param_count = format(model.count_parameters(), ",d")
+        logger.info("✅ Model created: %s parameters", param_count)
         logger.info("✅ Loss function: %s", type(loss_fn).__name__)
 
         batch_size = 2
