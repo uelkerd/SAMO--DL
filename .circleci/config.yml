@@ -43,6 +43,17 @@ commands:
             # Wait for container to be fully ready
             echo "⏳ Waiting for container to start..."
             sleep 5
+            
+            # Wait for container to actually be listening on the port
+            echo "🔍 Waiting for container to be listening on port << parameters.host_port >>..."
+            for i in $(seq 1 15); do
+              if nc -z 127.0.0.1 << parameters.host_port >> 2>/dev/null; then
+                echo "✅ Container is listening on port << parameters.host_port >>"
+                break
+              fi
+              echo "⏳ Waiting for port << parameters.host_port >> to be open (attempt $i/15)..."
+              sleep 2
+            done
 
             HEALTH_PATH="<< parameters.path >>"
             case "$HEALTH_PATH" in
@@ -51,17 +62,17 @@ commands:
             esac
 
             echo "🔍 Starting health check on port << parameters.host_port >> (maps to container port << parameters.port >>)"
-            for i in $(seq 1 30); do
-              if curl -fsS --connect-timeout 2 --max-time 4 "http://127.0.0.1:<< parameters.host_port >>${HEALTH_PATH}" >/dev/null; then
+            for i in $(seq 1 60); do
+              if curl -fsS --connect-timeout 3 --max-time 5 "http://127.0.0.1:<< parameters.host_port >>${HEALTH_PATH}" >/dev/null; then
                 echo "✅ Health check passed"
                 trap - EXIT
                 cleanup
                 exit 0
               fi
-              echo "⏳ Health check attempt $i/30 - waiting..."
-              sleep 1
+              echo "⏳ Health check attempt $i/60 - waiting..."
+              sleep 2
             done
-            echo "❌ Health check failed after 30 seconds"
+            echo "❌ Health check failed after 120 seconds (60 attempts × 2s)"
             docker logs << parameters.container_name >> || true
             exit 1
 
