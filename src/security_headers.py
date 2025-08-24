@@ -96,6 +96,23 @@ class SecurityHeadersMiddleware:
         if self.config.enable_correlation_id:
             g.correlation_id = request.headers.get("X-Correlation-ID", g.request_id)
 
+        # Check for high-risk requests and block them
+        if self.config.ua_blocking_enabled:
+            user_agent = request.headers.get("User-Agent", "")
+            ua_analysis = self._analyze_user_agent_enhanced(user_agent)
+            
+            if ua_analysis["risk_level"] in ["high", "very_high"]:
+                # Store blocking information for after_request logging
+                g.security_patterns = [f"BLOCKED: High-risk user agent - {ua_analysis['category']} (score: {ua_analysis['score']})"]
+                g.block_reason = f"User agent risk level: {ua_analysis['risk_level']}"
+                g.ua_analysis = ua_analysis
+                
+                # Return 403 Forbidden response
+                from flask import make_response
+                response = make_response("Access Forbidden - High-risk user agent detected", 403)
+                response.headers["Content-Type"] = "text/plain"
+                return response
+
         # Log security-relevant request information
         self._log_security_info()
 
@@ -109,6 +126,14 @@ class SecurityHeadersMiddleware:
 
         # Log security-relevant response information
         self._log_response_security(response)
+
+        # Log blocking information if request was blocked
+        if hasattr(g, 'security_patterns'):
+            logger.warning(f"Request blocked: {g.security_patterns}")
+            if hasattr(g, 'block_reason'):
+                logger.warning(f"Block reason: {g.block_reason}")
+            if hasattr(g, 'ua_analysis'):
+                logger.warning(f"User agent analysis: {g.ua_analysis}")
 
         return response
 
@@ -448,12 +473,8 @@ class SecurityHeadersMiddleware:
                 # Log detailed analysis
                 logger.warning(f"User agent analysis: {ua_analysis}")
 
-                # Optionally block based on configuration
-                if self.config.ua_blocking_enabled and ua_analysis["risk_level"] in [
-                    "high",
-                    "very_high",
-                ]:
-                    patterns.append("BLOCKED: High-risk user agent")
+                # Note: High-risk user agents are now blocked in _before_request
+                # This is just for logging and pattern detection
 
         return patterns
 

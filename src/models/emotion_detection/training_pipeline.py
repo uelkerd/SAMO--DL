@@ -229,17 +229,17 @@ class EmotionDetectionTrainer:
             weights = self.loss_fn.class_weights
             if logger.isEnabledFor(logging.DEBUG):
                 logger.debug(
-                    "   Class weights shape: %s", getattr(weights, "shape", None)
+                "   Class weights shape: %s", getattr(weights, "shape", None)
                 )
                 logger.debug("   Class weights min: %.6f", weights.min().item())
                 logger.debug("   Class weights mean: %.6f", weights.mean().item())
                 logger.debug("   Class weights max: %.6f", weights.max().item())
 
-            if weights.min() <= 0:
+            if weights.min().item() <= 0:
                 logger.error(
                     "❌ CRITICAL: Class weights contain zero or negative values!"
                 )
-            if weights.max() > 100:
+            if weights.max().item() > 100:
                 logger.error("❌ CRITICAL: Class weights contain very large values!")
         else:
             logger.info("   No class weights used")
@@ -311,6 +311,10 @@ class EmotionDetectionTrainer:
         for batch_idx, batch in enumerate(self.train_dataloader):
             batch_loss = self._train_single_batch(batch, batch_idx, epoch, num_batches)
             total_loss += batch_loss
+
+            # Log progress periodically
+            if batch_idx < 5 or (batch_idx + 1) % 100 == 0:
+                self._log_progress(epoch, batch_idx, num_batches, total_loss)
 
             # Check for early stopping
             maybe_metrics = self._maybe_validate_and_early_stop(
@@ -391,18 +395,6 @@ class EmotionDetectionTrainer:
         # Update parameters
         self.optimizer.step()
         self.scheduler.step()
-
-        # Log progress periodically
-        if batch_idx < 5 or (batch_idx + 1) % 100 == 0:
-            # We need to pass the current total loss from the calling method
-            # For now, just log basic progress
-            logger.info(
-                "Epoch %d, Batch %d/%d, Loss: %.8f",
-                epoch,
-                batch_idx + 1,
-                num_batches,
-                loss.item(),
-            )
 
         return loss.item()
 
@@ -779,14 +771,14 @@ class EmotionDetectionTrainer:
                 simplified_entry = {}
                 for k, v in entry.items():
                     try:
-                        if isinstance(v, (np.integer, np.floating)):
-                            simplified_entry[k] = float(v.item())
-                        elif isinstance(v, (int, float, str, bool)):
-                            simplified_entry[k] = v
-                        else:
-                            simplified_entry[k] = str(v)
-                    except Exception:
+                    if isinstance(v, (np.integer, np.floating)):
+                        simplified_entry[k] = float(v.item())
+                    elif isinstance(v, (int, float, str, bool)):
+                        simplified_entry[k] = v
+                    else:
                         simplified_entry[k] = str(v)
+                except Exception:
+                    simplified_entry[k] = str(v)
                 simplified_history.append(simplified_entry)
 
             with Path(history_path).open("w") as f:
