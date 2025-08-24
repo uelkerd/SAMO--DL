@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Copy requirements first for better caching
-COPY requirements.txt .
+COPY dependencies/requirements.txt .
 
 # Install Python dependencies
 ARG PIP_CONSTRAINT=""
@@ -58,7 +58,7 @@ ENV GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
 ENV VERTEX_AI_REGION=${VERTEX_AI_REGION:-us-central1}
 
 # Copy training script
-COPY scripts/vertex_ai_training.py /app/train.py
+COPY scripts/training/full_focal_training.py /app/train.py
 
 # Make training script executable
 RUN chmod +x /app/train.py
