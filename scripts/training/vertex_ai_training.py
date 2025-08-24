@@ -138,7 +138,7 @@ def validate_environment():
             logger.info("✅ Google Cloud Project: %s", project_id)
         else:
             logger.warning("⚠️  GOOGLE_CLOUD_PROJECT not set")
-        
+
         if region:
             logger.info("✅ Vertex AI Region: %s", region)
         else:
@@ -146,7 +146,7 @@ def validate_environment():
 
         if torch.cuda.is_available():
             logger.info("✅ CUDA device: %s", torch.cuda.get_device_name(0))
-        
+
         return True
     except Exception as _e:
         logger.error("❌ Environment validation failed: %s", _e)
@@ -189,11 +189,11 @@ def validate_data_distribution():
             error_msg = "No positive labels found! This will cause 0.0000 loss with BCE"
             logger.error("❌ CRITICAL: %s", error_msg)
             raise ValueError(error_msg)
-        elif positive_rate == 1:
+        if positive_rate == 1:
             error_msg = "All labels are positive! This will cause 0.0000 loss with BCE"
             logger.error("❌ CRITICAL: %s", error_msg)
             raise ValueError(error_msg)
-        elif positive_rate < 0.01:
+        if positive_rate < 0.01:
             logger.warning("⚠️  Very low positive label rate")
             logger.warning("   Consider using focal loss or class weights")
 
