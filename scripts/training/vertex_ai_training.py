@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Vertex AI Training Script for SAMO Deep Learning.
 
-This script runs training on Vertex AI with optimized configuration
-to solve the 0.0000 loss issue and achieve >75% F1 score.
+Runs training/validation on Vertex AI and standardizes logging and path bootstrap.
 """
 
 from pathlib import Path
@@ -10,7 +9,6 @@ import argparse
 import logging
 import sys
 import traceback
-import torch
 import transformers
 import os
 
@@ -24,9 +22,15 @@ from src.models.emotion_detection.training_pipeline import (
 )
 
 # Ensure project root on path
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+try:
+    PROJECT_ROOT = Path(__file__).resolve().parents[2]
+except IndexError:
+    PROJECT_ROOT = Path(__file__).resolve().parent
+
+if PROJECT_ROOT.is_dir():
+    project_root_str = str(PROJECT_ROOT)
+    if project_root_str not in sys.path:
+        sys.path.insert(0, project_root_str)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -136,6 +140,7 @@ def validate_environment():
     logger.info("🔍 Validating Vertex AI environment...")
 
     try:
+        import torch
         logger.info("✅ PyTorch: %s", torch.__version__)
         logger.info("✅ Transformers: %s", transformers.__version__)
         logger.info("✅ Vertex AI: Available")
@@ -223,14 +228,15 @@ def validate_model_architecture():
     logger.info("🔍 Validating model architecture...")
 
     try:
+        import torch
         model, loss_fn = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
             class_weights=None,
             freeze_bert_layers=6,
         )
 
-        param_count = format(model.count_parameters(), ",d")
-        logger.info("✅ Model created: %s parameters", param_count)
+        param_count = sum(p.numel() for p in model.parameters())
+        logger.info("✅ Model created: %s parameters", f"{param_count:,}")
         logger.info("✅ Loss function: %s", type(loss_fn).__name__)
 
         batch_size = 2
@@ -274,6 +280,7 @@ def validate_loss_function():
     logger.info("🔍 Validating loss function...")
 
     try:
+        import torch
         import torch.nn.functional as F
         batch_size = 4
         num_classes = 28
