@@ -1,36 +1,28 @@
 #!/usr/bin/env python3
-"""
-Training Pipeline for BERT Emotion Detection.
+"""Training Pipeline for BERT Emotion Detection.
 
-This module provides a comprehensive training pipeline for the BERT-based
-emotion detection model with advanced features like focal loss, temperature
-scaling, and ensemble methods.
+This module provides a comprehensive training pipeline for the BERT-based emotion
+detection model with advanced features like focal loss, temperature scaling, and
+ensemble methods.
 """
 
 import json
 import logging
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 import torch
 import torch.nn.functional as F
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
-from transformers import (
-    AutoTokenizer,
-    get_linear_schedule_with_warmup,
-)
+from transformers import AutoTokenizer, get_linear_schedule_with_warmup
 
-from .bert_classifier import (
-    create_bert_emotion_classifier,
-    evaluate_emotion_classifier,
-)
-from .dataset_loader import (
-    create_goemotions_loader,
-    GoEmotionsDataset,
-)
+from ...utils import count_model_params
+
+from .bert_classifier import create_bert_emotion_classifier, evaluate_emotion_classifier
+from .dataset_loader import GoEmotionsDataset, create_goemotions_loader
 
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
@@ -98,7 +90,7 @@ class EmotionDetectionTrainer:
         else:
             self.device = torch.device(device)
 
-        logger.info("Using device: {self.device}")
+        logger.info("Using device: %s", self.device)
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -108,6 +100,14 @@ class EmotionDetectionTrainer:
         self.optimizer = None
         self.scheduler = None
         self.tokenizer = None
+
+        # Dataset attributes
+        self.train_dataset = None
+        self.val_dataset = None
+        self.test_dataset = None
+        self.train_dataloader = None
+        self.val_dataloader = None
+        self.test_dataloader = None
 
         self.best_score = 0.0
         self.patience_counter = 0
@@ -142,7 +142,8 @@ class EmotionDetectionTrainer:
         test_labels = datasets["test"]["labels"]
 
         if dev_mode:
-            logger.info("🔧 DEVELOPMENT MODE: Using 5% of dataset for faster training")
+            dev_msg = "🔧 DEVELOPMENT MODE: Using 5% of dataset for faster training"
+            logger.info(dev_msg)
 
             train_size = len(train_texts)
             dev_size = int(train_size * 0.05)  # Reduced from 10% to 5%
@@ -157,16 +158,23 @@ class EmotionDetectionTrainer:
             val_labels = [val_labels[i] for i in val_indices]
 
             original_batch_size = self.batch_size
-            self.batch_size = min(128, self.batch_size * 8)  # Much larger batch size
-            logger.info(
-                "🔧 DEVELOPMENT MODE: Using {len(train_texts)} training examples, batch_size={self.batch_size} (was {original_batch_size})"
+            # Increase batch size for dev mode
+            self.batch_size = min(128, self.batch_size * 8)
+            dev_msg = (
+                "🔧 DEVELOPMENT MODE: Using %d training examples, "
+                "batch_size=%d (was %d)"
             )
+            logger.info(dev_msg, len(train_texts), self.batch_size, original_batch_size)
 
         self.train_dataset = GoEmotionsDataset(
             train_texts, train_labels, self.tokenizer, self.max_length
         )
-        self.val_dataset = GoEmotionsDataset(val_texts, val_labels, self.tokenizer, self.max_length)
-        self.test_dataset = GoEmotionsDataset(test_texts, test_labels, self.tokenizer, self.max_length)
+        self.val_dataset = GoEmotionsDataset(
+            val_texts, val_labels, self.tokenizer, self.max_length
+        )
+        self.test_dataset = GoEmotionsDataset(
+            test_texts, test_labels, self.tokenizer, self.max_length
+        )
 
         self.train_dataloader = DataLoader(
             self.train_dataset,
@@ -188,8 +196,10 @@ class EmotionDetectionTrainer:
         )
 
         logger.info(
-            "Prepared datasets - Train: {len(self.train_dataset)}, "
-            "Val: {len(self.val_dataset)}, Test: {len(self.test_dataset)}"
+            "Prepared datasets - Train: %d, Val: %d, Test: %d",
+            len(self.train_dataset),
+            len(self.val_dataset),
+            len(self.test_dataset),
         )
 
         return datasets
@@ -208,19 +218,28 @@ class EmotionDetectionTrainer:
             freeze_bert_layers=self.freeze_initial_layers,
         )
 
-        logger.info("🔍 DEBUG: Loss Function Analysis")
-        logger.info("   Loss function type: {type(self.loss_fn).__name__}")
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug("Loss Function Analysis")
+            logger.debug("   Loss function type: %s", type(self.loss_fn).__name__)
 
-        if hasattr(self.loss_fn, "class_weights") and self.loss_fn.class_weights is not None:
+        if (
+            hasattr(self.loss_fn, "class_weights")
+            and self.loss_fn.class_weights is not None
+        ):
             weights = self.loss_fn.class_weights
-            logger.info("   Class weights shape: {weights.shape}")
-            logger.info("   Class weights min: {weights.min().item():.6f}")
-            logger.info("   Class weights max: {weights.max().item():.6f}")
-            logger.info("   Class weights mean: {weights.mean().item():.6f}")
+            if logger.isEnabledFor(logging.DEBUG):
+                logger.debug(
+                    "   Class weights shape: %s", getattr(weights, "shape", None)
+                )
+                logger.debug("   Class weights min: %.6f", weights.min().item())
+                logger.debug("   Class weights mean: %.6f", weights.mean().item())
+                logger.debug("   Class weights max: %.6f", weights.max().item())
 
-            if weights.min() <= 0:
-                logger.error("❌ CRITICAL: Class weights contain zero or negative values!")
-            if weights.max() > 100:
+            if weights.min().item() <= 0:
+                logger.error(
+                    "❌ CRITICAL: Class weights contain zero or negative values!"
+                )
+            if weights.max().item() > 100:
                 logger.error("❌ CRITICAL: Class weights contain very large values!")
         else:
             logger.info("   No class weights used")
@@ -242,9 +261,10 @@ class EmotionDetectionTrainer:
         )
 
         logger.info(
-            "Model initialized with {self.model.count_parameters():,} trainable parameters"
+            "Model initialized with %s trainable parameters",
+            format(count_model_params(self.model, only_trainable=True), ",d"),
         )
-        logger.info("Total training steps: {total_steps}")
+        logger.info("Total training steps: %d", total_steps)
 
     def load_model(self, checkpoint_path: str) -> None:
         """Load a trained model from checkpoint.
@@ -252,7 +272,7 @@ class EmotionDetectionTrainer:
         Args:
             checkpoint_path: Path to the model checkpoint file
         """
-        logger.info("Loading model from checkpoint: {checkpoint_path}")
+        logger.info("Loading model from checkpoint: %s", checkpoint_path)
 
         checkpoint = torch.load(checkpoint_path, map_location=self.device)
 
@@ -277,150 +297,145 @@ class EmotionDetectionTrainer:
         """
         self.model.train()
 
+        # Handle progressive unfreezing
+        self._handle_progressive_unfreezing(epoch)
+
+        # Setup training
         total_loss = 0.0
         num_batches = len(self.train_dataloader)
         start_time = time.time()
+        val_frequency = max(500, num_batches // 5)
+        logger.info("🔧 Validation frequency: every %d batches", val_frequency)
 
+        # Train on all batches
+        for batch_idx, batch in enumerate(self.train_dataloader):
+            batch_loss = self._train_single_batch(batch, batch_idx, epoch, num_batches)
+            total_loss += batch_loss
+
+            # Log progress periodically
+            if batch_idx < 5 or (batch_idx + 1) % 100 == 0:
+                self._log_progress(epoch, batch_idx, num_batches, total_loss)
+
+            # Check for early stopping
+            maybe_metrics = self._maybe_validate_and_early_stop(
+                batch_idx,
+                epoch,
+                num_batches,
+                total_loss,
+                self.scheduler.get_last_lr()[0],
+                val_frequency,
+                start_time,
+            )
+            if maybe_metrics is not None:
+                return maybe_metrics
+
+        # Return epoch metrics
+        return self._create_epoch_metrics(epoch, total_loss, num_batches, start_time)
+
+    def _handle_progressive_unfreezing(self, epoch: int) -> None:
+        """Handle progressive unfreezing of BERT layers.
+
+        Args:
+            epoch: Current epoch number
+        """
         if epoch in self.unfreeze_schedule:
             layers_to_unfreeze = 2  # Unfreeze 2 layers at a time
             self.model.unfreeze_bert_layers(layers_to_unfreeze)
-            logger.info(
-                "Epoch {epoch}: Applied progressive unfreezing", extra={"format_args": True}
-            )
+            logger.info("Epoch %d: Applied progressive unfreezing", epoch)
 
-        val_frequency = max(500, num_batches // 5)
-        logger.info("🔧 Validation frequency: every {val_frequency} batches")
+    def _train_single_batch(
+        self,
+        batch: Dict[str, torch.Tensor],
+        batch_idx: int,
+        epoch: int,
+        num_batches: int,
+    ) -> float:
+        """Train on a single batch.
 
-        for batch_idx, batch in enumerate(self.train_dataloader):
-            input_ids = batch["input_ids"].to(self.device)
-            attention_mask = batch["attention_mask"].to(self.device)
-            labels = batch["labels"].to(self.device)
+        Args:
+            batch: Input batch data
+            batch_idx: Current batch index
+            epoch: Current epoch number
+            num_batches: Total number of batches
 
-            if batch_idx == 0:
-                logger.info("🔍 DEBUG: Data Distribution Analysis")
-                logger.info("   Labels shape: {labels.shape}")
-                logger.info("   Labels dtype: {labels.dtype}")
-                logger.info("   Labels min: {labels.min().item()}")
-                logger.info("   Labels max: {labels.max().item()}")
-                logger.info("   Labels mean: {labels.float().mean().item():.6f}")
-                logger.info("   Labels sum: {labels.sum().item()}")
-                logger.info("   Non-zero labels: {(labels > 0).sum().item()}")
-                logger.info("   Total labels: {labels.numel()}")
+        Returns:
+            float: Loss value for this batch
+        """
+        # Move data to device
+        input_ids = batch["input_ids"].to(self.device)
+        attention_mask = batch["attention_mask"].to(self.device)
+        labels = batch["labels"].to(self.device)
 
-                if labels.sum() == 0:
-                    logger.error("❌ CRITICAL: All labels are zero!")
-                elif labels.sum() == labels.numel():
-                    logger.error("❌ CRITICAL: All labels are one!")
+        # Log debug information for first batch
+        if batch_idx == 0:
+            self._log_batch_debug_info(labels, None, None)  # logits not available yet
 
-                for i in range(min(10, labels.shape[1])):  # First 10 classes
-                    class_count = labels[:, i].sum().item()
-                    if class_count > 0:
-                        logger.info("   Class {i}: {class_count} positive samples")
+        # Forward pass
+        self.optimizer.zero_grad()
+        logits = self.model(input_ids, attention_mask)
+        loss = self.loss_fn(logits, labels)
 
-            self.optimizer.zero_grad()
+        # Log debug information for first batch
+        if batch_idx == 0:
+            self._log_batch_debug_info(labels, logits, loss)
 
-            logits = self.model(input_ids, attention_mask)
+        # Backward pass
+        loss.backward()
 
-            if batch_idx == 0:
-                logger.info("🔍 DEBUG: Model Output Analysis")
-                logger.info("   Logits shape: {logits.shape}")
-                logger.info("   Logits min: {logits.min().item():.6f}")
-                logger.info("   Logits max: {logits.max().item():.6f}")
-                logger.info("   Logits mean: {logits.mean().item():.6f}")
-                logger.info("   Logits std: {logits.std().item():.6f}")
+        # Gradient clipping
+        clip_norm = torch.nn.utils.clip_grad_norm_(
+            self.model.parameters(), max_norm=1.0
+        )
 
-                if torch.isnan(logits).any():
-                    logger.error("❌ CRITICAL: NaN values in logits!")
-                if torch.isinf(logits).any():
-                    logger.error("❌ CRITICAL: Inf values in logits!")
+        # Log gradient stats for first batch
+        if batch_idx == 0:
+            self._log_gradient_stats_before()
+            self._log_gradient_stats_after(clip_norm)
 
-                predictions = torch.sigmoid(logits)
-                logger.info("   Predictions min: {predictions.min().item():.6f}")
-                logger.info("   Predictions max: {predictions.max().item():.6f}")
-                logger.info("   Predictions mean: {predictions.mean().item():.6f}")
+        # Update parameters
+        self.optimizer.step()
+        self.scheduler.step()
 
-            loss = self.loss_fn(logits, labels)
+        return loss.item()
 
-            if batch_idx == 0:
-                logger.info("🔍 DEBUG: Loss Analysis")
-                logger.info("   Raw loss: {loss.item():.8f}")
+    def _log_batch_debug_info(
+        self,
+        labels: torch.Tensor,
+        logits: Optional[torch.Tensor],
+        loss: Optional[torch.Tensor],
+    ) -> None:
+        """Log debug information for the first batch.
 
-                bce_manual = F.binary_cross_entropy_with_logits(
-                    logits, labels.float(), reduction="mean"
-                )
-                logger.info("   Manual BCE loss: {bce_manual.item():.8f}")
+        Args:
+            labels: Ground truth labels
+            logits: Model output logits (None for first call)
+            loss: Computed loss (None for first call)
+        """
+        if not logger.isEnabledFor(logging.DEBUG):
+            return
 
-                if abs(loss.item()) < 1e-10:
-                    logger.error("❌ CRITICAL: Loss is effectively zero!")
-                    logger.error("   This indicates a serious training issue!")
+        self._log_data_distribution(labels)
 
-                for i in range(min(5, logits.shape[1])):
-                    class_logits = logits[:, i]
-                    class_labels = labels[:, i].float()
-                    class_loss = F.binary_cross_entropy_with_logits(
-                        class_logits, class_labels, reduction="mean"
-                    )
-                    logger.info("   Class {i} loss: {class_loss.item():.8f}")
+        if logits is not None:
+            self._log_model_output(logits)
 
-            loss.backward()
+        if loss is not None:
+            self._log_loss_analysis(loss, logits, labels)
 
-            if batch_idx == 0:
-                logger.info("🔍 DEBUG: Gradient Analysis")
-                total_norm = 0
-                param_count = 0
-                for p in self.model.parameters():
-                    if p.grad is not None:
-                        param_norm = p.grad.data.norm(2)
-                        total_norm += param_norm.item() ** 2
-                        param_count += 1
+    def _create_epoch_metrics(
+        self, epoch: int, total_loss: float, num_batches: int, start_time: float
+    ) -> Dict[str, float]:
+        """Create metrics dictionary for completed epoch.
 
-                if param_count > 0:
-                    total_norm = total_norm ** (1.0 / 2)
-                    logger.info("   Gradient norm before clipping: {total_norm:.6f}")
+        Args:
+            epoch: Current epoch number
+            total_loss: Total loss for the epoch
+            num_batches: Number of batches in epoch
+            start_time: Start time of epoch
 
-                    if total_norm > 10:
-                        logger.warning("⚠️  WARNING: Large gradient norm detected!")
-                    if total_norm < 1e-6:
-                        logger.warning("⚠️  WARNING: Very small gradient norm detected!")
-
-            clip_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
-
-            if batch_idx == 0:
-                logger.info("   Gradient norm after clipping: {clip_norm:.6f}")
-
-            self.optimizer.step()
-            self.scheduler.step()
-
-            total_loss += loss.item()
-
-            if batch_idx < 5 or (batch_idx + 1) % 100 == 0:  # First 5 batches + every 100
-                avg_loss = total_loss / (batch_idx + 1)
-                current_lr = self.scheduler.get_last_lr()[0]
-
-                logger.info(
-                    "Epoch {epoch}, Batch {batch_idx + 1}/{num_batches}, "
-                    "Loss: {avg_loss:.8f}, LR: {current_lr:.2e}"
-                )
-
-                if avg_loss < 1e-8:
-                    logger.error("❌ CRITICAL: Average loss is suspiciously small: {avg_loss:.8f}")
-                if avg_loss > 100:
-                    logger.error("❌ CRITICAL: Average loss is suspiciously large: {avg_loss:.8f}")
-
-            if (batch_idx + 1) % val_frequency == 0:
-                logger.info("🔍 Validating at batch {batch_idx + 1}...")
-                self.validate(epoch)
-
-                if self.should_stop_early():
-                    logger.info("🛑 Early stopping triggered at batch {batch_idx + 1}")
-                    return {
-                        "epoch": epoch,
-                        "train_loss": total_loss / (batch_idx + 1),
-                        "epoch_time": time.time() - start_time,
-                        "learning_rate": self.scheduler.get_last_lr()[0],
-                        "early_stopped": True,
-                    }
-
+        Returns:
+            Dictionary with epoch metrics
+        """
         epoch_time = time.time() - start_time
         avg_loss = total_loss / num_batches
 
@@ -431,9 +446,197 @@ class EmotionDetectionTrainer:
             "learning_rate": self.scheduler.get_last_lr()[0],
         }
 
-        logger.info("Epoch {epoch} completed - Loss: {avg_loss:.4f}, Time: {epoch_time:.1f}s")
+        logger.info(
+            "Epoch %d completed - Loss: %.4f, Time: %.1fs",
+            epoch,
+            avg_loss,
+            epoch_time,
+        )
 
         return metrics
+
+    @staticmethod
+    def _log_data_distribution(labels: torch.Tensor) -> None:
+        """Log data distribution analysis for debugging.
+
+        Args:
+            labels: Ground truth labels tensor
+        """
+        logger.info("🔍 DEBUG: Data Distribution Analysis")
+        logger.info("   Labels shape: %s", labels.shape)
+        logger.info("   Labels dtype: %s", labels.dtype)
+        logger.info("   Labels min: %s", labels.min().item())
+        logger.info("   Labels max: %s", labels.max().item())
+        logger.info("   Labels mean: %.6f", labels.float().mean().item())
+        logger.info("   Labels sum: %s", labels.sum().item())
+        logger.info("   Non-zero labels: %s", (labels > 0).sum().item())
+        logger.info("   Total labels: %s", labels.numel())
+
+        if labels.sum() == 0:
+            logger.error("❌ CRITICAL: All labels are zero!")
+        elif labels.sum() == labels.numel():
+            logger.error("❌ CRITICAL: All labels are one!")
+
+        # Iterate over first 10 classes
+        max_classes = min(10, labels.shape[1])
+        for i in range(max_classes):
+            class_count = labels[:, i].sum().item()
+            if class_count > 0:
+                logger.info("   Class %d: %d positive samples", i, int(class_count))
+
+    @staticmethod
+    def _log_model_output(logits: torch.Tensor) -> None:
+        """Log model output analysis for debugging.
+
+        Args:
+            logits: Model output logits tensor
+        """
+        logger.info("🔍 DEBUG: Model Output Analysis")
+        logger.info("   Logits shape: %s", logits.shape)
+        logger.info("   Logits min: %.6f", logits.min().item())
+        logger.info("   Logits max: %.6f", logits.max().item())
+        logger.info("   Logits mean: %.6f", logits.mean().item())
+        logger.info("   Logits std: %.6f", logits.std().item())
+        if torch.isnan(logits).any():
+            logger.error("❌ CRITICAL: NaN values in logits!")
+        if torch.isinf(logits).any():
+            logger.error("❌ CRITICAL: Inf values in logits!")
+        predictions = torch.sigmoid(logits)
+        logger.info("   Predictions min: %.6f", predictions.min().item())
+        logger.info("   Predictions max: %.6f", predictions.max().item())
+        logger.info("   Predictions mean: %.6f", predictions.mean().item())
+
+    @staticmethod
+    def _log_loss_analysis(
+        loss: torch.Tensor, logits: torch.Tensor, labels: torch.Tensor
+    ) -> None:
+        """Log detailed loss analysis for debugging.
+
+        Args:
+            loss: Computed loss tensor
+            logits: Model output logits
+            labels: Ground truth labels
+        """
+        logger.info("🔍 DEBUG: Loss Analysis")
+        logger.info("   Raw loss: %.8f", loss.item())
+        bce_manual = F.binary_cross_entropy_with_logits(
+            logits, labels.float(), reduction="mean"
+        )
+        logger.info("   Manual BCE loss: %.8f", bce_manual.item())
+        if abs(loss.item()) < 1e-10:
+            logger.error("❌ CRITICAL: Loss is effectively zero!")
+            logger.error("   This indicates a serious training issue!")
+        for i in range(min(5, logits.shape[1])):
+            class_logits = logits[:, i]
+            class_labels = labels[:, i].float()
+            class_loss = F.binary_cross_entropy_with_logits(
+                class_logits, class_labels, reduction="mean"
+            )
+            logger.info("   Class %d loss: %.8f", i, class_loss.item())
+
+    def _log_gradient_stats_before(self) -> None:
+        """Log gradient statistics before gradient clipping.
+
+        Analyzes gradient norms across all model parameters and logs statistics for
+        debugging purposes.
+        """
+        logger.info("🔍 DEBUG: Gradient Analysis")
+        total_norm = 0.0
+        param_count = 0
+        for p in self.model.parameters():
+            if p.grad is not None:
+                param_norm = p.grad.data.norm(2)
+                total_norm += param_norm.item() ** 2
+                param_count += 1
+        if param_count > 0:
+            total_norm = total_norm**0.5
+            logger.info("   Gradient norm before clipping: %.6f", total_norm)
+            if total_norm > 10:
+                logger.warning("⚠️  WARNING: Large gradient norm detected!")
+            if total_norm < 1e-6:
+                logger.warning("⚠️  WARNING: Very small gradient norm detected!")
+
+    @staticmethod
+    def _log_gradient_stats_after(clip_norm: Union[float, torch.Tensor]) -> None:
+        """Log gradient statistics after gradient clipping.
+
+        Args:
+            clip_norm: Gradient norm value after clipping
+        """
+        if not isinstance(clip_norm, (int, float)):
+            clip_val = float(clip_norm)
+        else:
+            clip_val = clip_norm
+        logger.info("   Gradient norm after clipping: %.6f", clip_val)
+
+    def _log_progress(
+        self, epoch: int, batch_idx: int, num_batches: int, total_loss: float
+    ) -> None:
+        """Log training progress information.
+
+        Args:
+            epoch: Current epoch number
+            batch_idx: Current batch index
+            num_batches: Total number of batches in epoch
+            total_loss: Cumulative loss for current epoch
+        """
+        avg_loss = total_loss / (batch_idx + 1)
+        current_lr = self.scheduler.get_last_lr()[0]
+        logger.info(
+            "Epoch %d, Batch %d/%d, Loss: %.8f, LR: %.2e",
+            epoch,
+            batch_idx + 1,
+            num_batches,
+            avg_loss,
+            current_lr,
+        )
+        if avg_loss < 1e-8:
+            logger.error(
+                "❌ CRITICAL: Average loss is suspiciously small: %.8f", avg_loss
+            )
+        if avg_loss > 100:
+            logger.error(
+                "❌ CRITICAL: Average loss is suspiciously large: %.8f", avg_loss
+            )
+
+    def _maybe_validate_and_early_stop(
+        self,
+        batch_idx: int,
+        epoch: int,
+        num_batches: int,
+        total_loss: float,
+        current_lr: float,
+        val_frequency: int,
+        start_time: float,
+    ) -> Optional[Dict[str, Any]]:
+        """Check if validation should be performed and handle early stopping.
+
+        Args:
+            batch_idx: Current batch index
+            epoch: Current epoch number
+            num_batches: Total number of batches in epoch
+            total_loss: Total loss for current epoch
+            current_lr: Current learning rate
+            val_frequency: Frequency of validation
+            start_time: Start time of training
+
+        Returns:
+            Dictionary with early stopping metrics if stopping, None otherwise
+        """
+        if (batch_idx + 1) % val_frequency != 0:
+            return None
+        logger.info("🔍 Validating at batch %d...", batch_idx + 1)
+        self.validate(epoch)
+        if self.should_stop_early():
+            logger.info("🛑 Early stopping triggered at batch %d", batch_idx + 1)
+            return {
+                "epoch": epoch,
+                "train_loss": total_loss / (batch_idx + 1),
+                "epoch_time": time.time() - start_time,
+                "learning_rate": current_lr,
+                "early_stopped": True,
+            }
+        return None
 
     def validate(self, epoch: int) -> Dict[str, float]:
         """Validate model performance.
@@ -444,7 +647,7 @@ class EmotionDetectionTrainer:
         Returns:
             Dictionary with validation metrics
         """
-        logger.info("Validating model at epoch {epoch}...")
+        logger.info("Validating model at epoch %d...", epoch)
 
         val_metrics = evaluate_emotion_classifier(
             self.model, self.val_dataloader, self.device, threshold=0.2
@@ -459,11 +662,13 @@ class EmotionDetectionTrainer:
 
             if self.save_best_only:
                 self.save_checkpoint(epoch, val_metrics, is_best=True)
-                logger.info("New best model saved! Macro F1: {current_score:.4f}")
+                logger.info("New best model saved! Macro F1: %.4f", current_score)
         else:
             self.patience_counter += 1
             logger.info(
-                "No improvement. Patience: {self.patience_counter}/{self.early_stopping_patience}"
+                "No improvement. Patience: %d/%d",
+                self.patience_counter,
+                self.early_stopping_patience,
             )
 
         return val_metrics
@@ -472,7 +677,9 @@ class EmotionDetectionTrainer:
         """Check if training should stop early."""
         return self.patience_counter >= self.early_stopping_patience
 
-    def save_checkpoint(self, epoch: int, metrics: Dict[str, float], is_best: bool = False) -> None:
+    def save_checkpoint(
+        self, epoch: int, metrics: Dict[str, float], is_best: bool = False
+    ) -> None:
         """Save model checkpoint.
 
         Args:
@@ -498,10 +705,10 @@ class EmotionDetectionTrainer:
         if is_best:
             checkpoint_path = self.output_dir / "best_model.pt"
         else:
-            checkpoint_path = self.output_dir / "checkpoint_epoch_{epoch}.pt"
+            checkpoint_path = self.output_dir / f"checkpoint_epoch_{epoch}.pt"
 
         torch.save(checkpoint, checkpoint_path)
-        logger.info("Checkpoint saved: {checkpoint_path}")
+        logger.info("Checkpoint saved: %s", checkpoint_path)
 
     def train(self) -> Dict[str, Any]:
         """Complete training pipeline.
@@ -526,7 +733,7 @@ class EmotionDetectionTrainer:
                 self.training_history.append(epoch_metrics)
 
                 if self.should_stop_early():
-                    logger.info(f"Early stopping at epoch {epoch}")
+                    logger.info("Early stopping at epoch %d", epoch)
                     break
             else:
                 self.training_history.append(train_metrics)
@@ -556,7 +763,7 @@ class EmotionDetectionTrainer:
             serializable_history = convert_numpy_types(self.training_history)
             with Path(history_path).open("w") as f:
                 json.dump(serializable_history, f, indent=2)
-            logger.info("Training history saved to {history_path}")
+            logger.info("Training history saved to %s", history_path)
         except Exception:
             logger.exception("Failed to save training history")
             simplified_history = []
@@ -576,7 +783,7 @@ class EmotionDetectionTrainer:
 
             with Path(history_path).open("w") as f:
                 json.dump(simplified_history, f, indent=2)
-            logger.info("Simplified training history saved to {history_path}")
+            logger.info("Simplified training history saved to %s", history_path)
 
         results = {
             "final_test_metrics": test_metrics,
@@ -587,9 +794,9 @@ class EmotionDetectionTrainer:
         }
 
         logger.info("✅ Training completed!")
-        logger.info(f"Best validation Macro F1: {self.best_score:.4f}")
-        logger.info(f"Final test Macro F1: {test_metrics['macro_f1']:.4f}")
-        logger.info(f"Final test Micro F1: {test_metrics['micro_f1']:.4f}")
+        logger.info("Best validation Macro F1: %.4f", self.best_score)
+        logger.info("Final test Macro F1: %.4f", test_metrics["macro_f1"])
+        logger.info("Final test Micro F1: %.4f", test_metrics["micro_f1"])
 
         return results
 
@@ -602,9 +809,8 @@ def train_emotion_detection_model(
     learning_rate: float = 2e-6,  # Reduced from 2e-5 to 2e-6 for debugging
     num_epochs: int = 3,
     device: Optional[str] = None,
-    dev_mode: bool = True,  # Enable development mode by default
-    debug_mode: bool = True,  # Enable debugging by default
-    ) -> Dict[str, Any]:
+    dev_mode: bool = False,
+) -> Dict[str, Any]:
     """Convenient function to train emotion detection model with default settings.
 
     Args:
@@ -615,8 +821,7 @@ def train_emotion_detection_model(
         learning_rate: Learning rate for optimization
         num_epochs: Number of training epochs
         device: Device to use for training (auto-detect if None)
-        dev_mode: Enable development mode with smaller dataset
-        debug_mode: Enable debugging mode with enhanced logging
+        dev_mode: If True, use a small subset of data for quicker iterations
 
     Returns:
         Dictionary containing training results and metrics
