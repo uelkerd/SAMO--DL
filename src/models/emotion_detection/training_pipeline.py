@@ -771,14 +771,14 @@ class EmotionDetectionTrainer:
                 simplified_entry = {}
                 for k, v in entry.items():
                     try:
-                    if isinstance(v, (np.integer, np.floating)):
-                        simplified_entry[k] = float(v.item())
-                    elif isinstance(v, (int, float, str, bool)):
-                        simplified_entry[k] = v
-                    else:
+                        if isinstance(v, (np.integer, np.floating)):
+                            simplified_entry[k] = float(v.item())
+                        elif isinstance(v, (int, float, str, bool)):
+                            simplified_entry[k] = v
+                        else:
+                            simplified_entry[k] = str(v)
+                    except Exception:
                         simplified_entry[k] = str(v)
-                except Exception:
-                    simplified_entry[k] = str(v)
                 simplified_history.append(simplified_entry)
 
             with Path(history_path).open("w") as f:
