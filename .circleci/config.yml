@@ -53,33 +53,56 @@ commands:
             # Debug: Check container started successfully
             echo "🔍 Debug: Container started, checking status..."
             docker ps -a | grep << parameters.container_name >> || echo "Container not found in docker ps"
-            
+
             # Debug: Show available images
             echo "🔍 Debug: Available Docker images:"
             docker images | grep samo-dl || echo "No samo-dl images found"
-            
+
             # Wait for container to be fully ready
             echo "⏳ Waiting for container to start..."
             sleep 5
-            
+
             # Check container logs to see if it's ready
             echo "🔍 Checking container logs for readiness..."
             docker logs << parameters.container_name >> || echo "No logs available"
-            
+
             # Define HEALTH_PATH early so we can use it
             HEALTH_PATH="<< parameters.path >>"
             case "$HEALTH_PATH" in
               /*) ;;
               *) HEALTH_PATH="/$HEALTH_PATH" ;;
             esac
-            
+
             # Use docker exec to check if the app is responding internally
             echo "🔍 Testing internal container connectivity..."
-            docker exec << parameters.container_name >> curl -fsS --connect-timeout 3 --max-time 5 "http://127.0.0.1:<< parameters.port >>${HEALTH_PATH}" >/dev/null && echo "✅ Internal health check passed" || echo "⚠️ Internal health check failed"
+            # Detect available HTTP client in container
+            if docker exec << parameters.container_name >> sh -c 'command -v curl' >/dev/null 2>&1; then
+              HCMD="curl -fsS --connect-timeout 3 --max-time 5"
+              echo "✅ Using curl for health checks"
+            elif docker exec << parameters.container_name >> sh -c 'command -v wget' >/dev/null 2>&1; then
+              HCMD="wget --quiet --timeout=5 --tries=1 -O -"
+              echo "✅ Using wget for health checks"
+            else
+              echo "❌ Neither curl nor wget found in container"
+              echo "🔍 Attempting host-side health check with port mapping..."
+              # Fallback: try to add port mapping and check from host
+              docker stop << parameters.container_name >> || true
+              docker run -d --rm -p << parameters.host_port >>:<< parameters.port >> --name << parameters.container_name >> << parameters.image >>
+              sleep 5
+              if curl -fsS --connect-timeout 3 --max-time 5 "http://127.0.0.1:<< parameters.host_port >>${HEALTH_PATH}" >/dev/null; then
+                echo "✅ Host-side health check passed"
+                trap - EXIT
+                cleanup
+                exit 0
+              else
+                echo "❌ Host-side health check also failed"
+                exit 1
+              fi
+            fi
 
             echo "🔍 Starting internal container health check on port << parameters.port >>"
             for i in $(seq 1 30); do
-              if docker exec << parameters.container_name >> curl -fsS --connect-timeout 3 --max-time 5 "http://127.0.0.1:<< parameters.port >>${HEALTH_PATH}" >/dev/null; then
+              if docker exec << parameters.container_name >> sh -lc "$HCMD \"http://127.0.0.1:<< parameters.port >>${HEALTH_PATH}\"" >/dev/null; then
                 echo "✅ Internal health check passed"
                 trap - EXIT
                 cleanup

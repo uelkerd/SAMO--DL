@@ -25,6 +25,7 @@ WORKDIR /app
 COPY dependencies/requirements-api.txt .
 COPY dependencies/requirements-dev.txt .
 COPY dependencies/requirements-ml.txt .
+COPY dependencies/constraints.txt .
 
 # Install Python dependencies
 ARG PIP_CONSTRAINT=""
