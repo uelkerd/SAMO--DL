@@ -296,66 +296,139 @@ class EmotionDetectionTrainer:
             Dictionary with training metrics
         """
         self.model.train()
-
+        
+        # Handle progressive unfreezing
+        self._handle_progressive_unfreezing(epoch)
+        
+        # Setup training
         total_loss = 0.0
         num_batches = len(self.train_dataloader)
         start_time = time.time()
-
-        if epoch in self.unfreeze_schedule:
-            layers_to_unfreeze = 2  # Unfreeze 2 layers at a time
-            self.model.unfreeze_bert_layers(layers_to_unfreeze)
-            logger.info("Epoch %d: Applied progressive unfreezing", epoch)
-
         val_frequency = max(500, num_batches // 5)
+        
         logger.info("🔧 Validation frequency: every %d batches", val_frequency)
 
+        # Train on all batches
         for batch_idx, batch in enumerate(self.train_dataloader):
-            input_ids = batch["input_ids"].to(self.device)
-            attention_mask = batch["attention_mask"].to(self.device)
-            labels = batch["labels"].to(self.device)
-
-            if batch_idx == 0 and logger.isEnabledFor(logging.DEBUG):
-                self._log_data_distribution(labels)
-
-            self.optimizer.zero_grad()
-
-            logits = self.model(input_ids, attention_mask)
-
-            if batch_idx == 0 and logger.isEnabledFor(logging.DEBUG):
-                self._log_model_output(logits)
-
-            loss = self.loss_fn(logits, labels)
-
-            if batch_idx == 0 and logger.isEnabledFor(logging.DEBUG):
-                self._log_loss_analysis(loss, logits, labels)
-
-            loss.backward()
-
-            if batch_idx == 0 and logger.isEnabledFor(logging.DEBUG):
-                self._log_gradient_stats_before()
-
-            clip_norm = torch.nn.utils.clip_grad_norm_(
-                self.model.parameters(), max_norm=1.0
-            )
-
-            if batch_idx == 0 and logger.isEnabledFor(logging.DEBUG):
-                self._log_gradient_stats_after(clip_norm)
-
-            self.optimizer.step()
-            self.scheduler.step()
-
-            total_loss += loss.item()
-
-            # First 5 batches + every 100
-            if batch_idx < 5 or (batch_idx + 1) % 100 == 0:
-                self._log_progress(epoch, batch_idx, num_batches, total_loss)
-
+            batch_loss = self._train_single_batch(batch, batch_idx, epoch, num_batches)
+            total_loss += batch_loss
+            
+            # Check for early stopping
             maybe_metrics = self._maybe_validate_and_early_stop(
                 batch_idx, epoch, num_batches, total_loss, self.scheduler.get_last_lr()[0]
             )
             if maybe_metrics is not None:
                 return maybe_metrics
 
+        # Return epoch metrics
+        return self._create_epoch_metrics(epoch, total_loss, num_batches, start_time)
+
+    def _handle_progressive_unfreezing(self, epoch: int) -> None:
+        """Handle progressive unfreezing of BERT layers.
+        
+        Args:
+            epoch: Current epoch number
+        """
+        if epoch in self.unfreeze_schedule:
+            layers_to_unfreeze = 2  # Unfreeze 2 layers at a time
+            self.model.unfreeze_bert_layers(layers_to_unfreeze)
+            logger.info("Epoch %d: Applied progressive unfreezing", epoch)
+
+    def _train_single_batch(
+        self, batch: Dict[str, torch.Tensor], batch_idx: int, epoch: int, num_batches: int
+    ) -> float:
+        """Train on a single batch.
+        
+        Args:
+            batch: Input batch data
+            batch_idx: Current batch index
+            epoch: Current epoch number
+            num_batches: Total number of batches
+            
+        Returns:
+            float: Loss value for this batch
+        """
+        # Move data to device
+        input_ids = batch["input_ids"].to(self.device)
+        attention_mask = batch["attention_mask"].to(self.device)
+        labels = batch["labels"].to(self.device)
+
+        # Log debug information for first batch
+        if batch_idx == 0:
+            self._log_batch_debug_info(labels, None, None)  # logits not available yet
+
+        # Forward pass
+        self.optimizer.zero_grad()
+        logits = self.model(input_ids, attention_mask)
+        loss = self.loss_fn(logits, labels)
+
+        # Log debug information for first batch
+        if batch_idx == 0:
+            self._log_batch_debug_info(labels, logits, loss)
+
+        # Backward pass
+        loss.backward()
+        
+        # Gradient clipping
+        clip_norm = torch.nn.utils.clip_grad_norm_(
+            self.model.parameters(), max_norm=1.0
+        )
+
+        # Log gradient stats for first batch
+        if batch_idx == 0:
+            self._log_gradient_stats_before()
+            self._log_gradient_stats_after(clip_norm)
+
+        # Update parameters
+        self.optimizer.step()
+        self.scheduler.step()
+
+        # Log progress periodically
+        if batch_idx < 5 or (batch_idx + 1) % 100 == 0:
+            # We need to pass the current total loss from the calling method
+            # For now, just log basic progress
+            logger.info(
+                "Epoch %d, Batch %d/%d, Loss: %.8f",
+                epoch, batch_idx + 1, num_batches, loss.item()
+            )
+
+        return loss.item()
+
+    def _log_batch_debug_info(
+        self, labels: torch.Tensor, logits: Optional[torch.Tensor], loss: Optional[torch.Tensor]
+    ) -> None:
+        """Log debug information for the first batch.
+        
+        Args:
+            labels: Ground truth labels
+            logits: Model output logits (None for first call)
+            loss: Computed loss (None for first call)
+        """
+        if not logger.isEnabledFor(logging.DEBUG):
+            return
+            
+        self._log_data_distribution(labels)
+        
+        if logits is not None:
+            self._log_model_output(logits)
+            
+        if loss is not None:
+            self._log_loss_analysis(loss, logits, labels)
+
+    def _create_epoch_metrics(
+        self, epoch: int, total_loss: float, num_batches: int, start_time: float
+    ) -> Dict[str, float]:
+        """Create metrics dictionary for completed epoch.
+        
+        Args:
+            epoch: Current epoch number
+            total_loss: Total loss for the epoch
+            num_batches: Number of batches in epoch
+            start_time: Start time of epoch
+            
+        Returns:
+            Dictionary with epoch metrics
+        """
         epoch_time = time.time() - start_time
         avg_loss = total_loss / num_batches
 
