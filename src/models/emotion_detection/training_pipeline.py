@@ -612,7 +612,7 @@ class EmotionDetectionTrainer:
         batch_idx: int,
         epoch: int,
         num_batches: int,
-        avg_loss: float,
+        total_loss: float,
         current_lr: float,
         val_frequency: int,
         start_time: float,
@@ -623,13 +623,13 @@ class EmotionDetectionTrainer:
             batch_idx: Current batch index
             epoch: Current epoch number
             num_batches: Total number of batches in epoch
-            avg_loss: Average loss for current epoch
+            total_loss: Total loss for current epoch
             current_lr: Current learning rate
             val_frequency: Frequency of validation
             start_time: Start time of training
 
         Returns:
-            bool: True if training should stop early, False otherwise
+            Dictionary with early stopping metrics if stopping, None otherwise
         """
         if (batch_idx + 1) % val_frequency != 0:
             return None
@@ -639,7 +639,7 @@ class EmotionDetectionTrainer:
             logger.info("🛑 Early stopping triggered at batch %d", batch_idx + 1)
             return {
                 "epoch": epoch,
-                "train_loss": avg_loss / (batch_idx + 1),
+                "train_loss": total_loss / (batch_idx + 1),
                 "epoch_time": time.time() - start_time,
                 "learning_rate": current_lr,
                 "early_stopped": True,
@@ -713,7 +713,7 @@ class EmotionDetectionTrainer:
         if is_best:
             checkpoint_path = self.output_dir / "best_model.pt"
         else:
-            checkpoint_path = self.output_dir / "checkpoint_epoch_{}.pt".format(epoch)
+            checkpoint_path = self.output_dir / f"checkpoint_epoch_{epoch}.pt"
 
         torch.save(checkpoint, checkpoint_path)
         logger.info("Checkpoint saved: %s", checkpoint_path)
