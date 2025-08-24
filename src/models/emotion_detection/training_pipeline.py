@@ -19,7 +19,7 @@ from torch.optim import AdamW
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer, get_linear_schedule_with_warmup
 
-from src.utils import count_model_params
+from ...utils import count_model_params
 
 from .bert_classifier import create_bert_emotion_classifier, evaluate_emotion_classifier
 from .dataset_loader import GoEmotionsDataset, create_goemotions_loader
