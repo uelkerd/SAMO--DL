@@ -1,19 +1,20 @@
-# Safety Policy Configuration
+# Safety Policy Configuration v3
 # This policy controls how Safety v3 behaves during security scans
+version: 3
 
 # Enable dependency vulnerability scanning
 dependency-vulnerabilities:
   enabled: true
-  
-  # Fail CI only for Critical and High severity vulnerabilities
-  cvss-severity:
-    - critical
-    - high
-    
-  # Allow lower severity findings to pass (warnings only)
-  # - medium
-  # - low
-  # - none
+
+# Fail CI only for High and Critical severity vulnerabilities
+fail-scan-with-exit-code:
+  - high
+  - critical
+
+# Allow lower severity findings to pass (warnings only)
+# - medium
+# - low
+# - none
 
 # Additional policy options
 # Uncomment and customize as needed:
