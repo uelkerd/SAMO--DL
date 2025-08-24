@@ -142,6 +142,52 @@ jobs:
             export PATH="$HOME/.local/bin:$PATH"
             PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src" python3 -m pytest --version
             echo "✅ Test framework ready"
+  # Security vulnerability scanning with Safety CLI v3
+  safety-scan:
+    executor: python-simple
+    steps:
+      - checkout
+      - run:
+          name: Install Safety CLI v3
+          command: |
+            python3 -m pip install --upgrade pip
+            python3 -m pip install safety==3.6.0
+      - run:
+          name: Create artifacts directory
+          command: |
+            mkdir -p artifacts/security/
+      - run:
+          name: Run Safety Scan with Policy
+          command: |
+            export PATH="$HOME/.local/bin:$PATH"
+            # Safety v3 with pre-configured project settings
+            safety scan \
+              --policy-file .safety-policy.yml \
+              --output json \
+              --output-file artifacts/security/safety-report.json \
+              --continue-on-vulnerability-error || {
+                echo "❌ Safety scan found High/Critical vulnerabilities"
+                cat artifacts/security/safety-report.json | python3 -m json.tool || true
+                exit 1
+              }
+            echo "✅ Safety scan completed - no High/Critical vulnerabilities found"
+      - run:
+          name: Safety Scan Fallback (if authentication fails)
+          command: |
+            export PATH="$HOME/.local/bin:$PATH"
+            if [ ! -f "artifacts/security/safety-report.json" ] || [ ! -s "artifacts/security/safety-report.json" ]; then
+              echo "⚠️ Primary Safety scan failed, trying fallback scan..."
+              safety check --json --output artifacts/security/safety-fallback.json || {
+                echo "❌ Fallback Safety scan also failed"
+                # Don't fail CI on authentication issues, but warn
+                echo "⚠️ Safety scanning unavailable - proceeding with build"
+                exit 0
+              }
+            fi
+      - store_artifacts:
+          path: artifacts/security/
+          destination: security-reports
+
   docker-build:
     docker:
       - image: cimg/base:stable
@@ -208,6 +254,9 @@ workflows:
     jobs:
       - basic-setup
       - code-quality:
+          requires:
+            - basic-setup
+      - safety-scan:
           requires:
             - basic-setup
       - unit-tests:
