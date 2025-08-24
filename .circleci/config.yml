@@ -113,14 +113,23 @@ jobs:
       - run:
           name: Run safety scan with constraints (fail on high/critical)
           command: |
-            set -e
+            set -euo pipefail
             echo "🔍 Scanning all canonical requirements with constraints"
-            REQUIREMENT_FILES=$(find dependencies -name 'requirements-*.txt' -printf -- '-r %p ')
-            # shellcheck disable=SC2086
-            safety check $REQUIREMENT_FILES \
-              -c dependencies/constraints.txt \
-              --full-report \
-              --fail-on HIGH
+            
+            # Create temporary virtual environment
+            python3 -m venv /tmp/safety-scan-env
+            source /tmp/safety-scan-env/bin/activate
+            
+            # Install dependencies with constraints
+            pip install --upgrade pip
+            pip install -c dependencies/constraints.txt -r dependencies/requirements-api.txt -r dependencies/requirements-dev.txt -r dependencies/requirements-ml.txt
+            
+            # Run safety check against installed environment (captures transitives)
+            safety check --full-report --fail-on HIGH
+            
+            # Cleanup
+            deactivate
+            rm -rf /tmp/safety-scan-env
 
   # Basic linting (optional - won't fail build)
   code-quality:
