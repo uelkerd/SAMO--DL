@@ -389,6 +389,92 @@ def run_training(args):
         return None
 
 
+def _build_validation_list(args):
+    """Build list of validations to run."""
+    validations = []
+
+    if args.check_data_distribution:
+        validations.append(("Data Distribution", validate_data_distribution))
+
+    if args.check_model_architecture:
+        validations.append(("Model Architecture", validate_model_architecture))
+
+    if args.check_loss_function:
+        validations.append(("Loss Function", validate_loss_function))
+
+    if args.check_training_config:
+        validations.append(
+            ("Training Config", lambda: validate_training_config(args))
+        )
+
+    if not validations:
+        validations = [
+            ("Data Distribution", validate_data_distribution),
+            ("Model Architecture", validate_model_architecture),
+            ("Loss Function", validate_loss_function),
+            ("Training Config", lambda: validate_training_config(args)),
+        ]
+
+    return validations
+
+
+def _run_validations(validations):
+    """Run all validations and return results."""
+    results = {}
+    
+    for name, validation_func in validations:
+        logger.info("\n%s", "="*40)
+        logger.info("Running: %s", name)
+        logger.info("%s", "="*40)
+
+        try:
+            validation_func()  # Will raise exception on failure
+            results[name] = True
+            logger.info("✅ %s PASSED", name)
+
+        except Exception as _e:
+            logger.error("❌ %s ERROR: %s", name, _e)
+            results[name] = False
+
+    return results
+
+
+def _print_validation_summary(results):
+    """Print validation summary and handle exit codes."""
+    passed = sum(results.values())
+    total = len(results)
+
+    logger.info("\n%s", "="*50)
+    logger.info("📊 VALIDATION SUMMARY")
+    logger.info("%s", "="*50)
+    logger.info("Total checks: %d", total)
+    logger.info("Passed: %d", passed)
+    logger.info("Failed: %d", total - passed)
+
+    if passed == total:
+        logger.info("\n✅ ALL VALIDATIONS PASSED!")
+        logger.info("   Ready for training on Vertex AI")
+    else:
+        logger.error("\n❌ SOME VALIDATIONS FAILED!")
+        logger.error("   Fix issues before training")
+        sys.exit(1)
+
+
+def _run_training_mode(args):
+    """Run training mode and handle results."""
+    logger.info("🎯 Running training mode...")
+    results = run_training(args)
+
+    if results:
+        logger.info("\n🎉 TRAINING COMPLETED SUCCESSFULLY!")
+        logger.info("📊 Final Results:")
+        for key, value in results.items():
+            logger.info("   %s: %s", key, value)
+    else:
+        logger.error("\n❌ TRAINING FAILED!")
+        sys.exit(1)
+
+
 def main():
     """Main function."""
     logger.info("🚀 SAMO Deep Learning - Vertex AI Training")
@@ -402,76 +488,11 @@ def main():
 
     if args.validation_mode:
         logger.info("🔍 Running validation mode...")
-
-        validations = []
-
-        if args.check_data_distribution:
-            validations.append(("Data Distribution", validate_data_distribution))
-
-        if args.check_model_architecture:
-            validations.append(("Model Architecture", validate_model_architecture))
-
-        if args.check_loss_function:
-            validations.append(("Loss Function", validate_loss_function))
-
-        if args.check_training_config:
-            validations.append(
-                ("Training Config", lambda: validate_training_config(args))
-            )
-
-        if not validations:
-            validations = [
-                ("Data Distribution", validate_data_distribution),
-                ("Model Architecture", validate_model_architecture),
-                ("Loss Function", validate_loss_function),
-                ("Training Config", lambda: validate_training_config(args)),
-            ]
-
-        results = {}
-        for name, validation_func in validations:
-            logger.info("\n%s", "="*40)
-            logger.info("Running: %s", name)
-            logger.info("%s", "="*40)
-
-            try:
-                validation_func()  # Will raise exception on failure
-                results[name] = True
-                logger.info("✅ %s PASSED", name)
-
-            except Exception as _e:
-                logger.error("❌ %s ERROR: %s", name, _e)
-                results[name] = False
-
-        passed = sum(results.values())
-        total = len(results)
-
-        logger.info("\n%s", "="*50)
-        logger.info("📊 VALIDATION SUMMARY")
-        logger.info("%s", "="*50)
-        logger.info("Total checks: %d", total)
-        logger.info("Passed: %d", passed)
-        logger.info("Failed: %d", total - passed)
-
-        if passed == total:
-            logger.info("\n✅ ALL VALIDATIONS PASSED!")
-            logger.info("   Ready for training on Vertex AI")
-        else:
-            logger.error("\n❌ SOME VALIDATIONS FAILED!")
-            logger.error("   Fix issues before training")
-            sys.exit(1)
-
+        validations = _build_validation_list(args)
+        results = _run_validations(validations)
+        _print_validation_summary(results)
     else:
-        logger.info("🎯 Running training mode...")
-        results = run_training(args)
-
-        if results:
-            logger.info("\n🎉 TRAINING COMPLETED SUCCESSFULLY!")
-            logger.info("📊 Final Results:")
-            for key, value in results.items():
-                logger.info("   %s: %s", key, value)
-        else:
-            logger.error("\n❌ TRAINING FAILED!")
-            sys.exit(1)
+        _run_training_mode(args)
 
 
 if __name__ == "__main__":
