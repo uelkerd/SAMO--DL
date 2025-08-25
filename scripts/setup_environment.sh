@@ -26,7 +26,7 @@ parse_env_name() {
     fi
     
     local env_name
-    env_name=$(grep '^name:' "$env_file" | sed 's/^name:[[:space:]]*//' | tr -d '"'"'"' | head -n1)
+    env_name=$(grep '^name:' "$env_file" | sed 's/^name:[[:space:]]*//' | tr -d "\"'" | head -n1)
     
     if [ -z "$env_name" ]; then
         echo "No environment name found in: $env_file" >&2
@@ -38,7 +38,7 @@ parse_env_name() {
 
 # Parse and cache the environment name
 ENV_NAME="$(parse_env_name)" || {
-    print_error "Failed to parse environment name from environment.yml"
+    echo "[ERROR] Failed to parse environment name from environment.yml" >&2
     exit 1
 }
 
