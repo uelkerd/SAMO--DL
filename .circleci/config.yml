@@ -142,7 +142,7 @@ jobs:
               -r dependencies/requirements-api.txt \
               -r dependencies/requirements-dev.txt
             # Sanity check to fail fast if imports break
-            PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src" python3 -c "import sys; import fastapi, uvicorn, pydantic, requests; print('✅ core imports OK')" || echo "❌ Import failed"
+            PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src" python3 -c "import sys; import fastapi, uvicorn, pydantic, requests; print('✅ core imports OK')"
       - run:
           name: Test Basic API Import
           command: |
@@ -296,7 +296,7 @@ jobs:
           name: Install Test Dependencies (optimized)
           command: |
             python3 -m pip install --upgrade pip
-            
+
             # Gate ML requirements behind environment variable for speed/stability
             INCLUDE_ML_IN_TESTS="${INCLUDE_ML_IN_TESTS:-false}"
             REQ_FILES="-r dependencies/requirements-api.txt -r dependencies/requirements-dev.txt"
@@ -306,7 +306,7 @@ jobs:
             else
               echo "ℹ️ Skipping ML requirements for unit tests (set INCLUDE_ML_IN_TESTS=true to include)"
             fi
-            
+
             # Install with optimized flags to prevent timeout
             python3 -m pip install \
               --no-compile \
@@ -314,7 +314,7 @@ jobs:
               --timeout 300 \
               -c dependencies/constraints.txt \
               $REQ_FILES
-              
+
             # Test imports based on what was installed
             if [ "${INCLUDE_ML_IN_TESTS}" = "true" ]; then
               python3 -c "import sys; import pytest, ruff, torch, transformers, pandas; print('✅ test deps imports OK')" || echo "❌ Import failed"

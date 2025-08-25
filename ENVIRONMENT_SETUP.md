@@ -15,7 +15,7 @@ conda env create -f environment.yml
 conda activate samo-dl-stable
 ```
 
-### `environment.dev.yml` - Development Environment  
+### `environment.dev.yml` - Development Environment
 - **Use case**: Development, testing, code quality tools
 - **Contains**: Base runtime + development tools (pytest, ruff, black, mypy, pre-commit, etc.)
 - **Python**: 3.12
@@ -29,7 +29,7 @@ conda activate samo-dl-dev
 ### `environment.ml.yml` - Machine Learning Environment
 - **Use case**: ML training, inference, data science work
 - **Contains**: Base runtime + ML libraries (PyTorch, transformers, datasets, librosa, etc.)
-- **Python**: 3.12  
+- **Python**: 3.12
 - **Size**: Large (includes GPU-ready ML libraries)
 
 ```bash
@@ -74,7 +74,7 @@ conda env remove -n samo-dl-dev
 # Activate development environment
 conda activate samo-dl-dev
 
-# Activate ML environment  
+# Activate ML environment
 conda activate samo-dl-ml
 
 # Deactivate current environment

@@ -103,6 +103,10 @@ setup_environment() {
     
     if [ $? -eq 0 ]; then
         print_success "Environment setup completed"
+        echo "📄 Environment file used: environment.yml"
+        echo "🏷️  Environment name: samo-dl-stable"
+        echo "ℹ️  For development use: environment.dev.yml → samo-dl-dev"
+        echo "ℹ️  For ML training use: environment.ml.yml → samo-dl-ml"
     else
         print_error "Failed to setup environment"
         exit 1
@@ -117,7 +121,7 @@ activate_and_setup() {
     
     # Install additional pip packages
     pip install --upgrade pip
-    pip install -c "$PROJECT_ROOT/dependencies/constraints.txt" -r requirements.txt 2>/dev/null || print_warning "No requirements.txt found"
+    pip install -c "$PROJECT_ROOT/dependencies/constraints.txt" -r "$PROJECT_ROOT/requirements.txt" 2>/dev/null || print_warning "No requirements.txt found"
     
     # Install pre-commit hooks
     print_status "Setting up pre-commit hooks..."
