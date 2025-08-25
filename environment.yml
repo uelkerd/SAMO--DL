@@ -28,9 +28,9 @@ dependencies:
       - rich==13.9.4
       - loguru==0.7.2
       - prometheus-client==0.20.0
-      
+
       # Minimal runtime ML support
       - numpy==1.26.4
-      
+
 # Note: For development, use environment.dev.yml
 # For ML training/inference, use environment.ml.yml
