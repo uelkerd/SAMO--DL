@@ -29,7 +29,14 @@ Voice Input → Whisper STT → DistilRoBERTa Emotion → T5 Summarization → E
 
 #### System Architecture
 <div align="center">
-  <img src="docs/diagrams/Diagram02.svg" alt="SAMO System Architecture" width="100%" />
+  <a href="docs/diagrams/Diagram02.svg">
+    <img
+      src="docs/diagrams/Diagram02.svg"
+      alt="SAMO System Architecture diagram showing data flow between Whisper STT, Emotion Model, T5 Summarizer, and API"
+      width="100%"
+      loading="lazy"
+    />
+  </a>
 </div>
 
 ## 🚀 Production Achievements
@@ -256,7 +263,14 @@ python deployment/local/api_server.py
 ## 📅 Project Roadmap
 
 <div align="center">
-  <img src="docs/diagrams/Diagram03.svg" alt="Deep Learning Project Roadmap" width="100%" />
+  <a href="docs/diagrams/Diagram03.svg">
+    <img
+      src="docs/diagrams/Diagram03.svg"
+      alt="Deep Learning Project Roadmap with milestones and timelines"
+      width="100%"
+      loading="lazy"
+    />
+  </a>
 </div>
 
 ## 🎯 Future Enhancements
