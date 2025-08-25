@@ -190,9 +190,12 @@ jobs:
             echo "🔍 Safety version: $(safety --version)"
 
             # Run safety scan and capture exit code
-            # Write only stdout (JSON) to file, let stderr go to console
+            # Scan requirements files directly (not virtual env directory)
             set +e  # Temporarily disable exit on error to capture exit code
-            safety scan --target /tmp/safety-scan-env --output json > safety-report.json
+            safety check --policy-file .safety-policy.yml --output json \
+              -r dependencies/requirements-api.txt \
+              -r dependencies/requirements-dev.txt \
+              -r dependencies/requirements-ml.txt > safety-report.json
             EXIT_CODE=$?
             set -e  # Re-enable strict error handling
 
