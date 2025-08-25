@@ -17,7 +17,33 @@ resolve_repo_path() {
 # Cache the repo path for use throughout the script
 REPO_ROOT="$(resolve_repo_path)"
 
+# Parse environment name from environment.yml
+parse_env_name() {
+    local env_file="$REPO_ROOT/environment.yml"
+    if [ ! -f "$env_file" ]; then
+        echo "Environment file not found at: $env_file" >&2
+        return 1
+    fi
+    
+    local env_name
+    env_name=$(grep '^name:' "$env_file" | sed 's/^name:[[:space:]]*//' | tr -d '"'"'"' | head -n1)
+    
+    if [ -z "$env_name" ]; then
+        echo "No environment name found in: $env_file" >&2
+        return 1
+    fi
+    
+    echo "$env_name"
+}
+
+# Parse and cache the environment name
+ENV_NAME="$(parse_env_name)" || {
+    print_error "Failed to parse environment name from environment.yml"
+    exit 1
+}
+
 echo "🚀 Setting up SAMO Deep Learning Environment..."
+echo "📄 Environment name: $ENV_NAME"
 
 # Colors for output
 RED='\033[0;31m'
@@ -98,7 +124,7 @@ init_conda() {
 
 # Create or update environment
 setup_environment() {
-    print_status "Setting up conda environment 'samo-dl'..."
+    print_status "Setting up conda environment '$ENV_NAME'..."
     
     # Check if environment exists
     local env_file="$REPO_ROOT/environment.yml"
@@ -107,18 +133,18 @@ setup_environment() {
         exit 1
     fi
     
-    if conda env list | grep -Eq '^[[:space:]]*\*?[[:space:]]*samo-dl[[:space:]]'; then
-        print_warning "Environment 'samo-dl' already exists. Updating..."
+    if conda env list | grep -Eq "^[[:space:]]*\*?[[:space:]]*${ENV_NAME}[[:space:]]"; then
+        print_warning "Environment '$ENV_NAME' already exists. Updating..."
         conda env update -f "$env_file"
     else
-        print_status "Creating new environment 'samo-dl'..."
+        print_status "Creating new environment '$ENV_NAME'..."
         conda env create -f "$env_file"
     fi
     
     if [ $? -eq 0 ]; then
         print_success "Environment setup completed"
         echo "📄 Environment file used: environment.yml"
-        echo "🏷️  Environment name: samo-dl-stable"
+        echo "🏷️  Environment name: $ENV_NAME"
         echo "ℹ️  For development use: environment.dev.yml → samo-dl-dev"
         echo "ℹ️  For ML training use: environment.ml.yml → samo-dl-ml"
     else
@@ -131,7 +157,7 @@ setup_environment() {
 activate_and_setup() {
     print_status "Activating environment and installing additional dependencies..."
     
-    conda activate samo-dl
+    conda activate "$ENV_NAME"
     
     # Install additional pip packages
     pip install --upgrade pip
@@ -254,7 +280,7 @@ main() {
     echo "=========================================="
     echo ""
     echo "Next steps:"
-    echo "1. Activate environment: conda activate samo-dl"
+    echo "1. Activate environment: conda activate $ENV_NAME"
     echo "2. Edit .env file with your database credentials"
     echo "3. Run training: python -m src.models.emotion_detection.training_pipeline"
     echo "4. Test APIs: python src/unified_ai_api.py"
