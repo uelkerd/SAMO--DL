@@ -190,14 +190,11 @@ jobs:
             # Build safety command with file existence checks
             set +e  # Temporarily disable exit on error to capture exit code
             
-            # Check for policy file and build policy argument
-            POLICY_ARG=""
-            if [ -f .safety-policy.yml ]; then
-              POLICY_ARG="--policy-file .safety-policy.yml"
-              echo "✅ Using policy file: .safety-policy.yml"
-            else
-              echo "⚠️ Policy file .safety-policy.yml not found, using defaults"
-            fi
+            # Note: Skipping policy file due to Safety 3.6.0 compatibility issues
+            # The existing .safety-policy.yml is v3.0 but 'safety check' only supports ≤v2.0
+            # Since it only enables default behavior (dependency-vulnerabilities: enabled), 
+            # we can safely use Safety's built-in defaults
+            echo "ℹ️ Using Safety default policy (dependency vulnerability scanning enabled)"
             
             # Build list of existing requirements files
             # Note: Safety 3.6.0 doesn't support -c constraints flag, scanning requirements files directly
@@ -218,7 +215,7 @@ jobs:
             fi
             
             # Execute safety check with dynamic arguments
-            safety check $POLICY_ARG --output json $REQUIREMENTS_ARGS > safety-report.json
+            safety check --output json $REQUIREMENTS_ARGS > safety-report.json
             EXIT_CODE=$?
             set -e  # Re-enable strict error handling
 
