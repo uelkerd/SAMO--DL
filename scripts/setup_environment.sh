@@ -5,6 +5,15 @@
 
 set -e  # Exit on any error
 
+# Resolve repository root path once for consistent path resolution
+resolve_repo_path() {
+    local script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+    echo "$(cd "$script_dir/.." && pwd)"
+}
+
+# Cache the repo path for use throughout the script
+REPO_ROOT="$(resolve_repo_path)"
+
 echo "🚀 Setting up SAMO Deep Learning Environment..."
 
 # Colors for output
@@ -84,12 +93,18 @@ setup_environment() {
     print_status "Setting up conda environment 'samo-dl'..."
     
     # Check if environment exists
+    local env_file="$REPO_ROOT/environment.yml"
+    if [ ! -f "$env_file" ]; then
+        print_error "Environment file not found at: $env_file"
+        exit 1
+    fi
+    
     if conda env list | grep -q "samo-dl"; then
         print_warning "Environment 'samo-dl' already exists. Updating..."
-        conda env update -f environment.yml
+        conda env update -f "$env_file"
     else
         print_status "Creating new environment 'samo-dl'..."
-        conda env create -f environment.yml
+        conda env create -f "$env_file"
     fi
     
     if [ $? -eq 0 ]; then
@@ -108,7 +123,48 @@ activate_and_setup() {
     
     # Install additional pip packages
     pip install --upgrade pip
-    pip install -c dependencies/constraints.txt -r requirements.txt 2>/dev/null || print_warning "No requirements.txt found"
+    
+    # Resolve paths for constraints and requirements files
+    local constraints_file="$REPO_ROOT/dependencies/constraints.txt"
+    local repo_requirements="$REPO_ROOT/requirements.txt"
+    local local_requirements="requirements.txt"
+    
+    # Check constraints file exists
+    if [ ! -f "$constraints_file" ]; then
+        print_warning "Constraints file not found at: $constraints_file"
+        print_warning "Installing without constraints (not recommended)"
+        constraints_file=""
+    else
+        print_status "Using constraints from: $constraints_file"
+    fi
+    
+    # Determine which requirements file to use with fallback logic
+    local requirements_file=""
+    local requirements_source=""
+    
+    if [ -f "$local_requirements" ]; then
+        requirements_file="$local_requirements"
+        requirements_source="local requirements.txt"
+    elif [ -f "$repo_requirements" ]; then
+        requirements_file="$repo_requirements"
+        requirements_source="canonical requirements.txt from repo root"
+    else
+        print_warning "No requirements.txt found (checked local and repo root)"
+        print_warning "Skipping additional package installation"
+        return
+    fi
+    
+    print_status "Installing packages from: $requirements_source"
+    
+    # Build pip install command with constraints if available
+    local pip_cmd="pip install"
+    if [ -n "$constraints_file" ]; then
+        pip_cmd="$pip_cmd -c \"$constraints_file\""
+    fi
+    pip_cmd="$pip_cmd -r \"$requirements_file\""
+    
+    # Execute the installation
+    eval "$pip_cmd" || print_warning "Failed to install some packages from $requirements_source"
     
     # Install pre-commit hooks
     print_status "Setting up pre-commit hooks..."
@@ -138,19 +194,24 @@ setup_database() {
     print_status "Setting up database connection..."
     
     # Check if .env file exists
-    if [ ! -f ".env" ]; then
-        print_warning "No .env file found. Creating from template..."
-        if [ -f ".env.template" ]; then
-            cp .env.template .env
+    local env_file="$REPO_ROOT/.env"
+    local env_template="$REPO_ROOT/.env.template"
+    
+    if [ ! -f "$env_file" ]; then
+        print_warning "No .env file found at: $env_file"
+        print_warning "Creating from template..."
+        if [ -f "$env_template" ]; then
+            cp "$env_template" "$env_file"
             print_warning "Please edit .env file with your database credentials"
         else
-            print_warning "No .env.template found. Please create .env file manually"
+            print_warning "No .env.template found at: $env_template"
+            print_warning "Please create .env file manually"
         fi
     fi
     
     # Test database connection if .env exists
-    if [ -f ".env" ]; then
-        python scripts/database/check_pgvector.py 2>/dev/null || print_warning "Database connection test failed"
+    if [ -f "$env_file" ]; then
+        python "$REPO_ROOT/scripts/database/check_pgvector.py" 2>/dev/null || print_warning "Database connection test failed"
     fi
 }
 
