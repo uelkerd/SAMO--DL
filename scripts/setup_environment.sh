@@ -7,8 +7,11 @@ set -e  # Exit on any error
 
 # Resolve repository root path once for consistent path resolution
 resolve_repo_path() {
-    local script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-    echo "$(cd "$script_dir/.." && pwd)"
+    local script_dir
+    script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" || return 1
+    local repo_root
+    repo_root="$(cd "$script_dir/.." && pwd)" || return 1
+    echo "$repo_root"
 }
 
 # Cache the repo path for use throughout the script
@@ -104,7 +107,7 @@ setup_environment() {
         exit 1
     fi
     
-    if conda env list | grep -q "samo-dl"; then
+    if conda env list | grep -Eq '^[[:space:]]*\*?[[:space:]]*samo-dl[[:space:]]'; then
         print_warning "Environment 'samo-dl' already exists. Updating..."
         conda env update -f "$env_file"
     else
@@ -210,7 +213,13 @@ setup_database() {
         print_warning "No .env file found at: $env_file"
         print_warning "Creating from template..."
         if [ -f "$env_template" ]; then
-            cp "$env_template" "$env_file"
+            # Create with restrictive permissions; fall back to cp if install is unavailable
+            if command -v install >/dev/null 2>&1; then
+                install -m 600 "$env_template" "$env_file"
+            else
+                cp "$env_template" "$env_file"
+                chmod 600 "$env_file" 2>/dev/null || true
+            fi
             print_warning "Please edit .env file with your database credentials"
         else
             print_warning "No .env.template found at: $env_template"
@@ -220,7 +229,9 @@ setup_database() {
     
     # Test database connection if .env exists
     if [ -f "$env_file" ]; then
-        python "$REPO_ROOT/scripts/database/check_pgvector.py" 2>/dev/null || print_warning "Database connection test failed"
+        if ! python "$REPO_ROOT/scripts/database/check_pgvector.py"; then
+            print_warning "Database connection test failed (see output above)"
+        fi
     fi
 }
 
