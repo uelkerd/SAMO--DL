@@ -44,23 +44,28 @@ print_error() {
 check_conda() {
     print_status "Checking conda installation..."
     
-    # Try different conda locations
-    CONDA_PATHS=(
-        "/opt/homebrew/anaconda3/bin/conda"
-        "/usr/local/anaconda3/bin/conda"
-        "/opt/anaconda3/bin/conda"
-        "$HOME/anaconda3/bin/conda"
-        "$HOME/miniconda3/bin/conda"
-        "$HOME/miniforge3/bin/conda"
-    )
-    
-    CONDA_PATH=""
-    for path in "${CONDA_PATHS[@]}"; do
-        if [ -f "$path" ]; then
-            CONDA_PATH="$path"
-            break
-        fi
-    done
+    # First try to find conda in PATH
+    if command -v conda >/dev/null 2>&1; then
+        CONDA_PATH="$(command -v conda)"
+    else
+        # Try different conda locations
+        CONDA_PATHS=(
+            "/opt/homebrew/anaconda3/bin/conda"
+            "/usr/local/anaconda3/bin/conda"
+            "/opt/anaconda3/bin/conda"
+            "$HOME/anaconda3/bin/conda"
+            "$HOME/miniconda3/bin/conda"
+            "$HOME/miniforge3/bin/conda"
+        )
+        
+        CONDA_PATH=""
+        for path in "${CONDA_PATHS[@]}"; do
+            if [ -f "$path" ]; then
+                CONDA_PATH="$path"
+                break
+            fi
+        done
+    fi
     
     if [ -z "$CONDA_PATH" ]; then
         print_error "Conda not found. Please install Anaconda or Miniconda first."
@@ -109,6 +114,10 @@ setup_environment() {
     
     if [ $? -eq 0 ]; then
         print_success "Environment setup completed"
+        echo "📄 Environment file used: environment.yml"
+        echo "🏷️  Environment name: samo-dl-stable"
+        echo "ℹ️  For development use: environment.dev.yml → samo-dl-dev"
+        echo "ℹ️  For ML training use: environment.ml.yml → samo-dl-ml"
     else
         print_error "Failed to setup environment"
         exit 1
@@ -239,7 +248,7 @@ main() {
     echo "3. Run training: python -m src.models.emotion_detection.training_pipeline"
     echo "4. Test APIs: python src/unified_ai_api.py"
     echo ""
-    echo "For more information, see docs/environment-setup.md"
+    echo "For more information, see ENVIRONMENT_SETUP.md"
 }
 
 # Run main function
