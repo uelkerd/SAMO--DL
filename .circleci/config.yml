@@ -224,7 +224,7 @@ jobs:
             # Execute safety check on installed packages
             safety check --output json > safety-report.json
             EXIT_CODE=$?
-            set -e  # Re-enable strict error handling
+            set -euo pipefail  # Re-enable all strict error handling options
 
             # Show the JSON report for transparency
             echo "📋 Safety scan report:"
