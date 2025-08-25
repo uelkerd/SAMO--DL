@@ -167,11 +167,8 @@ jobs:
             source /tmp/safety-scan-env/bin/activate
             pip install --upgrade pip
             
-            # Install project dependencies to scan (single resolver pass)
-            pip install -c dependencies/constraints.txt \
-              -r dependencies/requirements-api.txt \
-              -r dependencies/requirements-dev.txt \
-              -r dependencies/requirements-ml.txt
+            # Skip project dependency install; Safety scans requirements files directly
+            echo "ℹ️ Skipping project dependency install for safety scan"
       - run:
           name: Install and run Safety scan
           command: |
@@ -183,7 +180,7 @@ jobs:
             
             # Install jq for JSON parsing (if not already available)
             if ! command -v jq &> /dev/null; then
-              sudo apt-get update && sudo apt-get install -y jq
+              sudo apt-get -o Acquire::Retries=3 update && sudo apt-get install -y jq
             fi
             
             echo "🔍 Running Safety scan..."
@@ -247,7 +244,10 @@ jobs:
               HIGH_CRITICAL_COUNT=0
               if [ -f safety-report.json ] && [ -s safety-report.json ]; then
                 # Count high and critical vulnerabilities using jq
-                HIGH_CRITICAL_COUNT=$(jq '[.vulnerabilities[]? | select(.severity == "high" or .severity == "critical" or .cvss_v3_severity == "HIGH" or .cvss_v3_severity == "CRITICAL")] | length' safety-report.json 2>/dev/null || echo "0")
+                HIGH_CRITICAL_COUNT=$(jq '[.vulnerabilities[]?
+                  | ((.severity // .cvss_v3_severity // "") | ascii_downcase) as $sev
+                  | select($sev == "high" or $sev == "critical")
+                ] | length' safety-report.json 2>/dev/null || echo "0")
               fi
 
               if [ "$HIGH_CRITICAL_COUNT" -gt 0 ]; then
