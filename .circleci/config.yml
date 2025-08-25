@@ -190,12 +190,46 @@ jobs:
             echo "🔍 Safety version: $(safety --version)"
 
             # Run safety scan and capture exit code
-            # Scan requirements files directly (not virtual env directory)
+            # Build safety command with file existence checks
             set +e  # Temporarily disable exit on error to capture exit code
-            safety check --policy-file .safety-policy.yml --output json \
-              -r dependencies/requirements-api.txt \
-              -r dependencies/requirements-dev.txt \
-              -r dependencies/requirements-ml.txt > safety-report.json
+            
+            # Check for policy file and build policy argument
+            POLICY_ARG=""
+            if [ -f .safety-policy.yml ]; then
+              POLICY_ARG="--policy-file .safety-policy.yml"
+              echo "✅ Using policy file: .safety-policy.yml"
+            else
+              echo "⚠️ Policy file .safety-policy.yml not found, using defaults"
+            fi
+            
+            # Check for constraints file and build constraints argument
+            CONSTRAINTS_ARG=""
+            if [ -f dependencies/constraints.txt ]; then
+              CONSTRAINTS_ARG="-c dependencies/constraints.txt"
+              echo "✅ Using constraints file: dependencies/constraints.txt"
+            else
+              echo "⚠️ Constraints file not found, proceeding without constraints"
+            fi
+            
+            # Build list of existing requirements files
+            REQUIREMENTS_ARGS=""
+            for REQ_FILE in dependencies/requirements-api.txt dependencies/requirements-dev.txt dependencies/requirements-ml.txt; do
+              if [ -f "$REQ_FILE" ]; then
+                REQUIREMENTS_ARGS="$REQUIREMENTS_ARGS -r $REQ_FILE"
+                echo "✅ Will scan: $REQ_FILE"
+              else
+                echo "⚠️ Requirements file not found: $REQ_FILE (skipping)"
+              fi
+            done
+            
+            # Ensure we have at least one requirements file to scan
+            if [ -z "$REQUIREMENTS_ARGS" ]; then
+              echo "❌ No requirements files found to scan. Failing CI."
+              exit 1
+            fi
+            
+            # Execute safety check with dynamic arguments
+            safety check $POLICY_ARG $CONSTRAINTS_ARG --output json $REQUIREMENTS_ARGS > safety-report.json
             EXIT_CODE=$?
             set -e  # Re-enable strict error handling
 
