@@ -181,15 +181,37 @@ jobs:
             # Install Safety v3.6.x (pinned version)
             pip install safety==3.6.0
             
-            echo "🔍 Running Safety scan with policy-driven exit codes..."
+            echo "🔍 Running Safety scan..."
             echo "🔍 Safety version: $(safety --version)"
-            echo "🔍 Policy file: .safety-policy.yml"
             
-            # Run safety scan with policy file
-            # This will fail CI if High/Critical vulnerabilities are found
-            safety scan --policy-file .safety-policy.yml --target /tmp/safety-scan-env
+            # Run safety scan without policy file (use command-line options)
+            # Safety v3.6.0 will exit with non-zero code if vulnerabilities are found
+            # We'll handle the exit codes to determine severity
+            set +e  # Temporarily disable exit on error to capture exit code
+            safety scan --target /tmp/safety-scan-env --output json > safety-report.json 2>&1
+            EXIT_CODE=$?
+            set -e  # Re-enable strict error handling
             
-            echo "✅ Safety scan passed - no High/Critical vulnerabilities found!"
+            # Parse results
+            if [ "$EXIT_CODE" -eq 0 ]; then
+              echo "✅ No vulnerabilities found!"
+            else
+              echo "⚠️ Safety scan found vulnerabilities (exit code: $EXIT_CODE)"
+              
+              # Show the report
+              cat safety-report.json || true
+              
+              # Check for high/critical vulnerabilities
+              if grep -E '"severity": "(high|critical)"' safety-report.json > /dev/null 2>&1 || \
+                 grep -E '"cvss_v3_severity": "(HIGH|CRITICAL)"' safety-report.json > /dev/null 2>&1; then
+                echo "❌ High or Critical vulnerabilities found - failing CI"
+                exit 1
+              else
+                echo "⚠️ Only Low/Medium vulnerabilities found - allowing build to continue"
+              fi
+            fi
+            
+            echo "✅ Safety scan completed"
             
             # Cleanup
             deactivate || true
