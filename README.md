@@ -19,11 +19,25 @@
 **Responsibility**: End-to-end ML pipeline from research to production deployment  
 
 ### Architecture Overview
-```
+
+#### Voice Processing Pipeline
+```text
 Voice Input → Whisper STT → DistilRoBERTa Emotion → T5 Summarization → Emotional Insights
      ↓              ↓                ↓                    ↓                  ↓
   Real-time    <500ms latency    90.70% accuracy    Contextual summary   Production API
 ```
+
+#### System Architecture
+<div align="center">
+  <a href="docs/diagrams/Diagram02.svg">
+    <img
+      src="docs/diagrams/Diagram02.svg"
+      alt="SAMO System Architecture diagram showing data flow between Whisper STT, Emotion Model, T5 Summarizer, and API"
+      width="100%"
+      loading="lazy"
+    />
+  </a>
+</div>
 
 ## 🚀 Production Achievements
 
@@ -245,6 +259,19 @@ python deployment/local/api_server.py
 # Experiment with hyperparameters and architectures
 ```
 
+
+## 📅 Project Roadmap
+
+<div align="center">
+  <a href="docs/diagrams/Diagram03.svg">
+    <img
+      src="docs/diagrams/Diagram03.svg"
+      alt="Deep Learning Project Roadmap with milestones and timelines"
+      width="100%"
+      loading="lazy"
+    />
+  </a>
+</div>
 
 ## 🎯 Future Enhancements
 
