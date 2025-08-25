@@ -20,7 +20,7 @@ commands:
     parameters:
       image:
         type: string
-      name:
+      container_name:
         type: string
       port:
         type: string
@@ -33,30 +33,84 @@ commands:
         default: "/health"
     steps:
       - run:
-          name: Smoke test << parameters.name >>
+          name: Smoke test << parameters.container_name >>
           command: |
             set -euo pipefail
-            cleanup() { docker rm -f << parameters.name >> >/dev/null 2>&1 || true; }
+            cleanup() { docker rm -f << parameters.container_name >> >/dev/null 2>&1 || true; }
             trap cleanup EXIT
-            docker run -d --rm -p << parameters.host_port >>:<< parameters.port >> --name << parameters.name >> << parameters.image >>
+            # Check if the image exists before running container
+            echo "🔍 Checking if image << parameters.image >> exists..."
+            if ! docker image inspect << parameters.image >> >/dev/null 2>&1; then
+              echo "❌ Image << parameters.image >> not found! Available images:"
+              docker images
+              exit 1
+            fi
+            
+            # Start container without host port mapping; probes run inside namespace
+            echo "🔍 Starting container (no host port mapping; using internal/sidecar probes)..."
+            docker run -d --rm --name << parameters.container_name >> << parameters.image >>
 
+            # Debug: Check container started successfully
+            echo "🔍 Debug: Container started, checking status..."
+            docker ps -a | grep << parameters.container_name >> || echo "Container not found in docker ps"
+
+            # Debug: Show available images
+            echo "🔍 Debug: Available Docker images:"
+            docker images | grep samo-dl || echo "No samo-dl images found"
+
+            # Wait for container to be fully ready
+            echo "⏳ Waiting for container to start..."
+            sleep 5
+
+            # Check container logs to see if it's ready
+            echo "🔍 Checking container logs for readiness..."
+            docker logs << parameters.container_name >> || echo "No logs available"
+
+            # Define HEALTH_PATH early so we can use it
             HEALTH_PATH="<< parameters.path >>"
             case "$HEALTH_PATH" in
               /*) ;;
               *) HEALTH_PATH="/$HEALTH_PATH" ;;
             esac
 
+            # Use docker exec to check if the app is responding internally
+            echo "🔍 Testing internal container connectivity..."
+            # Detect available HTTP client in container
+            if docker exec << parameters.container_name >> sh -c 'command -v curl' >/dev/null 2>&1; then
+              HCMD="curl -fsS --connect-timeout 3 --max-time 5"
+              echo "✅ Using curl for health checks"
+            elif docker exec << parameters.container_name >> sh -c 'command -v wget' >/dev/null 2>&1; then
+              HCMD="wget --quiet --timeout=5 --tries=1 -O -"
+              echo "✅ Using wget for health checks"
+            else
+              echo "ℹ️ Neither curl nor wget found in container; probing via sidecar..."
+              # Use a tiny curl container joined to the app container's network namespace
+              if docker run --rm --network "container:<< parameters.container_name >>" curlimages/curl:8.9.0 \
+                   -fsS --connect-timeout 3 --max-time 5 "http://127.0.0.1:<< parameters.port >>${HEALTH_PATH}" >/dev/null; then
+                echo "✅ Sidecar-based health check passed"
+                trap - EXIT
+                cleanup
+                exit 0
+              else
+                echo "❌ Sidecar-based health check failed"
+                docker logs << parameters.container_name >> || true
+                exit 1
+              fi
+            fi
+
+            echo "🔍 Starting internal container health check on port << parameters.port >>"
             for i in $(seq 1 30); do
-              if curl -fsS --connect-timeout 2 --max-time 4 "http://127.0.0.1:<< parameters.host_port >>${HEALTH_PATH}" >/dev/null; then
-                echo "✅ Health check passed"
+              if docker exec << parameters.container_name >> sh -lc "$HCMD \"http://127.0.0.1:<< parameters.port >>${HEALTH_PATH}\"" >/dev/null; then
+                echo "✅ Internal health check passed"
                 trap - EXIT
                 cleanup
                 exit 0
               fi
-              sleep 1
+              echo "⏳ Health check attempt $i/30 - waiting..."
+              sleep 2
             done
-            echo "❌ Health check failed after 30 seconds"
-            docker logs << parameters.name >> || true
+            echo "❌ Health check failed after 60 seconds (30 attempts × 2s)"
+            docker logs << parameters.container_name >> || true
             exit 1
 
 jobs:
@@ -101,6 +155,84 @@ jobs:
               && echo '⚠️ FastAPI not installed; skipping health check.' \
               || PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src" python3 -c "from fastapi.testclient import TestClient; from src.unified_ai_api import app; c=TestClient(app); r=c.get('/health'); assert r.status_code==200, f'Health check failed: {r.status_code}'; print('✅ API health check passed!')"
 
+  safety-scan:
+    executor: python-simple
+    steps:
+      - checkout
+      - run:
+          name: Create virtual environment and install dependencies
+          command: |
+            set -euo pipefail
+            python3 -m venv /tmp/safety-scan-env
+            source /tmp/safety-scan-env/bin/activate
+            pip install --upgrade pip
+            
+            # Install project dependencies to scan (single resolver pass)
+            pip install -c dependencies/constraints.txt \
+              -r dependencies/requirements-api.txt \
+              -r dependencies/requirements-dev.txt \
+              -r dependencies/requirements-ml.txt
+      - run:
+          name: Install and run Safety scan
+          command: |
+            set -euo pipefail
+            source /tmp/safety-scan-env/bin/activate
+            
+            # Install Safety v3.6.x (pinned version)
+            pip install safety==3.6.0
+            
+            # Install jq for JSON parsing (if not already available)
+            if ! command -v jq &> /dev/null; then
+              sudo apt-get update && sudo apt-get install -y jq
+            fi
+            
+            echo "🔍 Running Safety scan..."
+            echo "🔍 Safety version: $(safety --version)"
+
+            # Run safety scan and capture exit code
+            # Write only stdout (JSON) to file, let stderr go to console
+            set +e  # Temporarily disable exit on error to capture exit code
+            safety scan --target /tmp/safety-scan-env --output json > safety-report.json
+            EXIT_CODE=$?
+            set -e  # Re-enable strict error handling
+
+            # Show the JSON report for transparency
+            echo "📋 Safety scan report:"
+            cat safety-report.json | jq '.' || cat safety-report.json
+
+            # Handle exit codes explicitly
+            if [ "$EXIT_CODE" -eq 0 ]; then
+              echo "✅ No vulnerabilities found!"
+            elif [ "$EXIT_CODE" -eq 64 ]; then
+              echo "⚠️ Safety scan found vulnerabilities (exit code: $EXIT_CODE)"
+
+              # Use jq to properly parse JSON and check for high/critical severities
+              HIGH_CRITICAL_COUNT=0
+              if [ -f safety-report.json ] && [ -s safety-report.json ]; then
+                # Count high and critical vulnerabilities using jq
+                HIGH_CRITICAL_COUNT=$(jq '[.vulnerabilities[]? | select(.severity == "high" or .severity == "critical" or .cvss_v3_severity == "HIGH" or .cvss_v3_severity == "CRITICAL")] | length' safety-report.json 2>/dev/null || echo "0")
+              fi
+
+              if [ "$HIGH_CRITICAL_COUNT" -gt 0 ]; then
+                echo "❌ Found $HIGH_CRITICAL_COUNT High/Critical vulnerabilities - failing CI"
+                exit 1
+              else
+                echo "⚠️ Only Low/Medium vulnerabilities found - allowing build to continue"
+              fi
+            else
+              echo "❌ Safety scan failed unexpectedly (exit code: $EXIT_CODE)"
+              exit "$EXIT_CODE"
+            fi
+
+            echo "✅ Safety scan completed"
+
+            # Cleanup
+            deactivate || true
+            rm -rf /tmp/safety-scan-env
+      - store_artifacts:
+          path: safety-report.json
+          destination: safety/
+
   # Basic linting (optional - won't fail build)
   code-quality:
     executor: python-simple
@@ -142,6 +274,7 @@ jobs:
             export PATH="$HOME/.local/bin:$PATH"
             PYTHONPATH="$CIRCLE_WORKING_DIRECTORY/src" python3 -m pytest --version
             echo "✅ Test framework ready"
+
   docker-build:
     docker:
       - image: cimg/base:stable
@@ -170,7 +303,7 @@ jobs:
               .
       - smoke_health:
           image: samo-dl-app:${CIRCLE_SHA1:0:7}
-          name: app-minimal-test
+          container_name: app-minimal-test
       - run:
           name: Build app image (unified ML)
           command: |
@@ -187,7 +320,7 @@ jobs:
               .
       - smoke_health:
           image: samo-dl-app-unified:${CIRCLE_SHA1:0:7}
-          name: app-unified-test
+          container_name: app-unified-test
       - run:
           name: Build training image
           command: |
@@ -207,6 +340,9 @@ workflows:
   simple-ci:
     jobs:
       - basic-setup
+      - safety-scan:
+          requires:
+            - basic-setup
       - code-quality:
           requires:
             - basic-setup
