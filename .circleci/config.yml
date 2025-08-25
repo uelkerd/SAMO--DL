@@ -161,15 +161,35 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Create virtual environment and install dependencies
+          name: Create virtual environment and install dependencies with constraints
           command: |
             set -euo pipefail
             python3 -m venv /tmp/safety-scan-env
             source /tmp/safety-scan-env/bin/activate
             pip install --upgrade pip
             
-            # Skip project dependency install; Safety scans requirements files directly
-            echo "ℹ️ Skipping project dependency install for safety scan"
+            # Install project dependencies with constraints for accurate scanning
+            echo "📦 Installing project dependencies with constraints for vulnerability scanning..."
+            
+            # Install dependencies with constraints to ensure Safety scans against locked versions
+            INSTALL_ARGS=""
+            for REQ_FILE in dependencies/requirements-api.txt dependencies/requirements-dev.txt dependencies/requirements-ml.txt; do
+              if [ -f "$REQ_FILE" ]; then
+                INSTALL_ARGS="$INSTALL_ARGS -r $REQ_FILE"
+                echo "✅ Will install: $REQ_FILE"
+              else
+                echo "⚠️ Requirements file not found: $REQ_FILE (skipping)"
+              fi
+            done
+            
+            # Install with constraints to get exact versions that Safety should scan
+            if [ -n "$INSTALL_ARGS" ]; then
+              pip install -c dependencies/constraints.txt $INSTALL_ARGS
+              echo "✅ Dependencies installed with constraints applied"
+            else
+              echo "❌ No requirements files found to install."
+              exit 1
+            fi
       - run:
           name: Install and run Safety scan
           command: |
@@ -197,26 +217,12 @@ jobs:
             # default behavior, we use Safety's built-in defaults instead.
             echo "ℹ️ Using Safety default policy (dependency vulnerability scanning enabled)"
             
-            # Build list of existing requirements files
-            # Note: Safety 3.6.0 doesn't support -c constraints flag, scanning requirements files directly
-            REQUIREMENTS_ARGS=""
-            for REQ_FILE in dependencies/requirements-api.txt dependencies/requirements-dev.txt dependencies/requirements-ml.txt; do
-              if [ -f "$REQ_FILE" ]; then
-                REQUIREMENTS_ARGS="$REQUIREMENTS_ARGS -r $REQ_FILE"
-                echo "✅ Will scan: $REQ_FILE"
-              else
-                echo "⚠️ Requirements file not found: $REQ_FILE (skipping)"
-              fi
-            done
+            # Scan installed packages (which were installed with constraints applied)
+            # This ensures Safety checks against the exact constrained versions
+            echo "🔍 Scanning installed packages (constrained versions)..."
             
-            # Ensure we have at least one requirements file to scan
-            if [ -z "$REQUIREMENTS_ARGS" ]; then
-              echo "❌ No requirements files found to scan. Failing CI."
-              exit 1
-            fi
-            
-            # Execute safety check with dynamic arguments
-            safety check --output json $REQUIREMENTS_ARGS > safety-report.json
+            # Execute safety check on installed packages
+            safety check --output json > safety-report.json
             EXIT_CODE=$?
             set -e  # Re-enable strict error handling
 
