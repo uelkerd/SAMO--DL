@@ -1,4 +1,4 @@
-name: samo-dl-stable
+name: samo-dl-dev
 channels:
   - conda-forge
   - defaults
@@ -10,7 +10,7 @@ dependencies:
   - portaudio
   - curl
   - pip:
-      # API/runtime dependencies only (align with dependencies/requirements-api.txt)
+      # API/runtime dependencies (align with dependencies/requirements-api.txt)
       - fastapi==0.116.1
       - uvicorn[standard]==0.35.0
       - python-multipart==0.0.18
@@ -29,5 +29,13 @@ dependencies:
       - loguru==0.7.2
       - prometheus-client==0.20.0
 
-# Note: For development, use environment.dev.yml
-# For ML training/inference, use environment.ml.yml
+      # Dev/test dependencies (from dependencies/requirements-dev.txt)
+      - pytest==8.3.2
+      - pytest-xdist==3.6.1
+      - pytest-asyncio==0.21.0
+      - pytest-cov==6.2.1
+      - ruff==0.6.9
+      - black==23.7.0
+      - mypy==1.10.0
+      - bandit==1.7.9
+      - pre-commit==3.3.0

@@ -5,6 +5,10 @@
 
 set -e  # Exit on any error
 
+# Resolve script directory and project root
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
 echo "🚀 Setting up SAMO Deep Learning Environment..."
 
 # Colors for output
@@ -35,23 +39,28 @@ print_error() {
 check_conda() {
     print_status "Checking conda installation..."
     
-    # Try different conda locations
-    CONDA_PATHS=(
-        "/opt/homebrew/anaconda3/bin/conda"
-        "/usr/local/anaconda3/bin/conda"
-        "/opt/anaconda3/bin/conda"
-        "$HOME/anaconda3/bin/conda"
-        "$HOME/miniconda3/bin/conda"
-        "$HOME/miniforge3/bin/conda"
-    )
-    
-    CONDA_PATH=""
-    for path in "${CONDA_PATHS[@]}"; do
-        if [ -f "$path" ]; then
-            CONDA_PATH="$path"
-            break
-        fi
-    done
+    # First try to find conda in PATH
+    if command -v conda >/dev/null 2>&1; then
+        CONDA_PATH="$(command -v conda)"
+    else
+        # Try different conda locations
+        CONDA_PATHS=(
+            "/opt/homebrew/anaconda3/bin/conda"
+            "/usr/local/anaconda3/bin/conda"
+            "/opt/anaconda3/bin/conda"
+            "$HOME/anaconda3/bin/conda"
+            "$HOME/miniconda3/bin/conda"
+            "$HOME/miniforge3/bin/conda"
+        )
+        
+        CONDA_PATH=""
+        for path in "${CONDA_PATHS[@]}"; do
+            if [ -f "$path" ]; then
+                CONDA_PATH="$path"
+                break
+            fi
+        done
+    fi
     
     if [ -z "$CONDA_PATH" ]; then
         print_error "Conda not found. Please install Anaconda or Miniconda first."
@@ -86,14 +95,18 @@ setup_environment() {
     # Check if environment exists
     if conda env list | grep -q "samo-dl"; then
         print_warning "Environment 'samo-dl' already exists. Updating..."
-        conda env update -f environment.yml
+        conda env update -f "$PROJECT_ROOT/environment.yml"
     else
         print_status "Creating new environment 'samo-dl'..."
-        conda env create -f environment.yml
+        conda env create -f "$PROJECT_ROOT/environment.yml"
     fi
     
     if [ $? -eq 0 ]; then
         print_success "Environment setup completed"
+        echo "📄 Environment file used: environment.yml"
+        echo "🏷️  Environment name: samo-dl-stable"
+        echo "ℹ️  For development use: environment.dev.yml → samo-dl-dev"
+        echo "ℹ️  For ML training use: environment.ml.yml → samo-dl-ml"
     else
         print_error "Failed to setup environment"
         exit 1
@@ -108,7 +121,7 @@ activate_and_setup() {
     
     # Install additional pip packages
     pip install --upgrade pip
-    pip install -r requirements.txt 2>/dev/null || print_warning "No requirements.txt found"
+    pip install -c "$PROJECT_ROOT/dependencies/constraints.txt" -r "$PROJECT_ROOT/requirements.txt" 2>/dev/null || print_warning "No requirements.txt found"
     
     # Install pre-commit hooks
     print_status "Setting up pre-commit hooks..."
@@ -138,10 +151,10 @@ setup_database() {
     print_status "Setting up database connection..."
     
     # Check if .env file exists
-    if [ ! -f ".env" ]; then
+    if [ ! -f "$PROJECT_ROOT/.env" ]; then
         print_warning "No .env file found. Creating from template..."
-        if [ -f ".env.template" ]; then
-            cp .env.template .env
+        if [ -f "$PROJECT_ROOT/.env.template" ]; then
+            cp "$PROJECT_ROOT/.env.template" "$PROJECT_ROOT/.env"
             print_warning "Please edit .env file with your database credentials"
         else
             print_warning "No .env.template found. Please create .env file manually"
@@ -149,8 +162,8 @@ setup_database() {
     fi
     
     # Test database connection if .env exists
-    if [ -f ".env" ]; then
-        python scripts/database/check_pgvector.py 2>/dev/null || print_warning "Database connection test failed"
+    if [ -f "$PROJECT_ROOT/.env" ]; then
+        python "$PROJECT_ROOT/scripts/database/check_pgvector.py" 2>/dev/null || print_warning "Database connection test failed"
     fi
 }
 
@@ -178,7 +191,7 @@ main() {
     echo "3. Run training: python -m src.models.emotion_detection.training_pipeline"
     echo "4. Test APIs: python src/unified_ai_api.py"
     echo ""
-    echo "For more information, see docs/environment-setup.md"
+    echo "For more information, see ENVIRONMENT_SETUP.md"
 }
 
 # Run main function

@@ -1,6 +1,7 @@
-name: samo-dl-stable
+name: samo-dl-ml
 channels:
   - conda-forge
+  - pytorch
   - defaults
 dependencies:
   - python=3.12
@@ -9,8 +10,11 @@ dependencies:
   - libsndfile
   - portaudio
   - curl
+  # ML-specific conda packages
+  - pytorch::pytorch
+  - pytorch::torchaudio
   - pip:
-      # API/runtime dependencies only (align with dependencies/requirements-api.txt)
+      # API/runtime dependencies (align with dependencies/requirements-api.txt)
       - fastapi==0.116.1
       - uvicorn[standard]==0.35.0
       - python-multipart==0.0.18
@@ -29,5 +33,13 @@ dependencies:
       - loguru==0.7.2
       - prometheus-client==0.20.0
 
-# Note: For development, use environment.dev.yml
-# For ML training/inference, use environment.ml.yml
+      # ML dependencies (subset of dependencies/requirements-ml.txt)
+      - numpy==1.26.4
+      - transformers==4.55.0
+      - datasets==3.0.3
+      - librosa==0.10.2
+      - soundfile==0.12.1
+      - scikit-learn==1.5.2
+      - matplotlib==3.9.2
+      - seaborn==0.13.2
+      - pandas==2.2.2
