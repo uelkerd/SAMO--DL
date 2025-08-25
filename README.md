@@ -20,14 +20,14 @@
 
 ### Architecture Overview
 
-**High-Level System Flow**
-```
+#### Voice Processing Pipeline
+```text
 Voice Input → Whisper STT → DistilRoBERTa Emotion → T5 Summarization → Emotional Insights
      ↓              ↓                ↓                    ↓                  ↓
   Real-time    <500ms latency    90.70% accuracy    Contextual summary   Production API
 ```
 
-**System Architecture**
+#### System Architecture
 <div align="center">
   <img src="docs/diagrams/Diagram02.svg" alt="SAMO System Architecture" width="100%" />
 </div>
