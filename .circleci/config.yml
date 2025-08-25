@@ -83,19 +83,17 @@ commands:
               HCMD="wget --quiet --timeout=5 --tries=1 -O -"
               echo "✅ Using wget for health checks"
             else
-              echo "❌ Neither curl nor wget found in container"
-              echo "🔍 Attempting host-side health check with port mapping..."
-              # Fallback: try to add port mapping and check from host
-              docker stop << parameters.container_name >> || true
-              docker run -d --rm -p << parameters.host_port >>:<< parameters.port >> --name << parameters.container_name >> << parameters.image >>
-              sleep 5
-              if curl -fsS --connect-timeout 3 --max-time 5 "http://127.0.0.1:<< parameters.host_port >>${HEALTH_PATH}" >/dev/null; then
-                echo "✅ Host-side health check passed"
+              echo "ℹ️ Neither curl nor wget found in container; probing via sidecar..."
+              # Use a tiny curl container joined to the app container's network namespace
+              if docker run --rm --network "container:<< parameters.container_name >>" curlimages/curl:8.9.0 \
+                   -fsS --connect-timeout 3 --max-time 5 "http://127.0.0.1:<< parameters.port >>${HEALTH_PATH}" >/dev/null; then
+                echo "✅ Sidecar-based health check passed"
                 trap - EXIT
                 cleanup
                 exit 0
               else
-                echo "❌ Host-side health check also failed"
+                echo "❌ Sidecar-based health check failed"
+                docker logs << parameters.container_name >> || true
                 exit 1
               fi
             fi
@@ -162,37 +160,48 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install Safety CLI
+          name: Create virtual environment and install dependencies
           command: |
-            python3 -m pip install --upgrade pip
-            python3 -m pip install safety==3.2.8
+            python3 -m venv /tmp/safety-scan-env
+            source /tmp/safety-scan-env/bin/activate
+            pip install --upgrade pip
+            
+            # Install project dependencies to scan
+            pip install -r dependencies/requirements-api.txt
+            pip install -r dependencies/requirements-dev.txt
+            pip install -r dependencies/requirements-ml.txt
       - run:
-          name: Run Safety scan with constraints (fail on high/critical)
+          name: Install and run Safety scan
           command: |
-            set -euo pipefail
-            echo "🔍 Running Safety scan on dependencies..."
+            source /tmp/safety-scan-env/bin/activate
+            pip install safety==3.2.8
+            
+            echo "🔍 Running Safety scan on virtual environment..."
             echo "🔍 Safety version: $(safety --version || echo 'version check failed')"
             
-            # Safety v3.2.8 doesn't need complex policy files
-            # Use command-line options to control behavior
+            # Explicitly target the virtual environment
+            # Don't use --continue-on-error; handle exit codes properly
+            echo "🔍 Scanning /tmp/safety-scan-env for vulnerabilities..."
             
-            # Run safety scan without policy file
-            # The scan will continue on error and we'll handle exit codes
-            echo "🔍 Scanning dependencies for vulnerabilities..."
+            # Run safety scan targeting the venv
+            set +e  # Don't exit immediately on non-zero
+            safety scan --target /tmp/safety-scan-env
+            EXIT_CODE=$?
+            set -e
             
-            # Run safety scan and capture exit code
-            safety scan --continue-on-error || EXIT_CODE=$?
-            
-            # Check exit code
-            if [ "${EXIT_CODE:-0}" -eq 0 ]; then
+            # Check exit code and decide how to proceed
+            if [ "$EXIT_CODE" -eq 0 ]; then
               echo "✅ No vulnerabilities found!"
-            elif [ "${EXIT_CODE:-0}" -eq 64 ]; then
-              echo "⚠️ Vulnerabilities found - checking severity..."
+            elif [ "$EXIT_CODE" -eq 64 ]; then
+              echo "⚠️ Vulnerabilities found"
               # For now, we'll allow the build to continue
-              # In production, you may want to fail on high/critical
+              # To fail on vulnerabilities, uncomment the next line:
+              # exit 1
               echo "⚠️ Security vulnerabilities detected (non-blocking for now)"
             else
-              echo "⚠️ Safety scan completed with warnings (exit code: ${EXIT_CODE:-0})"
+              echo "⚠️ Safety scan failed with unexpected exit code: $EXIT_CODE"
+              # Fail on unexpected errors
+              exit $EXIT_CODE
             fi
             
             echo "✅ Safety scan completed"
