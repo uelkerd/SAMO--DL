@@ -37,6 +37,16 @@ conda env create -f environment.ml.yml
 conda activate samo-dl-ml
 ```
 
+#### CUDA/GPU Support
+
+**Important**: The ML environment installs PyTorch from the `pytorch` channel with default settings. For optimal performance:
+
+- **GPU users**: Ensure you have compatible NVIDIA drivers and CUDA toolkit installed
+- **CPU-only users**: Consider installing CPU-only variants if you encounter GPU-related issues
+- **Platform-specific**: Consult [PyTorch's installation matrix](https://pytorch.org/get-started/locally/) for platform-specific recommendations
+
+The environment will install the default PyTorch variant for your platform, which should work in most cases.
+
 ## Quick Start
 
 1. **For API development**: Use `environment.dev.yml`
