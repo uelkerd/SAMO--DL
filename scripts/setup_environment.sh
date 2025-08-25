@@ -160,7 +160,7 @@ activate_and_setup() {
     conda activate "$ENV_NAME"
     
     # Install additional pip packages
-    pip install --upgrade pip
+    python -m pip install --upgrade pip
     
     # Resolve paths for constraints and requirements files
     local constraints_file="$REPO_ROOT/dependencies/constraints.txt"
@@ -176,33 +176,39 @@ activate_and_setup() {
         print_status "Using constraints from: $constraints_file"
     fi
     
-    # Determine which requirements file to use with fallback logic
-    local requirements_file=""
+    # Determine which requirements files to use with fallback logic
+    local -a requirements_files=()
     local requirements_source=""
     
     if [ -f "$local_requirements" ]; then
-        requirements_file="$local_requirements"
+        requirements_files+=("$local_requirements")
         requirements_source="local requirements.txt"
     elif [ -f "$repo_requirements" ]; then
-        requirements_file="$repo_requirements"
-        requirements_source="canonical requirements.txt from repo root"
+        requirements_files+=("$repo_requirements")
+        requirements_source="repo-root requirements.txt"
+    elif [ -f "$REPO_ROOT/dependencies/requirements-api.txt" ] && [ -f "$REPO_ROOT/dependencies/requirements-dev.txt" ]; then
+        requirements_files+=("$REPO_ROOT/dependencies/requirements-api.txt")
+        requirements_files+=("$REPO_ROOT/dependencies/requirements-dev.txt")
+        requirements_source="canonical sets: requirements-api.txt + requirements-dev.txt"
     else
-        print_warning "No requirements.txt found (checked local and repo root)"
+        print_warning "No requirements(.txt) found and no canonical sets detected"
         print_warning "Skipping additional package installation"
         return
     fi
     
     print_status "Installing packages from: $requirements_source"
     
-    # Build pip install command with constraints if available
-    local pip_cmd="pip install"
+    # Build pip install args safely (avoid eval)
+    local -a pip_args=(install)
     if [ -n "$constraints_file" ]; then
-        pip_cmd="$pip_cmd -c \"$constraints_file\""
+        pip_args+=(-c "$constraints_file")
     fi
-    pip_cmd="$pip_cmd -r \"$requirements_file\""
-    
+    for rf in "${requirements_files[@]}"; do
+        pip_args+=(-r "$rf")
+    done
+
     # Execute the installation
-    eval "$pip_cmd" || print_warning "Failed to install some packages from $requirements_source"
+    python -m pip "${pip_args[@]}" || print_warning "Failed to install some packages from $requirements_source"
     
     # Install pre-commit hooks
     print_status "Setting up pre-commit hooks..."
