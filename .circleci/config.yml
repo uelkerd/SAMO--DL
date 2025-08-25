@@ -199,16 +199,8 @@ jobs:
               echo "⚠️ Policy file .safety-policy.yml not found, using defaults"
             fi
             
-            # Check for constraints file and build constraints argument
-            CONSTRAINTS_ARG=""
-            if [ -f dependencies/constraints.txt ]; then
-              CONSTRAINTS_ARG="-c dependencies/constraints.txt"
-              echo "✅ Using constraints file: dependencies/constraints.txt"
-            else
-              echo "⚠️ Constraints file not found, proceeding without constraints"
-            fi
-            
             # Build list of existing requirements files
+            # Note: Safety 3.6.0 doesn't support -c constraints flag, scanning requirements files directly
             REQUIREMENTS_ARGS=""
             for REQ_FILE in dependencies/requirements-api.txt dependencies/requirements-dev.txt dependencies/requirements-ml.txt; do
               if [ -f "$REQ_FILE" ]; then
@@ -226,7 +218,7 @@ jobs:
             fi
             
             # Execute safety check with dynamic arguments
-            safety check $POLICY_ARG $CONSTRAINTS_ARG --output json $REQUIREMENTS_ARGS > safety-report.json
+            safety check $POLICY_ARG --output json $REQUIREMENTS_ARGS > safety-report.json
             EXIT_CODE=$?
             set -e  # Re-enable strict error handling
 
