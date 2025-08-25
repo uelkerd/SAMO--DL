@@ -190,10 +190,10 @@ jobs:
             # Build safety command with file existence checks
             set +e  # Temporarily disable exit on error to capture exit code
             
-            # Note: Skipping policy file due to Safety 3.6.0 compatibility issues
-            # The existing .safety-policy.yml is v3.0 but 'safety check' only supports ≤v2.0
-            # Since it only enables default behavior (dependency-vulnerabilities: enabled), 
-            # we can safely use Safety's built-in defaults
+            # Note: Removed .safety-policy.yml due to Safety 3.6.0 compatibility issues
+            # The file was v3.0 but 'safety check' only supports ≤v2.0, and Safety was
+            # auto-discovering it even without --policy-file flag. Since it only enabled
+            # default behavior, we use Safety's built-in defaults instead.
             echo "ℹ️ Using Safety default policy (dependency vulnerability scanning enabled)"
             
             # Build list of existing requirements files
