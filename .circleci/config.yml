@@ -46,8 +46,8 @@ commands:
               exit 1
             fi
             
-            # Use CircleCI's port binding approach for remote Docker
-            echo "🔍 Starting container with CircleCI-compatible port binding..."
+            # Start container without host port mapping; probes run inside namespace
+            echo "🔍 Starting container (no host port mapping; using internal/sidecar probes)..."
             docker run -d --rm --name << parameters.container_name >> << parameters.image >>
 
             # Debug: Check container started successfully
@@ -188,44 +188,50 @@ jobs:
             
             echo "🔍 Running Safety scan..."
             echo "🔍 Safety version: $(safety --version)"
-            
+
             # Run safety scan and capture exit code
             # Write only stdout (JSON) to file, let stderr go to console
             set +e  # Temporarily disable exit on error to capture exit code
             safety scan --target /tmp/safety-scan-env --output json > safety-report.json
             EXIT_CODE=$?
             set -e  # Re-enable strict error handling
-            
+
             # Show the JSON report for transparency
             echo "📋 Safety scan report:"
             cat safety-report.json | jq '.' || cat safety-report.json
-            
-            # Parse results based on exit code and JSON content
+
+            # Handle exit codes explicitly
             if [ "$EXIT_CODE" -eq 0 ]; then
               echo "✅ No vulnerabilities found!"
-            else
+            elif [ "$EXIT_CODE" -eq 64 ]; then
               echo "⚠️ Safety scan found vulnerabilities (exit code: $EXIT_CODE)"
-              
+
               # Use jq to properly parse JSON and check for high/critical severities
               HIGH_CRITICAL_COUNT=0
               if [ -f safety-report.json ] && [ -s safety-report.json ]; then
                 # Count high and critical vulnerabilities using jq
                 HIGH_CRITICAL_COUNT=$(jq '[.vulnerabilities[]? | select(.severity == "high" or .severity == "critical" or .cvss_v3_severity == "HIGH" or .cvss_v3_severity == "CRITICAL")] | length' safety-report.json 2>/dev/null || echo "0")
               fi
-              
+
               if [ "$HIGH_CRITICAL_COUNT" -gt 0 ]; then
                 echo "❌ Found $HIGH_CRITICAL_COUNT High/Critical vulnerabilities - failing CI"
                 exit 1
               else
                 echo "⚠️ Only Low/Medium vulnerabilities found - allowing build to continue"
               fi
+            else
+              echo "❌ Safety scan failed unexpectedly (exit code: $EXIT_CODE)"
+              exit "$EXIT_CODE"
             fi
-            
+
             echo "✅ Safety scan completed"
-            
+
             # Cleanup
             deactivate || true
             rm -rf /tmp/safety-scan-env
+      - store_artifacts:
+          path: safety-report.json
+          destination: safety/
 
   # Basic linting (optional - won't fail build)
   code-quality:
