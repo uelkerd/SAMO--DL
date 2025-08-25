@@ -162,49 +162,38 @@ jobs:
       - run:
           name: Create virtual environment and install dependencies
           command: |
+            set -euo pipefail
             python3 -m venv /tmp/safety-scan-env
             source /tmp/safety-scan-env/bin/activate
             pip install --upgrade pip
             
-            # Install project dependencies to scan
-            pip install -r dependencies/requirements-api.txt
-            pip install -r dependencies/requirements-dev.txt
-            pip install -r dependencies/requirements-ml.txt
+            # Install project dependencies to scan (single resolver pass)
+            pip install -c dependencies/constraints.txt \
+              -r dependencies/requirements-api.txt \
+              -r dependencies/requirements-dev.txt \
+              -r dependencies/requirements-ml.txt
       - run:
           name: Install and run Safety scan
           command: |
+            set -euo pipefail
             source /tmp/safety-scan-env/bin/activate
-            pip install safety==3.2.8
             
-            echo "🔍 Running Safety scan on virtual environment..."
-            echo "🔍 Safety version: $(safety --version || echo 'version check failed')"
+            # Install Safety v3.6.x (pinned version)
+            pip install safety==3.6.0
             
-            # Explicitly target the virtual environment
-            # Don't use --continue-on-error; handle exit codes properly
-            echo "🔍 Scanning /tmp/safety-scan-env for vulnerabilities..."
+            echo "🔍 Running Safety scan with policy-driven exit codes..."
+            echo "🔍 Safety version: $(safety --version)"
+            echo "🔍 Policy file: .safety-policy.yml"
             
-            # Run safety scan targeting the venv
-            set +e  # Don't exit immediately on non-zero
-            safety scan --target /tmp/safety-scan-env
-            EXIT_CODE=$?
-            set -e
+            # Run safety scan with policy file
+            # This will fail CI if High/Critical vulnerabilities are found
+            safety scan --policy-file .safety-policy.yml --target /tmp/safety-scan-env
             
-            # Check exit code and decide how to proceed
-            if [ "$EXIT_CODE" -eq 0 ]; then
-              echo "✅ No vulnerabilities found!"
-            elif [ "$EXIT_CODE" -eq 64 ]; then
-              echo "⚠️ Vulnerabilities found"
-              # For now, we'll allow the build to continue
-              # To fail on vulnerabilities, uncomment the next line:
-              # exit 1
-              echo "⚠️ Security vulnerabilities detected (non-blocking for now)"
-            else
-              echo "⚠️ Safety scan failed with unexpected exit code: $EXIT_CODE"
-              # Fail on unexpected errors
-              exit $EXIT_CODE
-            fi
+            echo "✅ Safety scan passed - no High/Critical vulnerabilities found!"
             
-            echo "✅ Safety scan completed"
+            # Cleanup
+            deactivate || true
+            rm -rf /tmp/safety-scan-env
 
   # Basic linting (optional - won't fail build)
   code-quality:
