@@ -181,30 +181,40 @@ jobs:
             # Install Safety v3.6.x (pinned version)
             pip install safety==3.6.0
             
+            # Install jq for JSON parsing (if not already available)
+            if ! command -v jq &> /dev/null; then
+              sudo apt-get update && sudo apt-get install -y jq
+            fi
+            
             echo "🔍 Running Safety scan..."
             echo "🔍 Safety version: $(safety --version)"
             
-            # Run safety scan without policy file (use command-line options)
-            # Safety v3.6.0 will exit with non-zero code if vulnerabilities are found
-            # We'll handle the exit codes to determine severity
+            # Run safety scan and capture exit code
+            # Write only stdout (JSON) to file, let stderr go to console
             set +e  # Temporarily disable exit on error to capture exit code
-            safety scan --target /tmp/safety-scan-env --output json > safety-report.json 2>&1
+            safety scan --target /tmp/safety-scan-env --output json > safety-report.json
             EXIT_CODE=$?
             set -e  # Re-enable strict error handling
             
-            # Parse results
+            # Show the JSON report for transparency
+            echo "📋 Safety scan report:"
+            cat safety-report.json | jq '.' || cat safety-report.json
+            
+            # Parse results based on exit code and JSON content
             if [ "$EXIT_CODE" -eq 0 ]; then
               echo "✅ No vulnerabilities found!"
             else
               echo "⚠️ Safety scan found vulnerabilities (exit code: $EXIT_CODE)"
               
-              # Show the report
-              cat safety-report.json || true
+              # Use jq to properly parse JSON and check for high/critical severities
+              HIGH_CRITICAL_COUNT=0
+              if [ -f safety-report.json ] && [ -s safety-report.json ]; then
+                # Count high and critical vulnerabilities using jq
+                HIGH_CRITICAL_COUNT=$(jq '[.vulnerabilities[]? | select(.severity == "high" or .severity == "critical" or .cvss_v3_severity == "HIGH" or .cvss_v3_severity == "CRITICAL")] | length' safety-report.json 2>/dev/null || echo "0")
+              fi
               
-              # Check for high/critical vulnerabilities
-              if grep -E '"severity": "(high|critical)"' safety-report.json > /dev/null 2>&1 || \
-                 grep -E '"cvss_v3_severity": "(HIGH|CRITICAL)"' safety-report.json > /dev/null 2>&1; then
-                echo "❌ High or Critical vulnerabilities found - failing CI"
+              if [ "$HIGH_CRITICAL_COUNT" -gt 0 ]; then
+                echo "❌ Found $HIGH_CRITICAL_COUNT High/Critical vulnerabilities - failing CI"
                 exit 1
               else
                 echo "⚠️ Only Low/Medium vulnerabilities found - allowing build to continue"
