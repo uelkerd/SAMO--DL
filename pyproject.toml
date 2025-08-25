@@ -25,6 +25,8 @@ classifiers = [
 ]
 
 dependencies = [
+    # Core application dependencies - see requirements/requirements.txt
+    # Install with: pip install -r requirements/requirements.txt
     # API Framework (base install should be light)
     "fastapi>=0.100.0",
     "uvicorn[standard]>=0.23.0",

@@ -21,7 +21,7 @@ try:
     # Start server in background
     import threading
     def run_server():
-        app.run(host='0.0.0.0', port=8082, debug=False)
+        app.run(host='0.0.0.0', port=8082, debug=False)  # Allow all interfaces - review for production
     
     server_thread = threading.Thread(target=run_server, daemon=True)
     server_thread.start()
