@@ -154,7 +154,7 @@ setup_database() {
     
     # Test database connection if .env exists
     if [ -f "$PROJECT_ROOT/.env" ]; then
-        python scripts/database/check_pgvector.py 2>/dev/null || print_warning "Database connection test failed"
+        python "$PROJECT_ROOT/scripts/database/check_pgvector.py" 2>/dev/null || print_warning "Database connection test failed"
     fi
 }
 
