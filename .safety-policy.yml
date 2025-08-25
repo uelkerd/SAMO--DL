@@ -13,6 +13,7 @@ fail_on_severity:
 #   - vulnerability_id: "51457"
 #     reason: "False positive - not applicable to our use case"
 
-# Report settings
+# Report settings - include vulnerability findings
 report:
-  json_output: false
+  include:
+    - vulnerabilities
