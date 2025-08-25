@@ -1,19 +1,5 @@
-# Safety Policy Configuration
-# Version 3.0 - For Safety v3.6.x
 version: "3.0"
 
-# Fail the scan when these severity levels are found
-fail_on_severity:
-  cvss_severity:
-    - critical
-    - high
-    
-# Optional: Ignore specific vulnerabilities by ID
-# ignore_vulnerabilities:
-#   - vulnerability_id: "51457"
-#     reason: "False positive - not applicable to our use case"
-
-# Report settings - include vulnerability findings
 report:
-  include:
-    - vulnerabilities
+  dependency-vulnerabilities:
+    enabled: true
