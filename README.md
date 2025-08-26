@@ -1,6 +1,6 @@
 [![CircleCI](https://dl.circleci.com/status-badge/img/circleci/FSXowV52GpBGpAqYmKsFET/8tGsuAsXwe7SbvmqisuxA8/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/FSXowV52GpBGpAqYmKsFET/8tGsuAsXwe7SbvmqisuxA8/tree/main)
 ![Response Time](https://img.shields.io/badge/Latency-%3C500ms-blue)
-![Model Accuracy](https://img.shields.io/badge/F1%20Score-90.70%25-brightgreen)
+![Model Accuracy](https://img.shields.io/badge/F1%20Score-45.70%25-brightgreen)
 [![CodeScene Average Code Health](https://codescene.io/projects/70411/status-badges/average-code-health)](https://codescene.io/projects/70411)
 [![CodeScene Hotspot Code Health](https://codescene.io/projects/70411/status-badges/hotspot-code-health)](https://codescene.io/projects/70411)
 [![CodeScene System Mastery](https://codescene.io/projects/70411/status-badges/system-mastery)](https://codescene.io/projects/70411)
