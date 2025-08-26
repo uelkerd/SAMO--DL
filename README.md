@@ -42,7 +42,7 @@ Voice Input → Whisper STT → DistilRoBERTa Emotion → T5 Summarization → E
 
 | Metric | Challenge | Solution | Result |
 |--------|-----------|----------|---------|
-| **Model Accuracy** | Initial F1: 5.20% | Asymmetric loss + data augmentation + calibration | **45.70% F1** (+778%) |
+| **Model Accuracy** | Initial F1: 5.20% | Asymmetric loss + data augmentation + calibration | **45.70% F1** (+779%) |
 | **Inference Speed** | PyTorch: ~300ms | ONNX optimization + quantization | **<500ms** (2.3x speedup) |
 | **Model Size** | Original: 500MB | Dynamic quantization + compression | **150MB** (75% reduction) |
 | **Production Uptime** | Research prototype | Docker + GCP + monitoring | **>99.5% availability** |
