@@ -1,3 +1,4 @@
+# DEPRECATED: Use requirements-api.txt (minimal API) + constraints.txt
 # Minimal requirements for basic API functionality
 # Core dependencies only - no heavy ML libraries
 

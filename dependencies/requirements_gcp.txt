@@ -1,3 +1,4 @@
+# DEPRECATED: Use requirements-api.txt / requirements-ml.txt + constraints.txt
 torch>=2.0.0
 transformers>=4.55.0
 numpy>=1.21.0
