@@ -1,7 +1,6 @@
 [![CircleCI](https://dl.circleci.com/status-badge/img/circleci/FSXowV52GpBGpAqYmKsFET/8tGsuAsXwe7SbvmqisuxA8/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/FSXowV52GpBGpAqYmKsFET/8tGsuAsXwe7SbvmqisuxA8/tree/main)
-![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/uelkerd/SAMO--DL?style=flat&color=purple)
 ![Response Time](https://img.shields.io/badge/Latency-%3C500ms-blue)
-![Model Accuracy](https://img.shields.io/badge/F1%20Score-90.70%25-brightgreen)
+![Model Accuracy](https://img.shields.io/badge/F1%20Score-45.70%25-brightgreen)
 [![CodeScene Average Code Health](https://codescene.io/projects/70411/status-badges/average-code-health)](https://codescene.io/projects/70411)
 [![CodeScene Hotspot Code Health](https://codescene.io/projects/70411/status-badges/hotspot-code-health)](https://codescene.io/projects/70411)
 [![CodeScene System Mastery](https://codescene.io/projects/70411/status-badges/system-mastery)](https://codescene.io/projects/70411)
@@ -43,7 +42,7 @@ Voice Input → Whisper STT → DistilRoBERTa Emotion → T5 Summarization → E
 
 | Metric | Challenge | Solution | Result |
 |--------|-----------|----------|---------|
-| **Model Accuracy** | Initial F1: 5.20% | Focal loss + data augmentation + calibration | **90.70% F1** (+1,630%) |
+| **Model Accuracy** | Initial F1: 5.20% | Asymmetric loss + data augmentation + calibration | **45.70% F1** (+779%) |
 | **Inference Speed** | PyTorch: ~300ms | ONNX optimization + quantization | **<500ms** (2.3x speedup) |
 | **Model Size** | Original: 500MB | Dynamic quantization + compression | **150MB** (75% reduction) |
 | **Production Uptime** | Research prototype | Docker + GCP + monitoring | **>99.5% availability** |
