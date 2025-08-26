@@ -11,6 +11,7 @@ import os
 import json
 import sys
 from datetime import datetime
+from pathlib import Path
 
 def deploy_locally():
     """Deploy the model locally for testing."""
@@ -20,23 +21,23 @@ def deploy_locally():
     print()
     
     # Check if model exists
-    model_path = "deployment/models/default"
-    if not os.path.exists(model_path):
+    model_path = Path("deployment/models/default")
+    if not model_path.exists():
         print(f"❌ Model not found at: {model_path}")
         return False
     
     print("✅ Model found")
     
     # Create local deployment directory
-    local_deployment_dir = "local_deployment"
-    if os.path.exists(local_deployment_dir):
+    local_deployment_dir = Path("local_deployment")
+    if local_deployment_dir.exists():
         import shutil
         shutil.rmtree(local_deployment_dir)
-    os.makedirs(local_deployment_dir)
+    local_deployment_dir.mkdir()
     
     # Copy model files
     import shutil
-    shutil.copytree(model_path, os.path.join(local_deployment_dir, "model"))
+    shutil.copytree(model_path, local_deployment_dir / "model")
     print("✅ Model files copied")
     
     # Create local API server
@@ -232,7 +233,8 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
 '''
     
-    with open(os.path.join(local_deployment_dir, "api_server.py"), 'w') as f:
+    api_server_path = local_deployment_dir / "api_server.py"
+    with api_server_path.open('w', encoding='utf-8') as f:
         f.write(api_server_script)
     print("✅ API server script created")
     
@@ -243,7 +245,8 @@ transformers>=4.30.0
 numpy>=1.21.0
 '''
     
-    with open(os.path.join(local_deployment_dir, "requirements.txt"), 'w') as f:
+    requirements_path = local_deployment_dir / "requirements.txt"
+    with requirements_path.open('w', encoding='utf-8') as f:
         f.write(requirements)
     print("✅ Requirements file created")
     
@@ -339,7 +342,8 @@ if __name__ == "__main__":
     test_api()
 '''
     
-    with open(os.path.join(local_deployment_dir, "test_api.py"), 'w') as f:
+    test_script_path = local_deployment_dir / "test_api.py"
+    with test_script_path.open('w', encoding='utf-8') as f:
         f.write(test_script)
     print("✅ Test script created")
     
@@ -347,16 +351,30 @@ if __name__ == "__main__":
     start_script = '''#!/bin/bash
 # Start local deployment
 
-echo "🚀 STARTING LOCAL DEPLOYMENT"
-echo "============================"
+set -euo pipefail
 
 # Resolve script directory and project root
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+# Ensure relative paths (requirements.txt, api_server.py) resolve to this dir
+cd "$SCRIPT_DIR"
+
+# Normalize constraints path - skip normalization for absolute paths, URLs, and file URIs
+CONSTRAINTS_PATH="dependencies/constraints.txt"
+
+# Check if CONSTRAINTS_PATH is already absolute, URL, or file URI
+if [[ "$CONSTRAINTS_PATH" =~ ^/ ]] || [[ "$CONSTRAINTS_PATH" =~ ^[a-zA-Z][a-zA-Z0-9+.-]*:// ]] || [[ "$CONSTRAINTS_PATH" =~ ^(https?|file):// ]]; then
+    # Skip normalization for absolute paths, URLs, and file URIs
+    NORMALIZED_CONSTRAINTS_PATH="$CONSTRAINTS_PATH"
+else
+    # Only prepend PROJECT_ROOT for relative paths
+    NORMALIZED_CONSTRAINTS_PATH="$PROJECT_ROOT/$CONSTRAINTS_PATH"
+fi
+
 # Install dependencies
 echo "📦 Installing dependencies..."
-pip install -c "$PROJECT_ROOT/dependencies/constraints.txt" -r requirements.txt
+python3 -m pip install -c "$NORMALIZED_CONSTRAINTS_PATH" -r requirements.txt
 
 # Start API server
 echo "🌐 Starting API server..."
@@ -364,20 +382,20 @@ echo "Server will be available at: http://localhost:5000"
 echo "Press Ctrl+C to stop the server"
 echo ""
 
-python api_server.py
+exec python3 -u "$SCRIPT_DIR/api_server.py"
 '''
     
-    with open(os.path.join(local_deployment_dir, "start.sh"), 'w') as f:
-        f.write(start_script)
-    os.chmod(os.path.join(local_deployment_dir, "start.sh"), 0o755)
+    start_script_path = local_deployment_dir / "start.sh"
+    start_script_path.write_text(start_script)
+    start_script_path.chmod(0o755)
     print("✅ Start script created")
     
     # Create deployment summary
     deployment_summary = {
         'status': 'ready',
         'timestamp': datetime.now().isoformat(),
-        'model_path': model_path,
-        'deployment_dir': local_deployment_dir,
+        'model_path': str(model_path),
+        'deployment_dir': str(local_deployment_dir),
         'endpoints': {
             'health': 'GET http://localhost:5000/health',
             'predict': 'POST http://localhost:5000/predict',
@@ -391,8 +409,8 @@ python api_server.py
         }
     }
     
-    with open(os.path.join(local_deployment_dir, "deployment_info.json"), 'w') as f:
-        json.dump(deployment_summary, f, indent=2)
+    deployment_info_path = local_deployment_dir / "deployment_info.json"
+    deployment_info_path.write_text(json.dumps(deployment_summary, indent=2))
     print("✅ Deployment info created")
     
     print(f"\n✅ LOCAL DEPLOYMENT READY!")
