@@ -1,7 +1,6 @@
 [![CircleCI](https://dl.circleci.com/status-badge/img/circleci/FSXowV52GpBGpAqYmKsFET/8tGsuAsXwe7SbvmqisuxA8/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/FSXowV52GpBGpAqYmKsFET/8tGsuAsXwe7SbvmqisuxA8/tree/main)
-![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/uelkerd/SAMO--DL?style=flat&color=purple)
 ![Response Time](https://img.shields.io/badge/Latency-%3C500ms-blue)
-![Model Accuracy](https://img.shields.io/badge/F1%20Score-90.70%25-brightgreen)
+![Model Accuracy](https://img.shields.io/badge/F1%20Score-45.70%25-brightgreen)
 [![CodeScene Average Code Health](https://codescene.io/projects/70411/status-badges/average-code-health)](https://codescene.io/projects/70411)
 [![CodeScene Hotspot Code Health](https://codescene.io/projects/70411/status-badges/hotspot-code-health)](https://codescene.io/projects/70411)
 [![CodeScene System Mastery](https://codescene.io/projects/70411/status-badges/system-mastery)](https://codescene.io/projects/70411)
@@ -19,17 +18,31 @@
 **Responsibility**: End-to-end ML pipeline from research to production deployment  
 
 ### Architecture Overview
-```
+
+#### Voice Processing Pipeline
+```text
 Voice Input → Whisper STT → DistilRoBERTa Emotion → T5 Summarization → Emotional Insights
      ↓              ↓                ↓                    ↓                  ↓
   Real-time    <500ms latency    90.70% accuracy    Contextual summary   Production API
 ```
 
+#### System Architecture
+<div align="center">
+  <a href="docs/diagrams/Diagram02.svg">
+    <img
+      src="docs/diagrams/Diagram02.svg"
+      alt="SAMO System Architecture diagram showing data flow between Whisper STT, Emotion Model, T5 Summarizer, and API"
+      width="100%"
+      loading="lazy"
+    />
+  </a>
+</div>
+
 ## 🚀 Production Achievements
 
 | Metric | Challenge | Solution | Result |
 |--------|-----------|----------|---------|
-| **Model Accuracy** | Initial F1: 5.20% | Focal loss + data augmentation + calibration | **90.70% F1** (+1,630%) |
+| **Model Accuracy** | Initial F1: 5.20% | Asymmetric loss + data augmentation + calibration | **45.70% F1** (+779%) |
 | **Inference Speed** | PyTorch: ~300ms | ONNX optimization + quantization | **<500ms** (2.3x speedup) |
 | **Model Size** | Original: 500MB | Dynamic quantization + compression | **150MB** (75% reduction) |
 | **Production Uptime** | Research prototype | Docker + GCP + monitoring | **>99.5% availability** |
@@ -245,6 +258,19 @@ python deployment/local/api_server.py
 # Experiment with hyperparameters and architectures
 ```
 
+
+## 📅 Project Roadmap
+
+<div align="center">
+  <a href="docs/diagrams/Diagram03.svg">
+    <img
+      src="docs/diagrams/Diagram03.svg"
+      alt="Deep Learning Project Roadmap with milestones and timelines"
+      width="100%"
+      loading="lazy"
+    />
+  </a>
+</div>
 
 ## 🎯 Future Enhancements
 

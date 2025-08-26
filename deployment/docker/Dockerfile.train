@@ -1,7 +1,7 @@
 # Vertex AI Training Container for SAMO Deep Learning
 # Optimized to solve the 0.0000 loss issue
 
-FROM pytorch/pytorch:2.0.1-cuda11.8-cudnn8-runtime
+FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
@@ -13,7 +13,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     git \
-    curl=7.88.1-10+deb12u12 \
+    curl \
     wget \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
@@ -21,16 +21,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Set working directory
 WORKDIR /app
 
-# Copy requirements first for better caching
-COPY requirements.txt .
+# Copy requirements files for better caching
+COPY dependencies/requirements-api.txt .
+COPY dependencies/requirements-dev.txt .
+COPY dependencies/requirements-ml.txt .
+COPY dependencies/constraints.txt .
 
 # Install Python dependencies
 ARG PIP_CONSTRAINT=""
 RUN pip install --no-cache-dir --upgrade pip && \
     if [ -n "$PIP_CONSTRAINT" ]; then \
-      pip install --no-cache-dir -c "$PIP_CONSTRAINT" -r requirements.txt; \
+      # Resolve PIP_CONSTRAINT to basename since we only copy constraints.txt to /app/
+      CONSTRAINT_BASENAME=$(basename "$PIP_CONSTRAINT") && \
+      echo "Using constraints file: /app/$CONSTRAINT_BASENAME" && \
+      pip install --no-cache-dir -c "/app/$CONSTRAINT_BASENAME" -r requirements-api.txt -r requirements-dev.txt -r requirements-ml.txt; \
     else \
-      pip install --no-cache-dir -r requirements.txt; \
+      pip install --no-cache-dir -r requirements-api.txt -r requirements-dev.txt -r requirements-ml.txt; \
     fi
 
 # Install Vertex AI specific dependencies (pinned major versions)
@@ -58,7 +64,7 @@ ENV GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
 ENV VERTEX_AI_REGION=${VERTEX_AI_REGION:-us-central1}
 
 # Copy training script
-COPY scripts/vertex_ai_training.py /app/train.py
+COPY scripts/training/full_focal_training.py /app/train.py
 
 # Make training script executable
 RUN chmod +x /app/train.py
