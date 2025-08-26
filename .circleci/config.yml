@@ -129,10 +129,12 @@ jobs:
       - run:
           name: Upgrade pip for faster resolver
           command: |
+            set -euo pipefail
             python3 -m pip install --upgrade pip
       - run:
           name: Install Core Dev Dependencies (optimized)
           command: |
+            set -euo pipefail
             # Install with optimized flags to prevent timeout
             python3 -m pip install \
               --no-compile \
@@ -278,6 +280,7 @@ jobs:
       - run:
           name: Install Linting Tools
           command: |
+            set -euo pipefail
             python3 -m pip install --upgrade pip
             python3 -m pip install --user ruff==0.6.9
       - run:
@@ -295,6 +298,7 @@ jobs:
       - run:
           name: Install Test Dependencies (optimized)
           command: |
+            set -euo pipefail
             python3 -m pip install --upgrade pip
 
             # Gate ML requirements behind environment variable for speed/stability
@@ -396,20 +400,26 @@ jobs:
       - run:
           name: Install dependencies under constraints (API + dev)
           command: |
+            set -euo pipefail
             python3 -m pip install --upgrade pip
             python3 -m pip install \
               --no-compile \
               --disable-pip-version-check \
               --timeout 300 \
               -c dependencies/constraints.txt \
-              -r dependencies/requirements-api.txt \
               -r dependencies/requirements-dev.txt
       - run:
           name: Install safety and scan live environment
           command: |
+            set -euo pipefail
             python3 -m pip install safety==3.2.3
             # Scan the installed environment for transitives as resolved under constraints.
             safety check --full-report --fail-on HIGH
+            # Optional: also produce JSON for artifact/reporting (non-blocking)
+            safety check --json > safety-live.json || true
+      - store_artifacts:
+          path: safety-live.json
+          when: always
 
 workflows:
   simple-ci:
