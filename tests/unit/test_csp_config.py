@@ -192,35 +192,35 @@ class TestCSPConfiguration(unittest.TestCase):
         middleware = SecurityHeadersMiddleware(self.app, self.config)
         csp_policy = middleware._build_csp_policy()
         
-        # Enhanced security directives
-        enhanced_directives = [
-            "frame-ancestors 'none'",      # Block iframe embedding
-            "upgrade-insecure-requests",   # Force HTTPS
-            "block-all-mixed-content",    # Block mixed content
-            "img-src 'self' data: https:", # Allow data URIs and HTTPS images
-            "font-src 'self' data:",      # Allow data URI fonts
-            "connect-src 'self' https:",  # Allow HTTPS connections
-            "media-src 'self' https:"     # Allow HTTPS media
+        # Define all required CSP directives with descriptions
+        required_directives = [
+            ("default-src 'self'", "Default source restriction"),
+            ("script-src 'self'", "Script source restriction"),
+            ("style-src 'self'", "Style source restriction"),
+            ("object-src 'none'", "Block all plugins"),
+            ("base-uri 'self'", "Restrict base URI"),
+            ("form-action 'self'", "Restrict form submissions"),
+            ("frame-ancestors 'none'", "Block iframe embedding"),
+            ("upgrade-insecure-requests", "Force HTTPS"),
+            ("block-all-mixed-content", "Block mixed content"),
+            ("img-src 'self' data: https:", "Allow data URIs and HTTPS images"),
+            ("font-src 'self' data:", "Allow data URI fonts"),
+            ("connect-src 'self' https:", "Allow HTTPS connections"),
+            ("media-src 'self' https:", "Allow HTTPS media")
         ]
         
-        for directive in enhanced_directives:
-            self.assertIn(directive, csp_policy, f"Missing enhanced CSP directive: {directive}")
-        
-        # Verify comprehensive coverage
-        self.assertIn("default-src 'self'", csp_policy)
-        self.assertIn("script-src 'self'", csp_policy)
-        self.assertIn("style-src 'self'", csp_policy)
-        self.assertIn("object-src 'none'", csp_policy)
-        self.assertIn("base-uri 'self'", csp_policy)
-        self.assertIn("form-action 'self'", csp_policy)
+        # Test all directives in a single loop
+        for directive, description in required_directives:
+            self.assertIn(directive, csp_policy, 
+                         f"Missing CSP directive: {description} ({directive})")
 
     def test_csp_policy_production_ready(self):
         """Test that CSP policy is production-ready with comprehensive security."""
         middleware = SecurityHeadersMiddleware(self.app, self.config)
         csp_policy = middleware._build_csp_policy()
         
-        # Production security checks
-        security_checks = [
+        # Production security checks with descriptions
+        production_security = [
             ("object-src 'none'", "Block all plugins"),
             ("frame-ancestors 'none'", "Block iframe embedding"),
             ("base-uri 'self'", "Restrict base URI"),
@@ -229,8 +229,10 @@ class TestCSPConfiguration(unittest.TestCase):
             ("block-all-mixed-content", "Block mixed content")
         ]
         
-        for directive, description in security_checks:
-            self.assertIn(directive, csp_policy, f"Production security missing: {description}")
+        # Test all production security features in a single loop
+        for directive, description in production_security:
+            self.assertIn(directive, csp_policy, 
+                         f"Production security missing: {description} ({directive})")
 
 if __name__ == '__main__':
     unittest.main() 
