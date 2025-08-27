@@ -62,7 +62,7 @@ def setup_security_middleware(
     import logging
     logger = logging.getLogger(__name__)
     logger.info(
-        f"✅ Security headers middleware initialized for {environment} environment"
+        "✅ Security headers middleware initialized for %s environment", environment
     )
 
     return middleware
