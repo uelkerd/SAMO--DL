@@ -19,7 +19,7 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-# Now import everything else
+# Import all modules first
 from flask import Flask, request, jsonify, g
 import werkzeug
 import logging
