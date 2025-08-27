@@ -7,11 +7,11 @@ REST API server for emotion detection with comprehensive security headers.
 
 import os
 import sys
-import logging
 
-# Add src to path for security headers import
+# Add src to path for security imports - must be before other imports
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
+import logging
 from flask import Flask, request, jsonify
 from inference import EmotionDetector
 from security_setup import setup_security_middleware
