@@ -8,8 +8,9 @@ Comprehensive tests for security components working together.
 import sys
 import os
 import unittest
+from pathlib import Path
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.append(str(Path(__file__).resolve().parents[2] / 'src'))
 
 from flask import Flask, Response
 from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
@@ -114,6 +115,12 @@ class TestSecurityIntegration(unittest.TestCase):
         """Test that CSP policy includes block-all-mixed-content directive."""
         csp_policy = self.middleware._build_csp_policy()
         self.assertIn("block-all-mixed-content", csp_policy, "Missing block-all-mixed-content directive")
+
+    def test_csp_disallows_unsafe_inline_and_eval(self):
+        """Test that CSP policy does NOT allow unsafe directives."""
+        csp_policy = self.middleware._build_csp_policy()
+        self.assertNotIn("'unsafe-inline'", csp_policy, "CSP should not allow unsafe-inline")
+        self.assertNotIn("'unsafe-eval'", csp_policy, "CSP should not allow unsafe-eval")
 
     def test_permissions_policy_camera(self):
         """Test that permissions policy restricts camera access."""
@@ -338,19 +345,19 @@ class TestSecurityIntegration(unittest.TestCase):
         
         # Test each production security header individually
         self.assertIn('X-Frame-Options', response.headers, "Missing X-Frame-Options header")
-        self.assertEqual(response.headers['X-Frame-Options'], 'DENY', 
+        self.assertEqual(response.headers['X-Frame-Options'], 'DENY',
                        "X-Frame-Options should be DENY")
-        
+
         self.assertIn('X-Content-Type-Options', response.headers, "Missing X-Content-Type-Options header")
-        self.assertEqual(response.headers['X-Content-Type-Options'], 'nosniff', 
+        self.assertEqual(response.headers['X-Content-Type-Options'], 'nosniff',
                        "X-Content-Type-Options should be nosniff")
-        
+
         self.assertIn('X-XSS-Protection', response.headers, "Missing X-XSS-Protection header")
-        self.assertEqual(response.headers['X-XSS-Protection'], '1; mode=block', 
+        self.assertEqual(response.headers['X-XSS-Protection'], '1; mode=block',
                        "X-XSS-Protection should be 1; mode=block")
-        
+
         self.assertIn('Referrer-Policy', response.headers, "Missing Referrer-Policy header")
-        self.assertEqual(response.headers['Referrer-Policy'], 'strict-origin-when-cross-origin', 
+        self.assertEqual(response.headers['Referrer-Policy'], 'strict-origin-when-cross-origin',
                        "Referrer-Policy should be strict-origin-when-cross-origin")
 
     def test_csp_nonce_generation(self):
@@ -370,6 +377,28 @@ class TestSecurityIntegration(unittest.TestCase):
         
         # Nonces should be different (random generation)
         self.assertNotEqual(nonce, stats2['csp_nonce'])
+
+    def test_headers_applied_via_after_request_integration(self):
+        """Test that security headers are applied via Flask hooks."""
+        app = self.app
+
+        @app.route("/ping")
+        def ping():
+            return "ok"
+
+        client = app.test_client()
+        resp = client.get("/ping")
+        self.assertIn("Content-Security-Policy", resp.headers)
+        self.assertIn("X-Content-Type-Options", resp.headers)
+
+    def test_ua_blocking_returns_403(self):
+        """Test that malicious user agents are blocked with 403."""
+        with self.app.test_request_context('/blocked', headers={
+            'User-Agent': 'sqlmap/1.0 curl/7.88 nikto/2.1.6'
+        }):
+            resp = self.middleware._before_request()
+            self.assertIsNotNone(resp)
+            self.assertEqual(getattr(resp, "status_code", None), 403)
 
 
 if __name__ == '__main__':
