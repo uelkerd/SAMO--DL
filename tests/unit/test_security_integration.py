@@ -6,7 +6,6 @@ Comprehensive tests for security components working together.
 """
 
 import sys
-import os
 import unittest
 from pathlib import Path
 
@@ -384,6 +383,7 @@ class TestSecurityIntegration(unittest.TestCase):
 
         @app.route("/ping")
         def ping():
+            """Simple ping endpoint for testing security headers."""
             return "ok"
 
         client = app.test_client()
