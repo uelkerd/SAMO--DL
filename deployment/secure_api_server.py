@@ -14,11 +14,6 @@ Security Features:
 - Request correlation and tracing
 """
 
-# Setup path for local imports - must be first
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
-
 # Import all modules first
 from flask import Flask, request, jsonify, g
 import werkzeug
@@ -31,9 +26,10 @@ import threading
 from functools import wraps
 import functools
 
-from api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
-from input_sanitizer import InputSanitizer, SanitizationConfig
-from security_setup import setup_security_middleware, get_environment
+# Import security components using relative imports
+from ..src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
+from ..src.input_sanitizer import InputSanitizer, SanitizationConfig
+from ..src.security_setup import setup_security_middleware, get_environment
 
 # Configure logging
 logging.basicConfig(

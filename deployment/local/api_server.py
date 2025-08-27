@@ -7,11 +7,6 @@ A production-ready Flask API server with monitoring, logging,
 rate limiting, and comprehensive security headers.
 """
 
-# Setup path for local imports - must be first
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-
 # Import all modules first
 import logging
 import time
@@ -24,7 +19,9 @@ import torch
 import werkzeug
 from flask import Flask, request, jsonify
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from security_setup import setup_security_middleware
+
+# Import security setup using relative import
+from ...src.security_setup import setup_security_middleware
 
 # Configure logging after all imports
 logging.basicConfig(
