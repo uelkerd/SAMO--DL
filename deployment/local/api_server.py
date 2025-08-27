@@ -3,22 +3,28 @@
 Local Emotion Detection API Server
 =================================
 
-A production-ready Flask API server with monitoring, logging, and rate limiting.
+A production-ready Flask API server with monitoring, logging,
+rate limiting, and comprehensive security headers.
 """
 
-from flask import Flask, request, jsonify
-import werkzeug
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+# Import all modules first
 import os
 import logging
 import time
-from datetime import datetime
-from collections import defaultdict, deque
 import threading
+from collections import defaultdict, deque
+from datetime import datetime
 from functools import wraps
 
-# Configure logging
+import torch
+import werkzeug
+from flask import Flask, request, jsonify
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+# Import security setup using relative import
+from ...src.security_setup import setup_security_middleware
+
+# Configure logging after all imports
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -30,6 +36,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+
+# Initialize security headers middleware
+security_middleware = setup_security_middleware(app, "development")
 
 # Rate limiting configuration
 RATE_LIMIT_WINDOW = 60  # seconds
