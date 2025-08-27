@@ -10,13 +10,13 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-# Now import everything else
+# Import all modules first
 import logging
 from flask import Flask, request, jsonify
 from inference import EmotionDetector
 from security_setup import setup_security_middleware
 
-# Configure logging
+# Configure logging after all imports
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
