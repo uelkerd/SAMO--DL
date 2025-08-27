@@ -3,6 +3,7 @@
 Minimal test to isolate Swagger docs issue
 """
 
+import os
 from flask import Flask, jsonify
 from flask_restx import Api, Resource, Namespace
 
@@ -44,4 +45,4 @@ if __name__ == '__main__':
     print("- http://localhost:5003/docs (should work)")
     print("- http://localhost:5003/api/health (should work)")
     
-    app.run(host='0.0.0.0', port=5003)  # Debug mode disabled for security 
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5003)), debug=False)  # Debug mode disabled for security 
