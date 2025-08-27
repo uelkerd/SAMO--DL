@@ -8,6 +8,7 @@ rate limiting, and comprehensive security headers.
 """
 
 # Import all modules first
+import os
 import logging
 import time
 import threading
