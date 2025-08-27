@@ -70,42 +70,80 @@ class TestSecurityIntegration(unittest.TestCase):
             if validation == 'non-empty':
                 self.assertGreater(len(response.headers[header]), 0, f"Header {header} should not be empty")
 
-    def test_csp_policy_comprehensive_coverage(self):
-        """Test that CSP policy covers all security aspects."""
+    def test_csp_policy_default_src(self):
+        """Test that CSP policy includes default-src directive."""
         csp_policy = self.middleware._build_csp_policy()
-        
-        # Security directives that should be present
-        security_directives = [
-            "default-src 'self'",           # Default source restriction
-            "script-src 'self'",            # Script source restriction
-            "style-src 'self'",             # Style source restriction
-            "object-src 'none'",            # Block all plugins
-            "base-uri 'self'",              # Restrict base URI
-            "form-action 'self'",           # Restrict form submissions
-            "frame-ancestors 'none'",       # Block iframe embedding
-            "upgrade-insecure-requests",    # Force HTTPS
-            "block-all-mixed-content"       # Block mixed content
-        ]
-        
-        for directive in security_directives:
-            self.assertIn(directive, csp_policy, f"Missing CSP directive: {directive}")
+        self.assertIn("default-src 'self'", csp_policy, "Missing default-src directive")
 
-    def test_permissions_policy_comprehensive(self):
-        """Test that permissions policy covers all browser features."""
+    def test_csp_policy_script_src(self):
+        """Test that CSP policy includes script-src directive."""
+        csp_policy = self.middleware._build_csp_policy()
+        self.assertIn("script-src 'self'", csp_policy, "Missing script-src directive")
+
+    def test_csp_policy_style_src(self):
+        """Test that CSP policy includes style-src directive."""
+        csp_policy = self.middleware._build_csp_policy()
+        self.assertIn("style-src 'self'", csp_policy, "Missing style-src directive")
+
+    def test_csp_policy_object_src(self):
+        """Test that CSP policy includes object-src directive."""
+        csp_policy = self.middleware._build_csp_policy()
+        self.assertIn("object-src 'none'", csp_policy, "Missing object-src directive")
+
+    def test_csp_policy_base_uri(self):
+        """Test that CSP policy includes base-uri directive."""
+        csp_policy = self.middleware._build_csp_policy()
+        self.assertIn("base-uri 'self'", csp_policy, "Missing base-uri directive")
+
+    def test_csp_policy_form_action(self):
+        """Test that CSP policy includes form-action directive."""
+        csp_policy = self.middleware._build_csp_policy()
+        self.assertIn("form-action 'self'", csp_policy, "Missing form-action directive")
+
+    def test_csp_policy_frame_ancestors(self):
+        """Test that CSP policy includes frame-ancestors directive."""
+        csp_policy = self.middleware._build_csp_policy()
+        self.assertIn("frame-ancestors 'none'", csp_policy, "Missing frame-ancestors directive")
+
+    def test_csp_policy_upgrade_insecure_requests(self):
+        """Test that CSP policy includes upgrade-insecure-requests directive."""
+        csp_policy = self.middleware._build_csp_policy()
+        self.assertIn("upgrade-insecure-requests", csp_policy, "Missing upgrade-insecure-requests directive")
+
+    def test_csp_policy_block_mixed_content(self):
+        """Test that CSP policy includes block-all-mixed-content directive."""
+        csp_policy = self.middleware._build_csp_policy()
+        self.assertIn("block-all-mixed-content", csp_policy, "Missing block-all-mixed-content directive")
+
+    def test_permissions_policy_camera(self):
+        """Test that permissions policy restricts camera access."""
         permissions_policy = self.middleware._build_permissions_policy()
-        
-        # Critical permissions that should be restricted
-        critical_permissions = [
-            "camera=()",           # No camera access
-            "microphone=()",       # No microphone access
-            "geolocation=()",      # No location access
-            "payment=()",          # No payment access
-            "fullscreen=()",       # No fullscreen access
-            "encrypted-media=()"   # No encrypted media access
-        ]
-        
-        for permission in critical_permissions:
-            self.assertIn(permission, permissions_policy, f"Missing permission restriction: {permission}")
+        self.assertIn("camera=()", permissions_policy, "Missing camera restriction")
+
+    def test_permissions_policy_microphone(self):
+        """Test that permissions policy restricts microphone access."""
+        permissions_policy = self.middleware._build_permissions_policy()
+        self.assertIn("microphone=()", permissions_policy, "Missing microphone restriction")
+
+    def test_permissions_policy_geolocation(self):
+        """Test that permissions policy restricts geolocation access."""
+        permissions_policy = self.middleware._build_permissions_policy()
+        self.assertIn("geolocation=()", permissions_policy, "Missing geolocation restriction")
+
+    def test_permissions_policy_payment(self):
+        """Test that permissions policy restricts payment access."""
+        permissions_policy = self.middleware._build_permissions_policy()
+        self.assertIn("payment=()", permissions_policy, "Missing payment restriction")
+
+    def test_permissions_policy_fullscreen(self):
+        """Test that permissions policy restricts fullscreen access."""
+        permissions_policy = self.middleware._build_permissions_policy()
+        self.assertIn("fullscreen=()", permissions_policy, "Missing fullscreen restriction")
+
+    def test_permissions_policy_encrypted_media(self):
+        """Test that permissions policy restricts encrypted media access."""
+        permissions_policy = self.middleware._build_permissions_policy()
+        self.assertIn("encrypted-media=()", permissions_policy, "Missing encrypted media restriction")
 
     def test_user_agent_analysis_integration(self):
         """Test user agent analysis integration with security middleware."""
@@ -132,13 +170,12 @@ class TestSecurityIntegration(unittest.TestCase):
             
             # Should detect suspicious patterns
             self.assertIsInstance(patterns, list)
-            if len(patterns) > 0:
-                # Check that patterns contain suspicious indicators
-                pattern_text = ' '.join(patterns).lower()
-                self.assertTrue(
-                    any(indicator in pattern_text for indicator in ['suspicious', 'header', 'user agent']),
-                    f"Expected suspicious patterns, got: {patterns}"
-                )
+            # Always check for suspicious indicators regardless of pattern count
+            pattern_text = ' '.join(patterns).lower()
+            self.assertTrue(
+                any(indicator in pattern_text for indicator in ['suspicious', 'header', 'user agent']),
+                f"Expected suspicious patterns, got: {patterns}"
+            )
 
     def test_request_correlation_integration(self):
         """Test request correlation headers integration."""
@@ -174,47 +211,146 @@ class TestSecurityIntegration(unittest.TestCase):
             except Exception as e:
                 self.fail(f"Security logging crashed: {e}")
 
-    def test_security_stats_comprehensive(self):
-        """Test that security stats provide comprehensive information."""
+    def test_security_stats_config_section(self):
+        """Test that security stats config section exists."""
         stats = self.middleware.get_security_stats()
-        
-        # Check config section
         self.assertIn('config', stats)
         config = stats['config']
-        
-        # All security features should be documented
-        required_config_keys = [
-            'enable_csp', 'enable_hsts', 'enable_x_frame_options',
-            'enable_x_content_type_options', 'enable_x_xss_protection',
-            'enable_referrer_policy', 'enable_permissions_policy',
-            'enable_cross_origin_embedder_policy', 'enable_cross_origin_opener_policy',
-            'enable_cross_origin_resource_policy', 'enable_origin_agent_cluster',
-            'enable_request_id', 'enable_correlation_id',
-            'enable_enhanced_ua_analysis', 'ua_suspicious_score_threshold',
-            'ua_blocking_enabled'
-        ]
-        
-        for key in required_config_keys:
-            self.assertIn(key, config, f"Missing config key: {key}")
-            self.assertIsInstance(config[key], (bool, int), f"Config key {key} should be bool or int")
+        self.assertIsInstance(config, dict)
+
+    def test_security_stats_enable_csp(self):
+        """Test that CSP is enabled in security stats."""
+        stats = self.middleware.get_security_stats()
+        config = stats['config']
+        self.assertIn('enable_csp', config)
+        self.assertIsInstance(config['enable_csp'], bool)
+
+    def test_security_stats_enable_hsts(self):
+        """Test that HSTS is enabled in security stats."""
+        stats = self.middleware.get_security_stats()
+        config = stats['config']
+        self.assertIn('enable_hsts', config)
+        self.assertIsInstance(config['enable_hsts'], bool)
+
+    def test_security_stats_enable_x_frame_options(self):
+        """Test that X-Frame-Options is enabled in security stats."""
+        stats = self.middleware.get_security_stats()
+        config = stats['config']
+        self.assertIn('enable_x_frame_options', config)
+        self.assertIsInstance(config['enable_x_frame_options'], bool)
+
+    def test_security_stats_enable_x_content_type_options(self):
+        """Test that X-Content-Type-Options is enabled in security stats."""
+        stats = self.middleware.get_security_stats()
+        config = stats['config']
+        self.assertIn('enable_x_content_type_options', config)
+        self.assertIsInstance(config['enable_x_content_type_options'], bool)
+
+    def test_security_stats_enable_x_xss_protection(self):
+        """Test that X-XSS-Protection is enabled in security stats."""
+        stats = self.middleware.get_security_stats()
+        config = stats['config']
+        self.assertIn('enable_x_xss_protection', config)
+        self.assertIsInstance(config['enable_x_xss_protection'], bool)
+
+    def test_security_stats_enable_referrer_policy(self):
+        """Test that Referrer-Policy is enabled in security stats."""
+        stats = self.middleware.get_security_stats()
+        config = stats['config']
+        self.assertIn('enable_referrer_policy', config)
+        self.assertIsInstance(config['enable_referrer_policy'], bool)
+
+    def test_security_stats_enable_permissions_policy(self):
+        """Test that Permissions-Policy is enabled in security stats."""
+        stats = self.middleware.get_security_stats()
+        config = stats['config']
+        self.assertIn('enable_permissions_policy', config)
+        self.assertIsInstance(config['enable_permissions_policy'], bool)
+
+    def test_security_stats_enable_cross_origin_embedder_policy(self):
+        """Test that Cross-Origin-Embedder-Policy is enabled in security stats."""
+        stats = self.middleware.get_security_stats()
+        config = stats['config']
+        self.assertIn('enable_cross_origin_embedder_policy', config)
+        self.assertIsInstance(config['enable_cross_origin_embedder_policy'], bool)
+
+    def test_security_stats_enable_cross_origin_opener_policy(self):
+        """Test that Cross-Origin-Opener-Policy is enabled in security stats."""
+        stats = self.middleware.get_security_stats()
+        config = stats['config']
+        self.assertIn('enable_cross_origin_opener_policy', config)
+        self.assertIsInstance(config['enable_cross_origin_opener_policy'], bool)
+
+    def test_security_stats_enable_cross_origin_resource_policy(self):
+        """Test that Cross-Origin-Resource-Policy is enabled in security stats."""
+        stats = self.middleware.get_security_stats()
+        config = stats['config']
+        self.assertIn('enable_cross_origin_resource_policy', config)
+        self.assertIsInstance(config['enable_cross_origin_resource_policy'], bool)
+
+    def test_security_stats_enable_origin_agent_cluster(self):
+        """Test that Origin-Agent-Cluster is enabled in security stats."""
+        stats = self.middleware.get_security_stats()
+        config = stats['config']
+        self.assertIn('enable_origin_agent_cluster', config)
+        self.assertIsInstance(config['enable_origin_agent_cluster'], bool)
+
+    def test_security_stats_enable_request_id(self):
+        """Test that Request-ID is enabled in security stats."""
+        stats = self.middleware.get_security_stats()
+        config = stats['config']
+        self.assertIn('enable_request_id', config)
+        self.assertIsInstance(config['enable_request_id'], bool)
+
+    def test_security_stats_enable_correlation_id(self):
+        """Test that Correlation-ID is enabled in security stats."""
+        stats = self.middleware.get_security_stats()
+        config = stats['config']
+        self.assertIn('enable_correlation_id', config)
+        self.assertIsInstance(config['enable_correlation_id'], bool)
+
+    def test_security_stats_enable_enhanced_ua_analysis(self):
+        """Test that Enhanced UA Analysis is enabled in security stats."""
+        stats = self.middleware.get_security_stats()
+        config = stats['config']
+        self.assertIn('enable_enhanced_ua_analysis', config)
+        self.assertIsInstance(config['enable_enhanced_ua_analysis'], bool)
+
+    def test_security_stats_ua_suspicious_score_threshold(self):
+        """Test that UA suspicious score threshold is set in security stats."""
+        stats = self.middleware.get_security_stats()
+        config = stats['config']
+        self.assertIn('ua_suspicious_score_threshold', config)
+        self.assertIsInstance(config['ua_suspicious_score_threshold'], int)
+
+    def test_security_stats_ua_blocking_enabled(self):
+        """Test that UA blocking is configured in security stats."""
+        stats = self.middleware.get_security_stats()
+        config = stats['config']
+        self.assertIn('ua_blocking_enabled', config)
+        self.assertIsInstance(config['ua_blocking_enabled'], bool)
 
     def test_production_security_headers(self):
         """Test that all production security headers are properly configured."""
         response = Response()
         self.middleware._add_security_headers(response)
         
-        # Production security header values
-        expected_values = {
-            'X-Frame-Options': 'DENY',
-            'X-Content-Type-Options': 'nosniff',
-            'X-XSS-Protection': '1; mode=block',
-            'Referrer-Policy': 'strict-origin-when-cross-origin'
-        }
+        # Test each production security header individually
+        self.assertIn('X-Frame-Options', response.headers, "Missing X-Frame-Options header")
+        self.assertEqual(response.headers['X-Frame-Options'], 'DENY', 
+                       "X-Frame-Options should be DENY")
         
-        for header, expected_value in expected_values.items():
-            self.assertIn(header, response.headers, f"Missing header: {header}")
-            self.assertEqual(response.headers[header], expected_value, 
-                           f"Header {header} has wrong value: {response.headers[header]} != {expected_value}")
+        self.assertIn('X-Content-Type-Options', response.headers, "Missing X-Content-Type-Options header")
+        self.assertEqual(response.headers['X-Content-Type-Options'], 'nosniff', 
+                       "X-Content-Type-Options should be nosniff")
+        
+        self.assertIn('X-XSS-Protection', response.headers, "Missing X-XSS-Protection header")
+        self.assertEqual(response.headers['X-XSS-Protection'], '1; mode=block', 
+                       "X-XSS-Protection should be 1; mode=block")
+        
+        self.assertIn('Referrer-Policy', response.headers, "Missing Referrer-Policy header")
+        self.assertEqual(response.headers['Referrer-Policy'], 'strict-origin-when-cross-origin', 
+                       "Referrer-Policy should be strict-origin-when-cross-origin")
 
     def test_csp_nonce_generation(self):
         """Test that CSP nonce is generated and available."""

@@ -32,7 +32,7 @@ import functools
 # Import security components
 from api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
 from input_sanitizer import InputSanitizer, SanitizationConfig
-from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
+from security_setup import setup_security_middleware
 
 # Configure logging
 logging.basicConfig(
@@ -72,26 +72,10 @@ sanitization_config = SanitizationConfig(
     enable_content_type_validation=True
 )
 
-security_headers_config = SecurityHeadersConfig(
-    enable_csp=True,
-    enable_hsts=True,
-    enable_x_frame_options=True,
-    enable_x_content_type_options=True,
-    enable_x_xss_protection=True,
-    enable_referrer_policy=True,
-    enable_permissions_policy=True,
-    enable_cross_origin_embedder_policy=True,
-    enable_cross_origin_opener_policy=True,
-    enable_cross_origin_resource_policy=True,
-    enable_origin_agent_cluster=True,
-    enable_request_id=True,
-    enable_correlation_id=True
-)
-
 # Initialize security components
 rate_limiter = TokenBucketRateLimiter(rate_limit_config)
 input_sanitizer = InputSanitizer(sanitization_config)
-security_middleware = SecurityHeadersMiddleware(app, security_headers_config)
+security_middleware = setup_security_middleware(app, "production")
 
 # Monitoring metrics
 metrics = {
