@@ -12,8 +12,8 @@ def add_security_headers(app: Flask) -> None:
         # Path-aware Content Security Policy
         csp_base = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline'; "
-            "style-src 'self' 'unsafe-inline'; "
+            "script-src 'self'; "
+            "style-src 'self'; "
             "img-src 'self' data: https:; "
             "font-src 'self'; "
             "connect-src 'self'; "

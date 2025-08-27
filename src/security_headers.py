@@ -199,13 +199,13 @@ class SecurityHeadersMiddleware:
         """Return CSP policy from config, or a secure default if not set."""
         if self.csp_policy:
             return self.csp_policy
-        # Enhanced secure fallback default with comprehensive protection
+        # Production-safe fallback default with comprehensive protection
         return (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "  # Allow inline scripts for development
-            "style-src 'self' 'unsafe-inline'; "  # Allow inline styles for development
-            "img-src 'self' data: https:; "  # Allow data URIs and HTTPS images
-            "font-src 'self' data:; "  # Allow data URI fonts
+            "script-src 'self'; "  # Only allow same-origin scripts
+            "style-src 'self'; "  # Only allow same-origin styles
+            "img-src 'self' data: https:; "  # Data URIs and HTTPS images
+            "font-src 'self' data:; "  # Data URI fonts
             "connect-src 'self' https:; "  # Allow HTTPS connections
             "media-src 'self' https:; "  # Allow HTTPS media
             "object-src 'none'; "  # Block all plugins
