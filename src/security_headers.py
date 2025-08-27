@@ -199,14 +199,21 @@ class SecurityHeadersMiddleware:
         """Return CSP policy from config, or a secure default if not set."""
         if self.csp_policy:
             return self.csp_policy
-        # Secure fallback default
+        # Enhanced secure fallback default with comprehensive protection
         return (
             "default-src 'self'; "
-            "script-src 'self'; "
-            "style-src 'self'; "
-            "object-src 'none'; "
-            "base-uri 'self'; "
-            "form-action 'self'"
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "  # Allow inline scripts for development
+            "style-src 'self' 'unsafe-inline'; "  # Allow inline styles for development
+            "img-src 'self' data: https:; "  # Allow data URIs and HTTPS images
+            "font-src 'self' data:; "  # Allow data URI fonts
+            "connect-src 'self' https:; "  # Allow HTTPS connections
+            "media-src 'self' https:; "  # Allow HTTPS media
+            "object-src 'none'; "  # Block all plugins
+            "base-uri 'self'; "  # Restrict base URI
+            "form-action 'self'; "  # Restrict form submissions
+            "frame-ancestors 'none'; "  # Block embedding in iframes
+            "upgrade-insecure-requests; "  # Upgrade HTTP to HTTPS
+            "block-all-mixed-content"  # Block mixed content
         )
 
     def _build_permissions_policy(self) -> str:
