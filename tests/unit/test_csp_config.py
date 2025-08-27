@@ -187,5 +187,52 @@ class TestCSPConfiguration(unittest.TestCase):
         self.assertIsInstance(csp_value, str)
         self.assertGreater(len(csp_value), 0)
 
+    def test_enhanced_csp_policy_directives(self):
+        """Test that enhanced CSP policy contains all required security directives."""
+        middleware = SecurityHeadersMiddleware(self.app, self.config)
+        csp_policy = middleware._build_csp_policy()
+        
+        # Define all required CSP directives with descriptions
+        required_directives = [
+            ("default-src 'self'", "Default source restriction"),
+            ("script-src 'self'", "Script source restriction"),
+            ("style-src 'self'", "Style source restriction"),
+            ("object-src 'none'", "Block all plugins"),
+            ("base-uri 'self'", "Restrict base URI"),
+            ("form-action 'self'", "Restrict form submissions"),
+            ("frame-ancestors 'none'", "Block iframe embedding"),
+            ("upgrade-insecure-requests", "Force HTTPS"),
+            ("block-all-mixed-content", "Block mixed content"),
+            ("img-src 'self' data: https:", "Allow data URIs and HTTPS images"),
+            ("font-src 'self' data:", "Allow data URI fonts"),
+            ("connect-src 'self' https:", "Allow HTTPS connections"),
+            ("media-src 'self' https:", "Allow HTTPS media")
+        ]
+        
+        # Test all directives in a single loop
+        for directive, description in required_directives:
+            self.assertIn(directive, csp_policy, 
+                         f"Missing CSP directive: {description} ({directive})")
+
+    def test_csp_policy_production_ready(self):
+        """Test that CSP policy is production-ready with comprehensive security."""
+        middleware = SecurityHeadersMiddleware(self.app, self.config)
+        csp_policy = middleware._build_csp_policy()
+        
+        # Production security checks with descriptions
+        production_security = [
+            ("object-src 'none'", "Block all plugins"),
+            ("frame-ancestors 'none'", "Block iframe embedding"),
+            ("base-uri 'self'", "Restrict base URI"),
+            ("form-action 'self'", "Restrict form submissions"),
+            ("upgrade-insecure-requests", "Force HTTPS"),
+            ("block-all-mixed-content", "Block mixed content")
+        ]
+        
+        # Test all production security features in a single loop
+        for directive, description in production_security:
+            self.assertIn(directive, csp_policy, 
+                         f"Production security missing: {description} ({directive})")
+
 if __name__ == '__main__':
     unittest.main() 

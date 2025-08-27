@@ -2,18 +2,25 @@
 """
 🚀 EMOTION DETECTION API SERVER
 ===============================
-REST API server for emotion detection.
+REST API server for emotion detection with comprehensive security headers.
 """
 
+# Import all modules first
+import logging
 from flask import Flask, request, jsonify
 from inference import EmotionDetector
-import logging
 
-# Configure logging
+# Import security setup using relative import
+from ..src.security_setup import setup_security_middleware
+
+# Configure logging after all imports
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+
+# Initialize security headers middleware
+security_middleware = setup_security_middleware(app, "development")
 
 # Initialize emotion detector
 try:
