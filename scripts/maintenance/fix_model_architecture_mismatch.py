@@ -13,7 +13,7 @@ def fix_model_architecture():
     """Fix the model architecture mismatch in the minimal notebook."""
     
     # Read the existing notebook
-    with open('notebooks/MINIMAL_WORKING_TRAINING_COLAB.ipynb', 'r') as f:
+    with open('notebooks/MINIMAL_WORKING_TRAINING_COLAB.ipynb') as f:
         notebook = json.load(f)
     
     # Find and replace the model setup cell
@@ -78,4 +78,4 @@ def fix_model_architecture():
     print('   ✅ Added detailed logging of the reconfiguration process')
 
 if __name__ == "__main__":
-    fix_model_architecture() 
+    fix_model_architecture()

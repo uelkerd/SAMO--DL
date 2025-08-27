@@ -1,5 +1,4 @@
-"""
-Secure Model Loader for SAMO Deep Learning.
+"""Secure Model Loader for SAMO Deep Learning.
 
 This module provides the main secure model loading interface that integrates
 all security components: integrity checking, sandboxed execution, and validation.
@@ -8,10 +7,10 @@ all security components: integrity checking, sandboxed execution, and validation
 import logging
 import os
 import time
-from typing import Any, Dict, Optional, Tuple, Type, Union
+from typing import Any, Dict, Optional, Tuple, Type
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from .integrity_checker import IntegrityChecker
 from .sandbox_executor import SandboxExecutor

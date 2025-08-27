@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Text Preprocessing Module for SAMO Deep Learning.
+"""Text Preprocessing Module for SAMO Deep Learning.
 
 This module provides comprehensive text preprocessing functionality
 for journal entries and other text data.

@@ -9,7 +9,7 @@ import glob
 def fix_import_paths_in_file(file_path):
     """Fix import paths in a single file."""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding='utf-8') as f:
             content = f.read()
         
         original_content = content
@@ -30,9 +30,9 @@ def fix_import_paths_in_file(file_path):
             (r'from \.\.data\.', 'from data.'),
             
             # Fix sys.path insertions
-            (r'sys\.path\.insert\(0, str\(Path\(__file__\)\.parent\.parent / "src"\)\)', 
+            (r'sys\.path\.insert\(0, str\(Path\(__file__\)\.parent\.parent / "src"\)\)',
              'sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))'),
-            (r'sys\.path\.insert\(0, str\(Path\(__file__\)\.parent\.parent\.parent / "src"\)\)', 
+            (r'sys\.path\.insert\(0, str\(Path\(__file__\)\.parent\.parent\.parent / "src"\)\)',
              'sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))'),
         ]
         
@@ -73,4 +73,4 @@ def main():
     print("Import path fixes completed!")
 
 if __name__ == "__main__":
-    main() 
+    main()

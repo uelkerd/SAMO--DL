@@ -673,4 +673,4 @@ def create_colab_notebook():
     print("  - Model export for deployment")
 
 if __name__ == "__main__":
-    create_colab_notebook() 
+    create_colab_notebook()

@@ -115,7 +115,6 @@ print(f"- Accuracy (subset): {ab:.4f}")
 
 # Optional: write corrected config.json with inferred labels in model-index order
 if os.getenv("WRITE_CONFIG", "0") == "1":
-    from transformers import AutoConfig
     cfg = mdl.config
     id2label = {int(mi): ds_names[dj] for mi, dj in mapping}
     for i in range(M):

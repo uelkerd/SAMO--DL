@@ -31,14 +31,14 @@ def debug_go_emotions():
     # Load the dataset
     go_emotions = load_dataset("go_emotions", "simplified")
     
-    print(f"\n📊 Dataset structure:")
+    print("\n📊 Dataset structure:")
     print(f"Keys: {list(go_emotions.keys())}")
     print(f"Train size: {len(go_emotions['train'])}")
     print(f"Validation size: {len(go_emotions['validation'])}")
     print(f"Test size: {len(go_emotions['test'])}")
     
     # Check first few examples
-    print(f"\n📊 First 5 examples:")
+    print("\n📊 First 5 examples:")
     for i in range(min(5, len(go_emotions['train']))):
         example = go_emotions['train'][i]
         print(f"Example {i}:")
@@ -48,7 +48,7 @@ def debug_go_emotions():
         print()
     
     # Check if there's a label mapping
-    print(f"\n🔍 Checking for label mapping...")
+    print("\n🔍 Checking for label mapping...")
     
     # Try to get the dataset info
     try:
@@ -65,7 +65,7 @@ def debug_go_emotions():
         print("No features available")
     
     # Look for label names in the dataset
-    print(f"\n🔍 Looking for label names...")
+    print("\n🔍 Looking for label names...")
     
     # Check if there's a label_names field
     if hasattr(go_emotions, 'label_names'):
@@ -81,7 +81,7 @@ def debug_go_emotions():
             print(f"Labels feature: {features['labels']}")
     
     # Try to get the original dataset
-    print(f"\n🔍 Trying original dataset...")
+    print("\n🔍 Trying original dataset...")
     try:
         original_go_emotions = load_dataset("go_emotions")
         print(f"Original dataset keys: {list(original_go_emotions.keys())}")
@@ -94,11 +94,11 @@ def debug_go_emotions():
         print(f"Could not load original dataset: {e}")
     
     # Check the dataset card
-    print(f"\n🔍 Checking dataset documentation...")
+    print("\n🔍 Checking dataset documentation...")
     print("GoEmotions dataset should have emotion names like:")
     print("['admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring', 'confusion', 'curiosity', 'desire', 'disappointment', 'disapproval', 'disgust', 'embarrassment', 'excitement', 'fear', 'gratitude', 'grief', 'joy', 'love', 'nervousness', 'optimism', 'pride', 'realization', 'relief', 'remorse', 'sadness', 'surprise', 'neutral']")
     
     return go_emotions
 
 if __name__ == "__main__":
-    debug_go_emotions() 
+    debug_go_emotions()

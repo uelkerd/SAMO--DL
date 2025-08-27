@@ -34,10 +34,10 @@ def test_model_files():
         
         # Try to load and parse
         try:
-            with open(results_file, 'r') as f:
+            with open(results_file) as f:
                 results = json.load(f)
             
-            print(f"✅ Results file is valid JSON")
+            print("✅ Results file is valid JSON")
             print(f"📊 F1 Score: {results.get('best_f1', 'N/A')}")
             print(f"📊 Emotions: {len(results.get('all_emotions', []))}")
             
@@ -116,7 +116,7 @@ def main():
     # Test environment
     env_ok = test_python_environment()
     
-    print(f"\n📊 Test Results:")
+    print("\n📊 Test Results:")
     print(f"   Files: {'✅' if files_ok else '❌'}")
     print(f"   Environment: {'✅' if env_ok else '❌'}")
     
@@ -128,4 +128,4 @@ def main():
     suggest_next_steps()
 
 if __name__ == "__main__":
-    main() 
+    main()

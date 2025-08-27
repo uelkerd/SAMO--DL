@@ -166,25 +166,25 @@ def main():
     """Main evaluation function."""
     parser = argparse.ArgumentParser(description="Evaluate Whisper WER on LibriSpeech")
     parser.add_argument(
-        "--output-dir", 
-        type=str, 
+        "--output-dir",
+        type=str,
         help="Directory to save results and audio files"
     )
     parser.add_argument(
-        "--max-samples", 
-        type=int, 
-        default=50, 
+        "--max-samples",
+        type=int,
+        default=50,
         help="Maximum number of samples to evaluate"
     )
     parser.add_argument(
-        "--model-size", 
-        type=str, 
-        default="base", 
+        "--model-size",
+        type=str,
+        default="base",
         help="Whisper model size (tiny, base, small, medium, large)"
     )
     parser.add_argument(
-        "--save-results", 
-        action="store_true", 
+        "--save-results",
+        action="store_true",
         help="Save detailed results to JSON file"
     )
 
@@ -199,7 +199,7 @@ def main():
 
     # Download or load LibriSpeech samples
     samples = download_librispeech_sample(
-        output_dir=args.output_dir, 
+        output_dir=args.output_dir,
         max_samples=args.max_samples
     )
 

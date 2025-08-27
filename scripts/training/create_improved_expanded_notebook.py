@@ -764,4 +764,4 @@ def create_improved_notebook():
     print("  - DataLoader optimizations (num_workers, pin_memory)")
 
 if __name__ == "__main__":
-    create_improved_notebook() 
+    create_improved_notebook()

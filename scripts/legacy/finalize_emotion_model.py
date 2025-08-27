@@ -362,7 +362,7 @@ def save_ensemble_model(
         'threshold': ensemble.threshold,
     }, output_path)
     
-    logger.info(f"Model saved successfully!")
+    logger.info("Model saved successfully!")
     logger.info(f"Final metrics: {metrics}")
 
 

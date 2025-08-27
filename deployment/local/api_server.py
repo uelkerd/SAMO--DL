@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Local Emotion Detection API Server
+"""Local Emotion Detection API Server
 =================================
 
 A production-ready Flask API server with monitoring, logging,
@@ -126,7 +125,7 @@ class EmotionDetectionModel:
             logger.info("✅ Model loaded successfully")
             
         except Exception as e:
-            logger.error(f"❌ Failed to load model: {str(e)}")
+            logger.error(f"❌ Failed to load model: {e!s}")
             raise
         
     def predict(self, text):
@@ -183,7 +182,7 @@ class EmotionDetectionModel:
             
         except Exception as e:
             prediction_time = time.time() - start_time
-            logger.error(f"Prediction failed after {prediction_time:.3f}s: {str(e)}")
+            logger.error(f"Prediction failed after {prediction_time:.3f}s: {e!s}")
             raise
 
 # Initialize model
@@ -219,7 +218,7 @@ def health_check():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='health_check_error')
-        logger.error(f"Health check failed: {str(e)}")
+        logger.error(f"Health check failed: {e!s}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/predict', methods=['POST'])
@@ -253,12 +252,12 @@ def predict():
     except werkzeug.exceptions.BadRequest:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='invalid_json')
-        logger.error(f"Invalid JSON in request")
+        logger.error("Invalid JSON in request")
         return jsonify({'error': 'Invalid JSON format'}), 400
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='prediction_error')
-        logger.error(f"Prediction endpoint error: {str(e)}")
+        logger.error(f"Prediction endpoint error: {e!s}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/predict_batch', methods=['POST'])
@@ -299,12 +298,12 @@ def predict_batch():
     except werkzeug.exceptions.BadRequest:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='invalid_json')
-        logger.error(f"Invalid JSON in batch request")
+        logger.error("Invalid JSON in batch request")
         return jsonify({'error': 'Invalid JSON format'}), 400
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='batch_prediction_error')
-        logger.error(f"Batch prediction endpoint error: {str(e)}")
+        logger.error(f"Batch prediction endpoint error: {e!s}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/metrics', methods=['GET'])
@@ -380,13 +379,13 @@ def home():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='documentation_error')
-        logger.error(f"Documentation endpoint error: {str(e)}")
+        logger.error(f"Documentation endpoint error: {e!s}")
         return jsonify({'error': str(e)}), 500
 
 @app.errorhandler(werkzeug.exceptions.BadRequest)
 def handle_bad_request(e):
     """Handle BadRequest exceptions (invalid JSON, etc.)."""
-    logger.error(f"BadRequest error: {str(e)}")
+    logger.error(f"BadRequest error: {e!s}")
     update_metrics(0.0, success=False, error_type='invalid_json')
     return jsonify({'error': 'Invalid JSON format'}), 400
 

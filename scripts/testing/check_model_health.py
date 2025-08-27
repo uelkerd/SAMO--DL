@@ -5,7 +5,6 @@ Check if the model is loading properly in the container.
 """
 
 import requests
-import json
 from test_config import create_api_client, create_test_config
 
 

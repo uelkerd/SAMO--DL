@@ -17,7 +17,7 @@ def quick_label_fix():
     # Load datasets
     go_emotions = load_dataset("go_emotions", "simplified")
     
-    with open('data/journal_test_dataset.json', 'r') as f:
+    with open('data/journal_test_dataset.json') as f:
         journal_entries = json.load(f)
     journal_df = pd.DataFrame(journal_entries)
     
@@ -59,13 +59,13 @@ def quick_label_fix():
             'classes': label_encoder.classes_.tolist()
         }, f, indent=2)
     
-    print(f"✅ Fixed label encoder saved!")
+    print("✅ Fixed label encoder saved!")
     print(f"📊 Use num_labels={len(label_encoder.classes_)} in your model")
-    print(f"📊 Label encoder: fixed_label_encoder.pkl")
-    print(f"📊 Mappings: label_mappings.json")
+    print("📊 Label encoder: fixed_label_encoder.pkl")
+    print("📊 Mappings: label_mappings.json")
     
     return len(label_encoder.classes_)
 
 if __name__ == "__main__":
     num_labels = quick_label_fix()
-    print(f"\n🎉 Quick fix completed! Use num_labels={num_labels}") 
+    print(f"\n🎉 Quick fix completed! Use num_labels={num_labels}")

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Test script to verify the server starts and responds correctly
+"""Test script to verify the server starts and responds correctly
 """
 
 import os
@@ -62,4 +61,4 @@ try:
 except Exception as e:
     print(f"❌ Error testing server: {e}")
     import traceback
-    traceback.print_exc() 
+    traceback.print_exc()

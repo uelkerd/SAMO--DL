@@ -13,7 +13,7 @@ def add_comprehensive_features():
     """Add all advanced features to the comprehensive notebook."""
     
     # Read the existing notebook
-    with open('notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb', 'r') as f:
+    with open('notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb') as f:
         notebook = json.load(f)
     
     # Add all the advanced features as new cells
@@ -559,4 +559,4 @@ def add_comprehensive_features():
     print('\\n🚀 COMPREHENSIVE NOTEBOOK IS NOW COMPLETE!')
 
 if __name__ == "__main__":
-    add_comprehensive_features() 
+    add_comprehensive_features()

@@ -117,4 +117,4 @@ class TestAdminEndpointProtection(unittest.TestCase):
         self.assertIn('IP address required', response.get_json()['error'])
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

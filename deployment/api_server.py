@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-🚀 EMOTION DETECTION API SERVER
+"""🚀 EMOTION DETECTION API SERVER
 ===============================
 REST API server for emotion detection with comprehensive security headers.
 """

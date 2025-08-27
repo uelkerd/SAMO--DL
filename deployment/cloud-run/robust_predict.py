@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-🚀 EMOTION DETECTION API FOR CLOUD RUN
+"""🚀 EMOTION DETECTION API FOR CLOUD RUN
 ======================================
 Robust Flask API optimized for Cloud Run deployment.
 """
@@ -301,4 +300,4 @@ if __name__ == '__main__':
         'loglevel': 'info'
     }
     
-    StandaloneApplication(app, options).run() 
+    StandaloneApplication(app, options).run()

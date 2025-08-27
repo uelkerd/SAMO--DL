@@ -9,16 +9,13 @@ This module tests all the Priority 1 Features implemented:
 5. Comprehensive Monitoring Dashboard
 """
 
-import asyncio
-import json
 import os
 import tempfile
 from pathlib import Path
 import time
-from typing import Dict, Any
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from src.unified_ai_api import app
 from src.security.jwt_manager import JWTManager
@@ -1013,4 +1010,4 @@ class TestJWTManager:
         assert cleaned_count >= 0  # May or may not have expired tokens
 
 if __name__ == "__main__":
-    pytest.main([__file__]) 
+    pytest.main([__file__])

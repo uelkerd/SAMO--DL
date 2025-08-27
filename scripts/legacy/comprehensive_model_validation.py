@@ -24,7 +24,7 @@ def comprehensive_validation():
     model_dir = Path(__file__).parent.parent / 'deployment' / 'model'
     required_files = ['config.json', 'model.safetensors', 'training_args.bin']
     
-    print(f"\n📁 MODEL FILE VALIDATION")
+    print("\n📁 MODEL FILE VALIDATION")
     print("-" * 40)
     
     missing_files = []
@@ -41,13 +41,13 @@ def comprehensive_validation():
         print(f"\n❌ CRITICAL: Missing files: {missing_files}")
         return False
     
-    print(f"✅ All model files present and valid")
+    print("✅ All model files present and valid")
     
     # Load model configuration
-    print(f"\n🔧 MODEL CONFIGURATION VALIDATION")
+    print("\n🔧 MODEL CONFIGURATION VALIDATION")
     print("-" * 40)
     
-    with open(model_dir / 'config.json', 'r') as f:
+    with open(model_dir / 'config.json') as f:
         config = json.load(f)
     
     print(f"Model Type: {config.get('model_type', 'unknown')}")
@@ -61,7 +61,7 @@ def comprehensive_validation():
     print(f"Emotion Classes: {len(emotion_mapping)}")
     
     # Load model and tokenizer
-    print(f"\n🔧 MODEL LOADING VALIDATION")
+    print("\n🔧 MODEL LOADING VALIDATION")
     print("-" * 40)
     
     try:
@@ -81,11 +81,11 @@ def comprehensive_validation():
         print(f"✅ Model moved to {device}")
         
     except Exception as e:
-        print(f"❌ Model loading failed: {str(e)}")
+        print(f"❌ Model loading failed: {e!s}")
         return False
     
     # Test 1: Basic Functionality
-    print(f"\n🧪 TEST 1: BASIC FUNCTIONALITY")
+    print("\n🧪 TEST 1: BASIC FUNCTIONALITY")
     print("-" * 40)
     
     test_cases = [
@@ -131,11 +131,11 @@ def comprehensive_validation():
             print(f"{status} '{text}' → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})")
             
         except Exception as e:
-            print(f"❌ Error predicting '{text}': {str(e)}")
+            print(f"❌ Error predicting '{text}': {e!s}")
             return False
     
     accuracy = correct_predictions / total_predictions
-    print(f"\n📊 Basic Functionality Results:")
+    print("\n📊 Basic Functionality Results:")
     print(f"   Correct: {correct_predictions}/{total_predictions}")
     print(f"   Accuracy: {accuracy:.1%}")
     
@@ -144,7 +144,7 @@ def comprehensive_validation():
         return False
     
     # Test 2: Confidence Distribution
-    print(f"\n🧪 TEST 2: CONFIDENCE DISTRIBUTION")
+    print("\n🧪 TEST 2: CONFIDENCE DISTRIBUTION")
     print("-" * 40)
     
     confidence_scores = []
@@ -170,7 +170,7 @@ def comprehensive_validation():
         print(f"⚠️  WARNING: Low average confidence ({avg_confidence:.3f})")
     
     # Test 3: Edge Cases
-    print(f"\n🧪 TEST 3: EDGE CASES")
+    print("\n🧪 TEST 3: EDGE CASES")
     print("-" * 40)
     
     edge_cases = [
@@ -201,12 +201,12 @@ def comprehensive_validation():
             print(f"✅ Edge case handled: '{text[:30]}...' → {predicted_emotion} ({confidence:.3f})")
             
         except Exception as e:
-            print(f"❌ Edge case failed: '{text[:30]}...' - {str(e)}")
+            print(f"❌ Edge case failed: '{text[:30]}...' - {e!s}")
     
     print(f"\n📊 Edge Case Results: {edge_case_success}/{len(edge_cases)} successful")
     
     # Test 4: Performance Benchmark
-    print(f"\n🧪 TEST 4: PERFORMANCE BENCHMARK")
+    print("\n🧪 TEST 4: PERFORMANCE BENCHMARK")
     print("-" * 40)
     
     benchmark_text = "I'm feeling really happy today!"
@@ -233,7 +233,7 @@ def comprehensive_validation():
         print(f"⚠️  WARNING: Slow inference time ({avg_time:.4f}s)")
     
     # Test 5: Consistency Check
-    print(f"\n🧪 TEST 5: CONSISTENCY CHECK")
+    print("\n🧪 TEST 5: CONSISTENCY CHECK")
     print("-" * 40)
     
     consistency_text = "I'm feeling happy today!"
@@ -263,7 +263,7 @@ def comprehensive_validation():
         return False
     
     # Final Validation Summary
-    print(f"\n🎯 FINAL VALIDATION SUMMARY")
+    print("\n🎯 FINAL VALIDATION SUMMARY")
     print("=" * 60)
     
     validation_results = {
@@ -284,13 +284,13 @@ def comprehensive_validation():
     print(f"\n{'🎉 ALL TESTS PASSED!' if all_passed else '❌ SOME TESTS FAILED'}")
     
     if all_passed:
-        print(f"✅ Your 99.54% F1 score model is 100% RELIABLE!")
-        print(f"🚀 Ready for production deployment!")
+        print("✅ Your 99.54% F1 score model is 100% RELIABLE!")
+        print("🚀 Ready for production deployment!")
     else:
-        print(f"⚠️  Model needs further validation before deployment")
+        print("⚠️  Model needs further validation before deployment")
     
     return all_passed
 
 if __name__ == "__main__":
     success = comprehensive_validation()
-    exit(0 if success else 1) 
+    exit(0 if success else 1)

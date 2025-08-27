@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Minimal test to isolate Swagger docs issue
+"""Minimal test to isolate Swagger docs issue
 """
 
 import os
@@ -45,4 +44,4 @@ if __name__ == '__main__':
     print("- http://localhost:5003/docs (should work)")
     print("- http://localhost:5003/api/health (should work)")
     
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5003)), debug=False)  # Debug mode disabled for security 
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5003)), debug=False)  # Debug mode disabled for security

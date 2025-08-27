@@ -9,7 +9,7 @@ used in the codebase to avoid unnecessary bloat.
 import re
 import sys
 from pathlib import Path
-from typing import Set, List, Dict
+from typing import Set
 
 class DependencyChecker:
     """Checker for dependency usage in the codebase."""
@@ -46,7 +46,7 @@ class DependencyChecker:
         """Parse requirements.txt and extract package names."""
         deps = set()
         
-        with open(self.requirements_path, 'r') as f:
+        with open(self.requirements_path) as f:
             for line in f:
                 line = line.strip()
                 if line and not line.startswith('#'):
@@ -78,7 +78,7 @@ class DependencyChecker:
     def _scan_file_for_imports(self, file_path: Path, used_deps: Set[str]) -> None:
         """Scan a Python file for import statements."""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding='utf-8') as f:
                 content = f.read()
                 
             # Find import statements
@@ -104,7 +104,7 @@ class DependencyChecker:
     
     def print_results(self) -> None:
         """Print dependency check results."""
-        print(f"\n📊 Dependency Usage Check Results")
+        print("\n📊 Dependency Usage Check Results")
         print("=" * 50)
         
         if self.unused_deps:
@@ -137,4 +137,4 @@ def main():
         return 1
 
 if __name__ == "__main__":
-    sys.exit(main()) 
+    sys.exit(main())

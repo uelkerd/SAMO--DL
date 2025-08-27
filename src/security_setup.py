@@ -1,18 +1,15 @@
 #!/usr/bin/env python3
-"""
-🔒 Shared Security Setup
+"""🔒 Shared Security Setup
 ========================
 Common security configuration and middleware setup for deployment scripts.
 """
 
 import os
-from typing import Optional
 from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
 
 
 def create_security_config(environment: str = "development") -> SecurityHeadersConfig:
-    """
-    Create security configuration based on environment.
+    """Create security configuration based on environment.
 
     Args:
         environment: Environment name ('development', 'testing', 'production')
@@ -45,8 +42,7 @@ def create_security_config(environment: str = "development") -> SecurityHeadersC
 def setup_security_middleware(
     app, environment: str = "development"
 ) -> SecurityHeadersMiddleware:
-    """
-    Set up security headers middleware for a Flask app.
+    """Set up security headers middleware for a Flask app.
 
     Args:
         app: Flask application instance
@@ -69,8 +65,7 @@ def setup_security_middleware(
 
 
 def get_environment() -> str:
-    """
-    Determine current environment from environment variables.
+    """Determine current environment from environment variables.
 
     Returns:
         Environment name ('development', 'testing', 'production')

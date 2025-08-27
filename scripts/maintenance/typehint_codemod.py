@@ -240,23 +240,22 @@ def _add_typing_imports_to_lines(lines: List[str], imports_to_add: set) -> None:
                 else:
                     lines[i] = f"from typing import {new_imports}"
                 break
+    # Add new typing import after last import
+    elif last_import_line >= 0:
+        import_line = (
+            f"from typing import {', '.join(sorted(imports_to_add))}"
+        )
+        lines.insert(last_import_line + 1, import_line)
     else:
-        # Add new typing import after last import
-        if last_import_line >= 0:
-            import_line = (
-                f"from typing import {', '.join(sorted(imports_to_add))}"
-            )
-            lines.insert(last_import_line + 1, import_line)
-        else:
-            import_line = (
-                f"from typing import {', '.join(sorted(imports_to_add))}"
-            )
-            lines.insert(0, import_line)
+        import_line = (
+            f"from typing import {', '.join(sorted(imports_to_add))}"
+        )
+        lines.insert(0, import_line)
 
 
 def _read_file_content(file_path: Path) -> str:
     """Read file content."""
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, encoding='utf-8') as f:
         return f.read()
 
 

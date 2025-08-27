@@ -16,7 +16,7 @@ def summarize_notebook():
     print()
     
     # Read the notebook
-    with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'r') as f:
+    with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb') as f:
         notebook = json.load(f)
     
     print("📋 NOTEBOOK OVERVIEW:")
@@ -93,4 +93,4 @@ def summarize_notebook():
     print("   Ready for production deployment")
 
 if __name__ == "__main__":
-    summarize_notebook() 
+    summarize_notebook()

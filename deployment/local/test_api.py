@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Enhanced API Testing Script
+"""Enhanced API Testing Script
 ===========================
 
 Comprehensive testing for the enhanced emotion detection API with monitoring,
@@ -36,7 +35,7 @@ def test_health_check():
         response = requests.get(f"{BASE_URL}/health")
         if response.status_code == 200:
             data = response.json()
-            print(f"✅ Health check passed")
+            print("✅ Health check passed")
             print(f"   Status: {data['status']}")
             print(f"   Model Version: {data['model_version']}")
             print(f"   Uptime: {data['uptime_seconds']:.1f} seconds")
@@ -48,7 +47,7 @@ def test_health_check():
             print(f"❌ Health check failed: {response.status_code}")
             return False
     except Exception as e:
-        print(f"❌ Health check error: {str(e)}")
+        print(f"❌ Health check error: {e!s}")
         return False
 
 def test_metrics_endpoint():
@@ -58,7 +57,7 @@ def test_metrics_endpoint():
         response = requests.get(f"{BASE_URL}/metrics")
         if response.status_code == 200:
             data = response.json()
-            print(f"✅ Metrics endpoint working")
+            print("✅ Metrics endpoint working")
             print(f"   Success Rate: {data['server_metrics']['success_rate']}")
             print(f"   Requests/Minute: {data['server_metrics']['requests_per_minute']:.2f}")
             print(f"   Rate Limiting: {data['rate_limiting']['max_requests']} req/{data['rate_limiting']['window_seconds']}s")
@@ -67,7 +66,7 @@ def test_metrics_endpoint():
             print(f"❌ Metrics endpoint failed: {response.status_code}")
             return False
     except Exception as e:
-        print(f"❌ Metrics endpoint error: {str(e)}")
+        print(f"❌ Metrics endpoint error: {e!s}")
         return False
 
 def test_single_predictions():
@@ -105,7 +104,7 @@ def test_single_predictions():
                 return False
                 
         except Exception as e:
-            print(f"❌ Test {i} error: {str(e)}")
+            print(f"❌ Test {i} error: {e!s}")
             return False
     
     # Calculate average performance
@@ -150,7 +149,7 @@ def test_batch_predictions():
             return False
             
     except Exception as e:
-        print(f"❌ Batch prediction error: {str(e)}")
+        print(f"❌ Batch prediction error: {e!s}")
         return False
 
 def test_rate_limiting():
@@ -189,7 +188,7 @@ def test_rate_limiting():
         print(f"   ✅ Rate limiting is working (blocked {rate_limited} requests)")
         return True
     else:
-        print(f"   ⚠️ No rate limiting detected (may need more requests)")
+        print("   ⚠️ No rate limiting detected (may need more requests)")
         return True
 
 def test_error_handling():
@@ -209,7 +208,7 @@ def test_error_handling():
             print(f"❌ Missing text error not handled: {response.status_code}")
             return False
     except Exception as e:
-        print(f"❌ Missing text test error: {str(e)}")
+        print(f"❌ Missing text test error: {e!s}")
         return False
     
     # Test empty text
@@ -225,7 +224,7 @@ def test_error_handling():
             print(f"❌ Empty text error not handled: {response.status_code}")
             return False
     except Exception as e:
-        print(f"❌ Empty text test error: {str(e)}")
+        print(f"❌ Empty text test error: {e!s}")
         return False
     
     # Test invalid JSON
@@ -241,7 +240,7 @@ def test_error_handling():
             print(f"❌ Invalid JSON error not handled: {response.status_code}")
             return False
     except Exception as e:
-        print(f"❌ Invalid JSON test error: {str(e)}")
+        print(f"❌ Invalid JSON test error: {e!s}")
         return False
     
     return True
@@ -328,10 +327,10 @@ def main():
             else:
                 print(f"❌ {test_name} failed")
         except Exception as e:
-            print(f"❌ {test_name} error: {str(e)}")
+            print(f"❌ {test_name} error: {e!s}")
     
     print("\n" + "=" * 50)
-    print(f"🎉 ENHANCED API TESTING COMPLETED!")
+    print("🎉 ENHANCED API TESTING COMPLETED!")
     print(f"📊 Results: {passed}/{total} tests passed")
     
     if passed == total:

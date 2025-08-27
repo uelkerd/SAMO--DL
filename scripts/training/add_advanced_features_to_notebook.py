@@ -15,7 +15,7 @@ def add_advanced_features():
     """Add advanced features to the ultimate notebook."""
     
     # Read the existing notebook
-    with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'r') as f:
+    with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb') as f:
         notebook = json.load(f)
     
     # Add focal loss implementation
@@ -627,4 +627,4 @@ def add_advanced_features():
     return 'notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb'
 
 if __name__ == "__main__":
-    add_advanced_features() 
+    add_advanced_features()

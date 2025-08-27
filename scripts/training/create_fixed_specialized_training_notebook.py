@@ -680,4 +680,4 @@ def create_fixed_notebook():
     return output_path
 
 if __name__ == "__main__":
-    create_fixed_notebook() 
+    create_fixed_notebook()

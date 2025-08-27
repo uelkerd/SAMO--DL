@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-"""
-Simplified ONNX-Based Emotion Detection API Server
+"""Simplified ONNX-Based Emotion Detection API Server
 Uses simple string tokenization - no complex dependencies
 """
 import logging
 import os
 import time
 import re
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 import threading
 
 import numpy as np
@@ -75,7 +74,7 @@ def load_vocab() -> Dict[str, int]:
     try:
         if os.path.exists(VOCAB_PATH):
             vocab_dict = {}
-            with open(VOCAB_PATH, 'r', encoding='utf-8') as f:
+            with open(VOCAB_PATH, encoding='utf-8') as f:
                 for i, line in enumerate(f):
                     word = line.strip()
                     if word:
@@ -362,4 +361,4 @@ if __name__ == '__main__':
 
     except ImportError:
         # Development server
-        app.run(host='127.0.0.1', port=8080, debug=False) 
+        app.run(host='127.0.0.1', port=8080, debug=False)

@@ -9,7 +9,6 @@ identified by Ruff linter.
 import logging
 import re
 from pathlib import Path
-from typing import List, Set
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -112,7 +111,7 @@ class CodeQualityFixer:
     def fix_file(self, file_path: Path) -> bool:
         """Fix code quality issues in a single file."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -150,7 +149,7 @@ class CodeQualityFixer:
             if self.fix_file(file_path):
                 self.total_issues += 1
 
-        logger.info(f"✅ Code quality fixes completed!")
+        logger.info("✅ Code quality fixes completed!")
         logger.info(f"   • Files fixed: {self.fixed_files}")
         logger.info(f"   • Total issues resolved: {self.total_issues}")
 

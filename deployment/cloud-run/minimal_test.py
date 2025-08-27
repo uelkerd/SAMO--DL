@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Minimal test to isolate the API setup issue
+"""Minimal test to isolate the API setup issue
 """
 
 import os
@@ -11,7 +10,7 @@ print("🔍 Starting minimal API setup test...")
 try:
     print("1. Importing modules...")
     from flask import Flask
-    from flask_restx import Api, Resource, fields, Namespace
+    from flask_restx import Api, fields, Namespace
     print("✅ Imports successful")
 except Exception as e:
     print(f"❌ Imports failed: {e}")
@@ -69,4 +68,4 @@ except Exception as e:
     print(f"API errorhandler type: {type(api.errorhandler)}")
     exit(1)
 
-print("🎉 All tests passed!") 
+print("🎉 All tests passed!")

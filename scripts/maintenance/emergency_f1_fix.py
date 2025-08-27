@@ -19,7 +19,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
-import torch.nn as nn
+from torch import nn
 import torch.nn.functional as F
 from sklearn.metrics import f1_score
 from torch.utils.data import DataLoader, TensorDataset
@@ -162,7 +162,7 @@ def train_with_focal_loss(model, train_loader, val_loader, device, epochs=5):
     # Learning rate scheduler
     total_steps = len(train_loader) * epochs
     scheduler = get_linear_schedule_with_warmup(
-        optimizer, 
+        optimizer,
         num_warmup_steps=total_steps // 10,
         num_training_steps=total_steps
     )
@@ -389,4 +389,4 @@ if __name__ == "__main__":
         logger.info("✅ Emergency F1 fix completed successfully")
     else:
         logger.error("❌ Emergency F1 fix failed")
-        sys.exit(1) 
+        sys.exit(1)
