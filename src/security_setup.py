@@ -13,15 +13,15 @@ from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
 def create_security_config(environment: str = "development") -> SecurityHeadersConfig:
     """
     Create security configuration based on environment.
-    
+
     Args:
         environment: Environment name ('development', 'testing', 'production')
-    
+
     Returns:
         Configured SecurityHeadersConfig instance
     """
     is_production = environment.lower() == "production"
-    
+
     return SecurityHeadersConfig(
         enable_csp=True,
         enable_hsts=True,
@@ -45,38 +45,37 @@ def create_security_config(environment: str = "development") -> SecurityHeadersC
 def setup_security_middleware(app, environment: str = "development") -> SecurityHeadersMiddleware:
     """
     Set up security headers middleware for a Flask app.
-    
+
     Args:
         app: Flask application instance
         environment: Environment name ('development', 'testing', 'production')
-    
+
     Returns:
         Configured SecurityHeadersMiddleware instance
     """
     config = create_security_config(environment)
     middleware = SecurityHeadersMiddleware(app, config)
-    
+
     # Log security setup
     import logging
     logger = logging.getLogger(__name__)
     logger.info(f"✅ Security headers middleware initialized for {environment} environment")
-    
+
     return middleware
 
 
 def get_environment() -> str:
     """
     Determine current environment from environment variables.
-    
+
     Returns:
         Environment name ('development', 'testing', 'production')
     """
     env = os.environ.get('FLASK_ENV', 'development').lower()
-    
+
     # Map common environment names
     if env in ['prod', 'production', 'live']:
         return 'production'
-    elif env in ['test', 'testing', 'staging']:
+    if env in ['test', 'testing', 'staging']:
         return 'testing'
-    else:
-        return 'development'
+    return 'development'
