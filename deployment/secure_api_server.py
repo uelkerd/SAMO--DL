@@ -15,6 +15,7 @@ Security Features:
 """
 
 # Import all modules first
+import os
 from flask import Flask, request, jsonify, g
 import werkzeug
 import logging
