@@ -7,10 +7,7 @@ Comprehensive tests for security components working together.
 
 import sys
 import os
-import tempfile
-import yaml
 import unittest
-from unittest.mock import patch, MagicMock
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
