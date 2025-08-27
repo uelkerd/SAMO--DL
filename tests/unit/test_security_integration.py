@@ -50,21 +50,21 @@ class TestSecurityIntegration(unittest.TestCase):
         
         # Define all required security headers with validation rules
         required_headers = [
-            ('Content-Security-Policy', 'string', 'non-empty'),
-            ('Strict-Transport-Security', 'string', 'non-empty'),
-            ('X-Frame-Options', 'string', 'non-empty'),
-            ('X-Content-Type-Options', 'string', 'non-empty'),
-            ('X-XSS-Protection', 'string', 'non-empty'),
-            ('Referrer-Policy', 'string', 'non-empty'),
-            ('Permissions-Policy', 'string', 'non-empty'),
-            ('Cross-Origin-Embedder-Policy', 'string', 'non-empty'),
-            ('Cross-Origin-Opener-Policy', 'string', 'non-empty'),
-            ('Cross-Origin-Resource-Policy', 'string', 'non-empty'),
-            ('Origin-Agent-Cluster', 'string', 'non-empty')
+            ('Content-Security-Policy', 'non-empty'),
+            ('Strict-Transport-Security', 'non-empty'),
+            ('X-Frame-Options', 'non-empty'),
+            ('X-Content-Type-Options', 'non-empty'),
+            ('X-XSS-Protection', 'non-empty'),
+            ('Referrer-Policy', 'non-empty'),
+            ('Permissions-Policy', 'non-empty'),
+            ('Cross-Origin-Embedder-Policy', 'non-empty'),
+            ('Cross-Origin-Opener-Policy', 'non-empty'),
+            ('Cross-Origin-Resource-Policy', 'non-empty'),
+            ('Origin-Agent-Cluster', 'non-empty')
         ]
         
         # Test all headers with consistent validation
-        for header, expected_type, validation in required_headers:
+        for header, validation in required_headers:
             self.assertIn(header, response.headers, f"Missing security header: {header}")
             self.assertIsInstance(response.headers[header], str, f"Header {header} should be string")
             if validation == 'non-empty':
@@ -156,9 +156,10 @@ class TestSecurityIntegration(unittest.TestCase):
         self.assertIn('risk_level', analysis)
         self.assertIn('patterns', analysis)
         
-        # Should detect high-risk user agent with multiple attack tools
+        # Should detect malicious user agent with multiple attack tools
         self.assertGreater(analysis['score'], 3)
-        self.assertIn('high_risk', analysis['category'])
+        self.assertIn('malicious', analysis['category'])
+        self.assertEqual(analysis['risk_level'], 'very_high')
 
     def test_suspicious_pattern_detection(self):
         """Test suspicious pattern detection integration."""

@@ -42,7 +42,9 @@ def create_security_config(environment: str = "development") -> SecurityHeadersC
     )
 
 
-def setup_security_middleware(app, environment: str = "development") -> SecurityHeadersMiddleware:
+def setup_security_middleware(
+    app, environment: str = "development"
+) -> SecurityHeadersMiddleware:
     """
     Set up security headers middleware for a Flask app.
     
@@ -59,7 +61,9 @@ def setup_security_middleware(app, environment: str = "development") -> Security
     # Log security setup
     import logging
     logger = logging.getLogger(__name__)
-    logger.info(f"✅ Security headers middleware initialized for {environment} environment")
+    logger.info(
+        f"✅ Security headers middleware initialized for {environment} environment"
+    )
     
     return middleware
 

@@ -3,12 +3,16 @@
 Local Emotion Detection API Server
 =================================
 
-A production-ready Flask API server with monitoring, logging, 
+A production-ready Flask API server with monitoring, logging,
 rate limiting, and comprehensive security headers.
 """
 
 import os
 import sys
+
+# Add src to path for security imports - must be before other imports
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
 import logging
 import time
 import threading
@@ -20,9 +24,6 @@ import torch
 import werkzeug
 from flask import Flask, request, jsonify
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-
-# Add src to path for security imports
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 from security_setup import setup_security_middleware
 
 # Configure logging
