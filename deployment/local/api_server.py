@@ -3,14 +3,18 @@
 Local Emotion Detection API Server
 =================================
 
-A production-ready Flask API server with monitoring, logging, and rate limiting.
+A production-ready Flask API server with monitoring, logging, rate limiting, and comprehensive security headers.
 """
 
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
 from flask import Flask, request, jsonify
+from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
 import werkzeug
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import os
 import logging
 import time
 from datetime import datetime
@@ -30,6 +34,28 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+
+# Initialize security headers middleware
+security_config = SecurityHeadersConfig(
+    enable_csp=True,
+    enable_hsts=True,
+    enable_x_frame_options=True,
+    enable_x_content_type_options=True,
+    enable_x_xss_protection=True,
+    enable_referrer_policy=True,
+    enable_permissions_policy=True,
+    enable_cross_origin_embedder_policy=True,
+    enable_cross_origin_opener_policy=True,
+    enable_cross_origin_resource_policy=True,
+    enable_origin_agent_cluster=True,
+    enable_request_id=True,
+    enable_correlation_id=True,
+    enable_enhanced_ua_analysis=True,
+    ua_suspicious_score_threshold=4,
+    ua_blocking_enabled=False  # Log suspicious UAs but don't block in development
+)
+security_middleware = SecurityHeadersMiddleware(app, security_config)
+logger.info("✅ Security headers middleware initialized successfully!")
 
 # Rate limiting configuration
 RATE_LIMIT_WINDOW = 60  # seconds
