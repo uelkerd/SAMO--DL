@@ -13,7 +13,7 @@ import json
 import yaml
 import argparse
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Optional
 
 
 class GradientWorkflowSetup:
@@ -77,13 +77,13 @@ class GradientWorkflowSetup:
             print("❌ Authentication timed out")
             return False
 
-    def _validate_workflow_structure(self, workflow_config: Dict[str, Any]) -> tuple[bool, Optional[str], Optional[Dict[str, Any]]]:
+    def _validate_workflow_structure(self, workflow_config: dict) -> tuple[bool, Optional[str], Optional[dict]]:
         """Validate the basic structure of the workflow configuration."""
         if 'workflows' not in workflow_config:
             print("❌ Invalid workflow file: missing 'workflows' section")
             return False, None, None
 
-        workflow_name = list(workflow_config['workflows'].keys())[0]
+        workflow_name = next(iter(workflow_config['workflows'].keys()))
         workflow = workflow_config['workflows'][workflow_name]
 
         if 'jobs' not in workflow:
@@ -92,7 +92,7 @@ class GradientWorkflowSetup:
 
         return True, workflow_name, workflow
 
-    def _print_workflow_info(self, workflow_name: str, workflow: Dict[str, Any]) -> None:
+    def _print_workflow_info(self, workflow_name: str, workflow: dict) -> None:
         """Print workflow information and job details."""
         print(f"✅ Workflow file validated: {workflow_name}")
         print(f"   Jobs: {len(workflow['jobs'])}")
@@ -108,8 +108,7 @@ class GradientWorkflowSetup:
             return False
 
         try:
-            with open(self.workflow_file, 'r') as f:
-                workflow_config = yaml.safe_load(f)
+            workflow_config = yaml.safe_load(self.workflow_file.read_text())
 
             # Basic validation
             is_valid, workflow_name, workflow = self._validate_workflow_structure(workflow_config)
@@ -138,7 +137,9 @@ class GradientWorkflowSetup:
             print("📋 Available Projects:")
             print(result.stdout)
         except subprocess.CalledProcessError as e:
-            print(f"❌ Failed to list projects: {e}")
+            print("❌ Failed to list projects.")
+            print(f"   STDOUT: {e.stdout or ''}".rstrip())
+            print(f"   STDERR: {e.stderr or ''}".rstrip())
         except subprocess.TimeoutExpired:
             print("❌ Project listing timed out")
 
@@ -269,10 +270,12 @@ class GradientWorkflowSetup:
             "GRADIENT_PROJECT_ID"
         )
         if not project_id:
-            # Ask for project ID interactively only if not provided
-            project_id = input(
-                "Enter project ID (or press Enter to use default): "
-            ).strip() or None
+            # Ask for project ID (env/default respected)
+            default_pid = self.project_id
+            prompt = "Enter project ID (or press Enter to use default"
+            prompt += f" [{default_pid}]" if default_pid else ""
+            prompt += "): "
+            project_id = input(prompt).strip() or default_pid
 
         # Check if we're in non-interactive mode
         if os.environ.get("GRADIENT_NON_INTERACTIVE"):

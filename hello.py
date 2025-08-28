@@ -1,28 +1,29 @@
 #!/usr/bin/env python3
-"""
-Simple hello world script for testing the Paperspace Gradient workflow.
+"""Hello World script for Gradient workflows.
+
 This file is referenced by the sample workflow.yaml file.
 """
 
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
+from pathlib import Path
 
 
-def main():
+def main() -> None:
     """Main function that prints hello world and some system info."""
     print("=" * 50)
     print("Hello World from Paperspace Gradient Workflow!")
     print("=" * 50)
-
+    
     # Print current timestamp
-    print(f"Timestamp: {datetime.now().isoformat()}")
-
+    print(f"Timestamp: {datetime.now(timezone.utc).isoformat()}")
+    
     # Print Python version
     print(f"Python version: {sys.version}")
-
+    
     # Print working directory
-    print(f"Working directory: {os.getcwd()}")
+    print(f"Working directory: {Path.cwd()}")
 
     # Print environment variables
     print(f"PAPERSPACE_PROJECT_ID: {os.getenv('PAPERSPACE_PROJECT_ID', 'Not set')}")
@@ -30,11 +31,16 @@ def main():
 
     # List files in current directory
     print("\nFiles in current directory:")
-    for item in os.listdir('.'):
-        if os.path.isfile(item):
-            print(f"  📄 {item}")
-        elif os.path.isdir(item):
-            print(f"  📁 {item}/")
+    enc = (sys.stdout.encoding or "").lower()
+    use_emoji = "utf" in enc
+    file_icon = "📄" if use_emoji else "-"
+    dir_icon = "📁" if use_emoji else "[dir]"
+    
+    for p in Path(".").iterdir():
+        if p.is_file():
+            print(f"  {file_icon} {p.name}")
+        elif p.is_dir():
+            print(f"  {file_icon} {p.name}/")
 
     print("\n" + "=" * 50)
     print("Workflow execution completed successfully!")
