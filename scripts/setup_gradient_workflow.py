@@ -77,7 +77,8 @@ class GradientWorkflowSetup:
             print("❌ Authentication timed out")
             return False
 
-    def _validate_workflow_structure(self, workflow_config: dict) -> tuple[bool, Optional[str], Optional[dict]]:
+    @staticmethod
+    def _validate_workflow_structure(workflow_config: dict) -> tuple[bool, Optional[str], Optional[dict]]:
         """Validate the basic structure of the workflow configuration."""
         if 'workflows' not in workflow_config:
             print("❌ Invalid workflow file: missing 'workflows' section")
@@ -92,7 +93,8 @@ class GradientWorkflowSetup:
 
         return True, workflow_name, workflow
 
-    def _print_workflow_info(self, workflow_name: str, workflow: dict) -> None:
+    @staticmethod
+    def _print_workflow_info(workflow_name: str, workflow: dict) -> None:
         """Print workflow information and job details."""
         print(f"✅ Workflow file validated: {workflow_name}")
         print(f"   Jobs: {len(workflow['jobs'])}")
