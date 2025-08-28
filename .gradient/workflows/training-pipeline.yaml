@@ -15,7 +15,7 @@ workflows:
           script: |
             # Install dependencies
             pip install --upgrade pip
-            pip install -r requirements.txt
+            pip install -r requirements-workflow.txt
             
             # Verify GPU availability
             python -c "import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA version: {torch.version.cuda if torch.cuda.is_available() else \"N/A\"}')"
@@ -28,9 +28,6 @@ workflows:
                     gpu_name = torch.cuda.get_device_name(i)
                     gpu_memory = torch.cuda.get_device_properties(i).total_memory / 1024**3
                     print(f'GPU {i}: {gpu_name} ({gpu_memory:.1f} GB)')
-          image: pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
-          resources:
-            instance-type: P4000
         outputs:
           environment:
             type: dataset
@@ -49,9 +46,6 @@ workflows:
             
             echo "Data preparation completed"
           needs: [setup-environment]
-          image: pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
-          resources:
-            instance-type: P4000
         outputs:
           prepared-data:
             type: dataset
@@ -75,7 +69,6 @@ workflows:
             
             echo "Model training completed"
           needs: [data-preparation]
-          image: pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
           resources:
             instance-type: V100  # Use more powerful GPU for training
         outputs:
@@ -103,9 +96,6 @@ workflows:
             
             echo "Model evaluation completed"
           needs: [model-training]
-          image: pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
-          resources:
-            instance-type: P4000
         inputs:
           trained-model:
             type: dataset
@@ -136,13 +126,13 @@ workflows:
               --output-path /outputs/final-artifacts
             
             # Save model checkpoint
-            cp -r /inputs/trained-model-output/* /outputs/final-artifacts/
-            
-            echo "Artifacts saved successfully"
+            if [ -d /inputs/trained-model-output ] && [ "$(ls -A /inputs/trained-model-output)" ]; then
+              cp -r /inputs/trained-model-output/* /outputs/final-artifacts/
+              echo "Artifacts saved successfully"
+            else
+              echo "No trained model artifacts found to copy."
+            fi
           needs: [model-evaluation]
-          image: pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
-          resources:
-            instance-type: P4000
         inputs:
           trained-model:
             type: dataset
