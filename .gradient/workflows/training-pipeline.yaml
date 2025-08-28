@@ -1,0 +1,176 @@
+# Paperspace Gradient Workflow Configuration
+# This workflow will run the training pipeline converted from your notebook
+# 
+# To use this workflow:
+# 1. Get your API key from Paperspace Gradient console
+# 2. Run: gradient apiKey YOUR_API_KEY
+# 3. Run: gradient workflows run .gradient/workflows/training-pipeline.yaml
+
+workflows:
+  training-pipeline:
+    jobs:
+      - name: setup-environment
+        uses: script@v1
+        with:
+          script: |
+            # Install dependencies
+            pip install --upgrade pip
+            pip install -r requirements.txt
+            
+            # Verify GPU availability
+            python -c "import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA version: {torch.version.cuda if torch.cuda.is_available() else \"N/A\"}')"
+            
+            # Check available GPU memory
+            if torch.cuda.is_available():
+                gpu_count = torch.cuda.device_count()
+                print(f'Number of GPUs: {gpu_count}')
+                for i in range(gpu_count):
+                    gpu_name = torch.cuda.get_device_name(i)
+                    gpu_memory = torch.cuda.get_device_properties(i).total_memory / 1024**3
+                    print(f'GPU {i}: {gpu_name} ({gpu_memory:.1f} GB)')
+          image: pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
+          resources:
+            instance-type: P4000
+        outputs:
+          environment:
+            type: dataset
+            with:
+              ref: training-environment-setup
+            
+      - name: data-preparation
+        uses: script@v1
+        with:
+          script: |
+            # Data preparation step
+            echo "Starting data preparation..."
+            
+            # This will be replaced with your actual data preparation script
+            python scripts/training/prepare_training_data.py
+            
+            echo "Data preparation completed"
+          needs: [setup-environment]
+          image: pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
+          resources:
+            instance-type: P4000
+        outputs:
+          prepared-data:
+            type: dataset
+            with:
+              ref: prepared-training-data
+            
+      - name: model-training
+        uses: script@v1
+        with:
+          script: |
+            # Model training step
+            echo "Starting model training..."
+            
+            # This will be replaced with your actual training script
+            python scripts/training/train_model.py \
+              --epochs 100 \
+              --batch-size 32 \
+              --learning-rate 0.001 \
+              --save-path /outputs/model \
+              --log-interval 10
+            
+            echo "Model training completed"
+          needs: [data-preparation]
+          image: pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
+          resources:
+            instance-type: V100  # Use more powerful GPU for training
+        outputs:
+          trained-model:
+            type: dataset
+            with:
+              ref: trained-model-output
+          training-logs:
+            type: dataset
+            with:
+              ref: training-logs
+            
+      - name: model-evaluation
+        uses: script@v1
+        with:
+          script: |
+            # Model evaluation step
+            echo "Starting model evaluation..."
+            
+            # This will be replaced with your actual evaluation script
+            python scripts/training/evaluate_model.py \
+              --model-path /inputs/trained-model-output \
+              --test-data-path /inputs/prepared-training-data \
+              --output-path /outputs/evaluation-results
+            
+            echo "Model evaluation completed"
+          needs: [model-training]
+          image: pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
+          resources:
+            instance-type: P4000
+        inputs:
+          trained-model:
+            type: dataset
+            with:
+              ref: trained-model-output
+          prepared-data:
+            type: dataset
+            with:
+              ref: prepared-training-data
+        outputs:
+          evaluation-results:
+            type: dataset
+            with:
+              ref: evaluation-results
+            
+      - name: save-artifacts
+        uses: script@v1
+        with:
+          script: |
+            # Save final artifacts
+            echo "Saving training artifacts..."
+            
+            # Create summary report
+            python scripts/training/create_training_summary.py \
+              --model-path /inputs/trained-model-output \
+              --logs-path /inputs/training-logs \
+              --evaluation-path /inputs/evaluation-results \
+              --output-path /outputs/final-artifacts
+            
+            # Save model checkpoint
+            cp -r /inputs/trained-model-output/* /outputs/final-artifacts/
+            
+            echo "Artifacts saved successfully"
+          needs: [model-evaluation]
+          image: pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
+          resources:
+            instance-type: P4000
+        inputs:
+          trained-model:
+            type: dataset
+            with:
+              ref: trained-model-output
+          training-logs:
+            type: dataset
+            with:
+              ref: training-logs
+          evaluation-results:
+            type: dataset
+            with:
+              ref: evaluation-results
+        outputs:
+          final-artifacts:
+            type: dataset
+            with:
+              ref: training-pipeline-artifacts
+
+# Environment variables that can be overridden
+env:
+  PYTHONPATH: "/workspace"
+  CUDA_VISIBLE_DEVICES: "0"
+  OMP_NUM_THREADS: "4"
+  MKL_NUM_THREADS: "4"
+
+# Resource defaults
+defaults:
+  resources:
+    instance-type: P4000
+    container: pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
