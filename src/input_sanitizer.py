@@ -103,7 +103,9 @@ class InputSanitizer:
 
         # Check length
         if len(text) > self.config.max_text_length:
-            warnings.append(f"Text truncated from {len(text)} to {self.config.max_text_length} characters")
+            warnings.append(
+                f"Text truncated from {len(text)} to {self.config.max_text_length} characters"
+            )
             text = text[:self.config.max_text_length]
 
         # Unicode normalization
@@ -111,7 +113,8 @@ class InputSanitizer:
             text = unicodedata.normalize('NFKC', text)
 
         # Check for blocked patterns
-        if self.config.enable_xss_protection or self.config.enable_sql_injection_protection:
+        if (self.config.enable_xss_protection or 
+            self.config.enable_sql_injection_protection):
             for pattern in self.config.blocked_patterns:
                 if re.search(pattern, text, re.IGNORECASE):
                     warnings.append(f"Blocked pattern detected: {pattern}")
