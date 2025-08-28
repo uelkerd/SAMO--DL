@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-🚀 SECURE EMOTION DETECTION API FOR CLOUD RUN
+"""🚀 SECURE EMOTION DETECTION API FOR CLOUD RUN
 ============================================
 Production-ready Flask API with comprehensive security features and Swagger documentation.
 """
@@ -22,7 +21,6 @@ from rate_limiter import rate_limit
 # Import shared model utilities
 from model_utils import (
     ensure_model_loaded, predict_emotions, get_model_status,
-    validate_text_input, 
 )
 
 # Configure logging for Cloud Run
@@ -52,7 +50,7 @@ def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX'
             'timestamp': time.time()
         })
     except Exception as e:
-        logger.error(f"Root endpoint error for {request.remote_addr}: {str(e)}")
+        logger.error(f"Root endpoint error for {request.remote_addr}: {e!s}")
         return create_error_response('Internal server error', 500)
 
 # Initialize Flask-RESTX API without Swagger to avoid 500 errors
@@ -229,7 +227,7 @@ def before_request():
     logger.info(f"📥 Request: {request.method} {request.path} from {request.remote_addr} (ID: {g.request_id})")
     
     # Log request headers for debugging (excluding sensitive ones)
-    headers_to_log = {k: v for k, v in request.headers.items() 
+    headers_to_log = {k: v for k, v in request.headers.items()
                       if k.lower() not in ['authorization', 'x-api-key', 'cookie']}
     logger.debug(f"📋 Request headers: {headers_to_log}")
 
@@ -276,7 +274,7 @@ class Health(Resource):
                 return create_error_response('Service unavailable - model not ready', 503)
                 
         except Exception as e:
-            logger.error(f"Health check error for {request.remote_addr}: {str(e)}")
+            logger.error(f"Health check error for {request.remote_addr}: {e!s}")
             return create_error_response('Internal server error', 500)
 
 @main_ns.route('/predict')
@@ -311,7 +309,9 @@ class Predict(Resource):
             try:
                 text = sanitize_input(text)
             except ValueError as e:
-                logger.warning(f"Input sanitization failed for {request.remote_addr}: {str(e)}")
+                logger.warning(
+                    f"Input sanitization failed for {request.remote_addr}: {e!s}"
+                )
                 return create_error_response(str(e), 400)
 
             # Ensure model is loaded
@@ -325,7 +325,7 @@ class Predict(Resource):
             return result
 
         except Exception as e:
-            logger.error(f"Prediction error for {request.remote_addr}: {str(e)}")
+            logger.error(f"Prediction error for {request.remote_addr}: {e!s}")
             return create_error_response('Internal server error', 500)
 
 @main_ns.route('/predict_batch')
@@ -377,13 +377,15 @@ class PredictBatch(Resource):
                     result = predict_emotion(text)
                     results.append(result)
                 except Exception as e:
-                    logger.warning(f"Failed to process text in batch from {request.remote_addr}: {str(e)}")
+                    logger.warning(
+                        f"Failed to process text in batch from {request.remote_addr}: {e!s}"
+                    )
                     continue
 
             return {'results': results}
 
         except Exception as e:
-            logger.error(f"Batch prediction error for {request.remote_addr}: {str(e)}")
+            logger.error(f"Batch prediction error for {request.remote_addr}: {e!s}")
             return create_error_response('Internal server error', 500)
 
 @main_ns.route('/emotions')
@@ -401,7 +403,7 @@ class Emotions(Resource):
                 'timestamp': time.time()
             }
         except Exception as e:
-            logger.error(f"Emotions endpoint error for {request.remote_addr}: {str(e)}")
+            logger.error(f"Emotions endpoint error for {request.remote_addr}: {e!s}")
             return create_error_response('Internal server error', 500)
 
 # Admin endpoints
@@ -420,7 +422,7 @@ class ModelStatus(Resource):
             status = get_model_status()
             return status
         except Exception as e:
-            logger.error(f"Model status error for {request.remote_addr}: {str(e)}")
+            logger.error(f"Model status error for {request.remote_addr}: {e!s}")
             return create_error_response('Internal server error', 500)
 
 @admin_ns.route('/security_status')
@@ -443,7 +445,7 @@ class SecurityStatus(Resource):
                 'timestamp': time.time()
             }
         except Exception as e:
-            logger.error(f"Security status error for {request.remote_addr}: {str(e)}")
+            logger.error(f"Security status error for {request.remote_addr}: {e!s}")
             return create_error_response('Internal server error', 500)
 
 # Error handlers for Flask-RESTX - using direct registration due to decorator compatibility issue
@@ -454,7 +456,7 @@ def rate_limit_exceeded(error):
 
 def internal_error(error):
     """Handle internal server errors"""
-    logger.error(f"Internal server error for {request.remote_addr}: {str(error)}")
+    logger.error(f"Internal server error for {request.remote_addr}: {error!s}")
     return create_error_response('Internal server error', 500)
 
 def not_found(error):
@@ -469,7 +471,7 @@ def method_not_allowed(error):
 
 def handle_unexpected_error(error):
     """Handle any unexpected errors"""
-    logger.error(f"Unexpected error for {request.remote_addr}: {str(error)}")
+    logger.error(f"Unexpected error for {request.remote_addr}: {error!s}")
     return create_error_response('An unexpected error occurred', 500)
 
 # Register error handlers directly
@@ -484,7 +486,7 @@ def initialize_model():
     try:
         logger.info("🚀 Initializing emotion detection API server...")
         logger.info(f"📊 Configuration: MAX_INPUT_LENGTH={MAX_INPUT_LENGTH}, RATE_LIMIT={RATE_LIMIT_PER_MINUTE}/min")
-        logger.info(f"🔐 Security: API key protection enabled, Admin API key configured")
+        logger.info("🔐 Security: API key protection enabled, Admin API key configured")
         logger.info(f"🌐 Server: Port {PORT}, Model path: {MODEL_PATH}")
         logger.info(f"🔄 Rate limiting: {RATE_LIMIT_PER_MINUTE} requests per minute")
         
@@ -495,7 +497,7 @@ def initialize_model():
         logger.info("🚀 API server ready to handle requests")
         
     except Exception as e:
-        logger.error(f"❌ Failed to initialize API server: {str(e)}")
+        logger.error(f"❌ Failed to initialize API server: {e!s}")
         raise
 
 # Initialize model when the application starts

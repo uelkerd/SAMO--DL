@@ -1,5 +1,4 @@
-"""
-Cloud Run Health Monitor - Phase 3 Optimization
+"""Cloud Run Health Monitor - Phase 3 Optimization
 Provides comprehensive health checks, graceful shutdown, and monitoring
 """
 
@@ -88,7 +87,6 @@ class HealthMonitor:
         """Check if ML models are loaded and responding"""
         try:
             # Import models (this will fail if models aren't loaded)
-            from secure_api_server import app
 
             # Test model loading
             start_time = time.time()
@@ -97,7 +95,7 @@ class HealthMonitor:
             import importlib
             modules_to_check = [
                 'src.models.emotion_detection.bert_classifier',
-                'src.models.summarization.t5_summarizer', 
+                'src.models.summarization.t5_summarizer',
                 'src.models.voice_processing.whisper_transcriber'
             ]
 
@@ -239,4 +237,4 @@ health_monitor = HealthMonitor()
 
 def get_health_monitor() -> HealthMonitor:
     """Get the global health monitor instance"""
-    return health_monitor 
+    return health_monitor

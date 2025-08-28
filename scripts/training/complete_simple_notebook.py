@@ -13,7 +13,7 @@ def complete_simple_notebook():
     """Add all missing components to the simple notebook."""
     
     # Read the existing notebook
-    with open('notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'r') as f:
+    with open('notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb') as f:
         notebook = json.load(f)
     
     # Add all the missing cells
@@ -488,4 +488,4 @@ def complete_simple_notebook():
     print('\\n🚀 The notebook is now COMPLETE and ready to use!')
 
 if __name__ == "__main__":
-    complete_simple_notebook() 
+    complete_simple_notebook()

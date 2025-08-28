@@ -59,4 +59,4 @@ def test_numpy_compatibility():
 if __name__ == "__main__":
     success = test_numpy_compatibility()
     if not success:
-        sys.exit(1) 
+        sys.exit(1)

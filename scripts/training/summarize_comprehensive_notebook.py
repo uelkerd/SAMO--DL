@@ -13,7 +13,7 @@ def summarize_comprehensive_notebook():
     """Summarize the comprehensive notebook."""
     
     # Read the notebook
-    with open('notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb', 'r') as f:
+    with open('notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb') as f:
         notebook = json.load(f)
     
     print("🚀 COMPREHENSIVE ULTIMATE TRAINING NOTEBOOK SUMMARY")
@@ -24,7 +24,7 @@ def summarize_comprehensive_notebook():
     markdown_cells = [cell for cell in notebook['cells'] if cell['cell_type'] == 'markdown']
     code_cells = [cell for cell in notebook['cells'] if cell['cell_type'] == 'code']
     
-    print(f"📊 NOTEBOOK STATISTICS:")
+    print("📊 NOTEBOOK STATISTICS:")
     print(f"   Total cells: {len(notebook['cells'])}")
     print(f"   Markdown cells: {len(markdown_cells)}")
     print(f"   Code cells: {len(code_cells)}")
@@ -101,10 +101,10 @@ def summarize_comprehensive_notebook():
     
     print()
     print("📁 FILE LOCATION:")
-    print(f"   notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb")
+    print("   notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb")
     print()
     print("🚀 READY TO USE!")
     print("   Download, upload to Colab, set GPU runtime, and run!")
 
 if __name__ == "__main__":
-    summarize_comprehensive_notebook() 
+    summarize_comprehensive_notebook()

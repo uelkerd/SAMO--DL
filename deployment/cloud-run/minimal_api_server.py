@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Minimal Emotion Detection API Server
+"""Minimal Emotion Detection API Server
 Uses known working PyTorch/transformers combination
 Matches the actual model architecture: RoBERTa with 12 emotion classes
 """
@@ -8,7 +7,6 @@ Matches the actual model architecture: RoBERTa with 12 emotion classes
 import logging
 import os
 import time
-import os
 
 from flask import Flask, request, jsonify
 import psutil
@@ -155,4 +153,4 @@ if __name__ == '__main__':
 
     # Start server
     port = int(os.getenv('PORT', '8080'))
-    app.run(host='0.0.0.0', port=port, debug=False, threaded=True) 
+    app.run(host='0.0.0.0', port=port, debug=False, threaded=True)

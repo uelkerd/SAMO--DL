@@ -482,4 +482,4 @@ def main():
     print("  5. Expect 75-85% F1 score!")
 
 if __name__ == "__main__":
-    main() 
+    main()

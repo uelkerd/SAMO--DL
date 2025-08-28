@@ -378,7 +378,7 @@ class MegaComprehensiveModelTester:
             'overall_confidence': np.mean(list(emotion_confidences.values()))
         }
         
-        print(f"📊 Bias Analysis Results:")
+        print("📊 Bias Analysis Results:")
         print(f"   Overall accuracy: {np.mean(list(emotion_accuracies.values())):.2f}%")
         print(f"   Overall confidence: {np.mean(list(emotion_confidences.values())):.3f}")
         print(f"   Most accurate: {most_accurate[0]} ({most_accurate[1]:.2f}%)")
@@ -605,7 +605,7 @@ class MegaComprehensiveModelTester:
             
             self.test_results['confidence_analysis'] = confidence_stats
             
-            print(f"📊 Confidence Distribution:")
+            print("📊 Confidence Distribution:")
             print(f"   Mean: {confidence_stats['mean']:.3f}")
             print(f"   Median: {confidence_stats['median']:.3f}")
             print(f"   Std Dev: {confidence_stats['std']:.3f}")
@@ -660,7 +660,7 @@ class MegaComprehensiveModelTester:
             json.dump(report, f, indent=2)
         
         # Print summary
-        print(f"🎯 OVERALL PERFORMANCE SUMMARY")
+        print("🎯 OVERALL PERFORMANCE SUMMARY")
         print(f"   Total Tests: {total_tests}")
         print(f"   Overall Accuracy: {overall_accuracy:.2f}%")
         print(f"   Overall Confidence: {overall_confidence:.3f}")
@@ -697,7 +697,7 @@ class MegaComprehensiveModelTester:
         # Generate comprehensive report
         report = self.generate_comprehensive_report()
         
-        print(f"\n🎉 MEGA COMPREHENSIVE TESTING COMPLETE!")
+        print("\n🎉 MEGA COMPREHENSIVE TESTING COMPLETE!")
         print("=" * 80)
         
         return report
@@ -708,14 +708,14 @@ def main():
     report = tester.run_all_tests()
     
     if report:
-        print(f"\n✅ Testing completed successfully!")
-        print(f"📊 Final Results:")
+        print("\n✅ Testing completed successfully!")
+        print("📊 Final Results:")
         print(f"   Accuracy: {report['overall_metrics']['overall_accuracy']:.2f}%")
         print(f"   Confidence: {report['overall_metrics']['overall_confidence']:.3f}")
         print(f"   Status: {report['summary']['model_status']}")
         print(f"   Ready for deployment: {'✅ YES' if report['summary']['deployment_ready'] else '❌ NO'}")
     else:
-        print(f"\n❌ Testing failed!")
+        print("\n❌ Testing failed!")
 
 if __name__ == "__main__":
-    main() 
+    main()

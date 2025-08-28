@@ -1,5 +1,4 @@
-"""
-Shared model utilities for Cloud Run deployment.
+"""Shared model utilities for Cloud Run deployment.
 
 This module provides common functionality for model loading, inference,
 and error handling to eliminate code duplication between API servers.
@@ -48,7 +47,7 @@ def _load_repo_id_from_config() -> Optional[str]:
     cfg_path = Path('deployment/custom_model_config.json')
     if cfg_path.exists():
         try:
-            with open(cfg_path, 'r') as f:
+            with open(cfg_path) as f:
                 cfg = json.load(f)
             repo_id = cfg.get('model_name') or cfg.get('repo_id')
             if repo_id:
@@ -74,8 +73,7 @@ def _resolve_model_repo_id() -> str:
 
 
 def ensure_model_loaded() -> bool:
-    """
-    Thread-safe model loading with proper error handling.
+    """Thread-safe model loading with proper error handling.
 
     Returns:
         bool: True if model is loaded successfully, False otherwise
@@ -163,14 +161,13 @@ def ensure_model_loaded() -> bool:
         with model_lock:
             model_loading = False
 
-        logger.exception(f"❌ Failed to load model: {str(e)}")
+        logger.exception(f"❌ Failed to load model: {e!s}")
         logger.error("Model loading failed - check model configuration")
         return False
 
 
 def predict_emotions(text: str) -> Dict[str, Any]:
-    """
-    Predict emotions for given text.
+    """Predict emotions for given text.
 
     Args:
         text (str): Input text to analyze
@@ -258,7 +255,7 @@ def predict_emotions(text: str) -> Dict[str, Any]:
         }
 
     except Exception as e:
-        logger.exception(f"❌ Prediction failed: {str(e)}")
+        logger.exception(f"❌ Prediction failed: {e!s}")
         return {
             'error': 'Prediction failed',
             'emotions': [],
@@ -267,8 +264,7 @@ def predict_emotions(text: str) -> Dict[str, Any]:
 
 
 def get_model_status() -> Dict[str, Any]:
-    """
-    Get current model status.
+    """Get current model status.
 
     Returns:
         Dict[str, Any]: Model status information
@@ -287,8 +283,7 @@ def get_model_status() -> Dict[str, Any]:
 
 
 def validate_text_input(text: str) -> Tuple[bool, str]:
-    """
-    Validate text input for prediction.
+    """Validate text input for prediction.
 
     Args:
         text (str): Text to validate
@@ -300,4 +295,4 @@ def validate_text_input(text: str) -> Tuple[bool, str]:
         return False, 'Text must be a non-empty string'
     if len(text) > MAX_TEXT_LENGTH:
         return False, f'Text too long (max {MAX_TEXT_LENGTH} characters)'
-    return True, '' 
+    return True, ''

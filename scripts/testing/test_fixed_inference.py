@@ -34,11 +34,11 @@ def test_fixed_inference():
         print(f"\n❌ Missing required files: {missing_files}")
         return False
     
-    print(f"\n✅ All model files found!")
+    print("\n✅ All model files found!")
     
     try:
         # Load the model config to understand the architecture
-        with open(model_dir / 'config.json', 'r') as f:
+        with open(model_dir / 'config.json') as f:
             config = json.load(f)
         
         print(f"🔧 Model type: {config.get('model_type', 'unknown')}")
@@ -67,7 +67,7 @@ def test_fixed_inference():
         model.to(device)
         model.eval()
         
-        print(f"✅ Model loaded successfully!")
+        print("✅ Model loaded successfully!")
         print(f"🎯 Device: {device}")
         
         # Test texts
@@ -84,7 +84,7 @@ def test_fixed_inference():
             "I'm hopeful that things will get better."
         ]
         
-        print(f"\n📊 Testing predictions:")
+        print("\n📊 Testing predictions:")
         print("-" * 50)
         
         for i, text in enumerate(test_texts, 1):
@@ -117,7 +117,7 @@ def test_fixed_inference():
                 
                 print(f"{i:2d}. Text: {text}")
                 print(f"    Predicted: {predicted_emotion} (confidence: {confidence:.3f})")
-                print(f"    Top 3 predictions:")
+                print("    Top 3 predictions:")
                 for emotion, conf in top3_predictions:
                     print(f"      - {emotion}: {conf:.3f}")
                 print()
@@ -143,9 +143,9 @@ if __name__ == "__main__":
     success = test_fixed_inference()
     
     if success:
-        print(f"\n🎉 SUCCESS! Your 99.54% F1 score model is working!")
-        print(f"📋 Next steps:")
-        print(f"   - Deploy with: cd deployment && ./deploy.sh")
-        print(f"   - API will be available at: http://localhost:5000")
+        print("\n🎉 SUCCESS! Your 99.54% F1 score model is working!")
+        print("📋 Next steps:")
+        print("   - Deploy with: cd deployment && ./deploy.sh")
+        print("   - API will be available at: http://localhost:5000")
     else:
-        print(f"\n❌ Test failed. Check the error messages above.") 
+        print("\n❌ Test failed. Check the error messages above.")

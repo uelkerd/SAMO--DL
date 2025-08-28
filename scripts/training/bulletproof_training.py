@@ -7,10 +7,10 @@ import sys
 import json
 import pickle
 import torch
-import torch.nn as nn
+from torch import nn
+from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 from datasets import load_dataset
-from torch.utils.data import Dataset, DataLoader
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, accuracy_score
 from sklearn.preprocessing import LabelEncoder
@@ -54,7 +54,7 @@ def create_unified_label_encoder():
     
     # Load datasets
     go_emotions = load_dataset("go_emotions", "simplified")
-    with open('data/journal_test_dataset.json', 'r') as f:
+    with open('data/journal_test_dataset.json') as f:
         journal_entries = json.load(f)
     journal_df = pd.DataFrame(journal_entries)
     
@@ -103,7 +103,7 @@ def prepare_filtered_data(label_encoder, label_to_id):
     
     # Load datasets
     go_emotions = load_dataset("go_emotions", "simplified")
-    with open('data/journal_test_dataset.json', 'r') as f:
+    with open('data/journal_test_dataset.json') as f:
         journal_entries = json.load(f)
     journal_df = pd.DataFrame(journal_entries)
     
@@ -149,11 +149,11 @@ def prepare_filtered_data(label_encoder, label_to_id):
     logger.info(f"📊 Expected range: {expected_range}")
     
     if go_label_range[0] < expected_range[0] or go_label_range[1] > expected_range[1]:
-        logger.error(f"❌ GoEmotions labels out of range!")
+        logger.error("❌ GoEmotions labels out of range!")
         return None, None, None, None
     
     if journal_label_range[0] < expected_range[0] or journal_label_range[1] > expected_range[1]:
-        logger.error(f"❌ Journal labels out of range!")
+        logger.error("❌ Journal labels out of range!")
         return None, None, None, None
     
     logger.info("✅ All labels within expected range")
@@ -446,4 +446,4 @@ def main():
 if __name__ == "__main__":
     success = main()
     if not success:
-        sys.exit(1) 
+        sys.exit(1)

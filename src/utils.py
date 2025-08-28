@@ -2,7 +2,6 @@
 """Utility functions for the SAMO-DL project."""
 
 import torch
-from typing import Union
 
 
 def count_model_params(model: torch.nn.Module, only_trainable: bool = False) -> int:

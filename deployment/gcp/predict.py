@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Vertex AI Custom Container Prediction Server
+"""Vertex AI Custom Container Prediction Server
 ===========================================
 
 This script runs a Flask server for the emotion detection model on Vertex AI.
@@ -34,7 +33,7 @@ class EmotionDetectionModel:
             print("✅ Model loaded successfully")
             
         except Exception as e:
-            print(f"❌ Failed to load model: {str(e)}")
+            print(f"❌ Failed to load model: {e!s}")
             raise
         
     def predict(self, text):
@@ -84,7 +83,7 @@ class EmotionDetectionModel:
             return response
             
         except Exception as e:
-            print(f"Prediction error: {str(e)}")
+            print(f"Prediction error: {e!s}")
             raise
 
 # Initialize model
@@ -119,7 +118,7 @@ def predict():
         return jsonify(result)
         
     except Exception as e:
-        print(f"Prediction endpoint error: {str(e)}")
+        print(f"Prediction endpoint error: {e!s}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/', methods=['GET'])

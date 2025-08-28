@@ -81,4 +81,4 @@ def test_local_inference():
 
 if __name__ == "__main__":
     success = test_local_inference()
-    sys.exit(0 if success else 1) 
+    sys.exit(0 if success else 1)

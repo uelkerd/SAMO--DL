@@ -32,7 +32,7 @@ def analyze_label_mapping():
     
     # Load datasets
     go_emotions = load_dataset("go_emotions", "simplified")
-    with open('data/journal_test_dataset.json', 'r') as f:
+    with open('data/journal_test_dataset.json') as f:
         journal_entries = json.load(f)
     journal_df = pd.DataFrame(journal_entries)
     
@@ -526,4 +526,4 @@ if __name__ == "__main__":
     print("\n🎯 SUMMARY:")
     print("The issue was that GoEmotions uses emotion names (like 'admiration')")
     print("while Journal uses different emotion names (like 'proud').")
-    print("The fixed version maps GoEmotions emotions to Journal emotions!") 
+    print("The fixed version maps GoEmotions emotions to Journal emotions!")

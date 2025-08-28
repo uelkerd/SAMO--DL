@@ -64,11 +64,11 @@ class TestSecurityIntegration(unittest.TestCase):
         ]
         
         # Test all headers with consistent validation
-        for header, validation in required_headers:
-            self.assertIn(header, response.headers, f"Missing security header: {header}")
-            self.assertIsInstance(response.headers[header], str, f"Header {header} should be string")
+        for header_name, validation in required_headers:
+            self.assertIn(header_name, response.headers, f"Missing security header: {header_name}")
+            self.assertIsInstance(response.headers[header_name], str, f"Header {header_name} should be string")
             if validation == 'non-empty':
-                self.assertGreater(len(response.headers[header]), 0, f"Header {header} should not be empty")
+                self.assertGreater(len(response.headers[header_name]), 0, f"Header {header_name} should not be empty")
 
     def test_csp_policy_default_src(self):
         """Test that CSP policy includes default-src directive."""

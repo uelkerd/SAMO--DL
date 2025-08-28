@@ -12,7 +12,7 @@ from .discovery import get_base_model_name
 
 
 def _render_template(path: str, context: Dict[str, Any]) -> str:
-    with open(path, 'r') as f:
+    with open(path) as f:
         raw = f.read()
     # Simple $var substitution
     return Template(raw).safe_substitute(**context)
@@ -24,7 +24,7 @@ def load_emotion_labels_from_model(model_path: str) -> List[str]:
         config_path = os.path.join(model_path, "config.json")
         if os.path.exists(config_path):
             try:
-                with open(config_path, 'r') as f:
+                with open(config_path) as f:
                     config = json.load(f)
                 if 'id2label' in config:
                     id2label = config['id2label']
@@ -64,7 +64,7 @@ def load_emotion_labels_from_model(model_path: str) -> List[str]:
         labels_path = os.path.join(model_dir, name)
         if os.path.exists(labels_path):
             try:
-                with open(labels_path, 'r') as f:
+                with open(labels_path) as f:
                     data = json.load(f)
                 if isinstance(data, list):
                     logging.info("Loaded %d labels from %s", len(data), labels_path)
@@ -163,7 +163,7 @@ def prepare_model_for_upload(
 
     # requirements.txt from template
     req_path = os.path.join(templates_dir, 'requirements_model.txt.tmpl')
-    with open(req_path, 'r') as f:
+    with open(req_path) as f:
         requirements = f.read()
     with open(os.path.join(temp_dir, 'requirements.txt'), 'w') as f:
         f.write(requirements)
@@ -183,7 +183,7 @@ def prepare_model_for_upload(
     config_json = os.path.join(temp_dir, 'config.json')
     if os.path.exists(config_json):
         try:
-            with open(config_json, 'r') as f:
+            with open(config_json) as f:
                 cfg = json.load(f)
             if 'id2label' not in cfg or 'label2id' not in cfg:
                 logging.warning("config.json missing id2label/label2id mappings")

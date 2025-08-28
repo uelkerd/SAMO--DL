@@ -21,7 +21,7 @@ def test_yaml_syntax():
         return False
     
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path) as f:
             yaml.safe_load(f)
         print("✅ CircleCI YAML syntax is valid")
         return True
@@ -42,7 +42,7 @@ def test_conda_environment_setup():
             conda_cmd = ['conda']  # fallback to PATH
         
         result = subprocess.run(conda_cmd + ['--version'],
-                                capture_output=True, text=True, timeout=10)
+                                check=False, capture_output=True, text=True, timeout=10)
         if result.returncode != 0:
             print("❌ Conda not available")
             return False
@@ -54,7 +54,7 @@ def test_conda_environment_setup():
             return False
 
         # Validate environment.yml structure
-        with open(env_path, 'r') as f:
+        with open(env_path) as f:
             env_yaml = yaml.safe_load(f)
         
         # Check required fields
@@ -85,7 +85,7 @@ def test_conda_environment_setup():
             return False
         
         print(f"✅ Found {len(found_packages)} packages in environment.yml")
-        print(f"✅ Conda environment setup validation passed (fast mode)")
+        print("✅ Conda environment setup validation passed (fast mode)")
         return True
         
     except Exception as e:
@@ -100,7 +100,7 @@ def test_critical_fixes():
 
     config_path = Path(".circleci/config.yml")
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path) as f:
             config = yaml.safe_load(f)
     except Exception as e:
         print(f"❌ Failed to load config: {e}")
@@ -187,7 +187,7 @@ def test_pipeline_structure():
 
     config_path = Path(".circleci/config.yml")
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path) as f:
             config = yaml.safe_load(f)
     except Exception as e:
         print(f"❌ Failed to load config: {e}")
@@ -195,7 +195,7 @@ def test_pipeline_structure():
 
     required_components = [
         "executors",
-        "commands", 
+        "commands",
         "jobs",
         "workflows"
     ]
@@ -227,7 +227,7 @@ def test_pipeline_structure_edge_cases():
     }
     required_components = [
         "executors",
-        "commands", 
+        "commands",
         "jobs",
         "workflows"
     ]
@@ -241,9 +241,9 @@ def test_pipeline_structure_edge_cases():
     malformed_configs = [None, [], "not_a_dict"]
     for idx, malformed in enumerate(malformed_configs):
         if not isinstance(malformed, dict):
-            print(f"✅ Malformed config case {idx+1}: {repr(malformed)} correctly identified as invalid")
+            print(f"✅ Malformed config case {idx+1}: {malformed!r} correctly identified as invalid")
         else:
-            print(f"❌ Malformed config case {idx+1}: {repr(malformed)} incorrectly identified as valid")
+            print(f"❌ Malformed config case {idx+1}: {malformed!r} incorrectly identified as valid")
 
     return True
 
@@ -253,7 +253,7 @@ def test_job_dependencies():
     
     config_path = Path(".circleci/config.yml")
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path) as f:
             config = yaml.safe_load(f)
     except Exception as e:
         print(f"❌ Failed to load config: {e}")
@@ -335,7 +335,7 @@ def test_environment_variables():
     
     config_path = Path(".circleci/config.yml")
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path) as f:
             config = yaml.safe_load(f)
     except Exception as e:
         print(f"❌ Failed to load config: {e}")
@@ -344,7 +344,7 @@ def test_environment_variables():
     # Check for hardcoded conda paths that should be abstracted
     content = ""
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path) as f:
             content = f.read()
     except Exception as e:
         print(f"❌ Failed to read config content: {e}")
@@ -426,4 +426,4 @@ def main():
 
 if __name__ == "__main__":
     success = main()
-    sys.exit(0 if success else 1) 
+    sys.exit(0 if success else 1)

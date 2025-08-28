@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Test Swagger docs without model dependencies
+"""Test Swagger docs without model dependencies
 """
 
 import os
@@ -52,4 +51,4 @@ if __name__ == '__main__':
     print("- http://localhost:8083/docs (should work)")
     print("- http://localhost:8083/api/health (should work)")
     
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8083)), debug=False)  # Debug mode disabled for security 
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8083)), debug=False)  # Debug mode disabled for security

@@ -19,7 +19,9 @@ def run_command(command, description):
     """Run a command and return success status."""
     print(f"🔧 {description}...")
     try:
-        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        result = subprocess.run(
+            command, check=False, shell=True, capture_output=True, text=True
+        )
         if result.returncode == 0:
             print(f"✅ {description} successful")
             return True, result.stdout
@@ -52,7 +54,7 @@ def check_gpu_availability():
         print(f"PyTorch version: {torch.__version__}")
         
         if torch.cuda.is_available():
-            print(f"✅ CUDA available")
+            print("✅ CUDA available")
             print(f"GPU: {torch.cuda.get_device_name(0)}")
             print(f"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
             print(f"CUDA version: {torch.version.cuda}")
@@ -238,7 +240,7 @@ def check_dataset_loading():
         
         # Test journal dataset
         import json
-        with open('data/journal_test_dataset.json', 'r') as f:
+        with open('data/journal_test_dataset.json') as f:
             journal_data = json.load(f)
         print(f"✅ Journal dataset loaded: {len(journal_data)} samples")
         
@@ -318,4 +320,4 @@ def main():
     print("  3. Check the Colab GPU development guide")
 
 if __name__ == "__main__":
-    main() 
+    main()

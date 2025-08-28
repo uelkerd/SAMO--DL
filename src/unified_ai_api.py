@@ -1843,7 +1843,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
             return
 
     except Exception as e:
-        await websocket.close(code=4001, reason=f"Authentication failed: {str(e)}")
+        await websocket.close(code=4001, reason=f"Authentication failed: {e!s}")
         return
 
     await websocket.accept()
@@ -1878,7 +1878,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
 
         logger.info("WebSocket authenticated for user: %s", payload.username)
 
-    except Exception as exc:
+    except Exception:
         await websocket.send_json({
             "type": "error",
             "message": "Authentication failed"

@@ -1,5 +1,4 @@
-"""
-Model Validator for Secure Model Loading.
+"""Model Validator for Secure Model Loading.
 
 This module provides model validation capabilities including:
 - Model structure validation
@@ -9,10 +8,10 @@ This module provides model validation capabilities including:
 """
 import logging
 import os
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 logger = logging.getLogger(__name__)
 
@@ -235,8 +234,6 @@ class ModelValidator:
         }
 
         try:
-            # Get current versions
-            import torch
             import transformers
 
             validation_info['current_versions'] = {

@@ -1,5 +1,4 @@
-"""
-Sandbox Executor for Secure Model Loading.
+"""Sandbox Executor for Secure Model Loading.
 
 This module provides sandboxed execution capabilities for model loading,
 preventing potential RCE vulnerabilities and malicious code execution.

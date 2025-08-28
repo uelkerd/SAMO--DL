@@ -37,7 +37,7 @@ def test_new_trained_model():
         model = AutoModelForSequenceClassification.from_pretrained(model_path)
         print("✅ Model and tokenizer loaded successfully")
     except Exception as e:
-        print(f"❌ Error loading model: {str(e)}")
+        print(f"❌ Error loading model: {e!s}")
         return
     
     # 2. Check configuration
@@ -210,7 +210,7 @@ def test_new_trained_model():
         print("✅ Configuration persistence verified")
         print("✅ Model should work correctly in deployment")
     
-    print(f"\nPerformance Status:")
+    print("\nPerformance Status:")
     if accuracy >= 0.8:
         print("✅ Excellent performance (≥80% accuracy)")
     elif accuracy >= 0.6:
@@ -218,7 +218,7 @@ def test_new_trained_model():
     else:
         print("❌ Poor performance (<60% accuracy)")
     
-    print(f"\nConfidence Status:")
+    print("\nConfidence Status:")
     if avg_confidence >= 0.7:
         print("✅ High confidence predictions")
     elif avg_confidence >= 0.5:
@@ -230,10 +230,10 @@ def test_new_trained_model():
     print("\n📋 SUMMARY")
     print("-" * 40)
     
-    print(f"✅ Model loads successfully")
-    print(f"✅ Architecture is correct (DistilRoBERTa)")
-    print(f"✅ Emotion classes are properly configured")
-    print(f"✅ Inference works correctly")
+    print("✅ Model loads successfully")
+    print("✅ Architecture is correct (DistilRoBERTa)")
+    print("✅ Emotion classes are properly configured")
+    print("✅ Inference works correctly")
     print(f"📊 Test accuracy: {accuracy:.2%}")
     print(f"📊 Average confidence: {avg_confidence:.3f}")
     
@@ -241,7 +241,7 @@ def test_new_trained_model():
         print(f"⚠️ Configuration issues: {len(config_issues)}")
         print("   Consider using the comprehensive notebook for better configuration persistence")
     else:
-        print(f"✅ Configuration persistence verified")
+        print("✅ Configuration persistence verified")
         print("✅ Model ready for deployment!")
     
     return {
@@ -252,4 +252,4 @@ def test_new_trained_model():
     }
 
 if __name__ == "__main__":
-    test_new_trained_model() 
+    test_new_trained_model()

@@ -20,11 +20,11 @@ def serve_openapi_spec():
         if os.path.commonpath([abs_spec_path, allowed_dir]) != allowed_dir:
             return jsonify({'error': 'Invalid OpenAPI spec path'}), 400
 
-        with open(abs_spec_path, 'r', encoding='utf-8') as f:
+        with open(abs_spec_path, encoding='utf-8') as f:
             content = f.read()
         # Use a standard YAML mimetype
         return Response(content, mimetype='application/x-yaml')
-    except Exception as e:
+    except Exception:
         # Avoid leaking exact path in error; log on server side only if needed
         return jsonify({'error': 'OpenAPI spec not found'}), 404
 

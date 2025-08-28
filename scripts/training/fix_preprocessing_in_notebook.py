@@ -13,7 +13,7 @@ def fix_preprocessing():
     """Fix the preprocessing function in the ultimate notebook."""
     
     # Read the existing notebook
-    with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'r') as f:
+    with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb') as f:
         notebook = json.load(f)
     
     # Find and replace the preprocessing cell
@@ -139,4 +139,4 @@ def fix_preprocessing():
     print('   ✅ Updated trainer initialization with data collator')
 
 if __name__ == "__main__":
-    fix_preprocessing() 
+    fix_preprocessing()

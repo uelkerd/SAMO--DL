@@ -26,7 +26,7 @@ def debug_label_mismatch():
         logger.info(f"✅ GoEmotions loaded: {len(go_emotions['train'])} training examples")
         
         # Load journal dataset
-        with open('data/journal_test_dataset.json', 'r') as f:
+        with open('data/journal_test_dataset.json') as f:
             journal_entries = json.load(f)
         journal_df = pd.DataFrame(journal_entries)
         logger.info(f"✅ Journal dataset loaded: {len(journal_df)} entries")
@@ -214,8 +214,8 @@ def debug_label_mismatch():
 if __name__ == "__main__":
     result = debug_label_mismatch()
     if result:
-        print(f"\n🎉 Debugging completed successfully!")
+        print("\n🎉 Debugging completed successfully!")
         print(f"📊 Use num_labels={result['num_labels']} in your model")
-        print(f"📊 Label encoder saved as 'fixed_label_encoder.pkl'")
+        print("📊 Label encoder saved as 'fixed_label_encoder.pkl'")
     else:
-        print(f"\n❌ Debugging failed!") 
+        print("\n❌ Debugging failed!")

@@ -10,7 +10,7 @@ import time
 import sys
 import os
 import argparse
-from typing import Dict, Any, List
+from typing import Dict, Any
 import logging
 from test_config import create_api_client, create_test_config
 
@@ -66,7 +66,7 @@ class CloudRunAPITester:
         except requests.exceptions.RequestException as e:
             return {
                 "success": False,
-                "error": f"Health endpoint failed: {str(e)}"
+                "error": f"Health endpoint failed: {e!s}"
             }
 
     def _validate_emotion_response(self, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -111,7 +111,7 @@ class CloudRunAPITester:
         except requests.exceptions.RequestException as e:
             return {
                 "success": False,
-                "error": f"Emotion detection failed: {str(e)}"
+                "error": f"Emotion detection failed: {e!s}"
             }
 
     def test_model_loading(self) -> Dict[str, Any]:

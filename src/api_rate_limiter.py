@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-🔒 API Rate Limiter
+"""🔒 API Rate Limiter
 ==================
 Token bucket algorithm for API rate limiting.
 Includes security features.
@@ -147,8 +146,7 @@ class _RateLimitMiddleware(BaseHTTPMiddleware):
 
 
 class TokenBucketRateLimiter:
-    """
-    Token bucket rate limiter with security enhancements.
+    """Token bucket rate limiter with security enhancements.
 
     Features:
     - Token bucket algorithm for smooth rate limiting
@@ -374,8 +372,7 @@ class TokenBucketRateLimiter:
         client_ip: str,
         user_agent: str = "",
     ) -> Tuple[bool, str, dict]:
-        """
-        Check if request should be allowed.
+        """Check if request should be allowed.
 
         Returns:
             Tuple of (allowed, reason, metadata)

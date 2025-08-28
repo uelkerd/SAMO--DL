@@ -13,7 +13,7 @@ def fix_training_arguments():
     """Fix the training arguments in the simple notebook."""
     
     # Read the existing notebook
-    with open('notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'r') as f:
+    with open('notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb') as f:
         notebook = json.load(f)
     
     # Find and replace the training arguments cell
@@ -55,4 +55,4 @@ def fix_training_arguments():
     print('   ✅ Kept all other parameters intact')
 
 if __name__ == "__main__":
-    fix_training_arguments() 
+    fix_training_arguments()

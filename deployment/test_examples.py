@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-🧪 TEST EMOTION DETECTION MODEL
+"""🧪 TEST EMOTION DETECTION MODEL
 ===============================
 Test the trained model with various examples.
 """

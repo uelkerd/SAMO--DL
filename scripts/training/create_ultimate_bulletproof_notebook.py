@@ -417,4 +417,4 @@ def create_ultimate_notebook():
     return output_path
 
 if __name__ == "__main__":
-    create_ultimate_notebook() 
+    create_ultimate_notebook()

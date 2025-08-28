@@ -45,11 +45,11 @@ class PR4IntegrationTester:
                 error_result = {
                     "name": test.__name__,
                     "passed": False,
-                    "message": f"Test failed with exception: {str(e)}",
+                    "message": f"Test failed with exception: {e!s}",
                     "details": str(e)
                 }
                 self.test_results.append(error_result)
-                print(f"❌ FAIL {test.__name__}: {str(e)}")
+                print(f"❌ FAIL {test.__name__}: {e!s}")
         
         return self.generate_summary()
     
@@ -64,7 +64,7 @@ class PR4IntegrationTester:
             }
         
         try:
-            with open(self.security_config_path, 'r', encoding='utf-8') as f:
+            with open(self.security_config_path, encoding='utf-8') as f:
                 config = yaml.safe_load(f)
             
             # Check required sections
@@ -100,7 +100,7 @@ class PR4IntegrationTester:
             return {
                 "name": "Security Configuration",
                 "passed": False,
-                "message": f"Invalid YAML in security configuration: {str(e)}",
+                "message": f"Invalid YAML in security configuration: {e!s}",
                 "details": str(e)
             }
     
@@ -115,7 +115,7 @@ class PR4IntegrationTester:
             }
         
         try:
-            with open(self.openapi_spec_path, 'r') as f:
+            with open(self.openapi_spec_path) as f:
                 spec = yaml.safe_load(f)
             
             # Check OpenAPI version
@@ -159,7 +159,7 @@ class PR4IntegrationTester:
             return {
                 "name": "OpenAPI Specification",
                 "passed": False,
-                "message": f"Invalid YAML in OpenAPI specification: {str(e)}",
+                "message": f"Invalid YAML in OpenAPI specification: {e!s}",
                 "details": str(e)
             }
     
@@ -174,7 +174,7 @@ class PR4IntegrationTester:
             }
         
         try:
-            with open(self.requirements_path, 'r') as f:
+            with open(self.requirements_path) as f:
                 requirements = f.read()
             
             # Check for security scanning tools
@@ -196,13 +196,13 @@ class PR4IntegrationTester:
             #   - certifi: Ensures up-to-date CA certificates for secure HTTPS connections.
             #   - urllib3: Secure HTTP client with robust TLS/SSL support.
             try:
-                with open(self.security_config_path, 'r') as secf:
+                with open(self.security_config_path) as secf:
                     security_config = yaml.safe_load(secf)
                 critical_packages = security_config.get('critical_packages', ['cryptography', 'certifi', 'urllib3'])
                 if 'critical_packages' not in security_config:
                     print("⚠️ Warning: 'critical_packages' not found in security.yaml, using default list.")
             except Exception as e:
-                print(f"⚠️ Warning: Could not read security.yaml for critical_packages: {str(e)}. Using default list.")
+                print(f"⚠️ Warning: Could not read security.yaml for critical_packages: {e!s}. Using default list.")
                 critical_packages = ['cryptography', 'certifi', 'urllib3']
             missing_critical = [pkg for pkg in critical_packages if pkg not in requirements]
             
@@ -225,7 +225,7 @@ class PR4IntegrationTester:
             return {
                 "name": "Dependencies Security",
                 "passed": False,
-                "message": f"Error reading requirements file: {str(e)}",
+                "message": f"Error reading requirements file: {e!s}",
                 "details": str(e)
             }
     
@@ -269,8 +269,8 @@ class PR4IntegrationTester:
                     "message": "Bandit security scanner not found in PATH",
                     "details": "Install bandit: pip install bandit"
                 }
-            result = subprocess.run([bandit_path, '--version'], 
-                                  capture_output=True, text=True, timeout=30)
+            result = subprocess.run([bandit_path, '--version'],
+                                  check=False, capture_output=True, text=True, timeout=30)
             if result.returncode != 0:
                 return {
                     "name": "Security Scanning Tools",
@@ -289,7 +289,7 @@ class PR4IntegrationTester:
                     "details": "Install safety and ensure it is in a secure location"
                 }
             result = subprocess.run([safety_path, '--version'],
-                                  capture_output=True, text=True, timeout=30)
+                                  check=False, capture_output=True, text=True, timeout=30)
             if result.returncode != 0:
                 return {
                     "name": "Security Scanning Tools",
@@ -374,4 +374,4 @@ def main():
         print("Ready for final review and submission")
 
 if __name__ == "__main__":
-    main() 
+    main()

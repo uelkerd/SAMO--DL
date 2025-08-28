@@ -6,7 +6,6 @@ Comprehensive testing for Cloud Run optimization components without loops/condit
 import sys
 import yaml
 from pathlib import Path
-from typing import Dict, Any, List, Optional
 import unittest
 
 # Add src to path for imports
@@ -41,7 +40,7 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         cloudbuild_path = self.cloud_run_dir / 'cloudbuild.yaml'
         self.assertTrue(cloudbuild_path.exists(), "cloudbuild.yaml should exist")
         
-        with open(cloudbuild_path, 'r') as f:
+        with open(cloudbuild_path) as f:
             config = yaml.safe_load(f)
         
         # Validate required fields - individual assertions instead of loop
@@ -141,7 +140,7 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         config_path = self.cloud_run_dir / 'config.py'
         self.assertTrue(config_path.exists(), "config.py should exist")
         
-        with open(config_path, 'r') as f:
+        with open(config_path) as f:
             content = f.read()
         
         # Check for required configuration elements
@@ -169,7 +168,7 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         dockerfile_path = self.cloud_run_dir / 'Dockerfile.secure'
         self.assertTrue(dockerfile_path.exists(), "Dockerfile.secure should exist")
         
-        with open(dockerfile_path, 'r') as f:
+        with open(dockerfile_path) as f:
             content = f.read()
         
         # Check for optimization features
@@ -199,7 +198,7 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         requirements_path = self.cloud_run_dir / 'requirements_secure.txt'
         self.assertTrue(requirements_path.exists(), "requirements_secure.txt should exist")
         
-        with open(requirements_path, 'r') as f:
+        with open(requirements_path) as f:
             content = f.read()
         
         # Check for required dependencies
@@ -243,7 +242,7 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         cloudbuild_path = self.cloud_run_dir / 'cloudbuild.yaml'
         self.assertTrue(cloudbuild_path.exists(), "cloudbuild.yaml should exist")
         
-        with open(cloudbuild_path, 'r') as f:
+        with open(cloudbuild_path) as f:
             config = yaml.safe_load(f)
         
         # Get deployment step
@@ -274,7 +273,7 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         cloudbuild_path = self.cloud_run_dir / 'cloudbuild.yaml'
         self.assertTrue(cloudbuild_path.exists(), "cloudbuild.yaml should exist")
         
-        with open(cloudbuild_path, 'r') as f:
+        with open(cloudbuild_path) as f:
             config = yaml.safe_load(f)
         
         # Get deployment step
@@ -305,7 +304,7 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         self.assertTrue(cloudbuild_path.exists(), "cloudbuild.yaml should exist")
         
         # Test YAML parsing
-        with open(cloudbuild_path, 'r') as f:
+        with open(cloudbuild_path) as f:
             config = yaml.safe_load(f)
         
         # Validate basic structure
@@ -373,4 +372,4 @@ def run_phase3_tests_fixed():
 
 if __name__ == "__main__":
     success = run_phase3_tests_fixed()
-    sys.exit(0 if success else 1) 
+    sys.exit(0 if success else 1)

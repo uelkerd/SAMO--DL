@@ -23,7 +23,7 @@ import sys
 import ast
 import re
 from pathlib import Path
-from typing import Dict, List, Set, Tuple, Any, Optional
+from typing import Dict, List, Any
 import logging
 
 # Configure logging
@@ -122,7 +122,7 @@ class CodeQualityEnforcer:
         issues = []
 
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding='utf-8') as f:
                 content = f.read()
                 lines = content.splitlines()
 

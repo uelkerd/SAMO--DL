@@ -674,4 +674,4 @@ def create_model_ensemble_notebook():
     print("  - Optimized hyperparameters")
 
 if __name__ == "__main__":
-    create_model_ensemble_notebook() 
+    create_model_ensemble_notebook()

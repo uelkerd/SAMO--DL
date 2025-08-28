@@ -1,5 +1,4 @@
-"""
-Environment Configuration Management - Phase 3 Cloud Run Optimization
+"""Environment Configuration Management - Phase 3 Cloud Run Optimization
 Provides environment-specific settings for development, staging, and production
 """
 
@@ -216,4 +215,4 @@ config = EnvironmentConfig()
 
 def get_config() -> EnvironmentConfig:
     """Get the global configuration instance"""
-    return config 
+    return config

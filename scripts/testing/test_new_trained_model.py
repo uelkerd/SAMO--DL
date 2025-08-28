@@ -41,7 +41,7 @@ def test_new_trained_model():
         print("✅ Model loaded successfully!")
         
         # Check model configuration
-        print(f"\n📊 Model Configuration:")
+        print("\n📊 Model Configuration:")
         print(f"  Model type: {model.config.model_type}")
         print(f"  Architecture: {model.config.architectures[0]}")
         print(f"  Hidden layers: {model.config.num_hidden_layers}")
@@ -52,7 +52,7 @@ def test_new_trained_model():
         # Define emotion mapping
         emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
         
-        print(f"\n🎯 Testing predictions...")
+        print("\n🎯 Testing predictions...")
         
         # Test examples
         test_examples = [
@@ -105,7 +105,7 @@ def test_new_trained_model():
         print(f"\n📊 Test Accuracy: {accuracy:.1%} ({correct}/{len(test_examples)})")
         
         # Test on some edge cases
-        print(f"\n🧪 Testing edge cases...")
+        print("\n🧪 Testing edge cases...")
         edge_cases = [
             "I'm not sure how I feel.",
             "This is amazing!",
@@ -126,7 +126,7 @@ def test_new_trained_model():
             print(f"  \"{text}\" → {predicted_emotion} (confidence: {confidence:.3f})")
         
         # Overall assessment
-        print(f"\n🎯 MODEL ASSESSMENT:")
+        print("\n🎯 MODEL ASSESSMENT:")
         if accuracy >= 0.8:
             print("✅ EXCELLENT: Model ready for deployment!")
         elif accuracy >= 0.7:
@@ -136,15 +136,15 @@ def test_new_trained_model():
         else:
             print("❌ POOR: Model needs significant improvement")
         
-        print(f"\n📋 Next steps:")
-        print(f"  1. Model is ready for local testing")
-        print(f"  2. Can be deployed to API server")
-        print(f"  3. Consider retraining tomorrow for better results")
+        print("\n📋 Next steps:")
+        print("  1. Model is ready for local testing")
+        print("  2. Can be deployed to API server")
+        print("  3. Consider retraining tomorrow for better results")
         
         return True
         
     except Exception as e:
-        print(f"❌ Error testing model: {str(e)}")
+        print(f"❌ Error testing model: {e!s}")
         return False
 
 if __name__ == "__main__":
@@ -152,4 +152,4 @@ if __name__ == "__main__":
     if success:
         print("\n🎉 Model testing completed successfully!")
     else:
-        print("\n❌ Model testing failed!") 
+        print("\n❌ Model testing failed!")
