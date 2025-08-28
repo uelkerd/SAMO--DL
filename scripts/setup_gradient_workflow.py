@@ -77,6 +77,30 @@ class GradientWorkflowSetup:
             print("❌ Authentication timed out")
             return False
 
+    def _validate_workflow_structure(self, workflow_config: Dict[str, Any]) -> tuple[bool, Optional[str], Optional[Dict[str, Any]]]:
+        """Validate the basic structure of the workflow configuration."""
+        if 'workflows' not in workflow_config:
+            print("❌ Invalid workflow file: missing 'workflows' section")
+            return False, None, None
+
+        workflow_name = list(workflow_config['workflows'].keys())[0]
+        workflow = workflow_config['workflows'][workflow_name]
+
+        if 'jobs' not in workflow:
+            print("❌ Invalid workflow file: missing 'jobs' section")
+            return False, None, None
+
+        return True, workflow_name, workflow
+
+    def _print_workflow_info(self, workflow_name: str, workflow: Dict[str, Any]) -> None:
+        """Print workflow information and job details."""
+        print(f"✅ Workflow file validated: {workflow_name}")
+        print(f"   Jobs: {len(workflow['jobs'])}")
+
+        # Print job names
+        for job in workflow['jobs']:
+            print(f"   - {job.get('name', '<unnamed>')}")
+
     def validate_workflow_file(self) -> bool:
         """Validate the workflow YAML file."""
         if not self.workflow_file.exists():
@@ -88,23 +112,12 @@ class GradientWorkflowSetup:
                 workflow_config = yaml.safe_load(f)
 
             # Basic validation
-            if 'workflows' not in workflow_config:
-                print("❌ Invalid workflow file: missing 'workflows' section")
+            is_valid, workflow_name, workflow = self._validate_workflow_structure(workflow_config)
+            if not is_valid:
                 return False
 
-            workflow_name = list(workflow_config['workflows'].keys())[0]
-            workflow = workflow_config['workflows'][workflow_name]
-
-            if 'jobs' not in workflow:
-                print("❌ Invalid workflow file: missing 'jobs' section")
-                return False
-
-            print(f"✅ Workflow file validated: {workflow_name}")
-            print(f"   Jobs: {len(workflow['jobs'])}")
-
-            # Print job names
-            for job in workflow['jobs']:
-                print(f"   - {job.get('name', '<unnamed>')}")
+            # Print workflow information
+            self._print_workflow_info(workflow_name, workflow)
 
             return True
 
@@ -259,9 +272,7 @@ class GradientWorkflowSetup:
             # Ask for project ID interactively only if not provided
             project_id = input(
                 "Enter project ID (or press Enter to use default): "
-            ).strip()
-            if not project_id:
-                project_id = None
+            ).strip() or None
 
         # Check if we're in non-interactive mode
         if os.environ.get("GRADIENT_NON_INTERACTIVE"):
