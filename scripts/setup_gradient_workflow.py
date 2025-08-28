@@ -62,8 +62,8 @@ class GradientWorkflowSetup:
     def authenticate(self, api_key: str) -> bool:
         """Authenticate with Paperspace using API key."""
         try:
-            result = subprocess.run(["gradient", "apiKey", api_key], 
-                                  capture_output=True, text=True, check=True, timeout=30)
+            subprocess.run(["gradient", "apiKey", api_key], 
+                          capture_output=True, text=True, check=True, timeout=30)
             print("✅ Authentication successful")
             self.api_key = api_key
             return True
