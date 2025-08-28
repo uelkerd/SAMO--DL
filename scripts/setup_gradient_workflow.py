@@ -9,7 +9,6 @@ It handles authentication, workflow validation, and execution.
 import os
 import sys
 import subprocess
-import json
 import yaml
 from pathlib import Path
 from typing import Dict, Any, Optional
@@ -17,13 +16,14 @@ from typing import Dict, Any, Optional
 
 class GradientWorkflowSetup:
     """Manages Paperspace Gradient workflow setup and execution."""
-    
+
     def __init__(self, workflow_file: str = ".gradient/workflows/training-pipeline.yaml"):
         self.workflow_file = Path(workflow_file)
         self.api_key = os.getenv("PAPERSPACE_API_KEY")
         self.project_id = os.getenv("PAPERSPACE_PROJECT_ID")
-        
-    def check_gradient_cli(self) -> bool:
+
+    @staticmethod
+    def check_gradient_cli() -> bool:
         """Check if gradient CLI is available."""
         try:
             result = subprocess.run(["gradient", "--version"], 
@@ -34,8 +34,9 @@ class GradientWorkflowSetup:
             print("❌ Gradient CLI not found. Please install it first:")
             print("   pip install gradient")
             return False
-    
-    def check_authentication(self) -> bool:
+
+    @staticmethod
+    def check_authentication() -> bool:
         """Check if user is authenticated with Paperspace."""
         try:
             result = subprocess.run(["gradient", "projects", "list"], 
@@ -43,14 +44,13 @@ class GradientWorkflowSetup:
             if "No projects found" in result.stdout or "projects" in result.stdout:
                 print("✅ Authentication successful")
                 return True
-            else:
-                print("❌ Authentication failed")
-                return False
+            print("❌ Authentication failed")
+            return False
         except subprocess.CalledProcessError:
             print("❌ Authentication failed. Please run:")
             print("   gradient apiKey YOUR_API_KEY")
             return False
-    
+
     def authenticate(self, api_key: str) -> bool:
         """Authenticate with Paperspace using API key."""
         try:
@@ -62,46 +62,47 @@ class GradientWorkflowSetup:
         except subprocess.CalledProcessError as e:
             print(f"❌ Authentication failed: {e}")
             return False
-    
+
     def validate_workflow_file(self) -> bool:
         """Validate the workflow YAML file."""
         if not self.workflow_file.exists():
             print(f"❌ Workflow file not found: {self.workflow_file}")
             return False
-        
+
         try:
             with open(self.workflow_file, 'r') as f:
                 workflow_config = yaml.safe_load(f)
-            
+
             # Basic validation
             if 'workflows' not in workflow_config:
                 print("❌ Invalid workflow file: missing 'workflows' section")
                 return False
-            
+
             workflow_name = list(workflow_config['workflows'].keys())[0]
             workflow = workflow_config['workflows'][workflow_name]
-            
+
             if 'jobs' not in workflow:
                 print("❌ Invalid workflow file: missing 'jobs' section")
                 return False
-            
+
             print(f"✅ Workflow file validated: {workflow_name}")
             print(f"   Jobs: {len(workflow['jobs'])}")
-            
+
             # Print job names
             for job in workflow['jobs']:
                 print(f"   - {job['name']}")
-            
+
             return True
-            
+
         except yaml.YAMLError as e:
             print(f"❌ YAML parsing error: {e}")
             return False
         except Exception as e:
             print(f"❌ Validation error: {e}")
             return False
-    
-    def list_projects(self) -> None:
+
+    @staticmethod
+    def list_projects() -> None:
         """List available Paperspace projects."""
         try:
             result = subprocess.run(["gradient", "projects", "list"], 
@@ -110,17 +111,17 @@ class GradientWorkflowSetup:
             print(result.stdout)
         except subprocess.CalledProcessError as e:
             print(f"❌ Failed to list projects: {e}")
-    
+
     def run_workflow(self, project_id: Optional[str] = None) -> bool:
         """Run the workflow."""
         if not self.validate_workflow_file():
             return False
-        
+
         cmd = ["gradient", "workflows", "run", str(self.workflow_file)]
-        
+
         if project_id:
             cmd.extend(["--projectId", project_id])
-        
+
         try:
             print(f"🚀 Running workflow: {' '.join(cmd)}")
             result = subprocess.run(cmd, check=True)
@@ -129,8 +130,9 @@ class GradientWorkflowSetup:
         except subprocess.CalledProcessError as e:
             print(f"❌ Failed to run workflow: {e}")
             return False
-    
-    def create_datasets(self) -> None:
+
+    @staticmethod
+    def create_datasets() -> None:
         """Create the required datasets for the workflow."""
         datasets = [
             "training-environment-setup",
@@ -140,60 +142,60 @@ class GradientWorkflowSetup:
             "evaluation-results",
             "training-pipeline-artifacts"
         ]
-        
+
         print("📊 Creating required datasets...")
         for dataset_name in datasets:
             try:
                 cmd = ["gradient", "datasets", "create", "--name", dataset_name]
-                result = subprocess.run(cmd, capture_output=True, text=True)
+                result = subprocess.run(cmd, capture_output=True, text=True, check=True)
                 if result.returncode == 0:
                     print(f"   ✅ Created dataset: {dataset_name}")
                 else:
                     print(f"   ⚠️  Dataset {dataset_name} may already exist")
             except Exception as e:
                 print(f"   ❌ Failed to create dataset {dataset_name}: {e}")
-    
+
     def setup_environment(self) -> bool:
         """Complete setup of the workflow environment."""
         print("🔧 Setting up Paperspace Gradient Workflow Environment")
         print("=" * 60)
-        
+
         # Check CLI
         if not self.check_gradient_cli():
             return False
-        
+
         # Check authentication
         if not self.check_authentication():
             print("\n🔑 Please provide your Paperspace API key:")
             api_key = input("API Key: ").strip()
             if not self.authenticate(api_key):
                 return False
-        
+
         # Validate workflow file
         if not self.validate_workflow_file():
             return False
-        
+
         # List projects
         self.list_projects()
-        
+
         # Create datasets
         self.create_datasets()
-        
+
         print("\n✅ Environment setup completed!")
         return True
-    
+
     def interactive_run(self) -> None:
         """Interactive workflow execution."""
         if not self.setup_environment():
             return
-        
+
         print("\n🚀 Ready to run workflow!")
-        
+
         # Ask for project ID
         project_id = input("Enter project ID (or press Enter to use default): ").strip()
         if not project_id:
             project_id = None
-        
+
         # Confirm execution
         confirm = input("Run workflow now? (y/N): ").strip().lower()
         if confirm in ['y', 'yes']:
@@ -205,10 +207,10 @@ class GradientWorkflowSetup:
 def main():
     """Main entry point."""
     setup = GradientWorkflowSetup()
-    
+
     if len(sys.argv) > 1:
         command = sys.argv[1]
-        
+
         if command == "setup":
             setup.setup_environment()
         elif command == "run":
