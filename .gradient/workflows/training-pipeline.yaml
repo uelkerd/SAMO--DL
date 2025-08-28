@@ -15,7 +15,7 @@ workflows:
           script: |
             # Install dependencies
             pip install --upgrade pip
-            pip install -r requirements-workflow.txt
+            pip install -r requirements-workflow-prod.txt
             
             # Verify GPU availability
             python -c "import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA version: {torch.version.cuda if torch.cuda.is_available() else \"N/A\"}')"
@@ -64,7 +64,7 @@ workflows:
               --epochs 100 \
               --batch-size 32 \
               --learning-rate 0.001 \
-              --save-path /outputs/model \
+              --save-path /outputs/trained-model \
               --log-interval 10
             
             echo "Model training completed"
@@ -90,8 +90,8 @@ workflows:
             
             # This will be replaced with your actual evaluation script
             python scripts/training/evaluate_model.py \
-              --model-path /inputs/trained-model-output \
-              --test-data-path /inputs/prepared-training-data \
+              --model-path /inputs/trained-model \
+              --test-data-path /inputs/prepared-data \
               --output-path /outputs/evaluation-results
             
             echo "Model evaluation completed"
@@ -120,14 +120,14 @@ workflows:
             
             # Create summary report
             python scripts/training/create_training_summary.py \
-              --model-path /inputs/trained-model-output \
+              --model-path /inputs/trained-model \
               --logs-path /inputs/training-logs \
               --evaluation-path /inputs/evaluation-results \
               --output-path /outputs/final-artifacts
             
             # Save model checkpoint
-            if [ -d /inputs/trained-model-output ] && [ "$(ls -A /inputs/trained-model-output)" ]; then
-              cp -r /inputs/trained-model-output/* /outputs/final-artifacts/
+            if [ -d /inputs/trained-model ] && [ "$(ls -A /inputs/trained-model)" ]; then
+              cp -r /inputs/trained-model/* /outputs/final-artifacts/
               echo "Artifacts saved successfully"
             else
               echo "No trained model artifacts found to copy."
