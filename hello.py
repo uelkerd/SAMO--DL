@@ -40,7 +40,7 @@ def main() -> None:
         if p.is_file():
             print(f"  {file_icon} {p.name}")
         elif p.is_dir():
-            print(f"  {file_icon} {p.name}/")
+            print(f"  {dir_icon} {p.name}/")
 
     print("\n" + "=" * 50)
     print("Workflow execution completed successfully!")

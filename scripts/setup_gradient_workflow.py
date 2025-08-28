@@ -264,7 +264,7 @@ class GradientWorkflowSetup:
         )
         parser.add_argument("--project-id", type=str,
                            help="Project ID to use for the workflow.")
-        args, unknown = parser.parse_known_args()
+        args, _ = parser.parse_known_args()
 
         project_id = args.project_id or os.environ.get(
             "GRADIENT_PROJECT_ID"
