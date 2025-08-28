@@ -28,8 +28,8 @@ class GradientWorkflowSetup:
     def check_gradient_cli() -> bool:
         """Check if gradient CLI is available."""
         try:
-            result = subprocess.run(["gradient", "--version"], 
-                                  capture_output=True, text=True, check=True, timeout=10)
+            result = subprocess.run(["gradient", "--version"],
+                                   capture_output=True, text=True, check=True, timeout=10)
             print(f"✅ Gradient CLI found: {result.stdout.strip()}")
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
@@ -44,8 +44,8 @@ class GradientWorkflowSetup:
     def check_authentication() -> bool:
         """Check if user is authenticated with Paperspace."""
         try:
-            result = subprocess.run(["gradient", "projects", "list"], 
-                                  capture_output=True, text=True, check=True, timeout=30)
+            result = subprocess.run(["gradient", "projects", "list"],
+                                   capture_output=True, text=True, check=True, timeout=30)
             if "No projects found" in result.stdout or "projects" in result.stdout:
                 print("✅ Authentication successful")
                 return True
@@ -62,8 +62,8 @@ class GradientWorkflowSetup:
     def authenticate(self, api_key: str) -> bool:
         """Authenticate with Paperspace using API key."""
         try:
-            subprocess.run(["gradient", "apiKey", api_key], 
-                          capture_output=True, text=True, check=True, timeout=30)
+            subprocess.run(["gradient", "apiKey", api_key],
+                           capture_output=True, text=True, check=True, timeout=30)
             print("✅ Authentication successful")
             self.api_key = api_key
             return True
@@ -116,8 +116,8 @@ class GradientWorkflowSetup:
     def list_projects() -> None:
         """List available Paperspace projects."""
         try:
-            result = subprocess.run(["gradient", "projects", "list"], 
-                                  capture_output=True, text=True, check=True, timeout=30)
+            result = subprocess.run(["gradient", "projects", "list"],
+                                   capture_output=True, text=True, check=True, timeout=30)
             print("📋 Available Projects:")
             print(result.stdout)
         except subprocess.CalledProcessError as e:
