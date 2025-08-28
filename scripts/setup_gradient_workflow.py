@@ -111,6 +111,11 @@ class GradientWorkflowSetup:
 
         try:
             workflow_config = yaml.safe_load(self.workflow_file.read_text())
+            
+            # Validate that YAML loading returned a valid dict
+            if not isinstance(workflow_config, dict):
+                print(f"❌ Invalid workflow file: YAML content is not a dictionary")
+                return False
 
             # Basic validation
             is_valid, workflow_name, workflow = self._validate_workflow_structure(workflow_config)
@@ -196,14 +201,18 @@ class GradientWorkflowSetup:
             list_cmd = ["gradient", "datasets", "list", "--json"]
             list_result = subprocess.run(list_cmd, capture_output=True, text=True,
                                        timeout=30, check=True)
-            if list_result.returncode != 0:
-                print("   ❌ Failed to list existing datasets.")
-                existing_datasets = set()
-            else:
-                datasets_json = json.loads(list_result.stdout)
-                existing_datasets = {
-                    ds.get("name") for ds in datasets_json if "name" in ds
-                }
+            datasets_json = json.loads(list_result.stdout)
+            existing_datasets = {
+                ds.get("name") for ds in datasets_json if "name" in ds
+            }
+        except subprocess.CalledProcessError as e:
+            print("   ❌ Failed to list existing datasets.")
+            print(f"   STDOUT: {e.stdout or ''}".rstrip())
+            print(f"   STDERR: {e.stderr or ''}".rstrip())
+            existing_datasets = set()
+        except json.JSONDecodeError as e:
+            print(f"   ❌ Failed to parse datasets JSON: {e}")
+            existing_datasets = set()
         except Exception as e:
             print(f"   ❌ Error listing datasets: {e}")
             existing_datasets = set()
@@ -214,13 +223,12 @@ class GradientWorkflowSetup:
                 continue
             try:
                 cmd = ["gradient", "datasets", "create", "--name", dataset_name]
-                result = subprocess.run(cmd, capture_output=True, text=True,
-                                      timeout=30, check=True)
-                if result.returncode == 0:
-                    print(f"   ✅ Created dataset: {dataset_name}")
-                else:
-                    print(f"   ⚠️  Failed to create dataset {dataset_name}: "
-                          f"{result.stderr.strip()}")
+                subprocess.run(cmd, capture_output=True, text=True,
+                             timeout=30, check=True)
+                print(f"   ✅ Created dataset: {dataset_name}")
+            except subprocess.CalledProcessError as e:
+                print(f"   ❌ Failed to create dataset {dataset_name}: "
+                      f"{e.stderr.strip()}")
             except Exception as e:
                 print(f"   ❌ Exception creating dataset {dataset_name}: {e}")
 
@@ -269,7 +277,7 @@ class GradientWorkflowSetup:
         args, _ = parser.parse_known_args()
 
         project_id = args.project_id or os.environ.get(
-            "GRADIENT_PROJECT_ID"
+            "PAPERSPACE_PROJECT_ID"
         )
         if not project_id:
             # Ask for project ID (env/default respected)
