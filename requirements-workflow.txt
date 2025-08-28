@@ -1,46 +1,50 @@
-# Paperspace Gradient Workflow Requirements
-# This file contains all dependencies needed for the training pipeline workflow
+# Paperspace Gradient Workflow Requirements (DEPRECATED)
+# 
+# ⚠️  DEPRECATION NOTICE: This file is deprecated and will be removed in a future version.
+# 
+# Use the following files instead:
+# - requirements-workflow-prod.txt  (Production dependencies with pinned versions)
+# - requirements-workflow-dev.txt   (Development and testing dependencies)
+#
+# This file is kept for backward compatibility only.
 
-# Core ML/DL libraries
-torch>=2.0.1
-torchvision>=0.15.2
-torchaudio>=2.0.2
-transformers>=4.30.0
-datasets>=2.12.0
-accelerate>=0.20.3
+# Core ML/DL libraries (pinned versions for reproducibility)
+torch==2.0.1
+torchvision==0.15.2
+torchaudio==2.0.2
+transformers==4.30.0
+datasets==2.12.0
+accelerate==0.20.3
 
-# Data processing
-numpy>=1.24.0
-pandas>=2.0.0
-scikit-learn>=1.3.0
-pillow>=9.5.0
-opencv-python>=4.8.0
+# Data processing (pinned versions)
+numpy==1.24.3
+pandas==2.0.3
+scikit-learn==1.3.0
+pillow==10.0.0
+opencv-python==4.8.1.78
 
 # Audio processing (if needed)
-librosa>=0.10.0
-soundfile>=0.12.1
+librosa==0.10.1
+soundfile==0.12.1
 
-# Utilities
-tqdm>=4.65.0
-matplotlib>=3.7.0
-seaborn>=0.12.0
-wandb>=0.15.0
-tensorboard>=2.13.0
+# Utilities (pinned versions)
+tqdm==4.65.0
+matplotlib==3.7.2
+seaborn==0.12.2
+wandb==0.15.8
+tensorboard==2.13.0
 
 # Jupyter notebook execution (if using papermill)
-papermill>=2.4.0
-nbformat>=5.9.0
+papermill==2.4.0
+nbformat==5.9.2
 
 # Logging and monitoring
-loguru>=0.7.0
-rich>=13.0.0
+loguru==0.7.2
+rich==13.4.2
 
 # Configuration
-pyyaml>=6.0
-click>=8.1.0
-argparse>=1.4.0
+pyyaml==6.0.1
+click==8.1.7
 
-# Development and testing
-pytest>=7.3.0
-black>=23.0.0
-flake8>=6.0.0
+# NOTE: Development dependencies (pytest, black, flake8, etc.) have been moved to
+# requirements-workflow-dev.txt to keep production environments lean and fast.
