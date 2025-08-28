@@ -74,18 +74,21 @@ print("🎉 All tests passed! The issue is not with basic Flask-RESTX functional
 # Now let's test the actual imports from secure_api_server.py
 try:
     print("\n7. Testing security_headers import...")
+    from security_headers import add_security_headers  # noqa: F401
     print("✅ security_headers imported successfully")
 except Exception as e:
     print(f"❌ security_headers import failed: {e}")
 
 try:
     print("8. Testing rate_limiter import...")
+    from rate_limiter import rate_limit  # noqa: F401
     print("✅ rate_limiter imported successfully")
 except Exception as e:
     print(f"❌ rate_limiter import failed: {e}")
 
 try:
     print("9. Testing model_utils import...")
+    from model_utils import ensure_model_loaded, predict_emotions, get_model_status, validate_text_input  # noqa: F401
     print("✅ model_utils imported successfully")
 except Exception as e:
     print(f"❌ model_utils import failed: {e}")

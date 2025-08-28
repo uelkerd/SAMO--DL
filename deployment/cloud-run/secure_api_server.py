@@ -309,7 +309,9 @@ class Predict(Resource):
             try:
                 text = sanitize_input(text)
             except ValueError as e:
-                logger.warning(f"Input sanitization failed for {request.remote_addr}: {e!s}")
+                logger.warning(
+                    f"Input sanitization failed for {request.remote_addr}: {e!s}"
+                )
                 return create_error_response(str(e), 400)
 
             # Ensure model is loaded
@@ -375,7 +377,9 @@ class PredictBatch(Resource):
                     result = predict_emotion(text)
                     results.append(result)
                 except Exception as e:
-                    logger.warning(f"Failed to process text in batch from {request.remote_addr}: {e!s}")
+                    logger.warning(
+                        f"Failed to process text in batch from {request.remote_addr}: {e!s}"
+                    )
                     continue
 
             return {'results': results}

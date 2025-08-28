@@ -258,7 +258,10 @@ class RepositoryManager:
             """Execute command with comprehensive error handling."""
             logger.info(f"🔄 {description}...")
             try:
-                result = subprocess.run(command, check=False, shell=True, capture_output=True, text=True, timeout=300)
+                result = subprocess.run(
+                    command, check=False, shell=True, capture_output=True, 
+                    text=True, timeout=300
+                )
                 if result.returncode == 0:
                     logger.info(f"  ✅ {description} completed")
                     return True

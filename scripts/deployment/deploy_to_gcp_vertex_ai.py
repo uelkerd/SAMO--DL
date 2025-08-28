@@ -20,7 +20,10 @@ def check_prerequisites():
     
     # Check if gcloud is installed
     try:
-        result = subprocess.run(['gcloud', '--version'], check=False, capture_output=True, text=True)
+        result = subprocess.run(
+            ['gcloud', '--version'], 
+            check=False, capture_output=True, text=True
+        )
         if result.returncode == 0:
             print("✅ gcloud CLI is installed")
         else:
@@ -33,7 +36,10 @@ def check_prerequisites():
     
     # Check if user is authenticated
     try:
-        result = subprocess.run(['gcloud', 'auth', 'list', '--filter=status:ACTIVE'], check=False, capture_output=True, text=True)
+        result = subprocess.run(
+            ['gcloud', 'auth', 'list', '--filter=status:ACTIVE'], 
+            check=False, capture_output=True, text=True
+        )
         if result.returncode == 0 and 'ACTIVE' in result.stdout:
             print("✅ User is authenticated with gcloud")
         else:
@@ -46,7 +52,10 @@ def check_prerequisites():
     
     # Check if project is set
     try:
-        result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], check=False, capture_output=True, text=True)
+        result = subprocess.run(
+            ['gcloud', 'config', 'get-value', 'project'], 
+            check=False, capture_output=True, text=True
+        )
         if result.returncode == 0 and result.stdout.strip():
             project_id = result.stdout.strip()
             print(f"✅ Project is set: {project_id}")
@@ -60,7 +69,10 @@ def check_prerequisites():
     
     # Check if Vertex AI API is enabled
     try:
-        result = subprocess.run(['gcloud', 'services', 'list', '--enabled', '--filter=name:aiplatform.googleapis.com'], check=False, capture_output=True, text=True)
+        result = subprocess.run(
+            ['gcloud', 'services', 'list', '--enabled', '--filter=name:aiplatform.googleapis.com'], 
+            check=False, capture_output=True, text=True
+        )
         if result.returncode == 0 and 'aiplatform.googleapis.com' in result.stdout:
             print("✅ Vertex AI API is enabled")
         else:
@@ -305,7 +317,10 @@ def deploy_to_vertex_ai(deployment_dir):
     print("=" * 50)
     
     # Get project ID
-    result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], check=False, capture_output=True, text=True)
+    result = subprocess.run(
+        ['gcloud', 'config', 'get-value', 'project'], 
+        check=False, capture_output=True, text=True
+    )
     project_id = result.stdout.strip()
     
     # Set region

@@ -89,7 +89,15 @@ elif num_labels == len(ds_names):
     )
     kept_ds_indices = list(range(num_labels))
     kept_model_indices = list(range(num_labels))
+elif num_labels < len(ds_names):
+    m = min(num_labels, len(ds_names))
+    print(
+        f"Low mapping coverage; min-dim identity mapping ({m} labels)."
+    )
+    kept_ds_indices = list(range(m))
+    kept_model_indices = list(range(m))
 else:
+    # Fallback case
     m = min(num_labels, len(ds_names))
     print(
         f"Low mapping coverage; min-dim identity mapping ({m} labels)."

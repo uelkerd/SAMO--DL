@@ -100,7 +100,9 @@ def setup_repository():
         """Execute command with error handling."""
         print(f"🔄 {description}...")
         try:
-            result = subprocess.run(command, check=False, shell=True, capture_output=True, text=True)
+            result = subprocess.run(
+            command, check=False, shell=True, capture_output=True, text=True
+        )
             if result.returncode == 0:
                 print(f"  ✅ {description} completed")
                 return True

@@ -239,7 +239,9 @@ class SecureEmotionDetectionModel:
             logger.info("✅ Secure model loaded successfully")
 
         except Exception as e:
-            logger.error(f"❌ Failed to load secure model: {e!s}. Falling back to stub mode.")
+            logger.error(
+                f"❌ Failed to load secure model: {e!s}. Falling back to stub mode."
+            )
             self.tokenizer = None
             self.model = None
             self.loaded = False
@@ -317,7 +319,9 @@ class SecureEmotionDetectionModel:
             
         except Exception as e:
             prediction_time = time.time() - start_time
-            logger.error(f"Secure prediction failed after {prediction_time:.3f}s: {e!s}")
+            logger.error(
+                f"Secure prediction failed after {prediction_time:.3f}s: {e!s}"
+            )
             raise
 
 # Secure model factory for explicit creation and testability

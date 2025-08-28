@@ -59,7 +59,8 @@ def test_whisper_imports():
             from models.voice_processing.whisper_transcriber import WhisperTranscriber
         except ImportError:
             # Fallback for different import paths
-            pass
+            from src.models.voice_processing.audio_preprocessor import AudioPreprocessor
+            from src.models.voice_processing.whisper_transcriber import WhisperTranscriber
 
         logger.info("✅ Whisper imports successful")
         return True

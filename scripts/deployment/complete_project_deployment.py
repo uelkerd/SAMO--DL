@@ -255,7 +255,9 @@ def run_final_tests():
     
     for test_name, command in tests:
         try:
-            result = subprocess.run(command, check=False, shell=True, capture_output=True, text=True)
+            result = subprocess.run(
+                command, check=False, shell=True, capture_output=True, text=True
+            )
             if result.returncode == 0:
                 print(f"✅ {test_name}: PASSED")
                 passed += 1
