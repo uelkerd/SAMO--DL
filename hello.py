@@ -8,6 +8,7 @@ import os
 import sys
 from datetime import datetime
 
+
 def main():
     """Main function that prints hello world and some system info."""
     print("=" * 50)
