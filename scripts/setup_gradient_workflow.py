@@ -19,7 +19,8 @@ from typing import Dict, Any, Optional
 class GradientWorkflowSetup:
     """Manages Paperspace Gradient workflow setup and execution."""
 
-    def __init__(self, workflow_file: str = ".gradient/workflows/training-pipeline.yaml"):
+    def __init__(self, workflow_file: str = 
+                 ".gradient/workflows/training-pipeline.yaml"):
         self.workflow_file = Path(workflow_file)
         self.api_key = os.getenv("PAPERSPACE_API_KEY")
         self.project_id = os.getenv("PAPERSPACE_PROJECT_ID")
@@ -29,7 +30,8 @@ class GradientWorkflowSetup:
         """Check if gradient CLI is available."""
         try:
             result = subprocess.run(["gradient", "--version"],
-                                   capture_output=True, text=True, check=True, timeout=10)
+                                   capture_output=True, text=True, check=True,
+                                   timeout=10)
             print(f"✅ Gradient CLI found: {result.stdout.strip()}")
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
@@ -45,7 +47,8 @@ class GradientWorkflowSetup:
         """Check if user is authenticated with Paperspace."""
         try:
             result = subprocess.run(["gradient", "projects", "list"],
-                                   capture_output=True, text=True, check=True, timeout=30)
+                                   capture_output=True, text=True, check=True,
+                                   timeout=30)
             if "No projects found" in result.stdout or "projects" in result.stdout:
                 print("✅ Authentication successful")
                 return True
@@ -117,7 +120,8 @@ class GradientWorkflowSetup:
         """List available Paperspace projects."""
         try:
             result = subprocess.run(["gradient", "projects", "list"],
-                                   capture_output=True, text=True, check=True, timeout=30)
+                                   capture_output=True, text=True, check=True,
+                                   timeout=30)
             print("📋 Available Projects:")
             print(result.stdout)
         except subprocess.CalledProcessError as e:
@@ -174,13 +178,16 @@ class GradientWorkflowSetup:
         # List existing datasets
         try:
             list_cmd = ["gradient", "datasets", "list", "--json"]
-            list_result = subprocess.run(list_cmd, capture_output=True, text=True, timeout=30, check=True)
+            list_result = subprocess.run(list_cmd, capture_output=True, text=True,
+                                       timeout=30, check=True)
             if list_result.returncode != 0:
                 print("   ❌ Failed to list existing datasets.")
                 existing_datasets = set()
             else:
                 datasets_json = json.loads(list_result.stdout)
-                existing_datasets = {ds.get("name") for ds in datasets_json if "name" in ds}
+                existing_datasets = {
+                    ds.get("name") for ds in datasets_json if "name" in ds
+                }
         except Exception as e:
             print(f"   ❌ Error listing datasets: {e}")
             existing_datasets = set()
@@ -191,11 +198,13 @@ class GradientWorkflowSetup:
                 continue
             try:
                 cmd = ["gradient", "datasets", "create", "--name", dataset_name]
-                result = subprocess.run(cmd, capture_output=True, text=True, timeout=30, check=True)
+                result = subprocess.run(cmd, capture_output=True, text=True,
+                                      timeout=30, check=True)
                 if result.returncode == 0:
                     print(f"   ✅ Created dataset: {dataset_name}")
                 else:
-                    print(f"   ⚠️  Failed to create dataset {dataset_name}: {result.stderr.strip()}")
+                    print(f"   ⚠️  Failed to create dataset {dataset_name}: "
+                          f"{result.stderr.strip()}")
             except Exception as e:
                 print(f"   ❌ Exception creating dataset {dataset_name}: {e}")
 
@@ -236,14 +245,21 @@ class GradientWorkflowSetup:
         print("\n🚀 Ready to run workflow!")
 
         # Support project ID from command-line argument or environment variable
-        parser = argparse.ArgumentParser(description="Run Gradient workflow interactively.")
-        parser.add_argument("--project-id", type=str, help="Project ID to use for the workflow.")
+        parser = argparse.ArgumentParser(
+            description="Run Gradient workflow interactively."
+        )
+        parser.add_argument("--project-id", type=str,
+                           help="Project ID to use for the workflow.")
         args, unknown = parser.parse_known_args()
 
-        project_id = args.project_id or os.environ.get("GRADIENT_PROJECT_ID")
+        project_id = args.project_id or os.environ.get(
+            "GRADIENT_PROJECT_ID"
+        )
         if not project_id:
             # Ask for project ID interactively only if not provided
-            project_id = input("Enter project ID (or press Enter to use default): ").strip()
+            project_id = input(
+                "Enter project ID (or press Enter to use default): "
+            ).strip()
             if not project_id:
                 project_id = None
 
