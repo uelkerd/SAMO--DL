@@ -36,6 +36,7 @@ workflows:
             
       - name: data-preparation
         uses: script@v1
+        needs: [setup-environment]
         with:
           script: |
             # Data preparation step
@@ -45,7 +46,6 @@ workflows:
             python scripts/training/prepare_training_data.py
             
             echo "Data preparation completed"
-          needs: [setup-environment]
         outputs:
           prepared-data:
             type: dataset
@@ -54,6 +54,7 @@ workflows:
             
       - name: model-training
         uses: script@v1
+        needs: [data-preparation]
         with:
           script: |
             # Model training step
@@ -68,7 +69,6 @@ workflows:
               --log-interval 10
             
             echo "Model training completed"
-          needs: [data-preparation]
           resources:
             instance-type: V100  # Use more powerful GPU for training
         outputs:
@@ -83,6 +83,7 @@ workflows:
             
       - name: model-evaluation
         uses: script@v1
+        needs: [model-training]
         with:
           script: |
             # Model evaluation step
@@ -95,7 +96,6 @@ workflows:
               --output-path /outputs/evaluation-results
             
             echo "Model evaluation completed"
-          needs: [model-training]
         inputs:
           trained-model:
             type: dataset
@@ -113,6 +113,7 @@ workflows:
             
       - name: save-artifacts
         uses: script@v1
+        needs: [model-evaluation]
         with:
           script: |
             # Save final artifacts
@@ -132,7 +133,6 @@ workflows:
             else
               echo "No trained model artifacts found to copy."
             fi
-          needs: [model-evaluation]
         inputs:
           trained-model:
             type: dataset
