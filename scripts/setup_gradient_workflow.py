@@ -111,10 +111,10 @@ class GradientWorkflowSetup:
 
         try:
             workflow_config = yaml.safe_load(self.workflow_file.read_text())
-            
+
             # Validate that YAML loading returned a valid dict
             if not isinstance(workflow_config, dict):
-                print(f"❌ Invalid workflow file: YAML content is not a dictionary")
+                print("❌ Invalid workflow file: YAML content is not a dictionary")
                 return False
 
             # Basic validation
