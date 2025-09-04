@@ -47,7 +47,7 @@ logger.info("🔍 Registering root endpoint BEFORE Flask-RESTX initialization...
 def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX's root
     """Get API status and information"""
     try:
-        logger.info(f"Root endpoint accessed from {request.remote_addr}")
+        logger.info("Root endpoint accessed from %s", request.remote_addr)
         return jsonify({
             'service': 'SAMO Emotion Detection API',
             'status': 'operational',
@@ -57,7 +57,7 @@ def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX'
             'timestamp': time.time()
         })
     except Exception as e:
-        logger.error(f"Root endpoint error for {request.remote_addr}: {str(e)}")
+        logger.error("Root endpoint error for %s: %s", request.remote_addr, str(e))
         return create_error_response('Internal server error', 500)
 
 # Initialize Flask-RESTX API without Swagger to avoid 500 errors

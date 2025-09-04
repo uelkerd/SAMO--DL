@@ -24,7 +24,7 @@ logger.info("🔍 Test 1: Registering root endpoint BEFORE Flask-RESTX initializ
 @app.route('/')
 def home():
     """Get API status and information"""
-    logger.info(f"Root endpoint accessed from {request.remote_addr}")
+    logger.info("Root endpoint accessed from %s", request.remote_addr)
     return jsonify({
         'service': 'Test API',
         'status': 'operational',
@@ -43,7 +43,7 @@ try:
     )
     logger.info("✅ Flask-RESTX API initialized successfully")
 except Exception as e:
-    logger.error(f"❌ Flask-RESTX API initialization failed: {str(e)}")
+    logger.error("❌ Flask-RESTX API initialization failed: %s", str(e))
     sys.exit(1)
 
 # Test 3: Create namespaces - test with and without leading slashes
@@ -75,12 +75,12 @@ class AdminStatus(Resource):
 logger.info("🔍 Test 5: Registering error handlers...")
 def test_error_handler(error):
     """Handle test errors and return error response."""
-    logger.error(f"Test error handler: {str(error)}")
+    logger.error("Test error handler: %s", str(error))
     return {'error': 'Test error'}, 500
 
 def exception_error_handler(error):
     """Handle general exceptions and return error response."""
-    logger.error(f"Exception error handler: {str(error)}")
+    logger.error("Exception error handler: %s", str(error))
     return {'error': 'Exception occurred'}, 500
 
 try:
@@ -88,12 +88,12 @@ try:
     api.error_handlers[Exception] = exception_error_handler  # Add exception-level error handler
     logger.info("✅ Error handlers registered successfully")
 except Exception as e:
-    logger.error(f"❌ Error handler registration failed: {str(e)}")
+    logger.error("❌ Error handler registration failed: %s", str(e))
 
 # Test 6: Log final route state
 logger.info("🔍 Test 6: Final route registration check:")
 for rule in app.url_map.iter_rules():
-    logger.info(f"  Route: {rule.rule} -> {rule.endpoint} (methods: {list(rule.methods)})")
+    logger.info("  Route: %s -> %s (methods: %s)", rule.rule, rule.endpoint, list(rule.methods))
 
 if __name__ == '__main__':
     logger.info("🚀 Starting debug test server...")
