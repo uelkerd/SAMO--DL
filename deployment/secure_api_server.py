@@ -32,15 +32,26 @@ from ..src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
 from ..src.input_sanitizer import InputSanitizer, SanitizationConfig
 from ..src.security_setup import setup_security_middleware, get_environment
 
-# Configure logging
+# Configure logging based on environment
+log_level = os.environ.get('LOG_LEVEL', 'INFO').upper()
+numeric_level = getattr(logging, log_level, logging.INFO)
+
 logging.basicConfig(
-    level=logging.INFO,
+    level=numeric_level,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler('secure_api_server.log'),
         logging.StreamHandler()
     ]
 )
+
+# Configure Werkzeug logging based on environment
+werkzeug_logger = logging.getLogger('werkzeug')
+if os.environ.get('FLASK_ENV') == 'development' or os.environ.get('DEBUG') == 'true':
+    werkzeug_logger.setLevel(logging.DEBUG)
+else:
+    werkzeug_logger.setLevel(logging.WARNING)
+
 logger = logging.getLogger(__name__)
 
 # Initialize Flask app
@@ -229,18 +240,18 @@ class SecureEmotionDetectionModel:
             try:
                 if torch.cuda.is_available():
                     self.model = self.model.to('cuda')
-                    logger.info("✅ Model moved to GPU")
+                    logger.info("Model moved to GPU")
                 else:
-                    logger.info("⚠️ CUDA not available, using CPU")
+                    logger.info("CUDA not available, using CPU")
             except Exception:
                 # If torch is absent at runtime, remain on CPU
-                logger.info("⚠️ Torch not available, using CPU")
+                logger.info("Torch not available, using CPU")
 
             self.loaded = True
-            logger.info("✅ Secure model loaded successfully")
+            logger.info("Secure model loaded successfully")
 
         except Exception as e:
-            logger.error(f"❌ Failed to load secure model: {str(e)}. Falling back to stub mode.")
+            logger.error(f"Failed to load secure model: {str(e)}. Falling back to stub mode.")
             self.tokenizer = None
             self.model = None
             self.loaded = False
@@ -322,7 +333,7 @@ class SecureEmotionDetectionModel:
             raise
 
 # Secure model factory for explicit creation and testability
-logger.info("🔒 Secure model will be created via factory function")
+logger.info("Secure model will be created via factory function")
 
 def create_secure_model():
     """Factory function to create a SecureEmotionDetectionModel or a stub in CI/TEST.
@@ -695,34 +706,38 @@ def handle_internal_error(e):
     return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
-    logger.info("🔒 Starting Secure Emotion Detection API Server")
+    logger.info("Starting Secure Emotion Detection API Server")
     logger.info("=" * 60)
-    logger.info("🛡️ Security Features Enabled:")
-    logger.info("   ✅ Rate limiting with token bucket algorithm")
-    logger.info("   ✅ Input sanitization and validation")
-    logger.info("   ✅ Security headers (CSP, HSTS, X-Frame-Options)")
-    logger.info("   ✅ Request/response logging and monitoring")
-    logger.info("   ✅ IP whitelist/blacklist support")
-    logger.info("   ✅ Abuse detection and automatic blocking")
-    logger.info("   ✅ Request correlation and tracing")
+    logger.info("Security Features Enabled:")
+    logger.info("   - Rate limiting with token bucket algorithm")
+    logger.info("   - Input sanitization and validation")
+    logger.info("   - Security headers (CSP, HSTS, X-Frame-Options)")
+    logger.info("   - Request/response logging and monitoring")
+    logger.info("   - IP whitelist/blacklist support")
+    logger.info("   - Abuse detection and automatic blocking")
+    logger.info("   - Request correlation and tracing")
     logger.info("")
-    logger.info("📋 Available endpoints:")
-    logger.info("   GET  / - API documentation")
-    logger.info("   GET  /health - Health check with security metrics")
-    logger.info("   GET  /metrics - Detailed security metrics")
-    logger.info("   POST /predict - Secure single prediction")
-    logger.info("   POST /predict_batch - Secure batch prediction")
-    logger.info("   POST /security/blacklist - Add IP to blacklist (admin)")
-    logger.info("   POST /security/whitelist - Add IP to whitelist (admin)")
-    logger.info("")
-    logger.info("🚀 Server starting on http://localhost:8000")
-    logger.info("📝 Example usage:")
-    logger.info("   curl -X POST http://localhost:8000/predict \\")
-    logger.info("        -H 'Content-Type: application/json' \\")
-    logger.info("        -d '{\"text\": \"I am feeling happy today!\"}'")
-    logger.info("")
-    logger.info(f"🔒 Rate limiting: {rate_limit_config.requests_per_minute} requests per minute")
-    logger.info("🛡️ Security monitoring: Comprehensive logging and metrics enabled")
+
+    # Only log route information in development/debug mode
+    if os.environ.get('FLASK_ENV') == 'development' or os.environ.get('DEBUG') == 'true':
+        logger.info("Available endpoints:")
+        logger.info("   GET  / - API documentation")
+        logger.info("   GET  /health - Health check with security metrics")
+        logger.info("   GET  /metrics - Detailed security metrics")
+        logger.info("   POST /predict - Secure single prediction")
+        logger.info("   POST /predict_batch - Secure batch prediction")
+        logger.info("   POST /security/blacklist - Add IP to blacklist (admin)")
+        logger.info("   POST /security/whitelist - Add IP to whitelist (admin)")
+        logger.info("")
+        logger.info("Server starting on http://localhost:8000")
+        logger.info("Example usage:")
+        logger.info("   curl -X POST http://localhost:8000/predict \\")
+        logger.info("        -H 'Content-Type: application/json' \\")
+        logger.info("        -d '{\"text\": \"I am feeling happy today!\"}'")
+        logger.info("")
+
+    logger.info(f"Rate limiting: {rate_limit_config.requests_per_minute} requests per minute")
+    logger.info("Security monitoring: Comprehensive logging and metrics enabled")
     logger.info("=" * 60)
-    
-    app.run(host='0.0.0.0', port=8000, debug=False) 
+
+    app.run(host='0.0.0.0', port=8000, debug=False)
