@@ -47,10 +47,7 @@ logging.basicConfig(
 
 # Configure Werkzeug logging based on environment
 werkzeug_logger = logging.getLogger('werkzeug')
-if os.environ.get('FLASK_ENV') == 'development' or os.environ.get('DEBUG') == 'true':
-    werkzeug_logger.setLevel(logging.DEBUG)
-else:
-    werkzeug_logger.setLevel(logging.WARNING)
+werkzeug_logger.setLevel(numeric_level)
 
 logger = logging.getLogger(__name__)
 
