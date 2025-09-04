@@ -26,8 +26,10 @@ from model_utils import (
 )
 
 # Configure logging for Cloud Run
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "DEBUG").upper()
+log_level = getattr(logging, LOG_LEVEL, logging.DEBUG)
 logging.basicConfig(
-    level=logging.DEBUG,  # Changed to DEBUG for detailed logging
+    level=log_level,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
@@ -469,7 +471,8 @@ def rate_limit_exceeded(error):
 def internal_error(error):
     """Handle internal server errors"""
     logger.error(f"Internal server error for {request.remote_addr}: {str(error)}")
-    return create_error_response('Internal server error', 500)
+    # Re-raise the exception after logging for proper error propagation
+    raise error
 
 def not_found(error):
     """Handle not found errors"""
@@ -527,7 +530,7 @@ def initialize_model():
 if __name__ == '__main__':
     initialize_model()
     logger.info(f"🌐 Starting Flask development server on port {PORT}")
-    app.run(host='0.0.0.0', port=PORT, debug=False)
+    app.run(host='127.0.0.1', port=PORT, debug=False)
 else:
     # For production deployment - don't initialize during import
     # Model will be initialized when the app actually starts

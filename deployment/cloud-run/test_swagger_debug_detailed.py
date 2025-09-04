@@ -8,7 +8,7 @@ import requests
 import traceback
 
 # Set required environment variables
-os.environ['ADMIN_API_KEY'] = 'test-key-123'
+os.environ['ADMIN_API_KEY'] = os.environ.get('TEST_ADMIN_API_KEY', 'test-key-123')
 os.environ['MAX_INPUT_LENGTH'] = '512'
 os.environ['RATE_LIMIT_PER_MINUTE'] = '100'
 os.environ['MODEL_PATH'] = '/app/model'
@@ -25,7 +25,7 @@ try:
     
     def run_server():
         try:
-            app.run(host='0.0.0.0', port=8084, debug=False)
+            app.run(host='127.0.0.1', port=8084, debug=False)
         except Exception as e:
             print(f"❌ Server error: {e}")
             traceback.print_exc()

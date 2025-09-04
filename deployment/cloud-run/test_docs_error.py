@@ -7,7 +7,7 @@ import os
 import requests
 
 # Set required environment variables
-os.environ['ADMIN_API_KEY'] = 'test-key-123'
+os.environ['ADMIN_API_KEY'] = os.environ.get('TEST_ADMIN_API_KEY', 'test-key-123')
 os.environ['MAX_INPUT_LENGTH'] = '512'
 os.environ['RATE_LIMIT_PER_MINUTE'] = '100'
 os.environ['MODEL_PATH'] = '/app/model'
@@ -21,7 +21,7 @@ try:
     # Start server in background
     import threading
     def run_server():
-        app.run(host='0.0.0.0', port=8082, debug=False)
+        app.run(host='127.0.0.1', port=8082, debug=False)
     
     server_thread = threading.Thread(target=run_server, daemon=True)
     server_thread.start()

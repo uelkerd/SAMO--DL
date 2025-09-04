@@ -8,7 +8,7 @@ from flask_restx import Api, Resource, Namespace
 import sys
 
 # Set up environment variables
-os.environ['ADMIN_API_KEY'] = 'test123'
+os.environ['ADMIN_API_KEY'] = os.environ.get('TEST_ADMIN_API_KEY', 'test123')
 
 # Configure detailed logging
 logging.basicConfig(
