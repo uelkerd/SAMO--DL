@@ -22,13 +22,10 @@ class TestAPIRouting(unittest.TestCase):
             self.app = Flask(__name__)
 
             # Register root endpoint BEFORE Flask-RESTX initialization
-            try:
-                @self.app.route('/')
-                def root():
-                    """Return the root endpoint message."""
-                    return jsonify({'message': 'Root endpoint'})
-            except Exception as e:
-                raise
+            @self.app.route('/')
+            def root():
+                """Return the root endpoint message."""
+                return jsonify({'message': 'Root endpoint'})
 
             # Initialize Flask-RESTX API
             self.api = Api(
