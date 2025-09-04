@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🧪 API Routing Fixes Verification
+API Routing Fixes Verification
 ==================================
 Simple test to verify Flask-RESTX routing fixes without heavy dependencies.
 """
@@ -78,7 +78,7 @@ class TestRoutingFixes(unittest.TestCase):
                     content = f.read()
 
                 # Find root route and API initialization
-                root_route_match = re.search(r"@app\.route\('/', methods=\['GET'\]\)|@app\.route\('/'\)", content)
+                root_route_match = re.search(r"@app\.route\('/', methods=\['GET'\]\)|@app\.route\('/', methods=\[\"GET\"\]\)|@app\.route\('/'\)", content)
                 api_init_match = re.search(r"api = Api\(.*?\)", content, re.DOTALL)
 
                 if root_route_match and api_init_match:

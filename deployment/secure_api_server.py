@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🔒 SECURE EMOTION DETECTION API SERVER
+SECURE EMOTION DETECTION API SERVER
 ======================================
 Production-ready Flask API server with comprehensive security features.
 
