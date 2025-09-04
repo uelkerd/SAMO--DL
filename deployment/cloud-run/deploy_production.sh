@@ -146,6 +146,12 @@ print_success "📊 Health endpoint: ${SERVICE_URL}/health"
 print_success "🔮 Prediction endpoint: ${SERVICE_URL}/predict"
 print_success "📈 Metrics endpoint: ${SERVICE_URL}/metrics"
 
+# PLACEHOLDER: NEXT DEPLOYMENT STEP - Deploy enhanced API with Priority 1 Features
+# TODO: Update Docker image to include JWT authentication
+# TODO: Add voice transcription and summarization endpoints
+# TODO: Configure WebSocket support for real-time processing
+# TODO: Deploy monitoring dashboard alongside API
+
 echo ""
 print_success "Production Deployment Summary:"
 echo "  - Service: ${SERVICE_NAME}"

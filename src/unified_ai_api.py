@@ -1522,7 +1522,13 @@ async def transcribe_voice(
     timestamp: bool = Form(False, description="Include word-level timestamps"),
     current_user: TokenPayload = Depends(get_current_user),
 ) -> VoiceTranscription:
-    """Enhanced voice transcription with detailed analysis."""
+    """Enhanced voice transcription with detailed analysis.
+    
+    # PLACEHOLDER: NEXT STEP - Add real Whisper model integration
+    # TODO: Load actual Whisper model based on model_size parameter  
+    # TODO: Implement audio quality checks and preprocessing
+    # TODO: Add confidence scoring and language detection
+    """
     start_time = time.time()
 
     try:
@@ -1758,7 +1764,13 @@ async def summarize_text(
     # Removed do_sample to keep API contract accurate; summarizer uses beam search
     current_user: TokenPayload = Depends(get_current_user),
 ) -> TextSummary:
-    """Enhanced text summarization with multiple model options."""
+    """Enhanced text summarization with multiple model options.
+    
+    # PLACEHOLDER: CONTINUE HERE - Integrate real T5 model for summarization
+    # TODO: Load T5 model based on model parameter
+    # TODO: Implement emotion-aware summarization
+    # TODO: Add quality validation and confidence scoring
+    """
     start_time = time.time()
 
     try:
