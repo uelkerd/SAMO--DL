@@ -28,6 +28,7 @@ class TestAPIRouting(unittest.TestCase):
             try:
                 @self.app.route('/')
                 def root():
+                    """Return the root endpoint message."""
                     return jsonify({'message': 'Root endpoint'})
                 print("✅ Root endpoint added successfully")
             except Exception as e:

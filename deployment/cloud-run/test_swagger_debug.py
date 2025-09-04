@@ -13,6 +13,7 @@ app = Flask(__name__)
 # Register root endpoint BEFORE Flask-RESTX initialization to avoid conflicts
 @app.route('/')
 def api_root():  # Different function name to avoid conflict
+    """Return the root endpoint message."""
     return jsonify({'message': 'Root endpoint'})
 
 # Initialize Flask-RESTX API

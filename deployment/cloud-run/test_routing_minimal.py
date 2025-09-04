@@ -13,11 +13,13 @@ app = Flask(__name__)
 # Register root endpoint BEFORE Flask-RESTX initialization to avoid conflicts
 @app.route('/')
 def root():
+    """Return the root endpoint message."""
     return jsonify({'message': 'Root endpoint'})
 
 # Test direct Flask route BEFORE API setup
 @app.route('/test_before')
 def test_before():
+    """Return a test message for routes added before API setup."""
     return jsonify({'message': 'This route was added before API setup'})
 
 # Initialize Flask-RESTX API

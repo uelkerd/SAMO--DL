@@ -61,17 +61,20 @@ logger.info("✅ Namespaces added successfully")
 class Health(Resource):
     @staticmethod
     def get():
+        """Return the health status of the service."""
         return {'status': 'healthy'}
 
 @admin_ns.route('/status')
 class AdminStatus(Resource):
     @staticmethod
     def get():
+        """Return the admin status of the service."""
         return {'admin_status': 'ok'}
 
 # Test 5: Register error handlers
 logger.info("🔍 Test 5: Registering error handlers...")
 def test_error_handler(error):
+    """Handle test errors and return error response."""
     logger.error(f"Test error handler: {str(error)}")
     return {'error': 'Test error'}, 500
 
