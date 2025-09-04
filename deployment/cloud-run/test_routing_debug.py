@@ -55,7 +55,7 @@ class TestAPIRouting(unittest.TestCase):
 
             # Test endpoint in namespace
             @main_ns.route('/health')
-            class Health(Resource):
+            class _Health(Resource):
                 @staticmethod
                 def get():
                     return {'status': 'healthy'}
