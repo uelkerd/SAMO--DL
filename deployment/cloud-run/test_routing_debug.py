@@ -9,6 +9,8 @@ import unittest
 from unittest.mock import patch
 
 class TestAPIRouting(unittest.TestCase):
+    """Test case for validating Flask-RESTX API routing behavior and endpoint conflicts."""
+
     def setUp(self):
         """Set up test fixtures and mock objects for API routing tests."""
         # Set env vars before import if needed
@@ -43,6 +45,8 @@ class TestAPIRouting(unittest.TestCase):
             # Test endpoint in namespace
             @main_ns.route('/health')
             class _Health(Resource):
+                """A Flask-RESTX resource for handling health check requests."""
+
                 @staticmethod
                 def get():
                     """Return health status of the service."""

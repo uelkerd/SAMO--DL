@@ -59,6 +59,8 @@ logger.info("✅ Namespaces added successfully")
 # Test 4: Register routes in namespaces
 @main_ns.route('/health')
 class Health(Resource):
+    """A Flask-RESTX resource for handling health status requests."""
+
     @staticmethod
     def get():
         """Return the health status of the service."""
@@ -66,6 +68,8 @@ class Health(Resource):
 
 @admin_ns.route('/status')
 class AdminStatus(Resource):
+    """A Flask-RESTX resource for handling admin status requests."""
+
     @staticmethod
     def get():
         """Return the admin status of the service."""
