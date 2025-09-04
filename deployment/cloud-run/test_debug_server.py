@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""
-Debug test server to validate Flask-RESTX hypotheses
-"""
+"""Debug test server to validate Flask-RESTX hypotheses"""
 
 import os
 import logging
 from flask import Flask, request, jsonify
 from flask_restx import Api, Resource, Namespace
+import sys
 
 # Set up environment variables
 os.environ['ADMIN_API_KEY'] = 'test123'
@@ -45,7 +44,7 @@ try:
     logger.info("✅ Flask-RESTX API initialized successfully")
 except Exception as e:
     logger.error(f"❌ Flask-RESTX API initialization failed: {str(e)}")
-    exit(1)
+    sys.exit(1)
 
 # Test 3: Create namespaces - test with and without leading slashes
 logger.info("🔍 Test 3: Creating namespaces...")
@@ -60,12 +59,14 @@ logger.info("✅ Namespaces added successfully")
 # Test 4: Register routes in namespaces
 @main_ns.route('/health')
 class Health(Resource):
-    def get(self):
+    @staticmethod
+    def get():
         return {'status': 'healthy'}
 
 @admin_ns.route('/status')
 class AdminStatus(Resource):
-    def get(self):
+    @staticmethod
+    def get():
         return {'admin_status': 'ok'}
 
 # Test 5: Register error handlers

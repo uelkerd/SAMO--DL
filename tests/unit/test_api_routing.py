@@ -9,7 +9,7 @@ import sys
 import os
 import unittest
 import json
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 # Add the deployment/cloud-run directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'deployment', 'cloud-run'))

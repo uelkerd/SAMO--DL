@@ -4,8 +4,6 @@
 ==================================
 Simple test to verify Flask-RESTX routing fixes without heavy dependencies.
 """
-
-import sys
 import os
 import unittest
 import re
