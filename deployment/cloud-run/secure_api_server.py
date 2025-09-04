@@ -83,7 +83,7 @@ try:
     )
     logger.info("✅ Flask-RESTX API initialized successfully")
 except Exception as e:
-    logger.error(f"❌ Flask-RESTX API initialization failed: {str(e)}")
+    logger.exception("❌ Flask-RESTX API initialization failed")
     raise
 
 # Create namespaces for better organization
