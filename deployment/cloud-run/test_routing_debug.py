@@ -55,7 +55,8 @@ class TestAPIRouting(unittest.TestCase):
             # Test endpoint in namespace
             @main_ns.route('/health')
             class Health(Resource):
-                def get(self):
+                @staticmethod
+                def get():
                     return {'status': 'healthy'}
 
             print("\n=== After adding namespace route ===")
@@ -100,58 +101,46 @@ class TestAPIRouting(unittest.TestCase):
     def test_routing_71(self):
         if False:  # Runtime skip check
             self.skipTest("Another test skip")
-        # Additional test
-        pass
 
     def test_routing_82(self):
         if False:  # Runtime skip check
             self.skipTest("Test skip 82")
-        pass
 
     def test_routing_94(self):
         if False:  # Runtime skip check
             self.skipTest("Test skip 94")
-        pass
 
     def test_routing_111(self):
         if False:  # Runtime skip check
             self.skipTest("Test skip 111")
-        pass
 
     def test_routing_123(self):
         if False:  # Runtime skip check
             self.skipTest("Test skip 123")
-        pass
 
     def test_routing_139(self):
         if False:  # Runtime skip check
             self.skipTest("Test skip 139")
-        pass
 
     def test_routing_151(self):
         if False:  # Runtime skip check
             self.skipTest("Test skip 151")
-        pass
 
     def test_routing_161(self):
         if False:  # Runtime skip check
             self.skipTest("Test skip 161")
-        pass
 
     def test_routing_174(self):
         if False:  # Runtime skip check
             self.skipTest("Test skip 174")
-        pass
 
     def test_routing_187(self):
         if False:  # Runtime skip check
             self.skipTest("Test skip 187")
-        pass
 
     def test_routing_200(self):
         if False:  # Runtime skip check
             self.skipTest("Test skip 200")
-        pass
 
 if __name__ == '__main__':
     unittest.main()
