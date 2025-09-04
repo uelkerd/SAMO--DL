@@ -98,37 +98,37 @@ class TestAPIRouting(unittest.TestCase):
                 print(f"  View function: {rule.endpoint}")
 
     def test_routing_71(self):
-        pass
+        raise NotImplementedError()
 
     def test_routing_82(self):
-        pass
+        raise NotImplementedError()
 
     def test_routing_94(self):
-        pass
+        raise NotImplementedError()
 
     def test_routing_111(self):
-        pass
+        raise NotImplementedError()
 
     def test_routing_123(self):
-        pass
+        raise NotImplementedError()
 
     def test_routing_139(self):
-        pass
+        raise NotImplementedError()
 
     def test_routing_151(self):
-        pass
+        raise NotImplementedError()
 
     def test_routing_161(self):
-        pass
+        raise NotImplementedError()
 
     def test_routing_174(self):
-        pass
+        raise NotImplementedError()
 
     def test_routing_187(self):
-        pass
+        raise NotImplementedError()
 
     def test_routing_200(self):
-        pass
+        raise NotImplementedError()
 
 if __name__ == '__main__':
     unittest.main()
