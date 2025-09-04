@@ -75,8 +75,13 @@ def test_error_handler(error):
     logger.error(f"Test error handler: {str(error)}")
     return {'error': 'Test error'}, 500
 
+def exception_error_handler(error):
+    logger.error(f"Exception error handler: {str(error)}")
+    return {'error': 'Exception occurred'}, 500
+
 try:
     api.error_handlers[500] = test_error_handler
+    api.error_handlers[Exception] = exception_error_handler  # Add exception-level error handler
     logger.info("✅ Error handlers registered successfully")
 except Exception as e:
     logger.error(f"❌ Error handler registration failed: {str(e)}")
