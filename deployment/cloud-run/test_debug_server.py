@@ -79,6 +79,7 @@ def test_error_handler(error):
     return {'error': 'Test error'}, 500
 
 def exception_error_handler(error):
+    """Handle general exceptions and return error response."""
     logger.error(f"Exception error handler: {str(error)}")
     return {'error': 'Exception occurred'}, 500
 

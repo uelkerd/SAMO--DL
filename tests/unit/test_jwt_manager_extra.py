@@ -8,6 +8,7 @@ from src.security.jwt_manager import JWTManager
 
 
 def test_create_token_pair_structure():
+    """Test the structure of token pair created by JWTManager."""
     mgr = JWTManager()
     token_pair = mgr.create_token_pair(
         {
@@ -27,11 +28,13 @@ def test_create_token_pair_structure():
 
 
 def test_verify_invalid_token_returns_none():
+    """Test that verifying an invalid token returns None."""
     mgr = JWTManager()
     assert mgr.verify_token("not-a-jwt") is None
 
 
 def test_blacklist_and_cleanup_flow(monkeypatch):
+    """Test token blacklisting and cleanup of expired tokens."""
     mgr = JWTManager()
     # Create a token and blacklist it using public API
     token = mgr.create_access_token(
@@ -64,6 +67,7 @@ def test_blacklist_and_cleanup_flow(monkeypatch):
 
 
 def test_refresh_access_token_success_and_failure():
+    """Test successful and failed access token refresh scenarios."""
     mgr = JWTManager()
     user = {
         "user_id": "u3",
@@ -89,6 +93,7 @@ def test_refresh_access_token_success_and_failure():
 
 
 def test_permissions_helpers():
+    """Test JWT permission checking helper functions."""
     mgr = JWTManager()
     user = {
         "user_id": "u4",

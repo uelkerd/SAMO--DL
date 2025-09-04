@@ -8,6 +8,7 @@ from src.unified_ai_api import app
 
 
 def test_http_exception_handler_400_detail_shape():
+    """Test HTTP exception handler response shape for 400 status code."""
     client = TestClient(app)
 
     @app.get("/__raise_400_test__")
@@ -22,6 +23,7 @@ def test_http_exception_handler_400_detail_shape():
 
 
 def test_http_exception_handler_500_shape():
+    """Test HTTP exception handler response shape for 500 status code."""
     client = TestClient(app)
 
     @app.get("/__raise_500_test__")
@@ -36,6 +38,7 @@ def test_http_exception_handler_500_shape():
 
 
 def test_http_exception_handler_other_4xx_codes():
+    """Test HTTP exception handler for other 4xx status codes."""
     client = TestClient(app)
 
     @app.get("/__raise_401_test__")

@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 class TestAPIRouting(unittest.TestCase):
     def setUp(self):
+        """Set up test fixtures and mock objects for API routing tests."""
         # Set env vars before import if needed
         # Patch functions to avoid actual initialization
         with patch('flask_restx.Api') as mock_api, \
@@ -20,19 +21,14 @@ class TestAPIRouting(unittest.TestCase):
             # Create Flask app
             self.app = Flask(__name__)
 
-            print("=== After Flask app creation ===")
-            print("App routes:", [rule.rule for rule in self.app.url_map.iter_rules()])
-
             # Register root endpoint BEFORE Flask-RESTX initialization
-            print("\n=== Registering root endpoint BEFORE Flask-RESTX ===")
             try:
                 @self.app.route('/')
                 def root():
                     """Return the root endpoint message."""
                     return jsonify({'message': 'Root endpoint'})
-                print("✅ Root endpoint added successfully")
             except Exception as e:
-                print(f"❌ Failed to add root endpoint: {e}")
+                raise
 
             # Initialize Flask-RESTX API
             self.api = Api(
@@ -43,35 +39,26 @@ class TestAPIRouting(unittest.TestCase):
                 doc='/docs'
             )
 
-            print("\n=== After API creation ===")
-            print("App routes:", [rule.rule for rule in self.app.url_map.iter_rules()])
-
             # Create namespace
             main_ns = Namespace('api', description='Main operations')
             self.api.add_namespace(main_ns)
-
-            print("\n=== After adding namespace ===")
-            print("App routes:", [rule.rule for rule in self.app.url_map.iter_rules()])
 
             # Test endpoint in namespace
             @main_ns.route('/health')
             class _Health(Resource):
                 @staticmethod
                 def get():
+                    """Return health status of the service."""
                     return {'status': 'healthy'}
-
-            print("\n=== After adding namespace route ===")
-            print("App routes:", [rule.rule for rule in self.app.url_map.iter_rules()])
 
             # Test direct Flask route
             @self.app.route('/test')
             def test():
+                """Test route that returns a simple JSON response."""
                 return jsonify({'message': 'Test route'})
 
-            print("\n=== After adding Flask route ===")
-            print("App routes:", [rule.rule for rule in self.app.url_map.iter_rules()])
-
     def test_routing_58(self):
+        """Test routing configuration and check for endpoint conflicts."""
         print("\n=== Final state ===")
         print("App routes:", [rule.rule for rule in self.app.url_map.iter_rules()])
 
@@ -98,36 +85,47 @@ class TestAPIRouting(unittest.TestCase):
                 print(f"  View function: {rule.endpoint}")
 
     def test_routing_71(self):
+        """Test routing behavior for line 71."""
         raise NotImplementedError()
 
     def test_routing_82(self):
+        """Test routing behavior for line 82."""
         raise NotImplementedError()
 
     def test_routing_94(self):
+        """Test routing behavior for line 94."""
         raise NotImplementedError()
 
     def test_routing_111(self):
+        """Test routing behavior for line 111."""
         raise NotImplementedError()
 
     def test_routing_123(self):
+        """Test routing behavior for line 123."""
         raise NotImplementedError()
 
     def test_routing_139(self):
+        """Test routing behavior for line 139."""
         raise NotImplementedError()
 
     def test_routing_151(self):
+        """Test routing behavior for line 151."""
         raise NotImplementedError()
 
     def test_routing_161(self):
+        """Test routing behavior for line 161."""
         raise NotImplementedError()
 
     def test_routing_174(self):
+        """Test routing behavior for line 174."""
         raise NotImplementedError()
 
     def test_routing_187(self):
+        """Test routing behavior for line 187."""
         raise NotImplementedError()
 
     def test_routing_200(self):
+        """Test routing behavior for line 200."""
         raise NotImplementedError()
 
 if __name__ == '__main__':
