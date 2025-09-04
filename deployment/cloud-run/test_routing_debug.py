@@ -72,8 +72,6 @@ class TestAPIRouting(unittest.TestCase):
             print("App routes:", [rule.rule for rule in self.app.url_map.iter_rules()])
 
     def test_routing_58(self):
-        if False:  # Runtime skip check
-            self.skipTest("Test skip that never skips")
         print("\n=== Final state ===")
         print("App routes:", [rule.rule for rule in self.app.url_map.iter_rules()])
 
@@ -100,48 +98,37 @@ class TestAPIRouting(unittest.TestCase):
                 print(f"  View function: {rule.endpoint}")
 
     def test_routing_71(self):
-        if False:  # Runtime skip check
-            self.skipTest("Another test skip")
+        pass
 
     def test_routing_82(self):
-        if False:  # Runtime skip check
-            self.skipTest("Test skip 82")
+        pass
 
     def test_routing_94(self):
-        if False:  # Runtime skip check
-            self.skipTest("Test skip 94")
+        pass
 
     def test_routing_111(self):
-        if False:  # Runtime skip check
-            self.skipTest("Test skip 111")
+        pass
 
     def test_routing_123(self):
-        if False:  # Runtime skip check
-            self.skipTest("Test skip 123")
+        pass
 
     def test_routing_139(self):
-        if False:  # Runtime skip check
-            self.skipTest("Test skip 139")
+        pass
 
     def test_routing_151(self):
-        if False:  # Runtime skip check
-            self.skipTest("Test skip 151")
+        pass
 
     def test_routing_161(self):
-        if False:  # Runtime skip check
-            self.skipTest("Test skip 161")
+        pass
 
     def test_routing_174(self):
-        if False:  # Runtime skip check
-            self.skipTest("Test skip 174")
+        pass
 
     def test_routing_187(self):
-        if False:  # Runtime skip check
-            self.skipTest("Test skip 187")
+        pass
 
     def test_routing_200(self):
-        if False:  # Runtime skip check
-            self.skipTest("Test skip 200")
+        pass
 
 if __name__ == '__main__':
     unittest.main()
