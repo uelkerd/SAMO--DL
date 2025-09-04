@@ -27,10 +27,14 @@ from model_utils import (
 
 # Configure logging for Cloud Run
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,  # Changed to DEBUG for detailed logging
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Add detailed logging for Flask-RESTX debugging
+werkzeug_logger = logging.getLogger('werkzeug')
+werkzeug_logger.setLevel(logging.DEBUG)
 
 app = Flask(__name__)
 
@@ -38,6 +42,7 @@ app = Flask(__name__)
 add_security_headers(app)
 
 # Register root endpoint BEFORE Flask-RESTX initialization to avoid conflicts
+logger.info("🔍 Registering root endpoint BEFORE Flask-RESTX initialization...")
 @app.route('/')
 def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX's root
     """Get API status and information"""
@@ -56,26 +61,33 @@ def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX'
         return create_error_response('Internal server error', 500)
 
 # Initialize Flask-RESTX API without Swagger to avoid 500 errors
-api = Api(
-    app,
-    version='2.0.0',
-    title='SAMO Emotion Detection API',
-    description='Secure, production-ready emotion detection API with comprehensive security features',
-    # Temporarily disable Swagger docs to avoid 500 errors
-    # doc='/docs',
-    authorizations={
-        'apikey': {
-            'type': 'apiKey',
-            'in': 'header',
-            'name': 'X-API-Key'
-        }
-    },
-    security='apikey'
-)
+logger.info("🔍 Initializing Flask-RESTX API...")
+try:
+    api = Api(
+        app,
+        version='2.0.0',
+        title='SAMO Emotion Detection API',
+        description='Secure, production-ready emotion detection API with comprehensive security features',
+        # Temporarily disable Swagger docs to avoid 500 errors
+        # doc='/docs',
+        authorizations={
+            'apikey': {
+                'type': 'apiKey',
+                'in': 'header',
+                'name': 'X-API-Key'
+            }
+        },
+        security='apikey'
+    )
+    logger.info("✅ Flask-RESTX API initialized successfully")
+except Exception as e:
+    logger.error(f"❌ Flask-RESTX API initialization failed: {str(e)}")
+    raise
 
 # Create namespaces for better organization
+logger.info("🔍 Creating namespaces...")
 main_ns = Namespace('api', description='Main API operations')  # Removed leading slash to avoid double slashes
-admin_ns = Namespace('/admin', description='Admin operations', authorizations={
+admin_ns = Namespace('admin', description='Admin operations', authorizations={
     'apikey': {
         'type': 'apiKey',
         'in': 'header',
@@ -84,8 +96,10 @@ admin_ns = Namespace('/admin', description='Admin operations', authorizations={
 })
 
 # Add namespaces to API
+logger.info("🔍 Adding namespaces to API...")
 api.add_namespace(main_ns)
 api.add_namespace(admin_ns)
+logger.info("✅ Namespaces added successfully")
 
 # Define request/response models for Swagger
 text_input_model = api.model('TextInput', {
@@ -473,11 +487,17 @@ def handle_unexpected_error(error):
     return create_error_response('An unexpected error occurred', 500)
 
 # Register error handlers directly
-api.error_handlers[429] = rate_limit_exceeded
-api.error_handlers[500] = internal_error
-api.error_handlers[404] = not_found
-api.error_handlers[405] = method_not_allowed
-api.error_handlers[Exception] = handle_unexpected_error
+logger.info("🔍 Registering error handlers...")
+try:
+    api.error_handlers[429] = rate_limit_exceeded
+    api.error_handlers[500] = internal_error
+    api.error_handlers[404] = not_found
+    api.error_handlers[405] = method_not_allowed
+    api.error_handlers[Exception] = handle_unexpected_error
+    logger.info("✅ Error handlers registered successfully")
+except Exception as e:
+    logger.error(f"❌ Error handler registration failed: {str(e)}")
+    logger.error("This may be causing 500 errors in Swagger docs")
 
 def initialize_model():
     """Initialize the emotion detection model"""
@@ -487,13 +507,18 @@ def initialize_model():
         logger.info(f"🔐 Security: API key protection enabled, Admin API key configured")
         logger.info(f"🌐 Server: Port {PORT}, Model path: {MODEL_PATH}")
         logger.info(f"🔄 Rate limiting: {RATE_LIMIT_PER_MINUTE} requests per minute")
-        
+
+        # Log all registered routes for debugging
+        logger.info("🔍 Final route registration check:")
+        for rule in app.url_map.iter_rules():
+            logger.info(f"  Route: {rule.rule} -> {rule.endpoint} (methods: {list(rule.methods)})")
+
         # Load the emotion detection model
         logger.info("🔄 Loading emotion detection model...")
         load_model()
         logger.info("✅ Model initialization completed successfully")
         logger.info("🚀 API server ready to handle requests")
-        
+
     except Exception as e:
         logger.error(f"❌ Failed to initialize API server: {str(e)}")
         raise

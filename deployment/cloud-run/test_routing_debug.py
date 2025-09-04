@@ -12,6 +12,16 @@ app = Flask(__name__)
 print("=== After Flask app creation ===")
 print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
 
+# Register root endpoint BEFORE Flask-RESTX initialization
+print("\n=== Registering root endpoint BEFORE Flask-RESTX ===")
+try:
+    @app.route('/')
+    def root():
+        return jsonify({'message': 'Root endpoint'})
+    print("✅ Root endpoint added successfully")
+except Exception as e:
+    print(f"❌ Failed to add root endpoint: {e}")
+
 # Initialize Flask-RESTX API
 api = Api(
     app,
@@ -25,7 +35,7 @@ print("\n=== After API creation ===")
 print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
 
 # Create namespace
-main_ns = Namespace('/api', description='Main operations')
+main_ns = Namespace('api', description='Main operations')
 api.add_namespace(main_ns)
 
 print("\n=== After adding namespace ===")
@@ -47,16 +57,6 @@ def test():
 
 print("\n=== After adding Flask route ===")
 print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
-
-# Now try to add root endpoint
-print("\n=== Trying to add root endpoint ===")
-try:
-    @app.route('/')
-    def root():
-        return jsonify({'message': 'Root endpoint'})
-    print("✅ Root endpoint added successfully")
-except Exception as e:
-    print(f"❌ Failed to add root endpoint: {e}")
 
 print("\n=== Final state ===")
 print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
