@@ -170,6 +170,17 @@ def secure_endpoint(f):
     
     return decorated_function
 
+
+class _ClientError(Exception):
+    """Lightweight exception with HTTP status and error type for client faults."""
+
+    def __init__(self, message: str, status_code: int, error_type: str) -> None:
+        super().__init__(message)
+        self.message = message
+        self.status_code = status_code
+        self.error_type = error_type
+
+
 class SecureEmotionDetectionModel:
     def __init__(self):
         """Initialize the secure emotion detection model."""
@@ -430,15 +441,6 @@ def require_admin_api_key(f):
             return jsonify({"error": "Unauthorized: admin API key required"}), 403
         return f(*args, **kwargs)
     return decorated_function
-
-class _ClientError(Exception):
-    """Lightweight exception with HTTP status and error type for client faults."""
-
-    def __init__(self, message: str, status_code: int, error_type: str) -> None:
-        super().__init__(message)
-        self.message = message
-        self.status_code = status_code
-        self.error_type = error_type
 
 
 def _get_json_payload_or_raise():
