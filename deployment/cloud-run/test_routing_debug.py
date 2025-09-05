@@ -13,50 +13,43 @@ class TestAPIRouting(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures and mock objects for API routing tests."""
-        # Set env vars before import if needed
-        # Patch functions to avoid actual initialization
-        with patch(f'{__name__}.Api') as mock_api, \
-             patch(f'{__name__}.Namespace') as mock_ns:
-            self.mock_api = mock_api
-            self.mock_ns = mock_ns
+        # Create Flask app
+        self.app = Flask(__name__)
 
-            # Create Flask app
-            self.app = Flask(__name__)
+        # Register root endpoint BEFORE Flask-RESTX initialization
+        @self.app.route('/')
+        def root():
+            """Return the root endpoint message."""
+            return jsonify({'message': 'Root endpoint'})
 
-            # Register root endpoint BEFORE Flask-RESTX initialization
-            @self.app.route('/')
-            def root():
-                """Return the root endpoint message."""
-                return jsonify({'message': 'Root endpoint'})
+        # Initialize Flask-RESTX API with real classes (no patching needed for route registration)
+        self.api = Api(
+            self.app,
+            version='1.0.0',
+            title='Test API',
+            description='Minimal test to isolate routing issues',
+            doc='/docs'
+        )
 
-            # Initialize Flask-RESTX API
-            self.api = Api(
-                self.app,
-                version='1.0.0',
-                title='Test API',
-                description='Minimal test to isolate routing issues',
-                doc='/docs'
-            )
+        # Create namespace with real class
+        main_ns = Namespace('api', description='Main operations')
+        self.api.add_namespace(main_ns)
 
-            # Create namespace
-            main_ns = Namespace('api', description='Main operations')
-            self.api.add_namespace(main_ns)
+        # Test endpoint in namespace
+        @main_ns.route('/health')
+        class _Health(Resource):
+            """A Flask-RESTX resource for handling health check requests."""
 
-            # Test endpoint in namespace
-            @main_ns.route('/health')
-            class _Health(Resource):
-                """A Flask-RESTX resource for handling health check requests."""
+            @staticmethod
+            def get():
+                """Return health status of the service."""
+                return {'status': 'healthy'}
 
-                @staticmethod
-                def get():
-                    """Return health status of the service."""
-                    return {'status': 'healthy'}
-
-            # Test direct Flask route
-            @self.app.route('/test')
-            def test():
-                """Test route that returns a simple JSON response."""
-                return jsonify({'message': 'Test route'})
+        # Test direct Flask route
+        @self.app.route('/test')
+        def test():
+            """Test route that returns a simple JSON response."""
+            return jsonify({'message': 'Test route'})
 
     def test_routing_58(self):
         """Test routing configuration and check for endpoint conflicts."""
