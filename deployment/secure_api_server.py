@@ -678,11 +678,13 @@ def nlp_emotion():
         except (ImportError, ValueError) as e:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='provider_error')
-            return jsonify({'error': f'Emotion provider misconfiguration: {str(e)}'}), 503
+            logger.error("Emotion provider misconfiguration: %s", e, exc_info=True)
+            return jsonify({'error': 'Emotion provider misconfiguration.'}), 503
         except Exception as e:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='provider_error')
-            return jsonify({'error': f'Unknown provider error: {str(e)}'}), 500
+            logger.error("Unknown provider error in /nlp/emotion", exc_info=True)
+            return jsonify({'error': 'Internal server error'}), 500
 
         results = service.classify(sanitized_text)
 
@@ -759,14 +761,19 @@ def nlp_emotion_batch():
             update_metrics(
                 response_time, success=False, error_type='provider_error'
             )
-            return jsonify({'error': f'Emotion provider misconfiguration: {str(e)}'}), 503
+            logger.error(
+                "Emotion provider misconfiguration: %s", str(e), exc_info=True
+            )
+            return jsonify({'error': 'Emotion provider misconfiguration.'}), 503
         except Exception as e:
             response_time = time.time() - start_time
             update_metrics(
                 response_time, success=False, error_type='provider_error'
             )
-            logger.error("Unknown provider error during emotion service instantiation:", exc_info=True)
-            return jsonify({'error': "Unknown provider error occurred. Please contact support."}), 500
+            logger.error(
+                "Unknown provider error in /nlp/emotion/batch", exc_info=True
+            )
+            return jsonify({'error': 'Internal server error'}), 500
 
         results = service.classify(sanitized)
         _validate_alignment_count_or_raise(results, len(sanitized))
