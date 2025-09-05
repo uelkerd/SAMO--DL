@@ -765,7 +765,8 @@ def nlp_emotion_batch():
             update_metrics(
                 response_time, success=False, error_type='provider_error'
             )
-            return jsonify({'error': f'Unknown provider error: {str(e)}'}), 500
+            logger.error("Unknown provider error during emotion service instantiation:", exc_info=True)
+            return jsonify({'error': "Unknown provider error occurred. Please contact support."}), 500
 
         results = service.classify(sanitized)
         _validate_alignment_count_or_raise(results, len(sanitized))
