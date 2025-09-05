@@ -18,7 +18,7 @@ try:
     from flask_restx import Api
     logger.info("✅ Imports successful")
 except Exception as e:
-    logger.error(f"❌ Import failed: {e}")
+    logger.error("❌ Import failed: %s", e)
     exit(1)
 
 try:
@@ -26,7 +26,7 @@ try:
     api = Api(app, version='1.0.0', title='Test')
     logger.info("✅ API object created")
 except Exception as e:
-    logger.error(f"❌ API creation failed: {e}")
+    logger.error("❌ API creation failed: %s", e)
     exit(1)
 
 # Let's try to register error handlers with decorators
@@ -42,10 +42,10 @@ try:
         return {"error": "Internal server error"}, 500
 
     logger.info("✅ Decorator registration successful")
-    logger.info(f"Error handlers: {api.error_handlers}")
+    logger.info("Error handlers: %s", api.error_handlers)
 
 except Exception as e:
-    logger.error(f"❌ Decorator registration failed: {e}")
+    logger.error("❌ Decorator registration failed: %s", e)
 
 # Let's also try using the Flask app's error handler
 try:
@@ -62,6 +62,6 @@ try:
     logger.info("✅ Flask app error handlers registered")
     
 except Exception as e:
-    logger.error(f"❌ Flask app error handler failed: {e}")
+    logger.error("❌ Flask app error handler failed: %s", e)
 
 print("\n�� Test complete.") 

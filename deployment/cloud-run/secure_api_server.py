@@ -477,13 +477,13 @@ def internal_error(error) -> tuple:
     raise error
 
 @api.errorhandler(404)
-def not_found(error) -> tuple:
+def not_found(_error) -> tuple:
     """Handle not found errors"""
     logger.warning(f"Endpoint not found for {request.remote_addr}: {request.url}")
     return create_error_response('Endpoint not found', 404)
 
 @api.errorhandler(405)
-def method_not_allowed(error) -> tuple:
+def method_not_allowed(_error) -> tuple:
     """Handle method not allowed errors"""
     logger.warning(f"Method not allowed for {request.remote_addr}: {request.method} {request.url}")
     return create_error_response('Method not allowed', 405)
@@ -503,7 +503,7 @@ def initialize_model():
         logger.info(f"📊 Configuration: MAX_INPUT_LENGTH={MAX_INPUT_LENGTH}, RATE_LIMIT={RATE_LIMIT_PER_MINUTE}/min")
         logger.info(f"🔐 Security: API key protection enabled, Admin API key configured")
         logger.info(f"🌐 Server: Port {PORT}, Model path: {MODEL_PATH}")
-        logger.info(f"🔄 Rate limiting: {RATE_LIMIT_PER_MINUTE} requests per minute")
+        logger.info("🔄 Rate limiting: %s requests per minute", RATE_LIMIT_PER_MINUTE)
 
         # Log all registered routes for debugging
         logger.info(
