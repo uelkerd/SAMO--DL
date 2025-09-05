@@ -78,15 +78,38 @@ def ensure_model_loaded() -> bool:
             )
             logger.info("✅ Emotion model loaded from local directory")
         else:
-            # Load from Hugging Face Hub
+            # Load from Hugging Face Hub (with fallback to download if not cached)
             logger.info("🌐 Loading emotion model from Hugging Face Hub")
-            emotion_pipeline = pipeline(
-                task="text-classification",
-                model="j-hartmann/emotion-english-distilroberta-base",
-                return_all_scores=True,
-                device=0 if torch.cuda.is_available() else -1
-            )
-            logger.info("✅ Emotion model loaded from Hugging Face Hub")
+            try:
+                emotion_pipeline = pipeline(
+                    task="text-classification",
+                    model="j-hartmann/emotion-english-distilroberta-base",
+                    return_all_scores=True,
+                    device=0 if torch.cuda.is_available() else -1
+                )
+                logger.info("✅ Emotion model loaded from Hugging Face Hub")
+            except Exception as download_error:
+                logger.warning("Failed to load from cache, downloading model: %s", download_error)
+                # Force download the model
+                from huggingface_hub import snapshot_download
+                model_path = snapshot_download(
+                    repo_id="j-hartmann/emotion-english-distilroberta-base",
+                    local_dir=EMOTION_MODEL_DIR,
+                    local_dir_use_symlinks=False
+                )
+                logger.info("📥 Model downloaded to: %s", model_path)
+
+                # Load from downloaded directory
+                tokenizer = AutoTokenizer.from_pretrained(EMOTION_MODEL_DIR, local_files_only=True)
+                model = AutoModelForSequenceClassification.from_pretrained(EMOTION_MODEL_DIR, local_files_only=True)
+                emotion_pipeline = pipeline(
+                    task="text-classification",
+                    model=model,
+                    tokenizer=tokenizer,
+                    return_all_scores=True,
+                    device=0 if torch.cuda.is_available() else -1
+                )
+                logger.info("✅ Emotion model loaded from downloaded files")
 
         model_loaded = True
         logger.info("🎉 Emotion model loading completed successfully")
