@@ -166,7 +166,7 @@ def secure_endpoint(f):
             
             return result
             
-        except Exception as e:
+        except Exception as _e:
             # Release rate limit slot on error
             rate_limiter.release_request(client_ip, user_agent)
 
@@ -259,7 +259,7 @@ class SecureEmotionDetectionModel:
 
             logger.info("Secure model loaded successfully")
 
-        except Exception as e:
+        except Exception as _e:
             logger.exception("Failed to load secure model; falling back to stub mode.")
             self.tokenizer = None
             self.model = None
@@ -432,7 +432,7 @@ def health_check():
         
         return jsonify(response)
         
-    except Exception as e:
+    except Exception as _e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='health_check_error')
         logger.exception("Health check failed")
@@ -498,7 +498,7 @@ def predict():
         
         return jsonify(result)
         
-    except Exception as e:
+    except Exception as _e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='prediction_error')
         logger.exception("Secure prediction endpoint error")
@@ -572,7 +572,7 @@ def predict_batch():
             }
         })
         
-    except Exception as e:
+    except Exception as _e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='batch_prediction_error')
         logger.exception("Secure batch prediction endpoint error")
@@ -617,7 +617,7 @@ def add_to_blacklist():
         # Validate IP address format
         try:
             ip_address(ip)
-        except ValueError as e:
+        except ValueError as _e:
             logger.warning("Invalid IP address format: %s", ip)
             return jsonify({'error': f'Invalid IP address format: {ip}'}), 400
 
@@ -641,7 +641,7 @@ def add_to_whitelist():
         # Validate IP address format
         try:
             ip_address(ip)
-        except ValueError as e:
+        except ValueError as _e:
             logger.warning("Invalid IP address format: %s", ip)
             return jsonify({'error': f'Invalid IP address format: {ip}'}), 400
 
@@ -706,7 +706,7 @@ def home():
         
         return jsonify(response)
         
-    except Exception as e:
+    except Exception as _e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='documentation_error')
         logger.exception("Documentation endpoint error")
