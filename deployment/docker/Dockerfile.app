@@ -66,7 +66,10 @@ ENV PYTHONUNBUFFERED=1 \
     PORT=8080 \
     HF_HOME=/var/tmp/hf-cache \
     XDG_CACHE_HOME=/var/tmp/hf-cache \
-    PIP_ROOT_USER_ACTION=ignore
+    PIP_ROOT_USER_ACTION=ignore \
+    EMOTION_PROVIDER=hf \
+    EMOTION_LOCAL_ONLY=1 \
+    EMOTION_MODEL_DIR=/app/models/emotion-english-distilroberta-base
 
 # Install system deps based on build type
 RUN if [ "$INCLUDE_ML" = "true" ]; then \
@@ -98,6 +101,9 @@ RUN if [ "$BUILD_TYPE" = "unified" ] && [ "$INCLUDE_ML" = "true" ]; then \
 # App code
 COPY src/ ./src/
 
+# Copy emotion model files
+COPY deployment/cloud-run/models/ ./models/
+
 # Copy additional files from builder stage for specific build types
 COPY --from=builder /build/minimal_api_server.py ./minimal_api_server.py
 
@@ -112,7 +118,7 @@ RUN if [ "$INCLUDE_SECURITY" = "true" ]; then \
         # Standard version
         useradd -m -u 1000 appuser \
         && mkdir -p /var/tmp/hf-cache \
-        && chown -R appuser:appuser /app /var/tmp/hf-cache; \
+        && chown -R appuser:appuser /app /var/tmp/hf-cache /app/models; \
     fi
 
 USER appuser
