@@ -643,7 +643,7 @@ def predict_batch():
             response_time, success=False, error_type='batch_prediction_error'
         )
         logger.error("NLP emotion batch error: %s", e)
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'An internal server error occurred.'}), 500
 
 
 @app.route('/nlp/emotion', methods=['POST'])
