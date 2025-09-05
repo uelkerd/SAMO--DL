@@ -42,11 +42,29 @@ logger = logging.getLogger("ensure_local_emotion_model")
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Ensure local HF emotion model is available")
-    parser.add_argument("--repo-id", default=os.environ.get("EMOTION_MODEL_REPO", DEFAULT_REPO_ID), help="HF repo id")
-    parser.add_argument("--target-dir", default=os.environ.get("EMOTION_MODEL_DIR", DEFAULT_TARGET_DIR), help="Local model directory")
-    parser.add_argument("--hf-token", default=os.environ.get("HF_TOKEN", ""), help="HF access token (optional)")
-    parser.add_argument("--force", action="store_true", help="Force re-download even if files exist")
+    parser = argparse.ArgumentParser(
+        description="Ensure local HF emotion model is available"
+    )
+    parser.add_argument(
+        "--repo-id",
+        default=os.environ.get("EMOTION_MODEL_REPO", DEFAULT_REPO_ID),
+        help="HF repo id",
+    )
+    parser.add_argument(
+        "--target-dir",
+        default=os.environ.get("EMOTION_MODEL_DIR", DEFAULT_TARGET_DIR),
+        help="Local model directory",
+    )
+    parser.add_argument(
+        "--hf-token",
+        default=os.environ.get("HF_TOKEN", ""),
+        help="HF access token (optional)",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force re-download even if files exist",
+    )
     return parser.parse_args()
 
 
@@ -62,18 +80,24 @@ def required_files_present(target_dir: Path) -> bool:
         "tokenizer_config.json",
     ]
     have_all_required = all((target_dir / f).exists() for f in required)
-    have_any_tokenizer = any(all((target_dir / f).exists() for f in group) for group in files_any)
+    have_any_tokenizer = any(
+        all((target_dir / f).exists() for f in group) for group in files_any
+    )
     return have_all_required and have_any_tokenizer
 
 
-def ensure_with_hf_hub(repo_id: str, target_dir: Path, token: str | None) -> bool:
+def ensure_with_hf_hub(
+    repo_id: str, target_dir: Path, token: str | None
+) -> bool:
     try:
         from huggingface_hub import snapshot_download  # type: ignore
     except Exception as e:
         logger.warning("huggingface_hub not available: %s", e)
         return False
 
-    logger.info("Using huggingface_hub.snapshot_download for repo %s", repo_id)
+    logger.info(
+        "Using huggingface_hub.snapshot_download for repo %s", repo_id
+    )
     try:
         snapshot_download(
             repo_id=repo_id,
@@ -89,17 +113,26 @@ def ensure_with_hf_hub(repo_id: str, target_dir: Path, token: str | None) -> boo
         return False
 
 
-def ensure_with_transformers(repo_id: str, target_dir: Path, token: str | None) -> bool:
+def ensure_with_transformers(
+    repo_id: str, target_dir: Path, token: str | None
+) -> bool:
     try:
-        from transformers import AutoTokenizer, AutoModelForSequenceClassification  # type: ignore
+        from transformers import (
+            AutoTokenizer,
+            AutoModelForSequenceClassification,
+        )  # type: ignore
     except Exception as e:
         logger.error("transformers not available: %s", e)
         return False
 
     logger.info("Using transformers save_pretrained for repo %s", repo_id)
     try:
-        tokenizer = AutoTokenizer.from_pretrained(repo_id, token=token or None)
-        model = AutoModelForSequenceClassification.from_pretrained(repo_id, token=token or None)
+        tokenizer = AutoTokenizer.from_pretrained(
+            repo_id, token=token or None
+        )
+        model = AutoModelForSequenceClassification.from_pretrained(
+            repo_id, token=token or None
+        )
         target_dir.mkdir(parents=True, exist_ok=True)
         tokenizer.save_pretrained(str(target_dir))
         model.save_pretrained(str(target_dir))
@@ -126,11 +159,15 @@ def main() -> int:
 
     ok = ensure_with_hf_hub(repo_id, target_dir, token)
     if not ok:
-        logger.info("Falling back to transformers save_pretrained approach")
+        logger.info(
+            "Falling back to transformers save_pretrained approach"
+        )
         ok = ensure_with_transformers(repo_id, target_dir, token)
 
     if not ok:
-        logger.error("Failed to materialize model to %s", str(target_dir))
+        logger.error(
+            "Failed to materialize model to %s", str(target_dir)
+        )
         return 2
 
     if required_files_present(target_dir):

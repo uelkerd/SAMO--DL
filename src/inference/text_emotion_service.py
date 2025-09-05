@@ -40,21 +40,31 @@ class HFEmotionService(EmotionService):
         if self._pipeline is not None:
             return
         try:
-            from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification  # type: ignore
+            from transformers import (
+                pipeline,
+                AutoTokenizer,
+                AutoModelForSequenceClassification,
+            )  # type: ignore
         except Exception as e:  # pragma: no cover
             logger.error("Failed to import transformers components: %s", e)
             raise
 
         model_dir = os.environ.get(self.model_dir_env)
-        local_only = os.environ.get(self.local_only_env, "1").strip() not in {"", "0", "false", "False"}
+        local_only = os.environ.get(
+            self.local_only_env, "1"
+        ).strip() not in {"", "0", "false", "False"}
 
         if not model_dir and local_only:
             model_dir = DEFAULT_LOCAL_MODEL_DIR
 
         if model_dir and os.path.isdir(model_dir):
             # Load strictly from local directory
-            tokenizer = AutoTokenizer.from_pretrained(model_dir, local_files_only=True)
-            model = AutoModelForSequenceClassification.from_pretrained(model_dir, local_files_only=True)
+            tokenizer = AutoTokenizer.from_pretrained(
+                model_dir, local_files_only=True
+            )
+            model = AutoModelForSequenceClassification.from_pretrained(
+                model_dir, local_files_only=True
+            )
             self._pipeline = pipeline(
                 task="text-classification",
                 model=model,
