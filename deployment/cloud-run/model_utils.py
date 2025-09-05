@@ -44,16 +44,18 @@ EMOTION_LABELS = [
 emotion_labels_runtime: List[str] = EMOTION_LABELS.copy()
 
 
-def _create_emotion_pipeline(tokenizer, model) -> None:
+def _create_emotion_pipeline(tokenizer, model):
     """
     Create emotion pipeline from tokenizer and model.
 
     Args:
         tokenizer: The tokenizer instance
         model: The model instance
+
+    Returns:
+        The created emotion pipeline
     """
-    global emotion_pipeline
-    emotion_pipeline = pipeline(
+    return pipeline(
         task="text-classification",
         model=model,
         tokenizer=tokenizer,
@@ -132,7 +134,7 @@ def ensure_model_loaded() -> bool:
             model = AutoModelForSequenceClassification.from_pretrained(
                 EMOTION_MODEL_DIR, local_files_only=True
             )
-            _create_emotion_pipeline(tokenizer, model)
+            emotion_pipeline = _create_emotion_pipeline(tokenizer, model)
             logger.info("✅ Emotion model loaded from local directory")
         else:
             # Load from Hugging Face Hub (with fallback to download if not cached)
@@ -164,7 +166,7 @@ def ensure_model_loaded() -> bool:
                 model = AutoModelForSequenceClassification.from_pretrained(
                     EMOTION_MODEL_DIR, local_files_only=True
                 )
-                _create_emotion_pipeline(tokenizer, model)
+                emotion_pipeline = _create_emotion_pipeline(tokenizer, model)
                 logger.info("✅ Emotion model loaded from downloaded files")
 
         model_loaded = True
