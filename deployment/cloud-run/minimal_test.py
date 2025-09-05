@@ -15,7 +15,7 @@ try:
     print("✅ Imports successful")
 except Exception as e:
     print(f"❌ Imports failed: {e}")
-    exit(1)
+    raise RuntimeError(f"Imports failed: {e}")
 
 try:
     print("2. Creating Flask app...")
@@ -23,7 +23,7 @@ try:
     print("✅ Flask app created")
 except Exception as e:
     print(f"❌ Flask app creation failed: {e}")
-    exit(1)
+    raise RuntimeError(f"Flask app creation failed: {e}")
 
 try:
     print("3. Creating API object...")
@@ -36,7 +36,7 @@ try:
     print(f"✅ API object created: {type(api)}")
 except Exception as e:
     print(f"❌ API creation failed: {e}")
-    exit(1)
+    raise RuntimeError(f"API creation failed: {e}")
 
 try:
     print("4. Creating namespace...")
@@ -45,7 +45,7 @@ try:
     print("✅ Namespace added")
 except Exception as e:
     print(f"❌ Namespace creation failed: {e}")
-    exit(1)
+    raise RuntimeError(f"Namespace creation failed: {e}")
 
 try:
     print("5. Creating model...")
@@ -55,7 +55,7 @@ try:
     print("✅ Model created")
 except Exception as e:
     print(f"❌ Model creation failed: {e}")
-    exit(1)
+    raise RuntimeError(f"Model creation failed: {e}")
 
 try:
     print("6. Testing errorhandler...")
@@ -67,6 +67,6 @@ except Exception as e:
     print(f"❌ Error handler creation failed: {e}")
     print(f"API type at this point: {type(api)}")
     print(f"API errorhandler type: {type(api.errorhandler)}")
-    exit(1)
+    raise RuntimeError(f"Error handler creation failed: {e}")
 
 print("🎉 All tests passed!") 

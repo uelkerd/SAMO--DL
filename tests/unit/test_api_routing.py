@@ -78,8 +78,6 @@ class TestAPIRouting(unittest.TestCase):
 
     def test_root_endpoint(self):
         """Test that root endpoint is accessible and returns correct response."""
-        if not self.app:
-            self.skipTest("Test client not available")
         response = self.app.get('/')
         self.assertEqual(response.status_code, 200)
 
@@ -92,8 +90,6 @@ class TestAPIRouting(unittest.TestCase):
 
     def test_health_endpoint(self):
         """Test health endpoint returns correct status."""
-        if not self.app:
-            self.skipTest("Test client not available")
         response = self.app.get('/api/health')
         self.assertEqual(response.status_code, 200)
 
@@ -104,11 +100,9 @@ class TestAPIRouting(unittest.TestCase):
 
     def test_predict_endpoint_no_auth(self):
         """Test predict endpoint requires API key."""
-        if not self.app:
-            self.skipTest("Test client not available")
         response = self.app.post('/api/predict',
-                               data=json.dumps({'text': 'I am happy'}),
-                               content_type='application/json')
+                                data=json.dumps({'text': 'I am happy'}),
+                                content_type='application/json')
         self.assertEqual(response.status_code, 401)
 
         data = response.get_json()
@@ -117,23 +111,19 @@ class TestAPIRouting(unittest.TestCase):
 
     def test_predict_endpoint_with_auth(self):
         """Test predict endpoint works with valid API key."""
-        if not self.app:
-            self.skipTest("Test client not available")
         response = self.app.post('/api/predict',
-                                data=json.dumps({'text': 'I am happy'}),
-                                content_type='application/json',
-                                headers={'X-API-Key': 'test-admin-key-123'})
+                                 data=json.dumps({'text': 'I am happy'}),
+                                 content_type='application/json',
+                                 headers={'X-API-Key': 'test-admin-key-123'})
 
         # Should succeed (200) or be rate limited (429), but not auth error (401)
         self.assertIn(response.status_code, [200, 429])
 
     def test_predict_batch_endpoint_no_auth(self):
         """Test predict_batch endpoint requires API key."""
-        if not self.app:
-            self.skipTest("Test client not available")
         response = self.app.post('/api/predict_batch',
-                               data=json.dumps({'texts': ['I am happy', 'I am sad']}),
-                               content_type='application/json')
+                                data=json.dumps({'texts': ['I am happy', 'I am sad']}),
+                                content_type='application/json')
         self.assertEqual(response.status_code, 401)
 
         data = response.get_json()
@@ -142,20 +132,16 @@ class TestAPIRouting(unittest.TestCase):
 
     def test_predict_batch_endpoint_with_auth(self):
         """Test predict_batch endpoint works with valid API key."""
-        if not self.app:
-            self.skipTest("Test client not available")
         response = self.app.post('/api/predict_batch',
-                                data=json.dumps({'texts': ['I am happy', 'I am sad']}),
-                                content_type='application/json',
-                                headers={'X-API-Key': 'test-admin-key-123'})
+                                 data=json.dumps({'texts': ['I am happy', 'I am sad']}),
+                                 content_type='application/json',
+                                 headers={'X-API-Key': 'test-admin-key-123'})
 
         # Should succeed (200) or be rate limited (429), but not auth error (401)
         self.assertIn(response.status_code, [200, 429])
 
     def test_emotions_endpoint(self):
         """Test emotions endpoint returns supported emotions."""
-        if not self.app:
-            self.skipTest("Test client not available")
         response = self.app.get('/api/emotions')
         self.assertEqual(response.status_code, 200)
 
@@ -167,8 +153,6 @@ class TestAPIRouting(unittest.TestCase):
 
     def test_admin_model_status_no_auth(self):
         """Test admin model status endpoint requires API key."""
-        if not self.app:
-            self.skipTest("Test client not available")
         response = self.app.get('/admin/model_status')
         self.assertEqual(response.status_code, 401)
 
@@ -178,22 +162,18 @@ class TestAPIRouting(unittest.TestCase):
 
     def test_admin_model_status_with_auth(self):
         """Test admin model status endpoint works with valid API key."""
-        if not self.app:
-            self.skipTest("Test client not available")
         response = self.app.get('/admin/model_status',
-                              headers={'X-API-Key': 'test-admin-key-123'})
+                               headers={'X-API-Key': 'test-admin-key-123'})
 
         # Should succeed (200) or be rate limited (429), but not auth error (401)
         self.assertIn(response.status_code, [200, 429])
 
     def test_predict_endpoint_missing_text(self):
         """Test predict endpoint handles missing text field."""
-        if not self.app:
-            self.skipTest("Test client not available")
         response = self.app.post('/api/predict',
-                                data=json.dumps({}),
-                                content_type='application/json',
-                                headers={'X-API-Key': 'test-admin-key-123'})
+                                 data=json.dumps({}),
+                                 content_type='application/json',
+                                 headers={'X-API-Key': 'test-admin-key-123'})
         self.assertEqual(response.status_code, 400)
 
         data = response.get_json()
@@ -202,12 +182,10 @@ class TestAPIRouting(unittest.TestCase):
 
     def test_predict_endpoint_invalid_text(self):
         """Test predict endpoint handles invalid text input."""
-        if not self.app:
-            self.skipTest("Test client not available")
         response = self.app.post('/api/predict',
-                               data=json.dumps({'text': ''}),
-                               content_type='application/json',
-                               headers={'X-API-Key': 'test-admin-key-123'})
+                                data=json.dumps({'text': ''}),
+                                content_type='application/json',
+                                headers={'X-API-Key': 'test-admin-key-123'})
         self.assertEqual(response.status_code, 400)
 
         data = response.get_json()
@@ -216,15 +194,13 @@ class TestAPIRouting(unittest.TestCase):
 
     def test_namespace_routing_no_double_slashes(self):
         """Test that namespace routes don't have double slashes."""
-        if not self.app:
-            self.skipTest("Test client not available")
         # Test that /api/health works (not //api/health)
         response = self.app.get('/api/health')
         self.assertEqual(response.status_code, 200)
 
         # Test that /admin/model_status works (not //admin/model_status)
         response = self.app.get('/admin/model_status',
-                              headers={'X-API-Key': 'test-admin-key-123'})
+                               headers={'X-API-Key': 'test-admin-key-123'})
         # Should succeed (200) or be rate limited (429), but not auth error (401) with valid key
         self.assertIn(response.status_code, [200, 429])
 
