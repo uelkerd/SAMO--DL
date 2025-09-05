@@ -151,7 +151,7 @@ def secure_endpoint(f):
                 if not input_sanitizer.validate_content_type(content_type):
                     response_time = time.time() - start_time
                     update_metrics(response_time, success=False, error_type='invalid_content_type')
-                    logger.warning(f"Invalid content type: {content_type} from {client_ip}")
+                    logger.warning("Invalid content type: %s from %s", content_type, client_ip)
                     return jsonify({
                         'error': 'Invalid content type',
                         'message': 'Content-Type must be application/json'
@@ -273,7 +273,7 @@ class SecureEmotionDetectionModel:
             # Sanitize input text
             sanitized_text, warnings = input_sanitizer.sanitize_text(text, "emotion")
             if warnings:
-                logger.warning(f"Sanitization warnings: {warnings}")
+                logger.warning("Sanitization warnings: %s", warnings)
             
             # Tokenize input
             inputs = self.tokenizer(sanitized_text, return_tensors='pt', truncation=True, padding=True, max_length=512)
@@ -331,7 +331,7 @@ class SecureEmotionDetectionModel:
             
         except Exception as e:
             prediction_time = time.time() - start_time
-            logger.error(f"Secure prediction failed after {prediction_time:.3f}s: {str(e)}")
+            logger.error("Secure prediction failed after %.3fs: %s", prediction_time, str(e))
             raise
 
 # Secure model factory for explicit creation and testability
@@ -383,7 +383,7 @@ def require_admin_api_key(f):
         api_key = request.headers.get("X-Admin-API-Key")
         expected_key = get_admin_api_key()
         if not expected_key or api_key != expected_key:
-            logger.warning(f"Unauthorized admin access attempt from {request.remote_addr}")
+            logger.warning("Unauthorized admin access attempt from %s", request.remote_addr)
             return jsonify({"error": "Unauthorized: admin API key required"}), 403
         return f(*args, **kwargs)
     return decorated_function
@@ -425,7 +425,7 @@ def health_check():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='health_check_error')
-        logger.error(f"Health check failed: {str(e)}")
+        logger.error("Health check failed: %s", str(e))
         return jsonify({'error': str(e)}), 500
 
 @app.route('/predict', methods=['POST'])
@@ -441,7 +441,7 @@ def predict():
         except werkzeug.exceptions.BadRequest:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='invalid_json')
-            logger.error(f"Invalid JSON in request from {request.remote_addr}")
+            logger.error("Invalid JSON in request from %s", request.remote_addr)
             return jsonify({'error': 'Invalid JSON format'}), 400
         
         if not data:
@@ -455,13 +455,13 @@ def predict():
         except ValueError as e:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='validation_error')
-            logger.warning(f"Validation error: {str(e)} from {request.remote_addr}")
+            logger.warning("Validation error: %s from %s", str(e), request.remote_addr)
             return jsonify({'error': str(e)}), 400
         
         # Detect anomalies
         anomalies = input_sanitizer.detect_anomalies(data)
         if anomalies:
-            logger.warning(f"Security anomalies detected: {anomalies}")
+            logger.warning("Security anomalies detected: %s", anomalies)
             with metrics_lock:
                 metrics['security_violations'] += 1
         
@@ -491,7 +491,7 @@ def predict():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='prediction_error')
-        logger.error(f"Secure prediction endpoint error: {str(e)}")
+        logger.error("Secure prediction endpoint error: %s", str(e))
         return jsonify({'error': str(e)}), 500
 
 @app.route('/predict_batch', methods=['POST'])
@@ -507,7 +507,7 @@ def predict_batch():
         except werkzeug.exceptions.BadRequest:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='invalid_json')
-            logger.error(f"Invalid JSON in batch request from {request.remote_addr}")
+            logger.error("Invalid JSON in batch request from %s", request.remote_addr)
             return jsonify({'error': 'Invalid JSON format'}), 400
         
         if not data:
@@ -521,13 +521,13 @@ def predict_batch():
         except ValueError as e:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='validation_error')
-            logger.warning(f"Batch validation error: {str(e)} from {request.remote_addr}")
+            logger.warning("Batch validation error: %s from %s", str(e), request.remote_addr)
             return jsonify({'error': str(e)}), 400
         
         # Detect anomalies
         anomalies = input_sanitizer.detect_anomalies(data)
         if anomalies:
-            logger.warning(f"Security anomalies detected in batch: {anomalies}")
+            logger.warning("Security anomalies detected in batch: %s", anomalies)
             with metrics_lock:
                 metrics['security_violations'] += 1
         
@@ -565,7 +565,7 @@ def predict_batch():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='batch_prediction_error')
-        logger.error(f"Secure batch prediction endpoint error: {str(e)}")
+        logger.error("Secure batch prediction endpoint error: %s", str(e))
         return jsonify({'error': str(e)}), 500
 
 @app.route('/metrics', methods=['GET'])
@@ -608,7 +608,7 @@ def add_to_blacklist():
         logger.info("Added %s to blacklist", ip)
         return jsonify({'message': f'Added {ip} to blacklist'})
     except Exception as e:
-        logger.error(f"Blacklist error: {str(e)}")
+        logger.error("Blacklist error: %s", str(e))
         return jsonify({'error': str(e)}), 500
 
 @app.route('/security/whitelist', methods=['POST'])
@@ -625,7 +625,7 @@ def add_to_whitelist():
         logger.info("Added %s to whitelist", ip)
         return jsonify({'message': f'Added {ip} to whitelist'})
     except Exception as e:
-        logger.error(f"Whitelist error: {str(e)}")
+        logger.error("Whitelist error: %s", str(e))
         return jsonify({'error': str(e)}), 500
 
 @app.route('/', methods=['GET'])
@@ -685,7 +685,7 @@ def home():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='documentation_error')
-        logger.error(f"Documentation endpoint error: {str(e)}")
+        logger.error("Documentation endpoint error: %s", str(e))
         return jsonify({'error': str(e)}), 500
 
 @app.errorhandler(werkzeug.exceptions.BadRequest)

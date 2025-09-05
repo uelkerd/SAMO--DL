@@ -383,7 +383,7 @@ class PredictBatch(Resource):
                 return create_error_response('Model not ready', 503)
 
             # Process each text
-            logger.info(f"Processing batch prediction request for {request.remote_addr} with {len(texts)} texts")
+            logger.info("Processing batch prediction request for %s with %d texts", request.remote_addr, len(texts))
             results = []
             for text in texts:
                 if not text or not isinstance(text, str):
