@@ -3,11 +3,8 @@
 Integration script for real Whisper and T5 models.
 This script properly integrates the models into the SAMO API.
 """
-
-import os
 import sys
 import logging
-import json
 from pathlib import Path
 from typing import Optional, Dict, Any
 
@@ -19,13 +16,13 @@ logger = logging.getLogger(__name__)
 
 class RealWhisperTranscriber:
     """Real Whisper implementation with proper error handling."""
-    
+
     def __init__(self, model_size: str = "base"):
         """Initialize real Whisper model."""
         self.model_size = model_size
         self.model = None
         self.device = "cpu"  # Use CPU for compatibility
-        
+
         try:
             import whisper
             logger.info(f"Loading Whisper {model_size} model...")
@@ -37,23 +34,23 @@ class RealWhisperTranscriber:
         except Exception as e:
             logger.error(f"❌ Failed to load Whisper: {e}")
             raise
-    
+
     def transcribe(self, audio_path: str, language: Optional[str] = None, **kwargs) -> Dict[str, Any]:
         """Transcribe audio file."""
         if self.model is None:
             raise RuntimeError("Whisper model not loaded")
-        
+
         try:
             # Transcribe with Whisper
             result = self.model.transcribe(str(audio_path), language=language)
-            
+
             # Format response to match expected structure
             text = result.get("text", "")
             detected_language = result.get("language", "en")
-            
+
             # Calculate metrics
             word_count = len(text.split()) if text else 0
-            
+
             return {
                 "text": text,
                 "language": detected_language,
@@ -66,7 +63,7 @@ class RealWhisperTranscriber:
         except Exception as e:
             logger.error(f"Transcription failed: {e}")
             raise
-    
+
     def get_model_info(self) -> Dict[str, Any]:
         """Get model information."""
         return {
@@ -78,44 +75,44 @@ class RealWhisperTranscriber:
 
 class RealT5Summarizer:
     """Real T5 implementation with proper error handling."""
-    
+
     def __init__(self, model_name: str = "t5-small"):
         """Initialize real T5 model."""
         self.model_name = model_name
         self.model = None
         self.tokenizer = None
         self.device = "cpu"  # Use CPU for compatibility
-        
+
         try:
             from transformers import T5ForConditionalGeneration, T5Tokenizer
             import torch
-            
+
             logger.info(f"Loading T5 {model_name} model...")
             self.tokenizer = T5Tokenizer.from_pretrained(model_name)
             self.model = T5ForConditionalGeneration.from_pretrained(model_name)
             self.model.eval()  # Set to evaluation mode
-            
+
             logger.info(f"✅ T5 {model_name} loaded successfully")
-            
+
         except ImportError:
             logger.error("❌ Transformers not installed. Install with: pip install transformers torch")
             raise
         except Exception as e:
             logger.error(f"❌ Failed to load T5: {e}")
             raise
-    
+
     def generate_summary(self, text: str, max_length: int = 128, min_length: int = 30) -> str:
         """Generate summary using T5."""
         if self.model is None or self.tokenizer is None:
             raise RuntimeError("T5 model not loaded")
-        
+
         try:
             import torch
-            
+
             # Add T5 prefix for summarization
             if not text.startswith("summarize:"):
                 text = f"summarize: {text}"
-            
+
             # Tokenize input
             inputs = self.tokenizer(
                 text,
@@ -123,7 +120,7 @@ class RealT5Summarizer:
                 max_length=512,
                 truncation=True
             )
-            
+
             # Generate summary
             with torch.no_grad():
                 outputs = self.model.generate(
@@ -134,15 +131,15 @@ class RealT5Summarizer:
                     num_beams=4,
                     early_stopping=True
                 )
-            
+
             # Decode output
             summary = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
             return summary
-            
+
         except Exception as e:
             logger.error(f"Summarization failed: {e}")
             raise
-    
+
     def get_model_info(self) -> Dict[str, Any]:
         """Get model information."""
         return {
@@ -157,7 +154,7 @@ def update_unified_api():
     logger.info("\n" + "="*60)
     logger.info("Updating Unified API with Real Models")
     logger.info("="*60)
-    
+
     # Create a patch file for the unified API
     patch_code = '''
 # Add this to src/unified_ai_api.py in the startup function
@@ -196,9 +193,9 @@ def update_unified_api():
             except Exception as exc2:
                 logger.warning(f"Voice processing model not available: {exc2}")
 '''
-    
+
     logger.info("To integrate real models, update src/unified_ai_api.py with the above code")
-    
+
     # Save the patch instructions
     patch_file = Path("integration_instructions.md")
     with open(patch_file, "w") as f:
@@ -216,7 +213,7 @@ def update_unified_api():
         f.write("```bash\n")
         f.write("python scripts/test_api_models.py\n")
         f.write("```\n")
-    
+
     logger.info(f"✅ Integration instructions saved to {patch_file}")
 
 def test_real_models():
@@ -224,14 +221,14 @@ def test_real_models():
     logger.info("\n" + "="*60)
     logger.info("Testing Real Model Implementations")
     logger.info("="*60)
-    
+
     success = True
-    
+
     # Test T5
     try:
         logger.info("\nTesting Real T5 Model...")
         t5 = RealT5Summarizer("t5-small")
-        
+
         test_text = """
         Today was an absolutely amazing day. I woke up feeling refreshed and energized. 
         The weather was perfect - sunny but not too hot. I went for a long walk in the park 
@@ -240,22 +237,22 @@ def test_real_models():
         In the evening, I spent some quiet time reading a good book. I feel grateful for 
         such a wonderful day filled with simple pleasures.
         """
-        
+
         summary = t5.generate_summary(test_text, max_length=100, min_length=20)
         logger.info(f"Original text length: {len(test_text.split())} words")
         logger.info(f"Summary: {summary}")
         logger.info(f"Summary length: {len(summary.split())} words")
         logger.info("✅ T5 Model Working!")
-        
+
     except Exception as e:
         logger.error(f"❌ T5 Test Failed: {e}")
         success = False
-    
+
     # Test Whisper
     try:
         logger.info("\nTesting Real Whisper Model...")
         whisper = RealWhisperTranscriber("base")
-        
+
         # Create a dummy audio file for testing
         import tempfile
         with tempfile.NamedTemporaryFile(suffix=".wav") as tmp:
@@ -263,24 +260,24 @@ def test_real_models():
             result = whisper.transcribe(tmp.name)
             logger.info(f"Transcription result: {result}")
             logger.info("✅ Whisper Model Working!")
-            
+
     except Exception as e:
         logger.error(f"❌ Whisper Test Failed: {e}")
         success = False
-    
+
     return success
 
 def main():
     """Main function."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Integrate real Whisper and T5 models")
     parser.add_argument("--test", action="store_true", help="Test real model implementations")
     parser.add_argument("--generate-patch", action="store_true", help="Generate API patch instructions")
     parser.add_argument("--check-deps", action="store_true", help="Check if dependencies are installed")
-    
+
     args = parser.parse_args()
-    
+
     if args.check_deps:
         logger.info("Checking dependencies...")
         deps = {
@@ -288,34 +285,34 @@ def main():
             "transformers": False,
             "torch": False
         }
-        
+
         try:
             import whisper
             deps["whisper"] = True
         except ImportError:
             pass
-        
+
         try:
             import transformers
             deps["transformers"] = True
         except ImportError:
             pass
-        
+
         try:
             import torch
             deps["torch"] = True
         except ImportError:
             pass
-        
+
         logger.info("\nDependency Status:")
         for dep, installed in deps.items():
             status = "✅ Installed" if installed else "❌ Not Installed"
             logger.info(f"  {dep}: {status}")
-        
+
         if not all(deps.values()):
             logger.info("\nTo install missing dependencies:")
             logger.info("  pip install openai-whisper transformers torch")
-    
+
     if args.test:
         success = test_real_models()
         if success:
@@ -323,10 +320,10 @@ def main():
         else:
             logger.info("\n❌ Some models failed. Please install dependencies first.")
             logger.info("  pip install openai-whisper transformers torch")
-    
+
     if args.generate_patch:
         update_unified_api()
-    
+
     if not any([args.test, args.generate_patch, args.check_deps]):
         # Default action: check dependencies
         parser.parse_args(["--check-deps"])

@@ -441,17 +441,17 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
         try:
             # Try to load real T5 model first with proper implementation
             from src.models.summarization.t5_summarizer import create_t5_summarizer
-            
+
             text_summarizer = create_t5_summarizer("t5-small")
             logger.info("Text summarization model loaded")
-            
+
             # Verify it's working by testing with a simple text
             try:
                 test_summary = text_summarizer.generate_summary("Test text for verification.")
                 logger.info("T5 model verified and working")
             except Exception as verify_exc:
                 logger.warning("T5 model loaded but verification failed: %s", verify_exc)
-                
+
         except Exception as exc:
             logger.warning("Text summarization model not available: %s", exc)
             logger.info("Note: Install transformers and torch for real T5 model")
@@ -464,14 +464,14 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
 
             voice_transcriber = create_whisper_transcriber()
             logger.info("Voice processing model loaded")
-            
+
             # Verify model is working
             try:
                 model_info = voice_transcriber.get_model_info()
                 logger.info("Whisper model info: %s", model_info)
             except Exception as verify_exc:
                 logger.warning("Whisper model loaded but verification failed: %s", verify_exc)
-                
+
         except Exception as exc:
             logger.warning("Voice processing model not available: %s", exc)
             logger.info("Note: Install openai-whisper for real Whisper model")
