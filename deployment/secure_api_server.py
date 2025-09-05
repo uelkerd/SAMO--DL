@@ -596,8 +596,10 @@ def predict_batch():
         
     except Exception as e:
         response_time = time.time() - start_time
-        update_metrics(response_time, success=False, error_type='batch_prediction_error')
-        logger.error(f"Secure batch prediction endpoint error: {str(e)}")
+        update_metrics(
+            response_time, success=False, error_type='batch_prediction_error'
+        )
+        logger.error("NLP emotion batch error: %s", e)
         return jsonify({'error': str(e)}), 500
 
 @app.route('/nlp/emotion', methods=['POST'])
@@ -642,8 +644,13 @@ def nlp_emotion():
         # Validate alignment: expect exactly one result for single input
         if not isinstance(results, list) or len(results) != 1:
             response_time = time.time() - start_time
-            update_metrics(response_time, success=False, error_type='provider_misalignment')
-            logger.error("Provider returned %s results for single input", len(results) if isinstance(results, list) else 'N/A')
+            update_metrics(
+                response_time, success=False, error_type='provider_misalignment'
+            )
+            logger.error(
+                "Provider returned %s results for single input",
+                len(results) if isinstance(results, list) else 'N/A'
+            )
             return jsonify({'error': 'Provider returned mismatched result count'}), 502
 
         # results is List[List[{label, score}]]
@@ -664,9 +671,18 @@ def nlp_emotion():
         # Update distribution metric by top label
         try:
             top = max(dist, key=lambda x: x.get('score', 0.0))
-            update_metrics(time.time() - start_time, success=True, emotion=top.get('label'), sanitization_warnings=len(warnings))
+            update_metrics(
+                time.time() - start_time,
+                success=True,
+                emotion=top.get('label'),
+                sanitization_warnings=len(warnings)
+            )
         except Exception:
-            update_metrics(time.time() - start_time, success=True, sanitization_warnings=len(warnings))
+            update_metrics(
+                time.time() - start_time,
+                success=True,
+                sanitization_warnings=len(warnings)
+            )
 
         return jsonify(response)
     except Exception as e:
@@ -696,7 +712,10 @@ def nlp_emotion_batch():
         texts = [t for t in original_texts if isinstance(t, str) and t.strip()]
         num_filtered = len(original_texts) - len(texts)
         if num_filtered > 0:
-            logger.warning("%s invalid texts filtered out from input batch.", num_filtered)
+            logger.warning(
+                "%s invalid texts filtered out from input batch.",
+                num_filtered
+            )
         if not texts:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='validation_error')
@@ -708,11 +727,15 @@ def nlp_emotion_batch():
             service = get_emotion_service()
         except (ImportError, ValueError) as e:
             response_time = time.time() - start_time
-            update_metrics(response_time, success=False, error_type='provider_error')
+            update_metrics(
+                response_time, success=False, error_type='provider_error'
+            )
             return jsonify({'error': f'Emotion provider misconfiguration: {str(e)}'}), 503
         except Exception as e:
             response_time = time.time() - start_time
-            update_metrics(response_time, success=False, error_type='provider_error')
+            update_metrics(
+                response_time, success=False, error_type='provider_error'
+            )
             return jsonify({'error': f'Unknown provider error: {str(e)}'}), 500
 
         results = service.classify(sanitized)
@@ -720,14 +743,23 @@ def nlp_emotion_batch():
         # Validate alignment
         if not isinstance(results, list) or len(results) != len(sanitized):
             response_time = time.time() - start_time
-            update_metrics(response_time, success=False, error_type='provider_misalignment')
-            logger.error("Provider result count %s does not match input count %s", len(results) if isinstance(results, list) else 'N/A', len(sanitized))
+            update_metrics(
+                response_time, success=False, error_type='provider_misalignment'
+            )
+            logger.error(
+                "Provider result count %s does not match input count %s",
+                len(results) if isinstance(results, list) else 'N/A',
+                len(sanitized)
+            )
             return jsonify({'error': 'Provider returned mismatched result count'}), 502
 
         # results is List[List[{label, score}]]; align each input to distribution
         responses = []
         for text, dist in zip(sanitized, results):
-            top = max(dist, key=lambda x: x.get('score', 0.0)) if dist else {'label': 'unknown', 'score': 0.0}
+            top = (
+                max(dist, key=lambda x: x.get('score', 0.0))
+                if dist else {'label': 'unknown', 'score': 0.0}
+            )
             responses.append({
                 'text': text,
                 'scores': dist,
@@ -737,10 +769,20 @@ def nlp_emotion_batch():
 
         response_time = time.time() - start_time
         try:
-            first_top = max(results[0], key=lambda x: x.get('score', 0.0)) if results and results[0] else None
-            update_metrics(response_time, success=True, emotion=(first_top.get('label') if first_top else None), sanitization_warnings=total_warnings)
+            first_top = (
+                max(results[0], key=lambda x: x.get('score', 0.0))
+                if results and results[0] else None
+            )
+            update_metrics(
+                response_time,
+                success=True,
+                emotion=(first_top.get('label') if first_top else None),
+                sanitization_warnings=total_warnings
+            )
         except Exception:
-            update_metrics(response_time, success=True, sanitization_warnings=total_warnings)
+            update_metrics(
+                response_time, success=True, sanitization_warnings=total_warnings
+            )
 
         return jsonify({
             'results': responses,
@@ -845,7 +887,9 @@ def home():
                 'POST /predict': 'Secure single prediction',
                 'POST /predict_batch': 'Secure batch prediction',
                 'POST /nlp/emotion': 'HF-backed text emotion classification',
-                'POST /nlp/emotion/batch': 'HF-backed batch text emotion classification',
+                'POST /nlp/emotion/batch': (
+                    'HF-backed batch text emotion classification'
+                ),
                 'POST /security/blacklist': 'Add IP to blacklist (admin)',
                 'POST /security/whitelist': 'Add IP to whitelist (admin)'
             },
