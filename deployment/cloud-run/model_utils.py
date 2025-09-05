@@ -25,13 +25,20 @@ model_loading = False
 model_lock = threading.Lock()
 
 # Configuration
-EMOTION_MODEL_DIR = os.getenv('EMOTION_MODEL_DIR', '/models/emotion-english-distilroberta-base')
+EMOTION_MODEL_DIR = os.getenv(
+    'EMOTION_MODEL_DIR',
+    '/models/emotion-english-distilroberta-base'
+)
 EMOTION_PROVIDER = os.getenv('EMOTION_PROVIDER', 'hf')
-EMOTION_LOCAL_ONLY = os.getenv('EMOTION_LOCAL_ONLY', '1').lower() in ('1', 'true', 'yes')
+EMOTION_LOCAL_ONLY = os.getenv('EMOTION_LOCAL_ONLY', '1').lower() in (
+    '1', 'true', 'yes'
+)
 MAX_TEXT_LENGTH = int(os.getenv('MAX_TEXT_LENGTH', '1000'))
 
 # Emotion labels for the HF emotion model (6 classes)
-EMOTION_LABELS = ['anger', 'disgust', 'fear', 'joy', 'neutral', 'sadness', 'surprise']
+EMOTION_LABELS = [
+    'anger', 'disgust', 'fear', 'joy', 'neutral', 'sadness', 'surprise'
+]
 
 # Runtime emotion labels
 emotion_labels_runtime: List[str] = EMOTION_LABELS.copy()
@@ -64,9 +71,14 @@ def ensure_model_loaded() -> bool:
         # Check if local model directory exists
         if EMOTION_LOCAL_ONLY and os.path.isdir(EMOTION_MODEL_DIR):
             # Load from local directory
-            logger.info("📁 Loading from local model directory: %s", EMOTION_MODEL_DIR)
-            tokenizer = AutoTokenizer.from_pretrained(EMOTION_MODEL_DIR, local_files_only=True)
-            model = AutoModelForSequenceClassification.from_pretrained(EMOTION_MODEL_DIR, local_files_only=True)
+            logger.info("📁 Loading from local model directory: %s",
+                       EMOTION_MODEL_DIR)
+            tokenizer = AutoTokenizer.from_pretrained(
+                EMOTION_MODEL_DIR, local_files_only=True
+            )
+            model = AutoModelForSequenceClassification.from_pretrained(
+                EMOTION_MODEL_DIR, local_files_only=True
+            )
             emotion_pipeline = pipeline(
                 task="text-classification",
                 model=model,
@@ -98,8 +110,12 @@ def ensure_model_loaded() -> bool:
                 logger.info("📥 Model downloaded to: %s", model_path)
 
                 # Load from downloaded directory
-                tokenizer = AutoTokenizer.from_pretrained(EMOTION_MODEL_DIR, local_files_only=True)
-                model = AutoModelForSequenceClassification.from_pretrained(EMOTION_MODEL_DIR, local_files_only=True)
+                tokenizer = AutoTokenizer.from_pretrained(
+                    EMOTION_MODEL_DIR, local_files_only=True
+                )
+                model = AutoModelForSequenceClassification.from_pretrained(
+                    EMOTION_MODEL_DIR, local_files_only=True
+                )
                 emotion_pipeline = pipeline(
                     task="text-classification",
                     model=model,
@@ -119,7 +135,6 @@ def ensure_model_loaded() -> bool:
         return False
 
 
-
 def predict_emotions(text: str) -> Dict[str, Any]:
     """
     Predict emotions for given text using the emotion model.
@@ -130,7 +145,6 @@ def predict_emotions(text: str) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: Prediction results with emotions and confidence scores
     """
-
     if not ensure_model_loaded():
         return {
             'error': 'Emotion model not available',
@@ -216,7 +230,6 @@ def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
     Returns:
         List[Dict[str, Any]]: List of prediction results for each text
     """
-
     if not ensure_model_loaded():
         return [{
             'error': 'Emotion model not available',
