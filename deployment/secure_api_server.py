@@ -630,6 +630,14 @@ def nlp_emotion():
             return jsonify({'error': f'Unknown provider error: {str(e)}'}), 500
 
         results = service.classify(sanitized_text)
+
+        # Validate alignment: expect exactly one result for single input
+        if not isinstance(results, list) or len(results) != 1:
+            response_time = time.time() - start_time
+            update_metrics(response_time, success=False, error_type='provider_misalignment')
+            logger.error("Provider returned %s results for single input", len(results) if isinstance(results, list) else 'N/A')
+            return jsonify({'error': 'Provider returned mismatched result count'}), 502
+
         # results is List[List[{label, score}]]
         dist = results[0]
         response = {

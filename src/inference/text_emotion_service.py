@@ -78,19 +78,14 @@ class HFEmotionService(EmotionService):
             "model": self.model_name,
             "return_all_scores": True,
         }
-        token = os.environ.get(self.hf_token_env)
-        if token:
+        if (token := os.environ.get(self.hf_token_env)):
             kwargs["token"] = token
         self._pipeline = pipeline(**kwargs)
         logger.info("HFEmotionService loaded remote model: %s", self.model_name)
 
     def classify(self, texts: Union[str, List[str]]) -> List[List[Dict[str, Any]]]:
-        if isinstance(texts, str):
-            inputs = [texts]
-        else:
-            inputs = texts
+        inputs = [texts] if isinstance(texts, str) else texts
         if self._pipeline is None:
             self._ensure_loaded()
         cleaned = [t if isinstance(t, str) else str(t) for t in inputs]
-        results = self._pipeline(cleaned, truncation=True)  # type: ignore
-        return results  # type: ignore
+        return self._pipeline(cleaned, truncation=True)  # type: ignore
