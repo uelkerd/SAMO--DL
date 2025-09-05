@@ -263,6 +263,7 @@ def get_model_status() -> Dict[str, Any]:
         'timestamp': time.time()
     }
 
+
 def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
     """
     Predict emotions for multiple texts using the emotion model.
