@@ -34,9 +34,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Add detailed logging for Flask-RESTX debugging
-werkzeug_logger = logging.getLogger('werkzeug')
-werkzeug_logger.setLevel(logging.DEBUG)
+# Add detailed logging for Flask-RESTX debugging only in development
+if os.environ.get("FLASK_ENV") == "development" or app.debug:
+    werkzeug_logger = logging.getLogger('werkzeug')
+    werkzeug_logger.setLevel(logging.DEBUG)
 
 app = Flask(__name__)
 
@@ -44,7 +45,7 @@ app = Flask(__name__)
 add_security_headers(app)
 
 # Register root endpoint BEFORE Flask-RESTX initialization to avoid conflicts
-logger.info("🔍 Registering root endpoint BEFORE Flask-RESTX initialization...")
+logger.info("Registering root endpoint BEFORE Flask-RESTX initialization...")
 @app.route('/')
 def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX's root
     """Get API status and information"""
@@ -63,7 +64,7 @@ def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX'
         return create_error_response('Internal server error', 500)
 
 # Initialize Flask-RESTX API with optional Swagger docs
-logger.info("🔍 Initializing Flask-RESTX API...")
+logger.info("Initializing Flask-RESTX API...")
 swagger_enabled = os.environ.get('ENABLE_SWAGGER', 'false').lower() == 'true'
 try:
     api = Api(
@@ -87,7 +88,7 @@ except Exception as e:
     raise
 
 # Create namespaces for better organization
-logger.info("🔍 Creating namespaces...")
+logger.info("Creating namespaces...")
 main_ns = Namespace('api', description='Main API operations')  # Removed leading slash to avoid double slashes
 admin_ns = Namespace('admin', description='Admin operations', authorizations={
     'apikey': {
@@ -98,7 +99,7 @@ admin_ns = Namespace('admin', description='Admin operations', authorizations={
 })
 
 # Add namespaces to API
-logger.info("🔍 Adding namespaces to API...")
+logger.info("Adding namespaces to API...")
 api.add_namespace(main_ns)
 api.add_namespace(admin_ns)
 logger.info("✅ Namespaces added successfully")
@@ -505,12 +506,11 @@ def initialize_model():
         logger.info(f"🌐 Server: Port {PORT}, Model path: {MODEL_PATH}")
         logger.info("🔄 Rate limiting: %s requests per minute", RATE_LIMIT_PER_MINUTE)
 
-        # Log all registered routes for debugging
-        logger.info(
-            "🔍 Final route registration check:"
-        )
-        for rule in app.url_map.iter_rules():
-            logger.info(f"  Route: {rule.rule} -> {rule.endpoint} (methods: {list(rule.methods)})")
+        # Log all registered routes for debugging (only in development/debug mode)
+        if getattr(app, "debug", False) or os.environ.get("FLASK_ENV") == "development":
+            logger.info("Final route registration check:")
+            for rule in app.url_map.iter_rules():
+                logger.info("  Route: %s -> %s (methods: %s)", rule.rule, rule.endpoint, list(rule.methods))
 
         # Load the emotion detection model
         logger.info("🔄 Loading emotion detection model...")

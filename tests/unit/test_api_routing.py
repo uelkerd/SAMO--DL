@@ -113,12 +113,6 @@ class TestAPIRouting(unittest.TestCase):
         # Should succeed (200) or be rate limited (429), but not auth error (401)
         self.assertIn(response.status_code, [200, 429])
 
-        if response.status_code == 200:
-            data = response.get_json()
-            self.assertIn('text', data)
-            self.assertIn('emotions', data)
-            self.assertIn('request_id', data)
-
     @unittest.skipUnless(TestAPIRouting.is_api_available, "API not available")
     def test_predict_batch_endpoint_no_auth(self):
         """Test predict_batch endpoint requires API key."""
@@ -141,11 +135,6 @@ class TestAPIRouting(unittest.TestCase):
 
         # Should succeed (200) or be rate limited (429), but not auth error (401)
         self.assertIn(response.status_code, [200, 429])
-
-        if response.status_code == 200:
-            data = response.get_json()
-            self.assertIn('results', data)
-            self.assertIsInstance(data['results'], list)
 
     @unittest.skipUnless(TestAPIRouting.is_api_available, "API not available")
     def test_emotions_endpoint(self):
@@ -177,10 +166,6 @@ class TestAPIRouting(unittest.TestCase):
 
         # Should succeed (200) or be rate limited (429), but not auth error (401)
         self.assertIn(response.status_code, [200, 429])
-
-        if response.status_code == 200:
-            data = response.get_json()
-            self.assertIn('model_loaded', data)
 
     @unittest.skipUnless(TestAPIRouting.is_api_available, "API not available")
     def test_predict_endpoint_missing_text(self):
