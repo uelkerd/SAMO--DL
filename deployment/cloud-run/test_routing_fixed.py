@@ -20,4 +20,4 @@ except Exception as e:
     print(f"❌ Failed to import secure_api_server: {e}")
     import traceback
     traceback.print_exc()
-    sys.exit(1)
+    raise RuntimeError(f"Failed to import secure_api_server: {e}") from e

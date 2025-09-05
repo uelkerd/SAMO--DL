@@ -17,7 +17,7 @@ try:
     print("✅ Flask imported successfully")
 except Exception as e:
     print(f"❌ Flask import failed: {e}")
-    sys.exit(1)
+    raise RuntimeError(f"Flask import failed: {e}") from e
 
 try:
     print("2. Importing Flask-RESTX...")
@@ -25,7 +25,7 @@ try:
     print("✅ Flask-RESTX imported successfully")
 except Exception as e:
     print(f"❌ Flask-RESTX import failed: {e}")
-    sys.exit(1)
+    raise RuntimeError(f"Flask-RESTX import failed: {e}") from e
 
 try:
     print("3. Creating Flask app...")
@@ -33,7 +33,7 @@ try:
     print("✅ Flask app created successfully")
 except Exception as e:
     print(f"❌ Flask app creation failed: {e}")
-    sys.exit(1)
+    raise RuntimeError(f"Flask app creation failed: {e}") from e
 
 try:
     print("4. Creating API object...")
@@ -47,7 +47,7 @@ try:
     print(f"API object: {api}")
 except Exception as e:
     print(f"❌ API creation failed: {e}")
-    sys.exit(1)
+    raise RuntimeError(f"API creation failed: {e}") from e
 
 try:
     print("5. Testing API decorator...")
@@ -59,7 +59,7 @@ except Exception as e:
     print(f"❌ API decorator test failed: {e}")
     print(f"API type at this point: {type(api)}")
     print(f"API value at this point: {api}")
-    sys.exit(1)
+    raise RuntimeError(f"API decorator test failed: {e}") from e
 
 try:
     print("6. Testing namespace creation...")
@@ -68,7 +68,7 @@ try:
     print("✅ Namespace test successful")
 except Exception as e:
     print(f"❌ Namespace test failed: {e}")
-    sys.exit(1)
+    raise RuntimeError(f"Namespace test failed: {e}") from e
 
 print("🎉 All tests passed! The issue is not with basic Flask-RESTX functionality.")
 

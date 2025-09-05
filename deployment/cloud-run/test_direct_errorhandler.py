@@ -20,7 +20,7 @@ try:
     logger.info("✅ Imports successful")
 except Exception as e:
     logger.error("❌ Import failed: %s", e)
-    sys.exit(1)
+    raise RuntimeError(f"Import failed: {e}") from e
 
 try:
     app = Flask(__name__)
@@ -28,7 +28,7 @@ try:
     logger.info("✅ API object created")
 except Exception as e:
     logger.error("❌ API creation failed: %s", e)
-    sys.exit(1)
+    raise RuntimeError(f"API creation failed: {e}") from e
 
 # Let's try to register error handlers with decorators
 try:

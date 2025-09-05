@@ -44,7 +44,7 @@ try:
     logger.info("✅ Flask-RESTX API initialized successfully")
 except Exception as e:
     logger.error("❌ Flask-RESTX API initialization failed: %s", str(e))
-    sys.exit(1)
+    raise RuntimeError(f"Flask-RESTX API initialization failed: {e}") from e
 
 # Test 3: Create namespaces - test with and without leading slashes
 logger.info("🔍 Test 3: Creating namespaces...")

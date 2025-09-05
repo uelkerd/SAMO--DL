@@ -48,7 +48,7 @@ try:
         time.sleep(0.1)
     else:
         print("❌ Server failed to start within timeout")
-        sys.exit(1)
+        raise RuntimeError("Server failed to start within timeout")
     
     # Test docs endpoint specifically
     base_url = "http://localhost:8082"

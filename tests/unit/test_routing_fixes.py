@@ -18,17 +18,29 @@ class TestRoutingFixes(unittest.TestCase):
     def test_secure_api_server_namespaces_no_leading_slash(self):
         """Test that secure_api_server.py has namespaces without leading slashes."""
         server_file = PROJECT_ROOT / 'deployment' / 'cloud-run' / 'secure_api_server.py'
+        self.assertTrue(server_file.exists(), f"Server file not found: {server_file}")
+        content = server_file.read_text()
 
-        with open(server_file) as f:
-            content = f.read()
+        # Use regex to check namespace declarations are quote- and whitespace-agnostic
+        # Should match: main_ns = Namespace('api'  or main_ns=Namespace("api" etc.
+        main_ns_pattern = re.compile(r'main_ns\s*=\s*Namespace\s*\(\s*[\'"]([^\'"]*)[\'"]', re.IGNORECASE)
+        admin_ns_pattern = re.compile(r'admin_ns\s*=\s*Namespace\s*\(\s*[\'"]([^\'"]*)[\'"]', re.IGNORECASE)
 
-        # Check that main_ns is defined without leading slash
-        self.assertIn("main_ns = Namespace('api'", content)
-        self.assertNotIn("main_ns = Namespace('/api'", content)
+        main_match = main_ns_pattern.search(content)
+        admin_match = admin_ns_pattern.search(content)
 
-        # Check that admin_ns is defined without leading slash
-        self.assertIn("admin_ns = Namespace('admin'", content)
-        self.assertNotIn("admin_ns = Namespace('/admin'", content)
+        self.assertIsNotNone(main_match, "main_ns namespace declaration not found")
+        self.assertIsNotNone(admin_match, "admin_ns namespace declaration not found")
+
+        main_ns_value = main_match.group(1)
+        admin_ns_value = admin_match.group(1)
+
+        self.assertEqual(main_ns_value, 'api', f"main_ns should be 'api', got '{main_ns_value}'")
+        self.assertEqual(admin_ns_value, 'admin', f"admin_ns should be 'admin', got '{admin_ns_value}'")
+
+        # Ensure no leading slashes in namespace values
+        self.assertFalse(main_ns_value.startswith('/'), f"main_ns should not start with '/', got '{main_ns_value}'")
+        self.assertFalse(admin_ns_value.startswith('/'), f"admin_ns should not start with '/', got '{admin_ns_value}'")
 
     def test_root_endpoint_registered_before_flask_restx(self):
         """Test that root endpoint is registered before Flask-RESTX initialization."""
@@ -65,19 +77,18 @@ class TestRoutingFixes(unittest.TestCase):
         """Test that test files have root endpoints registered before Flask-RESTX init."""
         # Test one file at a time to avoid loops in tests
         test_file = PROJECT_ROOT / 'deployment' / 'cloud-run' / 'test_swagger_debug.py'
-        if os.path.exists(test_file):
-            with open(test_file) as f:
-                content = f.read()
-            root_route_match = re.search(r"@app\.route\s*\(\s*['\"]/['\"]\s*(?:,\s*methods\s*=\s*\[.*?\])?\s*\)", content)
-            api_init_match = re.search(r"api\s*=\s*Api\s*\(", content)
+        self.assertTrue(test_file.exists(), f"Test file not found: {test_file}")
+        content = test_file.read_text()
+        root_route_match = re.search(r"@app\.route\s*\(\s*['\"]/['\"]\s*(?:,\s*methods\s*=\s*\[.*?\])?\s*\)", content)
+        api_init_match = re.search(r"api\s*=\s*Api\s*\(", content)
 
-            # Explicit assertions to ensure patterns are found
-            self.assertIsNotNone(root_route_match, f"Root route pattern not found in {test_file}")
-            self.assertIsNotNone(api_init_match, f"API initialization pattern not found in {test_file}")
+        # Explicit assertions to ensure patterns are found
+        self.assertIsNotNone(root_route_match, f"Root route pattern not found in {test_file}")
+        self.assertIsNotNone(api_init_match, f"API initialization pattern not found in {test_file}")
 
-            root_pos = root_route_match.start()
-            api_pos = api_init_match.start()
-            self.assertLess(root_pos, api_pos, f"Root endpoint should be before API init in {test_file}")
+        root_pos = root_route_match.start()
+        api_pos = api_init_match.start()
+        self.assertLess(root_pos, api_pos, f"Root endpoint should be before API init in {test_file}")
 
     def test_no_double_slashes_in_routes(self):
         """Test that there are no double slashes in route definitions."""
