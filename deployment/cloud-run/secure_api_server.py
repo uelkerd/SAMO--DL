@@ -512,7 +512,9 @@ def initialize_model():
         logger.info(f"🔄 Rate limiting: {RATE_LIMIT_PER_MINUTE} requests per minute")
 
         # Log all registered routes for debugging
-        logger.info("🔍 Final route registration check:")
+        logger.info(
+            "🔍 Final route registration check:"
+        )
         for rule in app.url_map.iter_rules():
             logger.info(f"  Route: {rule.rule} -> {rule.endpoint} (methods: {list(rule.methods)})")
 

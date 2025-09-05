@@ -245,10 +245,14 @@ class SecureEmotionDetectionModel:
                 logger.info("Torch not available, using CPU")
 
             self.loaded = True
-            logger.info("Secure model loaded successfully")
+            logger.info(
+                "Secure model loaded successfully"
+            )
 
         except Exception as e:
-            logger.error(f"Failed to load secure model: {str(e)}. Falling back to stub mode.")
+            logger.error(
+                f"Failed to load secure model: {str(e)}. Falling back to stub mode."
+            )
             self.tokenizer = None
             self.model = None
             self.loaded = False
@@ -733,8 +737,12 @@ if __name__ == '__main__':
         logger.info("        -d '{\"text\": \"I am feeling happy today!\"}'")
         logger.info("")
 
-    logger.info(f"Rate limiting: {rate_limit_config.requests_per_minute} requests per minute")
-    logger.info("Security monitoring: Comprehensive logging and metrics enabled")
+    logger.info(
+        f"Rate limiting: {rate_limit_config.requests_per_minute} requests per minute"
+    )
+    logger.info(
+        "Security monitoring: Comprehensive logging and metrics enabled"
+    )
     logger.info("=" * 60)
 
     app.run(host='0.0.0.0', port=8000, debug=False)
