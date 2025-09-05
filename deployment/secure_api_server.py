@@ -603,7 +603,7 @@ def nlp_emotion():
             'provider': EMOTION_PROVIDER,
             'provider_info': {
                 'local_only': os.environ.get('EMOTION_LOCAL_ONLY', '1') not in ('', '0', 'false', 'False'),
-                'model_dir': os.environ.get('EMOTION_MODEL_DIR', '')
+                'model_dir': os.environ.get('EMOTION_MODEL_DIR', '') or '/models/emotion-english-distilroberta-base'
             },
             'timestamp': time.time(),
             'security': {
@@ -683,7 +683,7 @@ def nlp_emotion_batch():
             'provider': EMOTION_PROVIDER,
             'provider_info': {
                 'local_only': os.environ.get('EMOTION_LOCAL_ONLY', '1') not in ('', '0', 'false', 'False'),
-                'model_dir': os.environ.get('EMOTION_MODEL_DIR', '')
+                'model_dir': os.environ.get('EMOTION_MODEL_DIR', '') or '/models/emotion-english-distilroberta-base'
             },
             'batch_processing_time_ms': round(response_time * 1000, 2),
             'security': {
