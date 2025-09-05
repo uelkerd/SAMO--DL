@@ -760,7 +760,7 @@ def nlp_emotion():
             )
 
         return jsonify(response)
-    except Exception as e:
+    except Exception:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='prediction_error')
         logger.exception("NLP emotion error")
