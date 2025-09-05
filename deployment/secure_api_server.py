@@ -601,6 +601,10 @@ def nlp_emotion():
             'text': sanitized_text,
             'scores': dist,
             'provider': EMOTION_PROVIDER,
+            'provider_info': {
+                'local_only': os.environ.get('EMOTION_LOCAL_ONLY', '1') not in ('', '0', 'false', 'False'),
+                'model_dir': os.environ.get('EMOTION_MODEL_DIR', '')
+            },
             'timestamp': time.time(),
             'security': {
                 'sanitization_warnings': warnings,
@@ -677,6 +681,10 @@ def nlp_emotion_batch():
             'results': responses,
             'count': len(responses),
             'provider': EMOTION_PROVIDER,
+            'provider_info': {
+                'local_only': os.environ.get('EMOTION_LOCAL_ONLY', '1') not in ('', '0', 'false', 'False'),
+                'model_dir': os.environ.get('EMOTION_MODEL_DIR', '')
+            },
             'batch_processing_time_ms': round(response_time * 1000, 2),
             'security': {
                 'sanitization_warnings': total_warnings,
