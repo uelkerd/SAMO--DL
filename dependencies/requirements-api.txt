@@ -30,3 +30,10 @@ gunicorn>=23.0.0,<24.0.0
 prometheus-client==0.20.0
 sentry-sdk[fastapi]==2.12.0
 
+# API runtime dependencies
+Flask==3.0.3
+flask-restx==1.3.0
+
+# HF model utilities
+huggingface_hub==0.25.2
+
