@@ -420,6 +420,49 @@ def require_admin_api_key(f):
         return f(*args, **kwargs)
     return decorated_function
 
+class _ClientError(Exception):
+    """Lightweight exception with HTTP status and error type for client faults."""
+
+    def __init__(self, message: str, status_code: int, error_type: str) -> None:
+        super().__init__(message)
+        self.message = message
+        self.status_code = status_code
+        self.error_type = error_type
+
+
+def _get_json_payload_or_raise():
+    """Return JSON payload or raise _ClientError for invalid JSON."""
+    data = request.get_json(silent=True)
+    if data is None:
+        raise _ClientError('Invalid JSON format', 400, 'invalid_json')
+    return data
+
+
+def _extract_and_filter_texts_or_raise(data):
+    """Extract 'texts' list, filter invalid entries, and return tuple.
+
+    Returns (original_texts, filtered_texts, num_filtered).
+    """
+    if not data or 'texts' not in data or not isinstance(data['texts'], list):
+        raise _ClientError(
+            'Field "texts" must be a list of strings', 400, 'validation_error'
+        )
+    original_texts = data['texts']
+    texts = [t for t in original_texts if isinstance(t, str) and t.strip()]
+    num_filtered = len(original_texts) - len(texts)
+    if not texts:
+        raise _ClientError('No valid texts provided', 400, 'validation_error')
+    return original_texts, texts, num_filtered
+
+
+def _validate_alignment_count_or_raise(results, expected_count):
+    """Ensure provider results match expected count or raise _ClientError."""
+    if not isinstance(results, list) or len(results) != expected_count:
+        raise _ClientError(
+            'Provider returned mismatched result count', 502, 'provider_misalignment'
+        )
+    return True
+
 @app.route('/health', methods=['GET'])
 @secure_endpoint
 def health_check():
@@ -700,30 +743,12 @@ def nlp_emotion_batch():
     """Classify emotion distributions for a batch of input texts."""
     start_time = time.time()
     try:
-        try:
-            data = request.get_json()
-        except werkzeug.exceptions.BadRequest:
-            response_time = time.time() - start_time
-            update_metrics(response_time, success=False, error_type='invalid_json')
-            return jsonify({'error': 'Invalid JSON format'}), 400
-
-        if not data or 'texts' not in data or not isinstance(data['texts'], list):
-            response_time = time.time() - start_time
-            update_metrics(response_time, success=False, error_type='validation_error')
-            return jsonify({'error': 'Field "texts" must be a list of strings'}), 400
-
-        original_texts = data['texts']
-        texts = [t for t in original_texts if isinstance(t, str) and t.strip()]
-        num_filtered = len(original_texts) - len(texts)
+        data = _get_json_payload_or_raise()
+        original_texts, texts, num_filtered = _extract_and_filter_texts_or_raise(data)
         if num_filtered > 0:
             logger.warning(
-                "%s invalid texts filtered out from input batch.",
-                num_filtered
+                "%s invalid texts filtered out from input batch.", num_filtered
             )
-        if not texts:
-            response_time = time.time() - start_time
-            update_metrics(response_time, success=False, error_type='validation_error')
-            return jsonify({'error': 'No valid texts provided'}), 400
 
         sanitized, total_warnings = _sanitize_texts_batch(texts)
 
@@ -743,21 +768,8 @@ def nlp_emotion_batch():
             return jsonify({'error': f'Unknown provider error: {str(e)}'}), 500
 
         results = service.classify(sanitized)
+        _validate_alignment_count_or_raise(results, len(sanitized))
 
-        # Validate alignment
-        if not isinstance(results, list) or len(results) != len(sanitized):
-            response_time = time.time() - start_time
-            update_metrics(
-                response_time, success=False, error_type='provider_misalignment'
-            )
-            logger.error(
-                "Provider result count %s does not match input count %s",
-                len(results) if isinstance(results, list) else 'N/A',
-                len(sanitized)
-            )
-            return jsonify({'error': 'Provider returned mismatched result count'}), 502
-
-        # results is List[List[{label, score}]]; align each input to distribution
         responses = []
         for text, dist in zip(sanitized, results):
             top = (
@@ -800,9 +812,19 @@ def nlp_emotion_batch():
                 'correlation_id': getattr(g, 'correlation_id', None)
             }
         })
+    except _ClientError as ce:
+        response_time = time.time() - start_time
+        update_metrics(response_time, success=False, error_type=ce.error_type)
+        if ce.error_type == 'provider_misalignment':
+            logger.error(ce.message)
+        else:
+            logger.warning(ce.message)
+        return jsonify({'error': ce.message}), ce.status_code
     except Exception as e:
         response_time = time.time() - start_time
-        update_metrics(response_time, success=False, error_type='batch_prediction_error')
+        update_metrics(
+            response_time, success=False, error_type='batch_prediction_error'
+        )
         logger.error("NLP emotion batch error: %s", e)
         return jsonify({'error': str(e)}), 500
 
