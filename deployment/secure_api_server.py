@@ -625,7 +625,7 @@ def nlp_emotion():
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='prediction_error')
         logger.error("NLP emotion error: %s", e)
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'An internal error occurred.'}), 500
 
 @app.route('/nlp/emotion/batch', methods=['POST'])
 @secure_endpoint
