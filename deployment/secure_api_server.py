@@ -24,8 +24,9 @@ import time
 from datetime import datetime
 from collections import defaultdict, deque
 import threading
-from functools import wraps
+from functools import wraps, lru_cache
 import functools
+from typing import List, Tuple, Any, Dict
 
 # Import security components using relative imports
 from ..src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
@@ -353,7 +354,7 @@ def create_secure_model():
     return SecureEmotionDetectionModel()
 
 
-@functools.lru_cache(maxsize=1)
+@lru_cache(maxsize=1)
 def get_secure_model():
     """Return a cached secure model instance created via the factory.
 
@@ -395,9 +396,9 @@ def _parse_single_text_payload(data: dict) -> str:
     return text
 
 
-def _sanitize_texts_batch(texts):
+def _sanitize_texts_batch(texts: List[str]) -> Tuple[List[str], int]:
     """Sanitize batch texts and return (sanitized_texts, total_warnings)."""
-    sanitized = []
+    sanitized: List[str] = []
     total_warnings = 0
     for t in texts:
         s, warnings = input_sanitizer.sanitize_text(t, "emotion")
@@ -406,12 +407,11 @@ def _sanitize_texts_batch(texts):
     return sanitized, total_warnings
 
 
-def _build_provider_info():
+def _build_provider_info() -> dict:
     """Build provider info dict reflecting local-only mode and model_dir."""
+    local_only_env = str(os.environ.get('EMOTION_LOCAL_ONLY', '')).strip().lower()
     return {
-        'local_only': os.environ.get('EMOTION_LOCAL_ONLY', '1') not in (
-            '', '0', 'false', 'False'
-        ),
+        'local_only': local_only_env in ('1', 'true', 'yes', 'on'),
         'model_dir': os.environ.get('EMOTION_MODEL_DIR', '') or DEFAULT_LOCAL_MODEL_DIR,
     }
 
@@ -432,7 +432,7 @@ def require_admin_api_key(f):
     Reads the expected key via ``get_admin_api_key()`` for each request and
     does not cache it. See ``get_admin_api_key`` for concurrency considerations.
     """
-    @functools.wraps(f)
+    @wraps(f)
     def decorated_function(*args, **kwargs):
         api_key = request.headers.get("X-Admin-API-Key")
         expected_key = get_admin_api_key()
@@ -443,7 +443,7 @@ def require_admin_api_key(f):
     return decorated_function
 
 
-def _get_json_payload_or_raise():
+def _get_json_payload_or_raise() -> Dict[str, Any]:
     """Return JSON payload or raise _ClientError for invalid JSON."""
     data = request.get_json(silent=True)
     if data is None:
@@ -451,7 +451,9 @@ def _get_json_payload_or_raise():
     return data
 
 
-def _extract_and_filter_texts_or_raise(data):
+def _extract_and_filter_texts_or_raise(
+    data: Dict[str, Any]
+) -> Tuple[List[str], List[str], int]:
     """Extract 'texts' list, filter invalid entries, and return tuple.
 
     Returns (original_texts, filtered_texts, num_filtered).
@@ -468,9 +470,11 @@ def _extract_and_filter_texts_or_raise(data):
     return original_texts, texts, num_filtered
 
 
-def _validate_alignment_count_or_raise(results, expected_count):
+def _validate_alignment_count_or_raise(
+    results: Any, expected_count: int
+) -> bool:
     """Ensure provider results match expected count or raise _ClientError."""
-    if not isinstance(results, list) or len(results) != expected_count:
+    if (not isinstance(results, list)) or (len(results) != expected_count):
         raise _ClientError(
             'Provider returned mismatched result count', 502, 'provider_misalignment'
         )
@@ -690,15 +694,15 @@ def nlp_emotion():
         sanitized_text, warnings = input_sanitizer.sanitize_text(text, "emotion")
         try:
             service = get_emotion_service()
-        except (ImportError, ValueError) as e:
+        except (ImportError, ValueError):
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='provider_error')
-            logger.error("Emotion provider misconfiguration: %s", e, exc_info=True)
+            logger.exception("Emotion provider misconfiguration")
             return jsonify({'error': 'Emotion provider misconfiguration.'}), 503
         except Exception:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='provider_error')
-            logger.error("Unknown provider error in /nlp/emotion", exc_info=True)
+            logger.exception("Unknown provider error in /nlp/emotion")
             return jsonify({'error': 'Internal server error'}), 500
 
         results = service.classify(sanitized_text)
@@ -743,7 +747,7 @@ def nlp_emotion():
         response = {
             'text': sanitized_text,
             'scores': dist,
-            'provider': EMOTION_PROVIDER,
+            'provider': os.environ.get("EMOTION_PROVIDER", EMOTION_PROVIDER).lower(),
             'provider_info': _build_provider_info(),
             'timestamp': time.time(),
             'security': {
@@ -755,11 +759,11 @@ def nlp_emotion():
 
         # Update distribution metric by top label
         try:
-            top = max(dist, key=lambda x: x.get('score', 0.0))
+            top = max(dist, key=lambda x: x.get('score', 0.0)) if dist else None
             update_metrics(
                 time.time() - start_time,
                 success=True,
-                emotion=top.get('label'),
+                emotion=(top.get('label') if top else None),
                 sanitization_warnings=len(warnings)
             )
         except Exception:
@@ -794,23 +798,19 @@ def nlp_emotion_batch():
 
         try:
             service = get_emotion_service()
-        except (ImportError, ValueError) as e:
+        except (ImportError, ValueError):
             response_time = time.time() - start_time
             update_metrics(
                 response_time, success=False, error_type='provider_error'
             )
-            logger.error(
-                "Emotion provider misconfiguration: %s", str(e), exc_info=True
-            )
+            logger.exception("Emotion provider misconfiguration")
             return jsonify({'error': 'Emotion provider misconfiguration.'}), 503
         except Exception:
             response_time = time.time() - start_time
             update_metrics(
                 response_time, success=False, error_type='provider_error'
             )
-            logger.error(
-                "Unknown provider error in /nlp/emotion/batch", exc_info=True
-            )
+            logger.exception("Unknown provider error in /nlp/emotion/batch")
             return jsonify({'error': 'Internal server error'}), 500
 
         results = service.classify(sanitized)
@@ -818,6 +818,7 @@ def nlp_emotion_batch():
 
         responses = []
         for text, dist in zip(sanitized, results):
+            dist = dist if isinstance(dist, list) else []
             top = (
                 max(dist, key=lambda x: x.get('score', 0.0))
                 if dist else {'label': 'unknown', 'score': 0.0}
@@ -849,7 +850,7 @@ def nlp_emotion_batch():
         return jsonify({
             'results': responses,
             'count': len(responses),
-            'provider': EMOTION_PROVIDER,
+            'provider': os.environ.get("EMOTION_PROVIDER", EMOTION_PROVIDER).lower(),
             'provider_info': _build_provider_info(),
             'batch_processing_time_ms': round(response_time * 1000, 2),
             'security': {
