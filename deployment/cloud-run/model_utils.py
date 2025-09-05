@@ -290,7 +290,7 @@ def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
         return results
 
     except Exception as e:
-        logger.exception(f"❌ Batch emotion prediction failed: {str(e)}")
+        logger.exception("❌ Batch emotion prediction failed: %s", str(e))
         return [{
             'error': 'Batch emotion prediction failed',
             'emotions': [],
