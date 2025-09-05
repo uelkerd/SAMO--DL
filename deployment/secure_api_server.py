@@ -886,7 +886,7 @@ def nlp_emotion_batch():
             response_time, success=False, error_type='batch_prediction_error'
         )
         logger.error("NLP emotion batch error: %s", e)
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': "An internal error has occurred."}), 500
 
 @app.route('/metrics', methods=['GET'])
 def get_metrics():
