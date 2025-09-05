@@ -341,14 +341,6 @@ def create_secure_model():
         return _Stub()
     return SecureEmotionDetectionModel()
 
-@functools.lru_cache(maxsize=1)
-def get_secure_model():
-    """Return a cached secure model instance created via the factory.
-
-    Using an LRU cache (size=1) avoids global mutable state and ensures a single
-    instance per process. Tests can clear the cache with get_secure_model.cache_clear().
-    """
-    return create_secure_model()
 
 # Provider selection for text emotion (simple registry/factory)
 EMOTION_PROVIDER = os.environ.get("EMOTION_PROVIDER", "hf").lower()
