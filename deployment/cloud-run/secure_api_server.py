@@ -312,7 +312,7 @@ class Predict(Resource):
         try:
             # Log rate limiting info for debugging
             log_rate_limit_info()
-            
+
             # Get and validate input
             data = request.get_json()
             if not data or 'text' not in data:
@@ -463,6 +463,7 @@ class SecurityStatus(Resource):
             logger.error(f"Security status error for {request.remote_addr}: {str(e)}")
             return create_error_response('Internal server error', 500)
 
+
 # Error handlers for Flask-RESTX using proper decorators
 @api.errorhandler(429)
 def rate_limit_exceeded(error) -> tuple:
@@ -494,6 +495,7 @@ def handle_unexpected_error(error) -> tuple:
     """Handle any unexpected errors"""
     logger.error(f"Unexpected error for {request.remote_addr}: {str(error)}")
     return create_error_response('An unexpected error occurred', 500)
+
 
 logger.info("✅ Error handlers registered with decorators")
 

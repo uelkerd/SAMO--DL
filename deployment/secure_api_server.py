@@ -312,8 +312,8 @@ class SecureEmotionDetectionModel:
             
             prediction_time = time.time() - start_time
             logger.info("Secure prediction completed in %.3fs: '%s...' → %s (conf: %.3f)",
-                       prediction_time, sanitized_text[:50], predicted_emotion, confidence)
-            
+                        prediction_time, sanitized_text[:50], predicted_emotion, confidence)
+
             # Create secure response
             return {
                 'text': sanitized_text,
@@ -342,6 +342,7 @@ class SecureEmotionDetectionModel:
             logger.error("Secure prediction failed after %.3fs: %s", prediction_time, str(e))
             raise
 
+
 # Secure model factory for explicit creation and testability
 logger.info("Secure model will be created via factory function")
 
@@ -368,6 +369,7 @@ def get_secure_model():
     instance per process. Tests can clear the cache with get_secure_model.cache_clear().
     """
     return create_secure_model()
+
 
 # Read admin API key per-request to reflect environment changes during tests
 def get_admin_api_key() -> str | None:
@@ -761,7 +763,8 @@ if __name__ == '__main__':
         logger.info("")
 
     logger.info(
-        f"Rate limiting: {rate_limit_config.requests_per_minute} requests per minute"
+        "Rate limiting: %s requests per minute",
+        rate_limit_config.requests_per_minute
     )
     logger.info(
         "Security monitoring: Comprehensive logging and metrics enabled"
