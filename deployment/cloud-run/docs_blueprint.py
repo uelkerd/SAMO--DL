@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from flask import Blueprint, Response, jsonify, render_template, g
 
 
@@ -11,13 +12,13 @@ docs_bp = Blueprint('docs', __name__, template_folder='templates')
 def serve_openapi_spec():
     """Serve OpenAPI spec for Swagger UI with safe path validation."""
     # Restrict spec path to a safe directory
-    allowed_dir = os.path.abspath(os.environ.get('OPENAPI_ALLOWED_DIR', '/app'))
+    allowed_dir = Path(os.environ.get('OPENAPI_ALLOWED_DIR', '/app')).resolve()
     spec_path = os.environ.get('OPENAPI_SPEC_PATH', '/app/openapi.yaml')
-    abs_spec_path = os.path.abspath(spec_path)
+    abs_spec_path = Path(spec_path).resolve()
 
     try:
         # Validate that the spec path is within the allowed directory
-        if os.path.commonpath([abs_spec_path, allowed_dir]) != allowed_dir:
+        if abs_spec_path.parent != allowed_dir and not abs_spec_path.is_relative_to(allowed_dir):
             return jsonify({'error': 'Invalid OpenAPI spec path'}), 400
 
         with open(abs_spec_path, 'r', encoding='utf-8') as f:

@@ -8,11 +8,11 @@ from flask import Flask, jsonify
 from flask_restx import Api, Resource, Namespace
 
 # Set required environment variables
-os.environ['ADMIN_API_KEY'] = os.environ.get('TEST_ADMIN_API_KEY', 'test-key-123')
-os.environ['MAX_INPUT_LENGTH'] = '512'
-os.environ['RATE_LIMIT_PER_MINUTE'] = '100'
-os.environ['MODEL_PATH'] = '/app/model'
-os.environ['PORT'] = '8083'
+os.environ.setdefault('ADMIN_API_KEY', os.environ.get('TEST_ADMIN_API_KEY', 'test-admin-key-123'))
+os.environ.setdefault('MAX_INPUT_LENGTH', '512')
+os.environ.setdefault('RATE_LIMIT_PER_MINUTE', '100')
+os.environ.setdefault('MODEL_PATH', '/app/model')
+os.environ.setdefault('PORT', '8083')
 
 # Create Flask app
 app = Flask(__name__)

@@ -8,7 +8,7 @@ from flask_restx import Api, Resource, Namespace
 import sys
 
 # Set up environment variables
-os.environ['ADMIN_API_KEY'] = os.environ.get('TEST_ADMIN_API_KEY', 'test123')
+os.environ.setdefault('ADMIN_API_KEY', os.environ.get('TEST_ADMIN_API_KEY', 'test-admin-key-123'))
 
 # Configure detailed logging
 logging.basicConfig(
@@ -77,22 +77,20 @@ class AdminStatus(Resource):
 
 # Test 5: Register error handlers
 logger.info("🔍 Test 5: Registering error handlers...")
-def test_error_handler(error):
+
+@api.errorhandler(500)
+def test_error_handler(error) -> tuple:
     """Handle test errors and return error response."""
     logger.error("Test error handler: %s", str(error))
     return {'error': 'Test error'}, 500
 
-def exception_error_handler(error):
+@api.errorhandler(Exception)
+def exception_error_handler(error) -> tuple:
     """Handle general exceptions and return error response."""
     logger.error("Exception error handler: %s", str(error))
     return {'error': 'Exception occurred'}, 500
 
-try:
-    api.error_handlers[500] = test_error_handler
-    api.error_handlers[Exception] = exception_error_handler  # Add exception-level error handler
-    logger.info("✅ Error handlers registered successfully")
-except Exception as e:
-    logger.error("❌ Error handler registration failed: %s", str(e))
+logger.info("✅ Error handlers registered with decorators")
 
 # Test 6: Log final route state
 logger.info("🔍 Test 6: Final route registration check:")

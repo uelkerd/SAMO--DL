@@ -4,7 +4,7 @@ Minimal test to isolate the API setup issue
 """
 
 import os
-os.environ['ADMIN_API_KEY'] = 'test123'
+os.environ.setdefault('ADMIN_API_KEY', 'test-admin-key-123')
 
 print("🔍 Starting minimal API setup test...")
 

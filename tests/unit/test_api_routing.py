@@ -44,9 +44,9 @@ class TestAPIRouting(unittest.TestCase):
                 self.app = None
 
         # Set required environment variables
-        os.environ['ADMIN_API_KEY'] = 'test-admin-key-123'
-        os.environ['MAX_INPUT_LENGTH'] = '512'
-        os.environ['RATE_LIMIT_PER_MINUTE'] = '100'
+        os.environ.setdefault('ADMIN_API_KEY', 'test-admin-key-123')
+        os.environ.setdefault('MAX_INPUT_LENGTH', '512')
+        os.environ.setdefault('RATE_LIMIT_PER_MINUTE', '100')
 
     @classmethod
     def is_api_available(cls):

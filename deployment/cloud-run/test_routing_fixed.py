@@ -5,13 +5,14 @@ Test script to verify the fixed routing in secure_api_server.py
 
 import os
 import re
+from pathlib import Path
 
 # Set required environment variables
-os.environ['ADMIN_API_KEY'] = os.environ.get('TEST_ADMIN_API_KEY', 'test-key-123')
-os.environ['MAX_INPUT_LENGTH'] = '512'
-os.environ['RATE_LIMIT_PER_MINUTE'] = '100'
-os.environ['MODEL_PATH'] = '/app/model'
-os.environ['PORT'] = '8080'
+os.environ.setdefault('ADMIN_API_KEY', os.environ.get('TEST_ADMIN_API_KEY', 'test-admin-key-123'))
+os.environ.setdefault('MAX_INPUT_LENGTH', '512')
+os.environ.setdefault('RATE_LIMIT_PER_MINUTE', '100')
+os.environ.setdefault('MODEL_PATH', '/app/model')
+os.environ.setdefault('PORT', '8080')
 
 try:
     from secure_api_server import app
@@ -57,7 +58,7 @@ try:
         assert False, "Docs endpoint missing"
 
     # Assert file existence
-    assert os.path.exists('secure_api_server.py'), "Source file secure_api_server.py missing"
+    assert Path('secure_api_server.py').exists(), "Source file secure_api_server.py missing"
 
     # Read the source file for pattern matching
     with open('secure_api_server.py', 'r') as f:

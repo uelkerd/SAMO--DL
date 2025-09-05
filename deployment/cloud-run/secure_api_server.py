@@ -11,6 +11,7 @@ import logging
 import uuid
 import threading
 import hmac
+from pathlib import Path
 from flask import Flask, request, jsonify, g
 from flask_restx import Api, Resource, fields, Namespace
 from functools import wraps
@@ -62,16 +63,16 @@ def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX'
         logger.error("Root endpoint error for %s: %s", request.remote_addr, str(e))
         return create_error_response('Internal server error', 500)
 
-# Initialize Flask-RESTX API without Swagger to avoid 500 errors
+# Initialize Flask-RESTX API with optional Swagger docs
 logger.info("🔍 Initializing Flask-RESTX API...")
+swagger_enabled = os.environ.get('ENABLE_SWAGGER', 'false').lower() == 'true'
 try:
     api = Api(
         app,
         version='2.0.0',
         title='SAMO Emotion Detection API',
         description='Secure, production-ready emotion detection API with comprehensive security features',
-        # Temporarily disable Swagger docs to avoid 500 errors
-        # doc='/docs',
+        doc='/docs' if swagger_enabled else None,
         authorizations={
             'apikey': {
                 'type': 'apiKey',
@@ -462,45 +463,39 @@ class SecurityStatus(Resource):
             logger.error(f"Security status error for {request.remote_addr}: {str(e)}")
             return create_error_response('Internal server error', 500)
 
-# Error handlers for Flask-RESTX - using direct registration due to decorator compatibility issue
-def rate_limit_exceeded(error):
+# Error handlers for Flask-RESTX using proper decorators
+@api.errorhandler(429)
+def rate_limit_exceeded(error) -> tuple:
     """Handle rate limit exceeded errors"""
     logger.warning(f"Rate limit exceeded for {request.remote_addr}")
     return create_error_response('Rate limit exceeded - too many requests', 429)
 
-def internal_error(error):
+@api.errorhandler(500)
+def internal_error(error) -> tuple:
     """Handle internal server errors"""
     logger.error(f"Internal server error for {request.remote_addr}: {str(error)}")
     # Re-raise the exception after logging for proper error propagation
     raise error
 
-def not_found(error):
+@api.errorhandler(404)
+def not_found(error) -> tuple:
     """Handle not found errors"""
     logger.warning(f"Endpoint not found for {request.remote_addr}: {request.url}")
     return create_error_response('Endpoint not found', 404)
 
-def method_not_allowed(error):
+@api.errorhandler(405)
+def method_not_allowed(error) -> tuple:
     """Handle method not allowed errors"""
     logger.warning(f"Method not allowed for {request.remote_addr}: {request.method} {request.url}")
     return create_error_response('Method not allowed', 405)
 
-def handle_unexpected_error(error):
+@api.errorhandler(Exception)
+def handle_unexpected_error(error) -> tuple:
     """Handle any unexpected errors"""
     logger.error(f"Unexpected error for {request.remote_addr}: {str(error)}")
     return create_error_response('An unexpected error occurred', 500)
 
-# Register error handlers directly
-logger.info("🔍 Registering error handlers...")
-try:
-    api.error_handlers[429] = rate_limit_exceeded
-    api.error_handlers[500] = internal_error
-    api.error_handlers[404] = not_found
-    api.error_handlers[405] = method_not_allowed
-    api.error_handlers[Exception] = handle_unexpected_error
-    logger.info("✅ Error handlers registered successfully")
-except Exception as e:
-    logger.error(f"❌ Error handler registration failed: {str(e)}")
-    logger.error("This may be causing 500 errors in Swagger docs")
+logger.info("✅ Error handlers registered with decorators")
 
 def initialize_model():
     """Initialize the emotion detection model"""
@@ -532,7 +527,7 @@ def initialize_model():
 if __name__ == '__main__':
     initialize_model()
     logger.info(f"🌐 Starting Flask development server on port {PORT}")
-    app.run(host='127.0.0.1', port=PORT, debug=False)
+    app.run(host='127.0.0.1', port=PORT, debug=False, use_reloader=False)
 else:
     # For production deployment - don't initialize during import
     # Model will be initialized when the app actually starts
