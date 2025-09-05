@@ -84,7 +84,11 @@ gcloud run deploy "${SERVICE_NAME}" \
     --min-instances=1 \
     --concurrency=80 \
     --timeout=300 \
-    --set-env-vars="FLASK_ENV=production,ENVIRONMENT=production,ENABLE_SECURITY=true,ENABLE_RATE_LIMITING=true,ENABLE_INPUT_SANITIZATION=true,MAX_LENGTH=512,EMOTION_PROVIDER=hf,EMOTION_LOCAL_ONLY=1,EMOTION_MODEL_DIR=/app/models/emotion-english-distilroberta-base"
+    --set-env-vars="FLASK_ENV=production,ENVIRONMENT=production" \
+    --set-env-vars="ENABLE_SECURITY=true,ENABLE_RATE_LIMITING=true" \
+    --set-env-vars="ENABLE_INPUT_SANITIZATION=true,MAX_LENGTH=512" \
+    --set-env-vars="EMOTION_PROVIDER=hf,EMOTION_LOCAL_ONLY=1" \
+    --set-env-vars="EMOTION_MODEL_DIR=/app/models/emotion-english-distilroberta-base"
 
 if [ $? -ne 0 ]; then
     print_error "Cloud Run deployment failed!"

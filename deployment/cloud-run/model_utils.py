@@ -44,6 +44,24 @@ EMOTION_LABELS = [
 emotion_labels_runtime: List[str] = EMOTION_LABELS.copy()
 
 
+def _create_emotion_pipeline(tokenizer, model) -> None:
+    """
+    Create emotion pipeline from tokenizer and model.
+
+    Args:
+        tokenizer: The tokenizer instance
+        model: The model instance
+    """
+    global emotion_pipeline
+    emotion_pipeline = pipeline(
+        task="text-classification",
+        model=model,
+        tokenizer=tokenizer,
+        return_all_scores=True,
+        device=0 if torch.cuda.is_available() else -1
+    )
+
+
 def ensure_model_loaded() -> bool:
     """
     Thread-safe emotion model loading with proper error handling.
@@ -79,13 +97,7 @@ def ensure_model_loaded() -> bool:
             model = AutoModelForSequenceClassification.from_pretrained(
                 EMOTION_MODEL_DIR, local_files_only=True
             )
-            emotion_pipeline = pipeline(
-                task="text-classification",
-                model=model,
-                tokenizer=tokenizer,
-                return_all_scores=True,
-                device=0 if torch.cuda.is_available() else -1
-            )
+            _create_emotion_pipeline(tokenizer, model)
             logger.info("✅ Emotion model loaded from local directory")
         else:
             # Load from Hugging Face Hub (with fallback to download if not cached)
@@ -116,13 +128,7 @@ def ensure_model_loaded() -> bool:
                 model = AutoModelForSequenceClassification.from_pretrained(
                     EMOTION_MODEL_DIR, local_files_only=True
                 )
-                emotion_pipeline = pipeline(
-                    task="text-classification",
-                    model=model,
-                    tokenizer=tokenizer,
-                    return_all_scores=True,
-                    device=0 if torch.cuda.is_available() else -1
-                )
+                _create_emotion_pipeline(tokenizer, model)
                 logger.info("✅ Emotion model loaded from downloaded files")
 
         model_loaded = True
@@ -130,7 +136,7 @@ def ensure_model_loaded() -> bool:
         return True
 
     except Exception as e:
-        logger.error("❌ Failed to load emotion model: %s", str(e))
+        logger.exception("❌ Failed to load emotion model: %s", e)
         model_loaded = False
         return False
 
@@ -219,7 +225,6 @@ def get_model_status() -> Dict[str, Any]:
         'timestamp': time.time()
     }
 
-
 def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
     """
     Predict emotions for multiple texts using the emotion model.
@@ -238,54 +243,57 @@ def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
         } for _ in texts]
 
     try:
-        # Validate all inputs
-        valid_texts = []
-        results = []
+        # Pre-initialize results list to preserve order and handle invalid inputs
+        results = [None] * len(texts)
+        valid_texts_to_process = []
+        valid_indices = []
 
         for i, text in enumerate(texts):
             if not text or not text.strip():
-                results.append({
+                results[i] = {
                     'error': 'Text field is required',
                     'emotions': [],
                     'confidence': 0.0
-                })
+                }
             elif len(text) > MAX_TEXT_LENGTH:
-                results.append({
+                results[i] = {
                     'error': f'Text too long (max {MAX_TEXT_LENGTH} characters)',
                     'emotions': [],
                     'confidence': 0.0
-                })
+                }
             else:
-                valid_texts.append((i, text))
+                valid_texts_to_process.append(text)
+                valid_indices.append(i)
 
-        if not valid_texts:
-            return results
+        # Only run pipeline if there are valid texts
+        if valid_texts_to_process:
+            # Process valid texts in a single batch
+            batch_results = emotion_pipeline(valid_texts_to_process)
 
-        # Process valid texts in batch
-        batch_texts = [text for _, text in valid_texts]
-        batch_results = emotion_pipeline(batch_texts)
+            # Place successful results back into the correctly ordered list
+            for i, result in enumerate(batch_results):
+                original_idx = valid_indices[i]
+                text = valid_texts_to_process[i]
 
-        # Process results for each valid text
-        for (_original_idx, text), result in zip(valid_texts, batch_results):
-            emotions = []
-            for emotion_result in result:
-                emotions.append({
-                    'emotion': emotion_result['label'],
-                    'confidence': emotion_result['score']
-                })
+                emotions = []
+                for emotion_result in result:
+                    emotions.append({
+                        'emotion': emotion_result['label'],
+                        'confidence': emotion_result['score']
+                    })
 
-            # Sort by confidence (highest first)
-            emotions.sort(key=lambda x: x['confidence'], reverse=True)
+                # Sort by confidence (highest first)
+                emotions.sort(key=lambda x: x['confidence'], reverse=True)
 
-            # Overall confidence is the highest confidence score
-            overall_confidence = emotions[0]['confidence'] if emotions else 0.0
+                # Overall confidence is the highest confidence score
+                overall_confidence = emotions[0]['confidence'] if emotions else 0.0
 
-            results.append({
-                'text': text,
-                'emotions': emotions,
-                'confidence': overall_confidence,
-                'timestamp': time.time()
-            })
+                results[original_idx] = {
+                    'text': text,
+                    'emotions': emotions,
+                    'confidence': overall_confidence,
+                    'timestamp': time.time()
+                }
 
         return results
 
