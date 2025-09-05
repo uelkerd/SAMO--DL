@@ -5,8 +5,6 @@ Test script to verify the fixed routing in secure_api_server.py
 
 import os
 import sys
-import re
-from pathlib import Path
 
 # Set required environment variables
 os.environ.setdefault('ADMIN_API_KEY', os.environ.get('TEST_ADMIN_API_KEY', 'test-admin-key-123'))
