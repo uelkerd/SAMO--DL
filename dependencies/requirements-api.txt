@@ -37,3 +37,8 @@ flask-restx==1.3.0
 # HF model utilities
 huggingface_hub==0.25.2
 
+# NLP model runtime
+transformers==4.55.0
+# Torch runtime (CPU by default; align with repo constraints)
+torch==2.8.0
+
