@@ -11,7 +11,6 @@ import logging
 import uuid
 import threading
 import hmac
-from pathlib import Path
 from flask import Flask, request, jsonify, g
 from flask_restx import Api, Resource, fields, Namespace
 from functools import wraps

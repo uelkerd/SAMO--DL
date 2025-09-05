@@ -32,7 +32,7 @@ try:
     max_attempts = 30
     for attempt in range(max_attempts):
         try:
-            response = requests.get(f"http://localhost:8082/", timeout=1)
+            response = requests.get("http://localhost:8082/", timeout=1)
             if response.status_code == 200:
                 print("✅ Server is ready!")
                 break
