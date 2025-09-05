@@ -486,27 +486,54 @@ def _validate_single_results_or_raise(results: Any) -> List[Dict[str, Any]]:
     Expects results to be List[List[Dict[str, Any]]], with len(results) == 1.
     Raises _ClientError(502) on invalid shape.
     """
-    if (not isinstance(results, list)) or (len(results) != 1) or (not isinstance(results[0], list)):
+    if (
+        (not isinstance(results, list))
+        or (len(results) != 1)
+        or (not isinstance(results[0], list))
+    ):
         outer_type = type(results).__name__
-        outer_len = (len(results) if isinstance(results, list) else 'N/A')
-        inner_type = (type(results[0]).__name__ if isinstance(results, list) and results else 'N/A')
+        outer_len = (
+            len(results) if isinstance(results, list) else 'N/A'
+        )
+        inner_type = (
+            type(results[0]).__name__
+            if isinstance(results, list) and results
+            else 'N/A'
+        )
         logger.error(
-            "Provider returned invalid shape for single input: type=%s len=%s inner_type=%s",
-            outer_type, outer_len, inner_type
+            "Provider returned invalid shape for single input: "
+            "type=%s len=%s inner_type=%s",
+            outer_type,
+            outer_len,
+            inner_type,
         )
         raise _ClientError(
-            'Provider returned mismatched result count', 502, 'provider_misalignment'
+            'Provider returned mismatched result count',
+            502,
+            'provider_misalignment'
         )
     dist = results[0]
-    if dist and not (isinstance(dist[0], dict) and 'label' in dist[0] and 'score' in dist[0]):
-        inner_first_type = type(dist[0]).__name__ if dist else 'N/A'
-        inner_keys = list(dist[0].keys()) if isinstance(dist[0], dict) else 'N/A'
+    if dist and not (
+        isinstance(dist[0], dict)
+        and 'label' in dist[0]
+        and 'score' in dist[0]
+    ):
+        inner_first_type = (
+            type(dist[0]).__name__ if dist else 'N/A'
+        )
+        inner_keys = (
+            list(dist[0].keys()) if isinstance(dist[0], dict) else 'N/A'
+        )
         logger.error(
-            "Provider returned invalid inner element: inner_first_type=%s keys=%s",
-            inner_first_type, inner_keys
+            "Provider returned invalid inner element: "
+            "inner_first_type=%s keys=%s",
+            inner_first_type,
+            inner_keys,
         )
         raise _ClientError(
-            'Provider returned mismatched result count', 502, 'provider_misalignment'
+            'Provider returned mismatched result count',
+            502,
+            'provider_misalignment'
         )
     return dist
 
