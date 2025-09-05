@@ -14,10 +14,7 @@ from deployment.secure_api_server import app  # type: ignore
 
 def _fake_pipeline(*args, **kwargs):
     def _call(inputs, truncation=True):
-        if isinstance(inputs, str):
-            inputs_list = [inputs]
-        else:
-            inputs_list = inputs
+        inputs_list = [inputs] if isinstance(inputs, str) else inputs
         dist = [
             {"label": "anger", "score": 0.01},
             {"label": "disgust", "score": 0.01},
@@ -55,9 +52,11 @@ class TestNlpEmotionEndpoints(unittest.TestCase):
         self.assertIn('results', data)
         self.assertEqual(data['count'], 2)
         self.assertEqual(data['provider'], 'hf')
-        for item in data['results']:
-            self.assertIn('scores', item)
-            self.assertTrue(any(x['label'] == 'joy' for x in item['scores']))
+        first, second = data['results']
+        self.assertIn('scores', first)
+        self.assertTrue(any(x['label'] == 'joy' for x in first['scores']))
+        self.assertIn('scores', second)
+        self.assertTrue(any(x['label'] == 'joy' for x in second['scores']))
 
     def test_invalid_payloads(self):
         resp = self.client.post('/nlp/emotion', data='{}', headers={'Content-Type': 'application/json'})
