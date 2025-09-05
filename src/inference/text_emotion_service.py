@@ -69,7 +69,7 @@ class HFEmotionService(EmotionService):
             raise RuntimeError(
                 "Local-only mode enabled but local model directory not found. "
                 f"Expected at: {model_dir or DEFAULT_LOCAL_MODEL_DIR}. "
-                "Please place the model files locally or set EMOTION_MODEL_DIR."
+                f"Please place the model files locally or set {self.model_dir_env}."
             )
 
         # Fallback to remote model (dev only). Token optional.
