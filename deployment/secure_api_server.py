@@ -32,6 +32,7 @@ from ..src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
 from ..src.input_sanitizer import InputSanitizer, SanitizationConfig
 from ..src.security_setup import setup_security_middleware, get_environment
 from ..src.inference.text_emotion_service import HFEmotionService  # type: ignore
+from ..src.inference.text_emotion_service import DEFAULT_LOCAL_MODEL_DIR  # type: ignore
 
 # Configure logging
 logging.basicConfig(
@@ -386,6 +387,12 @@ def _sanitize_texts_batch(texts):
         total_warnings += len(warnings)
     return sanitized, total_warnings
 
+def _build_provider_info():
+    return {
+        'local_only': os.environ.get('EMOTION_LOCAL_ONLY', '1') not in ('', '0', 'false', 'False'),
+        'model_dir': os.environ.get('EMOTION_MODEL_DIR', '') or DEFAULT_LOCAL_MODEL_DIR,
+    }
+
 # Read admin API key per-request to reflect environment changes during tests
 def get_admin_api_key() -> str | None:
     """Fetch the admin API key from the environment on each call.
@@ -644,10 +651,7 @@ def nlp_emotion():
             'text': sanitized_text,
             'scores': dist,
             'provider': EMOTION_PROVIDER,
-            'provider_info': {
-                'local_only': os.environ.get('EMOTION_LOCAL_ONLY', '1') not in ('', '0', 'false', 'False'),
-                'model_dir': os.environ.get('EMOTION_MODEL_DIR', '') or '/models/emotion-english-distilroberta-base'
-            },
+            'provider_info': _build_provider_info(),
             'timestamp': time.time(),
             'security': {
                 'sanitization_warnings': warnings,
@@ -741,10 +745,7 @@ def nlp_emotion_batch():
             'results': responses,
             'count': len(responses),
             'provider': EMOTION_PROVIDER,
-            'provider_info': {
-                'local_only': os.environ.get('EMOTION_LOCAL_ONLY', '1') not in ('', '0', 'false', 'False'),
-                'model_dir': os.environ.get('EMOTION_MODEL_DIR', '') or '/models/emotion-english-distilroberta-base'
-            },
+            'provider_info': _build_provider_info(),
             'batch_processing_time_ms': round(response_time * 1000, 2),
             'security': {
                 'sanitization_warnings': total_warnings,
