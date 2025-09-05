@@ -61,8 +61,7 @@ logger.info("✅ Namespaces added successfully")
 class Health(Resource):
     """A Flask-RESTX resource for handling health status requests."""
 
-    @staticmethod
-    def get():
+    def get(self):
         """Return the health status of the service."""
         return {'status': 'healthy'}
 
@@ -70,8 +69,7 @@ class Health(Resource):
 class AdminStatus(Resource):
     """A Flask-RESTX resource for handling admin status requests."""
 
-    @staticmethod
-    def get():
+    def get(self):
         """Return the admin status of the service."""
         return {'admin_status': 'ok'}
 
