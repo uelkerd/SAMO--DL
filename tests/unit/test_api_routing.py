@@ -24,7 +24,6 @@ class TestAPIRouting(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
-
         try:
             # Try to import from the deployment directory
             import importlib.util
