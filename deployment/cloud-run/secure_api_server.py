@@ -510,7 +510,8 @@ def initialize_model():
         if getattr(app, "debug", False) or os.environ.get("FLASK_ENV") == "development":
             logger.info("Final route registration check:")
             for rule in app.url_map.iter_rules():
-                logger.info("  Route: %s -> %s (methods: %s)", rule.rule, rule.endpoint, list(rule.methods))
+                logger.info("  Route: %s -> %s (methods: %s)",
+                           rule.rule, rule.endpoint, list(rule.methods))
 
         # Load the emotion detection model
         logger.info("🔄 Loading emotion detection model...")

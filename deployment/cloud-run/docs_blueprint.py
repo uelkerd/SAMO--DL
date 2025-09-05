@@ -24,7 +24,8 @@ def serve_openapi_spec():
         except AttributeError:
             # Fallback for Python < 3.9
             try:
-                os.path.commonpath([str(allowed_dir), str(abs_spec_path)]) == str(allowed_dir)
+                os.path.commonpath([str(allowed_dir), str(abs_spec_path)]) == \
+                    str(allowed_dir)
                 is_contained = True
             except ValueError:
                 is_contained = False

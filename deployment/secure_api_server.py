@@ -303,7 +303,8 @@ class SecureEmotionDetectionModel:
                 all_probs = probabilities[0].cpu().numpy()
             
             prediction_time = time.time() - start_time
-            logger.info("Secure prediction completed in %.3fs: '%s...' → %s (conf: %.3f)", prediction_time, sanitized_text[:50], predicted_emotion, confidence)
+            logger.info("Secure prediction completed in %.3fs: '%s...' → %s (conf: %.3f)",
+                       prediction_time, sanitized_text[:50], predicted_emotion, confidence)
             
             # Create secure response
             return {
