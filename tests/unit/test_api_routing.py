@@ -57,27 +57,6 @@ class TestAPIRouting(unittest.TestCase):
         os.environ.setdefault('MAX_INPUT_LENGTH', '512')
         os.environ.setdefault('RATE_LIMIT_PER_MINUTE', '100')
 
-    @classmethod
-    def is_api_available(cls):
-        """Check if API is available for testing."""
-        # This is a simplified check - in practice, we'd need to check the actual instance
-        # For now, we'll assume API is available if the import succeeded
-        try:
-            # Try to import from the deployment directory
-            import importlib.util
-            spec = importlib.util.spec_from_file_location(
-                "secure_api_server",
-                Path(__file__).parent.parent.parent / "deployment" / "cloud-run" / "secure_api_server.py"
-            )
-            if spec and spec.loader:
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-                return True
-            else:
-                from secure_api_server import app
-                return True
-        except (ImportError, OSError):
-            return False
 
     def tearDown(self):
         """Clean up after tests."""
@@ -86,7 +65,6 @@ class TestAPIRouting(unittest.TestCase):
             if key in os.environ:
                 del os.environ[key]
 
-    @unittest.skipUnless(TestAPIRouting.is_api_available, "API not available")
     def test_root_endpoint(self):
         """Test that root endpoint is accessible and returns correct response."""
         response = self.app.get('/')
@@ -99,7 +77,6 @@ class TestAPIRouting(unittest.TestCase):
         self.assertEqual(data['service'], 'SAMO Emotion Detection API')
         self.assertEqual(data['status'], 'operational')
 
-    @unittest.skipUnless(TestAPIRouting.is_api_available, "API not available")
     def test_health_endpoint(self):
         """Test health endpoint returns correct status."""
         response = self.app.get('/api/health')
@@ -110,7 +87,6 @@ class TestAPIRouting(unittest.TestCase):
         self.assertIn('model_loaded', data)
         self.assertIn('timestamp', data)
 
-    @unittest.skipUnless(TestAPIRouting.is_api_available, "API not available")
     def test_predict_endpoint_no_auth(self):
         """Test predict endpoint requires API key."""
         response = self.app.post('/api/predict',
@@ -122,7 +98,6 @@ class TestAPIRouting(unittest.TestCase):
         self.assertIn('error', data)
         self.assertIn('Unauthorized', data['error'])
 
-    @unittest.skipUnless(TestAPIRouting.is_api_available, "API not available")
     def test_predict_endpoint_with_auth(self):
         """Test predict endpoint works with valid API key."""
         response = self.app.post('/api/predict',
@@ -133,7 +108,6 @@ class TestAPIRouting(unittest.TestCase):
         # Should succeed (200) or be rate limited (429), but not auth error (401)
         self.assertIn(response.status_code, [200, 429])
 
-    @unittest.skipUnless(TestAPIRouting.is_api_available, "API not available")
     def test_predict_batch_endpoint_no_auth(self):
         """Test predict_batch endpoint requires API key."""
         response = self.app.post('/api/predict_batch',
@@ -145,7 +119,6 @@ class TestAPIRouting(unittest.TestCase):
         self.assertIn('error', data)
         self.assertIn('Unauthorized', data['error'])
 
-    @unittest.skipUnless(TestAPIRouting.is_api_available, "API not available")
     def test_predict_batch_endpoint_with_auth(self):
         """Test predict_batch endpoint works with valid API key."""
         response = self.app.post('/api/predict_batch',
@@ -156,7 +129,6 @@ class TestAPIRouting(unittest.TestCase):
         # Should succeed (200) or be rate limited (429), but not auth error (401)
         self.assertIn(response.status_code, [200, 429])
 
-    @unittest.skipUnless(TestAPIRouting.is_api_available, "API not available")
     def test_emotions_endpoint(self):
         """Test emotions endpoint returns supported emotions."""
         response = self.app.get('/api/emotions')
@@ -168,7 +140,6 @@ class TestAPIRouting(unittest.TestCase):
         self.assertIsInstance(data['emotions'], list)
         self.assertGreater(data['count'], 0)
 
-    @unittest.skipUnless(TestAPIRouting.is_api_available, "API not available")
     def test_admin_model_status_no_auth(self):
         """Test admin model status endpoint requires API key."""
         response = self.app.get('/admin/model_status')
@@ -178,7 +149,6 @@ class TestAPIRouting(unittest.TestCase):
         self.assertIn('error', data)
         self.assertIn('Unauthorized', data['error'])
 
-    @unittest.skipUnless(TestAPIRouting.is_api_available, "API not available")
     def test_admin_model_status_with_auth(self):
         """Test admin model status endpoint works with valid API key."""
         response = self.app.get('/admin/model_status',
@@ -187,7 +157,6 @@ class TestAPIRouting(unittest.TestCase):
         # Should succeed (200) or be rate limited (429), but not auth error (401)
         self.assertIn(response.status_code, [200, 429])
 
-    @unittest.skipUnless(TestAPIRouting.is_api_available, "API not available")
     def test_predict_endpoint_missing_text(self):
         """Test predict endpoint handles missing text field."""
         response = self.app.post('/api/predict',
@@ -200,7 +169,6 @@ class TestAPIRouting(unittest.TestCase):
         self.assertIn('error', data)
         self.assertIn('Missing text field', data['error'])
 
-    @unittest.skipUnless(TestAPIRouting.is_api_available, "API not available")
     def test_predict_endpoint_invalid_text(self):
         """Test predict endpoint handles invalid text input."""
         response = self.app.post('/api/predict',
@@ -213,7 +181,6 @@ class TestAPIRouting(unittest.TestCase):
         self.assertIn('error', data)
         self.assertIn('non-empty string', data['error'])
 
-    @unittest.skipUnless(TestAPIRouting.is_api_available, "API not available")
     def test_namespace_routing_no_double_slashes(self):
         """Test that namespace routes don't have double slashes."""
         # Test that /api/health works (not //api/health)

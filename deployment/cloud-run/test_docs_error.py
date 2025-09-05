@@ -4,6 +4,7 @@ Test script to investigate the Swagger docs 500 error
 """
 
 import os
+import sys
 import requests
 
 # Set required environment variables
@@ -41,6 +42,7 @@ try:
         time.sleep(0.1)
     else:
         print("❌ Server failed to start within timeout")
+        sys.exit(1)
     
     # Test docs endpoint specifically
     base_url = "http://localhost:8082"
