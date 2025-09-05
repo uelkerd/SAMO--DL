@@ -92,6 +92,8 @@ class HFEmotionService(EmotionService):
         }
         if (token := os.environ.get(self.hf_token_env)):
             kwargs["token"] = token
+        # Explicitly disable remote code execution for safety
+        kwargs["trust_remote_code"] = False
         self._pipeline = pipeline(**kwargs)
         logger.info("HFEmotionService loaded remote model: %s", self.model_name)
 
