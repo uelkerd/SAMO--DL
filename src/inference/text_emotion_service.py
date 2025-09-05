@@ -6,6 +6,8 @@ from typing import List, Dict, Any, Optional, Union
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_LOCAL_MODEL_DIR = "/models/emotion-english-distilroberta-base"
+
 
 class EmotionService:
     """Abstract emotion classification service interface."""
@@ -46,6 +48,9 @@ class HFEmotionService(EmotionService):
         model_dir = os.environ.get(self.model_dir_env)
         local_only = os.environ.get(self.local_only_env, "1").strip() not in {"", "0", "false", "False"}
 
+        if not model_dir and local_only:
+            model_dir = DEFAULT_LOCAL_MODEL_DIR
+
         if model_dir and os.path.isdir(model_dir):
             # Load strictly from local directory
             tokenizer = AutoTokenizer.from_pretrained(model_dir, local_files_only=True)
@@ -62,8 +67,9 @@ class HFEmotionService(EmotionService):
         if local_only:
             # Local-only requested but directory missing → fail fast
             raise RuntimeError(
-                "Local-only mode enabled but EMOTION_MODEL_DIR is not set or invalid. "
-                "Please download the model locally and set EMOTION_MODEL_DIR."
+                "Local-only mode enabled but local model directory not found. "
+                f"Expected at: {model_dir or DEFAULT_LOCAL_MODEL_DIR}. "
+                "Please place the model files locally or set EMOTION_MODEL_DIR."
             )
 
         # Fallback to remote model (dev only). Token optional.
