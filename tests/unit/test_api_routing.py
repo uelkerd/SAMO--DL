@@ -5,14 +5,11 @@
 Tests for Flask-RESTX routing fixes and endpoint functionality.
 """
 
-import sys
 import os
 import unittest
 import json
 from unittest.mock import patch
-
-# Add the deployment/cloud-run directory to the path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'deployment', 'cloud-run'))
+from pathlib import Path
 
 class TestAPIRouting(unittest.TestCase):
     """Test API routing and endpoint functionality."""
@@ -34,7 +31,19 @@ class TestAPIRouting(unittest.TestCase):
                  'model_size': '100MB'
              }):
             try:
-                from secure_api_server import app
+                # Try to import from the deployment directory
+                import importlib.util
+                spec = importlib.util.spec_from_file_location(
+                    "secure_api_server",
+                    Path(__file__).parent.parent.parent / "deployment" / "cloud-run" / "secure_api_server.py"
+                )
+                if spec and spec.loader:
+                    module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(module)
+                    app = module.app
+                else:
+                    from secure_api_server import app
+
                 self.app = app.test_client()
                 self.app.testing = True
                 self.api_available = True
@@ -54,8 +63,19 @@ class TestAPIRouting(unittest.TestCase):
         # This is a simplified check - in practice, we'd need to check the actual instance
         # For now, we'll assume API is available if the import succeeded
         try:
-            from secure_api_server import app
-            return True
+            # Try to import from the deployment directory
+            import importlib.util
+            spec = importlib.util.spec_from_file_location(
+                "secure_api_server",
+                Path(__file__).parent.parent.parent / "deployment" / "cloud-run" / "secure_api_server.py"
+            )
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                return True
+            else:
+                from secure_api_server import app
+                return True
         except (ImportError, OSError):
             return False
 

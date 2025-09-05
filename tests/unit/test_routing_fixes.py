@@ -38,7 +38,7 @@ class TestRoutingFixes(unittest.TestCase):
             content = f.read()
 
         # Find the positions of root endpoint registration and Flask-RESTX initialization
-        root_route_match = re.search(r"@app\.route\('/', methods=\['GET'\]\)", content)
+        root_route_match = re.search(r"@app\.route\('/'\)", content)
         api_init_match = re.search(r"api = Api\(.*?\)", content, re.DOTALL)
 
         if root_route_match and api_init_match:
