@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - 2025-08-07
 
+### Added
+- HF emotion model integration as default local provider with env toggles (`EMOTION_LOCAL_ONLY` default on, `EMOTION_MODEL_DIR` default `/models/emotion-english-distilroberta-base`).
+- New endpoints in `deployment/secure_api_server.py`:
+  - `POST /nlp/emotion` (single text)
+  - `POST /nlp/emotion/batch` (batch texts)
+- Maintenance script `scripts/ensure_local_emotion_model.py` to auto-download and materialize the model locally; logs to `.logs/model_download.log`.
+
+### Dependencies
+- Add `huggingface_hub==0.25.2` to `dependencies/requirements-api.txt` for snapshot downloads.
+
 ### Code Quality Improvements - Vertex AI Training Script
 - ✅ **Refactored main function complexity** in `scripts/training/vertex_ai_training.py` to fix PLR0912 warning
 - ✅ **Reduced main function branches** from 15+ to 2 (well under 12-branch limit)
@@ -16,9 +26,6 @@ All notable changes to this project will be documented in this file.
 ### Docker Security Hardening
 - Hardened `deployment/cloud-run/Dockerfile` and `deployment/cloud-run/Dockerfile.unified` (non-root user, pinned OS packages, healthchecks, explicit EXPOSE, clarified uvicorn entrypoint).
 - Added `deployment/DOCKERFILE_SECURITY_GUIDE.md`.
-
-### Added
-- `scripts/fix_linting_issues.py` to automate PEP8-style fixes.
 
 ### Changed
 - Improve logging and formatting in `scripts/database/check_pgvector.py`.
