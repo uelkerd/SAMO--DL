@@ -31,6 +31,7 @@ import functools
 from ..src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
 from ..src.input_sanitizer import InputSanitizer, SanitizationConfig
 from ..src.security_setup import setup_security_middleware, get_environment
+from ..src.inference.text_emotion_service import HFEmotionService  # type: ignore
 
 # Configure logging
 logging.basicConfig(
@@ -348,6 +349,19 @@ def get_secure_model():
     """
     return create_secure_model()
 
+# Provider selection for text emotion
+EMOTION_PROVIDER = os.environ.get("EMOTION_PROVIDER", "hf").lower()
+_hf_service: HFEmotionService | None = None
+
+
+def get_emotion_service():
+    global _hf_service
+    if EMOTION_PROVIDER == "hf":
+        if _hf_service is None:
+            _hf_service = HFEmotionService()
+        return _hf_service
+    raise RuntimeError(f"Unsupported EMOTION_PROVIDER: {EMOTION_PROVIDER}")
+
 # Read admin API key per-request to reflect environment changes during tests
 def get_admin_api_key() -> str | None:
     """Fetch the admin API key from the environment on each call.
@@ -555,6 +569,127 @@ def predict_batch():
         logger.error(f"Secure batch prediction endpoint error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/nlp/emotion', methods=['POST'])
+@secure_endpoint
+def nlp_emotion():
+    start_time = time.time()
+    try:
+        try:
+            data = request.get_json()
+        except werkzeug.exceptions.BadRequest:
+            response_time = time.time() - start_time
+            update_metrics(response_time, success=False, error_type='invalid_json')
+            return jsonify({'error': 'Invalid JSON format'}), 400
+
+        if not data:
+            response_time = time.time() - start_time
+            update_metrics(response_time, success=False, error_type='missing_data')
+            return jsonify({'error': 'No data provided'}), 400
+
+        text = data.get('text') if isinstance(data, dict) else None
+        if not isinstance(text, str) or not text.strip():
+            response_time = time.time() - start_time
+            update_metrics(response_time, success=False, error_type='validation_error')
+            return jsonify({'error': 'Field "text" must be a non-empty string'}), 400
+
+        sanitized_text, warnings = input_sanitizer.sanitize_text(text, "emotion")
+        service = get_emotion_service()
+        results = service.classify(sanitized_text)
+        # results is List[List[{label, score}]]
+        dist = results[0]
+        response = {
+            'text': sanitized_text,
+            'scores': dist,
+            'provider': EMOTION_PROVIDER,
+            'timestamp': time.time(),
+            'security': {
+                'sanitization_warnings': warnings,
+                'request_id': getattr(g, 'request_id', None),
+                'correlation_id': getattr(g, 'correlation_id', None)
+            }
+        }
+
+        # Update distribution metric by top label
+        try:
+            top = max(dist, key=lambda x: x.get('score', 0.0))
+            update_metrics(time.time() - start_time, success=True, emotion=top.get('label'), sanitization_warnings=len(warnings))
+        except Exception:
+            update_metrics(time.time() - start_time, success=True, sanitization_warnings=len(warnings))
+
+        return jsonify(response)
+    except Exception as e:
+        response_time = time.time() - start_time
+        update_metrics(response_time, success=False, error_type='prediction_error')
+        logger.error("NLP emotion error: %s", e)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/nlp/emotion/batch', methods=['POST'])
+@secure_endpoint
+def nlp_emotion_batch():
+    start_time = time.time()
+    try:
+        try:
+            data = request.get_json()
+        except werkzeug.exceptions.BadRequest:
+            response_time = time.time() - start_time
+            update_metrics(response_time, success=False, error_type='invalid_json')
+            return jsonify({'error': 'Invalid JSON format'}), 400
+
+        if not data or 'texts' not in data or not isinstance(data['texts'], list):
+            response_time = time.time() - start_time
+            update_metrics(response_time, success=False, error_type='validation_error')
+            return jsonify({'error': 'Field "texts" must be a list of strings'}), 400
+
+        texts = [t for t in data['texts'] if isinstance(t, str) and t.strip()]
+        if not texts:
+            response_time = time.time() - start_time
+            update_metrics(response_time, success=False, error_type='validation_error')
+            return jsonify({'error': 'No valid texts provided'}), 400
+
+        sanitized = []
+        total_warnings = 0
+        for t in texts:
+            s, warnings = input_sanitizer.sanitize_text(t, "emotion")
+            sanitized.append(s)
+            total_warnings += len(warnings)
+
+        service = get_emotion_service()
+        results = service.classify(sanitized)
+        # results is List[List[{label, score}]]; align each input to distribution
+        responses = []
+        for text, dist in zip(sanitized, results):
+            top = max(dist, key=lambda x: x.get('score', 0.0)) if dist else {'label': 'unknown', 'score': 0.0}
+            responses.append({
+                'text': text,
+                'scores': dist,
+                'top_label': top.get('label'),
+                'top_score': top.get('score')
+            })
+
+        response_time = time.time() - start_time
+        try:
+            first_top = max(results[0], key=lambda x: x.get('score', 0.0)) if results and results[0] else None
+            update_metrics(response_time, success=True, emotion=(first_top.get('label') if first_top else None), sanitization_warnings=total_warnings)
+        except Exception:
+            update_metrics(response_time, success=True, sanitization_warnings=total_warnings)
+
+        return jsonify({
+            'results': responses,
+            'count': len(responses),
+            'provider': EMOTION_PROVIDER,
+            'batch_processing_time_ms': round(response_time * 1000, 2),
+            'security': {
+                'sanitization_warnings': total_warnings,
+                'request_id': getattr(g, 'request_id', None),
+                'correlation_id': getattr(g, 'correlation_id', None)
+            }
+        })
+    except Exception as e:
+        response_time = time.time() - start_time
+        update_metrics(response_time, success=False, error_type='batch_prediction_error')
+        logger.error("NLP emotion batch error: %s", e)
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/metrics', methods=['GET'])
 def get_metrics():
     """Get detailed security metrics endpoint."""
@@ -639,6 +774,8 @@ def home():
                 'GET /metrics': 'Detailed security metrics',
                 'POST /predict': 'Secure single prediction',
                 'POST /predict_batch': 'Secure batch prediction',
+                'POST /nlp/emotion': 'HF-backed text emotion classification',
+                'POST /nlp/emotion/batch': 'HF-backed batch text emotion classification',
                 'POST /security/blacklist': 'Add IP to blacklist (admin)',
                 'POST /security/whitelist': 'Add IP to whitelist (admin)'
             },
