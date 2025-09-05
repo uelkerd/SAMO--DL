@@ -96,6 +96,7 @@ def _validate_and_prepare_texts(texts: List[str]) -> Tuple[List[Optional[Dict[st
     return results, valid_texts, valid_indices
 
 
+
 def ensure_model_loaded() -> bool:
     """
     Thread-safe emotion model loading with proper error handling.
@@ -124,7 +125,7 @@ def ensure_model_loaded() -> bool:
         if EMOTION_LOCAL_ONLY and os.path.isdir(EMOTION_MODEL_DIR):
             # Load from local directory
             logger.info("📁 Loading from local model directory: %s",
-                       EMOTION_MODEL_DIR)
+                        EMOTION_MODEL_DIR)
             tokenizer = AutoTokenizer.from_pretrained(
                 EMOTION_MODEL_DIR, local_files_only=True
             )
@@ -146,7 +147,7 @@ def ensure_model_loaded() -> bool:
                 logger.info("✅ Emotion model loaded from Hugging Face Hub")
             except Exception as download_error:
                 logger.warning("Failed to load from cache, downloading model: %s",
-                              download_error)
+                               download_error)
                 # Force download the model
                 from huggingface_hub import snapshot_download
                 model_path = snapshot_download(
