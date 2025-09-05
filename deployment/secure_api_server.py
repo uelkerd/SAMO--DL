@@ -349,18 +349,42 @@ def get_secure_model():
     """
     return create_secure_model()
 
-# Provider selection for text emotion
+# Provider selection for text emotion (simple registry/factory)
 EMOTION_PROVIDER = os.environ.get("EMOTION_PROVIDER", "hf").lower()
-_hf_service: HFEmotionService | None = None
+_provider_registry = {}
+
+
+def register_provider(name, factory):
+    _provider_registry[name] = factory
 
 
 def get_emotion_service():
-    global _hf_service
-    if EMOTION_PROVIDER == "hf":
-        if _hf_service is None:
-            _hf_service = HFEmotionService()
-        return _hf_service
-    raise RuntimeError(f"Unsupported EMOTION_PROVIDER: {EMOTION_PROVIDER}")
+    name = EMOTION_PROVIDER
+    factory = _provider_registry.get(name)
+    if not factory:
+        raise ValueError(f"Unsupported EMOTION_PROVIDER: {name}")
+    return factory()
+
+
+# Register default providers
+register_provider("hf", lambda: HFEmotionService())
+
+
+def _parse_single_text_payload(data):
+    text = data.get('text') if isinstance(data, dict) else None
+    if not isinstance(text, str) or not text.strip():
+        raise ValueError('Field "text" must be a non-empty string')
+    return text
+
+
+def _sanitize_texts_batch(texts):
+    sanitized = []
+    total_warnings = 0
+    for t in texts:
+        s, warnings = input_sanitizer.sanitize_text(t, "emotion")
+        sanitized.append(s)
+        total_warnings += len(warnings)
+    return sanitized, total_warnings
 
 # Read admin API key per-request to reflect environment changes during tests
 def get_admin_api_key() -> str | None:
@@ -586,14 +610,25 @@ def nlp_emotion():
             update_metrics(response_time, success=False, error_type='missing_data')
             return jsonify({'error': 'No data provided'}), 400
 
-        text = data.get('text') if isinstance(data, dict) else None
-        if not isinstance(text, str) or not text.strip():
+        try:
+            text = _parse_single_text_payload(data)
+        except ValueError as e:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='validation_error')
-            return jsonify({'error': 'Field "text" must be a non-empty string'}), 400
+            return jsonify({'error': str(e)}), 400
 
         sanitized_text, warnings = input_sanitizer.sanitize_text(text, "emotion")
-        service = get_emotion_service()
+        try:
+            service = get_emotion_service()
+        except (ImportError, ValueError) as e:
+            response_time = time.time() - start_time
+            update_metrics(response_time, success=False, error_type='provider_error')
+            return jsonify({'error': f'Emotion provider misconfiguration: {str(e)}'}), 503
+        except Exception as e:
+            response_time = time.time() - start_time
+            update_metrics(response_time, success=False, error_type='provider_error')
+            return jsonify({'error': f'Unknown provider error: {str(e)}'}), 500
+
         results = service.classify(sanitized_text)
         # results is List[List[{label, score}]]
         dist = results[0]
@@ -644,21 +679,38 @@ def nlp_emotion_batch():
             update_metrics(response_time, success=False, error_type='validation_error')
             return jsonify({'error': 'Field "texts" must be a list of strings'}), 400
 
-        texts = [t for t in data['texts'] if isinstance(t, str) and t.strip()]
+        original_texts = data['texts']
+        texts = [t for t in original_texts if isinstance(t, str) and t.strip()]
+        num_filtered = len(original_texts) - len(texts)
+        if num_filtered > 0:
+            logger.warning("%s invalid texts filtered out from input batch.", num_filtered)
         if not texts:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='validation_error')
             return jsonify({'error': 'No valid texts provided'}), 400
 
-        sanitized = []
-        total_warnings = 0
-        for t in texts:
-            s, warnings = input_sanitizer.sanitize_text(t, "emotion")
-            sanitized.append(s)
-            total_warnings += len(warnings)
+        sanitized, total_warnings = _sanitize_texts_batch(texts)
 
-        service = get_emotion_service()
+        try:
+            service = get_emotion_service()
+        except (ImportError, ValueError) as e:
+            response_time = time.time() - start_time
+            update_metrics(response_time, success=False, error_type='provider_error')
+            return jsonify({'error': f'Emotion provider misconfiguration: {str(e)}'}), 503
+        except Exception as e:
+            response_time = time.time() - start_time
+            update_metrics(response_time, success=False, error_type='provider_error')
+            return jsonify({'error': f'Unknown provider error: {str(e)}'}), 500
+
         results = service.classify(sanitized)
+
+        # Validate alignment
+        if not isinstance(results, list) or len(results) != len(sanitized):
+            response_time = time.time() - start_time
+            update_metrics(response_time, success=False, error_type='provider_misalignment')
+            logger.error("Provider result count %s does not match input count %s", len(results) if isinstance(results, list) else 'N/A', len(sanitized))
+            return jsonify({'error': 'Provider returned mismatched result count'}), 502
+
         # results is List[List[{label, score}]]; align each input to distribution
         responses = []
         for text, dist in zip(sanitized, results):
