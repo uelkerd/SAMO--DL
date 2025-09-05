@@ -691,7 +691,7 @@ def nlp_emotion():
             update_metrics(response_time, success=False, error_type='provider_error')
             logger.error("Emotion provider misconfiguration: %s", e, exc_info=True)
             return jsonify({'error': 'Emotion provider misconfiguration.'}), 503
-        except Exception as e:
+        except Exception:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='provider_error')
             logger.error("Unknown provider error in /nlp/emotion", exc_info=True)
@@ -757,7 +757,7 @@ def nlp_emotion_batch():
     start_time = time.time()
     try:
         data = _get_json_payload_or_raise()
-        original_texts, texts, num_filtered = _extract_and_filter_texts_or_raise(data)
+        _original_texts, texts, num_filtered = _extract_and_filter_texts_or_raise(data)
         if num_filtered > 0:
             logger.warning(
                 "%s invalid texts filtered out from input batch.", num_filtered
@@ -776,7 +776,7 @@ def nlp_emotion_batch():
                 "Emotion provider misconfiguration: %s", str(e), exc_info=True
             )
             return jsonify({'error': 'Emotion provider misconfiguration.'}), 503
-        except Exception as e:
+        except Exception:
             response_time = time.time() - start_time
             update_metrics(
                 response_time, success=False, error_type='provider_error'
