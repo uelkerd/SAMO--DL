@@ -16,46 +16,56 @@ class TestAPIRouting(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
-        # Mock the model loading functions to avoid dependency issues
-        with patch('secure_api_server.ensure_model_loaded', return_value=True), \
-             patch('secure_api_server.predict_emotions', return_value={
-                 'text': 'test text',
-                 'emotions': [{'emotion': 'happy', 'confidence': 0.9}],
-                 'confidence': 0.9,
-                 'request_id': 'test-123',
-                 'timestamp': 1234567890
-             }), \
-             patch('secure_api_server.get_model_status', return_value={
-                 'model_loaded': True,
-                 'model_path': '/test/path',
-                 'model_size': '100MB'
-             }):
-            try:
-                # Try to import from the deployment directory
-                import importlib.util
-                spec = importlib.util.spec_from_file_location(
-                    "secure_api_server",
-                    Path(__file__).parent.parent.parent / "deployment" / "cloud-run" / "secure_api_server.py"
-                )
-                if spec and spec.loader:
-                    module = importlib.util.module_from_spec(spec)
-                    spec.loader.exec_module(module)
-                    app = module.app
-                else:
-                    from secure_api_server import app
-
-                self.app = app.test_client()
-                self.app.testing = True
-                self.api_available = True
-            except (ImportError, OSError) as e:
-                print(f"Warning: Could not import secure_api_server: {e}")
-                self.api_available = False
-                self.app = None
-
-        # Set required environment variables
+        # Set required environment variables BEFORE importing
         os.environ.setdefault('ADMIN_API_KEY', 'test-admin-key-123')
         os.environ.setdefault('MAX_INPUT_LENGTH', '512')
         os.environ.setdefault('RATE_LIMIT_PER_MINUTE', '100')
+
+        try:
+            # Try to import from the deployment directory
+            import importlib.util
+            spec = importlib.util.spec_from_file_location(
+                "secure_api_server",
+                Path(__file__).parent.parent.parent / "deployment" / "cloud-run" / "secure_api_server.py"
+            )
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                app = module.app
+            else:
+                from secure_api_server import app
+
+            # Create patchers for the imported module functions
+            self.check_model_loaded_patcher = patch.object(app.view_functions.get('check_model_loaded', lambda: True), '__call__', return_value=True)
+            self.predict_emotion_patcher = patch('secure_api_server.predict_emotion', return_value={
+                'text': 'test text',
+                'emotions': [{'emotion': 'happy', 'confidence': 0.9}],
+                'confidence': 0.9,
+                'request_id': 'test-123',
+                'timestamp': 1234567890
+            })
+            self.get_model_status_patcher = patch('secure_api_server.get_model_status', return_value={
+                'model_loaded': True,
+                'model_path': '/test/path',
+                'model_size': '100MB'
+            })
+
+            # Start patchers and register cleanup
+            self.check_model_loaded_patcher.start()
+            self.predict_emotion_patcher.start()
+            self.get_model_status_patcher.start()
+
+            self.addCleanup(self.check_model_loaded_patcher.stop)
+            self.addCleanup(self.predict_emotion_patcher.stop)
+            self.addCleanup(self.get_model_status_patcher.stop)
+
+            self.app = app.test_client()
+            self.app.testing = True
+            self.api_available = True
+        except (ImportError, OSError) as e:
+            print(f"Warning: Could not import secure_api_server: {e}")
+            self.api_available = False
+            self.app = None
 
 
     def tearDown(self):

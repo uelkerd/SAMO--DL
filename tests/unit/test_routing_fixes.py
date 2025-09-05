@@ -38,13 +38,17 @@ class TestRoutingFixes(unittest.TestCase):
             content = f.read()
 
         # Find the positions of root endpoint registration and Flask-RESTX initialization
-        root_route_match = re.search(r"@app\.route\('/'\)", content)
-        api_init_match = re.search(r"api = Api\(.*?\)", content, re.DOTALL)
+        # More flexible regex to handle different formatting (quotes, whitespace, methods)
+        root_route_match = re.search(r"@app\.route\s*\(\s*['\"]/['\"]\s*(?:,\s*methods\s*=\s*\[.*?\])?\s*\)", content)
+        api_init_match = re.search(r"api\s*=\s*Api\s*\(", content)
 
-        if root_route_match and api_init_match:
-            root_pos = root_route_match.start()
-            api_pos = api_init_match.start()
-            self.assertLess(root_pos, api_pos, "Root endpoint should be registered before Flask-RESTX initialization")
+        # Explicit assertions to ensure patterns are found
+        self.assertIsNotNone(root_route_match, "Root route pattern not found in source code")
+        self.assertIsNotNone(api_init_match, "API initialization pattern not found in source code")
+
+        root_pos = root_route_match.start()
+        api_pos = api_init_match.start()
+        self.assertLess(root_pos, api_pos, "Root endpoint should be registered before Flask-RESTX initialization")
 
     def test_test_files_fixed(self):
         """Test that test files have been fixed with correct namespace definitions."""
@@ -64,12 +68,16 @@ class TestRoutingFixes(unittest.TestCase):
         if os.path.exists(test_file):
             with open(test_file, 'r') as f:
                 content = f.read()
-            root_route_match = re.search(r"@app\.route\('/', methods=\['GET'\]\)|@app\.route\('/', methods=\[\"GET\"\]\)|@app\.route\('/'\)", content)
-            api_init_match = re.search(r"api = Api\(.*?\)", content, re.DOTALL)
-            if root_route_match and api_init_match:
-                root_pos = root_route_match.start()
-                api_pos = api_init_match.start()
-                self.assertLess(root_pos, api_pos, f"Root endpoint should be before API init in {test_file}")
+            root_route_match = re.search(r"@app\.route\s*\(\s*['\"]/['\"]\s*(?:,\s*methods\s*=\s*\[.*?\])?\s*\)", content)
+            api_init_match = re.search(r"api\s*=\s*Api\s*\(", content)
+
+            # Explicit assertions to ensure patterns are found
+            self.assertIsNotNone(root_route_match, f"Root route pattern not found in {test_file}")
+            self.assertIsNotNone(api_init_match, f"API initialization pattern not found in {test_file}")
+
+            root_pos = root_route_match.start()
+            api_pos = api_init_match.start()
+            self.assertLess(root_pos, api_pos, f"Root endpoint should be before API init in {test_file}")
 
     def test_no_double_slashes_in_routes(self):
         """Test that there are no double slashes in route definitions."""
