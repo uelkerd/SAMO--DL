@@ -32,23 +32,38 @@ class TestAPIRouting(unittest.TestCase):
                 Path(__file__).parent.parent.parent / "deployment" / "cloud-run" / "secure_api_server.py"
             )
             if spec and spec.loader:
-                # Create patchers BEFORE executing the module to ensure routes register properly
-                with patch('secure_api_server.predict_emotion', return_value={
+            if spec and spec.loader:
+                import sys
+                # Load the module under its spec name so patch targets resolve correctly
+                self.module = importlib.util.module_from_spec(spec)
+                sys.modules[spec.name] = self.module
+                spec.loader.exec_module(self.module)
+
+                # Persistent mocks for each test
+                self._patchers = []
+                def _start(patcher):
+                    self._patchers.append(patcher)
+                    return patcher.start()
+
+                _start(patch.object(self.module, 'check_model_loaded', return_value=True))
+                _start(patch.object(self.module, 'predict_emotion', return_value={
                     'text': 'test text',
                     'emotions': [{'emotion': 'happy', 'confidence': 0.9}],
                     'confidence': 0.9,
                     'request_id': 'test-123',
                     'timestamp': 1234567890
-                }), \
-                patch('secure_api_server.get_model_status', return_value={
+                }))
+                _start(patch.object(self.module, 'get_model_status', return_value={
                     'model_loaded': True,
                     'model_path': '/test/path',
                     'model_size': '100MB'
-                }), \
-                patch('secure_api_server.check_model_loaded', return_value=True):
-                    self.module = importlib.util.module_from_spec(spec)
-                    spec.loader.exec_module(self.module)
-                    app = self.module.app
+                }))
+
+                # Ensure mocks are stopped after each test
+                for p in self._patchers:
+                    self.addCleanup(p.stop)
+
+                app = self.module.app
             else:
                 import secure_api_server
                 self.module = secure_api_server
