@@ -62,6 +62,40 @@ def _create_emotion_pipeline(tokenizer, model) -> None:
     )
 
 
+def _validate_and_prepare_texts(texts: List[str]) -> Tuple[List[Optional[Dict[str, Any]]], List[str], List[int]]:
+    """
+    Validate input texts and prepare them for batch processing.
+
+    Args:
+        texts: List of input texts to validate
+
+    Returns:
+        Tuple of (results_list, valid_texts, valid_indices)
+    """
+    results = [None] * len(texts)
+    valid_texts = []
+    valid_indices = []
+
+    for i, text in enumerate(texts):
+        if not text or not text.strip():
+            results[i] = {
+                'error': 'Text field is required',
+                'emotions': [],
+                'confidence': 0.0
+            }
+        elif len(text) > MAX_TEXT_LENGTH:
+            results[i] = {
+                'error': f'Text too long (max {MAX_TEXT_LENGTH} characters)',
+                'emotions': [],
+                'confidence': 0.0
+            }
+        else:
+            valid_texts.append(text)
+            valid_indices.append(i)
+
+    return results, valid_texts, valid_indices
+
+
 def ensure_model_loaded() -> bool:
     """
     Thread-safe emotion model loading with proper error handling.
@@ -111,7 +145,8 @@ def ensure_model_loaded() -> bool:
                 )
                 logger.info("✅ Emotion model loaded from Hugging Face Hub")
             except Exception as download_error:
-                logger.warning("Failed to load from cache, downloading model: %s", download_error)
+                logger.warning("Failed to load from cache, downloading model: %s",
+                              download_error)
                 # Force download the model
                 from huggingface_hub import snapshot_download
                 model_path = snapshot_download(
@@ -243,27 +278,8 @@ def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
         } for _ in texts]
 
     try:
-        # Pre-initialize results list to preserve order and handle invalid inputs
-        results = [None] * len(texts)
-        valid_texts_to_process = []
-        valid_indices = []
-
-        for i, text in enumerate(texts):
-            if not text or not text.strip():
-                results[i] = {
-                    'error': 'Text field is required',
-                    'emotions': [],
-                    'confidence': 0.0
-                }
-            elif len(text) > MAX_TEXT_LENGTH:
-                results[i] = {
-                    'error': f'Text too long (max {MAX_TEXT_LENGTH} characters)',
-                    'emotions': [],
-                    'confidence': 0.0
-                }
-            else:
-                valid_texts_to_process.append(text)
-                valid_indices.append(i)
+        # Validate and prepare texts for processing
+        results, valid_texts_to_process, valid_indices = _validate_and_prepare_texts(texts)
 
         # Only run pipeline if there are valid texts
         if valid_texts_to_process:
@@ -275,12 +291,11 @@ def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
                 original_idx = valid_indices[i]
                 text = valid_texts_to_process[i]
 
-                emotions = []
-                for emotion_result in result:
-                    emotions.append({
-                        'emotion': emotion_result['label'],
-                        'confidence': emotion_result['score']
-                    })
+                # Convert emotion results to list comprehension
+                emotions = [
+                    {'emotion': emotion_result['label'], 'confidence': emotion_result['score']}
+                    for emotion_result in result
+                ]
 
                 # Sort by confidence (highest first)
                 emotions.sort(key=lambda x: x['confidence'], reverse=True)
