@@ -368,7 +368,7 @@ def get_emotion_service():
 
 
 # Register default providers
-register_provider("hf", lambda: HFEmotionService())
+register_provider("hf", HFEmotionService)
 
 
 def _parse_single_text_payload(data):
