@@ -479,6 +479,57 @@ def _validate_alignment_count_or_raise(
         )
     return True
 
+
+def _validate_single_results_or_raise(results: Any) -> List[Dict[str, Any]]:
+    """Validate single-input provider results shape and return the distribution.
+
+    Expects results to be List[List[Dict[str, Any]]], with len(results) == 1.
+    Raises _ClientError(502) on invalid shape.
+    """
+    if (not isinstance(results, list)) or (len(results) != 1) or (not isinstance(results[0], list)):
+        outer_type = type(results).__name__
+        outer_len = (len(results) if isinstance(results, list) else 'N/A')
+        inner_type = (type(results[0]).__name__ if isinstance(results, list) and results else 'N/A')
+        logger.error(
+            "Provider returned invalid shape for single input: type=%s len=%s inner_type=%s",
+            outer_type, outer_len, inner_type
+        )
+        raise _ClientError(
+            'Provider returned mismatched result count', 502, 'provider_misalignment'
+        )
+    dist = results[0]
+    if dist and not (isinstance(dist[0], dict) and 'label' in dist[0] and 'score' in dist[0]):
+        inner_first_type = type(dist[0]).__name__ if dist else 'N/A'
+        inner_keys = list(dist[0].keys()) if isinstance(dist[0], dict) else 'N/A'
+        logger.error(
+            "Provider returned invalid inner element: inner_first_type=%s keys=%s",
+            inner_first_type, inner_keys
+        )
+        raise _ClientError(
+            'Provider returned mismatched result count', 502, 'provider_misalignment'
+        )
+    return dist
+
+
+def _build_single_response(
+    sanitized_text: str,
+    dist: List[Dict[str, Any]],
+    warnings: List[Any]
+) -> Dict[str, Any]:
+    """Build JSON response payload for the single-input endpoint."""
+    return {
+        'text': sanitized_text,
+        'scores': dist,
+        'provider': os.environ.get("EMOTION_PROVIDER", EMOTION_PROVIDER).lower(),
+        'provider_info': _build_provider_info(),
+        'timestamp': time.time(),
+        'security': {
+            'sanitization_warnings': warnings,
+            'request_id': getattr(g, 'request_id', None),
+            'correlation_id': getattr(g, 'correlation_id', None)
+        }
+    }
+
 @app.route('/health', methods=['GET'])
 @secure_endpoint
 def health_check():
@@ -668,28 +719,11 @@ def nlp_emotion():
     """Classify emotion distribution for a single input text."""
     start_time = time.time()
     try:
-        try:
-            data = request.get_json()
-        except werkzeug.exceptions.BadRequest:
-            response_time = time.time() - start_time
-            update_metrics(response_time, success=False, error_type='invalid_json')
-            return jsonify({'error': 'Invalid JSON format'}), 400
+        # Parse and validate JSON
+        data = _get_json_payload_or_raise()
+        text = _parse_single_text_payload(data)
 
-        if not data:
-            response_time = time.time() - start_time
-            update_metrics(response_time, success=False, error_type='missing_data')
-            return jsonify({'error': 'No data provided'}), 400
-
-        try:
-            text = _parse_single_text_payload(data)
-        except ValueError as e:
-            response_time = time.time() - start_time
-            update_metrics(response_time, success=False, error_type='validation_error')
-            logger.warning("Validation error in input payload: %s", e)
-            return jsonify({
-                'error': 'Invalid input format or missing required field.'
-            }), 400
-
+        # Sanitize and classify
         sanitized_text, warnings = input_sanitizer.sanitize_text(text, "emotion")
         try:
             service = get_emotion_service()
@@ -705,56 +739,9 @@ def nlp_emotion():
             return jsonify({'error': 'Internal server error'}), 500
 
         results = service.classify(sanitized_text)
+        dist = _validate_single_results_or_raise(results)
 
-        # Validate alignment: expect exactly one result for single input
-        if (
-            (not isinstance(results, list)) or
-            (len(results) != 1) or
-            (not isinstance(results[0], list))
-        ):
-            response_time = time.time() - start_time
-            update_metrics(
-                response_time, success=False, error_type='provider_misalignment'
-            )
-            logger.error(
-                "Provider returned invalid shape for single input: type=%s len=%s "
-                "inner_type=%s",
-                type(results).__name__,
-                (len(results) if isinstance(results, list) else 'N/A'),
-                (type(results[0]).__name__ if isinstance(results, list) and results else 'N/A')
-            )
-            return jsonify({'error': 'Provider returned mismatched result count'}), 502
-
-        # results is List[List[{label, score}]]
-        dist = results[0]
-
-        # Validate inner element shape minimally (first element has label/score)
-        if dist and not (
-            isinstance(dist[0], dict) and 'label' in dist[0] and 'score' in dist[0]
-        ):
-            response_time = time.time() - start_time
-            update_metrics(
-                response_time, success=False, error_type='provider_misalignment'
-            )
-            logger.error(
-                "Provider returned invalid inner element: inner_first_type=%s keys=%s",
-                (type(dist[0]).__name__ if dist else 'N/A'),
-                (list(dist[0].keys()) if isinstance(dist[0], dict) else 'N/A')
-            )
-            return jsonify({'error': 'Provider returned mismatched result count'}), 502
-
-        response = {
-            'text': sanitized_text,
-            'scores': dist,
-            'provider': os.environ.get("EMOTION_PROVIDER", EMOTION_PROVIDER).lower(),
-            'provider_info': _build_provider_info(),
-            'timestamp': time.time(),
-            'security': {
-                'sanitization_warnings': warnings,
-                'request_id': getattr(g, 'request_id', None),
-                'correlation_id': getattr(g, 'correlation_id', None)
-            }
-        }
+        response = _build_single_response(sanitized_text, dist, warnings)
 
         # Update distribution metric by top label
         try:
@@ -776,7 +763,7 @@ def nlp_emotion():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='prediction_error')
-        logger.error("NLP emotion error: %s", e)
+        logger.exception("NLP emotion error")
         return jsonify({'error': 'An internal error occurred.'}), 500
 
 
