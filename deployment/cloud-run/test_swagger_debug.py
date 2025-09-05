@@ -10,6 +10,12 @@ from flask_restx import Api, Resource, Namespace
 # Create Flask app
 app = Flask(__name__)
 
+# Register root endpoint BEFORE Flask-RESTX initialization to avoid conflicts
+@app.route('/')
+def api_root():  # Different function name to avoid conflict
+    """Return the root endpoint message."""
+    return jsonify({'message': 'Root endpoint'})
+
 # Initialize Flask-RESTX API
 api = Api(
     app,
@@ -20,7 +26,7 @@ api = Api(
 )
 
 # Create namespace
-main_ns = Namespace('/api', description='Main operations')
+main_ns = Namespace('api', description='Main operations')
 api.add_namespace(main_ns)
 
 # Test endpoint in namespace
@@ -28,11 +34,6 @@ api.add_namespace(main_ns)
 class Health(Resource):
     def get(self):
         return {'status': 'healthy'}
-
-# Override the root route with a different endpoint name
-@app.route('/')
-def api_root():  # Different function name to avoid conflict
-    return jsonify({'message': 'Root endpoint'})
 
 if __name__ == '__main__':
     print("=== Routes ===")

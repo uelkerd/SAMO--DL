@@ -4,7 +4,7 @@ Detailed debug script to understand the errorhandler issue
 """
 
 import os
-os.environ['ADMIN_API_KEY'] = 'test123'
+os.environ.setdefault('ADMIN_API_KEY', 'test-admin-key-123')
 
 print("🔍 Starting detailed errorhandler debug...")
 
@@ -14,7 +14,7 @@ try:
     print("✅ Imports successful")
 except Exception as e:
     print(f"❌ Import failed: {e}")
-    exit(1)
+    raise RuntimeError(f"Import failed: {e}")
 
 try:
     app = Flask(__name__)
@@ -22,7 +22,7 @@ try:
     print("✅ API object created")
 except Exception as e:
     print(f"❌ API creation failed: {e}")
-    exit(1)
+    raise RuntimeError(f"API creation failed: {e}")
 
 # Let's inspect the API object in detail
 print(f"\n🔍 API object details:")

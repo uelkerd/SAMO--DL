@@ -17,7 +17,7 @@ try:
     print("✅ Imports successful")
 except Exception as e:
     print(f"❌ Import failed: {e}")
-    sys.exit(1)
+    raise RuntimeError(f"Import failed: {e}") from e
 
 try:
     app = Flask(__name__)
@@ -30,7 +30,7 @@ try:
     print("✅ API object created successfully")
 except Exception as e:
     print(f"❌ API creation failed: {e}")
-    sys.exit(1)
+    raise RuntimeError(f"API creation failed: {e}") from e
 
 # Let's inspect the API object in detail
 print(f"\n🔍 API object details:")

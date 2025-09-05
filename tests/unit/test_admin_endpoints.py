@@ -39,7 +39,7 @@ class TestAdminEndpointProtection(unittest.TestCase):
         self.app.testing = True
         
         # Set admin API key for testing
-        os.environ['ADMIN_API_KEY'] = 'test-admin-key-123'
+        os.environ.setdefault('ADMIN_API_KEY', 'test-admin-key-123')
     
     def tearDown(self):
         """Clean up after tests."""

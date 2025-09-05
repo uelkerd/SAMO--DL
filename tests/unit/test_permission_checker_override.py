@@ -6,6 +6,7 @@ from src.unified_ai_api import app
 
 
 def test_permission_override_header_active_under_pytest(monkeypatch):
+    """Test that permission override header works when running under pytest."""
     # Simulate pytest environment for the app
     monkeypatch.setenv("PYTEST_CURRENT_TEST", "1")
 
@@ -30,6 +31,7 @@ def test_permission_override_header_active_under_pytest(monkeypatch):
 
 
 def test_permission_override_header_inactive_without_pytest(monkeypatch):
+    """Test that permission override header is ignored when not running under pytest."""
     # Ensure pytest indicator is not set
     monkeypatch.delenv("PYTEST_CURRENT_TEST", raising=False)
     monkeypatch.setenv("ENABLE_TEST_PERMISSION_INJECTION", "false")

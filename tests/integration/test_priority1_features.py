@@ -30,11 +30,13 @@ client = TestClient(app, headers={"User-Agent": "pytest-testclient"})
 
 class to_uploads:
     def __init__(self, paths, name_prefix: str):
+        """Initialize the file uploader context manager."""
         self.paths = list(paths)
         self.name_prefix = name_prefix
         self._opened = []
 
     def __enter__(self):
+        """Enter the context and prepare files for upload."""
         self._opened = [open(p, "rb") for p in self.paths]
         files = [
             (
@@ -46,6 +48,7 @@ class to_uploads:
         return files
 
     def __exit__(self, exc_type, exc, tb):
+        """Exit the context and close opened files."""
         for fh in self._opened:
             try:
                 fh.close()
@@ -376,6 +379,7 @@ class TestEnhancedVoiceTranscription:
     def test_batch_transcription_all_success(self, mock_transcriber):
         """Test batch transcription where all transcriptions succeed."""
         def ok_side_effect(file_path, language=None):
+            """Mock side effect for successful transcription."""
             return {"text": "ok", "language": "en", "confidence": 0.9, "duration": 1.0}
         mock_transcriber.transcribe.side_effect = ok_side_effect
 

@@ -10,7 +10,6 @@ logging, and rate limiting features.
 import requests
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import sys
 
 # Configuration
 BASE_URL = "http://localhost:8000"

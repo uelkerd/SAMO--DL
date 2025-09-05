@@ -4,7 +4,6 @@ Provides comprehensive health checks, graceful shutdown, and monitoring
 """
 
 import os
-import sys
 import time
 import signal
 import logging
@@ -60,7 +59,7 @@ class HealthMonitor:
         else:
             logger.info("Graceful shutdown completed successfully")
 
-        sys.exit(0)
+        raise SystemExit(0)
 
     def get_system_metrics(self) -> Dict[str, float]:
         """Get current system resource usage"""

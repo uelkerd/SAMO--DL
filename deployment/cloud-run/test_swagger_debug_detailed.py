@@ -8,11 +8,11 @@ import requests
 import traceback
 
 # Set required environment variables
-os.environ['ADMIN_API_KEY'] = 'test-key-123'
-os.environ['MAX_INPUT_LENGTH'] = '512'
-os.environ['RATE_LIMIT_PER_MINUTE'] = '100'
-os.environ['MODEL_PATH'] = '/app/model'
-os.environ['PORT'] = '8084'
+os.environ.setdefault('ADMIN_API_KEY', os.environ.get('TEST_ADMIN_API_KEY', 'test-admin-key-123'))
+os.environ.setdefault('MAX_INPUT_LENGTH', '512')
+os.environ.setdefault('RATE_LIMIT_PER_MINUTE', '100')
+os.environ.setdefault('MODEL_PATH', '/app/model')
+os.environ.setdefault('PORT', '8084')
 
 try:
     from secure_api_server import app
@@ -25,17 +25,28 @@ try:
     
     def run_server():
         try:
-            app.run(host='0.0.0.0', port=8084, debug=False)
+            app.run(host='127.0.0.1', port=8084, debug=False, use_reloader=False)
         except Exception as e:
             print(f"❌ Server error: {e}")
             traceback.print_exc()
-    
+
     server_thread = threading.Thread(target=run_server, daemon=True)
     server_thread.start()
-    
-    # Wait for server to start
+
+    # Wait for server to be ready with polling
     print("🔄 Starting server...")
-    time.sleep(3)
+    max_attempts = 30
+    for attempt in range(max_attempts):
+        try:
+            response = requests.get("http://localhost:8084/", timeout=1)
+            if response.status_code == 200:
+                print("✅ Server is ready!")
+                break
+        except:
+            pass
+        time.sleep(0.1)
+    else:
+        print("❌ Server failed to start within timeout")
     
     # Test docs endpoint with detailed error capture
     base_url = "http://localhost:8084"

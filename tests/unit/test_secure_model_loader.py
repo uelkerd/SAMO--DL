@@ -28,11 +28,13 @@ class TestModel(nn.Module):
     """Simple test model for testing that meets validation criteria."""
     
     def __init__(self, input_size=10, output_size=5):
+        """Initialize the test model with linear layer."""
         super().__init__()
         self.linear = nn.Linear(input_size, output_size)
         self.model_name = 'TestModel'  # Add required attribute
     
     def forward(self, x):
+        """Forward pass through the emotion classifier."""
         return self.linear(x)
 
 
@@ -40,11 +42,13 @@ class BERTEmotionClassifier(nn.Module):
     """Test model that matches allowed model types exactly."""
     
     def __init__(self, num_emotions=5):
+        """Initialize the BERT emotion classifier model."""
         super().__init__()
         self.linear = nn.Linear(768, num_emotions)  # BERT hidden size
         self.model_name = 'BERTEmotionClassifier'
     
     def forward(self, x):
+        """Forward pass through the linear layer."""
         return self.linear(x)
 
 

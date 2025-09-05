@@ -5,80 +5,122 @@ Debug script to understand Flask-RESTX routing behavior
 
 from flask import Flask, jsonify
 from flask_restx import Api, Resource, Namespace
+import unittest
+from unittest.mock import patch
 
-# Create Flask app
-app = Flask(__name__)
+class TestAPIRouting(unittest.TestCase):
+    """Test case for validating Flask-RESTX API routing behavior and endpoint conflicts."""
 
-print("=== After Flask app creation ===")
-print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
+    def setUp(self):
+        """Set up test fixtures and mock objects for API routing tests."""
+        # Create Flask app
+        self.app = Flask(__name__)
 
-# Initialize Flask-RESTX API
-api = Api(
-    app,
-    version='1.0.0',
-    title='Test API',
-    description='Minimal test to isolate routing issues',
-    doc='/docs'
-)
+        # Register root endpoint BEFORE Flask-RESTX initialization
+        @self.app.route('/')
+        def root():
+            """Return the root endpoint message."""
+            return jsonify({'message': 'Root endpoint'})
 
-print("\n=== After API creation ===")
-print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
+        # Initialize Flask-RESTX API with real classes (no patching needed for route registration)
+        self.api = Api(
+            self.app,
+            version='1.0.0',
+            title='Test API',
+            description='Minimal test to isolate routing issues',
+            doc='/docs'
+        )
 
-# Create namespace
-main_ns = Namespace('/api', description='Main operations')
-api.add_namespace(main_ns)
+        # Create namespace with real class
+        main_ns = Namespace('api', description='Main operations')
+        self.api.add_namespace(main_ns)
 
-print("\n=== After adding namespace ===")
-print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
+        # Test endpoint in namespace
+        @main_ns.route('/health')
+        class _Health(Resource):
+            """A Flask-RESTX resource for handling health check requests."""
 
-# Test endpoint in namespace
-@main_ns.route('/health')
-class Health(Resource):
-    def get(self):
-        return {'status': 'healthy'}
+            @staticmethod
+            def get():
+                """Return health status of the service."""
+                return {'status': 'healthy'}
 
-print("\n=== After adding namespace route ===")
-print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
+        # Test direct Flask route
+        @self.app.route('/test')
+        def test():
+            """Test route that returns a simple JSON response."""
+            return jsonify({'message': 'Test route'})
 
-# Test direct Flask route
-@app.route('/test')
-def test():
-    return jsonify({'message': 'Test route'})
+    def test_routing_58(self):
+        """Test routing configuration and check for endpoint conflicts."""
+        print("\n=== Final state ===")
+        print("App routes:", [rule.rule for rule in self.app.url_map.iter_rules()])
 
-print("\n=== After adding Flask route ===")
-print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
+        # Check for endpoint name conflicts
+        endpoints = {}
+        for rule in self.app.url_map.iter_rules():
+            if rule.endpoint in endpoints:
+                print(f"⚠️  CONFLICT: Endpoint '{rule.endpoint}' appears multiple times:")
+                print(f"   - {endpoints[rule.endpoint]} -> {rule.rule}")
+                print(f"   - {rule.endpoint} -> {rule.rule}")
+            else:
+                endpoints[rule.endpoint] = rule.rule
 
-# Now try to add root endpoint
-print("\n=== Trying to add root endpoint ===")
-try:
-    @app.route('/')
-    def root():
-        return jsonify({'message': 'Root endpoint'})
-    print("✅ Root endpoint added successfully")
-except Exception as e:
-    print(f"❌ Failed to add root endpoint: {e}")
+        print("\n=== All endpoints ===")
+        for endpoint, rule in endpoints.items():
+            print(f"{endpoint} -> {rule}")
 
-print("\n=== Final state ===")
-print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
+        # Check what Flask-RESTX created for the root route
+        print("\n=== Flask-RESTX root route details ===")
+        for rule in self.app.url_map.iter_rules():
+            if rule.rule == '/':
+                print(f"Root route: {rule.rule} -> {rule.endpoint}")
+                print(f"  Methods: {rule.methods}")
+                print(f"  View function: {rule.endpoint}")
 
-# Check for endpoint name conflicts
-endpoints = {}
-for rule in app.url_map.iter_rules():
-    if rule.endpoint in endpoints:
-        print(f"⚠️  CONFLICT: Endpoint '{rule.endpoint}' appears multiple times:")
-        print(f"   - {endpoints[rule.endpoint]} -> {rule.rule}")
-        print(f"   - {rule.endpoint} -> {rule.rule}")
-    else:
-        endpoints[rule.endpoint] = rule.rule
+    def test_routing_71(self):
+        """Test routing behavior for line 71."""
+        raise NotImplementedError()
 
-print("\n=== All endpoints ===")
-for endpoint, rule in endpoints.items():
-    print(f"{endpoint} -> {rule}")
+    def test_routing_82(self):
+        """Test routing behavior for line 82."""
+        raise NotImplementedError()
 
-# Check what Flask-RESTX created for the root route
-print("\n=== Flask-RESTX root route details ===")
-for rule in app.url_map.iter_rules():
-    if rule.rule == '/':
-        print(f"Root route: {rule.rule} -> {rule.endpoint}")
-        print(f"  Methods: {rule.methods}")
-        print(f"  View function: {rule.endpoint}") 
+    def test_routing_94(self):
+        """Test routing behavior for line 94."""
+        raise NotImplementedError()
+
+    def test_routing_111(self):
+        """Test routing behavior for line 111."""
+        raise NotImplementedError()
+
+    def test_routing_123(self):
+        """Test routing behavior for line 123."""
+        raise NotImplementedError()
+
+    def test_routing_139(self):
+        """Test routing behavior for line 139."""
+        raise NotImplementedError()
+
+    def test_routing_151(self):
+        """Test routing behavior for line 151."""
+        raise NotImplementedError()
+
+    def test_routing_161(self):
+        """Test routing behavior for line 161."""
+        raise NotImplementedError()
+
+    def test_routing_174(self):
+        """Test routing behavior for line 174."""
+        raise NotImplementedError()
+
+    def test_routing_187(self):
+        """Test routing behavior for line 187."""
+        raise NotImplementedError()
+
+    def test_routing_200(self):
+        """Test routing behavior for line 200."""
+        raise NotImplementedError()
+
+if __name__ == '__main__':
+    unittest.main()
