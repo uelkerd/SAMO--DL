@@ -266,7 +266,7 @@ def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
         batch_results = emotion_pipeline(batch_texts)
 
         # Process results for each valid text
-        for (original_idx, text), result in zip(valid_texts, batch_results):
+        for (_original_idx, text), result in zip(valid_texts, batch_results):
             emotions = []
             for emotion_result in result:
                 emotions.append({
