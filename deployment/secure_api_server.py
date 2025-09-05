@@ -622,7 +622,8 @@ def nlp_emotion():
         except ValueError as e:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='validation_error')
-            return jsonify({'error': str(e)}), 400
+            logger.warning("Validation error in input payload: %s", e)
+            return jsonify({'error': 'Invalid input format or missing required field.'}), 400
 
         sanitized_text, warnings = input_sanitizer.sanitize_text(text, "emotion")
         try:
