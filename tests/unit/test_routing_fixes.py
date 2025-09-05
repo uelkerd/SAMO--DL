@@ -4,7 +4,6 @@ API Routing Fixes Verification
 ==================================
 Simple test to verify Flask-RESTX routing fixes without heavy dependencies.
 """
-import os
 import unittest
 import re
 from pathlib import Path

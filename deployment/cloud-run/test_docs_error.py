@@ -4,7 +4,6 @@ Test script to investigate the Swagger docs 500 error
 """
 
 import os
-import sys
 import requests
 
 # Set required environment variables

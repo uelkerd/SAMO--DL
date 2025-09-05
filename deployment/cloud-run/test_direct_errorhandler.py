@@ -4,7 +4,6 @@ Test direct error handler registration
 """
 
 import os
-import sys
 import logging
 
 os.environ.setdefault('ADMIN_API_KEY', os.environ.get('TEST_ADMIN_API_KEY', 'test-admin-key-123'))

@@ -4,7 +4,6 @@ Provides comprehensive health checks, graceful shutdown, and monitoring
 """
 
 import os
-import sys
 import time
 import signal
 import logging

@@ -5,7 +5,6 @@ import os
 import logging
 from flask import Flask, request, jsonify
 from flask_restx import Api, Resource, Namespace
-import sys
 
 # Set up environment variables
 os.environ.setdefault('ADMIN_API_KEY', os.environ.get('TEST_ADMIN_API_KEY', 'test-admin-key-123'))
