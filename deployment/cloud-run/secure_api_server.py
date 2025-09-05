@@ -63,6 +63,7 @@ def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX'
         logger.error("Root endpoint error for %s: %s", request.remote_addr, str(e))
         return create_error_response('Internal server error', 500)
 
+
 # Initialize Flask-RESTX API with optional Swagger docs
 logger.info("Initializing Flask-RESTX API...")
 swagger_enabled = os.environ.get('ENABLE_SWAGGER', 'false').lower() == 'true'
