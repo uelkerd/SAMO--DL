@@ -6,7 +6,6 @@ Debug script to understand Flask-RESTX routing behavior
 from flask import Flask, jsonify
 from flask_restx import Api, Resource, Namespace
 import unittest
-from unittest.mock import patch
 
 class TestAPIRouting(unittest.TestCase):
     """Test case for validating Flask-RESTX API routing behavior and endpoint conflicts."""

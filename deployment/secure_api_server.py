@@ -275,8 +275,8 @@ class SecureEmotionDetectionModel:
             # Ensure torch is available within function scope for linter/runtime
             try:
                 import torch  # type: ignore
-            except Exception as e:  # pragma: no cover
-                logger.error("Torch import failed during prediction: %s", e)
+            except Exception as _e:  # pragma: no cover
+                logger.error("Torch import failed during prediction: %s", _e)
                 raise
             # Sanitize input text
             sanitized_text, warnings = input_sanitizer.sanitize_text(text, "emotion")
@@ -337,9 +337,9 @@ class SecureEmotionDetectionModel:
                 }
             }
             
-        except Exception as e:
+        except Exception as _e:
             prediction_time = time.time() - start_time
-            logger.error("Secure prediction failed after %.3fs: %s", prediction_time, str(e))
+            logger.error("Secure prediction failed after %.3fs: %s", prediction_time, str(_e))
             raise
 
 
@@ -624,7 +624,7 @@ def add_to_blacklist():
         rate_limiter.add_to_blacklist(ip)
         logger.info("Added %s to blacklist", ip)
         return jsonify({'message': f'Added {ip} to blacklist'})
-    except Exception as e:
+    except Exception as _e:
         logger.exception("Blacklist error occurred")
         return jsonify({'error': 'Internal server error'}), 500
 
@@ -648,7 +648,7 @@ def add_to_whitelist():
         rate_limiter.add_to_whitelist(ip)
         logger.info("Added %s to whitelist", ip)
         return jsonify({'message': f'Added {ip} to whitelist'})
-    except Exception as e:
+    except Exception as _e:
         logger.exception("Whitelist error occurred")
         return jsonify({'error': 'Internal server error'}), 500
 
@@ -713,7 +713,7 @@ def home():
         return jsonify({'error': 'Internal server error'}), 500
 
 @app.errorhandler(werkzeug.exceptions.BadRequest)
-def handle_bad_request(e):
+def handle_bad_request(_e):
     """Handle BadRequest exceptions (invalid JSON, etc.)."""
     logger.exception("BadRequest error occurred")
     update_metrics(0.0, success=False, error_type='invalid_json')
@@ -726,7 +726,7 @@ def handle_not_found(e):
     return jsonify({'error': 'Endpoint not found'}), 404
 
 @app.errorhandler(500)
-def handle_internal_error(e):
+def handle_internal_error(_e):
     """Handle 500 errors."""
     logger.exception("Internal server error occurred")
     return jsonify({'error': 'Internal server error'}), 500

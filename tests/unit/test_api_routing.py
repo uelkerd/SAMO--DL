@@ -32,7 +32,6 @@ class TestAPIRouting(unittest.TestCase):
                 Path(__file__).parent.parent.parent / "deployment" / "cloud-run" / "secure_api_server.py"
             )
             if spec and spec.loader:
-            if spec and spec.loader:
                 import sys
                 # Load the module under its spec name so patch targets resolve correctly
                 self.module = importlib.util.module_from_spec(spec)
