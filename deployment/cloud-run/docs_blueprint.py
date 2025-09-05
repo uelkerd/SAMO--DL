@@ -18,7 +18,18 @@ def serve_openapi_spec():
 
     try:
         # Validate that the spec path is within the allowed directory
-        if abs_spec_path.parent != allowed_dir and not abs_spec_path.is_relative_to(allowed_dir):
+        # Use robust containment check compatible with older Python versions
+        try:
+            is_contained = abs_spec_path.is_relative_to(allowed_dir)
+        except AttributeError:
+            # Fallback for Python < 3.9
+            try:
+                os.path.commonpath([str(allowed_dir), str(abs_spec_path)]) == str(allowed_dir)
+                is_contained = True
+            except ValueError:
+                is_contained = False
+
+        if abs_spec_path.parent != allowed_dir and not is_contained:
             return jsonify({'error': 'Invalid OpenAPI spec path'}), 400
 
         with open(abs_spec_path, 'r', encoding='utf-8') as f:

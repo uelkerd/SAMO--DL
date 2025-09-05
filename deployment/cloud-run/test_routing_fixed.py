@@ -4,6 +4,7 @@ Test script to verify the fixed routing in secure_api_server.py
 """
 
 import os
+import sys
 import re
 from pathlib import Path
 
@@ -17,6 +18,11 @@ os.environ.setdefault('PORT', '8080')
 try:
     from secure_api_server import app
     print("Successfully imported secure_api_server")
+except Exception as e:
+    print(f"❌ Failed to import secure_api_server: {e}")
+    import traceback
+    traceback.print_exc()
+    sys.exit(1)
     
     print("\n=== All Routes ===")
     for rule in app.url_map.iter_rules():
@@ -24,15 +30,26 @@ try:
     
     print("\n=== Testing specific endpoints ===")
     
-    # Check if root endpoint exists using regex pattern for robustness
-    root_pattern = re.compile(r'^/?/?$')  # Matches '/', '//', or '' (empty string) - more flexible
+    # Check if root endpoint exists using exact pattern for canonical root path
+    root_pattern = re.compile(r'^/$')  # Only matches exactly '/'
     root_routes = [rule for rule in app.url_map.iter_rules() if root_pattern.match(rule.rule)]
     if root_routes:
         print("Root endpoint (/) exists")
         for route in root_routes:
             print(f"   - {route.endpoint} (methods: {route.methods})")
-            # Add assertion for pattern match
-            assert root_pattern.match(route.rule), f"Route {route.rule} does not match root pattern"
+            # Assert exact canonical root path
+            assert route.rule == '/', f"Route {route.rule} is not the canonical root path"
+
+        # Add ordering assertion: root route should appear before Api-related routes
+        all_rules = list(app.url_map.iter_rules())
+        root_indices = [i for i, rule in enumerate(all_rules) if rule.rule == '/']
+        api_related_indices = [i for i, rule in enumerate(all_rules)
+                              if any(endpoint.startswith(('api.', 'admin.', 'main_ns.', 'admin_ns.'))
+                                     for endpoint in [rule.endpoint])]
+
+        if root_indices and api_related_indices:
+            assert min(root_indices) < min(api_related_indices), \
+                "Root route must appear before Api-related routes in url_map"
     else:
         print("Root endpoint (/) missing")
         assert False, "Root endpoint missing"
@@ -64,9 +81,9 @@ try:
     with open('secure_api_server.py', 'r') as f:
         source_code = f.read()
 
-    # Search for root route pattern
-    root_route_match = re.search(r"@app\.route\('/'\)", source_code)
-    api_init_match = re.search(r'api = Api\(', source_code)
+    # Search for root route pattern (loosened to accept whitespace and quote variants)
+    root_route_match = re.search(r"@app\.route\s*\(\s*['\"]/['\"]\s*\)", source_code)
+    api_init_match = re.search(r'api\s*=\s*Api\s*\(', source_code)
 
     # Assertions before computing .start()
     assert root_route_match is not None, "Root route pattern not found in source code"
@@ -75,6 +92,9 @@ try:
     # Compute .start() positions
     root_start = root_route_match.start()
     api_start = api_init_match.start()
+
+    # Add ordering assertion
+    assert root_start < api_start, "Root route must be declared before Api initialization"
 
     print(f"Root route pattern found at position {root_start}")
     print(f"API init pattern found at position {api_start}")

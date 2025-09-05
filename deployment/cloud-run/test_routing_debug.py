@@ -15,8 +15,8 @@ class TestAPIRouting(unittest.TestCase):
         """Set up test fixtures and mock objects for API routing tests."""
         # Set env vars before import if needed
         # Patch functions to avoid actual initialization
-        with patch('flask_restx.Api') as mock_api, \
-             patch('flask_restx.Namespace') as mock_ns:
+        with patch(f'{__name__}.Api') as mock_api, \
+             patch(f'{__name__}.Namespace') as mock_ns:
             self.mock_api = mock_api
             self.mock_ns = mock_ns
 

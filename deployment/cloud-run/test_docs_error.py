@@ -21,8 +21,14 @@ try:
     
     # Start server in background
     import threading
+    import traceback
     def run_server():
-        app.run(host='127.0.0.1', port=8082, debug=False, use_reloader=False)
+        try:
+            app.run(host='127.0.0.1', port=8082, debug=False, use_reloader=False)
+        except Exception as e:
+            print(f"❌ Server startup failed: {e}")
+            traceback.print_exc()
+            raise  # Re-raise to make failure visible to test harness
 
     server_thread = threading.Thread(target=run_server, daemon=True)
     server_thread.start()
