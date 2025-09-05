@@ -34,12 +34,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+app = Flask(__name__)
+
 # Add detailed logging for Flask-RESTX debugging only in development
 if os.environ.get("FLASK_ENV") == "development" or app.debug:
     werkzeug_logger = logging.getLogger('werkzeug')
     werkzeug_logger.setLevel(logging.DEBUG)
-
-app = Flask(__name__)
 
 # Add security headers
 add_security_headers(app)
