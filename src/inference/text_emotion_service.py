@@ -13,6 +13,7 @@ class EmotionService:
     """Abstract emotion classification service interface."""
 
     def classify(self, texts: Union[str, List[str]]) -> List[List[Dict[str, Any]]]:
+        """Classify one or many texts into emotion score distributions."""
         raise NotImplementedError
 
 
@@ -37,6 +38,7 @@ class HFEmotionService(EmotionService):
         self._ensure_loaded()
 
     def _ensure_loaded(self) -> None:
+        """Load tokenizer/model pipeline (preferring local dir when configured)."""
         if self._pipeline is not None:
             return
         try:
@@ -94,6 +96,7 @@ class HFEmotionService(EmotionService):
         logger.info("HFEmotionService loaded remote model: %s", self.model_name)
 
     def classify(self, texts: Union[str, List[str]]) -> List[List[Dict[str, Any]]]:
+        """Return list of per-text distributions [{label, score}, ...]."""
         inputs = [texts] if isinstance(texts, str) else texts
         if self._pipeline is None:
             self._ensure_loaded()

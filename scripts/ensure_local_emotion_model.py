@@ -42,6 +42,7 @@ logger = logging.getLogger("ensure_local_emotion_model")
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse CLI arguments and environment overrides."""
     parser = argparse.ArgumentParser(
         description="Ensure local HF emotion model is available"
     )
@@ -69,6 +70,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def required_files_present(target_dir: Path) -> bool:
+    """Return True if minimal set of model files exists in target_dir."""
     # Accept either tokenizer.json or (vocab.json + merges.txt)
     files_any = [
         ["tokenizer.json"],
@@ -89,6 +91,7 @@ def required_files_present(target_dir: Path) -> bool:
 def ensure_with_hf_hub(
     repo_id: str, target_dir: Path, token: str | None
 ) -> bool:
+    """Download model snapshot via huggingface_hub if available."""
     try:
         from huggingface_hub import snapshot_download  # type: ignore
     except Exception as e:
@@ -116,6 +119,7 @@ def ensure_with_hf_hub(
 def ensure_with_transformers(
     repo_id: str, target_dir: Path, token: str | None
 ) -> bool:
+    """Download and save model/tokenizer via transformers.*_pretrained APIs."""
     try:
         from transformers import (
             AutoTokenizer,
@@ -143,6 +147,7 @@ def ensure_with_transformers(
 
 
 def main() -> int:
+    """Entry point: ensure local model is materialized and valid."""
     args = parse_args()
     repo_id = args.repo_id
     target_dir = Path(args.target_dir)

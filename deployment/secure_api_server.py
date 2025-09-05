@@ -356,10 +356,12 @@ _provider_registry = {}
 
 
 def register_provider(name, factory):
+    """Register a provider factory by name for emotion services."""
     _provider_registry[name] = factory
 
 
 def get_emotion_service():
+    """Return an emotion service instance for the configured provider."""
     name = EMOTION_PROVIDER
     factory = _provider_registry.get(name)
     if not factory:
@@ -372,6 +374,7 @@ register_provider("hf", HFEmotionService)
 
 
 def _parse_single_text_payload(data):
+    """Validate and extract 'text' from request payload."""
     text = data.get('text') if isinstance(data, dict) else None
     if not isinstance(text, str) or not text.strip():
         raise ValueError('Field "text" must be a non-empty string')
@@ -379,6 +382,7 @@ def _parse_single_text_payload(data):
 
 
 def _sanitize_texts_batch(texts):
+    """Sanitize batch texts and return (sanitized_texts, total_warnings)."""
     sanitized = []
     total_warnings = 0
     for t in texts:
@@ -387,9 +391,13 @@ def _sanitize_texts_batch(texts):
         total_warnings += len(warnings)
     return sanitized, total_warnings
 
+
 def _build_provider_info():
+    """Build provider info dict reflecting local-only mode and model_dir."""
     return {
-        'local_only': os.environ.get('EMOTION_LOCAL_ONLY', '1') not in ('', '0', 'false', 'False'),
+        'local_only': os.environ.get('EMOTION_LOCAL_ONLY', '1') not in (
+            '', '0', 'false', 'False'
+        ),
         'model_dir': os.environ.get('EMOTION_MODEL_DIR', '') or DEFAULT_LOCAL_MODEL_DIR,
     }
 
@@ -605,6 +613,7 @@ def predict_batch():
 @app.route('/nlp/emotion', methods=['POST'])
 @secure_endpoint
 def nlp_emotion():
+    """Classify emotion distribution for a single input text."""
     start_time = time.time()
     try:
         try:
@@ -694,6 +703,7 @@ def nlp_emotion():
 @app.route('/nlp/emotion/batch', methods=['POST'])
 @secure_endpoint
 def nlp_emotion_batch():
+    """Classify emotion distributions for a batch of input texts."""
     start_time = time.time()
     try:
         try:

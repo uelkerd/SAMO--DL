@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Unit tests for NLP emotion endpoints using a mocked HF pipeline."""
 import os
 import json
 import unittest
@@ -13,7 +14,9 @@ from deployment.secure_api_server import app  # type: ignore
 
 
 def _fake_pipeline(*args, **kwargs):
+    """Return a deterministic pipeline callable that yields joy-dominant scores."""
     def _call(inputs, truncation=True):
+        """Simulate pipeline call for single or batch inputs."""
         inputs_list = [inputs] if isinstance(inputs, str) else inputs
         dist = [
             {"label": "anger", "score": 0.01},
@@ -29,12 +32,16 @@ def _fake_pipeline(*args, **kwargs):
 
 
 class TestNlpEmotionEndpoints(unittest.TestCase):
+    """Tests covering single and batch emotion endpoints."""
+
     def setUp(self):
+        """Initialize Flask test client and set provider env."""
         os.environ['EMOTION_PROVIDER'] = 'hf'
         self.client = app.test_client()
 
     @patch('src.inference.text_emotion_service.pipeline', new=_fake_pipeline)
     def test_single_emotion_endpoint(self):
+        """Validate single text classification returns scores and provider info."""
         payload = {"text": "I love this!"}
         resp = self.client.post('/nlp/emotion', data=json.dumps(payload), headers={'Content-Type': 'application/json'})
         self.assertEqual(resp.status_code, 200)
@@ -45,6 +52,7 @@ class TestNlpEmotionEndpoints(unittest.TestCase):
 
     @patch('src.inference.text_emotion_service.pipeline', new=_fake_pipeline)
     def test_batch_emotion_endpoint(self):
+        """Validate batch classification returns aligned results for each input."""
         payload = {"texts": ["I love this!", "This is bad."]}
         resp = self.client.post('/nlp/emotion/batch', data=json.dumps(payload), headers={'Content-Type': 'application/json'})
         self.assertEqual(resp.status_code, 200)
@@ -59,6 +67,7 @@ class TestNlpEmotionEndpoints(unittest.TestCase):
         self.assertTrue(any(x['label'] == 'joy' for x in second['scores']))
 
     def test_invalid_payloads(self):
+        """Validate error responses for invalid single and batch payloads."""
         resp = self.client.post('/nlp/emotion', data='{}', headers={'Content-Type': 'application/json'})
         self.assertEqual(resp.status_code, 400)
         resp = self.client.post('/nlp/emotion/batch', data='{"texts": 123}', headers={'Content-Type': 'application/json'})
