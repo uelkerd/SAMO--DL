@@ -7,10 +7,8 @@ and error handling to eliminate code duplication between API servers.
 
 import logging
 import os
-import json
 import threading
 import time
-from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 
 import torch
@@ -132,7 +130,6 @@ def predict_emotions(text: str) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: Prediction results with emotions and confidence scores
     """
-    global emotion_pipeline
 
     if not ensure_model_loaded():
         return {
@@ -219,7 +216,6 @@ def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
     Returns:
         List[Dict[str, Any]]: List of prediction results for each text
     """
-    global emotion_pipeline
 
     if not ensure_model_loaded():
         return [{
