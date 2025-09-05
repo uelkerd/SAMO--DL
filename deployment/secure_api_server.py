@@ -138,7 +138,7 @@ def secure_endpoint(f):
             if not allowed:
                 response_time = time.time() - start_time
                 update_metrics(response_time, success=False, error_type='rate_limited', rate_limited=True)
-                logger.warning(f"Rate limit exceeded: {reason} from {client_ip}")
+                logger.warning("Rate limit exceeded: %s from %s", reason, client_ip)
                 return jsonify({
                     'error': 'Rate limit exceeded',
                     'message': reason,
@@ -171,7 +171,7 @@ def secure_endpoint(f):
             
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='endpoint_error')
-            logger.error(f"Endpoint error: {str(e)}")
+            logger.error("Endpoint error: %s", str(e))
             return jsonify({'error': str(e)}), 500
     
     return decorated_function
@@ -183,7 +183,7 @@ class SecureEmotionDetectionModel:
         default_model_dir = Path(__file__).resolve().parent.parent / 'model'
         env_model_dir = os.environ.get("SECURE_MODEL_DIR")
         self.model_path = Path(env_model_dir).expanduser().resolve() if env_model_dir else default_model_dir
-        logger.info(f"Loading secure model from: {self.model_path}")
+        logger.info("Loading secure model from: %s", self.model_path)
 
         # Default emotions list available even if model isn't loaded
         self.emotions = [
@@ -303,7 +303,7 @@ class SecureEmotionDetectionModel:
                 all_probs = probabilities[0].cpu().numpy()
             
             prediction_time = time.time() - start_time
-            logger.info(f"Secure prediction completed in {prediction_time:.3f}s: '{sanitized_text[:50]}...' → {predicted_emotion} (conf: {confidence:.3f})")
+            logger.info("Secure prediction completed in %.3fs: '%s...' → %s (conf: %.3f)", prediction_time, sanitized_text[:50], predicted_emotion, confidence)
             
             # Create secure response
             return {
@@ -604,7 +604,7 @@ def add_to_blacklist():
         
         ip = data['ip']
         rate_limiter.add_to_blacklist(ip)
-        logger.info(f"Added {ip} to blacklist")
+        logger.info("Added %s to blacklist", ip)
         return jsonify({'message': f'Added {ip} to blacklist'})
     except Exception as e:
         logger.error(f"Blacklist error: {str(e)}")
@@ -621,7 +621,7 @@ def add_to_whitelist():
         
         ip = data['ip']
         rate_limiter.add_to_whitelist(ip)
-        logger.info(f"Added {ip} to whitelist")
+        logger.info("Added %s to whitelist", ip)
         return jsonify({'message': f'Added {ip} to whitelist'})
     except Exception as e:
         logger.error(f"Whitelist error: {str(e)}")
@@ -690,20 +690,20 @@ def home():
 @app.errorhandler(werkzeug.exceptions.BadRequest)
 def handle_bad_request(e):
     """Handle BadRequest exceptions (invalid JSON, etc.)."""
-    logger.error(f"BadRequest error: {str(e)}")
+    logger.error("BadRequest error: %s", str(e))
     update_metrics(0.0, success=False, error_type='invalid_json')
     return jsonify({'error': 'Invalid JSON format'}), 400
 
 @app.errorhandler(404)
 def handle_not_found(e):
     """Handle 404 errors."""
-    logger.warning(f"404 error: {request.path} from {request.remote_addr}")
+    logger.warning("404 error: %s from %s", request.path, request.remote_addr)
     return jsonify({'error': 'Endpoint not found'}), 404
 
 @app.errorhandler(500)
 def handle_internal_error(e):
     """Handle 500 errors."""
-    logger.error(f"Internal server error: {str(e)}")
+    logger.error("Internal server error: %s", str(e))
     return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':

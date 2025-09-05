@@ -66,7 +66,8 @@ class TestAPIRouting(unittest.TestCase):
             self.app.testing = True
             self.api_available = True
         except (ImportError, OSError) as e:
-            print(f"Warning: Could not import secure_api_server: {e}")
+            import warnings
+            warnings.warn(f"Could not import secure_api_server: {e}")
             self.api_available = False
             self.app = None
 
