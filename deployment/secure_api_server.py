@@ -704,19 +704,42 @@ def nlp_emotion():
         results = service.classify(sanitized_text)
 
         # Validate alignment: expect exactly one result for single input
-        if not isinstance(results, list) or len(results) != 1:
+        if (
+            (not isinstance(results, list)) or
+            (len(results) != 1) or
+            (not isinstance(results[0], list))
+        ):
             response_time = time.time() - start_time
             update_metrics(
                 response_time, success=False, error_type='provider_misalignment'
             )
             logger.error(
-                "Provider returned %s results for single input",
-                len(results) if isinstance(results, list) else 'N/A'
+                "Provider returned invalid shape for single input: type=%s len=%s "
+                "inner_type=%s",
+                type(results).__name__,
+                (len(results) if isinstance(results, list) else 'N/A'),
+                (type(results[0]).__name__ if isinstance(results, list) and results else 'N/A')
             )
             return jsonify({'error': 'Provider returned mismatched result count'}), 502
 
         # results is List[List[{label, score}]]
         dist = results[0]
+
+        # Validate inner element shape minimally (first element has label/score)
+        if dist and not (
+            isinstance(dist[0], dict) and 'label' in dist[0] and 'score' in dist[0]
+        ):
+            response_time = time.time() - start_time
+            update_metrics(
+                response_time, success=False, error_type='provider_misalignment'
+            )
+            logger.error(
+                "Provider returned invalid inner element: inner_first_type=%s keys=%s",
+                (type(dist[0]).__name__ if dist else 'N/A'),
+                (list(dist[0].keys()) if isinstance(dist[0], dict) else 'N/A')
+            )
+            return jsonify({'error': 'Provider returned mismatched result count'}), 502
+
         response = {
             'text': sanitized_text,
             'scores': dist,
