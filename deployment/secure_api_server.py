@@ -387,7 +387,7 @@ def get_emotion_service():
 register_provider("hf", HFEmotionService)
 
 
-def _parse_single_text_payload(data):
+def _parse_single_text_payload(data: dict) -> str:
     """Validate and extract 'text' from request payload."""
     text = data.get('text') if isinstance(data, dict) else None
     if not isinstance(text, str) or not text.strip():
