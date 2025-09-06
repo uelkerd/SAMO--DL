@@ -59,7 +59,7 @@ ARG BUILD_TYPE=minimal
 ARG INCLUDE_ML=false
 ARG INCLUDE_SECURITY=false
 ARG PIP_CONSTRAINT=""
-ARG EMOTION_MODEL_DIR_ARG="/app/models/emotion-english-distilroberta-base"
+ARG EMOTION_MODEL_DIR_ARG="/models/emotion-english-distilroberta-base"
 
 # Environment
 ENV PYTHONUNBUFFERED=1 \
@@ -108,7 +108,7 @@ COPY --from=builder /build/minimal_api_server.py ./minimal_api_server.py
 # Download emotion model during build (if ML is enabled)
 RUN if [ "$INCLUDE_ML" = "true" ]; then \
         echo "📥 Downloading emotion model for offline operation..." && \
-        python -c "from huggingface_hub import snapshot_download; snapshot_download(repo_id='j-hartmann/emotion-english-distilroberta-base', local_dir='/app/models/emotion-english-distilroberta-base', local_dir_use_symlinks=False)" && \
+        python -c "from huggingface_hub import snapshot_download; snapshot_download(repo_id='j-hartmann/emotion-english-distilroberta-base', local_dir='${EMOTION_MODEL_DIR_ARG}', local_dir_use_symlinks=False)" && \
         echo "✅ Emotion model downloaded successfully"; \
     fi
 

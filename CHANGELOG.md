@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased] - 2025-08-07
 
 ### Added
-- HF emotion model integration as default local provider with env toggles (`EMOTION_LOCAL_ONLY` default on, `EMOTION_MODEL_DIR` default `${EMOTION_MODEL_DIR:-/models/emotion-english-distilroberta-base}`).
+- HF emotion model integration as default local provider with env toggles (`EMOTION_LOCAL_ONLY` default on, `EMOTION_MODEL_DIR` default `${EMOTION_MODEL_DIR:-/models/emotion-english-distilroberta-base}` from centralized constants).
 - New endpoints in `deployment/secure_api_server.py`:
   - `POST /nlp/emotion` (single text)
   - `POST /nlp/emotion/batch` (batch texts)
