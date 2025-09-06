@@ -16,15 +16,16 @@ Ensure local copy of the Hugging Face emotion model exists.
 
 from __future__ import annotations
 
-import os
 import sys
-import argparse
-import logging
 from pathlib import Path
-from typing import List
 
 # Add src to path to import constants
 sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+
+import os
+import argparse
+import logging
+from typing import List
 
 from constants import EMOTION_MODEL_DIR
 
