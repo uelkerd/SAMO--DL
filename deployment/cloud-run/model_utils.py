@@ -64,7 +64,9 @@ def _create_emotion_pipeline(tokenizer, model):
     )
 
 
-def _validate_and_prepare_texts(texts: List[str]) -> Tuple[List[Optional[Dict[str, Any]]], List[str], List[int]]:
+def _validate_and_prepare_texts(
+    texts: List[str]
+) -> Tuple[List[Optional[Dict[str, Any]]], List[str], List[int]]:
     """
     Validate input texts and prepare them for batch processing.
 
@@ -282,7 +284,8 @@ def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
 
     try:
         # Validate and prepare texts for processing
-        results, valid_texts_to_process, valid_indices = _validate_and_prepare_texts(texts)
+        results, valid_texts_to_process, valid_indices = \
+            _validate_and_prepare_texts(texts)
 
         # Only run pipeline if there are valid texts
         if valid_texts_to_process:
@@ -296,7 +299,10 @@ def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
 
                 # Convert emotion results to list comprehension
                 emotions = [
-                    {'emotion': emotion_result['label'], 'confidence': emotion_result['score']}
+                    {
+                        'emotion': emotion_result['label'],
+                        'confidence': emotion_result['score']
+                    }
                     for emotion_result in result
                 ]
 
