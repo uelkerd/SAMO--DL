@@ -24,7 +24,9 @@ from pathlib import Path
 from typing import List
 
 DEFAULT_REPO_ID = "j-hartmann/emotion-english-distilroberta-base"
-DEFAULT_TARGET_DIR = "/models/emotion-english-distilroberta-base"
+DEFAULT_TARGET_DIR = os.getenv(
+    'EMOTION_MODEL_DIR', '/models/emotion-english-distilroberta-base'
+)
 LOG_DIR = Path(".logs")
 LOG_FILE = LOG_DIR / "model_download.log"
 

@@ -88,7 +88,7 @@ gcloud run deploy "${SERVICE_NAME}" \
     --set-env-vars="ENABLE_SECURITY=true,ENABLE_RATE_LIMITING=true" \
     --set-env-vars="ENABLE_INPUT_SANITIZATION=true,MAX_LENGTH=512" \
     --set-env-vars="EMOTION_PROVIDER=hf,EMOTION_LOCAL_ONLY=1" \
-    --set-env-vars="EMOTION_MODEL_DIR=/app/models/emotion-english-distilroberta-base"
+    --set-env-vars="EMOTION_MODEL_DIR=${EMOTION_MODEL_DIR:-/app/models/emotion-english-distilroberta-base}"
 
 if [ $? -ne 0 ]; then
     print_error "Cloud Run deployment failed!"
