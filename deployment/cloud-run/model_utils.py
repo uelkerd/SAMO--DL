@@ -98,7 +98,6 @@ def _validate_and_prepare_texts(texts: List[str]) -> Tuple[List[Optional[Dict[st
     return results, valid_texts, valid_indices
 
 
-
 def ensure_model_loaded() -> bool:
     """
     Thread-safe emotion model loading with proper error handling.
