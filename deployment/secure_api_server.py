@@ -32,7 +32,15 @@ from ..src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
 from ..src.input_sanitizer import InputSanitizer, SanitizationConfig
 from ..src.security_setup import setup_security_middleware, get_environment
 from ..src.inference.text_emotion_service import HFEmotionService  # type: ignore
-from ..src.inference.text_emotion_service import DEFAULT_LOCAL_MODEL_DIR  # type: ignore
+
+# Import centralized constants with fallback for non-package environments
+try:
+    from src.constants import EMOTION_MODEL_DIR  # single source of truth
+except ImportError:
+    EMOTION_MODEL_DIR = os.getenv(
+        'EMOTION_MODEL_DIR',
+        '/app/models/emotion-english-distilroberta-base'
+    )
 
 # Configure logging
 logging.basicConfig(
@@ -411,7 +419,7 @@ def _build_provider_info() -> dict:
     local_only_env = str(os.environ.get('EMOTION_LOCAL_ONLY', '')).strip().lower()
     return {
         'local_only': local_only_env in ('1', 'true', 'yes', 'on'),
-        'model_dir': os.environ.get('EMOTION_MODEL_DIR', '') or DEFAULT_LOCAL_MODEL_DIR,
+        'model_dir': os.environ.get('EMOTION_MODEL_DIR', '') or EMOTION_MODEL_DIR,
     }
 
 # Read admin API key per-request to reflect environment changes during tests
