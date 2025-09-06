@@ -137,7 +137,7 @@ class TestAPIRouting(unittest.TestCase):
         response = self.app.post('/api/predict',
                                  data=json.dumps({'text': 'I am happy'}),
                                  content_type='application/json',
-                                 headers={'X-API-Key': cls.ADMIN_KEY})
+                                 headers={'X-API-Key': self.ADMIN_KEY})
 
         # Should succeed (200) or be rate limited (429), but not auth error (401)
         self.assertIn(response.status_code, [200, 429])
@@ -158,7 +158,7 @@ class TestAPIRouting(unittest.TestCase):
         response = self.app.post('/api/predict_batch',
                                  data=json.dumps({'texts': ['I am happy', 'I am sad']}),
                                  content_type='application/json',
-                                 headers={'X-API-Key': cls.ADMIN_KEY})
+                                 headers={'X-API-Key': self.ADMIN_KEY})
 
         # Should succeed (200) or be rate limited (429), but not auth error (401)
         self.assertIn(response.status_code, [200, 429])
@@ -196,7 +196,7 @@ class TestAPIRouting(unittest.TestCase):
         response = self.app.post('/api/predict',
                                  data=json.dumps({}),
                                  content_type='application/json',
-                                 headers={'X-API-Key': cls.ADMIN_KEY})
+                                 headers={'X-API-Key': self.ADMIN_KEY})
         self.assertEqual(response.status_code, 400)
 
         data = response.get_json()
@@ -223,7 +223,7 @@ class TestAPIRouting(unittest.TestCase):
 
         # Test that /admin/model_status works (not //admin/model_status)
         response = self.app.get('/admin/model_status',
-                               headers={'X-API-Key': cls.ADMIN_KEY})
+                               headers={'X-API-Key': self.ADMIN_KEY})
         # Should succeed (200) or be rate limited (429), but not auth error (401) with valid key
         self.assertIn(response.status_code, [200, 429])
 

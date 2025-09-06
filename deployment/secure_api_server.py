@@ -24,7 +24,7 @@ import time
 from datetime import datetime
 from collections import defaultdict, deque
 import threading
-from functools import wraps
+from functools import wraps, lru_cache
 from typing import List, Tuple, Any, Dict
 from ipaddress import ip_address
 
@@ -175,7 +175,7 @@ def secure_endpoint(f):
 
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='endpoint_error')
-            logger.warning("Endpoint error occurred: %s from %s", str(e), client_ip)
+            logger.warning("Endpoint error occurred: %s from %s", str(_e), client_ip)
             return jsonify({'error': 'Internal server error'}), 500
 
     return decorated_function
