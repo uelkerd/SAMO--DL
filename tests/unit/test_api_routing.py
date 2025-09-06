@@ -20,9 +20,14 @@ class TestAPIRouting(unittest.TestCase):
     def setUpClass(cls):
         """Set up class-level fixtures."""
         # Set required environment variables BEFORE importing
-        os.environ.setdefault('ADMIN_API_KEY', cls.ADMIN_KEY)
-        os.environ.setdefault('MAX_INPUT_LENGTH', '512')
-        os.environ.setdefault('RATE_LIMIT_PER_MINUTE', '100')
+        cls._saved_env = {
+            k: os.environ.get(k)
+            for k in ('ADMIN_API_KEY', 'MAX_INPUT_LENGTH', 'RATE_LIMIT_PER_MINUTE')
+        }
+        # Force deterministic test values (avoid drift with pre-set env)
+        os.environ['ADMIN_API_KEY'] = cls.ADMIN_KEY
+        os.environ['MAX_INPUT_LENGTH'] = '512'
+        os.environ['RATE_LIMIT_PER_MINUTE'] = '100'
 
     def setUp(self):
         """Set up test fixtures."""
@@ -87,9 +92,12 @@ class TestAPIRouting(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         """Clean up class-level fixtures."""
-        # Clean up environment variables
-        for key in ('ADMIN_API_KEY', 'MAX_INPUT_LENGTH', 'RATE_LIMIT_PER_MINUTE'):
-            os.environ.pop(key, None)
+        # Restore original environment variables
+        for k, v in getattr(cls, '_saved_env', {}).items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
 
     def test_root_endpoint(self):
         """Test that root endpoint is accessible and returns correct response."""

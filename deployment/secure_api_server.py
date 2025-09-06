@@ -394,7 +394,11 @@ def get_emotion_service():
 
 
 # Register default providers
-register_provider("hf", HFEmotionService)
+try:
+    from ..src.providers.hf_emotion import HFEmotionService  # type: ignore
+    register_provider("hf", HFEmotionService)
+except Exception:
+    logger.warning("HFEmotionService not available; NLP endpoints may be unavailable")
 
 
 def _parse_single_text_payload(data: dict) -> str:
@@ -419,9 +423,10 @@ def _sanitize_texts_batch(texts: List[str]) -> Tuple[List[str], int]:
 def _build_provider_info() -> dict:
     """Build provider info dict reflecting local-only mode and model_dir."""
     local_only_env = str(os.environ.get('EMOTION_LOCAL_ONLY', '')).strip().lower()
+    default_dir = str((Path(__file__).resolve().parent.parent / 'model'))
     return {
         'local_only': local_only_env in ('1', 'true', 'yes', 'on'),
-        'model_dir': os.environ.get('EMOTION_MODEL_DIR', '') or DEFAULT_LOCAL_MODEL_DIR,
+        'model_dir': os.environ.get('EMOTION_MODEL_DIR', '') or default_dir,
     }
 
 
