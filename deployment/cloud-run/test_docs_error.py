@@ -19,9 +19,10 @@ try:
     
     print("✅ Successfully imported secure_api_server")
     
-    # Start server in background
-    import threading
-    import traceback
+# Start server in background
+import threading
+import traceback
+server_failed = threading.Event()
     def run_server():
         """Run app server for Swagger-docs diagnostics."""
         try:
@@ -29,6 +30,7 @@ try:
         except Exception as e:
             print(f"❌ Server startup failed: {e}")
             traceback.print_exc()
+            server_failed.set()
             raise  # Re-raise to make failure visible to test harness
 
     server_thread = threading.Thread(target=run_server, daemon=True)
@@ -38,17 +40,21 @@ try:
     import time
     print("🔄 Starting server...")
     max_attempts = 30
+    base_url = f"http://127.0.0.1:{os.environ.get('PORT', '8082')}"
+    readiness_url = os.environ.get('READINESS_URL', f"{base_url}/")
     for attempt in range(max_attempts):
         try:
-            response = requests.get("http://localhost:8082/", timeout=1)
+            response = requests.get(readiness_url, timeout=1)
             if response.status_code == 200:
-                print("✅ Server is ready!")
+                print(f"✅ Server is ready! (attempt {attempt+1}/{max_attempts})")
                 break
-        except:
-            pass
+        except requests.exceptions.RequestException as ex:
+            print(f"⏳ Not ready yet (attempt {attempt+1}/{max_attempts}): {ex}")
+        if server_failed.is_set() or not server_thread.is_alive():
+            raise RuntimeError("Server thread exited early; see traceback above")
         time.sleep(0.1)
     else:
-        print("❌ Server failed to start within timeout")
+        print(f"❌ Server failed to start within timeout after {max_attempts} attempts hitting {readiness_url}")
         raise RuntimeError("Server failed to start within timeout")
     
     # Test docs endpoint specifically

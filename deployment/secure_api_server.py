@@ -300,7 +300,7 @@ class SecureEmotionDetectionModel:
                 confidence = probabilities[0][predicted_label].item()
                 
                 # Apply confidence threshold if specified
-                if confidence_threshold and confidence < confidence_threshold:
+                if confidence_threshold is not None and confidence < confidence_threshold:
                     predicted_emotion = "uncertain"
                     confidence = 0.0
                 elif predicted_label in self.model.config.id2label:

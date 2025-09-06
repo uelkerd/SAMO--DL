@@ -10,11 +10,15 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 # Set required environment variables
-os.environ.setdefault('ADMIN_API_KEY', os.environ.get('TEST_ADMIN_API_KEY', 'test-admin-key-123'))
-os.environ.setdefault('MAX_INPUT_LENGTH', '512')
-os.environ.setdefault('RATE_LIMIT_PER_MINUTE', '100')
-os.environ.setdefault('MODEL_PATH', '/app/model')
-os.environ.setdefault('PORT', '8080')
+os.environ['ADMIN_API_KEY'] = (
+    os.environ.get('ADMIN_API_KEY')
+    or os.environ.get('TEST_ADMIN_API_KEY')
+    or 'test-admin-key-123'
+)
+os.environ['MAX_INPUT_LENGTH'] = os.environ.get('MAX_INPUT_LENGTH') or '512'
+os.environ['RATE_LIMIT_PER_MINUTE'] = os.environ.get('RATE_LIMIT_PER_MINUTE') or '100'
+os.environ['MODEL_PATH'] = os.environ.get('MODEL_PATH') or '/app/model'
+os.environ['PORT'] = os.environ.get('PORT') or '8080'
 
 try:
     # Make import path robust

@@ -33,12 +33,14 @@ except Exception as e:
 try:
     logger.info("1. Testing error handler registration with decorators...")
 
-    @api.errorhandler(429)
+    from werkzeug.exceptions import TooManyRequests
+
+    @api.errorhandler(TooManyRequests)
     def rate_limit_handler(error) -> tuple:
         """Return JSON for 429 errors."""
         return {"error": "Rate limit exceeded"}, 429
 
-    @api.errorhandler(500)
+    @api.errorhandler(Exception)
     def internal_error_handler(error) -> tuple:
         """Return JSON for 500 errors."""
         return {"error": "Internal server error"}, 500
@@ -66,4 +68,4 @@ try:
 except Exception as e:
     logger.error("❌ Flask app error handler failed: %s", e)
 
-print("\n�� Test complete.") 
+logger.info("Test complete.") 

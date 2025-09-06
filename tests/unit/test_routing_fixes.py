@@ -50,8 +50,8 @@ class TestRoutingFixes(unittest.TestCase):
 
         # Find the positions of root endpoint registration and Flask-RESTX initialization
         # More flexible regex to handle different formatting (quotes, whitespace, methods)
-        root_route_match = re.search(r"@app\.route\s*\(\s*['\"]/['\"]\s*(?:,\s*methods\s*=\s*\[.*?\])?\s*\)", content)
-        api_init_match = re.search(r"api\s*=\s*Api\s*\(", content)
+        root_route_match = re.search(r"@app\.route\s*\(\s*(['\"])\/\1\s*(?:,\s*methods\s*=\s*\[.*?\])?\s*\)", content)
+        api_init_match = re.search(r"\bapi\s*=\s*Api\s*\(", content)
 
         # Explicit assertions to ensure patterns are found
         self.assertIsNotNone(root_route_match, "Root route pattern not found in source code")
@@ -78,8 +78,8 @@ class TestRoutingFixes(unittest.TestCase):
         test_file = PROJECT_ROOT / 'deployment' / 'cloud-run' / 'test_swagger_debug.py'
         self.assertTrue(test_file.exists(), f"Test file not found: {test_file}")
         content = test_file.read_text()
-        root_route_match = re.search(r"@app\.route\s*\(\s*['\"]/['\"]\s*(?:,\s*methods\s*=\s*\[.*?\])?\s*\)", content)
-        api_init_match = re.search(r"api\s*=\s*Api\s*\(", content)
+        root_route_match = re.search(r"@app\.route\s*\(\s*(['\"])\/\1\s*(?:,\s*methods\s*=\s*\[.*?\])?\s*\)", content)
+        api_init_match = re.search(r"\bapi\s*=\s*Api\s*\(", content)
 
         # Explicit assertions to ensure patterns are found
         self.assertIsNotNone(root_route_match, f"Root route pattern not found in {test_file}")
@@ -104,3 +104,4 @@ class TestRoutingFixes(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
