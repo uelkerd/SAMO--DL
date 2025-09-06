@@ -348,7 +348,7 @@ def validate_text_input(text: str) -> Tuple[bool, str]:
     Returns:
         Tuple[bool, str]: (is_valid, error_message)
     """
-    if not text or not isinstance(text, str):
+    if not isinstance(text, str) or not text.strip():
         return False, 'Text must be a non-empty string'
     if len(text) > MAX_TEXT_LENGTH:
         return False, f'Text too long (max {MAX_TEXT_LENGTH} characters)'
