@@ -16,15 +16,21 @@ Ensure local copy of the Hugging Face emotion model exists.
 
 from __future__ import annotations
 
-import os
 import sys
+from pathlib import Path
+
+# Add src to path to import constants
+sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+
 import argparse
 import logging
-from pathlib import Path
+import os
 from typing import List
 
+from constants import EMOTION_MODEL_DIR
+
 DEFAULT_REPO_ID = "j-hartmann/emotion-english-distilroberta-base"
-DEFAULT_TARGET_DIR = "/models/emotion-english-distilroberta-base"
+DEFAULT_TARGET_DIR = EMOTION_MODEL_DIR
 LOG_DIR = Path(".logs")
 LOG_FILE = LOG_DIR / "model_download.log"
 

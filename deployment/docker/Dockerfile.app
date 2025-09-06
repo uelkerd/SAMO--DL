@@ -59,6 +59,7 @@ ARG BUILD_TYPE=minimal
 ARG INCLUDE_ML=false
 ARG INCLUDE_SECURITY=false
 ARG PIP_CONSTRAINT=""
+ARG EMOTION_MODEL_DIR_ARG="/models/emotion-english-distilroberta-base"
 
 # Environment
 ENV PYTHONUNBUFFERED=1 \
@@ -66,7 +67,10 @@ ENV PYTHONUNBUFFERED=1 \
     PORT=8080 \
     HF_HOME=/var/tmp/hf-cache \
     XDG_CACHE_HOME=/var/tmp/hf-cache \
-    PIP_ROOT_USER_ACTION=ignore
+    PIP_ROOT_USER_ACTION=ignore \
+    EMOTION_PROVIDER=hf \
+    EMOTION_LOCAL_ONLY=1 \
+    EMOTION_MODEL_DIR=${EMOTION_MODEL_DIR_ARG}
 
 # Install system deps based on build type
 RUN if [ "$INCLUDE_ML" = "true" ]; then \
@@ -101,6 +105,13 @@ COPY src/ ./src/
 # Copy additional files from builder stage for specific build types
 COPY --from=builder /build/minimal_api_server.py ./minimal_api_server.py
 
+# Download emotion model during build (if ML is enabled)
+RUN if [ "$INCLUDE_ML" = "true" ]; then \
+        echo "📥 Downloading emotion model for offline operation..." && \
+        python -c "from huggingface_hub import snapshot_download; snapshot_download(repo_id='j-hartmann/emotion-english-distilroberta-base', local_dir='${EMOTION_MODEL_DIR_ARG}', local_dir_use_symlinks=False)" && \
+        echo "✅ Emotion model downloaded successfully"; \
+    fi
+
 # Create and configure user based on build type
 RUN if [ "$INCLUDE_SECURITY" = "true" ]; then \
         # Secure version with enhanced security
@@ -111,8 +122,8 @@ RUN if [ "$INCLUDE_SECURITY" = "true" ]; then \
     else \
         # Standard version
         useradd -m -u 1000 appuser \
-        && mkdir -p /var/tmp/hf-cache \
-        && chown -R appuser:appuser /app /var/tmp/hf-cache; \
+        && mkdir -p /var/tmp/hf-cache /app/models \
+        && chown -R appuser:appuser /app /var/tmp/hf-cache /app/models; \
     fi
 
 USER appuser
