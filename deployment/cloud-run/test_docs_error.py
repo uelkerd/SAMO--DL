@@ -16,13 +16,14 @@ os.environ.setdefault('ENABLE_SWAGGER', 'true')
 
 try:
     from secure_api_server import app
-    
+
     print("✅ Successfully imported secure_api_server")
-    
-# Start server in background
-import threading
-import traceback
-server_failed = threading.Event()
+
+    # Start server in background
+    import threading
+    import traceback
+    server_failed = threading.Event()
+
     def run_server():
         """Run app server for Swagger-docs diagnostics."""
         try:
