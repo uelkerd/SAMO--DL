@@ -15,6 +15,9 @@ import torch
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 from transformers.pipelines import TextClassificationPipeline
 
+# Import centralized constants
+from ...src.constants import EMOTION_MODEL_DIR
+
 logger = logging.getLogger(__name__)
 
 # Global variables for model management
@@ -25,10 +28,6 @@ model_lock = threading.Lock()
 model_ready_event = threading.Event()
 
 # Configuration
-EMOTION_MODEL_DIR = os.getenv(
-    'EMOTION_MODEL_DIR',
-    '/models/emotion-english-distilroberta-base'
-)
 EMOTION_PROVIDER = os.getenv('EMOTION_PROVIDER', 'hf')
 EMOTION_LOCAL_ONLY = os.getenv('EMOTION_LOCAL_ONLY', '1').lower() in (
     '1', 'true', 'yes'
