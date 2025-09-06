@@ -172,7 +172,7 @@ def ensure_model_loaded() -> bool:
         # Update runtime labels from loaded model if available
         try:
             id2label = emotion_pipeline.model.config.id2label
-            emotion_labels_runtime = [id2label[i] for i in range(len(id2label))]
+            _emotion_labels_runtime = [id2label[i] for i in range(len(id2label))]
         except Exception:
             pass
         with model_lock:
