@@ -4,11 +4,11 @@ import os
 import logging
 from typing import List, Dict, Any, Optional, Union
 
+from .constants import EMOTION_MODEL_DIR
+
 logger = logging.getLogger(__name__)
 
-DEFAULT_LOCAL_MODEL_DIR = os.getenv(
-    'EMOTION_MODEL_DIR', '/models/emotion-english-distilroberta-base'
-)
+DEFAULT_LOCAL_MODEL_DIR = EMOTION_MODEL_DIR
 
 
 class EmotionService:
