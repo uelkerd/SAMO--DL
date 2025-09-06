@@ -79,7 +79,13 @@ def _validate_and_prepare_texts(
     valid_indices = []
 
     for i, text in enumerate(texts):
-        if not text or not text.strip():
+        if not isinstance(text, str):
+            results[i] = {
+                'error': 'Text must be a non-empty string',
+                'emotions': [],
+                'confidence': 0.0
+            }
+        elif not text.strip():
             results[i] = {
                 'error': 'Text must be a non-empty string',
                 'emotions': [],
