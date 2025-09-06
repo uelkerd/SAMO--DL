@@ -14,11 +14,13 @@ from pathlib import Path
 class TestAPIRouting(unittest.TestCase):
     """Test API routing and endpoint functionality."""
 
+    ADMIN_KEY = 'test-admin-key-123'
+
     @classmethod
     def setUpClass(cls):
         """Set up class-level fixtures."""
         # Set required environment variables BEFORE importing
-        os.environ.setdefault('ADMIN_API_KEY', 'test-admin-key-123')
+        os.environ.setdefault('ADMIN_API_KEY', cls.ADMIN_KEY)
         os.environ.setdefault('MAX_INPUT_LENGTH', '512')
         os.environ.setdefault('RATE_LIMIT_PER_MINUTE', '100')
 
@@ -27,10 +29,10 @@ class TestAPIRouting(unittest.TestCase):
         try:
             # Try to import from the deployment directory
             import importlib.util
-            spec = importlib.util.spec_from_file_location(
-                "secure_api_server",
-                Path(__file__).parent.parent.parent / "deployment" / "cloud-run" / "secure_api_server.py"
-            )
+            server_path = (Path(__file__).resolve().parents[2] / "deployment" / "cloud-run" / "secure_api_server.py")
+            if not server_path.exists():
+                raise ImportError(f"secure_api_server.py not found at {server_path}")
+            spec = importlib.util.spec_from_file_location("secure_api_server", str(server_path))
             if spec and spec.loader:
                 import sys
                 # Load the module under its spec name so patch targets resolve correctly
@@ -73,7 +75,7 @@ class TestAPIRouting(unittest.TestCase):
             self.api_available = True
         except (ImportError, OSError) as e:
             import warnings
-            warnings.warn(f"Could not import secure_api_server: {e}")
+            warnings.warn(f"Could not import secure_api_server: {e}", stacklevel=2)
             self.api_available = False
             self.app = None
 
@@ -86,9 +88,8 @@ class TestAPIRouting(unittest.TestCase):
     def tearDownClass(cls):
         """Clean up class-level fixtures."""
         # Clean up environment variables
-        for key in ['ADMIN_API_KEY', 'MAX_INPUT_LENGTH', 'RATE_LIMIT_PER_MINUTE']:
-            if key in os.environ:
-                del os.environ[key]
+        for key in ('ADMIN_API_KEY', 'MAX_INPUT_LENGTH', 'RATE_LIMIT_PER_MINUTE'):
+            os.environ.pop(key, None)
 
     def test_root_endpoint(self):
         """Test that root endpoint is accessible and returns correct response."""
@@ -128,7 +129,7 @@ class TestAPIRouting(unittest.TestCase):
         response = self.app.post('/api/predict',
                                  data=json.dumps({'text': 'I am happy'}),
                                  content_type='application/json',
-                                 headers={'X-API-Key': 'test-admin-key-123'})
+                                 headers={'X-API-Key': cls.ADMIN_KEY})
 
         # Should succeed (200) or be rate limited (429), but not auth error (401)
         self.assertIn(response.status_code, [200, 429])
@@ -149,7 +150,7 @@ class TestAPIRouting(unittest.TestCase):
         response = self.app.post('/api/predict_batch',
                                  data=json.dumps({'texts': ['I am happy', 'I am sad']}),
                                  content_type='application/json',
-                                 headers={'X-API-Key': 'test-admin-key-123'})
+                                 headers={'X-API-Key': cls.ADMIN_KEY})
 
         # Should succeed (200) or be rate limited (429), but not auth error (401)
         self.assertIn(response.status_code, [200, 429])
@@ -187,7 +188,7 @@ class TestAPIRouting(unittest.TestCase):
         response = self.app.post('/api/predict',
                                  data=json.dumps({}),
                                  content_type='application/json',
-                                 headers={'X-API-Key': 'test-admin-key-123'})
+                                 headers={'X-API-Key': cls.ADMIN_KEY})
         self.assertEqual(response.status_code, 400)
 
         data = response.get_json()
@@ -214,7 +215,7 @@ class TestAPIRouting(unittest.TestCase):
 
         # Test that /admin/model_status works (not //admin/model_status)
         response = self.app.get('/admin/model_status',
-                               headers={'X-API-Key': 'test-admin-key-123'})
+                               headers={'X-API-Key': cls.ADMIN_KEY})
         # Should succeed (200) or be rate limited (429), but not auth error (401) with valid key
         self.assertIn(response.status_code, [200, 429])
 
