@@ -14,13 +14,13 @@ Ensure local copy of the Hugging Face emotion model exists.
   - Logs to .logs/model_download.log
 """
 
+from __future__ import annotations
+
 import sys
 from pathlib import Path
 
 # Add src to path to import constants
 sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
-
-from __future__ import annotations
 
 import os
 import argparse
