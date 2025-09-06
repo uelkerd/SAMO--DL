@@ -13,9 +13,8 @@ from typing import Dict, List, Optional, Tuple, Any
 
 import torch
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
-from transformers.pipelines.base import Pipeline
+from transformers.pipelines import TextClassificationPipeline
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
 # Global variables for model management
@@ -45,15 +44,15 @@ EMOTION_LABELS = [
 emotion_labels_runtime: List[str] = EMOTION_LABELS.copy()
 
 
-def _create_emotion_pipeline(tokenizer, model) -> Pipeline:
-    """Create emotion pipeline from tokenizer and model.
+def _create_emotion_pipeline(tokenizer, model) -> TextClassificationPipeline:
+    """Create an emotion text-classification pipeline from tokenizer and model.
 
     Args:
         tokenizer: The tokenizer instance
         model: The model instance
 
     Returns:
-        The created emotion pipeline
+        A configured Hugging Face text-classification pipeline.
     """
     return pipeline(
         task="text-classification",

@@ -6,7 +6,9 @@ from typing import List, Dict, Any, Optional, Union
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_LOCAL_MODEL_DIR = "/models/emotion-english-distilroberta-base"
+DEFAULT_LOCAL_MODEL_DIR = os.getenv(
+    'EMOTION_MODEL_DIR', '/models/emotion-english-distilroberta-base'
+)
 
 
 class EmotionService:

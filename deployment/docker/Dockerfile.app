@@ -59,6 +59,7 @@ ARG BUILD_TYPE=minimal
 ARG INCLUDE_ML=false
 ARG INCLUDE_SECURITY=false
 ARG PIP_CONSTRAINT=""
+ARG EMOTION_MODEL_DIR_ARG="/app/models/emotion-english-distilroberta-base"
 
 # Environment
 ENV PYTHONUNBUFFERED=1 \
@@ -69,7 +70,7 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_ROOT_USER_ACTION=ignore \
     EMOTION_PROVIDER=hf \
     EMOTION_LOCAL_ONLY=1 \
-    EMOTION_MODEL_DIR=/app/models/emotion-english-distilroberta-base
+    EMOTION_MODEL_DIR=${EMOTION_MODEL_DIR_ARG}
 
 # Install system deps based on build type
 RUN if [ "$INCLUDE_ML" = "true" ]; then \
