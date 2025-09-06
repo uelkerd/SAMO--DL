@@ -42,7 +42,12 @@ if numeric_level is logging.INFO and log_level not in logging._nameToLevel:
 
 handlers = [logging.StreamHandler()]
 if os.environ.get('ENABLE_FILE_LOG') == '1':
-    handlers.append(logging.FileHandler(os.environ.get('LOG_FILE', '/tmp/secure_api_server.log')))
+    # Use secure default log location instead of /tmp/
+    default_log_dir = os.path.join(os.path.expanduser('~'), '.samo', 'logs')
+    os.makedirs(default_log_dir, exist_ok=True)
+    default_log_file = os.path.join(default_log_dir, 'secure_api_server.log')
+    log_file_path = os.environ.get('LOG_FILE', default_log_file)
+    handlers.append(logging.FileHandler(log_file_path))
 logging.basicConfig(
     level=numeric_level,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
