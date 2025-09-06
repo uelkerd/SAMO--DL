@@ -15,7 +15,6 @@ import torch
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Global variables for model management
@@ -45,9 +44,8 @@ EMOTION_LABELS = [
 emotion_labels_runtime: List[str] = EMOTION_LABELS.copy()
 
 
-def _create_emotion_pipeline(tokenizer, model):
-    """
-    Create emotion pipeline from tokenizer and model.
+def _create_emotion_pipeline(tokenizer, model) -> Any:
+    """Create emotion pipeline from tokenizer and model.
 
     Args:
         tokenizer: The tokenizer instance
@@ -68,8 +66,7 @@ def _create_emotion_pipeline(tokenizer, model):
 def _validate_and_prepare_texts(
     texts: List[str]
 ) -> Tuple[List[Optional[Dict[str, Any]]], List[str], List[int]]:
-    """
-    Validate input texts and prepare them for batch processing.
+    """Validate input texts and prepare them for batch processing.
 
     Args:
         texts: List of input texts to validate
@@ -102,8 +99,7 @@ def _validate_and_prepare_texts(
 
 
 def ensure_model_loaded() -> bool:
-    """
-    Thread-safe emotion model loading with proper error handling.
+    """Thread-safe emotion model loading with proper error handling.
 
     Returns:
         bool: True if model is loaded successfully, False otherwise
@@ -214,19 +210,9 @@ def predict_emotions(text: str) -> Dict[str, Any]:
 
     try:
         # Validate input
-        if not text or not text.strip():
-            return {
-                'error': 'Text field is required',
-                'emotions': [],
-                'confidence': 0.0
-            }
-
-        if len(text) > MAX_TEXT_LENGTH:
-            return {
-                'error': f'Text too long (max {MAX_TEXT_LENGTH} characters)',
-                'emotions': [],
-                'confidence': 0.0
-            }
+        ok, err = validate_text_input(text)
+        if not ok:
+            return {'error': err, 'emotions': [], 'confidence': 0.0}
 
         # Use the emotion pipeline for prediction
         results = emotion_pipeline(text)
@@ -253,7 +239,7 @@ def predict_emotions(text: str) -> Dict[str, Any]:
         }
 
     except Exception as e:
-        logger.exception(f"❌ Emotion prediction failed: {str(e)}")
+        logger.exception("❌ Emotion prediction failed: %s", e)
         return {
             'error': 'Emotion prediction failed',
             'emotions': [],
@@ -262,8 +248,7 @@ def predict_emotions(text: str) -> Dict[str, Any]:
 
 
 def get_model_status() -> Dict[str, Any]:
-    """
-    Get current emotion model status.
+    """Get current emotion model status.
 
     Returns:
         Dict[str, Any]: Model status information
@@ -281,8 +266,7 @@ def get_model_status() -> Dict[str, Any]:
 
 
 def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
-    """
-    Predict emotions for multiple texts using the emotion model.
+    """Predict emotions for multiple texts using the emotion model.
 
     Args:
         texts (List[str]): List of input texts to analyze
@@ -337,7 +321,7 @@ def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
         return results
 
     except Exception as e:
-        logger.exception("❌ Batch emotion prediction failed: %s", str(e))
+        logger.exception("❌ Batch emotion prediction failed: %s", e)
         return [{
             'error': 'Batch emotion prediction failed',
             'emotions': [],
