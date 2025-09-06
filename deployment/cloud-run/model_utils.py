@@ -104,7 +104,7 @@ def ensure_model_loaded() -> bool:
     Returns:
         bool: True if model is loaded successfully, False otherwise
     """
-    global emotion_pipeline, model_loaded, model_loading
+    global emotion_pipeline, model_loaded, model_loading, emotion_labels_runtime
 
     with model_lock:
         if model_loaded:
@@ -172,9 +172,9 @@ def ensure_model_loaded() -> bool:
         # Update runtime labels from loaded model if available
         try:
             id2label = emotion_pipeline.model.config.id2label
-            _emotion_labels_runtime = [id2label[i] for i in range(len(id2label))]
-        except Exception:
-            pass
+            emotion_labels_runtime = [id2label[i] for i in range(len(id2label))]
+        except Exception as label_err:
+            logger.debug("Unable to derive runtime labels from model config: %s", label_err)
         with model_lock:
             model_loaded = True
             model_loading = False
