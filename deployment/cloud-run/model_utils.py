@@ -13,6 +13,7 @@ from typing import Dict, List, Optional, Tuple, Any
 
 import torch
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
+from transformers.pipelines.base import Pipeline
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -44,7 +45,7 @@ EMOTION_LABELS = [
 emotion_labels_runtime: List[str] = EMOTION_LABELS.copy()
 
 
-def _create_emotion_pipeline(tokenizer, model) -> Any:
+def _create_emotion_pipeline(tokenizer, model) -> Pipeline:
     """Create emotion pipeline from tokenizer and model.
 
     Args:
@@ -81,7 +82,7 @@ def _validate_and_prepare_texts(
     for i, text in enumerate(texts):
         if not text or not text.strip():
             results[i] = {
-                'error': 'Text field is required',
+                'error': 'Text must be a non-empty string',
                 'emotions': [],
                 'confidence': 0.0
             }
@@ -172,7 +173,9 @@ def ensure_model_loaded() -> bool:
         # Update runtime labels from loaded model if available
         try:
             id2label = emotion_pipeline.model.config.id2label
-            emotion_labels_runtime = [id2label[i] for i in range(len(id2label))]
+            emotion_labels_runtime = [
+                id2label[i] for i in range(len(id2label))
+            ]
         except Exception as label_err:
             logger.debug("Unable to derive runtime labels from model config: %s", label_err)
         with model_lock:
@@ -201,6 +204,11 @@ def predict_emotions(text: str) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: Prediction results with emotions and confidence scores
     """
+    # Validate input first
+    ok, err = validate_text_input(text)
+    if not ok:
+        return {'error': err, 'emotions': [], 'confidence': 0.0}
+
     if not ensure_model_loaded():
         return {
             'error': 'Emotion model not available',
@@ -209,10 +217,6 @@ def predict_emotions(text: str) -> Dict[str, Any]:
         }
 
     try:
-        # Validate input
-        ok, err = validate_text_input(text)
-        if not ok:
-            return {'error': err, 'emotions': [], 'confidence': 0.0}
 
         # Use the emotion pipeline for prediction
         results = emotion_pipeline(text)
