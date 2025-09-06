@@ -23,6 +23,7 @@ emotion_pipeline = None
 model_loaded = False
 model_loading = False
 model_lock = threading.Lock()
+model_ready_event = threading.Event()
 
 # Configuration
 EMOTION_MODEL_DIR = os.getenv(
@@ -112,14 +113,16 @@ def ensure_model_loaded() -> bool:
     with model_lock:
         if model_loaded:
             return True
-
         if model_loading:
-            # Wait for another thread to finish loading
-            while model_loading:
-                time.sleep(0.1)
-            return model_loaded
+            wait_for_loader = True
+        else:
+            model_loading = True
+            model_ready_event.clear()
+            wait_for_loader = False
 
-        model_loading = True
+    if wait_for_loader:
+        model_ready_event.wait()
+        return model_loaded
 
     try:
         logger.info("🔄 Loading emotion model from: %s", EMOTION_MODEL_DIR)
@@ -170,13 +173,25 @@ def ensure_model_loaded() -> bool:
                 emotion_pipeline = _create_emotion_pipeline(tokenizer, model)
                 logger.info("✅ Emotion model loaded from downloaded files")
 
-        model_loaded = True
+        # Update runtime labels from loaded model if available
+        try:
+            id2label = emotion_pipeline.model.config.id2label
+            emotion_labels_runtime = [id2label[i] for i in range(len(id2label))]
+        except Exception:
+            pass
+        with model_lock:
+            model_loaded = True
+            model_loading = False
+            model_ready_event.set()
         logger.info("🎉 Emotion model loading completed successfully")
         return True
 
     except Exception as e:
         logger.exception("❌ Failed to load emotion model: %s", e)
-        model_loaded = False
+        with model_lock:
+            model_loaded = False
+            model_loading = False
+            model_ready_event.set()
         return False
 
 
