@@ -364,7 +364,7 @@ def create_secure_model():
         return _Stub()
     return SecureEmotionDetectionModel()
 
-@functools.lru_cache(maxsize=1)
+@lru_cache(maxsize=1)
 def get_secure_model():
     """Return a cached secure model instance created via the factory.
 
@@ -573,7 +573,7 @@ def require_admin_api_key(f):
     Reads the expected key via ``get_admin_api_key()`` for each request and
     does not cache it. See ``get_admin_api_key`` for concurrency considerations.
     """
-    @functools.wraps(f)
+    @wraps(f)
     def decorated_function(*args, **kwargs):
         api_key = request.headers.get("X-Admin-API-Key")
         expected_key = get_admin_api_key()
