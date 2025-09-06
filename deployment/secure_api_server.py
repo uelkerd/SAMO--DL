@@ -32,7 +32,15 @@ from ..src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
 from ..src.input_sanitizer import InputSanitizer, SanitizationConfig
 from ..src.security_setup import setup_security_middleware, get_environment
 from ..src.inference.text_emotion_service import HFEmotionService  # type: ignore
-from ..src.constants import EMOTION_MODEL_DIR  # type: ignore
+
+# Import centralized constants with fallback for non-package environments
+try:
+    from src.constants import EMOTION_MODEL_DIR  # single source of truth
+except ImportError:
+    EMOTION_MODEL_DIR = os.getenv(
+        'EMOTION_MODEL_DIR',
+        '/app/models/emotion-english-distilroberta-base'
+    )
 
 # Configure logging
 logging.basicConfig(

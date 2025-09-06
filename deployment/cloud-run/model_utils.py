@@ -15,8 +15,14 @@ import torch
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 from transformers.pipelines import TextClassificationPipeline
 
-# Import centralized constants
-from ...src.constants import EMOTION_MODEL_DIR
+# Import centralized constants with fallback for non-package environments
+try:
+    from src.constants import EMOTION_MODEL_DIR  # single source of truth
+except ImportError:
+    EMOTION_MODEL_DIR = os.getenv(
+        'EMOTION_MODEL_DIR',
+        '/app/models/emotion-english-distilroberta-base'
+    )
 
 logger = logging.getLogger(__name__)
 
