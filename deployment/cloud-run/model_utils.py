@@ -174,7 +174,8 @@ def ensure_model_loaded() -> bool:
         try:
             id2label = emotion_pipeline.model.config.id2label
             emotion_labels_runtime = [
-                id2label[i] for i in range(len(id2label))
+                id2label[i]
+                for i in range(len(id2label))
             ]
         except Exception as label_err:
             logger.debug("Unable to derive runtime labels from model config: %s", label_err)
