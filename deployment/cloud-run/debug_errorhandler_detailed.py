@@ -14,7 +14,7 @@ try:
     print("✅ Imports successful")
 except Exception as e:
     print(f"❌ Import failed: {e}")
-    raise RuntimeError(f"Import failed: {e}")
+    raise RuntimeError(f"Import failed: {e}") from e
 
 try:
     app = Flask(__name__)
@@ -22,7 +22,7 @@ try:
     print("✅ API object created")
 except Exception as e:
     print(f"❌ API creation failed: {e}")
-    raise RuntimeError(f"API creation failed: {e}")
+    raise RuntimeError(f"API creation failed: {e}") from e
 
 # Let's inspect the API object in detail
 print(f"\n🔍 API object details:")
@@ -70,7 +70,7 @@ print(f"Global errorhandler: {globals().get('errorhandler', 'Not found')}")
 
 # Let's check if there's a version issue
 try:
-    import flask_restx
+    import flask_restx, flask
     print(f"\n🔍 Flask-RESTX version: {flask_restx.__version__}")
     print(f"Flask version: {flask.__version__}")
 except Exception as e:

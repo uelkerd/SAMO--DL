@@ -48,7 +48,7 @@ add_security_headers(app)
 logger.info("Registering root endpoint BEFORE Flask-RESTX initialization...")
 @app.route('/')
 def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX's root
-    """Get API status and information"""
+    """Get API status and information."""
     try:
         logger.info("Root endpoint accessed from %s", request.remote_addr)
         return jsonify({
@@ -84,7 +84,7 @@ try:
         security='apikey'
     )
     logger.info("✅ Flask-RESTX API initialized successfully")
-except Exception as e:
+except Exception:
     logger.exception("❌ Flask-RESTX API initialization failed")
     raise
 
@@ -203,7 +203,7 @@ def predict_emotion(text: str) -> dict:
     result = predict_emotions(text)
 
     # Add request ID for tracking
-    result['request_id'] = str(uuid.uuid4())
+    result['request_id'] = getattr(g, 'request_id', str(uuid.uuid4()))
 
     return result
 
@@ -275,7 +275,7 @@ class Health(Resource):
     @api.response(503, 'Service Unavailable', error_model)
     @api.response(500, 'Internal Server Error', error_model)
     def get(self):
-        """Get API health status"""
+        """Get API health status."""
         try:
             logger.info(f"Health check from {request.remote_addr}")
             model_status = check_model_loaded()
@@ -299,7 +299,7 @@ class Health(Resource):
 
 @main_ns.route('/predict')
 class Predict(Resource):
-    @api.doc('post_predict', security='apikey')
+    @api.doc('post_predict', security=[{'apikey': []}])
     @api.expect(text_input_model, validate=True)
     @api.response(200, 'Success', emotion_response_model)
     @api.response(400, 'Bad Request', error_model)
@@ -343,7 +343,7 @@ class Predict(Resource):
             return result
 
         except Exception as e:
-            logger.error(f"Prediction error for {request.remote_addr}: {str(e)}")
+            logger.exception("Prediction error for %s", request.remote_addr)
             return create_error_response('Internal server error', 500)
 
 @main_ns.route('/predict_batch')
@@ -401,7 +401,7 @@ class PredictBatch(Resource):
             return {'results': results}
 
         except Exception as e:
-            logger.error(f"Batch prediction error for {request.remote_addr}: {str(e)}")
+            logger.exception("Batch prediction error for %s", request.remote_addr)
             return create_error_response('Internal server error', 500)
 
 @main_ns.route('/emotions')
@@ -410,7 +410,7 @@ class Emotions(Resource):
     @api.response(200, 'Success')
     @api.response(500, 'Internal Server Error', error_model)
     def get(self):
-        """Get list of supported emotions"""
+        """Get list of supported emotions."""
         try:
             logger.info(f"Emotions list requested from {request.remote_addr}")
             return {
@@ -419,7 +419,7 @@ class Emotions(Resource):
                 'timestamp': time.time()
             }
         except Exception as e:
-            logger.error(f"Emotions endpoint error for {request.remote_addr}: {str(e)}")
+            logger.exception("Emotions endpoint error for %s", request.remote_addr)
             return create_error_response('Internal server error', 500)
 
 # Admin endpoints
@@ -431,14 +431,14 @@ class ModelStatus(Resource):
     @api.response(500, 'Internal Server Error', error_model)
     @require_api_key
     def get(self):
-        """Get detailed model status (admin only)"""
+        """Get detailed model status (admin only)."""
         try:
             # Get model status from shared utilities
             logger.info(f"Admin model status request from {request.remote_addr}")
             status = get_model_status()
             return status
         except Exception as e:
-            logger.error(f"Model status error for {request.remote_addr}: {str(e)}")
+            logger.exception("Model status error for %s", request.remote_addr)
             return create_error_response('Internal server error', 500)
 
 @admin_ns.route('/security_status')
@@ -449,7 +449,7 @@ class SecurityStatus(Resource):
     @api.response(500, 'Internal Server Error', error_model)
     @require_api_key
     def get(self):
-        """Get security configuration status (admin only)"""
+        """Get security configuration status (admin only)."""
         try:
             logger.info(f"Admin security status request from {request.remote_addr}")
             return {
@@ -461,7 +461,7 @@ class SecurityStatus(Resource):
                 'timestamp': time.time()
             }
         except Exception as e:
-            logger.error(f"Security status error for {request.remote_addr}: {str(e)}")
+            logger.exception("Security status error for %s", request.remote_addr)
             return create_error_response('Internal server error', 500)
 
 
@@ -475,9 +475,8 @@ def rate_limit_exceeded(error) -> tuple:
 @api.errorhandler(500)
 def internal_error(error) -> tuple:
     """Handle internal server errors"""
-    logger.error(f"Internal server error for {request.remote_addr}: {str(error)}")
-    # Re-raise the exception after logging for proper error propagation
-    raise error
+    logger.exception("Internal server error for %s", request.remote_addr)
+    return create_error_response('Internal server error', 500)
 
 @api.errorhandler(404)
 def not_found(_error) -> tuple:
@@ -494,7 +493,7 @@ def method_not_allowed(_error) -> tuple:
 @api.errorhandler(Exception)
 def handle_unexpected_error(error) -> tuple:
     """Handle any unexpected errors"""
-    logger.error(f"Unexpected error for {request.remote_addr}: {str(error)}")
+    logger.exception("Unexpected error for %s", request.remote_addr)
     return create_error_response('An unexpected error occurred', 500)
 
 
@@ -523,7 +522,7 @@ def initialize_model():
         logger.info("🚀 API server ready to handle requests")
 
     except Exception as e:
-        logger.error(f"❌ Failed to initialize API server: {str(e)}")
+        logger.exception("❌ Failed to initialize API server")
         raise
 
 # Initialize model when the application starts

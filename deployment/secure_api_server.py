@@ -35,15 +35,18 @@ from ..src.security_setup import setup_security_middleware, get_environment
 
 # Configure logging based on environment
 log_level = os.environ.get('LOG_LEVEL', 'INFO').upper()
-numeric_level = getattr(logging, log_level, logging.INFO)
+numeric_level = getattr(logging, log_level, None) or logging.INFO
+if numeric_level is logging.INFO and log_level not in logging._nameToLevel:
+    logger = logging.getLogger(__name__)
+    logger.warning("Unknown LOG_LEVEL '%s'; defaulting to INFO", log_level)
 
+handlers = [logging.StreamHandler()]
+if os.environ.get('ENABLE_FILE_LOG') == '1':
+    handlers.append(logging.FileHandler(os.environ.get('LOG_FILE', '/tmp/secure_api_server.log')))
 logging.basicConfig(
     level=numeric_level,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('secure_api_server.log'),
-        logging.StreamHandler()
-    ]
+    handlers=handlers
 )
 
 # Configure Werkzeug logging based on environment
@@ -172,7 +175,7 @@ def secure_endpoint(f):
 
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='endpoint_error')
-            logger.exception("Endpoint error occurred")
+            logger.warning("Endpoint error occurred: %s from %s", str(e), client_ip)
             return jsonify({'error': 'Internal server error'}), 500
     
     return decorated_function
@@ -311,8 +314,8 @@ class SecureEmotionDetectionModel:
                 all_probs = probabilities[0].cpu().numpy()
             
             prediction_time = time.time() - start_time
-            logger.info("Secure prediction completed in %.3fs: '%s...' → %s (conf: %.3f)",
-                        prediction_time, sanitized_text[:50], predicted_emotion, confidence)
+            logger.info("Secure prediction completed in %.3fs → %s (conf: %.3f)",
+                        prediction_time, predicted_emotion, confidence)
 
             # Create secure response
             return {
@@ -339,7 +342,7 @@ class SecureEmotionDetectionModel:
             
         except Exception as _e:
             prediction_time = time.time() - start_time
-            logger.error("Secure prediction failed after %.3fs: %s", prediction_time, str(_e))
+            logger.exception("Secure prediction failed after %.3fs", prediction_time)
             raise
 
 
@@ -663,7 +666,9 @@ def predict():
         
         # Add sanitization warnings to response
         if warnings:
-            result['security']['sanitization_warnings'] = warnings
+            prior = result.get('security', {}).get('sanitization_warnings', [])
+            merged = list(dict.fromkeys([*prior, *warnings]))
+            result['security']['sanitization_warnings'] = merged
         
         response_time = time.time() - start_time
         update_metrics(
@@ -1099,4 +1104,4 @@ if __name__ == '__main__':
     )
     logger.info("=" * 60)
 
-    app.run(host='0.0.0.0', port=8000, debug=False)
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", "8000")), debug=False)

@@ -15,7 +15,7 @@ try:
     print("✅ Basic imports successful")
 except Exception as e:
     print(f"❌ Basic imports failed: {e}")
-    raise RuntimeError(f"Basic imports failed: {e}")
+    raise RuntimeError(f"Basic imports failed: {e}") from e
 
 try:
     print("2. Creating Flask app...")
@@ -23,7 +23,7 @@ try:
     print("✅ Flask app created")
 except Exception as e:
     print(f"❌ Flask app creation failed: {e}")
-    raise RuntimeError(f"Flask app creation failed: {e}")
+    raise RuntimeError(f"Flask app creation failed: {e}") from e
 
 try:
     print("3. Creating API object...")
@@ -31,7 +31,7 @@ try:
     print(f"✅ API object created: {type(api)}")
 except Exception as e:
     print(f"❌ API creation failed: {e}")
-    raise RuntimeError(f"API creation failed: {e}")
+    raise RuntimeError(f"API creation failed: {e}") from e
 
 try:
     print("4. Testing API methods...")
@@ -41,15 +41,16 @@ try:
     print("✅ API methods check successful")
 except Exception as e:
     print(f"❌ API methods check failed: {e}")
-    raise RuntimeError(f"API methods check failed: {e}")
+    raise RuntimeError(f"API methods check failed: {e}") from e
 
 try:
     print("5. Testing errorhandler call...")
-    result = api.errorhandler(429)
-    print(f"✅ errorhandler(429) call successful: {type(result)}")
+    from werkzeug.exceptions import TooManyRequests
+    result = api.errorhandler(TooManyRequests)
+    print(f"✅ errorhandler(TooManyRequests) call successful: {type(result)}")
 except Exception as e:
-    print(f"❌ errorhandler(429) call failed: {e}")
+    print(f"❌ errorhandler(TooManyRequests) call failed: {e}")
     print(f"Error type: {type(e)}")
-    raise RuntimeError(f"errorhandler(429) call failed: {e}")
+    raise RuntimeError(f"errorhandler(TooManyRequests) call failed: {e}") from e
 
 print("🎉 All tests passed!") 

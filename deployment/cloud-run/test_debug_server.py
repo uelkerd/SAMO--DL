@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Debug test server to validate Flask-RESTX hypotheses"""
+"""Debug test server to validate Flask-RESTX hypotheses."""
 
 import os
 import logging
@@ -22,7 +22,7 @@ app = Flask(__name__)
 logger.info("🔍 Test 1: Registering root endpoint BEFORE Flask-RESTX initialization...")
 @app.route('/')
 def home():
-    """Get API status and information"""
+    """Get API status and information."""
     logger.info("Root endpoint accessed from %s", request.remote_addr)
     return jsonify({
         'service': 'Test API',
@@ -61,7 +61,7 @@ class Health(Resource):
     """A Flask-RESTX resource for handling health status requests."""
 
     @staticmethod
-    def get():
+    def get() -> dict:
         """Return the health status of the service."""
         return {'status': 'healthy'}
 
@@ -70,7 +70,7 @@ class AdminStatus(Resource):
     """A Flask-RESTX resource for handling admin status requests."""
 
     @staticmethod
-    def get():
+    def get() -> dict:
         """Return the admin status of the service."""
         return {'admin_status': 'ok'}
 

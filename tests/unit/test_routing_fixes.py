@@ -68,9 +68,9 @@ class TestRoutingFixes(unittest.TestCase):
         self.assertTrue(test_file.exists(), f"Expected file not found: {test_file}")
         with open(test_file) as f:
             content = f.read()
-        namespace_matches = re.findall(r"Namespace\('([^']*)'", content)
-        for match in namespace_matches:
-            self.assertFalse(match.startswith('/'), f"Found leading slash in namespace '{match}' in {test_file}")
+        namespace_matches = re.findall(r"Namespace\(\s*(['\"])(.*?)\1", content)
+        for _, name in namespace_matches:
+            self.assertFalse(name.startswith('/'), f"Found leading slash in namespace '{name}' in {test_file}")
 
     def test_root_endpoints_before_api_init_in_test_files(self):
         """Test that test files have root endpoints registered before Flask-RESTX init."""
@@ -96,10 +96,10 @@ class TestRoutingFixes(unittest.TestCase):
         with open(server_file) as f:
             content = f.read()
 
-        # Check for any double slashes in route definitions (test one route at a time)
-        route_matches = re.findall(r"@[^)]*\.route\('([^']*)'", content)
-        self.assertGreater(len(route_matches), 0, "No routes found in secure_api_server.py")
-        for route in route_matches:
+        # Check all route decorators (supports single/double quotes)
+        route_matches = re.findall(r"@[^)]*\.route\(\s*(['\"])(.*?)\1", content)
+        self.assertTrue(route_matches, "No route decorators found in secure_api_server.py")
+        for _, route in route_matches:
             self.assertNotIn('//', route, f"Found double slash in route: {route}")
 
 if __name__ == '__main__':

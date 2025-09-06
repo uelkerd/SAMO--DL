@@ -12,6 +12,7 @@ os.environ.setdefault('MAX_INPUT_LENGTH', '512')
 os.environ.setdefault('RATE_LIMIT_PER_MINUTE', '100')
 os.environ.setdefault('MODEL_PATH', '/app/model')
 os.environ.setdefault('PORT', '8082')  # Different port
+os.environ.setdefault('ENABLE_SWAGGER', 'true')
 
 try:
     from secure_api_server import app
@@ -22,6 +23,7 @@ try:
     import threading
     import traceback
     def run_server():
+        """Run app server for Swagger-docs diagnostics."""
         try:
             app.run(host='127.0.0.1', port=8082, debug=False, use_reloader=False)
         except Exception as e:
@@ -50,7 +52,7 @@ try:
         raise RuntimeError("Server failed to start within timeout")
     
     # Test docs endpoint specifically
-    base_url = "http://localhost:8082"
+    base_url = f"http://127.0.0.1:{os.environ.get('PORT', '8082')}"
     
     print("\n=== Testing Docs Endpoint ===")
     

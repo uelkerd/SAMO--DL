@@ -4,7 +4,7 @@ Minimal test to isolate the API setup issue
 """
 
 import os
-os.environ.setdefault('ADMIN_API_KEY', 'test-admin-key-123')
+os.environ.setdefault('ADMIN_API_KEY', os.environ.get('TEST_ADMIN_API_KEY', 'test-admin-key-123'))
 
 print("🔍 Starting minimal API setup test...")
 
@@ -15,7 +15,7 @@ try:
     print("✅ Imports successful")
 except Exception as e:
     print(f"❌ Imports failed: {e}")
-    raise RuntimeError(f"Imports failed: {e}")
+    raise RuntimeError(f"Imports failed: {e}") from e
 
 try:
     print("2. Creating Flask app...")
@@ -23,7 +23,7 @@ try:
     print("✅ Flask app created")
 except Exception as e:
     print(f"❌ Flask app creation failed: {e}")
-    raise RuntimeError(f"Flask app creation failed: {e}")
+    raise RuntimeError(f"Flask app creation failed: {e}") from e
 
 try:
     print("3. Creating API object...")
@@ -36,7 +36,7 @@ try:
     print(f"✅ API object created: {type(api)}")
 except Exception as e:
     print(f"❌ API creation failed: {e}")
-    raise RuntimeError(f"API creation failed: {e}")
+    raise RuntimeError(f"API creation failed: {e}") from e
 
 try:
     print("4. Creating namespace...")
@@ -45,7 +45,7 @@ try:
     print("✅ Namespace added")
 except Exception as e:
     print(f"❌ Namespace creation failed: {e}")
-    raise RuntimeError(f"Namespace creation failed: {e}")
+    raise RuntimeError(f"Namespace creation failed: {e}") from e
 
 try:
     print("5. Creating model...")
@@ -55,11 +55,12 @@ try:
     print("✅ Model created")
 except Exception as e:
     print(f"❌ Model creation failed: {e}")
-    raise RuntimeError(f"Model creation failed: {e}")
+    raise RuntimeError(f"Model creation failed: {e}") from e
 
 try:
     print("6. Testing errorhandler...")
-    @api.errorhandler(429)
+    from werkzeug.exceptions import TooManyRequests
+    @api.errorhandler(TooManyRequests)
     def test_handler(error):
         return {"error": "test"}, 429
     print("✅ Error handler created")
@@ -67,6 +68,6 @@ except Exception as e:
     print(f"❌ Error handler creation failed: {e}")
     print(f"API type at this point: {type(api)}")
     print(f"API errorhandler type: {type(api.errorhandler)}")
-    raise RuntimeError(f"Error handler creation failed: {e}")
+    raise RuntimeError(f"Error handler creation failed: {e}") from e
 
 print("🎉 All tests passed!") 
