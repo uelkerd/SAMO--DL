@@ -62,15 +62,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 # Use exec form for CMD (Docker best practice)
 # Set timeout to 0 for Cloud Run (allows unlimited request timeouts)
 # Run the production Flask-RESTX server
-CMD ["sh", "-c", "exec gunicorn \
-    --bind :$PORT \
-    --workers 1 \
-    --threads 8 \
-    --timeout 0 \
-    --keep-alive 5 \
-    --max-requests 1000 \
-    --max-requests-jitter 100 \
-    --access-logfile - \
-    --error-logfile - \
-    --log-level info \
-    secure_api_server:app"]
+CMD ["sh", "-c", "exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 --keep-alive 5 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile - --log-level info secure_api_server:app"]
