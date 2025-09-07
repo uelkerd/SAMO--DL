@@ -92,7 +92,7 @@ echo "Starting container for quick test..."
 
 # Start the production container
 docker run --rm -d \
-    -p ${API_PORT}:${CONTAINER_PORT} \
+    -p "${API_PORT}":"${CONTAINER_PORT}" \
     --name emotion-test-production \
     -e ADMIN_API_KEY="${API_KEY}" \
     emotion-detection-api:production
@@ -108,7 +108,7 @@ echo "⏳ Waiting for container to start..."
 max_attempts=30
 attempt=1
 until curl -sf "http://localhost:${API_PORT}/api/health" > /dev/null; do
-    if [ $attempt -ge $max_attempts ]; then
+    if [ "$attempt" -ge "$max_attempts" ]; then
         echo "❌ Container did not become healthy after $((max_attempts)) attempts."
         docker logs emotion-test-production
         docker stop emotion-test-production 2>/dev/null || echo "Container already stopped"
