@@ -115,7 +115,11 @@ generate_api_key() {
     if [ -z "$API_KEY" ]; then
         print_status "Generating new secure API key..."
         API_KEY=$(openssl rand -hex 32)
-        print_success "Generated API key: $API_KEY"
+        print_success "API key generated successfully."
+        print_warning "IMPORTANT: Save this API key securely - it will not be shown again!"
+        print_status "API key: $API_KEY" > /tmp/samo_api_key.txt
+        print_status "API key saved to: /tmp/samo_api_key.txt"
+        print_status "Please copy and store it securely, then delete the temporary file."
     else
         print_status "Using provided API key."
     fi
@@ -133,9 +137,10 @@ main() {
     grant_cloud_build_access
     
     print_success "Secret Manager setup complete!"
-    print_status "You can now use the secure cloudbuild-secure.yaml configuration."
+    print_status "You can now use the consolidated cloudbuild.yaml configuration."
     print_status "Secret name: admin-api-key"
     print_status "Project ID: $PROJECT_ID"
+    print_status "Deploy with: gcloud builds submit --config cloudbuild.yaml"
 }
 
 # Run main function

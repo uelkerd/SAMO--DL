@@ -1,3 +1,6 @@
+# Example Cloud Build configuration with custom values
+# Copy this file to cloudbuild.yaml and modify as needed
+
 steps:
   # Build the Docker image with dynamic tag
   - name: 'gcr.io/cloud-builders/docker'
@@ -43,14 +46,14 @@ substitutions:
   _REGION: 'us-central1'
   _PORT: '8080'
   
-  # Resource allocation
-  _MEMORY: '2Gi'
-  _CPU: '2'
-  _MAX_INSTANCES: '10'
+  # Resource allocation (adjust based on your needs)
+  _MEMORY: '2Gi'          # Options: 128Mi, 256Mi, 512Mi, 1Gi, 2Gi, 4Gi, 8Gi
+  _CPU: '2'               # Options: 1, 2, 4, 6, 8
+  _MAX_INSTANCES: '10'    # Adjust based on expected traffic
   
   # Build configuration
-  _MACHINE_TYPE: 'E2_HIGHCPU_8'
-  _DISK_SIZE: '100'
+  _MACHINE_TYPE: 'E2_HIGHCPU_8'  # Options: E2_STANDARD_2, E2_HIGHCPU_4, E2_HIGHCPU_8
+  _DISK_SIZE: '100'              # Disk size in GB
 
 # Available secrets (set these in Cloud Build settings)
 availableSecrets:

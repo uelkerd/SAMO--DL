@@ -52,27 +52,31 @@ gcloud secrets add-iam-policy-binding admin-api-key \
 
 ## 🚀 Deployment Options
 
-### Option 1: Basic Deployment (with API key in substitutions)
+### Single Configuration Approach
+
+The deployment uses a consolidated `cloudbuild.yaml` that provides:
+
+- ✅ **Secure by Default**: Uses Google Secret Manager for API key storage
+- ✅ **Fully Parameterized**: All values configurable via substitutions
+- ✅ **Production Ready**: Comprehensive logging and monitoring
+- ✅ **Easy Customization**: Copy `cloudbuild.example.yaml` for custom configurations
+
+### Deploy with Default Settings
 
 ```bash
 gcloud builds submit --config cloudbuild.yaml
 ```
 
-**Configuration**: `cloudbuild.yaml`
-- ✅ Simple setup
-- ✅ API key in substitutions
-- ⚠️ API key visible in build logs
-
-### Option 2: Secure Deployment (with Secret Manager)
+### Deploy with Custom Configuration
 
 ```bash
-gcloud builds submit --config cloudbuild-secure.yaml
-```
+# Copy example configuration
+cp cloudbuild.example.yaml cloudbuild.yaml
 
-**Configuration**: `cloudbuild-secure.yaml`
-- ✅ Secure API key storage
-- ✅ No secrets in build logs
-- ✅ Production-ready
+# Edit cloudbuild.yaml with your custom values
+# Then deploy
+gcloud builds submit --config cloudbuild.yaml
+```
 
 ## 📊 Build Configuration Details
 
@@ -93,23 +97,38 @@ Both configurations use `$BUILD_ID` for unique image tags:
 
 ### Automated Cloud Run Deployment
 
-The pipeline automatically deploys to Cloud Run:
+The pipeline automatically deploys to Cloud Run with parameterized configuration:
 
 ```yaml
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: 'gcloud'
   args: [
-    'run', 'deploy', 'emotion-detection-api',
+    'run', 'deploy', '${_SERVICE_NAME}',
     '--image', 'gcr.io/$PROJECT_ID/emotion-detection-api:$BUILD_ID',
-    '--region', 'us-central1',
+    '--region', '${_REGION}',
     '--platform', 'managed',
     '--allow-unauthenticated',
-    '--port', '8080',
-    '--memory', '2Gi',
-    '--cpu', '2',
-    '--max-instances', '10'
+    '--port', '${_PORT}',
+    '--memory', '${_MEMORY}',
+    '--cpu', '${_CPU}',
+    '--max-instances', '${_MAX_INSTANCES}'
   ]
 ```
+
+### Configurable Parameters
+
+All deployment settings are parameterized and can be customized:
+
+| Parameter | Default | Description | Options |
+|-----------|---------|-------------|---------|
+| `_SERVICE_NAME` | `emotion-detection-api` | Cloud Run service name | Any valid service name |
+| `_REGION` | `us-central1` | Deployment region | Any valid GCP region |
+| `_PORT` | `8080` | Service port | Any valid port number |
+| `_MEMORY` | `2Gi` | Memory allocation | 128Mi, 256Mi, 512Mi, 1Gi, 2Gi, 4Gi, 8Gi |
+| `_CPU` | `2` | CPU allocation | 1, 2, 4, 6, 8 |
+| `_MAX_INSTANCES` | `10` | Maximum instances | Any positive integer |
+| `_MACHINE_TYPE` | `E2_HIGHCPU_8` | Build machine type | E2_STANDARD_2, E2_HIGHCPU_4, E2_HIGHCPU_8 |
+| `_DISK_SIZE` | `100` | Build disk size (GB) | Any positive integer |
 
 ## 🔒 Security Features
 
@@ -122,12 +141,22 @@ availableSecrets:
       env: 'ADMIN_API_KEY'
 ```
 
-### Environment Variables
+### Secure API Key Management
+
+The API key is securely retrieved from Google Secret Manager:
 
 ```yaml
-substitutions:
-  _ADMIN_API_KEY: 'your-secure-api-key-here'
+availableSecrets:
+  secretManager:
+    - versionName: projects/$PROJECT_ID/secrets/admin-api-key/versions/latest
+      env: 'ADMIN_API_KEY'
 ```
+
+**Benefits:**
+- ✅ No API keys in build logs
+- ✅ Centralized secret management
+- ✅ Automatic key rotation support
+- ✅ Audit trail for secret access
 
 ## 📈 Build Performance
 
@@ -135,13 +164,21 @@ substitutions:
 
 ```yaml
 options:
-  machineType: 'E2_HIGHCPU_8'  # 8 vCPUs, 32GB RAM
-  diskSizeGb: 100              # 100GB disk
-  logging: CLOUD_LOGGING_ONLY  # Cloud Logging only
+  machineType: '${_MACHINE_TYPE}'  # Configurable: E2_STANDARD_2, E2_HIGHCPU_4, E2_HIGHCPU_8
+  diskSizeGb: ${_DISK_SIZE}        # Configurable disk size in GB
+  logging: CLOUD_LOGGING_ONLY      # Cloud Logging only
 ```
 
-**Build Time**: ~5-8 minutes
-**Image Size**: ~3.8GB (optimized)
+**Default Performance:**
+- **Build Time**: ~5-8 minutes (E2_HIGHCPU_8)
+- **Image Size**: ~3.8GB (optimized)
+- **Memory**: 32GB RAM
+- **CPU**: 8 vCPUs
+
+**Customization Options:**
+- **E2_STANDARD_2**: 2 vCPUs, 8GB RAM (~10-15 min build time)
+- **E2_HIGHCPU_4**: 4 vCPUs, 16GB RAM (~7-10 min build time)  
+- **E2_HIGHCPU_8**: 8 vCPUs, 32GB RAM (~5-8 min build time)
 
 ## 🧪 Testing the Deployment
 
