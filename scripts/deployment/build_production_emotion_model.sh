@@ -4,6 +4,51 @@
 
 set -e
 
+# Check for required tools
+check_required_tools() {
+    echo "🔧 Checking for required tools..."
+    
+    if ! command -v jq &> /dev/null; then
+        echo "❌ Error: jq is not installed. Please install jq before running this script."
+        echo "   Install with: brew install jq (macOS) or apt-get install jq (Ubuntu)"
+        exit 1
+    fi
+    
+    if ! command -v curl &> /dev/null; then
+        echo "❌ Error: curl is not installed. Please install curl before running this script."
+        exit 1
+    fi
+    
+    echo "✅ All required tools are available."
+}
+
+# Set default values for parameters
+API_PORT=8080
+CONTAINER_PORT=8080
+API_KEY=${API_KEY:-"test-key-123"}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --api-port)
+            API_PORT="$2"
+            shift 2
+            ;;
+        --api-key)
+            API_KEY="$2"
+            shift 2
+            ;;
+        *)
+            echo "❌ Unknown option: $1"
+            echo "Usage: $0 [--api-port PORT] [--api-key KEY]"
+            exit 1
+            ;;
+    esac
+done
+
+# Run checks
+check_required_tools
+
 echo "🚀 Building PRODUCTION emotion detection model..."
 echo "📦 Using FULL PRODUCTION ARCHITECTURE from PRs #136, #137, #138"
 echo "🔐 Flask-RESTX, security headers, advanced rate limiting, batch processing"
@@ -18,6 +63,11 @@ docker buildx build \
     --progress=plain \
     --no-cache \
     .
+
+if [ $? -ne 0 ]; then
+    echo "❌ Docker build failed!"
+    exit 1
+fi
 
 echo ""
 echo "✅ Production build completed!"
@@ -42,34 +92,58 @@ echo "Starting container for quick test..."
 
 # Start the production container
 docker run --rm -d \
-    -p 8080:8080 \
+    -p ${API_PORT}:${CONTAINER_PORT} \
     --name emotion-test-production \
-    -e ADMIN_API_KEY=test-key-123 \
+    -e ADMIN_API_KEY="${API_KEY}" \
     emotion-detection-api:production
 
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to start container!"
+    exit 1
+fi
+
 echo "⏳ Waiting for container to start..."
-sleep 15
+
+# Poll health endpoint with timeout
+max_attempts=30
+attempt=1
+until curl -sf "http://localhost:${API_PORT}/api/health" > /dev/null; do
+    if [ $attempt -ge $max_attempts ]; then
+        echo "❌ Container did not become healthy after $((max_attempts)) attempts."
+        docker logs emotion-test-production
+        docker stop emotion-test-production 2>/dev/null || echo "Container already stopped"
+        exit 1
+    fi
+    echo "Waiting for health endpoint... (attempt $attempt/$max_attempts)"
+    attempt=$((attempt + 1))
+    sleep 1
+done
+
+echo "✅ Container is healthy!"
 
 echo "🔍 Testing health endpoint..."
-curl -X GET http://localhost:8080/api/health || echo "Health check failed"
+health_response=$(curl -s "http://localhost:${API_PORT}/api/health")
+echo "$health_response" | jq '.' || { echo "Health check failed"; exit 1; }
 
 echo ""
 echo "🔍 Testing prediction endpoint..."
-curl -X POST http://localhost:8080/api/predict \
+predict_response=$(curl -s -X POST "http://localhost:${API_PORT}/api/predict" \
     -H "Content-Type: application/json" \
-    -H "X-API-Key: test-key-123" \
-    -d '{"text": "I am so happy today!"}' || echo "Prediction test failed"
+    -H "X-API-Key: ${API_KEY}" \
+    -d '{"text": "I am so happy today!"}')
+echo "$predict_response" | jq '.' || { echo "Prediction test failed"; exit 1; }
 
 echo ""
 echo "🔍 Testing batch prediction endpoint..."
-curl -X POST http://localhost:8080/api/predict_batch \
+batch_response=$(curl -s -X POST "http://localhost:${API_PORT}/api/predict_batch" \
     -H "Content-Type: application/json" \
-    -H "X-API-Key: test-key-123" \
-    -d '{"texts": ["I am happy", "I am sad", "I am excited"]}' || echo "Batch prediction test failed"
+    -H "X-API-Key: ${API_KEY}" \
+    -d '{"texts": ["I am happy", "I am sad", "I am excited"]}')
+echo "$batch_response" | jq '.' || { echo "Batch prediction test failed"; exit 1; }
 
 echo ""
 echo "🧹 Cleaning up test container..."
-docker stop emotion-test-production || echo "Container already stopped"
+docker stop emotion-test-production 2>/dev/null || echo "Container already stopped"
 
 echo ""
 echo "🎉 Production image is ready!"

@@ -4,6 +4,51 @@
 
 set -e
 
+# Check for required tools
+check_required_tools() {
+    echo "🔧 Checking for required tools..."
+    
+    if ! command -v jq &> /dev/null; then
+        echo "❌ Error: jq is not installed. Please install jq before running this script."
+        echo "   Install with: brew install jq (macOS) or apt-get install jq (Ubuntu)"
+        exit 1
+    fi
+    
+    if ! command -v curl &> /dev/null; then
+        echo "❌ Error: curl is not installed. Please install curl before running this script."
+        exit 1
+    fi
+    
+    echo "✅ All required tools are available."
+}
+
+# Set default values for parameters
+API_PORT=8081
+CONTAINER_PORT=8080
+API_KEY=${API_KEY:-"test-key-123"}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --api-port)
+            API_PORT="$2"
+            shift 2
+            ;;
+        --api-key)
+            API_KEY="$2"
+            shift 2
+            ;;
+        *)
+            echo "❌ Unknown option: $1"
+            echo "Usage: $0 [--api-port PORT] [--api-key KEY]"
+            exit 1
+            ;;
+    esac
+done
+
+# Run checks
+check_required_tools
+
 echo "🚀 Building OPTIMIZED emotion detection model..."
 echo "📦 Using PRODUCTION ARCHITECTURE from PRs #136, #137, #138"
 echo "🔐 Flask-RESTX, security headers, rate limiting, batch processing"
@@ -18,6 +63,11 @@ docker buildx build \
     --progress=plain \
     --no-cache \
     .
+
+if [ $? -ne 0 ]; then
+    echo "❌ Docker build failed!"
+    exit 1
+fi
 
 echo ""
 echo "✅ Build completed!"
@@ -41,31 +91,61 @@ echo "🧪 Testing optimized image..."
 echo "Starting container for quick test..."
 
 # Run a quick test with extended timeout and environment variables
-docker run --rm -d --name emotion-test-optimized -p 8081:8080 \
-    -e ADMIN_API_KEY=test-key-123 \
+docker run --rm -d --name emotion-test-optimized -p ${API_PORT}:${CONTAINER_PORT} \
+    -e ADMIN_API_KEY="${API_KEY}" \
     -e MODEL_CACHE_DIR=/app/models \
     emotion-detection-api:optimized \
-    gunicorn --bind :8080 --workers 1 --timeout 300 secure_api_server:app
+    gunicorn --bind :${CONTAINER_PORT} --workers 1 --timeout 300 secure_api_server:app
+
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to start container!"
+    exit 1
+fi
 
 # Wait for container to start and model to load (pre-downloaded during build)
 echo "⏳ Waiting for container to start..."
-sleep 30
+
+MAX_ATTEMPTS=30
+SLEEP_SECONDS=2
+HEALTH_URL="http://localhost:${API_PORT}/api/health"
+attempt=1
+while [ $attempt -le $MAX_ATTEMPTS ]; do
+    echo "🔄 Checking health endpoint (attempt $attempt/$MAX_ATTEMPTS)..."
+    if curl -s "$HEALTH_URL" | jq '.' > /dev/null 2>&1; then
+        echo "✅ Container is healthy!"
+        break
+    fi
+    sleep $SLEEP_SECONDS
+    attempt=$((attempt+1))
+done
+
+if [ $attempt -gt $MAX_ATTEMPTS ]; then
+    echo "❌ Container did not become healthy after $((MAX_ATTEMPTS * SLEEP_SECONDS)) seconds."
+    docker logs emotion-test-optimized
+    docker stop emotion-test-optimized 2>/dev/null || echo "Container already stopped/removed"
+    exit 1
+fi
 
 # Test health endpoint (Flask-RESTX endpoint)
 echo "🔍 Testing health endpoint..."
-curl -s http://localhost:8081/api/health | jq '.' || echo "Health check failed (using /api/health)"
+health_response=$(curl -s "$HEALTH_URL")
+echo "$health_response" | jq '.' || { echo "Health check failed (using /api/health)"; exit 1; }
 
 # Test prediction endpoint (Flask-RESTX endpoint)
 echo "🔍 Testing prediction endpoint..."
-curl -s -X POST http://localhost:8081/api/predict \
+predict_response=$(curl -s -X POST "http://localhost:${API_PORT}/api/predict" \
     -H "Content-Type: application/json" \
-    -d '{"text": "I am feeling happy today!"}' | jq '.' || echo "Prediction test failed"
+    -H "X-API-Key: ${API_KEY}" \
+    -d '{"text": "I am feeling happy today!"}')
+echo "$predict_response" | jq '.' || { echo "Prediction test failed"; exit 1; }
 
 # Test batch prediction endpoint (Flask-RESTX endpoint)
 echo "🔍 Testing batch prediction endpoint..."
-curl -s -X POST http://localhost:8081/api/predict_batch \
+batch_response=$(curl -s -X POST "http://localhost:${API_PORT}/api/predict_batch" \
     -H "Content-Type: application/json" \
-    -d '{"texts": ["I am happy", "I feel sad", "I am excited"]}' | jq '.' || echo "Batch prediction test failed"
+    -H "X-API-Key: ${API_KEY}" \
+    -d '{"texts": ["I am happy", "I feel sad", "I am excited"]}')
+echo "$batch_response" | jq '.' || { echo "Batch prediction test failed"; exit 1; }
 
 # Clean up
 echo "🧹 Cleaning up test container..."
