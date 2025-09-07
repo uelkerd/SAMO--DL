@@ -1,12 +1,40 @@
 steps:
-  # Build the Docker image with dynamic tag
+  # Pull latest image for build caching (allow failure if image doesn't exist)
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        docker pull us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:latest || exit 0
+
+  # Build the Docker image with dynamic tag and caching
   - name: 'gcr.io/cloud-builders/docker'
     args: [
       'build',
+      '--cache-from', 'us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:latest',
       '-f', 'deployment/docker/Dockerfile.optimized',
-      '-t', 'gcr.io/$PROJECT_ID/emotion-detection-api:$BUILD_ID',
-      '-t', 'gcr.io/$PROJECT_ID/emotion-detection-api:latest',
+      '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:$BUILD_ID',
+      '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:latest',
       '.'
+    ]
+
+  # Push images to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'push', 'us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:$BUILD_ID'
+    ]
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'push', 'us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:latest'
+    ]
+
+  # Scan image for vulnerabilities
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: [
+      'artifacts', 'docker', 'images', 'scan',
+      'us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:$BUILD_ID',
+      '--region=us-central1'
     ]
   
   # Deploy to Cloud Run with parameterized configuration
@@ -14,7 +42,7 @@ steps:
     entrypoint: 'gcloud'
     args: [
       'run', 'deploy', '${_SERVICE_NAME}',
-      '--image', 'gcr.io/$PROJECT_ID/emotion-detection-api:$BUILD_ID',
+      '--image', 'us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:$BUILD_ID',
       '--region', '${_REGION}',
       '--platform', 'managed',
       '--allow-unauthenticated',
@@ -27,8 +55,8 @@ steps:
 
 # Available images
 images:
-  - 'gcr.io/$PROJECT_ID/emotion-detection-api:$BUILD_ID'
-  - 'gcr.io/$PROJECT_ID/emotion-detection-api:latest'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:$BUILD_ID'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:latest'
 
 # Build options
 options:
@@ -51,6 +79,9 @@ substitutions:
   # Build configuration
   _MACHINE_TYPE: 'E2_HIGHCPU_8'
   _DISK_SIZE: '100'
+  
+  # Artifact Registry configuration
+  _ARTIFACT_REPO: 'samo-dl-repo'
 
 # Available secrets (set these in Cloud Build settings)
 availableSecrets:

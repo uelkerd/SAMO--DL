@@ -4,6 +4,18 @@
 
 This guide covers the complete automated deployment pipeline using Google Cloud Build for the SAMO Emotion Detection API.
 
+## 🚀 Features
+
+- **Automated Docker Image Builds**: Build optimized Docker images for Cloud Run with build caching for faster subsequent builds.
+- **Dynamic Image Tagging**: Use `$BUILD_ID` and `latest` tags to prevent overwrites and enable easy rollbacks.
+- **Artifact Registry Integration**: Store images in Google Artifact Registry for better security, management, and performance.
+- **Vulnerability Scanning**: Automatically scan built images for security vulnerabilities before deployment.
+- **Automated Cloud Run Deployment**: Deploy the built image directly to Cloud Run as part of the build process.
+- **Secure API Key Management**: Integrate with Google Secret Manager to handle `ADMIN_API_KEY` securely, avoiding hardcoded secrets in your repository or build logs.
+- **Build Caching**: Leverage Docker layer caching to significantly speed up subsequent builds.
+- **Comprehensive Logging**: Cloud Build logs provide detailed insights into the build and deployment process.
+- **Machine Type Optimization**: Use `E2_HIGHCPU_8` for faster builds.
+
 ## 📋 Prerequisites
 
 1. **Google Cloud Project** with billing enabled
@@ -12,7 +24,7 @@ This guide covers the complete automated deployment pipeline using Google Cloud 
    - Cloud Build API
    - Cloud Run API
    - Secret Manager API
-   - Container Registry API
+   - Artifact Registry API
 
 ## 🔧 Setup Instructions
 
@@ -22,10 +34,25 @@ This guide covers the complete automated deployment pipeline using Google Cloud 
 gcloud services enable secretmanager.googleapis.com
 gcloud services enable cloudbuild.googleapis.com
 gcloud services enable run.googleapis.com
-gcloud services enable container.googleapis.com
+gcloud services enable artifactregistry.googleapis.com
 ```
 
-### 2. Set Up Secret Manager (Recommended)
+### 2. Set Up Artifact Registry (Required)
+
+The enhanced pipeline uses Google Artifact Registry for better image management and security:
+
+```bash
+# Run the setup script
+./scripts/deployment/setup-artifact-registry.sh
+
+# Or manually:
+gcloud artifacts repositories create samo-dl-repo \
+  --repository-format=docker \
+  --location=us-central1 \
+  --description="SAMO-DL Docker images repository"
+```
+
+### 3. Set Up Secret Manager (Required)
 
 For production deployments, use Google Secret Manager to store the API key securely:
 
@@ -38,7 +65,7 @@ gcloud secrets create admin-api-key --replication-policy="automatic"
 echo -n "your-secure-api-key-here" | gcloud secrets versions add admin-api-key --data-file=-  # skipcq: SCT-A000 - This is a placeholder, not a real secret
 ```
 
-### 3. Grant Cloud Build Permissions
+### 4. Grant Cloud Build Permissions
 
 ```bash
 # Get your project number
