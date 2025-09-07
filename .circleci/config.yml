@@ -85,7 +85,7 @@ commands:
             else
               echo "ℹ️ Neither curl nor wget found in container; probing via sidecar..."
               # Use a tiny curl container joined to the app container's network namespace
-              if docker run --rm --network "container:<< parameters.container_name >>" curlimages/curl:8.9.0 \
+              if docker run --rm --network "container:<< parameters.container_name >>" curlimages/curl:latest \
                    -fsS --connect-timeout 3 --max-time 5 "http://127.0.0.1:<< parameters.port >>${HEALTH_PATH}" >/dev/null; then
                 echo "✅ Sidecar-based health check passed"
                 trap - EXIT
@@ -209,8 +209,8 @@ jobs:
             set -euo pipefail
             source /tmp/safety-scan-env/bin/activate
 
-            # Install Safety v3.6.x (pinned version)
-            pip install safety==3.6.0
+            # Install Safety v3.2.3 (compatible with typer)
+            pip install safety==3.2.3
 
             # Install jq for JSON parsing (if not already available)
             if ! command -v jq &> /dev/null; then
