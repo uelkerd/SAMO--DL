@@ -30,6 +30,9 @@ from model_utils import (
 T5_AVAILABLE = False
 WHISPER_AVAILABLE = False
 
+# Set up logger for import errors
+import_logger = logging.getLogger(__name__)
+
 try:
     from src.models.summarization.t5_summarizer import create_t5_summarizer
     T5_AVAILABLE = True
@@ -988,7 +991,7 @@ class CompleteAnalysis(Resource):
         # Emotion Analysis
         emotion_result = {}
         try:
-            raw_emotion = predict_emotions(text_to_analyze, threshold=emotion_threshold)
+            raw_emotion = predict_emotions(text_to_analyze)
             emotion_result = normalize_emotion_results(raw_emotion)
         except Exception as e:
             logger.warning(f"Emotion analysis failed: {e}")
