@@ -1,0 +1,14 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-f', 'deployment/docker/Dockerfile.optimized',
+      '-t', 'gcr.io/$PROJECT_ID/emotion-detection-api:optimized-cloudbuild',
+      '.'
+    ]
+images:
+  - 'gcr.io/$PROJECT_ID/emotion-detection-api:optimized-cloudbuild'
+options:
+  machineType: 'E2_HIGHCPU_8'
+  diskSizeGb: 100
+
