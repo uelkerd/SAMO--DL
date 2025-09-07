@@ -18,16 +18,6 @@ steps:
       '.'
     ]
 
-  # Push images to Artifact Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    args: [
-      'push', 'us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:$BUILD_ID'
-    ]
-
-  - name: 'gcr.io/cloud-builders/docker'
-    args: [
-      'push', 'us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:latest'
-    ]
 
   # Scan image for vulnerabilities
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -80,7 +70,7 @@ substitutions:
   
   # Build configuration
   _MACHINE_TYPE: 'E2_HIGHCPU_8'
-  _DISK_SIZE: '100'
+  _DISK_SIZE: 100
   
   # Artifact Registry configuration
   _ARTIFACT_REPO: 'samo-dl-repo'

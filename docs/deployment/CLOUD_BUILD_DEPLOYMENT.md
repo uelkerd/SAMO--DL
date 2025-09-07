@@ -31,10 +31,10 @@ This guide covers the complete automated deployment pipeline using Google Cloud 
 ### 1. Enable Required APIs
 
 ```bash
-gcloud services enable secretmanager.googleapis.com
-gcloud services enable cloudbuild.googleapis.com
-gcloud services enable run.googleapis.com
-gcloud services enable artifactregistry.googleapis.com
+gcloud services enable secretmanager.googleapis.com --project=$PROJECT_ID
+gcloud services enable cloudbuild.googleapis.com --project=$PROJECT_ID
+gcloud services enable run.googleapis.com --project=$PROJECT_ID
+gcloud services enable artifactregistry.googleapis.com --project=$PROJECT_ID
 ```
 
 ### 2. Set Up Artifact Registry (Required)
@@ -49,7 +49,8 @@ The enhanced pipeline uses Google Artifact Registry for better image management 
 gcloud artifacts repositories create samo-dl-repo \
   --repository-format=docker \
   --location=us-central1 \
-  --description="SAMO-DL Docker images repository"
+  --description="SAMO-DL Docker images repository" \
+  --project=$PROJECT_ID
 ```
 
 ### 3. Set Up Secret Manager (Required)
@@ -61,9 +62,9 @@ For production deployments, use Google Secret Manager to store the API key secur
 ./scripts/deployment/setup-secret-manager.sh
 
 # Or manually:
-gcloud secrets create admin-api-key --replication-policy="automatic"
+gcloud secrets create admin-api-key --replication-policy="automatic" --project=$PROJECT_ID
 # IMPORTANT: Replace YOUR_ACTUAL_API_KEY_HERE with your real API key!
-echo -n "YOUR_ACTUAL_API_KEY_HERE" | gcloud secrets versions add admin-api-key --data-file=-
+echo -n "YOUR_ACTUAL_API_KEY_HERE" | gcloud secrets versions add admin-api-key --data-file=- --project=$PROJECT_ID
 ```
 
 ### 4. Grant Cloud Build Permissions
@@ -75,7 +76,8 @@ PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNum
 # Grant Cloud Build access to Secret Manager
 gcloud secrets add-iam-policy-binding admin-api-key \
   --member="serviceAccount:$PROJECT_NUMBER@cloudbuild.gserviceaccount.com" \
-  --role="roles/secretmanager.secretAccessor"
+  --role="roles/secretmanager.secretAccessor" \
+  --project=$PROJECT_ID
 ```
 
 ## 🚀 Deployment Options
@@ -220,8 +222,8 @@ You can monitor the build progress in the Google Cloud Console:
 After a successful deployment, get the service URL:
 
 ```bash
-SERVICE_URL=$(gcloud run services describe emotion-detection-api --region us-central1 --format='value(status.url)')
-API_KEY=$(gcloud secrets versions access latest --secret="admin-api-key" --project="$PROJECT_ID")
+SERVICE_URL=$(gcloud run services describe emotion-detection-api --region us-central1 --format='value(status.url)' --project=$PROJECT_ID)
+API_KEY=$(gcloud secrets versions access latest --secret="admin-api-key" --project=$PROJECT_ID)
 
 # Test Health Endpoint
 curl -s -H "X-API-Key: $API_KEY" "$SERVICE_URL/api/health" | jq .
@@ -239,15 +241,15 @@ Since we are using dynamic image tagging (`$BUILD_ID`), each successful build cr
 
 1.  **List Revisions**: Identify the previous stable revision in Cloud Run.
     ```bash
-    gcloud run revisions list --service emotion-detection-api --region us-central1
+    gcloud run revisions list --service emotion-detection-api --region us-central1 --project=$PROJECT_ID
     ```
 2.  **Rollback**: Deploy a previous revision.
     ```bash
-    gcloud run services update emotion-detection-api --region us-central1 --revision OLD_REVISION_NAME
+    gcloud run services update emotion-detection-api --region us-central1 --revision OLD_REVISION_NAME --project=$PROJECT_ID
     ```
     Alternatively, you can deploy a specific image tag:
     ```bash
-    gcloud run deploy emotion-detection-api --image us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:OLD_BUILD_ID --region us-central1
+    gcloud run deploy emotion-detection-api --image us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:OLD_BUILD_ID --region us-central1 --project=$PROJECT_ID
     ```
 
 ## ⚠️ Troubleshooting
@@ -260,7 +262,7 @@ Since we are using dynamic image tagging (`$BUILD_ID`), each successful build cr
 
 ## 📈 Monitoring
 
--   **Cloud Run Logs**: Access logs for your service in the Cloud Run console or via `gcloud run services logs read emotion-detection-api --region us-central1`.
+-   **Cloud Run Logs**: Access logs for your service in the Cloud Run console or via `gcloud run services logs read emotion-detection-api --region us-central1 --project=$PROJECT_ID`.
 -   **Cloud Monitoring**: Set up dashboards and alerts for request latency, error rates, and instance count.
 
 ---
