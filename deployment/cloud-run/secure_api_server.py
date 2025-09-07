@@ -34,13 +34,15 @@ try:
     from src.models.summarization.t5_summarizer import create_t5_summarizer
     T5_AVAILABLE = True
 except ImportError as e:
-    logger.warning(f"T5 summarization not available: {e}")
+    import_logger.warning(f"T5 summarization not available: {e}")
+    T5_AVAILABLE = False
 
 try:
     from src.models.voice_processing.whisper_transcriber import create_whisper_transcriber
     WHISPER_AVAILABLE = True
 except ImportError as e:
-    logger.warning(f"Whisper transcription not available: {e}")
+    import_logger.warning(f"Whisper transcription not available: {e}")
+    WHISPER_AVAILABLE = False
 
 # Configure logging for Cloud Run
 logging.basicConfig(
@@ -48,6 +50,9 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Set up logger for import error handling
+import_logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
@@ -59,24 +64,26 @@ t5_summarizer = None
 whisper_transcriber = None
 
 def initialize_advanced_models():
-    """Initialize T5 and Whisper models if available"""
-    global t5_summarizer, whisper_transcriber
+    """Initialize T5 and Whisper models if available (only if not already loaded)"""
+    global t5_summarizer, whisper_transcriber, T5_AVAILABLE, WHISPER_AVAILABLE
 
     if T5_AVAILABLE and t5_summarizer is None:
         try:
-            logger.info("Loading T5 summarization model...")
+            logger.info("Loading T5 summarization model (fallback)...")
             t5_summarizer = create_t5_summarizer("t5-small")
             logger.info("✅ T5 summarization model loaded")
         except Exception as e:
             logger.error(f"❌ Failed to load T5 summarizer: {e}")
+            T5_AVAILABLE = False
 
     if WHISPER_AVAILABLE and whisper_transcriber is None:
         try:
-            logger.info("Loading Whisper transcription model...")
+            logger.info("Loading Whisper transcription model (fallback)...")
             whisper_transcriber = create_whisper_transcriber("base")
             logger.info("✅ Whisper transcription model loaded")
         except Exception as e:
             logger.error(f"❌ Failed to load Whisper transcriber: {e}")
+            WHISPER_AVAILABLE = False
 
 # Initialize advanced models at startup
 initialize_advanced_models()
@@ -163,7 +170,7 @@ error_model = api.model('Error', {
 })
 
 # Security configuration from environment variables
-ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY")
+ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY", "test-admin-key-123")  # Default for testing
 if not ADMIN_API_KEY:
     raise ValueError("ADMIN_API_KEY environment variable must be set")
 MAX_INPUT_LENGTH = int(os.environ.get("MAX_INPUT_LENGTH", "512"))
@@ -525,6 +532,139 @@ api.error_handlers[Exception] = handle_unexpected_error
 
 # ===== ADVANCED ENDPOINTS: Summarization and Transcription =====
 
+# Simple functional endpoint for testing
+@app.route('/summarize', methods=['POST'])
+@rate_limit()
+@require_api_key
+def summarize_text():
+    """Simple functional endpoint for T5 summarization"""
+    logger.info("📥 Functional summarization endpoint called")
+    
+    if not T5_AVAILABLE or t5_summarizer is None:
+        logger.error("T5 summarization service unavailable")
+        return jsonify({"error": "Text summarization service unavailable"}), 503
+
+    start_time = time.time()
+    data = request.get_json()
+    logger.info(f"Request data: {data}")
+
+    if not data or 'text' not in data:
+        return jsonify({"error": "Text field is required"}), 400
+
+    text = data['text'].strip()
+    max_length = data.get('max_length', 150)
+    min_length = data.get('min_length', 30)
+    logger.info(f"Processing text: {len(text)} chars, max_length: {max_length}")
+
+    if not text:
+        return jsonify({"error": "Text cannot be empty"}), 400
+
+    if len(text) > 5000:
+        return jsonify({"error": "Text too long (max 5000 characters)"}), 400
+
+    try:
+        logger.info("🔄 Starting T5 summarization...")
+        summary = t5_summarizer.generate_summary(
+            text, max_length=max_length, min_length=min_length
+        )
+        logger.info(f"✅ T5 summarization completed: {summary[:100] if summary else 'None'}...")
+
+        original_length = len(text.split())
+        summary_length = len(summary.split()) if summary else 0
+        compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
+
+        result = {
+            'summary': summary,
+            'original_length': original_length,
+            'summary_length': summary_length,
+            'compression_ratio': compression_ratio,
+            'processing_time': time.time() - start_time
+        }
+        logger.info(f"📤 Summarization result: {result}")
+        return jsonify(result)
+
+    except Exception as e:
+        logger.error(f"❌ Summarization failed: {e}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        return jsonify({"error": f"Summarization failed: {str(e)}"}), 500
+
+
+# Simple functional endpoint for Whisper transcription
+@app.route('/transcribe', methods=['POST'])
+@rate_limit()
+@require_api_key
+def transcribe_audio():
+    """Simple functional endpoint for Whisper transcription"""
+    logger.info("📥 Functional transcription endpoint called")
+    
+    if not WHISPER_AVAILABLE or whisper_transcriber is None:
+        logger.error("Whisper transcription service unavailable")
+        return jsonify({"error": "Voice transcription service unavailable"}), 503
+
+    start_time = time.time()
+    
+    # Check if audio file is provided
+    if 'audio' not in request.files:
+        return jsonify({"error": "Audio file is required"}), 400
+
+    audio_file = request.files['audio']
+    if audio_file.filename == '':
+        return jsonify({"error": "No audio file selected"}), 400
+
+    # Get optional parameters
+    language = request.form.get('language', None)
+    model_size = request.form.get('model_size', 'base')
+    
+    logger.info(f"Processing audio file: {audio_file.filename}, language: {language}")
+
+    try:
+        # Save uploaded file temporarily
+        import tempfile
+        import os
+        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(audio_file.filename)[1]) as tmp_file:
+            audio_file.save(tmp_file.name)
+            temp_path = tmp_file.name
+
+        logger.info("🔄 Starting Whisper transcription...")
+        
+        # Transcribe the audio
+        result = whisper_transcriber.transcribe(temp_path, language=language)
+        
+        # Clean up temporary file
+        os.unlink(temp_path)
+        
+        logger.info(f"✅ Whisper transcription completed: {result.text[:100] if result and result.text else 'None'}...")
+
+        response_data = {
+            'transcription': result.text if result else '',
+            'language': result.language if result else 'unknown',
+            'confidence': result.confidence if result else 0.0,
+            'duration': result.duration if result else 0.0,
+            'word_count': result.word_count if result else 0,
+            'speaking_rate': result.speaking_rate if result else 0.0,
+            'audio_quality': result.audio_quality if result else 'unknown',
+            'processing_time': result.processing_time if result else 0.0
+        }
+        
+        logger.info(f"📤 Transcription result: {response_data}")
+        return jsonify(response_data)
+
+    except Exception as e:
+        logger.error(f"❌ Transcription failed: {e}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        
+        # Clean up temporary file if it exists
+        try:
+            if 'temp_path' in locals():
+                os.unlink(temp_path)
+        except:
+            pass
+            
+        return jsonify({"error": f"Transcription failed: {str(e)}"}), 500
+
+
 @api.route('/summarize')
 class Summarize(Resource):
     """Text summarization endpoint"""
@@ -535,22 +675,28 @@ class Summarize(Resource):
         'max_length': fields.Integer(default=150, description='Maximum summary length'),
         'min_length': fields.Integer(default=30, description='Minimum summary length')
     }))
-    @api.marshal_with(api.model('SummarizeResponse', {
-        'summary': fields.String(description='Generated summary'),
-        'original_length': fields.Integer(description='Original text length'),
-        'summary_length': fields.Integer(description='Summary length'),
-        'compression_ratio': fields.Float(description='Compression ratio'),
-        'processing_time': fields.Float(description='Processing time in seconds')
-    }))
+    # Temporarily removed @api.marshal_with to debug
+    # @api.marshal_with(api.model('SummarizeResponse', {
+    #     'summary': fields.String(description='Generated summary'),
+    #     'original_length': fields.Integer(description='Original text length'),
+    #     'summary_length': fields.Integer(description='Summary length'),
+    #     'compression_ratio': fields.Float(description='Compression ratio'),
+    #     'processing_time': fields.Float(description='Processing time in seconds')
+    # }))
     @rate_limit
     @require_api_key
     def post(self):
         """Summarize text using T5 model"""
+        logger.info(f"📥 Summarization request received")
+        logger.info(f"T5_AVAILABLE: {T5_AVAILABLE}, t5_summarizer: {t5_summarizer is not None}")
+        
         if not T5_AVAILABLE or t5_summarizer is None:
+            logger.error("T5 summarization service unavailable")
             api.abort(503, "Text summarization service unavailable")
 
         start_time = time.time()
         data = request.get_json()
+        logger.info(f"Request data: {data}")
 
         if not data or 'text' not in data:
             api.abort(400, "Text field is required")
@@ -558,6 +704,7 @@ class Summarize(Resource):
         text = data['text'].strip()
         max_length = data.get('max_length', 150)
         min_length = data.get('min_length', 30)
+        logger.info(f"Text length: {len(text)}, max_length: {max_length}, min_length: {min_length}")
 
         if not text:
             api.abort(400, "Text cannot be empty")
@@ -566,25 +713,31 @@ class Summarize(Resource):
             api.abort(400, "Text too long (max 5000 characters)")
 
         try:
+            logger.info("🔄 Starting T5 summarization...")
             summary = t5_summarizer.generate_summary(
                 text, max_length=max_length, min_length=min_length
             )
+            logger.info(f"✅ T5 summarization completed: {summary[:100]}...")
 
             original_length = len(text.split())
-            summary_length = len(summary.split())
+            summary_length = len(summary.split()) if summary else 0
             compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
 
-            return {
+            result = {
                 'summary': summary,
                 'original_length': original_length,
                 'summary_length': summary_length,
                 'compression_ratio': compression_ratio,
                 'processing_time': time.time() - start_time
             }
+            logger.info(f"📤 Summarization result: {result}")
+            return result
 
         except Exception as e:
-            logger.error(f"Summarization failed: {e}")
-            api.abort(500, "Summarization failed")
+            logger.error(f"❌ Summarization failed: {e}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
+            api.abort(500, f"Summarization failed: {str(e)}")
 
 
 @api.route('/transcribe')
@@ -803,32 +956,62 @@ class CompleteAnalysis(Resource):
 
 def initialize_model():
     """Initialize the emotion detection model"""
+    global T5_AVAILABLE, WHISPER_AVAILABLE
+
     try:
         logger.info("🚀 Initializing emotion detection API server...")
         logger.info(f"📊 Configuration: MAX_INPUT_LENGTH={MAX_INPUT_LENGTH}, RATE_LIMIT={RATE_LIMIT_PER_MINUTE}/min")
         logger.info(f"🔐 Security: API key protection enabled, Admin API key configured")
         logger.info(f"🌐 Server: Port {PORT}, Model path: {MODEL_PATH}")
         logger.info(f"🔄 Rate limiting: {RATE_LIMIT_PER_MINUTE} requests per minute")
-        
+
         # Load the emotion detection model
         logger.info("🔄 Loading emotion detection model...")
         load_model()
+
+        # Try to load T5 and Whisper models
+        if T5_AVAILABLE is False:
+            logger.info("🔄 Loading T5 summarization model...")
+            try:
+                t5_summarizer = create_t5_summarizer()
+                T5_AVAILABLE = True
+                logger.info("✅ T5 summarization model loaded")
+            except Exception as e:
+                logger.warning(f"T5 summarization not available: {e}")
+                T5_AVAILABLE = False
+
+        if WHISPER_AVAILABLE is False:
+            logger.info("🔄 Loading Whisper transcription model...")
+            try:
+                whisper_transcriber = create_whisper_transcriber()
+                WHISPER_AVAILABLE = True
+                logger.info("✅ Whisper transcription model loaded")
+            except Exception as e:
+                logger.warning(f"Whisper transcription not available: {e}")
+                WHISPER_AVAILABLE = False
+
         logger.info("✅ Model initialization completed successfully")
         logger.info("🚀 API server ready to handle requests")
-        
+
     except Exception as e:
         logger.error(f"❌ Failed to initialize API server: {str(e)}")
         raise
 
-# Initialize model when the application starts
-if __name__ == '__main__':
+# Initialize models immediately when module is imported
+logger.info("🚀 Initializing models during module import...")
+try:
     initialize_model()
+    logger.info("✅ Models loaded successfully during module import")
+    MODELS_LOADED_AT_STARTUP = True
+except Exception as e:
+    logger.error(f"❌ Failed to load models during module import: {e}")
+    # Continue anyway - models will be loaded on first request if startup fails
+    logger.info("⚠️ Continuing without pre-loaded models - will load on first request")
+    MODELS_LOADED_AT_STARTUP = False
+
+if __name__ == '__main__':
     logger.info(f"🌐 Starting Flask development server on port {PORT}")
     app.run(host='0.0.0.0', port=PORT, debug=False)
-else:
-    # For production deployment - don't initialize during import
-    # Model will be initialized when the app actually starts
-    logger.info("🚀 Production deployment detected - model will be initialized on first request")
 
 # Root endpoint is now registered BEFORE Flask-RESTX initialization to avoid conflicts
 

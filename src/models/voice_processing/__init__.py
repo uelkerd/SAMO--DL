@@ -1,6 +1,20 @@
-from .audio_preprocessor import AudioPreprocessor, preprocess_audio
-from .transcription_api import TranscriptionAPI
-from .whisper_transcriber import WhisperTranscriber, create_whisper_transcriber
+# Only import what's actually needed for the API
+try:
+    from .whisper_transcriber import create_whisper_transcriber
+except ImportError:
+    create_whisper_transcriber = None
+
+# Optional imports for training/development
+try:
+    from .audio_preprocessor import AudioPreprocessor, preprocess_audio
+except ImportError:
+    AudioPreprocessor = None
+    preprocess_audio = None
+
+try:
+    from .transcription_api import TranscriptionAPI
+except ImportError:
+    TranscriptionAPI = None
 
 
 """SAMO Deep Learning - Voice Processing Module.
@@ -25,9 +39,5 @@ __version__ = "0.1.0"
 __author__ = "SAMO Deep Learning Team"
 
 __all__ = [
-    "AudioPreprocessor",
-    "TranscriptionAPI",
-    "WhisperTranscriber",
     "create_whisper_transcriber",
-    "preprocess_audio",
 ]

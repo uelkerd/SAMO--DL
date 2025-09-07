@@ -7,6 +7,7 @@ journal entries and other text content.
 """
 
 import logging
+import os
 import warnings
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union
@@ -146,15 +147,18 @@ class T5SummarizationModel(nn.Module):
             "Initializing {self.model_name} summarization model...", extra={"format_args": True}
         )
 
+        # Use cache directory from environment
+        cache_dir = os.environ.get('HF_HOME', '/app/models')
+
         if "bart" in self.model_name.lower():
-            self.tokenizer = BartTokenizer.from_pretrained(self.model_name)
-            self.model = BartForConditionalGeneration.from_pretrained(self.model_name)
+            self.tokenizer = BartTokenizer.from_pretrained(self.model_name, cache_dir=cache_dir)
+            self.model = BartForConditionalGeneration.from_pretrained(self.model_name, cache_dir=cache_dir)
         elif "t5" in self.model_name.lower():
-            self.tokenizer = T5Tokenizer.from_pretrained(self.model_name)
-            self.model = T5ForConditionalGeneration.from_pretrained(self.model_name)
+            self.tokenizer = T5Tokenizer.from_pretrained(self.model_name, cache_dir=cache_dir)
+            self.model = T5ForConditionalGeneration.from_pretrained(self.model_name, cache_dir=cache_dir)
         else:
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-            self.model = AutoModelForSeq2SeqLM.from_pretrained(self.model_name)
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, cache_dir=cache_dir)
+            self.model = AutoModelForSeq2SeqLM.from_pretrained(self.model_name, cache_dir=cache_dir)
 
         self.model.to(self.device)
 

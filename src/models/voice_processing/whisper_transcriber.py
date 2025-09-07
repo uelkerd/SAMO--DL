@@ -205,7 +205,9 @@ class WhisperTranscriber:
         logger.info("Device: {self.device}", extra={"format_args": True})
 
         try:
-            self.model = whisper.load_model(self.config.model_size, device=self.device)
+            # Use cache directory from environment
+            cache_dir = os.environ.get('HF_HOME', '/app/models')
+            self.model = whisper.load_model(self.config.model_size, device=self.device, download_root=cache_dir)
             logger.info(
                 "✅ Whisper {self.config.model_size} model loaded successfully",
                 extra={"format_args": True},

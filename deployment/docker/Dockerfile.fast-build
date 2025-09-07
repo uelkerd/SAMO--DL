@@ -1,5 +1,6 @@
-# Security-hardened CPU-only Dockerfile for Cloud Run deployment
-# Addresses Docker Scout vulnerability findings
+# FAST BUILD VERSION - Models downloaded at runtime, not build time
+# This version builds much faster but downloads models on first run
+
 FROM python:3.10-slim-bookworm
 
 # Set environment variables for Python
@@ -16,10 +17,8 @@ WORKDIR /app
 
 # Install minimal system dependencies with security updates
 ENV DEBIAN_FRONTEND=noninteractive
-
-# Install minimal system dependencies with security updates
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates curl \
+    ca-certificates curl ffmpeg \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
@@ -49,30 +48,8 @@ COPY src/models/emotion_detection/labels.py ./src/models/emotion_detection/
 COPY src/constants.py ./src/
 COPY src/__init__.py ./src/
 
-# Pre-download the models during build to avoid OOM during startup
-RUN mkdir -p /app/models && \
-    echo "Starting model downloads..." && \
-    # Download emotion detection model with progress
-    python -c "from transformers import AutoTokenizer, AutoModelForSequenceClassification; \
-    model_name='j-hartmann/emotion-english-distilroberta-base'; \
-    print(f'Downloading emotion model {model_name}...'); \
-    AutoTokenizer.from_pretrained(model_name, cache_dir='/app/models'); \
-    AutoModelForSequenceClassification.from_pretrained(model_name, cache_dir='/app/models'); \
-    print('✓ Emotion model downloaded successfully');" && \
-    # Download T5 summarization model with progress
-    python -c "from transformers import T5Tokenizer, T5ForConditionalGeneration; \
-    model_name='t5-small'; \
-    print(f'Downloading T5 model {model_name}...'); \
-    T5Tokenizer.from_pretrained(model_name, cache_dir='/app/models'); \
-    T5ForConditionalGeneration.from_pretrained(model_name, cache_dir='/app/models'); \
-    print('✓ T5 model downloaded successfully');" && \
-    # Download Whisper transcription model with progress
-    python -c "import whisper; \
-    model_size='base'; \
-    print(f'Downloading Whisper model {model_size}...'); \
-    whisper.load_model(model_size, download_root='/app/models'); \
-    print('✓ Whisper model downloaded successfully');" && \
-    echo "All models downloaded successfully!"
+# Create models directory (models will be downloaded at runtime)
+RUN mkdir -p /app/models
 
 # Create non-root user for security (Cloud Run best practice)
 RUN useradd -m -u 1000 appuser && \
