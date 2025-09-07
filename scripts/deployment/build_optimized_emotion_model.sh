@@ -25,7 +25,10 @@ check_required_tools() {
 # Set default values for parameters
 API_PORT=8081
 CONTAINER_PORT=8080
-API_KEY=${API_KEY:-"test-key-123"}
+# Generate a random API key if not provided
+if [ -z "${API_KEY}" ]; then
+    API_KEY="test-key-$(date +%s)-$(openssl rand -hex 8)"
+fi
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
