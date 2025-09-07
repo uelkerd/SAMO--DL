@@ -14,11 +14,6 @@ WORKDIR /app
 
 # Install minimal system dependencies with security updates
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
 
 # SECURITY: Update all packages to latest versions to fix vulnerabilities
 RUN apt-get update && apt-get upgrade -y --no-install-recommends \
@@ -51,11 +46,7 @@ COPY deployment/docker/requirements-api-optimized.txt ./requirements.txt
 RUN pip install --upgrade pip>=23.3 setuptools>=78.1.1
 
 # Install Python dependencies with CPU-only PyTorch
-RUN pip install --no-cache-dir \
-    --extra-index-url https://download.pytorch.org/whl/cpu \
-    -r requirements.txt \
-    torch==2.8.0+cpu \
-    gunicorn
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the actual production code from the PRs
 COPY deployment/cloud-run/secure_api_server.py .

@@ -76,15 +76,15 @@ echo ""
 # Show image size comparison
 echo "📊 Image size comparison:"
 echo "Original image:"
-docker images emotion-detection-api:latest --format "table {{.Repository}}\\t{{.Tag}}\\t{{.Size}}"
+docker images emotion-detection-api:latest --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
 
 echo ""
 echo "Optimized image:"
-docker images emotion-detection-api:optimized --format "table {{.Repository}}\\t{{.Tag}}\\t{{.Size}}"
+docker images emotion-detection-api:optimized --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
 
 echo ""
 echo "Production image:"
-docker images emotion-detection-api:production --format "table {{.Repository}}\\t{{.Tag}}\\t{{.Size}}"
+docker images emotion-detection-api:production --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
 
 echo ""
 echo "🧪 Testing production image..."
