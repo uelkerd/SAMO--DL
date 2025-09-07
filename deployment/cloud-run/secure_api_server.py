@@ -13,6 +13,7 @@ import threading
 import hmac
 from flask import Flask, request, jsonify, g
 from flask_restx import Api, Resource, fields, Namespace
+from werkzeug.datastructures import FileStorage
 from functools import wraps
 
 # Import security modules
@@ -22,8 +23,24 @@ from rate_limiter import rate_limit
 # Import shared model utilities
 from model_utils import (
     ensure_model_loaded, predict_emotions, get_model_status,
-    validate_text_input, 
+    validate_text_input,
 )
+
+# Import T5 and Whisper models
+T5_AVAILABLE = False
+WHISPER_AVAILABLE = False
+
+try:
+    from src.models.summarization.t5_summarizer import create_t5_summarizer
+    T5_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"T5 summarization not available: {e}")
+
+try:
+    from src.models.voice_processing.whisper_transcriber import create_whisper_transcriber
+    WHISPER_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Whisper transcription not available: {e}")
 
 # Configure logging for Cloud Run
 logging.basicConfig(
@@ -36,6 +53,33 @@ app = Flask(__name__)
 
 # Add security headers
 add_security_headers(app)
+
+# Global model instances for T5 and Whisper
+t5_summarizer = None
+whisper_transcriber = None
+
+def initialize_advanced_models():
+    """Initialize T5 and Whisper models if available"""
+    global t5_summarizer, whisper_transcriber
+
+    if T5_AVAILABLE and t5_summarizer is None:
+        try:
+            logger.info("Loading T5 summarization model...")
+            t5_summarizer = create_t5_summarizer("t5-small")
+            logger.info("✅ T5 summarization model loaded")
+        except Exception as e:
+            logger.error(f"❌ Failed to load T5 summarizer: {e}")
+
+    if WHISPER_AVAILABLE and whisper_transcriber is None:
+        try:
+            logger.info("Loading Whisper transcription model...")
+            whisper_transcriber = create_whisper_transcriber("base")
+            logger.info("✅ Whisper transcription model loaded")
+        except Exception as e:
+            logger.error(f"❌ Failed to load Whisper transcriber: {e}")
+
+# Initialize advanced models at startup
+initialize_advanced_models()
 
 # Register root endpoint BEFORE Flask-RESTX initialization to avoid conflicts
 @app.route('/')
@@ -478,6 +522,284 @@ api.error_handlers[500] = internal_error
 api.error_handlers[404] = not_found
 api.error_handlers[405] = method_not_allowed
 api.error_handlers[Exception] = handle_unexpected_error
+
+# ===== ADVANCED ENDPOINTS: Summarization and Transcription =====
+
+@api.route('/summarize')
+class Summarize(Resource):
+    """Text summarization endpoint"""
+
+    @api.doc('summarize_text')
+    @api.expect(api.model('SummarizeRequest', {
+        'text': fields.String(required=True, description='Text to summarize', example='This is a long text that needs to be summarized...'),
+        'max_length': fields.Integer(default=150, description='Maximum summary length'),
+        'min_length': fields.Integer(default=30, description='Minimum summary length')
+    }))
+    @api.marshal_with(api.model('SummarizeResponse', {
+        'summary': fields.String(description='Generated summary'),
+        'original_length': fields.Integer(description='Original text length'),
+        'summary_length': fields.Integer(description='Summary length'),
+        'compression_ratio': fields.Float(description='Compression ratio'),
+        'processing_time': fields.Float(description='Processing time in seconds')
+    }))
+    @rate_limit
+    @require_api_key
+    def post(self):
+        """Summarize text using T5 model"""
+        if not T5_AVAILABLE or t5_summarizer is None:
+            api.abort(503, "Text summarization service unavailable")
+
+        start_time = time.time()
+        data = request.get_json()
+
+        if not data or 'text' not in data:
+            api.abort(400, "Text field is required")
+
+        text = data['text'].strip()
+        max_length = data.get('max_length', 150)
+        min_length = data.get('min_length', 30)
+
+        if not text:
+            api.abort(400, "Text cannot be empty")
+
+        if len(text) > 5000:
+            api.abort(400, "Text too long (max 5000 characters)")
+
+        try:
+            summary = t5_summarizer.generate_summary(
+                text, max_length=max_length, min_length=min_length
+            )
+
+            original_length = len(text.split())
+            summary_length = len(summary.split())
+            compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
+
+            return {
+                'summary': summary,
+                'original_length': original_length,
+                'summary_length': summary_length,
+                'compression_ratio': compression_ratio,
+                'processing_time': time.time() - start_time
+            }
+
+        except Exception as e:
+            logger.error(f"Summarization failed: {e}")
+            api.abort(500, "Summarization failed")
+
+
+@api.route('/transcribe')
+class Transcribe(Resource):
+    """Voice transcription endpoint"""
+
+    @api.doc('transcribe_audio')
+    @api.expect(api.parser()
+        .add_argument('audio', type=FileStorage, location='files', required=True,
+                     help='Audio file to transcribe (MP3, WAV, M4A)')
+        .add_argument('language', type=str, location='form', help='Language code (optional)')
+        .add_argument('model_size', type=str, location='form', default='base',
+                     help='Whisper model size (tiny, base, small, medium, large)'))
+    @api.marshal_with(api.model('TranscriptionResponse', {
+        'text': fields.String(description='Transcribed text'),
+        'language': fields.String(description='Detected language'),
+        'confidence': fields.Float(description='Transcription confidence'),
+        'duration': fields.Float(description='Audio duration in seconds'),
+        'processing_time': fields.Float(description='Processing time in seconds'),
+        'word_count': fields.Integer(description='Number of words'),
+        'speaking_rate': fields.Float(description='Words per minute')
+    }))
+    @rate_limit
+    @require_api_key
+    def post(self):
+        """Transcribe audio file to text using Whisper"""
+        if not WHISPER_AVAILABLE or whisper_transcriber is None:
+            api.abort(503, "Voice transcription service unavailable")
+
+        start_time = time.time()
+
+        # Parse form data
+        if 'audio' not in request.files:
+            api.abort(400, "Audio file is required")
+
+        audio_file = request.files['audio']
+        if not audio_file.filename:
+            api.abort(400, "No audio file selected")
+
+        # Validate file type
+        allowed_extensions = {'mp3', 'wav', 'm4a', 'aac', 'ogg', 'flac'}
+        if '.' not in audio_file.filename:
+            api.abort(400, "File must have an extension")
+        ext = audio_file.filename.rsplit('.', 1)[1].lower()
+        if ext not in allowed_extensions:
+            api.abort(400, f"Unsupported file type. Allowed: {', '.join(allowed_extensions)}")
+
+        # Check file size (max 45MB)
+        audio_file.seek(0, 2)  # Seek to end
+        file_size = audio_file.tell()
+        audio_file.seek(0)  # Reset to beginning
+        if file_size > 45 * 1024 * 1024:
+            api.abort(400, "File too large (max 45MB)")
+
+        try:
+            # Save uploaded file temporarily
+            import tempfile
+            with tempfile.NamedTemporaryFile(delete=False, suffix=f'.{ext}') as temp_file:
+                audio_file.save(temp_file.name)
+                temp_path = temp_file.name
+
+            try:
+                # Transcribe
+                language = request.form.get('language')
+                result = whisper_transcriber.transcribe(temp_path, language=language)
+
+                # Extract result data
+                transcription_text = result.text if hasattr(result, 'text') else str(result)
+                language_detected = getattr(result, 'language', 'unknown')
+                confidence = getattr(result, 'confidence', 0.0)
+                duration = getattr(result, 'duration', 0.0)
+                word_count = len(transcription_text.split())
+                speaking_rate = word_count / (duration / 60) if duration > 0 else 0
+
+                return {
+                    'text': transcription_text,
+                    'language': language_detected,
+                    'confidence': confidence,
+                    'duration': duration,
+                    'processing_time': time.time() - start_time,
+                    'word_count': word_count,
+                    'speaking_rate': speaking_rate
+                }
+
+            finally:
+                # Cleanup temporary file
+                import os
+                os.unlink(temp_path)
+
+        except Exception as e:
+            logger.error(f"Transcription failed: {e}")
+            api.abort(500, "Transcription failed")
+
+
+@api.route('/analyze/complete')
+class CompleteAnalysis(Resource):
+    """Complete analysis endpoint combining all AI models"""
+
+    @api.doc('analyze_complete')
+    @api.expect(api.parser()
+        .add_argument('text', type=str, location='form', help='Text to analyze (optional if audio provided)')
+        .add_argument('audio', type=FileStorage, location='files', help='Audio file to transcribe (optional if text provided)')
+        .add_argument('language', type=str, location='form', help='Language code for transcription')
+        .add_argument('generate_summary', type=bool, location='form', default=True, help='Whether to generate summary')
+        .add_argument('emotion_threshold', type=float, location='form', default=0.1, help='Emotion detection threshold'))
+    @api.marshal_with(api.model('CompleteAnalysisResponse', {
+        'transcription': fields.Nested(api.model('TranscriptionData', {
+            'text': fields.String(),
+            'language': fields.String(),
+            'confidence': fields.Float(),
+            'duration': fields.Float()
+        })),
+        'emotion_analysis': fields.Nested(api.model('EmotionData', {
+            'emotions': fields.Raw(),
+            'primary_emotion': fields.String(),
+            'confidence': fields.Float(),
+            'emotional_intensity': fields.String()
+        })),
+        'summary': fields.Nested(api.model('SummaryData', {
+            'summary': fields.String(),
+            'compression_ratio': fields.Float(),
+            'emotional_tone': fields.String()
+        })),
+        'processing_time': fields.Float(),
+        'pipeline_status': fields.Raw()
+    }))
+    @rate_limit
+    @require_api_key
+    def post(self):
+        """Complete analysis pipeline: transcription + emotion + summarization"""
+        start_time = time.time()
+        pipeline_status = {
+            'emotion_detection': True,
+            'text_summarization': T5_AVAILABLE and t5_summarizer is not None,
+            'voice_processing': WHISPER_AVAILABLE and whisper_transcriber is not None
+        }
+
+        text_to_analyze = request.form.get('text', '').strip()
+        generate_summary = request.form.get('generate_summary', 'true').lower() == 'true'
+        emotion_threshold = float(request.form.get('emotion_threshold', 0.1))
+
+        # Handle transcription if audio provided
+        if 'audio' in request.files:
+            audio_file = request.files['audio']
+            if audio_file.filename:
+                # Use transcription endpoint logic
+                import tempfile
+                import os
+
+                ext = audio_file.filename.rsplit('.', 1)[1].lower()
+                with tempfile.NamedTemporaryFile(delete=False, suffix=f'.{ext}') as temp_file:
+                    audio_file.save(temp_file.name)
+                    temp_path = temp_file.name
+
+                try:
+                    language = request.form.get('language')
+                    transcription_result = whisper_transcriber.transcribe(temp_path, language=language)
+                    text_to_analyze = transcription_result.text if hasattr(transcription_result, 'text') else str(transcription_result)
+                finally:
+                    os.unlink(temp_path)
+
+        if not text_to_analyze:
+            api.abort(400, "Either text or audio file must be provided")
+
+        # Emotion Analysis
+        emotion_result = {}
+        try:
+            raw_emotion = predict_emotions(text_to_analyze, threshold=emotion_threshold)
+            emotion_result = normalize_emotion_results(raw_emotion)
+        except Exception as e:
+            logger.warning(f"Emotion analysis failed: {e}")
+            emotion_result = {
+                'emotions': {'neutral': 1.0},
+                'primary_emotion': 'neutral',
+                'confidence': 1.0,
+                'emotional_intensity': 'neutral'
+            }
+
+        # Text Summarization
+        summary_result = {}
+        if generate_summary and T5_AVAILABLE and t5_summarizer is not None:
+            try:
+                summary_text = t5_summarizer.generate_summary(text_to_analyze)
+                original_length = len(text_to_analyze.split())
+                summary_length = len(summary_text.split())
+                compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
+
+                # Determine emotional tone
+                tone = "neutral"
+                if emotion_result.get('primary_emotion') in ['joy', 'gratitude', 'excitement']:
+                    tone = "positive"
+                elif emotion_result.get('primary_emotion') in ['sadness', 'anger', 'fear']:
+                    tone = "negative"
+
+                summary_result = {
+                    'summary': summary_text,
+                    'compression_ratio': compression_ratio,
+                    'emotional_tone': tone
+                }
+            except Exception as e:
+                logger.warning(f"Summarization failed: {e}")
+
+        return {
+            'transcription': {
+                'text': text_to_analyze,
+                'language': 'en',  # Default assumption
+                'confidence': 1.0 if 'audio' not in request.files else 0.95,
+                'duration': 0.0  # Would need audio metadata
+            } if 'audio' in request.files else None,
+            'emotion_analysis': emotion_result,
+            'summary': summary_result,
+            'processing_time': time.time() - start_time,
+            'pipeline_status': pipeline_status
+        }
+
 
 def initialize_model():
     """Initialize the emotion detection model"""

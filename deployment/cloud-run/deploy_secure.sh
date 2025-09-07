@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Secure API Server Deployment Script
-# Deploys the secure API server with enhanced security features
+# Complete AI API Deployment Script
+# Deploys the full SAMO API with Emotion Detection + T5 Summarization + Whisper Transcription
 
 set -e
 

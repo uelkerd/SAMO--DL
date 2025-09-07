@@ -36,5 +36,15 @@ transformers==4.55.0
 numpy>=1.24.0,<2.0.0
 scipy==1.13.1
 
+# T5 Summarization dependencies
+sentencepiece==0.2.0
+
+# Whisper Transcription dependencies
+openai-whisper==20240930
+
+# Additional dependencies for audio processing
+ffmpeg-python==0.2.0
+pydub==0.25.1
+
 # OPTIMIZED: Remove unnecessary ML training dependencies
 # (No datasets, accelerate, onnx, etc. - only inference needed)
