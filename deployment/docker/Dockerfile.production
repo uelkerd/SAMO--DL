@@ -12,8 +12,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Set production environment variables
 ENV FLASK_ENV=production \
     ENVIRONMENT=production \
-    PORT=8080 \
-    ADMIN_API_KEY=test-admin-key-123
+    PORT=8080
 
 # Set working directory
 WORKDIR /app

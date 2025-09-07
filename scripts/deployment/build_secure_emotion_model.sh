@@ -35,9 +35,10 @@ echo "🔒 Building security-hardened emotion detection model..."
 
 # Build the secure image
 echo "📦 Building Docker image with security updates..."
-docker build \
+docker buildx build \
     -f deployment/docker/Dockerfile.optimized-secure \
     -t emotion-detection-api:secure \
+    --progress=plain \
     .
 
 if [ $? -ne 0 ]; then
