@@ -209,8 +209,8 @@ jobs:
             set -euo pipefail
             source /tmp/safety-scan-env/bin/activate
 
-            # Install Safety v3.6.x (pinned version)
-            pip install safety==3.6.0 typer>=0.16.0
+            # Install Safety v3.2.3 (compatible with typer)
+            pip install safety==3.2.3
 
             # Install jq for JSON parsing (if not already available)
             if ! command -v jq &> /dev/null; then
