@@ -8,6 +8,11 @@ set -e
 check_required_tools() {
     echo "🔧 Checking for required tools..."
     
+    if ! command -v docker &> /dev/null; then
+        echo "❌ Error: docker is not installed. Please install docker before running this script."
+        exit 1
+    fi
+
     if ! command -v jq &> /dev/null; then
         echo "❌ Error: jq is not installed. Please install jq before running this script."
         echo "   Install with: brew install jq (macOS) or apt-get install jq (Ubuntu)"
@@ -16,6 +21,11 @@ check_required_tools() {
     
     if ! command -v curl &> /dev/null; then
         echo "❌ Error: curl is not installed. Please install curl before running this script."
+        exit 1
+    fi
+
+    if ! command -v openssl &> /dev/null; then
+        echo "❌ Error: openssl is not installed. Please install openssl before running this script."
         exit 1
     fi
     
@@ -65,6 +75,7 @@ docker buildx build \
     -t emotion-detection-api:optimized \
     --progress=plain \
     --no-cache \
+    --load \
     .
 
 if [ $? -ne 0 ]; then
@@ -92,6 +103,10 @@ echo ""
 # Test the optimized image
 echo "🧪 Testing optimized image..."
 echo "Starting container for quick test..."
+
+# Add cleanup trap for robustness
+cleanup() { docker rm -f emotion-test-optimized >/dev/null 2>&1 || true; }
+trap cleanup EXIT
 
 # Run a quick test with extended timeout and environment variables
 docker run --rm -d --name emotion-test-optimized -p "${API_PORT}":"${CONTAINER_PORT}" \

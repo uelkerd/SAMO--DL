@@ -39,10 +39,11 @@ docker buildx build \
     -f deployment/docker/Dockerfile.optimized-secure \
     -t emotion-detection-api:secure \
     --progress=plain \
+    --load \
     .
 
-if [ "$?" -ne 0 ]; then
-    echo "❌ Docker build failed!"
+if ! docker image inspect emotion-detection-api:secure >/dev/null 2>&1; then
+    echo "❌ Docker build produced no local image (missing --load?)"
     exit 1
 fi
 
@@ -50,15 +51,13 @@ echo "✅ Secure image built successfully!"
 
 # Run Docker Scout scan on the new image
 echo "🔍 Running Docker Scout vulnerability scan..."
-docker scout quickview emotion-detection-api:secure
-if [ "$?" -ne 0 ]; then
+if ! docker scout quickview emotion-detection-api:secure; then
     echo "❌ Docker Scout quickview scan failed!"
     exit 1
 fi
 
 echo "📊 Detailed vulnerability report:"
-docker scout cves emotion-detection-api:secure --output json > scout_cves.json
-if [ "$?" -ne 0 ]; then
+if ! docker scout cves emotion-detection-api:secure --output json > scout_cves.json; then
     echo "❌ Docker Scout CVE scan failed!"
     exit 1
 fi
@@ -81,8 +80,7 @@ else
 fi
 
 echo "🎯 Security recommendations:"
-docker scout recommendations emotion-detection-api:secure
-if [ "$?" -ne 0 ]; then
+if ! docker scout recommendations emotion-detection-api:secure; then
     echo "❌ Docker Scout recommendations scan failed!"
     exit 1
 fi
