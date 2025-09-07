@@ -16,6 +16,7 @@
 
 **Role**: Sole Deep Learning Engineer (originally 2-person team, now independent ownership)  
 **Responsibility**: End-to-end ML pipeline from research to production deployment  
+**Primary Use Case**: Voice-first mental health journaling app with real-time emotion detection  
 
 ### Architecture Overview
 
@@ -93,17 +94,22 @@ Voice Input → Whisper STT → DistilRoBERTa Emotion → T5 Summarization → E
 ### API Endpoints
 ```bash
 # Production emotion detection
-curl -X POST https://samo-emotion-api-[...].run.app/predict \
+curl -X POST https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/predict \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: cloud-run-424a093bc79583bf59cd837d1941687b" \
   -d '{"text": "I feel excited about this breakthrough!"}'
 
 # Response
 {
+  "text": "I feel excited about this breakthrough!",
   "emotions": [
-    {"emotion": "excitement", "confidence": 0.92},
-    {"emotion": "optimism", "confidence": 0.78}
+    {"emotion": "joy", "confidence": 0.972},
+    {"emotion": "surprise", "confidence": 0.017},
+    {"emotion": "neutral", "confidence": 0.005}
   ],
-  "inference_time": "287ms"
+  "confidence": 0.972,
+  "timestamp": 1757261362.9975505,
+  "request_id": "6a8c74da-6ae9-4a04-8c19-dfd827c5c6a3"
 }
 ```
 
@@ -238,9 +244,19 @@ def predict_emotion(text):
 ### Quick Test (Production API)
 ```bash
 # Test emotion detection
-curl -X POST https://samo-emotion-api-[...].run.app/predict \
+curl -X POST https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/predict \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: cloud-run-424a093bc79583bf59cd837d1941687b" \
   -d '{"text": "Your message here"}'
+
+# Test health endpoint
+curl -s https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/health | jq .
+
+# Test batch processing
+curl -X POST https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/predict_batch \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: cloud-run-424a093bc79583bf59cd837d1941687b" \
+  -d '{"texts": ["I am happy!", "I feel sad.", "This is exciting!"]}'
 ```
 
 ### Local Development
@@ -294,22 +310,43 @@ import requests
 
 def analyze_emotion(text: str) -> dict:
     response = requests.post(
-        "https://samo-emotion-api-[...].run.app/predict",
+        "https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/predict",
+        headers={
+            "Content-Type": "application/json",
+            "X-API-Key": "cloud-run-424a093bc79583bf59cd837d1941687b"
+        },
         json={"text": text}
     )
     return response.json()
+
+# Example usage for voice-first mental health journaling
+result = analyze_emotion("I feel anxious about the presentation tomorrow")
+dominant_emotion = result['emotions'][0]['emotion']
+confidence = result['confidence']
+print(f"Detected {dominant_emotion} with {confidence:.1%} confidence")
 ```
 
 **Frontend Integration (JavaScript)**
 ```javascript
 async function detectEmotion(text) {
-    const response = await fetch('/api/predict', {
+    const response = await fetch('https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/predict', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': 'cloud-run-424a093bc79583bf59cd837d1941687b'
+        },
         body: JSON.stringify({text})
     });
     return await response.json();
 }
+
+// Example usage for voice-first mental health journaling
+detectEmotion("I'm feeling overwhelmed with work stress")
+    .then(result => {
+        const emotion = result.emotions[0].emotion;
+        const confidence = (result.confidence * 100).toFixed(1);
+        console.log(`Detected ${emotion} with ${confidence}% confidence`);
+    });
 ```
 
 
