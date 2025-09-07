@@ -10,8 +10,10 @@
 
 All API requests require an API key in the header:
 ```bash
-X-API-Key: cloud-run-424a093bc79583bf59cd837d1941687b
+X-API-Key: YOUR_API_KEY_HERE
 ```
+
+**⚠️ SECURITY WARNING**: Never commit API keys to version control! Use environment variables or secure key management.
 
 ---
 
@@ -184,7 +186,7 @@ def analyze_emotion(text: str) -> dict:
         "https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/predict",
         headers={
             "Content-Type": "application/json",
-            "X-API-Key": "cloud-run-424a093bc79583bf59cd837d1941687b"
+            "X-API-Key": "YOUR_API_KEY_HERE"
         },
         json={"text": text}
     )
@@ -295,6 +297,48 @@ function EmotionAnalyzer() {
 - **Security Headers**: CORS, CSP, and other security headers
 - **Error Handling**: Secure error responses without sensitive data
 
+### 🔐 API Key Management
+
+**⚠️ CRITICAL SECURITY REQUIREMENTS:**
+
+1. **Never commit API keys to version control**
+2. **Use environment variables for API keys**
+3. **Rotate API keys regularly**
+4. **Use different keys for different environments**
+
+**Environment Variable Setup:**
+```bash
+# Set your API key as an environment variable
+export SAMO_API_KEY="your-actual-api-key-here"
+
+# Use in your code
+curl -X POST https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/predict \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: $SAMO_API_KEY" \
+  -d '{"text": "Your text here"}'
+```
+
+**Python Example with Environment Variables:**
+```python
+import os
+import requests
+
+def analyze_emotion(text: str) -> dict:
+    api_key = os.getenv('SAMO_API_KEY')
+    if not api_key:
+        raise ValueError("SAMO_API_KEY environment variable not set")
+    
+    response = requests.post(
+        "https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/predict",
+        headers={
+            "Content-Type": "application/json",
+            "X-API-Key": api_key
+        },
+        json={"text": text}
+    )
+    return response.json()
+```
+
 ---
 
 ## 🧪 Testing Examples
@@ -304,19 +348,19 @@ function EmotionAnalyzer() {
 # Joy
 curl -X POST https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/predict \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: cloud-run-424a093bc79583bf59cd837d1941687b" \
+  -H "X-API-Key: YOUR_API_KEY_HERE" \
   -d '{"text": "I am so excited about this new project!"}'
 
 # Fear/Anxiety
 curl -X POST https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/predict \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: cloud-run-424a093bc79583bf59cd837d1941687b" \
+  -H "X-API-Key: YOUR_API_KEY_HERE" \
   -d '{"text": "I am absolutely terrified of spiders!"}'
 
 # Sadness
 curl -X POST https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/predict \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: cloud-run-424a093bc79583bf59cd837d1941687b" \
+  -H "X-API-Key: YOUR_API_KEY_HERE" \
   -d '{"text": "I feel so lonely and heartbroken after the breakup."}'
 ```
 
@@ -324,7 +368,7 @@ curl -X POST https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/predict \
 ```bash
 curl -X POST https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/predict_batch \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: cloud-run-424a093bc79583bf59cd837d1941687b" \
+  -H "X-API-Key: YOUR_API_KEY_HERE" \
   -d '{"texts": ["I love this!", "This is frustrating!", "What a surprise!"]}'
 ```
 

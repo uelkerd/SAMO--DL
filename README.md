@@ -96,7 +96,7 @@ Voice Input → Whisper STT → DistilRoBERTa Emotion → T5 Summarization → E
 # Production emotion detection
 curl -X POST https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/predict \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: cloud-run-424a093bc79583bf59cd837d1941687b" \
+  -H "X-API-Key: YOUR_API_KEY_HERE" \
   -d '{"text": "I feel excited about this breakthrough!"}'
 
 # Response
@@ -246,7 +246,7 @@ def predict_emotion(text):
 # Test emotion detection
 curl -X POST https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/predict \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: cloud-run-424a093bc79583bf59cd837d1941687b" \
+  -H "X-API-Key: YOUR_API_KEY_HERE" \
   -d '{"text": "Your message here"}'
 
 # Test health endpoint
@@ -255,7 +255,7 @@ curl -s https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/health | jq .
 # Test batch processing
 curl -X POST https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/predict_batch \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: cloud-run-424a093bc79583bf59cd837d1941687b" \
+  -H "X-API-Key: YOUR_API_KEY_HERE" \
   -d '{"texts": ["I am happy!", "I feel sad.", "This is exciting!"]}'
 ```
 
@@ -313,7 +313,7 @@ def analyze_emotion(text: str) -> dict:
         "https://emotion-detection-api-frrnetyhfa-uc.a.run.app/api/predict",
         headers={
             "Content-Type": "application/json",
-            "X-API-Key": "cloud-run-424a093bc79583bf59cd837d1941687b"
+            "X-API-Key": "YOUR_API_KEY_HERE"
         },
         json={"text": text}
     )
