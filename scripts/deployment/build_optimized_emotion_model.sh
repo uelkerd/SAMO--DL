@@ -91,11 +91,11 @@ echo "🧪 Testing optimized image..."
 echo "Starting container for quick test..."
 
 # Run a quick test with extended timeout and environment variables
-docker run --rm -d --name emotion-test-optimized -p ${API_PORT}:${CONTAINER_PORT} \
+docker run --rm -d --name emotion-test-optimized -p "${API_PORT}":"${CONTAINER_PORT}" \
     -e ADMIN_API_KEY="${API_KEY}" \
     -e MODEL_CACHE_DIR=/app/models \
     emotion-detection-api:optimized \
-    gunicorn --bind :${CONTAINER_PORT} --workers 1 --timeout 300 secure_api_server:app
+    gunicorn --bind :"${CONTAINER_PORT}" --workers 1 --timeout 300 secure_api_server:app
 
 if [ $? -ne 0 ]; then
     echo "❌ Failed to start container!"
@@ -115,11 +115,11 @@ while [ $attempt -le $MAX_ATTEMPTS ]; do
         echo "✅ Container is healthy!"
         break
     fi
-    sleep $SLEEP_SECONDS
+    sleep "$SLEEP_SECONDS"
     attempt=$((attempt+1))
 done
 
-if [ $attempt -gt $MAX_ATTEMPTS ]; then
+if [ "$attempt" -gt "$MAX_ATTEMPTS" ]; then
     echo "❌ Container did not become healthy after $((MAX_ATTEMPTS * SLEEP_SECONDS)) seconds."
     docker logs emotion-test-optimized
     docker stop emotion-test-optimized 2>/dev/null || echo "Container already stopped/removed"

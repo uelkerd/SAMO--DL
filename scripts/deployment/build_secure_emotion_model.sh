@@ -41,7 +41,7 @@ docker buildx build \
     --progress=plain \
     .
 
-if [ $? -ne 0 ]; then
+if [ "$?" -ne 0 ]; then
     echo "❌ Docker build failed!"
     exit 1
 fi
@@ -51,14 +51,14 @@ echo "✅ Secure image built successfully!"
 # Run Docker Scout scan on the new image
 echo "🔍 Running Docker Scout vulnerability scan..."
 docker scout quickview emotion-detection-api:secure
-if [ $? -ne 0 ]; then
+if [ "$?" -ne 0 ]; then
     echo "❌ Docker Scout quickview scan failed!"
     exit 1
 fi
 
 echo "📊 Detailed vulnerability report:"
 docker scout cves emotion-detection-api:secure --output json > scout_cves.json
-if [ $? -ne 0 ]; then
+if [ "$?" -ne 0 ]; then
     echo "❌ Docker Scout CVE scan failed!"
     exit 1
 fi
@@ -82,7 +82,7 @@ fi
 
 echo "🎯 Security recommendations:"
 docker scout recommendations emotion-detection-api:secure
-if [ $? -ne 0 ]; then
+if [ "$?" -ne 0 ]; then
     echo "❌ Docker Scout recommendations scan failed!"
     exit 1
 fi
