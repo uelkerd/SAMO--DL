@@ -62,7 +62,8 @@ For production deployments, use Google Secret Manager to store the API key secur
 
 # Or manually:
 gcloud secrets create admin-api-key --replication-policy="automatic"
-echo -n "your-secure-api-key-here" | gcloud secrets versions add admin-api-key --data-file=-  # skipcq: SCT-A000 - This is a placeholder, not a real secret
+# IMPORTANT: Replace YOUR_ACTUAL_API_KEY_HERE with your real API key!
+echo -n "YOUR_ACTUAL_API_KEY_HERE" | gcloud secrets versions add admin-api-key --data-file=-
 ```
 
 ### 4. Grant Cloud Build Permissions

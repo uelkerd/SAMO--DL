@@ -117,9 +117,8 @@ generate_api_key() {
         API_KEY=$(openssl rand -hex 32)
         print_success "API key generated successfully."
         print_warning "IMPORTANT: Save this API key securely - it will not be shown again!"
-        echo "$API_KEY" > /tmp/samo_api_key.txt
-        print_status "API key saved to: /tmp/samo_api_key.txt"
-        print_status "Please copy and store it securely, then delete the temporary file."
+        echo -e "${YELLOW}Your new API key:${NC} ${API_KEY}"
+        print_status "Please copy and store this API key securely. It will not be shown again."
     else
         print_status "Using provided API key."
     fi

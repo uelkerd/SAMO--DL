@@ -38,6 +38,8 @@ steps:
     ]
   
   # Deploy to Cloud Run with parameterized configuration
+  # Note: secretEnv is only applied to this step. Other steps that need secrets
+  # would require their own secretEnv declarations.
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'gcloud'
     args: [
