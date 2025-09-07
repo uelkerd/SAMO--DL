@@ -57,6 +57,49 @@ def cleanup_temp_file(file_path):
     except Exception as exc:
         logger.error(f"Failed to delete temporary file {file_path}: {exc}")
 
+def normalize_emotion_results(raw_emotion):
+    """Convert raw emotion prediction results to normalized format"""
+    if not raw_emotion or 'emotions' not in raw_emotion:
+        return {
+            'emotions': {'neutral': 1.0},
+            'primary_emotion': 'neutral',
+            'confidence': 1.0,
+            'emotional_intensity': 'neutral'
+        }
+    
+    emotions = raw_emotion.get('emotions', [])
+    if not emotions:
+        return {
+            'emotions': {'neutral': 1.0},
+            'primary_emotion': 'neutral',
+            'confidence': 1.0,
+            'emotional_intensity': 'neutral'
+        }
+    
+    # Convert list format to dict format
+    emotion_dict = {}
+    for emotion in emotions:
+        emotion_dict[emotion['emotion']] = emotion['confidence']
+    
+    # Get primary emotion (highest confidence)
+    primary_emotion = emotions[0]['emotion'] if emotions else 'neutral'
+    confidence = raw_emotion.get('confidence', 0.0)
+    
+    # Determine emotional intensity
+    if confidence > 0.8:
+        intensity = 'high'
+    elif confidence > 0.5:
+        intensity = 'medium'
+    else:
+        intensity = 'low'
+    
+    return {
+        'emotions': emotion_dict,
+        'primary_emotion': primary_emotion,
+        'confidence': confidence,
+        'emotional_intensity': intensity
+    }
+
 # Configure logging for Cloud Run
 logging.basicConfig(
     level=logging.INFO,
