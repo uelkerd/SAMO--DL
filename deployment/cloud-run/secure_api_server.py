@@ -589,7 +589,7 @@ api.error_handlers[Exception] = handle_unexpected_error
 def summarize_text():
     """Simple functional endpoint for T5 summarization"""
     logger.info("📥 Functional summarization endpoint called")
-    
+
     if not T5_AVAILABLE or t5_summarizer is None:
         logger.error("T5 summarization service unavailable")
         return jsonify({"error": "Text summarization service unavailable"}), 503
@@ -647,13 +647,13 @@ def summarize_text():
 def transcribe_audio():
     """Simple functional endpoint for Whisper transcription"""
     logger.info("📥 Functional transcription endpoint called")
-    
+
     if not WHISPER_AVAILABLE or whisper_transcriber is None:
         logger.error("Whisper transcription service unavailable")
         return jsonify({"error": "Voice transcription service unavailable"}), 503
 
     start_time = time.time()
-    
+
     # Check if audio file is provided
     if 'audio' not in request.files:
         return jsonify({"error": "Audio file is required"}), 400
@@ -665,25 +665,23 @@ def transcribe_audio():
     # Get optional parameters
     language = request.form.get('language', None)
     model_size = request.form.get('model_size', 'base')
-    
+
     logger.info(f"Processing audio file: {audio_file.filename}, language: {language}")
 
     try:
         # Save uploaded file temporarily
         import tempfile
-        import os
         with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(audio_file.filename)[1]) as tmp_file:
             audio_file.save(tmp_file.name)
             temp_path = tmp_file.name
 
         logger.info("🔄 Starting Whisper transcription...")
-        
+
         # Transcribe the audio
         result = whisper_transcriber.transcribe(temp_path, language=language)
-        
+
         # Clean up temporary file
         cleanup_temp_file(temp_path)
-        
         logger.info(f"✅ Whisper transcription completed: {result.text[:100] if result and result.text else 'None'}...")
 
         response_data = {
@@ -696,7 +694,7 @@ def transcribe_audio():
             'audio_quality': result.audio_quality if result else 'unknown',
             'processing_time': result.processing_time if result else 0.0
         }
-        
+
         logger.info(f"📤 Transcription result: {response_data}")
         return jsonify(response_data)
 
@@ -704,11 +702,10 @@ def transcribe_audio():
         logger.error(f"❌ Transcription failed: {e}")
         import traceback
         logger.error(f"Traceback: {traceback.format_exc()}")
-        
+
         # Clean up temporary file if it exists
         if 'temp_path' in locals():
             cleanup_temp_file(temp_path)
-            
         return jsonify({"error": f"Transcription failed: {str(e)}"}), 500
 
 
@@ -734,9 +731,9 @@ class Summarize(Resource):
     @require_api_key
     def post(self):
         """Summarize text using T5 model"""
-        logger.info(f"📥 Summarization request received")
+        logger.info("📥 Summarization request received")
         logger.info(f"T5_AVAILABLE: {T5_AVAILABLE}, t5_summarizer: {t5_summarizer is not None}")
-        
+
         if not T5_AVAILABLE or t5_summarizer is None:
             logger.error("T5 summarization service unavailable")
             api.abort(503, "Text summarization service unavailable")
@@ -931,7 +928,6 @@ class CompleteAnalysis(Resource):
             if audio_file.filename:
                 # Use transcription endpoint logic
                 import tempfile
-                import os
 
                 ext = audio_file.filename.rsplit('.', 1)[1].lower()
                 with tempfile.NamedTemporaryFile(delete=False, suffix=f'.{ext}') as temp_file:
