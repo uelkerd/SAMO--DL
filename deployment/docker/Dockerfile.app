@@ -77,12 +77,12 @@ RUN if [ "$INCLUDE_ML" = "true" ]; then \
         # ML version needs ffmpeg for audio processing
         apt-get update && apt-get install -y --no-install-recommends \
         ffmpeg \
-        curl=7.88.1-10+deb12u12 \
+        curl \
         && rm -rf /var/lib/apt/lists/*; \
     else \
         # Minimal version only needs curl for health checks
         apt-get update && apt-get install -y --no-install-recommends \
-        curl=7.88.1-10+deb12u12 \
+        curl \
         && rm -rf /var/lib/apt/lists/*; \
     fi
 
