@@ -9,7 +9,7 @@ steps:
       '.'
     ]
   
-  # Deploy to Cloud Run
+  # Deploy to Cloud Run with secure API key from Secret Manager
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'gcloud'
     args: [
@@ -39,11 +39,10 @@ options:
 
 # Substitutions for dynamic values
 substitutions:
-  _ADMIN_API_KEY: 'your-secure-api-key-here'
+  _ADMIN_API_KEY: 'dea67814bc7d6e6af18f23db0bd1801c693176e1ffcd0161301610f28414d31e'
 
 # Available secrets (set these in Cloud Build settings)
 availableSecrets:
   secretManager:
     - versionName: projects/$PROJECT_ID/secrets/admin-api-key/versions/latest
       env: 'ADMIN_API_KEY'
-
