@@ -152,18 +152,33 @@ class T5SummarizationModel(nn.Module):
         if os.path.isdir(cache_dir_env) and os.access(cache_dir_env, os.W_OK):
             cache_dir = cache_dir_env
         else:
-            logging.warning(f"Cache directory '{cache_dir_env}' does not exist or is not writable. Using default HuggingFace cache directory.")
+            logging.warning(
+                f"Cache directory '{cache_dir_env}' does not exist or is not writable. "
+                "Using default HuggingFace cache directory."
+            )
             cache_dir = None
 
         if "bart" in self.model_name.lower():
-            self.tokenizer = BartTokenizer.from_pretrained(self.model_name, cache_dir=cache_dir)
-            self.model = BartForConditionalGeneration.from_pretrained(self.model_name, cache_dir=cache_dir)
+            self.tokenizer = BartTokenizer.from_pretrained(
+                self.model_name, cache_dir=cache_dir
+            )
+            self.model = BartForConditionalGeneration.from_pretrained(
+                self.model_name, cache_dir=cache_dir
+            )
         elif "t5" in self.model_name.lower():
-            self.tokenizer = T5Tokenizer.from_pretrained(self.model_name, cache_dir=cache_dir)
-            self.model = T5ForConditionalGeneration.from_pretrained(self.model_name, cache_dir=cache_dir)
+            self.tokenizer = T5Tokenizer.from_pretrained(
+                self.model_name, cache_dir=cache_dir
+            )
+            self.model = T5ForConditionalGeneration.from_pretrained(
+                self.model_name, cache_dir=cache_dir
+            )
         else:
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, cache_dir=cache_dir)
-            self.model = AutoModelForSeq2SeqLM.from_pretrained(self.model_name, cache_dir=cache_dir)
+            self.tokenizer = AutoTokenizer.from_pretrained(
+                self.model_name, cache_dir=cache_dir
+            )
+            self.model = AutoModelForSeq2SeqLM.from_pretrained(
+                self.model_name, cache_dir=cache_dir
+            )
 
         self.model.to(self.device)
 

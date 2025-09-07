@@ -748,7 +748,10 @@ class Summarize(Resource):
         text = data['text'].strip()
         max_length = data.get('max_length', 150)
         min_length = data.get('min_length', 30)
-        logger.info(f"Text length: {len(text)}, max_length: {max_length}, min_length: {min_length}")
+        logger.info(
+            f"Text length: {len(text)}, max_length: {max_length}, "
+            f"min_length: {min_length}"
+        )
 
         if not text:
             api.abort(400, "Text cannot be empty")
@@ -765,7 +768,10 @@ class Summarize(Resource):
 
             original_length = len(text.split())
             summary_length = len(summary.split()) if summary else 0
-            compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
+            compression_ratio = (
+                1 - (summary_length / original_length) 
+                if original_length > 0 else 0
+            )
 
             result = {
                 'summary': summary,
@@ -790,11 +796,18 @@ class Transcribe(Resource):
 
     @api.doc('transcribe_audio')
     @api.expect(api.parser()
-        .add_argument('audio', type=FileStorage, location='files', required=True,
-                     help='Audio file to transcribe (MP3, WAV, M4A)')
-        .add_argument('language', type=str, location='form', help='Language code (optional)')
-        .add_argument('model_size', type=str, location='form', default='base',
-                     help='Whisper model size (tiny, base, small, medium, large)'))
+        .add_argument(
+            'audio', type=FileStorage, location='files', required=True,
+            help='Audio file to transcribe (MP3, WAV, M4A)'
+        )
+        .add_argument(
+            'language', type=str, location='form', 
+            help='Language code (optional)'
+        )
+        .add_argument(
+            'model_size', type=str, location='form', default='base',
+            help='Whisper model size (tiny, base, small, medium, large)'
+        ))
     @api.marshal_with(api.model('TranscriptionResponse', {
         'text': fields.String(description='Transcribed text'),
         'language': fields.String(description='Detected language'),
@@ -827,7 +840,10 @@ class Transcribe(Resource):
             api.abort(400, "File must have an extension")
         ext = audio_file.filename.rsplit('.', 1)[1].lower()
         if ext not in allowed_extensions:
-            api.abort(400, f"Unsupported file type. Allowed: {', '.join(allowed_extensions)}")
+            api.abort(
+                400, 
+                f"Unsupported file type. Allowed: {', '.join(allowed_extensions)}"
+            )
 
         # Check file size (max 45MB)
         audio_file.seek(0, 2)  # Seek to end
@@ -839,7 +855,9 @@ class Transcribe(Resource):
         try:
             # Save uploaded file temporarily
             import tempfile
-            with tempfile.NamedTemporaryFile(delete=False, suffix=f'.{ext}') as temp_file:
+            with tempfile.NamedTemporaryFile(
+                delete=False, suffix=f'.{ext}'
+            ) as temp_file:
                 audio_file.save(temp_file.name)
                 temp_path = temp_file.name
 
@@ -849,7 +867,9 @@ class Transcribe(Resource):
                 result = whisper_transcriber.transcribe(temp_path, language=language)
 
                 # Extract result data
-                transcription_text = result.text if hasattr(result, 'text') else str(result)
+                transcription_text = (
+                    result.text if hasattr(result, 'text') else str(result)
+                )
                 language_detected = getattr(result, 'language', 'unknown')
                 confidence = getattr(result, 'confidence', 0.0)
                 duration = getattr(result, 'duration', 0.0)
@@ -881,11 +901,26 @@ class CompleteAnalysis(Resource):
 
     @api.doc('analyze_complete')
     @api.expect(api.parser()
-        .add_argument('text', type=str, location='form', help='Text to analyze (optional if audio provided)')
-        .add_argument('audio', type=FileStorage, location='files', help='Audio file to transcribe (optional if text provided)')
-        .add_argument('language', type=str, location='form', help='Language code for transcription')
-        .add_argument('generate_summary', type=bool, location='form', default=True, help='Whether to generate summary')
-        .add_argument('emotion_threshold', type=float, location='form', default=0.1, help='Emotion detection threshold'))
+        .add_argument(
+            'text', type=str, location='form', 
+            help='Text to analyze (optional if audio provided)'
+        )
+        .add_argument(
+            'audio', type=FileStorage, location='files', 
+            help='Audio file to transcribe (optional if text provided)'
+        )
+        .add_argument(
+            'language', type=str, location='form', 
+            help='Language code for transcription'
+        )
+        .add_argument(
+            'generate_summary', type=bool, location='form', default=True, 
+            help='Whether to generate summary'
+        )
+        .add_argument(
+            'emotion_threshold', type=float, location='form', default=0.1, 
+            help='Emotion detection threshold'
+        ))
     @api.marshal_with(api.model('CompleteAnalysisResponse', {
         'transcription': fields.Nested(api.model('TranscriptionData', {
             'text': fields.String(),
@@ -930,14 +965,20 @@ class CompleteAnalysis(Resource):
                 import tempfile
 
                 ext = audio_file.filename.rsplit('.', 1)[1].lower()
-                with tempfile.NamedTemporaryFile(delete=False, suffix=f'.{ext}') as temp_file:
+                with tempfile.NamedTemporaryFile(
+                    delete=False, suffix=f'.{ext}'
+                ) as temp_file:
                     audio_file.save(temp_file.name)
                     temp_path = temp_file.name
 
                 try:
                     language = request.form.get('language')
                     transcription_result = whisper_transcriber.transcribe(temp_path, language=language)
-                    text_to_analyze = transcription_result.text if hasattr(transcription_result, 'text') else str(transcription_result)
+                    text_to_analyze = (
+                        transcription_result.text 
+                        if hasattr(transcription_result, 'text') 
+                        else str(transcription_result)
+                    )
                 finally:
                     cleanup_temp_file(temp_path)
 
@@ -965,13 +1006,20 @@ class CompleteAnalysis(Resource):
                 summary_text = t5_summarizer.generate_summary(text_to_analyze)
                 original_length = len(text_to_analyze.split())
                 summary_length = len(summary_text.split())
-                compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
+                compression_ratio = (
+                    1 - (summary_length / original_length) 
+                    if original_length > 0 else 0
+                )
 
                 # Determine emotional tone
                 tone = "neutral"
-                if emotion_result.get('primary_emotion') in ['joy', 'gratitude', 'excitement']:
+                if emotion_result.get('primary_emotion') in [
+                    'joy', 'gratitude', 'excitement'
+                ]:
                     tone = "positive"
-                elif emotion_result.get('primary_emotion') in ['sadness', 'anger', 'fear']:
+                elif emotion_result.get('primary_emotion') in [
+                    'sadness', 'anger', 'fear'
+                ]:
                     tone = "negative"
 
                 summary_result = {
