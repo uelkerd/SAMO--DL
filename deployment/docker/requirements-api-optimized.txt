@@ -24,7 +24,7 @@ gunicorn>=23.0.0,<24.0.0
 prometheus-client==0.20.0
 
 # HF model utilities
-huggingface_hub>=0.34.0
+huggingface_hub>=0.34.0,<1.0
 
 # OPTIMIZED: CPU-only PyTorch for inference
 torch==2.8.0+cpu
