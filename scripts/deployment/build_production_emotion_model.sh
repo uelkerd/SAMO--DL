@@ -2,23 +2,33 @@
 # Build production emotion detection model for Cloud Run
 # Uses the actual production architecture from PRs #136, #137, #138
 
-set -e
+set -euo pipefail
 
 # Check for required tools
 check_required_tools() {
     echo "🔧 Checking for required tools..."
-    
+
+    if ! command -v docker &> /dev/null; then
+        echo "❌ Error: docker is not installed."
+        exit 1
+    fi
+
     if ! command -v jq &> /dev/null; then
         echo "❌ Error: jq is not installed. Please install jq before running this script."
         echo "   Install with: brew install jq (macOS) or apt-get install jq (Ubuntu)"
         exit 1
     fi
-    
+
     if ! command -v curl &> /dev/null; then
         echo "❌ Error: curl is not installed. Please install curl before running this script."
         exit 1
     fi
-    
+
+    if ! command -v openssl &> /dev/null; then
+        echo "❌ Error: openssl is not installed. Please install openssl or set API_KEY env."
+        exit 1
+    fi
+
     echo "✅ All required tools are available."
 }
 
@@ -65,10 +75,11 @@ docker buildx build \
     -t emotion-detection-api:production \
     --progress=plain \
     --no-cache \
+    --load \
     .
 
-if [ $? -ne 0 ]; then
-    echo "❌ Docker build failed!"
+if ! docker image inspect emotion-detection-api:production >/dev/null 2>&1; then
+    echo "❌ Docker build produced no local image (missing --load?)"
     exit 1
 fi
 
@@ -92,6 +103,10 @@ docker images emotion-detection-api:production --format "table {{.Repository}}\t
 echo ""
 echo "🧪 Testing production image..."
 echo "Starting container for quick test..."
+
+# Add cleanup trap for robustness
+cleanup() { docker rm -f emotion-test-production >/dev/null 2>&1 || true; }
+trap cleanup EXIT
 
 # Start the production container
 docker run --rm -d \
@@ -126,7 +141,7 @@ echo "✅ Container is healthy!"
 
 echo "🔍 Testing health endpoint..."
 health_response=$(curl -s "http://localhost:${API_PORT}/api/health")
-echo "$health_response" | jq '.' || { echo "Health check failed"; exit 1; }
+echo "$health_response" | jq -e '.status=="ok"' >/dev/null || { echo "Health check failed"; exit 1; }
 
 echo ""
 echo "🔍 Testing prediction endpoint..."
@@ -134,7 +149,7 @@ predict_response=$(curl -s -X POST "http://localhost:${API_PORT}/api/predict" \
     -H "Content-Type: application/json" \
     -H "X-API-Key: ${API_KEY}" \
     -d '{"text": "I am so happy today!"}')
-echo "$predict_response" | jq '.' || { echo "Prediction test failed"; exit 1; }
+echo "$predict_response" | jq -e '.label and (.score|type=="number")' >/dev/null || { echo "Prediction test failed"; exit 1; }
 
 echo ""
 echo "🔍 Testing batch prediction endpoint..."
@@ -142,7 +157,7 @@ batch_response=$(curl -s -X POST "http://localhost:${API_PORT}/api/predict_batch
     -H "Content-Type: application/json" \
     -H "X-API-Key: ${API_KEY}" \
     -d '{"texts": ["I am happy", "I am sad", "I am excited"]}')
-echo "$batch_response" | jq '.' || { echo "Batch prediction test failed"; exit 1; }
+echo "$batch_response" | jq -e 'type=="array" and length==3' >/dev/null || { echo "Batch prediction test failed"; exit 1; }
 
 echo ""
 echo "🧹 Cleaning up test container..."
@@ -151,7 +166,7 @@ docker stop emotion-test-production 2>/dev/null || echo "Container already stopp
 echo ""
 echo "🎉 Production image is ready!"
 echo "📋 Features included:"
-echo "  ✅ FastAPI/Flask endpoints"
+echo "  ✅ Flask-RESTX endpoints"
 echo "  ✅ Batch processing"
 echo "  ✅ Security headers"
 echo "  ✅ Rate limiting"
