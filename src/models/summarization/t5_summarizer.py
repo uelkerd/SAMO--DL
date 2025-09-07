@@ -147,8 +147,13 @@ class T5SummarizationModel(nn.Module):
             "Initializing {self.model_name} summarization model...", extra={"format_args": True}
         )
 
-        # Use cache directory from environment
-        cache_dir = os.environ.get('HF_HOME', '/app/models')
+        # Use cache directory from environment, check if exists and is writable
+        cache_dir_env = os.environ.get('HF_HOME', '/app/models')
+        if os.path.isdir(cache_dir_env) and os.access(cache_dir_env, os.W_OK):
+            cache_dir = cache_dir_env
+        else:
+            logging.warning(f"Cache directory '{cache_dir_env}' does not exist or is not writable. Using default HuggingFace cache directory.")
+            cache_dir = None
 
         if "bart" in self.model_name.lower():
             self.tokenizer = BartTokenizer.from_pretrained(self.model_name, cache_dir=cache_dir)

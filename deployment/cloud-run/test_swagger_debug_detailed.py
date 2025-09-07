@@ -8,7 +8,7 @@ import requests
 import traceback
 
 # Set required environment variables
-os.environ['ADMIN_API_KEY'] = 'test-key-123'
+os.environ['ADMIN_API_KEY'] = os.getenv('ADMIN_API_KEY', 'test-key-123')
 os.environ['MAX_INPUT_LENGTH'] = '512'
 os.environ['RATE_LIMIT_PER_MINUTE'] = '100'
 os.environ['MODEL_PATH'] = '/app/model'

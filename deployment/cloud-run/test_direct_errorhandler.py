@@ -4,7 +4,7 @@ Test direct error handler registration
 """
 
 import os
-os.environ['ADMIN_API_KEY'] = 'test123'
+os.environ['ADMIN_API_KEY'] = os.getenv('ADMIN_API_KEY', 'test123')
 
 print("🔍 Testing direct error handler registration...")
 

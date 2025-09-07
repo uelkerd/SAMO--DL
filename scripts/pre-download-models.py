@@ -7,6 +7,7 @@ This script downloads models to a local cache that can be used by Docker builds
 import os
 import sys
 import time
+import shutil
 from pathlib import Path
 
 def download_emotion_model(cache_dir: str):
@@ -22,7 +23,8 @@ def download_emotion_model(cache_dir: str):
         AutoModelForSequenceClassification.from_pretrained(model_name, cache_dir=cache_dir)
 
         duration = time.time() - start_time
-        print(".1f"    except Exception as e:
+        print(f"✅ Downloaded emotion model in {duration:.1f}s")
+    except Exception as e:
         print(f"❌ Failed to download emotion model: {e}")
         return False
     return True
@@ -40,7 +42,8 @@ def download_t5_model(cache_dir: str):
         T5ForConditionalGeneration.from_pretrained(model_name, cache_dir=cache_dir)
 
         duration = time.time() - start_time
-        print(".1f"    except Exception as e:
+        print(f"✅ Downloaded T5 model in {duration:.1f}s")
+    except Exception as e:
         print(f"❌ Failed to download T5 model: {e}")
         return False
     return True
@@ -57,7 +60,8 @@ def download_whisper_model(cache_dir: str):
         whisper.load_model(model_size, download_root=cache_dir)
 
         duration = time.time() - start_time
-        print(".1f"    except Exception as e:
+        print(f"✅ Downloaded Whisper model in {duration:.1f}s")
+    except Exception as e:
         print(f"❌ Failed to download Whisper model: {e}")
         return False
     return True
@@ -72,7 +76,8 @@ def main():
     os.makedirs(cache_dir, exist_ok=True)
 
     print(f"Cache directory: {cache_dir}")
-    print(f"Available disk space: {os.path.getsize(cache_dir) if os.path.exists(cache_dir) else 'N/A'}")
+    usage = shutil.disk_usage(cache_dir)
+    print(f"Available disk space: {usage.free // (1024 * 1024)} MB")
     print()
 
     # Download models
@@ -102,7 +107,7 @@ def main():
     else:
         print(f"⚠️  {success_count}/{len(models)} models downloaded successfully")
 
-    print(".1f"
+    print(f"⏱️  Total download time: {total_duration:.1f}s")
     # Show cache size
     try:
         cache_size = sum(

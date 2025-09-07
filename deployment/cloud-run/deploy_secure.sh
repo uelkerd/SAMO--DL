@@ -31,8 +31,8 @@ print_error() {
 # Configuration
 PROJECT_ID="${PROJECT_ID:-the-tendril-466607-n8}"
 REGION="${REGION:-us-central1}"
-SERVICE_NAME="${SERVICE_NAME:-samo-emotion-secure}"
-IMAGE_NAME="${IMAGE_NAME:-samo-emotion-secure}"
+SERVICE_NAME="${SERVICE_NAME:-samo-complete-api}"
+IMAGE_NAME="${IMAGE_NAME:-samo-fast-api}"
 REPOSITORY="${REPOSITORY:-samo-dl}"
 
 echo "🔒 Secure API Server Deployment"
@@ -53,7 +53,7 @@ print_status "  Repository: ${REPOSITORY}"
 
 # Step 1: Tag the local image for Artifact Registry
 print_status "Step 1: Tagging local image for Artifact Registry..."
-docker tag "samo-emotion-secure:test" "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest"
+docker tag "samo-fast-api:latest" "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest"
 
 if [ $? -ne 0 ]; then
     print_error "Docker tag failed!"
@@ -78,17 +78,16 @@ gcloud run deploy "${SERVICE_NAME}" \
     --platform=managed \
     --allow-unauthenticated \
     --port=8080 \
-    --memory=2Gi \
+    --memory=4Gi \
     --cpu=2 \
     --max-instances=10 \
-    --min-instances=1 \
-    --concurrency=80 \
-    --timeout=300 \
-    --set-env-vars="FLASK_ENV=production,ENVIRONMENT=production" \
-    --set-env-vars="ENABLE_SECURITY=true,ENABLE_RATE_LIMITING=true" \
-    --set-env-vars="ENABLE_INPUT_SANITIZATION=true,MAX_LENGTH=512" \
-    --set-env-vars="EMOTION_PROVIDER=hf,EMOTION_LOCAL_ONLY=1" \
-    --set-env-vars="EMOTION_MODEL_DIR=${EMOTION_MODEL_DIR:-/models/emotion-english-distilroberta-base}"
+    --min-instances=0 \
+    --concurrency=40 \
+    --timeout=600 \
+    --cpu-boost \
+    --set-env-vars="ADMIN_API_KEY=$ADMIN_API_KEY" \
+    --set-env-vars="HF_HOME=/app/models" \
+    --set-env-vars="TRANSFORMERS_CACHE=/app/models"
 
 if [ $? -ne 0 ]; then
     print_error "Cloud Run deployment failed!"
@@ -107,7 +106,7 @@ print_status "Step 5: Testing secure deployment..."
 
 # Wait for service to be ready
 print_status "Waiting for service to be ready..."
-HEALTH_URL="${SERVICE_URL}/health"
+HEALTH_URL="${SERVICE_URL}/api/health"
 TIMEOUT=60
 INTERVAL=3
 ELAPSED=0
@@ -126,18 +125,28 @@ print_success "Service is healthy!"
 
 # Test health endpoint
 print_status "Testing health endpoint..."
-curl -f "${SERVICE_URL}/health" || {
+curl -f "${SERVICE_URL}/api/health" || {
     print_error "Health check failed!"
     exit 1
 }
 
 # Test prediction endpoint
-print_status "Testing prediction endpoint..."
-curl -X POST "${SERVICE_URL}/predict" \
+print_status "Testing emotion detection endpoint..."
+curl -X POST "${SERVICE_URL}/api/predict" \
     -H "Content-Type: application/json" \
+    -H "X-API-Key: $ADMIN_API_KEY" \
     -d '{"text": "I am feeling happy today!"}' || {
-    print_error "Prediction test failed!"
+    print_error "Emotion detection test failed!"
     exit 1
+}
+
+# Test summarization endpoint
+print_status "Testing T5 summarization endpoint..."
+curl -X POST "${SERVICE_URL}/summarize" \
+    -H "Content-Type: application/json" \
+    -H "X-API-Key: $ADMIN_API_KEY" \
+    -d '{"text": "This is a long text that needs to be summarized. It contains multiple sentences and ideas that should be condensed into a shorter version.", "max_length": 50}' || {
+    print_warning "T5 summarization test failed (may still be loading models)"
 }
 
 # Test security headers

@@ -44,6 +44,16 @@ except ImportError as e:
     import_logger.warning(f"Whisper transcription not available: {e}")
     WHISPER_AVAILABLE = False
 
+# Temporary file cleanup utility
+def cleanup_temp_file(file_path):
+    """Safely delete temporary file with error logging"""
+    try:
+        if file_path and os.path.exists(file_path):
+            os.remove(file_path)
+            logger.debug(f"Successfully deleted temporary file: {file_path}")
+    except Exception as exc:
+        logger.error(f"Failed to delete temporary file {file_path}: {exc}")
+
 # Configure logging for Cloud Run
 logging.basicConfig(
     level=logging.INFO,
@@ -67,6 +77,7 @@ def initialize_advanced_models():
     """Initialize T5 and Whisper models if available (only if not already loaded)"""
     global t5_summarizer, whisper_transcriber, T5_AVAILABLE, WHISPER_AVAILABLE
 
+    # Initialize T5 model
     if T5_AVAILABLE and t5_summarizer is None:
         try:
             logger.info("Loading T5 summarization model (fallback)...")
@@ -76,6 +87,7 @@ def initialize_advanced_models():
             logger.error(f"❌ Failed to load T5 summarizer: {e}")
             T5_AVAILABLE = False
 
+    # Initialize Whisper model
     if WHISPER_AVAILABLE and whisper_transcriber is None:
         try:
             logger.info("Loading Whisper transcription model (fallback)...")
@@ -84,6 +96,42 @@ def initialize_advanced_models():
         except Exception as e:
             logger.error(f"❌ Failed to load Whisper transcriber: {e}")
             WHISPER_AVAILABLE = False
+
+def load_all_models():
+    """Consolidated model loading function for all AI models"""
+    global t5_summarizer, whisper_transcriber, T5_AVAILABLE, WHISPER_AVAILABLE
+    
+    logger.info("🔄 Loading all AI models...")
+    
+    # Load emotion detection model
+    try:
+        load_model()
+        logger.info("✅ Emotion detection model loaded")
+    except Exception as e:
+        logger.error(f"❌ Failed to load emotion detection model: {e}")
+        raise
+
+    # Load T5 summarization model
+    if T5_AVAILABLE and t5_summarizer is None:
+        try:
+            logger.info("🔄 Loading T5 summarization model...")
+            t5_summarizer = create_t5_summarizer("t5-small")
+            logger.info("✅ T5 summarization model loaded")
+        except Exception as e:
+            logger.error(f"❌ Failed to load T5 summarizer: {e}")
+            T5_AVAILABLE = False
+
+    # Load Whisper transcription model
+    if WHISPER_AVAILABLE and whisper_transcriber is None:
+        try:
+            logger.info("🔄 Loading Whisper transcription model...")
+            whisper_transcriber = create_whisper_transcriber("base")
+            logger.info("✅ Whisper transcription model loaded")
+        except Exception as e:
+            logger.error(f"❌ Failed to load Whisper transcriber: {e}")
+            WHISPER_AVAILABLE = False
+
+    logger.info("✅ All available models loaded successfully")
 
 # Initialize advanced models at startup
 initialize_advanced_models()
@@ -170,10 +218,12 @@ error_model = api.model('Error', {
 })
 
 # Security configuration from environment variables
-ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY", "test-admin-key-123")  # Default for testing
+ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY")
 if not ADMIN_API_KEY:
     raise ValueError("ADMIN_API_KEY environment variable must be set")
 MAX_INPUT_LENGTH = int(os.environ.get("MAX_INPUT_LENGTH", "512"))
+MAX_TEXT_LENGTH = int(os.environ.get("MAX_TEXT_LENGTH", "5000"))
+MAX_AUDIO_FILE_SIZE_MB = int(os.environ.get("MAX_AUDIO_FILE_SIZE_MB", "45"))
 RATE_LIMIT_PER_MINUTE = int(os.environ.get("RATE_LIMIT_PER_MINUTE", "100"))
 MODEL_PATH = os.environ.get("MODEL_PATH", "/app/model")
 PORT = int(os.environ.get("PORT", "8080"))
@@ -559,8 +609,8 @@ def summarize_text():
     if not text:
         return jsonify({"error": "Text cannot be empty"}), 400
 
-    if len(text) > 5000:
-        return jsonify({"error": "Text too long (max 5000 characters)"}), 400
+    if len(text) > MAX_TEXT_LENGTH:
+        return jsonify({"error": f"Text too long (max {MAX_TEXT_LENGTH} characters)"}), 400
 
     try:
         logger.info("🔄 Starting T5 summarization...")
@@ -632,7 +682,7 @@ def transcribe_audio():
         result = whisper_transcriber.transcribe(temp_path, language=language)
         
         # Clean up temporary file
-        os.unlink(temp_path)
+        cleanup_temp_file(temp_path)
         
         logger.info(f"✅ Whisper transcription completed: {result.text[:100] if result and result.text else 'None'}...")
 
@@ -656,11 +706,8 @@ def transcribe_audio():
         logger.error(f"Traceback: {traceback.format_exc()}")
         
         # Clean up temporary file if it exists
-        try:
-            if 'temp_path' in locals():
-                os.unlink(temp_path)
-        except:
-            pass
+        if 'temp_path' in locals():
+            cleanup_temp_file(temp_path)
             
         return jsonify({"error": f"Transcription failed: {str(e)}"}), 500
 
@@ -709,8 +756,8 @@ class Summarize(Resource):
         if not text:
             api.abort(400, "Text cannot be empty")
 
-        if len(text) > 5000:
-            api.abort(400, "Text too long (max 5000 characters)")
+        if len(text) > MAX_TEXT_LENGTH:
+            api.abort(400, f"Text too long (max {MAX_TEXT_LENGTH} characters)")
 
         try:
             logger.info("🔄 Starting T5 summarization...")
@@ -789,8 +836,8 @@ class Transcribe(Resource):
         audio_file.seek(0, 2)  # Seek to end
         file_size = audio_file.tell()
         audio_file.seek(0)  # Reset to beginning
-        if file_size > 45 * 1024 * 1024:
-            api.abort(400, "File too large (max 45MB)")
+        if file_size > MAX_AUDIO_FILE_SIZE_MB * 1024 * 1024:
+            api.abort(400, f"File too large (max {MAX_AUDIO_FILE_SIZE_MB}MB)")
 
         try:
             # Save uploaded file temporarily
@@ -824,8 +871,7 @@ class Transcribe(Resource):
 
             finally:
                 # Cleanup temporary file
-                import os
-                os.unlink(temp_path)
+                cleanup_temp_file(temp_path)
 
         except Exception as e:
             logger.error(f"Transcription failed: {e}")
@@ -897,7 +943,7 @@ class CompleteAnalysis(Resource):
                     transcription_result = whisper_transcriber.transcribe(temp_path, language=language)
                     text_to_analyze = transcription_result.text if hasattr(transcription_result, 'text') else str(transcription_result)
                 finally:
-                    os.unlink(temp_path)
+                    cleanup_temp_file(temp_path)
 
         if not text_to_analyze:
             api.abort(400, "Either text or audio file must be provided")
@@ -956,8 +1002,6 @@ class CompleteAnalysis(Resource):
 
 def initialize_model():
     """Initialize the emotion detection model"""
-    global T5_AVAILABLE, WHISPER_AVAILABLE
-
     try:
         logger.info("🚀 Initializing emotion detection API server...")
         logger.info(f"📊 Configuration: MAX_INPUT_LENGTH={MAX_INPUT_LENGTH}, RATE_LIMIT={RATE_LIMIT_PER_MINUTE}/min")
@@ -965,30 +1009,8 @@ def initialize_model():
         logger.info(f"🌐 Server: Port {PORT}, Model path: {MODEL_PATH}")
         logger.info(f"🔄 Rate limiting: {RATE_LIMIT_PER_MINUTE} requests per minute")
 
-        # Load the emotion detection model
-        logger.info("🔄 Loading emotion detection model...")
-        load_model()
-
-        # Try to load T5 and Whisper models
-        if T5_AVAILABLE is False:
-            logger.info("🔄 Loading T5 summarization model...")
-            try:
-                t5_summarizer = create_t5_summarizer()
-                T5_AVAILABLE = True
-                logger.info("✅ T5 summarization model loaded")
-            except Exception as e:
-                logger.warning(f"T5 summarization not available: {e}")
-                T5_AVAILABLE = False
-
-        if WHISPER_AVAILABLE is False:
-            logger.info("🔄 Loading Whisper transcription model...")
-            try:
-                whisper_transcriber = create_whisper_transcriber()
-                WHISPER_AVAILABLE = True
-                logger.info("✅ Whisper transcription model loaded")
-            except Exception as e:
-                logger.warning(f"Whisper transcription not available: {e}")
-                WHISPER_AVAILABLE = False
+        # Load all models using consolidated function
+        load_all_models()
 
         logger.info("✅ Model initialization completed successfully")
         logger.info("🚀 API server ready to handle requests")

@@ -19,7 +19,7 @@ https://emotion-detection-api-frrnetyhfa-uc.a.run.app
 ### Authentication
 All endpoints require an API key header:
 ```
-X-API-Key: your-api-key-here
+X-API-Key: $API_KEY
 ```
 
 ---
@@ -90,8 +90,8 @@ Convert audio files to text using Whisper.
 
 **Request:**
 ```bash
-curl -X POST "https://emotion-detection-api-frrnetyhfa-uc.a.run.app/transcribe" \
-  -H "X-API-Key: your-api-key" \
+curl -X POST "https://your-api-endpoint.com/transcribe" \
+  -H "X-API-Key: $API_KEY" \
   -F "audio=@your_audio_file.wav" \
   -F "language=en"
 ```
@@ -127,8 +127,8 @@ Full pipeline: transcription (if audio) → emotion analysis → summarization.
 
 **Request (Audio + Analysis):**
 ```bash
-curl -X POST "https://emotion-detection-api-frrnetyhfa-uc.a.run.app/analyze/complete" \
-  -H "X-API-Key: your-api-key" \
+curl -X POST "https://your-api-endpoint.com/analyze/complete" \
+  -H "X-API-Key: $API_KEY" \
   -F "audio=@journal_entry.wav" \
   -F "generate_summary=true" \
   -F "emotion_threshold=0.1"
@@ -208,7 +208,7 @@ Run the comprehensive test suite:
 
 ```bash
 # Set your API key
-export API_KEY="your-api-key-here"
+export API_KEY="your-actual-api-key"
 
 # Run tests
 python deployment/cloud-run/test_complete_api.py
