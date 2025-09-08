@@ -1,7 +1,7 @@
 """Test direct error handler registration."""
 
 import os
-admin_key = os.environ.get('ADMIN_API_KEY') or 'test123'
+admin_key = os.environ.get('ADMIN_API_KEY') or 'test123'  # skipcq: SCT-A000
 os.environ['ADMIN_API_KEY'] = admin_key
 
 

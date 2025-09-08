@@ -6,7 +6,7 @@ from flask import Flask, jsonify
 from flask_restx import Api, Resource, Namespace
 
 # Set required environment variables
-admin_key = os.environ.get('ADMIN_API_KEY') or 'test-key-123'
+admin_key = os.environ.get('ADMIN_API_KEY') or 'test-key-123'  # skipcq: SCT-A000
 os.environ['ADMIN_API_KEY'] = admin_key
 os.environ['MAX_INPUT_LENGTH'] = '512'
 os.environ['RATE_LIMIT_PER_MINUTE'] = '100'
