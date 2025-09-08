@@ -278,7 +278,7 @@ def improve_with_full_training() -> bool:
         return False
 
 
-def create_simple_ensemble(checkpoint_path: Optional[str] = None) -> bool:
+def create_simple_ensemble(checkpoint_path: Optional[str] = None) -> bool:  # noqa: ARG001
     """Create a simple ensemble without requiring multiple pre-trained models."""
     try:
         logger.info("🎭 Creating simple ensemble approach...")

@@ -135,7 +135,7 @@ def secure_endpoint(f):
         
         try:
             # Rate limiting
-            allowed, reason, rate_limit_meta = rate_limiter.allow_request(client_ip, user_agent)
+            allowed, reason, _ = rate_limiter.allow_request(client_ip, user_agent)
             if not allowed:
                 response_time = time.time() - start_time
                 update_metrics(response_time, success=False, error_type='rate_limited', rate_limited=True)

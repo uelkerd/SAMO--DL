@@ -432,7 +432,7 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
         
         # Attempt to load corrupted model
         try:
-            model, info = self.loader.load_model(
+            model, _ = self.loader.load_model(
                 corrupted_model_file,
                 TestModel,
                 input_size=10,

@@ -149,7 +149,7 @@ class EnsembleModel(nn.Module):
         self.temperature = temperature
 
 
-def create_augmented_dataset(data_loader: GoEmotionsDataLoader, tokenizer: AutoTokenizer) -> dict:
+def create_augmented_dataset(data_loader: GoEmotionsDataLoader, tokenizer: AutoTokenizer) -> dict:  # noqa: ARG001
     """Create augmented dataset using back-translation.
 
     Args:
@@ -290,7 +290,7 @@ def create_ensemble_model(model_path: str, device: torch.device) -> EnsembleMode
 
 
 def evaluate_ensemble(
-    ensemble: EnsembleModel, test_data: dict, tokenizer: AutoTokenizer, device: torch.device
+    ensemble: EnsembleModel, test_data: dict, tokenizer: AutoTokenizer, device: torch.device  # noqa: ARG001
 ) -> dict[str, float]:
     """Evaluate ensemble model performance.
 
