@@ -3,6 +3,8 @@
 Test script to investigate the Swagger docs 500 error
 """
 
+# ruff: noqa: T201  # allow print() in this debug script
+
 import os
 import requests
 
@@ -57,12 +59,11 @@ try:
     else:
         print(f"❌ Server failed to start within timeout after {max_attempts} attempts hitting {readiness_url}")
         raise RuntimeError("Server failed to start within timeout")
-    
-    # Test docs endpoint specifically
-    base_url = f"http://127.0.0.1:{os.environ.get('PORT', '8082')}"
-    
+
+    # Test docs endpoint specifically (reuse base_url from above)
+
     print("\n=== Testing Docs Endpoint ===")
-    
+
     try:
         response = requests.get(f"{base_url}/docs", timeout=10)
         print(f"Status Code: {response.status_code}")

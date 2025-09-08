@@ -35,19 +35,14 @@ from ..src.security_setup import setup_security_middleware, get_environment
 
 # Configure logging based on environment
 log_level = os.environ.get('LOG_LEVEL', 'INFO').upper()
-numeric_level = getattr(logging, log_level, None) or logging.INFO
-if numeric_level == logging.INFO and log_level not in logging._nameToLevel:
-    logger = logging.getLogger(__name__)
-    logger.warning("Unknown LOG_LEVEL '%s'; defaulting to INFO", log_level)
+numeric_level = getattr(logging, log_level, None)
+if numeric_level is None:
+    numeric_level = logging.INFO
+    logging.getLogger(__name__).warning("Unknown LOG_LEVEL '%s'; defaulting to INFO", log_level)
 
 handlers = [logging.StreamHandler()]
-if os.environ.get('ENABLE_FILE_LOG') == '1':
-    # Use secure default log location instead of /tmp/
-    default_log_dir = Path.home() / '.samo' / 'logs'
-    default_log_dir.mkdir(parents=True, exist_ok=True)
-    default_log_file = default_log_dir / 'secure_api_server.log'
-    log_file_path = os.environ.get('LOG_FILE', str(default_log_file))
-    handlers.append(logging.FileHandler(log_file_path))
+if os.environ.get('ENABLE_FILE_LOG') == '1' and os.environ.get('LOG_FILE'):
+    handlers.append(logging.FileHandler(os.environ['LOG_FILE']))
 logging.basicConfig(
     level=numeric_level,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -428,7 +423,7 @@ def _sanitize_texts_batch(texts: List[str]) -> Tuple[List[str], int]:
 def _build_provider_info() -> dict:
     """Build provider info dict reflecting local-only mode and model_dir."""
     local_only_env = str(os.environ.get('EMOTION_LOCAL_ONLY', '')).strip().lower()
-    default_dir = str((Path(__file__).resolve().parent.parent / 'model'))
+    default_dir = str(Path(__file__).resolve().parent.parent / 'model')
     return {
         'local_only': local_only_env in ('1', 'true', 'yes', 'on'),
         'model_dir': os.environ.get('EMOTION_MODEL_DIR', '') or default_dir,
@@ -473,7 +468,7 @@ def _extract_and_filter_texts_or_raise(
 
 
 def _validate_alignment_count_or_raise(
-    results: Any, expected_count: int
+    results: List[List[Dict[str, Any]]], expected_count: int
 ) -> bool:
     """Ensure provider results match expected count or raise _ClientError."""
     if (not isinstance(results, list)) or (len(results) != expected_count):
@@ -483,7 +478,7 @@ def _validate_alignment_count_or_raise(
     return True
 
 
-def _validate_single_results_or_raise(results: Any) -> List[Dict[str, Any]]:
+def _validate_single_results_or_raise(results: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
     """Validate single-input provider results shape and return the distribution.
 
     Expects results to be List[List[Dict[str, Any]]], with len(results) == 1.
@@ -921,6 +916,7 @@ def nlp_emotion_batch():
         return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/metrics', methods=['GET'])
+@require_admin_api_key
 def get_metrics():
     """Get detailed security metrics endpoint."""
     with metrics_lock:
@@ -1018,6 +1014,8 @@ def home():
                 'GET /metrics': 'Detailed security metrics',
                 'POST /predict': 'Secure single prediction',
                 'POST /predict_batch': 'Secure batch prediction',
+                'POST /nlp/emotion': 'Emotion distribution for a single text',
+                'POST /nlp/emotion/batch': 'Emotion distributions for a batch of texts',
                 'POST /security/blacklist': 'Add IP to blacklist (admin)',
                 'POST /security/whitelist': 'Add IP to whitelist (admin)'
             },
@@ -1113,8 +1111,9 @@ if __name__ == '__main__':
     )
     logger.info("=" * 60)
 
+    host = '0.0.0.0' if os.environ.get('CONTAINERIZED') == '1' else '127.0.0.1'
     app.run(
-        host=os.environ.get('HOST', '127.0.0.1'),
+        host=host,
         port=int(os.environ.get("PORT", "8000")),
         debug=False
     )
