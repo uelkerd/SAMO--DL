@@ -124,9 +124,7 @@ class TestAPIRouting(unittest.TestCase):
 
     def test_predict_endpoint_no_auth(self):
         """Test predict endpoint requires API key."""
-        response = self.app.post('/api/predict',
-                                data=json.dumps({'text': 'I am happy'}),
-                                content_type='application/json')
+        response = self.app.post('/api/predict', json={'text': 'I am happy'})
         self.assertEqual(response.status_code, 401)
 
         data = response.get_json()
@@ -135,19 +133,18 @@ class TestAPIRouting(unittest.TestCase):
 
     def test_predict_endpoint_with_auth(self):
         """Test predict endpoint works with valid API key."""
-        response = self.app.post('/api/predict',
-                                 data=json.dumps({'text': 'I am happy'}),
-                                 content_type='application/json',
-                                 headers={'X-API-Key': self.ADMIN_KEY})
+        response = self.app.post(
+            '/api/predict',
+            json={'text': 'I am happy'},
+            headers={'X-API-Key': self.ADMIN_KEY}
+        )
 
         # Should succeed (200) or be rate limited (429), but not auth error (401)
         self.assertIn(response.status_code, [200, 429])
 
     def test_predict_batch_endpoint_no_auth(self):
         """Test predict_batch endpoint requires API key."""
-        response = self.app.post('/api/predict_batch',
-                                data=json.dumps({'texts': ['I am happy', 'I am sad']}),
-                                content_type='application/json')
+        response = self.app.post('/api/predict_batch', json={'texts': ['I am happy', 'I am sad']})
         self.assertEqual(response.status_code, 401)
 
         data = response.get_json()
@@ -156,10 +153,11 @@ class TestAPIRouting(unittest.TestCase):
 
     def test_predict_batch_endpoint_with_auth(self):
         """Test predict_batch endpoint works with valid API key."""
-        response = self.app.post('/api/predict_batch',
-                                 data=json.dumps({'texts': ['I am happy', 'I am sad']}),
-                                 content_type='application/json',
-                                 headers={'X-API-Key': self.ADMIN_KEY})
+        response = self.app.post(
+            '/api/predict_batch',
+            json={'texts': ['I am happy', 'I am sad']},
+            headers={'X-API-Key': self.ADMIN_KEY}
+        )
 
         # Should succeed (200) or be rate limited (429), but not auth error (401)
         self.assertIn(response.status_code, [200, 429])
@@ -195,10 +193,11 @@ class TestAPIRouting(unittest.TestCase):
 
     def test_predict_endpoint_missing_text(self):
         """Test predict endpoint handles missing text field."""
-        response = self.app.post('/api/predict',
-                                 data=json.dumps({}),
-                                 content_type='application/json',
-                                 headers={'X-API-Key': self.ADMIN_KEY})
+        response = self.app.post(
+            '/api/predict',
+            json={},
+            headers={'X-API-Key': self.ADMIN_KEY}
+        )
         self.assertEqual(response.status_code, 400)
 
         data = response.get_json()
@@ -209,8 +208,7 @@ class TestAPIRouting(unittest.TestCase):
         """Test predict endpoint handles invalid text input."""
         response = self.app.post(
             '/api/predict',
-            data=json.dumps({'text': ''}),
-            content_type='application/json',
+            json={'text': ''},
             headers={'X-API-Key': self.ADMIN_KEY}
         )
         self.assertEqual(response.status_code, 400)

@@ -13,6 +13,7 @@ import threading
 import hmac
 from flask import Flask, request, jsonify, g
 from flask_restx import Api, Resource, fields, Namespace
+from werkzeug.exceptions import TooManyRequests, InternalServerError, NotFound, MethodNotAllowed
 from functools import wraps
 
 # Import security modules
@@ -37,7 +38,8 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 # Add detailed logging for Flask-RESTX debugging only in development
-if os.environ.get("FLASK_ENV") == "development" or app.debug:
+is_development = os.environ.get("FLASK_ENV") == "development" or app.debug
+if is_development:
     werkzeug_logger = logging.getLogger('werkzeug')
     werkzeug_logger.setLevel(logging.DEBUG)
 
@@ -348,7 +350,7 @@ class Predict(Resource):
 
 @main_ns.route('/predict_batch')
 class PredictBatch(Resource):
-    @api.doc('post_predict_batch', security='apikey')
+    @api.doc('post_predict_batch', security=[{'apikey': []}])
     @api.expect(batch_input_model, validate=True)
     @api.response(200, 'Success', batch_response_model)
     @api.response(400, 'Bad Request', error_model)
@@ -437,9 +439,9 @@ class ModelStatus(Resource):
             logger.info(f"Admin model status request from {request.remote_addr}")
             status = get_model_status()
             return status
-        except Exception as e:
-            logger.exception("Model status error for %s", request.remote_addr)
-            return create_error_response('Internal server error', 500)
+    except Exception:
+        logger.exception("Model status error for %s", request.remote_addr)
+        return create_error_response('Internal server error', 500)
 
 @admin_ns.route('/security_status')
 class SecurityStatus(Resource):
@@ -460,39 +462,39 @@ class SecurityStatus(Resource):
                 'security_headers': True,
                 'timestamp': time.time()
             }
-        except Exception as e:
-            logger.exception("Security status error for %s", request.remote_addr)
-            return create_error_response('Internal server error', 500)
+    except Exception:
+        logger.exception("Security status error for %s", request.remote_addr)
+        return create_error_response('Internal server error', 500)
 
 
 # Error handlers for Flask-RESTX using proper decorators
-@api.errorhandler(429)
+@api.errorhandler(TooManyRequests)
 def rate_limit_exceeded(error) -> tuple:
-    """Handle rate limit exceeded errors"""
+    """Handle rate limit exceeded errors."""
     logger.warning(f"Rate limit exceeded for {request.remote_addr}")
     return create_error_response('Rate limit exceeded - too many requests', 429)
 
-@api.errorhandler(500)
+@api.errorhandler(InternalServerError)
 def internal_error(error) -> tuple:
-    """Handle internal server errors"""
+    """Handle internal server errors."""
     logger.exception("Internal server error for %s", request.remote_addr)
     return create_error_response('Internal server error', 500)
 
-@api.errorhandler(404)
+@api.errorhandler(NotFound)
 def not_found(_error) -> tuple:
-    """Handle not found errors"""
+    """Handle not found errors."""
     logger.warning(f"Endpoint not found for {request.remote_addr}: {request.url}")
     return create_error_response('Endpoint not found', 404)
 
-@api.errorhandler(405)
+@api.errorhandler(MethodNotAllowed)
 def method_not_allowed(_error) -> tuple:
-    """Handle method not allowed errors"""
+    """Handle method not allowed errors."""
     logger.warning(f"Method not allowed for {request.remote_addr}: {request.method} {request.url}")
     return create_error_response('Method not allowed', 405)
 
 @api.errorhandler(Exception)
 def handle_unexpected_error(error) -> tuple:
-    """Handle any unexpected errors"""
+    """Handle any unexpected errors."""
     logger.exception("Unexpected error for %s", request.remote_addr)
     return create_error_response('An unexpected error occurred', 500)
 
@@ -509,7 +511,7 @@ def initialize_model():
         logger.info("🔄 Rate limiting: %s requests per minute", RATE_LIMIT_PER_MINUTE)
 
         # Log all registered routes for debugging (only in development/debug mode)
-        if getattr(app, "debug", False) or os.environ.get("FLASK_ENV") == "development":
+        if is_development:
             logger.info("Final route registration check:")
             for rule in app.url_map.iter_rules():
                 logger.info("  Route: %s -> %s (methods: %s)",
@@ -521,7 +523,7 @@ def initialize_model():
         logger.info("✅ Model initialization completed successfully")
         logger.info("🚀 API server ready to handle requests")
 
-    except Exception as e:
+    except Exception:
         logger.exception("❌ Failed to initialize API server")
         raise
 

@@ -45,8 +45,7 @@ class TestRoutingFixes(unittest.TestCase):
         """Test that root endpoint is registered before Flask-RESTX initialization."""
         server_file = PROJECT_ROOT / 'deployment' / 'cloud-run' / 'secure_api_server.py'
 
-        with open(server_file) as f:
-            content = f.read()
+        content = server_file.read_text()
 
         # Find the positions of root endpoint registration and Flask-RESTX initialization
         # More flexible regex to handle different formatting (quotes, whitespace, methods)
@@ -66,8 +65,7 @@ class TestRoutingFixes(unittest.TestCase):
         # Test each file individually to avoid loops in tests
         test_file = PROJECT_ROOT / 'deployment' / 'cloud-run' / 'test_swagger_debug.py'
         self.assertTrue(test_file.exists(), f"Expected file not found: {test_file}")
-        with open(test_file) as f:
-            content = f.read()
+        content = test_file.read_text()
         namespace_matches = re.findall(r"Namespace\(\s*(['\"])(.*?)\1", content)
         for _, name in namespace_matches:
             self.assertFalse(name.startswith('/'), f"Found leading slash in namespace '{name}' in {test_file}")
@@ -93,8 +91,7 @@ class TestRoutingFixes(unittest.TestCase):
         """Test that there are no double slashes in route definitions."""
         server_file = PROJECT_ROOT / 'deployment' / 'cloud-run' / 'secure_api_server.py'
 
-        with open(server_file) as f:
-            content = f.read()
+        content = server_file.read_text()
 
         # Check all route decorators (supports single/double quotes)
         route_matches = re.findall(r"@[^)]*\.route\(\s*(['\"])(.*?)\1", content)

@@ -62,6 +62,7 @@ try:
     from werkzeug.exceptions import TooManyRequests
     @api.errorhandler(TooManyRequests)
     def test_handler(error):
+        """Return a canned 429 for debug validation."""
         return {"error": "test"}, 429
     print("✅ Error handler created")
 except Exception as e:

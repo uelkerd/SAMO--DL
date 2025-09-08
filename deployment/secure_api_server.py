@@ -25,7 +25,7 @@ from datetime import datetime
 from collections import defaultdict, deque
 import threading
 from functools import wraps
-from typing import List, Tuple, Any, Dict
+from typing import List, Tuple, Dict, Sequence, Mapping, TypedDict
 from ipaddress import ip_address
 
 # Import security components using relative imports
@@ -33,16 +33,27 @@ from ..src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
 from ..src.input_sanitizer import InputSanitizer, SanitizationConfig
 from ..src.security_setup import setup_security_middleware, get_environment
 
+# Type definitions for provider contracts
+class Score(TypedDict, total=False):
+    label: str
+    score: float
+
+Distribution = Sequence[Score]
+BatchResults = Sequence[Distribution]
+
 # Configure logging based on environment
 log_level = os.environ.get('LOG_LEVEL', 'INFO').upper()
-numeric_level = getattr(logging, log_level, None)
-if numeric_level is None:
-    numeric_level = logging.INFO
-    logging.getLogger(__name__).warning("Unknown LOG_LEVEL '%s'; defaulting to INFO", log_level)
+level_obj = getattr(logging, log_level, None)
+numeric_level = level_obj if isinstance(level_obj, int) else logging.INFO
+if not isinstance(level_obj, int):
+    logger = logging.getLogger(__name__)
+    logger.warning("Unknown LOG_LEVEL '%s'; defaulting to INFO", log_level)
 
 handlers = [logging.StreamHandler()]
-if os.environ.get('ENABLE_FILE_LOG') == '1' and os.environ.get('LOG_FILE'):
-    handlers.append(logging.FileHandler(os.environ['LOG_FILE']))
+if os.environ.get('ENABLE_FILE_LOG') == '1':
+    from logging.handlers import RotatingFileHandler
+    log_file = os.environ.get('LOG_FILE', '/tmp/secure_api_server.log')
+    handlers.append(RotatingFileHandler(log_file, maxBytes=10_000_000, backupCount=5))
 logging.basicConfig(
     level=numeric_level,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -468,7 +479,7 @@ def _extract_and_filter_texts_or_raise(
 
 
 def _validate_alignment_count_or_raise(
-    results: List[List[Dict[str, Any]]], expected_count: int
+    results: BatchResults, expected_count: int
 ) -> bool:
     """Ensure provider results match expected count or raise _ClientError."""
     if (not isinstance(results, list)) or (len(results) != expected_count):
@@ -478,7 +489,7 @@ def _validate_alignment_count_or_raise(
     return True
 
 
-def _validate_single_results_or_raise(results: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+def _validate_single_results_or_raise(results: BatchResults) -> List[Dict[str, Any]]:
     """Validate single-input provider results shape and return the distribution.
 
     Expects results to be List[List[Dict[str, Any]]], with len(results) == 1.
@@ -857,8 +868,8 @@ def nlp_emotion_batch():
         _validate_alignment_count_or_raise(results, len(sanitized))
 
         responses = []
-        for text, scores in zip(sanitized, results):
-            scores = scores if isinstance(scores, list) else []
+        for text, raw_scores in zip(sanitized, results):
+            scores = raw_scores if isinstance(raw_scores, list) else []
             top = (
                 max(scores, key=lambda x: x.get('score', 0.0))
                 if scores else {'label': 'unknown', 'score': 0.0}
@@ -1055,7 +1066,7 @@ def home():
 @app.errorhandler(werkzeug.exceptions.BadRequest)
 def handle_bad_request(_e):
     """Handle BadRequest exceptions (invalid JSON, etc.)."""
-    logger.exception("BadRequest error occurred")
+    logger.warning("BadRequest error occurred for %s from %s", request.path, request.remote_addr)
     update_metrics(0.0, success=False, error_type='invalid_json')
     return jsonify({'error': 'Invalid JSON format'}), 400
 
@@ -1111,9 +1122,5 @@ if __name__ == '__main__':
     )
     logger.info("=" * 60)
 
-    host = '0.0.0.0' if os.environ.get('CONTAINERIZED') == '1' else '127.0.0.1'
-    app.run(
-        host=host,
-        port=int(os.environ.get("PORT", "8000")),
-        debug=False
-    )
+    if os.environ.get("FLASK_ENV") != "production":
+        app.run(host='0.0.0.0', port=int(os.environ.get("PORT", "8000")), debug=False)

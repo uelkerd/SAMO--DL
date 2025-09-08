@@ -47,7 +47,8 @@ try:
     print("5. Testing errorhandler call...")
     from werkzeug.exceptions import TooManyRequests
     result = api.errorhandler(TooManyRequests)
-    print(f"✅ errorhandler(TooManyRequests) call successful: {type(result)}")
+    assert callable(result), "Expected a decorator (callable) from api.errorhandler"
+    print("✅ errorhandler(TooManyRequests) call returned a callable")
 except Exception as e:
     print(f"❌ errorhandler(TooManyRequests) call failed: {e}")
     print(f"Error type: {type(e)}")
