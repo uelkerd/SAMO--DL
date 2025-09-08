@@ -1029,7 +1029,7 @@ def handle_bad_request(e):
 @app.errorhandler(404)
 def handle_not_found(e):
     """Handle 404 errors."""
-    logger.warning(f"404 error: {request.path} from {request.remote_addr}")
+    logger.warning(f"404 error: {request.path} from {request.remote_addr}, exception: {e}")
     return jsonify({'error': 'Endpoint not found'}), 404
 
 @app.errorhandler(500)

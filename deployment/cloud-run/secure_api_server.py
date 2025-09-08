@@ -445,7 +445,7 @@ class Predict(Resource):
     @staticmethod
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
-    def post(self):
+    def post():
         """Predict emotion for a single text input."""
         try:
             # Log rate limiting info for debugging

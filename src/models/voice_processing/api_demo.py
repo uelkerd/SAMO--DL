@@ -54,7 +54,7 @@ whisper_transcriber: Optional[WhisperTranscriber] = None
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app):  # noqa: ARG001 - FastAPI requires app parameter but not used in our implementation
     """Manage model lifecycle - load on startup, cleanup on shutdown."""
     global whisper_transcriber
 

@@ -243,7 +243,7 @@ async def list_emotions():
 )
 async def analyze_emotion(
     request: EmotionRequest,
-    x_api_key: Optional[str] = Header(None, description="API key for authentication"),
+    x_api_key: Optional[str] = Header(None, description="API key for authentication"),  # noqa: ARG001
 ):
     """Analyze emotions in text.
 
