@@ -437,6 +437,16 @@ class TokenBucketRateLimiter:
                     0, self.concurrent_requests[client_key] - 1
                 )
 
+    def add_to_blacklist(self, ip: str) -> None:
+        """Add IP to blacklist."""
+        with self.lock:
+            self.config.blacklisted_ips.add(ip)
+
+    def add_to_whitelist(self, ip: str) -> None:
+        """Add IP to whitelist."""
+        with self.lock:
+            self.config.whitelisted_ips.add(ip)
+
     def get_stats(self) -> Dict:
         """Get rate limiter statistics."""
         with self.lock:
