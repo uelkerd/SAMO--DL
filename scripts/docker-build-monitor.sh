@@ -11,18 +11,18 @@ IMAGE_NAME="${2:-samo-complete-api:latest}"
 
 echo "🐳 Docker Build Monitor"
 echo "======================"
-echo "Project Root: $PROJECT_ROOT"
-echo "Dockerfile: $DOCKERFILE"
-echo "Image Name: $IMAGE_NAME"
+echo "Project Root: \"$PROJECT_ROOT\""
+echo "Dockerfile: \"$DOCKERFILE\""
+echo "Image Name: \"$IMAGE_NAME\""
 echo ""
 
 # Check if build is already running
 if pgrep -f "docker build" > /dev/null; then
     echo "⚠️  Docker build process already running!"
     echo "Process details:"
-    ps aux | grep "docker build" | grep -v grep
+    pgrep -f "docker build"
     echo ""
-    echo "To stop the build, run: docker build --no-cache --progress=plain -t $IMAGE_NAME -f $DOCKERFILE ."
+    echo "To stop the build, run: docker build --no-cache --progress=plain -t \"$IMAGE_NAME\" -f \"$DOCKERFILE\" ."
     exit 1
 fi
 
@@ -43,30 +43,30 @@ echo ""
 
 # Start build with monitoring
 echo "🏗️  Starting Docker build..."
-echo "Command: docker build --no-cache --progress=plain -t $IMAGE_NAME -f $DOCKERFILE ."
+echo "Command: docker build --no-cache --progress=plain -t \"$IMAGE_NAME\" -f \"$DOCKERFILE\" ."
 echo ""
 
 # Start build and capture start time
 START_TIME=$(date +%s)
-docker build --no-cache --progress=plain -t $IMAGE_NAME -f $DOCKERFILE . 2>&1 | tee build.log
+docker build --no-cache --progress=plain -t \"$IMAGE_NAME\" -f \"$DOCKERFILE\" . 2>&1 | tee build.log
 BUILD_EXIT_CODE=${PIPESTATUS[0]}
 
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME))
 
-if [ $BUILD_EXIT_CODE -eq 0 ]; then
+if [ "$BUILD_EXIT_CODE" -eq 0 ]; then
     echo ""
     echo "✅ Build completed successfully!"
-    echo "Duration: $DURATION seconds ($(($DURATION / 60)) minutes)"
-    echo "Image: $IMAGE_NAME"
+    echo "Duration: \"$DURATION\" seconds ($((DURATION / 60)) minutes)"
+    echo "Image: \"$IMAGE_NAME\""
     echo ""
 
     # Show image size
-    docker images $IMAGE_NAME --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
+    docker images "$IMAGE_NAME" --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
 else
     echo ""
-    echo "❌ Build failed with exit code $BUILD_EXIT_CODE"
-    echo "Duration: $DURATION seconds ($(($DURATION / 60)) minutes)"
+    echo "❌ Build failed with exit code \"$BUILD_EXIT_CODE\""
+    echo "Duration: \"$DURATION\" seconds ($((DURATION / 60)) minutes)"
     echo ""
     echo "Last 20 lines of build output:"
     tail -20 build.log
