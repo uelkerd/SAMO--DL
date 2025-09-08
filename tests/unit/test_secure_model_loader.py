@@ -14,7 +14,7 @@ import tempfile
 import unittest
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from src.models.secure_loader import (
     SecureModelLoader,
@@ -487,10 +487,10 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
         self.assertTrue(os.path.exists(audit_log_path))
         
         # Check audit log contains entries
-        with open(audit_log_path, 'r') as f:
+        with open(audit_log_path) as f:
             log_content = f.read()
             self.assertIn('AUDIT:', log_content)
 
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

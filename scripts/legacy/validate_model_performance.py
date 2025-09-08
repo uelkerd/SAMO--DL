@@ -21,7 +21,7 @@ def load_model_and_tokenizer(model_path):
         model = AutoModelForSequenceClassification.from_pretrained(model_path)
         return tokenizer, model
     except Exception as e:
-        print(f"❌ Error loading model: {str(e)}")
+        print(f"❌ Error loading model: {e!s}")
         return None, None
 
 def check_model_configuration(model_path):
@@ -30,7 +30,7 @@ def check_model_configuration(model_path):
     print("=" * 50)
     
     try:
-        with open(os.path.join(model_path, 'config.json'), 'r') as f:
+        with open(os.path.join(model_path, 'config.json')) as f:
             config = json.load(f)
         
         print(f"Model type: {config.get('model_type', 'NOT FOUND')}")
@@ -59,7 +59,7 @@ def check_model_configuration(model_path):
             return False
             
     except Exception as e:
-        print(f"❌ Error reading configuration: {str(e)}")
+        print(f"❌ Error reading configuration: {e!s}")
         return False
 
 def create_test_dataset():
@@ -142,12 +142,12 @@ def evaluate_model_performance(model, tokenizer, test_examples, emotions):
     device = next(model.parameters()).device
     
     results = []
-    predictions_by_emotion = {emotion: 0 for emotion in emotions}
+    predictions_by_emotion = dict.fromkeys(emotions, 0)
     
     print("Testing on unseen examples...")
     print("-" * 50)
     
-    for i, example in enumerate(test_examples):
+    for _i, example in enumerate(test_examples):
         text = example['text']
         expected = example['expected']
         
@@ -188,14 +188,14 @@ def evaluate_model_performance(model, tokenizer, test_examples, emotions):
     correct = sum(1 for r in results if r['correct'])
     accuracy = correct / len(results)
     
-    print(f"\n📊 PERFORMANCE SUMMARY")
+    print("\n📊 PERFORMANCE SUMMARY")
     print("=" * 30)
     print(f"Total examples: {len(results)}")
     print(f"Correct predictions: {correct}")
     print(f"Accuracy: {accuracy:.1%}")
     
     # Bias analysis
-    print(f"\n🎯 BIAS ANALYSIS")
+    print("\n🎯 BIAS ANALYSIS")
     print("=" * 20)
     for emotion, count in predictions_by_emotion.items():
         percentage = count / len(results) * 100
@@ -204,7 +204,7 @@ def evaluate_model_performance(model, tokenizer, test_examples, emotions):
     # Determine if model is reliable
     max_bias = max(predictions_by_emotion.values()) / len(results)
     
-    print(f"\n🔍 RELIABILITY ASSESSMENT")
+    print("\n🔍 RELIABILITY ASSESSMENT")
     print("=" * 30)
     if accuracy >= 0.8 and max_bias <= 0.3:
         print("🎉 MODEL PASSES RELIABILITY TEST!")
@@ -289,16 +289,16 @@ def main():
     training_data_path = "./data/balanced_training_data.json"
     if os.path.exists(training_data_path):
         try:
-            with open(training_data_path, 'r') as f:
+            with open(training_data_path) as f:
                 training_data = json.load(f)
-            data_leakage = check_for_data_leakage(training_data, test_examples)
+            check_for_data_leakage(training_data, test_examples)
         except:
             print("⚠️  Could not check for data leakage (training data not accessible)")
     else:
         print("⚠️  Training data not found, skipping data leakage check")
     
     # Summary
-    print(f"\n📋 VALIDATION SUMMARY")
+    print("\n📋 VALIDATION SUMMARY")
     print("=" * 30)
     print(f"Configuration correct: {'✅' if config_ok else '❌'}")
     print(f"Accuracy on unseen data: {accuracy:.1%}")
@@ -306,7 +306,7 @@ def main():
     print(f"Model reliable: {'✅' if accuracy >= 0.8 and max_bias <= 0.3 else '❌'}")
     
     if accuracy < 0.8:
-        print(f"\n💡 RECOMMENDATIONS:")
+        print("\n💡 RECOMMENDATIONS:")
         print("1. Increase training dataset size")
         print("2. Use data augmentation techniques")
         print("3. Try different model architectures")
@@ -314,4 +314,4 @@ def main():
         print("5. Use cross-validation for better evaluation")
 
 if __name__ == "__main__":
-    main() 
+    main()

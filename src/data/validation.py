@@ -76,16 +76,7 @@ class DataValidator:
             actual_type = df[column].dtype
 
             # Handle numeric types
-            if expected_type in (int, float) and pd.api.types.is_numeric_dtype(actual_type):
-                type_check_results[column] = True
-            # Handle string types
-            elif expected_type is str and pd.api.types.is_string_dtype(actual_type):
-                type_check_results[column] = True
-            # Handle datetime types
-            elif expected_type is pd.Timestamp and pd.api.types.is_datetime64_any_dtype(actual_type):
-                type_check_results[column] = True
-            # Handle boolean types
-            elif expected_type is bool and pd.api.types.is_bool_dtype(actual_type):
+            if (expected_type in (int, float) and pd.api.types.is_numeric_dtype(actual_type)) or (expected_type is str and pd.api.types.is_string_dtype(actual_type)) or (expected_type is pd.Timestamp and pd.api.types.is_datetime64_any_dtype(actual_type)) or (expected_type is bool and pd.api.types.is_bool_dtype(actual_type)):
                 type_check_results[column] = True
             else:
                 is_match = actual_type == expected_type

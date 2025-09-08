@@ -16,8 +16,7 @@ import json
 try:
     from secure_api_server import app
     MODEL_AVAILABLE = True
-except (OSError, ImportError) as e:
-    print(f"Warning: Could not import secure_api_server due to missing model: {e}")
+except (OSError, ImportError):
     MODEL_AVAILABLE = False
     app = None
 
@@ -117,4 +116,4 @@ class TestAdminEndpointProtection(unittest.TestCase):
         self.assertIn('IP address required', response.get_json()['error'])
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

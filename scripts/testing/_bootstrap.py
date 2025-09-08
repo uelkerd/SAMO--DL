@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 import sys
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Iterable
 
 
 _MARKERS: tuple[str, ...] = (
@@ -21,7 +21,7 @@ _MARKERS: tuple[str, ...] = (
 
 
 def get_project_root(
-    start: Optional[Path] = None,
+    start: Path | None = None,
     markers: Iterable[str] = _MARKERS,
 ) -> Path:
     """Discover the project root by walking up directories until a marker is found.
@@ -39,7 +39,7 @@ def get_project_root(
     return Path(__file__).resolve().parents[2]
 
 
-def ensure_project_root_on_sys_path(start: Optional[Path] = None) -> Path:
+def ensure_project_root_on_sys_path(start: Path | None = None) -> Path:
     """Ensure the discovered project root is on sys.path, returning the root path."""
     root = get_project_root(start)
     root_str = str(root)

@@ -18,9 +18,9 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 from transformers import (
-    AutoTokenizer, 
-    AutoModelForSequenceClassification, 
-    TrainingArguments, 
+    AutoTokenizer,
+    AutoModelForSequenceClassification,
+    TrainingArguments,
     Trainer,
     EarlyStoppingCallback
 )
@@ -41,7 +41,7 @@ def load_combined_dataset():
     
     # Load original journal dataset (150 high-quality samples)
     try:
-        with open('data/journal_test_dataset.json', 'r') as f:
+        with open('data/journal_test_dataset.json') as f:
             journal_data = json.load(f)
         
         for item in journal_data:
@@ -56,7 +56,7 @@ def load_combined_dataset():
     
     # Load CMU-MOSEI dataset
     try:
-        with open('data/cmu_mosei_balanced_dataset.json', 'r') as f:
+        with open('data/cmu_mosei_balanced_dataset.json') as f:
             cmu_data = json.load(f)
         
         for item in cmu_data:
@@ -71,7 +71,7 @@ def load_combined_dataset():
     
     # Load expanded journal dataset as backup
     try:
-        with open('data/expanded_journal_dataset.json', 'r') as f:
+        with open('data/expanded_journal_dataset.json') as f:
             expanded_data = json.load(f)
         
         # Only use a subset to avoid synthetic data issues
@@ -268,8 +268,8 @@ def main():
     
     print("🎉 Training completed!")
     print(f"📈 Final F1 Score: {results['eval_f1']*100:.2f}%")
-    print(f"🎯 Target: 75-85%")
+    print("🎯 Target: 75-85%")
     print(f"📊 Improvement: {((results['eval_f1'] - 0.67) / 0.67 * 100):.1f}% from baseline")
 
 if __name__ == "__main__":
-    main() 
+    main()

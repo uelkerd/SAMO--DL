@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-🚀 EMOTION DETECTION API FOR CLOUD RUN
+"""🚀 EMOTION DETECTION API FOR CLOUD RUN.
 ======================================
 Robust Flask API optimized for Cloud Run deployment.
 """
@@ -38,8 +37,8 @@ EMOTION_MAPPING = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grate
 # Constants
 MAX_INPUT_LENGTH = 512
 
-def load_model():
-    """Load the emotion detection model"""
+def load_model() -> None:
+    """Load the emotion detection model."""
     global model, tokenizer, emotion_mapping, model_loading, model_loaded, model_lock
     
     with model_lock:
@@ -85,7 +84,7 @@ def load_model():
         model_loading = False
 
 def predict_emotion(text):
-    """Predict emotion for given text"""
+    """Predict emotion for given text."""
     global model, tokenizer, emotion_mapping
     
     if not model_loaded:
@@ -116,8 +115,8 @@ def predict_emotion(text):
         "text": text
     }
 
-def ensure_model_loaded():
-    """Ensure model is loaded before processing requests"""
+def ensure_model_loaded() -> None:
+    """Ensure model is loaded before processing requests."""
     if not model_loaded and not model_loading:
         load_model()
     
@@ -125,7 +124,7 @@ def ensure_model_loaded():
         raise RuntimeError("Model not loaded")
 
 def create_error_response(message, status_code=500):
-    """Create standardized error response with request ID for debugging"""
+    """Create standardized error response with request ID for debugging."""
     request_id = str(uuid.uuid4())
     logger.exception(f"{message} [request_id={request_id}]")
     return jsonify({
@@ -135,7 +134,7 @@ def create_error_response(message, status_code=500):
 
 @app.route('/', methods=['GET'])
 def root():
-    """Root endpoint"""
+    """Root endpoint."""
     return jsonify({
         "message": "Hello from SAMO Emotion Detection API!",
         "status": "running",
@@ -144,7 +143,7 @@ def root():
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    """Health check endpoint"""
+    """Health check endpoint."""
     return jsonify({
         'status': 'healthy',
         'model_loaded': model_loaded,
@@ -155,7 +154,7 @@ def health_check():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    """Predict emotion for given text"""
+    """Predict emotion for given text."""
     try:
         # Ensure model is loaded
         ensure_model_loaded()
@@ -185,7 +184,7 @@ def predict():
 
 @app.route('/predict_batch', methods=['POST'])
 def predict_batch():
-    """Predict emotions for multiple texts"""
+    """Predict emotions for multiple texts."""
     try:
         # Ensure model is loaded
         ensure_model_loaded()
@@ -219,7 +218,7 @@ def predict_batch():
 
 @app.route('/emotions', methods=['GET'])
 def get_emotions():
-    """Get list of supported emotions"""
+    """Get list of supported emotions."""
     return jsonify({
         'emotions': EMOTION_MAPPING,
         'count': len(EMOTION_MAPPING)
@@ -227,7 +226,7 @@ def get_emotions():
 
 @app.route('/model_status', methods=['GET'])
 def model_status():
-    """Get detailed model status"""
+    """Get detailed model status."""
     return jsonify({
         'model_loaded': model_loaded,
         'model_loading': model_loading,
@@ -237,8 +236,8 @@ def model_status():
     })
 
 # Load model on startup
-def initialize_model():
-    """Initialize model before first request"""
+def initialize_model() -> None:
+    """Initialize model before first request."""
     try:
         load_model()
     except Exception:
@@ -274,12 +273,12 @@ if __name__ == '__main__':
     import gunicorn.app.base
     
     class StandaloneApplication(gunicorn.app.base.BaseApplication):
-        def __init__(self, app, options=None):
+        def __init__(self, app, options=None) -> None:
             self.options = options or {}
             self.application = app
             super().__init__()
         
-        def load_config(self):
+        def load_config(self) -> None:
             config = {key: value for key, value in self.options.items()
                      if key in self.cfg.settings and value is not None}
             for key, value in config.items():
@@ -301,4 +300,4 @@ if __name__ == '__main__':
         'loglevel': 'info'
     }
     
-    StandaloneApplication(app, options).run() 
+    StandaloneApplication(app, options).run()

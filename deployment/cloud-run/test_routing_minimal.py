@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Minimal test script to isolate Flask-RESTX routing issues
-"""
+"""Minimal test script to isolate Flask-RESTX routing issues."""
 
 import os
 from flask import Flask, jsonify
@@ -45,13 +43,10 @@ def root():
     return jsonify({'message': 'Root endpoint'})
 
 if __name__ == '__main__':
-    print("=== Flask App Routes ===")
-    for rule in app.url_map.iter_rules():
-        print(f"App: {rule.rule} -> {rule.endpoint}")
+    for _rule in app.url_map.iter_rules():
+        pass
     
-    print("\n=== Flask-RESTX API Routes ===")
-    for rule in api.url_map.iter_rules():
-        print(f"API: {rule.rule} -> {rule.endpoint}")
+    for _rule in api.url_map.iter_rules():
+        pass
     
-    print("\n=== Starting test server ===")
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)  # Debug mode disabled for security 
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)  # Debug mode disabled for security

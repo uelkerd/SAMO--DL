@@ -13,7 +13,7 @@ import json
 import warnings
 import subprocess
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings('ignore')
@@ -40,26 +40,26 @@ def setup_environment():
     
     # Step 1: Clean slate - remove conflicting packages
     subprocess.run([
-        "pip", "uninstall", "torch", "torchvision", "torchaudio", 
+        "pip", "uninstall", "torch", "torchvision", "torchaudio",
         "transformers", "datasets", "-y"
-    ], capture_output=True)
+    ], check=False, capture_output=True)
     
     # Step 2: Install PyTorch with compatible CUDA version
     subprocess.run([
         "pip", "install", "torch==2.1.0", "torchvision==0.16.0", "torchaudio==2.1.0",
         "--index-url", "https://download.pytorch.org/whl/cu118", "--no-cache-dir"
-    ])
+    ], check=False)
     
     # Step 3: Install Transformers with compatible version
     subprocess.run([
         "pip", "install", "transformers==4.30.0", "datasets==2.13.0", "--no-cache-dir"
-    ])
+    ], check=False)
     
     # Step 4: Install additional dependencies
     subprocess.run([
-        "pip", "install", "evaluate", "scikit-learn", "pandas", "numpy", 
+        "pip", "install", "evaluate", "scikit-learn", "pandas", "numpy",
         "matplotlib", "seaborn", "accelerate", "wandb", "--no-cache-dir"
-    ])
+    ], check=False)
     
     print("✅ Dependencies installed successfully")
     return is_colab
@@ -84,7 +84,6 @@ def verify_installation():
             print("⚠️ No GPU available. Training will be slow on CPU.")
         
         # Test critical imports
-        from transformers import AutoModel, AutoTokenizer
         print("  ✅ Transformers imports successful")
         
         return True
@@ -101,7 +100,7 @@ def setup_repository():
         """Execute command with error handling."""
         print(f"🔄 {description}...")
         try:
-            result = subprocess.run(command, shell=True, capture_output=True, text=True)
+            result = subprocess.run(command, check=False, shell=True, capture_output=True, text=True)
             if result.returncode == 0:
                 print(f"  ✅ {description} completed")
                 return True
@@ -140,7 +139,7 @@ def safe_load_dataset(dataset_name: str, config: Optional[str] = None, split: Op
 def safe_load_json(file_path: str):
     """Safely load JSON file with error handling."""
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path) as f:
             data = json.load(f)
         print(f"✅ Successfully loaded {file_path}")
         return data
@@ -220,7 +219,6 @@ class FocalLoss:
     """Focal Loss for addressing class imbalance in emotion detection."""
     
     def __init__(self, alpha=1, gamma=2, reduction='mean'):
-        import torch.nn as nn
         import torch.nn.functional as F
         self.alpha = alpha
         self.gamma = gamma
@@ -243,7 +241,7 @@ class DomainAdaptedEmotionClassifier:
     """BERT-based emotion classifier with domain adaptation capabilities."""
     
     def __init__(self, model_name="bert-base-uncased", num_labels=None, dropout=0.3):
-        import torch.nn as nn
+        from torch import nn
         from transformers import AutoModel
         
         # ROBUST: Validate num_labels
@@ -307,7 +305,6 @@ def safe_model_initialization(model_name: str, num_labels: int, device: str):
         model = DomainAdaptedEmotionClassifier(model_name=model_name, num_labels=num_labels)
         
         # Move to device
-        import torch
         model = model.to(device)
         print(f"✅ Model moved to {device}")
         
@@ -327,7 +324,7 @@ def main():
     print("=" * 70)
     
     # Step 1: Setup environment
-    is_colab = setup_environment()
+    setup_environment()
     
     # Step 2: Verify installation
     if not verify_installation():
@@ -346,7 +343,7 @@ def main():
     
     # Step 5: Initialize model (example)
     import torch
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     # This would be called when we have the label encoder ready
     # model, tokenizer = safe_model_initialization("bert-base-uncased", num_labels, device)
@@ -360,4 +357,4 @@ def main():
     print("  4. Evaluate and save results")
 
 if __name__ == "__main__":
-    main() 
+    main()

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-🚀 SECURE EMOTION DETECTION API FOR CLOUD RUN
+"""🚀 SECURE EMOTION DETECTION API FOR CLOUD RUN.
 ============================================
 Production-ready Flask API with comprehensive security features and Swagger documentation.
 """
@@ -23,7 +22,6 @@ from rate_limiter import rate_limit
 # Import shared model utilities
 from model_utils import (
     ensure_model_loaded, predict_emotions, get_model_status,
-    validate_text_input,
 )
 
 # Import T5 and Whisper models
@@ -31,34 +29,39 @@ T5_AVAILABLE = False
 WHISPER_AVAILABLE = False
 
 # Set up logger for import errors
-import_logger = logging.getLogger(__name__)
+# Configure logging for Cloud Run
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 try:
     from src.models.summarization.t5_summarizer import create_t5_summarizer
     T5_AVAILABLE = True
 except ImportError as e:
-    import_logger.warning(f"T5 summarization not available: {e}")
+    logger.warning(f"T5 summarization not available: {e}")
     T5_AVAILABLE = False
 
 try:
     from src.models.voice_processing.whisper_transcriber import create_whisper_transcriber
     WHISPER_AVAILABLE = True
 except ImportError as e:
-    import_logger.warning(f"Whisper transcription not available: {e}")
+    logger.warning(f"Whisper transcription not available: {e}")
     WHISPER_AVAILABLE = False
 
 # Temporary file cleanup utility
-def cleanup_temp_file(file_path):
-    """Safely delete temporary file with error logging"""
+def cleanup_temp_file(file_path) -> None:
+    """Safely delete temporary file with error logging."""
     try:
         if file_path and os.path.exists(file_path):
             os.remove(file_path)
             logger.debug(f"Successfully deleted temporary file: {file_path}")
-    except Exception as exc:
-        logger.error(f"Failed to delete temporary file {file_path}: {exc}")
+    except OSError:
+        logger.exception("Failed to delete temporary file %s", file_path)
 
 def normalize_emotion_results(raw_emotion):
-    """Convert raw emotion prediction results to normalized format"""
+    """Convert raw emotion prediction results to normalized format."""
     if not raw_emotion or 'emotions' not in raw_emotion:
         return {
             'emotions': {'neutral': 1.0},
@@ -82,7 +85,7 @@ def normalize_emotion_results(raw_emotion):
         emotion_dict[emotion['emotion']] = emotion['confidence']
 
     # Get primary emotion (highest confidence)
-    primary_emotion = emotions[0]['emotion'] if emotions else 'neutral'
+    primary_emotion = max(emotions, key=lambda e: e['confidence'])['emotion'] if emotions else 'neutral'
     confidence = raw_emotion.get('confidence', 0.0)
 
     # Determine emotional intensity
@@ -107,10 +110,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Set up logger for import error handling
-import_logger = logging.getLogger(__name__)
-
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = MAX_AUDIO_FILE_SIZE_MB * 1024 * 1024
 
 # Add security headers
 add_security_headers(app)
@@ -119,8 +120,8 @@ add_security_headers(app)
 t5_summarizer = None
 whisper_transcriber = None
 
-def initialize_advanced_models():
-    """Initialize T5 and Whisper models if available (only if not already loaded)"""
+def initialize_advanced_models() -> None:
+    """Initialize T5 and Whisper models if available (only if not already loaded)."""
     global t5_summarizer, whisper_transcriber, T5_AVAILABLE, WHISPER_AVAILABLE
 
     # Initialize T5 model
@@ -129,8 +130,8 @@ def initialize_advanced_models():
             logger.info("Loading T5 summarization model (fallback)...")
             t5_summarizer = create_t5_summarizer("t5-small")
             logger.info("✅ T5 summarization model loaded")
-        except Exception as e:
-            logger.error(f"❌ Failed to load T5 summarizer: {e}")
+        except Exception:
+            logger.exception("❌ Failed to load T5 summarizer")
             T5_AVAILABLE = False
 
     # Initialize Whisper model
@@ -139,12 +140,12 @@ def initialize_advanced_models():
             logger.info("Loading Whisper transcription model (fallback)...")
             whisper_transcriber = create_whisper_transcriber("base")
             logger.info("✅ Whisper transcription model loaded")
-        except Exception as e:
-            logger.error(f"❌ Failed to load Whisper transcriber: {e}")
+        except Exception:
+            logger.exception("❌ Failed to load Whisper transcriber")
             WHISPER_AVAILABLE = False
 
-def load_all_models():
-    """Consolidated model loading function for all AI models"""
+def load_all_models() -> None:
+    """Consolidated model loading function for all AI models."""
     global t5_summarizer, whisper_transcriber, T5_AVAILABLE, WHISPER_AVAILABLE
 
     logger.info("🔄 Loading all AI models...")
@@ -179,13 +180,13 @@ def load_all_models():
 
     logger.info("✅ All available models loaded successfully")
 
-# Initialize advanced models at startup
-initialize_advanced_models()
+# Load all models at startup
+load_all_models()
 
 # Register root endpoint BEFORE Flask-RESTX initialization to avoid conflicts
 @app.route('/')
 def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX's root
-    """Get API status and information"""
+    """Get API status and information."""
     try:
         logger.info(f"Root endpoint accessed from {request.remote_addr}")
         return jsonify({
@@ -197,7 +198,7 @@ def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX'
             'timestamp': time.time()
         })
     except Exception as e:
-        logger.error(f"Root endpoint error for {request.remote_addr}: {str(e)}")
+        logger.error(f"Root endpoint error for {request.remote_addr}: {e!s}")
         return create_error_response('Internal server error', 500)
 
 # Initialize Flask-RESTX API without Swagger to avoid 500 errors
@@ -219,8 +220,8 @@ api = Api(
 )
 
 # Create namespaces for better organization
-main_ns = Namespace('api', description='Main API operations')  # Removed leading slash to avoid double slashes
-admin_ns = Namespace('/admin', description='Admin operations', authorizations={
+main_ns = Namespace('api', description='Main API operations')
+admin_ns = Namespace('admin', description='Admin operations', authorizations={
     'apikey': {
         'type': 'apiKey',
         'in': 'header',
@@ -287,7 +288,7 @@ model_lock = threading.Lock()
 EMOTION_MAPPING = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
 
 def require_api_key(f):
-    """Decorator to require API key via X-API-Key header"""
+    """Decorator to require API key via X-API-Key header."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         api_key = request.headers.get('X-API-Key')
@@ -298,13 +299,13 @@ def require_api_key(f):
     return decorated_function
 
 def verify_api_key(api_key: str) -> bool:
-    """Verify API key using constant-time comparison"""
+    """Verify API key using constant-time comparison."""
     if not api_key:
         return False
     return hmac.compare_digest(api_key, ADMIN_API_KEY)
 
 def sanitize_input(text: str) -> str:
-    """Sanitize input text"""
+    """Sanitize input text."""
     if not isinstance(text, str):
         raise ValueError("Input must be a string")
 
@@ -319,8 +320,8 @@ def sanitize_input(text: str) -> str:
 
     return text.strip()
 
-def load_model():
-    """Load the emotion detection model using shared utilities"""
+def load_model() -> None:
+    """Load the emotion detection model using shared utilities."""
     # Use the shared model loading function
     success = ensure_model_loaded()
     if not success:
@@ -328,7 +329,7 @@ def load_model():
         raise RuntimeError("Model loading failed - check logs for details")
 
 def predict_emotion(text: str) -> dict:
-    """Predict emotion for given text using shared utilities"""
+    """Predict emotion for given text using shared utilities."""
     # Use shared prediction function
     result = predict_emotions(text)
 
@@ -338,12 +339,12 @@ def predict_emotion(text: str) -> dict:
     return result
 
 def check_model_loaded():
-    """Ensure model is loaded before processing requests"""
+    """Ensure model is loaded before processing requests."""
     # Use shared model loading function
     return ensure_model_loaded()
 
 def create_error_response(error_message: str, status_code: int):
-    """Create a properly formatted error response for Flask-RESTX"""
+    """Create a properly formatted error response for Flask-RESTX."""
     error_response = {
         'error': error_message,
         'status_code': status_code,
@@ -353,18 +354,18 @@ def create_error_response(error_message: str, status_code: int):
     return error_response, status_code
 
 def handle_rate_limit_exceeded():
-    """Handle rate limit exceeded - return proper error response"""
+    """Handle rate limit exceeded - return proper error response."""
     logger.warning(f"Rate limit exceeded for {request.remote_addr}")
     return create_error_response('Rate limit exceeded - too many requests', 429)
 
-def log_rate_limit_info():
-    """Log rate limiting information for debugging"""
+def log_rate_limit_info() -> None:
+    """Log rate limiting information for debugging."""
     logger.debug(f"Rate limiting configured: {RATE_LIMIT_PER_MINUTE} requests per minute")
     logger.debug(f"Current request from: {request.remote_addr}")
 
 @app.before_request
-def before_request():
-    """Add request ID and timing to all requests"""
+def before_request() -> None:
+    """Add request ID and timing to all requests."""
     g.start_time = time.time()
     g.request_id = str(uuid.uuid4())
     
@@ -377,13 +378,14 @@ def before_request():
     logger.info(f"📥 Request: {request.method} {request.path} from {request.remote_addr} (ID: {g.request_id})")
     
     # Log request headers for debugging (excluding sensitive ones)
-    headers_to_log = {k: v for k, v in request.headers.items() 
+    headers_to_log = {k: v for k, v in request.headers.items()
                       if k.lower() not in ['authorization', 'x-api-key', 'cookie']}
     logger.debug(f"📋 Request headers: {headers_to_log}")
 
 @app.after_request
 def after_request(response):
-    """Add request tracking headers"""
+    """Add request tracking headers."""
+    duration = 0.0
     if hasattr(g, 'start_time'):
         duration = time.time() - g.start_time
         response.headers['X-Request-Duration'] = str(duration)
@@ -391,8 +393,9 @@ def after_request(response):
         response.headers['X-Request-ID'] = g.request_id
     
     # Log response for debugging
+    summary = getattr(request, 'summary', None)
     logger.info(f"📤 Response: {response.status_code} for {request.method} {request.path} "
-                f"from {request.remote_addr} (ID: {g.request_id}, Duration: {duration:.3f}s)")
+                f"from {request.remote_addr} (ID: {g.request_id}, Duration: {duration:.3f}s, Summary: {summary if summary else 'None'})")
     
     return response
 
@@ -405,7 +408,7 @@ class Health(Resource):
     @api.response(503, 'Service Unavailable')
     @api.response(500, 'Internal Server Error')
     def get(self):
-        """Get API health status"""
+        """Get API health status."""
         try:
             logger.info(f"Health check from {request.remote_addr}")
             model_status = check_model_loaded()
@@ -424,7 +427,7 @@ class Health(Resource):
                 return create_error_response('Service unavailable - model not ready', 503)
                 
         except Exception as e:
-            logger.error(f"Health check error for {request.remote_addr}: {str(e)}")
+            logger.error(f"Health check error for {request.remote_addr}: {e!s}")
             return create_error_response('Internal server error', 500)
 
 @main_ns.route('/predict')
@@ -439,7 +442,7 @@ class Predict(Resource):
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
-        """Predict emotion for a single text input"""
+        """Predict emotion for a single text input."""
         try:
             # Log rate limiting info for debugging
             log_rate_limit_info()
@@ -459,7 +462,7 @@ class Predict(Resource):
             try:
                 text = sanitize_input(text)
             except ValueError as e:
-                logger.warning(f"Input sanitization failed for {request.remote_addr}: {str(e)}")
+                logger.warning(f"Input sanitization failed for {request.remote_addr}: {e!s}")
                 return create_error_response(str(e), 400)
 
             # Ensure model is loaded
@@ -473,7 +476,7 @@ class Predict(Resource):
             return result
 
         except Exception as e:
-            logger.error(f"Prediction error for {request.remote_addr}: {str(e)}")
+            logger.error(f"Prediction error for {request.remote_addr}: {e!s}")
             return create_error_response('Internal server error', 500)
 
 @main_ns.route('/predict_batch')
@@ -488,7 +491,7 @@ class PredictBatch(Resource):
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
-        """Predict emotions for multiple text inputs"""
+        """Predict emotions for multiple text inputs."""
         try:
             # Log rate limiting info for debugging
             log_rate_limit_info()
@@ -525,13 +528,13 @@ class PredictBatch(Resource):
                     result = predict_emotion(text)
                     results.append(result)
                 except Exception as e:
-                    logger.warning(f"Failed to process text in batch from {request.remote_addr}: {str(e)}")
+                    logger.warning(f"Failed to process text in batch from {request.remote_addr}: {e!s}")
                     continue
 
             return {'results': results}
 
         except Exception as e:
-            logger.error(f"Batch prediction error for {request.remote_addr}: {str(e)}")
+            logger.error(f"Batch prediction error for {request.remote_addr}: {e!s}")
             return create_error_response('Internal server error', 500)
 
 @main_ns.route('/emotions')
@@ -540,7 +543,7 @@ class Emotions(Resource):
     @api.response(200, 'Success')
     @api.response(500, 'Internal Server Error')
     def get(self):
-        """Get list of supported emotions"""
+        """Get list of supported emotions."""
         try:
             logger.info(f"Emotions list requested from {request.remote_addr}")
             return {
@@ -549,7 +552,7 @@ class Emotions(Resource):
                 'timestamp': time.time()
             }
         except Exception as e:
-            logger.error(f"Emotions endpoint error for {request.remote_addr}: {str(e)}")
+            logger.error(f"Emotions endpoint error for {request.remote_addr}: {e!s}")
             return create_error_response('Internal server error', 500)
 
 # Admin endpoints
@@ -561,14 +564,14 @@ class ModelStatus(Resource):
     @api.response(500, 'Internal Server Error')
     @require_api_key
     def get(self):
-        """Get detailed model status (admin only)"""
+        """Get detailed model status (admin only)."""
         try:
             # Get model status from shared utilities
             logger.info(f"Admin model status request from {request.remote_addr}")
             status = get_model_status()
             return status
         except Exception as e:
-            logger.error(f"Model status error for {request.remote_addr}: {str(e)}")
+            logger.error(f"Model status error for {request.remote_addr}: {e!s}")
             return create_error_response('Internal server error', 500)
 
 @admin_ns.route('/security_status')
@@ -579,7 +582,7 @@ class SecurityStatus(Resource):
     @api.response(500, 'Internal Server Error')
     @require_api_key
     def get(self):
-        """Get security configuration status (admin only)"""
+        """Get security configuration status (admin only)."""
         try:
             logger.info(f"Admin security status request from {request.remote_addr}")
             return {
@@ -591,33 +594,33 @@ class SecurityStatus(Resource):
                 'timestamp': time.time()
             }
         except Exception as e:
-            logger.error(f"Security status error for {request.remote_addr}: {str(e)}")
+            logger.error(f"Security status error for {request.remote_addr}: {e!s}")
             return create_error_response('Internal server error', 500)
 
 # Error handlers for Flask-RESTX - using direct registration due to decorator compatibility issue
 def rate_limit_exceeded(error):
-    """Handle rate limit exceeded errors"""
+    """Handle rate limit exceeded errors."""
     logger.warning(f"Rate limit exceeded for {request.remote_addr}")
     return create_error_response('Rate limit exceeded - too many requests', 429)
 
 def internal_error(error):
-    """Handle internal server errors"""
-    logger.error(f"Internal server error for {request.remote_addr}: {str(error)}")
+    """Handle internal server errors."""
+    logger.error(f"Internal server error for {request.remote_addr}: {error!s}")
     return create_error_response('Internal server error', 500)
 
 def not_found(error):
-    """Handle not found errors"""
+    """Handle not found errors."""
     logger.warning(f"Endpoint not found for {request.remote_addr}: {request.url}")
     return create_error_response('Endpoint not found', 404)
 
 def method_not_allowed(error):
-    """Handle method not allowed errors"""
+    """Handle method not allowed errors."""
     logger.warning(f"Method not allowed for {request.remote_addr}: {request.method} {request.url}")
     return create_error_response('Method not allowed', 405)
 
 def handle_unexpected_error(error):
-    """Handle any unexpected errors"""
-    logger.error(f"Unexpected error for {request.remote_addr}: {str(error)}")
+    """Handle any unexpected errors."""
+    logger.error(f"Unexpected error for {request.remote_addr}: {error!s}")
     return create_error_response('An unexpected error occurred', 500)
 
 # Register error handlers directly
@@ -629,136 +632,13 @@ api.error_handlers[Exception] = handle_unexpected_error
 
 # ===== ADVANCED ENDPOINTS: Summarization and Transcription =====
 
-# Simple functional endpoint for testing
-@app.route('/summarize', methods=['POST'])
-@rate_limit()
-@require_api_key
-def summarize_text():
-    """Simple functional endpoint for T5 summarization"""
-    logger.info("📥 Functional summarization endpoint called")
-
-    if not T5_AVAILABLE or t5_summarizer is None:
-        logger.error("T5 summarization service unavailable")
-        return jsonify({"error": "Text summarization service unavailable"}), 503
-
-    start_time = time.time()
-    data = request.get_json()
-    logger.info(f"Request data: {data}")
-
-    if not data or 'text' not in data:
-        return jsonify({"error": "Text field is required"}), 400
-
-    text = data['text'].strip()
-    max_length = data.get('max_length', 150)
-    min_length = data.get('min_length', 30)
-    logger.info(f"Processing text: {len(text)} chars, max_length: {max_length}")
-
-    if not text:
-        return jsonify({"error": "Text cannot be empty"}), 400
-
-    if len(text) > MAX_TEXT_LENGTH:
-        return jsonify({"error": f"Text too long (max {MAX_TEXT_LENGTH} characters)"}), 400
-
-    try:
-        logger.info("🔄 Starting T5 summarization...")
-        summary = t5_summarizer.generate_summary(
-            text, max_length=max_length, min_length=min_length
-        )
-        logger.info(f"✅ T5 summarization completed: {summary[:100] if summary else 'None'}...")
-
-        original_length = len(text.split())
-        summary_length = len(summary.split()) if summary else 0
-        compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
-
-        result = {
-            'summary': summary,
-            'original_length': original_length,
-            'summary_length': summary_length,
-            'compression_ratio': compression_ratio,
-            'processing_time': time.time() - start_time
-        }
-        logger.info(f"📤 Summarization result: {result}")
-        return jsonify(result)
-
-    except Exception as e:
-        logger.error(f"❌ Summarization failed: {e}")
-        import traceback
-        logger.error(f"Traceback: {traceback.format_exc()}")
-        return jsonify({"error": f"Summarization failed: {str(e)}"}), 500
 
 
-# Simple functional endpoint for Whisper transcription
-@app.route('/transcribe', methods=['POST'])
-@rate_limit()
-@require_api_key
-def transcribe_audio():
-    """Simple functional endpoint for Whisper transcription"""
-    logger.info("📥 Functional transcription endpoint called")
-
-    if not WHISPER_AVAILABLE or whisper_transcriber is None:
-        logger.error("Whisper transcription service unavailable")
-        return jsonify({"error": "Voice transcription service unavailable"}), 503
-
-    start_time = time.time()
-
-    # Check if audio file is provided
-    if 'audio' not in request.files:
-        return jsonify({"error": "Audio file is required"}), 400
-
-    audio_file = request.files['audio']
-    if audio_file.filename == '':
-        return jsonify({"error": "No audio file selected"}), 400
-
-    # Get optional parameters
-    language = request.form.get('language', None)
-    model_size = request.form.get('model_size', 'base')
-
-    logger.info(f"Processing audio file: {audio_file.filename}, language: {language}")
-
-    try:
-        # Save uploaded file temporarily
-        import tempfile
-        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(audio_file.filename)[1]) as tmp_file:
-            audio_file.save(tmp_file.name)
-            temp_path = tmp_file.name
-
-        logger.info("🔄 Starting Whisper transcription...")
-
-        # Transcribe the audio
-        result = whisper_transcriber.transcribe(temp_path, language=language)
-
-        # Clean up temporary file
-        cleanup_temp_file(temp_path)
-        logger.info(f"✅ Whisper transcription completed: {result.text[:100] if result and result.text else 'None'}...")
-
-        response_data = {
-            'transcription': result.text if result else '',
-            'language': result.language if result else 'unknown',
-            'confidence': result.confidence if result else 0.0,
-            'duration': result.duration if result else 0.0,
-            'word_count': result.word_count if result else 0,
-            'speaking_rate': result.speaking_rate if result else 0.0,
-            'audio_quality': result.audio_quality if result else 'unknown',
-            'processing_time': result.processing_time if result else 0.0
-        }
-
-        logger.info(f"📤 Transcription result: {response_data}")
-        return jsonify(response_data)
-
-    except Exception as e:
-        logger.error(f"❌ Transcription failed: {e}")
-        import traceback
-        logger.error(f"Traceback: {traceback.format_exc()}")
-
-        # Clean up temporary file if it exists
-        if 'temp_path' in locals():
-            cleanup_temp_file(temp_path)
-        return jsonify({"error": f"Transcription failed: {str(e)}"}), 500
 
 
 @api.route('/summarize')
 class Summarize(Resource):
-    """Text summarization endpoint"""
+    """Text summarization endpoint."""
 
     @api.doc('summarize_text')
     @api.expect(api.model('SummarizeRequest', {
@@ -774,10 +654,10 @@ class Summarize(Resource):
     #     'compression_ratio': fields.Float(description='Compression ratio'),
     #     'processing_time': fields.Float(description='Processing time in seconds')
     # }))
-    @rate_limit
+    @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
-        """Summarize text using T5 model"""
+        """Summarize text using T5 model."""
         logger.info("📥 Summarization request received")
         logger.info(f"T5_AVAILABLE: {T5_AVAILABLE}, t5_summarizer: {t5_summarizer is not None}")
 
@@ -816,7 +696,7 @@ class Summarize(Resource):
             original_length = len(text.split())
             summary_length = len(summary.split()) if summary else 0
             compression_ratio = (
-                1 - (summary_length / original_length) 
+                1 - (summary_length / original_length)
                 if original_length > 0 else 0
             )
 
@@ -837,7 +717,7 @@ class Summarize(Resource):
 
 @api.route('/transcribe')
 class Transcribe(Resource):
-    """Voice transcription endpoint"""
+    """Voice transcription endpoint."""
 
     @api.doc('transcribe_audio')
     @api.expect(api.parser()
@@ -846,7 +726,7 @@ class Transcribe(Resource):
             help='Audio file to transcribe (MP3, WAV, M4A)'
         )
         .add_argument(
-            'language', type=str, location='form', 
+            'language', type=str, location='form',
             help='Language code (optional)'
         )
         .add_argument(
@@ -862,10 +742,10 @@ class Transcribe(Resource):
         'word_count': fields.Integer(description='Number of words'),
         'speaking_rate': fields.Float(description='Words per minute')
     }))
-    @rate_limit
+    @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
-        """Transcribe audio file to text using Whisper"""
+        """Transcribe audio file to text using Whisper."""
         if not WHISPER_AVAILABLE or whisper_transcriber is None:
             api.abort(503, "Voice transcription service unavailable")
 
@@ -879,16 +759,19 @@ class Transcribe(Resource):
         if not audio_file.filename:
             api.abort(400, "No audio file selected")
 
-        # Validate file type
+        # Validate file type with logging
         allowed_extensions = {'mp3', 'wav', 'm4a', 'aac', 'ogg', 'flac'}
         if '.' not in audio_file.filename:
-            api.abort(400, "File must have an extension")
+            logger.warning(f"No extension in filename {audio_file.filename}, rejecting")
+            api.abort(400, "File must have a valid audio extension")
         ext = audio_file.filename.rsplit('.', 1)[1].lower()
         if ext not in allowed_extensions:
+            logger.warning(f"Unsupported extension {ext} in filename {audio_file.filename}, rejecting")
             api.abort(
-                400, 
-                f"Unsupported file type. Allowed: {', '.join(allowed_extensions)}"
+                400,
+                f"Unsupported file type: .{ext}. Allowed: {', '.join(allowed_extensions)}"
             )
+        logger.info(f"File validation passed for {audio_file.filename} (ext: {ext})")
 
         # Check file size (max 45MB)
         audio_file.seek(0, 2)  # Seek to end
@@ -896,21 +779,31 @@ class Transcribe(Resource):
         audio_file.seek(0)  # Reset to beginning
         if file_size > MAX_AUDIO_FILE_SIZE_MB * 1024 * 1024:
             api.abort(400, f"File too large (max {MAX_AUDIO_FILE_SIZE_MB}MB)")
-
+    
         try:
-            # Save uploaded file temporarily
+            # Save uploaded file temporarily with validated extension
             import tempfile
+            allowed_extensions = {'mp3','wav','m4a','aac','ogg','flac'}
+            if '.' not in audio_file.filename:
+                ext = 'wav'
+                logger.warning(f"No extension in filename {audio_file.filename}, defaulting to .wav")
+            else:
+                ext = audio_file.filename.rsplit('.', 1)[1].lower()
+                if ext not in allowed_extensions:
+                    ext = 'wav'
+                    logger.warning(f"Invalid extension {ext} in filename {audio_file.filename}, defaulting to .wav")
+            logger.info(f"Using validated extension: .{ext} for temp file")
             with tempfile.NamedTemporaryFile(
                 delete=False, suffix=f'.{ext}'
             ) as temp_file:
                 audio_file.save(temp_file.name)
                 temp_path = temp_file.name
-
+    
             try:
                 # Transcribe
                 language = request.form.get('language')
                 result = whisper_transcriber.transcribe(temp_path, language=language)
-
+    
                 # Extract result data
                 transcription_text = (
                     result.text if hasattr(result, 'text') else str(result)
@@ -920,7 +813,7 @@ class Transcribe(Resource):
                 duration = getattr(result, 'duration', 0.0)
                 word_count = len(transcription_text.split())
                 speaking_rate = word_count / (duration / 60) if duration > 0 else 0
-
+    
                 return {
                     'text': transcription_text,
                     'language': language_detected,
@@ -930,41 +823,127 @@ class Transcribe(Resource):
                     'word_count': word_count,
                     'speaking_rate': speaking_rate
                 }
-
+    
             finally:
                 # Cleanup temporary file
                 cleanup_temp_file(temp_path)
-
-        except Exception as e:
-            logger.error(f"Transcription failed: {e}")
+    
+        except (OSError, RuntimeError, ValueError) as e:
+            logger.exception(f"Transcription failed: {e}")
             api.abort(500, "Transcription failed")
 
 
 @api.route('/analyze/complete')
 class CompleteAnalysis(Resource):
-    """Complete analysis endpoint combining all AI models"""
+    """Complete analysis endpoint combining all AI models."""
+
+    def _process_transcription(self, audio_file):
+        """Process audio transcription if provided."""
+        logger.info("🔄 Processing audio transcription...")
+        import tempfile
+        allowed_extensions = {'mp3','wav','m4a','aac','ogg','flac'}
+        if '.' not in audio_file.filename:
+            ext = 'wav'
+            logger.warning(f"No extension in filename {audio_file.filename}, defaulting to .wav")
+        else:
+            ext = audio_file.filename.rsplit('.', 1)[1].lower()
+            if ext not in allowed_extensions:
+                ext = 'wav'
+                logger.warning(f"Invalid extension {ext} in filename {audio_file.filename}, defaulting to .wav")
+        logger.info(f"Using validated extension: .{ext} for temp file in complete analysis")
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=f'.{ext}'
+        ) as temp_file:
+            audio_file.save(temp_file.name)
+            temp_path = temp_file.name
+
+        try:
+            language = request.form.get('language')
+            transcription_result = whisper_transcriber.transcribe(temp_path, language=language)
+            text_to_analyze = (
+                transcription_result.text
+                if hasattr(transcription_result, 'text')
+                else str(transcription_result)
+            )
+            logger.info(f"✅ Transcription completed: {text_to_analyze[:100]}...")
+            return {
+                'text': text_to_analyze,
+                'language': getattr(transcription_result, 'language', 'en'),
+                'confidence': getattr(transcription_result, 'confidence', 0.95),
+                'duration': getattr(transcription_result, 'duration', 0.0)
+            }
+        finally:
+            cleanup_temp_file(temp_path)
+
+    def _process_emotion(self, text_to_analyze):
+        """Process emotion analysis."""
+        logger.info("🔄 Processing emotion analysis...")
+        try:
+            raw_emotion = predict_emotions(text_to_analyze)
+            emotion_result = normalize_emotion_results(raw_emotion)
+            logger.info(f"✅ Emotion analysis: {emotion_result['primary_emotion']} ({emotion_result['confidence']:.2f})")
+            return emotion_result
+        except Exception as e:
+            logger.warning(f"Emotion analysis failed: {e}")
+            return {
+                'emotions': {'neutral': 1.0},
+                'primary_emotion': 'neutral',
+                'confidence': 1.0,
+                'emotional_intensity': 'neutral'
+            }
+
+    def _process_summary(self, text_to_analyze, emotion_result, generate_summary):
+        """Process text summarization if requested."""
+        logger.info("🔄 Processing text summarization...")
+        summary_result = {}
+        if generate_summary and T5_AVAILABLE and t5_summarizer is not None:
+            try:
+                summary_text = t5_summarizer.generate_summary(text_to_analyze)
+                original_length = len(text_to_analyze.split())
+                summary_length = len(summary_text.split())
+                compression_ratio = (
+                    1 - (summary_length / original_length)
+                    if original_length > 0 else 0
+                )
+
+                # Determine emotional tone
+                tone = "neutral"
+                if emotion_result.get('primary_emotion') in [
+                    'joy', 'gratitude', 'excitement'
+                ]:
+                    tone = "positive"
+                elif emotion_result.get('primary_emotion') in [
+                    'sadness', 'anger', 'fear'
+                ]:
+                    tone = "negative"
+
+                summary_result = {
+                    'summary': summary_text,
+                    'compression_ratio': compression_ratio,
+                    'emotional_tone': tone
+                }
+                logger.info(f"✅ Summarization completed: {compression_ratio:.2f} ratio")
+            except Exception as e:
+                logger.warning(f"Summarization failed: {e}")
+        return summary_result
 
     @api.doc('analyze_complete')
     @api.expect(api.parser()
         .add_argument(
-            'text', type=str, location='form', 
+            'text', type=str, location='form',
             help='Text to analyze (optional if audio provided)'
         )
         .add_argument(
-            'audio', type=FileStorage, location='files', 
+            'audio', type=FileStorage, location='files',
             help='Audio file to transcribe (optional if text provided)'
         )
         .add_argument(
-            'language', type=str, location='form', 
+            'language', type=str, location='form',
             help='Language code for transcription'
         )
         .add_argument(
-            'generate_summary', type=bool, location='form', default=True, 
+            'generate_summary', type=bool, location='form', default=True,
             help='Whether to generate summary'
-        )
-        .add_argument(
-            'emotion_threshold', type=float, location='form', default=0.1, 
-            help='Emotion detection threshold'
         ))
     @api.marshal_with(api.model('CompleteAnalysisResponse', {
         'transcription': fields.Nested(api.model('TranscriptionData', {
@@ -987,10 +966,10 @@ class CompleteAnalysis(Resource):
         'processing_time': fields.Float(),
         'pipeline_status': fields.Raw()
     }))
-    @rate_limit
+    @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
-        """Complete analysis pipeline: transcription + emotion + summarization"""
+        """Complete analysis pipeline: transcription + emotion + summarization."""
         start_time = time.time()
         pipeline_status = {
             'emotion_detection': True,
@@ -1000,88 +979,24 @@ class CompleteAnalysis(Resource):
 
         text_to_analyze = request.form.get('text', '').strip()
         generate_summary = request.form.get('generate_summary', 'true').lower() == 'true'
-        emotion_threshold = float(request.form.get('emotion_threshold', 0.1))
 
         # Handle transcription if audio provided
+        transcription_data = None
         if 'audio' in request.files:
             audio_file = request.files['audio']
             if audio_file.filename:
-                # Use transcription endpoint logic
-                import tempfile
-
-                ext = audio_file.filename.rsplit('.', 1)[1].lower()
-                with tempfile.NamedTemporaryFile(
-                    delete=False, suffix=f'.{ext}'
-                ) as temp_file:
-                    audio_file.save(temp_file.name)
-                    temp_path = temp_file.name
-
-                try:
-                    language = request.form.get('language')
-                    transcription_result = whisper_transcriber.transcribe(temp_path, language=language)
-                    text_to_analyze = (
-                        transcription_result.text 
-                        if hasattr(transcription_result, 'text') 
-                        else str(transcription_result)
-                    )
-                finally:
-                    cleanup_temp_file(temp_path)
+                transcription_data = self._process_transcription(audio_file)
+                text_to_analyze = transcription_data['text']
 
         if not text_to_analyze:
             api.abort(400, "Either text or audio file must be provided")
 
-        # Emotion Analysis
-        emotion_result = {}
-        try:
-            raw_emotion = predict_emotions(text_to_analyze)
-            emotion_result = normalize_emotion_results(raw_emotion)
-        except Exception as e:
-            logger.warning(f"Emotion analysis failed: {e}")
-            emotion_result = {
-                'emotions': {'neutral': 1.0},
-                'primary_emotion': 'neutral',
-                'confidence': 1.0,
-                'emotional_intensity': 'neutral'
-            }
-
-        # Text Summarization
-        summary_result = {}
-        if generate_summary and T5_AVAILABLE and t5_summarizer is not None:
-            try:
-                summary_text = t5_summarizer.generate_summary(text_to_analyze)
-                original_length = len(text_to_analyze.split())
-                summary_length = len(summary_text.split())
-                compression_ratio = (
-                    1 - (summary_length / original_length) 
-                    if original_length > 0 else 0
-                )
-
-                # Determine emotional tone
-                tone = "neutral"
-                if emotion_result.get('primary_emotion') in [
-                    'joy', 'gratitude', 'excitement'
-                ]:
-                    tone = "positive"
-                elif emotion_result.get('primary_emotion') in [
-                    'sadness', 'anger', 'fear'
-                ]:
-                    tone = "negative"
-
-                summary_result = {
-                    'summary': summary_text,
-                    'compression_ratio': compression_ratio,
-                    'emotional_tone': tone
-                }
-            except Exception as e:
-                logger.warning(f"Summarization failed: {e}")
+        # Process emotion and summary sequentially
+        emotion_result = self._process_emotion(text_to_analyze)
+        summary_result = self._process_summary(text_to_analyze, emotion_result, generate_summary)
 
         return {
-            'transcription': {
-                'text': text_to_analyze,
-                'language': 'en',  # Default assumption
-                'confidence': 1.0 if 'audio' not in request.files else 0.95,
-                'duration': 0.0  # Would need audio metadata
-            } if 'audio' in request.files else None,
+            'transcription': transcription_data,
             'emotion_analysis': emotion_result,
             'summary': summary_result,
             'processing_time': time.time() - start_time,
@@ -1089,23 +1004,30 @@ class CompleteAnalysis(Resource):
         }
 
 
-def initialize_model():
-    """Initialize the emotion detection model"""
+def initialize_model() -> None:
+    """Initialize the emotion detection model."""
     try:
         logger.info("🚀 Initializing emotion detection API server...")
         logger.info(f"📊 Configuration: MAX_INPUT_LENGTH={MAX_INPUT_LENGTH}, RATE_LIMIT={RATE_LIMIT_PER_MINUTE}/min")
-        logger.info(f"🔐 Security: API key protection enabled, Admin API key configured")
+        logger.info("🔐 Security: API key protection enabled, Admin API key configured")
         logger.info(f"🌐 Server: Port {PORT}, Model path: {MODEL_PATH}")
         logger.info(f"🔄 Rate limiting: {RATE_LIMIT_PER_MINUTE} requests per minute")
 
         # Load all models using consolidated function
-        load_all_models()
+        if os.environ.get("PRELOAD_MODELS", "1") == "1":
+            try:
+                load_all_models()
+            except Exception as e:
+                logger.exception(f"Failed to preload models: {e}")
+                logger.info("Continuing without preloaded models")
+        else:
+            logger.info("Model preloading skipped (PRELOAD_MODELS=0)")
 
         logger.info("✅ Model initialization completed successfully")
         logger.info("🚀 API server ready to handle requests")
 
-    except Exception as e:
-        logger.error(f"❌ Failed to initialize API server: {str(e)}")
+    except Exception:
+        logger.exception("❌ Failed to initialize API server")
         raise
 
 # Initialize models immediately when module is imported
@@ -1114,8 +1036,8 @@ try:
     initialize_model()
     logger.info("✅ Models loaded successfully during module import")
     MODELS_LOADED_AT_STARTUP = True
-except Exception as e:
-    logger.error(f"❌ Failed to load models during module import: {e}")
+except Exception:
+    logger.exception("❌ Failed to load models during module import")
     # Continue anyway - models will be loaded on first request if startup fails
     logger.info("⚠️ Continuing without pre-loaded models - will load on first request")
     MODELS_LOADED_AT_STARTUP = False

@@ -3,7 +3,7 @@
 # Docker Build Monitor Script
 # Helps monitor and troubleshoot Docker builds
 
-set -e
+set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DOCKERFILE="${1:-deployment/docker/Dockerfile.optimized-secure}"
@@ -49,7 +49,7 @@ echo ""
 # Start build and capture start time
 START_TIME=$(date +%s)
 docker build --no-cache --progress=plain -t $IMAGE_NAME -f $DOCKERFILE . 2>&1 | tee build.log
-BUILD_EXIT_CODE=$?
+BUILD_EXIT_CODE=${PIPESTATUS[0]}
 
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME))

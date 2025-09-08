@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Data Pipeline for SAMO Deep Learning.
+"""Data Pipeline for SAMO Deep Learning.
 
 This module provides data processing pipelines for text and audio data,
 including preprocessing, feature extraction, and dataset management.
@@ -9,7 +8,7 @@ including preprocessing, feature extraction, and dataset management.
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, Optional, Union
 import pandas as pd
 from .feature_engineering import FeatureEngineer
 from .validation import DataValidator
@@ -180,8 +179,6 @@ class DataPipeline:
             return data_source
 
         if source_type == "db":
-            user_info = " for user {user_id}" if user_id else ""
-            limit_info = " (limit: {limit})" if limit else ""
             logger.info("Loading data from database{user_info}{limit_info}")
             return load_entries_from_db(limit=limit, user_id=user_id)
 
@@ -223,7 +220,7 @@ class DataPipeline:
         """
         Path(output_dir).mkdir(parents=True, exist_ok=True)
 
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
 
         featured_df.to_csv(
             Path(output_dir, "journal_features_{timestamp}.csv").as_posix(),

@@ -13,9 +13,9 @@ import tempfile
 import time
 import traceback
 import os
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from pathlib import Path
-from typing import Any, Dict, List, AsyncGenerator, Optional, Set, Tuple
+from typing import Any, Dict, List, AsyncGenerator, Set, Tuple
 import inspect
 from datetime import datetime, timezone
 from collections import defaultdict
@@ -43,6 +43,7 @@ from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_
 
 from .api_rate_limiter import add_rate_limiting
 from .security.jwt_manager import JWTManager, TokenPayload, TokenResponse
+import builtins
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -849,7 +850,7 @@ class VoiceTranscription(BaseModel):
 class CompleteJournalAnalysis(BaseModel):
     """Complete journal analysis combining all AI models."""
 
-    transcription: Optional[VoiceTranscription] = Field(
+    transcription: VoiceTranscription | None = Field(
         None, description="Voice transcription results"
     )
     emotion_analysis: EmotionAnalysis = Field(
@@ -1127,7 +1128,7 @@ class ChatMessage(BaseModel):
 class ChatResponse(BaseModel):
     """Chat response payload."""
     reply: str
-    summary: Optional[str] = None
+    summary: str | None = None
     meta: Dict[str, Any] = Field(default_factory=dict)
 
 
@@ -1149,7 +1150,7 @@ async def chat_http(
     """
     reply = f"You said: {message.text.strip()}"
 
-    summary_text: Optional[str] = None
+    summary_text: str | None = None
     if message.summarize:
         if text_summarizer is None:
             _ensure_summarizer_loaded()
@@ -1254,7 +1255,7 @@ async def chat_websocket(websocket: WebSocket, token: str = Query(None)) -> None
 )
 async def analyze_journal_entry(
     request: JournalEntryRequest,
-    x_api_key: Optional[str] = Header(
+    x_api_key: str | None = Header(
         None, description="API key for authentication"
     ),
 ) -> CompleteJournalAnalysis:
@@ -1367,7 +1368,7 @@ async def analyze_voice_journal(
     audio_file: UploadFile = File(
         ..., description="Audio file to transcribe and analyze"
     ),
-    language: Optional[str] = Form(
+    language: str | None = Form(
         None,
         description="Language code for transcription (auto-detect if not provided)"
     ),
@@ -1375,7 +1376,7 @@ async def analyze_voice_journal(
     emotion_threshold: float = Form(
         0.1, description="Threshold for emotion detection", ge=0, le=1
     ),
-    x_api_key: Optional[str] = Header(
+    x_api_key: str | None = Header(
         None, description="API key for authentication"
     ),
 ) -> CompleteJournalAnalysis:
@@ -1512,7 +1513,7 @@ async def analyze_voice_journal(
 )
 async def transcribe_voice(
     audio_file: UploadFile = File(..., description="Audio file to transcribe"),
-    language: Optional[str] = Form(
+    language: str | None = Form(
         None, description="Language code (auto-detect if not provided)"
     ),
     model_size: str = Form(
@@ -1616,7 +1617,7 @@ async def transcribe_voice(
                 audio_quality,
             ) = _normalize_transcription_attrs(transcription_result)
 
-            processing_time = (time.time() - start_time) * 1000
+            (time.time() - start_time) * 1000
 
             return VoiceTranscription(
                 text=text_val,
@@ -1653,7 +1654,7 @@ async def batch_transcribe_voice(
     audio_files: List[UploadFile] = File(
         ..., description="Multiple audio files to transcribe"
     ),
-    language: Optional[str] = Form(
+    language: str | None = Form(
         None, description="Language code for all files"
     ),
     current_user: TokenPayload = Depends(get_current_user),
@@ -1677,10 +1678,7 @@ async def batch_transcribe_voice(
                 content = await audio_file.read()
                 # Allow empty/invalid content to be passed to mocked transcriber
                 # to exercise failure paths
-                if audio_file.filename:
-                    prefix = f"{Path(audio_file.filename).stem}_"
-                else:
-                    prefix = "file_"
+                prefix = f"{Path(audio_file.filename).stem}_" if audio_file.filename else "file_"
                 with tempfile.NamedTemporaryFile(
                     delete=False, suffix=".wav", prefix=prefix
                 ) as temp_file:
@@ -1795,15 +1793,12 @@ async def summarize_text(
         # Calculate metrics
         original_length = len(text.split())
         summary_length = len((summary_text or "").split())
-        if original_length > 0:
-            compression_ratio = 1 - (summary_length / original_length)
-        else:
-            compression_ratio = 0
+        compression_ratio = 1 - summary_length / original_length if original_length > 0 else 0
 
         # Determine emotional tone and key emotions from summary
         emotional_tone, key_emotions = _derive_emotion(summary_text or "")
 
-        processing_time = (time.time() - start_time) * 1000
+        (time.time() - start_time) * 1000
 
         return TextSummary(
             summary=summary_text or "",
@@ -1843,7 +1838,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
             return
 
     except Exception as e:
-        await websocket.close(code=4001, reason=f"Authentication failed: {str(e)}")
+        await websocket.close(code=4001, reason=f"Authentication failed: {e!s}")
         return
 
     await websocket.accept()
@@ -1878,7 +1873,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
 
         logger.info("WebSocket authenticated for user: %s", payload.username)
 
-    except Exception as exc:
+    except Exception:
         await websocket.send_json({
             "type": "error",
             "message": "Authentication failed"
@@ -1933,13 +1928,11 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
         logger.info("WebSocket client disconnected")
     except Exception as exc:
         logger.error("WebSocket error: %s", exc)
-        try:
+        with suppress(builtins.BaseException):
             await websocket.send_json({
                 "type": "error",
                 "message": "Internal server error"
             })
-        except:
-            pass
 
 # Monitoring and Analytics Endpoints
 @app.get(
@@ -2026,7 +2019,7 @@ async def detailed_health_check(
     else:
         try:
             # Test emotion detection
-            test_result = emotion_detector.predict("I am happy today")
+            emotion_detector.predict("I am happy today")
             model_checks["emotion_detection"] = {"status": "healthy", "test_passed": True}
         except Exception as exc:
             health_status = "degraded"
@@ -2040,7 +2033,7 @@ async def detailed_health_check(
     else:
         try:
             # Test text summarization
-            test_result = text_summarizer.summarize("This is a test text for summarization.")
+            text_summarizer.summarize("This is a test text for summarization.")
             model_checks["text_summarization"] = {"status": "healthy", "test_passed": True}
         except Exception as exc:
             health_status = "degraded"

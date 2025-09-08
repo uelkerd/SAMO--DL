@@ -7,7 +7,7 @@ import sys
 import json
 import pickle
 import torch
-import torch.nn as nn
+from torch import nn
 import pandas as pd
 from datasets import load_dataset
 from torch.utils.data import Dataset, DataLoader
@@ -54,7 +54,7 @@ def create_unified_label_encoder():
     
     # Load datasets
     go_emotions = load_dataset("go_emotions", "simplified")
-    with open('data/journal_test_dataset.json', 'r') as f:
+    with open('data/journal_test_dataset.json') as f:
         journal_entries = json.load(f)
     journal_df = pd.DataFrame(journal_entries)
     
@@ -67,10 +67,10 @@ def create_unified_label_encoder():
     journal_labels = set(journal_df['emotion'].unique())
     
     # Find common labels
-    common_labels = sorted(list(go_labels.intersection(journal_labels)))
+    common_labels = sorted(go_labels.intersection(journal_labels))
     if not common_labels:
         logger.warning("⚠️ No common labels found! Using all labels...")
-        common_labels = sorted(list(go_labels.union(journal_labels)))
+        common_labels = sorted(go_labels.union(journal_labels))
     
     logger.info(f"📊 Using {len(common_labels)} labels: {common_labels}")
     
@@ -103,7 +103,7 @@ def prepare_filtered_data(label_encoder, label_to_id):
     
     # Load datasets
     go_emotions = load_dataset("go_emotions", "simplified")
-    with open('data/journal_test_dataset.json', 'r') as f:
+    with open('data/journal_test_dataset.json') as f:
         journal_entries = json.load(f)
     journal_df = pd.DataFrame(journal_entries)
     
@@ -132,15 +132,9 @@ def prepare_filtered_data(label_encoder, label_to_id):
     logger.info(f"📊 Filtered Journal: {len(journal_texts)} samples")
     
     # Validate label ranges - FIX: Convert to integers for comparison
-    if go_labels:
-        go_label_range = (min(go_labels), max(go_labels))
-    else:
-        go_label_range = (0, 0)
+    go_label_range = (min(go_labels), max(go_labels)) if go_labels else (0, 0)
         
-    if journal_labels:
-        journal_label_range = (min(journal_labels), max(journal_labels))
-    else:
-        journal_label_range = (0, 0)
+    journal_label_range = (min(journal_labels), max(journal_labels)) if journal_labels else (0, 0)
         
     expected_range = (0, len(label_encoder.classes_) - 1)
     
@@ -149,11 +143,11 @@ def prepare_filtered_data(label_encoder, label_to_id):
     logger.info(f"📊 Expected range: {expected_range}")
     
     if go_label_range[0] < expected_range[0] or go_label_range[1] > expected_range[1]:
-        logger.error(f"❌ GoEmotions labels out of range!")
+        logger.error("❌ GoEmotions labels out of range!")
         return None, None, None, None
     
     if journal_label_range[0] < expected_range[0] or journal_label_range[1] > expected_range[1]:
-        logger.error(f"❌ Journal labels out of range!")
+        logger.error("❌ Journal labels out of range!")
         return None, None, None, None
     
     logger.info("✅ All labels within expected range")
@@ -252,7 +246,7 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
     
     # Create datasets
     go_dataset = SimpleEmotionDataset(go_texts, go_labels, tokenizer)
-    journal_dataset = SimpleEmotionDataset(journal_texts, journal_labels, tokenizer)
+    SimpleEmotionDataset(journal_texts, journal_labels, tokenizer)
     
     # Split journal data
     journal_train_texts, journal_val_texts, journal_train_labels, journal_val_labels = train_test_split(
@@ -446,4 +440,4 @@ def main():
 if __name__ == "__main__":
     success = main()
     if not success:
-        sys.exit(1) 
+        sys.exit(1)

@@ -36,7 +36,7 @@ def install_dependencies():
     # Core ML dependencies
     packages = [
         "torch>=2.1.0,<2.2.0",
-        "torchvision>=0.16.0,<0.17.0", 
+        "torchvision>=0.16.0,<0.17.0",
         "torchaudio>=2.1.0,<2.2.0",
         "transformers>=4.30.0,<5.0.0",
         "datasets>=2.10.0,<3.0.0",
@@ -65,7 +65,7 @@ def install_dependencies():
     for package in packages:
         try:
             logger.info(f"📦 Installing {package}...")
-            subprocess.run([sys.executable, "-m", "pip", "install", package], 
+            subprocess.run([sys.executable, "-m", "pip", "install", package],
                          check=True, capture_output=True, text=True)
             logger.info(f"✅ {package} installed successfully")
         except subprocess.CalledProcessError as e:
@@ -226,7 +226,7 @@ def run_ci_pipeline():
     try:
         result = subprocess.run(
             [sys.executable, "scripts/ci/run_full_ci_pipeline.py"],
-            capture_output=True,
+            check=False, capture_output=True,
             text=True,
             timeout=600  # 10 minute timeout
         )
@@ -288,4 +288,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

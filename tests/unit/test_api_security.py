@@ -83,7 +83,7 @@ class TestRateLimiter(unittest.TestCase):
         user_agent = "test-agent"
         
         # Make max concurrent requests
-        for i in range(3):
+        for _i in range(3):
             allowed, reason, meta = self.rate_limiter.allow_request(client_ip, user_agent)
             self.assertTrue(allowed)
         
@@ -100,7 +100,7 @@ class TestRateLimiter(unittest.TestCase):
         self.assertTrue(allowed)
         
         # Release remaining requests
-        for i in range(3):
+        for _i in range(3):
             self.rate_limiter.release_request(client_ip, user_agent)
     
     def test_ip_blacklist(self):
@@ -119,7 +119,7 @@ class TestRateLimiter(unittest.TestCase):
         user_agent = "test-agent"
         
         # Simulate rapid-fire requests
-        for i in range(11):  # More than 10 requests in 1 second
+        for _i in range(11):  # More than 10 requests in 1 second
             self.rate_limiter.request_history[self.rate_limiter._get_client_key(client_ip, user_agent)].append(time.time())
         
         # Next request should trigger abuse detection
@@ -133,7 +133,7 @@ class TestRateLimiter(unittest.TestCase):
         user_agent = "test-agent"
         
         # Consume all tokens and release them immediately
-        for i in range(5):
+        for _i in range(5):
             allowed, _, _ = self.rate_limiter.allow_request(client_ip, user_agent)
             self.assertTrue(allowed)
             self.rate_limiter.release_request(client_ip, user_agent)
@@ -320,7 +320,7 @@ class TestInputSanitizer(unittest.TestCase):
         # Construct a deeply nested JSON object
         max_depth = getattr(self.sanitizer, "max_depth", 10)
         deep_data = current = {}
-        for i in range(max_depth + 5):
+        for _i in range(max_depth + 5):
             current["nested"] = {}
             current = current["nested"]
         # Add a malicious value at the deepest level
@@ -441,7 +441,7 @@ class TestSecurityIntegration(unittest.TestCase):
         user_agent = "test-agent"
         
         # Simulate abuse
-        for i in range(15):  # Trigger abuse detection
+        for _i in range(15):  # Trigger abuse detection
             self.rate_limiter.request_history[self.rate_limiter._get_client_key(client_ip, user_agent)].append(time.time())
         
         # Next request should be blocked
@@ -455,4 +455,4 @@ class TestSecurityIntegration(unittest.TestCase):
 
 if __name__ == '__main__':
     # Run tests
-    unittest.main(verbosity=2) 
+    unittest.main(verbosity=2)

@@ -121,7 +121,7 @@ class TestSandboxExecutor(unittest.TestCase):
         
         # Create multiple threads
         threads = []
-        for i in range(5):
+        for _i in range(5):
             thread = threading.Thread(target=worker_function)
             threads.append(thread)
             thread.start()
@@ -179,4 +179,4 @@ class TestSandboxExecutor(unittest.TestCase):
         self.assertIn('error', meta)
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

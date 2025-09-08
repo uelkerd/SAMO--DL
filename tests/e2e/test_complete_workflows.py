@@ -57,7 +57,7 @@ class TestCompleteWorkflows:
         assert isinstance(emotions, dict)
         assert len(emotions) > 0
 
-        for emotion, confidence in emotions.items():
+        for _emotion, confidence in emotions.items():
             assert 0.0 <= confidence <= 1.0
 
         summary = data["summary"]

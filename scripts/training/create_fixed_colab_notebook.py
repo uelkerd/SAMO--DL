@@ -453,4 +453,4 @@ def create_fixed_colab_notebook():
     print("  5. Expect 75-85% F1 score!")
 
 if __name__ == "__main__":
-    create_fixed_colab_notebook() 
+    create_fixed_colab_notebook()

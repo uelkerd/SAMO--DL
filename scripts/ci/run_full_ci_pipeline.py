@@ -18,7 +18,7 @@ import sys
 import time
 import subprocess
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 
 # Use shared truthy parsing
 try:
@@ -47,7 +47,7 @@ class CIPipelineRunner:
         self.start_time = time.time()
         self.ci_scripts = [
             "scripts/ci/api_health_check.py",
-            "scripts/ci/bert_model_test.py", 
+            "scripts/ci/bert_model_test.py",
             "scripts/ci/t5_summarization_test.py",
             "scripts/ci/whisper_transcription_test.py",
             "scripts/ci/model_calibration_test.py",
@@ -138,7 +138,7 @@ class CIPipelineRunner:
             # Run the script
             result = subprocess.run(
                 [python_executable, script_path],
-                capture_output=True,
+                check=False, capture_output=True,
                 text=True,
                 timeout=300  # 5 minute timeout
             )
@@ -165,7 +165,7 @@ class CIPipelineRunner:
         try:
             result = subprocess.run(
                 [sys.executable, "-m", "pytest", "tests/unit/", "-v"],
-                capture_output=True,
+                check=False, capture_output=True,
                 text=True,
                 timeout=1200  # 20 minute timeout (increased from 10)
             )
@@ -194,7 +194,7 @@ class CIPipelineRunner:
         try:
             result = subprocess.run(
                 [sys.executable, "-m", "pytest", "tests/e2e/", "-v"],
-                capture_output=True,
+                check=False, capture_output=True,
                 text=True,
                 timeout=900  # 15 minute timeout
             )
@@ -281,7 +281,7 @@ class CIPipelineRunner:
             start_time = time.time()
             dummy_input = torch.randint(0, 1000, (1, 512))
             with torch.no_grad():
-                output = model(dummy_input, torch.ones_like(dummy_input))
+                model(dummy_input, torch.ones_like(dummy_input))
             inference_time = time.time() - start_time
             
             logger.info(f"✅ Model loading time: {loading_time:.2f}s")
@@ -375,7 +375,7 @@ class CIPipelineRunner:
         if passed_tests == total_tests:
             report += "🎉 All tests passed! Pipeline is ready for deployment.\n"
         else:
-            failed_test_names = [name for name, result in test_results.items() 
+            failed_test_names = [name for name, result in test_results.items()
                                if not result]
             report += f"⚠️ Failed tests: {', '.join(failed_test_names)}\n"
             report += "🔧 Please fix the failed tests before deployment.\n"
@@ -421,4 +421,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

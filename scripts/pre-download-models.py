@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Pre-download AI models to speed up Docker builds
 This script downloads models to a local cache that can be used by Docker builds
@@ -22,7 +21,7 @@ def download_emotion_model(cache_dir: str):
 
         duration = time.time() - start_time
         print(f"✅ Downloaded emotion model in {duration:.1f}s")
-    except Exception as e:
+    except (OSError, RuntimeError, ValueError, HfHubHTTPError) as e:
         print(f"❌ Failed to download emotion model: {e}")
         return False
     return True
@@ -41,25 +40,26 @@ def download_t5_model(cache_dir: str):
 
         duration = time.time() - start_time
         print(f"✅ Downloaded T5 model in {duration:.1f}s")
-    except Exception as e:
+    except (OSError, RuntimeError, ValueError, HfHubHTTPError) as e:
         print(f"❌ Failed to download T5 model: {e}")
         return False
     return True
 
 def download_whisper_model(cache_dir: str):
     """Download the Whisper transcription model"""
+    print("📥 Downloading Whisper model: base")
     try:
-        print("📥 Downloading Whisper model: base")
         import whisper
-
+    except ImportError:
+        print("❌ Whisper not installed. Run: pip install -U openai-whisper")
+        return False
+    try:
         model_size = 'base'
         start_time = time.time()
-
         whisper.load_model(model_size, download_root=cache_dir)
-
         duration = time.time() - start_time
         print(f"✅ Downloaded Whisper model in {duration:.1f}s")
-    except Exception as e:
+    except (OSError, RuntimeError, ValueError, HfHubHTTPError) as e:
         print(f"❌ Failed to download Whisper model: {e}")
         return False
     return True
@@ -69,13 +69,22 @@ def main():
     print("🚀 SAMO-DL Model Pre-Downloader")
     print("=" * 40)
 
+    # Honor HF_HOME and TRANSFORMERS_CACHE environment variables
+    os.environ.setdefault("HF_HOME", os.getenv("HF_HOME", os.path.expanduser("~/.cache/huggingface")))
+    os.environ.setdefault("TRANSFORMERS_CACHE", os.path.join(os.environ.get("HF_HOME", ""), "transformers"))
+    cache_dir = os.getenv("HF_HOME", os.path.join(os.getcwd(), "models_cache"))
+
     # Create cache directory
-    cache_dir = os.path.join(os.getcwd(), "models_cache")
     os.makedirs(cache_dir, exist_ok=True)
 
     print(f"Cache directory: {cache_dir}")
     usage = shutil.disk_usage(cache_dir)
-    print(f"Available disk space: {usage.free // (1024 * 1024)} MB")
+    free_gb = usage.free / (1024**3)
+    min_free_gb = 1.5
+    if free_gb < min_free_gb:
+        print(f"❌ Insufficient disk space: {free_gb:.2f}GB available, {min_free_gb}GB required")
+        sys.exit(1)
+    print(f"Available disk space: {free_gb:.2f} GB (sufficient)")
     print()
 
     # Download models
@@ -102,8 +111,11 @@ def main():
         print("✅ All models downloaded successfully!")
         print("💡 You can now copy models_cache to your Docker build context")
         print("   or mount it as a volume during build")
+        sys.exit(0)
     else:
         print(f"⚠️  {success_count}/{len(models)} models downloaded successfully")
+        print("❌ Partial failure - exiting with error code")
+        sys.exit(1)
 
     print(f"⏱️  Total download time: {total_duration:.1f}s")
     # Show cache size
@@ -114,8 +126,8 @@ def main():
             for filename in filenames
         )
         print(f"📁 Cache size: {cache_size / (1024**3):.2f} GB")
-    except:
-        print("📁 Cache directory created")
+    except Exception as e:
+        print(f"ℹ️  Skipped cache size computation: {e}")
 
 if __name__ == "__main__":
     main()

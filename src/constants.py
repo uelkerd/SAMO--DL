@@ -1,5 +1,4 @@
-"""
-Centralized constants for the SAMO project.
+"""Centralized constants for the SAMO project.
 
 This module contains all shared constants to avoid duplication across modules.
 """

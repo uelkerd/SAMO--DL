@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-🚀 EMOTION DETECTION API SERVER
+"""🚀 EMOTION DETECTION API SERVER.
 ===============================
 REST API server for emotion detection with comprehensive security headers.
 """
@@ -32,7 +31,7 @@ except Exception as e:
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    """Health check endpoint"""
+    """Health check endpoint."""
     return jsonify({
         'status': 'healthy',
         'model_loaded': detector is not None,
@@ -41,7 +40,7 @@ def health_check():
 
 @app.route('/predict', methods=['POST'])
 def predict_emotion():
-    """Predict emotion for given text"""
+    """Predict emotion for given text."""
     if detector is None:
         return jsonify({'error': 'Model not loaded'}), 500
     
@@ -61,7 +60,7 @@ def predict_emotion():
 
 @app.route('/predict_batch', methods=['POST'])
 def predict_batch():
-    """Predict emotions for multiple texts"""
+    """Predict emotions for multiple texts."""
     if detector is None:
         return jsonify({'error': 'Model not loaded'}), 500
     
@@ -81,7 +80,7 @@ def predict_batch():
 
 @app.route('/emotions', methods=['GET'])
 def get_emotions():
-    """Get list of supported emotions"""
+    """Get list of supported emotions."""
     if detector is None:
         return jsonify({'error': 'Model not loaded'}), 500
     
@@ -91,15 +90,5 @@ def get_emotions():
     })
 
 if __name__ == '__main__':
-    print("🚀 Starting Emotion Detection API Server")
-    print("=" * 50)
-    print("📊 Model Performance: 99.48% F1 Score")
-    print("🎯 Supported Emotions:", list(detector.label_encoder.classes_) if detector else "None")
-    print("🌐 API Endpoints:")
-    print("  - GET  /health - Health check")
-    print("  - POST /predict - Single text prediction")
-    print("  - POST /predict_batch - Batch prediction")
-    print("  - GET  /emotions - List emotions")
-    print("=" * 50)
     
     app.run(host='0.0.0.0', port=5000, debug=False)

@@ -7,6 +7,7 @@ Get detailed information about model loading status and any errors.
 import requests
 import argparse
 from test_config import create_api_client, create_test_config
+import sys
 
 
 def test_health_endpoint(client):
@@ -98,8 +99,8 @@ def main():
     args = parser.parse_args()
     
     success = test_model_status(args.base_url)
-    exit(0 if success else 1)
+    sys.exit(0 if success else 1)
 
 
 if __name__ == "__main__":
-    main() 
+    main()

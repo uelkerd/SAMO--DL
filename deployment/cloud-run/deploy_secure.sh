@@ -55,19 +55,9 @@ print_status "  Repository: ${REPOSITORY}"
 print_status "Step 1: Tagging local image for Artifact Registry..."
 docker tag "samo-fast-api:latest" "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest"
 
-if [ $? -ne 0 ]; then
-    print_error "Docker tag failed!"
-    exit 1
-fi
-
 # Step 2: Push to Artifact Registry
 print_status "Step 2: Pushing image to Artifact Registry..."
 docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest"
-
-if [ $? -ne 0 ]; then
-    print_error "Docker push failed!"
-    exit 1
-fi
 
 # Step 3: Deploy to Cloud Run with secure settings
 print_status "Step 3: Deploying to Cloud Run with secure settings..."
@@ -88,11 +78,6 @@ gcloud run deploy "${SERVICE_NAME}" \
     --set-env-vars="ADMIN_API_KEY=$ADMIN_API_KEY" \
     --set-env-vars="HF_HOME=/app/models" \
     --set-env-vars="TRANSFORMERS_CACHE=/app/models"
-
-if [ $? -ne 0 ]; then
-    print_error "Cloud Run deployment failed!"
-    exit 1
-fi
 
 # Step 4: Get service URL
 print_status "Step 4: Getting service URL..."
@@ -142,16 +127,25 @@ curl -X POST "${SERVICE_URL}/api/predict" \
 
 # Test summarization endpoint
 print_status "Testing T5 summarization endpoint..."
-curl -X POST "${SERVICE_URL}/summarize" \
+curl -X POST "${SERVICE_URL}/api/summarize" \
     -H "Content-Type: application/json" \
     -H "X-API-Key: $ADMIN_API_KEY" \
     -d '{"text": "This is a long text that needs to be summarized. It contains multiple sentences and ideas that should be condensed into a shorter version.", "max_length": 50}' || {
     print_warning "T5 summarization test failed (may still be loading models)"
 }
 
+# Test transcribe endpoint mount (expect 400 due to missing audio)
+print_status "Testing Whisper transcribe endpoint mount..."
+RESPONSE_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${SERVICE_URL}/api/transcribe" -H "X-API-Key: $ADMIN_API_KEY")
+if [[ "$RESPONSE_CODE" == "400" || "$RESPONSE_CODE" == "415" ]]; then
+    print_success "Transcribe endpoint test passed (expected client error: $RESPONSE_CODE)"
+else
+    print_warning "Transcribe endpoint mount/auth check did not return expected client error (got: $RESPONSE_CODE)"
+fi
+
 # Test security headers
 print_status "Testing security headers..."
-SECURITY_HEADERS=$(curl -I "${SERVICE_URL}/health" 2>/dev/null | grep -E "(X-Content-Type-Options|X-Frame-Options|X-XSS-Protection|Strict-Transport-Security)" || true)
+SECURITY_HEADERS=$(curl -I "${SERVICE_URL}/api/health" 2>/dev/null | grep -E "(X-Content-Type-Options|X-Frame-Options|X-XSS-Protection|Strict-Transport-Security)" || true)
 
 if [ -n "$SECURITY_HEADERS" ]; then
     print_success "Security headers are properly configured"
@@ -166,9 +160,8 @@ print_success "  - Input sanitization"
 print_success "  - Rate limiting"
 print_success "  - Security headers"
 print_success "  - JWT authentication (if configured)"
-print_success "📊 Health endpoint: ${SERVICE_URL}/health"
-print_success "🔮 Prediction endpoint: ${SERVICE_URL}/predict"
-print_success "📈 Metrics endpoint: ${SERVICE_URL}/metrics"
+print_success "📊 Health endpoint: ${SERVICE_URL}/api/health"
+print_success "🔮 Prediction endpoint: ${SERVICE_URL}/api/predict"
 
 echo ""
 print_success "Secure Deployment Summary:"

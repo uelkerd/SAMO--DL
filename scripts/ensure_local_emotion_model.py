@@ -25,7 +25,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 import argparse
 import logging
 import os
-from typing import List
 
 from constants import EMOTION_MODEL_DIR
 

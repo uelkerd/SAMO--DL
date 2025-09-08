@@ -563,10 +563,7 @@ class EmotionDetectionTrainer:
         Args:
             clip_norm: Gradient norm value after clipping
         """
-        if not isinstance(clip_norm, (int, float)):
-            clip_val = float(clip_norm)
-        else:
-            clip_val = clip_norm
+        clip_val = float(clip_norm) if not isinstance(clip_norm, (int, float)) else clip_norm
         logger.info("   Gradient norm after clipping: %.6f", clip_val)
 
     def _log_progress(

@@ -126,7 +126,7 @@ class EmotionDetector:
                 'emotion': predicted_emotion,
                 'confidence': confidence,
                 'probabilities': {
-                    emotion: prob.item() 
+                    emotion: prob.item()
                     for emotion, prob in zip(self.label_encoder.classes_, probabilities[0])
                 }
             }
@@ -446,7 +446,7 @@ services:
     
     print("✅ Deployment package created: deployment/")
     print("📦 Files included:")
-    for filename in deployment_files.keys():
+    for filename in deployment_files:
         print(f"  - {filename}")
     print("🚀 Next steps:")
     print("  1. Copy trained model to deployment/model/")
@@ -454,4 +454,4 @@ services:
     print("  3. Test API at: http://localhost:5000")
 
 if __name__ == "__main__":
-    create_model_deployment_package() 
+    create_model_deployment_package()

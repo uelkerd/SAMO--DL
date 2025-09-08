@@ -5,7 +5,7 @@ Retrain the emotion detection model with the expanded dataset.
 
 import json
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.utils.data import Dataset, DataLoader
 from transformers import AutoModel, AutoTokenizer
 from sklearn.preprocessing import LabelEncoder
@@ -16,7 +16,7 @@ def load_expanded_dataset():
     """Load the expanded journal dataset."""
     print("📊 Loading expanded dataset...")
     
-    with open('data/expanded_journal_dataset.json', 'r') as f:
+    with open('data/expanded_journal_dataset.json') as f:
         data = json.load(f)
     
     print(f"✅ Loaded {len(data)} samples")
@@ -99,7 +99,7 @@ def prepare_expanded_data(data, test_size=0.2, val_size=0.1):
         X_temp, y_temp, test_size=val_size/(1-test_size), random_state=42, stratify=y_temp
     )
     
-    print(f"📊 Data split:")
+    print("📊 Data split:")
     print(f"  Training: {len(X_train)} samples")
     print(f"  Validation: {len(X_val)} samples")
     print(f"  Test: {len(X_test)} samples")
@@ -256,14 +256,14 @@ def save_expanded_results(training_history, best_f1, label_encoder, test_data):
         'num_labels': len(label_encoder.classes_),
         'all_emotions': list(label_encoder.classes_),
         'training_history': training_history,
-        'expanded_samples': len(X_test) + len([x for x in train_data[0]]) + len([x for x in val_data[0]]),
+        'expanded_samples': len(X_test) + len(list(train_data[0])) + len(list(val_data[0])),
         'test_samples': len(X_test)
     }
     
     with open('expanded_training_results.json', 'w') as f:
         json.dump(results, f, indent=2)
     
-    print(f"✅ Results saved!")
+    print("✅ Results saved!")
     print(f"📊 Final F1 Score: {final_f1:.4f}")
     print(f"📊 Final Accuracy: {final_accuracy:.4f}")
     print(f"🎯 Target Achieved: {final_f1 >= 0.70}")
@@ -292,4 +292,4 @@ def main():
     print("  3. Deploy if target achieved!")
 
 if __name__ == "__main__":
-    main() 
+    main()

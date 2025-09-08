@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Vertex AI Custom Container Prediction Server
+"""Vertex AI Custom Container Prediction Server.
 ===========================================
 
 This script runs a Flask server for the emotion detection model on Vertex AI.
@@ -14,10 +13,9 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 class EmotionDetectionModel:
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the model."""
         self.model_path = os.path.join(os.getcwd(), "model")
-        print(f"Loading model from: {self.model_path}")
         
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
@@ -26,15 +24,12 @@ class EmotionDetectionModel:
             # Move to GPU if available
             if torch.cuda.is_available():
                 self.model = self.model.to('cuda')
-                print("✅ Model moved to GPU")
             else:
-                print("⚠️ CUDA not available, using CPU")
+                pass
             
             self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
-            print("✅ Model loaded successfully")
             
-        except Exception as e:
-            print(f"❌ Failed to load model: {str(e)}")
+        except Exception:
             raise
         
     def predict(self, text):
@@ -83,12 +78,10 @@ class EmotionDetectionModel:
             
             return response
             
-        except Exception as e:
-            print(f"Prediction error: {str(e)}")
+        except Exception:
             raise
 
 # Initialize model
-print("🔧 Loading emotion detection model...")
 model = EmotionDetectionModel()
 
 @app.route('/health', methods=['GET'])
@@ -119,7 +112,6 @@ def predict():
         return jsonify(result)
         
     except Exception as e:
-        print(f"Prediction endpoint error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/', methods=['GET'])
@@ -144,14 +136,6 @@ def home():
     })
 
 if __name__ == '__main__':
-    print("🌐 Starting Vertex AI prediction server...")
-    print("📋 Available endpoints:")
-    print("   GET  / - API documentation")
-    print("   GET  /health - Health check")
-    print("   POST /predict - Single prediction")
-    print("")
-    print("🚀 Server starting on http://0.0.0.0:8080")
-    print("")
     
     # Run the Flask app
     app.run(host='0.0.0.0', port=8080, debug=False)

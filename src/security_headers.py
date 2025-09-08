@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🛡️ Security Headers Middleware
+"""🛡️ Security Headers Middleware.
 ==============================
 Flask middleware for adding security headers and implementing security policies.
 """

@@ -13,7 +13,7 @@ def add_wandb_setup():
     """Add wandb setup to the minimal notebook."""
     
     # Read the existing notebook
-    with open('notebooks/MINIMAL_WORKING_TRAINING_COLAB.ipynb', 'r') as f:
+    with open('notebooks/MINIMAL_WORKING_TRAINING_COLAB.ipynb') as f:
         notebook = json.load(f)
     
     # Add wandb setup cell after the imports
@@ -149,4 +149,4 @@ def add_wandb_setup():
     print('3. Restart runtime and run the notebook')
 
 if __name__ == "__main__":
-    add_wandb_setup() 
+    add_wandb_setup()

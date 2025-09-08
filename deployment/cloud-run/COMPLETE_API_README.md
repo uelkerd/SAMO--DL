@@ -12,13 +12,13 @@ The SAMO Complete AI API provides a comprehensive deep learning pipeline for voi
 ## API Endpoints
 
 ### Base URL
-```
+```text
 https://emotion-detection-api-frrnetyhfa-uc.a.run.app
 ```
 
 ### Authentication
 All endpoints require an API key header:
-```
+```bash
 X-API-Key: $API_KEY
 ```
 
@@ -26,14 +26,13 @@ X-API-Key: $API_KEY
 
 ## 🎭 Emotion Detection (Existing)
 
-### POST `/predict`
+### POST `/api/predict`
 Analyze text for emotions.
 
 **Request:**
 ```json
 {
-  "text": "Today I received a promotion and I'm really excited!",
-  "threshold": 0.1
+  "text": "Today I received a promotion and I'm really excited!"
 }
 ```
 
@@ -42,11 +41,7 @@ Analyze text for emotions.
 {
   "primary_emotion": "joy",
   "confidence": 0.89,
-  "emotions": {
-    "joy": 0.75,
-    "gratitude": 0.65,
-    "excitement": 0.45
-  },
+  "emotions": ["joy", "gratitude", "excitement"],
   "emotional_intensity": "high"
 }
 ```
@@ -55,7 +50,7 @@ Analyze text for emotions.
 
 ## 📝 Text Summarization (NEW)
 
-### POST `/summarize`
+### POST `/api/summarize`
 Generate concise summaries using T5 model.
 
 **Request:**
@@ -90,7 +85,7 @@ Convert audio files to text using Whisper.
 
 **Request:**
 ```bash
-curl -X POST "https://your-api-endpoint.com/transcribe" \
+curl -X POST "https://your-api-endpoint.com/api/transcribe" \
   -H "X-API-Key: $API_KEY" \
   -F "audio=@your_audio_file.wav" \
   -F "language=en"
@@ -113,7 +108,7 @@ curl -X POST "https://your-api-endpoint.com/transcribe" \
 
 ## 🔄 Complete Analysis Pipeline (NEW)
 
-### POST `/analyze/complete`
+### POST `/api/analyze/complete`
 Full pipeline: transcription (if audio) → emotion analysis → summarization.
 
 **Request (Text only):**
@@ -127,7 +122,7 @@ Full pipeline: transcription (if audio) → emotion analysis → summarization.
 
 **Request (Audio + Analysis):**
 ```bash
-curl -X POST "https://your-api-endpoint.com/analyze/complete" \
+curl -X POST "https://your-api-endpoint.com/api/analyze/complete" \
   -H "X-API-Key: $API_KEY" \
   -F "audio=@journal_entry.wav" \
   -F "generate_summary=true" \
@@ -167,7 +162,7 @@ curl -X POST "https://your-api-endpoint.com/analyze/complete" \
 
 ## 🏥 Health & Monitoring
 
-### GET `/health`
+### GET `/api/health`
 Check API status and model availability.
 
 **Response:**
@@ -175,20 +170,8 @@ Check API status and model availability.
 {
   "status": "healthy",
   "timestamp": 1703123456.789,
-  "models": {
-    "emotion_detection": {
-      "loaded": true,
-      "status": "available"
-    },
-    "text_summarization": {
-      "loaded": true,
-      "status": "available"
-    },
-    "voice_processing": {
-      "loaded": true,
-      "status": "available"
-    }
-  }
+  "model_loaded": true,
+  "models_available": ["emotion_detection", "text_summarization", "voice_processing"]
 }
 ```
 
@@ -196,7 +179,7 @@ Check API status and model availability.
 
 ## 📊 Rate Limits
 
-- **Per User:** 1,000 requests per minute
+- **Per User:** 100 requests per minute
 - **Burst:** 100 concurrent requests
 - **Global:** 50 concurrent requests max
 

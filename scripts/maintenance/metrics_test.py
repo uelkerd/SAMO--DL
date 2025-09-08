@@ -8,6 +8,7 @@ from tqdm import tqdm
 from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from sklearn.metrics import f1_score, accuracy_score
+import contextlib
 
 MODEL_ID = os.getenv("MODEL_ID", "0xmnrv/samo")
 TOKEN = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_HUB_TOKEN")
@@ -50,10 +51,8 @@ if not cfg_label2id:
     l2i = getattr(cfg, "label2id", {}) or {}
     tmp = {}
     for k, v in l2i.items():
-        try:
+        with contextlib.suppress(Exception):
             tmp[norm(k)] = int(v)
-        except Exception:
-            pass
     if tmp:
         cfg_label2id = tmp
 
@@ -83,20 +82,19 @@ kept_model_indices = []
 if mapped_count >= 5:
     kept_ds_indices = [i for i in range(len(ds_names)) if i in ds_to_model]
     kept_model_indices = [ds_to_model[i] for i in kept_ds_indices]
+elif num_labels == len(ds_names):
+    print(
+        "Low mapping coverage; identity mapping (assumes same order)."
+    )
+    kept_ds_indices = list(range(num_labels))
+    kept_model_indices = list(range(num_labels))
 else:
-    if num_labels == len(ds_names):
-        print(
-            "Low mapping coverage; identity mapping (assumes same order)."
-        )
-        kept_ds_indices = list(range(num_labels))
-        kept_model_indices = list(range(num_labels))
-    else:
-        m = min(num_labels, len(ds_names))
-        print(
-            f"Low mapping coverage; min-dim identity mapping ({m} labels)."
-        )
-        kept_ds_indices = list(range(m))
-        kept_model_indices = list(range(m))
+    m = min(num_labels, len(ds_names))
+    print(
+        f"Low mapping coverage; min-dim identity mapping ({m} labels)."
+    )
+    kept_ds_indices = list(range(m))
+    kept_model_indices = list(range(m))
 
 D = len(kept_ds_indices)
 kept_ds_pos = {ds_idx: pos for pos, ds_idx in enumerate(kept_ds_indices)}

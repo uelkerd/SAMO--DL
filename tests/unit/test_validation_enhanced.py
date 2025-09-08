@@ -36,7 +36,7 @@ class TestDataValidatorEnhanced:
     def test_check_missing_values_with_required_columns(self):
         """Test missing values check with required columns."""
         missing_stats = self.validator.check_missing_values(
-            self.test_df, 
+            self.test_df,
             required_columns=['user_id', 'content']
         )
         
@@ -203,4 +203,4 @@ class TestValidateTextInputEnhanced:
         
         # Test with non-string
         result = validate_text_input(123)
-        assert result['is_valid'] is False 
+        assert result['is_valid'] is False

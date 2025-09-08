@@ -23,7 +23,7 @@ import sys
 import ast
 import re
 from pathlib import Path
-from typing import Dict, List, Set, Tuple, Any, Optional
+from typing import Dict, List, Any
 import logging
 
 # Configure logging
@@ -122,7 +122,7 @@ class CodeQualityEnforcer:
         issues = []
 
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding='utf-8') as f:
                 content = f.read()
                 lines = content.splitlines()
 
@@ -290,15 +290,7 @@ class CodeQualityEnforcer:
         complexity = 1  # Base complexity
 
         for child in ast.walk(node):
-            if isinstance(child, (ast.If, ast.While, ast.For, ast.AsyncFor)):
-                complexity += 1
-            elif isinstance(child, ast.ExceptHandler):
-                complexity += 1
-            elif isinstance(child, ast.With):
-                complexity += 1
-            elif isinstance(child, ast.Assert):
-                complexity += 1
-            elif isinstance(child, ast.Return):
+            if isinstance(child, (ast.If, ast.While, ast.For, ast.AsyncFor, ast.ExceptHandler, ast.With, ast.Assert, ast.Return)):
                 complexity += 1
 
         return complexity
@@ -371,10 +363,7 @@ class CodeQualityEnforcer:
                     return False
 
             # Ensure it's a Python file
-            if not path_str.endswith('.py'):
-                return False
-
-            return True
+            return path_str.endswith('.py')
 
         except Exception:
             return False

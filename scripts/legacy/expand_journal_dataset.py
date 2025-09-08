@@ -5,11 +5,11 @@ Expand the journal dataset to improve model performance.
 
 import json
 import random
-from typing import List, Dict
+from typing import Dict
 
 def load_current_dataset():
     """Load the current journal dataset."""
-    with open('data/journal_test_dataset.json', 'r') as f:
+    with open('data/journal_test_dataset.json') as f:
         return json.load(f)
 
 def save_expanded_dataset(data, filename='data/expanded_journal_dataset.json'):
@@ -31,7 +31,7 @@ def create_balanced_dataset(target_size=1000):
         emotion = entry['emotion']
         emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
     
-    print(f"📊 Current emotion distribution:")
+    print("📊 Current emotion distribution:")
     for emotion, count in sorted(emotion_counts.items()):
         print(f"  {emotion}: {count} samples")
     
@@ -42,7 +42,7 @@ def create_balanced_dataset(target_size=1000):
     # Create expanded dataset
     expanded_data = []
     
-    for emotion in emotion_counts.keys():
+    for emotion in emotion_counts:
         # Get existing samples for this emotion
         existing_samples = [entry for entry in current_data if entry['emotion'] == emotion]
         current_count = len(existing_samples)
@@ -57,7 +57,7 @@ def create_balanced_dataset(target_size=1000):
         
         if needed_samples > 0:
             # Create variations of existing samples
-            for i in range(needed_samples):
+            for _i in range(needed_samples):
                 # Pick a random existing sample to base variation on
                 base_sample = random.choice(existing_samples)
                 
@@ -65,7 +65,7 @@ def create_balanced_dataset(target_size=1000):
                 variation = create_variation(base_sample, emotion)
                 expanded_data.append(variation)
     
-    print(f"\n✅ Expanded dataset created:")
+    print("\n✅ Expanded dataset created:")
     print(f"  Original samples: {len(current_data)}")
     print(f"  Expanded samples: {len(expanded_data)}")
     print(f"  Target size: {target_size}")
@@ -282,4 +282,4 @@ def main():
     print("  3. Expect 75-85% F1 score!")
 
 if __name__ == "__main__":
-    main() 
+    main()

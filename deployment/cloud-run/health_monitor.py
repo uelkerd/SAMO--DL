@@ -1,6 +1,5 @@
-"""
-Cloud Run Health Monitor - Phase 3 Optimization
-Provides comprehensive health checks, graceful shutdown, and monitoring
+"""Cloud Run Health Monitor - Phase 3 Optimization
+Provides comprehensive health checks, graceful shutdown, and monitoring.
 """
 
 import os
@@ -19,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class HealthMetrics:
-    """Health check metrics"""
+    """Health check metrics."""
     status: str
     response_time_ms: float
     memory_usage_mb: float
@@ -29,9 +28,9 @@ class HealthMetrics:
     error_message: Optional[str] = None
 
 class HealthMonitor:
-    """Comprehensive health monitoring for Cloud Run"""
+    """Comprehensive health monitoring for Cloud Run."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.start_time = datetime.now()
         self.is_shutting_down = False
         self.active_requests = 0
@@ -44,8 +43,8 @@ class HealthMonitor:
 
         logger.info(f"Health monitor initialized with {self.shutdown_timeout}s shutdown timeout")
 
-    def _graceful_shutdown(self, signum, frame):
-        """Handle graceful shutdown"""
+    def _graceful_shutdown(self, signum, frame) -> None:
+        """Handle graceful shutdown."""
         logger.info(f"Received shutdown signal {signum}, starting graceful shutdown...")
         self.is_shutting_down = True
 
@@ -63,7 +62,7 @@ class HealthMonitor:
         sys.exit(0)
 
     def get_system_metrics(self) -> Dict[str, float]:
-        """Get current system resource usage"""
+        """Get current system resource usage."""
         try:
             process = psutil.Process()
             memory_info = process.memory_info()
@@ -85,10 +84,9 @@ class HealthMonitor:
 
     @staticmethod
     def check_model_health() -> Dict[str, Any]:
-        """Check if ML models are loaded and responding"""
+        """Check if ML models are loaded and responding."""
         try:
             # Import models (this will fail if models aren't loaded)
-            from secure_api_server import app
 
             # Test model loading
             start_time = time.time()
@@ -97,7 +95,7 @@ class HealthMonitor:
             import importlib
             modules_to_check = [
                 'src.models.emotion_detection.bert_classifier',
-                'src.models.summarization.t5_summarizer', 
+                'src.models.summarization.t5_summarizer',
                 'src.models.voice_processing.whisper_transcriber'
             ]
 
@@ -126,7 +124,7 @@ class HealthMonitor:
 
     @staticmethod
     def check_api_health() -> Dict[str, Any]:
-        """Check API endpoint health"""
+        """Check API endpoint health."""
         try:
             start_time = time.time()
 
@@ -159,7 +157,7 @@ class HealthMonitor:
             }
 
     def get_comprehensive_health(self) -> Dict[str, Any]:
-        """Get comprehensive health status"""
+        """Get comprehensive health status."""
         if self.is_shutting_down:
             return {
                 'status': 'shutting_down',
@@ -224,13 +222,13 @@ class HealthMonitor:
 
         return health_data
 
-    def request_started(self):
-        """Track request start"""
+    def request_started(self) -> None:
+        """Track request start."""
         with self.lock:
             self.active_requests += 1
 
-    def request_completed(self):
-        """Track request completion"""
+    def request_completed(self) -> None:
+        """Track request completion."""
         with self.lock:
             self.active_requests = max(0, self.active_requests - 1)
 
@@ -238,5 +236,5 @@ class HealthMonitor:
 health_monitor = HealthMonitor()
 
 def get_health_monitor() -> HealthMonitor:
-    """Get the global health monitor instance"""
-    return health_monitor 
+    """Get the global health monitor instance."""
+    return health_monitor

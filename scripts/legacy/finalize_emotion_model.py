@@ -193,7 +193,7 @@ def train_final_model(
     val_data = data_loader.get_validation_data()
 
     # Create augmented dataset
-    augmented_data = create_augmented_dataset(data_loader, tokenizer)
+    create_augmented_dataset(data_loader, tokenizer)
 
     # Initialize focal loss
     focal_loss = FocalLoss(gamma=2.0)
@@ -362,7 +362,7 @@ def save_ensemble_model(
         'threshold': ensemble.threshold,
     }, output_path)
     
-    logger.info(f"Model saved successfully!")
+    logger.info("Model saved successfully!")
     logger.info(f"Final metrics: {metrics}")
 
 

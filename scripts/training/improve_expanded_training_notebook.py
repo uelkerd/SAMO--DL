@@ -11,7 +11,7 @@ def improve_notebook():
     """Improve the expanded training notebook with enhancements."""
     
     # Read the current notebook
-    with open('notebooks/expanded_dataset_training.ipynb', 'r') as f:
+    with open('notebooks/expanded_dataset_training.ipynb') as f:
         notebook = json.load(f)
     
     # Find the training function cell
@@ -120,4 +120,4 @@ from torch.cuda.amp import autocast, GradScaler'''
     print("  - Better memory management")
 
 if __name__ == "__main__":
-    improve_notebook() 
+    improve_notebook()

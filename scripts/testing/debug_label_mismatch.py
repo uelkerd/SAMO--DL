@@ -26,7 +26,7 @@ def debug_label_mismatch():
         logger.info(f"✅ GoEmotions loaded: {len(go_emotions['train'])} training examples")
         
         # Load journal dataset
-        with open('data/journal_test_dataset.json', 'r') as f:
+        with open('data/journal_test_dataset.json') as f:
             journal_entries = json.load(f)
         journal_df = pd.DataFrame(journal_entries)
         logger.info(f"✅ Journal dataset loaded: {len(journal_df)} entries")
@@ -43,7 +43,7 @@ def debug_label_mismatch():
                     go_label_counts[label] = go_label_counts.get(label, 0) + 1
         
         logger.info(f"📊 GoEmotions unique labels: {len(go_labels)}")
-        logger.info(f"📊 GoEmotions labels: {sorted(list(go_labels))}")
+        logger.info(f"📊 GoEmotions labels: {sorted(go_labels)}")
         logger.info(f"📊 GoEmotions label counts: {dict(sorted(go_label_counts.items(), key=lambda x: x[1], reverse=True)[:10])}")
         
         # Step 3: Analyze journal labels
@@ -52,7 +52,7 @@ def debug_label_mismatch():
         journal_label_counts = journal_df['emotion'].value_counts().to_dict()
         
         logger.info(f"📊 Journal unique labels: {len(journal_labels)}")
-        logger.info(f"📊 Journal labels: {sorted(list(journal_labels))}")
+        logger.info(f"📊 Journal labels: {sorted(journal_labels)}")
         logger.info(f"📊 Journal label counts: {journal_label_counts}")
         
         # Step 4: Check for label mismatches
@@ -63,9 +63,9 @@ def debug_label_mismatch():
         journal_only = journal_labels - go_labels
         common_labels = go_labels.intersection(journal_labels)
         
-        logger.info(f"📊 Labels only in GoEmotions: {sorted(list(go_only))}")
-        logger.info(f"📊 Labels only in Journal: {sorted(list(journal_only))}")
-        logger.info(f"📊 Common labels: {sorted(list(common_labels))}")
+        logger.info(f"📊 Labels only in GoEmotions: {sorted(go_only)}")
+        logger.info(f"📊 Labels only in Journal: {sorted(journal_only)}")
+        logger.info(f"📊 Common labels: {sorted(common_labels)}")
         
         if go_only:
             logger.warning(f"⚠️ {len(go_only)} labels only in GoEmotions - may cause issues")
@@ -77,11 +77,11 @@ def debug_label_mismatch():
         
         # Option 1: Use only common labels (safer)
         if len(common_labels) > 0:
-            all_labels = sorted(list(common_labels))
+            all_labels = sorted(common_labels)
             logger.info(f"📊 Using only common labels: {len(all_labels)} labels")
         else:
             # Option 2: Use all labels (may cause issues)
-            all_labels = sorted(list(go_labels.union(journal_labels)))
+            all_labels = sorted(go_labels.union(journal_labels))
             logger.warning(f"⚠️ No common labels found! Using all labels: {len(all_labels)}")
         
         label_encoder = LabelEncoder()
@@ -98,7 +98,7 @@ def debug_label_mismatch():
         go_encoded = []
         go_encoding_errors = []
         
-        for i, example in enumerate(go_emotions['train'][:100]):  # Test first 100
+        for _i, example in enumerate(go_emotions['train'][:100]):  # Test first 100
             if example['labels']:
                 try:
                     # Take first label for simplicity
@@ -115,7 +115,7 @@ def debug_label_mismatch():
         journal_encoded = []
         journal_encoding_errors = []
         
-        for i, emotion in enumerate(journal_df['emotion'][:100]):  # Test first 100
+        for _i, emotion in enumerate(journal_df['emotion'][:100]):  # Test first 100
             try:
                 if emotion in label_encoder.classes_:
                     encoded = label_encoder.transform([emotion])[0]
@@ -214,8 +214,8 @@ def debug_label_mismatch():
 if __name__ == "__main__":
     result = debug_label_mismatch()
     if result:
-        print(f"\n🎉 Debugging completed successfully!")
+        print("\n🎉 Debugging completed successfully!")
         print(f"📊 Use num_labels={result['num_labels']} in your model")
-        print(f"📊 Label encoder saved as 'fixed_label_encoder.pkl'")
+        print("📊 Label encoder saved as 'fixed_label_encoder.pkl'")
     else:
-        print(f"\n❌ Debugging failed!") 
+        print("\n❌ Debugging failed!")

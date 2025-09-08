@@ -214,7 +214,7 @@ def create_journal_test_dataset(
 ) -> List[Dict[str, Any]]:
     """Create a comprehensive journal test dataset."""
     start_date = datetime.now(timezone.utc) - timedelta(days=days_back)
-    end_date = datetime.now(timezone.utc)
+    datetime.now(timezone.utc)
     
     entries = []
     for i in range(num_entries):
@@ -306,4 +306,4 @@ def main():
     print("   Target: 70% F1 score on journal-style text vs Reddit comments")
 
 if __name__ == "__main__":
-    main() 
+    main()

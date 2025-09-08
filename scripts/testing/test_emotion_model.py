@@ -5,7 +5,7 @@ Test the trained emotion detection model with sample journal entries.
 
 import json
 import torch
-import torch.nn as nn
+from torch import nn
 from transformers import AutoModel, AutoTokenizer
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
@@ -24,7 +24,7 @@ def load_trained_model():
     tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
     
     # Load label encoder
-    with open('simple_training_results.json', 'r') as f:
+    with open('simple_training_results.json') as f:
         results = json.load(f)
     
     # Create label encoder from results
@@ -126,7 +126,7 @@ def analyze_performance():
     print("=" * 40)
     
     # Load results
-    with open('simple_training_results.json', 'r') as f:
+    with open('simple_training_results.json') as f:
         results = json.load(f)
     
     print(f"Final F1 Score: {results['best_f1']:.4f}")
@@ -136,10 +136,10 @@ def analyze_performance():
     print(f"Journal Samples: {results['journal_samples']}")
     
     # Show emotion mapping
-    print(f"\nEmotion Mapping Used:")
+    print("\nEmotion Mapping Used:")
     for go_emotion, journal_emotion in results['emotion_mapping'].items():
         print(f"  {go_emotion} → {journal_emotion}")
 
 if __name__ == "__main__":
     test_model()
-    analyze_performance() 
+    analyze_performance()

@@ -251,4 +251,4 @@ class TestAnomalyDetection(unittest.TestCase):
         self.assertLess(processing_time, 1.0, f"Anomaly detection too slow: {processing_time:.3f}s")
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

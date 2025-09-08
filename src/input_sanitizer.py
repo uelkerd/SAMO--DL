@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-🧹 Input Sanitizer
+"""🧹 Input Sanitizer.
 =================
 Comprehensive input sanitization and validation for API security.
 """
@@ -8,7 +7,7 @@ Comprehensive input sanitization and validation for API security.
 import re
 import html
 import logging
-from typing import Any, Dict, List, Optional, Union, Tuple
+from typing import Any, Dict, List, Tuple
 from dataclasses import dataclass
 import unicodedata
 
@@ -29,8 +28,7 @@ class SanitizationConfig:
     enable_content_type_validation: bool = True
 
 class InputSanitizer:
-    """
-    Comprehensive input sanitization and validation.
+    """Comprehensive input sanitization and validation.
 
     Features:
     - XSS protection
@@ -89,8 +87,7 @@ class InputSanitizer:
             }
 
     def sanitize_text(self, text: str, context: str = "general") -> Tuple[str, List[str]]:
-        """
-        Sanitize text input.
+        """Sanitize text input.
 
         Args:
             text: Input text to sanitize
@@ -134,8 +131,7 @@ class InputSanitizer:
         return text, warnings
 
     def sanitize_json(self, data: Any, max_depth: int = 10) -> Tuple[Any, List[str]]:
-        """
-        Sanitize JSON data recursively.
+        """Sanitize JSON data recursively.
 
         Args:
             data: JSON data to sanitize
@@ -168,8 +164,7 @@ class InputSanitizer:
         return _sanitize_recursive(data), warnings
 
     def validate_emotion_request(self, data: Dict) -> Tuple[Dict, List[str]]:
-        """
-        Validate and sanitize emotion detection request.
+        """Validate and sanitize emotion detection request.
 
         Args:
             data: Request data
@@ -206,8 +201,7 @@ class InputSanitizer:
         return sanitized_data, warnings
 
     def validate_batch_request(self, data: Dict) -> Tuple[Dict, List[str]]:
-        """
-        Validate and sanitize batch emotion detection request.
+        """Validate and sanitize batch emotion detection request.
 
         Args:
             data: Request data
@@ -258,8 +252,7 @@ class InputSanitizer:
         return sanitized_data, warnings
 
     def validate_content_type(self, content_type: str) -> bool:
-        """
-        Validate content type header.
+        """Validate content type header.
 
         Args:
             content_type: Content type header value
@@ -271,14 +264,10 @@ class InputSanitizer:
             return True
 
         # Check for JSON content type
-        if not content_type or 'application/json' not in content_type.lower():
-            return False
-
-        return True
+        return not (not content_type or 'application/json' not in content_type.lower())
 
     def sanitize_headers(self, headers: Dict[str, str]) -> Tuple[Dict[str, str], List[str]]:
-        """
-        Sanitize HTTP headers.
+        """Sanitize HTTP headers.
 
         Args:
             headers: HTTP headers
@@ -305,8 +294,7 @@ class InputSanitizer:
         return sanitized_headers, warnings
 
     def detect_anomalies(self, data: Any) -> List[str]:
-        """
-        Detect potential security anomalies in data.
+        """Detect potential security anomalies in data.
 
         Args:
             data: Data to analyze

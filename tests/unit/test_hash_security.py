@@ -202,4 +202,4 @@ class TestHashSecurity(unittest.TestCase):
             self.fail("Client key with special characters is not a valid hex string")
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

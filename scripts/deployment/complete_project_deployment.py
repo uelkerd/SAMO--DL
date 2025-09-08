@@ -29,7 +29,7 @@ def check_project_status():
     # Check for trained models
     model_paths = [
         "./emotion_model_ensemble_final",
-        "./emotion_model_specialized_final", 
+        "./emotion_model_specialized_final",
         "./emotion_model_fixed_bulletproof_final",
         "./emotion_model"
     ]
@@ -57,7 +57,7 @@ def save_model_for_deployment():
         # Run the model saving script
         result = subprocess.run([
             sys.executable, "scripts/save_trained_model_for_deployment.py"
-        ], capture_output=True, text=True)
+        ], check=False, capture_output=True, text=True)
         
         if result.returncode == 0:
             print("✅ Model saved successfully!")
@@ -85,7 +85,7 @@ def test_deployment_package():
         # Test the model
         result = subprocess.run([
             sys.executable, "deployment/test_examples.py"
-        ], capture_output=True, text=True)
+        ], check=False, capture_output=True, text=True)
         
         if result.returncode == 0:
             print("✅ Deployment package test passed!")
@@ -255,7 +255,7 @@ def run_final_tests():
     
     for test_name, command in tests:
         try:
-            result = subprocess.run(command, shell=True, capture_output=True, text=True)
+            result = subprocess.run(command, check=False, shell=True, capture_output=True, text=True)
             if result.returncode == 0:
                 print(f"✅ {test_name}: PASSED")
                 passed += 1
@@ -319,4 +319,4 @@ def main():
 
 if __name__ == "__main__":
     success = main()
-    sys.exit(0 if success else 1) 
+    sys.exit(0 if success else 1)

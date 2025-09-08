@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-"""
-Simplified ONNX-Based Emotion Detection API Server
-Uses simple string tokenization - no complex dependencies
+"""Simplified ONNX-Based Emotion Detection API Server
+Uses simple string tokenization - no complex dependencies.
 """
 import logging
 import os
 import time
 import re
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple, NoReturn
 import threading
 
 import numpy as np
@@ -75,7 +74,7 @@ def load_vocab() -> Dict[str, int]:
     try:
         if os.path.exists(VOCAB_PATH):
             vocab_dict = {}
-            with open(VOCAB_PATH, 'r', encoding='utf-8') as f:
+            with open(VOCAB_PATH, encoding='utf-8') as f:
                 for i, line in enumerate(f):
                     word = line.strip()
                     if word:
@@ -216,7 +215,7 @@ def predict_emotions(text: str) -> Dict[str, any]:
         raise
 
 
-def initialize_model():
+def initialize_model() -> None:
     """Initialize model and vocabulary."""
     global model_session, vocab, model_loading
 
@@ -331,15 +330,15 @@ if __name__ == '__main__':
         import gunicorn.app.base
 
         class StandaloneApplication(gunicorn.app.base.BaseApplication):
-            def init(self, parser, opts, args):
+            def init(self, parser, opts, args) -> NoReturn:
                 """Initialize the application (abstract method override)."""
                 raise NotImplementedError()
-            def __init__(self, flask_app, gunicorn_options=None):
+            def __init__(self, flask_app, gunicorn_options=None) -> None:
                 self.options = gunicorn_options or {}
                 self.application = flask_app
                 super().__init__()
 
-            def load_config(self):
+            def load_config(self) -> None:
                 for key, value in self.options.items():
                     self.cfg.set(key, value)
 
@@ -362,4 +361,4 @@ if __name__ == '__main__':
 
     except ImportError:
         # Development server
-        app.run(host='127.0.0.1', port=8080, debug=False) 
+        app.run(host='127.0.0.1', port=8080, debug=False)

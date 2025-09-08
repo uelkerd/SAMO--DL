@@ -66,7 +66,7 @@ def main() -> int:
         r = _post_with_retries(payload)
         dt = (time.time() - t0) * 1000
         print("—" * 40)
-        print(f"Input: {repr(text)}")
+        print(f"Input: {text!r}")
         print(f"Status: {r.status_code} ({dt:.1f} ms)")
         try:
             obj = r.json()

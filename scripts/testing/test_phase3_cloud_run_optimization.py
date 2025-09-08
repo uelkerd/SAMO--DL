@@ -10,7 +10,7 @@ import yaml
 import json
 import time
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 import unittest
 from unittest.mock import patch
 import logging
@@ -61,7 +61,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         cloudbuild_path = self.cloud_run_dir / 'cloudbuild.yaml'
         self.assertTrue(cloudbuild_path.exists(), "cloudbuild.yaml should exist")
         
-        with open(cloudbuild_path, 'r') as f:
+        with open(cloudbuild_path) as f:
             config = yaml.safe_load(f)
         
         # Validate required fields
@@ -153,12 +153,12 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
     def _test_multiple_requests(self, monitor):
         """Helper method to test multiple requests"""
         # Add 10 requests
-        for i in range(10):
+        for _i in range(10):
             monitor.request_started()
         self.assertEqual(monitor.active_requests, 10, "Should handle multiple requests")
         
         # Complete 10 requests
-        for i in range(10):
+        for _i in range(10):
             monitor.request_completed()
         self.assertEqual(monitor.active_requests, 0, "Should handle multiple completions")
     
@@ -212,7 +212,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         dockerfile_path = self.cloud_run_dir / 'Dockerfile.secure'
         self.assertTrue(dockerfile_path.exists(), "Dockerfile.secure should exist")
         
-        with open(dockerfile_path, 'r') as f:
+        with open(dockerfile_path) as f:
             content = f.read()
         
         # Test security features
@@ -275,7 +275,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         requirements_path = self.cloud_run_dir / 'requirements_secure.txt'
         self.assertTrue(requirements_path.exists(), "requirements_secure.txt should exist")
         
-        with open(requirements_path, 'r') as f:
+        with open(requirements_path) as f:
             content = f.read()
         
         # Test required dependencies (updated to match actual requirements format)
@@ -296,7 +296,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         unpinned_deps = []
         for line in lines:
             line = line.strip()
-            if (line and not line.startswith('#') and 
+            if (line and not line.startswith('#') and
                 '==' not in line and '>=' not in line and '<=' not in line):
                 unpinned_deps.append(line)
         
@@ -310,7 +310,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         print("🔍 Testing auto-scaling configuration...")
         
         cloudbuild_path = self.cloud_run_dir / 'cloudbuild.yaml'
-        with open(cloudbuild_path, 'r') as f:
+        with open(cloudbuild_path) as f:
             config = yaml.safe_load(f)
         
         # Find Cloud Run deployment step
@@ -358,7 +358,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         
         # Test health check endpoint configuration
         cloudbuild_path = self.cloud_run_dir / 'cloudbuild.yaml'
-        with open(cloudbuild_path, 'r') as f:
+        with open(cloudbuild_path) as f:
             config = yaml.safe_load(f)
         
         # Check for health check environment variables
@@ -481,7 +481,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         
         # Test Cloud Build YAML parsing
         cloudbuild_path = self.cloud_run_dir / 'cloudbuild.yaml'
-        with open(cloudbuild_path, 'r') as f:
+        with open(cloudbuild_path) as f:
             config = yaml.safe_load(f)
         
         # Validate YAML structure using enhanced approach
@@ -586,4 +586,4 @@ def run_phase3_tests():
 
 if __name__ == '__main__':
     success = run_phase3_tests()
-    sys.exit(0 if success else 1) 
+    sys.exit(0 if success else 1)
