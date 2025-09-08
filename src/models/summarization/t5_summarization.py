@@ -41,7 +41,7 @@ class T5Summarizer:
         else:
             self.device = torch.device(self.config.device)
 
-        logger.info(f"Loading T5 model: {self.config.model_name}")
+        logger.info("Loading T5 model: %s", self.config.model_name)
 
         try:
             self.tokenizer = T5Tokenizer.from_pretrained(self.config.model_name)
@@ -51,9 +51,9 @@ class T5Summarizer:
             )
             self.model.to(self.device)
             self.model.eval()
-            logger.info(f"✅ T5 model loaded successfully on {self.device}")
+            logger.info("✅ T5 model loaded successfully on %s", self.device)
         except Exception as e:
-            logger.error(f"❌ Failed to load T5 model: {e}")
+            logger.error("❌ Failed to load T5 model: %s", e)
             raise RuntimeError(f"T5 model loading failed: {e}")
 
     def summarize(
@@ -144,7 +144,7 @@ class T5Summarizer:
             "input_text": input_text[:200] + "..." if len(input_text) > 200 else input_text
         }
 
-        logger.info(f"Summarization complete: {result['input_length']} → {result['summary_length']} words")
+        logger.info("Summarization complete: %s → %s words", result['input_length'], result['summary_length'])
         return result
 
     def batch_summarize(
@@ -158,7 +158,7 @@ class T5Summarizer:
             batch = texts[i:i + batch_size]
             batch_results = [self.summarize(text) for text in batch]
             results.extend(batch_results)
-            logger.info(f"Processed batch {i//batch_size + 1}: {len(batch)} texts")
+            logger.info("Processed batch %s: %s texts", i//batch_size + 1, len(batch))
         return results
 
     @staticmethod
@@ -211,7 +211,7 @@ def create_t5_summarizer(
     """Create T5 summarizer with specified configuration."""
     config = SummarizationConfig(model_name=model_name, device=device)
     summarizer = T5Summarizer(config)
-    logger.info(f"Created T5 summarizer: {model_name}")
+    logger.info("Created T5 summarizer: %s", model_name)
     return summarizer
 
 def test_t5_summarizer() -> None:
@@ -231,9 +231,9 @@ def test_t5_summarizer() -> None:
     result = summarizer.summarize(sample_text)
 
     logger.info("✅ T5 summarizer test complete!")
-    logger.info(f"Summary: {result['summary']}")
-    logger.info(f"Confidence: {result['confidence']:.2f}")
-    logger.info(f"Model info: {summarizer.get_model_info()}")
+    logger.info("Summary: %s", result['summary'])
+    logger.info("Confidence: %.2f", result['confidence'])
+    logger.info("Model info: %s", summarizer.get_model_info())
 
 if __name__ == "__main__":
     test_t5_summarizer()

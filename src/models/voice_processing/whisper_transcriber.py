@@ -341,7 +341,7 @@ class WhisperTranscriber:
                 results.append(result)
 
             except Exception as e:
-                logger.error(f"Failed to transcribe {audio_path}: {e}")
+                logger.error("Failed to transcribe %s: %s", audio_path, e)
                 results.append(
                     TranscriptionResult(
                         text="",
@@ -472,7 +472,7 @@ def test_whisper_transcriber() -> None:
     transcriber = create_whisper_transcriber("base")
 
     logger.info("Whisper transcriber initialized successfully")
-    logger.info(f"Model info: {transcriber.get_model_info()}")
+    logger.info("Model info: %s", transcriber.get_model_info())
 
 
     logger.info("✅ Whisper transcriber test complete!")

@@ -47,7 +47,7 @@ async def complete_analysis(request: AnalysisRequest):
                 validated_text = validate_text_input(request.text)
                 sanitized_text, warnings = InputSanitizer().sanitize_text(validated_text, "analysis")
                 if warnings:
-                    logger.warning(f"Sanitization warnings: {warnings}")
+                    logger.warning("Sanitization warnings: %s", warnings)
 
                 classifier = get_emotion_classifier()
                 emotion_results = classifier.predict_emotions([sanitized_text])
@@ -55,7 +55,7 @@ async def complete_analysis(request: AnalysisRequest):
                 result["emotion"] = emotion_result["label"]
                 result["emotion_score"] = emotion_result["score"]
             except Exception as e:
-                logger.error(f"Emotion detection failed: {e}")
+                logger.error("Emotion detection failed: %s", e)
                 result["emotion"] = "error"
                 result["emotion_score"] = 0.0
 
@@ -66,7 +66,7 @@ async def complete_analysis(request: AnalysisRequest):
                 summary = summarizer_instance.generate_summary(request.text)
                 result["summary"] = summary
             except Exception as e:
-                logger.error(f"Summarization failed: {e}")
+                logger.error("Summarization failed: %s", e)
                 result["summary"] = "Summarization unavailable"
 
         # Transcription
@@ -85,7 +85,7 @@ async def complete_analysis(request: AnalysisRequest):
                 # Clean up temp file
                 os.unlink(temp_audio_path)
             except Exception as e:
-                logger.error(f"Transcription failed: {e}")
+                logger.error("Transcription failed: %s", e)
                 result["transcription"] = "Transcription unavailable"
                 result["transcription_confidence"] = 0.0
 
@@ -99,7 +99,7 @@ async def complete_analysis(request: AnalysisRequest):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Complete analysis error: {e!s}")
+        logger.error("Complete analysis error: %s", e)
         raise HTTPException(status_code=500, detail="Internal server error")
 
 # Existing code would go here - this is appended for the new endpoint
@@ -112,6 +112,6 @@ if __name__ == "__main__":
 
     # Log Python binary architecture info at startup
     result = subprocess.run(['file', '/usr/local/bin/python'], capture_output=True, text=True, check=True)
-    logger.info(f"Python binary info: {result.stdout}")
+    logger.info("Python binary info: %s", result.stdout)
 
     uvicorn.run(app, host="0.0.0.0", port=8000)

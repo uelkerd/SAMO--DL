@@ -43,5 +43,5 @@ with contextlib.suppress(Exception):
 try:
     pass
 except Exception as e:
-    logging.warning(f"Version check exception: {e}")
+    logging.warning("Version check exception: %s", e)
 

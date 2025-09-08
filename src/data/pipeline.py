@@ -181,18 +181,18 @@ class DataPipeline:
         if source_type == "db":
             user_info = f" for user {user_id}" if user_id else ""
             limit_info = f" (limit: {limit})" if limit else ""
-            logger.info(f"Loading data from database{user_info}{limit_info}")
+            logger.info("Loading data from database%s%s", user_info, limit_info)
             return load_entries_from_db(limit=limit, user_id=user_id)
 
         if source_type == "json" and isinstance(data_source, str):
-            logger.info(f"Loading data from JSON file: {data_source}")
+            logger.info("Loading data from JSON file: %s", data_source)
             return load_entries_from_json(data_source)
 
         if source_type == "csv" and isinstance(data_source, str):
-            logger.info(f"Loading data from CSV file: {data_source}")
+            logger.info("Loading data from CSV file: %s", data_source)
             return load_entries_from_csv(data_source)
 
-        logger.error(f"Invalid data source type: {source_type}")
+        logger.error("Invalid data source type: %s", source_type)
         return pd.DataFrame()
 
     def _save_results(

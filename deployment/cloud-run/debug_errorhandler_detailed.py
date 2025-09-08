@@ -42,7 +42,7 @@ try:
     # Let's check if there's a difference
     
 except Exception as e:
-    logging.warning(f"Debug exception: {e}")
+    logging.warning("Debug exception: %s", e)
 
 # Let's check if there are any global variables that might be interfering
 
