@@ -127,12 +127,22 @@ curl -X POST "${SERVICE_URL}/api/predict" \
 
 # Test summarization endpoint
 print_status "Testing T5 summarization endpoint..."
+# Test summarization endpoint
+print_status "Testing T5 summarization endpoint..."
 curl -X POST "${SERVICE_URL}/api/summarize" \
     -H "Content-Type: application/json" \
     -H "X-API-Key: $ADMIN_API_KEY" \
     -d '{"text": "This is a long text that needs to be summarized. It contains multiple sentences and ideas that should be condensed into a shorter version.", "max_length": 50}' || {
     print_warning "T5 summarization test failed (may still be loading models)"
 }
+
+# Test transcribe endpoint mount (expect 400 due to missing audio)
+print_status "Testing Whisper transcribe endpoint mount..."
+TRANSCRIBE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${SERVICE_URL}/api/transcribe" \
+    -H "X-API-Key: $ADMIN_API_KEY" -F "language=en" | grep -qE "400|415" || echo "unexpected")
+if [[ $TRANSCRIBE_STATUS != "400" && $TRANSCRIBE_STATUS != "415" ]]; then
+    print_warning "Transcribe endpoint mount/auth check did not return expected client error ($TRANSCRIBE_STATUS)"
+fi
 
 # Test transcribe endpoint mount (expect 400 due to missing audio)
 print_status "Testing Whisper transcribe endpoint mount..."
