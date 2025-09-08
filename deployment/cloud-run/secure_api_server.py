@@ -153,8 +153,8 @@ def load_all_models():
     try:
         load_model()
         logger.info("✅ Emotion detection model loaded")
-    except Exception as e:
-        logger.error(f"❌ Failed to load emotion detection model: {e}")
+    except Exception:
+        logger.exception("❌ Failed to load emotion detection model")
         raise
 
     # Load T5 summarization model
@@ -163,8 +163,8 @@ def load_all_models():
             logger.info("🔄 Loading T5 summarization model...")
             t5_summarizer = create_t5_summarizer("t5-small")
             logger.info("✅ T5 summarization model loaded")
-        except Exception as e:
-            logger.error(f"❌ Failed to load T5 summarizer: {e}")
+        except Exception:
+            logger.exception("❌ Failed to load T5 summarizer")
             T5_AVAILABLE = False
 
     # Load Whisper transcription model
@@ -173,8 +173,8 @@ def load_all_models():
             logger.info("🔄 Loading Whisper transcription model...")
             whisper_transcriber = create_whisper_transcriber("base")
             logger.info("✅ Whisper transcription model loaded")
-        except Exception as e:
-            logger.error(f"❌ Failed to load Whisper transcriber: {e}")
+        except Exception:
+            logger.exception("❌ Failed to load Whisper transcriber")
             WHISPER_AVAILABLE = False
 
     logger.info("✅ All available models loaded successfully")
@@ -829,11 +829,9 @@ class Summarize(Resource):
             logger.info(f"📤 Summarization result: {result}")
             return result
 
-        except Exception as e:
-            logger.error(f"❌ Summarization failed: {e}")
-            import traceback
-            logger.error(f"Traceback: {traceback.format_exc()}")
-            api.abort(500, f"Summarization failed: {str(e)}")
+        except Exception:
+            logger.exception("❌ Summarization failed")
+            api.abort(500, "Summarization failed")
 
 
 @api.route('/transcribe')
