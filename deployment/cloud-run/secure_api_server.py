@@ -844,16 +844,21 @@ class CompleteAnalysis(Resource):
     def _process_transcription(audio_file):
         """Process audio transcription if provided."""
         logger.info("🔄 Processing audio transcription...")
+        import os
         import tempfile
         allowed_extensions = {'mp3','wav','m4a','aac','ogg','flac'}
-        if '.' not in audio_file.filename:
-            ext = 'wav'
-            logger.warning(f"No extension in filename {audio_file.filename}, defaulting to .wav")
-        else:
-            ext = audio_file.filename.rsplit('.', 1)[1].lower()
-            if ext not in allowed_extensions:
+        # Extract extension safely using os.path.splitext
+        _, ext_candidate = os.path.splitext(audio_file.filename)
+        ext = 'wav'  # default
+        if ext_candidate:
+            ext_candidate = ext_candidate.lstrip('.').lower()
+            if ext_candidate.isalnum() and ext_candidate in allowed_extensions:
+                ext = ext_candidate
+            else:
+                logger.warning(f"Invalid extension '{ext_candidate}' in filename '{audio_file.filename}', defaulting to .wav")
                 ext = 'wav'
-                logger.warning(f"Invalid extension {ext} in filename {audio_file.filename}, defaulting to .wav")
+        else:
+            logger.warning(f"No extension in filename {audio_file.filename}, defaulting to .wav")
         logger.info(f"Using validated extension: .{ext} for temp file in complete analysis")
         with tempfile.NamedTemporaryFile(
             delete=False, suffix=f'.{ext}'
