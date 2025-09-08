@@ -10,10 +10,9 @@ Tests all SAMO API endpoints including:
 """
 
 import requests
+import sys
 import time
-import json
 import os
-from pathlib import Path
 
 # Configuration
 API_BASE_URL = os.getenv("API_BASE_URL", "https://emotion-detection-api-frrnetyhfa-uc.a.run.app")
@@ -21,7 +20,7 @@ API_KEY = os.getenv("API_KEY")
 if not API_KEY:
     print("❌ API_KEY environment variable not set!")
     print("   Please set API_KEY environment variable before running tests")
-    exit(1)
+    sys.exit(1)
 
 def test_endpoint(name, method, url, **kwargs):
     """Test an API endpoint and return results"""
@@ -311,10 +310,9 @@ def main():
     if passed_tests == total_tests:
         print("   🎉 All tests passed! Your Complete AI API is working perfectly!")
         return True
-    else:
-        print("   ⚠️  Some tests failed. Check the logs above for details.")
-        return False
+    print("   ⚠️  Some tests failed. Check the logs above for details.")
+    return False
 
 if __name__ == "__main__":
     success = main()
-    exit(0 if success else 1)
+    sys.exit(0 if success else 1)
