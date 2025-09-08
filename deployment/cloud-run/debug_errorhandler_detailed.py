@@ -22,6 +22,7 @@ except Exception:
 
 # Let's inspect the API object in detail
 
+errorhandler_method = None
 with contextlib.suppress(Exception):
     errorhandler_method = api.errorhandler
 
@@ -31,7 +32,10 @@ try:
     # First, let's see what the method looks like
     
     # Let's try calling it with different approaches
-    result = errorhandler_method(429)
+    if errorhandler_method is not None:
+        result = errorhandler_method(429)
+    else:
+        result = None
     
     result2 = api.errorhandler(429)
     

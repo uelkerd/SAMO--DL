@@ -256,7 +256,7 @@ def save_expanded_results(training_history, best_f1, label_encoder, test_data, t
         'num_labels': len(label_encoder.classes_),
         'all_emotions': list(label_encoder.classes_),
         'training_history': training_history,
-        'expanded_samples': len(X_test) + len(list(train_data[0])) + len(list(val_data[0])),
+        'expanded_samples': len(X_test) + len(train_data[0]) + len(val_data[0]),
         'test_samples': len(X_test)
     }
     

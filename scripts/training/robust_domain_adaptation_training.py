@@ -229,6 +229,7 @@ class FocalLoss:
         self.F = F
     
     def __call__(self, inputs, targets):
+        import torch
         ce_loss = self.F.cross_entropy(inputs, targets, reduction='none')
         pt = torch.exp(-ce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * ce_loss
