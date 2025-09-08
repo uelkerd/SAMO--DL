@@ -274,16 +274,18 @@ class WhisperTranscriber:
             )
 
             audio_quality = self._assess_audio_quality(result, audio_metadata)
-
-            confidence = self._calculate_confidence(result.segments if hasattr(result, 'segments') else [])
+            
+            # Defensive check for segments to prevent non-subscriptable errors
+            segments = result.get('segments', []) if hasattr(result, 'segments') and isinstance(result.segments, list) else []
+            confidence = self._calculate_confidence(segments)
 
             transcription_result = TranscriptionResult(
-                text=result.text.strip(),
-                language=result.language,
+                text=result['text'].strip() if isinstance(result.get('text'), str) else '',
+                language=result.get('language', 'unknown'),
                 confidence=confidence,
                 duration=audio_metadata["duration"],
                 processing_time=processing_time,
-                segments=result.segments if hasattr(result, 'segments') else [],
+                segments=segments,
                 audio_quality=audio_quality,
                 word_count=word_count,
                 speaking_rate=speaking_rate,
