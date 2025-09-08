@@ -70,13 +70,13 @@ gcloud run deploy "${SERVICE_NAME}" \
     --port=8080 \
     --memory=4Gi \
     --cpu=2 \
-    --startup-cpu-boost \
+    --cpu-boost \
     --max-instances=10 \
     --min-instances=0 \
     --concurrency=40 \
     --timeout=360s \
     --set-env-vars="ADMIN_API_KEY=${ADMIN_API_KEY:-test-key-123},HF_HOME=/app/models,TRANSFORMERS_CACHE=/app/models,PRELOAD_MODELS=0" \
-    --health-check-timeout 30s
+    --timeout=30s
 
 # Step 4: Get service URL
 print_status "Step 4: Getting service URL..."

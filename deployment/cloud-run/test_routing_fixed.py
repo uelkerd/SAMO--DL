@@ -15,23 +15,18 @@ try:
     from secure_api_server import app
     
     
-    # Check if root endpoint exists
-    root_routes = [rule for rule in app.url_map.iter_rules() if rule.rule == '/']
-    if root_routes:
-            for _route in root_routes:
-                pass
-        
-        # Check if health endpoint exists
-        health_routes = [rule for rule in app.url_map.iter_rules() if '/health' in rule.rule]
-        if health_routes:
-            for _route in health_routes:
-                pass
-        
-        # Check if docs endpoint exists
-        docs_routes = [rule for rule in app.url_map.iter_rules() if rule.rule == '/docs']
-        if docs_routes:
-            for _route in docs_routes:
-                pass
+    # Check for root, health, and docs endpoints
+    route_patterns = [
+        ('/', 'Root'),
+        ('/health', 'Health'),
+        ('/docs', 'Docs')
+    ]
+    for pattern, name in route_patterns:
+        routes = [rule for rule in app.url_map.iter_rules() if pattern in rule.rule]
+        if routes:
+            continue
+        else:
+            continue
     
     
 except Exception:

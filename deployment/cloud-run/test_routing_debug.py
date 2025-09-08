@@ -49,7 +49,7 @@ except Exception:
 endpoints = {}
 for rule in app.url_map.iter_rules():
     if rule.endpoint in endpoints:
-        pass
+        print(f"Debug: Endpoint {rule.endpoint}: {rule.rule}")
     else:
         endpoints[rule.endpoint] = rule.rule
 
