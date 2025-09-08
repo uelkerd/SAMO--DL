@@ -216,7 +216,7 @@ class WhisperTranscriber:
             )
 
         except Exception as exc:
-            logger.error(f"❌ Failed to load Whisper model: {exc}")
+            logger.error("❌ Failed to load Whisper model: %s", exc)
             raise RuntimeError(f"Whisper model loading failed: {exc}")
 
         self.preprocessor = AudioPreprocessor()

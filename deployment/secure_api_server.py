@@ -260,7 +260,7 @@ class SecureEmotionDetectionModel:
             logger.info("✅ Secure model loaded successfully")
 
         except Exception as e:
-            logger.error(f"❌ Failed to load secure model: {e!s}. Falling back to stub mode.")
+            logger.error("❌ Failed to load secure model: %s. Falling back to stub mode.", e)
             self.tokenizer = None
             self.model = None
             self.loaded = False
@@ -281,7 +281,7 @@ class SecureEmotionDetectionModel:
             # Sanitize input text
             sanitized_text, warnings = input_sanitizer.sanitize_text(text, "emotion")
             if warnings:
-                logger.warning(f"Sanitization warnings: {warnings}")
+                logger.warning("Sanitization warnings: %s", warnings)
             
             # Tokenize input
             inputs = self.tokenizer(sanitized_text, return_tensors='pt', truncation=True, padding=True, max_length=512)
@@ -311,7 +311,7 @@ class SecureEmotionDetectionModel:
                 all_probs = probabilities[0].cpu().numpy()
             
             prediction_time = time.time() - start_time
-            logger.info(f"Secure prediction completed in {prediction_time:.3f}s: '{sanitized_text[:50]}...' → {predicted_emotion} (conf: {confidence:.3f})")
+            logger.info("Secure prediction completed in %.3fs: '%s...' → %s (conf: %.3f)", prediction_time, sanitized_text[:50], predicted_emotion, confidence)
             
             # Create secure response
             return {
@@ -1065,7 +1065,7 @@ if __name__ == '__main__':
     logger.info("        -H 'Content-Type: application/json' \\")
     logger.info("        -d '{\"text\": \"I am feeling happy today!\"}'")
     logger.info("")
-    logger.info(f"🔒 Rate limiting: {rate_limit_config.requests_per_minute} requests per minute")
+    logger.info("🔒 Rate limiting: %s requests per minute", rate_limit_config.requests_per_minute)
     logger.info("🛡️ Security monitoring: Comprehensive logging and metrics enabled")
     logger.info("=" * 60)
     
