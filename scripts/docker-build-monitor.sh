@@ -48,7 +48,7 @@ echo ""
 
 # Start build and capture start time
 START_TIME=$(date +%s)
-docker build --no-cache --progress=plain -t \"$IMAGE_NAME\" -f \"$DOCKERFILE\" . 2>&1 | tee build.log
+docker build --no-cache --progress=plain -t "$IMAGE_NAME" -f "$DOCKERFILE" . 2>&1 | tee build.log
 BUILD_EXIT_CODE=${PIPESTATUS[0]}
 
 END_TIME=$(date +%s)

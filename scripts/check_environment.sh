@@ -66,7 +66,7 @@ echo "📊 Environment Summary:"
 echo "======================="
 # Capture Python version once
 PYTHON_VER=$(python3 --version 2>/dev/null || echo 'Not available')
-echo "• Python: $PYTHON_VER"
+echo "• Python: \"$PYTHON_VER\""
 
 echo "• PyTorch: $(python3 -c "import torch; print(torch.__version__)" 2>/dev/null || echo 'Not installed')"
 

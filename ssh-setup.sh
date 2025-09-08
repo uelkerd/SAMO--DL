@@ -12,8 +12,8 @@ if [ -z "$SSH_AGENT_PID" ]; then
 fi
 
 # Export SSH agent environment variables for future sessions
-echo "export SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> ~/.bashrc
-echo "export SSH_AGENT_PID=$SSH_AGENT_PID" >> ~/.bashrc
+echo "export SSH_AUTH_SOCK=\"$SSH_AUTH_SOCK\"" >> ~/.bashrc
+echo "export SSH_AGENT_PID=\"$SSH_AGENT_PID\"" >> ~/.bashrc
 echo "📝 Added SSH agent environment to ~/.bashrc"
 
 # Add GitHub SSH key to agent
