@@ -1,4 +1,21 @@
 #!/usr/bin/env bash
+
+# Simple timeout function for macOS compatibility
+timeout() {
+    local seconds=$1; shift
+    local cmd="$@"
+    
+    {
+        eval "$cmd" &
+        local pid=$!
+        sleep "$seconds" & local sleep_pid=$!
+        wait "$pid" 2>/dev/null && kill "$sleep_pid" 2>/dev/null
+    } || {
+        kill "$pid" 2>/dev/null 2>&1
+        echo "Command timed out after ${seconds}s" >&2
+        return 124
+    }
+}
 set -euo pipefail
 
 # Usage:

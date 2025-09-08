@@ -106,5 +106,12 @@ async def complete_analysis(request: AnalysisRequest):
 # ... rest of existing unified_ai_api.py content ...
 
 if __name__ == "__main__":
+    import subprocess
+    import tempfile
     import uvicorn
+    
+    # Log Python binary architecture info at startup
+    result = subprocess.run(['file', '/usr/local/bin/python'], capture_output=True, text=True)
+    logger.info(f"Python binary info: {result.stdout}")
+    
     uvicorn.run(app, host="0.0.0.0", port=8000)

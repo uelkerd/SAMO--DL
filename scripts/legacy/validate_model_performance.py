@@ -139,7 +139,11 @@ def evaluate_model_performance(model, tokenizer, test_examples, emotions):
     print("=" * 50)
     
     model.eval()
-    device = next(model.parameters()).device
+    try:
+        device = next(model.parameters()).device
+    except StopIteration:
+        print("❌ Model has no parameters!")
+        return None
     
     results = []
     predictions_by_emotion = dict.fromkeys(emotions, 0)

@@ -184,7 +184,7 @@ class VertexAIPhase4Automation:
 
         # Get git commit hash if available
         try:
-            result = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'],
+            result = subprocess.run(['/usr/bin/git', 'rev-parse', '--short', 'HEAD'],
                                   capture_output=True, text=True, check=True)
             git_hash = result.stdout.strip() if result.returncode == 0 else "unknown"
         except Exception:
@@ -243,13 +243,13 @@ CMD ["python", "predict.py"]
             f.write(dockerfile_content)
 
         # Copy model files
-        subprocess.run(['cp', '-r', source_model_path, f"{deployment_dir}/model"], check=True)
+        subprocess.run(['/bin/cp', '-r', source_model_path, f"{deployment_dir}/model"], check=True)
 
         # Copy requirements
-        subprocess.run(['cp', 'deployment/gcp/requirements.txt', f"{deployment_dir}/"], check=True)
+        subprocess.run(['/bin/cp', 'deployment/gcp/requirements.txt', f"{deployment_dir}/"], check=True)
 
         # Copy prediction code
-        subprocess.run(['cp', 'deployment/gcp/predict.py', f"{deployment_dir}/"], check=True)
+        subprocess.run(['/bin/cp', 'deployment/gcp/predict.py', f"{deployment_dir}/"], check=True)
 
         # Create version metadata
         metadata = {
@@ -286,11 +286,11 @@ CMD ["python", "predict.py"]
 
         try:
             # Build image
-            subprocess.run(['docker', 'build', '-t', image_uri, deployment_dir], check=True)
+            subprocess.run(['/usr/bin/docker', 'build', '-t', image_uri, deployment_dir], check=True)
             print("✅ Docker image built")
 
             # Push image
-            subprocess.run(['docker', 'push', image_uri], check=True)
+            subprocess.run(['/usr/bin/docker', 'push', image_uri], check=True)
             print("✅ Docker image pushed to Container Registry")
 
             return image_uri

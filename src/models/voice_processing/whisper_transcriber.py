@@ -472,7 +472,7 @@ def test_whisper_transcriber() -> None:
     transcriber = create_whisper_transcriber("base")
 
     logger.info("Whisper transcriber initialized successfully")
-    logger.info("Model info:", transcriber.get_model_info())
+    logger.info(f"Model info: {transcriber.get_model_info()}")
 
 
     logger.info("✅ Whisper transcriber test complete!")

@@ -96,7 +96,11 @@ def evaluate_model(model, test_data, threshold=0.5):
     logger.info(f"🔍 Evaluating model with threshold {threshold}...")
 
     model.eval()
-    device = next(model.parameters()).device
+    try:
+        device = next(model.parameters()).device
+    except StopIteration:
+        logger.error("❌ Model has no parameters!")
+        return None
 
     all_true_labels = []
     all_predictions = []
@@ -169,7 +173,11 @@ def optimize_threshold(model, test_data):
 
     # Get raw probabilities first
     model.eval()
-    device = next(model.parameters()).device
+    try:
+        device = next(model.parameters()).device
+    except StopIteration:
+        logger.error("❌ Model has no parameters!")
+        return None
 
     all_true_labels = []
     all_probabilities = []

@@ -36,8 +36,7 @@ def debug_data_loading():
         trainer = EmotionDetectionTrainer(
             model_name="bert-base-uncased",
             batch_size=4,  # Small batch for debugging
-            num_epochs=1,
-            dev_mode=True
+            num_epochs=1
         )
 
         datasets = trainer.prepare_data(dev_mode=True)
@@ -97,8 +96,7 @@ def debug_model_outputs(datasets):
         trainer = EmotionDetectionTrainer(
             model_name="bert-base-uncased",
             batch_size=4,
-            num_epochs=1,
-            dev_mode=True
+            num_epochs=1
         )
 
         # Initialize trainer and model
@@ -250,8 +248,7 @@ def main():
     trainer = EmotionDetectionTrainer(
         model_name="bert-base-uncased",
         batch_size=4,
-        num_epochs=1,
-        dev_mode=True
+        num_epochs=1
     )
     datasets = trainer.prepare_data(dev_mode=True)
     
