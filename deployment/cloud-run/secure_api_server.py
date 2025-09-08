@@ -401,8 +401,8 @@ def after_request(response):
 class Health(Resource):
     @api.doc('get_health')
     @api.response(200, 'Success')
-    @api.response(503, 'Service Unavailable', error_model)
-    @api.response(500, 'Internal Server Error', error_model)
+    @api.response(503, 'Service Unavailable')
+    @api.response(500, 'Internal Server Error')
     def get(self):
         """Get API health status"""
         try:
@@ -431,10 +431,10 @@ class Predict(Resource):
     @api.doc('post_predict', security='apikey')
     @api.expect(text_input_model, validate=True)
     @api.response(200, 'Success', emotion_response_model)
-    @api.response(400, 'Bad Request', error_model)
-    @api.response(401, 'Unauthorized', error_model)
-    @api.response(429, 'Too Many Requests', error_model)
-    @api.response(503, 'Service Unavailable', error_model)
+    @api.response(400, 'Bad Request')
+    @api.response(401, 'Unauthorized')
+    @api.response(429, 'Too Many Requests')
+    @api.response(503, 'Service Unavailable')
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
@@ -480,10 +480,10 @@ class PredictBatch(Resource):
     @api.doc('post_predict_batch', security='apikey')
     @api.expect(batch_input_model, validate=True)
     @api.response(200, 'Success', batch_response_model)
-    @api.response(400, 'Bad Request', error_model)
-    @api.response(401, 'Unauthorized', error_model)
-    @api.response(429, 'Too Many Requests', error_model)
-    @api.response(503, 'Service Unavailable', error_model)
+    @api.response(400, 'Bad Request')
+    @api.response(401, 'Unauthorized')
+    @api.response(429, 'Too Many Requests')
+    @api.response(503, 'Service Unavailable')
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
@@ -537,7 +537,7 @@ class PredictBatch(Resource):
 class Emotions(Resource):
     @api.doc('get_emotions')
     @api.response(200, 'Success')
-    @api.response(500, 'Internal Server Error', error_model)
+    @api.response(500, 'Internal Server Error')
     def get(self):
         """Get list of supported emotions"""
         try:
@@ -556,8 +556,8 @@ class Emotions(Resource):
 class ModelStatus(Resource):
     @api.doc('get_model_status', security='apikey')
     @api.response(200, 'Success')
-    @api.response(401, 'Unauthorized', error_model)
-    @api.response(500, 'Internal Server Error', error_model)
+    @api.response(401, 'Unauthorized')
+    @api.response(500, 'Internal Server Error')
     @require_api_key
     def get(self):
         """Get detailed model status (admin only)"""
@@ -574,8 +574,8 @@ class ModelStatus(Resource):
 class SecurityStatus(Resource):
     @api.doc('get_security_status', security='apikey')
     @api.response(200, 'Success')
-    @api.response(401, 'Unauthorized', error_model)
-    @api.response(500, 'Internal Server Error', error_model)
+    @api.response(401, 'Unauthorized')
+    @api.response(500, 'Internal Server Error')
     @require_api_key
     def get(self):
         """Get security configuration status (admin only)"""
