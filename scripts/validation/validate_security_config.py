@@ -246,8 +246,7 @@ def main():
         validator.print_results()
         if validator.errors:
             raise ValueError("Security validation errors found")
-        else:
-            print("\n✅ Security configuration validation passed!")
+        print("\n✅ Security configuration validation passed!")
     else:
         validator.print_results()
         raise ValueError("Security validation failed")

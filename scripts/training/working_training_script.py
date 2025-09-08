@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
-"""
-Working Training Script based on the successful local validation approach.
-"""
+"""Working Training Script based on the successful local validation approach."""
 
 from pathlib import Path
 import logging
 import sys
 import torch
-import torch.nn as nn
 import traceback
 
 # Add src to path

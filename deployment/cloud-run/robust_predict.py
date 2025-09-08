@@ -87,7 +87,6 @@ def load_model() -> None:
 
 def predict_emotion(text: str) -> Dict[str, Any]:
     """Predict emotion for given text."""
-    
     if not model_loaded:
         raise RuntimeError("Model not loaded")
 

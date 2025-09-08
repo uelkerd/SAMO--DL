@@ -274,7 +274,7 @@ class WhisperTranscriber:
             )
 
             audio_quality = self._assess_audio_quality(result, audio_metadata)
-            
+
             # Defensive check for segments to prevent non-subscriptable errors
             segments = result.get('segments', []) if hasattr(result, 'segments') and isinstance(result.segments, list) else []
             confidence = self._calculate_confidence(segments)

@@ -960,7 +960,6 @@ class TestJWTManager:
         
         # Manually create an expired token
         import jwt
-        from datetime import datetime, timedelta
         
         payload = {
             "user_id": user_data["user_id"],

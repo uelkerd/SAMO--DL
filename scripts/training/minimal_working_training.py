@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Minimal Working Training Script
-"""
+"""Minimal Working Training Script"""
 
 import logging
 import os
@@ -66,10 +64,9 @@ class FocalLoss(nn.Module):
 
         if self.reduction == "mean":
             return focal_loss.mean()
-        elif self.reduction == "sum":
+        if self.reduction == "sum":
             return focal_loss.sum()
-        else:
-            return focal_loss
+        return focal_loss
 
 
 def create_synthetic_data(num_samples=1000, seq_length=128):
@@ -85,7 +82,6 @@ def create_synthetic_data(num_samples=1000, seq_length=128):
 
 def train_minimal_model():
     """Train a minimal BERT model with synthetic data."""
-
     logger.info("🚀 Starting Minimal Working Training")
     logger.info("   • Using only working modules (PyTorch, NumPy, Transformers)")
     logger.info("   • Synthetic data to avoid dataset loading issues")

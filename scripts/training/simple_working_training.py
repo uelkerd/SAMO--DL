@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Simple Working Training Script
-"""
+"""Simple Working Training Script"""
 
 from pathlib import Path
 import logging
@@ -59,15 +57,13 @@ class FocalLoss(nn.Module):
 
         if self.reduction == "mean":
             return focal_loss.mean()
-        elif self.reduction == "sum":
+        if self.reduction == "sum":
             return focal_loss.sum()
-        else:
-            return focal_loss
+        return focal_loss
 
 
 def train_simple_model():
     """Train a simple BERT model with focal loss."""
-
     logger.info("🚀 Starting Simple Working Training")
     logger.info("   • Focal Loss: alpha=0.25, gamma=2.0")
     logger.info("   • Learning Rate: 2e-05")

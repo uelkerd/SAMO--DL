@@ -31,18 +31,18 @@ class SummarizationConfig:
 
 class T5Summarizer:
     """T5-based text summarizer."""
-    
+
     def __init__(self, config: Optional[SummarizationConfig] = None):
         """Initialize T5 summarizer."""
         self.config = config or SummarizationConfig()
-        
+
         if self.config.device is None:
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         else:
             self.device = torch.device(self.config.device)
-        
+
         logger.info(f"Loading T5 model: {self.config.model_name}")
-        
+
         try:
             self.tokenizer = T5Tokenizer.from_pretrained(self.config.model_name)
             self.model = T5ForConditionalGeneration.from_pretrained(
@@ -55,7 +55,7 @@ class T5Summarizer:
         except Exception as e:
             logger.error(f"❌ Failed to load T5 model: {e}")
             raise RuntimeError(f"T5 model loading failed: {e}")
-    
+
     def summarize(
         self, 
         text: str, 
@@ -65,13 +65,13 @@ class T5Summarizer:
     ) -> Dict[str, Any]:
         """
         Generate summary for input text using T5.
-        
+
         Args:
             text: Input text to summarize
             max_length: Maximum summary length (overrides config)
             min_length: Minimum summary length (overrides config)
             num_beams: Number of beams for generation (overrides config)
-        
+
         Returns:
             Dictionary containing summary, scores, and metadata
         """
@@ -84,13 +84,13 @@ class T5Summarizer:
                 "processing_time": 0.0,
                 "scores": {}
             }
-        
+
         start_time = torch.cuda.Event(enable_timing=True) if self.device.type == "cuda" else None
         end_time = torch.cuda.Event(enable_timing=True) if self.device.type == "cuda" else None
-        
+
         if start_time:
             start_time.record()
-        
+
         # Preprocess text
         input_text = self._preprocess_text(text)
         input_ids = self.tokenizer.encode(
@@ -99,12 +99,12 @@ class T5Summarizer:
             max_length=self.config.max_length,
             truncation=True
         ).to(self.device)
-        
+
         # Generation parameters
         gen_max_length = max_length or self.config.max_length
         gen_min_length = min_length or self.config.min_length
         gen_num_beams = num_beams or self.config.num_beams
-        
+
         with torch.no_grad():
             generated_ids = self.model.generate(
                 input_ids,
@@ -119,21 +119,21 @@ class T5Summarizer:
                 pad_token_id=self.tokenizer.pad_token_id,
                 eos_token_id=self.tokenizer.eos_token_id
             )
-        
+
         # Decode summary
         summary_ids = generated_ids[:, input_ids.shape[-1]:]
         summary = self.tokenizer.decode(summary_ids[0], skip_special_tokens=True)
-        
+
         if end_time:
             end_time.record()
             torch.cuda.synchronize()
             processing_time = start_time.elapsed_time(end_time) / 1000.0  # ms to seconds
         else:
             processing_time = 0.0
-        
+
         # Calculate confidence/quality scores
         scores = self._calculate_summary_scores(input_ids, generated_ids)
-        
+
         result = {
             "summary": summary.strip(),
             "confidence": scores.get("confidence", 0.0),
@@ -143,10 +143,10 @@ class T5Summarizer:
             "scores": scores,
             "input_text": input_text[:200] + "..." if len(input_text) > 200 else input_text
         }
-        
+
         logger.info(f"Summarization complete: {result['input_length']} → {result['summary_length']} words")
         return result
-    
+
     def batch_summarize(
         self, 
         texts: List[str], 
@@ -160,15 +160,16 @@ class T5Summarizer:
             results.extend(batch_results)
             logger.info(f"Processed batch {i//batch_size + 1}: {len(batch)} texts")
         return results
-    
-    def _preprocess_text(self, text: str) -> str:
+
+    @staticmethod
+    def _preprocess_text(text: str) -> str:
         """Preprocess text for T5 summarization."""
         # Clean text
         text = re.sub(r'\s+', ' ', text).strip()
         # Remove extra whitespace and normalize
         text = ' '.join(text.split())
         return text
-    
+
     def _calculate_summary_scores(self, input_ids, generated_ids) -> Dict[str, float]:
         """Calculate quality scores for generated summary."""
         with torch.no_grad():
@@ -177,20 +178,20 @@ class T5Summarizer:
                 labels=generated_ids,
                 return_dict=True
             )
-            
+
             loss = outputs.loss.item() if outputs.loss is not None else float('inf')
             # Convert negative log likelihood to confidence (simplified)
             confidence = max(0.0, 1.0 - (loss / 5.0))  # Normalize roughly
-            
+
             # Calculate perplexity
             perplexity = torch.exp(outputs.loss).item() if outputs.loss is not None else float('inf')
-        
+
         return {
             "confidence": confidence,
             "perplexity": perplexity,
             "loss": loss
         }
-    
+
     def get_model_info(self) -> Dict[str, Any]:
         """Get model information."""
         return {
@@ -216,7 +217,7 @@ def create_t5_summarizer(
 def test_t5_summarizer() -> None:
     """Test T5 summarizer."""
     logger.info("Testing T5 summarizer...")
-    
+
     sample_text = """
     Artificial intelligence is transforming industries worldwide. Machine learning algorithms 
     are being used in healthcare for diagnostics, in finance for fraud detection, and in 
@@ -224,11 +225,11 @@ def test_t5_summarizer() -> None:
     both opportunities and challenges for society as we navigate the ethical implications 
     and workforce transformations that accompany this digital revolution.
     """
-    
+
     summarizer = create_t5_summarizer()
-    
+
     result = summarizer.summarize(sample_text)
-    
+
     logger.info("✅ T5 summarizer test complete!")
     logger.info(f"Summary: {result['summary']}")
     logger.info(f"Confidence: {result['confidence']:.2f}")
