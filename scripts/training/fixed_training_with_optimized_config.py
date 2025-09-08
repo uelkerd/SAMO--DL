@@ -22,15 +22,14 @@
         # Validation
     # Create focal loss
     # Create model with class weights
-    # Create simple data loaders (we'll implement proper batching later)
-    # Create zero tensor
-    # Load data to get class weights
-    # Load dataset
-    # Set positive labels to 1
-    # Use different learning rates for different layers
-    from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-    from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-    from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+# Create simple data loaders (we'll implement proper batching later)
+# Create zero tensor
+# Load data to get class weights
+# Load dataset
+# Set positive labels to 1
+# Use different learning rates for different layers
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3

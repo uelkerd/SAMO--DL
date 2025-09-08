@@ -1,7 +1,10 @@
-        # Start training
-        # Training configuration with debugging
-        from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
-        import traceback
+#!/usr/bin/env python3
+"""Restart Training Debug Script"""
+
+# Start training
+# Training configuration with debugging
+from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
+import traceback
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
