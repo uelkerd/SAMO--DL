@@ -247,7 +247,7 @@ class BERTEmotionClassifier(nn.Module):
 
             # Get top-k emotions if specified
             if top_k is not None:
-                top_k_probs, top_k_indices = torch.topk(probabilities, top_k, dim=1)
+                _, top_k_indices = torch.topk(probabilities, top_k, dim=1)
                 predictions = torch.zeros_like(probabilities)
                 predictions.scatter_(1, top_k_indices, 1.0)
 

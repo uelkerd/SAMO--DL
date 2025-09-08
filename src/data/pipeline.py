@@ -179,21 +179,18 @@ class DataPipeline:
             return data_source
 
         if source_type == "db":
-            logger.info("Loading data from database{user_info}{limit_info}")
+            logger.info(f"Loading data from database{user_info}{limit_info}")
             return load_entries_from_db(limit=limit, user_id=user_id)
 
         if source_type == "json" and isinstance(data_source, str):
-            logger.info(
-                "Loading data from JSON file: {data_source}",
-                extra={"format_args": True},
-            )
+            logger.info(f"Loading data from JSON file: {data_source}")
             return load_entries_from_json(data_source)
 
         if source_type == "csv" and isinstance(data_source, str):
-            logger.info("Loading data from CSV file: {data_source}", extra={"format_args": True})
+            logger.info(f"Loading data from CSV file: {data_source}")
             return load_entries_from_csv(data_source)
 
-        logger.error("Invalid data source type: {source_type}", extra={"format_args": True})
+        logger.error(f"Invalid data source type: {source_type}")
         return pd.DataFrame()
 
     def _save_results(
