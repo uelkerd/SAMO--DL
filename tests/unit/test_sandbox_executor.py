@@ -61,7 +61,7 @@ class TestSandboxExecutor(unittest.TestCase):
         def safe_function():
             return "Hello, World!"
         
-        result, meta = executor.execute_safely(safe_function)
+        result, _ = executor.execute_safely(safe_function)
         
         # Check that global builtins are unchanged
         self.assertEqual(builtins.__dict__, original_builtins)
@@ -114,7 +114,7 @@ class TestSandboxExecutor(unittest.TestCase):
         
         def worker_function():
             try:
-                result, meta = self.executor.execute_safely(lambda: f"Worker {threading.current_thread().name}")
+                result, _ = self.executor.execute_safely(lambda: f"Worker {threading.current_thread().name}")
                 results.append(result)
             except Exception as e:
                 errors.append(str(e))
