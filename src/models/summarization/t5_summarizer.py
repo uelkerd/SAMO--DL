@@ -281,6 +281,17 @@ class T5SummarizationModel(nn.Module):
 
         return summary.strip()
 
+    def summarize(self, text: str) -> str:
+        """Generate summary using the configured model.
+
+        Args:
+            text: Input text to summarize
+
+        Returns:
+            Generated summary text
+        """
+        return self.generate_summary(text)
+
     def generate_batch_summaries(
         self, texts: List[str], batch_size: int = 4, **generation_kwargs
     ) -> List[str]:

@@ -266,7 +266,7 @@ class WhisperTranscriber:
             result = self.model.transcribe(processed_audio_path, **transcribe_options)
 
             processing_time = time.time() - start_time
-            word_count = len(result["text"].split())
+            word_count = len(result.text.split())
             speaking_rate = (
                 (word_count / audio_metadata["duration"]) * 60
                 if audio_metadata["duration"] > 0
@@ -275,19 +275,19 @@ class WhisperTranscriber:
 
             audio_quality = self._assess_audio_quality(result, audio_metadata)
 
-            confidence = self._calculate_confidence(result.get("segments", []))
+            confidence = self._calculate_confidence(result.segments if hasattr(result, 'segments') else [])
 
             transcription_result = TranscriptionResult(
-                text=result["text"].strip(),
-                language=result["language"],
+                text=result.text.strip(),
+                language=result.language,
                 confidence=confidence,
                 duration=audio_metadata["duration"],
                 processing_time=processing_time,
-                segments=result.get("segments", []),
+                segments=result.segments if hasattr(result, 'segments') else [],
                 audio_quality=audio_quality,
                 word_count=word_count,
                 speaking_rate=speaking_rate,
-                no_speech_probability=result.get("no_speech_prob", 0.0),
+                no_speech_probability=getattr(result, 'no_speech_prob', 0.0),
             )
 
             logger.info(
