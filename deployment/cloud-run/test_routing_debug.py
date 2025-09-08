@@ -3,7 +3,7 @@
 Debug script to understand Flask-RESTX routing behavior
 """
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, Response
 from flask_restx import Api, Resource, Namespace
 import unittest
 
@@ -17,7 +17,7 @@ class TestAPIRouting(unittest.TestCase):
 
         # Register root endpoint BEFORE Flask-RESTX initialization
         @self.app.route('/')
-        def root():
+        def root() -> Response:
             """Return the root endpoint message."""
             return jsonify({'message': 'Root endpoint'})
 
@@ -40,13 +40,13 @@ class TestAPIRouting(unittest.TestCase):
             """A Flask-RESTX resource for handling health check requests."""
 
             @staticmethod
-            def get():
+            def get() -> dict:
                 """Return health status of the service."""
                 return {'status': 'healthy'}
 
         # Test direct Flask route
         @self.app.route('/test')
-        def test():
+        def test() -> Response:
             """Test route that returns a simple JSON response."""
             return jsonify({'message': 'Test route'})
 

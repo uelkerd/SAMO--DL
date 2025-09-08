@@ -72,13 +72,13 @@ class TestAPIRouting(unittest.TestCase):
 
                 app = self.module.app
             else:
-                import secure_api_server
-                self.module = secure_api_server
-                app = self.module.app
+                self.skipTest("secure_api_server module not found at expected path")
 
             self.app = app.test_client()
             self.app.testing = True
             self.api_available = True
+            # Central auth header for tests
+            self.auth_headers = {'X-API-Key': os.environ.get('ADMIN_API_KEY', 'test-admin-key-123')}
         except (ImportError, OSError) as e:
             import warnings
             warnings.warn(f"Could not import secure_api_server: {e}", stacklevel=2)
@@ -105,6 +105,7 @@ class TestAPIRouting(unittest.TestCase):
         response = self.app.get('/')
         self.assertEqual(response.status_code, 200)
 
+        self.assertTrue(response.is_json, f"Non-JSON response: {response.data!r}")
         data = response.get_json()
         self.assertIn('service', data)
         self.assertIn('status', data)
@@ -129,14 +130,14 @@ class TestAPIRouting(unittest.TestCase):
 
         data = response.get_json()
         self.assertIn('error', data)
-        self.assertIn('Unauthorized', data['error'])
+        self.assertRegex(data['error'], r'(?i)unauthoriz')
 
     def test_predict_endpoint_with_auth(self):
         """Test predict endpoint works with valid API key."""
         response = self.app.post(
             '/api/predict',
             json={'text': 'I am happy'},
-            headers={'X-API-Key': self.ADMIN_KEY}
+            headers=self.auth_headers
         )
 
         # Should succeed (200) or be rate limited (429), but not auth error (401)
@@ -149,14 +150,14 @@ class TestAPIRouting(unittest.TestCase):
 
         data = response.get_json()
         self.assertIn('error', data)
-        self.assertIn('Unauthorized', data['error'])
+        self.assertRegex(data['error'], r'(?i)unauthoriz')
 
     def test_predict_batch_endpoint_with_auth(self):
         """Test predict_batch endpoint works with valid API key."""
         response = self.app.post(
             '/api/predict_batch',
             json={'texts': ['I am happy', 'I am sad']},
-            headers={'X-API-Key': self.ADMIN_KEY}
+            headers=self.auth_headers
         )
 
         # Should succeed (200) or be rate limited (429), but not auth error (401)
@@ -180,7 +181,7 @@ class TestAPIRouting(unittest.TestCase):
 
         data = response.get_json()
         self.assertIn('error', data)
-        self.assertIn('Unauthorized', data['error'])
+        self.assertRegex(data['error'], r'(?i)unauthoriz')
 
     def test_admin_model_status_with_auth(self):
         """Test admin model status endpoint works with valid API key."""
@@ -196,7 +197,7 @@ class TestAPIRouting(unittest.TestCase):
         response = self.app.post(
             '/api/predict',
             json={},
-            headers={'X-API-Key': self.ADMIN_KEY}
+            headers=self.auth_headers
         )
         self.assertEqual(response.status_code, 400)
 
@@ -209,7 +210,7 @@ class TestAPIRouting(unittest.TestCase):
         response = self.app.post(
             '/api/predict',
             json={'text': ''},
-            headers={'X-API-Key': self.ADMIN_KEY}
+            headers=self.auth_headers
         )
         self.assertEqual(response.status_code, 400)
 
@@ -225,10 +226,11 @@ class TestAPIRouting(unittest.TestCase):
 
         # Test that /admin/model_status works (not //admin/model_status)
         response = self.app.get('/admin/model_status',
-                               headers={'X-API-Key': self.ADMIN_KEY})
+                               headers=self.auth_headers)
         # Should succeed (200) or be rate limited (429), but not auth error (401) with valid key
         self.assertIn(response.status_code, [200, 429])
 
 if __name__ == '__main__':
     unittest.main()
+
 

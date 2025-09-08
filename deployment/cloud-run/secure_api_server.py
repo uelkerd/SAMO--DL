@@ -295,8 +295,8 @@ class Health(Resource):
                 logger.warning("Health check failed - model not ready")
                 return create_error_response('Service unavailable - model not ready', 503)
                 
-        except Exception as e:
-            logger.error(f"Health check error for {request.remote_addr}: {str(e)}")
+        except Exception:
+            logger.exception("Health check error for %s", request.remote_addr)
             return create_error_response('Internal server error', 500)
 
 @main_ns.route('/predict')
