@@ -2,7 +2,6 @@
 """Detailed debug script to understand the errorhandler issue."""
 
 import os
-import sys
 import logging
 import contextlib
 admin_key = os.environ.get('ADMIN_API_KEY') or 'test123'

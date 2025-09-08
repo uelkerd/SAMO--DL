@@ -1,9 +1,20 @@
+"""Documentation Blueprint for API Documentation Serving.
+
+This module provides Flask blueprint routes for serving OpenAPI specifications
+and Swagger UI documentation. Includes security features for path validation
+and content type handling to prevent unauthorized access to specification files.
+
+Key Features:
+- Serves OpenAPI YAML specification with path validation
+- Renders Swagger UI with configurable spec URL
+- Implements Content Security Policy (CSP) nonce generation
+- Secure file path resolution and access control
+"""
+
 from __future__ import annotations
 import os
 from pathlib import Path
 from flask import Blueprint, Response, jsonify, render_template, g
-
-"""Documentation blueprint for serving OpenAPI specs and Swagger UI."""
 
 
 docs_bp = Blueprint('docs', __name__, template_folder='templates')

@@ -7,7 +7,6 @@ settings are present and valid according to the security schema.
 """
 
 import yaml
-import sys
 from pathlib import Path
 from typing import Dict, Any
 

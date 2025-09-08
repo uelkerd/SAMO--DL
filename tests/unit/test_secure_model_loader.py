@@ -9,7 +9,7 @@ Tests the secure model loading functionality including:
 - Audit logging
 """
 
-import os
+from pathlib import Path
 import tempfile
 import unittest
 
@@ -60,7 +60,7 @@ class TestIntegrityChecker(unittest.TestCase):
     def setUp(self):
         self.checker = IntegrityChecker()
         self.temp_dir = tempfile.mkdtemp()
-        self.test_file = os.path.join(self.temp_dir, "test_model.pt")
+        self.test_file = Path(self.temp_dir) / "test_model.pt"
         
         # Create a simple test model
         model = TestModel()
@@ -260,12 +260,12 @@ class TestSecureModelLoader(unittest.TestCase):
             'hidden_dropout_prob': 0.1
         }
         
-        self.model_file = os.path.join(self.temp_dir, "test_model.pt")
+        self.model_file = Path(self.temp_dir) / "test_model.pt"
         torch.save({
             'state_dict': self.test_model.state_dict(),
             'config': self.test_config,
             'model_name': 'BERTEmotionClassifier'  # Add model_name at top level
-        }, self.model_file)
+        }, str(self.model_file))
         
         # Calculate checksum for validation
         from src.models.secure_loader.integrity_checker import IntegrityChecker
@@ -375,11 +375,11 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
             'hidden_dropout_prob': 0.1
         }
         
-        self.model_file = os.path.join(self.temp_dir, "test_model.pt")
+        self.model_file = Path(self.temp_dir) / "test_model.pt"
         torch.save({
             'state_dict': self.test_model.state_dict(),
             'config': self.test_config
-        }, self.model_file)
+        }, str(self.model_file))
         
         # Calculate checksum for validation
         from src.models.secure_loader.integrity_checker import IntegrityChecker
@@ -483,8 +483,8 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
         )
         
         # Check audit log file exists
-        audit_log_path = os.path.join(self.temp_dir, "audit.log")
-        self.assertTrue(os.path.exists(audit_log_path))
+        audit_log_path = Path(self.temp_dir) / "audit.log"
+        self.assertTrue(audit_log_path.exists())
         
         # Check audit log contains entries
         with open(audit_log_path) as f:

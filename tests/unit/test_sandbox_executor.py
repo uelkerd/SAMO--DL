@@ -6,8 +6,8 @@ Tests for the refactored sandbox executor with safe builtins.
 """
 
 import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'models', 'secure_loader'))
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent.parent / 'src' / 'models' / 'secure_loader'))
 
 import unittest
 import threading

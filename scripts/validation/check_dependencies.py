@@ -7,7 +7,6 @@ used in the codebase to avoid unnecessary bloat.
 """
 
 import re
-import sys
 from pathlib import Path
 from typing import Set
 

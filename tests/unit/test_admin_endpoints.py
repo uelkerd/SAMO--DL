@@ -7,7 +7,8 @@ Tests for admin endpoint protection and authentication.
 
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'deployment'))
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent.parent / 'deployment'))
 
 import unittest
 import json

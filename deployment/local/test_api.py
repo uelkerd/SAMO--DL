@@ -9,7 +9,6 @@ logging, and rate limiting features.
 import requests
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import sys
 from typing import Optional
 
 # Configuration

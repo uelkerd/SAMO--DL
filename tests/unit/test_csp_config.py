@@ -6,10 +6,10 @@ Tests for Content Security Policy configuration and loading.
 """
 
 import sys
-import os
 import tempfile
 import yaml
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent.parent / 'src'))
 
 import unittest
 from unittest.mock import patch

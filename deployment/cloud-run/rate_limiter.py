@@ -4,11 +4,16 @@
 import time
 import threading
 from collections import defaultdict, deque
+import flask
 from flask import request, jsonify
+from flask.typing import ResponseValue
 from functools import wraps
+from typing import Any, Callable
 
 class RateLimiter:
+    """Thread-safe rate limiter using sliding window algorithm."""
     def __init__(self, requests_per_minute: int = 100) -> None:
+        """Initialize the rate limiter with specified requests per minute."""
         self.requests_per_minute = requests_per_minute
         self.requests = defaultdict(lambda: deque(maxlen=requests_per_minute))
         self.lock = threading.Lock()
@@ -31,7 +36,7 @@ class RateLimiter:
             return False
 
     @staticmethod
-    def get_client_id(request) -> str:
+    def get_client_id(request: 'flask.Request') -> str:
         """Get client identifier."""
         # Try API key first
         api_key = request.headers.get('X-API-Key')
@@ -41,13 +46,13 @@ class RateLimiter:
         # Fall back to IP address
         return f"ip:{request.remote_addr}"
 
-def rate_limit(requests_per_minute: int = 100):
+def rate_limit(requests_per_minute: int = 100) -> Callable:
     """Rate limiting decorator."""
     limiter = RateLimiter(requests_per_minute)
 
-    def decorator(f):
+    def decorator(f: Callable) -> Callable:
         @wraps(f)
-        def decorated_function(*args, **kwargs):
+        def decorated_function(*args: Any, **kwargs: Any) -> ResponseValue:
             client_id = limiter.get_client_id(request)
 
             if not limiter.is_allowed(client_id):

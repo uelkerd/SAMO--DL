@@ -23,7 +23,7 @@ class TestBertEmotionClassifier:
     @staticmethod
     @patch("transformers.AutoConfig.from_pretrained")
     @patch("transformers.AutoModel.from_pretrained")
-    def test_model_initialization(self, mock_bert, mock_config):
+    def test_model_initialization(mock_bert, mock_config):
         """Test model initializes with correct parameters."""
         mock_config_instance = MagicMock()
         mock_config_instance.hidden_size = 768
@@ -44,7 +44,7 @@ class TestBertEmotionClassifier:
     @staticmethod
     @patch("transformers.AutoConfig.from_pretrained")
     @patch("transformers.AutoModel.from_pretrained")
-    def test_model_parameter_count(self, mock_bert, mock_config):
+    def test_model_parameter_count(mock_bert, mock_config):
         """Test model has expected number of parameters."""
         mock_config_instance = MagicMock()
         mock_config_instance.hidden_size = 768
@@ -62,7 +62,7 @@ class TestBertEmotionClassifier:
     @staticmethod
     @patch("transformers.AutoConfig.from_pretrained")
     @patch("transformers.AutoModel.from_pretrained")
-    def test_forward_pass(self, mock_bert, mock_config):
+    def test_forward_pass(mock_bert, mock_config):
         """Test forward pass through the model."""
         # Provide a minimal config so model init doesn't hit network
         mock_config_instance = MagicMock()
@@ -91,7 +91,7 @@ class TestBertEmotionClassifier:
         assert torch.all(torch.isfinite(output))
 
     @staticmethod
-    def test_predict_emotions(self):
+    def test_predict_emotions():
         """Test emotion prediction functionality."""
         with patch("transformers.AutoConfig.from_pretrained"), patch(
             "transformers.AutoModel.from_pretrained"
@@ -126,7 +126,7 @@ class TestBertEmotionClassifier:
     @staticmethod
     @patch("transformers.AutoConfig.from_pretrained")
     @patch("transformers.AutoModel.from_pretrained")
-    def test_device_compatibility(self, mock_bert, mock_config):
+    def test_device_compatibility(mock_bert, mock_config):
         """Test model works on different devices."""
         mock_config_instance = MagicMock()
         mock_config_instance.hidden_size = 768
@@ -149,7 +149,7 @@ class TestBertEmotionClassifier:
     @staticmethod
     @patch("transformers.AutoConfig.from_pretrained")
     @patch("transformers.AutoModel.from_pretrained")
-    def test_training_mode(self, mock_bert, mock_config):
+    def test_training_mode(mock_bert, mock_config):
         """Test model behavior in training mode."""
         mock_config_instance = MagicMock()
         mock_config_instance.hidden_size = 768
@@ -177,7 +177,7 @@ class TestBertEmotionClassifier:
         assert not hasattr(model, "dropout")
 
     @staticmethod
-    def test_class_weights_handling(self):
+    def test_class_weights_handling():
         """Test that class weights are handled correctly."""
         with patch("transformers.AutoConfig.from_pretrained"), patch(
             "transformers.AutoModel.from_pretrained"
@@ -193,7 +193,7 @@ class TestBertEmotionClassifier:
     @pytest.mark.slow
     @patch("transformers.AutoConfig.from_pretrained")
     @patch("transformers.AutoModel.from_pretrained")
-    def test_emotion_label_mapping(self, mock_bert, mock_config):
+    def test_emotion_label_mapping(mock_bert, mock_config):
         """Test emotion label mapping functionality."""
         mock_config_instance = MagicMock()
         mock_config_instance.hidden_size = 768

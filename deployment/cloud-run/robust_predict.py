@@ -2,8 +2,10 @@
 """🚀 EMOTION DETECTION API FOR CLOUD RUN.
 ======================================
 Robust Flask API optimized for Cloud Run deployment.
+
 """
 
+from typing import Any, Dict
 import os
 import time
 import logging
@@ -83,9 +85,8 @@ def load_model() -> None:
     finally:
         model_loading = False
 
-def predict_emotion(text):
+def predict_emotion(text: str) -> Dict[str, Any]:
     """Predict emotion for given text."""
-    global model, tokenizer, emotion_mapping
     
     if not model_loaded:
         raise RuntimeError("Model not loaded")
@@ -123,7 +124,7 @@ def ensure_model_loaded() -> None:
     if not model_loaded:
         raise RuntimeError("Model not loaded")
 
-def create_error_response(message, status_code=500):
+def create_error_response(message: str, status_code: int = 500) -> tuple[dict, int]:
     """Create standardized error response with request ID for debugging."""
     request_id = str(uuid.uuid4())
     logger.exception(f"{message} [request_id={request_id}]")
@@ -133,16 +134,16 @@ def create_error_response(message, status_code=500):
     }), status_code
 
 @app.route('/', methods=['GET'])
-def root():
+def root() -> tuple[dict, int]:
     """Root endpoint."""
     return jsonify({
         "message": "Hello from SAMO Emotion Detection API!",
         "status": "running",
         "timestamp": time.time()
-    })
+    }), 200
 
 @app.route('/health', methods=['GET'])
-def health_check():
+def health_check() -> tuple[dict, int]:
     """Health check endpoint."""
     return jsonify({
         'status': 'healthy',
@@ -150,10 +151,10 @@ def health_check():
         'model_loading': model_loading,
         'port': os.environ.get('PORT', '8080'),
         'timestamp': time.time()
-    })
+    }), 200
 
 @app.route('/predict', methods=['POST'])
-def predict():
+def predict() -> tuple[dict, int]:
     """Predict emotion for given text."""
     try:
         # Ensure model is loaded
@@ -177,13 +178,13 @@ def predict():
         
         # Make prediction
         result = predict_emotion(text)
-        return jsonify(result)
+        return jsonify(result), 200
     
     except Exception:
         return create_error_response('Prediction processing failed. Please try again later.')
 
 @app.route('/predict_batch', methods=['POST'])
-def predict_batch():
+def predict_batch() -> tuple[dict, int]:
     """Predict emotions for multiple texts."""
     try:
         # Ensure model is loaded
@@ -211,7 +212,7 @@ def predict_batch():
             result = predict_emotion(text)
             results.append(result)
         
-        return jsonify({'results': results})
+        return jsonify({'results': results}), 200
     
     except Exception:
         return create_error_response('Batch prediction processing failed. Please try again later.')

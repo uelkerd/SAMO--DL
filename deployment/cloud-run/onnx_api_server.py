@@ -8,7 +8,11 @@ import os
 import time
 import re
 from pathlib import Path
-from typing import Dict, List, Tuple, NoReturn
+from typing import Any, Dict, List, NoReturn, Optional, Tuple
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    import argparse
 import threading
 
 import numpy as np
@@ -72,7 +76,14 @@ SIMPLE_VOCAB = {
 
 
 def load_vocab() -> Dict[str, int]:
-    """Load vocabulary from file or use simple fallback."""
+    """Load vocabulary from file or use simple fallback.
+    
+    Attempts to load vocabulary from VOCAB_PATH environment variable.
+    Falls back to a predefined simple vocabulary if file is not found or loading fails.
+    
+    Returns:
+        Dict[str, int]: Vocabulary mapping words to token IDs
+    """
     try:
         if Path(VOCAB_PATH).exists():
             vocab_dict = {}
@@ -133,7 +144,17 @@ def preprocess_text(text: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
 
 def load_onnx_model() -> ort.InferenceSession:
-    """Load ONNX model with optimized settings."""
+    """Load ONNX model with optimized settings.
+    
+    Creates an optimized ONNX Runtime session with graph optimizations enabled
+    and single-threaded execution suitable for Cloud Run environment.
+    
+    Returns:
+        ort.InferenceSession: Configured ONNX Runtime inference session
+    
+    Raises:
+        Exception: If model loading fails due to file issues or ONNX runtime errors
+    """
     try:
         start_time = time.time()
 
@@ -343,10 +364,12 @@ if __name__ == '__main__':
                 super().__init__()
 
             def load_config(self) -> None:
+                """Load Gunicorn configuration from options dictionary."""
                 for key, value in self.options.items():
                     self.cfg.set(key, value)
 
-            def load(self):
+            def load(self) -> Flask:
+                """Load the Flask application for Gunicorn."""
                 return self.application
 
         # Production configuration

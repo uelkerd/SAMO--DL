@@ -27,10 +27,10 @@ from functools import wraps, lru_cache
 from typing import List, Tuple, Any, Dict
 
 # Import security components using relative imports
-from ..src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
-from ..src.input_sanitizer import InputSanitizer, SanitizationConfig
-from ..src.security_setup import setup_security_middleware, get_environment
-from ..src.inference.text_emotion_service import HFEmotionService  # type: ignore
+from src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
+from src.input_sanitizer import InputSanitizer, SanitizationConfig
+from src.security_setup import setup_security_middleware, get_environment
+from src.inference.text_emotion_service import HFEmotionService
 
 # Import centralized constants with fallback for non-package environments
 try:

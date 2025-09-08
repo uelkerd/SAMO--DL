@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Extra unit tests for JWTManager to increase coverage."""
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import time
 
 from src.security.jwt_manager import JWTManager
@@ -55,7 +55,7 @@ def test_blacklist_and_cleanup_flow(monkeypatch):
         @classmethod
         def utcnow(cls):
             # jump past the token's expiration
-            return datetime.fromtimestamp(exp_ts) + timedelta(seconds=5)
+            return datetime.fromtimestamp(exp_ts, tz=timezone.utc) + timedelta(seconds=5)
 
     monkeypatch.setattr("src.security.jwt_manager.datetime", _FakeDateTime)
 

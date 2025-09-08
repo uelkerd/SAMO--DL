@@ -12,6 +12,11 @@ import time
 from flask import Flask, request, jsonify
 import psutil
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+from model_utils import (
+    ensure_model_loaded, predict_emotions, get_model_status,
+    MAX_TEXT_LENGTH
+)
+from docs_blueprint import docs_bp
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -20,14 +25,7 @@ logger = logging.getLogger(__name__)
 # Initialize Flask app
 app = Flask(__name__)
 
-# Import shared model utilities
-from model_utils import (
-    ensure_model_loaded, predict_emotions, get_model_status,
-    MAX_TEXT_LENGTH
-)
-
 # Register shared docs blueprint
-from docs_blueprint import docs_bp
 app.register_blueprint(docs_bp)
 
 # Prometheus metrics

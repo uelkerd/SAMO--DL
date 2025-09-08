@@ -7,7 +7,6 @@ import os
 import time
 import shutil
 
-import sys
 from huggingface_hub.utils import HfHubHTTPError
 
 def download_emotion_model(cache_dir: str):

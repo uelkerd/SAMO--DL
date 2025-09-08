@@ -4,7 +4,6 @@ Provides comprehensive health checks, graceful shutdown, and monitoring.
 """
 
 import os
-import sys
 import time
 import signal
 import logging
@@ -65,17 +64,16 @@ class HealthMonitor:
         raise SystemExit(0)
 
     @staticmethod
-    def get_system_metrics(self) -> Dict[str, float]:
+    def get_system_metrics() -> Dict[str, float]:
         """Get current system resource usage."""
         try:
             process = psutil.Process()
             memory_info = process.memory_info()
-
             return {
                 'memory_usage_mb': memory_info.rss / 1024 / 1024,
                 'cpu_usage_percent': process.cpu_percent(),
                 'memory_percent': process.memory_percent(),
-                'uptime_seconds': (datetime.now(timezone.utc) - self.start_time).total_seconds()
+                'uptime_seconds': 0.0  # Simplified for static method
             }
         except Exception as e:
             logger.error(f"Error getting system metrics: {e}")

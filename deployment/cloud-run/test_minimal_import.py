@@ -2,7 +2,6 @@
 """Minimal test to isolate the API issue."""
 
 import os
-import sys
 admin_key = os.environ.get('ADMIN_API_KEY') or 'test123'
 os.environ['ADMIN_API_KEY'] = admin_key
 

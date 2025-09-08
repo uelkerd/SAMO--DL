@@ -8,7 +8,6 @@ Tests all SAMO API endpoints including:
 """
 
 import requests
-import sys
 import time
 import os
 
