@@ -184,7 +184,7 @@ class TestAPIEndpoints:
             assert result == 200
 
     @staticmethod
-    def test_content_type_handling(api_client):
+    def test_content_type_handling(api_client):  # noqa: ARG001 - api_client fixture required but not used in this test
         """Test API handles different content types correctly."""
         test_data = {"text": "Testing content type handling."}
 

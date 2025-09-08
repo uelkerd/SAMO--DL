@@ -844,14 +844,16 @@ class TestMonitoringDashboardClass:
 class TestJWTManager:
     """Test JWT manager functionality."""
     
-    def test_jwt_manager_initialization(self):
+    @staticmethod
+    def test_jwt_manager_initialization():
         """Test JWT manager initialization."""
         jwt_manager = JWTManager()
         assert jwt_manager.secret_key is not None
         assert jwt_manager.algorithm == "HS256"
         assert isinstance(jwt_manager.blacklisted_tokens, dict)  # Changed to dict for performance
     
-    def test_token_creation(self):
+    @staticmethod
+    def test_token_creation():
         """Test token creation."""
         jwt_manager = JWTManager()
         
