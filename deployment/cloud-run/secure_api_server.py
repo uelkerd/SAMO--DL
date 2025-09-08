@@ -57,7 +57,7 @@ def cleanup_temp_file(file_path) -> None:
         if file_path and os.path.exists(file_path):
             os.remove(file_path)
             logger.debug("Successfully deleted temporary file: %s", file_path)
-        except OSError:
+    except OSError:
         logger.exception("Failed to delete temporary file %s", file_path)
 
 def normalize_emotion_results(raw_emotion):

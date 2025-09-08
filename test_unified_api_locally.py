@@ -106,7 +106,8 @@ def test_text_summarization():
         if response.status_code == 200:
             data = response.json()
             summary = data['summary']
-            print("✅ Text summarization successful!"            print(f"   Original: {len(test_text)} chars")
+            print("✅ Text summarization successful!")
+            print(f"   Original: {len(test_text)} chars")
             print(f"   Summary: {len(summary)} chars")
             print(f"   Content: {summary}")
             return True
@@ -140,7 +141,8 @@ def test_voice_transcription():
             data = response.json()
             text = data.get('text', '')
             confidence = data.get('confidence', 0)
-            print("✅ Voice transcription successful!"            print(f"   Transcribed text: '{text}'")
+            print("✅ Voice transcription successful!")
+            print(f"   Transcribed text: '{text}'")
             print(f"   Confidence: {confidence:.3f}")
             print(f"   Language: {data.get('language', 'unknown')}")
             return True

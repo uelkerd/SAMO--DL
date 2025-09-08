@@ -7,7 +7,7 @@ from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 from src.models.summarization.t5_summarizer import T5SummarizationModel
 from src.models.voice_processing.whisper_transcriber import WhisperTranscriber
 from src.data.validation import validate_text_input
-from src.input_sanitizer import InputSanitizer
+from src.input_sanitizer import InputSanitizer, SanitizationConfig
 
 app = FastAPI(title="SAMO-DL Unified AI API", version="1.0.0")
 
@@ -45,7 +45,7 @@ async def complete_analysis(request: AnalysisRequest):
         if request.text:
             try:
                 validated_text = validate_text_input(request.text)
-                sanitized_text, warnings = InputSanitizer().sanitize_text(validated_text, "analysis")
+                sanitized_text, warnings = InputSanitizer(SanitizationConfig()).sanitize_text(validated_text, "analysis")
                 if warnings:
                     logger.warning("Sanitization warnings: %s", warnings)
 
