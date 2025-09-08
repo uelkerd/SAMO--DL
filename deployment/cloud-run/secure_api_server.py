@@ -110,6 +110,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Global constants
+MAX_AUDIO_FILE_SIZE_MB = 45
+
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = MAX_AUDIO_FILE_SIZE_MB * 1024 * 1024
 

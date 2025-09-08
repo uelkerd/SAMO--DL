@@ -273,9 +273,9 @@ if __name__ == '__main__':
     import gunicorn.app.base
     
     class StandaloneApplication(gunicorn.app.base.BaseApplication):
-        def __init__(self, app, options=None) -> None:
-            self.options = options or {}
-            self.application = app
+        def __init__(self, local_app, local_options=None) -> None:
+            self.options = local_options or {}
+            self.application = local_app
             super().__init__()
         
         def load_config(self) -> None:

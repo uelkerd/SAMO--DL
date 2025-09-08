@@ -28,13 +28,6 @@ try:
         return {"error": "Internal server error"}, 500
     
     # Try to register directly
-    @api.errorhandler(429)
-    def rate_limit_handler(error):
-        return {"error": "Rate limit exceeded"}, 429
-    
-    @api.errorhandler(500)
-    def internal_error_handler(error):
-        return {"error": "Internal server error"}, 500
     
     
 except Exception:

@@ -41,7 +41,7 @@ def test_endpoint(name, method, url, timeout=30, **kwargs):
             return False, f"Unsupported method: {method}"
 
         response = handler(url, headers=headers, **kwargs)
-        time.time() - start_time
+        response_time = time.time() - start_time
 
 
         # Use early return pattern to avoid nested conditionals
@@ -56,7 +56,7 @@ def test_endpoint(name, method, url, timeout=30, **kwargs):
             return True, response.text
 
     except requests.exceptions.RequestException as e:
-        time.time() - start_time
+        elapsed_time = time.time() - start_time
         return False, str(e)
 
 def main() -> bool:
@@ -98,7 +98,7 @@ def main() -> bool:
     results['emotion_missing_input'] = invalid_success
 
     # Test 2c: Emotion Detection - Invalid Data Type
-    invalid_type_success, invalid_type_data = test_endpoint(
+    invalid_type_success, _invalid_type_data = test_endpoint(
         "Emotion Detection (Invalid Data Type)",
         "POST",
         f"{API_BASE_URL}/api/predict",
@@ -148,7 +148,7 @@ def main() -> bool:
         data.get('compression_ratio', 0.0)
 
     # Test 3b: T5 Summarization - Missing Input
-    invalid_success, invalid_data = test_endpoint(
+    invalid_success, _invalid_data = test_endpoint(
         "T5 Summarization (Missing Input)",
         "POST",
         f"{API_BASE_URL}/api/summarize",
@@ -186,7 +186,7 @@ def main() -> bool:
             data['emotion_analysis'].get('primary_emotion', 'unknown')
 
         if data.get('summary'):
-            data['summary'].get('summary', '')[:50]
+            summary_preview = data['summary'].get('summary', '')[:50] if data.get('summary') else ''
 
     # Test 4b: Complete Analysis Pipeline - Audio Input (if available)
     test_audio_path = "test_audio.wav"
@@ -213,13 +213,13 @@ def main() -> bool:
                 data.get('pipeline_status', {})
 
                 if data.get('transcription'):
-                    data['transcription'].get('text', '')[:100]
+                    transcription_preview = data['transcription'].get('text', '')[:100] if data.get('transcription') else ''
 
                 if data.get('emotion_analysis'):
                     data['emotion_analysis'].get('primary_emotion', 'unknown')
 
                 if data.get('summary'):
-                    data['summary'].get('summary', '')[:50]
+                    summary_preview = data['summary'].get('summary', '')[:50] if data.get('summary') else ''
     else:
         results['complete_analysis_audio'] = None
 

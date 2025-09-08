@@ -58,5 +58,4 @@ for _endpoint, rule in endpoints.items():
 
 # Check what Flask-RESTX created for the root route
 for rule in app.url_map.iter_rules():
-    if rule.rule == '/':
-        pass
+    print(f"Debug: Endpoint {rule.endpoint}: {rule.rule}")
