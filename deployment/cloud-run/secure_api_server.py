@@ -785,16 +785,16 @@ class Transcribe(Resource):
 
         try:
             # Save uploaded file temporarily with validated extension
+            import os
             import tempfile
             allowed_extensions = {'mp3','wav','m4a','aac','ogg','flac'}
-            if '.' not in audio_file.filename:
-                ext = 'wav'
-                logger.warning(f"No extension in filename {audio_file.filename}, defaulting to .wav")
+            # Select only from allowlisted extensions, ignoring user-provided value if not allowed.
+            ext = 'wav'  # default
+            _, ext_candidate = os.path.splitext(audio_file.filename)
+            if ext_candidate in allowed_extensions:
+                ext = ext_candidate
             else:
-                ext = audio_file.filename.rsplit('.', 1)[1].lower()
-                if ext not in allowed_extensions:
-                    ext = 'wav'
-                    logger.warning(f"Invalid extension {ext} in filename {audio_file.filename}, defaulting to .wav")
+                logger.warning(f"Extension '{ext_candidate}' in filename '{audio_file.filename}' not in allowed set {allowed_extensions}; defaulting to .wav")
             logger.info(f"Using validated extension: .{ext} for temp file")
             with tempfile.NamedTemporaryFile(
                 delete=False, suffix=f'.{ext}'
