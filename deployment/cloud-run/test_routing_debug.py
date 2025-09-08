@@ -53,9 +53,6 @@ for rule in app.url_map.iter_rules():
     else:
         endpoints[rule.endpoint] = rule.rule
 
-for _endpoint, rule in endpoints.items():
-    pass
-
 # Check what Flask-RESTX created for the root route
 for rule in app.url_map.iter_rules():
     print(f"Debug: Endpoint {rule.endpoint}: {rule.rule}")

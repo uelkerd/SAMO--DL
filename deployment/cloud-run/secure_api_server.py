@@ -782,7 +782,7 @@ class Transcribe(Resource):
         audio_file.seek(0)  # Reset to beginning
         if file_size > MAX_AUDIO_FILE_SIZE_MB * 1024 * 1024:
             api.abort(400, f"File too large (max {MAX_AUDIO_FILE_SIZE_MB}MB)")
-    
+
         try:
             # Save uploaded file temporarily with validated extension
             import tempfile
@@ -801,12 +801,12 @@ class Transcribe(Resource):
             ) as temp_file:
                 audio_file.save(temp_file.name)
                 temp_path = temp_file.name
-    
+
             try:
                 # Transcribe
                 language = request.form.get('language')
                 result = whisper_transcriber.transcribe(temp_path, language=language)
-    
+
                 # Extract result data
                 transcription_text = (
                     result.text if hasattr(result, 'text') else str(result)
@@ -816,7 +816,7 @@ class Transcribe(Resource):
                 duration = getattr(result, 'duration', 0.0)
                 word_count = len(transcription_text.split())
                 speaking_rate = word_count / (duration / 60) if duration > 0 else 0
-    
+
                 return {
                     'text': transcription_text,
                     'language': language_detected,
@@ -826,11 +826,11 @@ class Transcribe(Resource):
                     'word_count': word_count,
                     'speaking_rate': speaking_rate
                 }
-    
+
             finally:
                 # Cleanup temporary file
                 cleanup_temp_file(temp_path)
-    
+
         except (OSError, RuntimeError, ValueError) as e:
             logger.exception(f"Transcription failed: {e}")
             api.abort(500, "Transcription failed")
@@ -840,7 +840,8 @@ class Transcribe(Resource):
 class CompleteAnalysis(Resource):
     """Complete analysis endpoint combining all AI models."""
 
-    def _process_transcription(self, audio_file):
+    @staticmethod
+    def _process_transcription(audio_file):
         """Process audio transcription if provided."""
         logger.info("🔄 Processing audio transcription...")
         import tempfile
@@ -878,7 +879,8 @@ class CompleteAnalysis(Resource):
         finally:
             cleanup_temp_file(temp_path)
 
-    def _process_emotion(self, text_to_analyze):
+    @staticmethod
+    def _process_emotion(text_to_analyze):
         """Process emotion analysis."""
         logger.info("🔄 Processing emotion analysis...")
         try:
@@ -895,7 +897,8 @@ class CompleteAnalysis(Resource):
                 'emotional_intensity': 'neutral'
             }
 
-    def _process_summary(self, text_to_analyze, emotion_result, generate_summary):
+    @staticmethod
+    def _process_summary(text_to_analyze, emotion_result, generate_summary):
         """Process text summarization if requested."""
         logger.info("🔄 Processing text summarization...")
         summary_result = {}

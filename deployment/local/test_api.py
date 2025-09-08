@@ -108,7 +108,6 @@ def test_batch_predictions() -> Optional[bool]:
             data = response.json()
             predictions = data['predictions']
             data.get('batch_processing_time_ms', 0)
-            (end_time - start_time) * 1000
             
             
             for _i, pred in enumerate(predictions, 1):
@@ -151,10 +150,7 @@ def test_rate_limiting() -> bool:
     sum(1 for code in results if code not in [200, 429])
     
     
-    if rate_limited > 0:
-        return True
-    else:
-        return True
+    return rate_limited > 0
 
 def test_error_handling() -> bool:
     """Test error handling."""
@@ -234,13 +230,11 @@ def test_performance() -> bool:
     time.time()
     
     successful = [r for r in results if r['status_code'] == 200]
-    [r for r in results if r['status_code'] != 200]
     
     if successful:
         avg_response_time = sum(r['response_time'] for r in successful) / len(successful)
         min_response_time = min(r['response_time'] for r in successful)
         max_response_time = max(r['response_time'] for r in successful)
-        
         
         if avg_response_time < 1000:  # Less than 1 second
             return True

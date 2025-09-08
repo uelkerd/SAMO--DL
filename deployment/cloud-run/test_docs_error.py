@@ -26,7 +26,6 @@ try:
     
     # Wait for server to start with polling
     import time
-    import requests
     base_url = "http://localhost:8082"
     max_attempts = 30
     attempt = 0
@@ -49,10 +48,6 @@ try:
     try:
         headers = {"X-API-Key": os.environ["ADMIN_API_KEY"]}
         response = requests.get(f"{base_url}/docs", headers=headers, timeout=10)
-        
-        if response.status_code == 500:
-            pass
-            
     except Exception:
         pass
     

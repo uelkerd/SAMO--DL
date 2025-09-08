@@ -71,9 +71,6 @@ def main() -> bool:
     )
     results['health'] = success
 
-    if success and isinstance(data, dict):
-        pass
-
     # Test 2: Emotion Detection (existing functionality)
     test_text = "Today I received a promotion at work and I'm really excited about it. This is such a great achievement!"
     success, data = test_endpoint(
@@ -251,9 +248,6 @@ def main() -> bool:
 
     total_tests = len([r for r in results.values() if r is not None])
     passed_tests = len([r for r in results.values() if r is True])
-
-    for _test_name, _result in results.items():
-        pass
 
 
     return passed_tests == total_tests
