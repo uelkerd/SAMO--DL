@@ -379,6 +379,7 @@ async def analyze_emotions_batch(
         }
 
     except HTTPException:
+        # Re-raise HTTPException as-is to preserve original status code and detail
         raise
 
     except Exception:

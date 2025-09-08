@@ -65,12 +65,12 @@ def rate_limit(f):
     def decorated_function(*args, **kwargs):
         client_ip = request.remote_addr
         current_time = time.time()
-        
+
         with rate_limit_lock:
             # Clean old requests
             while rate_limit_data[client_ip] and current_time - rate_limit_data[client_ip][0] > RATE_LIMIT_WINDOW:
                 rate_limit_data[client_ip].popleft()
-            
+
             # Check rate limit
             if len(rate_limit_data[client_ip]) >= RATE_LIMIT_MAX_REQUESTS:
                 logger.warning(f"Rate limit exceeded for IP: {client_ip}")
@@ -78,10 +78,10 @@ def rate_limit(f):
                     'error': 'Rate limit exceeded',
                     'message': f'Maximum {RATE_LIMIT_MAX_REQUESTS} requests per {RATE_LIMIT_WINDOW} seconds'
                 }), 429
-            
+
             # Add current request
             rate_limit_data[client_ip].append(current_time)
-        
+
         return f(*args, **kwargs)
     return decorated_function
 
@@ -90,7 +90,7 @@ def update_metrics(response_time, success=True, emotion=None, error_type=None) -
     with metrics_lock:
         metrics['total_requests'] += 1
         metrics['response_times'].append(response_time)
-        
+
         if success:
             metrics['successful_requests'] += 1
             if emotion:
@@ -99,7 +99,7 @@ def update_metrics(response_time, success=True, emotion=None, error_type=None) -
             metrics['failed_requests'] += 1
             if error_type:
                 metrics['error_counts'][error_type] += 1
-        
+
         # Update average response time
         if metrics['response_times']:
             metrics['average_response_time'] = sum(metrics['response_times']) / len(metrics['response_times'])
@@ -109,46 +109,46 @@ class EmotionDetectionModel:
         """Initialize the model."""
         self.model_path = os.path.join(os.getcwd(), "model")
         logger.info(f"Loading model from: {self.model_path}")
-        
+
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
             self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path)
-            
+
             # Move to GPU if available
             if torch.cuda.is_available():
                 self.model = self.model.to('cuda')
                 logger.info("✅ Model moved to GPU")
             else:
                 logger.info("⚠️ CUDA not available, using CPU")
-            
+
             self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
             logger.info("✅ Model loaded successfully")
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to load model: {e!s}")
             raise
-        
+
     def predict(self, text):
         """Make a prediction."""
         start_time = time.time()
-        
+
         try:
             # Tokenize input
             inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
-            
+
             if torch.cuda.is_available():
                 inputs = {k: v.to('cuda') for k, v in inputs.items()}
-            
+
             # Get prediction
             with torch.no_grad():
                 outputs = self.model(**inputs)
                 probabilities = torch.softmax(outputs.logits, dim=1)
                 predicted_label = torch.argmax(probabilities, dim=1).item()
                 confidence = probabilities[0][predicted_label].item()
-                
+
                 # Get all probabilities
                 all_probs = probabilities[0].cpu().numpy()
-            
+
             # Get predicted emotion
             if predicted_label in self.model.config.id2label:
                 predicted_emotion = self.model.config.id2label[predicted_label]
@@ -156,10 +156,10 @@ class EmotionDetectionModel:
                 predicted_emotion = self.model.config.id2label[str(predicted_label)]
             else:
                 predicted_emotion = f"unknown_{predicted_label}"
-            
+
             prediction_time = time.time() - start_time
             logger.info(f"Prediction completed in {prediction_time:.3f}s: '{text[:50]}...' → {predicted_emotion} (conf: {confidence:.3f})")
-            
+
             # Create response
             response = {
                 'text': text,
@@ -177,9 +177,9 @@ class EmotionDetectionModel:
                 },
                 'prediction_time_ms': round(prediction_time * 1000, 2)
             }
-            
+
             return response
-            
+
         except Exception as e:
             prediction_time = time.time() - start_time
             logger.error(f"Prediction failed after {prediction_time:.3f}s: {e!s}")
@@ -194,7 +194,7 @@ model = EmotionDetectionModel()
 def health_check():
     """Health check endpoint."""
     start_time = time.time()
-    
+
     try:
         response = {
             'status': 'healthy',
@@ -209,12 +209,12 @@ def health_check():
                 'average_response_time_ms': round(metrics['average_response_time'] * 1000, 2)
             }
         }
-        
+
         response_time = time.time() - start_time
         update_metrics(response_time, success=True)
-        
+
         return jsonify(response)
-        
+
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='health_check_error')
@@ -226,29 +226,29 @@ def health_check():
 def predict():
     """Prediction endpoint."""
     start_time = time.time()
-    
+
     try:
         data = request.get_json()
-        
+
         if not data or 'text' not in data:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='missing_text')
             return jsonify({'error': 'No text provided'}), 400
-        
+
         text = data['text']
         if not text.strip():
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='empty_text')
             return jsonify({'error': 'Empty text provided'}), 400
-        
+
         # Make prediction
         result = model.predict(text)
-        
+
         response_time = time.time() - start_time
         update_metrics(response_time, success=True, emotion=result['predicted_emotion'])
-        
+
         return jsonify(result)
-        
+
     except werkzeug.exceptions.BadRequest:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='invalid_json')
@@ -265,36 +265,36 @@ def predict():
 def predict_batch():
     """Batch prediction endpoint."""
     start_time = time.time()
-    
+
     try:
         data = request.get_json()
-        
+
         if not data or 'texts' not in data:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='missing_texts')
             return jsonify({'error': 'No texts provided'}), 400
-        
+
         texts = data['texts']
         if not isinstance(texts, list):
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='invalid_texts_format')
             return jsonify({'error': 'Texts must be a list'}), 400
-        
+
         results = []
         for text in texts:
             if text.strip():
                 result = model.predict(text)
                 results.append(result)
-        
+
         response_time = time.time() - start_time
         update_metrics(response_time, success=True)
-        
+
         return jsonify({
             'predictions': results,
             'count': len(results),
             'batch_processing_time_ms': round(response_time * 1000, 2)
         })
-        
+
     except werkzeug.exceptions.BadRequest:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='invalid_json')
@@ -333,7 +333,7 @@ def get_metrics():
 def home():
     """Home endpoint with API documentation."""
     start_time = time.time()
-    
+
     try:
         response = {
             'message': 'Comprehensive Emotion Detection API',
@@ -370,12 +370,12 @@ def home():
                 }
             }
         }
-        
+
         response_time = time.time() - start_time
         update_metrics(response_time, success=True)
-        
+
         return jsonify(response)
-        
+
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='documentation_error')
@@ -407,5 +407,5 @@ if __name__ == '__main__':
     logger.info(f"🔒 Rate limiting: {RATE_LIMIT_MAX_REQUESTS} requests per {RATE_LIMIT_WINDOW} seconds")
     logger.info("📊 Monitoring: Comprehensive metrics and logging enabled")
     logger.info("")
-    
+
     app.run(host='127.0.0.1', port=8000, debug=False)

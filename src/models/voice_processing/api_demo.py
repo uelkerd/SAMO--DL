@@ -212,6 +212,7 @@ async def transcribe_audio(
         return response
 
     except HTTPException:
+        # Re-raise HTTPException as-is to preserve original status code and detail
         raise
     except Exception:
         logger.error("Transcription error: {e}", extra={"format_args": True})
@@ -335,6 +336,7 @@ async def transcribe_batch(
         return response
 
     except HTTPException:
+        # Re-raise HTTPException as-is to preserve original status code and detail
         raise
     except Exception as e:
         logger.error("Batch transcription error: {e}", extra={"format_args": True})
