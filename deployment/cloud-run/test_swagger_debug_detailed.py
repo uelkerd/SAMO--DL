@@ -59,7 +59,7 @@ try:
         response = requests.get(f"{base_url}/docs", headers={"X-API-Key": os.environ["ADMIN_API_KEY"]}, timeout=10)
         
         
-        if response.status_code == 500 or response.status_code == 200:
+        if response.status_code in {500, 200}:
             pass
             
     except Exception:

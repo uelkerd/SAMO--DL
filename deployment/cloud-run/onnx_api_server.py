@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Simplified ONNX-Based Emotion Detection API Server
+"""Simplified ONNX-Based Emotion Detection API Server.
 
 Uses simple string tokenization - no complex dependencies.
 """

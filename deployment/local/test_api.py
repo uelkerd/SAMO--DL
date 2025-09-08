@@ -88,21 +88,21 @@ def test_single_predictions() -> bool:
             return False
     
     # Calculate average performance
-    avg_confidence = sum(r['confidence'] for r in results) / len(results)
-    avg_prediction_time = sum(r['prediction_time_ms'] for r in results) / len(results)
+    sum(r['confidence'] for r in results) / len(results)
+    sum(r['prediction_time_ms'] for r in results) / len(results)
     
     return True
 
 def test_batch_predictions() -> Optional[bool]:
     """Test batch predictions."""
     try:
-        start_time = time.time()
+        time.time()
         response = requests.post(
             f"{BASE_URL}/predict_batch",
             json={"texts": TEST_TEXTS[:5]},
             headers={"Content-Type": "application/json"}
         )
-        end_time = time.time()
+        time.time()
         
         if response.status_code == 200:
             data = response.json()
@@ -111,7 +111,7 @@ def test_batch_predictions() -> Optional[bool]:
             
             
             for _i, pred in enumerate(predictions, 1):
-                pred_text_preview = pred['text'][:30] + "..." if len(pred['text']) > 30 else pred['text']
+                pred['text'][:30] + "..." if len(pred['text']) > 30 else pred['text']
             
             return True
         else:
@@ -228,8 +228,8 @@ def test_performance() -> bool:
     
     if successful:
         avg_response_time = sum(r['response_time'] for r in successful) / len(successful)
-        min_response_time = min(r['response_time'] for r in successful)
-        max_response_time = max(r['response_time'] for r in successful)
+        min(r['response_time'] for r in successful)
+        max(r['response_time'] for r in successful)
         
         if avg_response_time < 1000:  # Less than 1 second
             return True

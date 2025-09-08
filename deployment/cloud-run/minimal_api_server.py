@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Minimal Emotion Detection API Server
+"""Minimal Emotion Detection API Server.
 
 Uses known working PyTorch/transformers combination
 Matches the actual model architecture: RoBERTa with 12 emotion classes.

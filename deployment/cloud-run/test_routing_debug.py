@@ -49,10 +49,10 @@ except Exception:
 endpoints = {}
 for rule in app.url_map.iter_rules():
     if rule.endpoint in endpoints:
-        print(f"Debug: Endpoint {rule.endpoint}: {rule.rule}")
+        pass
     else:
         endpoints[rule.endpoint] = rule.rule
 
 # Check what Flask-RESTX created for the root route
 for rule in app.url_map.iter_rules():
-    print(f"Debug: Endpoint {rule.endpoint}: {rule.rule}")
+    pass
