@@ -84,9 +84,9 @@ def train_simple_model():
         datasets["class_weights"]
 
         logger.info("Dataset loaded successfully:")
-        logger.info("   • Train: {len(train_dataset)} examples")
-        logger.info("   • Validation: {len(val_dataset)} examples")
-        logger.info("   • Test: {len(test_dataset)} examples")
+        logger.info("   • Train: %s examples", len(train_dataset))
+        logger.info("   • Validation: %s examples", len(val_dataset))
+        logger.info("   • Test: %s examples", len(test_dataset))
 
         logger.info("Creating BERT model...")
         model, _ = create_bert_emotion_classifier(

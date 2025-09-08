@@ -134,7 +134,7 @@ def main():
     logger.info("=" * 50)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info("Device: {device}")
+    logger.info("Device: %s", device)
 
     tests = [
         ("Focal Loss Math", test_focal_loss),
@@ -158,9 +158,9 @@ def main():
 
     for name, result in results.items():
         status = "✅ PASS" if result else "❌ FAIL"
-        logger.info("   • {name}: {status}")
+        logger.info("   • %s: %s", name, status)
 
-    logger.info("\n🎯 Overall: {passed}/{total} tests passed")
+    logger.info("\n🎯 Overall: %s/%s tests passed", passed, total)
 
     if passed == total:
         logger.info("✅ All tests passed! Ready for full training.")

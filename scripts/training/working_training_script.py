@@ -79,7 +79,7 @@ def main():
                 loss = loss_fn(logits, labels)
 
                 if loss.item() <= 0:
-                    logger.error("❌ CRITICAL: Loss is zero at batch {batch}!")
+                    logger.error("❌ CRITICAL: Loss is zero at batch %s!", batch)
                     return False
 
                 loss.backward()
@@ -88,10 +88,10 @@ def main():
                 epoch_loss += loss.item()
 
                 if batch % 5 == 0:
-                    logger.info("   Batch {batch}: Loss = {loss.item():.6f}")
+                    logger.info("   Batch %s: Loss = %.6f", batch, loss.item())
 
             avg_loss = epoch_loss / num_batches
-            logger.info("✅ Epoch {epoch + 1}: Average Loss = {avg_loss:.6f}")
+            logger.info("✅ Epoch %s: Average Loss = %.6f", epoch + 1, avg_loss)
 
         logger.info("🎉 SUCCESS: Training completed without 0.0000 loss!")
         logger.info("   The 0.0000 loss issue is SOLVED!")
@@ -99,8 +99,8 @@ def main():
 
         return True
 
-    except Exception as e:
-        logger.error("❌ Training error: {e}")
+    except Exception:
+        logger.error("❌ Training error occurred")
         traceback.print_exc()
         return False
 
