@@ -843,17 +843,15 @@ class CompleteAnalysis(Resource):
         """Process audio transcription if provided."""
         logger.info("🔄 Processing audio transcription...")
         import tempfile
-        allowed_extensions = {'mp3','wav','m4a','aac','ogg','flac'}
+        allowed_extensions = {'mp3': 'mp3', 'wav': 'wav', 'm4a': 'm4a', 'aac': 'aac', 'ogg': 'ogg', 'flac': 'flac'}
         # Extract extension safely using os.path.splitext
         _, ext_candidate = os.path.splitext(audio_file.filename)
         ext = 'wav'  # default
         if ext_candidate:
-            ext_candidate = ext_candidate.lstrip('.').lower()
-            if ext_candidate.isalnum() and ext_candidate in allowed_extensions:
-                ext = ext_candidate
-            else:
-                logger.warning(f"Invalid extension '{ext_candidate}' in filename '{audio_file.filename}', defaulting to .wav")
-                ext = 'wav'
+            ext_candidate_clean = ext_candidate.lstrip('.').lower()
+            ext = allowed_extensions.get(ext_candidate_clean, 'wav')
+            if ext_candidate_clean != ext:
+                logger.warning(f"Extension '{ext_candidate_clean}' in filename '{audio_file.filename}' not in allowed set; defaulting to .{ext}")
         else:
             logger.warning(f"No extension in filename {audio_file.filename}, defaulting to .wav")
         logger.info(f"Using validated extension: .{ext} for temp file in complete analysis")
