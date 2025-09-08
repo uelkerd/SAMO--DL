@@ -41,8 +41,15 @@ except Exception as e:
     raise
 
 # Step 2: Clone repository and setup
-!git clone https://github.com/uelkerd/SAMO--DL.git
-%cd SAMO--DL
+import subprocess
+import os
+
+# Clone repository if not already present
+if not os.path.exists("SAMO--DL"):
+    subprocess.run(["git", "clone", "https://github.com/uelkerd/SAMO--DL.git"], check=True)
+    os.chdir("SAMO--DL")
+else:
+    os.chdir("SAMO--DL")
 
 # Step 3: Create unified label encoder
 print("\n🔧 Creating unified label encoder...")

@@ -12,14 +12,14 @@
         # Create model
         # Create tokenized datasets
         # Extract raw data
-        # Extract texts and labels from raw datasets
-        # Focal loss components
-        # Load dataset
-        # Setup optimizer
-        # Training loop
-        from src.models.emotion_detection.bert_classifier import EmotionDataset
-        from transformers import AutoTokenizer
-        import traceback
+# Extract texts and labels from raw datasets
+# Focal loss components
+# Load dataset
+# Setup optimizer
+# Training loop
+from src.models.emotion_detection.bert_classifier import EmotionDataset
+from transformers import AutoTokenizer
+import traceback
     # Setup device
 # Add project root to path
 # Configure logging

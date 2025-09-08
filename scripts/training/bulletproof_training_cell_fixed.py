@@ -41,8 +41,9 @@ except Exception as e:
     raise
 
 # Step 2: Clone repository and setup
-!git clone https://github.com/uelkerd/SAMO--DL.git
-%cd SAMO--DL
+# Note: Repository should already be cloned
+# Change to project directory
+os.chdir("SAMO--DL")
 
 # Step 3: Create emotion mapping
 print("\n🔧 Creating emotion mapping...")
