@@ -21,11 +21,9 @@ try:
         ('/health', 'Health'),
         ('/docs', 'Docs')
     ]
-    for pattern, name in route_patterns:
+    for pattern, _name in route_patterns:
         routes = [rule for rule in app.url_map.iter_rules() if pattern in rule.rule]
         if routes:
-            continue
-        else:
             continue
     
     

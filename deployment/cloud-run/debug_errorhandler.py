@@ -3,10 +3,12 @@
 
 import sys
 import os
+import logging
+from pathlib import Path
 import contextlib
 
 # Add current directory to path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(Path(__file__).resolve()))
 
 
 try:
@@ -38,6 +40,8 @@ with contextlib.suppress(Exception):
     result = api.errorhandler(429)
 
 # Let's check if there's a version issue
-with contextlib.suppress(Exception):
+try:
     pass
+except Exception as e:
+    logging.warning(f"Version check exception: {e}")
 

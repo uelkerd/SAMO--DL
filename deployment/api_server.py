@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """🚀 EMOTION DETECTION API SERVER.
+
 ===============================
 REST API server for emotion detection with comprehensive security headers.
 """
@@ -30,7 +31,7 @@ except Exception as e:
     detector = None
 
 @app.route('/health', methods=['GET'])
-def health_check():
+def health_check() -> dict:
     """Health check endpoint."""
     return jsonify({
         'status': 'healthy',
@@ -39,7 +40,7 @@ def health_check():
     })
 
 @app.route('/predict', methods=['POST'])
-def predict_emotion():
+def predict_emotion() -> dict:
     """Predict emotion for given text."""
     if detector is None:
         return jsonify({'error': 'Model not loaded'}), 500
@@ -59,7 +60,7 @@ def predict_emotion():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/predict_batch', methods=['POST'])
-def predict_batch():
+def predict_batch() -> dict:
     """Predict emotions for multiple texts."""
     if detector is None:
         return jsonify({'error': 'Model not loaded'}), 500
@@ -79,7 +80,7 @@ def predict_batch():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/emotions', methods=['GET'])
-def get_emotions():
+def get_emotions() -> dict:
     """Get list of supported emotions."""
     if detector is None:
         return jsonify({'error': 'Model not loaded'}), 500
@@ -91,4 +92,4 @@ def get_emotions():
 
 if __name__ == '__main__':
     
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='127.0.0.1', port=5000, debug=False)

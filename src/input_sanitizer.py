@@ -7,7 +7,7 @@ Comprehensive input sanitization and validation for API security.
 import re
 import html
 import logging
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 from dataclasses import dataclass
 import unicodedata
 
@@ -130,23 +130,23 @@ class InputSanitizer:
 
         return text, warnings
 
-    def sanitize_json(self, data: Any, max_depth: int = 10) -> Tuple[Any, List[str]]:
+    def sanitize_json(self, data: Union[dict, list, str, int, float, bool, None], max_depth: int = 10) -> Tuple[Union[dict, list, str, int, float, bool, None], List[str]]:
         """Sanitize JSON data recursively.
-
+    
         Args:
             data: JSON data to sanitize
             max_depth: Maximum recursion depth
-
+    
         Returns:
             Tuple of (sanitized_data, warnings)
         """
         warnings = []
-
-        def _sanitize_recursive(obj: Any, depth: int = 0) -> Any:
+    
+        def _sanitize_recursive(obj: Union[dict, list, str, int, float, bool, None], depth: int = 0) -> Union[dict, list, str, int, float, bool, None]:
             if depth > max_depth:
                 warnings.append(f"Maximum recursion depth {max_depth} exceeded")
                 return None
-
+    
             if isinstance(obj, str):
                 sanitized, obj_warnings = self.sanitize_text(obj)
                 warnings.extend(obj_warnings)
@@ -160,7 +160,7 @@ class InputSanitizer:
             else:
                 warnings.append(f"Unsupported type {type(obj)} converted to string")
                 return str(obj)
-
+    
         return _sanitize_recursive(data), warnings
 
     def validate_emotion_request(self, data: Dict) -> Tuple[Dict, List[str]]:
@@ -293,36 +293,36 @@ class InputSanitizer:
 
         return sanitized_headers, warnings
 
-    def detect_anomalies(self, data: Any) -> List[str]:
+    def detect_anomalies(self, data: Union[dict, list, str, int, float, bool, None]) -> List[str]:
         """Detect potential security anomalies in data.
-
+    
         Args:
             data: Data to analyze
-
+    
         Returns:
             List of detected anomalies
         """
         anomalies = []
-
-        def _analyze_recursive(obj: Any, path: str = ""):
+    
+        def _analyze_recursive(obj: Union[dict, list, str, int, float, bool, None], path: str = ""):
             if isinstance(obj, str):
                 # Check for suspicious patterns
                 if len(obj) > 1000:
                     anomalies.append(f"Large string at {path}: {len(obj)} characters")
-
+    
                 if re.search(r'[<>"\']', obj):
                     anomalies.append(f"Potential HTML/script content at {path}")
-
+    
                 if re.search(r'\b(union|select|insert|update|delete)\b', obj, re.IGNORECASE):
                     anomalies.append(f"Potential SQL injection at {path}")
-
+    
             elif isinstance(obj, dict):
                 for key, value in obj.items():
                     _analyze_recursive(value, f"{path}.{key}" if path else key)
             elif isinstance(obj, list):
                 for i, item in enumerate(obj):
                     _analyze_recursive(item, f"{path}[{i}]")
-
+    
         _analyze_recursive(data)
         return anomalies
 

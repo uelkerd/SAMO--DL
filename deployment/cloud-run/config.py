@@ -1,4 +1,5 @@
-"""Environment Configuration Management - Phase 3 Cloud Run Optimization
+"""Environment Configuration Management - Phase 3 Cloud Run Optimization.
+
 Provides environment-specific settings for development, staging, and production.
 """
 
@@ -50,6 +51,7 @@ class EnvironmentConfig:
     """Environment-specific configuration management."""
 
     def __init__(self, environment: Optional[str] = None) -> None:
+        """Initialize the environment configuration with the specified environment."""
         self.environment = environment or os.getenv('ENVIRONMENT', 'development')
         self.config = self._load_environment_config()
 

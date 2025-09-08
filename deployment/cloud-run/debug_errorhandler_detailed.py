@@ -3,6 +3,7 @@
 
 import os
 import sys
+import logging
 import contextlib
 admin_key = os.environ.get('ADMIN_API_KEY') or 'test123'
 os.environ['ADMIN_API_KEY'] = admin_key
@@ -37,8 +38,8 @@ try:
     
     # Let's check if there's a difference
     
-except Exception:
-    pass
+except Exception as e:
+    logging.warning(f"Debug exception: {e}")
 
 # Let's check if there are any global variables that might be interfering
 

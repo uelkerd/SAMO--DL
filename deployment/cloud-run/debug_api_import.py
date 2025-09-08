@@ -3,10 +3,11 @@
 
 import sys
 import os
+from pathlib import Path
 import contextlib
 
 # Add current directory to path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(Path(__file__).resolve()))
 
 
 try:
@@ -36,7 +37,8 @@ except Exception:
 
 try:
     @api.errorhandler(429)
-    def test_handler(error):
+    def test_handler(error: Exception) -> tuple[dict, int]:
+        """Test error handler for 429 status."""
         return {"error": "test"}, 429
 except Exception:
     sys.exit(1)

@@ -1,4 +1,5 @@
-"""Cloud Run Health Monitor - Phase 3 Optimization
+"""Cloud Run Health Monitor - Phase 3 Optimization.
+
 Provides comprehensive health checks, graceful shutdown, and monitoring.
 """
 
@@ -7,9 +8,10 @@ import sys
 import time
 import signal
 import logging
+import types
 from typing import Dict, Any, Optional
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 import psutil
 
 # Configure logging
@@ -31,7 +33,8 @@ class HealthMonitor:
     """Comprehensive health monitoring for Cloud Run."""
 
     def __init__(self) -> None:
-        self.start_time = datetime.now()
+        """Initialize the health monitor with system tracking and signal handlers."""
+        self.start_time = datetime.now(timezone.utc)
         self.is_shutting_down = False
         self.active_requests = 0
         self.health_metrics: Dict[str, HealthMetrics] = {}
@@ -43,7 +46,7 @@ class HealthMonitor:
 
         logger.info(f"Health monitor initialized with {self.shutdown_timeout}s shutdown timeout")
 
-    def _graceful_shutdown(self, signum, frame) -> None:
+    def _graceful_shutdown(self, signum: int, frame: types.FrameType) -> None:
         """Handle graceful shutdown."""
         logger.info(f"Received shutdown signal {signum}, starting graceful shutdown...")
         self.is_shutting_down = True
@@ -71,7 +74,7 @@ class HealthMonitor:
                 'memory_usage_mb': memory_info.rss / 1024 / 1024,
                 'cpu_usage_percent': process.cpu_percent(),
                 'memory_percent': process.memory_percent(),
-                'uptime_seconds': (datetime.now() - self.start_time).total_seconds()
+                'uptime_seconds': (datetime.now(timezone.utc) - self.start_time).total_seconds()
             }
         except Exception as e:
             logger.error(f"Error getting system metrics: {e}")
@@ -163,7 +166,7 @@ class HealthMonitor:
                 'status': 'shutting_down',
                 'message': 'Service is shutting down gracefully',
                 'active_requests': self.active_requests,
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
 
         # Get system metrics
@@ -189,7 +192,7 @@ class HealthMonitor:
 
         health_data = {
             'status': overall_status,
-            'timestamp': datetime.now().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'uptime_seconds': system_metrics['uptime_seconds'],
             'system': {
                 'memory_usage_mb': round(system_metrics['memory_usage_mb'], 2),
@@ -205,13 +208,13 @@ class HealthMonitor:
         }
 
         # Store metrics for trend analysis
-        self.health_metrics[datetime.now().isoformat()] = HealthMetrics(
+        self.health_metrics[datetime.now(timezone.utc).isoformat()] = HealthMetrics(
             status=overall_status,
             response_time_ms=api_health.get('response_time_ms', 0),
             memory_usage_mb=system_metrics['memory_usage_mb'],
             cpu_usage_percent=system_metrics['cpu_usage_percent'],
             active_requests=self.active_requests,
-            timestamp=datetime.now(),
+            timestamp=datetime.now(timezone.utc),
             error_message=model_health.get('error') or api_health.get('error')
         )
 

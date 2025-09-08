@@ -43,7 +43,8 @@ except Exception:
 
 try:
     @api.errorhandler(429)
-    def test_handler(error):
+    def test_handler(error: Exception) -> tuple[dict, int]:
+        """Test error handler for rate limiting (429)."""
         return {"error": "test"}, 429
 except Exception:
     sys.exit(1)

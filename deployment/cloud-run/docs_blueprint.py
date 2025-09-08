@@ -1,19 +1,21 @@
 from __future__ import annotations
-
 import os
+from pathlib import Path
 from flask import Blueprint, Response, jsonify, render_template, g
+
+"""Documentation blueprint for serving OpenAPI specs and Swagger UI."""
 
 
 docs_bp = Blueprint('docs', __name__, template_folder='templates')
 
 
 @docs_bp.route('/openapi.yaml', methods=['GET'])
-def serve_openapi_spec():
+def serve_openapi_spec() -> Response:
     """Serve OpenAPI spec for Swagger UI with safe path validation."""
     # Restrict spec path to a safe directory
-    allowed_dir = os.path.abspath(os.environ.get('OPENAPI_ALLOWED_DIR', '/app'))
+    allowed_dir = Path(os.environ.get('OPENAPI_ALLOWED_DIR', '/app')).resolve()
     spec_path = os.environ.get('OPENAPI_SPEC_PATH', '/app/openapi.yaml')
-    abs_spec_path = os.path.abspath(spec_path)
+    abs_spec_path = Path(spec_path).resolve()
 
     try:
         # Validate that the spec path is within the allowed directory
@@ -30,7 +32,7 @@ def serve_openapi_spec():
 
 
 @docs_bp.route('/docs', methods=['GET'], strict_slashes=False)
-def swagger_ui():
+def swagger_ui() -> str:
     """Render Swagger UI that loads the OpenAPI spec from /openapi.yaml."""
     # Allow overriding the spec URL (e.g., behind a proxy) but default to local
     spec_url = os.environ.get('OPENAPI_SPEC_URL', '/openapi.yaml')

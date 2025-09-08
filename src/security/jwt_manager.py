@@ -10,7 +10,7 @@ This module provides comprehensive JWT token management including:
 
 import logging
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 import jwt
@@ -66,8 +66,8 @@ class JWTManager:
             "username": user_data["username"],
             "email": user_data["email"],
             "permissions": user_data.get("permissions", []),
-            "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
-            "iat": datetime.utcnow(),
+            "exp": datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+            "iat": datetime.now(timezone.utc),
         }
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
 
@@ -78,8 +78,8 @@ class JWTManager:
             "username": user_data["username"],
             "email": user_data["email"],
             "permissions": user_data.get("permissions", []),
-            "exp": datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS),
-            "iat": datetime.utcnow(),
+            "exp": datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS),
+            "iat": datetime.now(timezone.utc),
             "type": "refresh",
         }
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
@@ -132,7 +132,7 @@ class JWTManager:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
             exp_timestamp = payload.get("exp")
             exp_datetime = (
-                datetime.fromtimestamp(exp_timestamp) if exp_timestamp else None
+                datetime.fromtimestamp(exp_timestamp, tz=timezone.utc) if exp_timestamp else None
             )
             self.blacklisted_tokens[token] = exp_datetime
             return True
@@ -156,7 +156,7 @@ class JWTManager:
     def cleanup_expired_tokens(self) -> int:
         """Clean up expired tokens from blacklist."""
         initial_count = len(self.blacklisted_tokens)
-        current_time = datetime.utcnow()
+        current_time = datetime.now(timezone.utc)
 
         tokens_to_remove = set()
         # self.blacklisted_tokens is now a dict: {token: exp_datetime}
