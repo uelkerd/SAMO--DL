@@ -4,10 +4,10 @@ This script downloads models to a local cache that can be used by Docker builds
 """
 
 import os
-import sys
 import time
 import shutil
 
+import sys
 from huggingface_hub.utils import HfHubHTTPError
 
 def download_emotion_model(cache_dir: str):
