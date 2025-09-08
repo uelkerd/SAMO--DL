@@ -27,6 +27,11 @@ git config --global user.signingkey ~/.ssh/id_github-0x_duelker.pub
 git config --global commit.gpgsign true
 git config --global tag.gpgsign true
 
+# Create allowed signers file for signature verification
+echo "📝 Creating allowed signers file..."
+echo "156104354+uelkerd@users.noreply.github.com $(cat ~/.ssh/id_github-0x_duelker.pub)" > ~/.ssh/allowed_signers
+git config --global gpg.ssh.allowedSignersFile ~/.ssh/allowed_signers
+
 # Test connection
 echo "🧪 Testing SSH connection to GitHub..."
 ssh -T git@github.com
@@ -37,3 +42,4 @@ echo "🔍 Next steps:"
 echo "1. Make sure your SSH key is added to GitHub: https://github.com/settings/keys"
 echo "2. Your commits will now be verified with your SSH key!"
 echo "3. To start SSH agent in new terminals, run: eval \"\$(ssh-agent -s)\" && ssh-add ~/.ssh/id_github-0x_duelker"
+echo "4. Run this script anytime: ./ssh-setup.sh"
