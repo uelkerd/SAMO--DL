@@ -5,10 +5,8 @@ This script downloads models to a local cache that can be used by Docker builds
 """
 
 import os
-import sys
 import time
 import shutil
-from pathlib import Path
 
 def download_emotion_model(cache_dir: str):
     """Download the emotion detection model"""
@@ -101,7 +99,7 @@ def main():
     # Summary
     print("=" * 40)
     if success_count == len(models):
-        print(f"✅ All models downloaded successfully!")
+        print("✅ All models downloaded successfully!")
         print("💡 You can now copy models_cache to your Docker build context")
         print("   or mount it as a volume during build")
     else:
