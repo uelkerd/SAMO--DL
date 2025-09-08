@@ -35,32 +35,39 @@ def test_endpoint(name, method, url, **kwargs):
         del kwargs['headers']
 
     start_time = time.time()
+    
+    # Use method mapping to avoid conditionals
+    method_handlers = {
+        'GET': requests.get,
+        'POST': requests.post
+    }
+    
     try:
-        if method.upper() == 'GET':
-            response = requests.get(url, headers=headers, **kwargs)
-        elif method.upper() == 'POST':
-            response = requests.post(url, headers=headers, **kwargs)
-        else:
+        handler = method_handlers.get(method.upper())
+        if not handler:
             print(f"   ❌ Unsupported method: {method}")
-            return False
+            return False, f"Unsupported method: {method}"
 
+        response = handler(url, headers=headers, **kwargs)
         elapsed = time.time() - start_time
 
         print(f"   Status: {response.status_code}")
         print(f"   Time: {elapsed:.2f}s")
 
-        if response.status_code == 200:
-            try:
-                data = response.json()
-                print(f"   ✅ Success - {name}")
-                return True, data
-            except:
-                print(f"   ⚠️  Success but invalid JSON - {name}")
-                return True, response.text
-        else:
+        # Use early return pattern to avoid nested conditionals
+        if response.status_code != 200:
             print(f"   ❌ Failed - {name}")
             print(f"   Response: {response.text[:200]}...")
             return False, response.text
+
+        # Success case
+        try:
+            data = response.json()
+            print(f"   ✅ Success - {name}")
+            return True, data
+        except:
+            print(f"   ⚠️  Success but invalid JSON - {name}")
+            return True, response.text
 
     except Exception as e:
         elapsed = time.time() - start_time
