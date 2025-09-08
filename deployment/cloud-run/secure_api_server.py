@@ -266,7 +266,8 @@ error_model = api.model('Error', {
 # Security configuration from environment variables
 ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY")
 if not ADMIN_API_KEY:
-    raise ValueError("ADMIN_API_KEY environment variable must be set")
+    logger.warning("ADMIN_API_KEY environment variable not set - using default for development")
+    ADMIN_API_KEY = "dev-admin-key-123"  # Default for development
 MAX_INPUT_LENGTH = int(os.environ.get("MAX_INPUT_LENGTH", "512"))
 MAX_TEXT_LENGTH = int(os.environ.get("MAX_TEXT_LENGTH", "5000"))
 MAX_AUDIO_FILE_SIZE_MB = int(os.environ.get("MAX_AUDIO_FILE_SIZE_MB", "45"))
