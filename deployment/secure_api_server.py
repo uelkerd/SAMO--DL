@@ -36,17 +36,17 @@ from ..src.security_setup import setup_security_middleware, get_environment
 # Configure logging based on environment
 log_level = os.environ.get('LOG_LEVEL', 'INFO').upper()
 numeric_level = getattr(logging, log_level, None) or logging.INFO
-if numeric_level is logging.INFO and log_level not in logging._nameToLevel:
+if numeric_level == logging.INFO and log_level not in logging._nameToLevel:
     logger = logging.getLogger(__name__)
     logger.warning("Unknown LOG_LEVEL '%s'; defaulting to INFO", log_level)
 
 handlers = [logging.StreamHandler()]
 if os.environ.get('ENABLE_FILE_LOG') == '1':
     # Use secure default log location instead of /tmp/
-    default_log_dir = os.path.join(os.path.expanduser('~'), '.samo', 'logs')
-    os.makedirs(default_log_dir, exist_ok=True)
-    default_log_file = os.path.join(default_log_dir, 'secure_api_server.log')
-    log_file_path = os.environ.get('LOG_FILE', default_log_file)
+    default_log_dir = Path.home() / '.samo' / 'logs'
+    default_log_dir.mkdir(parents=True, exist_ok=True)
+    default_log_file = default_log_dir / 'secure_api_server.log'
+    log_file_path = os.environ.get('LOG_FILE', str(default_log_file))
     handlers.append(logging.FileHandler(log_file_path))
 logging.basicConfig(
     level=numeric_level,
@@ -180,7 +180,7 @@ def secure_endpoint(f):
 
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='endpoint_error')
-            logger.warning("Endpoint error occurred: %s from %s", str(_e), client_ip)
+            logger.exception("Endpoint error occurred from %s", client_ip)
             return jsonify({'error': 'Internal server error'}), 500
 
     return decorated_function
@@ -768,8 +768,8 @@ def predict_batch():
         update_metrics(
             response_time, success=False, error_type='batch_prediction_error'
         )
-        logger.error("NLP emotion batch error: %s", _e)
-        return jsonify({'error': 'An internal server error occurred.'}), 500
+        logger.exception("NLP emotion batch error")
+        return jsonify({'error': 'Internal server error'}), 500
 
 
 @app.route('/nlp/emotion', methods=['POST'])
@@ -862,15 +862,15 @@ def nlp_emotion_batch():
         _validate_alignment_count_or_raise(results, len(sanitized))
 
         responses = []
-        for text, dist in zip(sanitized, results):
-            dist = dist if isinstance(dist, list) else []
+        for text, dist_list in zip(sanitized, results):
+            dist_list = dist_list if isinstance(dist_list, list) else []
             top = (
-                max(dist, key=lambda x: x.get('score', 0.0))
-                if dist else {'label': 'unknown', 'score': 0.0}
+                max(dist_list, key=lambda x: x.get('score', 0.0))
+                if dist_list else {'label': 'unknown', 'score': 0.0}
             )
             responses.append({
                 'text': text,
-                'scores': dist,
+                'scores': dist_list,
                 'top_label': top.get('label'),
                 'top_score': top.get('score')
             })
@@ -917,8 +917,8 @@ def nlp_emotion_batch():
         update_metrics(
             response_time, success=False, error_type='batch_prediction_error'
         )
-        logger.error("NLP emotion batch error: %s", _e)
-        return jsonify({'error': "An internal error has occurred."}), 500
+        logger.exception("NLP emotion batch error")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/metrics', methods=['GET'])
 def get_metrics():

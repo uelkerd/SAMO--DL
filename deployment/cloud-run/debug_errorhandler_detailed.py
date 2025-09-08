@@ -3,8 +3,11 @@
 Detailed debug script to understand the errorhandler issue
 """
 
+# ruff: noqa: T201
+
 import os
-os.environ.setdefault('ADMIN_API_KEY', 'test-admin-key-123')
+if __name__ == '__main__':
+    os.environ.setdefault('ADMIN_API_KEY', 'test-admin-key-123')
 
 print("🔍 Starting detailed errorhandler debug...")
 
@@ -70,10 +73,9 @@ print(f"Global errorhandler: {globals().get('errorhandler', 'Not found')}")
 
 # Let's check if there's a version issue
 try:
-    import flask_restx
-    import flask
-    print(f"\n🔍 Flask-RESTX version: {flask_restx.__version__}")
-    print(f"Flask version: {flask.__version__}")
+    from importlib.metadata import version
+    print(f"\n🔍 Flask-RESTX version: {version('flask-restx')}")
+    print(f"Flask version: {version('flask')}")
 except Exception as e:
     print(f"❌ Could not get versions: {e}")
 
