@@ -43,6 +43,7 @@ class TestAPIRouting(unittest.TestCase):
                 # Load the module under its spec name so patch targets resolve correctly
                 self.module = importlib.util.module_from_spec(spec)
                 sys.modules[spec.name] = self.module
+                self.addCleanup(sys.modules.pop, spec.name, None)
                 spec.loader.exec_module(self.module)
 
                 # Persistent mocks for each test
@@ -185,8 +186,9 @@ class TestAPIRouting(unittest.TestCase):
 
     def test_admin_model_status_with_auth(self):
         """Test admin model status endpoint works with valid API key."""
-        response = self.app.get('/admin/model_status',
-                               headers={'X-API-Key': 'test-admin-key-123'})
+        response = self.app.get(
+            '/admin/model_status', headers={'X-API-Key': self.ADMIN_KEY}
+        )
 
         # Should succeed (200) or be rate limited (429), but not auth error (401)
         self.assertIn(response.status_code, [200, 429])
@@ -205,10 +207,12 @@ class TestAPIRouting(unittest.TestCase):
 
     def test_predict_endpoint_invalid_text(self):
         """Test predict endpoint handles invalid text input."""
-        response = self.app.post('/api/predict',
-                                data=json.dumps({'text': ''}),
-                                content_type='application/json',
-                                headers={'X-API-Key': 'test-admin-key-123'})
+        response = self.app.post(
+            '/api/predict',
+            data=json.dumps({'text': ''}),
+            content_type='application/json',
+            headers={'X-API-Key': self.ADMIN_KEY}
+        )
         self.assertEqual(response.status_code, 400)
 
         data = response.get_json()

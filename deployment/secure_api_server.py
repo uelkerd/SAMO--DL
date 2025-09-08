@@ -862,15 +862,15 @@ def nlp_emotion_batch():
         _validate_alignment_count_or_raise(results, len(sanitized))
 
         responses = []
-        for text, dist_list in zip(sanitized, results):
-            dist_list = dist_list if isinstance(dist_list, list) else []
+        for text, scores in zip(sanitized, results):
+            scores = scores if isinstance(scores, list) else []
             top = (
-                max(dist_list, key=lambda x: x.get('score', 0.0))
-                if dist_list else {'label': 'unknown', 'score': 0.0}
+                max(scores, key=lambda x: x.get('score', 0.0))
+                if scores else {'label': 'unknown', 'score': 0.0}
             )
             responses.append({
                 'text': text,
-                'scores': dist_list,
+                'scores': scores,
                 'top_label': top.get('label'),
                 'top_score': top.get('score')
             })

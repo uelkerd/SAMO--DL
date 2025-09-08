@@ -59,7 +59,7 @@ try:
     print(f"Bound call result: {type(result2)} - {result2}")
     
     # Let's check if there's a difference
-    print(f"\nResults are the same: {result == result2}")
+    print(f"\nSame object: {result is result2}")
     
 except Exception as e:
     print(f"❌ errorhandler testing failed: {e}")
