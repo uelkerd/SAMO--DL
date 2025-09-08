@@ -24,6 +24,7 @@ MAX_TIMESTAMP_DIFF = 60
 class TestCompleteWorkflows:
     """End-to-end tests for SAMO AI complete user workflows."""
 
+    @staticmethod
     def test_text_journal_complete_workflow(self, api_client, sample_journal_entry):
         """Test complete text journal analysis workflow."""
         start_time = time.time()
@@ -107,6 +108,7 @@ class TestCompleteWorkflows:
             # Clean up temporary file
             Path(temp_audio_path).unlink(missing_ok=True)
 
+    @staticmethod
     def test_error_recovery_workflow(self, api_client):
         """Test error recovery and graceful degradation."""
         # Test with invalid input
@@ -135,6 +137,7 @@ class TestCompleteWorkflows:
         )
         assert response.status_code == HTTP_OK
 
+    @staticmethod
     def test_high_volume_workflow(self, api_client):
         """Test high volume processing with multiple requests."""
         requests_data = [
@@ -150,6 +153,7 @@ class TestCompleteWorkflows:
 
         assert success_count >= 4  # At least 80% success rate
 
+    @staticmethod
     def test_data_consistency_workflow(self, api_client):
         """Test data consistency across multiple requests."""
         test_text = "I had a great day today!"

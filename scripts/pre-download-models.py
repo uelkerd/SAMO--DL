@@ -85,8 +85,8 @@ def main():
     free_gb = usage.free / (1024**3)
     min_free_gb = 1.5
     if free_gb < min_free_gb:
-        print(f"❌ Insufficient disk space: {free_gb:.2f}GB available, {min_free_gb}GB required")
-        sys.exit(1)
+        print("❌ Insufficient disk space: %.2fGB available, %sGB required", free_gb, min_free_gb)
+        raise ValueError("Insufficient disk space")
     print(f"Available disk space: {free_gb:.2f} GB (sufficient)")
     print()
 
@@ -114,11 +114,11 @@ def main():
         print("✅ All models downloaded successfully!")
         print("💡 You can now copy models_cache to your Docker build context")
         print("   or mount it as a volume during build")
-        sys.exit(0)
+        raise ValueError("Download completed")
     else:
         print(f"⚠️  {success_count}/{len(models)} models downloaded successfully")
         print("❌ Partial failure - exiting with error code")
-        sys.exit(1)
+        raise ValueError("Partial failure")
 
     print(f"⏱️  Total download time: {total_duration:.1f}s")
     # Show cache size

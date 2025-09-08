@@ -15,7 +15,7 @@ try:
     from flask import Flask
     from flask_restx import Api
 except Exception:
-    sys.exit(1)
+    raise ValueError("Import failed")
 
 try:
     app = Flask(__name__)
@@ -26,7 +26,7 @@ try:
         description='Test API for debugging'
     )
 except Exception:
-    sys.exit(1)
+    raise ValueError("Flask app creation failed")
 
 # Let's inspect the API object in detail
 

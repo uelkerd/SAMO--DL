@@ -51,7 +51,7 @@ def load_model() -> None:
     try:
         # Get model path
         model_path = Path("/app/model")
-        logger.info(f"📁 Loading model from: {model_path}")
+        logger.info("📁 Loading model from: %s", model_path)
         
         # Check if model files exist
         if not model_path.exists():
@@ -73,8 +73,8 @@ def load_model() -> None:
         model_loaded = True
         model_loading = False
         
-        logger.info(f"✅ Model loaded successfully on {device}")
-        logger.info(f"🎯 Supported emotions: {emotion_mapping}")
+        logger.info("✅ Model loaded successfully on %s", device)
+        logger.info("🎯 Supported emotions: %s", emotion_mapping)
         
     except Exception:
         model_loading = False

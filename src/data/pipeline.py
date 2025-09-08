@@ -59,7 +59,7 @@ class DataPipeline:
         elif embedding_method == "fasttext":
             embedder = FastTextEmbedder(vector_size=100)
         else:
-            logger.warning(f"Unknown embedding method '{embedding_method}'. Defaulting to TF-IDF.")
+            logger.warning("Unknown embedding method '%s'. Defaulting to TF-IDF.", embedding_method)
             embedder = TfidfEmbedder(max_features=1000)
 
         self.embedding_pipeline = EmbeddingPipeline(embedder)

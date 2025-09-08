@@ -410,7 +410,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                 endpoint_url = os.getenv("EMOTION_MODEL_ENDPOINT_URL")
 
                 # Log configuration
-                logger.info(f"Emotion model config: ID={hf_model_id}, local_dir={bool(local_dir)}, archive={bool(archive_url)}, endpoint={bool(endpoint_url)}")
+                logger.info("Emotion model config: ID=%s, local_dir=%s, archive=%s, endpoint=%s", hf_model_id, bool(local_dir), bool(archive_url), bool(endpoint_url))
                 logger.info("Attempting to load emotion model from HF Hub: %s", hf_model_id)
                 logger.info(
                     "Sources configured: local_dir=%s, archive=%s, endpoint=%s",
@@ -447,7 +447,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
 
             summarizer_model = os.getenv("TEXT_SUMMARIZER_MODEL", "t5-small")
             text_summarizer = create_t5_summarizer(summarizer_model)
-            logger.info(f"Text summarization model loaded: {summarizer_model}")
+            logger.info("Text summarization model loaded: %s", summarizer_model)
         except Exception as exc:
             logger.warning("Text summarization model not available: %s", exc)
 
@@ -459,7 +459,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
 
             transcriber_model = os.getenv("VOICE_TRANSCRIBER_MODEL", "base")
             voice_transcriber = create_whisper_transcriber(transcriber_model)
-            logger.info(f"Voice processing model loaded: {transcriber_model}")
+            logger.info("Voice processing model loaded: %s", transcriber_model)
         except Exception as exc:
             logger.warning("Voice processing model not available: %s", exc)
 

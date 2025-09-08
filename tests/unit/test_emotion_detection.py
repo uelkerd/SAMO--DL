@@ -20,6 +20,7 @@ except ImportError as e:
 class TestBertEmotionClassifier:
     """Test suite for BERT emotion detection classifier."""
 
+    @staticmethod
     @patch("transformers.AutoConfig.from_pretrained")
     @patch("transformers.AutoModel.from_pretrained")
     def test_model_initialization(self, mock_bert, mock_config):
@@ -40,6 +41,7 @@ class TestBertEmotionClassifier:
         assert hasattr(model.classifier, "0")  # First dropout layer
         assert hasattr(model.classifier, "3")  # Second dropout layer
 
+    @staticmethod
     @patch("transformers.AutoConfig.from_pretrained")
     @patch("transformers.AutoModel.from_pretrained")
     def test_model_parameter_count(self, mock_bert, mock_config):
@@ -57,6 +59,7 @@ class TestBertEmotionClassifier:
         assert total_params > 10_000  # At least the classifier parameters
         assert total_params < 1_000_000  # But less than a full BERT model
 
+    @staticmethod
     @patch("transformers.AutoConfig.from_pretrained")
     @patch("transformers.AutoModel.from_pretrained")
     def test_forward_pass(self, mock_bert, mock_config):
@@ -87,6 +90,7 @@ class TestBertEmotionClassifier:
         assert output.shape == (2, 28)
         assert torch.all(torch.isfinite(output))
 
+    @staticmethod
     def test_predict_emotions(self):
         """Test emotion prediction functionality."""
         with patch("transformers.AutoConfig.from_pretrained"), patch(
@@ -119,6 +123,7 @@ class TestBertEmotionClassifier:
             assert "probabilities" in predictions
             assert "predictions" in predictions
 
+    @staticmethod
     @patch("transformers.AutoConfig.from_pretrained")
     @patch("transformers.AutoModel.from_pretrained")
     def test_device_compatibility(self, mock_bert, mock_config):
@@ -141,6 +146,7 @@ class TestBertEmotionClassifier:
             model.to("cuda")
             assert next(model.parameters()).device.type == "cuda"
 
+    @staticmethod
     @patch("transformers.AutoConfig.from_pretrained")
     @patch("transformers.AutoModel.from_pretrained")
     def test_training_mode(self, mock_bert, mock_config):
@@ -170,6 +176,7 @@ class TestBertEmotionClassifier:
         # The model has dropout within the classifier, not as a direct attribute
         assert not hasattr(model, "dropout")
 
+    @staticmethod
     def test_class_weights_handling(self):
         """Test that class weights are handled correctly."""
         with patch("transformers.AutoConfig.from_pretrained"), patch(
@@ -182,6 +189,7 @@ class TestBertEmotionClassifier:
             assert hasattr(model, "class_weights")
             assert torch.equal(model.class_weights, class_weights)
 
+    @staticmethod
     @pytest.mark.slow
     @patch("transformers.AutoConfig.from_pretrained")
     @patch("transformers.AutoModel.from_pretrained")

@@ -37,6 +37,7 @@ Tests API functionality, request/response handling, and error scenarios.
 class TestAPIEndpoints:
     """Integration tests for SAMO AI API endpoints."""
 
+    @staticmethod
     def test_health_endpoint(self, api_client):
         """Test /health endpoint returns correct status."""
         response = api_client.get("/health")
@@ -53,6 +54,7 @@ class TestAPIEndpoints:
             assert "loaded" in model_status
             assert "status" in model_status
 
+    @staticmethod
     def test_root_endpoint(self, api_client):
         """Test root endpoint returns welcome message."""
         response = api_client.get("/")
@@ -64,6 +66,7 @@ class TestAPIEndpoints:
         assert "SAMO" in data["message"]
         assert "version" in data
 
+    @staticmethod
     @patch("src.models.emotion_detection.bert_classifier.BERTEmotionClassifier")
     def test_journal_analysis_endpoint(self, mock_bert, api_client):
         """Test /analyze/journal endpoint with text input."""
@@ -93,6 +96,7 @@ class TestAPIEndpoints:
         assert "confidence" in emotion_analysis
         assert isinstance(emotion_analysis["emotions"], dict)
 
+    @staticmethod
     def test_journal_analysis_validation(self, api_client):
         """Test journal analysis input validation."""
         response = api_client.post("/analyze/journal", json={"text": ""})
@@ -105,6 +109,7 @@ class TestAPIEndpoints:
         response = api_client.post("/analyze/journal", json={})
         assert response.status_code == 422
 
+    @staticmethod
     def test_models_status_endpoint(self, api_client):
         """Test /models/status endpoint returns model information."""
         response = api_client.get("/models/status")
@@ -120,6 +125,7 @@ class TestAPIEndpoints:
             assert "model_type" in data[model]
             assert "capabilities" in data[model]
 
+    @staticmethod
     @pytest.mark.slow
     def test_performance_requirements(self, api_client):
         """Test API meets performance requirements."""
@@ -138,6 +144,7 @@ class TestAPIEndpoints:
         assert "processing_time_ms" in data
         assert data["processing_time_ms"] > 0
 
+    @staticmethod
     def test_error_handling(self, api_client):
         """Test API error handling and response format."""
         response = api_client.get("/invalid/endpoint")
@@ -150,6 +157,7 @@ class TestAPIEndpoints:
         )
         assert response.status_code == 422
 
+    @staticmethod
     def test_concurrent_requests(self, api_client):
         """Test API handles concurrent requests."""
         results = queue.Queue()
@@ -175,6 +183,7 @@ class TestAPIEndpoints:
             result = results.get()
             assert result == 200
 
+    @staticmethod
     def test_content_type_handling(self, api_client):
         """Test API handles different content types correctly."""
         test_data = {"text": "Testing content type handling."}
@@ -184,6 +193,7 @@ class TestAPIEndpoints:
 
         response = api_client.post("/analyze/journal", data=test_data)
 
+    @staticmethod
     def test_response_consistency(self, api_client):
         """Test API response format consistency across multiple calls."""
         test_data = {"text": "Testing response consistency."}

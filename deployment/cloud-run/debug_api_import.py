@@ -23,7 +23,7 @@ except Exception:
 try:
     app = Flask(__name__)
 except Exception:
-    sys.exit(1)
+    raise ValueError("Flask app creation failed")
 
 try:
     api = Api(

@@ -16,7 +16,7 @@ import os
 API_BASE_URL = os.getenv("API_BASE_URL", "https://emotion-detection-api-frrnetyhfa-uc.a.run.app")
 API_KEY = os.getenv("API_KEY")
 if not API_KEY:
-    sys.exit(1)
+    raise ValueError("API_KEY not set")
 
 def test_endpoint(name, method, url, timeout=30, **kwargs):
     """Test an API endpoint and return results."""
@@ -254,4 +254,5 @@ def main() -> bool:
 
 if __name__ == "__main__":
     success = main()
-    sys.exit(0 if success else 1)
+    if not success:
+        raise ValueError("Test failed")

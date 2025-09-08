@@ -11,6 +11,7 @@ from src.data.validation import DataValidator, validate_text_input
 class TestDataValidator:
     """Test suite for DataValidator class."""
 
+    @staticmethod
     def test_data_validator_initialization(self):
         """Test DataValidator initialization."""
         validator = DataValidator()
@@ -20,6 +21,7 @@ class TestDataValidator:
         assert hasattr(validator, 'check_text_quality')
         assert hasattr(validator, 'validate_journal_entries')
 
+    @staticmethod
     def test_check_missing_values(self):
         """Test check_missing_values method."""
         validator = DataValidator()
@@ -38,6 +40,7 @@ class TestDataValidator:
         assert result['user_id'] == 25.0  # 1 out of 4 is missing
         assert result['content'] == 25.0  # 1 out of 4 is missing
 
+    @staticmethod
     def test_check_data_types(self):
         """Test check_data_types method."""
         validator = DataValidator()
@@ -61,6 +64,7 @@ class TestDataValidator:
         assert result['content'] is True
         assert result['is_private'] is True
 
+    @staticmethod
     def test_check_text_quality(self):
         """Test check_text_quality method."""
         validator = DataValidator()
@@ -77,6 +81,7 @@ class TestDataValidator:
         assert 'is_empty' in result.columns
         assert 'is_very_short' in result.columns
 
+    @staticmethod
     def test_validate_journal_entries(self):
         """Test validate_journal_entries method."""
         validator = DataValidator()
@@ -111,6 +116,7 @@ class TestDataValidator:
 class TestValidateTextInput:
     """Test suite for validate_text_input function."""
 
+    @staticmethod
     def test_validate_text_input_valid(self):
         """Test validate_text_input with valid input."""
         text = "This is a valid text input with reasonable length."
@@ -118,6 +124,7 @@ class TestValidateTextInput:
         assert result['is_valid'] is True
         assert result['error'] is None
 
+    @staticmethod
     def test_validate_text_input_empty(self):
         """Test validate_text_input with empty string."""
         text = ""
@@ -125,12 +132,14 @@ class TestValidateTextInput:
         assert result['is_valid'] is False
         assert "empty" in result['error'].lower()
 
+    @staticmethod
     def test_validate_text_input_none(self):
         """Test validate_text_input with None."""
         result = validate_text_input(None)
         assert result['is_valid'] is False
         assert "none" in result['error'].lower()
 
+    @staticmethod
     def test_validate_text_input_too_short(self):
         """Test validate_text_input with too short text."""
         text = "Hi"
@@ -138,6 +147,7 @@ class TestValidateTextInput:
         assert result['is_valid'] is False
         assert "short" in result['error'].lower()
 
+    @staticmethod
     def test_validate_text_input_too_long(self):
         """Test validate_text_input with too long text."""
         text = "A" * 10001  # 10,001 characters
@@ -145,6 +155,7 @@ class TestValidateTextInput:
         assert result['is_valid'] is False
         assert "long" in result['error'].lower()
 
+    @staticmethod
     def test_validate_text_input_invalid_characters(self):
         """Test validate_text_input with invalid characters."""
         text = "Text with invalid chars: \x00\x01\x02"
@@ -152,6 +163,7 @@ class TestValidateTextInput:
         assert result['is_valid'] is False
         assert "invalid" in result['error'].lower()
 
+    @staticmethod
     def test_validate_text_input_whitespace_only(self):
         """Test validate_text_input with whitespace-only text."""
         text = "   \n\t   "

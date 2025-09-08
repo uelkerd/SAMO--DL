@@ -11,12 +11,12 @@ try:
     from flask import Flask
     from flask_restx import Api, fields, Namespace
 except Exception:
-    sys.exit(1)
+    raise ValueError("Import failed")
 
 try:
     app = Flask(__name__)
 except Exception:
-    sys.exit(1)
+    raise ValueError("Flask app creation failed")
 
 try:
     api = Api(
@@ -26,20 +26,20 @@ try:
         description='Test API'
     )
 except Exception:
-    sys.exit(1)
+    raise ValueError("API initialization failed")
 
 try:
     test_ns = Namespace('test', description='Test namespace')
     api.add_namespace(test_ns)
 except Exception:
-    sys.exit(1)
+    raise ValueError("Pass statement execution failed")
 
 try:
     test_model = api.model('Test', {
         'message': fields.String(description='Test message')
     })
 except Exception:
-    sys.exit(1)
+    raise ValueError("Error handler setup failed")
 
 try:
     @api.errorhandler(429)
@@ -47,5 +47,5 @@ try:
         """Test error handler for rate limiting (429)."""
         return {"error": "test"}, 429
 except Exception:
-    sys.exit(1)
+    raise ValueError("Error handler setup failed")
 

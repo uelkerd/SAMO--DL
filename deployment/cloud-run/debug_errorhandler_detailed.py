@@ -13,13 +13,13 @@ try:
     from flask import Flask
     from flask_restx import Api
 except Exception:
-    sys.exit(1)
+    raise ValueError("Import failed")
 
 try:
     app = Flask(__name__)
     api = Api(app, version='1.0.0', title='Test')
 except Exception:
-    sys.exit(1)
+    raise ValueError("Flask app creation failed")
 
 # Let's inspect the API object in detail
 

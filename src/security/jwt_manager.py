@@ -103,13 +103,13 @@ class JWTManager:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
             return TokenPayload(**payload)
         except jwt.ExpiredSignatureError:
-            logger.warning(f"Token expired: {token[:10]}...")
+            logger.warning("Token expired: %s...", token[:10])
             return None
         except jwt.InvalidTokenError as e:
-            logger.warning(f"Invalid token: {e!s}")
+            logger.warning("Invalid token: %s", e)
             return None
         except Exception as e:
-            logger.error(f"Token verification error: {e!s}")
+            logger.error("Token verification error: %s", e)
             return None
 
     def refresh_access_token(self, refresh_token: str) -> Optional[str]:

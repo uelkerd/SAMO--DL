@@ -40,14 +40,14 @@ try:
     from src.models.summarization.t5_summarizer import create_t5_summarizer
     T5_AVAILABLE = True
 except ImportError as e:
-    logger.warning(f"T5 summarization not available: {e}")
+    logger.warning("T5 summarization not available: %s", e)
     T5_AVAILABLE = False
 
 try:
     from src.models.voice_processing.whisper_transcriber import create_whisper_transcriber
     WHISPER_AVAILABLE = True
 except ImportError as e:
-    logger.warning(f"Whisper transcription not available: {e}")
+    logger.warning("Whisper transcription not available: %s", e)
     WHISPER_AVAILABLE = False
 
 # Temporary file cleanup utility
@@ -56,8 +56,8 @@ def cleanup_temp_file(file_path) -> None:
     try:
         if file_path and os.path.exists(file_path):
             os.remove(file_path)
-            logger.debug(f"Successfully deleted temporary file: {file_path}")
-    except OSError:
+            logger.debug("Successfully deleted temporary file: %s", file_path)
+        except OSError:
         logger.exception("Failed to delete temporary file %s", file_path)
 
 def normalize_emotion_results(raw_emotion):
@@ -191,7 +191,7 @@ load_all_models()
 def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX's root
     """Get API status and information."""
     try:
-        logger.info(f"Root endpoint accessed from {request.remote_addr}")
+        logger.info("Root endpoint accessed from %s", request.remote_addr)
         return jsonify({
             'service': 'SAMO Emotion Detection API',
             'status': 'operational',
@@ -201,7 +201,7 @@ def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX'
             'timestamp': time.time()
         })
     except Exception as e:
-        logger.error(f"Root endpoint error for {request.remote_addr}: {e!s}")
+        logger.error("Root endpoint error for %s: %s", request.remote_addr, e)
         return create_error_response('Internal server error', 500)
 
 # Initialize Flask-RESTX API without Swagger to avoid 500 errors
@@ -296,7 +296,7 @@ def require_api_key(f):
     def decorated_function(*args, **kwargs):
         api_key = request.headers.get('X-API-Key')
         if not verify_api_key(api_key):
-            logger.warning(f"Invalid API key attempt from {request.remote_addr}")
+            logger.warning("Invalid API key attempt from %s", request.remote_addr)
             return create_error_response('Unauthorized - Invalid API key', 401)
         return f(*args, **kwargs)
     return decorated_function
@@ -358,13 +358,13 @@ def create_error_response(error_message: str, status_code: int):
 
 def handle_rate_limit_exceeded():
     """Handle rate limit exceeded - return proper error response."""
-    logger.warning(f"Rate limit exceeded for {request.remote_addr}")
+    logger.warning("Rate limit exceeded for %s", request.remote_addr)
     return create_error_response('Rate limit exceeded - too many requests', 429)
 
 def log_rate_limit_info() -> None:
     """Log rate limiting information for debugging."""
-    logger.debug(f"Rate limiting configured: {RATE_LIMIT_PER_MINUTE} requests per minute")
-    logger.debug(f"Current request from: {request.remote_addr}")
+    logger.debug("Rate limiting configured: %s requests per minute", RATE_LIMIT_PER_MINUTE)
+    logger.debug("Current request from: %s", request.remote_addr)
 
 @app.before_request
 def before_request() -> None:
@@ -378,7 +378,7 @@ def before_request() -> None:
         initialize_model()
     
     # Log incoming requests for debugging
-    logger.info(f"📥 Request: {request.method} {request.path} from {request.remote_addr} (ID: {g.request_id})")
+    logger.info("📥 Request: %s %s from %s (ID: %s)", request.method, request.path, request.remote_addr, g.request_id)
     
     # Log request headers for debugging (excluding sensitive ones)
     headers_to_log = {k: v for k, v in request.headers.items()
@@ -397,8 +397,7 @@ def after_request(response):
     
     # Log response for debugging
     summary = getattr(request, 'summary', None)
-    logger.info(f"📤 Response: {response.status_code} for {request.method} {request.path} "
-                f"from {request.remote_addr} (ID: {g.request_id}, Duration: {duration:.3f}s, Summary: {summary if summary else 'None'})")
+    logger.info("📤 Response: %s for %s %s from %s (ID: %s, Duration: %.3fs, Summary: %s)", response.status_code, request.method, request.path, request.remote_addr, g.request_id, duration, summary if summary else 'None')
     
     return response
 
@@ -406,6 +405,7 @@ def after_request(response):
 
 @main_ns.route('/health')
 class Health(Resource):
+    @staticmethod
     @api.doc('get_health')
     @api.response(200, 'Success')
     @api.response(503, 'Service Unavailable')
@@ -430,7 +430,7 @@ class Health(Resource):
                 return create_error_response('Service unavailable - model not ready', 503)
                 
         except Exception as e:
-            logger.error(f"Health check error for {request.remote_addr}: {e!s}")
+            logger.error("Health check error for %s: %s", request.remote_addr, e)
             return create_error_response('Internal server error', 500)
 
 @main_ns.route('/predict')
@@ -442,6 +442,7 @@ class Predict(Resource):
     @api.response(401, 'Unauthorized')
     @api.response(429, 'Too Many Requests')
     @api.response(503, 'Service Unavailable')
+    @staticmethod
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
@@ -453,19 +454,19 @@ class Predict(Resource):
             # Get and validate input
             data = request.get_json()
             if not data or 'text' not in data:
-                logger.warning(f"Missing text field in request from {request.remote_addr}")
+                logger.warning("Missing text field in request from %s", request.remote_addr)
                 return create_error_response('Missing text field', 400)
 
             text = data['text']
             if not text or not isinstance(text, str):
-                logger.warning(f"Invalid text input from {request.remote_addr}: {type(text)}")
+                logger.warning("Invalid text input from %s: %s", request.remote_addr, type(text))
                 return create_error_response('Text must be a non-empty string', 400)
 
             # Sanitize input
             try:
                 text = sanitize_input(text)
             except ValueError as e:
-                logger.warning(f"Input sanitization failed for {request.remote_addr}: {e!s}")
+                logger.warning("Input sanitization failed for %s: %s", request.remote_addr, e)
                 return create_error_response(str(e), 400)
 
             # Ensure model is loaded
@@ -474,12 +475,12 @@ class Predict(Resource):
                 return create_error_response('Model not ready', 503)
 
             # Predict emotion
-            logger.info(f"Processing prediction request for {request.remote_addr}")
+            logger.info("Processing prediction request for %s", request.remote_addr)
             result = predict_emotion(text)
             return result
 
         except Exception as e:
-            logger.error(f"Prediction error for {request.remote_addr}: {e!s}")
+            logger.error("Prediction error for %s: %s", request.remote_addr, e)
             return create_error_response('Internal server error', 500)
 
 @main_ns.route('/predict_batch')
@@ -491,6 +492,7 @@ class PredictBatch(Resource):
     @api.response(401, 'Unauthorized')
     @api.response(429, 'Too Many Requests')
     @api.response(503, 'Service Unavailable')
+    @staticmethod
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
@@ -502,16 +504,16 @@ class PredictBatch(Resource):
             # Get and validate input
             data = request.get_json()
             if not data or 'texts' not in data:
-                logger.warning(f"Missing texts field in batch request from {request.remote_addr}")
+                logger.warning("Missing texts field in batch request from %s", request.remote_addr)
                 return create_error_response('Missing texts field', 400)
 
             texts = data['texts']
             if not isinstance(texts, list) or len(texts) == 0:
-                logger.warning(f"Invalid texts input from {request.remote_addr}: {type(texts)}")
+                logger.warning("Invalid texts input from %s: %s", request.remote_addr, type(texts))
                 return create_error_response('Texts must be a non-empty list', 400)
 
             if len(texts) > 100:  # Limit batch size
-                logger.warning(f"Batch size too large from {request.remote_addr}: {len(texts)}")
+                logger.warning("Batch size too large from %s: %s", request.remote_addr, len(texts))
                 return create_error_response('Batch size too large (max 100)', 400)
 
             # Ensure model is loaded
@@ -520,7 +522,7 @@ class PredictBatch(Resource):
                 return create_error_response('Model not ready', 503)
 
             # Process each text
-            logger.info(f"Processing batch prediction request for {request.remote_addr} with {len(texts)} texts")
+            logger.info("Processing batch prediction request for %s with %s texts", request.remote_addr, len(texts))
             results = []
             for text in texts:
                 if not text or not isinstance(text, str):
@@ -531,37 +533,39 @@ class PredictBatch(Resource):
                     result = predict_emotion(text)
                     results.append(result)
                 except Exception as e:
-                    logger.warning(f"Failed to process text in batch from {request.remote_addr}: {e!s}")
+                    logger.warning("Failed to process text in batch from %s: %s", request.remote_addr, e)
                     continue
 
             return {'results': results}
 
         except Exception as e:
-            logger.error(f"Batch prediction error for {request.remote_addr}: {e!s}")
+            logger.error("Batch prediction error for %s: %s", request.remote_addr, e)
             return create_error_response('Internal server error', 500)
 
 @main_ns.route('/emotions')
 class Emotions(Resource):
     @api.doc('get_emotions')
+    @staticmethod
     @api.response(200, 'Success')
     @api.response(500, 'Internal Server Error')
     def get(self):
         """Get list of supported emotions."""
         try:
-            logger.info(f"Emotions list requested from {request.remote_addr}")
+            logger.info("Emotions list requested from %s", request.remote_addr)
             return {
                 'emotions': EMOTION_MAPPING,
                 'count': len(EMOTION_MAPPING),
                 'timestamp': time.time()
             }
         except Exception as e:
-            logger.error(f"Emotions endpoint error for {request.remote_addr}: {e!s}")
+            logger.error("Emotions endpoint error for %s: %s", request.remote_addr, e)
             return create_error_response('Internal server error', 500)
 
 # Admin endpoints
 @admin_ns.route('/model_status')
 class ModelStatus(Resource):
     @api.doc('get_model_status', security='apikey')
+    @staticmethod
     @api.response(200, 'Success')
     @api.response(401, 'Unauthorized')
     @api.response(500, 'Internal Server Error')
@@ -570,16 +574,17 @@ class ModelStatus(Resource):
         """Get detailed model status (admin only)."""
         try:
             # Get model status from shared utilities
-            logger.info(f"Admin model status request from {request.remote_addr}")
+            logger.info("Admin model status request from %s", request.remote_addr)
             status = get_model_status()
             return status
         except Exception as e:
-            logger.error(f"Model status error for {request.remote_addr}: {e!s}")
+            logger.error("Model status error for %s: %s", request.remote_addr, e)
             return create_error_response('Internal server error', 500)
 
 @admin_ns.route('/security_status')
 class SecurityStatus(Resource):
     @api.doc('get_security_status', security='apikey')
+    @staticmethod
     @api.response(200, 'Success')
     @api.response(401, 'Unauthorized')
     @api.response(500, 'Internal Server Error')
@@ -587,7 +592,7 @@ class SecurityStatus(Resource):
     def get(self):
         """Get security configuration status (admin only)."""
         try:
-            logger.info(f"Admin security status request from {request.remote_addr}")
+            logger.info("Admin security status request from %s", request.remote_addr)
             return {
                 'api_key_protection': True,
                 'input_sanitization': True,
@@ -597,33 +602,33 @@ class SecurityStatus(Resource):
                 'timestamp': time.time()
             }
         except Exception as e:
-            logger.error(f"Security status error for {request.remote_addr}: {e!s}")
+            logger.error("Security status error for %s: %s", request.remote_addr, e)
             return create_error_response('Internal server error', 500)
 
 # Error handlers for Flask-RESTX - using direct registration due to decorator compatibility issue
 def rate_limit_exceeded(error):
     """Handle rate limit exceeded errors."""
-    logger.warning(f"Rate limit exceeded for {request.remote_addr}")
+    logger.warning("Rate limit exceeded for %s", request.remote_addr)
     return create_error_response('Rate limit exceeded - too many requests', 429)
 
 def internal_error(error):
     """Handle internal server errors."""
-    logger.error(f"Internal server error for {request.remote_addr}: {error!s}")
+    logger.error("Internal server error for %s: %s", request.remote_addr, error)
     return create_error_response('Internal server error', 500)
 
 def not_found(error):
     """Handle not found errors."""
-    logger.warning(f"Endpoint not found for {request.remote_addr}: {request.url}")
+    logger.warning("Endpoint not found for %s: %s", request.remote_addr, request.url)
     return create_error_response('Endpoint not found', 404)
 
 def method_not_allowed(error):
     """Handle method not allowed errors."""
-    logger.warning(f"Method not allowed for {request.remote_addr}: {request.method} {request.url}")
+    logger.warning("Method not allowed for %s: %s %s", request.remote_addr, request.method, request.url)
     return create_error_response('Method not allowed', 405)
 
 def handle_unexpected_error(error):
     """Handle any unexpected errors."""
-    logger.error(f"Unexpected error for {request.remote_addr}: {error!s}")
+    logger.error("Unexpected error for %s: %s", request.remote_addr, error)
     return create_error_response('An unexpected error occurred', 500)
 
 # Register error handlers directly
@@ -657,12 +662,13 @@ class Summarize(Resource):
     #     'compression_ratio': fields.Float(description='Compression ratio'),
     #     'processing_time': fields.Float(description='Processing time in seconds')
     # }))
+    @staticmethod
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
         """Summarize text using T5 model."""
         logger.info("📥 Summarization request received")
-        logger.info(f"T5_AVAILABLE: {T5_AVAILABLE}, t5_summarizer: {t5_summarizer is not None}")
+        logger.info("T5_AVAILABLE: %s, t5_summarizer: %s", T5_AVAILABLE, t5_summarizer is not None)
 
         if not T5_AVAILABLE or t5_summarizer is None:
             logger.error("T5 summarization service unavailable")
@@ -670,7 +676,7 @@ class Summarize(Resource):
 
         start_time = time.time()
         data = request.get_json()
-        logger.info(f"Request data: {data}")
+        logger.info("Request data: %s", data)
 
         if not data or 'text' not in data:
             api.abort(400, "Text field is required")
@@ -694,7 +700,7 @@ class Summarize(Resource):
             summary = t5_summarizer.generate_summary(
                 text, max_length=max_length, min_length=min_length
             )
-            logger.info(f"✅ T5 summarization completed: {summary[:100]}...")
+            logger.info("✅ T5 summarization completed: %s", summary[:100])
 
             original_length = len(text.split())
             summary_length = len(summary.split()) if summary else 0
@@ -710,7 +716,7 @@ class Summarize(Resource):
                 'compression_ratio': compression_ratio,
                 'processing_time': time.time() - start_time
             }
-            logger.info(f"📤 Summarization result: {result}")
+            logger.info("📤 Summarization result: %s", result)
             return result
 
         except Exception:
@@ -745,6 +751,7 @@ class Transcribe(Resource):
         'word_count': fields.Integer(description='Number of words'),
         'speaking_rate': fields.Float(description='Words per minute')
     }))
+    @staticmethod
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
@@ -765,16 +772,16 @@ class Transcribe(Resource):
         # Validate file type with logging
         allowed_extensions = {'mp3', 'wav', 'm4a', 'aac', 'ogg', 'flac'}
         if '.' not in audio_file.filename:
-            logger.warning(f"No extension in filename {audio_file.filename}, rejecting")
+            logger.warning("No extension in filename %s, rejecting", audio_file.filename)
             api.abort(400, "File must have a valid audio extension")
         ext = audio_file.filename.rsplit('.', 1)[1].lower()
         if ext not in allowed_extensions:
-            logger.warning(f"Unsupported extension {ext} in filename {audio_file.filename}, rejecting")
+            logger.warning("Unsupported extension %s in filename %s, rejecting", ext, audio_file.filename)
             api.abort(
                 400,
                 f"Unsupported file type: .{ext}. Allowed: {', '.join(allowed_extensions)}"
             )
-        logger.info(f"File validation passed for {audio_file.filename} (ext: {ext})")
+        logger.info("File validation passed for %s (ext: %s)", audio_file.filename, ext)
 
         # Check file size (max 45MB)
         audio_file.seek(0, 2)  # Seek to end
@@ -792,8 +799,8 @@ class Transcribe(Resource):
             if ext_candidate in allowed_extensions:
                 ext = ext_candidate
             else:
-                logger.warning(f"Extension '{ext_candidate}' in filename '{audio_file.filename}' not in allowed set {allowed_extensions}; defaulting to .wav")
-            logger.info(f"Using validated extension: .{ext} for temp file")
+                logger.warning("Extension '%s' in filename '%s' not in allowed set %s; defaulting to .wav", ext_candidate, audio_file.filename, allowed_extensions)
+            logger.info("Using validated extension: .%s for temp file", ext)
             with tempfile.NamedTemporaryFile(
                 delete=False, suffix=f'.{ext}'
             ) as temp_file:
@@ -853,8 +860,8 @@ class CompleteAnalysis(Resource):
             if ext_candidate_clean != ext:
                 logger.warning(f"Extension '{ext_candidate_clean}' in filename '{audio_file.filename}' not in allowed set; defaulting to .{ext}")
         else:
-            logger.warning(f"No extension in filename {audio_file.filename}, defaulting to .wav")
-        logger.info(f"Using validated extension: .{ext} for temp file in complete analysis")
+            logger.warning("No extension in filename %s, defaulting to .wav", audio_file.filename)
+        logger.info("Using validated extension: .%s for temp file in complete analysis", ext)
         with tempfile.NamedTemporaryFile(
             delete=False, suffix=f'.{ext}'
         ) as temp_file:
@@ -869,7 +876,7 @@ class CompleteAnalysis(Resource):
                 if hasattr(transcription_result, 'text')
                 else str(transcription_result)
             )
-            logger.info(f"✅ Transcription completed: {text_to_analyze[:100]}...")
+            logger.info("✅ Transcription completed: %s", text_to_analyze[:100])
             return {
                 'text': text_to_analyze,
                 'language': getattr(transcription_result, 'language', 'en'),
@@ -886,10 +893,10 @@ class CompleteAnalysis(Resource):
         try:
             raw_emotion = predict_emotions(text_to_analyze)
             emotion_result = normalize_emotion_results(raw_emotion)
-            logger.info(f"✅ Emotion analysis: {emotion_result['primary_emotion']} ({emotion_result['confidence']:.2f})")
+            logger.info("✅ Emotion analysis: %s (%.2f)", emotion_result['primary_emotion'], emotion_result['confidence'])
             return emotion_result
         except Exception as e:
-            logger.warning(f"Emotion analysis failed: {e}")
+            logger.warning("Emotion analysis failed: %s", e)
             return {
                 'emotions': {'neutral': 1.0},
                 'primary_emotion': 'neutral',
@@ -928,9 +935,9 @@ class CompleteAnalysis(Resource):
                     'compression_ratio': compression_ratio,
                     'emotional_tone': tone
                 }
-                logger.info(f"✅ Summarization completed: {compression_ratio:.2f} ratio")
+                logger.info("✅ Summarization completed: %.2f ratio", compression_ratio)
             except Exception as e:
-                logger.warning(f"Summarization failed: {e}")
+                logger.warning("Summarization failed: %s", e)
         return summary_result
 
     @api.doc('analyze_complete')
@@ -972,6 +979,7 @@ class CompleteAnalysis(Resource):
         'processing_time': fields.Float(),
         'pipeline_status': fields.Raw()
     }))
+    @staticmethod
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
@@ -1014,10 +1022,10 @@ def initialize_model() -> None:
     """Initialize the emotion detection model."""
     try:
         logger.info("🚀 Initializing emotion detection API server...")
-        logger.info(f"📊 Configuration: MAX_INPUT_LENGTH={MAX_INPUT_LENGTH}, RATE_LIMIT={RATE_LIMIT_PER_MINUTE}/min")
+        logger.info("📊 Configuration: MAX_INPUT_LENGTH=%s, RATE_LIMIT=%s/min", MAX_INPUT_LENGTH, RATE_LIMIT_PER_MINUTE)
         logger.info("🔐 Security: API key protection enabled, Admin API key configured")
-        logger.info(f"🌐 Server: Port {PORT}, Model path: {MODEL_PATH}")
-        logger.info(f"🔄 Rate limiting: {RATE_LIMIT_PER_MINUTE} requests per minute")
+        logger.info("🌐 Server: Port %s, Model path: %s", PORT, MODEL_PATH)
+        logger.info("🔄 Rate limiting: %s requests per minute", RATE_LIMIT_PER_MINUTE)
 
         # Load all models using consolidated function
         if os.environ.get("PRELOAD_MODELS", "1") == "1":
@@ -1049,7 +1057,7 @@ except Exception:
     MODELS_LOADED_AT_STARTUP = False
 
 if __name__ == '__main__':
-    logger.info(f"🌐 Starting Flask development server on port {PORT}")
+    logger.info("🌐 Starting Flask development server on port %s", PORT)
     app.run(host='0.0.0.0', port=PORT, debug=False)
 
 # Root endpoint is now registered BEFORE Flask-RESTX initialization to avoid conflicts

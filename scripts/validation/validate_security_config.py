@@ -246,12 +246,12 @@ def main():
     if validator.validate():
         validator.print_results()
         if validator.errors:
-            sys.exit(1)
+            raise ValueError("Security validation errors found")
         else:
             print("\n✅ Security configuration validation passed!")
     else:
         validator.print_results()
-        sys.exit(1)
+        raise ValueError("Security validation failed")
 
 if __name__ == "__main__":
     main()

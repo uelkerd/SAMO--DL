@@ -24,6 +24,7 @@ api.add_namespace(main_ns)
 # Test endpoint in namespace
 @main_ns.route('/health')
 class Health(Resource):
+    @staticmethod
     def get(self):
         return {'status': 'healthy'}
 
