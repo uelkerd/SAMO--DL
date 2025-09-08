@@ -3,7 +3,7 @@
 # Simple timeout function for macOS compatibility
 timeout() {
     local seconds=$1; shift
-    local cmd="$@"
+    local cmd="$*"
     
     {
         eval "$cmd" &
