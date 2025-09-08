@@ -10,6 +10,7 @@ Tests the secure model loading functionality including:
 """
 
 from pathlib import Path
+import os
 import tempfile
 import unittest
 

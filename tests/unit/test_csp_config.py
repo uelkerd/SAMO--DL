@@ -5,6 +5,7 @@
 Tests for Content Security Policy configuration and loading.
 """
 
+import os
 import sys
 import tempfile
 import yaml

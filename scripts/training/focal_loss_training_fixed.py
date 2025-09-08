@@ -165,7 +165,7 @@ def train_with_focal_loss(
         train_loss = 0.0
         num_batches = 0
 
-        for _batch_idx, batch in enumerate(train_loader):
+        for batch_idx, batch in enumerate(train_loader):
             input_ids = batch["input_ids"].to(device)
             attention_mask = batch["attention_mask"].to(device)
             labels = batch["labels"].float().to(device)
