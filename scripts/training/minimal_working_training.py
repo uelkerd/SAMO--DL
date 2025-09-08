@@ -1,29 +1,23 @@
-                # Backward pass
-                # Forward pass
-                # Log progress every 10 batches
-                # Save model
-            # Create mini-batches
-            # Log progress
-            # Save best model
-            # Training phase
-            # Validation phase
-        # Create focal loss
-        # Create model
-        # Create synthetic data
-        # Setup optimizer
-        # Training loop
-        from transformers import AutoModel, AutoTokenizer
-        import traceback
-    # Create random input data
-    # Setup device
-# Configure logging
 #!/usr/bin/env python3
-from torch import nn
+"""
+Minimal Working Training Script
+"""
+
 import logging
 import os
 import sys
 import torch
 import traceback
+from torch import nn
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+# Import after path setup
+from transformers import AutoModel, AutoTokenizer
 
 
 

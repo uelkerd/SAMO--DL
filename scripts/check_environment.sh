@@ -71,9 +71,9 @@ echo "• Python: $PYTHON_VER"
 echo "• PyTorch: $(python3 -c "import torch; print(torch.__version__)" 2>/dev/null || echo 'Not installed')"
 
 # Count project files without pipe subshell
-mapfile -t project_files < <(ls -1 src/models/emotion_detection/*.py 2>/dev/null 2>&1 || true)
+mapfile -t project_files < <(find src/models/emotion_detection -maxdepth 1 -name "*.py" 2>/dev/null || true)
 echo "• Project Files: ${#project_files[@]} core files"
 
 # Count scripts without pipe subshell
-mapfile -t script_files < <(ls -1 scripts/*.py 2>/dev/null 2>&1 || true)
+mapfile -t script_files < <(find scripts -maxdepth 1 -name "*.py" 2>/dev/null || true)
 echo "• Scripts: ${#script_files[@]} scripts"

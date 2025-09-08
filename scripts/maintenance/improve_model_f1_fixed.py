@@ -156,7 +156,7 @@ def train_fresh_model(epochs: int = 3, batch_size: int = 16) -> tuple[nn.Module,
     )
 
     logger.info("Training model for {epochs} epochs with batch_size={batch_size}")
-    trainer.train(datasets["train"], datasets["validation"])
+    trainer.train()
 
     metrics = trainer.evaluate(datasets["test"])
 
@@ -167,7 +167,7 @@ def train_fresh_model(epochs: int = 3, batch_size: int = 16) -> tuple[nn.Module,
     return model, metrics
 
 
-def improve_with_focal_loss(checkpoint_path: Optional[str] = None) -> bool:
+def improve_with_focal_loss(checkpoint_path: Optional[str] = None) -> tuple[nn.Module, dict]:
     """Improve model F1 score using Focal Loss."""
     try:
         logger.info("🎯 Improving model with Focal Loss...")
@@ -206,7 +206,7 @@ def improve_with_focal_loss(checkpoint_path: Optional[str] = None) -> bool:
         )
 
         logger.info("Fine-tuning with Focal Loss...")
-        trainer.train(datasets["train"], datasets["validation"])
+        trainer.train()
 
         metrics = trainer.evaluate(datasets["test"])
 
@@ -235,11 +235,12 @@ def improve_with_focal_loss(checkpoint_path: Optional[str] = None) -> bool:
         else:
             logger.info("📊 Current F1: {metrics['micro_f1']:.1%}, Target: 75%")
 
-        return True
+        return model, metrics
 
     except Exception:
         logger.error("❌ Error improving model with Focal Loss: {e}")
-        return False
+        # Return None values on error to match expected tuple unpacking
+        return None, {}
 
 
 def improve_with_full_training() -> bool:
@@ -293,7 +294,11 @@ def create_simple_ensemble(checkpoint_path: Optional[str] = None) -> bool:
         models.append((model2, metrics2))
 
         logger.info("Training ensemble model 3/3 (focal loss)...")
-        model3, _ = improve_with_focal_loss()
+        model3, metrics3 = improve_with_focal_loss()
+        if model3 is not None:
+            models.append((model3, metrics3))
+        else:
+            logger.warning("⚠️ Focal loss training failed, skipping from ensemble")
 
         best_model = max(models, key=lambda x: x[1].get("micro_f1", 0))
 

@@ -1,21 +1,23 @@
-        # Create a simple BERT classifier
-        # Create a simple classifier head
-        # Load a small subset for testing
-        # Test with a simple input
-        from datasets import load_dataset
-        from torch import nn
-        from transformers import AutoTokenizer, AutoModel
-    # Compute loss
-    # Create focal loss
-    # Create synthetic data
-    # Setup device
-# Configure logging
 #!/usr/bin/env python3
-from torch import nn
+"""
+Standalone Focal Loss Test
+"""
+
 import logging
 import sys
 import torch
 import torch.nn.functional as F
+from torch import nn
+
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+# Import after path setup
+from datasets import load_dataset
+from transformers import AutoTokenizer, AutoModel
 
 
 
