@@ -14,31 +14,25 @@ os.environ['PORT'] = '8080'
 try:
     from secure_api_server import app
     
-    for _rule in app.url_map.iter_rules():
-        pass
-    
     
     # Check if root endpoint exists
     root_routes = [rule for rule in app.url_map.iter_rules() if rule.rule == '/']
     if root_routes:
-        for _route in root_routes:
-            pass
+        pass
     else:
         pass
     
     # Check if health endpoint exists
     health_routes = [rule for rule in app.url_map.iter_rules() if '/health' in rule.rule]
     if health_routes:
-        for _route in health_routes:
-            pass
+        pass
     else:
         pass
     
     # Check if docs endpoint exists
     docs_routes = [rule for rule in app.url_map.iter_rules() if rule.rule == '/docs']
     if docs_routes:
-        for _route in docs_routes:
-            pass
+        pass
     else:
         pass
     

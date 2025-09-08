@@ -8,9 +8,9 @@ import json
 import pickle
 import torch
 from torch import nn
+from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 from datasets import load_dataset
-from torch.utils.data import Dataset, DataLoader
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, accuracy_score
 from sklearn.preprocessing import LabelEncoder

@@ -25,10 +25,6 @@ try:
     
     server_thread = threading.Thread(target=run_server, daemon=True)
     server_thread.start()
-    
-    # Wait for server to start with polling on health endpoint
-    import time
-    import requests
     base_url = "http://localhost:8081"
     max_attempts = 20
     attempt = 0

@@ -33,8 +33,6 @@ def api_root():  # Different function name to avoid conflict
     return jsonify({'message': 'Root endpoint'})
 
 if __name__ == '__main__':
-    for _rule in app.url_map.iter_rules():
-        pass
     
     
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5001)), debug=False)  # Debug mode disabled for security

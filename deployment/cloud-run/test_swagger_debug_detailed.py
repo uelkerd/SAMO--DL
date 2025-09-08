@@ -29,9 +29,6 @@ try:
     
     server_thread = threading.Thread(target=run_server, daemon=True)
     server_thread.start()
-    
-    # Wait for server to start with polling
-    import requests
     base_url = "http://localhost:8084"
     max_attempts = 30
     attempt = 0
@@ -63,11 +60,7 @@ try:
         
         
         if response.status_code == 500:
-            
-            # Try to get more info by checking if it's a Flask error page
-            if "Internal Server Error" in response.text:
-                pass
-                
+            pass
         elif response.status_code == 200:
             pass
             
