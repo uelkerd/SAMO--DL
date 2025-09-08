@@ -111,8 +111,6 @@ def test_batch_predictions() -> Optional[bool]:
             
             
             for _i, pred in enumerate(predictions, 1):
-                pred['predicted_emotion']
-                pred['confidence']
                 pred_text_preview = pred['text'][:30] + "..." if len(pred['text']) > 30 else pred['text']
             
             return True
@@ -163,7 +161,6 @@ def test_error_handling() -> bool:
         )
         if response.status_code == 400:
             pass
-            response  # Suppress unused variable warning
         else:
             return False
     except Exception:
@@ -178,7 +175,6 @@ def test_error_handling() -> bool:
         )
         if response.status_code == 400:
             pass
-            response  # Suppress unused variable warning
         else:
             return False
     except Exception:
@@ -193,7 +189,6 @@ def test_error_handling() -> bool:
         )
         if response.status_code == 400:
             pass
-            response  # Suppress unused variable warning
         else:
             return False
     except Exception:
@@ -239,8 +234,7 @@ def test_performance() -> bool:
         if avg_response_time < 1000:  # Less than 1 second
             return True
         return True
-    else:
-        return False
+    return False
 
 def main() -> int:
     """Run all tests."""

@@ -19,22 +19,22 @@ class EmotionDetectionModel:
         
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
         self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path)
-        
+
         # Move to GPU if available
         if torch.cuda.is_available():
             self.model = self.model.to('cuda')
         else:
             pass
-        
+
         self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
         
     def predict(self, text):
         """Make a prediction."""
         inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
-        
+
         if torch.cuda.is_available():
             inputs = {k: v.to('cuda') for k, v in inputs.items()}
-        
+
         # Get prediction
         with torch.no_grad():
             outputs = self.model(**inputs)
@@ -44,7 +44,7 @@ class EmotionDetectionModel:
             
             # Get all probabilities
             all_probs = probabilities[0].cpu().numpy()
-        
+
         # Get predicted emotion
         if predicted_label in self.model.config.id2label:
             predicted_emotion = self.model.config.id2label[predicted_label]
@@ -52,7 +52,7 @@ class EmotionDetectionModel:
             predicted_emotion = self.model.config.id2label[str(predicted_label)]
         else:
             predicted_emotion = f"unknown_{predicted_label}"
-        
+
         # Create response
         response = {
             'text': text,
@@ -69,7 +69,7 @@ class EmotionDetectionModel:
                 'average_confidence': '83.9%'
             }
         }
-        
+
         return response
 
 # Initialize model

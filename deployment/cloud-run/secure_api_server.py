@@ -784,8 +784,6 @@ class Transcribe(Resource):
             api.abort(400, f"File too large (max {MAX_AUDIO_FILE_SIZE_MB}MB)")
 
         try:
-            # Save uploaded file temporarily with validated extension
-            import os
             import tempfile
             allowed_extensions = {'mp3','wav','m4a','aac','ogg','flac'}
             # Select only from allowlisted extensions, ignoring user-provided value if not allowed.
@@ -844,7 +842,6 @@ class CompleteAnalysis(Resource):
     def _process_transcription(audio_file):
         """Process audio transcription if provided."""
         logger.info("🔄 Processing audio transcription...")
-        import os
         import tempfile
         allowed_extensions = {'mp3','wav','m4a','aac','ogg','flac'}
         # Extract extension safely using os.path.splitext
