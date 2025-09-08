@@ -33,14 +33,14 @@ async def complete_analysis(request: AnalysisRequest):
     try:
         if not request.text and not request.audio:
             raise HTTPException(status_code=400, detail="At least text or audio input required")
-        
+
         result = {
             "emotion": None,
             "summary": None,
             "transcription": None,
             "analysis_complete": True
         }
-        
+
         # Emotion detection
         if request.text:
             try:
@@ -48,7 +48,7 @@ async def complete_analysis(request: AnalysisRequest):
                 sanitized_text, warnings = InputSanitizer().sanitize_text(validated_text, "analysis")
                 if warnings:
                     logger.warning(f"Sanitization warnings: {warnings}")
-                
+
                 classifier = get_emotion_classifier()
                 emotion_results = classifier.predict_emotions([sanitized_text])
                 emotion_result = emotion_results["emotions"][0][0] if emotion_results["emotions"] else {"label": "neutral", "score": 0.0}
@@ -58,7 +58,7 @@ async def complete_analysis(request: AnalysisRequest):
                 logger.error(f"Emotion detection failed: {e}")
                 result["emotion"] = "error"
                 result["emotion_score"] = 0.0
-        
+
         # Summarization
         if request.text and len(request.text) > 50:  # Only summarize longer texts
             try:
@@ -68,7 +68,7 @@ async def complete_analysis(request: AnalysisRequest):
             except Exception as e:
                 logger.error(f"Summarization failed: {e}")
                 result["summary"] = "Summarization unavailable"
-        
+
         # Transcription
         if request.audio:
             try:
@@ -76,24 +76,24 @@ async def complete_analysis(request: AnalysisRequest):
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
                     temp_file.write(await request.audio.read())
                     temp_audio_path = temp_file.name
-                
+
                 transcriber_instance = get_transcriber()
                 transcription_result = transcriber_instance.transcribe(temp_audio_path)
                 result["transcription"] = transcription_result.text
                 result["transcription_confidence"] = transcription_result.confidence
-                
+
                 # Clean up temp file
                 os.unlink(temp_audio_path)
             except Exception as e:
                 logger.error(f"Transcription failed: {e}")
                 result["transcription"] = "Transcription unavailable"
                 result["transcription_confidence"] = 0.0
-        
+
         if not any([result["emotion"], result["summary"], result["transcription"]]):
             raise HTTPException(status_code=400, detail="No valid input provided for analysis")
-        
+
         return result
-        
+
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except HTTPException:
@@ -109,9 +109,9 @@ if __name__ == "__main__":
     import subprocess
     import tempfile
     import uvicorn
-    
+
     # Log Python binary architecture info at startup
-    result = subprocess.run(['file', '/usr/local/bin/python'], capture_output=True, text=True)
+    result = subprocess.run(['file', '/usr/local/bin/python'], capture_output=True, text=True, check=True)
     logger.info(f"Python binary info: {result.stdout}")
-    
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

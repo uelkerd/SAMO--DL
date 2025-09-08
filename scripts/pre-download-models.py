@@ -114,10 +114,9 @@ def main():
         print("💡 You can now copy models_cache to your Docker build context")
         print("   or mount it as a volume during build")
         raise ValueError("Download completed")
-    else:
-        print(f"⚠️  {success_count}/{len(models)} models downloaded successfully")
-        print("❌ Partial failure - exiting with error code")
-        raise ValueError("Partial failure")
+    print(f"⚠️  {success_count}/{len(models)} models downloaded successfully")
+    print("❌ Partial failure - exiting with error code")
+    raise ValueError("Partial failure")
 
     print(f"⏱️  Total download time: {total_duration:.1f}s")
     # Show cache size

@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Standalone Focal Loss Test
-"""
+"""Standalone Focal Loss Test"""
 
 import logging
 import sys
@@ -167,9 +165,8 @@ def main():
         logger.info("✅ All tests passed! Ready for full training.")
         logger.info("🚀 Next step: Create full training script with these components")
         return True
-    else:
-        logger.info("⚠️  Some tests failed. Check environment setup.")
-        return False
+    logger.info("⚠️  Some tests failed. Check environment setup.")
+    return False
 
 
 if __name__ == "__main__":

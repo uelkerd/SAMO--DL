@@ -77,10 +77,10 @@ SIMPLE_VOCAB = {
 
 def load_vocab() -> Dict[str, int]:
     """Load vocabulary from file or use simple fallback.
-    
+
     Attempts to load vocabulary from VOCAB_PATH environment variable.
     Falls back to a predefined simple vocabulary if file is not found or loading fails.
-    
+
     Returns:
         Dict[str, int]: Vocabulary mapping words to token IDs
     """
@@ -145,13 +145,13 @@ def preprocess_text(text: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
 def load_onnx_model() -> ort.InferenceSession:
     """Load ONNX model with optimized settings.
-    
+
     Creates an optimized ONNX Runtime session with graph optimizations enabled
     and single-threaded execution suitable for Cloud Run environment.
-    
+
     Returns:
         ort.InferenceSession: Configured ONNX Runtime inference session
-    
+
     Raises:
         Exception: If model loading fails due to file issues or ONNX runtime errors
     """
