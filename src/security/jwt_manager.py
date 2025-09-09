@@ -138,7 +138,8 @@ class JWTManager:
             )
             exp_timestamp = payload.get("exp")
             exp_datetime = (
-                datetime.fromtimestamp(exp_timestamp, tz=timezone.utc) if exp_timestamp else None
+                datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
+                if exp_timestamp else None
             )
             self.blacklisted_tokens[token] = exp_datetime
             return True
