@@ -12,16 +12,23 @@
             # Get GPU utilization if available
             # Get memory usage
             # In a real implementation, this would trigger the retraining pipeline
-            # Inference
-            # Load model
-            # Move to device
-            # Tokenize
-            import psutil
-        # Calculate degradation
-        # Calculate overall drift score
-        # Calculate trends
-        # Check each feature for drift
-        # Check if degradation exceeds threshold
+#!/usr/bin/env python3
+"""
+Model Monitoring Script
+
+This script monitors model performance and detects drift.
+"""
+
+# Inference
+# Load model
+# Move to device
+# Tokenize
+import psutil
+# Calculate degradation
+# Calculate overall drift score
+# Calculate trends
+# Check each feature for drift
+# Check if degradation exceeds threshold
         # Combined drift score
         # Extract metrics arrays
         # For now, return mock drift metrics
